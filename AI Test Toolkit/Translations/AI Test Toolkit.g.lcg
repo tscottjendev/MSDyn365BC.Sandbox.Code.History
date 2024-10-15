@@ -887,6 +887,42 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Ended at - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 3812009960 - Field 4038833013 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the application id from which the test suite was created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Imported by AppId - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3812009960 - Field 4038833013 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Imported from AppId]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Imported by AppId - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3812009960 - Field 1054702095 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the MD5 hash of the XML file from which the test suite was imported.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Imported XML's MD5 - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3812009960 - Field 1054702095 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Imported XML's MD5]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Imported XML's MD5 - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 3812009960 - Field 3904546728 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Specifies the dataset to be used by the test suite.]]></Val>
@@ -1202,6 +1238,33 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT AL Test Suite Mgt - Method DownloadTestOutputFromLogToFile - NamedType NoTestOutputFoundErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4125825345 - Method 3366867490 - NamedType 2601806246" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The test input dataset %1 with the same file name already exists. The dataset was uploaded %2. Please rename the current dataset or delete the existing dataset.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = test input dataset Name, %2 = "from the UI" or "by the app id: {app_id}]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT AL Test Suite Mgt - Method ImportTestInputs - NamedType SameDatasetNameErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4125825345 - Method 3366867490 - NamedType 2842513621" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[from the UI]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT AL Test Suite Mgt - Method ImportTestInputs - NamedType SourceOfTheDatasetIsUILbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4125825345 - Method 3366867490 - NamedType 770058613" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[by the app id: %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = app id]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT AL Test Suite Mgt - Method ImportTestInputs - NamedType SourceOfTheDatasetIsAppIdLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2238100111 - NamedType 3415193895" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Cannot install on an environment that is not a Sandbox or OnPrem.//Please contact your administrator.]]></Val>
@@ -1337,6 +1400,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Test Suite id.]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT CommandLine Card - NamedType CannotFindAITSuiteErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Page 3542303411 - Control 2008052175 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Inputs]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT CommandLine Card - Control DatasetGroup - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Page 3542303411 - Control 3904546728 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Specifies the input dataset to import for running the test suite.]]></Val>
@@ -1425,6 +1497,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT CommandLine Card - Control No. of Pending Tests - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3542303411 - Control 1937024816 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Suite Definition]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT CommandLine Card - Control SuiteDefinitionGroup - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3542303411 - Control 3247533813 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -3108,6 +3189,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=XmlPort AIT Test Suite Import/Export - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";XmlPort 3065248582 - XmlPortNode 3004954119 - Method 3093245866 - NamedType 3193960831" ItemType=";XmlPort - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The test suite %1 is already imported with a different XML by the same app. Please delete the test suite and import again.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Test Suite Code]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=XmlPort AIT Test Suite Import/Export - XmlPortNode Code - Method OnAfterAssignField - NamedType SameSuiteDifferentXMLErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";XmlPort 3065248582 - XmlPortNode 3004954119 - Method 3093245866 - NamedType 1512260591" ItemType=";XmlPort - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The test suite %1 is already imported by a different app. Please rename the test suite and import again.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Test Suite Code]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=XmlPort AIT Test Suite Import/Export - XmlPortNode Code - Method OnAfterAssignField - NamedType SameSuiteDifferentAppErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Enum 2239044410 - EnumValue 4069904181 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
