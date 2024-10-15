@@ -13,6 +13,7 @@ table 2020 "Image Analysis Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Period start date"; DateTime)

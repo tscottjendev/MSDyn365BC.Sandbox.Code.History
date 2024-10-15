@@ -1102,7 +1102,7 @@ codeunit 136135 "Service Order Management"
 
     local procedure CreateExtendedTextForItem(var ExtendedTextHeader: Record "Extended Text Header"; ItemNo: Code[20])
     begin
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
         ExtendedTextHeader.Validate("Starting Date", WorkDate());
         ExtendedTextHeader.Validate("All Language Codes", true);
         ExtendedTextHeader.Modify(true);
@@ -1112,7 +1112,7 @@ codeunit 136135 "Service Order Management"
     var
         ExtendedTextLine: Record "Extended Text Line";
     begin
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, Format(ExtendedTextLine."Table Name") + Format(ExtendedTextLine."Line No."));
         ExtendedTextLine.Modify(true);
         exit(ExtendedTextLine.Text);

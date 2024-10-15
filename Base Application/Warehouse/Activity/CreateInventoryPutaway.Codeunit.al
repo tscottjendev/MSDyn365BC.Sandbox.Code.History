@@ -1239,15 +1239,6 @@ codeunit 7321 "Create Inventory Put-away"
             NextLineNo := 10000;
     end;
 
-#if not CLEAN23
-    [Obsolete('WhseItemTrackingSetup is a global variable, so there is no need to pass it as an argument', '23.0')]
-    procedure FindReservationEntry(SourceType: Integer; DocType: Integer; DocNo: Code[20]; DocLineNo: Integer; NewWhseItemTrackingSetup: Record "Item Tracking Setup"): Boolean
-    begin
-        WhseItemTrackingSetup := NewWhseItemTrackingSetup;
-        FindReservationEntry(SourceType, DocType, DocNo, DocLineNo);
-    end;
-#endif
-
     local procedure FindReservationEntry(SourceType: Integer; DocType: Integer; DocNo: Code[20]; DocLineNo: Integer): Boolean
     var
         ReservationEntry: Record "Reservation Entry";
@@ -1276,15 +1267,6 @@ codeunit 7321 "Create Inventory Put-away"
         NewWarehouseActivityLine."Line No." := NextLineNo;
         InsertWhseActivLine(NewWarehouseActivityLine, 1);
     end;
-
-#if not CLEAN23
-    [Obsolete('WhseItemTrackingSetup is a global variable, so there is no need to pass it as an argument', '23.0')]
-    procedure InsertWhseActivLine(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; PutAwayQty: Decimal; NewWhseItemTrackingSetup: Record "Item Tracking Setup")
-    begin
-        WhseItemTrackingSetup := NewWhseItemTrackingSetup;
-        InsertWhseActivLine(NewWarehouseActivityLine, PutAwayQty);
-    end;
-#endif
 
     procedure InsertWhseActivLine(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; PutAwayQty: Decimal)
     var

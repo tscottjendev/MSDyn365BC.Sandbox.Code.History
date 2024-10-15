@@ -1,4 +1,8 @@
-﻿namespace Microsoft.FixedAssets.FixedAsset;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.FixedAssets.FixedAsset;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.FixedAssets.Depreciation;
@@ -434,17 +438,6 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = FixedAssets, BasicMX;
                     ToolTip = 'Specifies the type of permission provided by Secretaría de Comunicaciones y Transportes which must correspond to the type of motor transport used for the transfer of goods or merchandise.';
                 }
-#if not CLEAN23                
-                field("SCT Permission Number"; Rec."SCT Permission Number")
-                {
-                    ApplicationArea = FixedAssets, BasicMX;
-                    ToolTip = 'Specifies the permission number as defined by the Secretaría de Comunicaciones y Transportes that must correspond to the type of motor transport that is used for the transfer of goods or merchandise.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by field SCT Permission No.';
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("SCT Permission No."; Rec."SCT Permission No.")
                 {
                     ApplicationArea = FixedAssets, BasicMX;

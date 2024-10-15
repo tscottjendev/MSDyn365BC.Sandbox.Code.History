@@ -170,6 +170,18 @@ page 5162 "Sales Quote Archive"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
+                group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(WorkDescription; WorkDescription)
+                    {
+                        ApplicationArea = Suite;
+                        Importance = Additional;
+                        MultiLine = true;
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or service being offered.';
+                    }
+                }
             }
             part(SalesLinesArchive; "Sales Quote Archive Subform")
             {
@@ -348,6 +360,14 @@ page 5162 "Sales Quote Archive"
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name of the customer at the address that the items are shipped to.';
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Suite;
@@ -410,7 +430,7 @@ page 5162 "Sales Quote Archive"
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
+                    ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. Location code for individual lines can differ from it.';
                 }
                 field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
@@ -663,6 +683,7 @@ page 5162 "Sales Quote Archive"
         ClientTypeManagement: Codeunit "Client Type Management";
     begin
         SetControlAppearance();
+        WorkDescription := Rec.GetWorkDescription();
         if not (ClientTypeManagement.GetCurrentClientType() in [ClientType::SOAP, ClientType::OData, ClientType::ODataV4]) then
             CurrPage.IncomingDocAttachFactBox.Page.LoadDataFromRecord(Rec);
     end;
@@ -687,6 +708,7 @@ page 5162 "Sales Quote Archive"
         IsSellToCountyVisible: Boolean;
         IsBillToCountyVisible: Boolean;
         HasIncomingDocument: Boolean;
+        WorkDescription: Text;
 
     local procedure SetControlAppearance()
     begin
