@@ -20,6 +20,7 @@ table 7322 "Posted Whse. Shipment Header"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+            OptimizeForTextSearch = true;
         }
         field(2; "Location Code"; Code[10])
         {
@@ -100,6 +101,7 @@ table 7322 "Posted Whse. Shipment Header"
         field(48; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            OptimizeForTextSearch = true;
         }
     }
 

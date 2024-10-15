@@ -16,7 +16,6 @@ codeunit 134344 "Document Totals Pages"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
-        LibraryService: Codeunit "Library - Service";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -2104,8 +2103,8 @@ codeunit 134344 "Document Totals Pages"
         Item.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 20));
         Item.Modify(true);
 
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID());
         ExtendedTextLine.Modify(true);
     end;

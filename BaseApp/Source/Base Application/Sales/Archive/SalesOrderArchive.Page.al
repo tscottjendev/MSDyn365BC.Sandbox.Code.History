@@ -183,6 +183,18 @@ page 5159 "Sales Order Archive"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
+                group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(WorkDescription; WorkDescription)
+                    {
+                        ApplicationArea = Suite;
+                        Importance = Additional;
+                        MultiLine = true;
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or service being offered.';
+                    }
+                }
             }
             part(SalesLinesArchive; "Sales Order Archive Subform")
             {
@@ -356,6 +368,14 @@ page 5159 "Sales Order Archive"
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name of the customer at the address that the items are shipped to.';
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Suite;
@@ -413,7 +433,7 @@ page 5159 "Sales Order Archive"
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
+                    ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. Location code for individual lines can differ from it.';
                 }
                 field("Outbound Whse. Handling Time"; Rec."Outbound Whse. Handling Time")
                 {
@@ -704,6 +724,7 @@ page 5159 "Sales Order Archive"
         ClientTypeManagement: Codeunit "Client Type Management";
     begin
         SetControlAppearance();
+        WorkDescription := Rec.GetWorkDescription();
         if not (ClientTypeManagement.GetCurrentClientType() in [ClientType::SOAP, ClientType::OData, ClientType::ODataV4]) then
             CurrPage.IncomingDocAttachFactBox.Page.LoadDataFromRecord(Rec);
     end;
@@ -729,10 +750,10 @@ page 5159 "Sales Order Archive"
         IsShipToCountyVisible: Boolean;
         VATDateEnabled: Boolean;
         HasIncomingDocument: Boolean;
+        WorkDescription: Text;
 
     local procedure SetControlAppearance()
     begin
         HasIncomingDocument := Rec."Incoming Document Entry No." <> 0;
     end;
 }
-

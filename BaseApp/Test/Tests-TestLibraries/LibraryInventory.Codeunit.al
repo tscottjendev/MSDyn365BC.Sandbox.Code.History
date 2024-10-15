@@ -1003,6 +1003,40 @@ codeunit 132201 "Library - Inventory"
         PaymentMethod.Insert(true);
     end;
 
+    procedure CreateExtendedTextForItem(ItemNo: Code[20]): Text
+    var
+        ExtendedTextHeader: Record "Extended Text Header";
+        ExtendedTextLine: Record "Extended Text Line";
+    begin
+        CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
+        CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID());
+        ExtendedTextLine.Modify();
+        exit(ExtendedTextLine.Text);
+    end;
+
+    procedure CreateExtendedTextHeaderItem(var ExtendedTextHeader: Record "Extended Text Header"; ItemNo: Code[20])
+    begin
+        ExtendedTextHeader.Init();
+        ExtendedTextHeader.Validate("Table Name", ExtendedTextHeader."Table Name"::Item);
+        ExtendedTextHeader.Validate("No.", ItemNo);
+        ExtendedTextHeader.Insert(true);
+    end;
+
+    procedure CreateExtendedTextLineItem(var ExtendedTextLine: Record "Extended Text Line"; ExtendedTextHeader: Record "Extended Text Header")
+    var
+        RecRef: RecordRef;
+    begin
+        ExtendedTextLine.Init();
+        ExtendedTextLine.Validate("Table Name", ExtendedTextHeader."Table Name");
+        ExtendedTextLine.Validate("No.", ExtendedTextHeader."No.");
+        ExtendedTextLine.Validate("Language Code", ExtendedTextHeader."Language Code");
+        ExtendedTextLine.Validate("Text No.", ExtendedTextHeader."Text No.");
+        RecRef.GetTable(ExtendedTextLine);
+        ExtendedTextLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, ExtendedTextLine.FieldNo("Line No.")));
+        ExtendedTextLine.Insert(true);
+    end;
+
     procedure CopyItemAttributeToFilterItemAttributesBuffer(var TempFilterItemAttributesBuffer: Record "Filter Item Attributes Buffer" temporary; ItemAttributeValue: Record "Item Attribute Value")
     begin
         ItemAttributeValue.CalcFields("Attribute Name");

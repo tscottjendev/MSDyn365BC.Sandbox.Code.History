@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Foundation.Company;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Company;
 
 using Microsoft.Bank.Setup;
 using Microsoft.EServices.OnlineMap;
@@ -25,6 +29,7 @@ table 79 "Company Information"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; Name; Text[100])
@@ -692,32 +697,6 @@ table 79 "Company Information"
             exit('');
         exit(FieldCaption("VAT Registration No."));
     end;
-
-#if not CLEAN23
-    [Obsolete('The procedure is not used and will be obsoleted', '23.0')]
-    procedure GetLegalOffice(): Text
-    begin
-        exit('');
-    end;
-
-    [Obsolete('The procedure is not used and will be obsoleted', '23.0')]
-    procedure GetLegalOfficeLbl(): Text
-    begin
-        exit('');
-    end;
-
-    [Obsolete('The procedure is not used and will be obsoleted', '23.0')]
-    procedure GetCustomGiro(): Text
-    begin
-        exit('');
-    end;
-
-    [Obsolete('The procedure is not used and will be obsoleted', '23.0')]
-    procedure GetCustomGiroLbl(): Text
-    begin
-        exit('');
-    end;
-#endif
 
     procedure GetRecordOnce()
     begin

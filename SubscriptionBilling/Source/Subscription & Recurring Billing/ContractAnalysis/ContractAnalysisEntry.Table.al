@@ -296,6 +296,7 @@ table 8019 "Contract Analysis Entry"
         Rec.Partner := ServiceCommitment.Partner;
         Rec."Partner No." := ServiceCommitment.GetPartnerNoFromContract();
         Rec."Dimension Set ID" := ServiceCommitment."Dimension Set ID";
+        Rec."Usage Based Billing" := ServiceCommitment."Usage Based Billing";
     end;
 
     internal procedure CalculateMonthlyRecurringRevenue(ServiceCommitment: Record "Service Commitment")

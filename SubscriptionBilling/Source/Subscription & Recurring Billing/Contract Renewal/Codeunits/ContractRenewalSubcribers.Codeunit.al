@@ -247,14 +247,13 @@ codeunit 8001 "Contract Renewal Subcribers"
             IsHandled := true;
     end;
 
-#if not CLEAN25
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnBeforeFillInvoicePostingBuffer, '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales Post Invoice Events", 'OnBeforePrepareLine', '', false, false)]
     local procedure OnBeforeFillInvoicePostingBuffer(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
         if SalesLine.IsContractRenewal() then
             IsHandled := true;
     end;
-#endif
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnPostSalesLineOnBeforePostSalesLine, '', false, false)]
     local procedure OnPostSalesLineOnBeforePostSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; GenJnlLineDocType: Enum "Gen. Journal Document Type"; SrcCode: Code[10]; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean)
     begin
@@ -269,16 +268,15 @@ codeunit 8001 "Contract Renewal Subcribers"
             IsHandled := true;
     end;
 
-#if not CLEAN25
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnBeforeRunPostCustomerEntry, '', false, false)]
-    local procedure OnBeforeRunPostCustomerEntry(var SalesHeader: Record "Sales Header"; var TotalSalesLine2: Record "Sales Line"; var TotalSalesLineLCY2: Record "Sales Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Code[35]; SourceCode: Code[10]; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales Post Invoice Events", 'OnBeforePostLedgerEntry', '', false, false)]
+    local procedure OnBeforeRunPostCustomerEntry(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
         if not SalesHeader.Ship then
             exit;
         if SalesHeader.HasOnlyContractRenewalLines() then
             IsHandled := true;
     end;
-#endif
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Attachment Mgmt", OnBeforeDocAttachForPostedSalesDocs, '', false, false)]
     local procedure SkipDocumentAttachmentForContractRenewalLines(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
     begin

@@ -636,9 +636,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Inventory Report Entry" = RIMD,
                   tabledata "Inventory Report Header" = RIMD,
                   tabledata "Inventory Setup" = RIMD,
-#if not CLEAN23
-                  tabledata "Invoice Post. Buffer" = RIMD,
-#endif
                   tabledata "Invoice Posting Buffer" = RIMD,
                   tabledata "Invoiced Booking Item" = RIMD,
                   tabledata "Invt. Post to G/L Test Buffer" = RIMD,
@@ -822,11 +819,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Posted Docs. With No Inc. Buf." = RIMD,
                   tabledata "Posted Payment Recon. Hdr" = RIMD,
                   tabledata "Posted Payment Recon. Line" = RIMD,
-#if not CLEAN23
-                  tabledata "Power BI User Configuration" = RIMD,
-                  tabledata "Power BI Report Configuration" = RIMD,
-                  tabledata "Power BI User Status" = RIMD,
-#endif
                   tabledata "Power BI Chart Buffer" = RIMD,
                   tabledata "Power BI Context Settings" = RIMD,
                   tabledata "Power BI Customer Reports" = RIMD,

@@ -205,11 +205,7 @@ codeunit 30176 "Shpfy Product API"
         if Item.Picture.Count > 0 then
             if CreateImageUploadUrl(Item, Url, ResourceUrl, TenantMedia) then
                 if UploadImage(TenantMedia, Url) then
-#if not CLEAN23
-                    if not BulkOperationMgt.IsBulkOperationFeatureEnabled() or (RecordCount < BulkOperationMgt.GetBulkOperationThreshold()) then
-#else
                     if RecordCount <= BulkOperationMgt.GetBulkOperationThreshold() then
-#endif
                         exit(UpdateProductImage(Product, ResourceUrl))
                     else begin
                         IBulkOperation := BulkOperationType::UpdateProductImage;
@@ -368,6 +364,21 @@ codeunit 30176 "Shpfy Product API"
             end;
             GraphQLType := GraphQLType::GetNextProductImages;
         until not JsonHelper.GetValueAsBoolean(JResponse, 'data.products.pageInfo.hasNextPage');
+    end;
+
+    internal procedure CheckShopifyProductImageExists(ProductId: BigInteger; ImageId: BigInteger): Boolean
+    var
+        Parameters: Dictionary of [Text, Text];
+        GraphQLType: Enum "Shpfy GraphQL Type";
+        JMedias: JsonArray;
+        JResponse: JsonToken;
+    begin
+        Parameters.Add('ProductId', Format(ProductId));
+        Parameters.add('ImageId', Format(ImageId));
+        JResponse := CommunicationMgt.ExecuteGraphQL(GraphQLType::GetProductImage, Parameters);
+        if JsonHelper.GetJsonArray(JResponse, JMedias, 'data.product.media.edges') then
+            if JMedias.Count = 1 then
+                exit(true);
     end;
 
     /// <summary> 
