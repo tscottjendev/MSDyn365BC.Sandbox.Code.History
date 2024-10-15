@@ -22,7 +22,6 @@ codeunit 136309 "Job Posting"
         LibrarySales: Codeunit "Library - Sales";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryService: Codeunit "Library - Service";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -3102,7 +3101,7 @@ codeunit 136309 "Job Posting"
         Job.Get(JobTask."Job No.");
         CreateItemWithAutomaticExtText(Item);
         UpdateAllLanguagesCodeOnExtendedTextHeader(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, ExtendedTextHeader."No.");
         ExtendedTextLine.Modify(true);
         CreateAndUpdateJobPlanningLine(
@@ -3203,7 +3202,7 @@ codeunit 136309 "Job Posting"
 
     local procedure UpdateAllLanguagesCodeOnExtendedTextHeader(var ExtendedTextHeader: Record "Extended Text Header"; ItemNo: Code[20])
     begin
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
         ExtendedTextHeader.Validate("All Language Codes", true);
         ExtendedTextHeader.Modify(true);
     end;

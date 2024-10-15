@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.Journal;
 
 page 5609 "FA Journal Setup"
@@ -20,7 +24,6 @@ page 5609 "FA Journal Setup"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
-                    Visible = false;
                 }
                 field("User ID"; Rec."User ID")
                 {

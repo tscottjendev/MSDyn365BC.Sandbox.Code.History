@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Contract;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Contract;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.DirectDebit;
@@ -719,6 +723,7 @@ table 5970 "Filed Service Contract Header"
             repeat
                 FiledContractLine.Init();
                 FiledContractLine."Entry No." := FiledServiceContractHeader."Entry No.";
+                OnFileContractOnBeforeFiledContractLineTransferFields(ServiceContractLine);
                 FiledContractLine.TransferFields(ServiceContractLine);
                 RecordLinkManagement.CopyLinks(ServiceContractLine, FiledContractLine);
                 FiledContractLine.Insert();
@@ -834,6 +839,11 @@ table 5970 "Filed Service Contract Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnFileContractOnBeforeFiledServContractHeaderInsert(var ServiceContractHeader: Record "Service Contract Header"; var FiledServiceContractHeader: Record "Filed Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFileContractOnBeforeFiledContractLineTransferFields(var ServiceContractLine: Record "Service Contract Line")
     begin
     end;
 }

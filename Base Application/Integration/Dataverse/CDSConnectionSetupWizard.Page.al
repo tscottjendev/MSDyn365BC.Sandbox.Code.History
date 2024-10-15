@@ -246,6 +246,9 @@ page 7201 "CDS Connection Setup Wizard"
                                     Rec.SetPassword(CurrentCDSConnectionSetupPassword());
                                 NextActionEnabled := true;
 
+                                if BusinessEvents then
+                                    ShowDifferentTenantWarning := CDSEnvironment.CheckIfEnvironmentInDifferentTenant(Rec."Server Address", CDSEnvironment.GetGlobalDiscoverabilityOnBehalfTokenAsSecretText());
+
                                 CurrPage.Update(false);
                             end;
                         }
@@ -264,6 +267,22 @@ page 7201 "CDS Connection Setup Wizard"
                             Editable = false;
                             ShowCaption = false;
                             Style = Favorable;
+                        }
+                    }
+
+                    group(Control17)
+                    {
+                        Visible = HasAdminSignedIn and ShowDifferentTenantWarning;
+                        ShowCaption = false;
+
+                        field(DifferentTenantWarning; DifferentTenantWarningTxt)
+                        {
+                            ApplicationArea = Suite;
+                            Tooltip = 'Indicates that the environment URL is from a different than Business Central environment and virtual tables will not work.';
+                            Caption = 'The environment URL is from a different tenant.';
+                            Editable = false;
+                            ShowCaption = false;
+                            Style = Unfavorable;
                         }
                     }
 
@@ -895,6 +914,7 @@ page 7201 "CDS Connection Setup Wizard"
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
         TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        CDSEnvironment: Codeunit "CDS Environment";
         ClientTypeManagement: Codeunit "Client Type Management";
         CrmHelper: DotNet CrmHelper;
         Step: Option Info,Consent,Application,Admin,IntegrationUser,OwnershipModel,CoupleSalespersons,FullSynchReview,BusinessEvents,Finish;
@@ -917,7 +937,6 @@ page 7201 "CDS Connection Setup Wizard"
         InfoStepVisible: Boolean;
         AdminStepVisible: Boolean;
         CredentialsStepVisible: Boolean;
-        ImportSolutionStepVisible: Boolean;
         OwnershipModelStepVisible: Boolean;
         CoupleSalespersonsStepVisible: Boolean;
         FullSynchReviewStepVisible: Boolean;
@@ -934,6 +953,7 @@ page 7201 "CDS Connection Setup Wizard"
         VirtualTableAppInstalled: Boolean;
         ConsentVar: Boolean;
         ConsentStepVisible: Boolean;
+        ShowDifferentTenantWarning: Boolean;
         InitialSynchRecommendations: Dictionary of [Code[20], Integer];
         ScopesLbl: Label 'https://globaldisco.crm.dynamics.com/user_impersonation', Locked = true;
         OpenCoupleSalespeoplePageQst: Label 'The Person ownership model requires that you couple salespersons in Business Central with users in Dataverse before you synchronize data. Otherwise, synchronization will not be successful.\\ Do you want to want to couple salespersons and users now?';
@@ -967,12 +987,12 @@ page 7201 "CDS Connection Setup Wizard"
         VirtualTableAppNotInstalledErr: Label 'Business Central Virtual Table app is not installed.';
         VirtualTableAppInstallTxt: Label 'Install Business Central Virtual Table app';
         NoPermissionsErr: Label 'Your license does not allow you to set up the connection to Dataverse. To view details about your permissions, see the Effective Permissions page.';
+        DifferentTenantWarningTxt: Label 'Environment URL is from a different tenant. Virtual tables won''t work.';
 
     [NonDebuggable]
     [Scope('OnPrem')]
     local procedure GetCDSEnvironment()
     var
-        CDSEnvironment: Codeunit "CDS Environment";
         OAuth2: Codeunit OAuth2;
         Scopes: List of [Text];
         Token: Text;
@@ -1099,7 +1119,6 @@ page 7201 "CDS Connection Setup Wizard"
         AdminStepVisible := false;
         BusinessEventsStepVisible := false;
         CredentialsStepVisible := false;
-        ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := false;
         CoupleSalespersonsStepVisible := false;
         FullSynchReviewStepVisible := false;
@@ -1119,7 +1138,6 @@ page 7201 "CDS Connection Setup Wizard"
         AdminStepVisible := false;
         BusinessEventsStepVisible := false;
         CredentialsStepVisible := false;
-        ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := false;
         CoupleSalespersonsStepVisible := false;
         FullSynchReviewStepVisible := false;
@@ -1137,7 +1155,6 @@ page 7201 "CDS Connection Setup Wizard"
         AdminStepVisible := false;
         BusinessEventsStepVisible := false;
         CredentialsStepVisible := false;
-        ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := false;
         CoupleSalespersonsStepVisible := false;
         FullSynchReviewStepVisible := false;
@@ -1158,7 +1175,6 @@ page 7201 "CDS Connection Setup Wizard"
         AdminStepVisible := true;
         BusinessEventsStepVisible := false;
         CredentialsStepVisible := false;
-        ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := false;
         CoupleSalespersonsStepVisible := false;
         FullSynchReviewStepVisible := false;
@@ -1199,7 +1215,6 @@ page 7201 "CDS Connection Setup Wizard"
         AdminStepVisible := false;
         BusinessEventsStepVisible := false;
         CredentialsStepVisible := false;
-        ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := true;
         CoupleSalespersonsStepVisible := false;
         FullSynchReviewStepVisible := false;
@@ -1218,7 +1233,6 @@ page 7201 "CDS Connection Setup Wizard"
         AdminStepVisible := false;
         BusinessEventsStepVisible := false;
         CredentialsStepVisible := false;
-        ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := false;
         CoupleSalespersonsStepVisible := true;
         FullSynchReviewStepVisible := false;
@@ -1237,7 +1251,6 @@ page 7201 "CDS Connection Setup Wizard"
         AdminStepVisible := false;
         BusinessEventsStepVisible := false;
         CredentialsStepVisible := false;
-        ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := false;
         CoupleSalespersonsStepVisible := false;
         FullSynchReviewStepVisible := true;
@@ -1254,7 +1267,6 @@ page 7201 "CDS Connection Setup Wizard"
         AdminStepVisible := false;
         BusinessEventsStepVisible := true;
         CredentialsStepVisible := false;
-        ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := false;
         CoupleSalespersonsStepVisible := false;
         FullSynchReviewStepVisible := false;

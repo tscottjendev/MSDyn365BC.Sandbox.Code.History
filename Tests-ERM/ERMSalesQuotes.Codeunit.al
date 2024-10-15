@@ -20,7 +20,6 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryResource: Codeunit "Library - Resource";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTemplates: Codeunit "Library - Templates";
@@ -1923,8 +1922,8 @@ codeunit 134379 "ERM Sales Quotes"
     var
         ExtendedTextHeader: Record "Extended Text Header";
     begin
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         LibraryUtility.FillFieldMaxText(ExtendedTextLine, ExtendedTextLine.FieldNo(Text));
         ExtendedTextLine.Find();
     end;
