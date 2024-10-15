@@ -16,11 +16,11 @@ using Microsoft.Purchases.Analysis;
 using Microsoft.Purchases.Document;
 using Microsoft.Foundation.Task;
 using Microsoft.Purchases.History;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Purchases.Pricing;
 #endif
 using Microsoft.Purchases.Vendor;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.RoleCenters;
 #endif
 using Microsoft.Sales.Document;
@@ -334,7 +334,7 @@ page 9007 "Purchasing Agent Role Center"
             }
             action(SubcontractingWorksheets)
             {
-                ApplicationArea = Planning;
+                ApplicationArea = Manufacturing;
                 Caption = 'Subcontracting Worksheets';
                 RunObject = Page "Req. Wksh. Names";
                 RunPageView = where("Template Type" = const("For. Labor"),
@@ -475,7 +475,7 @@ page 9007 "Purchasing Agent Role Center"
                                     Recurring = const(false));
                 ToolTip = 'Calculate a supply plan to fulfill item demand with purchases or transfers.';
             }
-#if not CLEAN23
+#if not CLEAN25
             action("Pur&chase Prices")
             {
                 ApplicationArea = Basic, Suite;

@@ -239,6 +239,15 @@ page 130 "Posted Sales Shipment"
                     Editable = false;
                     ToolTip = 'Specifies the name of the customer that you delivered the items to.';
                 }
+                field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Name 2';
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies an additional part of the the name of the customer that you delivered the items to.';
+                    Visible = false;
+                }
                 field("Ship-to Address"; Rec."Ship-to Address")
                 {
                     ApplicationArea = Basic, Suite;
@@ -502,17 +511,6 @@ page 130 "Posted Sales Shipment"
                     ToolTip = 'Specifies the SAT address that the goods or merchandise are moved to.';
                     BlankZero = true;
                 }
-#if not CLEAN23                
-                field("Transit-to Location"; Rec."Transit-to Location")
-                {
-                    ApplicationArea = BasicMX;
-                    ToolTip = 'Specifies the location that the goods or merchandise are moved to.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with SAT Address ID.';
-                    ObsoleteTag = '23.0';
-                }
-#endif                
                 field("Transport Operators"; Rec."Transport Operators")
                 {
                     ApplicationArea = BasicMX;

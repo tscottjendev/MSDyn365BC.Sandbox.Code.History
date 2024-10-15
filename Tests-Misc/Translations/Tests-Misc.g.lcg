@@ -2626,11 +2626,11 @@
   </Item>
   <Item ItemId=";Codeunit 2785749549 - NamedType 2456682063" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The selected file has no content. Please choose another file.]]></Val>
+      <Val><![CDATA[The selected file '%1' has no content. Please choose another file.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType NoContentErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1=FileName]D;]A;(LookupHint=Codeunit Document Attachment Tests - NamedType NoContentErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2785749549 - NamedType 1753349657" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3299,6 +3299,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Import Item Pictures Test - NamedType CannotCreateZIPErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 761554929 - NamedType 799399287" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incoming Document must be found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Inc Doc Attachment Overview UT - NamedType IncomingDocMustBeFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 761554929 - NamedType 2910522905" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Remove Incoming Document action must be Disable]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Inc Doc Attachment Overview UT - NamedType RemoveIncoDocIsEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 761554929 - NamedType 2979181423" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Supporting Attachments]]></Val>
@@ -3306,6 +3324,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Inc Doc Attachment Overview UT - NamedType SupportingAttachmentsTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 761554929 - NamedType 871351867" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[View Incoming Document action is not enabled]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Inc Doc Attachment Overview UT - NamedType ViewIncoDocIsNotEnabledErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4245486081 - NamedType 614457637" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5423,15 +5450,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Partner Integration Event - NamedType OnBeforeManualReopenSalesDocTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2821958246 - NamedType 1812178945" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[OnBeforePostBalancingEntry]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Partner Integration Event - NamedType OnBeforePostBalancingEntryTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2821958246 - NamedType 2937074358" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[OnBeforePostCommitPurchaseDoc]]></Val>
@@ -5450,15 +5468,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Partner Integration Event - NamedType OnBeforePostCommitSalesDocTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2821958246 - NamedType 1759366540" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[OnBeforePostCustomerEntry]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Partner Integration Event - NamedType OnBeforePostCustomerEntryTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2821958246 - NamedType 2507931510" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[OnBeforePostGenJnlLine]]></Val>
@@ -5466,15 +5475,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Partner Integration Event - NamedType OnBeforePostGenJnlLineTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2821958246 - NamedType 3612526899" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[OnBeforePostInvPostBuffer]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Partner Integration Event - NamedType OnBeforePostInvPostBufferTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2821958246 - NamedType 2110082453" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5502,15 +5502,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Partner Integration Event - NamedType OnBeforePostSalesDocTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2821958246 - NamedType 3955974948" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[OnBeforePostVendorEntry]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Partner Integration Event - NamedType OnBeforePostVendorEntryTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2821958246 - NamedType 3819232009" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5709,6 +5700,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Partner Integration Event - NamedType OnBeforeUpdateUnitPriceTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2821958246 - NamedType 3320303416" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[OnPostBalancingEntryOnBeforeGenJnlPostLine]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Partner Integration Event - NamedType OnPostBalancingEntryOnBeforeGenJnlPostLineTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2821958246 - NamedType 1567220150" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[OnPostLedgerEntryOnBeforeGenJnlPostLine]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Partner Integration Event - NamedType OnPostLedgerEntryOnBeforeGenJnlPostLineTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2821958246 - NamedType 1743931442" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[OnPostLinesOnBeforeGenJnlLinePost]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Partner Integration Event - NamedType OnPostLinesOnBeforeGenJnlLinePostTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2821958246 - NamedType 1986241846" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

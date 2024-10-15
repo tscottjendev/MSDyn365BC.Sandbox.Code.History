@@ -1654,12 +1654,12 @@ codeunit 136114 "Service Order Check"
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
     begin
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
         ExtendedTextHeader.Validate("Starting Date", WorkDate());
         ExtendedTextHeader.Validate("All Language Codes", true);
         ExtendedTextHeader.Modify(true);
 
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, LibraryUtility.GenerateRandomCode(ExtendedTextLine.FieldNo(Text), DATABASE::"Extended Text Line"));
         ExtendedTextLine.Modify(true);
         exit(ExtendedTextLine.Text);

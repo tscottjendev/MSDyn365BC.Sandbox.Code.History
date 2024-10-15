@@ -632,27 +632,6 @@ table 10121 "Bank Rec. Line"
         exit("Currency Code" <> '');
     end;
 
-#if not CLEAN23
-    [Obsolete('Deprecated in favor of W1 Bank Reconciliation', '23.0')]
-    procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
-    var
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-    begin
-        TableID[1] := Type1;
-        No[1] := No1;
-        TableID[2] := Type2;
-        No[2] := No2;
-        TableID[3] := Type3;
-        No[3] := No3;
-        TableID[4] := Type4;
-        No[4] := No4;
-        TableID[5] := Type5;
-        No[5] := No5;
-        ClearAndAssignDefaultDimSetID(TableID, No);
-    end;
-#endif
-
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         IsHandled: Boolean;
@@ -670,30 +649,6 @@ table 10121 "Bank Rec. Line"
 
         OnAfterCreateDim(Rec, DefaultDimSource);
     end;
-
-#if not CLEAN23
-    local procedure ClearAndAssignDefaultDimSetID(var TableID: array[10] of Integer; var No: array[10] of Code[20])
-    var
-        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
-    begin
-        if TableID[1] > 0 then
-            DimMgt.AddDimSource(DefaultDimSource, TableID[1], No[1]);
-        if TableID[2] > 0 then
-            DimMgt.AddDimSource(DefaultDimSource, TableID[2], No[2]);
-        if TableID[3] > 0 then
-            DimMgt.AddDimSource(DefaultDimSource, TableID[3], No[3]);
-        if TableID[4] > 0 then
-            DimMgt.AddDimSource(DefaultDimSource, TableID[4], No[4]);
-        if TableID[5] > 0 then
-            DimMgt.AddDimSource(DefaultDimSource, TableID[5], No[5]);
-
-        "Shortcut Dimension 1 Code" := '';
-        "Shortcut Dimension 2 Code" := '';
-        "Dimension Set ID" :=
-          DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
-    end;
-#endif
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin

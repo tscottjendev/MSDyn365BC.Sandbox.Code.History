@@ -41,16 +41,8 @@ page 700 "Error Messages"
                     Caption = 'Context';
                     ToolTip = 'Specifies the context record.';
                     trigger OnDrillDown()
-#if not CLEAN23
-                    var
-                        IsHandled: Boolean;
-#endif
                     begin
-#if not CLEAN23
-                        OnDrillDownSource(Rec, Rec.FieldNo("Context Record ID"), IsHandled);
-                        if not IsHandled then
-#endif
-                            Rec.HandleDrillDown(Rec.FieldNo("Context Record ID"));
+                        Rec.HandleDrillDown(Rec.FieldNo("Context Record ID"));
                     end;
                 }
                 field("Context Field Name"; Rec."Context Field Name")
@@ -67,16 +59,8 @@ page 700 "Error Messages"
                     ToolTip = 'Specifies the record source of the error.';
 
                     trigger OnDrillDown()
-#if not CLEAN23
-                    var
-                        IsHandled: Boolean;
-#endif
                     begin
-#if not CLEAN23
-                        OnDrillDownSource(Rec, Rec.FieldNo("Record ID"), IsHandled);
-                        if not IsHandled then
-#endif
-                            Rec.HandleDrillDown(Rec.FieldNo("Record ID"));
+                        Rec.HandleDrillDown(Rec.FieldNo("Record ID"));
                     end;
                 }
                 field("Field Name"; Rec."Field Name")
@@ -198,14 +182,6 @@ page 700 "Error Messages"
         RecID := Rec."Record ID";
         EnableOpenRelatedEntity := RecID.TableNo <> 0;
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced with the event OnDrillDownSource in Table 700 "Error Message"', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnDrillDownSource(ErrorMessage: Record "Error Message"; SourceFieldNo: Integer; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenRelatedRecord(ErrorMessage: Record "Error Message"; var IsHandled: Boolean)

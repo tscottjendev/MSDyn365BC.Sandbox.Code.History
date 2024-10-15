@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Location;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Location;
 
 using Microsoft.Assembly.Document;
 using Microsoft.EServices.OnlineMap;
@@ -785,52 +789,32 @@ table 14 Location
             Caption = 'SAT State Code';
             TableRelation = "SAT State";
             ObsoleteReason = 'Replaced with SAT Address table.';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif            
         }
         field(27027; "SAT Municipality Code"; Code[10])
         {
             Caption = 'SAT Municipality Code';
             TableRelation = "SAT Municipality" where(State = field("SAT State Code"));
             ObsoleteReason = 'Replaced with SAT Address table.';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif            
         }
         field(27028; "SAT Locality Code"; Code[10])
         {
             Caption = 'SAT Locality Code';
             TableRelation = "SAT Locality" where(State = field("SAT State Code"));
             ObsoleteReason = 'Replaced with SAT Address table.';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif            
         }
         field(27029; "SAT Suburb ID"; Integer)
         {
             Caption = 'SAT Suburb ID';
             TableRelation = "SAT Suburb";
             ObsoleteReason = 'Replaced with SAT Address table.';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif            
         }
         field(27030; "ID Ubicacion"; Integer)
         {

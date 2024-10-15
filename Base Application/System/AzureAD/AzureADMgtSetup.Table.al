@@ -11,6 +11,7 @@ table 6303 "Azure AD Mgt. Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Auth Flow Codeunit ID"; Integer)

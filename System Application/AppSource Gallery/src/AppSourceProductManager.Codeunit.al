@@ -96,12 +96,16 @@ codeunit 2515 "AppSource Product Manager"
     /// <returns>True if the product can be installed, otherwise false</returns>
     internal procedure CanInstallProductWithPlans(Plans: JsonArray): Boolean
     var
+        AzureADUserManagement: Codeunit "Azure AD User Management";
         PlanToken: JsonToken;
         PlanObject: JsonObject;
         PricingTypesToken: JsonToken;
         PricingTypes: JsonArray;
         PricingType: JsonToken;
     begin
+        if AzureADUserManagement.IsUserDelegated(Database.UserSecurityId()) then
+            exit(true); // Delegated admins are always allowed to install.
+
         foreach PlanToken in Plans do begin
             PlanObject := PlanToken.AsObject();
 
@@ -154,7 +158,7 @@ codeunit 2515 "AppSource Product Manager"
     begin
         AppSourceProductManagerDependencies.GetUserSettings(Database.UserSecurityID(), TempUserSettings);
         LanguageID := TempUserSettings."Language ID";
-        if (LanguageID = 0) then
+        if ((LanguageID = 0) and AppSourceProductManagerDependencies.IsSaas()) then
             LanguageID := Language.GetLanguageIdFromCultureName(AppSourceProductManagerDependencies.GetPreferredLanguage());
         if (LanguageID = 0) then
             LanguageID := 1033; // Default to EN-US
@@ -168,12 +172,13 @@ codeunit 2515 "AppSource Product Manager"
     begin
         AppSourceProductManagerDependencies.GetUserSettings(Database.UserSecurityID(), TempUserSettings);
         LanguageID := TempUserSettings."Language ID";
-        if (LanguageID = 0) then
+        if ((LanguageID = 0) and AppSourceProductManagerDependencies.IsSaas()) then
             LanguageID := Language.GetLanguageIdFromCultureName(AppSourceProductManagerDependencies.GetPreferredLanguage());
         if (LanguageID = 0) then
             LanguageID := 1033; // Default to EN-US
 
-        LocaleID := AppSourceProductManagerDependencies.GetCountryLetterCode();
+        if (AppSourceProductManagerDependencies.IsSaas()) then
+            LocaleID := AppSourceProductManagerDependencies.GetCountryLetterCode();
     end;
 
     /// <summary>
