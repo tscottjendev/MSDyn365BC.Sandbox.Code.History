@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.FixedAsset;
 
 using Microsoft.Finance.Dimension;
@@ -360,7 +364,7 @@ page 5601 "Fixed Asset List"
                 Caption = 'Analyze Fixed Assets';
                 Image = NonStockItem;
                 RunObject = Query "Fixed Assets Analysis";
-                ToolTip = 'Analyze (group, summarize, pivot) your Fixed Asset Ledger Entries with related Fixed Asset master data such as Fixed Asset, Asset Class/Subclass, and XXX.';
+                ToolTip = 'Analyze (group, summarize, pivot) your Fixed Asset Ledger Entries with related Fixed Asset master data such as Fixed Asset, Asset Class/Subclass, and Posting Date.';
             }
             action("Fixed Assets List")
             {

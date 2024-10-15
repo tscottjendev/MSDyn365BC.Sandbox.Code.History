@@ -14,6 +14,7 @@ table 9053 "Sales Cue"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Sales Quotes - Open"; Integer)

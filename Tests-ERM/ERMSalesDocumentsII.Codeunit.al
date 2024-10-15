@@ -25,7 +25,6 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        LibraryService: Codeunit "Library - Service";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryResource: Codeunit "Library - Resource";
@@ -4816,8 +4815,8 @@ codeunit 134386 "ERM Sales Documents II"
         Item.Validate("Automatic Ext. Texts", true);
         Item.Modify(true);
 
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         UpdateTextInExtendedTextLine(ExtendedTextLine, Item."No.");
         exit(ExtendedTextLine.Text);
     end;

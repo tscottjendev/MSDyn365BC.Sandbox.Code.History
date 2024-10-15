@@ -10,7 +10,7 @@ table 10724 "History of Equivalences COA"
 {
     Caption = 'History of Equivalences COA';
     ObsoleteReason = 'Obsolete feature';
-#if CLEAN28
+#if CLEAN25
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
 #else

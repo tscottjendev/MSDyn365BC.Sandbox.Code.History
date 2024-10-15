@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
 using Microsoft.Bank.BankAccount;
@@ -214,6 +218,7 @@ table 5900 "Service Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -326,22 +331,27 @@ table 5900 "Service Header"
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
+            OptimizeForTextSearch = true;
         }
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            OptimizeForTextSearch = true;
         }
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
+            OptimizeForTextSearch = true;
         }
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
+            OptimizeForTextSearch = true;
         }
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Bill-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Bill-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Bill-to Country/Region Code"));
@@ -366,10 +376,12 @@ table 5900 "Service Header"
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
+            OptimizeForTextSearch = true;
         }
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+            OptimizeForTextSearch = true;
         }
         field(12; "Ship-to Code"; Code[10])
         {
@@ -468,22 +480,27 @@ table 5900 "Service Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
+            OptimizeForTextSearch = true;
         }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
+            OptimizeForTextSearch = true;
         }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
+            OptimizeForTextSearch = true;
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
+            OptimizeForTextSearch = true;
         }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Ship-to Country/Region Code"));
@@ -508,6 +525,7 @@ table 5900 "Service Header"
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
+            OptimizeForTextSearch = true;
         }
         field(19; "Order Date"; Date)
         {
@@ -604,6 +622,7 @@ table 5900 "Service Header"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
+            OptimizeForTextSearch = true;
         }
         field(23; "Payment Terms Code"; Code[10])
         {
@@ -912,6 +931,7 @@ table 5900 "Service Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
+            OptimizeForTextSearch = true;
             TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Salesperson Code"; Code[20])
@@ -1059,6 +1079,7 @@ table 5900 "Service Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
+            OptimizeForTextSearch = true;
         }
         field(73; "Reason Code"; Code[10])
         {
@@ -1113,14 +1134,17 @@ table 5900 "Service Header"
         field(79; Name; Text[100])
         {
             Caption = 'Name';
+            OptimizeForTextSearch = true;
         }
         field(80; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
+            OptimizeForTextSearch = true;
         }
         field(81; Address; Text[100])
         {
             Caption = 'Address';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1130,6 +1154,7 @@ table 5900 "Service Header"
         field(82; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1139,6 +1164,7 @@ table 5900 "Service Header"
         field(83; City; Text[30])
         {
             Caption = 'City';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Country/Region Code" = const('')) "Post Code".City
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
@@ -1163,6 +1189,7 @@ table 5900 "Service Header"
         field(84; "Contact Name"; Text[100])
         {
             Caption = 'Contact Name';
+            OptimizeForTextSearch = true;
         }
         field(85; "Bill-to Post Code"; Code[20])
         {
@@ -1192,6 +1219,7 @@ table 5900 "Service Header"
         {
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
+            OptimizeForTextSearch = true;
         }
         field(87; "Bill-to Country/Region Code"; Code[10])
         {
@@ -1234,6 +1262,7 @@ table 5900 "Service Header"
         {
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1284,6 +1313,7 @@ table 5900 "Service Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
+            OptimizeForTextSearch = true;
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
@@ -1323,6 +1353,7 @@ table 5900 "Service Header"
         field(100; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -1997,6 +2028,7 @@ table 5900 "Service Header"
         field(5902; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
         }
         field(5904; "Service Order Type"; Code[10])
         {
@@ -2055,6 +2087,7 @@ table 5900 "Service Header"
         field(5915; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
@@ -2065,6 +2098,7 @@ table 5900 "Service Header"
         field(5916; "E-Mail"; Text[80])
         {
             Caption = 'Email';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
@@ -2078,6 +2112,7 @@ table 5900 "Service Header"
         field(5917; "Phone No. 2"; Text[30])
         {
             Caption = 'Phone No. 2';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
@@ -2088,6 +2123,7 @@ table 5900 "Service Header"
         field(5918; "Fax No."; Text[30])
         {
             Caption = 'Fax No.';
+            OptimizeForTextSearch = true;
         }
         field(5921; "No. of Unallocated Items"; Integer)
         {
@@ -2505,10 +2541,12 @@ table 5900 "Service Header"
         field(5955; "Ship-to Fax No."; Text[30])
         {
             Caption = 'Ship-to Fax No.';
+            OptimizeForTextSearch = true;
         }
         field(5956; "Ship-to E-Mail"; Text[80])
         {
             Caption = 'Ship-to Email';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
@@ -2527,11 +2565,13 @@ table 5900 "Service Header"
         field(5958; "Ship-to Phone"; Text[30])
         {
             Caption = 'Ship-to Phone';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
         }
         field(5959; "Ship-to Phone 2"; Text[30])
         {
             Caption = 'Ship-to Phone 2';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
         }
         field(5966; "Service Zone Filter"; Code[10])
@@ -2676,6 +2716,7 @@ table 5900 "Service Header"
         field(10710; "Operation Description"; Text[250])
         {
             Caption = 'Operation Description';
+            OptimizeForTextSearch = true;
         }
         field(10711; "Correction Type"; Option)
         {
@@ -2693,14 +2734,17 @@ table 5900 "Service Header"
         field(10712; "Operation Description 2"; Text[250])
         {
             Caption = 'Operation Description 2';
+            OptimizeForTextSearch = true;
         }
         field(10720; "Succeeded Company Name"; Text[250])
         {
             Caption = 'Succeeded Company Name';
+            OptimizeForTextSearch = true;
         }
         field(10721; "Succeeded VAT Registration No."; Text[20])
         {
             Caption = 'Succeeded VAT Registration No.';
+            OptimizeForTextSearch = true;
         }
         field(10722; "ID Type"; Option)
         {
@@ -3439,8 +3483,14 @@ table 5900 "Service Header"
     local procedure ConfirmCurrencyFactorUpdate()
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        Confirmed: Boolean;
     begin
-        if ConfirmManagement.GetResponseOrDefault(Text015, true) then
+        if HideValidationDialog then
+            Confirmed := true
+        else
+            Confirmed := ConfirmManagement.GetResponseOrDefault(Text015, true);
+
+        if Confirmed then
             Validate("Currency Factor")
         else
             "Currency Factor" := xRec."Currency Factor";
@@ -3555,7 +3605,7 @@ table 5900 "Service Header"
                                 ServLine.Modify(true);
                             end;
                         else
-                            OnUpdateServLineByChangedFieldName(Rec, ServLine, Field."Field Caption");
+                            OnUpdateServLineByChangedFieldName(Rec, ServLine, Field."Field Caption", ChangedFieldNo);
                     end;
                 until ServLine.Next() = 0;
         end;
@@ -3910,6 +3960,7 @@ table 5900 "Service Header"
                 "Contact No." := Cont."No.";
                 "Contact Name" := Cont.Name;
                 "Phone No." := Cont."Phone No.";
+                "Fax No." := Cont."Fax No.";
                 "E-Mail" := Cont."E-Mail";
             end else begin
                 if Cust."Primary Contact No." <> '' then
@@ -3970,6 +4021,7 @@ table 5900 "Service Header"
             "E-Mail" := Cont."E-Mail";
         end else begin
             "Phone No." := '';
+            "Fax No." := '';
             "E-Mail" := '';
             "Contact Name" := '';
             exit;
@@ -5716,7 +5768,7 @@ table 5900 "Service Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateServLineByChangedFieldName(ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ChangedFieldName: Text[100])
+    local procedure OnUpdateServLineByChangedFieldName(ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ChangedFieldName: Text[100]; ChangedFieldNo: Integer)
     begin
     end;
 

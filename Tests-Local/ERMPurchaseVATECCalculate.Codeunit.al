@@ -72,11 +72,11 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
-#if not CLEAN23
+#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
 #endif
         LibraryRandom: Codeunit "Library - Random";
-#if CLEAN23
+#if CLEAN25
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
 #endif
         ValueMustBeSameMsg: Label 'Value must be same.';
@@ -720,7 +720,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         ItemNo :=
           CreateItemWithPurchasePrice(
             PurchasePrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VendorNo);
-#if not CLEAN23
+#if not CLEAN25
         CopyPurchPrices();
 #endif
 
@@ -769,7 +769,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         ItemNo :=
           CreateItemWithPurchasePrice(
             PurchasePrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VendorNo);
-#if not CLEAN23
+#if not CLEAN25
         CopyPurchPrices();
 #endif
 
@@ -970,7 +970,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     local procedure CreateItemWithPurchasePrice(UnitCost: Decimal; GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; VendorNo: Code[20]): Code[20]
     var
         Item: Record Item;
-#if not CLEAN23
+#if not CLEAN25
         PurchasePrice: Record "Purchase Price";
 #else
         PriceListLine: Record "Price List Line";
@@ -980,7 +980,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         Item.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         Item.Modify(true);
-#if not CLEAN23
+#if not CLEAN25
         LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorNo, Item."No.", WorkDate(), '', '', Item."Base Unit of Measure", 0);
         PurchasePrice.Validate("Direct Unit Cost", UnitCost);
         PurchasePrice.Modify(true);
@@ -996,7 +996,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         exit(Item."No.");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CopyPurchPrices()
     var
         PurchasePrice: record "Purchase Price";

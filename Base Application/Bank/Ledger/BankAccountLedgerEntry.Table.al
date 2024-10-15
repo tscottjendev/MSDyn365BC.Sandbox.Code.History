@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Ledger;
 
 using Microsoft.Bank.BankAccount;
@@ -31,6 +35,7 @@ table 271 "Bank Account Ledger Entry"
         field(3; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
+            OptimizeForTextSearch = true;
             TableRelation = "Bank Account";
         }
         field(4; "Posting Date"; Date)
@@ -44,10 +49,12 @@ table 271 "Bank Account Ledger Entry"
         field(6; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            OptimizeForTextSearch = true;
         }
         field(7; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
         }
         field(11; "Currency Code"; Code[10])
         {
@@ -166,6 +173,7 @@ table 271 "Bank Account Ledger Entry"
         field(56; "Statement No."; Code[20])
         {
             Caption = 'Statement No.';
+            OptimizeForTextSearch = true;
             TableRelation = "Bank Acc. Reconciliation Line"."Statement No." where("Bank Account No." = field("Bank Account No."));
         }
         field(57; "Statement Line No."; Integer)
@@ -208,6 +216,7 @@ table 271 "Bank Account Ledger Entry"
         field(63; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            OptimizeForTextSearch = true;
         }
         field(64; Reversed; Boolean)
         {

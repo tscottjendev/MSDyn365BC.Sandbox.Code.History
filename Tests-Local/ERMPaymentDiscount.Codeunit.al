@@ -66,7 +66,7 @@ codeunit 144076 "ERM Payment Discount"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
-#if CLEAN23
+#if CLEAN25
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
 #endif
         AmountMustMatchMsg: Label 'Amount must match.';
@@ -848,7 +848,7 @@ codeunit 144076 "ERM Payment Discount"
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreatePurchaseLineDiscount(Item: Record Item; VendorNo: Code[20]; LineDiscountPct: Decimal)
     var
         PurchaseLineDiscount: Record "Purchase Line Discount";

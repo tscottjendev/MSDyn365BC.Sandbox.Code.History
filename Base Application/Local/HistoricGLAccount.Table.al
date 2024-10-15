@@ -18,7 +18,7 @@ table 10721 "Historic G/L Account"
     Caption = 'Historic G/L Account';
     DataCaptionFields = "No.", Name;
     ObsoleteReason = 'Obsolete feature';
-#if CLEAN28
+#if CLEAN25
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
 #else

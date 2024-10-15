@@ -11,6 +11,7 @@ codeunit 137210 "SCM Copy Production BOM"
 
     var
         Assert: Codeunit Assert;
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -332,6 +333,72 @@ codeunit 137210 "SCM Copy Production BOM"
         VerifyMatrixBOMVersion(ProductionBOMHeader."No.", VersionCode, VersionCount);
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionBOMVersionPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyProductionBOMVersionFromItemCard()
+    var
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMVersion: Record "Production BOM Version";
+        ItemCard: TestPage "Item Card";
+    begin
+        // [SCENARIO 346526] Verify Production BOM Version page should open when there is active version of production BOM and should be certified from Item Card page.
+        Initialize();
+
+        // [GIVEN] Create a Production BOM with BOM Versions.
+        SetupCopyBOM(ProductionBOMHeader, ProductionBOMVersion, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Create and update Production Item.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem.Validate("Base Unit of Measure", ProductionBOMHeader."Unit of Measure Code");
+        ProdItem."Replenishment System" := ProdItem."Replenishment System"::"Prod. Order";
+        ProdItem."Manufacturing Policy" := ProdItem."Manufacturing Policy"::"Make-to-Order";
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Open Production BOM Version page from Item Card.
+        LibraryVariableStorage.Enqueue(ProductionBOMVersion."Version Code");
+        ItemCard.OpenEdit();
+        ItemCard.GotoRecord(ProdItem);
+        ItemCard."Prod. Active BOM Version".Invoke();
+
+        // [Verify] Verify Production BOM Version through "ProductionBOMVersionPageHandler".
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionBOMVersionPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyProductionBOMVersionFromItemList()
+    var
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMVersion: Record "Production BOM Version";
+        ItemList: TestPage "Item List";
+    begin
+        // [SCENARIO 346526] Verify Production BOM Version page should open when there is active version of production BOM and should be certified from Item List page.
+        Initialize();
+
+        // [GIVEN] Create a Production BOM with BOM Versions.
+        SetupCopyBOM(ProductionBOMHeader, ProductionBOMVersion, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Create and update Production Item.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem.Validate("Base Unit of Measure", ProductionBOMHeader."Unit of Measure Code");
+        ProdItem."Replenishment System" := ProdItem."Replenishment System"::"Prod. Order";
+        ProdItem."Manufacturing Policy" := ProdItem."Manufacturing Policy"::"Make-to-Order";
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Open Production BOM Version page from Item List.
+        LibraryVariableStorage.Enqueue(ProductionBOMVersion."Version Code");
+        ItemList.OpenEdit();
+        ItemList.GotoRecord(ProdItem);
+        ItemList."Prod. Active BOM Version".Invoke();
+
+        // [Verify] Verify Production BOM Version through "ProductionBOMVersionPageHandler".
+    end;
+
     [Normal]
     local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header")
     var
@@ -467,6 +534,13 @@ codeunit 137210 "SCM Copy Production BOM"
             ProductionBOMVersion.SetRange("Version Code", VersionCode[VersionCount]);
             ProductionBOMVersion.FindFirst();
         end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionBOMVersionPageHandler(var ProductionBOMVersion: TestPage "Production BOM Version")
+    begin
+        ProductionBOMVersion."Version Code".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 }
 

@@ -584,7 +584,7 @@ page 43 "Sales Invoice"
                 {
                     ApplicationArea = Location;
                     Importance = Additional;
-                    ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
+                    ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                 }
                 group("SII Information")
                 {
@@ -775,6 +775,16 @@ page 43 "Sales Invoice"
                                 Caption = 'Name';
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 ToolTip = 'Specifies the name that products on the sales document will be shipped to.';
+                            }
+                            field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'Name 2';
+                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                                Importance = Additional;
+                                ToolTip = 'Specifies an additional part of the name that products on the sales document will be shipped to.';
+                                QuickEntry = false;
+                                Visible = false;
                             }
                             field("Ship-to Address"; Rec."Ship-to Address")
                             {

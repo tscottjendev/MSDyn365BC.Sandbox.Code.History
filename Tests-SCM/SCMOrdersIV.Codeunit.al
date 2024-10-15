@@ -3294,8 +3294,8 @@
         ExtendedTextLine: Record "Extended Text Line";
     begin
         LibraryInventory.CreateItem(Item);
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, Item."No.");
         ExtendedTextLine.Modify(true);
         exit(Item."No.");
@@ -3613,7 +3613,6 @@
     local procedure CreateSalesQuoteWithResponsibilityCenter(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20])
     var
         ResponsibilityCenter: Record "Responsibility Center";
-        LibraryService: Codeunit "Library - Service";
     begin
         LibraryService.CreateResponsibilityCenter(ResponsibilityCenter);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, '');

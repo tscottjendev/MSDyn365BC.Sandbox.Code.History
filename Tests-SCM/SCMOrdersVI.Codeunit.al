@@ -3321,8 +3321,8 @@
         ExtendedTextLine: Record "Extended Text Line";
     begin
         LibraryInventory.CreateItem(Item);
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, Item."No.");
         ExtendedTextLine.Modify(true);
         exit(Item."No.");

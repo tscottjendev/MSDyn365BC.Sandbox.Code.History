@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Inventory.Location;
@@ -59,6 +63,7 @@ codeunit 5774 "Whse.-Production Release"
     local procedure CreateWhseRqst(var ProdOrderComp: Record "Prod. Order Component"; var ProdOrder: Record "Production Order")
     var
         ProdOrderComp2: Record "Prod. Order Component";
+        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
     begin
         GetLocation(ProdOrderComp."Location Code");
         if ((not Location."Require Pick") and (Location."Prod. Consump. Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"No Warehouse Handling")) then
@@ -104,7 +109,7 @@ codeunit 5774 "Whse.-Production Release"
             WarehouseRequest."Source Subtype" := ProdOrderComp.Status.AsInteger();
             WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Prod. Consumption";
             WarehouseRequest."Document Status" := WarehouseRequest."Document Status"::Released;
-            WarehouseRequest.SetDestinationType(ProdOrder);
+            ProdOrderWarehouseMgt.SetDestinationType(ProdOrder, WarehouseRequest);
             WarehouseRequest."Destination No." := ProdOrder."Source No.";
             WarehouseRequest."Completely Handled" :=
               ProdOrderCompletelyHandled(ProdOrder, ProdOrderComp."Location Code");
@@ -119,6 +124,7 @@ codeunit 5774 "Whse.-Production Release"
         ProdOrder: Record "Production Order";
         WarehouseRequest: Record "Warehouse Request";
         WhsePickRequest: Record "Whse. Pick Request";
+        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
         IsHandled: Boolean;
     begin
         OnBeforeReleaseLine(ProdOrderComponent, OldProdOrderComponent, IsHandled);
@@ -142,7 +148,7 @@ codeunit 5774 "Whse.-Production Release"
                 WarehouseRequest."Source Subtype" := ProdOrderComponent.Status.AsInteger();
                 WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Prod. Consumption";
                 WarehouseRequest."Document Status" := WarehouseRequest."Document Status"::Released;
-                WarehouseRequest.SetDestinationType(ProdOrder);
+                ProdOrderWarehouseMgt.SetDestinationType(ProdOrder, WarehouseRequest);
                 OnBeforeWarehouseRequestUpdate(WarehouseRequest, ProdOrderComponent);
                 if not WarehouseRequest.Insert() then
                     WarehouseRequest.Modify();

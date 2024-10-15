@@ -23,6 +23,7 @@ table 9060 "SB Owner Cue"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Released Sales Quotes"; Integer)

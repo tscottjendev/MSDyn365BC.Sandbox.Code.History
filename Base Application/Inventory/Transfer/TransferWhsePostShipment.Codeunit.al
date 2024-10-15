@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Posting;
 
 using Microsoft.Inventory.Transfer;
@@ -44,7 +48,7 @@ codeunit 5748 "Transfer Whse. Post Shipment"
                     TransHeader := SourceHeader;
                     TransHeader.Get(TransHeader."No.");
                     IsHandled := false;
-                    // OnInitSourceDocumentHeaderOnBeforeTransferHeaderUpdatePostingDate(TransHeader, WhseShptHeader, WhseShptLine, ModifyHeader, IsHandled);
+                    OnInitSourceDocumentHeaderOnBeforeTransferHeaderUpdatePostingDate(TransHeader, WhseShptHeader, WhseShptLine, ModifyHeader, IsHandled);
                     if not IsHandled then
                         if (TransHeader."Posting Date" = 0D) or
                            (TransHeader."Posting Date" <> WhseShptHeader."Posting Date")
@@ -84,7 +88,7 @@ codeunit 5748 "Transfer Whse. Post Shipment"
                         TransHeader."Shipment Method Code" := WhseShptHeader."Shipment Method Code";
                         ModifyHeader := true;
                     end;
-                    // OnInitSourceDocumentHeaderOnBeforeTransHeaderModify(TransHeader, WhseShptHeader, ModifyHeader);
+                    OnInitSourceDocumentHeaderOnBeforeTransHeaderModify(TransHeader, WhseShptHeader, ModifyHeader);
                     if ModifyHeader then
                         TransHeader.Modify();
                 end;
@@ -424,6 +428,16 @@ codeunit 5748 "Transfer Whse. Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostSourceTransferDocument(var TransferPostShipment: Codeunit Microsoft.Inventory.Transfer."TransferOrder-Post Shipment"; var TransHeader: Record Microsoft.Inventory.Transfer."Transfer Header"; var CounterSourceDocOK: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentHeaderOnBeforeTransferHeaderUpdatePostingDate(var TransferHeader: Record "Transfer Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; ModifyHeader: Boolean; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentHeaderOnBeforeTransHeaderModify(var TransferHeader: Record "Transfer Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; ModifyHeader: Boolean)
     begin
     end;
 }

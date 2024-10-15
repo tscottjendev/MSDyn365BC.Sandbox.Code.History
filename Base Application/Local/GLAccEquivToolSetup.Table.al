@@ -8,7 +8,7 @@ table 10723 "G/L Acc. Equiv. Tool Setup"
 {
     Caption = 'G/L Acc. Equiv. Tool Setup';
     ObsoleteReason = 'Obsolete feature';
-#if CLEAN28
+#if CLEAN25
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
 #else

@@ -374,6 +374,13 @@ page 6053 "Service Contract Quote"
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                 }
+                field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                {
+                    ApplicationArea = Service;
+                    Importance = Additional;
+                    ToolTip = 'Specifies an additional part of the name of the customer that the items are shipped to.';
+                    Visible = false;
+                }
                 field("Ship-to Address"; Rec."Ship-to Address")
                 {
                     ApplicationArea = Service;
