@@ -224,6 +224,24 @@ page 5905 "Service Lines"
                     BlankZero = true;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
+                field("Tax Liable"; Rec."Tax Liable")
+                {
+                    ApplicationArea = SalesTax;
+                    Editable = true;
+                    ToolTip = 'Specifies that items, resources, or costs on the current service line are liable for sales tax.';
+                    Visible = true;
+                }
+                field("Tax Area Code"; Rec."Tax Area Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
+                    Visible = true;
+                }
+                field("Tax Group Code"; Rec."Tax Group Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
+                }
                 field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Service;
