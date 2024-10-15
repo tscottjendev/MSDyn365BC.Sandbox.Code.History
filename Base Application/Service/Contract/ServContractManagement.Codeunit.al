@@ -499,8 +499,7 @@ codeunit 5940 ServContractManagement
         if not IsHandled then
             Cust.CheckBlockedCustOnDocs(Cust, ServHeader2."Document Type", false, false);
 
-        GLSetup.Get();
-        if GLSetup."VAT in Use" then
+        if CheckCustomerBusPostingGroup() then
             Cust.TestField("Gen. Bus. Posting Group");
 
         ServHeader2.Name := Cust.Name;
@@ -865,8 +864,10 @@ codeunit 5940 ServContractManagement
         OnCreateOrGetCreditHeaderOnBeforeCheckBlockedCustOnDocs(ServHeader2, ServContract, IsHandled);
         if not IsHandled then
             Cust.CheckBlockedCustOnDocs(Cust, ServHeader2."Document Type", false, false);
-        if GLSetup."VAT in Use" then
+
+        if CheckCustomerBusPostingGroup() then
             Cust.TestField("Gen. Bus. Posting Group");
+
         ServHeader2.Name := Cust.Name;
         ServHeader2."Name 2" := Cust."Name 2";
         ServHeader2.Address := Cust.Address;
@@ -2530,6 +2531,20 @@ codeunit 5940 ServContractManagement
         exit('<CM>');
     end;
 
+    local procedure CheckCustomerBusPostingGroup(): Boolean
+    var
+        ApplicationAreaMgmt: Codeunit System.Environment.Configuration."Application Area Mgmt.";
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckCustomer(result, IsHandled);
+        if IsHandled then
+            exit;
+
+        Result := not ApplicationAreaMgmt.IsSalesTaxEnabled();
+    end;
+
     local procedure CalcAndSetRemainingAmount(ServLedgerEntry: Record "Service Ledger Entry"; ServContractLine: Record "Service Contract Line"; var AmountLCY: Decimal; var UnitPrice: Decimal; var UnitCost: Decimal; var ContractDiscAmt: Decimal; InvFrom: Date; InvTo: Date; AmtRoundingPrecision: Decimal)
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
@@ -3126,6 +3141,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateOrGetCreditHeaderOnAfterCopyFromCustomer(var ServiceHeader: Record "Service Header"; ServiceContract: Record "Service Contract Header"; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCustomer(var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

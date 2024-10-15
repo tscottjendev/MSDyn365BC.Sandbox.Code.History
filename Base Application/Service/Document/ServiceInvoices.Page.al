@@ -9,7 +9,6 @@ using Microsoft.Foundation.Attachment;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Posting;
-using Microsoft.eServices.EDocument;
 
 page 9319 "Service Invoices"
 {
@@ -203,7 +202,6 @@ page 9319 "Service Invoices"
 
                     trigger OnAction()
                     begin
-                        OnBeforeCalculateSalesTaxStatistics(Rec, true);
                         Rec.OpenStatistics();
                     end;
                 }
@@ -254,20 +252,6 @@ page 9319 "Service Invoices"
 
                         PAGE.Run(0, TempServDocLog);
                     end;
-                }
-                action(CFDIRelationDocuments)
-                {
-                    ApplicationArea = Service, BasicMX;
-                    Caption = 'CFDI Relation Documents';
-                    Image = Allocations;
-                    RunObject = Page "CFDI Relation Documents";
-                    RunPageLink = "Document Table ID" = const(5900),
-#pragma warning disable AL0603
-                                  "Document Type" = field("Document Type"),
-#pragma warning restore AL0603
-                                  "Document No." = field("No."),
-                                  "Customer No." = field("Bill-to Customer No.");
-                    ToolTip = 'View or add CFDI relation documents for the record.';
                 }
             }
         }
@@ -402,11 +386,6 @@ page 9319 "Service Invoices"
         Rec.SetSecurityFilterOnRespCenter();
 
         Rec.CopyCustomerFilter();
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateSalesTaxStatistics(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
-    begin
     end;
 }
 

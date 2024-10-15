@@ -204,7 +204,7 @@ page 5934 "Service Invoice Subform"
                 field("Tax Group Code"; Rec."Tax Group Code")
                 {
                     ApplicationArea = SalesTax;
-                    ShowMandatory = true;
+                    ShowMandatory = Rec."Tax Area Code" <> '';
                     ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
@@ -218,10 +218,6 @@ page 5934 "Service Invoice Subform"
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
-                }
-                field("Amount Including VAT"; Rec."Amount Including VAT")
-                {
-                    ToolTip = 'Specifies the sum of the amounts in the Amount Including VAT fields on the associated sales lines.';
                 }
                 field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
@@ -752,7 +748,7 @@ page 5934 "Service Invoice Subform"
     begin
         if Rec.Reserve = Rec.Reserve::Always then begin
             CurrPage.SaveRecord();
-            Rec.AutoReserve(true);
+            Rec.AutoReserve();
         end;
     end;
 
@@ -760,7 +756,7 @@ page 5934 "Service Invoice Subform"
     begin
         if Rec.Reserve = Rec.Reserve::Always then begin
             CurrPage.SaveRecord();
-            Rec.AutoReserve(true);
+            Rec.AutoReserve();
         end;
     end;
 

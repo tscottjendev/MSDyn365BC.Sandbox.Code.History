@@ -843,7 +843,7 @@ page 5907 "Service Item Worksheet Subform"
            (Rec."Posting Date" <> xRec."Posting Date")
         then begin
             CurrPage.SaveRecord();
-            Rec.AutoReserve(true);
+            Rec.AutoReserve();
             CurrPage.Update(false);
         end;
     end;

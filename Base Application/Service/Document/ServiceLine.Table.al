@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -167,7 +167,6 @@ table 5902 "Service Line"
                     exit;
 
                 GetServHeader();
-                GLSetup.Get();
 
                 OnValidateNoOnBeforeCustomerCheck(Rec);
                 if ServHeader."Document Type" = ServHeader."Document Type"::Quote then begin
@@ -1107,37 +1106,13 @@ table 5902 "Service Line"
             TableRelation = "Tax Area";
 
             trigger OnValidate()
-            var
-                TaxArea: Record "Tax Area";
-                HeaderTaxArea: Record "Tax Area";
             begin
                 UpdateAmounts();
-                GetServHeader();
-                if "Tax Area Code" <> '' then begin
-                    TaxArea.Get("Tax Area Code");
-                    ServHeader.TestField("Tax Area Code");
-                    HeaderTaxArea.Get(ServHeader."Tax Area Code");
-                    if TaxArea."Country/Region" <> HeaderTaxArea."Country/Region" then
-                        Error(
-                          Text1020003,
-                          TaxArea.FieldCaption("Country/Region"),
-                          TaxArea.TableCaption(),
-                          TableCaption,
-                          ServHeader.TableCaption());
-                    if TaxArea."Use External Tax Engine" <> HeaderTaxArea."Use External Tax Engine" then
-                        Error(
-                          Text1020003,
-                          TaxArea.FieldCaption("Use External Tax Engine"),
-                          TaxArea.TableCaption(),
-                          TableCaption,
-                          ServHeader.TableCaption());
-                end;
             end;
         }
         field(86; "Tax Liable"; Boolean)
         {
             Caption = 'Tax Liable';
-            Editable = false;
 
             trigger OnValidate()
             begin
@@ -1616,11 +1591,6 @@ table 5902 "Service Line"
                 TestField("Quantity Shipped", 0);
                 TestField("Qty. Shipped (Base)", 0);
                 TestStatusOpen();
-
-                GLSetup.Get();
-                if GLSetup."PAC Environment" <> GLSetup."PAC Environment"::Disabled then
-                    if Type <> Type::"G/L Account" then
-                        TestField("Unit of Measure Code");
 
                 if "Unit of Measure Code" = '' then
                     "Unit of Measure" := ''
@@ -2942,7 +2912,6 @@ table 5902 "Service Line"
         SalesSetup: Record "Sales & Receivables Setup";
         ServMgtSetup: Record "Service Mgt. Setup";
         ServiceLine: Record "Service Line";
-        ServHeader: Record "Service Header";
         ServItem: Record "Service Item";
         ServItemLine: Record "Service Item Line";
         Resource: Record Resource;
@@ -2951,7 +2920,6 @@ table 5902 "Service Line"
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         SKU: Record "Stockkeeping Unit";
-        GLSetup: Record "General Ledger Setup";
         DimMgt: Codeunit DimensionManagement;
         ServDimMgt: Codeunit "Serv. Dimension Management";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
@@ -3017,7 +2985,6 @@ table 5902 "Service Line"
         StatusCheckSuspended: Boolean;
 #pragma warning disable AA0074
         Text051: Label 'You cannot add an item line.';
-        Text1020003: Label 'The %1 field in the %2 used on the %3 must match the %1 field in the %2 used on the %4.';
 #pragma warning disable AA0470
         Text052: Label 'You cannot change the %1 field because one or more service entries exist for this line.';
 #pragma warning restore AA0470
@@ -3030,6 +2997,7 @@ table 5902 "Service Line"
         BlockedItemVariantNotificationMsg: Label 'Item Variant %1 for Item %2 is blocked, but it is allowed on this type of document.', Comment = '%1 - Item Variant Code, %2 - Item No.';
 
     protected var
+        ServHeader: Record "Service Header";
         TempTrackingSpecification: Record "Tracking Specification" temporary;
 
     procedure CheckItemAvailable(CalledByFieldNo: Integer)
@@ -3986,8 +3954,7 @@ table 5902 "Service Line"
             "Unit Price" := ServCost."Default Unit Price";
             "Unit of Measure Code" := ServCost."Unit of Measure Code";
             GLAcc.Get(ServCost."Account No.");
-            GLSetup.Get();
-            if GLSetup."VAT in Use" then
+            if CheckProdPostingGroups() then
                 GLAcc.TestField("Gen. Prod. Posting Group");
             "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
             "VAT Prod. Posting Group" := GLAcc."VAT Prod. Posting Group";
@@ -6423,6 +6390,20 @@ table 5902 "Service Line"
         OnAfterCopyToResJournalLine(ResJournalLine, Rec);
     end;
 
+    procedure CheckProdPostingGroups(): Boolean
+    var
+        ApplicationAreaMgmt: Codeunit System.Environment.Configuration."Application Area Mgmt.";
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckProdPostingGroups(Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        exit(not ApplicationAreaMgmt.IsSalesTaxEnabled());
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ServiceLine: Record "Service Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
@@ -7303,6 +7284,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; var ServiceLine: Record "Service Line"; NewVATBaseAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckProdPostingGroups(var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
