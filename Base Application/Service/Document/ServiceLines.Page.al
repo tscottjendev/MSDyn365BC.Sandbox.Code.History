@@ -917,7 +917,7 @@ page 5905 "Service Lines"
                         Rec.ShowItemSub();
                         CurrPage.Update(true);
                         if (Rec.Reserve = Rec.Reserve::Always) and (Rec."No." <> xRec."No.") then begin
-                            Rec.AutoReserve(true);
+                            Rec.AutoReserve();
                             CurrPage.Update(false);
                         end;
                     end;
@@ -1535,7 +1535,7 @@ page 5905 "Service Lines"
            (Rec."No." <> xRec."No.")
         then begin
             CurrPage.SaveRecord();
-            Rec.AutoReserve(true);
+            Rec.AutoReserve();
             CurrPage.Update(false);
         end;
     end;
@@ -1547,7 +1547,7 @@ page 5905 "Service Lines"
            (Rec."Location Code" <> xRec."Location Code")
         then begin
             CurrPage.SaveRecord();
-            Rec.AutoReserve(true);
+            Rec.AutoReserve();
         end;
         CurrPage.Update(true);
     end;
@@ -1561,7 +1561,7 @@ page 5905 "Service Lines"
                 Rec.Reserve::Always:
                     begin
                         CurrPage.SaveRecord();
-                        Rec.AutoReserve(true);
+                        Rec.AutoReserve();
                         CurrPage.Update(false);
                         UpdateIsDone := true;
                     end;
@@ -1587,7 +1587,7 @@ page 5905 "Service Lines"
            (Rec."Posting Date" <> xRec."Posting Date")
         then begin
             CurrPage.SaveRecord();
-            Rec.AutoReserve(true);
+            Rec.AutoReserve();
             CurrPage.Update(false);
         end;
     end;
