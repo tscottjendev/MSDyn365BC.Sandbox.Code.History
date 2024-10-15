@@ -58,13 +58,8 @@ table 13 "Salesperson/Purchaser"
             Caption = 'Coupled to Dataverse';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(721; "Coupled to Dataverse"; Boolean)
         {
@@ -426,14 +421,6 @@ table 13 "Salesperson/Purchaser"
         key(Key3; SystemModifiedAt)
         {
         }
-#if not CLEAN23
-        key(Key4; "Coupled to CRM")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     fieldgroups

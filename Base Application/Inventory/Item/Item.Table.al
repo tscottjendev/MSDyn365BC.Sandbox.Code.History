@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
 using Microsoft.Assembly.Document;
@@ -1215,13 +1219,8 @@ table 27 Item
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(721; "Coupled to Dataverse"; Boolean)
         {
@@ -2620,14 +2619,6 @@ table 27 Item
         key(Key18; GTIN)
         {
         }
-#if not CLEAN23
-        key(Key19; "Coupled to CRM")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     fieldgroups
@@ -2843,6 +2834,7 @@ table 27 Item
         ItemTrackingCodeIgnoresExpirationDateErr: Label 'The settings for expiration dates do not match on the item tracking code and the item. Both must either use, or not use, expiration dates.', Comment = '%1 is the Item number';
         ReplenishmentSystemTransferErr: Label 'The Replenishment System Transfer cannot be used for item.';
         WhseEntriesExistErr: Label 'You cannot change %1 because there are one or more warehouse entries for this item.', Comment = '%1: Changed field name';
+        NoActiveBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1', Comment = '%1 - Item No.';
 
     protected var
         ItemTrackingCode: Record "Item Tracking Code";
@@ -4152,6 +4144,32 @@ table 27 Item
         ItemTrackingCode.Get("Item Tracking Code");
         ItemTrackingCode.SetLoadFields();
         exit(ItemTrackingCode."Use Expiration Dates");
+    end;
+
+    procedure OpenActiveProdBOMForItem(ProdBOMNo: Code[20]; ItemNo: Code[20])
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMVersion: Record "Production BOM Version";
+        VersionManagement: Codeunit VersionManagement;
+        ActiveVersionNo: Code[20];
+    begin
+        if ProdBOMNo = '' then
+            Error(NoActiveBOMVersionFoundErr, ItemNo);
+
+        ActiveVersionNo := VersionManagement.GetBOMVersion(ProdBOMNo, WorkDate(), true);
+
+        if ActiveVersionNo <> '' then begin
+            ProductionBOMVersion.SetRange("Production BOM No.", ProdBOMNo);
+            ProductionBOMVersion.SetRange("Version Code", ActiveVersionNo);
+            Page.RunModal(Page::"Production BOM Version", ProductionBOMVersion);
+        end else begin
+            ProductionBOMHeader.SetRange("No.", ProdBOMNo);
+            ProductionBOMHeader.SetRange(Status, ProductionBOMHeader.Status::Certified);
+            if ProductionBOMHeader.IsEmpty() then
+                Error(NoActiveBOMVersionFoundErr, ItemNo);
+
+            Page.RunModal(Page::"Production BOM", ProductionBOMHeader);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

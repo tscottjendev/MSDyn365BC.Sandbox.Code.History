@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Inventory.Item;
@@ -79,6 +83,8 @@ report 99001014 "Update Unit Cost"
 
     var
         Item: Record Item;
+
+    protected var
         CalcMethod: Option "One Level","All Levels";
         UpdateReservations: Boolean;
 
@@ -86,6 +92,13 @@ report 99001014 "Update Unit Cost"
     begin
         CalcMethod := NewCalcMethod;
         UpdateReservations := NewUpdateReservations;
+
+        OnAfterInitializeRequest();
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitializeRequest()
+    begin
     end;
 }
 

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Planning;
 
 using Microsoft.Inventory.Item;
@@ -56,7 +60,6 @@ codeunit 99000855 "Planning-Get Parameters"
                         GlobalSKU."Include Inventory" := true
                     else
                         GlobalSKU."Include Inventory" := Item."Include Inventory";
-                    GlobalSKU."Minimum Order Quantity" := 0;
                     GlobalSKU."Maximum Order Quantity" := 0;
                     GlobalSKU."Safety Stock Quantity" := 0;
                     GlobalSKU."Order Multiple" := 0;

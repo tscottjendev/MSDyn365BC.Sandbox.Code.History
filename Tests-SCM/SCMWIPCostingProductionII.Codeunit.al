@@ -802,13 +802,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
 
         if AdjustExchangeRatesGLSetup then begin
             UpdateExchangeRate(CurrencyCode);
-#if not CLEAN23
-            LibraryERM.RunAdjustExchangeRates(
-              CurrencyCode, WorkDate(), WorkDate(), PurchaseHeader."No.", WorkDate(), LibraryUtility.GenerateGUID(), true);
-#else
             LibraryERM.RunExchRateAdjustment(
               CurrencyCode, WorkDate(), WorkDate(), PurchaseHeader."No.", WorkDate(), LibraryUtility.GenerateGUID(), true);
-#endif
         end;
 
         // Create and Refresh Production Order.

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.FixedAssets.Journal;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.FixedAssets.Journal;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -422,7 +426,7 @@ table 5621 "FA Journal Line"
             "Document No." := LastFAJnlLine."Document No.";
         end else begin
             "FA Posting Date" := WorkDate();
-            if FAJnlBatch."No. Series" <> '' then 
+            if FAJnlBatch."No. Series" <> '' then
                 "Document No." := NoSeries.PeekNextNo(FAJnlBatch."No. Series", "FA Posting Date");
         end;
         "Recurring Method" := LastFAJnlLine."Recurring Method";
@@ -482,6 +486,7 @@ table 5621 "FA Journal Line"
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
         if IsHandled then
             exit;

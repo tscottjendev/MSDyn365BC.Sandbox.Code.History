@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
 page 32 "Item Lookup"
@@ -278,5 +282,26 @@ page 32 "Item Lookup"
             }
         }
     }
+
+    trigger OnFindRecord(Which: Text): Boolean
+    var
+        Found: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindRecord(Rec, Which, CrossColumnSearchFilter, Found, IsHandled);
+        if IsHandled then
+            exit(Found);
+
+        exit(Rec.Find(Which));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindRecord(var Rec: Record Item; Which: Text; var CrossColumnSearchFilter: Text; var Found: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    var
+        CrossColumnSearchFilter: Text;
 }
 

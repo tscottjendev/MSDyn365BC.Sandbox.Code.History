@@ -21,6 +21,7 @@ tableextension 11805 "Service Invoice Header CZ" extends "Service Invoice Header
             Caption = 'Bank Account No.';
             DataClassification = CustomerContent;
             Editable = false;
+            OptimizeForTextSearch = true;
             ObsoleteState = Removed;
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
@@ -29,6 +30,7 @@ tableextension 11805 "Service Invoice Header CZ" extends "Service Invoice Header
         {
             Caption = 'Bank Branch No.';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
             ObsoleteState = Removed;
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
@@ -64,6 +66,7 @@ tableextension 11805 "Service Invoice Header CZ" extends "Service Invoice Header
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
+            OptimizeForTextSearch = true;
             DataClassification = CustomerContent;
             Editable = false;
             ObsoleteState = Removed;
@@ -90,6 +93,7 @@ tableextension 11805 "Service Invoice Header CZ" extends "Service Invoice Header
         {
             Caption = 'Bank Name';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
             ObsoleteState = Removed;
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
@@ -143,6 +147,7 @@ tableextension 11805 "Service Invoice Header CZ" extends "Service Invoice Header
         {
             Caption = 'Registration No.';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
             ObsoleteState = Removed;
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
@@ -151,6 +156,7 @@ tableextension 11805 "Service Invoice Header CZ" extends "Service Invoice Header
         {
             Caption = 'Tax Registration No.';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
             ObsoleteState = Removed;
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';

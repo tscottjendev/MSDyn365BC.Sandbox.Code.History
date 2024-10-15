@@ -728,9 +728,6 @@ permissionset 1044 "D365 READ"
                   tabledata "Document Entry" = R,
                   tabledata "Document Search Result" = R,
                   tabledata "Document Sending Profile" = R,
-#if not CLEAN23
-                  tabledata "Document Service Cache" = R,
-#endif
                   tabledata "Drop Shpt. Post. Buffer" = R,
                   tabledata "Dtld. Price Calculation Setup" = R,
                   tabledata "Duplicate Price Line" = R,
@@ -930,9 +927,6 @@ permissionset 1044 "D365 READ"
                   tabledata "Inventory Report Entry" = R,
                   tabledata "Inventory Report Header" = R,
                   tabledata "Inventory Setup" = R,
-#if not CLEAN23
-                  tabledata "Invoice Post. Buffer" = R,
-#endif
                   tabledata "Invoice Posting Buffer" = R,
                   tabledata "Invoiced Booking Item" = R,
                   tabledata "Invt. Document Header" = R,
@@ -1201,11 +1195,6 @@ permissionset 1044 "D365 READ"
                   tabledata "Posted Whse. Receipt Line" = R,
                   tabledata "Posted Whse. Shipment Header" = R,
                   tabledata "Posted Whse. Shipment Line" = R,
-#if not CLEAN23
-                  tabledata "Power BI User Configuration" = R,
-                  tabledata "Power BI Report Configuration" = R,
-                  tabledata "Power BI User Status" = R,
-#endif
                   tabledata "Power BI Chart Buffer" = R,
                   tabledata "Power BI Context Settings" = R,
                   tabledata "Power BI Customer Reports" = R,

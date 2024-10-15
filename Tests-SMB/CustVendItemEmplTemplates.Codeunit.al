@@ -917,6 +917,33 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandler')]
+    procedure VendorTemplCreateVendorFromContactNoTemplatesExistUT()
+    var
+        Contact: Record Contact;
+        VendorTempl: Record "Vendor Templ.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 365727] Create new vendor from company contact when no vendor templates exist
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] No Vendor Templates should exist
+        if not VendorTempl.IsEmpty() then
+            VendorTempl.DeleteAll();
+
+        // [GIVEN] Company contact "C"
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [WHEN] Create new vendor from "C"
+        // [THEN] Vendor was not created and message displays
+        Contact.SetHideValidationDialog(true);
+        Contact.CreateVendor();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     [HandlerFunctions('SelectCustomerTemplListHandler,ConfirmHandler')]
     procedure CustomerTemplApplyTemplateFromCustomerTwoTemplatesUT()
     var
