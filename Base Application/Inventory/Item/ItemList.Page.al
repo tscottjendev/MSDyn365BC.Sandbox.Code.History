@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Item;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Item;
 
 using Microsoft.Assembly.Reports;
 using Microsoft.Finance.Dimension;
@@ -42,7 +46,6 @@ using System.Environment.Configuration;
 using System.Integration.PowerBI;
 using System.Reflection;
 using System.Text;
-using Microsoft.Manufacturing.Document;
 
 #pragma warning disable AS0106 // Protected variable PowerBIVisible was removed before AS0106 was introduced.
 page 31 "Item List"
@@ -317,17 +320,6 @@ page 31 "Item List"
                     Importance = Additional;
                     ToolTip = 'Specifies the default template that governs how to defer revenues and expenses to the periods when they occurred.';
                 }
-#if not CLEAN23
-                field("Coupled to CRM"; Rec."Coupled to CRM")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies that the item is coupled to a product in Dynamics 365 Sales.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;
@@ -530,7 +522,7 @@ page 31 "Item List"
             group(PricesandDiscounts)
             {
                 Caption = 'Sales Prices & Discounts';
-#if not CLEAN23
+#if not CLEAN25
                 action(Prices_Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -638,7 +630,7 @@ page 31 "Item List"
             group(PurchPricesandDiscounts)
             {
                 Caption = 'Purchase Prices & Discounts';
-#if not CLEAN23
+#if not CLEAN25
                 action("Set Special Prices")
                 {
                     ApplicationArea = Suite;
@@ -1187,7 +1179,7 @@ page 31 "Item List"
                     RunObject = Report "Item Substitutions";
                     ToolTip = 'View or edit any substitute items that are set up to be traded instead of the item in case it is not available.';
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action("Price List")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1893,6 +1885,18 @@ page 31 "Item List"
                         RunPageLink = "No." = field("Production BOM No.");
                         ToolTip = 'Open the item''s production bill of material to view or edit its components.';
                     }
+                    action("Prod. Active BOM Version")
+                    {
+                        ApplicationArea = Manufacturing;
+                        Caption = 'Prod. Active BOM Version';
+                        Image = BOM;
+                        ToolTip = 'Open the item''s active production bill of material to view or edit the components.';
+
+                        trigger OnAction()
+                        begin
+                            Rec.OpenActiveProdBOMForItem(Rec."Production BOM No.", Rec."No.");
+                        end;
+                    }
                     action(Action29)
                     {
                         AccessByPermission = TableData "BOM Component" = R;
@@ -2112,7 +2116,7 @@ page 31 "Item List"
                     ApplicationArea = Manufacturing;
                     Caption = 'Subcontracting Prices';
                     Image = Price;
-                    RunObject = Page "Subcontracting Prices";
+                    RunObject = Page Microsoft.Manufacturing.Document."Subcontracting Prices";
                     RunPageLink = "Item No." = field("No.");
                     RunPageView = sorting("Vendor No.", "Item No.", "Standard Task Code", "Work Center No.", "Variant Code", "Start Date", "Unit of Measure Code", "Minimum Quantity", "Currency Code");
                     ToolTip = 'View or edit the list of subcontracting prices.';

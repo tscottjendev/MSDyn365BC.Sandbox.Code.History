@@ -30,7 +30,6 @@ codeunit 137158 "SCM Orders V"
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryCosting: Codeunit "Library - Costing";
-        LibraryService: Codeunit "Library - Service";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -1888,7 +1887,7 @@ codeunit 137158 "SCM Orders V"
         UpdateStockoutWarningOnSalesReceivableSetup(false);
         CompItemNo := LibraryInventory.CreateItemNo();
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItemNo, LibraryRandom.RandInt(10));
-        ExtendedText := LibraryService.CreateExtendedTextForItem(AssemblyItem."No.");
+        ExtendedText := LibraryInventory.CreateExtendedTextForItem(AssemblyItem."No.");
 
         // [GIVEN] Sales Order with Assembly BOM and inserted extended text
         CreateSalesOrderWithInsertedExtendedText(SalesHeader, SalesLine, AssemblyItem."No.");
@@ -1920,7 +1919,7 @@ codeunit 137158 "SCM Orders V"
         UpdateStockoutWarningOnSalesReceivableSetup(false);
         CompItemNo := LibraryInventory.CreateItemNo();
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItemNo, LibraryRandom.RandInt(10));
-        ExtendedText := LibraryService.CreateExtendedTextForItem(AssemblyItem."No.");
+        ExtendedText := LibraryInventory.CreateExtendedTextForItem(AssemblyItem."No.");
 
         // [GIVEN] Sales Order with Assembly BOM and inserted extended text
         CreateSalesOrderWithInsertedExtendedText(SalesHeader, SalesLine, AssemblyItem."No.");
@@ -1953,7 +1952,7 @@ codeunit 137158 "SCM Orders V"
         Initialize();
         CompItemNo := LibraryInventory.CreateItemNo();
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItemNo, LibraryRandom.RandInt(10));
-        ExtendedText := LibraryService.CreateExtendedTextForItem(AssemblyItem."No.");
+        ExtendedText := LibraryInventory.CreateExtendedTextForItem(AssemblyItem."No.");
 
         // [GIVEN] Purchase Order with Assembly BOM and inserted extended text
         CreatePurchOrderWithInsertedExtendedText(PurchHeader, PurchLine, AssemblyItem."No.");
@@ -1984,7 +1983,7 @@ codeunit 137158 "SCM Orders V"
         Initialize();
         CompItemNo := LibraryInventory.CreateItemNo();
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItemNo, LibraryRandom.RandInt(10));
-        ExtendedText := LibraryService.CreateExtendedTextForItem(AssemblyItem."No.");
+        ExtendedText := LibraryInventory.CreateExtendedTextForItem(AssemblyItem."No.");
 
         // [GIVEN] Purchase Order with Assembly BOM and inserted extended text
         CreatePurchOrderWithInsertedExtendedText(PurchHeader, PurchLine, AssemblyItem."No.");

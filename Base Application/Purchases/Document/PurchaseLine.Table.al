@@ -169,9 +169,6 @@ table 39 "Purchase Line"
                 else
                     "Allow Item Charge Assignment" := false;
 
-#if not CLEAN23
-                OnAfterValidateType(Rec, xRec, TempPurchLine);
-#endif
                 OnAfterValidateTypePurchaseLine(Rec, xRec, TempPurchLine);
             end;
         }
@@ -349,9 +346,6 @@ table 39 "Purchase Line"
                         UpdateDimensionsFromJobTask();
                     end;
 
-#if not CLEAN23
-                OnAfterValidateNo(Rec, xRec, TempPurchLine);
-#endif
                 OnAfterValidateNoPurchaseLine(Rec, xRec, TempPurchLine, PurchHeader);
             end;
         }
@@ -1150,6 +1144,9 @@ table 39 "Purchase Line"
                 CreateDimFromDefaultDim(Rec.FieldNo("Job No."));
 
                 UpdateDirectUnitCostByField(FieldNo("Job No."));
+
+                if (xRec."Line Discount %" <> "Line Discount %") and ("Line Discount Amount" <> 0) then
+                    UpdateLineDiscPct();
             end;
         }
         field(54; "Indirect Cost %"; Decimal)
@@ -6487,7 +6484,7 @@ table 39 "Purchase Line"
            ("Line Discount Amount" = 0) and
            (not PurchHeader."Prices Including VAT")
         then
-            ItemChargeAssgntLineAmt := "Line Amount"
+            ItemChargeAssgntLineAmt := "Line Amount" + NonDeductibleVAT.GetNonDeductibleVATAmountForItemCost(Rec)
         else
             if PurchHeader."Prices Including VAT" then
                 ItemChargeAssgntLineAmt :=
@@ -6965,11 +6962,9 @@ table 39 "Purchase Line"
                 if not PurchLine.ZeroAmountLine(QtyType) then begin
                     OnUpdateVATOnLinesOnBeforeProcessPurchLine(PurchLine, PurchHeader, VATAmountLine, QtyType);
                     DeferralAmount := PurchLine.GetDeferralAmount();
-                    VATAmountLine.Get(PurchLine."VAT Identifier", PurchLine."VAT Calculation Type", PurchLine."Tax Group Code", PurchLine."Use Tax", PurchLine."Line Amount" >= 0);
+                    FindVATAmountLine(PurchLine, VATAmountLine);
                     if VATAmountLine.Modified then begin
-                        if not TempVATAmountLineRemainder.Get(
-                             PurchLine."VAT Identifier", PurchLine."VAT Calculation Type", PurchLine."Tax Group Code", PurchLine."Use Tax", PurchLine."Line Amount" >= 0)
-                        then begin
+                        if not FindVATAmountLine(PurchLine, TempVATAmountLineRemainder) then begin
                             TempVATAmountLineRemainder := VATAmountLine;
                             TempVATAmountLineRemainder.Init();
                             TempVATAmountLineRemainder.Insert();
@@ -7118,6 +7113,7 @@ table 39 "Purchase Line"
                     end;
                 end;
             until PurchLine.Next() = 0;
+        VATAmountLine.Reset();
         PurchLine.SetLoadFields();
 
         OnAfterUpdateVATOnLines(PurchHeader, PurchLine, VATAmountLine, QtyType);
@@ -7164,17 +7160,12 @@ table 39 "Purchase Line"
                        [PurchLine."VAT Calculation Type"::"Reverse Charge VAT", PurchLine."VAT Calculation Type"::"Sales Tax"]
                     then
                         PurchLine."VAT %" := 0;
-                    if not VATAmountLine.Get(
-                         PurchLine."VAT Identifier", PurchLine."VAT Calculation Type", PurchLine."Tax Group Code", PurchLine."Use Tax", PurchLine."Line Amount" >= 0)
-                    then begin
-                        if NonDeductibleVAT.IsNonDeductibleVATEnabled() then
-                            VATAmountLine.InsertNewLine(
-                                PurchLine."VAT Identifier", PurchLine."VAT Calculation Type", PurchLine."Tax Group Code", PurchLine."Use Tax", PurchLine."VAT %", PurchLine."Line Amount" >= 0, false, 100 - PurchLine."Non-Deductible VAT %")
-                        else
-                            VATAmountLine.InsertNewLine(
-                                PurchLine."VAT Identifier", PurchLine."VAT Calculation Type", PurchLine."Tax Group Code", PurchLine."Use Tax", PurchLine."VAT %", PurchLine."Line Amount" >= 0, false, PurchLine."Deductible %");
+
+                    if not FindVATAmountLine(PurchLine, VATAmountLine) then begin
+                        InsertVATAmountLine(PurchLine, VATAmountLine);
                         OnCalcVATAmountLinesAfterVATAmountLineInsertNewLine(PurchLine, VATAmountLine);
                     end;
+
                     case QtyType of
                         QtyType::General:
                             begin
@@ -7235,6 +7226,7 @@ table 39 "Purchase Line"
                     OnCalcVATAmountLinesOnAfterCalcLineTotals(VATAmountLine, PurchHeader, PurchLine, Currency, QtyType, TotalVATAmount);
                 end;
             until PurchLine.Next() = 0;
+        VATAmountLine.Reset();
         PurchLine.SetLoadFields();
 
         OnCalcVATAmountLinesOnBeforeVATAmountLineUpdateLines(PurchLine, VATAmountLine, TotalVATAmount);
@@ -7253,6 +7245,37 @@ table 39 "Purchase Line"
             end;
 
         OnAfterCalcVATAmountLines(PurchHeader, PurchLine, VATAmountLine, QtyType);
+    end;
+
+    local procedure FindVATAmountLine(var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line" temporary): Boolean
+    begin
+        VATAmountLine.Reset();
+        VATAmountLine.SetRange("VAT Identifier", PurchaseLine."VAT Identifier");
+        VATAmountLine.SetRange("VAT Calculation Type", PurchaseLine."VAT Calculation Type");
+        VATAmountLine.SetRange("Tax Group Code", PurchaseLine."Tax Group Code");
+        VATAmountLine.SetRange("Use Tax", PurchaseLine."Use Tax");
+        VATAmountLine.SetRange(Positive, PurchaseLine."Line Amount" >= 0);
+        OnFindVATAmountLineOnAfterSetFilters(PurchaseLine, VATAmountLine);
+        exit(VATAmountLine.FindFirst());
+    end;
+
+    local procedure InsertVATAmountLine(var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+        VATAmountLine.Init();
+        VATAmountLine."VAT Identifier" := PurchaseLine."VAT Identifier";
+        VATAmountLine."VAT Calculation Type" := PurchaseLine."VAT Calculation Type";
+        VATAmountLine."Tax Group Code" := PurchaseLine."Tax Group Code";
+        VATAmountLine."Use Tax" := PurchaseLine."Use Tax";
+        VATAmountLine."VAT %" := PurchaseLine."VAT %";
+        VATAmountLine.Modified := true;
+        VATAmountLine.Positive := PurchaseLine."Line Amount" >= 0;
+        VATAmountLine."Includes Prepayment" := false;
+        if NonDeductibleVAT.IsNonDeductibleVATEnabled() then
+            VATAmountLine."Non-Deductible VAT %" := PurchaseLine."Non-Deductible VAT %"
+        else
+            VATAmountLine."Non-Deductible VAT %" := 100 - PurchaseLine."Deductible %";
+        OnInsertVATAmountOnBeforeInsert(PurchaseLine, VATAmountLine);
+        VATAmountLine.Insert();
     end;
 
     local procedure SumVATAmountLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping; AmtToHandle: Decimal; QtyToHandle: Decimal)
@@ -7298,32 +7321,34 @@ table 39 "Purchase Line"
     /// <param name="VATAmountLine">Return value: The VAT amount line with the maximum absolute amount.</param>
     /// <param name="PurchaseLine">The purchase line record to filter the VAT amount line set.</param>
     /// <returns>True if a VAT amount line was found, otherwise false.</returns>
-    procedure GetVATAmountLineOfMaxAmt(var VATAmountLine: Record "VAT Amount Line"; PurchaseLine: Record "Purchase Line"): Boolean
+    procedure GetVATAmountLineOfMaxAmt(var VATAmountLine: Record "VAT Amount Line"; PurchaseLine: Record "Purchase Line") Found: Boolean
     var
         VATAmount1: Decimal;
         VATAmount2: Decimal;
         IsPositive1: Boolean;
         IsPositive2: Boolean;
     begin
-        if VATAmountLine.Get(
-             PurchaseLine."VAT Identifier", PurchaseLine."VAT Calculation Type", PurchaseLine."Tax Group Code", false, false)
-        then begin
+        VATAmountLine.SetRange("VAT Identifier", PurchaseLine."VAT Identifier");
+        VATAmountLine.SetRange("VAT Calculation Type", PurchaseLine."VAT Calculation Type");
+        VATAmountLine.SetRange("Tax Group Code", PurchaseLine."Tax Group Code");
+        VATAmountLine.SetRange("Use Tax", false);
+        VATAmountLine.SetRange(Positive, false);
+        if VATAmountLine.FindFirst() then begin
             VATAmount1 := VATAmountLine."VAT Amount";
             IsPositive1 := VATAmountLine.Positive;
         end;
-        if VATAmountLine.Get(
-             PurchaseLine."VAT Identifier", PurchaseLine."VAT Calculation Type", PurchaseLine."Tax Group Code", false, true)
-        then begin
+        VATAmountLine.SetRange(Positive, true);
+        if VATAmountLine.FindFirst() then begin
             VATAmount2 := VATAmountLine."VAT Amount";
             IsPositive2 := VATAmountLine.Positive;
         end;
-        if Abs(VATAmount1) >= Abs(VATAmount2) then
-            exit(
-              VATAmountLine.Get(
-                PurchaseLine."VAT Identifier", PurchaseLine."VAT Calculation Type", PurchaseLine."Tax Group Code", false, IsPositive1));
-        exit(
-          VATAmountLine.Get(
-            PurchaseLine."VAT Identifier", PurchaseLine."VAT Calculation Type", PurchaseLine."Tax Group Code", false, IsPositive2));
+        if Abs(VATAmount1) >= Abs(VATAmount2) then begin
+            VATAmountLine.SetRange(Positive, IsPositive1);
+            exit(VATAmountLine.FindFirst());
+        end;
+        VATAmountLine.SetRange(Positive, IsPositive2);
+        Found := VATAmountLine.FindFirst();
+        VATAmountLine.Reset();
     end;
 
     /// <summary>
@@ -8196,7 +8221,7 @@ table 39 "Purchase Line"
         end else
             if PurchOrderLine.Get(PurchOrderLine."Document Type"::Order, ReceiptLine."Order No.", ReceiptLine."Order Line No.") then begin
                 if ("Prepayment %" = 100) and (Quantity <> PurchOrderLine.Quantity - PurchOrderLine."Quantity Invoiced") then
-                    "Prepmt Amt to Deduct" := "Line Amount"
+                    "Prepmt Amt to Deduct" := GetLineAmountToHandle(Quantity) - "Inv. Disc. Amount to Invoice"
                 else
                     "Prepmt Amt to Deduct" :=
                       Round((PurchOrderLine."Prepmt. Amt. Inv." - PurchOrderLine."Prepmt Amt Deducted") *
@@ -9386,7 +9411,7 @@ table 39 "Purchase Line"
         if IsHandled then
             exit;
 
-        if "Prepmt. Amt. Inv." <> 0 then
+        if ("Prepmt. Amt. Inv." <> 0) and (Rec."VAT Prod. Posting Group" <> xRec."VAT Prod. Posting Group") then
             Error(CannotChangeVATGroupWithPrepmInvErr);
     end;
 
@@ -9619,7 +9644,7 @@ table 39 "Purchase Line"
             TestField(Quantity);
     end;
 
-    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     begin
         OnBeforeCalcBaseQty(Rec, Qty, FromFieldName, ToFieldName);
         exit(UOMMgt.CalcBaseQty(
@@ -11717,26 +11742,10 @@ table 39 "Purchase Line"
     begin
     end;
 
-#if not CLEAN23
-    [Obsolete('Pending removal use "OnAfterValidateTypePurchaseLine" instead', '23.0')]
-    [IntegrationEvent(false, false)]
-    procedure OnAfterValidateType(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateTypePurchaseLine(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
-
-#if not CLEAN23
-    [Obsolete('Pending removal use "OnAfterValidateNoPurchaseLine" instead', '23.0')]
-    [IntegrationEvent(false, false)]
-    procedure OnAfterValidateNo(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateNoPurchaseLine(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseHeader: Record "Purchase Header")
@@ -11866,8 +11875,17 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertVATAmountOnBeforeInsert(var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindVATAmountLineOnAfterSetFilters(var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterReversedInternalLeadTimeDays(PurchaseLine: Record "Purchase Line"; PurchDate: Date; ReversedWhseHandlingTime: DateFormula; var TotalDays: DateFormula)
     begin
     end;
 }
-

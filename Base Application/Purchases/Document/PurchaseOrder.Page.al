@@ -608,7 +608,7 @@ page 50 "Purchase Order"
                                     ApplicationArea = Location;
                                     Importance = Promoted;
                                     Editable = ShipToOptions = ShipToOptions::Location;
-                                    ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
+                                    ToolTip = 'Specifies the location where the items are to be placed when they are received. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                                 }
                             }
                             field("Ship-to Name"; Rec."Ship-to Name")
@@ -618,6 +618,16 @@ page 50 "Purchase Order"
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 Importance = Additional;
                                 ToolTip = 'Specifies the name of the company at the address that you want the items on the purchase document to be shipped to.';
+                            }
+                            field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'Name 2';
+                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                                Importance = Additional;
+                                ToolTip = 'Specifies an additional part of the name of the customer that items on the purchase order were shipped to, as a drop shipment.';
+                                QuickEntry = false;
+                                Visible = false;
                             }
                             field("Ship-to Address"; Rec."Ship-to Address")
                             {

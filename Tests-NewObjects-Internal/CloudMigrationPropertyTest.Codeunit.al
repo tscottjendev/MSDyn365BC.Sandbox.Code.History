@@ -291,7 +291,6 @@
         ListOfTablesToMigrate.Add(Database::"Put-away Template Line");
         ListOfTablesToMigrate.Add(Database::"Qualification");
         ListOfTablesToMigrate.Add(Database::"Quality Measure");
-        ListOfTablesToMigrate.Add(Database::"RapidStart Services Cue");
         ListOfTablesToMigrate.Add(Database::"Rating");
         ListOfTablesToMigrate.Add(Database::"Reason Code");
         ListOfTablesToMigrate.Add(Database::"Receivables-Payables Buffer");
@@ -450,7 +449,7 @@
         ListOfTablesToMigrate.Add(Database::"Service Line");
         ListOfTablesToMigrate.Add(Database::"Service Mgt. Setup");
         ListOfTablesToMigrate.Add(Database::"Service Order Allocation");
-		ListOfTablesToMigrate.Add(Database::"Service Order Allocat. Archive");
+        ListOfTablesToMigrate.Add(Database::"Service Order Allocat. Archive");
         ListOfTablesToMigrate.Add(Database::"Service Order Type");
         ListOfTablesToMigrate.Add(Database::"Service Price Adjustment Group");
         ListOfTablesToMigrate.Add(Database::"Service Price Group");
@@ -518,7 +517,6 @@
         ListOfTablesToMigrate.Add(Database::"Team");
         ListOfTablesToMigrate.Add(Database::"Temp Integration Field Mapping");
         ListOfTablesToMigrate.Add(Database::"TempStack");
-        ListOfTablesToMigrate.Add(Database::"Tenant Config. Package File");
         ListOfTablesToMigrate.Add(Database::"Territory");
         ListOfTablesToMigrate.Add(Database::"Text-to-Account Mapping");
         ListOfTablesToMigrate.Add(Database::"Time Series Forecast");
@@ -602,7 +600,7 @@
         ListOfTablesToMigrate.Add(Database::"VAT Statement Report Line");
         ListOfTablesToMigrate.Add(Database::"VAT Statement Template");
         ListOfTablesToMigrate.Add(Database::"VAT Setup");
-		ListOfTablesToMigrate.Add(Database::"Alt. Cust. VAT Reg.");
+        ListOfTablesToMigrate.Add(Database::"Alt. Cust. VAT Reg.");
         ListOfTablesToMigrate.Add(Database::"VAT Posting Parameters");
         ListOfTablesToMigrate.Add(Database::"Vendor Amount");
         ListOfTablesToMigrate.Add(Database::"Vendor Bank Account");
@@ -809,6 +807,7 @@
         ListOfTablesToMigrate.Add(3903); // Database::"Retention Policy Allowed Table"
         ListOfTablesToMigrate.Add(3905); // Database::"Retention Policy Log Entry"
         ListOfTablesToMigrate.Add(4325); // Database::"SOA Setup"
+        ListOfTablesToMigrate.Add(4585); // Database::"SOT Email"
         ListOfTablesToMigrate.Add(3712); // Database::"Translation"
         ListOfTablesToMigrate.Add(9999); // Database::"Upgrade Tags"
         ListOfTablesToMigrate.Add(9989); // Database::"Word Template Field"
@@ -948,7 +947,6 @@
         ListOfTablesToMigrate.Add(Database::"Company Size");
         ListOfTablesToMigrate.Add(Database::"Confidential Information");
         ListOfTablesToMigrate.Add(Database::"Confidential");
-        ListOfTablesToMigrate.Add(Database::"Config. Package");
         ListOfTablesToMigrate.Add(Database::"Consolidation Account");
         ListOfTablesToMigrate.Add(Database::"Cont. Duplicate Search String");
         ListOfTablesToMigrate.Add(Database::"Contact Alt. Addr. Date Range");

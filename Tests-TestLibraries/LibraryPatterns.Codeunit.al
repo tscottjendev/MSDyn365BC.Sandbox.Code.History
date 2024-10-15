@@ -20,7 +20,6 @@ codeunit 132212 "Library - Patterns"
         TXTIncorrectEntry: Label 'Incorrect %1 in Entry No. %2.';
         TXTUnexpectedLine: Label 'Unexpected line after getting posted line to reverse.';
         TXTLineCountMismatch: Label 'Line count mismatch in revaluation for Item %1.';
-        LibraryService: Codeunit "Library - Service";
 
     procedure ADDSerialNoTrackingInfo(ItemNo: Code[20])
     var
@@ -206,10 +205,10 @@ codeunit 132212 "Library - Patterns"
         Item.Modify();
 
         // Create Extended Text Header and Line.
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
         ExtendedTextHeader.Validate("All Language Codes", true);
         ExtendedTextHeader.Modify();
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, CopyStr(ExtText, 1, MaxStrLen(ExtendedTextLine.Text)));
         ExtendedTextLine.Modify();
     end;

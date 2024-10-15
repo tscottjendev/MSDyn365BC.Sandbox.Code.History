@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Posting;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Posting;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Finance.Currency;
@@ -19,6 +23,7 @@ using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.Setup;
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Vendor;
@@ -1954,6 +1959,7 @@ codeunit 22 "Item Jnl.-Post Line"
         UseReservationApplication: Boolean;
         Handled: Boolean;
         SubcontractorTransfer: Boolean;
+        SkipReservationCheck: Boolean;	
     begin
         OnBeforeApplyItemLedgEntry(ItemLedgEntry, OldItemLedgEntry, ValueEntry, CausedByTransfer, Handled, ItemJnlLine, ItemApplnEntryNo);
         if Handled then
@@ -1981,6 +1987,11 @@ codeunit 22 "Item Jnl.-Post Line"
                 if Item."Costing Method" = Item."Costing Method"::Specific then
                     ItemJnlLine.TestField("Serial No.");
 
+                SkipReservationCheck := //posting together with PO
+                    (ItemJnlLine."Document Type" = ItemJnlLine."Document Type"::"Purchase Receipt")
+                    and (ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::"Negative Adjmt.")
+                    and (ItemJnlLine."Job No." <> '');
+
                 Handled := false;
                 OnApplyItemLedgEntryOnBeforeFirstReservationSetFilters(ItemJnlLine, StartApplication, FirstReservation, Handled);
                 if not Handled then
@@ -1995,7 +2006,7 @@ codeunit 22 "Item Jnl.-Post Line"
                         ReservEntry.SetRange("Item No.", ItemJnlLine."Item No.");
                     end;
 
-                UseReservationApplication := ReservEntry.FindFirst();
+                UseReservationApplication := ReservEntry.FindFirst() and not SkipReservationCheck;
 
                 Handled := false;
                 OnApplyItemLedgEntryOnBeforeCloseSurplusTrackingEntry(ItemJnlLine, StartApplication, UseReservationApplication, Handled);
@@ -3238,11 +3249,16 @@ codeunit 22 "Item Jnl.-Post Line"
             if GLSetup."Additional Reporting Currency" <> '' then
                 CostAmtACY := ACYMgt.CalcACYAmt(CostAmt, ValueEntry."Posting Date", false);
         end else begin
-            CostAmt :=
-              ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity";
-            CostAmtACY :=
-              ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity";
-
+            if IsNondeductibleAndUseItemCost() then begin
+                CostAmt := ItemJnlLine.Amount;
+                CostAmtACY := ACYMgt.CalcACYAmt(CostAmt, ValueEntry."Posting Date", false);
+            end
+            else begin
+                CostAmt :=
+                  ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity";
+                CostAmtACY :=
+                  ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity";
+            end;
             if MustConsiderUnitCostRoundingOnRevaluation(ItemJnlLine) then begin
                 CostAmt += RoundingResidualAmount;
                 CostAmtACY += RoundingResidualAmountACY;
@@ -5335,6 +5351,7 @@ codeunit 22 "Item Jnl.-Post Line"
                 InventoryAdjmtEntryOrder."Order Type"::Assembly:
                     begin
                         if OrderLineNo = 0 then begin
+                            AssemblyHeader.SetLoadFields("Item No.");
                             AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, OrderNo);
                             InventoryAdjmtEntryOrder.SetAsmOrder(AssemblyHeader);
                         end;
@@ -7488,13 +7505,22 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     local procedure VerifyItemJnlLineApplication(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    var
+        SkipError: Boolean;
     begin
         if ItemJournalLine."Applies-to Entry" = 0 then
             exit;
 
         ItemJournalLine.CalcReservedQuantity();
-        if ItemJournalLine."Reserved Qty. (Base)" <> 0 then
-            ItemLedgerEntry.FieldError("Applies-to Entry", Text99000000);
+        if ItemJournalLine."Reserved Qty. (Base)" <> 0 then begin
+            SkipError := //posting together with PO
+                (ItemJournalLine."Document Type" = ItemJournalLine."Document Type"::"Purchase Receipt")
+                and (ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::"Negative Adjmt.")
+                and (ItemJournalLine."Job No." <> '');
+
+            if not SkipError then
+                ItemLedgerEntry.FieldError("Applies-to Entry", Text99000000);
+        end;
     end;
 
     local procedure GetCombinedDimSetID(DimSetID1: Integer; DimSetID2: Integer): Integer
@@ -7600,6 +7626,22 @@ codeunit 22 "Item Jnl.-Post Line"
             exit;
 
         Error(Text027);
+    end;
+
+    local procedure IsNondeductibleAndUseItemCost(): Boolean
+    var
+        VATSetup: Record "VAT Setup";
+    begin
+        if (VATSetup.Get()) and (VATSetup."Enable Non-Deductible VAT") and
+           (VATSetup."Use For Item Cost") and
+           (Item."Costing Method" <> Item."Costing Method"::Standard) and
+           (ItemJnlLine."Value Entry Type" = ItemJnlLine."Value Entry Type"::"Direct Cost") and
+           (ItemJnlLine."Item Charge No." = '') and
+           (ItemJnlLine."Applies-from Entry" = 0) and
+           not ItemJnlLine.Adjustment then
+            exit(true);
+
+        exit(false);
     end;
 
     /// <summary>

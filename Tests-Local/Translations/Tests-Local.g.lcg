@@ -473,15 +473,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Details Purchase - NamedType IntegerNumberCap)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 874492549 - NamedType 3235670077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to adjust.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Details Purchase - NamedType NothingToAdjustTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 874492549 - NamedType 4004740047" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No_Vendor]]></Val>
@@ -1902,6 +1893,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=Table Caption]D;]A;(LookupHint=Codeunit ERM VAT Reporting - Codeunit - NamedType EmptyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3676897627 - NamedType 3699317466" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must specify an original report for a report of type %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=vat report type]D;]A;(LookupHint=Codeunit ERM VAT Reporting - Codeunit - NamedType OriginalReportNoError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3676897627 - NamedType 1397764008" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

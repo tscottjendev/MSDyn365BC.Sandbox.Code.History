@@ -45,7 +45,6 @@ codeunit 137062 "SCM Sales & Receivables"
         LineDiscountAmountErr: Label 'Line Discount Amount must be same.';
         UnitPriceErr: Label 'Unit price must be same.';
         DimensionErr: Label 'Check Dimension Code.';
-        LibraryService: Codeunit "Library - Service";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         Initialized: Boolean;
@@ -1599,8 +1598,8 @@ codeunit 137062 "SCM Sales & Receivables"
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
     begin
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID());
         ExtendedTextLine.Modify(true);
         ExtText := ExtendedTextLine.Text;

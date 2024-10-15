@@ -635,6 +635,31 @@ codeunit 139164 "Library - CRM Integration"
         CRMContact.Modify();
     end;
 
+    procedure CreateCoupledSalesHeaderAndSalesorder(var SalesHeader: Record "Sales Header"; var CRMSalesorder: Record "CRM Salesorder")
+    var
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        Item: Record Item;
+        CRMProduct: Record "CRM Product";
+        SalesLine: Record "Sales Line";
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+    begin
+        CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        CreateCoupledItemAndProduct(Item, CRMProduct);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        CreateCRMSalesOrder(CRMSalesorder);
+        CRMSalesorder.OrderNumber := LibraryUtility.GenerateGUID();
+        CRMSalesorder.StateCode := CRMSalesorder.StateCode::Submitted;
+        CRMSalesorder.StatusCode := CRMSalesorder.StatusCode::InProgress;
+        CRMSalesorder.CustomerId := CRMAccount.AccountId;
+        CRMSalesorder.CustomerIdType := CRMSalesorder.CustomerIdType::account;
+        CRMSalesorder.Modify();
+        CoupleRecordIdToCRMId(SalesHeader.RecordId, CRMSalesorder.SalesOrderId);
+        PrepareCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail, CRMProduct.ProductId);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", CRMSalesorderdetail.Quantity);
+        CoupleRecordIdToCRMId(SalesLine.RecordId, CRMSalesorderdetail.SalesOrderDetailId);
+    end;
+
     [Scope('OnPrem')]
     procedure CreateCRMConnectionSetup(PrimaryKey: Code[10]; HostName: Text; IsEnabledVar: Boolean)
     var

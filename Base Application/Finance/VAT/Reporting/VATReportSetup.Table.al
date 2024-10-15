@@ -17,6 +17,7 @@ table 743 "VAT Report Setup"
     {
         field(1; "Primary key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary key';
         }
         field(2; "No. Series"; Code[20])

@@ -289,6 +289,14 @@ page 6620 "Blanket Sales Order Archive"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the company at the address to which the items were shipped.';
                 }
+                field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Name 2';
+                    Importance = Additional;
+                    ToolTip = 'Specifies an additional part of the name that products on the sales document will be shipped to.';
+                    Visible = false;
+                }
                 field("Ship-to Address"; Rec."Ship-to Address")
                 {
                     ApplicationArea = Suite;
@@ -325,7 +333,7 @@ page 6620 "Blanket Sales Order Archive"
                 {
                     ApplicationArea = Location;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
+                    ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. Location code for individual lines can differ from it.';
                 }
                 field("Outbound Whse. Handling Time"; Rec."Outbound Whse. Handling Time")
                 {

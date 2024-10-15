@@ -41,6 +41,7 @@ table 21 "Cust. Ledger Entry"
         field(3; "Customer No."; Code[20])
         {
             Caption = 'Customer No.';
+            OptimizeForTextSearch = true;
             TableRelation = Customer;
         }
         field(4; "Posting Date"; Date)
@@ -54,6 +55,7 @@ table 21 "Cust. Ledger Entry"
         field(6; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            OptimizeForTextSearch = true;
 
             trigger OnLookup()
             var
@@ -65,14 +67,17 @@ table 21 "Cust. Ledger Entry"
         field(7; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
         }
         field(8; "Customer Name"; Text[100])
         {
             Caption = 'Customer Name';
+            OptimizeForTextSearch = true;
         }
         field(10; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+            OptimizeForTextSearch = true;
             DataClassification = CustomerContent;
         }
         field(11; "Currency Code"; Code[10])
@@ -400,6 +405,7 @@ table 21 "Cust. Ledger Entry"
         field(63; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            OptimizeForTextSearch = true;
         }
         field(64; "Calculate Interest"; Boolean)
         {
@@ -526,6 +532,7 @@ table 21 "Cust. Ledger Entry"
             begin
                 TestField(Open, true);
                 CalcFields("Remaining Amount");
+                OnValidateAmounttoApplyBeforeFieldError(Rec);
 
                 if AreOppositeSign("Amount to Apply", "Remaining Amount") then
                     FieldError("Amount to Apply", StrSubstNo(Text000, FieldCaption("Remaining Amount")));
@@ -597,6 +604,7 @@ table 21 "Cust. Ledger Entry"
         field(289; "Message to Recipient"; Text[140])
         {
             Caption = 'Message to Recipient';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -750,6 +758,7 @@ table 21 "Cust. Ledger Entry"
         field(12178; "Document No. to Close"; Code[20])
         {
             Caption = 'Document No. to Close';
+            OptimizeForTextSearch = true;
         }
         field(12179; "Document Occurrence to Close"; Integer)
         {
@@ -1279,6 +1288,11 @@ table 21 "Cust. Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRecalculateAmounts(var CustLedgerEntry: Record "Cust. Ledger Entry"; FromCurrencyCode: Code[10]; ToCurrencyCode: Code[10]; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAmounttoApplyBeforeFieldError(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
