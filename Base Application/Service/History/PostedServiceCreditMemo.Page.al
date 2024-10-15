@@ -339,6 +339,18 @@ page 5972 "Posted Service Credit Memo"
                     ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                     Visible = false;
                 }
+                field("Tax Liable"; Rec."Tax Liable")
+                {
+                    ApplicationArea = SalesTax;
+                    Editable = false;
+                    ToolTip = 'Specifies that items, resources, or costs on the current credit memo line are liable to sales tax.';
+                }
+                field("Tax Area Code"; Rec."Tax Area Code")
+                {
+                    ApplicationArea = SalesTax;
+                    Editable = false;
+                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
+                }
                 group("SII Information")
                 {
                     Caption = 'SII Information';
