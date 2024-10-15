@@ -104,6 +104,7 @@ page 5964 "Service Quote"
                         {
                             ApplicationArea = Service;
                             QuickEntry = false;
+                            ToolTip = 'Specifies the state, province or county of the address.';
                         }
                     }
                     field("Post Code"; Rec."Post Code")
@@ -278,6 +279,7 @@ page 5964 "Service Quote"
                             ApplicationArea = Service;
                             Caption = 'County';
                             QuickEntry = false;
+                            ToolTip = 'Specifies the state, province or county of the address.';
                         }
                     }
                     field("Bill-to Post Code"; Rec."Bill-to Post Code")
@@ -299,6 +301,7 @@ page 5964 "Service Quote"
                         ApplicationArea = Service;
                         Caption = 'Country/Region';
                         QuickEntry = false;
+                        ToolTip = 'Specifies the country/region in the customer''s address.';
 
                         trigger OnValidate()
                         var
@@ -386,6 +389,16 @@ page 5964 "Service Quote"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
+                field("Tax Area Code"; Rec."Tax Area Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
+                }
+                field("Tax Liable"; Rec."Tax Liable")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
+                }
             }
             group(Shipping)
             {
@@ -441,6 +454,7 @@ page 5964 "Service Quote"
                             ApplicationArea = Service;
                             Caption = 'County';
                             QuickEntry = false;
+                            ToolTip = 'Specifies the state, province or county of the address.';
                         }
                     }
                     field("Ship-to Post Code"; Rec."Ship-to Post Code")
@@ -463,6 +477,7 @@ page 5964 "Service Quote"
                         ApplicationArea = Service;
                         Caption = 'Country/Region';
                         QuickEntry = false;
+                        ToolTip = 'Specifies the country/region in the customer''s address.';
 
                         trigger OnValidate()
                         var
