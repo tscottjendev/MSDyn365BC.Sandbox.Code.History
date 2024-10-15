@@ -46,18 +46,6 @@ codeunit 5836 "Cost Calculation Management"
         UnitCost := Resource."Unit Cost";
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by procedure CalcRoutingCostPerUnit()', '23.0')]
-    procedure RoutingCostPerUnit(Type: Enum "Capacity Type"; No: Code[20]; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit)
-    var
-        UnitCostCalculationTypeEnum: Enum "Unit Cost Calculation Type";
-    begin
-        UnitCostCalculationTypeEnum := "Unit Cost Calculation Type".FromInteger(UnitCostCalculation);
-        CalcRoutingCostPerUnit(Type, No, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculationTypeEnum);
-        UnitCostCalculation := UnitCostCalculationTypeEnum.AsInteger();
-    end;
-#endif
-
     procedure CalcRoutingCostPerUnit(Type: Enum "Capacity Type"; No: Code[20]; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type")
     var
         WorkCenter: Record "Work Center";
@@ -72,29 +60,8 @@ codeunit 5836 "Cost Calculation Management"
         CalcRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter);
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by procedure CalcRoutingCostPerUnit()', '23.0')]
-    procedure RoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
-    var
-        UnitCostCalculationTypeEnum: Enum "Unit Cost Calculation Type";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter, IsHandled);
-        if IsHandled then
-            exit;
-
-        UnitCostCalculationTypeEnum := "Unit Cost Calculation Type".FromInteger(UnitCostCalculation);
-        CalcRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculationTypeEnum, WorkCenter, MachineCenter);
-        UnitCostCalculation := UnitCostCalculationTypeEnum.AsInteger();
-    end;
-#endif
-
     procedure CalcRoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type"; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
     var
-#if not CLEAN23
-        UnitCostCalculationOption: Option;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -125,11 +92,6 @@ codeunit 5836 "Cost Calculation Management"
                     UnitCost := MachineCenter."Unit Cost";
                 end;
         end;
-#if not CLEAN23
-        UnitCostCalculationOption := UnitCostCalculation.AsInteger();
-        OnAfterRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculationOption, WorkCenter, MachineCenter);
-        UnitCostCalculation := "Unit Cost Calculation Type".FromInteger(UnitCostCalculationOption);
-#endif
         OnAfterCalcRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter);
     end;
 
@@ -525,7 +487,8 @@ codeunit 5836 "Cost Calculation Management"
         if IsHandled then
             exit(Result);
 
-        if ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::"Pick + Backward" then
+        if (ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::"Pick + Backward") and
+            (ProdOrderComp."Calculation Formula" = ProdOrderComp."Calculation Formula"::" ") then
             CompQtyBasePerMfgQtyBase := (ProdOrderComp."Quantity per" * ProdOrderComp."Qty. per Unit of Measure") / ProdOrderLine."Qty. per Unit of Measure"
         else
             CompQtyBasePerMfgQtyBase := (ProdOrderComp."Quantity" * ProdOrderComp."Qty. per Unit of Measure") / ProdOrderLine."Qty. per Unit of Measure";
@@ -576,14 +539,6 @@ codeunit 5836 "Cost Calculation Management"
         end;
         exit(MfgItemQtyBase);
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by procedure CalculateCostTime()', '23.0')]
-    procedure CalcCostTime(MfgItemQtyBase: Decimal; SetupTime: Decimal; SetupTimeUOMCode: Code[10]; RunTime: Decimal; RunTimeUOMCode: Code[10]; RtngLotSize: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal; WorkCenterNo: Code[20]; UnitCostCalculation: Option Time,Unit; CostInclSetup: Boolean; ConcurrentCapacities: Decimal) CostTime: Decimal
-    begin
-        exit(CalculateCostTime(MfgItemQtyBase, SetupTime, SetupTimeUOMCode, RunTime, RunTimeUOMCode, RtngLotSize, ScrapFactorPctAccum, FixedScrapQtyAccum, WorkCenterNo, "Unit Cost Calculation Type".FromInteger(UnitCostCalculation), CostInclSetup, ConcurrentCapacities));
-    end;
-#endif
 
     procedure CalculateCostTime(MfgItemQtyBase: Decimal; SetupTime: Decimal; SetupTimeUOMCode: Code[10]; RunTime: Decimal; RunTimeUOMCode: Code[10]; RtngLotSize: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal; WorkCenterNo: Code[20]; UnitCostCalculation: Enum "Unit Cost Calculation Type"; CostInclSetup: Boolean; ConcurrentCapacities: Decimal) CostTime: Decimal
     var
@@ -1246,14 +1201,6 @@ codeunit 5836 "Cost Calculation Management"
     begin
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by event OnBeforeCalcRoutingCostPerUnit()', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeRoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcRoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type"; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center"; var IsHandled: Boolean)
     begin
@@ -1288,14 +1235,6 @@ codeunit 5836 "Cost Calculation Management"
     local procedure OnCalcActOutputQtyBaseOnAfterSetFilters(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by event OnAfterCalcRoutingCostPerUnit()', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterRoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcRoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type"; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")

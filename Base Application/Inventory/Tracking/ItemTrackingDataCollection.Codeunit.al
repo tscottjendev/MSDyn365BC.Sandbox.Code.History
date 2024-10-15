@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Tracking;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
@@ -302,6 +306,7 @@ codeunit 6501 "Item Tracking Data Collection"
                 until TempEntrySummary.Next() = 0;
 
         // Modify the item tracking lines with the selected quantities
+        OnSelectMultipleTrackingNoOnBeforeAddSelectedTrackingToDataSet(TempEntrySummary, TempTrackingSpecification, CurrentSignFactor);
         AddSelectedTrackingToDataSet(TempEntrySummary, TempTrackingSpecification, CurrentSignFactor);
     end;
 
@@ -1763,6 +1768,11 @@ codeunit 6501 "Item Tracking Data Collection"
 
     [IntegrationEvent(false, false)]
     local procedure OnSelectMultipleTrackingNoOnBeforeAutoSelectTrackingNo(var SkipAutoSelectTrackingNo: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSelectMultipleTrackingNoOnBeforeAddSelectedTrackingToDataSet(var TempEntrySummary: Record "Entry Summary" temporary; var TempTrackingSpecification: Record "Tracking Specification" temporary; CurrentSignFactor: Integer)
     begin
     end;
 }

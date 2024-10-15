@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Bank.Payment;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Bank.Payment;
 
 using Microsoft.Bank.BankAccount;
 using System.IO;
@@ -112,7 +116,6 @@ table 1205 "Credit Transfer Register"
         Modify();
     end;
 
-    [Scope('OnPrem')]
     procedure Reexport()
     var
         CreditTransReExportHistory: Record "Credit Trans Re-export History";

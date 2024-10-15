@@ -723,13 +723,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
 
         if AdjustExchangeRatesGLSetup then begin
             UpdateExchangeRate(CurrencyCode);
-#if not CLEAN23
-            LibraryERM.RunAdjustExchangeRates(
-              CurrencyCode, WorkDate(), WorkDate(), PurchaseHeader."No.", WorkDate(), LibraryUtility.GenerateGUID(), true);
-#else
             LibraryERM.RunExchRateAdjustment(
               CurrencyCode, WorkDate(), WorkDate(), PurchaseHeader."No.", WorkDate(), LibraryUtility.GenerateGUID(), true);
-#endif
         end;
 
         // Create and Refresh Production Order.
@@ -1700,14 +1695,5 @@ codeunit 137004 "SCM WIP Costing Production-II"
     procedure MessageHandler(Msg: Text[1024])
     begin
     end;
-
-#if not CLEAN23
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
-    end;
-#endif
 }
 

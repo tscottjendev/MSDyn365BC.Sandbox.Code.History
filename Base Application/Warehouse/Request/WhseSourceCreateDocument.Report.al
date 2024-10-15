@@ -625,6 +625,7 @@ report 7305 "Whse.-Source - Create Document"
                 CreatePickParameters."Whse. Document" := CreatePickParameters."Whse. Document"::Job;
                 CreatePickParameters."Whse. Document Type" := CreatePickParameters."Whse. Document Type"::Pick;
                 CreatePick.SetParameters(CreatePickParameters);
+                CreatePick.SetSaveSummary(ShowSummary);
 
                 SetRange("Job No.", JobHeader."No.");
                 SetFilter(Quantity, '>0');
@@ -717,7 +718,7 @@ report 7305 "Whse.-Source - Create Document"
                         ApplicationArea = Warehouse;
                         Caption = 'Show Summary (Directed Put-away and Pick)';
                         ToolTip = 'Specifies if you want the summary window to be shown after creating pick lines.';
-                        Visible = (WhseDoc = WhseDoc::Assembly) or (WhseDoc = WhseDoc::Production);
+                        Visible = (WhseDoc = WhseDoc::Assembly) or (WhseDoc = WhseDoc::Production) or (WhseDoc = WhseDoc::Job);
                     }
                 }
             }
@@ -789,7 +790,7 @@ report 7305 "Whse.-Source - Create Document"
             if PrintDoc then
                 PrintWarehouseDocument(WhseActivHeader);
         end else
-            if WhseDoc in [WhseDoc::Production, WhseDoc::Assembly] then begin
+            if WhseDoc in [WhseDoc::Production, WhseDoc::Assembly, WhseDoc::Job] then begin
                 CreatePick.SetSummaryPageMessage(Text003, false);
                 if not CreatePick.ShowCalculationSummary() then
                     if not HideNothingToHandleErr then
@@ -988,7 +989,7 @@ report 7305 "Whse.-Source - Create Document"
                 else
                     MessageTxt := StrSubstNo(Text001, Format(WhseActivHeader.Type), FirstActivityNo, LastActivityNo);
 
-            if (WhseDoc in [WhseDoc::Production, WhseDoc::Assembly]) then begin
+            if (WhseDoc in [WhseDoc::Production, WhseDoc::Assembly, WhseDoc::Job]) then begin
                 CreatePick.SetSummaryPageMessage(MessageTxt, false);
                 if not CreatePick.ShowCalculationSummary() then
                     Message(MessageTxt);
@@ -1375,6 +1376,8 @@ report 7305 "Whse.-Source - Create Document"
                 exit(ProdOrderHeader."Location Code");
             WhseDoc::Assembly:
                 exit(AssemblyHeader."Location Code");
+            WhseDoc::Job:
+                exit(JobHeader."Location Code");
         end;
     end;
 

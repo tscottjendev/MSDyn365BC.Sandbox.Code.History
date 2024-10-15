@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CRM.Opportunity;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CRM.Opportunity;
 
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Campaign;
@@ -509,13 +513,8 @@ table 5092 Opportunity
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(721; "Coupled to Dataverse"; Boolean)
         {
@@ -590,14 +589,6 @@ table 5092 Opportunity
         key(Key8; SystemModifiedAt)
         {
         }
-#if not CLEAN23
-        key(Key9; "Coupled to CRM")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     fieldgroups
