@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Task;
 
 page 1170 "User Task List"
@@ -115,15 +119,8 @@ page 1170 "User Task List"
                 ToolTip = 'Indicate that the task is completed. The % Complete field is set to 100.';
 
                 trigger OnAction()
-                var
-                    UserTask: Record "User Task";
                 begin
-                    CurrPage.SetSelectionFilter(UserTask);
-                    if UserTask.FindSet(true) then
-                        repeat
-                            UserTask.SetCompleted();
-                            UserTask.Modify();
-                        until UserTask.Next() = 0;
+                    MarkAsComplete();
                 end;
             }
             action("Go To Task Item")
@@ -222,6 +219,17 @@ page 1170 "User Task List"
             Rec.CopyFilters(FilteredUserTask); // for initial search. Will get overridden by page search
             Rec.SetRange(ShouldShowPendingTasks, true); // to pass the filter on to the card when it is opened
         end;
+    end;
+
+    local procedure MarkAsComplete()
+    var
+        UserTask: Record "User Task";
+    begin
+        if IsShowingMyPendingTasks then
+            UserTaskManagement.SetFiltersToShowMyUserTasks(UserTask, DueDateFilterOptions::NONE);
+
+        CurrPage.SetSelectionFilter(UserTask);
+        UserTaskManagement.CompleteTasks(UserTask);
     end;
 
     procedure SetPageToShowMyPendingUserTasks()

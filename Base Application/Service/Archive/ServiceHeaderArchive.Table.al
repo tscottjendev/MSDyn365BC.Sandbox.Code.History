@@ -60,6 +60,7 @@ table 6010 "Service Header Archive"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
+            OptimizeForTextSearch = true;
         }
         field(4; "Bill-to Customer No."; Code[20])
         {
@@ -70,32 +71,39 @@ table 6010 "Service Header Archive"
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
+            OptimizeForTextSearch = true;
         }
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            OptimizeForTextSearch = true;
         }
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
+            OptimizeForTextSearch = true;
         }
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
+            OptimizeForTextSearch = true;
         }
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
+            OptimizeForTextSearch = true;
             TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
+            OptimizeForTextSearch = true;
         }
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+            OptimizeForTextSearch = true;
         }
         field(12; "Ship-to Code"; Code[10])
         {
@@ -105,28 +113,34 @@ table 6010 "Service Header Archive"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
+            OptimizeForTextSearch = true;
         }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
+            OptimizeForTextSearch = true;
         }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
+            OptimizeForTextSearch = true;
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
+            OptimizeForTextSearch = true;
         }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
+            OptimizeForTextSearch = true;
             TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
+            OptimizeForTextSearch = true;
         }
         field(19; "Order Date"; Date)
         {
@@ -140,6 +154,7 @@ table 6010 "Service Header Archive"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
+            OptimizeForTextSearch = true;
         }
         field(23; "Payment Terms Code"; Code[10])
         {
@@ -226,6 +241,7 @@ table 6010 "Service Header Archive"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
+            OptimizeForTextSearch = true;
             TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Salesperson Code"; Code[20])
@@ -288,6 +304,7 @@ table 6010 "Service Header Archive"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
+            OptimizeForTextSearch = true;
         }
         field(73; "Reason Code"; Code[10])
         {
@@ -321,28 +338,34 @@ table 6010 "Service Header Archive"
         field(79; Name; Text[100])
         {
             Caption = 'Name';
+            OptimizeForTextSearch = true;
         }
         field(80; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
+            OptimizeForTextSearch = true;
         }
         field(81; Address; Text[100])
         {
             Caption = 'Address';
+            OptimizeForTextSearch = true;
         }
         field(82; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
+            OptimizeForTextSearch = true;
         }
         field(83; City; Text[30])
         {
             Caption = 'City';
+            OptimizeForTextSearch = true;
             TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(84; "Contact Name"; Text[100])
         {
             Caption = 'Contact Name';
+            OptimizeForTextSearch = true;
         }
         field(85; "Bill-to Post Code"; Code[20])
         {
@@ -354,6 +377,7 @@ table 6010 "Service Header Archive"
         {
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
+            OptimizeForTextSearch = true;
         }
         field(87; "Bill-to Country/Region Code"; Code[10])
         {
@@ -370,6 +394,7 @@ table 6010 "Service Header Archive"
         {
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
+            OptimizeForTextSearch = true;
         }
         field(90; "Country/Region Code"; Code[10])
         {
@@ -391,6 +416,7 @@ table 6010 "Service Header Archive"
         {
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
+            OptimizeForTextSearch = true;
         }
         field(94; "Bal. Account Type"; Enum "Payment Balance Account Type")
         {
@@ -412,6 +438,7 @@ table 6010 "Service Header Archive"
         field(100; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            OptimizeForTextSearch = true;
         }
         field(101; "Area"; Code[10])
         {
@@ -637,6 +664,7 @@ table 6010 "Service Header Archive"
         field(5902; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
         }
         field(5904; "Service Order Type"; Code[10])
         {
@@ -672,21 +700,25 @@ table 6010 "Service Header Archive"
         field(5915; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
         }
         field(5916; "E-Mail"; Text[80])
         {
             Caption = 'Email';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = EMail;
         }
         field(5917; "Phone No. 2"; Text[30])
         {
             Caption = 'Phone No. 2';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
         }
         field(5918; "Fax No."; Text[30])
         {
             Caption = 'Fax No.';
+            OptimizeForTextSearch = true;
         }
         field(5921; "No. of Unallocated Items"; Integer)
         {
@@ -794,11 +826,13 @@ table 6010 "Service Header Archive"
         field(5955; "Ship-to Fax No."; Text[30])
         {
             Caption = 'Ship-to Fax No.';
+            OptimizeForTextSearch = true;
         }
         field(5956; "Ship-to E-Mail"; Text[80])
         {
             Caption = 'Ship-to Email';
             ExtendedDatatype = EMail;
+            OptimizeForTextSearch = true;
         }
         field(5957; "Resource Group Filter"; Code[20])
         {
@@ -810,11 +844,13 @@ table 6010 "Service Header Archive"
         {
             Caption = 'Ship-to Phone';
             ExtendedDatatype = PhoneNo;
+            OptimizeForTextSearch = true;
         }
         field(5959; "Ship-to Phone 2"; Text[30])
         {
             Caption = 'Ship-to Phone 2';
             ExtendedDatatype = PhoneNo;
+            OptimizeForTextSearch = true;
         }
         field(5968; "Service Zone Code"; Code[10])
         {

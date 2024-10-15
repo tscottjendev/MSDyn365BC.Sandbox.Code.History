@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Assembly.History;
@@ -32,6 +36,7 @@ codeunit 6520 "Item Tracing Mgt."
         DeleteTempTables(TempTrackEntry, TempTrackEntry2);
         InitSearchCriteria(SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter);
         FirstLevel(TempTrackEntry, SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter, Direction, ShowComponents);
+        OnFindRecordsOnBeforeInitTempTable(TempTrackEntry, Direction, ShowComponents);
         if TempLineNo > 0 then
             InitTempTable(TempTrackEntry, TempTrackEntry2);
         TempTrackEntry.Reset();
@@ -1096,6 +1101,11 @@ codeunit 6520 "Item Tracing Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnShowDocument(RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecordsOnBeforeInitTempTable(var ItemTracingBuffer: Record "Item Tracing Buffer"; Direction: Option; ShowComponents: Option)
     begin
     end;
 }
