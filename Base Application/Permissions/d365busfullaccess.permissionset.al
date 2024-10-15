@@ -431,9 +431,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Document Entry" = RIMD,
                   tabledata "Document Search Result" = RIMD,
                   tabledata "Document Sending Profile" = RIMD,
-#if not CLEAN23
-                  tabledata "Document Service Cache" = Rimd,
-#endif
                   tabledata "Drop Shpt. Post. Buffer" = RIMD,
                   tabledata "ECSL VAT Report Line" = RIMD,
                   tabledata "ECSL VAT Report Line Relation" = RIMD,
@@ -523,9 +520,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Inventory Profile Track Buffer" = RIM,
                   tabledata "Inventory Report Entry" = RIM,
                   tabledata "Inventory Report Header" = RIM,
-#if not CLEAN23
-                  tabledata "Invoice Post. Buffer" = RIMD,
-#endif
                   tabledata "Invoice Posting Buffer" = RIMD,
                   tabledata "Invoiced Booking Item" = RIMD,
                   tabledata "Invt. Document Header" = RIMD,
@@ -675,11 +669,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Posted Docs. With No Inc. Buf." = RIMD,
                   tabledata "Posted Gen. Journal Batch" = RIMD,
                   tabledata "Posted Gen. Journal Line" = RIMD,
-#if not CLEAN23
-                  tabledata "Power BI User Configuration" = RIMD,
-                  tabledata "Power BI Report Configuration" = RIMD,
-                  tabledata "Power BI User Status" = RIMD,
-#endif
                   tabledata "Power BI Chart Buffer" = RIMD,
                   tabledata "Power BI Context Settings" = RIMD,
                   tabledata "Power BI Customer Reports" = RIMD,

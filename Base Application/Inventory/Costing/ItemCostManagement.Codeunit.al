@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Finance.Currency;
@@ -195,8 +199,11 @@ codeunit 5804 ItemCostManagement
                                 AverageCost :=
                                   (ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)") /
                                   ValueEntry."Item Ledger Entry Quantity";
-                                if AverageCost < 0 then
-                                    AverageCost := 0;
+                                Clear(IsHandled);
+                                OnUpdateUnitCostSKUOnBeforeCheckNegCost(AverageCost, IsHandled);
+                                if not IsHandled then
+                                    if AverageCost < 0 then
+                                        AverageCost := 0;
                             end else begin
                                 Item.SetRange("Location Filter", SKU."Location Code");
                                 Item.SetRange("Variant Filter", SKU."Variant Code");
@@ -701,6 +708,11 @@ codeunit 5804 ItemCostManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculatePreciseCostAmountsOnAfterFilterOpenInboundItemLedgerEntry(OpenInbndItemLedgerEntry: Record "Item Ledger Entry"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnitCostSKUOnBeforeCheckNegCost(var AverageCost: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

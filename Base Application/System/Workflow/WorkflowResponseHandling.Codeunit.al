@@ -86,7 +86,7 @@ codeunit 1521 "Workflow Response Handling"
         ApplyNewValuesTxt: Label 'Apply the new values.';
         DiscardNewValuesTxt: Label 'Discard the new values.';
         EnableJobQueueEntryResponseDescTxt: Label 'Enable the job queue entry.';
-        UnknownRecordErr: Label 'Unknown record type.';
+        UnsupportedTableErr: Label 'The table %1 is not supported to create Notification Entry. Table ID: %2.', Comment = '%1=The caption of the unsupported table,%2=The ID of the unsupported table';
         // Telemetry strings
         WorkflowResponseStartTelemetryTxt: Label 'Workflow response: Start Scope', Locked = true;
         WorkflowResponseEndTelemetryTxt: Label 'Workflow response: End Scope', Locked = true;
@@ -660,7 +660,7 @@ codeunit 1521 "Workflow Response Handling"
                     Variant := ApprovalEntry;
                     CreateNotificationEntry(WorkflowStepInstance, Variant);
                 end else
-                    Error(UnknownRecordErr);
+                    Error(UnsupportedTableErr, RecRef.Caption, RecRef.Number);
             end;
         end;
     end;

@@ -58,6 +58,7 @@ table 167 Job
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -82,6 +83,7 @@ table 167 Job
         field(3; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -92,6 +94,7 @@ table 167 Job
         field(4; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            OptimizeForTextSearch = true;
         }
         field(5; "Bill-to Customer No."; Code[20])
         {
@@ -333,6 +336,7 @@ table 167 Job
         field(58; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
+            OptimizeForTextSearch = true;
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
 
@@ -361,14 +365,17 @@ table 167 Job
         field(59; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
+            OptimizeForTextSearch = true;
         }
         field(60; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
+            OptimizeForTextSearch = true;
         }
         field(61; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Bill-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Bill-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Bill-to Country/Region Code"));
@@ -397,6 +404,7 @@ table 167 Job
         {
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
+            OptimizeForTextSearch = true;
         }
         field(64; "Bill-to Post Code"; Code[20])
         {
@@ -448,6 +456,7 @@ table 167 Job
         field(68; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            OptimizeForTextSearch = true;
         }
         field(80; "Task Billing Method"; Enum "Task Billing Method")
         {
@@ -490,6 +499,7 @@ table 167 Job
         field(210; "Ship-to Phone No."; Text[30])
         {
             Caption = 'Ship-to Phone No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
         }
         field(1000; "WIP Method"; Code[20])
@@ -591,6 +601,7 @@ table 167 Job
         field(1003; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
+            OptimizeForTextSearch = true;
         }
         field(1004; "Planning Date Filter"; Date)
         {
@@ -914,6 +925,7 @@ table 167 Job
         field(2001; "Sell-to Customer Name"; Text[100])
         {
             Caption = 'Sell-to Customer Name';
+            OptimizeForTextSearch = true;
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
 
@@ -957,18 +969,22 @@ table 167 Job
         field(2002; "Sell-to Customer Name 2"; Text[50])
         {
             Caption = 'Sell-to Customer Name 2';
+            OptimizeForTextSearch = true;
         }
         field(2003; "Sell-to Address"; Text[100])
         {
             Caption = 'Sell-to Address';
+            OptimizeForTextSearch = true;
         }
         field(2004; "Sell-to Address 2"; Text[50])
         {
             Caption = 'Sell-to Address 2';
+            OptimizeForTextSearch = true;
         }
         field(2005; "Sell-to City"; Text[30])
         {
             Caption = 'Sell-to City';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Sell-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Sell-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Sell-to Country/Region Code"));
@@ -996,6 +1012,7 @@ table 167 Job
         field(2006; "Sell-to Contact"; Text[100])
         {
             Caption = 'Sell-to Contact';
+            OptimizeForTextSearch = true;
         }
         field(2007; "Sell-to Post Code"; Code[20])
         {
@@ -1009,6 +1026,7 @@ table 167 Job
         {
             CaptionClass = '5,2,' + "Sell-to Country/Region Code";
             Caption = 'Sell-to County';
+            OptimizeForTextSearch = true;
         }
         field(2009; "Sell-to Country/Region Code"; Code[10])
         {
@@ -1018,11 +1036,13 @@ table 167 Job
         field(2010; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
         }
         field(2011; "Sell-to E-Mail"; Text[80])
         {
             Caption = 'Email';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
@@ -1087,22 +1107,27 @@ table 167 Job
         field(3001; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
+            OptimizeForTextSearch = true;
         }
         field(3002; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
+            OptimizeForTextSearch = true;
         }
         field(3003; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
+            OptimizeForTextSearch = true;
         }
         field(3004; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
+            OptimizeForTextSearch = true;
         }
         field(3005; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Ship-to Country/Region Code"));
@@ -1130,6 +1155,7 @@ table 167 Job
         field(3006; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
+            OptimizeForTextSearch = true;
         }
         field(3007; "Ship-to Post Code"; Code[20])
         {
@@ -1150,6 +1176,7 @@ table 167 Job
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
+            OptimizeForTextSearch = true;
         }
         field(3009; "Ship-to Country/Region Code"; Code[10])
         {
@@ -1166,6 +1193,7 @@ table 167 Job
         field(4000; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1198,6 +1226,7 @@ table 167 Job
         field(4003; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1496,6 +1525,7 @@ table 167 Job
             if not IsHandled then begin
 #endif
                 "No. Series" := JobsSetup."Job Nos.";
+                OnInitJobNoOnAfterAssignNoSeries(Rec, xRec, JobsSetup);
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series");
@@ -2153,14 +2183,6 @@ table 167 Job
             Modify();
         end;
     end;
-
-#if not CLEAN23
-    [Obsolete('This method always returns true. Remove this method.', '23.0')]
-    procedure IsJobSimplificationAvailable(): Boolean
-    begin
-        exit(true);
-    end;
-#endif
 
     local procedure AddToMyJobs(ProjectManager: Code[50])
     var
@@ -3347,6 +3369,11 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIfTimeSheetLineLinkExist(var Job: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitJobNoOnAfterAssignNoSeries(var Job: Record Job; var xJob: Record Job; var JobsSetup: Record "Jobs Setup")
     begin
     end;
 }

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.Depreciation;
 
 using Microsoft.FixedAssets.FixedAsset;
@@ -324,13 +328,14 @@ codeunit 5611 "Calculate Normal Depreciation"
         end;
 
         IsHandled := false;
-        OnAfterCalculateFinalAmount(DeprBook, Amount, IsHandled);
+        OnAfterCalculateFinalAmount(DeprBook, Amount, IsHandled, FA, UntilDate, BookValue);
         if not IsHandled then
             if Amount >= 0 then
                 exit(0);
 
         IsHandled := false;
         OnCalculateDeprAmountOnBeforeCalculateDeprAmount(FA, SkipOnZero, DeprBookCode, Amount, BookValue2, SalvageValue2, EndingBookValue, FinalRoundingAmount, IsHandled);
+
         if IsHandled then
             exit(Amount);
 
@@ -993,7 +998,7 @@ codeunit 5611 "Calculate Normal Depreciation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalculateFinalAmount(DepreBook: Record "Depreciation Book"; var Amount: Decimal; var IsHandled: Boolean)
+    local procedure OnAfterCalculateFinalAmount(DepreBook: Record "Depreciation Book"; var Amount: Decimal; var IsHandled: Boolean; FA: Record "Fixed Asset"; UntilDate: Date; BookValue: Decimal)
     begin
     end;
 
