@@ -368,6 +368,18 @@ page 5978 "Posted Service Invoice"
                     Importance = Promoted;
                     ToolTip = 'Specifies when the related invoice must be paid.';
                 }
+                field("Tax Liable"; Rec."Tax Liable")
+                {
+                    ApplicationArea = SalesTax;
+                    Editable = false;
+                    ToolTip = 'Specifies if the customer is liable for sales tax.';
+                }
+                field("Tax Area Code"; Rec."Tax Area Code")
+                {
+                    ApplicationArea = SalesTax;
+                    Editable = false;
+                    ToolTip = 'Specifies the code of the tax area where the customer is located.';
+                }
             }
             group(Shipping)
             {

@@ -194,6 +194,23 @@ page 5907 "Service Item Worksheet Subform"
                     ToolTip = 'Specifies the service price adjustment group code that applies to this line.';
                     Visible = false;
                 }
+                field("Tax Liable"; Rec."Tax Liable")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
+                    Visible = false;
+                }
+                field("Tax Area Code"; Rec."Tax Area Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
+                    Visible = false;
+                }
+                field("Tax Group Code"; Rec."Tax Group Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the sales tax group code to which this item belongs.';
+                }
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Service;

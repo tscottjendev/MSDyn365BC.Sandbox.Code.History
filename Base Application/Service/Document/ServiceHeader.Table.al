@@ -54,7 +54,6 @@ using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Request;
 using System.Email;
-using System.Environment.Configuration;
 using System.Globalization;
 using System.Reflection;
 using System.Security.User;
@@ -177,7 +176,8 @@ table 5900 "Service Header"
                     OnBeforeCheckBlockedCustomer(Cust, IsHandled);
                     if not IsHandled then
                         Cust.CheckBlockedCustOnDocs(Cust, "Document Type", false, false);
-                    Cust.TestField("Gen. Bus. Posting Group");
+                    if CheckBusPostingGroups() then
+                        Cust.TestField("Gen. Bus. Posting Group");
                     CopyCustomerFields(Cust);
                 end;
 
@@ -186,7 +186,7 @@ table 5900 "Service Header"
                 if not IsHandled then
                     if "Customer No." = xRec."Customer No." then
                         if ShippedServLinesExist() then
-                            if not ApplicationAreaMgmt.IsSalesTaxEnabled() then begin
+                            if CheckBusPostingGroups() then begin
                                 TestField("VAT Bus. Posting Group", xRec."VAT Bus. Posting Group");
                                 TestField("Gen. Bus. Posting Group", xRec."Gen. Bus. Posting Group");
                             end;
@@ -1515,6 +1515,7 @@ table 5900 "Service Header"
             trigger OnValidate()
             begin
                 MessageIfServLinesExist(FieldCaption("Tax Liable"));
+                UpdateServLinesByFieldNo(FieldNo("Tax Liable"), false);
             end;
         }
         field(116; "VAT Bus. Posting Group"; Code[20])
@@ -3074,10 +3075,13 @@ table 5900 "Service Header"
           ServDocLog."Document Type"::Shipment, ServDocLog."Document Type"::"Posted Invoice",
           ServDocLog."Document Type"::"Posted Credit Memo");
         ServDocLog.DeleteAll();
+
         PaymentSales.Reset();
         PaymentSales.SetRange(Type, "Document Type");
         PaymentSales.SetRange(Code, "No.");
         PaymentSales.DeleteAll();
+
+        OnDeleteOnBeforeShowPostedDocsToPrint(Rec);
 
         ShowPostedDocsToPrint := (ServShptHeader."No." <> '') or
            (ServInvHeader."No." <> '') or
@@ -3191,7 +3195,6 @@ table 5900 "Service Header"
         UserSetupMgt: Codeunit "User Setup Management";
         NotifyCust: Codeunit "Customer-Notify by Email";
         ServPost: Codeunit "Service-Post";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         CurrencyDate: Date;
         TempLinkToServItem: Boolean;
         HideValidationDialog: Boolean;
@@ -3720,6 +3723,9 @@ table 5900 "Service Header"
                                 ServLine.Validate("Shipping Agent Service Code", "Shipping Agent Service Code");
                                 ServLine.Modify(true);
                             end;
+                        FieldNo("Tax Liable"):
+                            if ServLine."No." <> '' then
+                                ServLine.Validate("Tax Liable", "Tax Liable");
                         FieldNo("Customer No."):
                             begin
                                 ServLine.Validate("Customer No.");
@@ -4384,9 +4390,9 @@ table 5900 "Service Header"
 
         SetResponsibilityCenter();
 
-        Validate("Payment Terms Code");
-
         "Doc. No. Occurrence" := ServiceDocumentArchiveMgmt.GetNextOccurrenceNo(DATABASE::"Service Header", Rec."Document Type", Rec."No.");
+
+        Validate("Payment Terms Code");
         
         OnAfterInitRecord(Rec);
     end;
@@ -5744,6 +5750,9 @@ table 5900 "Service Header"
         Result := ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text055, FieldCaption("Prices Including VAT"), ServLine.FieldCaption("Unit Price")), true);
     end;
 
+    /// <summary>
+    /// Gets the value for the global variable 'ServiceMgtSetup'.
+    /// </summary>
     procedure GetServiceMgtSetup()
     begin
         ServiceMgtSetup.GetRecordOnce();
@@ -5770,6 +5779,20 @@ table 5900 "Service Header"
                 PostingGroupChangeInterface.ChangePostingGroup("Customer Posting Group", xRec."Customer Posting Group", Rec);
             end;
         end;
+    end;
+
+    procedure CheckBusPostingGroups(): Boolean
+    var
+        ApplicationAreaMgmt: Codeunit System.Environment.Configuration."Application Area Mgmt.";
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBusPostingGroups(Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        exit(not ApplicationAreaMgmt.IsSalesTaxEnabled());
     end;
 
     /// <summary>
@@ -6725,6 +6748,16 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnBeforeArchiveServiceDocument(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBusPostingGroups(var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforeShowPostedDocsToPrint(var ServiceHeader: Record "Service Header")
     begin
     end;
 }
