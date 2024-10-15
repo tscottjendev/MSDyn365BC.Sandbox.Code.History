@@ -2912,7 +2912,6 @@ table 5902 "Service Line"
         SalesSetup: Record "Sales & Receivables Setup";
         ServMgtSetup: Record "Service Mgt. Setup";
         ServiceLine: Record "Service Line";
-        ServHeader: Record "Service Header";
         ServItem: Record "Service Item";
         ServItemLine: Record "Service Item Line";
         Resource: Record Resource;
@@ -2929,7 +2928,6 @@ table 5902 "Service Line"
         ServItemReferenceMgt: Codeunit "Serv. Item Reference Mgt.";
         ServiceLineReserve: Codeunit "Service Line-Reserve";
         ServiceWarehouseMgt: Codeunit "Service Warehouse Mgt.";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         FieldCausedPriceCalculation: Integer;
         Select: Integer;
         CalledFromServiceItemLine: Boolean;
@@ -2999,6 +2997,7 @@ table 5902 "Service Line"
         BlockedItemVariantNotificationMsg: Label 'Item Variant %1 for Item %2 is blocked, but it is allowed on this type of document.', Comment = '%1 - Item Variant Code, %2 - Item No.';
 
     protected var
+        ServHeader: Record "Service Header";
         TempTrackingSpecification: Record "Tracking Specification" temporary;
 
     procedure CheckItemAvailable(CalledByFieldNo: Integer)
@@ -3955,7 +3954,7 @@ table 5902 "Service Line"
             "Unit Price" := ServCost."Default Unit Price";
             "Unit of Measure Code" := ServCost."Unit of Measure Code";
             GLAcc.Get(ServCost."Account No.");
-            if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
+            if CheckProdPostingGroups() then
                 GLAcc.TestField("Gen. Prod. Posting Group");
             "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
             "VAT Prod. Posting Group" := GLAcc."VAT Prod. Posting Group";
@@ -6391,6 +6390,20 @@ table 5902 "Service Line"
         OnAfterCopyToResJournalLine(ResJournalLine, Rec);
     end;
 
+    procedure CheckProdPostingGroups(): Boolean
+    var
+        ApplicationAreaMgmt: Codeunit System.Environment.Configuration."Application Area Mgmt.";
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckProdPostingGroups(Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        exit(not ApplicationAreaMgmt.IsSalesTaxEnabled());
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ServiceLine: Record "Service Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
@@ -7271,6 +7284,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; var ServiceLine: Record "Service Line"; NewVATBaseAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckProdPostingGroups(var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
