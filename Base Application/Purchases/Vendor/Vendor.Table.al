@@ -1197,13 +1197,8 @@ table 23 Vendor
             Caption = 'Coupled to Dataverse';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(721; "Coupled to Dataverse"; Boolean)
         {
@@ -1560,13 +1555,8 @@ table 23 Vendor
         {
             Caption = 'Exclude from Payment Practices Report';
             ObsoleteReason = 'Replaced by W1 field "Exclude from Pmt. Practices"';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#endif
         }
     }
 
@@ -1618,14 +1608,6 @@ table 23 Vendor
         key(Key15; SystemModifiedAt)
         {
         }
-#if not CLEAN23
-        key(Key16; "Coupled to CRM")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
-        }
-#endif
         key(Key21; "IC Partner Code")
         {
         }
@@ -2321,15 +2303,19 @@ table 23 Vendor
     procedure SelectVendor(var Vendor: Record Vendor): Boolean
     var
         VendorLookup: Page "Vendor Lookup";
+        PreviousVendorCode: Code[20];
         Result: Boolean;
     begin
         VendorLookup.SetTableView(Vendor);
         VendorLookup.SetRecord(Vendor);
         VendorLookup.LookupMode := true;
-        Result := VendorLookup.RunModal() = ACTION::LookupOK;
-        if Result then
-            VendorLookup.GetRecord(Vendor)
-        else
+        PreviousVendorCode := Vendor."No.";
+
+        VendorLookup.RunModal();
+        VendorLookup.GetRecord(Vendor);
+        Result := Vendor."No." <> PreviousVendorCode;
+
+        if not Result then
             Clear(Vendor);
 
         exit(Result);

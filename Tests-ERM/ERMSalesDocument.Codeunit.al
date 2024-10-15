@@ -4483,16 +4483,16 @@
         SalesHeader: Record "Sales Header";
         Customer: Record Customer;
     begin
-        // [SCENARIO] Check Registration Number on Sales Invoice.
-        // [GIVEN]: Create Customer with Registration number and create sales invoice.
+        // [SCENARIO] Check Registration Number on Sales Credit Memo.
+        // [GIVEN]: Create Customer with Registration number and create sales credit memo.
         Initialize();
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
         UpdateCustomerRegistrationNumber(Customer);
 
-        // [WHEN]: Create sales invoice for that customer.
+        // [WHEN]: Create sales cr. memo for that customer.        
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
 
-        // [THEN]: Verify Registration number on sales invoice.
+        // [THEN]: Verify Registration number on sales cr. memo.
         SalesHeader.TestField("Registration Number", Customer."Registration Number");
     end;
 
@@ -4504,7 +4504,7 @@
         SalesInvoiceHeader: Record "Sales Invoice Header";
         Customer: Record Customer;
     begin
-        // [SCENARIO] Check Registration Number on Sales Invoice.
+        // [SCENARIO] Check Registration Number on posted Sales Invoice.
         // [GIVEN]: Create Customer with Registration number and create sales invoice.
         Initialize();
 
@@ -4527,17 +4527,17 @@
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         Customer: Record Customer;
     begin
-        // [SCENARIO] Check Registration Number on Sales Invoice.
+        // [SCENARIO] Check Registration Number on Sales Credit Memo.
 
-        // [GIVEN]: Create Customer with Registration number and create sales invoice.
+        // [GIVEN]: Create Customer with Registration number and create sales credit memo.
         Initialize();
 
-        // [WHEN]: Create sales invoice for that customer.
-        // [WHEN] Post the sales invoice.
+        // [WHEN]: Create sales invoice for that customer.        
+        // [WHEN] Post the sales credit memo.
         CreateSalesDocWithRegistrationNo(SalesHeader, Customer, SalesHeader."Document Type"::"Credit Memo");
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        // [THEN]: Verify Registration number on posted sales invoice.
+        // [THEN]: Verify Registration number on posted sales credit memo.
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", Customer."No.");
         SalesCrMemoHeader.FindFirst();
         SalesCrMemoHeader.TestField("Registration Number", Customer."Registration Number");
@@ -5234,7 +5234,7 @@
         SalesLine.TestField(Type, SalesLine.Type::" ");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure SalesLinesWithLineDiscount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; SalesLineDiscount: Record "Sales Line Discount")
     var
         Counter: Integer;
@@ -5708,18 +5708,6 @@
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine.Type := SalesLine.GetDefaultLineType();
     end;
-
-#if not CLEAN23
-    [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPrepareSales', '', false, false)]
-    local procedure OnAfterInvPostBufferPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-        // Example of extending feature "Copy document line description to G/L entries" for lines with type = "Item"
-        if InvoicePostBuffer.Type = InvoicePostBuffer.Type::Item then begin
-            InvoicePostBuffer."Fixed Asset Line No." := SalesLine."Line No.";
-            InvoicePostBuffer."Entry Description" := SalesLine.Description;
-        end;
-    end;
-#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales Post Invoice Events", 'OnAfterPrepareInvoicePostingBuffer', '', false, false)]
     local procedure OnAfterPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
@@ -6414,14 +6402,6 @@
         ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
         ItemTrackingLines.OK().Invoke();
     end;
-
-#if not CLEAN23
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterFillInvoicePostBuffer', '', false, false)]
-    local procedure AddGroupOnFillInvPostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer"; SalesLine: Record "Sales Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; CommitIsSuppressed: Boolean)
-    begin
-        InvoicePostBuffer."Additional Grouping Identifier" := Format(SalesLine."Line No.");
-    end;
-#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales Post Invoice Events", 'OnPrepareLineOnAfterFillInvoicePostingBuffer', '', false, false)]
     local procedure AddGroupOnFillInvPostingBuffer(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; SalesLine: Record "Sales Line")

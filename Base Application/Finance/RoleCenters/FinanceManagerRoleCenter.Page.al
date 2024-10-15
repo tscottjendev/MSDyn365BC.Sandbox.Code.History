@@ -1643,17 +1643,6 @@ page 8901 "Finance Manager Role Center"
                         RunObject = report "Vendor/Item Purchases";
                         Tooltip = 'Run the Vendor/Item Purchases report.';
                     }
-#if not CLEAN23
-                    action("Payment Practices")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Payment Practices';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This page is obsolete. Replaced by W1 extension "Payment Practices".';
-                        ObsoleteTag = '23.0';
-                        RunObject = Report "Payment Practices";
-                    }
-#endif
                 }
                 group("Group41")
                 {
@@ -1757,6 +1746,14 @@ page 8901 "Finance Manager Role Center"
                     group("Group45")
                     {
                         Caption = 'Fixed Assets';
+                        action("FixedAssetsAnalysis")
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Analyze Fixed Assets';
+                            Image = NonStockItem;
+                            RunObject = Query "Fixed Assets Analysis";
+                            ToolTip = 'Analyze (group, summarize, pivot) your Fixed Asset Ledger Entries with related Fixed Asset master data such as Fixed Asset, Asset Class/Subclass, and Posting Date.';
+                        }
                         action("Posting Group - Net Change")
                         {
                             ApplicationArea = FixedAssets;
@@ -2311,16 +2308,6 @@ page 8901 "Finance Manager Role Center"
                     RunObject = page "Accounting Periods";
                     Tooltip = 'Open the Accounting Periods page.';
                 }
-#if not CLEAN23
-                action("Payment Period Setup")
-                {
-                    Caption = 'Payment Period Setup';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This page is obsolete. Replaced by W1 extension "Payment Practices".';
-                    ObsoleteTag = '23.0';
-                    RunObject = page "Payment Period Setup";
-                }
-#endif
                 action("Standard Text Codes")
                 {
                     ApplicationArea = Basic, Suite;

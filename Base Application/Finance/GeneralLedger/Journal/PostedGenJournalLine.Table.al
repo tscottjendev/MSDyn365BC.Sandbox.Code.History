@@ -1133,15 +1133,9 @@ table 181 "Posted Gen. Journal Line"
         }
         field(10500; "Invoice Receipt Date"; Date)
         {
-
             ObsoleteReason = 'Replaced by W1 field "Invoice Received Date".';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#endif
         }
     }
 

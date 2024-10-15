@@ -13,7 +13,6 @@ using Microsoft.Foundation.Navigate;
 using Microsoft.HumanResources.Payables;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Purchases.Payables;
@@ -50,7 +49,6 @@ codeunit 20 "Posting Preview Event Handler"
         TempExchRateAdjmtLedgEntry: Record "Exch. Rate Adjmt. Ledg. Entry" temporary;
         TempWarehouseEntry: Record "Warehouse Entry" temporary;
         TempPhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry" temporary;
-        TempCapacityLedgerEntry: Record "Capacity Ledger Entry" temporary;
         PreviewDocumentNumbers: List of [Code[20]];
         CommitPrevented: Boolean;
         ShowDocNo: Boolean;
@@ -95,8 +93,6 @@ codeunit 20 "Posting Preview Event Handler"
                 RecRef.GetTable(TempWarehouseEntry);
             Database::"Phys. Inventory Ledger Entry":
                 RecRef.GetTable(TempPhysInventoryLedgerEntry);
-            Database::"Capacity Ledger Entry":
-                RecRef.GetTable(TempCapacityLedgerEntry);
             else
                 OnGetEntries(TableNo, RecRef);
         end
@@ -167,8 +163,6 @@ codeunit 20 "Posting Preview Event Handler"
                 Page.Run(Page::"Warehouse Entries", TempWarehouseEntry);
             Database::"Phys. Inventory Ledger Entry":
                 Page.Run(Page::"Phys. Inventory Ledger Entries", TempPhysInventoryLedgerEntry);
-            Database::"Capacity Ledger Entry":
-                Page.Run(Page::"Capacity Ledger Entries", TempCapacityLedgerEntry);
             else
                 OnAfterShowEntries(TableNo);
         end;
@@ -195,7 +189,6 @@ codeunit 20 "Posting Preview Event Handler"
         InsertDocumentEntry(TempExchRateAdjmtLedgEntry, TempDocumentEntry);
         InsertDocumentEntry(TempWarehouseEntry, TempDocumentEntry);
         InsertDocumentEntry(TempPhysInventoryLedgerEntry, TempDocumentEntry);
-        InsertDocumentEntry(TempCapacityLedgerEntry, TempDocumentEntry);
 
         OnAfterFillDocumentEntry(TempDocumentEntry);
     end;
@@ -546,19 +539,6 @@ codeunit 20 "Posting Preview Event Handler"
         if not ShowDocNo then
             TempPhysInventoryLedgerEntry."Document No." := '***';
         TempPhysInventoryLedgerEntry.Insert();
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Capacity Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
-    local procedure OnInsertCapacityLedgerEntry(var Rec: Record "Capacity Ledger Entry")
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        PreventCommit();
-        TempCapacityLedgerEntry := Rec;
-        if not ShowDocNo then
-            TempCapacityLedgerEntry."Document No." := '***';
-        TempCapacityLedgerEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnAfterFinishPosting', '', false, false)]

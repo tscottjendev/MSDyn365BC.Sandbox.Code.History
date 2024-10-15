@@ -33,6 +33,7 @@ table 5330 "CRM Connection Setup"
     {
         field(1; "Primary Key"; Code[20])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Server Address"; Text[250])
@@ -125,25 +126,15 @@ table 5330 "CRM Connection Setup"
         field(61; "Is User Mapping Required"; Boolean)
         {
             ObsoleteReason = 'This functionality is not in use and not supported';
-#if not CLEAN23
-            ObsoleteTag = '20.0';
-            ObsoleteState = Pending;
-#else
             ObsoleteTag = '26.0';
             ObsoleteState = Removed;
-#endif
             Caption = 'Business Central Users Must Map to Dynamics 365 Sales Users';
 
         }
         field(62; "Is User Mapped To CRM User"; Boolean)
         {
-#if not CLEAN23
-            ObsoleteTag = '20.0';
-            ObsoleteState = Pending;
-#else
             ObsoleteTag = '26.0';
             ObsoleteState = Removed;
-#endif
             ObsoleteReason = 'This functionality is not in use and not supported';
             Caption = 'Is User Mapped To CRM User';
         }
@@ -197,13 +188,8 @@ table 5330 "CRM Connection Setup"
         }
         field(68; "Is Enabled For User"; Boolean)
         {
-#if not CLEAN23
-            ObsoleteTag = '20.0';
-            ObsoleteState = Pending;
-#else
             ObsoleteTag = '26.0';
             ObsoleteState = Removed;
-#endif
             ObsoleteReason = 'Use field "Is Enabled" instead.';
             Caption = 'Is Enabled For User';
         }

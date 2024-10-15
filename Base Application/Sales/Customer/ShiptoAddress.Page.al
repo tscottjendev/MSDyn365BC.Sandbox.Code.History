@@ -45,6 +45,13 @@ page 300 "Ship-to Address"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the name associated with the ship-to address.';
                     }
+                field("Name 2"; Rec."Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies an additional part of the name.';
+                    Visible = false;
+                }
                     field(GLN; Rec.GLN)
                     {
                         ApplicationArea = Basic, Suite;

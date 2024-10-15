@@ -145,12 +145,6 @@ table 81 "Gen. Journal Line"
                     end;
 
                 Validate("Deferral Code", '');
-#if not CLEAN23
-                if FillInvRcptDate() then
-                    "Invoice Receipt Date" := "Document Date"
-                else
-                    "Invoice Receipt Date" := 0D;
-#endif
             end;
         }
         field(4; "Account No."; Code[20])
@@ -311,12 +305,6 @@ table 81 "Gen. Journal Line"
                     end;
                 UpdateSalesPurchLCY();
                 ValidateApplyRequirements(Rec);
-#if not CLEAN23
-                if FillInvRcptDate() then
-                    Validate("Invoice Receipt Date", "Document Date")
-                else
-                    Validate("Invoice Receipt Date", 0D);
-#endif
             end;
         }
         field(7; "Document No."; Code[20])
@@ -1283,12 +1271,6 @@ table 81 "Gen. Journal Line"
                     if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
                         FieldError("Bal. Account Type");
                 end;
-#if not CLEAN23
-                if FillInvRcptDate() then
-                    "Invoice Receipt Date" := "Document Date"
-                else
-                    "Invoice Receipt Date" := 0D;
-#endif
             end;
         }
         field(64; "Bal. Gen. Posting Type"; Enum "General Posting Type")
@@ -2948,6 +2930,10 @@ table 81 "Gen. Journal Line"
             Caption = 'Bal. Non-Deductible VAT Amount LCY';
             Editable = false;
         }
+        field(6230; "Non-Ded. VAT FA Cost"; Boolean)
+        {
+            Caption = 'Non-Ded. VAT FA Cost';
+        }
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -3038,23 +3024,8 @@ table 81 "Gen. Journal Line"
         {
 
             ObsoleteReason = 'Replaced by W1 field "Invoice Received Date".';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#endif
-
-#if not CLEAN23
-            trigger OnValidate()
-            begin
-                if ("Invoice Receipt Date" <> 0D) and
-                   (("Account Type" = "Account Type"::Vendor) or ("Bal. Account Type" = "Bal. Account Type"::Vendor))
-                then
-                    TestField("Document Type", "Document Type"::Invoice);
-            end;
-#endif
         }
     }
 
@@ -3480,10 +3451,6 @@ table 81 "Gen. Journal Line"
         "Source Code" := GenJnlTemplate."Source Code";
         "Reason Code" := GenJnlBatch."Reason Code";
         "Posting No. Series" := GenJnlBatch."Posting No. Series";
-#if not CLEAN23
-        if FillInvRcptDate() then
-            "Invoice Receipt Date" := "Document Date";
-#endif
 
         IsHandled := false;
         OnSetUpNewLineOnBeforeSetBalAccount(GenJnlLine, LastGenJnlLine, Balance, IsHandled, GenJnlTemplate, GenJnlBatch, BottomLine, Rec, CurrFieldNo);
@@ -5882,7 +5849,7 @@ table 81 "Gen. Journal Line"
         OnAfterCleanLine(Rec, xRec);
     end;
 
-    local procedure ReplaceDescription() Result: Boolean
+    procedure ReplaceDescription() Result: Boolean
     var
         IsHandled: Boolean;
     begin
@@ -8605,12 +8572,12 @@ table 81 "Gen. Journal Line"
         case "Applies-to Doc. Type" of
             "Applies-to Doc. Type"::Payment:
                 "Document Type" := "Document Type"::Invoice;
-            "Applies-to Doc. Type"::"Credit Memo":
+        "Applies-to Doc. Type"::"Credit Memo":
                 "Document Type" := "Document Type"::Refund;
-            "Applies-to Doc. Type"::Invoice,
+        "Applies-to Doc. Type"::Invoice,
             "Applies-to Doc. Type"::Refund:
                 "Document Type" := "Document Type"::Payment;
-        end;
+    end;
     end;
 
     /// <summary>
@@ -8978,15 +8945,6 @@ table 81 "Gen. Journal Line"
     procedure OnGenJnlLineGetVendorAccount(Vendor: Record Vendor)
     begin
     end;
-
-#if not CLEAN23
-    local procedure FillInvRcptDate(): Boolean
-    begin
-        exit(
-          ("Document Type" = "Document Type"::Invoice) and
-          (("Account Type" = "Account Type"::Vendor) or ("Bal. Account Type" = "Bal. Account Type"::Vendor)));
-    end;
-#endif
 
     /// <summary>
     /// Opens a page with deferral schedule for the general journal line.
