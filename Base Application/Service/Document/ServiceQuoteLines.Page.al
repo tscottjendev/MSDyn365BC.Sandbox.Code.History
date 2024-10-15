@@ -219,6 +219,24 @@ page 5966 "Service Quote Lines"
                     BlankZero = true;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
+                field("Tax Liable"; Rec."Tax Liable")
+                {
+                    ApplicationArea = SalesTax;
+                    Editable = false;
+                    ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
+                    Visible = false;
+                }
+                field("Tax Area Code"; Rec."Tax Area Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
+                    Visible = false;
+                }
+                field("Tax Group Code"; Rec."Tax Group Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
+                }
                 field("Exclude Warranty"; Rec."Exclude Warranty")
                 {
                     ApplicationArea = Service;
