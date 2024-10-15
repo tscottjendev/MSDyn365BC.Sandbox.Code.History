@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Assembly.Posting;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Assembly.Posting;
 
 using Microsoft.Assembly.Comment;
 using Microsoft.Assembly.Document;

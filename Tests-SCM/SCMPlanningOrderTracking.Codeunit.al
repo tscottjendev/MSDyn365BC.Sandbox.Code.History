@@ -350,9 +350,9 @@
 
         // [GIVEN] Create Lot for Lot (Reordering Policy) Item and Stockkeeping Unit for Location Blue.
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
-        Evaluate(Item."Dampener Period", '+CM+5D');
-        Evaluate(Item."Lot Accumulation Period", '+CM+5D');
-        Evaluate(Item."Rescheduling Period", '7Y');
+        Evaluate(Item."Dampener Period", '<CM+5D>');
+        Evaluate(Item."Lot Accumulation Period", '<CM+5D>');
+        Evaluate(Item."Rescheduling Period", '<7Y>');
         Item.Modify();
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationBlue.Code, Item."No.", '');
 

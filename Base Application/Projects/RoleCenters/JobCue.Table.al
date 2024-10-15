@@ -14,6 +14,7 @@ table 9057 "Job Cue"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Jobs w/o Resource"; Integer)

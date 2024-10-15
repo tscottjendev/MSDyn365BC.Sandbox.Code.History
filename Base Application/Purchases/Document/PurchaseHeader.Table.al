@@ -197,6 +197,7 @@ table 38 "Purchase Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -309,6 +310,7 @@ table 38 "Purchase Header"
         field(5; "Pay-to Name"; Text[100])
         {
             Caption = 'Pay-to Name';
+            OptimizeForTextSearch = true;
             TableRelation = Vendor.Name;
             ValidateTableRelation = false;
 
@@ -337,10 +339,12 @@ table 38 "Purchase Header"
         field(6; "Pay-to Name 2"; Text[50])
         {
             Caption = 'Pay-to Name 2';
+            OptimizeForTextSearch = true;
         }
         field(7; "Pay-to Address"; Text[100])
         {
             Caption = 'Pay-to Address';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -350,6 +354,7 @@ table 38 "Purchase Header"
         field(8; "Pay-to Address 2"; Text[50])
         {
             Caption = 'Pay-to Address 2';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -359,6 +364,7 @@ table 38 "Purchase Header"
         field(9; "Pay-to City"; Text[30])
         {
             Caption = 'Pay-to City';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Pay-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Pay-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Pay-to Country/Region Code"));
@@ -384,6 +390,7 @@ table 38 "Purchase Header"
         field(10; "Pay-to Contact"; Text[100])
         {
             Caption = 'Pay-to Contact';
+            OptimizeForTextSearch = true;
 
             trigger OnLookup()
             var
@@ -404,6 +411,7 @@ table 38 "Purchase Header"
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+            OptimizeForTextSearch = true;
         }
         field(12; "Ship-to Code"; Code[10])
         {
@@ -458,22 +466,27 @@ table 38 "Purchase Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
+            OptimizeForTextSearch = true;
         }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
+            OptimizeForTextSearch = true;
         }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
+            OptimizeForTextSearch = true;
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
+            OptimizeForTextSearch = true;
         }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Ship-to Country/Region Code"));
@@ -498,6 +511,7 @@ table 38 "Purchase Header"
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
+            OptimizeForTextSearch = true;
         }
         field(19; "Order Date"; Date)
         {
@@ -601,6 +615,7 @@ table 38 "Purchase Header"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
+            OptimizeForTextSearch = true;
         }
         field(23; "Payment Terms Code"; Code[10])
         {
@@ -918,6 +933,7 @@ table 38 "Purchase Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
+            OptimizeForTextSearch = true;
             TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Purchaser Code"; Code[20])
@@ -1183,6 +1199,7 @@ table 38 "Purchase Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
+            OptimizeForTextSearch = true;
         }
         field(72; "Sell-to Customer No."; Code[20])
         {
@@ -1271,6 +1288,7 @@ table 38 "Purchase Header"
         field(79; "Buy-from Vendor Name"; Text[100])
         {
             Caption = 'Buy-from Vendor Name';
+            OptimizeForTextSearch = true;
             TableRelation = Vendor.Name;
             ValidateTableRelation = false;
 
@@ -1317,10 +1335,12 @@ table 38 "Purchase Header"
         field(80; "Buy-from Vendor Name 2"; Text[50])
         {
             Caption = 'Buy-from Vendor Name 2';
+            OptimizeForTextSearch = true;
         }
         field(81; "Buy-from Address"; Text[100])
         {
             Caption = 'Buy-from Address';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1331,6 +1351,7 @@ table 38 "Purchase Header"
         field(82; "Buy-from Address 2"; Text[50])
         {
             Caption = 'Buy-from Address 2';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1341,6 +1362,7 @@ table 38 "Purchase Header"
         field(83; "Buy-from City"; Text[30])
         {
             Caption = 'Buy-from City';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Buy-from Country/Region Code" = const('')) "Post Code".City
             else
             if ("Buy-from Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Buy-from Country/Region Code"));
@@ -1373,6 +1395,7 @@ table 38 "Purchase Header"
         field(84; "Buy-from Contact"; Text[100])
         {
             Caption = 'Buy-from Contact';
+            OptimizeForTextSearch = true;
 
             trigger OnLookup()
             begin
@@ -1413,6 +1436,7 @@ table 38 "Purchase Header"
         {
             CaptionClass = '5,6,' + "Pay-to Country/Region Code";
             Caption = 'Pay-to County';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1466,6 +1490,7 @@ table 38 "Purchase Header"
         {
             CaptionClass = '5,5,' + "Buy-from Country/Region Code";
             Caption = 'Buy-from County';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1523,6 +1548,7 @@ table 38 "Purchase Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
+            OptimizeForTextSearch = true;
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
@@ -1782,14 +1808,19 @@ table 38 "Purchase Header"
                 if "VAT Base Discount %" > GLSetup."VAT Tolerance %" then begin
                     if GetHideValidationDialog() or not GuiAllowed then
                         Confirmed := true
-                    else
-                        Confirmed :=
-                          Confirm(
-                            Text007 +
-                            Text008, false,
-                            FieldCaption("VAT Base Discount %"),
-                            GLSetup.FieldCaption("VAT Tolerance %"),
-                            GLSetup.TableCaption());
+                    else begin
+                        IsHandled := false;
+                        OnValidateVATBaseDiscountOnBeforeConfirm(Rec, IsHandled, Confirmed);
+                        if not IsHandled then
+                            Confirmed :=
+                              Confirm(
+                                Text007 +
+                                Text008, false,
+                                FieldCaption("VAT Base Discount %"),
+                                GLSetup.FieldCaption("VAT Tolerance %"),
+                                GLSetup.TableCaption());
+                    end;
+
                     if not Confirmed then
                         "VAT Base Discount %" := xRec."VAT Base Discount %";
                 end;
@@ -1859,6 +1890,7 @@ table 38 "Purchase Header"
         field(127; "IC Reference Document No."; Code[20])
         {
             Caption = 'IC Reference Document No.';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(129; "IC Direction"; Enum "IC Direction Type")
@@ -1966,6 +1998,7 @@ table 38 "Purchase Header"
         field(139; "Prepmt. Posting Description"; Text[100])
         {
             Caption = 'Prepmt. Posting Description';
+            OptimizeForTextSearch = true;
         }
         field(142; "Prepmt. Pmt. Discount Date"; Date)
         {
@@ -2119,6 +2152,7 @@ table 38 "Purchase Header"
         field(210; "Ship-to Phone No."; Text[30])
         {
             Caption = 'Ship-to Phone No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
         }
         field(300; "A. Rcd. Not Inv. Ex. VAT (LCY)"; Decimal)
@@ -2522,6 +2556,7 @@ table 38 "Purchase Header"
         field(11000; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            OptimizeForTextSearch = true;
         }
     }
 
@@ -3282,11 +3317,14 @@ table 38 "Purchase Header"
     procedure PerformManualRelease()
     var
         ReleasePurchDoc: Codeunit "Release Purchase Document";
+        IsHandled: Boolean;
     begin
-        if Rec.Status <> Rec.Status::Released then begin
-            ReleasePurchDoc.PerformManualRelease(Rec);
-            Commit();
-        end;
+        OnBeforePerformManualRelease(Rec, IsHandled);
+        if not IsHandled then
+            if Rec.Status <> Rec.Status::Released then begin
+                ReleasePurchDoc.PerformManualRelease(Rec);
+                Commit();
+            end;
     end;
 
     procedure PerformManualReopen(var PurchaseHeader: Record "Purchase Header")
@@ -3743,12 +3781,17 @@ table 38 "Purchase Header"
     procedure ConfirmCurrencyFactorUpdate(): Boolean
     var
         ForceConfirm: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeConfirmUpdateCurrencyFactor(Rec, HideValidationDialog, ForceConfirm);
         if GetHideValidationDialog() or not GuiAllowed or ForceConfirm then
             Confirmed := true
-        else
-            Confirmed := Confirm(Text022, false);
+        else begin
+            IsHandled := false;
+            OnConfirmCurrencyFactorUpdateOnBeforeConfirm(Rec, IsHandled, Confirmed);
+            if not IsHandled then
+                Confirmed := Confirm(Text022, false);
+        end;
         if Confirmed then
             Validate("Currency Factor")
         else
@@ -4606,6 +4649,7 @@ table 38 "Purchase Header"
         if VendLedgEntry.FindFirst() then begin
             if VendLedgEntry."Amount to Apply" = 0 then begin
                 VendLedgEntry.CalcFields("Remaining Amount");
+                OnSetAmountToApplyAfterOnCalcRemainingAmount(VendLedgEntry);
                 VendLedgEntry."Amount to Apply" := VendLedgEntry."Remaining Amount";
             end else
                 VendLedgEntry."Amount to Apply" := 0;
@@ -4884,13 +4928,18 @@ table 38 "Purchase Header"
     procedure IsApprovedForPosting() Approved: Boolean
     var
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
+        IsHandled: Boolean;
     begin
         if ApprovalsMgmt.PrePostApprovalCheckPurch(Rec) then begin
             TestPurchasePrepayment();
             Approved := true;
             if "Document Type" = "Document Type"::Order then
-                if PrepaymentMgt.TestPurchasePayment(Rec) then
-                    Error(Text054, "Document Type", "No.");
+                if PrepaymentMgt.TestPurchasePayment(Rec) then begin
+                    IsHandled := false;
+                    OnIsApprovedForPostingOnBeforeError(Rec, IsHandled, Approved);
+                    if not IsHandled then
+                        Error(Text054, "Document Type", "No.");
+                end;
             OnAfterIsApprovedForPosting(Rec, Approved);
         end;
     end;
@@ -6040,7 +6089,7 @@ table 38 "Purchase Header"
         exit(UserSetup."Salespers./Purch. Code");
     end;
 
-    local procedure InitPostingNoSeries()
+    procedure InitPostingNoSeries()
     var
 #if not CLEAN24
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -8664,6 +8713,31 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAllLineDimOnBeforeConfirmUpdateAllLineDim(var PurchaseHeader: Record "Purchase Header"; var DefaultAnswer: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetAmountToApplyAfterOnCalcRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePerformManualRelease(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVATBaseDiscountOnBeforeConfirm(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var Confirmed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConfirmCurrencyFactorUpdateOnBeforeConfirm(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var Confirmed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsApprovedForPostingOnBeforeError(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var Approved: Boolean)
     begin
     end;
 }

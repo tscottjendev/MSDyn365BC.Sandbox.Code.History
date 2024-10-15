@@ -1023,6 +1023,33 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandler')]
+    procedure VendorTemplCreateVendorFromContactNoTemplatesExistUT()
+    var
+        Contact: Record Contact;
+        VendorTempl: Record "Vendor Templ.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 365727] Create new vendor from company contact when no vendor templates exist
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] No Vendor Templates should exist
+        if not VendorTempl.IsEmpty() then
+            VendorTempl.DeleteAll();
+
+        // [GIVEN] Company contact "C"
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [WHEN] Create new vendor from "C"
+        // [THEN] Vendor was not created and message displays
+        Contact.SetHideValidationDialog(true);
+        Contact.CreateVendor();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     [HandlerFunctions('SelectCustomerTemplListHandler,ConfirmHandler')]
     procedure CustomerTemplApplyTemplateFromCustomerTwoTemplatesUT()
     var
@@ -3531,9 +3558,6 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         FieldExclusionList.Add(Item.FieldNo("Last Time Modified"));
         FieldExclusionList.Add(Item.FieldNo("Picture"));
         FieldExclusionList.Add(Item.FieldNo("Application Wksh. User ID"));
-#if not CLEAN23
-        FieldExclusionList.Add(Item.FieldNo("Coupled to CRM"));
-#endif
         FieldExclusionList.Add(Item.FieldNo("Low-Level Code"));
         FieldExclusionList.Add(Item.FieldNo("Last Unit Cost Calc. Date"));
         FieldExclusionList.Add(Item.FieldNo("Rolled-up Material Cost"));

@@ -74,7 +74,7 @@ page 1178 "Doc. Attachment List Factbox"
                     DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
 #if not CLEAN25
                     DocumentAttachmentFactbox: Page "Document Attachment Factbox";
-# endif
+#endif
                     RecRef: RecordRef;
                 begin
 #if not CLEAN25
@@ -180,9 +180,9 @@ page 1178 "Doc. Attachment List Factbox"
     var
         DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
         DocumentAttachmentDetails: Page "Document Attachment Details";
-# if not CLEAN25
+#if not CLEAN25
         DocumentAttachmentFactbox: Page "Document Attachment Factbox";
-# endif
+#endif
         RecRef: RecordRef;
     begin
         if Rec."Table ID" = 0 then
@@ -208,9 +208,9 @@ page 1178 "Doc. Attachment List Factbox"
     local procedure InitiateAttachFromEmail()
     var
         DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
-# if not CLEAN25
+#if not CLEAN25
         DocumentAttachmentFactbox: Page "Document Attachment Factbox";
-# endif
+#endif
         RecRef: RecordRef;
     begin
 #if not CLEAN25
