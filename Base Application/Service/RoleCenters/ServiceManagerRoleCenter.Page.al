@@ -226,7 +226,6 @@ page 8908 "Service Manager Role Center"
                     ApplicationArea = Service;
                     Caption = 'Demand Overview';
                     RunObject = page "Demand Overview";
-                    AccessByPermission = TableData "Service Header" = R;
                 }
                 group("Group4")
                 {
