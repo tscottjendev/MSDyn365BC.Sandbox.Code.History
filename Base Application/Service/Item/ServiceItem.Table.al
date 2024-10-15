@@ -1060,6 +1060,15 @@ table 5940 "Service Item"
         {
             Caption = 'Shipment Type';
         }
+        field(211; "Ship-to E-Mail"; Text[80])
+        {
+            CalcFormula = lookup("Ship-to Address"."E-Mail" where("Customer No." = field("Customer No."), Code = field("Ship-to Code")));
+            Caption = 'Ship-to Email';
+            OptimizeForTextSearch = true;
+            ExtendedDatatype = EMail;
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
