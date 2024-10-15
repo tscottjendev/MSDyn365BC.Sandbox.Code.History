@@ -20,6 +20,7 @@ table 550 "VAT Rate Change Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(10; "Update Gen. Prod. Post. Groups"; Option)

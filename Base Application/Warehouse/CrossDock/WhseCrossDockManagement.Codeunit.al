@@ -703,7 +703,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
     begin
     end;
 
-#if not CLEAN25
+#if not CLEAN26
     internal procedure RunOnCalcCrossDockToProdOrderComponentOnBeforeInsertCrossDockLine(ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
         OnCalcCrossDockToProdOrderComponentOnBeforeInsertCrossDockLine(ProdOrderComp);
@@ -716,7 +716,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
     end;
 #endif
 
-#if not CLEAN25
+#if not CLEAN26
     internal procedure RunOnCalcCrossDockToServiceOrderOnAfterServiceLineSetFilters(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var WhseCrossDockOpp: Record "Whse. Cross-Dock Opportunity"; var QtyOnPick: Decimal; var QtyPicked: Decimal; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; CrossDockDate: Date; LineNo: Integer)
     begin
         OnCalcCrossDockToServiceOrderOnAfterServiceLineSetFilters(ServiceLine, WhseCrossDockOpp, QtyOnPick, QtyPicked, ItemNo, VariantCode, LocationCode, CrossDockDate, LineNo);
@@ -729,7 +729,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
     end;
 #endif
 
-#if not CLEAN25
+#if not CLEAN26
     internal procedure RunOnCalcCrossDockToServiceOrderOnAfterInsertCrossDockLine(ServiceLine: Record Microsoft.Service.Document."Service Line"; var WhseCrossDockOpp: Record "Whse. Cross-Dock Opportunity"; var QtyOnPick: Decimal; var QtyPicked: Decimal; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; CrossDockDate: Date; LineNo: Integer)
     begin
         OnCalcCrossDockToServiceOrderOnAfterInsertCrossDockLine(ServiceLine, WhseCrossDockOpp, QtyOnPick, QtyPicked, ItemNo, VariantCode, LocationCode, CrossDockDate, LineNo);
@@ -742,7 +742,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
     end;
 #endif
 
-#if not CLEAN25
+#if not CLEAN26
     internal procedure RunOnCalcCrossDockToServiceOrderOnBeforeInsertCrossDockLine(ServiceLine: Record Microsoft.Service.Document."Service Line"; var WhseCrossDockOpp: Record "Whse. Cross-Dock Opportunity"; var QtyOnPick: Decimal; var QtyPicked: Decimal; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; CrossDockDate: Date; LineNo: Integer)
     begin
         OnCalcCrossDockToServiceOrderOnBeforeInsertCrossDockLine(ServiceLine, WhseCrossDockOpp, QtyOnPick, QtyPicked, ItemNo, VariantCode, LocationCode, CrossDockDate, LineNo);
@@ -820,7 +820,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
     begin
     end;
 
-#if not CLEAN25
+#if not CLEAN26
     internal procedure RunOnBeforeCalcCrossDockToServiceOrder(var WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; CrossDockDate: Date; var QtyOnPick: Decimal; var QtyPicked: Decimal; LineNo: Integer; var IsHandled: Boolean)
     begin
         OnBeforeCalcCrossDockToServiceOrder(WhseCrossDockOpportunity, ItemNo, VariantCode, LocationCode, CrossDockDate, QtyOnPick, QtyPicked, LineNo, SourceType2, PurchaseLine, IsHandled);

@@ -19,10 +19,6 @@ using Microsoft.Warehouse.Structure;
 using Microsoft.Upgrade;
 using Microsoft.Utilities;
 using System.Environment;
-#if not CLEAN23
-using System.Environment.Configuration;
-using System.Telemetry;
-#endif
 using System.Threading;
 
 table 312 "Purchases & Payables Setup"
@@ -36,6 +32,7 @@ table 312 "Purchases & Payables Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Discount Posting"; Option)
@@ -372,20 +369,6 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Allow Multiple Posting Groups';
             DataClassification = SystemMetadata;
-
-            trigger OnValidate()
-#if not CLEAN23
-            var
-                FeatureTelemetry: Codeunit "Feature Telemetry";
-                FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
-            begin
-#if not CLEAN23
-                if "Allow Multiple Posting Groups" then
-                    FeatureTelemetry.LogUptake(
-                        '0000JRB', FeatureKeyManagement.GetAllowMultipleCustVendPostingGroupsFeatureKey(), Enum::"Feature Uptake Status"::Discovered);
-#endif
-            end;
         }
         field(176; "Check Multiple Posting Groups"; enum "Posting Group Change Method")
         {
@@ -514,6 +497,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Default Price List Code';
             TableRelation = "Price List Header" where("Price Type" = const(Purchase), "Source Group" = const(Vendor), "Allow Updating Defaults" = const(true));
             DataClassification = CustomerContent;
+
             trigger OnLookup()
             var
                 PriceListHeader: Record "Price List Header";
@@ -523,17 +507,6 @@ table 312 "Purchases & Payables Setup"
                     Validate("Default Price List Code", PriceListHeader.Code);
                 end;
             end;
-#if not CLEAN23
-
-            trigger OnValidate()
-            var
-                FeatureTelemetry: Codeunit "Feature Telemetry";
-                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-            begin
-                if ("Default Price List Code" <> xRec."Default Price List Code") or (CurrFieldNo = 0) then
-                    FeatureTelemetry.LogUptake('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
-            end;
-#endif
         }
         field(7004; "Link Doc. Date To Posting Date"; Boolean)
         {

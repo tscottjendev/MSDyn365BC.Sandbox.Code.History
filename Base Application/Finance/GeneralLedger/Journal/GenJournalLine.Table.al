@@ -2932,6 +2932,10 @@ table 81 "Gen. Journal Line"
             Caption = 'Bal. Non-Deductible VAT Amount LCY';
             Editable = false;
         }
+        field(6230; "Non-Ded. VAT FA Cost"; Boolean)
+        {
+            Caption = 'Non-Ded. VAT FA Cost';
+        }
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -5460,11 +5464,17 @@ table 81 "Gen. Journal Line"
                        ((GenJournalLine2."Account Type" in [GenJournalLine2."Account Type"::Vendor, GenJournalLine2."Account Type"::Customer]) or
                         (GenJournalLine2."Bal. Account Type" in [GenJournalLine2."Bal. Account Type"::Vendor, GenJournalLine2."Bal. Account Type"::Customer]))
                     then
-                        if (GenJournalLine2."Source Code" <> SourceCodeSetup."Service Management") and (GenJournalLine2."Adjustment Applies-to" = '') then
+                        if ShouldCheckAdjustmentAppliesTo(GenJournalLine2) and (GenJournalLine2."Adjustment Applies-to" = '') then
                             if not Confirm(Text020) then
                                 Error(Text021);
                 until GenJournalLine2.Next() = 0;
         end;
+    end;
+
+    local procedure ShouldCheckAdjustmentAppliesTo(var GenJournalLine: Record "Gen. Journal Line") ShouldCheck: Boolean
+    begin
+        ShouldCheck := true;
+        OnAfterShouldCheckAdjustmentAppliesTo(GenJournalLine, ShouldCheck);
     end;
 
     procedure GetCustLedgerEntry()
@@ -6243,7 +6253,7 @@ table 81 "Gen. Journal Line"
         OnAfterCleanLine(Rec, xRec);
     end;
 
-    local procedure ReplaceDescription() Result: Boolean
+    procedure ReplaceDescription() Result: Boolean
     var
         IsHandled: Boolean;
     begin
@@ -9069,12 +9079,12 @@ table 81 "Gen. Journal Line"
         case "Applies-to Doc. Type" of
             "Applies-to Doc. Type"::Payment:
                 "Document Type" := "Document Type"::Invoice;
-            "Applies-to Doc. Type"::"Credit Memo":
+        "Applies-to Doc. Type"::"Credit Memo":
                 "Document Type" := "Document Type"::Refund;
-            "Applies-to Doc. Type"::Invoice,
+        "Applies-to Doc. Type"::Invoice,
             "Applies-to Doc. Type"::Refund:
                 "Document Type" := "Document Type"::Payment;
-        end;
+    end;
     end;
 
     /// <summary>
@@ -10119,6 +10129,11 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowDimensionsOnAfterEditDimensionSet(var GenJournalLine: Record "Gen. Journal Line"; OldDimensionSetId: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShouldCheckAdjustmentAppliesTo(var GenJournalLine: Record "Gen. Journal Line"; var ShouldCheck: Boolean)
     begin
     end;
 }

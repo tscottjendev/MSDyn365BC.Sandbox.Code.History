@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Item;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Item;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.VAT.Setup;
@@ -120,10 +124,6 @@ codeunit 1336 "Item Templ. Mgt."
                 end;
             end;
         end;
-
-#if not CLEAN23
-        OnApplyTemplateOnBeforeValidateFields(ItemRecRef, ItemTemplRecRef, FieldExclusionList, FieldValidationList);
-#endif    
 
         OnInitFromTemplateOnBeforeValidateFields(ItemRecRef, ItemTemplRecRef, FieldExclusionList, FieldValidationList);
 
@@ -682,14 +682,6 @@ codeunit 1336 "Item Templ. Mgt."
     local procedure OnAfterCreateItemFromTemplate(var Item: Record Item; ItemTempl: Record "Item Templ.");
     begin
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by the event OnInitFromTemplateOnBeforeValidateFields', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnApplyTemplateOnBeforeValidateFields(var ItemRecRef: RecordRef; var ItemTemplRecRef: RecordRef; FieldExclusionList: List of [Integer]; var FieldValidationList: List of [Integer])
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnInitFromTemplateOnBeforeValidateFields(var ItemRecRef: RecordRef; var ItemTemplRecRef: RecordRef; FieldExclusionList: List of [Integer]; var FieldValidationList: List of [Integer])

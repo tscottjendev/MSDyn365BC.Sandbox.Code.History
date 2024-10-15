@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.CRM.Contact;
 
 using Microsoft.Bank.BankAccount;
@@ -411,13 +415,8 @@ table 5050 Contact
             Caption = 'Coupled to Dataverse';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(721; "Coupled to Dataverse"; Boolean)
         {
@@ -1325,6 +1324,7 @@ table 5050 Contact
         NoOriginalCustomerTemplateMsg: Label 'Sales quote %1 without an original customer template was assigned to the customer created from template %2.', Comment = '%1=Document No.,%2=Customer Template Code';
         PhoneNoCannotContainLettersErr: Label 'must not contain letters';
         FieldLengthErr: Label 'must not have the length more than 20 symbols';
+        VendorTemplNotFoundMsg: Label 'You cannot create vendor because there is no vendor template with contact type: %1.', Comment = '%1=Contact Type';
 
     protected var
         HideValidationDialog: Boolean;
@@ -1733,8 +1733,22 @@ table 5050 Contact
         VendorTempl: Record "Vendor Templ.";
         VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
     begin
+        if not CheckIfVendorTempleExist() then begin
+            if GuiAllowed() then
+                Message(StrSubstNo(VendorTemplNotFoundMsg, Rec.Type));
+            exit;
+        end;
+
         if VendorTemplMgt.SelectVendorTemplateFromContact(VendorTempl, Rec) then
             exit(CreateVendorFromTemplate(VendorTempl.Code));
+    end;
+
+    local procedure CheckIfVendorTempleExist(): Boolean
+    var
+        VendorTempl: Record "Vendor Templ.";
+    begin
+        VendorTempl.SetRange("Contact Type", Rec.Type);
+        exit(not VendorTempl.IsEmpty());
     end;
 
     procedure CreateVendorFromTemplate(VendorTemplateCode: Code[20]) VendorNo: Code[20]

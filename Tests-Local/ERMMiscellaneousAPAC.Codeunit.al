@@ -615,37 +615,6 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         VerifyGSTPurchaseEntryExists(PostedDocNo, GSTPurchaseEntry."Document Type"::"Credit Memo", 1);
     end;
 
-#if not CLEAN23
-    [Test]
-    [Scope('OnPrem')]
-    procedure InvoicePostBuffer_GetGLAccountGST()
-    var
-        DeferralTemplate: Record "Deferral Template";
-        GLAccount: Record "G/L Account";
-        InvoicePostBuffer: Record "Invoice Post. Buffer";
-        Result: Code[20];
-    begin
-        // [FEATURE] [UT] [GST] [Deferrals]
-        // [SCENARIO 221286] TAB49 GetGLAccountGST returns correct GL Account.
-        Initialize();
-
-        Result := InvoicePostBuffer.GetGLAccountGST('', '');
-        Assert.AreEqual('', Result, 'InvoicePostBuffer.GetGLAccountGST should return empty value');
-
-        LibraryERM.CreateGLAccount(GLAccount);
-        Result := InvoicePostBuffer.GetGLAccountGST('', GLAccount."No.");
-        Assert.AreEqual(GLAccount."No.", Result, 'InvoicePostBuffer.GetGLAccountGST should return GLAccount No.');
-
-        LibraryERM.CreateDeferralTemplate(
-          DeferralTemplate, DeferralTemplate."Calc. Method"::"Straight-Line",
-          DeferralTemplate."Start Date"::"Posting Date", 1);
-        Result := InvoicePostBuffer.GetGLAccountGST(DeferralTemplate."Deferral Code", GLAccount."No.");
-        Assert.AreEqual(
-          DeferralTemplate."Deferral Account", Result,
-          'InvoicePostBuffer.GetGLAccountGST should return DeferralTemplate."Deferral Account"');
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure InvoicePostingBuffer_GetGLAccountGST()

@@ -1166,66 +1166,6 @@
           VendorLedgerEntry."Document Type"::Payment, DocumentNo[2], 0);
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('UnapplyVendorEntriesPageHandler,ConfirmHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure UnapplyEntryWithLaterAdjustedExchRate()
-    var
-        Vendor: Record Vendor;
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: array[2] of Record "Gen. Journal Line";
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-        VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
-        Amount: array[2] of Decimal;
-        PostingDate: array[3] of Date;
-        CurrencyCode: Code[10];
-        Rate: Decimal;
-    begin
-        // [FEATURE] [FCY] [Adjust Exchange Rate]
-        // [SCENARIO 304391] "Remaining Amt. (LCY)" should match "Adjusted Currency Factor" after Unapply of the entry being adjusted on the later date.
-        Initialize();
-
-        // [GIVEN] USD has different exchange rates on 01.01, 15.01, 31.01.
-        PostingDate[1] := WorkDate();
-        PostingDate[2] := PostingDate[1] + 1;
-        PostingDate[3] := PostingDate[2] + 1;
-        Rate := LibraryRandom.RandDec(10, 2);
-        CurrencyCode := CreateCurrencyAndExchangeRate(Rate, 1, PostingDate[1]);
-        CreateExchangeRate(CurrencyCode, Rate * 1.2, 1, PostingDate[2]);
-        CreateExchangeRate(CurrencyCode, Rate * 0.85, 1, PostingDate[3]);
-
-        // [GIVEN] Invoice of 100 USD posted on 01.01, where "Document No." is 'INV001'
-        LibraryPurchase.CreateVendor(Vendor);
-        SelectGenJournalBatch(GenJournalBatch);
-        Amount[1] := -LibraryRandom.RandDecInRange(10000, 20000, 2);
-        CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine[1], GenJournalBatch, PostingDate[1],
-          GenJournalLine[1]."Document Type"::Invoice, Vendor."No.", CurrencyCode, Amount[1]);
-
-        // [GIVEN] Payment of 150 USD posted on 15.01, applied to Invoice
-        Amount[2] := Round(-Amount[1] * 1.5, 0.01);
-        CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine[2], GenJournalBatch, PostingDate[2],
-          GenJournalLine[2]."Document Type"::Payment, Vendor."No.", CurrencyCode, Amount[2]);
-        ApplyVendorLedgerEntryWithAmount(GenJournalLine[1]."Document Type", GenJournalLine[2]."Document Type", Amount[1],
-          GenJournalLine[1]."Document No.", GenJournalLine[2]."Document No.");
-
-        // [GIVEN] Payment has been adjusted by "Adjust Exchange Rate" on 31.01
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, PostingDate[3], PostingDate[3]);
-
-        // [WHEN] Unapply Invoice and Payment on 15.01
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, GenJournalLine[1]."Document Type", GenJournalLine[1]."Document No.");
-        VendEntryApplyPostedEntries.UnApplyVendLedgEntry(VendorLedgerEntry."Entry No.");
-
-        // [THEN] This Payment is balanced to its adjusted exchange rate
-        VerifyVendLedgerEntryRemAmtLCYisBalanced(GenJournalLine[1]."Document No.", GenJournalLine[1]."Document Type");
-
-        // [THEN] This invoice is balanced to its adjusted exchange rate
-        VerifyVendLedgerEntryRemAmtLCYisBalanced(GenJournalLine[2]."Document No.", GenJournalLine[2]."Document Type");
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('UnapplyVendorEntriesPageHandler,ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1345,99 +1285,6 @@
         VATEntry.TestField("Additional-Currency Amount");
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure UnapplyPaymentAppliedToMultipleInvoicesWithDifferentExchangeRates()
-    var
-        ApplyUnapplyVendor: Record "Apply Unapply Parameters";
-        Currency: Record Currency;
-        Vendor: Record Vendor;
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-        VendorLedgerEntryPayment: Record "Vendor Ledger Entry";
-        VendorLedgerEntryInvoice: Record "Vendor Ledger Entry";
-        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
-        VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
-    begin
-        // [FEATURE] [Adjust Exchange Rate] [FCY] [Unapply] [Apply]
-        // [SCENARIO 399430] Stan can Unapply vendor's payment that is applied to multiple invoices with different currency rates and multiple currency rate adjustment.
-        Initialize();
-
-        PrepareCurrency(Currency, 0);
-
-        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 8, 2020), 0.12901, 0.12901);
-        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 9, 2020), 0.12903, 0.12903);
-        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 10, 2020), 0.12903, 0.12903);
-        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 11, 2020), 0.12905, 0.12905);
-        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 12, 2020), 0.12903, 0.12903);
-        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 1, 2021), 0.12903, 0.12903);
-
-        LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Currency Code", Currency.Code);
-        Vendor.Modify(true);
-
-        SelectGenJournalBatch(GenJournalBatch);
-
-        CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine, GenJournalBatch, DMY2Date(19, 8, 2020),
-          GenJournalLine."Document Type"::Invoice, Vendor."No.", Currency.Code, -400);
-
-        LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, DMY2Date(30, 9, 2020), DMY2Date(30, 9, 2020));
-
-        CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine, GenJournalBatch, DMY2Date(12, 11, 2020),
-          GenJournalLine."Document Type"::Invoice, Vendor."No.", Currency.Code, -850);
-
-        CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine, GenJournalBatch, DMY2Date(12, 11, 2020),
-          GenJournalLine."Document Type"::Invoice, Vendor."No.", Currency.Code, -250);
-
-        CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine, GenJournalBatch, DMY2Date(17, 11, 2020),
-          GenJournalLine."Document Type"::Invoice, Vendor."No.", Currency.Code, -244140);
-
-        LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, DMY2Date(30, 11, 2020), DMY2Date(30, 11, 2020));
-
-        CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine, GenJournalBatch, DMY2Date(7, 1, 2021),
-          GenJournalLine."Document Type"::Payment, Vendor."No.", Currency.Code, 77280);
-
-        VendorLedgerEntryPayment.SetRange("Vendor No.", Vendor."No.");
-        LibraryERM.FindVendorLedgerEntry(
-          VendorLedgerEntryPayment, VendorLedgerEntryPayment."Document Type"::Payment, GenJournalLine."Document No.");
-
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntryPayment);
-
-        VendorLedgerEntryInvoice.SetRange("Vendor No.", Vendor."No.");
-        VendorLedgerEntryInvoice.SetRange("Document Type", VendorLedgerEntryInvoice."Document Type"::Invoice);
-
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntryInvoice);
-
-        LibraryERM.PostVendLedgerApplication(VendorLedgerEntryPayment);
-
-        LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, DMY2Date(31, 12, 2020), DMY2Date(31, 12, 2020));
-
-        Commit();
-
-        VendorLedgerEntryPayment.Find();
-        VendorLedgerEntryPayment.TestField(Open, false);
-
-        DetailedVendorLedgEntry.SetRange("Document Type", DetailedVendorLedgEntry."Document Type"::Payment);
-        DetailedVendorLedgEntry.SetRange("Document No.", VendorLedgerEntryPayment."Document No.");
-        DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
-        DetailedVendorLedgEntry.FindLast();
-
-        ApplyUnapplyVendor."Document No." := VendorLedgerEntryPayment."Document No.";
-        ApplyUnapplyVendor."Posting Date" := VendorLedgerEntryPayment."Posting Date";
-        VendEntryApplyPostedEntries.PostUnApplyVendor(DetailedVendorLedgEntry, ApplyUnapplyVendor);
-
-        VendorLedgerEntryPayment.Find();
-        VendorLedgerEntryPayment.TestField(Open, true);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure UnapplyPaymentAppliedToMultipleInvoicesWithDifferentExchRates()
@@ -1530,6 +1377,71 @@
 
         VendorLedgerEntryPayment.Find();
         VendorLedgerEntryPayment.TestField(Open, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RemainingAmountIsZeorBeforeAndAfterRunningExchRateAdjustmentReport()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ERMApplyUnapplyVendor: Codeunit "ERM Apply Unapply Vendor";
+        PostedDocumentNo: Code[20];
+        Amount: Decimal;
+        PaymentTolerance: Decimal;
+        PostingDate: array[3] of Date;
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 535548] Issue with Adjust Currency Exchange Rate using the new feature Report 596
+        Initialize();
+
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
+        PaymentTolerance := LibraryRandom.RandDec(10, 2);  // Using Random value for Payment Tolerance.
+        SetPaymentTolerancePct(PaymentTolerance);
+
+        // [GIVEN] Create new currenct with different exchange rates on 01.01, 15.01, 31.01.
+        PostingDate[1] := Today();
+        PostingDate[2] := PostingDate[1] + 30;
+        PostingDate[3] := WorkDate();
+        CurrencyCode := CreateCurrencyAndExchangeRate(1, LibraryRandom.RandDecInDecimalRange(11.5575, 11.5575, 4), PostingDate[1]);
+        CreateExchangeRate(CurrencyCode, 1, LibraryRandom.RandDecInDecimalRange(11.753, 11.753, 3), PostingDate[2]);
+        CreateExchangeRate(CurrencyCode, 1, LibraryRandom.RandDecInDecimalRange(11.6398, 11.6398, 4), PostingDate[3]);
+
+        // [GIVEN] Create vendor with currency
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", CreateCurrency(LibraryRandom.RandDec(10, 2)));
+        Vendor.Modify(true);
+
+        // [GIVEN] Create Purchase Invoice and post
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        Amount := CreateAndModifyPurchaseLine(PurchaseHeader);
+        Amount := LibraryERM.ConvertCurrency(Amount, PurchaseHeader."Currency Code", '', WorkDate());
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create Payment and post for Posted Invoice
+        CreateGeneralJournalLine(GenJournalLine, 1, Vendor."No.", GenJournalLine."Document Type"::Payment, 0);
+        GenJournalLine.Validate("Posting Date", PostingDate[3]);
+        UpdateGenJournalLine(GenJournalLine, '', PostedDocumentNo, Amount);
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Verify: Verify Remaining Amount is zero on Vendor Ledger Entry before running Exchange Rate report
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, PurchaseHeader."Document Type", PostedDocumentNo);
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        VendorLedgerEntry.TestField("Remaining Amount", 0);
+
+        // [WHEN] Run Adjustment for Vendor by "Adjust Exchange Rate" on 31.01
+        BindSubscription(ERMApplyUnapplyVendor);
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, PostingDate[3], PostingDate[3]);
+        UnbindSubscription(ERMApplyUnapplyVendor);
+
+        // [THEN] Verify: Verify Remaining Amount is zero on Vendor Ledger Entry after running Exchange Rate report
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, PurchaseHeader."Document Type", PostedDocumentNo);
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        VendorLedgerEntry.TestField("Remaining Amount", 0);
     end;
 
     local procedure Initialize()

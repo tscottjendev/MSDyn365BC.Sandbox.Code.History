@@ -30,9 +30,6 @@ using Microsoft.FixedAssets.Journal;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Calendar;
-#if not CLEAN25
-using Microsoft.Foundation.ExtendedText;
-#endif
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.Period;
 using Microsoft.HumanResources.Employee;
@@ -1059,19 +1056,6 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Reason Codes";
                     ToolTip = 'View or set up codes that specify reasons why entries were created, such as Return, to specify why a purchase credit memo was posted.';
                 }
-#if not CLEAN25
-                action("Extended Texts")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Extended Texts';
-                    Image = Text;
-                    RunObject = Page "Extended Text List";
-                    ToolTip = 'View or edit additional text for the descriptions of items. Extended text can be inserted under the Description field on document lines for the item.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Page should not get opened without any filters.';
-                    ObsoleteTag = '23.0';
-                }
-#endif
             }
         }
         area(creation)

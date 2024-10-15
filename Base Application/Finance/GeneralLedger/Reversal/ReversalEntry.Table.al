@@ -285,6 +285,7 @@ table 179 "Reversal Entry"
         UnrealizedVATReverseErr: Label 'You cannot reverse %1 No. %2 because the entry has an associated Unrealized VAT Entry.';
 #pragma warning restore AA0470
         CaptionTxt: Label '%1 %2 %3', Locked = true;
+        ReversalWithACYErr: Label 'Due to how Business Central posts and updates amounts in an additional reporting currency (ACY), you can''t use this feature if you use ACY. Business Central converts amounts in local currency to the alternate currency, but doesn''t net transactions. If you use ACY, you must manually reverse the amounts.';
 
     protected var
         GLSetup: Record "General Ledger Setup";
@@ -697,6 +698,19 @@ table 179 "Reversal Entry"
         if not DetailedCustLedgEntry.IsEmpty() then
             Error(ReversalErrorForChangedEntry(CustLedgerEntry.TableCaption(), CustLedgerEntry."Entry No."));
 
+        GLSetup.Get();
+        if GLSetup."Additional Reporting Currency" <> '' then begin
+            DetailedCustLedgEntry.Reset();
+            DetailedCustLedgEntry.SetCurrentKey("Transaction No.", "Customer No.", "Entry Type");
+            DetailedCustLedgEntry.SetRange("Transaction No.", CustLedgerEntry."Transaction No.");
+            DetailedCustLedgEntry.SetRange("Customer No.", CustLedgerEntry."Customer No.");
+            DetailedCustLedgEntry.SetRange("Currency Code", GLSetup."Additional Reporting Currency");
+            DetailedCustLedgEntry.SetFilter("Entry Type", '%1|%2',
+              DetailedCustLedgEntry."Entry Type"::"Realized Gain", DetailedCustLedgEntry."Entry Type"::"Realized Loss");
+            if not DetailedCustLedgEntry.IsEmpty() then
+                Error(ReversalWithACYErr);
+        end;
+
         OnAfterCheckDtldCustLedgEntry(DetailedCustLedgEntry, CustLedgerEntry);
     end;
 
@@ -717,6 +731,18 @@ table 179 "Reversal Entry"
         if not DetailedVendorLedgEntry.IsEmpty() then
             Error(ReversalErrorForChangedEntry(VendorLedgerEntry.TableCaption(), VendorLedgerEntry."Entry No."));
 
+        GLSetup.Get();
+        if GLSetup."Additional Reporting Currency" <> '' then begin
+            DetailedVendorLedgEntry.Reset();
+            DetailedVendorLedgEntry.SetCurrentKey("Transaction No.", "Vendor No.", "Entry Type");
+            DetailedVendorLedgEntry.SetRange("Transaction No.", VendorLedgerEntry."Transaction No.");
+            DetailedVendorLedgEntry.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
+            DetailedVendorLedgEntry.SetRange("Currency Code", GLSetup."Additional Reporting Currency");
+            DetailedVendorLedgEntry.SetFilter("Entry Type", '%1|%2',
+              DetailedVendorLedgEntry."Entry Type"::"Realized Gain", DetailedVendorLedgEntry."Entry Type"::"Realized Loss");
+            if not DetailedVendorLedgEntry.IsEmpty() then
+                Error(ReversalWithACYErr);
+        end;
         OnAfterCheckDtldVendLedgEntry(DetailedVendorLedgEntry, VendorLedgerEntry);
     end;
 
@@ -808,15 +834,6 @@ table 179 "Reversal Entry"
         FALedgerEntry.Copy(GlobalFALedgerEntry);
         MaintenanceLedgerEntry.Copy(GlobalMaintenanceLedgerEntry);
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by W1 implementation of CopyReverseFilters() and CopyWHTEntryFilter()', '23.0')]
-    procedure CopyReverseFilters(var GLEntry: Record "G/L Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var VATEntry: Record "VAT Entry"; var FALedgerEntry: Record "FA Ledger Entry"; var MaintenanceLedgerEntry: Record "Maintenance Ledger Entry"; var WHTEntry: Record "WHT Entry"; var EmployeeLedgerEntry: Record "Employee Ledger Entry")
-    begin
-        CopyReverseFilters(GLEntry, CustLedgerEntry, VendorLedgerEntry, BankAccountLedgerEntry, VATEntry, FALedgerEntry, MaintenanceLedgerEntry, EmployeeLedgerEntry);
-        CopyWHTEntryFilters(WHTEntry);
-    end;
-#endif
 
     procedure CopyWHTEntryFilters(var WHTEntry: Record "WHT Entry")
     begin

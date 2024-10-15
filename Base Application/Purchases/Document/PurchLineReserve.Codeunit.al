@@ -318,7 +318,8 @@ codeunit 99000834 "Purch. Line-Reserve"
         if not FindReservEntry(PurchaseLine, OldReservationEntry) then
             exit(TransferQty);
 
-        OldReservationEntry.Lock();
+        OldReservationEntry.LockTable();
+        OldReservationEntry.FindLast();
         // Handle Item Tracking on drop shipment:
         Clear(CreateReservEntry);
         if ApplySpecificItemTracking and (ItemJournalLine."Applies-to Entry" <> 0) then
