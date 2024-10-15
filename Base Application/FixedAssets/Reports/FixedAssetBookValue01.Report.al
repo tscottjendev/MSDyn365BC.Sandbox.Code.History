@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.Reports;
 
 using Microsoft.FixedAssets.Depreciation;
@@ -555,8 +559,6 @@ report 5605 "Fixed Asset - Book Value 01"
         PostingType: Integer;
         Period1: Option "Before Starting Date","Net Change","at Ending Date";
         Period2: Option "Before Starting Date","Net Change","at Ending Date";
-        StartingDate: Date;
-        EndingDate: Date;
         BudgetReport: Boolean;
         BeforeAmount: Decimal;
         EndingAmount: Decimal;
@@ -593,6 +595,8 @@ report 5605 "Fixed Asset - Book Value 01"
         FADeprBook: Record "FA Depreciation Book";
         DeprBookCode: Code[10];
         PrintDetails: Boolean;
+        StartingDate: Date;
+        EndingDate: Date;
 
     local procedure AddPostingType(PostingType: Option "Write-Down",Appreciation,"Custom 1","Custom 2")
     var

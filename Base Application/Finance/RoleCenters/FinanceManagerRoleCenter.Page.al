@@ -407,18 +407,6 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Export G/L Entries to XML';
                             RunObject = report "Export G/L Entries to XML";
                         }
-#if not CLEAN23
-                        action("Export G/L Entries - Tax Audit")
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Export G/L Entries - Tax Audit';
-                            RunObject = report "Export G/L Entries - Tax Audit";
-                            Visible = false;
-                            ObsoleteReason = 'Use Audit File Export Document with the FEC format selected. The Audit File Export and FEC Audit File extensions must be installed.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '23.0';
-                        }
-#endif
                     }
                 }
                 group("Group7")
@@ -1533,17 +1521,6 @@ page 8901 "Finance Manager Role Center"
                         RunObject = report "EC Sales List";
                         Tooltip = 'Run the EC Sales List report.';
                     }
-#if not CLEAN23
-                    action("Payment Reporting Test")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Payment Practices Reporting';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This report is obsolete. Replaced by W1 extension "Payment Practices".';
-                        ObsoleteTag = '23.0';
-                        RunObject = report "Payment Practices Reporting";
-                    }
-#endif
                 }
                 group("Group35")
                 {
@@ -1583,17 +1560,6 @@ page 8901 "Finance Manager Role Center"
                         RunObject = page "Finance Charge Terms";
                         Tooltip = 'Open the Finance Charge Terms page.';
                     }
-#if not CLEAN23
-                    action("Payment Period Setup")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Payment Period Setup';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This page is obsolete. Replaced by W1 extension "Payment Practices".';
-                        ObsoleteTag = '23.0';
-                        RunObject = page "Payment Period Setup";
-                    }
-#endif
                 }
             }
             group("Group36")
@@ -1849,17 +1815,6 @@ page 8901 "Finance Manager Role Center"
                         RunObject = report "Vendor/Item Purchases";
                         Tooltip = 'Run the Vendor/Item Purchases report.';
                     }
-#if not CLEAN23
-                    action("Payment Reporting Test1")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Payment Practices Reporting';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This report is obsolete. Replaced by W1 extension "Payment Practices".';
-                        ObsoleteTag = '23.0';
-                        RunObject = report "Payment Practices Reporting";
-                    }
-#endif
                 }
                 group("Group41")
                 {
@@ -1870,17 +1825,6 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Purchases & Payables Setup';
                         RunObject = page "Purchases & Payables Setup";
                     }
-#if not CLEAN23
-                    action("Payment Period Setup1")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Payment Period Setup';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This report is obsolete. Replaced by W1 extension "Payment Practices".';
-                        ObsoleteTag = '23.0';
-                        RunObject = page "Payment Period Setup";
-                    }
-#endif
                 }
             }
             group("Group42")
@@ -1973,6 +1917,14 @@ page 8901 "Finance Manager Role Center"
                     group("Group45")
                     {
                         Caption = 'Fixed Assets';
+                        action("FixedAssetsAnalysis")
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Analyze Fixed Assets';
+                            Image = NonStockItem;
+                            RunObject = Query "Fixed Assets Analysis";
+                            ToolTip = 'Analyze (group, summarize, pivot) your Fixed Asset Ledger Entries with related Fixed Asset master data such as Fixed Asset, Asset Class/Subclass, and Posting Date.';
+                        }
                         action("Posting Group - Net Change")
                         {
                             ApplicationArea = FixedAssets;

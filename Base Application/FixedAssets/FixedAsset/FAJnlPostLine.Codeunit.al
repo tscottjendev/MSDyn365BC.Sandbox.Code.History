@@ -1,9 +1,14 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.Posting;
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.FixedAssets.Depreciation;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Insurance;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.FixedAssets.Journal;
 using Microsoft.FixedAssets.Ledger;
 using Microsoft.FixedAssets.Maintenance;
@@ -34,6 +39,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         CalculateAcqCostDepr: Codeunit "Calculate Acq. Cost Depr.";
         MakeFALedgEntry: Codeunit "Make FA Ledger Entry";
         MakeMaintenanceLedgEntry: Codeunit "Make Maintenance Ledger Entry";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         FANo: Code[20];
         BudgetNo: Code[20];
         DeprBookCode: Code[10];
@@ -365,6 +371,8 @@ codeunit 5632 "FA Jnl.-Post Line"
         IsHandled := false;
         OnBeforePostDeprUntilDate(FALedgEntry, FAPostingDate, Type, IsHandled);
         if IsHandled then
+            exit;
+        if NonDeductibleVAT.IsNonDedFALedgEntryInFirstAcquisition(FALedgEntry) then
             exit;
         FALedgEntry."Automatic Entry" := true;
         FALedgEntry."FA No./Budgeted FA No." := '';

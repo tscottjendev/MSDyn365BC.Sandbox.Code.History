@@ -771,9 +771,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Document Entry" = RIMD,
                   tabledata "Document Search Result" = RIMD,
                   tabledata "Document Sending Profile" = RIMD,
-#if not CLEAN23
-                  tabledata "Document Service Cache" = Rimd,
-#endif
                   tabledata "Drop Shpt. Post. Buffer" = RIMD,
                   tabledata "Dtld. Price Calculation Setup" = RIMD,
                   tabledata "Duplicate Price Line" = RIMD,
@@ -974,9 +971,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Inventory Report Entry" = RIMD,
                   tabledata "Inventory Report Header" = RIMD,
                   tabledata "Inventory Setup" = RIMD,
-#if not CLEAN23
-                  tabledata "Invoice Post. Buffer" = RIMD,
-#endif
                   tabledata "Invoice Posting Buffer" = RIMD,
                   tabledata "Invoiced Booking Item" = RIMD,
                   tabledata "Invt. Document Header" = RIMD,
@@ -1249,11 +1243,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Posted Whse. Receipt Line" = RIMD,
                   tabledata "Posted Whse. Shipment Header" = RIMD,
                   tabledata "Posted Whse. Shipment Line" = RIMD,
-#if not CLEAN23
-                  tabledata "Power BI User Configuration" = RIMD,
-                  tabledata "Power BI Report Configuration" = RIMD,
-                  tabledata "Power BI User Status" = RIMD,
-#endif
                   tabledata "Power BI Chart Buffer" = RIMD,
                   tabledata "Power BI Context Settings" = RIMD,
                   tabledata "Power BI Customer Reports" = RIMD,

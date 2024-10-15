@@ -545,17 +545,6 @@ page 26 "Vendor Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the vendor.';
                 }
-#if not CLEAN23
-                field("Exclude from Payment Reporting"; Rec."Exclude from Payment Reporting")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Importance = Additional;
-                    ToolTip = 'Specifies that customer must be excluded from calculation in Payment Practices report.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by W1 field "Exclude from Pmt. Practices".';
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Exclude from Pmt. Practices"; Rec."Exclude from Pmt. Practices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1956,7 +1945,7 @@ page 26 "Vendor Card"
 
         CurrPage.EnqueueBackgroundTask(BackgroundTaskId, Codeunit::"Vendor Card Calculations", Args);
 
-        Session.LogMessage('0000GC4', StrSubstNo(PageBckGrndTaskStartedTxt, Rec."No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VendorCardServiceCategoryTxt);
+        Session.LogMessage('0000GC4', StrSubstNo(PageBckGrndTaskStartedTxt, Rec.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VendorCardServiceCategoryTxt);
     end;
 
     trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.FixedAssets.Depreciation;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.FixedAssets.Depreciation;
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -277,7 +281,7 @@ report 5692 "Calculate Depreciation"
                         Caption = 'Force No. of Days';
                         Importance = Additional;
                         MinValue = 0;
-                        ToolTip = 'Specifies if you want the program to use the number of days, as specified in the field below, in the depreciation calculation.';
+                        ToolTip = 'Specifies the number of days, to use for the depreciation calculation.';
 
                         trigger OnValidate()
                         begin
@@ -307,7 +311,7 @@ report 5692 "Calculate Depreciation"
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Posting Description';
-                        ToolTip = 'Specifies the posting date to be used by the batch job as a filter.';
+                        ToolTip = 'Specifies the Posting Description.';
                     }
                     field(InsertBalAccount; BalAccount)
                     {
