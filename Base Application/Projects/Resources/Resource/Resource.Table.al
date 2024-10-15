@@ -564,13 +564,8 @@ table 156 Resource
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(721; "Coupled to Dataverse"; Boolean)
         {
@@ -668,14 +663,6 @@ table 156 Resource
         key(Key8; SystemModifiedAt)
         {
         }
-#if not CLEAN23
-        key(Key9; "Coupled to CRM")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     fieldgroups

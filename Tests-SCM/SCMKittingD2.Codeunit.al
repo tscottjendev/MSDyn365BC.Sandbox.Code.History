@@ -19,6 +19,7 @@ codeunit 137091 "SCM Kitting - D2"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryJob: Codeunit "Library - Job";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryDimension: Codeunit "Library - Dimension";
@@ -1359,6 +1360,39 @@ codeunit 137091 "SCM Kitting - D2"
         ClearLastError();
     end;
 
+
+    [Test]
+    procedure JobExplodeBOM()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        TempJobPlanningLine: Record "Job Planning Line" temporary;
+        TempBOMComponent: Record "BOM Component" temporary;
+        JobExplodBOM: Codeunit "Job-Explode BOM";
+        JobTask: Record "Job Task";
+    begin
+        Initialize();
+
+        // [GIVEN] Item exists
+        LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
+
+        // [GIVEN] Item Assembly BOM exists
+        LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, 2, 0, 0, 1, '', '');
+        SaveInitialAssemblyList(TempBOMComponent, Item."No.");
+
+        // [GIVEN] Transfer order with the BOM exists
+        PrepareJobWithJobPlanningLine(Item, JobTask, JobPlanningLine);
+
+        TempJobPlanningLine := JobPlanningLine;
+        TempJobPlanningLine.Insert(false);
+
+        // [WHEN] Explode the transfer line BOM
+        JobExplodBOM.Run(JobPlanningLine);
+
+        // [THEN] All defined BOM lines were created, no other lines were created
+        VerifyExplodedJobPlanningLines(TempBOMComponent, JobTask, TempJobPlanningLine);
+    end;
+
     [Test]
     [HandlerFunctions('ExplodeBOMWithDimensionsFromBOMStrMenuHandler')]
     procedure TransferExplodeBOM()
@@ -1880,6 +1914,37 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Normal]
+    local procedure VerifyExplodedJobPlanningLines(var TempBOMComponent: Record "BOM Component" temporary; JobTask: Record "Job Task"; TempJobPlanningLine: Record "Job Planning Line" temporary)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        JobPlanningLine.SetRange("Job No.", JobTask."Job No.");
+        JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        JobPlanningLine.SetFilter(Quantity, '<>0');
+        JobPlanningLine.FindSet();
+        TempBOMComponent.FindSet();
+
+        repeat
+            Assert.AreEqual(Format(TempJobPlanningLine."Line Type"), Format(JobPlanningLine."Line Type"), TempJobPlanningLine.FieldCaption("Line Type"));
+            TempBOMComponent.SetRange("Parent Item No.", TempJobPlanningLine."No.");
+            // Filter for Item lines only - the non items must not be created
+            TempBOMComponent.SetRange(Type, TempBOMComponent.Type::Item);
+            TempBOMComponent.SetRange("No.", JobPlanningLine."No.");
+            TempBOMComponent.SetRange("Variant Code", JobPlanningLine."Variant Code");
+            TempBOMComponent.SetRange("Unit of Measure Code", JobPlanningLine."Unit of Measure Code");
+            Assert.AreEqual(1, TempBOMComponent.Count, 'Too many order lines exploded.');
+            TempBOMComponent.FindFirst();
+            Assert.AreNearlyEqual(TempBOMComponent."Quantity per" * TempJobPlanningLine.Quantity, JobPlanningLine.Quantity,
+              LibraryERM.GetAmountRoundingPrecision(), 'Wrong qty in exploded line for ' + JobPlanningLine."No.");
+            TempBOMComponent.Delete(true);
+        until JobPlanningLine.Next() = 0;
+
+        TempBOMComponent.Reset();
+        TempBOMComponent.SetRange(Type, TempBOMComponent.Type::Item);
+        Assert.AreEqual(0, TempBOMComponent.Count, 'Not all lines were exploded.');
+    end;
+
+    [Normal]
     local procedure VerifyExplodedTransferLines(var TempBOMComponent: Record "BOM Component" temporary; TransferHeader: Record "Transfer Header"; TempTransferLine: Record "Transfer Line" temporary)
     var
         TransferLine: Record "Transfer Line";
@@ -1941,6 +2006,16 @@ codeunit 137091 "SCM Kitting - D2"
         Assert.AreNearlyEqual(CostAmount,
           Round(AssemblyHeader.Quantity * AssemblyHeader."Unit Cost", LibraryERM.GetAmountRoundingPrecision()),
           LibraryERM.GetAmountRoundingPrecision(), 'Wrong header unit cost.');
+    end;
+
+    [Normal]
+    local procedure PrepareJobWithJobPlanningLine(Item: Record Item; var JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line")
+    var
+        Job: Record Job;
+    begin
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(JobTask, LibraryJob.PlanningLineTypeBoth(), LibraryJob.ItemType(), Item."No.", LibraryRandom.RandDec(5, 2), JobPlanningLine);
     end;
 
     [Normal]

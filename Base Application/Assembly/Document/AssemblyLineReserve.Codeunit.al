@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Document;
 
 using Microsoft.Inventory.Journal;
@@ -339,6 +343,7 @@ codeunit 926 "Assembly Line-Reserve"
     procedure TransferAsmLineToItemJnlLine(var AssemblyLine: Record "Assembly Line"; var ItemJournalLine: Record "Item Journal Line"; TransferQty: Decimal; CheckApplFromItemEntry: Boolean): Decimal
     var
         OldReservationEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
         if TransferQty = 0 then
             exit;
@@ -349,7 +354,8 @@ codeunit 926 "Assembly Line-Reserve"
         ItemJournalLine.TestField("Variant Code", AssemblyLine."Variant Code");
         ItemJournalLine.TestField("Location Code", AssemblyLine."Location Code");
 
-        OldReservationEntry.Lock();
+        OldReservationEntry.LockTable();
+        OldReservationEntry.FindLast();
 
         if ReservationEngineMgt.InitRecordSet(OldReservationEntry) then begin
             repeat
@@ -362,11 +368,14 @@ codeunit 926 "Assembly Line-Reserve"
                     CreateReservEntry.SetApplyFromEntryNo(OldReservationEntry."Appl.-from Item Entry");
                 end;
 
-                TransferQty := CreateReservEntry.TransferReservEntry(
-                    Database::"Item Journal Line",
-                    ItemJournalLine."Entry Type".AsInteger(), ItemJournalLine."Journal Template Name",
-                    ItemJournalLine."Journal Batch Name", 0, ItemJournalLine."Line No.",
-                    ItemJournalLine."Qty. per Unit of Measure", OldReservationEntry, TransferQty);
+                IsHandled := false;
+                OnTransferAsmLineToItemJnlLineOnBeforeTransferReservationEntry(OldReservationEntry, AssemblyLine, ItemJournalLine, IsHandled);
+                if not IsHandled then
+                    TransferQty := CreateReservEntry.TransferReservEntry(
+                        Database::"Item Journal Line",
+                        ItemJournalLine."Entry Type".AsInteger(), ItemJournalLine."Journal Template Name",
+                        ItemJournalLine."Journal Batch Name", 0, ItemJournalLine."Line No.",
+                        ItemJournalLine."Qty. per Unit of Measure", OldReservationEntry, TransferQty);
 
             until (ReservationEngineMgt.NEXTRecord(OldReservationEntry) = 0) or (TransferQty = 0);
             CheckApplFromItemEntry := false;
@@ -892,6 +901,11 @@ codeunit 926 "Assembly Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateReservationOnBeforeCreateReservEntry(var AssemblyLine: Record "Assembly Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ReservationEntry: Record "Reservation Entry"; var FromTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; ExpectedReceiptDate: Date; Description: Text[100]; ShipmentDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferAsmLineToItemJnlLineOnBeforeTransferReservationEntry(var ReservationEntry: Record "Reservation Entry"; var AssemblyLine: Record "Assembly Line"; var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -7,8 +7,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Family;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
@@ -329,16 +327,6 @@ table 5766 "Warehouse Activity Header"
                             "Source Type" := Database::"Transfer Line";
                             "Source Subtype" := 1;
                         end;
-                    "Source Document"::"Prod. Consumption":
-                        begin
-                            "Source Type" := Database::"Prod. Order Component";
-                            "Source Subtype" := 3;
-                        end;
-                    "Source Document"::"Prod. Output":
-                        begin
-                            "Source Type" := Database::"Prod. Order Line";
-                            "Source Subtype" := 3;
-                        end;
                     "Source Document"::"Assembly Consumption":
                         begin
                             "Source Type" := Database::"Assembly Line";
@@ -346,6 +334,8 @@ table 5766 "Warehouse Activity Header"
                         end;
                     "Source Document"::"Job Usage":
                         "Source Type" := Database::Job;
+                    else
+                        OnValidateSourceDocumentOnAssignSourceType(Rec);
                 end;
 
                 if "Source Document" = "Source Document"::" " then begin
@@ -379,8 +369,6 @@ table 5766 "Warehouse Activity Header"
             if ("Destination Type" = const(Location)) Location
             else
             if ("Destination Type" = const(Item)) Item
-            else
-            if ("Destination Type" = const(Family)) Family
             else
             if ("Destination Type" = const("Sales Order")) "Sales Header"."No." where("Document Type" = const(Order));
         }
@@ -1097,6 +1085,11 @@ table 5766 "Warehouse Activity Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnSortWhseDocByShelfOrBinOnBeforeWhseActivLine2Find(var WarehouseActivityLine2: Record "Warehouse Activity Line"; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSourceDocumentOnAssignSourceType(var WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 }

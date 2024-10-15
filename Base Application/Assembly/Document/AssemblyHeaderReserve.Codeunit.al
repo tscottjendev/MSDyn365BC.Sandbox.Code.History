@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Assembly.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Assembly.Document;
 
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
@@ -296,7 +300,8 @@ codeunit 925 "Assembly Header-Reserve"
 
         ItemJournalLine.TestItemFields(AssemblyHeader."Item No.", AssemblyHeader."Variant Code", AssemblyHeader."Location Code");
 
-        OldReservationEntry.Lock();
+        OldReservationEntry.LockTable();
+        OldReservationEntry.FindLast();
 
         if ReservationEngineMgt.InitRecordSet(OldReservationEntry) then begin
             repeat
