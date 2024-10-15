@@ -167,16 +167,6 @@ codeunit 5330 "CRM Integration Management"
         BrokenCouplingsFoundAndMarkedAsSkippedForMappingTxt: Label 'Broken couplings were found and marked as skipped. Mapping: %1 - %2. Direction: %3. Count: %4.', Locked = true;
         BrokenCouplingsFoundAndMarkedAsSkippedTotalTxt: Label 'Broken couplings were found and marked as skipped. Total count: %1.', Locked = true;
         NoBrokenCouplingsFoundTxt: Label 'No broken couplings were found.', Locked = true;
-#if not CLEAN23
-        SuccessfullyScheduledMarkingOfInvoiceAsCoupledTxt: Label 'Successfully scheduled marking of invoice %1 as coupled to Dynamics 365 Sales invoice.', Locked = true;
-        UnableToMarkRecordAsCoupledTableID0Txt: Label 'Unable to mark record as coupled, Table ID is 0 on CRM Integration Record %1.', Locked = true;
-        UnableToMarkRecordAsCoupledOpenTableFailsTxt: Label 'Unable to mark record as coupled, unable to open Table ID %1 from CRM Integration Record %2.', Locked = true;
-        UnableToMarkRecordAsCoupledNoRecordFoundTxt: Label 'Unable to mark record as coupled, unable to get record with systemid %1 from CRM Integration Record %2.', Locked = true;
-        UnableToMarkRecordAsCoupledRecordHasNoCoupledFlagTxt: Label 'Unable to mark record as coupled, record with systemid %1 doesnt have a Coupled to CRM field, from CRM Integration Record %2.', Locked = true;
-        NoNeedToChangeCoupledFlagTxt: Label 'Record with systemid %1 already has Coupled to CRM set to %2, from CRM Integration Record %3.', Locked = true;
-        SetCouplingFlagJQEDescriptionTxt: Label 'Marking %1 %2 as coupled to Dataverse.', Comment = '%1 - Business Central table name (e.g. Customer, Vendor, Posted Sales Invoice); %2 - a Guid, record identifier; Dataverse is a name of a Microsoft service and must not be translated.';
-        JobQueueCategoryLbl: Label 'BCI CPLFLG', Locked = true;
-#endif
         AccountRelationshipTypeNotSupportedErr: Label 'Dynamics 365 Sales account should have relationship type of Customer or Vendor.';
         ProductTypeNotSupportedErr: Label 'Dynamics 365 Sales product should have type of Sales Inventory or Services.';
         UpdateUnitGroupMappingJQEDescriptionTxt: Label 'Updating CRM Unit Group Mapping';
@@ -4106,103 +4096,6 @@ codeunit 5330 "CRM Integration Management"
         exit(true);
     end;
 
-#if not CLEAN23
-    [TryFunction]
-    local procedure TryOpen(var RecRef: RecordRef; TableId: Integer)
-    begin
-        RecRef.Open(TableId);
-    end;
-
-    [Obsolete('This functionality is replaced with flow fields Coupled to Dataverse.', '23.0')]
-    procedure SetCoupledFlag(CRMIntegrationRecord: Record "CRM Integration Record"; NewValue: Boolean): Boolean
-    begin
-        SetCoupledFlag(CRMIntegrationRecord, NewValue, true);
-    end;
-
-    [Obsolete('This functionality is replaced with flow fields Coupled to Dataverse.', '23.0')]
-    procedure SetCoupledFlag(CRMIntegrationRecord: Record "CRM Integration Record"; NewValue: Boolean; ScheduleTask: Boolean): Boolean
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        PageManagement: Codeunit "Page Management";
-        RecRef: RecordRef;
-        CoupledToCRMFieldRef: FieldRef;
-        CoupledToCRMFieldNo: Integer;
-        ExistingValue: Boolean;
-    begin
-        if CRMIntegrationRecord."Table ID" = 0 then begin
-            Session.LogMessage('0000HMP', StrSubstNo(UnableToMarkRecordAsCoupledTableID0Txt, CRMIntegrationRecord."Integration ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            exit(false);
-        end;
-
-        if not TryOpen(RecRef, CRMIntegrationRecord."Table ID") then begin
-            Session.LogMessage('0000HMQ', StrSubstNo(UnableToMarkRecordAsCoupledOpenTableFailsTxt, CRMIntegrationRecord."Table ID", CRMIntegrationRecord."Integration ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            exit(false);
-        end;
-
-        if not RecRef.GetBySystemId(CRMIntegrationRecord."Integration ID") then begin
-            Session.LogMessage('0000HMR', StrSubstNo(UnableToMarkRecordAsCoupledNoRecordFoundTxt, CRMIntegrationRecord."Integration ID", CRMIntegrationRecord."Integration ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            exit(false);
-        end;
-
-        if not FindCoupledToCRMField(RecRef, CoupledToCRMFieldRef) then begin
-            Session.LogMessage('0000HMS', StrSubstNo(UnableToMarkRecordAsCoupledRecordHasNoCoupledFlagTxt, CRMIntegrationRecord."Integration ID", CRMIntegrationRecord."Integration ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            exit(false);
-        end;
-
-        if RecRef.Number = Database::"Sales Invoice Header" then
-            if NewValue = true then
-                if ScheduleTask then
-                    if UserCanRescheduleJob() then begin
-                        JobQueueEntry.Init();
-                        JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime() + 10000;
-                        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
-                        JobQueueEntry."Object ID to Run" := CODEUNIT::"CDS Set Coupled Flag";
-                        JobQueueEntry."Record ID to Process" := CRMIntegrationRecord.RecordId();
-                        JobQueueEntry."Maximum No. of Attempts to Run" := 3;
-                        JobQueueEntry."Rerun Delay (sec.)" := 60;
-                        JobQueueEntry."Run in User Session" := false;
-                        JobQueueEntry."Job Queue Category Code" := CopyStr(JobQueueCategoryLbl, 1, MaxStrLen(JobQueueEntry."Job Queue Category Code"));
-                        JobQueueEntry.Description := StrSubstNo(SetCouplingFlagJQEDescriptionTxt, PageManagement.GetPageCaption(PageManagement.GetPageID(RecRef)), CRMIntegrationRecord."Integration ID");
-                        Codeunit.RUN(Codeunit::"Job Queue - Enqueue", JobQueueEntry);
-                        Session.LogMessage('0000GB8', StrSubstNo(SuccessfullyScheduledMarkingOfInvoiceAsCoupledTxt, CRMIntegrationRecord."Integration ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                        exit(true);
-                    end;
-
-        CoupledToCRMFieldNo := CoupledToCRMFieldRef.Number();
-        CoupledToCRMFieldRef := RecRef.Field(CoupledToCRMFieldNo);
-
-        ExistingValue := CoupledToCRMFieldRef.Value();
-        if ExistingValue = NewValue then begin
-            Session.LogMessage('0000HMT', StrSubstNo(NoNeedToChangeCoupledFlagTxt, CRMIntegrationRecord."Integration ID", Format(ExistingValue), CRMIntegrationRecord."Integration ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            exit(false);
-        end;
-
-        RecRef.GetBySystemId(RecRef.Field(RecRef.SystemIdNo).Value);
-        RecRef.Field(CoupledToCRMFieldNo).Value := NewValue;
-        exit(RecRef.Modify());
-    end;
-
-    [Obsolete('This functionality is replaced with flow fields Coupled to Dataverse.', '23.0')]
-    procedure SetCoupledFlag(CRMOptionMapping: Record "CRM Option Mapping"; NewValue: Boolean): Boolean
-    var
-        RecRef: RecordRef;
-        CoupledToCRMFieldRef: FieldRef;
-        ExistingValue: Boolean;
-    begin
-        if not RecRef.Get(CRMOptionMapping."Record ID") then
-            exit(false);
-
-        if not FindCoupledToCRMField(RecRef, CoupledToCRMFieldRef) then
-            exit(false);
-
-        ExistingValue := CoupledToCRMFieldRef.Value();
-        if ExistingValue = NewValue then
-            exit(false);
-
-        CoupledToCRMFieldRef.Value := NewValue;
-        exit(RecRef.Modify());
-    end;
-#endif
     internal procedure FindCoupledToCRMField(var RecRef: RecordRef; var CoupledToCRMFldRef: FieldRef): Boolean
     var
         Field: Record "Field";

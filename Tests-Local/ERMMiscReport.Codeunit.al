@@ -14,7 +14,7 @@ codeunit 142060 "ERM Misc. Report"
 
     var
         Assert: Codeunit Assert;
-#if not CLEAN23
+#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
 #endif
         LibraryERM: Codeunit "Library - ERM";
@@ -40,7 +40,7 @@ codeunit 142060 "ERM Misc. Report"
         CompanyNameLbl: Label 'CompanyAddress1';
         CustomerNoLbl: Label 'Customer__No__';
         CustNameLbl: Label 'Cust_Name';
-#if not CLEAN23
+#if not CLEAN25
         CustNoLbl: Label 'CustNo';
 #endif
         DescPurchCrMemoLineLbl: Label 'Desc_PurchCrMemoLine';
@@ -97,7 +97,7 @@ codeunit 142060 "ERM Misc. Report"
         SalesLineOutstandingQuantityLbl: Label 'Sales_Line__Outstanding_Quantity_';
         SalesLineOutstandingAmountLbl: Label 'Sales_Line__Outstanding_Amount_';
         SalesLineVariantCodeLbl: Label 'Sales_Line__Variant_Code_';
-#if not CLEAN23
+#if not CLEAN25
         SalesPriceSalesCodeLbl: Label 'Sales_Price__Sales_Code_';
         SalesPriceUnitPriceLbl: Label 'Sales_Price__Unit_Price_';
 #endif
@@ -403,7 +403,7 @@ codeunit 142060 "ERM Misc. Report"
           StockkeepingUnit."Variant Code");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('SalesPromotionRequestPageHandler')]
     [Scope('OnPrem')]
@@ -498,7 +498,7 @@ codeunit 142060 "ERM Misc. Report"
         VerifyValuesOnReport(SalesLine."No.", ItemNoCapLbl, ItemTaxGroupCodeLbl, SalesLine."Tax Group Code");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('ListPriceSheetRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1772,7 +1772,7 @@ codeunit 142060 "ERM Misc. Report"
           (PurchaseLine."Buy-from Vendor No.", VendorLedgerEntry."Entry No.") - PurchaseLine."Amount Including VAT");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('ListPriceSheetRequestPageHandler')]
     [Scope('OnPrem')]
@@ -2324,6 +2324,34 @@ codeunit 142060 "ERM Misc. Report"
         LibraryReportDataset.AssertCurrentRowValueEquals(ItemLedgerEntryInvoicedQuantityLbl, -Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('TrialBalanceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure RunTrialBalanceReportWithClosingDate()
+    var
+        DateFilterText: Text;
+        ToDate: Date;
+        FromDate: Date;
+    begin
+        // [SCENARIO 544390] When Stan runs Trial Balance Report with Closing Date then Report is executed.
+        Initialize();
+
+        // [GIVEN] Generate To Date and save it in a Variable.
+        ToDate := CalcDate('<CY>', Today());
+
+        // [GIVEN] Generate From Date and save it in a Variable.
+        FromDate := CalcDate('<-1Y>', ToDate + 1);
+
+        // [GIVEN] Generate Date Filter and save it in a Variable.
+        DateFilterText := Format(FromDate) + '..' + Format(ClosingDate(ToDate));
+
+        // [GIVEN] Run Purchase Invoice Book Report.
+        LibraryVariableStorage.Enqueue(DateFilterText);
+        LibraryVariableStorage.Enqueue(true);
+        Commit();
+        Report.Run(Report::"Trial Balance");
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2417,7 +2445,7 @@ codeunit 142060 "ERM Misc. Report"
           BOMComponent, ParentItemNo, BOMComponent.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2), '');
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateAndModifySalesPrice(var SalesPrice: Record "Sales Price"; Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CurrencyCode: Code[10])
     begin
         LibraryCosting.CreateSalesPrice(
@@ -3201,7 +3229,7 @@ codeunit 142060 "ERM Misc. Report"
         ItemsbySalesTaxGroup.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ListPriceSheetRequestPageHandler(var ListPriceSheet: TestRequestPage "List Price Sheet")
@@ -3399,7 +3427,7 @@ codeunit 142060 "ERM Misc. Report"
         SalesHistory.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesPromotionRequestPageHandler(var SalesPromotion: TestRequestPage "Sales Promotion")
@@ -3512,6 +3540,18 @@ codeunit 142060 "ERM Misc. Report"
     procedure CashReceiptRPH(var CashApplied: TestRequestPage "Cash Applied")
     begin
         CashApplied.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure TrialBalanceRequestPageHandler(var TrialBalance: TestRequestPage "Trial Balance")
+    var
+        DateFilterText: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DateFilterText);
+        TrialBalance.ActualBalances.SetValue(LibraryVariableStorage.DequeueBoolean());
+        TrialBalance."G/L Account".SetFilter("Date Filter", Format(DateFilterText));
+        TrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ReportHandler]

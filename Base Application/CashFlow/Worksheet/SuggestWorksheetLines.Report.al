@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CashFlow.Worksheet;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CashFlow.Worksheet;
 
 using Microsoft.Bank.Ledger;
 using Microsoft.CashFlow.Account;
@@ -1478,7 +1482,8 @@ report 840 "Suggest Worksheet Lines"
                   PurchaseLine."Prepmt. Amt. Inv.", PurchHeader2."Currency Factor"),
                 Currency."Amount Rounding Precision");
         end else
-            PrepmtAmtInvLCY := PurchaseLine."Prepmt. Amt. Inv.";
+            if GetPurchaseAmountForCFLine(PurchaseLine) <> 0 then
+                PrepmtAmtInvLCY := PurchaseLine."Prepmt. Amt. Inv.";
 
         Currency.InitRoundingPrecision();
         if PurchHeader2."Prices Including VAT" then

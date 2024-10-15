@@ -4807,14 +4807,6 @@ codeunit 6620 "Copy Document Mgt."
         exit(TempItemTrkgEntry."Quantity (Base)");
     end;
 
-#if not CLEAN23
-    [Scope('OnPrem')]
-    [Obsolete('Use the new implementation of IsEntityBlocked, which adds support for Item Variants', '23.0')]
-    procedure IsEntityBlocked(TableNo: Integer; CreditDocType: Boolean; Type: Option; EntityNo: Code[20]) EntityIsBlocked: Boolean
-    begin
-        exit(IsEntityBlocked(TableNo, CreditDocType, Type, EntityNo, ''));
-    end;
-#endif
     [Scope('OnPrem')]
     procedure IsEntityBlocked(TableNo: Integer; CreditDocType: Boolean; Type: Option; EntityNo: Code[20]; EntityCode: Code[10]) EntityIsBlocked: Boolean
     var
@@ -7264,7 +7256,7 @@ codeunit 6620 "Copy Document Mgt."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateVendLedgEntry(ToPurchHeader, VendLedgEntry, IsHandled);
+        OnBeforeUpdateVendLedgEntry(ToPurchHeader, VendLedgEntry, IsHandled, FromDocType, FromDocNo);
         if not IsHandled then begin
             VendLedgEntry.SetCurrentKey("Document No.");
             if FromDocType = "Purchase Document Type From"::"Posted Invoice" then
@@ -7436,6 +7428,7 @@ codeunit 6620 "Copy Document Mgt."
     var
         FromDocType2: Enum "Sales Document Type From";
         IsHandled: Boolean;
+        SkipFromSalesHeaderArchiveCheck: Boolean;
     begin
         FromDocType2 := "Sales Document Type From".FromInteger(FromDocType);
 
@@ -7564,7 +7557,9 @@ codeunit 6620 "Copy Document Mgt."
 
                     CheckCopyFromSalesHeaderArchiveAvail(FromSalesHeaderArchive, ToSalesHeader);
 
-                    if not IncludeHeader and not RecalculateLines then begin
+                    SkipFromSalesHeaderArchiveCheck := false;
+                    OnInitAndCheckSalesDocumentsOnBeforeFromSalesHeaderArchiveCheckFields(FromSalesHeaderArchive, ToSalesHeader, IncludeHeader, RecalculateLines, SkipFromSalesHeaderArchiveCheck);
+                    if not IncludeHeader and not RecalculateLines and not SkipFromSalesHeaderArchiveCheck then begin
                         FromSalesHeaderArchive.TestField("Sell-to Customer No.", ToSalesHeader."Sell-to Customer No.");
                         FromSalesHeaderArchive.TestField("Bill-to Customer No.", ToSalesHeader."Bill-to Customer No.");
                         FromSalesHeaderArchive.TestField("Customer Posting Group", ToSalesHeader."Customer Posting Group");
@@ -8736,7 +8731,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnGetServiceContractTypeCaseElse in codeunit Copy Service Contract Mgt.', '24.0')]
+    [Obsolete('Replaced by event OnAfterCopyServiceContractLines in codeunit Copy Service Contract Mgt.', '24.0')]
     local procedure OnAfterCopyServContractLines(ToServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; FromDocType: Option; FromDocNo: Code[20]; var FormServiceContractLine: Record Microsoft.Service.Contract."Service Contract Line")
     begin
     end;
@@ -9056,7 +9051,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateVendLedgEntry(var ToPurchaseHeader: Record "Purchase Header"; VendorLedgerEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateVendLedgEntry(var ToPurchaseHeader: Record "Purchase Header"; VendorLedgerEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean; FromDocType: Enum "Gen. Journal Document Type"; FromDocNo: Code[20])
     begin
     end;
 
@@ -9218,7 +9213,7 @@ codeunit 6620 "Copy Document Mgt."
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitAndCheckSalesDocuments(FromDocType: enum "Sales Document Type From"; FromDocNo: Code[20];
                                                                         FromDocOccurrenceNo: Integer;
-                                                                        FromDocVersionNo: Integer; var FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; MoveNegLines: boolean; IncludeHeader: Boolean; RecalculateLines: Boolean; var Result: Boolean; var IsHandled: Boolean)
+                                                                        FromDocVersionNo: Integer; var FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; MoveNegLines: boolean; IncludeHeader: Boolean; var RecalculateLines: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -10559,6 +10554,11 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchReturnShptLinesToDocOnBeforeTestFieldPricesIncludingVAT(var ToPurchaseHeader: Record "Purchase Header"; IncludeHeader: Boolean; RecalculateLines: Boolean; var FromReturnShptHeader: Record "Return Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitAndCheckSalesDocumentsOnBeforeFromSalesHeaderArchiveCheckFields(var FromSalesHeaderArchive: Record "Sales Header Archive"; var ToSalesHeader: Record "Sales Header"; IncludeHeader: Boolean; RecalculateLines: Boolean; var SkipFromSalesHeaderArchiveCheck: Boolean)
     begin
     end;
 }

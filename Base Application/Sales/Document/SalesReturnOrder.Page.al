@@ -537,13 +537,21 @@ page 6630 "Sales Return Order"
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Location';
                         Importance = Promoted;
-                        ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
+                        ToolTip = 'Specifies the location where the items are to be placed when they are received. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                     }
                     field("Ship-to Name"; Rec."Ship-to Name")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Name';
                         ToolTip = 'Specifies the name that products on the sales document will be shipped to.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name of the customer at the address that the items are shipped to.';
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {

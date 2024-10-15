@@ -397,7 +397,7 @@ page 507 "Blanket Sales Order"
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
+                    ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                 }
             }
             group("Shipping and Billing")
@@ -472,6 +472,16 @@ page 507 "Blanket Sales Order"
                                 Caption = 'Name';
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 ToolTip = 'Specifies the name that products on the sales document will be shipped to.';
+                            }
+                            field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                            {
+                                ApplicationArea = Suite;
+                                Caption = 'Name 2';
+                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                                Importance = Additional;
+                                ToolTip = 'Specifies an additional part of the name that products on the sales document will be shipped to.';
+                                QuickEntry = false;
+                                Visible = false;
                             }
                             field("Ship-to Address"; Rec."Ship-to Address")
                             {

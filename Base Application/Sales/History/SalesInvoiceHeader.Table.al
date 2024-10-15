@@ -63,6 +63,7 @@ table 112 "Sales Invoice Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
+            OptimizeForTextSearch = true;
         }
         field(4; "Bill-to Customer No."; Code[20])
         {
@@ -73,32 +74,39 @@ table 112 "Sales Invoice Header"
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
+            OptimizeForTextSearch = true;
         }
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            OptimizeForTextSearch = true;
         }
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
+            OptimizeForTextSearch = true;
         }
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
+            OptimizeForTextSearch = true;
         }
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
+            OptimizeForTextSearch = true;
             TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
+            OptimizeForTextSearch = true;
         }
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+            OptimizeForTextSearch = true;
         }
         field(12; "Ship-to Code"; Code[10])
         {
@@ -108,28 +116,34 @@ table 112 "Sales Invoice Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
+            OptimizeForTextSearch = true;
         }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
+            OptimizeForTextSearch = true;
         }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
+            OptimizeForTextSearch = true;
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
+            OptimizeForTextSearch = true;
         }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
+            OptimizeForTextSearch = true;
             TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
+            OptimizeForTextSearch = true;
         }
         field(19; "Order Date"; Date)
         {
@@ -146,6 +160,7 @@ table 112 "Sales Invoice Header"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
+            OptimizeForTextSearch = true;
         }
         field(23; "Payment Terms Code"; Code[10])
         {
@@ -233,6 +248,7 @@ table 112 "Sales Invoice Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
+            OptimizeForTextSearch = true;
             TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Salesperson Code"; Code[20])
@@ -310,10 +326,12 @@ table 112 "Sales Invoice Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
+            OptimizeForTextSearch = true;
         }
         field(72; "Registration Number"; Text[50])
         {
             Caption = 'Registration No.';
+            OptimizeForTextSearch = true;
             DataClassification = CustomerContent;
         }
         field(73; "Reason Code"; Code[10])
@@ -348,28 +366,34 @@ table 112 "Sales Invoice Header"
         field(79; "Sell-to Customer Name"; Text[100])
         {
             Caption = 'Sell-to Customer Name';
+            OptimizeForTextSearch = true;
         }
         field(80; "Sell-to Customer Name 2"; Text[50])
         {
             Caption = 'Sell-to Customer Name 2';
+            OptimizeForTextSearch = true;
         }
         field(81; "Sell-to Address"; Text[100])
         {
             Caption = 'Sell-to Address';
+            OptimizeForTextSearch = true;
         }
         field(82; "Sell-to Address 2"; Text[50])
         {
             Caption = 'Sell-to Address 2';
+            OptimizeForTextSearch = true;
         }
         field(83; "Sell-to City"; Text[30])
         {
             Caption = 'Sell-to City';
+            OptimizeForTextSearch = true;
             TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(84; "Sell-to Contact"; Text[100])
         {
             Caption = 'Sell-to Contact';
+            OptimizeForTextSearch = true;
         }
         field(85; "Bill-to Post Code"; Code[20])
         {
@@ -381,6 +405,7 @@ table 112 "Sales Invoice Header"
         {
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
+            OptimizeForTextSearch = true;
         }
         field(87; "Bill-to Country/Region Code"; Code[10])
         {
@@ -397,6 +422,7 @@ table 112 "Sales Invoice Header"
         {
             CaptionClass = '5,2,' + "Sell-to Country/Region Code";
             Caption = 'Sell-to County';
+            OptimizeForTextSearch = true;
         }
         field(90; "Sell-to Country/Region Code"; Code[10])
         {
@@ -413,6 +439,7 @@ table 112 "Sales Invoice Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
+            OptimizeForTextSearch = true;
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
@@ -439,6 +466,7 @@ table 112 "Sales Invoice Header"
         field(100; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            OptimizeForTextSearch = true;
         }
         field(101; "Area"; Code[10])
         {
@@ -465,6 +493,7 @@ table 112 "Sales Invoice Header"
         field(106; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
+            OptimizeForTextSearch = true;
             ObsoleteReason = 'Field length will be increased to 50.';
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
@@ -474,6 +503,7 @@ table 112 "Sales Invoice Header"
         field(106; "Package Tracking No."; Text[50])
         {
             Caption = 'Package Tracking No.';
+            OptimizeForTextSearch = true;
         }
 #pragma warning restore AS0086
 #endif
@@ -581,11 +611,13 @@ table 112 "Sales Invoice Header"
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
         }
         field(172; "Sell-to E-Mail"; Text[80])
         {
             Caption = 'Email';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = EMail;
         }
         field(176; "Payment Instructions"; BLOB)
@@ -598,6 +630,7 @@ table 112 "Sales Invoice Header"
         field(177; "Payment Instructions Name"; Text[20])
         {
             Caption = 'Payment Instructions Name';
+            OptimizeForTextSearch = true;
             DataClassification = CustomerContent;
             ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
             ObsoleteState = Removed;
@@ -632,6 +665,7 @@ table 112 "Sales Invoice Header"
         field(210; "Ship-to Phone No."; Text[30])
         {
             Caption = 'Ship-to Phone No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
         }
         field(480; "Dimension Set ID"; Integer)
@@ -652,6 +686,7 @@ table 112 "Sales Invoice Header"
         field(710; "Document Exchange Identifier"; Text[50])
         {
             Caption = 'Document Exchange Identifier';
+            OptimizeForTextSearch = true;
         }
         field(711; "Document Exchange Status"; Enum "Sales Document Exchange Status")
         {
@@ -660,19 +695,15 @@ table 112 "Sales Invoice Header"
         field(712; "Doc. Exch. Original Identifier"; Text[50])
         {
             Caption = 'Doc. Exch. Original Identifier';
+            OptimizeForTextSearch = true;
         }
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(721; "Coupled to Dataverse"; Boolean)
         {
@@ -825,10 +856,12 @@ table 112 "Sales Invoice Header"
         field(10015; "Tax Exemption No."; Text[30])
         {
             Caption = 'Tax Exemption No.';
+            OptimizeForTextSearch = true;
         }
         field(10018; "STE Transaction ID"; Text[20])
         {
             Caption = 'STE Transaction ID';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10019; "Electronic Document Sent"; Boolean)
@@ -856,6 +889,7 @@ table 112 "Sales Invoice Header"
         field(10024; "Certificate Serial No."; Text[250])
         {
             Caption = 'Certificate Serial No.';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10025; "Signed Document XML"; BLOB)
@@ -876,16 +910,19 @@ table 112 "Sales Invoice Header"
         field(10031; "Date/Time Stamped"; Text[50])
         {
             Caption = 'Date/Time Stamped';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10032; "Date/Time Sent"; Text[50])
         {
             Caption = 'Date/Time Sent';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10033; "Date/Time Canceled"; Text[50])
         {
             Caption = 'Date/Time Canceled';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10035; "Error Code"; Code[10])
@@ -896,6 +933,7 @@ table 112 "Sales Invoice Header"
         field(10036; "Error Description"; Text[250])
         {
             Caption = 'Error Description';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10037; "Date/Time Stamp Received"; DateTime)
@@ -911,6 +949,7 @@ table 112 "Sales Invoice Header"
         field(10040; "PAC Web Service Name"; Text[50])
         {
             Caption = 'PAC Web Service Name';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10041; "QR Code"; BLOB)
@@ -920,10 +959,12 @@ table 112 "Sales Invoice Header"
         field(10042; "Fiscal Invoice Number PAC"; Text[50])
         {
             Caption = 'Fiscal Invoice Number PAC';
+            OptimizeForTextSearch = true;
         }
         field(10043; "Date/Time First Req. Sent"; Text[50])
         {
             Caption = 'Date/Time First Req. Sent';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10050; "Foreign Trade"; Boolean)
@@ -935,13 +976,8 @@ table 112 "Sales Invoice Header"
             Caption = 'Transit-to Location';
             TableRelation = Location where("Use As In-Transit" = const(false));
             ObsoleteReason = 'Replaced with SAT Address ID.';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif             
         }
         field(10059; "SAT International Trade Term"; Code[10])
         {
@@ -973,6 +1009,7 @@ table 112 "Sales Invoice Header"
         field(27003; "Substitution Document No."; Code[20])
         {
             Caption = 'Substitution Document No.';
+            OptimizeForTextSearch = true;
             TableRelation = "Sales Invoice Header" where("Electronic Document Status" = filter("Stamp Received"));
         }
         field(27004; "CFDI Export Code"; Code[10])
@@ -989,6 +1026,7 @@ table 112 "Sales Invoice Header"
         field(27007; "CFDI Cancellation ID"; Text[50])
         {
             Caption = 'CFDI Cancellation ID';
+            OptimizeForTextSearch = true;
         }
         field(27008; "Marked as Canceled"; Boolean)
         {

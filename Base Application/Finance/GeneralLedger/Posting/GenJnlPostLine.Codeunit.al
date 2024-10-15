@@ -934,9 +934,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN23        
-        OnBeforeInsertVATForGLEntry(GenJnlLine, VATPostingSetup, VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", VATPostingParameters."Unrealized VAT", IsHandled, VATEntry, TaxJurisdiction, VATPostingParameters."Source Currency Code", AddCurrencyCode);
-#endif
         OnBeforeInsertVATForGLEntryFromBuffer(GenJnlLine, VATPostingSetup, VATPostingParameters, IsHandled, VATEntry, TaxJurisdiction, AddCurrencyCode);
         if IsHandled then
             exit;
@@ -1086,7 +1083,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
         if not NonDeductibleVAT.UseNonDeductibleVATAmountForFixedAssetCost() then
             exit;
+        GenJnlLine."Non-Ded. VAT FA Cost" := true;
         FAJnlPostLine.GenJnlPostLine(GenJnlLine, VATPostingParameters."Non-Deductible VAT Amount", 0, NextTransactionNo, LastNextEntryNo, GLReg."No.");
+        GenJnlLine."Non-Ded. VAT FA Cost" := false;
         if FAJnlPostLine.FindFirstGLAcc(TempFAGLPostingBuffer) then begin
             TempGLEntryBuf."FA Entry Type" := TempFAGLPostingBuffer."FA Entry Type";
             TempGLEntryBuf."FA Entry No." := TempFAGLPostingBuffer."FA Entry No.";
@@ -2261,6 +2260,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         GLEntry."Additional-Currency Amount" := AmountAddCurr;
         GLEntry."Bal. Account No." := BalAccNo;
         GLEntry.CopyPostingGroupsFromVATEntry(VATEntry);
+        OnInitGLEntryVATCopyOnBeforeSummarizeVAT(GenJnlLine, GLEntry, VATEntry);
         SummarizeVAT(GLSetup."Summarize G/L Entries", GLEntry);
         OnAfterInitGLEntryVATCopy(GenJnlLine, GLEntry);
 
@@ -2338,6 +2338,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             InitGLEntry(GenJnlLine, GLEntry, AccNo, Amount, 0, false, true);
             GLEntry."Additional-Currency Amount" := AmountAddCurr;
         end;
+        OnCreateGLEntryOnBeforeInsertGLEntry(GenJnlLine, GLEntry, VATEntry);
         InsertGLEntry(GenJnlLine, GLEntry, true);
 
         OnAfterCreateGLEntry(GenJnlLine, GLEntry, NextEntryNo);
@@ -2393,6 +2394,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         GLEntry."Additional-Currency Amount" := AmountAddCurr;
         GLEntry."VAT Amount" := VATAmount;
         GLEntry.CopyPostingGroupsFromDtldCVBuf(DtldCVLedgEntryBuf, DtldCVLedgEntryBuf."Gen. Posting Type".AsInteger());
+        OnCreateGLEntryVATOnBeforeInsertGLEntry(GenJnlLine, GLEntry);
         InsertGLEntry(GenJnlLine, GLEntry, true);
         InsertVATEntriesFromTemp(DtldCVLedgEntryBuf, GLEntry);
     end;
@@ -4689,6 +4691,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
           "Original Amount", "Original Amt. (LCY)");
         OnVendPostApplyVendLedgEntryOnBeforeCopyFromVendLedgEntry(GenJnlLine, CVLedgEntryBuf, VendLedgEntry);
         CVLedgEntryBuf.CopyFromVendLedgEntry(VendLedgEntry);
+        OnVendPostApplyVendLedgEntryOnBeforeApplyVendLedgEntry(VendLedgEntry, GenJnlLine, CVLedgEntryBuf);
         ApplyVendLedgEntry(CVLedgEntryBuf, TempDtldCVLedgEntryBuf, GenJnlLine, Vend);
         OnVendPostApplyVendLedgEntryOnAfterApplyVendLedgEntry(GenJnlLine, TempDtldCVLedgEntryBuf);
         VendLedgEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
@@ -8328,7 +8331,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     local procedure SkipFindTaxDetail(var TaxDetail: Record "Tax Detail"; GenJournalLine: Record "Gen. Journal Line"): Boolean
+    var
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
     begin
+        OnBeforeSkipFindTaxDetail(TaxDetail, GenJournalLine, IsHandled, ReturnValue);
+        if IsHandled then
+            exit(ReturnValue);
+
         if GenJournalLine."VAT Posting" <> GenJournalLine."VAT Posting"::"Manual VAT Entry" then
             exit(false);
         if GenJournalLine."Gen. Posting Type" = GenJournalLine."Gen. Posting Type"::Settlement then
@@ -8443,6 +8453,16 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnVendPostApplyVendLedgEntryOnBeforeApplyVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateGLEntryVATOnBeforeInsertGLEntry(GenJournalLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry")
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeStartOrContinuePosting(var GenJnlLine: Record "Gen. Journal Line"; LastDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder; LastDocNo: Code[20]; LastDate: Date; var NextEntryNo: Integer)
     begin
@@ -8450,6 +8470,16 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterStartOrContinuePosting(var GenJournalLine: Record "Gen. Journal Line"; LastDocType: Enum "Gen. Journal Document Type"; LastDocNo: Code[20]; LastDate: Date; var NextEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitGLEntryVATCopyOnBeforeSummarizeVAT(GenJournalLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateGLEntryOnBeforeInsertGLEntry(GenJournalLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; VATEntry: Record "VAT Entry")
     begin
     end;
 
@@ -8789,14 +8819,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
     local procedure OnBeforeInsertVAT(var GenJournalLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry"; var UnrealizedVAT: Boolean; var AddCurrencyCode: Code[10]; var VATPostingSetup: Record "VAT Posting Setup"; var GLEntryAmount: Decimal; var GLEntryVATAmount: Decimal; var GLEntryBaseAmount: Decimal; var SrcCurrCode: Code[10]; var SrcCurrGLEntryAmt: Decimal; var SrcCurrGLEntryVATAmt: Decimal; var SrcCurrGLEntryBaseAmt: Decimal; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced with OnBeforeInsertVATForGLEntryFromBuffer', '23.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnBeforeInsertVATForGLEntry(var GenJnlLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; GLEntryVATAmount: Decimal; SrcCurrGLEntryVATAmt: Decimal; UnrealizedVAT: Boolean; var IsHandled: Boolean; var VATEntry: Record "VAT Entry"; TaxJurisdiction: Record "Tax Jurisdiction"; SrcCurrCode: Code[10]; AddCurrencyCode: Code[10])
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeInsertVATForGLEntryFromBuffer(var GenJnlLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; VATPostingParameters: Record "VAT Posting Parameters"; var IsHandled: Boolean; var VATEntry: Record "VAT Entry"; TaxJurisdiction: Record "Tax Jurisdiction"; AddCurrencyCode: Code[10])
@@ -10730,6 +10752,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUnapplyEmplLedgEntryOnAfterFilterSourceEntries(var DetailedEmployeeLedgEntry: Record "Detailed Employee Ledger Entry"; var DetailedEmployeeLedgEntry2: Record "Detailed Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSkipFindTaxDetail(var TaxDetail: Record "Tax Detail"; var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var ReturnValue: Boolean)
     begin
     end;
 }

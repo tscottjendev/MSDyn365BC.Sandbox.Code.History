@@ -5755,12 +5755,12 @@ codeunit 136101 "Service Orders"
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
     begin
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
         ExtendedTextHeader.Validate("Starting Date", WorkDate());
         ExtendedTextHeader.Validate("All Language Codes", true);
         ExtendedTextHeader.Modify(true);
 
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, LibraryUtility.GenerateRandomCode(ExtendedTextLine.FieldNo(Text), DATABASE::"Extended Text Line"));
         ExtendedTextLine.Modify(true);
         exit(ExtendedTextLine.Text);
@@ -7519,18 +7519,6 @@ codeunit 136101 "Service Orders"
             Assert.RecordIsNotEmpty(GLEntry);
         until TempServiceLine.Next() = 0;
     end;
-
-#if not CLEAN23
-    [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPrepareService', '', false, false)]
-    local procedure OnAfterInvPostBufferPrepareService(var ServiceLine: Record "Service Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-        // Example of extending feature "Copy document line description to G/L entries" for lines with type = "Item"
-        if InvoicePostBuffer.Type = InvoicePostBuffer.Type::Item then begin
-            InvoicePostBuffer."Fixed Asset Line No." := ServiceLine."Line No.";
-            InvoicePostBuffer."Entry Description" := ServiceLine.Description;
-        end;
-    end;
-#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Service Post Invoice Events", 'OnAfterPrepareInvoicePostingBuffer', '', false, false)]
     local procedure OnAfterPrepareInvoicePostingBuffer(var ServiceLine: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")

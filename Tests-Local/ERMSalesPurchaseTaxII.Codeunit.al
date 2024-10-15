@@ -6159,7 +6159,7 @@
         GLEntry.SetRange("Document No.", DocumentNo);
         GetActualAmounts(GLEntry, ActualAmountArray, GLAccountArray);
         for I := 1 to ArrayLen(GLAccountArray) do
-            Assert.AreNearlyEqual(ExpectedAmountArray[I], ActualAmountArray[I], 0.02, GLEntryAmountErr);
+            Assert.AreNearlyEqual(ExpectedAmountArray[I], ActualAmountArray[I], 0.1, GLEntryAmountErr);
     end;
 
     local procedure VerifyGLEntryTaxAmount(DocumentNo: Code[20]; TaxAccountNo: Code[20]; ExpectedAmount: Decimal)

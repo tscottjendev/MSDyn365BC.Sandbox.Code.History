@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.FixedAsset;
 
 using Microsoft.Finance.Dimension;
@@ -356,13 +360,8 @@ table 5600 "Fixed Asset"
         {
             Caption = 'SCT Permission Number';
             ObsoleteReason = 'Replaced by field SCT Permission No.';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif            
         }
         field(10008; "SCT Permission No."; Text[50])
         {

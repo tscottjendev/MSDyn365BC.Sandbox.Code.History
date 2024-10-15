@@ -43,6 +43,7 @@ table 98 "General Ledger Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Allow Posting From"; Date)
@@ -970,13 +971,8 @@ table 98 "General Ledger Setup"
             Caption = 'Bank Recon. with Auto. Match';
             InitValue = true;
             ObsoleteReason = 'Unused, Bank Reconciliation with automatch (W1) is the default for NA';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(10121; "SAT Certificate"; Code[20])
         {

@@ -1274,37 +1274,6 @@
         VerifyDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
     end;
 
-#if not CLEAN23
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestServAmountsMgtOnFillInvPostingBuffer()
-    var
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-        ServiceLineACY: Record "Service Line";
-        TestPartnerIntegrationNA: Codeunit "Test Partner Integration NA";
-        ServicePostInvoice: Codeunit "Service Post Invoice";
-    begin
-        // [SCENARIO] Calling Serv-Amounts Mgt.FillInvPostingBuffer will trigger OnFillInvPostingBuffer.
-
-        LibraryLowerPermissions.SetO365Basic();
-        LibraryLowerPermissions.SetOutsideO365Scope();
-
-        // [GIVEN] Service Header
-        Initialize();
-        CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice);
-        CreateServiceLine(ServiceLine, ServiceHeader);
-
-        BindSubscription(TestPartnerIntegrationNA);
-
-        // [WHEN] InvoicePostingBuffer.OnAfterPrepareService
-        ServicePostInvoice.PrepareLine(ServiceHeader, ServiceLine, ServiceLineACY);
-
-        // [THEN] Integration Events have fired.
-        VerifyDataTypeBuffer(OnFillInvPostingBufferServAmtsMgtTxt);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('ServiceQuoteRequestPageHandler')]
     [Scope('OnPrem')]

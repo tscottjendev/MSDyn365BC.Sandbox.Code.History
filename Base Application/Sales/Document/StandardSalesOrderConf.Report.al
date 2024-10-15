@@ -971,7 +971,7 @@ report 1305 "Standard Sales - Order Conf."
                 Clear(SalesPost);
                 VATAmountLine.DeleteAll();
                 Line.DeleteAll();
-                SalesPost.GetSalesLines(Header, Line, 0);
+                SalesPost.GetSalesLines(Header, Line, 0, false);
                 OnLineOnAfterGetRecordOnBeforeCalcVATAmountLines(Header, Line);
                 Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
@@ -1152,14 +1152,6 @@ report 1305 "Standard Sales - Order Conf."
 
         IsHandled := false;
         OnInitReportForGlobalVariable(IsHandled, LegalOfficeTxt, LegalOfficeLbl, CustomGiroTxt, CustomGiroLbl, LegalStatementLbl);
-#if not CLEAN23
-        if not IsHandled then begin
-            LegalOfficeTxt := CompanyInfo.GetLegalOffice();
-            LegalOfficeLbl := CompanyInfo.GetLegalOfficeLbl();
-            CustomGiroTxt := CompanyInfo.GetCustomGiro();
-            CustomGiroLbl := CompanyInfo.GetCustomGiroLbl();
-        end;
-#endif
     end;
 
     trigger OnPostReport()
