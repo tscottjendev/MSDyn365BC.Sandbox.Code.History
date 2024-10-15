@@ -744,6 +744,10 @@ codeunit 5900 ServOrderManagement
             CopyCustFromServiceHeader(Cust, ServHeader);
             Cust.CopyFromNewCustomerTemplate(CustTempl);
             CustomerTemplMgt.InitCustomerNo(Cust, CustTempl);
+            Cust."Tax Area Code" := CustTempl."Tax Area Code";
+            Cust."Tax Liable" := CustTempl."Tax Liable";
+            Cust."Credit Limit (LCY)" := CustTempl."Credit Limit (LCY)";
+            OnCreateCustFromTemplateOnBeforeCustInsert(Cust, CustTempl, ServHeader);
             Cust.Insert(true);
 
             if ServHeader."Contact Name" <> '' then begin
@@ -923,6 +927,11 @@ codeunit 5900 ServOrderManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyComponentsFromBOM(var ServiceItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCustFromTemplateOnBeforeCustInsert(var Customer: Record Customer; CustomerTempl: Record "Customer Templ."; ServiceHeader: Record "Service Header")
     begin
     end;
 }
