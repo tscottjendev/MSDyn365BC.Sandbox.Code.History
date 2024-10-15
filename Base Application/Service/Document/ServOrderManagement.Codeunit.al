@@ -746,11 +746,8 @@ codeunit 5900 ServOrderManagement
             CustomerTemplMgt.InitCustomerNo(Cust, CustTempl);
             Cust."Tax Area Code" := CustTempl."Tax Area Code";
             Cust."Tax Liable" := CustTempl."Tax Liable";
-            if CustTempl.State <> '' then
-                Cust.County := CustTempl.State
-            else
-                Cust.County := ServHeader.County;
             Cust."Credit Limit (LCY)" := CustTempl."Credit Limit (LCY)";
+            OnCreateCustFromTemplateOnBeforeCustInsert(Cust, CustTempl, ServHeader);
             Cust.Insert(true);
 
             if ServHeader."Contact Name" <> '' then begin
@@ -930,6 +927,11 @@ codeunit 5900 ServOrderManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyComponentsFromBOM(var ServiceItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCustFromTemplateOnBeforeCustInsert(var Customer: Record Customer; CustomerTempl: Record "Customer Templ."; ServiceHeader: Record "Service Header")
     begin
     end;
 }

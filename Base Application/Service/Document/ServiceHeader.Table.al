@@ -174,8 +174,7 @@ table 5900 "Service Header"
                     OnBeforeCheckBlockedCustomer(Cust, IsHandled);
                     if not IsHandled then
                         Cust.CheckBlockedCustOnDocs(Cust, "Document Type", false, false);
-                    GeneralLedgerSetup.GetRecordOnce();
-                    if GeneralLedgerSetup."VAT in Use" then
+                    if CheckBusPostingGroups() then
                         Cust.TestField("Gen. Bus. Posting Group");
                     CopyCustomerFields(Cust);
                 end;
@@ -184,13 +183,11 @@ table 5900 "Service Header"
                 OnValidateCustomerNoOnBeforeShippedServLinesExist(Rec, xRec, IsHandled);
                 if not IsHandled then
                     if "Customer No." = xRec."Customer No." then
-                        if ShippedServLinesExist() then begin
-                            GeneralLedgerSetup.GetRecordOnce();
-                            if GeneralLedgerSetup."VAT in Use" then begin
+                        if ShippedServLinesExist() then
+                            if CheckBusPostingGroups() then begin
                                 TestField("VAT Bus. Posting Group", xRec."VAT Bus. Posting Group");
                                 TestField("Gen. Bus. Posting Group", xRec."Gen. Bus. Posting Group");
                             end;
-                        end;
 
                 IsHandled := false;
                 OnValidateCustomerNoOnBeforeVerifyShipToCode(Rec, SkipBillToContact, IsHandled);
@@ -321,9 +318,6 @@ table 5900 "Service Header"
 
                 if Rec."Customer No." <> Rec."Bill-to Customer No." then
                     UpdateShipToSalespersonCode();
-
-                if xRec."Bill-to Customer No." <> "Bill-to Customer No." then
-                    CopyCFDIFieldsFromCustomer();
             end;
         }
         field(5; "Bill-to Name"; Text[100])
@@ -2620,77 +2614,6 @@ table 5900 "Service Header"
             Caption = 'Quote No.';
             Editable = false;
         }
-        field(10015; "Tax Exemption No."; Text[30])
-        {
-            Caption = 'Tax Exemption No.';
-            OptimizeForTextSearch = true;
-        }
-        field(10018; "STE Transaction ID"; Text[20])
-        {
-            Caption = 'STE Transaction ID';
-            OptimizeForTextSearch = true;
-            Editable = false;
-        }
-        field(10050; "Foreign Trade"; Boolean)
-        {
-            Caption = 'Foreign Trade';
-        }
-        field(10059; "SAT International Trade Term"; Code[10])
-        {
-            Caption = 'SAT International Trade Term';
-            TableRelation = "SAT International Trade Term";
-        }
-        field(10060; "Exchange Rate USD"; Decimal)
-        {
-            Caption = 'Exchange Rate USD';
-            DecimalPlaces = 0 : 6;
-        }
-        field(27000; "CFDI Purpose"; Code[10])
-        {
-            Caption = 'CFDI Purpose';
-            TableRelation = "SAT Use Code";
-        }
-        field(27001; "CFDI Relation"; Code[10])
-        {
-            Caption = 'CFDI Relation';
-            TableRelation = "SAT Relationship Type";
-        }
-        field(27004; "CFDI Export Code"; Code[10])
-        {
-            Caption = 'CFDI Export Code';
-            TableRelation = "CFDI Export Code";
-
-            trigger OnValidate()
-            var
-                GeneralLedgerSetup: Record "General Ledger Setup";
-                CFDIExportCode: Record "CFDI Export Code";
-            begin
-                "Foreign Trade" := false;
-                if CFDIExportCode.Get("CFDI Export Code") then
-                    "Foreign Trade" := CFDIExportCode."Foreign Trade";
-                GeneralLedgerSetup.Get();
-                "Exchange Rate USD" := 1 / CurrExchRate.ExchangeRate("Posting Date", GeneralLedgerSetup."USD Currency Code");
-            end;
-        }
-        field(27005; "CFDI Period"; Option)
-        {
-            Caption = 'CFDI Period';
-            OptionCaption = 'Diario,Semanal,Quincenal,Mensual';
-            OptionMembers = "Diario","Semanal","Quincenal","Mensual";
-        }
-        field(27009; "SAT Address ID"; Integer)
-        {
-            Caption = 'SAT Address ID';
-            TableRelation = "SAT Address";
-
-            trigger OnLookup()
-            var
-                SATAddress: Record "SAT Address";
-            begin
-                if SATAddress.LookupSATAddress(SATAddress, Rec."Ship-to Country/Region Code", Rec."Bill-to Country/Region Code") then
-                    Rec."SAT Address ID" := SATAddress.Id;
-            end;
-        }
     }
 
     keys
@@ -2797,14 +2720,6 @@ table 5900 "Service Header"
                 end;
         end;
 
-        if "Tax Area Code" <> '' then begin
-            SalesTaxDifference.Reset();
-            SalesTaxDifference.SetRange("Document Product Area", SalesTaxDifference."Document Product Area"::Sales);
-            SalesTaxDifference.SetRange("Document Type", "Document Type");
-            SalesTaxDifference.SetRange("Document No.", "No.");
-            SalesTaxDifference.DeleteAll();
-        end;
-
         ServOrderAlloc.Reset();
         ServOrderAlloc.SetCurrentKey("Document Type");
         ServOrderAlloc.SetRange("Document Type", "Document Type");
@@ -2854,6 +2769,8 @@ table 5900 "Service Header"
           ServDocLog."Document Type"::Shipment, ServDocLog."Document Type"::"Posted Invoice",
           ServDocLog."Document Type"::"Posted Credit Memo");
         ServDocLog.DeleteAll();
+
+        OnDeleteOnBeforeShowPostedDocsToPrint(Rec);
 
         ShowPostedDocsToPrint := (ServShptHeader."No." <> '') or
            (ServInvHeader."No." <> '') or
@@ -2954,7 +2871,6 @@ table 5900 "Service Header"
         GenJournalTemplate: Record "Gen. Journal Template";
         GlobalNoSeries: Record "No. Series";
         Salesperson: Record "Salesperson/Purchaser";
-        SalesTaxDifference: Record "Sales Tax Amount Difference";
         ServOrderMgt: Codeunit ServOrderManagement;
         DimMgt: Codeunit DimensionManagement;
         NoSeries: Codeunit "No. Series";
@@ -4911,7 +4827,6 @@ table 5900 "Service Header"
         "Tax Liable" := Cust."Tax Liable";
         "VAT Registration No." := Cust."VAT Registration No.";
         "Shipping Advice" := Cust."Shipping Advice";
-        "Tax Exemption No." := Cust."Tax Exemption No.";
         "Responsibility Center" := UserSetupMgt.GetRespCenter(2, Cust."Responsibility Center");
         Validate("Location Code", UserSetupMgt.GetLocation(2, Cust."Location Code", "Responsibility Center"));
 
@@ -4967,23 +4882,6 @@ table 5900 "Service Header"
         Reserve := Cust.Reserve;
 
         OnAfterCopyBillToCustomerFields(Rec, Cust, SkipBillToContact);
-    end;
-
-    local procedure CopyCFDIFieldsFromCustomer()
-    var
-        Customer: Record Customer;
-    begin
-        if Customer.Get("Bill-to Customer No.") then begin
-            "CFDI Purpose" := Customer."CFDI Purpose";
-            "CFDI Relation" := Customer."CFDI Relation";
-            "CFDI Export Code" := Customer."CFDI Export Code";
-            "CFDI Period" := Customer."CFDI Period";
-        end else begin
-            "CFDI Purpose" := '';
-            "CFDI Relation" := '';
-            "CFDI Export Code" := '';
-            "CFDI Period" := "CFDI Period"::Diario;
-        end;
     end;
 
     local procedure ShipToAddressModified(): Boolean
@@ -5215,6 +5113,20 @@ table 5900 "Service Header"
                 PostingGroupChangeInterface.ChangePostingGroup("Customer Posting Group", xRec."Customer Posting Group", Rec);
             end;
         end;
+    end;
+
+    procedure CheckBusPostingGroups(): Boolean
+    var
+        ApplicationAreaMgmt: Codeunit System.Environment.Configuration."Application Area Mgmt.";
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBusPostingGroups(Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        exit(not ApplicationAreaMgmt.IsSalesTaxEnabled());
     end;
 
     /// <summary>
@@ -6165,6 +6077,16 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnBeforeArchiveServiceDocument(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBusPostingGroups(var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforeShowPostedDocsToPrint(var ServiceHeader: Record "Service Header")
     begin
     end;
 }

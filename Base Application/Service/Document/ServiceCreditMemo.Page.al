@@ -212,23 +212,6 @@ page 5935 "Service Credit Memo"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the customer''s reference. The content will be printed on the related document.';
                 }
-                field("CFDI Purpose"; Rec."CFDI Purpose")
-                {
-                    ApplicationArea = BasicMX;
-                    QuickEntry = false;
-                    ToolTip = 'Specifies the CFDI purpose required for reporting to the Mexican tax authorities (SAT).';
-                }
-                field("CFDI Relation"; Rec."CFDI Relation")
-                {
-                    ApplicationArea = BasicMX;
-                    QuickEntry = false;
-                    ToolTip = 'Specifies the relation of the CFDI document. ';
-                }
-                field("CFDI Export Code"; Rec."CFDI Export Code")
-                {
-                    ApplicationArea = BasicMX;
-                    ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
-                }
             }
             part(ServLines; "Service Credit Memo Subform")
             {
@@ -440,16 +423,6 @@ page 5935 "Service Credit Memo"
                     begin
                         PricesIncludingVATOnAfterValid();
                     end;
-                }
-                field("Tax Liable"; Rec."Tax Liable")
-                {
-                    ApplicationArea = SalesTax;
-                    ToolTip = 'Specifies that items, resources, or costs on the current credit memo line are liable for sales tax.';
-                }
-                field("Tax Area Code"; Rec."Tax Area Code")
-                {
-                    ApplicationArea = SalesTax;
-                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
                 }
             }
             group(Shipping)
@@ -675,7 +648,6 @@ page 5935 "Service Credit Memo"
 
                     trigger OnAction()
                     begin
-                        OnBeforeCalculateSalesTaxStatistics(Rec, true);
                         Rec.OpenStatistics();
                     end;
                 }
@@ -755,20 +727,6 @@ page 5935 "Service Credit Memo"
 
                         PAGE.Run(0, TempServDocLog);
                     end;
-                }
-                action(CFDIRelationDocuments)
-                {
-                    ApplicationArea = BasicMX;
-                    Caption = 'CFDI Relation Documents';
-                    Image = Allocations;
-                    RunObject = Page "CFDI Relation Documents";
-                    RunPageLink = "Document Table ID" = const(5900),
-#pragma warning disable AL0603
-                                  "Document Type" = field("Document Type"),
-#pragma warning restore AL0603
-                                  "Document No." = field("No."),
-                                  "Customer No." = field("Bill-to Customer No.");
-                    ToolTip = 'View or add CFDI relation documents for the record.';
                 }
             }
         }
@@ -1202,11 +1160,6 @@ page 5935 "Service Credit Memo"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnAfterGetRecord(var ServiceHeader: Record "Service Header")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateSalesTaxStatistics(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
     end;
 }

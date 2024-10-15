@@ -104,7 +104,7 @@ page 5964 "Service Quote"
                         {
                             ApplicationArea = Service;
                             QuickEntry = false;
-                            ToolTip = 'Specifies the county in the customer''s address.';
+                            ToolTip = 'Specifies the state, province or county of the address.';
                         }
                     }
                     field("Post Code"; Rec."Post Code")
@@ -279,7 +279,7 @@ page 5964 "Service Quote"
                             ApplicationArea = Service;
                             Caption = 'County';
                             QuickEntry = false;
-                            ToolTip = 'Specifies the county in the customer''s address.';
+                            ToolTip = 'Specifies the state, province or county of the address.';
                         }
                     }
                     field("Bill-to Post Code"; Rec."Bill-to Post Code")
@@ -454,7 +454,7 @@ page 5964 "Service Quote"
                             ApplicationArea = Service;
                             Caption = 'County';
                             QuickEntry = false;
-                            ToolTip = 'Specifies the county in the customer''s address.';
+                            ToolTip = 'Specifies the state, province or county of the address.';
                         }
                     }
                     field("Ship-to Post Code"; Rec."Ship-to Post Code")
@@ -780,7 +780,6 @@ page 5964 "Service Quote"
 
                     trigger OnAction()
                     begin
-                        OnBeforeCalculateSalesTaxStatistics(Rec, true);
                         Rec.OpenStatistics();
                     end;
                 }
@@ -1071,11 +1070,6 @@ page 5964 "Service Quote"
     local procedure FinishingTimeOnAfterValidate()
     begin
         CurrPage.Update(true);
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateSalesTaxStatistics(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
-    begin
     end;
 }
 
