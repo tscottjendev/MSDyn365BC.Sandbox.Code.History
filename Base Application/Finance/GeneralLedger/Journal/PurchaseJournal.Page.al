@@ -214,16 +214,6 @@ page 254 "Purchase Journal"
                         Clear(ChangeExchangeRate);
                     end;
                 }
-#if not CLEAN23
-                field("VAT Code"; Rec."VAT Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT Code to be used on the line.';
-                    ObsoleteReason = 'Use the field "VAT Number" instead';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("VAT Number"; Rec."VAT Number")
                 {
                     ApplicationArea = Basic, Suite;
@@ -398,16 +388,6 @@ page 254 "Purchase Journal"
                         Rec.ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-#if not CLEAN23
-                field("Bal. VAT Code"; Rec."Bal. VAT Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT Code to be used on the line.';
-                    ObsoleteReason = 'Use the field "Bal. VAT Number" instead';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Bal. VAT Number"; Rec."Bal. VAT Number")
                 {
                     ApplicationArea = Basic, Suite;

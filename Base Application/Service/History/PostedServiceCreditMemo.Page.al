@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.CRM.Contact;
 using Microsoft.EServices.EDocument;
@@ -171,6 +175,13 @@ page 5972 "Posted Service Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the number of the credit memo from which the posted credit memo was created.';
                 }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the external document number that is entered on the service header that this line was posted from.';
+                }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Service;
@@ -188,12 +199,6 @@ page 5972 "Posted Service Credit Memo"
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies how many times the document has been printed.';
-                }
-                field("External Document No."; Rec."External Document No.")
-                {
-                    Editable = false;
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the external document number for this entry.';
                 }
                 field("Your Reference"; Rec."Your Reference")
                 {
@@ -309,30 +314,6 @@ page 5972 "Posted Service Credit Memo"
                         ToolTip = 'Specifies the email address of the contact person at the customer''s billing address.';
                     }
                 }
-                field(GLN; Rec.GLN)
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the global location number of the customer.';
-                }
-                field("Account Code"; Rec."Account Code")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the account code of the customer.';
-                }
-                field("E-Invoice"; Rec."E-Invoice")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies whether the customer is part of the EHF system and requires an electronic service credit memo.';
-                }
-                field("E-Invoice Created"; Rec."E-Invoice Created")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies whether an electronic service credit memo has been created and copied to the location specified in Service Mgt. Setup.';
-                }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -371,6 +352,15 @@ page 5972 "Posted Service Credit Memo"
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
@@ -635,26 +625,6 @@ page 5972 "Posted Service Credit Memo"
         }
         area(processing)
         {
-            group("F&unctions")
-            {
-                Caption = 'F&unctions';
-                action("Create Electronic Credit Memo")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Create Electronic Credit Memo';
-                    Ellipsis = true;
-                    Image = CreateDocument;
-                    ToolTip = 'Create one or more XML documents that you can send to the customer. You can run the batch job for multiple credit memos or you can run it for an individual credit memo. The document number is used as the file name. The files are stored at the location that has been specified in the Sales & Receivables Setup window.';
-                    Visible = false;
-
-                    trigger OnAction()
-                    begin
-                        ServCrMemoHeader := Rec;
-                        ServCrMemoHeader.SetRecFilter();
-                        REPORT.RunModal(REPORT::"Create Elec. Service Cr. Memos", true, false, ServCrMemoHeader);
-                    end;
-                }
-            }
             action(SendCustom)
             {
                 ApplicationArea = Service;

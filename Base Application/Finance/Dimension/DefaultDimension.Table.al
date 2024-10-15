@@ -794,13 +794,7 @@ table 352 "Default Dimension"
             end;
         end;
     end;
-#if not CLEAN23
-    [Obsolete('Replaced by CreateDimValuePerAccountFromDimValue(DimValue: Record "Dimension Value"; Allowed: Boolean)', '22.0')]
-    procedure CreateDimValuePerAccountFromDimValue(DimValue: Record "Dimension Value")
-    begin
-        CreateDimValuePerAccountFromDimValue(DimValue, false);
-    end;
-#endif
+
     procedure CreateDimValuePerAccountFromDimValue(DimValue: Record "Dimension Value"; ShouldUpdateAllowed: Boolean)
     var
         DimValuePerAccount: Record "Dim. Value per Account";

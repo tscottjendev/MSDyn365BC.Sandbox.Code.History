@@ -1525,11 +1525,7 @@ table 37 "Sales Line"
             trigger OnValidate()
             begin
                 ValidateVATProdPostingGroup();
-#if CLEAN23
                 NorwegianVATTools.InitVATCodeSalesLine(Rec);
-#else
-                NorwegianVATTools.InitVATCode_SalesLine(Rec);
-#endif
             end;
         }
         field(90; "VAT Prod. Posting Group"; Code[20])
@@ -1588,11 +1584,7 @@ table 37 "Sales Line"
 
                 OnValidateVATProdPostingGroupOnBeforeUpdateAmounts(Rec, xRec, SalesHeader, Currency);
                 UpdateAmounts();
-#if CLEAN23
                 NorwegianVATTools.InitVATCodeSalesLine(Rec);
-#else
-                NorwegianVATTools.InitVATCode_SalesLine(Rec);
-#endif
             end;
         }
         field(91; "Currency Code"; Code[10])
@@ -2532,10 +2524,7 @@ table 37 "Sales Line"
             begin
                 TestJobPlanningLine();
                 TestStatusOpen();
-                TestField("Quantity Shipped", 0);
-                TestField("Qty. Shipped (Base)", 0);
-                TestField("Return Qty. Received", 0);
-                TestField("Return Qty. Received (Base)", 0);
+                TestQuantityFieldsOnValidateUnitOfMeasure();
                 if "Unit of Measure Code" <> xRec."Unit of Measure Code" then begin
                     TestField("Shipment No.", '');
                     TestField("Return Receipt No.", '');
@@ -3421,19 +3410,8 @@ table 37 "Sales Line"
             Caption = 'VAT Code';
             TableRelation = "VAT Code".Code;
             ObsoleteReason = 'Use the field "VAT Number" instead';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-
-            trigger OnValidate()
-            begin
-                NorwegianVATTools.InitPostingGrps_SalesLine(Rec);
-                "VAT Number" := "VAT Code";
-            end;
-#endif
         }
         field(10605; "Account Code"; Text[30])
         {
@@ -5838,7 +5816,7 @@ table 37 "Sales Line"
             exit;
 
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
-        Rec.ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
+        ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
     end;
 
     /// <summary>
@@ -5978,10 +5956,11 @@ table 37 "Sales Line"
 
         Clear(SalesHeader);
         TestStatusOpen();
-        if ItemSubstitutionMgt.ItemSubstGet(Rec) then
+        if ItemSubstitutionMgt.ItemSubstGet(Rec) then begin
+            Rec.Validate("Location Code");
             if TransferExtendedText.SalesCheckIfAnyExtText(Rec, false) then
                 TransferExtendedText.InsertSalesExtText(Rec);
-
+        end;
         OnAfterShowItemSub(Rec);
     end;
 
@@ -6509,11 +6488,9 @@ table 37 "Sales Line"
             repeat
                 if not SalesLine.ZeroAmountLine(QtyType) then begin
                     DeferralAmount := SalesLine.GetDeferralAmount();
-                    VATAmountLine.Get(SalesLine."VAT Identifier", SalesLine."VAT Calculation Type", SalesLine."Tax Group Code", false, SalesLine."Line Amount" >= 0);
+                    FindVATAmountLine(SalesLine, VATAmountLine);
                     if VATAmountLine.Modified then begin
-                        if not TempVATAmountLineRemainder.Get(
-                             SalesLine."VAT Identifier", SalesLine."VAT Calculation Type", SalesLine."Tax Group Code", false, SalesLine."Line Amount" >= 0)
-                        then begin
+                        if not FindVATAmountLine(SalesLine, TempVATAmountLineRemainder) then begin
                             TempVATAmountLineRemainder := VATAmountLine;
                             TempVATAmountLineRemainder.Init();
                             TempVATAmountLineRemainder.Insert();
@@ -6633,6 +6610,7 @@ table 37 "Sales Line"
                     end;
                 end;
             until SalesLine.Next() = 0;
+        VATAmountLine.Reset();
         SalesLine.SetLoadFields();
 
         OnAfterUpdateVATOnLines(SalesHeader, SalesLine, VATAmountLine, QtyType);
@@ -6707,11 +6685,9 @@ table 37 "Sales Line"
                        [SalesLine."VAT Calculation Type"::"Reverse Charge VAT", SalesLine."VAT Calculation Type"::"Sales Tax"]
                     then
                         SalesLine."VAT %" := 0;
-                    if not VATAmountLine.Get(
-                         SalesLine."VAT Identifier", SalesLine."VAT Calculation Type", SalesLine."Tax Group Code", false, SalesLine."Line Amount" >= 0)
-                    then begin
-                        VATAmountLine.InsertNewLine(
-                          SalesLine."VAT Identifier", SalesLine."VAT Calculation Type", SalesLine."Tax Group Code", false, SalesLine."VAT %", SalesLine."Line Amount" >= 0, false, 0);
+
+                    if not FindVATAmountLine(SalesLine, VATAmountLine) then begin
+                        InsertVATAmountLine(SalesLine, VATAmountLine);
                         OnCalcVATAmountLinesOnAfterInsertNewVATAmountLine(SalesLine, VATAmountLine);
                     end;
 
@@ -6781,6 +6757,7 @@ table 37 "Sales Line"
                     OnCalcVATAmountLinesOnAfterCalcLineTotals(VATAmountLine, SalesHeader, SalesLine, Currency, QtyType, TotalVATAmount, QtyToHandle);
                 end;
             until SalesLine.Next() = 0;
+        VATAmountLine.Reset();
         SalesLine.SetRange(Type);
         SalesLine.SetRange(Quantity);
         SalesLine.SetRange("Unit Price");
@@ -6804,6 +6781,34 @@ table 37 "Sales Line"
             end;
 
         OnAfterCalcVATAmountLines(SalesHeader, SalesLine, VATAmountLine, QtyType);
+    end;
+
+    local procedure FindVATAmountLine(var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line" temporary): Boolean
+    begin
+        VATAmountLine.Reset();
+        VATAmountLine.SetRange("VAT Identifier", SalesLine."VAT Identifier");
+        VATAmountLine.SetRange("VAT Calculation Type", SalesLine."VAT Calculation Type");
+        VATAmountLine.SetRange("Tax Group Code", SalesLine."Tax Group Code");
+        VATAmountLine.SetRange("Use Tax", false);
+        VATAmountLine.SetRange(Positive, SalesLine."Line Amount" >= 0);
+        OnFindVATAmountLineOnAfterSetFilters(SalesLine, VATAmountLine);
+        exit(VATAmountLine.FindFirst());
+    end;
+
+    local procedure InsertVATAmountLine(var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+        VATAmountLine.Init();
+        VATAmountLine."VAT Identifier" := SalesLine."VAT Identifier";
+        VATAmountLine."VAT Calculation Type" := SalesLine."VAT Calculation Type";
+        VATAmountLine."Tax Group Code" := SalesLine."Tax Group Code";
+        VATAmountLine."Use Tax" := false;
+        VATAmountLine."VAT %" := SalesLine."VAT %";
+        VATAmountLine.Modified := true;
+        VATAmountLine.Positive := SalesLine."Line Amount" >= 0;
+        VATAmountLine."Includes Prepayment" := false;
+        VATAmountLine."Non-Deductible VAT %" := 0;
+        OnInsertVATAmountOnBeforeInsert(SalesLine, VATAmountLine);
+        VATAmountLine.Insert();
     end;
 
     local procedure SumVATAmountLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping; AmtToHandle: Decimal; QtyToHandle: Decimal)
@@ -6883,26 +6888,34 @@ table 37 "Sales Line"
     /// <param name="VATAmountLine">Return value: The VAT amount line with the maximum absolute amount. The search is performed on the record set passed in this parameter.</param>
     /// <param name="SalesLine">The sales line record to filter the VAT amount line set.</param>
     /// <returns>True if a VAT amount line was found, otherwise, false.</returns>
-    procedure GetVATAmountLineOfMaxAmt(var VATAmountLine: Record "VAT Amount Line"; SalesLine: Record "Sales Line"): Boolean
+    procedure GetVATAmountLineOfMaxAmt(var VATAmountLine: Record "VAT Amount Line"; SalesLine: Record "Sales Line") Found: Boolean
     var
         VATAmount1: Decimal;
         VATAmount2: Decimal;
         IsPositive1: Boolean;
         IsPositive2: Boolean;
     begin
-        if VATAmountLine.Get(SalesLine."VAT Identifier", SalesLine."VAT Calculation Type", SalesLine."Tax Group Code", false, false) then begin
+        VATAmountLine.SetRange("VAT Identifier", SalesLine."VAT Identifier");
+        VATAmountLine.SetRange("VAT Calculation Type", SalesLine."VAT Calculation Type");
+        VATAmountLine.SetRange("Tax Group Code", SalesLine."Tax Group Code");
+        VATAmountLine.SetRange("Use Tax", false);
+        VATAmountLine.SetRange(Positive, false);
+        if VATAmountLine.FindFirst() then begin
             VATAmount1 := VATAmountLine."VAT Amount";
             IsPositive1 := VATAmountLine.Positive;
         end;
-        if VATAmountLine.Get(SalesLine."VAT Identifier", SalesLine."VAT Calculation Type", SalesLine."Tax Group Code", false, true) then begin
+        VATAmountLine.SetRange(Positive, true);
+        if VATAmountLine.FindFirst() then begin
             VATAmount2 := VATAmountLine."VAT Amount";
             IsPositive2 := VATAmountLine.Positive;
         end;
-        if Abs(VATAmount1) >= Abs(VATAmount2) then
-            exit(
-              VATAmountLine.Get(SalesLine."VAT Identifier", SalesLine."VAT Calculation Type", SalesLine."Tax Group Code", false, IsPositive1));
-        exit(
-          VATAmountLine.Get(SalesLine."VAT Identifier", SalesLine."VAT Calculation Type", SalesLine."Tax Group Code", false, IsPositive2));
+        if Abs(VATAmount1) >= Abs(VATAmount2) then begin
+            VATAmountLine.SetRange(Positive, IsPositive1);
+            exit(VATAmountLine.FindFirst());
+        end;
+        VATAmountLine.SetRange(Positive, IsPositive2);
+        Found := VATAmountLine.FindFirst();
+        VATAmountLine.Reset();
     end;
 
     internal procedure GetVatBaseDiscountPct(SalesHeader: Record "Sales Header") Result: Decimal
@@ -8005,8 +8018,7 @@ table 37 "Sales Line"
     procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Enum "Sales Document Type"; AvailabilityFilter: Text; Positive: Boolean)
     begin
         Reset();
-        SetCurrentKey(
-"Document Type", Type, "No.", "Variant Code", "Drop Shipment", "Location Code", "Shipment Date");
+        SetCurrentKey("Document Type", Type, "No.", "Variant Code", "Drop Shipment", "Location Code", "Shipment Date");
         SetRange("Document Type", DocumentType);
         SetRange(Type, Type::Item);
         SetRange("No.", ReservationEntry."Item No.");
@@ -10116,6 +10128,20 @@ table 37 "Sales Line"
             StrSubstNo(QtyShipActionDescriptionLbl, Rec.FieldCaption("Qty. to Ship"), Rec.Quantity)));
     end;
 
+    local procedure TestQuantityFieldsOnValidateUnitOfMeasure()
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeTestQuantityFieldsOnValidateUnitOfMeasure(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField("Quantity Shipped", 0);
+        TestField("Qty. Shipped (Base)", 0);
+        TestField("Return Qty. Received", 0);
+        TestField("Return Qty. Received (Base)", 0);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var SalesLine: Record "Sales Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
@@ -12070,7 +12096,22 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertVATAmountOnBeforeInsert(var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindVATAmountLineOnAfterSetFilters(var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcShipmentDateForLocation(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestQuantityFieldsOnValidateUnitOfMeasure(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

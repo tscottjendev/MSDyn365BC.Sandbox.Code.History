@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Attachment;
@@ -388,12 +392,6 @@ page 5936 "Service Credit Memo Subform"
                     begin
                         Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
-                }
-                field("Account Code"; Rec."Account Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the account code of the customer.';
-                    Visible = false;
                 }
             }
         }

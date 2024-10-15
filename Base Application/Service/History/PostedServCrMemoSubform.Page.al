@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.History;
 
 using Microsoft.Finance.Dimension;
@@ -220,12 +224,6 @@ page 5973 "Posted Serv. Cr. Memo Subform"
                                                                   "Dimension Value Type" = const(Standard),
                                                                   Blocked = const(false));
                     Visible = DimVisible8;
-                }
-                field("Account Code"; Rec."Account Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the account code of the customer.';
-                    Visible = false;
                 }
             }
         }

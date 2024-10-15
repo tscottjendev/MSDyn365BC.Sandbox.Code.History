@@ -11,6 +11,7 @@ table 326 "Tax Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Auto. Create Tax Details"; Boolean)

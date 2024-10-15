@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -605,10 +609,6 @@ table 5993 "Service Invoice Line"
         {
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
-        }
-        field(10600; "Account Code"; Text[30])
-        {
-            Caption = 'Account Code';
         }
     }
 

@@ -258,13 +258,6 @@ page 5900 "Service Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies if items in the Service Lines window are ready to be handled in warehouse activities.';
                 }
-                field("External Document No."; Rec."External Document No.")
-                {
-                    ApplicationArea = Service;
-                    Importance = Promoted;
-                    ShowMandatory = ExternalDocNoMandatory;
-                    ToolTip = 'Specifies the external document number for this entry.';
-                }
             }
             part(ServItemLines; "Service Order Subform")
             {
@@ -412,21 +405,6 @@ page 5900 "Service Order"
                         MaxLaborUnitPriceOnAfterValida();
                     end;
                 }
-                field(GLN; Rec.GLN)
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the global location number of the customer.';
-                }
-                field("Account Code"; Rec."Account Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the account code of the customer.';
-                }
-                field("E-Invoice"; Rec."E-Invoice")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies whether the customer is part of the EHF system and requires an electronic service order.';
-                }
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Service;
@@ -443,6 +421,13 @@ page 5900 "Service Order"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related document was created.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    Importance = Promoted;
+                    ShowMandatory = ExternalDocNoMandatory;
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
@@ -563,6 +548,14 @@ page 5900 "Service Order"
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Service;
@@ -674,11 +667,6 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
                 }
-                field("Delivery Date"; Rec."Delivery Date")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the date that the item was requested for delivery in the service order.';
-                }
             }
             group(Details)
             {
@@ -781,27 +769,27 @@ page 5900 "Service Order"
                 Caption = ' Foreign Trade';
                 field("Transaction Type"; Rec."Transaction Type")
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Transaction Specification"; Rec."Transaction Specification")
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Transport Method"; Rec."Transport Method")
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Exit Point"; Rec."Exit Point")
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
                 }
                 field("Area"; Rec.Area)
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
             }

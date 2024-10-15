@@ -223,19 +223,8 @@ table 325 "VAT Posting Setup"
             Caption = 'Non-Deductible Sales VAT Account';
             TableRelation = "G/L Account";
             ObsoleteReason = 'Non-Deductible VAT is not implemented for Sales.';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-
-            trigger OnValidate()
-            begin
-                TestNotSalesTax(CopyStr(FieldCaption("Non-Ded. Sales VAT Account"), 1, 100));
-                CheckGLAcc("Non-Ded. Sales VAT Account");
-            end;
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(6202; "Non-Ded. Purchase VAT Account"; Code[20])
         {
@@ -271,27 +260,8 @@ table 325 "VAT Posting Setup"
             Caption = 'VAT Code';
             TableRelation = "VAT Code".Code;
             ObsoleteReason = 'Use the field "VAT Number" instead';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-
-            trigger OnValidate()
-            var
-                VATPostingSetup: Record "VAT Posting Setup";
-            begin
-                // Test for unique VAT Code in the VAT Posting Setup
-                if "VAT Code" <> '' then begin
-                    VATPostingSetup.SetRange("VAT Code", "VAT Code");
-                    if VATPostingSetup.FindFirst() then
-                        Error(
-                          Text1080000, FieldName("VAT Code"), TableName, VATPostingSetup."VAT Bus. Posting Group",
-                          VATPostingSetup."VAT Prod. Posting Group");
-                end;
-            end;
-#endif
         }
         field(10607; "VAT Number"; Code[20])
         {
@@ -322,26 +292,16 @@ table 325 "VAT Posting Setup"
             Caption = 'Sales VAT Reporting Code';
             TableRelation = "VAT Code".Code;
             ObsoleteReason = 'Use the field "Sale VAT Reporting Code" in BaseApp W1.';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#endif
         }
         field(10610; "Purchase VAT Reporting Code"; Code[10])
         {
             Caption = 'Purchase VAT Reporting Code';
             TableRelation = "VAT Code".Code;
             ObsoleteReason = 'Use the field "Purch. VAT Reporting Code" in BaseApp W1.';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#endif
         }
         field(10620; "Sales SAFT Tax Code"; Integer)
         {
@@ -386,14 +346,6 @@ table 325 "VAT Posting Setup"
         key(Key2; "VAT Prod. Posting Group", "VAT Bus. Posting Group")
         {
         }
-#if not CLEAN23
-        key(Key3; "VAT Code")
-        {
-            ObsoleteReason = 'Use the key4 "VAT Number" instead';
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-        }
-#endif
         key(Key4; "VAT Number")
         {
         }
@@ -429,9 +381,6 @@ table 325 "VAT Posting Setup"
 #pragma warning disable AA0470
         Text000: Label '%1 must be entered on the tax jurisdiction line when %2 is %3.';
         Text001: Label '%1 = %2 has already been used for %3 = %4 in %5 for %6 = %7 and %8 = %9.';
-#if not CLEAN23
-        Text1080000: Label '%1 is already used in %2 %3, %4.';
-#endif
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         YouCannotDeleteOrModifyErr: Label 'You cannot modify or delete VAT posting setup %1 %2 as it has been used to generate GL entries. Changing the setup now can cause inconsistencies in your financial data.', Comment = '%1 = "VAT Bus. Posting Group"; %2 = "VAT Prod. Posting Group"';

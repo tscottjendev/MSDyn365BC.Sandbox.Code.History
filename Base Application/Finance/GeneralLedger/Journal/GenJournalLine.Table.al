@@ -1765,11 +1765,7 @@ table 81 "Gen. Journal Line"
                     UpdatePricesFromJobJnlLine();
                 end;
 
-#if CLEAN23
                 NorwegianVATTools.InitVATCodeGenJournalLine(Rec, false);
-#else
-                NorwegianVATTools.InitVATCode_GenJnlLine(Rec, false);
-#endif
             end;
         }
         field(91; "VAT Prod. Posting Group"; Code[20])
@@ -1817,11 +1813,7 @@ table 81 "Gen. Journal Line"
                     UpdatePricesFromJobJnlLine();
                 end;
 
-#if CLEAN23
                 NorwegianVATTools.InitVATCodeGenJournalLine(Rec, false);
-#else
-                NorwegianVATTools.InitVATCode_GenJnlLine(Rec, false);
-#endif
             end;
         }
         field(92; "Bal. VAT Bus. Posting Group"; Code[20])
@@ -1837,11 +1829,7 @@ table 81 "Gen. Journal Line"
                     TestField("Bal. VAT Bus. Posting Group", '');
 
                 Validate("Bal. VAT Prod. Posting Group");
-#if CLEAN23
                 NorwegianVATTools.InitVATCodeGenJournalLine(Rec, true);
-#else
-                NorwegianVATTools.InitVATCode_GenJnlLine(Rec, true);
-#endif
             end;
         }
         field(93; "Bal. VAT Prod. Posting Group"; Code[20])
@@ -1879,11 +1867,7 @@ table 81 "Gen. Journal Line"
                         end;
                     end;
                 Validate("Bal. VAT %");
-#if CLEAN23
                 NorwegianVATTools.InitVATCodeGenJournalLine(Rec, true);
-#else
-                NorwegianVATTools.InitVATCode_GenJnlLine(Rec, true);
-#endif
             end;
         }
         field(95; "Additional-Currency Posting"; Option)
@@ -2958,6 +2942,10 @@ table 81 "Gen. Journal Line"
             Caption = 'Bal. Non-Deductible VAT Amount LCY';
             Editable = false;
         }
+        field(6230; "Non-Ded. VAT FA Cost"; Boolean)
+        {
+            Caption = 'Non-Ded. VAT FA Cost';
+        }
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -3049,38 +3037,16 @@ table 81 "Gen. Journal Line"
             Caption = 'VAT Code';
             TableRelation = "VAT Code".Code;
             ObsoleteReason = 'Use the field "VAT Number" instead';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-
-            trigger OnValidate()
-            begin
-                NorwegianVATTools.InitPostingGrps_GenJnlLine(Rec, false);
-                "VAT Number" := "VAT Code";
-            end;
-#endif
         }
         field(10605; "Bal. VAT Code"; Code[10])
         {
             Caption = 'Bal. VAT Code';
             TableRelation = "VAT Code".Code;
             ObsoleteReason = 'Use the field "Bal. VAT Number" instead';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-
-            trigger OnValidate()
-            begin
-                NorwegianVATTools.InitPostingGrps_GenJnlLine(Rec, true);
-                "Bal. VAT Number" := "Bal. VAT Code";
-            end;
-#endif
         }
         field(10606; "Source Curr. Inv.tax Amount"; Decimal)
         {
@@ -6158,7 +6124,7 @@ table 81 "Gen. Journal Line"
         OnAfterCleanLine(Rec, xRec);
     end;
 
-    local procedure ReplaceDescription() Result: Boolean
+    procedure ReplaceDescription() Result: Boolean
     var
         IsHandled: Boolean;
     begin
@@ -8895,12 +8861,12 @@ table 81 "Gen. Journal Line"
         case "Applies-to Doc. Type" of
             "Applies-to Doc. Type"::Payment:
                 "Document Type" := "Document Type"::Invoice;
-            "Applies-to Doc. Type"::"Credit Memo":
+        "Applies-to Doc. Type"::"Credit Memo":
                 "Document Type" := "Document Type"::Refund;
-            "Applies-to Doc. Type"::Invoice,
+        "Applies-to Doc. Type"::Invoice,
             "Applies-to Doc. Type"::Refund:
                 "Document Type" := "Document Type"::Payment;
-        end;
+    end;
     end;
 
     /// <summary>

@@ -742,36 +742,16 @@ table 15000004 "Waiting Journal"
             Caption = 'VAT Code';
             TableRelation = "VAT Code".Code;
             ObsoleteReason = 'Use the field "VAT Number" instead';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-
-            trigger OnValidate()
-            begin
-                "VAT Number" := "VAT Code";
-            end;
-#endif
         }
         field(10605; "Bal. VAT Code"; Code[10])
         {
             Caption = 'Bal. VAT Code';
             TableRelation = "VAT Code".Code;
             ObsoleteReason = 'Use the field "Bal. VAT Number" instead';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-
-            trigger OnValidate()
-            begin
-                "Bal. VAT Number" := "Bal. VAT Code";
-            end;
-#endif
         }
         field(10606; "Source Curr. Inv.tax Amount"; Decimal)
         {

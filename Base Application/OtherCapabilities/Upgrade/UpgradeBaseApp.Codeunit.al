@@ -22,9 +22,6 @@ using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
-#if not CLEAN23
-using Microsoft.Finance.ReceivablesPayables;
-#endif
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Setup;
@@ -160,9 +157,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeJobQueueEntries();
         UpgradeNotificationEntries();
         UpgradeVATReportSetup();
-#if not CLEAN23
-        UpgradeVATCode();
-#endif
         UpgradeStandardCustomerSalesCodes();
         UpgradeStandardVendorPurchaseCode();
         MoveLastUpdateInvoiceEntryNoValue();
@@ -240,9 +234,6 @@ codeunit 104000 "Upgrade - BaseApp"
         BinContentBuffer: Record "Bin Content Buffer";
         DocumentEntry: Record "Document Entry";
         EntrySummary: Record "Entry Summary";
-#if not CLEAN23
-        InvoicePostBuffer: Record "Invoice Post. Buffer";
-#endif
         ItemTrackingSetup: Record "Item Tracking Setup";
         OptionLookupBuffer: Record "Option Lookup Buffer";
         ParallelSessionEntry: Record "Parallel Session Entry";
@@ -261,10 +252,6 @@ codeunit 104000 "Upgrade - BaseApp"
         EntrySummary.Reset();
         EntrySummary.DeleteAll();
 
-#if not CLEAN23
-        InvoicePostBuffer.Reset();
-        InvoicePostBuffer.DeleteAll();
-#endif
         ItemTrackingSetup.Reset();
         ItemTrackingSetup.DeleteAll();
 
@@ -1355,55 +1342,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATRepSetupPeriodRemCalcUpgradeTag());
     end;
 
-#if not CLEAN23
-    local procedure UpgradeVATCode()
-    var
-        VATCode: Record "VAT Code";
-        VATReportingCode: Record "VAT Reporting Code";
-        VATPostingSetup: Record "VAT Posting Setup";
-        GLAccount: Record "G/L Account";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetVATCodeUpgradeTag()) then
-            exit;
-
-        if VATReportingCode.IsEmpty() then
-            if VATCode.FindSet(true) then
-                repeat
-                    VATReportingCode.Init();
-                    VATReportingCode.Code := VATCode.Code;
-                    VATReportingCode."Gen. Posting Type" := VATCode."Gen. Posting Type";
-                    VATReportingCode."Test Gen. Posting Type" := VATCode."Test Gen. Posting Type";
-                    VATReportingCode.Description := VATCode.Description;
-                    VATReportingCode."Trade Settlement 2017 Box No." := VATCode."Trade Settlement 2017 Box No.";
-                    VATReportingCode."Reverse Charge Report Box No." := VATCode."Reverse Charge Report Box No.";
-                    VATReportingCode."VAT Specification Code" := VATCode."VAT Specification Code";
-                    VATReportingCode."VAT Note Code" := VATCode."VAT Note Code";
-                    VATReportingCode.Insert();
-
-                    VATCode."Linked VAT Reporting Code" := VATReportingCode.Code;
-                    VATCode.Modify();
-                until VATCode.Next() = 0;
-
-        if VATPostingSetup.FindSet(true) then
-            repeat
-                VATPostingSetup."VAT Number" := VATPostingSetup."VAT Code";
-                VATPostingSetup."Sale VAT Reporting Code" := VATPostingSetup."Sales VAT Reporting Code";
-                VATPostingSetup."Purch. VAT Reporting Code" := VATPostingSetup."Purchase VAT Reporting Code";
-                VATPostingSetup.Modify();
-            until VATPostingSetup.Next() = 0;
-
-        GLAccount.SetFilter("VAT Code", '<>%1', '');
-        if GLAccount.FindSet(true) then
-            repeat
-                GLAccount."VAT Number" := GLAccount."VAT Code";
-                GLAccount.Modify();
-            until GLAccount.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetVATCodeUpgradeTag());
-    end;
-#endif
     local procedure UpgradeStandardCustomerSalesCodes()
     var
         StandardSalesCode: Record "Standard Sales Code";
@@ -1801,23 +1739,10 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-#if not CLEAN23
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag()) then begin
-            if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag()) then
-                exit;
-            AADApplicationSetup.ModifyDescriptionOfDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
-            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag());
-        end else begin
-            AADApplicationSetup.CreateDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
-            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag());
-            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag());
-        end;
-#else
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag()) then 
             exit;
         AADApplicationSetup.CreateDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag());
-#endif
     end;
 
     local procedure UpgradeIntegrationTableMapping()

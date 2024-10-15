@@ -466,11 +466,7 @@ codeunit 2 "Company-Initialize"
             InsertSourceCode(SourceCodeSetup.Purchases, Text003, Text004);
             InsertSourceCode(SourceCodeSetup."Deleted Document", Text005, DocumentCreatedToAvoidGapInNoSeriesTxt);
             InsertSourceCode(SourceCodeSetup."Inventory Post Cost", Text006, ReportName(REPORT::"Post Inventory Cost to G/L"));
-#if not CLEAN23
-            InsertSourceCode(SourceCodeSetup."Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Adjust Exchange Rates"));
-#else
             InsertSourceCode(SourceCodeSetup."Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Exch. Rate Adjustment"));
-#endif
             InsertSourceCode(SourceCodeSetup."G/L Currency Revaluation", Text008, ReportName(REPORT::"G/L Currency Revaluation"));
             InsertSourceCode(SourceCodeSetup."Close Income Statement", Text010, ReportName(REPORT::"Close Income Statement"));
             InsertSourceCode(SourceCodeSetup.Consolidation, Text011, Text012);

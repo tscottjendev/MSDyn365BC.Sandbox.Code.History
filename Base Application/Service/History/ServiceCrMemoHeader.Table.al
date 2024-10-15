@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -405,7 +409,10 @@ table 5994 "Service Cr.Memo Header"
         {
             Caption = 'Document Date';
         }
-        //field(100; "External Document No."; Code[35])  exist same field on ID 10605
+        field(10606; "External Document No."; Code[35])
+        {
+            Caption = 'External Document No.';
+        }
         field(101; "Area"; Code[10])
         {
             Caption = 'Area';
@@ -783,31 +790,6 @@ table 5994 "Service Cr.Memo Header"
         field(9001; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
-        }	
-        field(10600; GLN; Code[13])
-        {
-            Caption = 'GLN';
-        }
-        field(10601; "Account Code"; Text[30])
-        {
-            Caption = 'Account Code';
-        }
-        field(10604; "E-Invoice Created"; Boolean)
-        {
-            Caption = 'E-Invoice Created';
-            Editable = false;
-        }
-        field(10605; "E-Invoice"; Boolean)
-        {
-            Caption = 'E-Invoice';
-        }
-        field(10606; "External Document No."; Code[35])
-        {
-            Caption = 'External Document No.';
-        }
-        field(10607; "Delivery Date"; Date)
-        {
-            Caption = 'Delivery Date';
         }
     }
 
@@ -963,18 +945,6 @@ table 5994 "Service Cr.Memo Header"
         StatPageID := Page::"Service Credit Memo Statistics";
         OnOpenStatisticsOnAfterSetStatPageID(Rec, StatPageID);
         Page.RunModal(StatPageID, Rec);
-    end;
-
-    [Scope('OnPrem')]
-    procedure AccountCodeLineSpecified(): Boolean
-    var
-        ServCrMemoLine: Record "Service Cr.Memo Line";
-    begin
-        ServCrMemoLine.Reset();
-        ServCrMemoLine.SetRange("Document No.", "No.");
-        ServCrMemoLine.SetFilter(Type, '>%1', ServCrMemoLine.Type::" ");
-        ServCrMemoLine.SetFilter("Account Code", '<>%1&<>%2', '', "Account Code");
-        exit(not ServCrMemoLine.IsEmpty);
     end;
 
     procedure GetDocExchStatusStyle(): Text

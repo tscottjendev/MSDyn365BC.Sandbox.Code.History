@@ -1138,26 +1138,16 @@ table 181 "Posted Gen. Journal Line"
             Caption = 'VAT Code';
             TableRelation = "VAT Code".Code;
             ObsoleteReason = 'Use the field "VAT Number" instead';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#endif
         }
         field(10605; "Bal. VAT Code"; Code[10])
         {
             Caption = 'Bal. VAT Code';
             TableRelation = "VAT Code".Code;
             ObsoleteReason = 'Use the field "Bal. VAT Number" instead';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#endif
         }
         field(10608; "VAT Base Amount Type"; Option)
         {

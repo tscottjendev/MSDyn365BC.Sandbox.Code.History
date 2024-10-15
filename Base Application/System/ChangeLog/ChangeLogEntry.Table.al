@@ -263,15 +263,5 @@ table 405 "Change Log Entry"
     local procedure OnAfterIsProtected(var ChangeLogEntry: Record "Change Log Entry"; var ProtectedRecord: Boolean)
     begin
     end;
-
-#if not CLEAN23
-#pragma warning disable AA0228
-    [Obsolete('This event is no longer in use. The protection is enforced on the retention policy for Change Log Entry.', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckIfLogEntryCanBeDeleted(var ChangeLogEntry: Record "Change Log Entry"; var IsHandled: Boolean)
-    begin
-    end;
-#pragma warning restore AA0228
-#endif
 }
 #pragma warning restore AS0039

@@ -389,6 +389,15 @@ page 134 "Posted Sales Credit Memo"
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer that the items were shipped to.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name of the customer that the items were shipped to.';
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Basic, Suite;

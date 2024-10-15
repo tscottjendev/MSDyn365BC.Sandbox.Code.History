@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Task;
 
 codeunit 1174 "User Task Management"
@@ -65,6 +69,16 @@ codeunit 1174 "User Task Management"
                 UserTask.SetFilter("Due DateTime", '<>%1 & <=%2', 0DT, CurrentDateTime);
         end;
     end;
+
+    procedure CompleteTasks(var UserTask: Record "User Task")
+    begin
+        if UserTask.FindSet(true) then
+            repeat
+                UserTask.SetCompleted();
+                UserTask.Modify();
+            until UserTask.Next() = 0;
+    end;
+
 
     [EventSubscriber(ObjectType::Table, Database::"User Task Group", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteUserTaskGroup(var Rec: Record "User Task Group"; RunTrigger: Boolean)

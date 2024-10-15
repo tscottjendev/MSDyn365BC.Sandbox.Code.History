@@ -8,15 +8,10 @@ table 10602 "VAT Code"
 {
     Caption = 'VAT Code';
     ObsoleteReason = 'Use the table "VAT Reporting Code" instead.';
-#if CLEAN23
     ObsoleteState = Removed;
     ObsoleteTag = '26.0';
-#else
-    LookupPageID = "VAT Codes";
-    ObsoleteState = Pending;
-    ObsoleteTag = '23.0';
-#endif
     DataClassification = CustomerContent;
+    ReplicateData = false;
 
     fields
     {
@@ -76,13 +71,8 @@ table 10602 "VAT Code"
             Caption = 'SAF-T Code';
             TableRelation = "VAT Code";
             ObsoleteReason = 'Use the field "SAF-T VAT Code" in the table "VAT Reporting Code" instead.';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#endif
         }
         field(11; "VAT Note Code"; Code[50])
         {

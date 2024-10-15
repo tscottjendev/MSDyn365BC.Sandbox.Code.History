@@ -172,7 +172,7 @@ page 9305 "Sales Order List"
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
+                    ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                 }
                 field("Quote No."; Rec."Quote No.")
                 {
@@ -331,17 +331,6 @@ page 9305 "Sales Order List"
                     ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
                     Visible = false;
                 }
-#if not CLEAN23
-                field("Coupled to CRM"; Rec."Coupled to CRM")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies that the sales order is coupled to an order in Dynamics 365 Sales.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;
