@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Bank.Reconciliation;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -650,7 +654,13 @@ table 1293 "Payment Application Proposal"
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         RemainingAmount: Decimal;
         RemainingAmountLCY: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateRemainingAmount(Rec, BankAccount, IsHandled);
+        if IsHandled then
+            exit;
+
         "Remaining Amount" := 0;
 
         if "Applies-to Entry No." = 0 then
@@ -833,6 +843,11 @@ table 1293 "Payment Application Proposal"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateFromBankStmtMacthingBuffer(var PaymentApplicationProposal: Record "Payment Application Proposal"; TempBankStmtMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; BankAccount: Record "Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateRemainingAmount(var PaymentApplicationProposal: Record "Payment Application Proposal"; BankAccount: Record "Bank Account"; var IsHandled: Boolean)
     begin
     end;
 }

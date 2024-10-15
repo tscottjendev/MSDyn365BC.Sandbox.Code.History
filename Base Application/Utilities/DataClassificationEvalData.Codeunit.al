@@ -925,11 +925,6 @@ codeunit 1751 "Data Classification Eval. Data"
     local procedure ClassifyTablesToNormalPart11()
     begin
         SetTableFieldsToNormal(DATABASE::"CRM Connection Setup");
-#if not CLEAN23
-        SetTableFieldsToNormal(DATABASE::"Power BI User Configuration");
-        SetTableFieldsToNormal(DATABASE::"Power BI Report Configuration");
-        SetTableFieldsToNormal(DATABASE::"Power BI User Status");
-#endif
         SetTableFieldsToNormal(DATABASE::"Power BI Selection Element");
         SetTableFieldsToNormal(DATABASE::"Power BI Displayed Element");
         SetTableFieldsToNormal(DATABASE::"Power BI Report Uploads");
@@ -3780,6 +3775,7 @@ codeunit 1751 "Data Classification Eval. Data"
         DummyAgentTaskFile: Record "Agent Task File";
         DummyAgentTaskTimelineEntry: Record "Agent Task Timeline Entry";
         DummyAgentTaskTimelineEntryStep: Record "Agent Task Timeline Entry Step";
+        DummyAgentTaskPaneEntry: Record "Agent Task Pane Entry";
         TableNo: Integer;
     begin
         TableNo := DATABASE::"Agent";
@@ -3825,8 +3821,13 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, DummyAgentTaskTimelineEntryStep.FieldNo("User Security ID"));
         SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineEntryStep.FieldNo("Client Context"));
 
-        // following tables are internal but still require classification
+        TableNo := DATABASE::"Agent Task Pane Entry";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, DummyAgentTaskPaneEntry.FieldNo("Created By"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskPaneEntry.FieldNo(Summary));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskPaneEntry.FieldNo(Title));
 
+        // following tables are internal but still require classification
         SetTableFieldsToNormal(2000000258); // Agent Data table
         SetFieldToPersonal(2000000258, 1); // User Security Id
         SetFieldToCompanyConfidential(2000000258, 3); // Instructions

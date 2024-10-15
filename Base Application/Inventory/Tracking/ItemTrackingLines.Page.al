@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Assembly.Document;
@@ -1164,7 +1168,6 @@ page 6510 "Item Tracking Lines"
         Text012: Label 'Tracking specification with Serial No. %1 already exists.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
-        DeleteIsBlocked: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text014: Label 'The total item tracking quantity %1 exceeds the %2 quantity %3.\The changes cannot be saved to the database.';
@@ -1266,6 +1269,7 @@ page 6510 "Item Tracking Lines"
         NewExpirationDateEditable: Boolean;
         ExpirationDateEditable: Boolean;
         WarrantyDateEditable: Boolean;
+        DeleteIsBlocked: Boolean;
         IsInvtDocumentCorrection: Boolean;
         HasSameQuantityBase: Boolean;
 

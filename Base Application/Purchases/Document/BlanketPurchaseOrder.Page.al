@@ -387,7 +387,7 @@ page 509 "Blanket Purchase Order"
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
+                    ToolTip = 'Specifies the location where the items are to be placed when they are received. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                 }
                 field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
@@ -412,6 +412,14 @@ page 509 "Blanket Purchase Order"
                         Caption = 'Name';
                         Importance = Additional;
                         ToolTip = 'Specifies the name of the company at the address to which you want the items in the purchase order to be shipped.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name of the company at the address to which you want the items in the purchase order to be shipped.';
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {

@@ -20,7 +20,6 @@ codeunit 134327 "ERM Purchase Order"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryService: Codeunit "Library - Service";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
@@ -8239,6 +8238,35 @@ codeunit 134327 "ERM Purchase Order"
         Assert.AssertRecordNotFound();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyLineDiscountPctafterProjectNoInserted()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
+        Job: Record Job;
+    begin
+        // [SCENARIO 544960] Purchase Line Disc % should not Cleared after entering the Project No. in the Current  Line
+        Initialize();
+
+        //[GIVEN] Create Job
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Create Purchase order 
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryInventory.CreateItemNo());
+        PurchaseLine.validate("Location Code", LibraryWarehouse.CreateLocation(Location));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 99, 2));
+        PurchaseLine.validate("Line Discount %", LibraryRandom.RandIntInRange(3, 5));
+
+        // [WHEN] Assign Job No. on Purchase Line
+        PurchaseLine.Validate("Job No.", Job."No.");
+        PurchaseLine.Modify(true);
+
+        // [THEN] Verify: Verify the Line Discount % value should not be zero
+        PurchaseLine.TestField("Line Discount %");
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -8490,7 +8518,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         Item.Validate("Automatic Ext. Texts", true);
         Item.Modify(true);
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
         ExtendedTextHeader.Validate("Purchase Order", true);
         ExtendedTextHeader.Modify(true);
         CreateExtendedTextLine(ExtendedTextHeader);
@@ -8501,7 +8529,7 @@ codeunit 134327 "ERM Purchase Order"
     var
         ExtendedTextLine: Record "Extended Text Line";
     begin
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID());
         ExtendedTextLine.Modify(true);
     end;
@@ -8857,11 +8885,10 @@ codeunit 134327 "ERM Purchase Order"
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryService: Codeunit "Library - Service";
     begin
         LibraryInventory.CreateItem(Item);
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         UpdateTextInExtendedTextLine(ExtendedTextLine, Item."No.");
         exit(ExtendedTextLine.Text);
     end;
@@ -8948,8 +8975,8 @@ codeunit 134327 "ERM Purchase Order"
         Item.Validate("Automatic Ext. Texts", true);
         Item.Validate("Last Direct Cost", LibraryRandom.RandDec(100, 2));
         Item.Modify(true);
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         UpdateTextInExtendedTextLine(ExtendedTextLine, Item."No.");
         exit(Item."No.");
     end;
@@ -10246,18 +10273,6 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseLine.Validate("Item Reference No.", ItemReference."Reference No.");
         PurchaseLine.Modify(true);
     end;
-
-#if not CLEAN23
-    [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPreparePurchase', '', false, false)]
-    local procedure OnAfterInvPostBufferPreparePurchase(var PurchaseLine: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-        // Example of extending feature "Copy document line description to G/L entries" for lines with type = "Item"
-        if InvoicePostBuffer.Type = InvoicePostBuffer.Type::Item then begin
-            InvoicePostBuffer."Fixed Asset Line No." := PurchaseLine."Line No.";
-            InvoicePostBuffer."Entry Description" := PurchaseLine.Description;
-        end;
-    end;
-#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch. Post Invoice Events", 'OnAfterPrepareInvoicePostingBuffer', '', false, false)]
     local procedure OnAfterPreparePurchase(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")

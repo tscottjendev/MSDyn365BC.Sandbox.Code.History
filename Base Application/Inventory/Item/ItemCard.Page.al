@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Item;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Item;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Attachment;
@@ -2370,6 +2374,18 @@ page 30 "Item Card"
                         RunObject = Page "Production BOM";
                         RunPageLink = "No." = field("Production BOM No.");
                         ToolTip = 'Open the item''s production bill of material to view or edit its components.';
+                    }
+                    action("Prod. Active BOM Version")
+                    {
+                        ApplicationArea = Manufacturing;
+                        Caption = 'Prod. Active BOM Version';
+                        Image = BOM;
+                        ToolTip = 'Open the item''s active production bill of material to view or edit the components.';
+
+                        trigger OnAction()
+                        begin
+                            Rec.OpenActiveProdBOMForItem(Rec."Production BOM No.", Rec."No.");
+                        end;
                     }
                     action(Action78)
                     {
