@@ -788,6 +788,24 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input Group - Field Description - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 1890310249 - Field 4038833013 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the AppId from which the test input group was imported.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input Group - Field Imported by AppId - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1890310249 - Field 4038833013 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Imported from AppId]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input Group - Field Imported by AppId - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 1890310249 - Field 4196669088 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Specifies the number of entries in the dataset.]]></Val>
