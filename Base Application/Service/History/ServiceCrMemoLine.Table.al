@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -637,8 +641,6 @@ table 5995 "Service Cr.Memo Line"
             repeat
                 TempVATAmountLine.Init();
                 Rec.CopyToVATAmountLine(TempVATAmountLine);
-                TempVATAmountLine."VAT Base (Lowered)" :=
-                  TempVATAmountLine."VAT Base" * (1 - ServCrMemoHeader."Payment Discount %" / 100);
                 OnCalcVATAmountLinesOnBeforeInsertLine(ServCrMemoHeader, TempVATAmountLine);
                 TempVATAmountLine.InsertLine();
             until Next() = 0;
@@ -662,7 +664,6 @@ table 5995 "Service Cr.Memo Line"
         VATAmountLine."Calculated VAT Amount" :=
           Rec."Amount Including VAT" - Rec.Amount - Rec."VAT Difference";
         VATAmountLine."VAT Difference" := Rec."VAT Difference";
-        VATAmountLine."VAT Base (Lowered)" := Rec."VAT Base Amount";
 
         OnAfterCopyToVATAmountLine(Rec, VATAmountLine);
 #if not CLEAN25

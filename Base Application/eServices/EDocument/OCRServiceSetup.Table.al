@@ -20,6 +20,7 @@ table 1270 "OCR Service Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "User Name"; Text[50])

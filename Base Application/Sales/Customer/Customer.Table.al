@@ -1331,13 +1331,8 @@ table 18 Customer
             Caption = 'Coupled to Dataverse';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(721; "Coupled to Dataverse"; Boolean)
         {
@@ -1720,7 +1715,14 @@ table 18 Customer
             OptimizeForTextSearch = true;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateEnterpriseNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;   
+
                 if "Enterprise No." <> DelChr("Enterprise No.", '=', '0123456789') then begin
                     if not Country.DetermineCountry("Country/Region Code") then
                         Error(Text11302, FieldCaption("Enterprise No.") + ' ' + "No.");
@@ -1814,14 +1816,6 @@ table 18 Customer
         key(Key20; "Partner Type", "Country/Region Code")
         {
         }
-#if not CLEAN23
-        key(Key21; "Coupled to CRM")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
-        }
-#endif
         key(Key22; "IC Partner Code")
         {
         }
@@ -3740,6 +3734,11 @@ table 18 Customer
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetTotalAmountLCYCommon(var Customer: Record Customer; var TotalAmountLCY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateEnterpriseNo(var Customer: Record Customer; xCustomer: Record Customer; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

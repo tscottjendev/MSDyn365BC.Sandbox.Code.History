@@ -1820,7 +1820,6 @@ report 402 "Purchase Document - Test"
         OrigMaxLineNo: Integer;
         InvOnNextPostReq: Boolean;
         ReceiveShipOnNextPostReq: Boolean;
-        ShowDim: Boolean;
         Continue: Boolean;
         ShowItemChargeAssgnt: Boolean;
 #pragma warning disable AA0074
@@ -1903,6 +1902,9 @@ report 402 "Purchase Document - Test"
         ContinuedCaption_Control197Lbl: Label 'Continued';
         TotalCaption_Control194Lbl: Label 'Total';
         ContinuedCaption_Control192Lbl: Label 'Continued';
+
+    protected var
+        ShowDim: Boolean;
 
     local procedure AddError(Text: Text)
     begin

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -675,8 +679,6 @@ table 5993 "Service Invoice Line"
             repeat
                 TempVATAmountLine.Init();
                 Rec.CopyToVATAmountLine(TempVATAmountLine);
-                TempVATAmountLine."VAT Base (Lowered)" :=
-                  TempVATAmountLine."VAT Base" * (1 - ServInvHeader."Payment Discount %" / 100);
                 OnCalcVATAmountLinesOnBeforeInsertLine(ServInvHeader, TempVATAmountLine);
                 TempVATAmountLine.InsertLine();
             until Next() = 0;
@@ -699,7 +701,6 @@ table 5993 "Service Invoice Line"
         VATAmountLine.Quantity := Rec."Quantity (Base)";
         VATAmountLine."Calculated VAT Amount" := Rec."Amount Including VAT" - Rec.Amount - Rec."VAT Difference";
         VATAmountLine."VAT Difference" := Rec."VAT Difference";
-        VATAmountLine."VAT Base (Lowered)" := Rec."VAT Base Amount";
 
         OnAfterCopyToVATAmountLine(Rec, VATAmountLine);
 #if not CLEAN25

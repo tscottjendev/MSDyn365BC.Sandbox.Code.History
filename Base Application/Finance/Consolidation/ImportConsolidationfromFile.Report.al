@@ -281,18 +281,6 @@ report 92 "Import Consolidation from File"
         GLDocNo := NewGLDocNo;
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced with InitializeRequest with 3 parameters', '23.0')]
-    procedure InitializeRequest(NewFileFormat: Option; NewFilePath: Text; NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10])
-    begin
-        FileFormat := NewFileFormat;
-        FilePath := NewFilePath;
-        FileName := GetFileName(FilePath);
-        GenJnlBatch."Journal Template Name" := NewJnlTemplName;
-        GenJnlBatch.Name := NewJnlBatchName;
-    end;
-#endif
-
     procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")
     begin
         GenJnlBatch := NewGenJnlBatch;

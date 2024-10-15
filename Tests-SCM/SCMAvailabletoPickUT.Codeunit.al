@@ -31,6 +31,7 @@ codeunit 137501 "SCM Available to Pick UT"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         OverStockErr: Label 'item no. %1 is not available';
+        NoActiveProductionBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1', Comment = '%1 - Item No.';
         BlockMovementGlobal: Option " ",Inbound,Outbound,All;
         BinCodeDictionary: Dictionary of [Text, List of [Code[20]]];
 
@@ -2869,6 +2870,152 @@ codeunit 137501 "SCM Available to Pick UT"
         Assert.ExpectedError(StrSubstNo(OverStockErr, TempItemVariant."Item No."));
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionBOMPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyProductionBOMFromItemCard()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemCard: TestPage "Item Card";
+    begin
+        // [SCENARIO 346526] Verify Production BOM page should open when there is no active version of production BOM and should be certified from Item Card page.
+        Initialize();
+
+        // [GIVEN] Create a Component Item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create Production BOM with Component Item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+
+        // [GIVEN] Create a Production Item.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem."Replenishment System" := ProdItem."Replenishment System"::"Prod. Order";
+        ProdItem."Manufacturing Policy" := ProdItem."Manufacturing Policy"::"Make-to-Order";
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Open Production BOM page from Item Card.
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+        ItemCard.OpenEdit();
+        ItemCard.GotoRecord(ProdItem);
+        ItemCard."Prod. Active BOM Version".Invoke();
+
+        // [Verify] Verify Production BOM through "ProductionBOMPageHandler".
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionBOMPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyProductionBOMFromItemList()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemList: TestPage "Item List";
+    begin
+        // [SCENARIO 346526] Verify Production BOM page should open when there is no active version of production BOM and should be certified from Item List page.
+        Initialize();
+
+        // [GIVEN] Create a Component Item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create Production BOM with Component Item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+
+        // [GIVEN] Create a Production Item.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem."Replenishment System" := ProdItem."Replenishment System"::"Prod. Order";
+        ProdItem."Manufacturing Policy" := ProdItem."Manufacturing Policy"::"Make-to-Order";
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Open Production BOM page from Item List.
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+        ItemList.OpenEdit();
+        ItemList.GotoRecord(ProdItem);
+        ItemList."Prod. Active BOM Version".Invoke();
+
+        // [Verify] Verify Production BOM through "ProductionBOMPageHandler".
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyProductionBOMShouldNotOpenFromItemCard()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemCard: TestPage "Item Card";
+    begin
+        // [SCENARIO 346526] Verify Production BOM page should not open when there is no active version of production BOM and should not be certified from Item Card page.
+        Initialize();
+
+        // [GIVEN] Create a Component Item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create Production BOM with Component Item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+
+        // [GIVEN] Update Production BOM Status.
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::New);
+
+        // [GIVEN] Create a Production Item.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem."Replenishment System" := ProdItem."Replenishment System"::"Prod. Order";
+        ProdItem."Manufacturing Policy" := ProdItem."Manufacturing Policy"::"Make-to-Order";
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Open Production BOM page from Item Card.
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+        ItemCard.OpenEdit();
+        ItemCard.GotoRecord(ProdItem);
+        asserterror ItemCard."Prod. Active BOM Version".Invoke();
+
+        // [Verify] Verify expected error while opening Production BOM page.
+        Assert.ExpectedError(StrSubstNo(NoActiveProductionBOMVersionFoundErr, ProdItem."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyProductionBOMShouldNotOpenFromItemList()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemList: TestPage "Item List";
+    begin
+        // [SCENARIO 346526] Verify Production BOM page should not open when there is no active version of production BOM and should not be certified from Item List page.
+        Initialize();
+
+        // [GIVEN] Create a Component Item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create Production BOM with Component Item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+
+        // [GIVEN] Update Production BOM Status.
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::New);
+
+        // [GIVEN] Create a Production Item.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem."Replenishment System" := ProdItem."Replenishment System"::"Prod. Order";
+        ProdItem."Manufacturing Policy" := ProdItem."Manufacturing Policy"::"Make-to-Order";
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Open Production BOM page from Item List.
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+        ItemList.OpenEdit();
+        ItemList.GotoRecord(ProdItem);
+        asserterror ItemList."Prod. Active BOM Version".Invoke();
+
+        // [Verify] Verify expected error while opening Production BOM page.
+        Assert.ExpectedError(StrSubstNo(NoActiveProductionBOMVersionFoundErr, ProdItem."No."));
+    end;
+
     local procedure SetupWhseActivityLineForShowItemAvailability(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
         Initialize();
@@ -3538,6 +3685,13 @@ codeunit 137501 "SCM Available to Pick UT"
     procedure VerifyMessageHandler(Message: Text)
     begin
         Assert.AreEqual(LibraryVariableStorage.DequeueText(), Message, 'Message is not correct');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionBOMPageHandler(var ProductionBOM: TestPage "Production BOM")
+    begin
+        ProductionBOM."No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 }
 

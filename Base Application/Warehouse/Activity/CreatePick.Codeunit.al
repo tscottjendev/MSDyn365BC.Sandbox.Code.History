@@ -3186,6 +3186,7 @@ codeunit 7312 "Create Pick"
     procedure CreateTempActivityLine(
         LocationCode: Code[10]; BinCode: Code[20]; UOMCode: Code[10]; QtyPerUOM: Decimal; QtyToPick: Decimal; QtyToPickBase: Decimal; ActionType: Integer; BreakBulkNo: Integer; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal)
     var
+        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
         WhseSource2: Option;
         ShouldCalcMaxQty: Boolean;
     begin
@@ -3221,7 +3222,7 @@ codeunit 7312 "Create Pick"
             CreatePickParameters."Whse. Document"::"Internal Pick":
                 TempWarehouseActivityLine.TransferFromIntPickLine(CurrWhseInternalPickLine);
             CreatePickParameters."Whse. Document"::Production:
-                TempWarehouseActivityLine.TransferFromCompLine(CurrProdOrderComponentLine);
+                ProdOrderWarehouseMgt.TransferFromCompLine(TempWarehouseActivityLine, CurrProdOrderComponentLine);
             CreatePickParameters."Whse. Document"::Assembly:
                 TempWarehouseActivityLine.TransferFromAssemblyLine(CurrAssemblyLine);
             CreatePickParameters."Whse. Document"::"Movement Worksheet":

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.StandardCost;
 
 using Microsoft.Assembly.Document;
@@ -684,9 +688,6 @@ codeunit 5812 "Calculate Standard Cost"
     var
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
-#if not CLEAN23
-        UnitCostCalculationOption: Option;
-#endif
         IsHandled: Boolean;
     begin
         case Type of
@@ -697,11 +698,6 @@ codeunit 5812 "Calculate Standard Cost"
         end;
 
         IsHandled := false;
-#if not CLEAN23
-        UnitCostCalculationOption := UnitCostCalculation.AsInteger();
-        OnCalcRtngCostPerUnitOnBeforeCalc(Type.AsInteger(), DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculationOption, WorkCenter, MachineCenter, IsHandled);
-        UnitCostCalculation := "Unit Cost Calculation Type".FromInteger(UnitCostCalculationOption);
-#endif
         OnCalcRoutingCostPerUnitOnBeforeCalc(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter, IsHandled);
         if IsHandled then
             exit;
@@ -1159,14 +1155,6 @@ codeunit 5812 "Calculate Standard Cost"
     local procedure OnCalcRtngCostOnBeforeCalcRtngLineCost(var RoutingLine: Record "Routing Line"; ParentItem: Record Item; var LogErrors: Boolean; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by event OnCalcRoutingCostPerUnitOnBeforeCalc()', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcRtngCostPerUnitOnBeforeCalc(Type: Option "Work Center","Machine Center"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcRoutingCostPerUnitOnBeforeCalc(Type: Enum "Capacity Type Routing"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type"; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center"; var IsHandled: Boolean)

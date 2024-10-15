@@ -225,6 +225,7 @@ table 36 "Sales Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -324,6 +325,7 @@ table 36 "Sales Header"
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
+            OptimizeForTextSearch = true;
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
 
@@ -360,10 +362,12 @@ table 36 "Sales Header"
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            OptimizeForTextSearch = true;
         }
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -373,6 +377,7 @@ table 36 "Sales Header"
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -382,6 +387,7 @@ table 36 "Sales Header"
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Bill-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Bill-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Bill-to Country/Region Code"));
@@ -411,6 +417,7 @@ table 36 "Sales Header"
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
+            OptimizeForTextSearch = true;
 
             trigger OnLookup()
             var
@@ -431,6 +438,7 @@ table 36 "Sales Header"
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+            OptimizeForTextSearch = true;
         }
         field(12; "Ship-to Code"; Code[10])
         {
@@ -504,22 +512,27 @@ table 36 "Sales Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
+            OptimizeForTextSearch = true;
         }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
+            OptimizeForTextSearch = true;
         }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
+            OptimizeForTextSearch = true;
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
+            OptimizeForTextSearch = true;
         }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Ship-to Country/Region Code"));
@@ -548,6 +561,7 @@ table 36 "Sales Header"
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
+            OptimizeForTextSearch = true;
         }
         field(19; "Order Date"; Date)
         {
@@ -640,6 +654,7 @@ table 36 "Sales Header"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
+            OptimizeForTextSearch = true;
         }
         field(23; "Payment Terms Code"; Code[10])
         {
@@ -991,6 +1006,7 @@ table 36 "Sales Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
+            OptimizeForTextSearch = true;
             TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Salesperson Code"; Code[20])
@@ -1210,6 +1226,7 @@ table 36 "Sales Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -1283,6 +1300,7 @@ table 36 "Sales Header"
         field(72; "Registration Number"; Text[50])
         {
             Caption = 'Registration No.';
+            OptimizeForTextSearch = true;
             DataClassification = CustomerContent;
         }
         field(73; "Reason Code"; Code[10])
@@ -1344,6 +1362,7 @@ table 36 "Sales Header"
         field(79; "Sell-to Customer Name"; Text[100])
         {
             Caption = 'Sell-to Customer Name';
+            OptimizeForTextSearch = true;
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
 
@@ -1393,10 +1412,12 @@ table 36 "Sales Header"
         field(80; "Sell-to Customer Name 2"; Text[50])
         {
             Caption = 'Sell-to Customer Name 2';
+            OptimizeForTextSearch = true;
         }
         field(81; "Sell-to Address"; Text[100])
         {
             Caption = 'Sell-to Address';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1407,6 +1428,7 @@ table 36 "Sales Header"
         field(82; "Sell-to Address 2"; Text[50])
         {
             Caption = 'Sell-to Address 2';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1417,6 +1439,7 @@ table 36 "Sales Header"
         field(83; "Sell-to City"; Text[30])
         {
             Caption = 'Sell-to City';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Sell-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Sell-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Sell-to Country/Region Code"));
@@ -1447,6 +1470,7 @@ table 36 "Sales Header"
         field(84; "Sell-to Contact"; Text[100])
         {
             Caption = 'Sell-to Contact';
+            OptimizeForTextSearch = true;
 
             trigger OnLookup()
             var
@@ -1507,6 +1531,7 @@ table 36 "Sales Header"
         {
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1565,6 +1590,7 @@ table 36 "Sales Header"
         {
             CaptionClass = '5,2,' + "Sell-to Country/Region Code";
             Caption = 'Sell-to County';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1620,6 +1646,7 @@ table 36 "Sales Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
+            OptimizeForTextSearch = true;
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
@@ -1676,6 +1703,7 @@ table 36 "Sales Header"
         field(100; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -1774,6 +1802,7 @@ table 36 "Sales Header"
         field(106; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
+            OptimizeForTextSearch = true;
             ObsoleteReason = 'Field length will be increased to 50.';
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
@@ -1783,6 +1812,7 @@ table 36 "Sales Header"
         field(106; "Package Tracking No."; Text[50])
         {
             Caption = 'Package Tracking No.';
+            OptimizeForTextSearch = true;
         }
 #pragma warning restore AS0086
 #endif
@@ -2018,6 +2048,7 @@ table 36 "Sales Header"
         field(127; "IC Reference Document No."; Code[20])
         {
             Caption = 'IC Reference Document No.';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(129; "IC Direction"; Enum "IC Direction Type")
@@ -2115,6 +2146,7 @@ table 36 "Sales Header"
         field(135; "Prepmt. Posting Description"; Text[100])
         {
             Caption = 'Prepmt. Posting Description';
+            OptimizeForTextSearch = true;
         }
         field(138; "Prepmt. Pmt. Discount Date"; Date)
         {
@@ -2289,6 +2321,7 @@ table 36 "Sales Header"
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
@@ -2306,6 +2339,7 @@ table 36 "Sales Header"
         field(172; "Sell-to E-Mail"; Text[80])
         {
             Caption = 'Email';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
@@ -2387,6 +2421,7 @@ table 36 "Sales Header"
         field(210; "Ship-to Phone No."; Text[30])
         {
             Caption = 'Ship-to Phone No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
         }
         field(300; "Amt. Ship. Not Inv. (LCY)"; Decimal)
@@ -2430,13 +2465,8 @@ table 36 "Sales Header"
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(721; "Coupled to Dataverse"; Boolean)
         {
@@ -3042,6 +3072,7 @@ table 36 "Sales Header"
         field(11310; "Enterprise No."; Text[50])
         {
             Caption = 'Enterprise No.';
+            OptimizeForTextSearch = true;
         }
     }
 
@@ -3382,14 +3413,14 @@ table 36 "Sales Header"
                 NoSeriesMgt2.RaiseObsoleteOnBeforeInitSeries(NoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
                 if not IsHandled then begin
 #endif
-                "No. Series" := NoSeriesCode;
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
-                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-                SalesHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
-                SalesHeader2.SetLoadFields("No.");
-                while SalesHeader2.Get("Document Type", "No.") do
+                    "No. Series" := NoSeriesCode;
+                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                        "No. Series" := xRec."No. Series";
                     "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+                    SalesHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
+                    SalesHeader2.SetLoadFields("No.");
+                    while SalesHeader2.Get("Document Type", "No.") do
+                        "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
 #if not CLEAN24
                     NoSeriesMgt2.RaiseObsoleteOnAfterInitSeries("No. Series", NoSeriesCode, "Posting Date", "No.");
                 end;
@@ -4457,7 +4488,7 @@ table 36 "Sales Header"
                         FieldNo("Shipping Agent Code"):
                             SalesLine.Validate("Shipping Agent Code", "Shipping Agent Code");
                         FieldNo("Shipping Agent Service Code"):
-                            if SalesLine."No." <> '' then
+                            if (SalesLine."No." <> '') and (SalesLine."Shipping Agent Code" <> '') then
                                 SalesLine.Validate("Shipping Agent Service Code", "Shipping Agent Service Code");
                         FieldNo("Shipping Time"):
                             if SalesLine."No." <> '' then
@@ -5948,6 +5979,7 @@ table 36 "Sales Header"
                 CustCheckCreditLimit.SalesHeaderCheck(Rec);
 
             CalcFields("Amount Including VAT");
+            OnCheckCreditLimitOnAfterCreditLimitCheck(Rec);
         end;
     end;
 
@@ -7960,11 +7992,14 @@ table 36 "Sales Header"
     procedure PerformManualRelease()
     var
         ReleaseSalesDoc: Codeunit "Release Sales Document";
+        IsHandled: Boolean;
     begin
-        if Rec.Status <> Rec.Status::Released then begin
-            ReleaseSalesDoc.PerformManualRelease(Rec);
-            Commit();
-        end;
+        OnBeforePerformManualRelease(Rec, IsHandled);
+        if not IsHandled then
+            if Rec.Status <> Rec.Status::Released then begin
+                ReleaseSalesDoc.PerformManualRelease(Rec);
+                Commit();
+            end;
     end;
 
     /// <summary>
@@ -9001,7 +9036,7 @@ table 36 "Sales Header"
         OnAfterSalesLinesEditable(Rec, IsEditable);
     end;
 
-# if not CLEAN24
+#if not CLEAN24
     [Obsolete('SetTrackInfoForCancellation procedure is planned to be removed.', '24.0')]
     internal procedure SetTrackInfoForCancellation()
     var
@@ -9058,7 +9093,7 @@ table 36 "Sales Header"
         end;
         exit(Connected);
     end;
-# endif
+#endif
 
     local procedure FindDocumentWithSameExternalDocNo(): Boolean
     var
@@ -9139,10 +9174,15 @@ table 36 "Sales Header"
         CorrectPostedSalesInvoice.UpdateSalesOrderLineIfExist(SalesCreditMemoHeader."No.");
     end;
 
-    local procedure IsNotFullyCancelled(var SalesCreditMemoHeader: Record "Sales Cr.Memo Header"): Boolean
+    local procedure IsNotFullyCancelled(var SalesCreditMemoHeader: Record "Sales Cr.Memo Header") Result: Boolean
     var
         CustLedgerEntry, ClosedCustLedgerEntry : Record "Cust. Ledger Entry";
+        IsHandled: Boolean;
     begin
+        OnBeforeIsNotFullyCancelled(SalesCreditMemoHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if SalesCreditMemoHeader."Cust. Ledger Entry No." = 0 then
             exit(true);
 
@@ -10893,13 +10933,13 @@ table 36 "Sales Header"
     begin
     end;
 
-# if not CLEAN24
+#if not CLEAN24
     [IntegrationEvent(false, false)]
     [Obsolete('This event is obsolete. SetTrackInfoForCancellation procedure is planned to be removed.', '24.0')]
     local procedure OnSetTrackInfoForCancellationOnBeforeInsertCancelledDocument(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: boolean)
     begin
     end;
-# endif
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateSelltoContactNoOnBeforeValidateSalespersonCode(var SalesHeader: Record "Sales Header"; Contact: Record Contact; var IsHandled: Boolean)
@@ -11053,6 +11093,21 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSellToCustOnBeforeValidateBillToContactNo(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePerformManualRelease(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsNotFullyCancelled(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckCreditLimitOnAfterCreditLimitCheck(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

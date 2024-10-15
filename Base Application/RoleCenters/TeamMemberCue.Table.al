@@ -15,6 +15,7 @@ table 9042 "Team Member Cue"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Open Time Sheets"; Integer)

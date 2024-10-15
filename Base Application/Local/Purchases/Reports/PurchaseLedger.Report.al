@@ -12,9 +12,6 @@ using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
-#if not CLEAN23
-using Microsoft.Foundation.Enums;
-#endif
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using System.Utilities;
@@ -654,18 +651,6 @@ report 11301 "Purchase Ledger"
                 group(Options)
                 {
                     Caption = 'Options';
-#if not CLEAN23
-                    field(VATDateTypeField; VATDateType)
-                    {
-                        ApplicationArea = VAT;
-                        Caption = 'Period Date Type';
-                        ToolTip = 'Specifies the type of date used for the period.';
-                        Visible = false;
-                        ObsoleteReason = 'Selected VAT Date type no longer supported.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '23.0';
-                    }
-#endif
                     field(StartDate; StartDate)
                     {
                         ApplicationArea = Basic, Suite;
@@ -772,9 +757,6 @@ report 11301 "Purchase Ledger"
         MultipleVATEntries: Integer;
         OldTransactionNo: Integer;
         GLPostingDescription: Text;
-#if not CLEAN23
-        VATDateType: Enum "VAT Date Type";
-#endif
         ExcludeDeferrals: Boolean;
         PageCaptionLbl: Label 'Page';
         PurchaseLedgerCaptionLbl: Label 'Purchase Ledger';

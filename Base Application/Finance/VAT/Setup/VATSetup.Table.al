@@ -20,6 +20,7 @@ table 189 "VAT Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Enable Non-Deductible VAT"; Boolean)

@@ -12,6 +12,7 @@ table 5218 "Human Resources Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Employee Nos."; Code[20])

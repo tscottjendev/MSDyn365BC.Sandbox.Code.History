@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
 tableextension 11300 "Service Header BE" extends "Service Header"
@@ -16,6 +20,7 @@ tableextension 11300 "Service Header BE" extends "Service Header"
         {
             Caption = 'Enterprise No.';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
         }
     }
 }

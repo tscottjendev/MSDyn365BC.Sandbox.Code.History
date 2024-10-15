@@ -41,6 +41,7 @@ table 98 "General Ledger Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Allow Posting From"; Date)

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Item;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Item;
 
 using Microsoft.Assembly.Reports;
 using Microsoft.Finance.Dimension;
@@ -316,17 +320,6 @@ page 31 "Item List"
                     Importance = Additional;
                     ToolTip = 'Specifies the default template that governs how to defer revenues and expenses to the periods when they occurred.';
                 }
-#if not CLEAN23
-                field("Coupled to CRM"; Rec."Coupled to CRM")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies that the item is coupled to a product in Dynamics 365 Sales.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;
@@ -1891,6 +1884,18 @@ page 31 "Item List"
                         RunObject = Page "Production BOM";
                         RunPageLink = "No." = field("Production BOM No.");
                         ToolTip = 'Open the item''s production bill of material to view or edit its components.';
+                    }
+                    action("Prod. Active BOM Version")
+                    {
+                        ApplicationArea = Manufacturing;
+                        Caption = 'Prod. Active BOM Version';
+                        Image = BOM;
+                        ToolTip = 'Open the item''s active production bill of material to view or edit the components.';
+
+                        trigger OnAction()
+                        begin
+                            Rec.OpenActiveProdBOMForItem(Rec."Production BOM No.", Rec."No.");
+                        end;
                     }
                     action(Action29)
                     {

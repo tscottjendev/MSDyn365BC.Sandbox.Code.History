@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.Ledger;
 
 using Microsoft.Finance.GeneralLedger.Ledger;
@@ -28,17 +32,12 @@ table 5617 "FA Register"
             Caption = 'To Entry No.';
             TableRelation = "FA Ledger Entry";
         }
+        /// <summary>
+        /// The Creation Date field has been replaced with the SystemCreateAt field but needs to be kept for historical audit purposes.
+        /// </summary>
         field(4; "Creation Date"; Date)
         {
             Caption = 'Creation Date';
-#if not CLEAN35
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Removed;
-            ObsoleteTag = '37.0';
-#endif
-            ObsoleteReason = 'Use the system audit field "System Created at" instead.';
         }
         field(5; "Source Code"; Code[10])
         {
@@ -80,13 +79,8 @@ table 5617 "FA Register"
         field(13; "Creation Time"; Time)
         {
             Caption = 'Creation Time';
-#if not CLEAN35
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Removed;
-            ObsoleteTag = '37.0';
-#endif
             ObsoleteReason = 'Use the system audit field "System Created at" instead.';
         }
     }
