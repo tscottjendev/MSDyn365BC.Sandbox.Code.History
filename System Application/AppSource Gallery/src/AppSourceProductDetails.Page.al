@@ -5,6 +5,7 @@
 namespace System.Apps.AppSource;
 
 using System.Apps;
+using System.Azure.Identity;
 
 /// <summary>
 /// Single AppSource Product Details Page
@@ -14,7 +15,7 @@ page 2516 "AppSource Product Details"
     PageType = Card;
     ApplicationArea = All;
     Editable = false;
-    Caption = 'App Overview';
+    Caption = 'App overview';
     DataCaptionExpression = AppSourceJsonUtilities.GetStringValue(ProductObject, 'displayName');
 
     InherentEntitlements = X;
@@ -65,6 +66,7 @@ page 2516 "AppSource Product Details"
                 {
                     Caption = 'Last Modified Date Time';
                     ToolTip = 'Specifies the date the offer was last updated.';
+                    Visible = false;
                 }
             }
             group(DescriptionGroup)
@@ -155,10 +157,10 @@ page 2516 "AppSource Product Details"
         {
             action(OpenInAppSource)
             {
-                Caption = 'View in AppSource';
+                Caption = 'View on AppSource';
                 Scope = Page;
-                Image = Open;
-                ToolTip = 'Opens the app offer in the AppSource marketplace.';
+                Image = Info;
+                ToolTip = 'Opens the app on AppSource.';
 
                 trigger OnAction()
                 begin
@@ -177,20 +179,27 @@ page 2516 "AppSource Product Details"
 
                 trigger OnAction()
                 var
+                    AzureADUserManagement: Codeunit "Azure AD User Management";
                     ExtensionManagement: Codeunit "Extension Management";
                 begin
-                    if (PlansAreVisible) then
-                        if not Confirm(PurchaseLicensesElsewhereLbl) then
+                    // Delegated admins are always allowed to install so they get a different warning
+                    if AzureADUserManagement.IsUserDelegated(Database.UserSecurityId()) then begin
+                        if not Confirm(InstallNewAppWarningLbl) then
                             exit;
+                    end else
+                        if PlansAreVisible then
+                            if not Confirm(PurchaseLicensesElsewhereLbl) then
+                                exit;
+
                     ExtensionManagement.InstallMarketplaceExtension(AppID);
                 end;
             }
 
             action(InstallFromAppSource)
             {
-                Caption = 'Install From AppSource';
+                Caption = 'Install from AppSource';
                 Scope = Page;
-                Image = Insert;
+                Image = Download;
                 ToolTip = 'Installs the app from Microsoft AppSource.';
                 Enabled = (not CurrentRecordCanBeUninstalled) and (not CurrentRecordCanBeInstalled);
                 Visible = (not CurrentRecordCanBeUninstalled) and (not CurrentRecordCanBeInstalled);
@@ -230,6 +239,7 @@ page 2516 "AppSource Product Details"
         PlansOverview: Text;
         PlansAreVisible: Boolean;
         PurchaseLicensesElsewhereLbl: Label 'Installing this app might lead to undesired behavior if licenses are not purchased before use. You must purchase licenses through Microsoft AppSource.\Do you want to continue with the installation?';
+        InstallNewAppWarningLbl: Label 'You''re installing a new AppSource app.\If this is a Contact Me app, make sure that you have contacted the publisher before proceeding to ensure that you have the proper licensing, guidance, and app dependencies in place. If this is a transactable plan, the customer will need to purchase appropriate licenses on Microsoft AppSource to be able to use the app.\Do you want to continue with the installation?';
         PlanLinePrUserPrMonthLbl: Label '%1 %2 user/month', Comment = 'Price added a plan line, %1 is the currency code, such as USD or IDR, %2 is the price';
         PlanLinePrUserPrYearLbl: Label '%1 %2 user/year', Comment = 'Price added a plan line, %1 is the currency code, such as USD or IDR, %2 is the price';
         PlanLineFirstMonthIsFreeLbl: Label 'First month free, then %1.', Comment = 'Added to the plan line when the first month is free, %1 is the plan after the trial period.';
@@ -341,13 +351,13 @@ page 2516 "AppSource Product Details"
 
         if FreeTrial then begin
             if Monthly > 0 then begin
-                PriceText := StrSubstNo(PlanLinePrUserPrMonthLbl, Currency, Format(Monthly, 12, 2));
+                PriceText := StrSubstNo(PlanLinePrUserPrMonthLbl, Currency, Format(Monthly, 12, 0));
                 MonthlyPriceText := StrSubstNo(PlanLineFirstMonthIsFreeLbl, PriceText)
             end
             else
                 MonthlyPriceText := StrSubstNo(PlanLineFirstMonthIsFreeLbl, PlanLinePriceVariesLbl);
             if Yearly > 0 then begin
-                PriceText := StrSubstNo(PlanLinePrUserPrYearLbl, Currency, Format(Yearly, 12, 2));
+                PriceText := StrSubstNo(PlanLinePrUserPrYearLbl, Currency, Format(Yearly, 12, 0));
                 YearlyPriceText := StrSubstNo(PlanLineFirstMonthIsFreeLbl, PriceText)
             end
             else
@@ -355,9 +365,9 @@ page 2516 "AppSource Product Details"
         end
         else begin
             if Monthly > 0 then
-                MonthlyPriceText := StrSubstNo(PlanLinePrUserPrMonthLbl, Currency, Format(Monthly, 12, 2));
+                MonthlyPriceText := StrSubstNo(PlanLinePrUserPrMonthLbl, Currency, Format(Monthly, 12, 0));
             if Yearly > 0 then
-                YearlyPriceText := StrSubstNo(PlanLinePrUserPrYearLbl, Currency, Format(Yearly, 12, 2));
+                YearlyPriceText := StrSubstNo(PlanLinePrUserPrYearLbl, Currency, Format(Yearly, 12, 0));
         end;
 
         exit(true);

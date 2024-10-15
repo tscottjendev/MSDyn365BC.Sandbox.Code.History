@@ -139,20 +139,6 @@ table 7004 "Sales Line Discount"
         {
             Caption = 'Unit of Measure Code';
             TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field(Code));
-
-#if not CLEAN23
-            trigger OnValidate()
-            var
-                IsHandled: Boolean;
-            begin
-                IsHandled := false;
-                OnBeforeValidateUnitofMeasureCode(Rec, xRec, IsHandled);
-                if IsHandled then
-                    exit;
-
-                TestField(Type, Type::Item);
-            end;
-#endif
         }
         field(5700; "Variant Code"; Code[10])
         {
@@ -211,12 +197,5 @@ table 7004 "Sales Line Discount"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
 
-#if not CLEAN23
-    [Obsolete('This table is replaced by the new implementation (V16) of price calculation: table Price List Line', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateUnitofMeasureCode(var SalesLineDiscount: Record "Sales Line Discount"; xSalesLineDiscount: Record "Sales Line Discount"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 }
 

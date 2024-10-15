@@ -22,9 +22,6 @@ using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
-#if not CLEAN23
-using Microsoft.Finance.ReceivablesPayables;
-#endif
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Setup;
@@ -238,9 +235,6 @@ codeunit 104000 "Upgrade - BaseApp"
         BinContentBuffer: Record "Bin Content Buffer";
         DocumentEntry: Record "Document Entry";
         EntrySummary: Record "Entry Summary";
-#if not CLEAN23
-        InvoicePostBuffer: Record "Invoice Post. Buffer";
-#endif
         ItemTrackingSetup: Record "Item Tracking Setup";
         OptionLookupBuffer: Record "Option Lookup Buffer";
         ParallelSessionEntry: Record "Parallel Session Entry";
@@ -259,10 +253,6 @@ codeunit 104000 "Upgrade - BaseApp"
         EntrySummary.Reset();
         EntrySummary.DeleteAll();
 
-#if not CLEAN23
-        InvoicePostBuffer.Reset();
-        InvoicePostBuffer.DeleteAll();
-#endif
         ItemTrackingSetup.Reset();
         ItemTrackingSetup.DeleteAll();
 
@@ -1785,23 +1775,10 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-#if not CLEAN23
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag()) then begin
-            if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag()) then
-                exit;
-            AADApplicationSetup.ModifyDescriptionOfDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
-            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag());
-        end else begin
-            AADApplicationSetup.CreateDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
-            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag());
-            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag());
-        end;
-#else
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag()) then 
             exit;
         AADApplicationSetup.CreateDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag());
-#endif
     end;
 
     local procedure UpgradeIntegrationTableMapping()

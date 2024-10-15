@@ -16,6 +16,7 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Setup;
+using Microsoft.Bank.Payment;
 
 codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
 {
@@ -370,7 +371,8 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
             PurchSetup."Copy Line Descr. to G/L Entry",
             PurchaseLine."Line No.",
             PurchaseLine.Description,
-            PurchaseHeader."Posting Description", true);
+            PurchaseHeader."Posting Description",
+            (PurchaseLine.Type = PurchaseLine.Type::"Fixed Asset") or PurchSetup."Copy Line Descr. to G/L Entry");
     end;
 
     procedure SetSalesTax(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
@@ -658,6 +660,8 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
     var
         PurchHeader: Record "Purchase Header";
         GenJnlLine: Record "Gen. Journal Line";
+        DTASetup: Record "DTA Setup";
+        DTAMgt: Codeunit DtaMgt;
         IsHandled: Boolean;
     begin
         PurchHeader := PurchHeaderVar;
@@ -687,6 +691,8 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         GenJnlLine.CopyFromPurchHeaderPayment(PurchHeader);
 
         InitGenJnlLineAmountFieldsFromTotalLines(GenJnlLine, PurchHeader);
+        if DTASetup.ReadPermission then
+            DTAMgt.TransferPurchHeadGLL(PurchHeader, GenJnlLine);
 
         PurchPostInvoiceEvents.RunOnPostLedgerEntryOnBeforeGenJnlPostLine(
             GenJnlLine, PurchHeader, TotalPurchLine, TotalPurchLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
