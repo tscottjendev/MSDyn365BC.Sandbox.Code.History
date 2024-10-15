@@ -549,34 +549,6 @@ codeunit 134152 "ERM Intercompany II"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure ICJournalLineErrorWithBlockedICGLAccount()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        ICGLAccount: Record "IC G/L Account";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalTemplate: Record "Gen. Journal Template";
-    begin
-        // Check error while creating IC General Journal Line for Blocked IC G/L Account.
-
-        // Setup: Create and block IC G/L Account and create IC Journal Batch.
-        Initialize();
-        CreateICGLAccount(ICGLAccount);
-        BlockICGLAccount(ICGLAccount."No.");
-        CreateICJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Intercompany);
-
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
-        LibraryLowerPermissions.AddO365Setup();
-        // Exercise.
-        asserterror CreateGeneralJournalLine(
-            GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"IC Partner", CreateICPartner(),
-            GenJournalLine."Bal. Account Type"::"G/L Account", ICGLAccount."Map-to G/L Acc. No.", ICGLAccount."No.", 1);  // Taking 1 for sign factor.
-
-        // Verify: Verify IC G/L Account Blocked error message.
-        Assert.ExpectedTestFieldError(ICGLAccount.FieldCaption(Blocked), Format(false));
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure SalesRetOrderMovedInICOutbox()

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CRM.Interaction;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CRM.Interaction;
 
 using Microsoft.CRM.Segment;
 using Microsoft.CRM.Setup;
@@ -132,11 +136,6 @@ table 5062 Attachment
 #pragma warning restore AA0470
         Text010: Label 'External file could not be removed.';
 #pragma warning restore AA0074
-#if not CLEAN23
-#pragma warning disable AA0074
-        Text014: Label 'You can only fax Microsoft Word documents.';
-#pragma warning restore AA0074
-#endif
         AttachmentImportQst: Label 'Do you want to import attachment?';
         AttachmentExportQst: Label 'Do you want to export attachment to view or edit it externaly?';
 
@@ -498,18 +497,10 @@ table 5062 Attachment
 
     procedure ConstDiskFileName() DiskFileName: Text
     begin
-        DiskFileName := "Storage Pointer" + '\' + Format("No.") + '.' + "File Extension";
+        OnBeforeConstDiskFileName(Rec, DiskFileName);
+        if DiskFileName = '' then
+            DiskFileName := "Storage Pointer" + '\' + Format("No.") + '.' + "File Extension";
     end;
-
-#if not CLEAN23
-    [Obsolete('Correspondence Type Fax is no longer supported. This procedure only checked for Fax.', '23.0')]
-    procedure CheckCorrespondenceType(CorrespondenceType: Enum "Correspondence Type"): Text[80]
-    begin
-        if CorrespondenceType = CorrespondenceType::Fax then
-            if (UpperCase("File Extension") <> 'DOC') and (UpperCase("File Extension") <> 'DOCX') then
-                exit(Text014);
-    end;
-#endif
 
     local procedure CopyAttachmentAsFile(var FromAttachment: Record Attachment; var ToAttachment: Record Attachment)
     begin
@@ -840,6 +831,11 @@ table 5062 Attachment
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWizEmbeddAttachment(var Attachment: Record Attachment; FromAttachment: Record Attachment; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConstDiskFileName(var Attachment: Record Attachment; var DiskFileName: Text)
     begin
     end;
 }

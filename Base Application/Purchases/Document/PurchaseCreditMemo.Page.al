@@ -517,7 +517,7 @@ page 52 "Purchase Credit Memo"
                 {
                     ApplicationArea = Location;
                     Importance = Additional;
-                    ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
+                    ToolTip = 'Specifies the location where the items are to be shipped. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                 }
                 field(Correction; Rec.Correction)
                 {
@@ -564,6 +564,16 @@ page 52 "Purchase Credit Memo"
                         Editable = ShipToOptions = ShipToOptions::"Custom Address";
                         Importance = Additional;
                         ToolTip = 'Specifies the name of the company at the address to which you want the items in the purchase order to be shipped.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Name 2';
+                        Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name for the order address of the vendor.';
+                        QuickEntry = false;
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {

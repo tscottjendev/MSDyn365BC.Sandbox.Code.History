@@ -10,9 +10,6 @@ using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Warehouse.Setup;
-#if not CLEAN23
-using System;
-#endif
 using System.Azure.Identity;
 using System.Device;
 using System.Email;
@@ -557,9 +554,6 @@ page 9800 Users
     var
         IdentityManagement: Codeunit "Identity Management";
         UserCard: Page "User Card";
-#if not CLEAN23
-        BasicAuthUsedNotification: Notification;
-#endif
         WindowsUserName: Text[208];
         Text001Err: Label 'The account %1 is not a valid Windows account.', Comment = '%1=user name';
         Text002Err: Label 'The account %1 already exists.', Comment = '%1=user name';
@@ -635,30 +629,10 @@ page 9800 Users
 
     trigger OnOpenPage()
     var
-#if not CLEAN23
-        MyNotification: Record "My Notifications";
-#endif
         UserSelection: Codeunit "User Selection";
-#if not CLEAN23
-        UserManagement: Codeunit "User Management";
-        EnvironmentInfo: Codeunit "Environment Information";
-#endif
-#if not CLEAN23
-        NavTenantSettingsHelper: DotNet NavTenantSettingsHelper;
-#endif
     begin
         NoUserExists := Rec.IsEmpty();
         UserSelection.HideExternalUsers(Rec);
-
-#if not CLEAN23
-        if UserWithWebServiceKeyExist() then begin
-            Usermanagement.BasicAuthDepricationNotificationDefault(false);
-            if (not NavTenantSettingsHelper.IsWSKeyAllowed()) and EnvironmentInfo.IsSaaS() then
-                MyNotification.SetStatus(UserManagement.BasicAuthDepricationNotificationId(), false);
-            if MyNotification.IsEnabled(UserManagement.BasicAuthDepricationNotificationId()) then
-                UserManagement.BasicAuthUsedNotificationShow(BasicAuthUsedNotification);
-        end;
-#endif
     end;
 
     local procedure ValidateSid()
@@ -695,34 +669,5 @@ page 9800 Users
     begin
         CurrPage.SetSelectionFilter(User);
     end;
-
-#if not CLEAN23
-    [Obsolete('Basic Authentication deprecation warning should no longer be shown with from 23.0', '23.0')]
-    local procedure UserWithWebServiceKeyExist(): Boolean
-    var
-        User: Record User;
-        WebServiceKey: Text[80];
-        UserWithWebServiceKeyFound: Boolean;
-    begin
-        if User.Count > MaxNumberOfUsersToScanWebServcieAccessKey() then
-            exit(false);
-        UserWithWebServiceKeyFound := false;
-        if User.FindSet() then
-            repeat
-                WebServiceKey := IdentityManagement.GetWebServicesKey(USer."User Security ID");
-                if WebServiceKey <> '' then
-                    UserWithWebServiceKeyFound := true;
-            until (User.Next() = 0) or UserWithWebServiceKeyFound;
-        exit(UserWithWebServiceKeyFound);
-    end;
-#endif
-#if not CLEAN23
-    [Obsolete('Basic Authentication deprecation warning should no longer be shown with from 23.0', '23.0')]
-    local procedure MaxNumberOfUsersToScanWebServcieAccessKey(): Integer
-    begin
-        exit(1000);
-    end;
-#endif
-
 }
 

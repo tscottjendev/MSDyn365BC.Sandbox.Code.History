@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Tracking;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
@@ -1545,7 +1549,7 @@ table 336 "Tracking Specification"
     end;
 #endif
 
-#if  not CLEAN25
+#if not CLEAN25
     internal procedure RunOnAfterInitFromReqLine(var TrackingSpecification: Record "Tracking Specification"; RequisitionLine: Record Microsoft.Inventory.Requisition."Requisition Line")
     begin
         OnAfterInitFromReqLine(TrackingSpecification, RequisitionLine);

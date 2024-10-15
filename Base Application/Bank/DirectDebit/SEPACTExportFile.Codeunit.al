@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Bank.DirectDebit;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Bank.DirectDebit;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -31,7 +35,6 @@ codeunit 1220 "SEPA CT-Export File"
         exit(FeatureNameTxt)
     end;
 
-    [Scope('OnPrem')]
     procedure Export(var GenJnlLine: Record "Gen. Journal Line"; XMLPortID: Integer; FileName: Text) Result: Boolean
     var
         CreditTransferRegister: Record "Credit Transfer Register";

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.Check;
@@ -16,11 +20,9 @@ codeunit 1253 "Change Bank Rec. Statement No."
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         NewStatementNo: Code[20];
     begin
-        Session.LogMessage('0000JLD', Rec."Statement No.", Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', Rec.GetBankReconciliationTelemetryFeatureName());
         BankAccReconciliation := Rec;
 
         if GetNewStatementNo(BankAccReconciliation, NewStatementNo) then begin
-            Session.LogMessage('0000JLE', NewStatementNo, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', Rec.GetBankReconciliationTelemetryFeatureName());
             ChangeStatementNo(BankAccReconciliation, NewStatementNo);
             Rec := BankAccReconciliation;
         end;

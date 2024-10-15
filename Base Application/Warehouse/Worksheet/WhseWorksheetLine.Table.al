@@ -6,7 +6,6 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Vendor;
@@ -461,8 +460,6 @@ table 7326 "Whse. Worksheet Line"
             else
             if ("Whse. Document Type" = const("Internal Pick")) "Whse. Internal Pick Header"."No." where("No." = field("Whse. Document No."))
             else
-            if ("Whse. Document Type" = const(Production)) "Production Order"."No." where("No." = field("Whse. Document No."))
-            else
             if ("Whse. Document Type" = const(Assembly)) "Assembly Header"."No." where("Document Type" = const(Order),
                                                                                        "No." = field("Whse. Document No."))
             else
@@ -484,10 +481,6 @@ table 7326 "Whse. Worksheet Line"
             else
             if ("Whse. Document Type" = const("Internal Pick")) "Whse. Internal Pick Line"."Line No." where("No." = field("Whse. Document No."),
                                                                                                             "Line No." = field("Whse. Document Line No."))
-            else
-            if ("Whse. Document Type" = const(Production)) "Prod. Order Line"."Line No." where(Status = const(Released),
-                                                                                               "Prod. Order No." = field("Whse. Document No."),
-                                                                                               "Line No." = field("Line No."))
             else
             if ("Whse. Document Type" = const(Assembly)) "Assembly Line"."Line No." where("Document Type" = const(Order),
                                                                                           "Document No." = field("Whse. Document No."),
@@ -613,13 +606,6 @@ table 7326 "Whse. Worksheet Line"
         Text006: Label 'Default %1 Worksheet';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
-#if not CLEAN23
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text007: Label 'You must first set up user %1 as a warehouse employee.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#endif
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text008: Label '%1 Worksheet';
@@ -1226,26 +1212,6 @@ table 7326 "Whse. Worksheet Line"
             Error(Text009, CurrentLocationCode, WhseWkshName.TableCaption(), CurrentWkshName, UserId);
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by CheckUserIsWhseEmployee procedure in WMS Management codeunit', '23.0')]
-    procedure CheckWhseEmployee()
-    var
-        WhseEmployee: Record "Warehouse Employee";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckWhseEmployee("Location Code", IsHandled);
-        if IsHandled then
-            exit;
-
-        if UserId <> '' then begin
-            WhseEmployee.SetRange("User ID", UserId);
-            if WhseEmployee.IsEmpty() then
-                Error(Text007, UserId);
-        end;
-    end;
-#endif
-
     procedure SetWhseWkshName(CurrentWkshName: Code[10]; CurrentLocationCode: Code[10]; var WhseWkshLine: Record "Whse. Worksheet Line")
     begin
         WhseWkshLine.FilterGroup := 2;
@@ -1344,30 +1310,39 @@ table 7326 "Whse. Worksheet Line"
 
     procedure OpenItemTrackingLines()
     var
-        WhseItemTrackingForm: Page "Whse. Item Tracking Lines";
+        WhseItemTrackingLines: Page "Whse. Item Tracking Lines";
     begin
         OnBeforeOpenItemTrackingLines(Rec);
 
         TestField("Item No.");
         TestField("Qty. (Base)");
+
+        WhseItemTrackingLinesSetSource(WhseItemTrackingLines);
+        WhseItemTrackingLines.RunModal();
+    end;
+
+    local procedure WhseItemTrackingLinesSetSource(var WhseItemTrackingLines: Page "Whse. Item Tracking Lines")
+    var
+        IsHandled: Boolean;
+    begin
         case "Whse. Document Type" of
             "Whse. Document Type"::Receipt:
-                WhseItemTrackingForm.SetSource(Rec, Database::"Posted Whse. Receipt Line");
+                WhseItemTrackingLines.SetSource(Rec, Database::"Posted Whse. Receipt Line");
             "Whse. Document Type"::Shipment:
-                WhseItemTrackingForm.SetSource(Rec, Database::"Warehouse Shipment Line");
+                WhseItemTrackingLines.SetSource(Rec, Database::"Warehouse Shipment Line");
             "Whse. Document Type"::"Internal Put-away":
-                WhseItemTrackingForm.SetSource(Rec, Database::"Whse. Internal Put-away Line");
+                WhseItemTrackingLines.SetSource(Rec, Database::"Whse. Internal Put-away Line");
             "Whse. Document Type"::"Internal Pick":
-                WhseItemTrackingForm.SetSource(Rec, Database::"Whse. Internal Pick Line");
-            "Whse. Document Type"::Production:
-                WhseItemTrackingForm.SetSource(Rec, Database::"Prod. Order Component");
+                WhseItemTrackingLines.SetSource(Rec, Database::"Whse. Internal Pick Line");
             "Whse. Document Type"::Assembly:
-                WhseItemTrackingForm.SetSource(Rec, Database::"Assembly Line");
-            else
-                WhseItemTrackingForm.SetSource(Rec, Database::"Whse. Worksheet Line");
+                WhseItemTrackingLines.SetSource(Rec, Database::"Assembly Line");
+            else begin
+                IsHandled := false;
+                OnWhseItemTrackingLinesSetSource(Rec, WhseItemTrackingLines, IsHandled);
+                if not IsHandled then
+                    WhseItemTrackingLines.SetSource(Rec, Database::"Whse. Worksheet Line");
+            end;
         end;
-
-        WhseItemTrackingForm.RunModal();
     end;
 
     procedure AvailableQtyToPick(): Decimal
@@ -1384,45 +1359,6 @@ table 7326 "Whse. Worksheet Line"
         exit(TypeHelper.Minimum(Rec."Qty. (Base)", AvailableQtyToPick()));
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by procedure AvailableQtyToPick', '23.0')]
-    procedure AvailableQtyToPickExcludingQCBins(): Decimal
-    var
-        TypeHelper: Codeunit "Type Helper";
-    begin
-        if "Qty. per Unit of Measure" <> 0 then
-            exit(
-                UOMMgt.CalcQtyFromBase(
-                    "Item No.", "Variant Code", "Unit of Measure Code",
-                    TypeHelper.Maximum(0, CalcAvailableQtyBase()), "Qty. per Unit of Measure"));
-        exit(0);
-    end;
-
-    internal procedure QtyOnQCBins(ExcludeDedicated: Boolean): Decimal
-    var
-        AvailQtyBaseInQCBins: Query "Avail Qty. (Base) In QC Bins";
-        ReturnedQty: Decimal;
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeQtyOnQCBins(Rec, ReturnedQty, IsHandled);
-        if IsHandled then
-            exit(ReturnedQty);
-
-        AvailQtyBaseInQCBins.SetRange(Location_Code, "Location Code");
-        AvailQtyBaseInQCBins.SetRange(Item_No, "Item No.");
-        AvailQtyBaseInQCBins.SetRange(Variant_Code, "Variant Code");
-        if ExcludeDedicated then
-            AvailQtyBaseInQCBins.SetRange(Dedicated, false);
-        if not AvailQtyBaseInQCBins.Open() then
-            exit(0);
-        if not AvailQtyBaseInQCBins.Read() then
-            exit(0);
-        ReturnedQty := AvailQtyBaseInQCBins.Sum_Qty_Base;
-        AvailQtyBaseInQCBins.Close();
-        exit(ReturnedQty);
-    end;
-#endif
     procedure InitNewLineWithItem(DocumentType: Enum "Warehouse Worksheet Document Type"; DocumentNo: Code[20];
                                                     DocumentLineNo: Integer;
                                                     LocationCode: Code[10];
@@ -1581,25 +1517,9 @@ table 7326 "Whse. Worksheet Line"
     begin
         TestField("Item No.");
         TestField("Qty. (Base)");
+
         Clear(WhseItemTrackingLines);
-
-        case "Whse. Document Type" of
-            "Whse. Document Type"::Receipt:
-                WhseItemTrackingLines.SetSource(Rec, Database::"Posted Whse. Receipt Line");
-            "Whse. Document Type"::Shipment:
-                WhseItemTrackingLines.SetSource(Rec, Database::"Warehouse Shipment Line");
-            "Whse. Document Type"::"Internal Put-away":
-                WhseItemTrackingLines.SetSource(Rec, Database::"Whse. Internal Put-away Line");
-            "Whse. Document Type"::"Internal Pick":
-                WhseItemTrackingLines.SetSource(Rec, Database::"Whse. Internal Pick Line");
-            "Whse. Document Type"::Production:
-                WhseItemTrackingLines.SetSource(Rec, Database::"Prod. Order Component");
-            "Whse. Document Type"::Assembly:
-                WhseItemTrackingLines.SetSource(Rec, Database::"Assembly Line");
-            else
-                WhseItemTrackingLines.SetSource(Rec, Database::"Whse. Worksheet Line");
-        end;
-
+        WhseItemTrackingLinesSetSource(WhseItemTrackingLines);
         WhseItemTrackingLines.InsertItemTrackingLine(Rec, WhseEntry, QtyToEmpty);
     end;
 
@@ -1702,14 +1622,6 @@ table 7326 "Whse. Worksheet Line"
     begin
     end;
 
-#if not CLEAN23
-    [IntegrationEvent(false, false)]
-    [Obsolete('Use OnBeforeCheckUserIsWhseEmployee event in WMS Management codeunit.', '23.0')]
-    local procedure OnBeforeCheckWhseEmployee(LocationCode: Code[10]; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWhseWkshName(var WkshTemplateName: Code[10]; var LocationCode: Code[10]; var IsHandled: Boolean)
     begin
@@ -1750,14 +1662,6 @@ table 7326 "Whse. Worksheet Line"
     begin
     end;
 
-#if not CLEAN23
-    [IntegrationEvent(false, false)]
-    [Obsolete('AvailableQtyToPick() removes the QC bins by default', '23.0')]
-    local procedure OnBeforeQtyOnQCBins(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var ReturnedQty: Decimal; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     procedure OnDeleteQtyToHandleOnBeforeModify(var WhseWorksheetLine: Record "Whse. Worksheet Line")
     begin
@@ -1785,6 +1689,11 @@ table 7326 "Whse. Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSourceFilter(var WhseWorksheetLine: Record "Whse. Worksheet Line"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWhseItemTrackingLinesSetSource(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var WhseItemTrackingLines: Page "Whse. Item Tracking Lines"; var IsHandled: Boolean)
     begin
     end;
 }

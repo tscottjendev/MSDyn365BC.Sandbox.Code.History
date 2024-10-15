@@ -403,7 +403,6 @@ table 11307 "G/L Entry Application Buffer"
         exit(GLSetup."Additional Reporting Currency");
     end;
 
-    [Scope('OnPrem')]
     procedure ShowDimensions()
     var
         DimManagement: Codeunit DimensionManagement;
@@ -413,7 +412,6 @@ table 11307 "G/L Entry Application Buffer"
             "Global Dimension 1 Code", "Global Dimension 2 Code");
     end;
 
-    [Scope('OnPrem')]
     procedure GetAppliedEntries(var TempGLEntryApplicationBuffer: Record "G/L Entry Application Buffer" temporary; OrgGLEntry: Record "G/L Entry")
     var
         GLEntry: Record "G/L Entry";
@@ -476,7 +474,6 @@ table 11307 "G/L Entry Application Buffer"
           (GLEntryApplicationBuffer."Remaining Amount" - TotalAppliedAmount) <> 0, 0, 0D, 0, '');
     end;
 
-    [Scope('OnPrem')]
     procedure Undo(var GLEntryApplicationBuffer: Record "G/L Entry Application Buffer")
     var
         OrgGLEntry: Record "G/L Entry";
@@ -515,22 +512,6 @@ table 11307 "G/L Entry Application Buffer"
         GLEntryApplicationBuffer.SetCurrentKey("G/L Account No.", "Posting Date", "Entry No.", Open);
     end;
 
-#if not CLEAN23
-    [Obsolete('Relaced by UpdateTempTable2 that has correct AppliesToID field size', '23.0')]
-    [Scope('OnPrem')]
-    procedure UpdateTempTable(var GLEntryApplicationBuffer: Record "G/L Entry Application Buffer"; RemainingAmt: Decimal; IsOpen: Boolean; ClosedbyEntryNo: Integer; ClosedbyDate: Date; ClosedbyAmt: Decimal; AppliesToID: Code[20])
-    begin
-        // Update Temporary Table
-        GLEntryApplicationBuffer."Remaining Amount" := RemainingAmt;
-        GLEntryApplicationBuffer.Open := IsOpen;
-        GLEntryApplicationBuffer."Closed by Entry No." := ClosedbyEntryNo;
-        GLEntryApplicationBuffer."Closed at Date" := ClosedbyDate;
-        GLEntryApplicationBuffer."Closed by Amount" := ClosedbyAmt;
-        GLEntryApplicationBuffer."Applies-to ID" := AppliesToID;
-        GLEntryApplicationBuffer.Modify();
-    end;
-#endif
-
     procedure UpdateTempTable2(var GLEntryApplicationBuffer: Record "G/L Entry Application Buffer"; RemainingAmt: Decimal; IsOpen: Boolean; ClosedbyEntryNo: Integer; ClosedbyDate: Date; ClosedbyAmt: Decimal; AppliesToID: Code[50])
     begin
         GLEntryApplicationBuffer."Remaining Amount" := RemainingAmt;
@@ -541,22 +522,6 @@ table 11307 "G/L Entry Application Buffer"
         GLEntryApplicationBuffer."Applies-to ID" := AppliesToID;
         GLEntryApplicationBuffer.Modify();
     end;
-
-#if not CLEAN23
-    [Obsolete('Relaced by UpdateRealTable2 that has correct AppliesToID field size', '23.0')]
-    [Scope('OnPrem')]
-    procedure UpdateRealTable(GLEntry: Record "G/L Entry"; RemainingAmt: Decimal; IsOpen: Boolean; ClosedbyEntryNo: Integer; ClosedbyDate: Date; ClosedbyAmt: Decimal; AppliesToID: Code[20])
-    begin
-        // Update Temporary Table
-        GLEntry."Remaining Amount" := RemainingAmt;
-        GLEntry.Open := IsOpen;
-        GLEntry."Closed by Entry No." := ClosedbyEntryNo;
-        GLEntry."Closed at Date" := ClosedbyDate;
-        GLEntry."Closed by Amount" := ClosedbyAmt;
-        GLEntry."Applies-to ID" := AppliesToID;
-        GLEntry.Modify();
-    end;
-#endif
 
     procedure UpdateRealTable2(GLEntry: Record "G/L Entry"; RemainingAmt: Decimal; IsOpen: Boolean; ClosedbyEntryNo: Integer; ClosedbyDate: Date; ClosedbyAmt: Decimal; AppliesToID: Code[50])
     begin
@@ -570,7 +535,6 @@ table 11307 "G/L Entry Application Buffer"
         GLEntry.Modify();
     end;
 
-    [Scope('OnPrem')]
     procedure RealEntryChanged(GLEntryApplicationBuffer: Record "G/L Entry Application Buffer"; var GlEntry: Record "G/L Entry")
     begin
         // 'Real' G/L Entry changed whilst application ?

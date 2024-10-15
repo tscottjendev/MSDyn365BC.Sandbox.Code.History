@@ -3024,11 +3024,8 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized gain = 100 after exch. rate adjustment, total Amount (LCY) = -300
         UpdateExchRate(CurrencyCode, 2);
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
-#else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
-#endif
+
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
         LibraryVariableStorage.Enqueue(true);
         InsertProcessPaymentHistoryLine(CBGStatement, CBGBankAccountNo);
@@ -3072,11 +3069,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized loss = -100 after exch. rate adjustment, total Amount (LCY) = -500
         UpdateExchRate(CurrencyCode, 0.5);
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
-#else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
-#endif
 
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
         LibraryVariableStorage.Enqueue(true);
@@ -3119,11 +3112,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized loss = -100 after exch. rate adjustment, total Amount (LCY) = -500
         UpdateExchRate(CurrencyCode, 0.5);
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
-#else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
-#endif
 
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'false' to decline using of adjusted amount
         LibraryVariableStorage.Enqueue(false);
@@ -3174,11 +3163,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated for "Cur2", unrealized gain = 100 after exch. rate adjustment, "Inv2" has Amount (LCY) = -300
         UpdateExchRate(CurrencyCodeAdj, 2);
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCodeAdj, WorkDate(), WorkDate());
-#else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
-#endif
 
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
         LibraryVariableStorage.Enqueue(true);
@@ -3227,11 +3212,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized gain = 100 after exch. rate adjustment, total Amount (LCY) = 500
         UpdateExchRate(CurrencyCode, 0.5);
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
-#else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
-#endif
 
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
         LibraryVariableStorage.Enqueue(true);
@@ -3276,11 +3257,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized loss = -100 after exch. rate adjustment, total Amount (LCY) = 300
         UpdateExchRate(CurrencyCode, 2);
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
-#else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
-#endif
 
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
         LibraryVariableStorage.Enqueue(true);
@@ -3323,11 +3300,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized gain = 100 after exch. rate adjustment, total Amount (LCY) = 500
         UpdateExchRate(CurrencyCode, 0.5);
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
-#else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
-#endif
 
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'false' to decline using of adjusted amount
         LibraryVariableStorage.Enqueue(false);
@@ -3376,11 +3349,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated for "Cur2", unrealized gain = 100 after exch. rate adjustment, "Inv2" has Amount (LCY) = 500
         UpdateExchRate(CurrencyCodeAdj, 0.5);
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCodeAdj, WorkDate(), WorkDate());
-#else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
-#endif
 
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
         LibraryVariableStorage.Enqueue(true);
