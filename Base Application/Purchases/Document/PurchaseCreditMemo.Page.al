@@ -491,7 +491,7 @@ page 52 "Purchase Credit Memo"
                 {
                     ApplicationArea = Location;
                     Importance = Additional;
-                    ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
+                    ToolTip = 'Specifies the location where the items are to be shipped. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                 }
                 field(Correction; Rec.Correction)
                 {
@@ -538,6 +538,16 @@ page 52 "Purchase Credit Memo"
                         Editable = ShipToOptions = ShipToOptions::"Custom Address";
                         Importance = Additional;
                         ToolTip = 'Specifies the name of the company at the address to which you want the items in the purchase order to be shipped.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Name 2';
+                        Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name for the order address of the vendor.';
+                        QuickEntry = false;
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
@@ -747,18 +757,6 @@ page 52 "Purchase Credit Memo"
             group("Foreign Trade")
             {
                 Caption = 'Foreign Trade';
-#if not CLEAN23
-                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Select this field if the purchase order is involved in an EU 3-party trade.';
-                    Visible = not IsEU3PartyTradePurchaseEnabled;
-                    Enabled = not IsEU3PartyTradePurchaseEnabled;
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                    ObsoleteReason = 'Moved to the EU 3-Party Trade Purchase app.';
-                }
-#endif
                 field("Transaction Specification"; Rec."Transaction Specification")
                 {
                     ApplicationArea = BasicEU, BasicNO;
@@ -1677,9 +1675,6 @@ page 52 "Purchase Credit Memo"
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         FormatAddress: Codeunit "Format Address";
-#if not CLEAN23
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
         PrivacyNotice: Codeunit "Privacy Notice";
         PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
         ChangeExchangeRate: Page "Change Exchange Rate";
@@ -1709,9 +1704,6 @@ page 52 "Purchase Credit Memo"
         IsPostingGroupEditable: Boolean;
         IsPurchaseLinesEditable: Boolean;
         VATDateEnabled: Boolean;
-#if not CLEAN23
-        IsEU3PartyTradePurchaseEnabled: Boolean;
-#endif
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
@@ -1725,9 +1717,6 @@ page 52 "Purchase Credit Memo"
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
         IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
-#if not CLEAN23
-        IsEU3PartyTradePurchaseEnabled := FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled();
-#endif
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")

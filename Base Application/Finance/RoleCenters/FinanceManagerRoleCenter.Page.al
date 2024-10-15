@@ -502,30 +502,6 @@ page 8901 "Finance Manager Role Center"
                             RunObject = report "Balance Comp. - Prev. Year";
                             Tooltip = 'Run the Balance Comp. - Prev. Year report.';
                         }
-#if not CLEAN23
-                        action("Balance Sheet")
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Balance Sheet - SE';
-                            RunObject = report "Balance sheet";
-                            Tooltip = 'Run the Balance Sheet - SE report.';
-                            Visible = false;
-                            ObsoleteReason = 'The action will be replaced by W1 Financial Report.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '23.0';
-                        }
-                        action("Income statement")
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Income Statement - SE';
-                            RunObject = report "Income statement";
-                            Tooltip = 'Run the Income Statement - SE report.';
-                            Visible = false;
-                            ObsoleteReason = 'The action will be replaced by W1 Financial Report.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '23.0';
-                        }
-#endif
                         action("Statement of Cashflows")
                         {
                             ApplicationArea = Basic, Suite;
@@ -1756,6 +1732,14 @@ page 8901 "Finance Manager Role Center"
                     group("Group45")
                     {
                         Caption = 'Fixed Assets';
+                        action("FixedAssetsAnalysis")
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Analyze Fixed Assets';
+                            Image = NonStockItem;
+                            RunObject = Query "Fixed Assets Analysis";
+                            ToolTip = 'Analyze (group, summarize, pivot) your Fixed Asset Ledger Entries with related Fixed Asset master data such as Fixed Asset, Asset Class/Subclass, and Posting Date.';
+                        }
                         action("Posting Group - Net Change")
                         {
                             ApplicationArea = FixedAssets;

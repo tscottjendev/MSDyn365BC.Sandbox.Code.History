@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Foundation.Company;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Company;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.EServices.OnlineMap;
@@ -141,18 +145,6 @@ page 1 "Company Information"
                     Importance = Additional;
                     ToolTip = 'Specifies the company''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
                 }
-#if not CLEAN23
-                field("Registered Office"; Rec."Registered Office")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the company''s Registered Office.';
-                    Visible = false;
-                    Enabled = false;
-                    ObsoleteReason = 'The field is moved to SE Core extension, and renamed to "Registered Office Info"';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field(Picture; Rec.Picture)
                 {
                     ApplicationArea = Basic, Suite;
@@ -236,18 +228,6 @@ page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s giro number.';
                 }
-#if not CLEAN23
-                field("Plus Giro No."; Rec."Plus Giro No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Plus Giro number used by the postal office for your Plus Giro account.';
-                    Visible = false;
-                    Enabled = false;
-                    ObsoleteReason = 'The field is moved to SE Core extension, and renamed to "Plus Giro Number"';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;

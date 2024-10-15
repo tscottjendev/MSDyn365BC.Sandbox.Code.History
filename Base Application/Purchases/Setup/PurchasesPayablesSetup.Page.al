@@ -303,16 +303,6 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to purchase price lists.';
                 }
-#if not CLEAN23
-                field("Part. Pay. Nos."; Rec."Part. Pay. Nos.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number series is entered in the Part Pmt. No. Series field.';
-                    ObsoleteReason = 'The field is not used and will be obsoleted';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
             }
             group("Background Posting")
             {

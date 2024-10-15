@@ -664,9 +664,6 @@ table 6660 "Return Receipt Header"
         exit('');
     end;
 
-#if not CLEAN23
-    [Obsolete('The procedure will be replaced by W1 version, the functionality is moved to SE Core extension "Sales & Receivables Setup" table extension and renamed to GetLegalStatementLabel', '23.0')]
-#endif
     procedure GetLegalStatement(): Text
     var
         SalesSetup: Record "Sales & Receivables Setup";

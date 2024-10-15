@@ -339,32 +339,6 @@ page 44 "Sales Credit Memo"
                     Importance = Additional;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
                 }
-#if not CLEAN23
-                field("Source Inv. No."; Rec."Source Inv. No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the original invoice.';
-                    ObsoleteReason = 'The field is not used and will be obsoleted';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-                field("Source Inv. VAT"; Rec."Source Inv. VAT")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT amount for the original invoice.';
-                    ObsoleteReason = 'The field is not used and will be obsoleted';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-                field("Source Inv. Total"; Rec."Source Inv. Total")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the total amount for the original invoice.';
-                    ObsoleteReason = 'The field is not used and will be obsoleted';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 group("Work Description")
                 {
                     Caption = 'Work Description';
@@ -544,7 +518,7 @@ page 44 "Sales Credit Memo"
                 {
                     ApplicationArea = Location;
                     Importance = Additional;
-                    ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
+                    ToolTip = 'Specifies the location where the items are to be placed when they are received. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                 }
                 field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
@@ -1636,9 +1610,9 @@ page 44 "Sales Credit Memo"
         xLastPostingNo: Code[20];
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
-# if not CLEAN24
+#if not CLEAN24
         NotSkipped: Boolean;
-# endif
+#endif
     begin
         CheckSalesCheckAllLinesHaveQuantityAssigned();
         PreAssignedNo := Rec."No.";
@@ -1662,12 +1636,12 @@ page 44 "Sales Credit Memo"
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
 
-# if not CLEAN24
+#if not CLEAN24
         NotSkipped := false;
         OnPostDocumentOnBeforeSetTrackInfoForCancellation(Rec, NotSkipped);
         if NotSkipped then
             Rec.SetTrackInfoForCancellation();
-# endif
+#endif
         Rec.UpdateSalesOrderLineIfExist();
 
         if OfficeMgt.IsAvailable() then begin
@@ -1857,6 +1831,6 @@ page 44 "Sales Credit Memo"
     local procedure OnPostDocumentOnBeforeSetTrackInfoForCancellation(var SalesHeader: Record "Sales Header"; var NotSkipped: Boolean)
     begin
     end;
-# endif
+#endif
 }
 

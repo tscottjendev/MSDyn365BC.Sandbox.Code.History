@@ -1136,13 +1136,8 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'Source Posting Date';
             ObsoleteReason = 'The field is not used and will be obsoleted';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
 			ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(11201; "Auto. Acc. Group"; Code[10])
         {

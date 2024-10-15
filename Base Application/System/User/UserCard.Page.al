@@ -4,9 +4,6 @@ using System;
 using System.Azure.Identity;
 using System.Email;
 using System.Environment;
-#if not CLEAN23
-using System.Environment.Configuration;
-#endif
 using System.Security.AccessControl;
 using System.Utilities;
 
@@ -570,13 +567,7 @@ page 9807 "User Card"
 
     trigger OnOpenPage()
     var
-#if not CLEAN23
-        MyNotification: Record "My Notifications";
-#endif
         EnvironmentInfo: Codeunit "Environment Information";
-#if not CLEAN23
-        UserManagement: Codeunit "User Management";
-#endif        
     begin
         IsSaaS := EnvironmentInfo.IsSaaS();
         if not IsSaaS then
@@ -587,12 +578,6 @@ page 9807 "User Card"
         HideExternalUsers();
 
         OnPremAskFirstUserToCreateSuper();
-
-#if not CLEAN23
-        Usermanagement.BasicAuthDepricationNotificationDefault(false);
-        if MyNotification.IsEnabled(UserManagement.BasicAuthDepricationNotificationId()) then
-            UserManagement.BasicAuthDepricationNotificationShow(BasicAuthDepricationNotification);
-#endif
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -604,9 +589,6 @@ page 9807 "User Card"
     var
         UserSecID: Record User;
         IdentityManagement: Codeunit "Identity Management";
-#if not CLEAN23
-        BasicAuthDepricationNotification: Notification;
-#endif
         WindowsUserName: Text[208];
 #pragma warning disable AA0470
         Text001Err: Label 'The account %1 is not a valid Windows account.', Comment = 'USERID';

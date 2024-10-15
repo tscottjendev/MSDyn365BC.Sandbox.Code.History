@@ -1685,8 +1685,8 @@ codeunit 134462 "ERM Copy Item"
     var
         ExtendedTextHeader: Record "Extended Text Header";
     begin
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
     end;
 
     local procedure CreateItemAttributeMappedToItem(ItemNo: Code[20])
@@ -1923,7 +1923,7 @@ codeunit 134462 "ERM Copy Item"
           ExtendedTextLine."Line No.");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure VerifyPurchasePrice(PurchasePrice: Record "Purchase Price"; ItemNo: Code[20])
     var
         PurchasePrice2: Record "Purchase Price";

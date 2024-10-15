@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Inventory.Location;
@@ -40,6 +44,7 @@ codeunit 7325 "Whse.-Output Prod. Release"
     local procedure CreateWhseRqst(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrder: Record "Production Order")
     var
         ProdOrderLine2: Record "Prod. Order Line";
+        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
     begin
         GetLocation(ProdOrderLine."Location Code");
         if Location.Code <> '' then
@@ -61,7 +66,7 @@ codeunit 7325 "Whse.-Output Prod. Release"
         WhseRqst."Source Document" := WhseRqst."Source Document"::"Prod. Output";
         WhseRqst."Document Status" := WhseRqst."Document Status"::Released;
         WhseRqst."Completely Handled" := ProdOrderCompletelyHandled(ProdOrder, ProdOrderLine."Location Code");
-        WhseRqst.SetDestinationType(ProdOrder);
+        ProdOrderWarehouseMgt.SetDestinationType(ProdOrder, WhseRqst);
         OnBeforeWhseRequestInsert(WhseRqst, ProdOrderLine, ProdOrder);
         if not WhseRqst.Insert() then
             WhseRqst.Modify();

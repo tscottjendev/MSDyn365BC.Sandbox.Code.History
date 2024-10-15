@@ -63,8 +63,12 @@ page 9001 "Accounting Manager Role Center"
     {
         area(rolecenter)
         {
+#if not CLEAN26
             group(Control1900724808)
             {
+                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
+                ObsoleteState = Pending;
+                ObsoleteTag = '26.0';
                 ShowCaption = false;
                 part(Control99; "Finance Performance")
                 {
@@ -90,6 +94,9 @@ page 9001 "Accounting Manager Role Center"
             }
             group(Control1900724708)
             {
+                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
+                ObsoleteState = Pending;
+                ObsoleteTag = '26.0';
                 ShowCaption = false;
                 part(Control103; "Trailing Sales Orders Chart")
                 {
@@ -118,6 +125,55 @@ page 9001 "Accounting Manager Role Center"
                     ApplicationArea = Basic, Suite;
                 }
             }
+#else
+                part(Control1902304208; "Account Manager Activities")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
+                part("User Tasks Activities"; "User Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
+                part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
+                part(Control99; "Finance Performance")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
+                part(Control103; "Trailing Sales Orders Chart")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
+                part(Control106; "My Job Queue")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
+                part(Control100; "Cash Flow Forecast Chart")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
+                part(Control1907692008; "My Customers")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
+                part(Control1902476008; "My Vendors")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
+                part(Control108; "Report Inbox Part")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
+                systempart(Control1901377608; MyNotes)
+                {
+                    ApplicationArea = Basic, Suite;
+                }
+#endif
         }
     }
 
@@ -197,32 +253,6 @@ page 9001 "Accounting Manager Role Center"
                 RunObject = Report "Closing Trial Balance";
                 ToolTip = 'View, print, or send a report that shows this year''s and last year''s figures as an ordinary trial balance. The closing of the income statement accounts is posted at the end of a fiscal year. The report can be used in connection with closing a fiscal year.';
             }
-#if not CLEAN23
-            action("Balance Sheet - SE")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Balance Sheet - SE';
-                Image = "Report";
-                RunObject = Report "Balance sheet";
-                ToolTip = 'View assets, liabilities, and equity on the balance sheet.';
-                Visible = false;
-                ObsoleteReason = 'SE Balance Sheet is moved to SE Core extension, Balance Sheet will be replaced by W1 Financial Report';
-                ObsoleteState = Pending;
-                ObsoleteTag = '23.0';
-            }
-            action("Income Statement - SE")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Income Statement - SE';
-                Image = "Report";
-                RunObject = Report "Income statement";
-                ToolTip = 'View a report that shows your company''s income and expenses.';
-                Visible = false;
-                ObsoleteReason = 'SE Income Statement is moved to SE Core extension, Income Statement will be replaced by W1 Financial Report';
-                ObsoleteState = Pending;
-                ObsoleteTag = '23.0';
-            }
-#endif
             separator(Action49)
             {
             }

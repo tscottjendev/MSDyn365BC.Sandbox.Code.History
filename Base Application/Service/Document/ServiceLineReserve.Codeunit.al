@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Document;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Foundation.Navigate;
@@ -433,7 +437,8 @@ codeunit 99000842 "Service Line-Reserve"
         if not FindReservEntry(ServiceLine, OldReservationEntry) then
             exit(TransferQty);
 
-        OldReservationEntry.Lock();
+        OldReservationEntry.LockTable();
+        OldReservationEntry.FindLast();
 
         ItemJournalLine.TestItemFields(ServiceLine."No.", ServiceLine."Variant Code", ServiceLine."Location Code");
 

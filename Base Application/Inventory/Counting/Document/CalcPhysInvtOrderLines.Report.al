@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Counting.Document;
 
 using Microsoft.Inventory.Counting.Tracking;
@@ -20,13 +24,17 @@ report 5880 "Calc. Phys. Invt. Order Lines"
             RequestFilterFields = "No.", "Inventory Posting Group", "Gen. Prod. Posting Group", "Item Category Code", "Variant Filter", "Location Filter", "Bin Filter", "Date Filter";
 
             trigger OnAfterGetRecord()
+            var
+                ShouldCalcItemPhysInvtOrderLines: Boolean;
             begin
                 if not HideValidationDialog then
                     Window.Update(1, "No.");
 
                 Clear(LastItemLedgEntry);
 
-                if not Blocked then
+                ShouldCalcItemPhysInvtOrderLines := not Blocked;
+                OnAfterGetRecordItemOnAfterCalcShouldCalcItemPhysInvtOrderLines(Item, PhysInvtOrderHeader, ShouldCalcItemPhysInvtOrderLines);
+                if ShouldCalcItemPhysInvtOrderLines then
                     CalcItemPhysInvtOrderLines()
                 else
                     ItemsBlocked := true;
@@ -494,6 +502,11 @@ report 5880 "Calc. Phys. Invt. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePhysInvtOrderLines(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var Item: Record Item; var ItemBlocked: Boolean; var LineCount: Integer; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordItemOnAfterCalcShouldCalcItemPhysInvtOrderLines(var Item: Record Item; PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var ShouldCalcItemPhysInvtOrderLines: Boolean)
     begin
     end;
 }

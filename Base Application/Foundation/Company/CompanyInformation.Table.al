@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Foundation.Company;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Company;
 
 using Microsoft.Bank.Setup;
 using Microsoft.EServices.OnlineMap;
@@ -25,6 +29,7 @@ table 79 "Company Information"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; Name; Text[100])
@@ -507,25 +512,15 @@ table 79 "Company Information"
         {
             Caption = 'Plus Giro No.';
             ObsoleteReason = 'The field is moved to SE Core extension, and renamed to "Plus Giro Number"';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(11201; "Registered Office"; Text[20])
         {
             Caption = 'Registered Office';
             ObsoleteReason = 'The field is moved to SE Core extension, and renamed to "Registered Office Info"';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
     }
 
@@ -561,9 +556,6 @@ table 79 "Company Information"
         RecordHasBeenRead: Boolean;
 
         NotValidIBANErr: Label 'The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?', Comment = '%1 - an actual IBAN';
-#if not CLEAN23
-        BoardOfDirectorsLocCaptionLbl: Label 'Board Of Directors Location (registered office)';
-#endif
         NoPaymentInfoQst: Label 'No payment information is provided in %1. Do you want to update it now?', Comment = '%1 = Company Information';
 #pragma warning disable AA0470
         NoPaymentInfoMsg: Label 'No payment information is provided in %1. Review the report.';
@@ -719,32 +711,6 @@ table 79 "Company Information"
             exit('');
         exit(FieldCaption("VAT Registration No."));
     end;
-
-#if not CLEAN23
-    [Obsolete('The procedure is obsoleted, directly access the field "Registered Office Info" from SE Core extension instead', '23.0')]
-    procedure GetLegalOffice(): Text
-    begin
-        exit("Registered Office");
-    end;
-
-    [Obsolete('The procedure is moved to SE Core extension', '23.0')]
-    procedure GetLegalOfficeLbl(): Text
-    begin
-        exit(BoardOfDirectorsLocCaptionLbl);
-    end;
-
-    [Obsolete('The procedure is obsoleted, directly access the field "Plus Giro Number" from SE Core extension instead', '23.0')]
-    procedure GetCustomGiro(): Text
-    begin
-        exit("Plus Giro No.");
-    end;
-
-    [Obsolete('The procedure is obsoleted, directly access the field "Plus Giro Number"''s Caption from SE Core extension instead', '23.0')]
-    procedure GetCustomGiroLbl(): Text
-    begin
-        exit(FieldCaption("Plus Giro No."));
-    end;
-#endif
 
     procedure GetRecordOnce()
     begin

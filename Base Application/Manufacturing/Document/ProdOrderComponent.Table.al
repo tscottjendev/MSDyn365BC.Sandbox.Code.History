@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
@@ -19,7 +23,6 @@ using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Journal;
-using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Worksheet;
 
@@ -1243,7 +1246,6 @@ table 5407 "Prod. Order Component"
 
     procedure AdjustQtyToQtyPicked(var QtyToPost: Decimal)
     var
-        WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         AdjustedQty: Decimal;
         IsHandled: Boolean;
     begin
@@ -1253,7 +1255,7 @@ table 5407 "Prod. Order Component"
             exit;
 
         AdjustedQty :=
-          "Qty. Picked" + WhseValidateSourceLine.CalcNextLevelProdOutput(Rec) -
+          "Qty. Picked" + ProdOrderWarehouseMgt.CalcNextLevelProdOutput(Rec) -
           ("Expected Quantity" - "Remaining Quantity");
 
         if QtyToPost > AdjustedQty then

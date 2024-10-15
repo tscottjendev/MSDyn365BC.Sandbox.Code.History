@@ -409,18 +409,6 @@ page 50 "Purchase Order"
                         PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
-#if not CLEAN23
-                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Select this field if the purchase order is involved in an EU 3-party trade.';
-                    Visible = not IsEU3PartyTradePurchaseEnabled;
-                    Enabled = not IsEU3PartyTradePurchaseEnabled;
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                    ObsoleteReason = 'Moved to the EU 3-Party Trade Purchase app.';
-                }
-#endif
                 field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Suite;
@@ -609,7 +597,7 @@ page 50 "Purchase Order"
                                     ApplicationArea = Location;
                                     Importance = Promoted;
                                     Editable = ShipToOptions = ShipToOptions::Location;
-                                    ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
+                                    ToolTip = 'Specifies the location where the items are to be placed when they are received. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                                 }
                             }
                             field("Ship-to Name"; Rec."Ship-to Name")
@@ -619,6 +607,16 @@ page 50 "Purchase Order"
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 Importance = Additional;
                                 ToolTip = 'Specifies the name of the company at the address that you want the items on the purchase document to be shipped to.';
+                            }
+                            field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'Name 2';
+                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                                Importance = Additional;
+                                ToolTip = 'Specifies an additional part of the name of the customer that items on the purchase order were shipped to, as a drop shipment.';
+                                QuickEntry = false;
+                                Visible = false;
                             }
                             field("Ship-to Address"; Rec."Ship-to Address")
                             {
@@ -2372,9 +2370,6 @@ page 50 "Purchase Order"
         ArchiveManagement: Codeunit ArchiveManagement;
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         FormatAddress: Codeunit "Format Address";
-#if not CLEAN23
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
         PrivacyNotice: Codeunit "Privacy Notice";
         PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
         ChangeExchangeRate: Page "Change Exchange Rate";
@@ -2409,9 +2404,6 @@ page 50 "Purchase Order"
         IsRemitToCountyVisible: Boolean;
         RejectICPurchaseOrderEnabled: Boolean;
         VATDateEnabled: Boolean;
-#if not CLEAN23
-        IsEU3PartyTradePurchaseEnabled: Boolean;
-#endif
 
     protected var
         ShipToOptions: Enum "Purchase Order Ship-to Options";
@@ -2443,10 +2435,6 @@ page 50 "Purchase Order"
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
         IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
-#if not CLEAN23
-        IsEU3PartyTradePurchaseEnabled := FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled();
-#endif
-
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")

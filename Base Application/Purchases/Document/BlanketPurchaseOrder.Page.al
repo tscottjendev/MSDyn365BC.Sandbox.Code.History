@@ -12,9 +12,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Utilities;
 using System.Automation;
 using System.Security.User;
-#if not CLEAN23
-using System.Environment.Configuration;
-#endif
 
 page 509 "Blanket Purchase Order"
 {
@@ -315,18 +312,6 @@ page 509 "Blanket Purchase Order"
                         PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
-#if not CLEAN23
-                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Select this field if the purchase order is involved in an EU 3-party trade.';
-                    Visible = not IsEU3PartyTradePurchaseEnabled;
-                    Enabled = not IsEU3PartyTradePurchaseEnabled;
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                    ObsoleteReason = 'Moved to the EU 3-Party Trade Purchase app.';
-                }
-#endif
                 field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Suite;
@@ -417,7 +402,7 @@ page 509 "Blanket Purchase Order"
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
+                    ToolTip = 'Specifies the location where the items are to be placed when they are received. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                 }
                 field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
@@ -442,6 +427,14 @@ page 509 "Blanket Purchase Order"
                         Caption = 'Name';
                         Importance = Additional;
                         ToolTip = 'Specifies the name of the company at the address to which you want the items in the purchase order to be shipped.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name of the company at the address to which you want the items in the purchase order to be shipped.';
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
@@ -1225,9 +1218,6 @@ page 509 "Blanket Purchase Order"
         ArchiveManagement: Codeunit ArchiveManagement;
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         FormatAddress: Codeunit "Format Address";
-#if not CLEAN23
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
         ChangeExchangeRate: Page "Change Exchange Rate";
         DocNoVisible: Boolean;
         OpenApprovalEntriesExist: Boolean;
@@ -1241,9 +1231,6 @@ page 509 "Blanket Purchase Order"
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
-#if not CLEAN23
-        IsEU3PartyTradePurchaseEnabled: Boolean;
-#endif
 
     local procedure ActivateFields()
     begin
@@ -1254,9 +1241,6 @@ page 509 "Blanket Purchase Order"
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
         IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
-#if not CLEAN23
-        IsEU3PartyTradePurchaseEnabled := FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled();
-#endif
     end;
 
     local procedure ApproveCalcInvDisc()

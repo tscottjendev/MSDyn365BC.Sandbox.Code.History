@@ -21,32 +21,6 @@ codeunit 134444 "ERM Test Account Categories"
         NumbeOfLinesOneErr: Label 'Account schedule %1 can only have one line.', Comment = '%1 - account schedule name';
         TotalAccountErr: Label 'Account Schedue Totalling Type are not matched.';
 
-#if not CLEAN23
-    [Test]
-    [Obsolete('SE Balance Sheet tests are moved to SE Core extension', '23.0')]
-    [HandlerFunctions('BalanceSheetRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestBalanceSheet()
-    begin
-        // Execution
-        REPORT.Run(REPORT::"Balance sheet");
-
-        // Validation is done in the request page handler.
-    end;
-
-    [Test]
-    [Obsolete('SE Income Statement tests are moved to SE Core extension', '23.0')]
-    [HandlerFunctions('IncomeStatementRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIncomeStatement()
-    begin
-        // Execution
-        REPORT.Run(REPORT::"Income statement");
-
-        // Validation is done in the request page handler.
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('AccSchedReportRequestPageHandler')]
     [Scope('OnPrem')]
@@ -454,19 +428,5 @@ codeunit 134444 "ERM Test Account Categories"
     begin
         Choice := LibraryVariableStorage.DequeueInteger();
     end;
-
-#if not CLEAN23
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure BalanceSheetRequestPageHandler(var BalanceSheet: TestRequestPage "Balance sheet")
-    begin
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure IncomeStatementRequestPageHandler(var IncomeStatement: TestRequestPage "Income statement")
-    begin
-    end;
-#endif
 }
 

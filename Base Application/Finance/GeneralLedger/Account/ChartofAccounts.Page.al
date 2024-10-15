@@ -242,16 +242,6 @@ page 16 "Chart of Accounts"
                     ToolTip = 'Specifies accounts that you often enter in the Bal. Account No. field on intercompany journal or document lines.';
                     Visible = false;
                 }
-#if not CLEAN23
-                field("SRU-code"; Rec."SRU-code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the SRU-code for the G/L Account.';
-                    ObsoleteReason = 'Moved to Standard Import Export (SIE) app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Default Deferral Template Code"; Rec."Default Deferral Template Code")
                 {
                     ApplicationArea = Suite;

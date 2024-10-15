@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Foundation.Reporting;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Reporting;
 
 using Microsoft.CRM.Outlook;
 using Microsoft.EServices.EDocument;
@@ -391,6 +395,7 @@ table 60 "Document Sending Profile"
                 if RecRefSource.FindSet() then
                     repeat
                         RecRefToSend := RecRefSource.Duplicate();
+                        RecRefToSend.CurrentKeyIndex(1);
                         RecRefToSend.SetRecFilter();
                         CustomerNo := RecRefToSend.Field(CustomerFieldNo).Value();
                         DocumentNo := RecRefToSend.Field(DocumentFieldNo).Value();
@@ -434,6 +439,7 @@ table 60 "Document Sending Profile"
             if RecRef.FindSet() then
                 repeat
                     RecRef2 := RecRef.Duplicate();
+                    RecRef2.CurrentKeyIndex(1);
                     RecRef2.SetRecFilter();
                     VendorNo := RecRef2.Field(VendorFieldNo).Value();
                     DocumentNo := RecRef2.Field(DocumentFieldNo).Value();
@@ -595,6 +601,7 @@ table 60 "Document Sending Profile"
             if RecRef.FindSet() then
                 repeat
                     RecToSend := RecRef.Duplicate();
+                    RecToSend.CurrentKeyIndex(1);
                     RecToSend.SetRecFilter();
                     CustomerVendorNo := RecToSend.Field(CustomerVendorFieldNo).Value();
                     DocumentNo := RecToSend.Field(DocumentNoFieldNo).Value();

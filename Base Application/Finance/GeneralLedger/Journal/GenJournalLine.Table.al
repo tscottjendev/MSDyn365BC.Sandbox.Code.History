@@ -2931,6 +2931,10 @@ table 81 "Gen. Journal Line"
             Caption = 'Bal. Non-Deductible VAT Amount LCY';
             Editable = false;
         }
+        field(6230; "Non-Ded. VAT FA Cost"; Boolean)
+        {
+            Caption = 'Non-Ded. VAT FA Cost';
+        }
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -3021,13 +3025,8 @@ table 81 "Gen. Journal Line"
         {
             Caption = 'Source Posting Date';
             ObsoleteReason = 'The field is not used and will be obsoleted';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(11201; "Auto. Acc. Group"; Code[10])
         {
@@ -3252,9 +3251,6 @@ table 81 "Gen. Journal Line"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         NoSeriesBatch: Codeunit "No. Series - Batch";
-#if not CLEAN23
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
         Window: Dialog;
         DeferralDocType: Enum "Deferral Document Type";
         CurrencyCode: Code[10];
@@ -5862,7 +5858,7 @@ table 81 "Gen. Journal Line"
         OnAfterCleanLine(Rec, xRec);
     end;
 
-    local procedure ReplaceDescription() Result: Boolean
+    procedure ReplaceDescription() Result: Boolean
     var
         IsHandled: Boolean;
     begin
@@ -6320,10 +6316,6 @@ table 81 "Gen. Journal Line"
         "Source Currency Code" := PurchHeader."Currency Code";
         "Currency Factor" := PurchHeader."Currency Factor";
         Correction := PurchHeader.Correction;
-#if not CLEAN23
-        if not FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled() then
-            "EU 3-Party Trade" := PurchHeader."EU 3-Party Trade";
-#endif
         "VAT Base Discount %" := PurchHeader."VAT Base Discount %";
         "Sell-to/Buy-from No." := PurchHeader."Buy-from Vendor No.";
         "Bill-to/Pay-to No." := PurchHeader."Pay-to Vendor No.";
@@ -6352,10 +6344,6 @@ table 81 "Gen. Journal Line"
     begin
         "Source Currency Code" := PurchHeader."Currency Code";
         "VAT Base Discount %" := PurchHeader."VAT Base Discount %";
-#if not CLEAN23
-        if not FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled() then
-            "EU 3-Party Trade" := PurchHeader."EU 3-Party Trade";
-#endif
         "Bill-to/Pay-to No." := PurchHeader."Pay-to Vendor No.";
         "Country/Region Code" := PurchHeader."VAT Country/Region Code";
         "VAT Registration No." := PurchHeader."VAT Registration No.";
@@ -8593,12 +8581,12 @@ table 81 "Gen. Journal Line"
         case "Applies-to Doc. Type" of
             "Applies-to Doc. Type"::Payment:
                 "Document Type" := "Document Type"::Invoice;
-            "Applies-to Doc. Type"::"Credit Memo":
+        "Applies-to Doc. Type"::"Credit Memo":
                 "Document Type" := "Document Type"::Refund;
-            "Applies-to Doc. Type"::Invoice,
+        "Applies-to Doc. Type"::Invoice,
             "Applies-to Doc. Type"::Refund:
                 "Document Type" := "Document Type"::Payment;
-        end;
+    end;
     end;
 
     /// <summary>

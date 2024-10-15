@@ -13,9 +13,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Remittance;
 using Microsoft.Purchases.Vendor;
 using System.Automation;
-#if not CLEAN23
-using System.Environment.Configuration;
-#endif
 
 page 138 "Posted Purchase Invoice"
 {
@@ -290,19 +287,6 @@ page 138 "Posted Purchase Invoice"
                         end;
                     end;
                 }
-#if not CLEAN23
-                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    Visible = not IsEU3PartyTradePurchaseEnabled;
-                    Enabled = not IsEU3PartyTradePurchaseEnabled;
-                    ToolTip = 'Specifies whether the purchase invoice was involved in an EU 3-party trade.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                    ObsoleteReason = 'Moved to the EU 3-Party Trade Purchase app.';
-                }
-#endif
                 field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -417,6 +401,15 @@ page 138 "Posted Purchase Invoice"
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the company at the address to which the items in the purchase order were shipped.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name of the company at the address to which the items in the purchase order were shipped.';
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
@@ -1148,10 +1141,6 @@ page 138 "Posted Purchase Invoice"
         PayToContact: Record Contact;
         RemitAddressBuffer: Record "Remit Address Buffer";
         FormatAddress: Codeunit "Format Address";
-#if not CLEAN23
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-        IsEU3PartyTradePurchaseEnabled: Boolean;
-#endif
         HasIncomingDocument: Boolean;
         IsOfficeAddin: Boolean;
         IsBuyFromCountyVisible: Boolean;
@@ -1165,9 +1154,6 @@ page 138 "Posted Purchase Invoice"
         IsBuyFromCountyVisible := FormatAddress.UseCounty(Rec."Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty(Rec."Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
-#if not CLEAN23
-        IsEU3PartyTradePurchaseEnabled := FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled();
-#endif
     end;
 
     local procedure FillRemitToFields()

@@ -785,13 +785,8 @@ table 15 "G/L Account"
             Caption = 'SRU-code';
             Numeric = true;
             ObsoleteReason = 'Moved to Standard Import Export (SIE) app.';
-#if CLEAN23
 			ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#endif
         }
     }
 

@@ -22,10 +22,6 @@ using Microsoft.Warehouse.Structure;
 using Microsoft.Upgrade;
 using Microsoft.Utilities;
 using System.Environment;
-#if not CLEAN23
-using System.Environment.Configuration;
-using System.Telemetry;
-#endif
 using System.Threading;
 
 table 311 "Sales & Receivables Setup"
@@ -39,6 +35,7 @@ table 311 "Sales & Receivables Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Discount Posting"; Option)
@@ -444,20 +441,6 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Allow Multiple Posting Groups';
             DataClassification = SystemMetadata;
-
-            trigger OnValidate()
-#if not CLEAN23
-            var
-                FeatureTelemetry: Codeunit "Feature Telemetry";
-                FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
-            begin
-#if not CLEAN23
-                if "Allow Multiple Posting Groups" then
-                    FeatureTelemetry.LogUptake(
-                        '0000JRB', FeatureKeyManagement.GetAllowMultipleCustVendPostingGroupsFeatureKey(), Enum::"Feature Uptake Status"::Discovered);
-#endif
-            end;
         }
         field(176; "Check Multiple Posting Groups"; enum "Posting Group Change Method")
         {
@@ -658,6 +641,7 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Default Price List Code';
             TableRelation = "Price List Header" where("Price Type" = const(Sale), "Source Group" = const(Customer), "Allow Updating Defaults" = const(true));
             DataClassification = CustomerContent;
+
             trigger OnLookup()
             var
                 PriceListHeader: Record "Price List Header";
@@ -667,17 +651,6 @@ table 311 "Sales & Receivables Setup"
                     Validate("Default Price List Code", PriceListHeader.Code);
                 end;
             end;
-#if not CLEAN23
-
-            trigger OnValidate()
-            var
-                FeatureTelemetry: Codeunit "Feature Telemetry";
-                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-            begin
-                if ("Default Price List Code" <> xRec."Default Price List Code") or (CurrFieldNo = 0) then
-                    FeatureTelemetry.LogUptake('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
-            end;
-#endif
         }
         field(7005; "Use Customized Lookup"; Boolean)
         {
@@ -726,9 +699,6 @@ table 311 "Sales & Receivables Setup"
 
     var
         JobQueuePriorityErr: Label 'Job Queue Priority must be zero or positive.';
-#if not CLEAN23
-        CompHasTaxAssessCaptionLbl: Label 'Company has Tax Assessment Note';
-#endif
         ProductCoupledErr: Label 'You must choose a record that is not coupled to a product in %1.', Comment = '%1 - Dynamics 365 Sales product name';
         RecordHasBeenRead: Boolean;
         CRMBidirectionalSalesOrderIntEnabledErr: Label 'You cannot disable Archive Orders when Dynamics 365 Sales connection and Bidirectional Sales Order Integration are enabled.';
@@ -741,18 +711,10 @@ table 311 "Sales & Receivables Setup"
         RecordHasBeenRead := true;
     end;
 
-#if not CLEAN23
-    [Obsolete('The procedure will be replaced by W1 version, the functionality is moved to SE Core extension and renamed to GetLegalStatementLabel', '23.0')]
-    procedure GetLegalStatement(): Text
-    begin
-        exit(CompHasTaxAssessCaptionLbl);
-    end;
-#else
     procedure GetLegalStatement(): Text
     begin
         exit('');
     end;
-#endif
 
     procedure JobQueueActive(): Boolean
     begin

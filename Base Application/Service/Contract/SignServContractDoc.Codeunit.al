@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Contract;
 
 using Microsoft.Finance.Currency;
@@ -917,6 +921,7 @@ codeunit 5944 SignServContractDoc
         ServContractLine.SetRange("Contract Type", ServContractHeader."Contract Type");
         ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
         ServContractLine.SetRange("Next Planned Service Date", 0D);
+        OnCheckServContractNextPlannedServiceDateOnAfterServContractLineSetFilters(ServContractLine, ServContractHeader);
         if ServContractLine.FindFirst() then
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(Text022, ServContractLine.FieldCaption("Next Planned Service Date")), true)
@@ -1370,6 +1375,11 @@ codeunit 5944 SignServContractDoc
 
     [IntegrationEvent(false, false)]
     local procedure OnAddendumToContractOnBeforeCalcCreateInvoiceConfirmed(GoOut: Boolean; HideDialog: Boolean; var InvoiceNow: Boolean; var InvoicePrepaid: Boolean; LastPrepaidPostingDate: Date; StartingDate: Date; TempDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckServContractNextPlannedServiceDateOnAfterServContractLineSetFilters(var ServiceContractLine: Record "Service Contract Line"; var ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
 }

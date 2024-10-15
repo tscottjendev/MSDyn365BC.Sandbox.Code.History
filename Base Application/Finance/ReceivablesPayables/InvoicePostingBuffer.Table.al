@@ -320,16 +320,14 @@ table 55 "Invoice Posting Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
-#if not CLEAN23
         field(11203; "VAT Base Amount (LCY)"; Decimal)
         {
             Caption = 'VAT Base Amount (LCY)';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'The field is not used and will be obsoleted.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
         }
-#endif
     }
 
     keys
