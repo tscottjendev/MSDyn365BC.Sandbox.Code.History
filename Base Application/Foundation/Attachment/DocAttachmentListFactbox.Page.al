@@ -173,7 +173,8 @@ page 1178 "Doc. Attachment List Factbox"
     begin
         // When adding this factbox to a main page, the UpadtePropagation property is set to "Both" to ensure the main page is updated when a record is deleted.
         // This is necessary to call `CurrPage.Update()` to have the property take effect.
-        CurrPage.Update();
+        if GuiAllowed then
+            CurrPage.Update();
     end;
 
     local procedure LoadAndRunDocumentAttachmentDetail()
