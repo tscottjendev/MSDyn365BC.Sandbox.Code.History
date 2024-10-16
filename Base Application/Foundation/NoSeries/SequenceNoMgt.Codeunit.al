@@ -5,12 +5,16 @@
 namespace Microsoft.Foundation.NoSeries;
 
 using Microsoft.CRM.Interaction;
+using Microsoft.Warehouse.Ledger;
 
 codeunit 9500 "Sequence No. Mgt."
 {
     SingleInstance = true;
     InherentPermissions = X;
-    Permissions = TableData "Interaction Log Entry" = r, Tabledata Attachment = r;
+    Permissions = TableData "Interaction Log Entry" = r,
+                  Tabledata Attachment = r,
+                  Tabledata "Warehouse Register" = r,
+                  Tabledata "Warehouse Entry" = r;
 
     var
         GlobalPreviewMode: Boolean;
