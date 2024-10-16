@@ -639,7 +639,7 @@ table 5405 "Production Order"
 
     fieldgroups
     {
-        fieldgroup(DropDown; "No.", Description, "Source No.", "Source Type")
+        fieldgroup(DropDown; "No.", Description, "Source No.", "Source Type", "Due Date")
         {
         }
         fieldgroup(Brick; "No.", Description, "Source No.", Status, "Due Date")
