@@ -132,7 +132,7 @@ page 99000915 "Work Center Task List"
                 field("Concurrent Capacities"; Rec."Concurrent Capacities")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the con capacity of the operation.';
+                    ToolTip = 'Specifies the concurrent capacity of the operation.';
                 }
                 field("Send-Ahead Quantity"; Rec."Send-Ahead Quantity")
                 {
