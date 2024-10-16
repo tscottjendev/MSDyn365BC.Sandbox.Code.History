@@ -99,6 +99,9 @@ table 1511 "Notification Entry"
         key(Key2; "Created Date-Time")
         {
         }
+        key(Key3; "Triggered By Record", Type)
+        {
+        }
     }
 
     fieldgroups

@@ -236,7 +236,7 @@ page 99000817 "Prod. Order Routing"
                 field("Concurrent Capacities"; Rec."Concurrent Capacities")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the con capacity of the operation.';
+                    ToolTip = 'Specifies the concurrent capacity of the operation.';
                     Visible = false;
                 }
                 field("Unit Cost per"; Rec."Unit Cost per")
