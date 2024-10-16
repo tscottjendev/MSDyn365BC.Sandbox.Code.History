@@ -39,6 +39,12 @@ page 9325 "Firm Planned Prod. Orders"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the description of the production order.';
                 }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Manufacturing;
