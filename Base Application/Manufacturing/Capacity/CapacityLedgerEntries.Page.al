@@ -46,6 +46,12 @@ page 5832 "Capacity Ledger Entries"
                     ApplicationArea = Assembly, Manufacturing;
                     ToolTip = 'Specifies the number of the order that created the entry.';
                 }
+                field("Order Line No."; Rec."Order Line No.")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the line number of the order that created the entry.';
+                    Visible = false;
+                }
                 field("Routing No."; Rec."Routing No.")
                 {
                     ApplicationArea = Manufacturing;
@@ -262,6 +268,12 @@ page 5832 "Capacity Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 8, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim8Visible;
+                }
+                field("Cap. Unit of Measure Code"; Rec."Cap. Unit of Measure Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the unit of measure code for the capacity usage.';
+                    Visible = false;
                 }
             }
         }
