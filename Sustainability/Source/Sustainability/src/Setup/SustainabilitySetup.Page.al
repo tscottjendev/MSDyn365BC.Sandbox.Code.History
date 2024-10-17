@@ -26,6 +26,18 @@ page 6221 "Sustainability Setup"
                 {
                     ToolTip = 'Specifies the unit of measure code that is used to register emission.';
                 }
+                field("Waste Unit of Measure Code"; Rec."Waste Unit of Measure Code")
+                {
+                    ToolTip = 'Specifies the value of the Waste Unit of Measure Code field.';
+                }
+                field("Water Unit of Measure Code"; Rec."Water Unit of Measure Code")
+                {
+                    ToolTip = 'Specifies the value of the Water Unit of Measure Code field.';
+                }
+                field("Disch. Into Water Unit of Meas"; Rec."Disch. Into Water Unit of Meas")
+                {
+                    ToolTip = 'Specifies the value of the Disch. Into Water Unit of Measure Code field.';
+                }
                 field("Emission Decimal Places"; Rec."Emission Decimal Places")
                 {
                     ToolTip = 'Specifies the number of decimal places that are shown for emission amounts. The default setting, 2:5, specifies that all amounts are shown with a minimum of 2 decimal places and a maximum of 5 decimal places. You can also enter a fixed number, such as 2, which also means that amounts are shown with two decimals.';
