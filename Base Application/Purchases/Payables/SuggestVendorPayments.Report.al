@@ -859,10 +859,11 @@ report 393 "Suggest Vendor Payments"
         GenJnlLine."Line No." := LastLineNo;
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
         GenJnlLine."Posting No. Series" := GenJnlBatch."Posting No. Series";
+        GenJnlLine."Journal Batch Id" := GenJnlBatch.SystemId;
 
         IsHandled := false;
         OnInsertGenJournalLineOnBeforeAssignDocumentNo(GenJnlLine, GenJnlLine2, GenJnlBatch, TempVendorPaymentBuffer, NextDocNo, BankPmtType, DocNoPerLine, TempOldVendorPaymentBuffer, SummarizePerVend, IsHandled);
-        if not IsHandled then 
+        if not IsHandled then
             if SummarizePerVend then
                 GenJnlLine."Document No." := TempVendorPaymentBuffer."Document No."
             else
@@ -1385,10 +1386,10 @@ report 393 "Suggest Vendor Payments"
     [IntegrationEvent(false, false)]
     local procedure OnPostDataItemOnBeforeMakeGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; var TempPayableVendorLedgEntry: Record "Vendor Ledger Entry" temporary)
     begin
-    end;   
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetBankAccCurrencyFilter(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; var TempPayableVendorLedgerEntry: Record "Payable Vendor Ledger Entry" temporary)
     begin
-    end;     
+    end;
 }
