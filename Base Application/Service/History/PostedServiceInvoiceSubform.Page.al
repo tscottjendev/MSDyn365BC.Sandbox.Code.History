@@ -41,11 +41,6 @@ page 5979 "Posted Service Invoice Subform"
                     ApplicationArea = Service, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                 }
-                field("Service Tariff No."; Rec."Service Tariff No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the ID of the service tariff that is associated with the posted service invoice.';
-                }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
@@ -87,11 +82,6 @@ page 5979 "Posted Service Invoice Subform"
                     Importance = Additional;
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
-                }
-                field("Include in VAT Transac. Rep."; Rec."Include in VAT Transac. Rep.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if you want to include the entry in the VAT transaction report.';
                 }
                 field("Return Reason Code"; Rec."Return Reason Code")
                 {

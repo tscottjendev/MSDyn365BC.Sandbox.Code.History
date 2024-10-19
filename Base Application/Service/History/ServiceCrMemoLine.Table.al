@@ -572,28 +572,6 @@ table 5995 "Service Cr.Memo Line"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
-        field(12101; "Deductible %"; Decimal)
-        {
-            Caption = 'Deductible %';
-            DecimalPlaces = 0 : 5;
-            MaxValue = 100;
-            MinValue = 0;
-        }
-        field(12125; "Service Tariff No."; Code[10])
-        {
-            Caption = 'Service Tariff No.';
-            TableRelation = "Service Tariff Number";
-        }
-        field(12130; "Include in VAT Transac. Rep."; Boolean)
-        {
-            Caption = 'Include in VAT Transac. Rep.';
-        }
-        field(12131; "Refers to Period"; Option)
-        {
-            Caption = 'Refers to Period';
-            OptionCaption = ' ,Current,Current Calendar Year,Previous Calendar Year';
-            OptionMembers = " ",Current,"Current Calendar Year","Previous Calendar Year";
-        }
     }
 
     keys

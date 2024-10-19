@@ -415,22 +415,6 @@ page 5974 "Posted Service Shipments"
                     Rec.Navigate();
                 end;
             }
-            action("Update Document")
-            {
-                ApplicationArea = Service;
-                Caption = 'Update Document';
-                Image = Edit;
-                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
-
-                trigger OnAction()
-                var
-                    PostedServiceShptUpdate: Page "Posted Service Shpt. - Update";
-                begin
-                    PostedServiceShptUpdate.LookupMode := true;
-                    PostedServiceShptUpdate.SetRec(Rec);
-                    PostedServiceShptUpdate.RunModal();
-                end;
-            }
         }
         area(Promoted)
         {
@@ -438,9 +422,6 @@ page 5974 "Posted Service Shipments"
             {
                 Caption = 'Process';
 
-                actionref("Update Document_Promoted"; "Update Document")
-                {
-                }
                 actionref("&Print_Promoted"; "&Print")
                 {
                 }

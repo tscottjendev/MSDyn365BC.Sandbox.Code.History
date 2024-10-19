@@ -73,11 +73,6 @@ page 5905 "Service Lines"
                     ToolTip = 'Specifies the service item serial number linked to this line.';
                     Visible = false;
                 }
-                field("Include in VAT Transac. Rep."; Rec."Include in VAT Transac. Rep.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if the entry must be included in the VAT transaction report.';
-                }
                 field("Service Item Line Description"; Rec."Service Item Line Description")
                 {
                     ApplicationArea = Service;
@@ -125,11 +120,6 @@ page 5905 "Service Lines"
                         NoOnAfterValidate();
                         CurrPage.Update();
                     end;
-                }
-                field("Service Tariff No."; Rec."Service Tariff No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the ID of the service tariff that is associated with the service order.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {

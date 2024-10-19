@@ -82,11 +82,10 @@ report 6005 "Batch Post Service Cr. Memos"
 
                         trigger OnValidate()
                         begin
-                            if ReplacePostingDate then begin
+                            if ReplacePostingDate then
                                 Message(Text003);
-                                Message(Text1130000, "Service Header".FieldCaption("Document Date"), "Service Header".FieldCaption("Operation Occurred Date"),
-                                  "Service Header".FieldCaption("Posting Date"));
-                            end;
+
+                            OnAfterValidateReplacePostingDate("Service Header", ReplacePostingDate);
                         end;
                     }
                     field(ReplaceDocumentDate; ReplaceDocumentDate)
@@ -155,7 +154,6 @@ report 6005 "Batch Post Service Cr. Memos"
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
-        Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
 
 #pragma warning disable AA0074
         Text000: Label 'Enter the posting date.';
@@ -193,6 +191,11 @@ report 6005 "Batch Post Service Cr. Memos"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforePreReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateReplacePostingDate(var ServiceHeader: Record "Service Header"; ReplacePostingDate: Boolean)
     begin
     end;
 }

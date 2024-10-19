@@ -40,11 +40,6 @@ page 5973 "Posted Serv. Cr. Memo Subform"
                     ApplicationArea = Service, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                 }
-                field("Service Tariff No."; Rec."Service Tariff No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the ID of the service tariff that is associated with the service credit memo.';
-                }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
@@ -80,16 +75,6 @@ page 5973 "Posted Serv. Cr. Memo Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
-                }
-                field("Include in VAT Transac. Rep."; Rec."Include in VAT Transac. Rep.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if you want to include the entry in the VAT transaction report.';
-                }
-                field("Refers to Period"; Rec."Refers to Period")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the time period that is used to process and filter the transactions.';
                 }
                 field(Description; Rec.Description)
                 {

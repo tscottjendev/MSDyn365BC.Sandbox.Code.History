@@ -610,22 +610,6 @@ table 5993 "Service Invoice Line"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
-        field(12101; "Deductible %"; Decimal)
-        {
-            Caption = 'Deductible %';
-            DecimalPlaces = 0 : 5;
-            MaxValue = 100;
-            MinValue = 0;
-        }
-        field(12125; "Service Tariff No."; Code[10])
-        {
-            Caption = 'Service Tariff No.';
-            TableRelation = "Service Tariff Number";
-        }
-        field(12130; "Include in VAT Transac. Rep."; Boolean)
-        {
-            Caption = 'Include in VAT Transac. Rep.';
-        }
     }
 
     keys

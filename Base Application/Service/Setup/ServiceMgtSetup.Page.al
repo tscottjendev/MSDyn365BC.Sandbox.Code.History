@@ -158,17 +158,6 @@ page 5919 "Service Mgt. Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies implementation method of checking which posting groups can be used for the customer.';
                 }
-                field("Validate Document On Posting"; Rec."Validate Document On Posting")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies that you cannot post an invoice or credit memo that has Fattura PA errors.';
-                }
-                field("Notify On Occur. Date Change"; Rec."Notify On Occur. Date Change")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Posting Date after Operation Occurred Date notification';
-                    ToolTip = 'Specifies that you will get a notification when changing the Posting Date field to a date later than currently in the Operation Occurred Date field.';
-                }
             }
             group("Mandatory Fields")
             {

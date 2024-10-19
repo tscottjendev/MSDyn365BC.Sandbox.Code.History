@@ -674,18 +674,6 @@ codeunit 2 "Company-Initialize"
           FatturaPA_ElectronicFormatTxt, FatturaPA_ElectronicFormatDescriptionTxt,
           CODEUNIT::"Export FatturaPA Document", 0, ElectronicDocumentFormat.Usage::"Service Invoice".AsInteger());
 
-        ElectronicDocumentFormat.InsertElectronicFormat(
-          FatturaPA_ElectronicFormatTxt, FatturaPA_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Export FatturaPA Document", 0, ElectronicDocumentFormat.Usage::"Service Credit Memo".AsInteger());
-
-        ElectronicDocumentFormat.InsertElectronicFormat(
-          FatturaPA_ElectronicFormatTxt, FatturaPA_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"FatturaPA Sales Validation", 0, ElectronicDocumentFormat.Usage::"Sales Validation".AsInteger());
-
-        ElectronicDocumentFormat.InsertElectronicFormat(
-          FatturaPA_ElectronicFormatTxt, FatturaPA_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"FatturaPA Service Validation", 0, ElectronicDocumentFormat.Usage::"Service Validation".AsInteger());
-
         OnAfterInitElectronicFormats();
     end;
 

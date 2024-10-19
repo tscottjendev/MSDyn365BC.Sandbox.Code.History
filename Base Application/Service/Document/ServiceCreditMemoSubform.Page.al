@@ -30,7 +30,6 @@ page 5936 "Service Credit Memo Subform"
         {
             repeater(Control1)
             {
-                Editable = Rec."Automatically Generated" = false;
                 ShowCaption = false;
                 field(Type; Rec.Type)
                 {
@@ -40,7 +39,6 @@ page 5936 "Service Credit Memo Subform"
                     trigger OnValidate()
                     begin
                         NoOnAfterValidate();
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption(Type), 1, 100));
                     end;
                 }
                 field("No."; Rec."No.")
@@ -54,7 +52,6 @@ page 5936 "Service Credit Memo Subform"
                     begin
                         Rec.ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("No."), 1, 100));
                         if Rec."Variant Code" = '' then
                             VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
                     end;
@@ -127,21 +124,6 @@ page 5936 "Service Credit Memo Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
-
-                    trigger OnValidate()
-                    begin
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("VAT Prod. Posting Group"), 1, 100));
-                    end;
-                }
-                field("Include in VAT Transac. Rep."; Rec."Include in VAT Transac. Rep.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if the entry must be included in the VAT transaction report.';
-                }
-                field("Refers to Period"; Rec."Refers to Period")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the time period that is used to process and filter the transactions.';
                 }
                 field(Description; Rec.Description)
                 {
@@ -193,7 +175,6 @@ page 5936 "Service Credit Memo Subform"
                     trigger OnValidate()
                     begin
                         QuantityOnAfterValidate();
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption(Quantity), 1, 100));
                     end;
                 }
                 field("Reserved Quantity"; Rec."Reserved Quantity")
@@ -219,7 +200,6 @@ page 5936 "Service Credit Memo Subform"
                     trigger OnValidate()
                     begin
                         UnitofMeasureCodeOnAfterValidate();
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Unit of Measure Code"), 1, 100));
                     end;
                 }
                 field("Unit of Measure"; Rec."Unit of Measure")
@@ -239,11 +219,6 @@ page 5936 "Service Credit Memo Subform"
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
-
-                    trigger OnValidate()
-                    begin
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Unit Price"), 1, 100));
-                    end;
                 }
                 field("Tax Liable"; Rec."Tax Liable")
                 {
@@ -267,33 +242,18 @@ page 5936 "Service Credit Memo Subform"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
-
-                    trigger OnValidate()
-                    begin
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Line Amount"), 1, 100));
-                    end;
                 }
                 field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
-
-                    trigger OnValidate()
-                    begin
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Line Discount %"), 1, 100));
-                    end;
                 }
                 field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
                     Visible = false;
-
-                    trigger OnValidate()
-                    begin
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Line Discount Amount"), 1, 100));
-                    end;
                 }
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
@@ -432,13 +392,6 @@ page 5936 "Service Credit Memo Subform"
                     begin
                         Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
-                }
-                field("Automatically Generated"; Rec."Automatically Generated")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies if the document has been automatically generated.';
-                    Visible = false;
                 }
             }
         }
@@ -652,11 +605,6 @@ page 5936 "Service Credit Memo Subform"
         end;
     end;
 
-    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
-    begin
-        Rec.UpdateSplitVATLines(Rec.TableCaption);
-    end;
-
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec.Type := xRec.Type;
@@ -765,12 +713,6 @@ page 5936 "Service Credit Memo Subform"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
-    end;
-
-    local procedure UpdateSplitVATLinesPage(ChangedFieldName: Text[100])
-    begin
-        CurrPage.SaveRecord();
-        Rec.UpdateSplitVATLines(ChangedFieldName);
     end;
 
     [IntegrationEvent(false, false)]

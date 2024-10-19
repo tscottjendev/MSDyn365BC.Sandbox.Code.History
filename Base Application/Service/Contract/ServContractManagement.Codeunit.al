@@ -516,15 +516,6 @@ codeunit 5940 ServContractManagement
         ServHeader2."Bill-to Contact" := ServContract2."Bill-to Contact";
         ServHeader2."Tax Area Code" := Cust."Tax Area Code";
         ServHeader2."Tax Liable" := Cust."Tax Liable";
-        ServHeader2."Fiscal Code" := Cust."Fiscal Code";
-        ServHeader2."Individual Person" := Cust."Individual Person";
-        ServHeader2.Resident := Cust.Resident;
-        ServHeader2."First Name" := Cust."First Name";
-        ServHeader2."Last Name" := Cust."Last Name";
-        ServHeader2."Date of Birth" := Cust."Date of Birth";
-        ServHeader2."Tax Representative Type" := Cust."Tax Representative Type";
-        ServHeader2."Tax Representative No." := Cust."Tax Representative No.";
-        ServHeader2."VAT Registration No." := Cust."VAT Registration No.";
 
         OnCreateServHeaderOnAfterCopyFromCustomer(ServHeader2, ServContract2, Cust);
 
@@ -564,8 +555,6 @@ codeunit 5940 ServContractManagement
         ServHeader2."Shortcut Dimension 1 Code" := ServContract2."Shortcut Dimension 1 Code";
         ServHeader2."Shortcut Dimension 2 Code" := ServContract2."Shortcut Dimension 2 Code";
         ServHeader2."Dimension Set ID" := ServContract2."Dimension Set ID";
-        if GLSetup."Use Activity Code" then
-            ServHeader2."Activity Code" := ServContract2."Activity Code";
         OnBeforeServHeaderModify(ServHeader2, ServContract2);
         ServHeader2.Modify();
         RecordLinkManagement.CopyLinks(ServContract2, ServHeader2);
@@ -892,15 +881,6 @@ codeunit 5940 ServContractManagement
         ServHeader2."Bill-to Contact No." := ServContract."Bill-to Contact No.";
         ServHeader2."Bill-to Contact" := ServContract."Bill-to Contact";
         ServHeader2."Gen. Bus. Posting Group" := Cust."Gen. Bus. Posting Group";
-        ServHeader2."Fiscal Code" := Cust."Fiscal Code";
-        ServHeader2."Individual Person" := Cust."Individual Person";
-        ServHeader2.Resident := Cust.Resident;
-        ServHeader2."First Name" := Cust."First Name";
-        ServHeader2."Last Name" := Cust."Last Name";
-        ServHeader2."Date of Birth" := Cust."Date of Birth";
-        ServHeader2."Tax Representative Type" := Cust."Tax Representative Type";
-        ServHeader2."Tax Representative No." := Cust."Tax Representative No.";
-        ServHeader2."VAT Registration No." := Cust."VAT Registration No.";
         if GLSetup."Bill-to/Sell-to VAT Calc." = GLSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No." then
             ServHeader2."VAT Bus. Posting Group" := Cust."VAT Bus. Posting Group";
         OnCreateOrGetCreditHeaderOnAfterCopyFromCustomer(ServHeader2, ServContract, Cust);
@@ -924,8 +904,6 @@ codeunit 5940 ServContractManagement
         ServHeader2."Dimension Set ID" := ServContract."Dimension Set ID";
         ServHeader2.Validate("Location Code",
           UserMgt.GetLocation(2, Cust."Location Code", ServContract."Responsibility Center"));
-        if GLSetup."Use Activity Code" then
-            ServHeader2."Activity Code" := ServContract."Activity Code";
         OnBeforeServHeaderModify(ServHeader2, ServContract);
         ServHeader2.Modify();
 

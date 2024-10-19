@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -13,7 +13,6 @@ using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Clause;
 using Microsoft.Finance.VAT.Setup;
-using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Navigate;
@@ -78,11 +77,6 @@ table 5902 "Service Line"
             Caption = 'Customer No.';
             Editable = false;
             TableRelation = Customer;
-
-            trigger OnValidate()
-            begin
-                ValidateIncludeInDT();
-            end;
         }
         field(3; "Document No."; Code[20])
         {
@@ -151,7 +145,6 @@ table 5902 "Service Line"
 
             trigger OnValidate()
             var
-                VATPostingSetup: Record "VAT Posting Setup";
                 IsHandled: Boolean;
             begin
                 CheckIfCanBeModified();
@@ -214,12 +207,6 @@ table 5902 "Service Line"
                 end;
 
                 OnValidateNoOnAfterCopyFields(Rec, xRec, ServHeader);
-
-                if VATPostingSetup.IsEUService("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                    "Service Tariff No." := ServHeader."Service Tariff No."
-                else
-                    if "Service Tariff No." <> '' then
-                        "Service Tariff No." := '';
 
                 if Type <> Type::" " then begin
                     PlanPriceCalcByField(FieldNo("No."));
@@ -390,7 +377,6 @@ table 5902 "Service Line"
                     "Amount Including VAT" := 0;
                     "VAT Base Amount" := 0;
                 end;
-                ValidateIncludeInDT();
                 if "Job Planning Line No." <> 0 then
                     Validate("Job Planning Line No.");
 
@@ -523,7 +509,6 @@ table 5902 "Service Line"
                       ServHeader.TableCaption());
 
                 Validate("Line Discount %");
-                ValidateIncludeInDT();
             end;
         }
         field(23; "Unit Cost (LCY)"; Decimal)
@@ -1047,7 +1032,6 @@ table 5902 "Service Line"
                 TestField(Quantity);
                 CalcInvDiscToInvoice();
                 UpdateAmounts();
-                ValidateIncludeInDT();
             end;
         }
         field(74; "Gen. Bus. Posting Group"; Code[20])
@@ -1173,16 +1157,14 @@ table 5902 "Service Line"
                 TestStatusOpen();
                 GetServHeader();
                 VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                if VATPostingSetup.IsEUService("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                    "Service Tariff No." := ServHeader."Service Tariff No."
-                else
-                    if "Service Tariff No." <> '' then
-                        "Service Tariff No." := '';
                 "VAT Difference" := 0;
                 "VAT %" := VATPostingSetup."VAT %";
                 "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                 "VAT Identifier" := VATPostingSetup."VAT Identifier";
                 "VAT Clause Code" := VATPostingSetup."VAT Clause Code";
+
+                OnValidateVATProdPostingGroupOnAfterCopyFields(Rec, xRec, ServHeader);
+
                 CheckVATCalculationType(VATPostingSetup);
                 GetServHeader();
                 if ServHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
@@ -2493,7 +2475,6 @@ table 5902 "Service Line"
 
                     UpdateDiscountsAmounts();
                 end;
-                ValidateIncludeInDT();
             end;
         }
         field(5938; "Contract Disc. %"; Decimal)
@@ -2731,41 +2712,6 @@ table 5902 "Service Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
-        field(12101; "Deductible %"; Decimal)
-        {
-            Caption = 'Deductible %';
-            DecimalPlaces = 2 : 2;
-            Editable = false;
-            InitValue = 100;
-            MaxValue = 100;
-        }
-        field(12125; "Service Tariff No."; Code[10])
-        {
-            Caption = 'Service Tariff No.';
-            TableRelation = "Service Tariff Number";
-
-            trigger OnValidate()
-            var
-                VATPostingSetup: Record "VAT Posting Setup";
-            begin
-                if "Service Tariff No." <> '' then
-                    VATPostingSetup.CheckEUService("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-            end;
-        }
-        field(12130; "Include in VAT Transac. Rep."; Boolean)
-        {
-            Caption = 'Include in VAT Transac. Rep.';
-        }
-        field(12131; "Refers to Period"; Option)
-        {
-            Caption = 'Refers to Period';
-            OptionCaption = ' ,Current,Current Calendar Year,Previous Calendar Year';
-            OptionMembers = " ",Current,"Current Calendar Year","Previous Calendar Year";
-        }
-        field(12145; "Automatically Generated"; Boolean)
-        {
-            Caption = 'Automatically Generated';
-        }
     }
 
     keys
@@ -2817,14 +2763,11 @@ table 5902 "Service Line"
         key(Key14; "Document Type", "Document No.", Type, "No.")
         {
         }
-        key(Key15; "Document Type", "Document No.", "VAT Prod. Posting Group")
-        {
-        }
-        key(Key16; "Document No.", "Document Type")
+        key(Key15; "Document No.", "Document Type")
         {
             IncludedFields = Amount, "Amount Including VAT", "Outstanding Amount", "Shipped Not Invoiced", "Outstanding Amount (LCY)", "Shipped Not Invoiced (LCY)", "Line Amount";
         }
-        key(Key17; SystemModifiedAt)
+        key(Key16; SystemModifiedAt)
         {
         }
     }
@@ -2894,8 +2837,7 @@ table 5902 "Service Line"
             ServiceLine2.DeleteAll(true);
         end;
 
-        if RemoveSplitVATLinesWithCheck(TableCaption) then
-            ServHeader.AddSplitVATLinesIgnoringALine(Rec);
+        OnAfterOnDelete(Rec);
     end;
 
     trigger OnInsert()
@@ -3052,8 +2994,6 @@ table 5902 "Service Line"
         Text052: Label 'You cannot change the %1 field because one or more service entries exist for this line.';
 #pragma warning restore AA0470
         Text053: Label 'You cannot modify the service line because one or more service entries exist for this line.';
-        ReGenerateSplitVATLinesQst: Label 'If you change %1, the existing automatically generated split VAT service lines will be deleted and new service lines based on the new information will be created.\\Do you want to change %1?', Comment = '%1=A field name whose value is just being changed.';
-        MustDeleteGeneratedSplitVATLinesErr: Label 'You must delete the existing automatically generated split VAT lines before you can change %1.', Comment = '%1=A field name whose value is just being changed.';
 #pragma warning restore AA0074
         IsCustCrLimitChecked: Boolean;
         LocationChangedMsg: Label 'Item %1 with serial number %2 is stored on location %3. The Location Code field on the service line will be updated.', Comment = '%1 = Item No., %2 = Item serial No., %3 = Location code';
@@ -3692,7 +3632,6 @@ table 5902 "Service Line"
             "Transaction Type" := ServHeader."Transaction Type";
             "Transport Method" := ServHeader."Transport Method";
             "Exit Point" := ServHeader."Exit Point";
-            "Refers to Period" := ServHeader."Refers to Period";
             Area := ServHeader.Area;
             "Transaction Specification" := ServHeader."Transaction Specification";
 
@@ -3931,7 +3870,6 @@ table 5902 "Service Line"
         TempServLine := Rec;
         Init();
         SystemId := TempServLine.SystemId;
-        "Automatically Generated" := TempServLine."Automatically Generated";
 
         if CurrFieldNo <> FieldNo(Type) then
             "No." := TempServLine."No.";
@@ -4985,8 +4923,6 @@ table 5902 "Service Line"
     end;
 
     local procedure InsertVATAmountLine(var ServiceLine: Record "Service Line"; var VATAmountLine: Record "VAT Amount Line")
-    var
-        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
     begin
         VATAmountLine.Init();
         VATAmountLine."VAT Identifier" := ServiceLine."VAT Identifier";
@@ -4997,10 +4933,7 @@ table 5902 "Service Line"
         VATAmountLine.Modified := true;
         VATAmountLine.Positive := ServiceLine."Line Amount" >= 0;
         VATAmountLine."Includes Prepayment" := false;
-        if NonDeductibleVAT.IsNonDeductibleVATEnabled() then
-            VATAmountLine."Non-Deductible VAT %" := 100 - ServiceLine."Deductible %"
-        else
-            VATAmountLine."Deductible %" := ServiceLine."Deductible %";
+        VATAmountLine."Non-Deductible VAT %" := 0;
         OnInsertVATAmountOnBeforeInsert(ServiceLine, VATAmountLine);
         VATAmountLine.Insert();
     end;
@@ -5920,21 +5853,6 @@ table 5902 "Service Line"
         exit(CalcDate(DF, InputDate));
     end;
 
-    [Scope('OnPrem')]
-    procedure ValidateIncludeInDT(): Boolean
-    var
-        Country: Record "Country/Region";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        GetServHeader();
-        "Include in VAT Transac. Rep." := false;
-        if Country.CheckNotEUCountry(ServHeader."Country/Region Code") and
-           VATPostingSetup.IncludeInVATTransReport("VAT Bus. Posting Group", "VAT Prod. Posting Group")
-        then
-            "Include in VAT Transac. Rep." := true;
-        exit("Include in VAT Transac. Rep.");
-    end;
-
     local procedure CheckIfCanBeModified()
     var
         IsHandled: Boolean;
@@ -6075,32 +5993,6 @@ table 5902 "Service Line"
         SetRange("Document No.");
         SetRange("Attached to Line No.");
         Delete();
-    end;
-
-    [Scope('OnPrem')]
-    procedure UpdateSplitVATLines(ChangedFieldName: Text)
-    begin
-        if RemoveSplitVATLinesWithCheck(ChangedFieldName) then
-            ServHeader.AddSplitVATLines();
-    end;
-
-    local procedure RemoveSplitVATLinesWithCheck(ChangedFieldName: Text): Boolean
-    var
-        SplitVATServiceLine: Record "Service Line";
-    begin
-        if "Automatically Generated" then
-            exit(false);
-
-        ServHeader.Get(Rec."Document Type", Rec."Document No.");
-
-        if not ServHeader.GetSplitVATLines(SplitVATServiceLine) then
-            exit(false); // No impact on split VAT lines
-
-        if not Confirm(ReGenerateSplitVATLinesQst, true, ChangedFieldName) then
-            Error(MustDeleteGeneratedSplitVATLinesErr, ChangedFieldName);
-
-        ServHeader.RemoveSplitVATLines(SplitVATServiceLine);
-        exit(true);
     end;
 
     procedure IsNonInventoriableItem(): Boolean
@@ -6981,6 +6873,11 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateVATProdPostingGroupOnAfterCopyFields(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(var ServiceLine: Record "Service Line"; Item: Record Item)
     begin
     end;
@@ -7397,6 +7294,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; var ServiceLine: Record "Service Line"; NewVATBaseAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnDelete(var ServiceLine: Record "Service Line")
     begin
     end;
 

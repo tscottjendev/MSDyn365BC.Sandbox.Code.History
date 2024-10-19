@@ -3410,7 +3410,6 @@ table 36 "Sales Header"
         }
         key(Key5; "Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name")
         {
-            Enabled = false;
         }
         key(Key6; "Sell-to Customer No.", "External Document No.")
         {
@@ -3421,25 +3420,19 @@ table 36 "Sales Header"
         key(Key8; "Bill-to Contact No.")
         {
         }
-        key(Key9; "Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "Payment Terms Code", "Payment Method Code", "Salesperson Code", "EU 3-Party Trade")
+        key(Key9; "Incoming Document Entry No.")
         {
         }
-        key(Key10; "Document Type", "Posting Date")
+        key(Key10; "Document Date")
         {
         }
-        key(Key11; "Incoming Document Entry No.")
+        key(Key11; "Shipment Date", Status, "Location Code", "Responsibility Center")
         {
         }
-        key(Key12; "Document Date")
+        key(Key12; "Salesperson Code")
         {
         }
-        key(Key13; "Shipment Date", Status, "Location Code", "Responsibility Center")
-        {
-        }
-        key(Key14; "Salesperson Code")
-        {
-        }
-        key(Key15; SystemModifiedAt)
+        key(Key13; SystemModifiedAt)
         {
         }
     }
@@ -3777,7 +3770,6 @@ table 36 "Sales Header"
                 end;
 #endif
             end;
-
 
         OnInitInsertOnBeforeInitRecord(Rec, xRec);
         InitRecord();
@@ -6607,31 +6599,10 @@ table 36 "Sales Header"
 
     procedure GetVATRegistrationNo(CustNo: Code[20]): Text[20]
     var
-        Customer: Record Customer;
-        TaxRepContact: Record Contact;
-        TaxRepCust: Record Customer;
-        VATRegNo: Text[20];
+        Customer2: Record Customer;
     begin
-        Customer.Get(CustNo);
-        if Customer."VAT Registration No." <> '' then
-            VATRegNo := Customer."VAT Registration No."
-        else
-            if Customer."Tax Representative No." <> '' then
-                case Customer."Tax Representative Type" of
-                    Customer."Tax Representative Type"::Contact:
-                        begin
-                            TaxRepContact.Get(Customer."Tax Representative No.");
-                            TaxRepContact.TestField("VAT Registration No.");
-                            VATRegNo := TaxRepContact."VAT Registration No.";
-                        end;
-                    Customer."Tax Representative Type"::Customer:
-                        begin
-                            TaxRepCust.Get(Customer."Tax Representative No.");
-                            TaxRepCust.TestField("VAT Registration No.");
-                            VATRegNo := TaxRepCust."VAT Registration No.";
-                        end;
-                end;
-        exit(VATRegNo);
+        Customer2.Get(CustNo);
+        exit(Customer2.GetVATRegistrationNo());
     end;
 
     procedure AssignVATRegistrationNo(CustNo: Code[20])
@@ -7994,7 +7965,7 @@ table 36 "Sales Header"
             "Tax Liable" := SellToCustomer."Tax Liable";
             "Registration Number" := SellToCustomer."Registration Number";
             "VAT Country/Region Code" := SellToCustomer."Country/Region Code";
-            AssignVATRegistrationNo(SellToCustomer."No.");
+            "VAT Registration No." := SellToCustomer.GetVATRegistrationNo();
             "Shipping Advice" := SellToCustomer."Shipping Advice";
             IsHandled := false;
             OnCopySelltoCustomerAddressFieldsFromCustomerOnBeforeAssignRespCenter(Rec, SellToCustomer, IsHandled);
@@ -11880,7 +11851,7 @@ table 36 "Sales Header"
     local procedure OnAddSplitVATLinesIgnoringALineOnAfterSetSplitSalesLineFilters(var SplitSalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforePerformManualRelease(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
@@ -11889,7 +11860,7 @@ table 36 "Sales Header"
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsNotFullyCancelled(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
-    end;   
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckCreditLimitOnAfterCreditLimitCheck(var SalesHeader: Record "Sales Header")

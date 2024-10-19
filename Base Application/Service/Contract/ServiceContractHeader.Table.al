@@ -1404,11 +1404,6 @@ table 5965 "Service Contract Header"
         {
             Caption = 'Last Invoice Period End';
         }
-        field(12123; "Activity Code"; Code[6])
-        {
-            Caption = 'Activity Code';
-            TableRelation = "Activity Code".Code;
-        }
     }
 
     keys

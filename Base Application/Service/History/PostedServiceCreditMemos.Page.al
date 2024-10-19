@@ -320,22 +320,6 @@ page 5971 "Posted Service Credit Memos"
                     ActivityLog.ShowEntries(Rec.RecordId);
                 end;
             }
-            action("Update Document")
-            {
-                ApplicationArea = Service;
-                Caption = 'Update Document';
-                Image = Edit;
-                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
-
-                trigger OnAction()
-                var
-                    PostedServCrMemoUpdate: Page "Posted Serv. Cr. Memo - Update";
-                begin
-                    PostedServCrMemoUpdate.LookupMode := true;
-                    PostedServCrMemoUpdate.SetRec(Rec);
-                    PostedServCrMemoUpdate.RunModal();
-                end;
-            }
         }
         area(Promoted)
         {
@@ -343,9 +327,6 @@ page 5971 "Posted Service Credit Memos"
             {
                 Caption = 'Process';
 
-                actionref("Update Document_Promoted"; "Update Document")
-                {
-                }
                 group(Category_CategoryPrint)
                 {
                     ShowAs = SplitButton;

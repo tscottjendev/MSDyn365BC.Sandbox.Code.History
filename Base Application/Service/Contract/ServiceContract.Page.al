@@ -196,11 +196,6 @@ page 6050 "Service Contract"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if a service contract or contract quote is locked or open for changes.';
                 }
-                field("Activity Code"; Rec."Activity Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the code for the company''s primary activity.';
-                }
             }
             part(ServContractLines; "Service Contract Subform")
             {

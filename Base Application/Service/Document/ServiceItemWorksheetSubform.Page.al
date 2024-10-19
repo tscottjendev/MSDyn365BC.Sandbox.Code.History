@@ -103,11 +103,6 @@ page 5907 "Service Item Worksheet Subform"
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Include in VAT Transac. Rep."; Rec."Include in VAT Transac. Rep.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if the entry must be included in the VAT transaction report.';
-                }
                 field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Service;

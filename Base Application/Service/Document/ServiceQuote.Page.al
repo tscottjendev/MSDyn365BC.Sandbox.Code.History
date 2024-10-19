@@ -353,10 +353,21 @@ page 5964 "Service Quote"
                     Importance = Promoted;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                 }
+                field("Due Date"; Rec."Due Date")
+                {
+                    ApplicationArea = Service;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies when the related invoice must be paid.';
+                }
                 field("Payment Discount %"; Rec."Payment Discount %")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the percentage of payment discount given, if the customer pays by the date entered in the Pmt. Discount Date field.';
+                }
+                field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
                 }
                 field("Payment Method Code"; Rec."Payment Method Code")
                 {

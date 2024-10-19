@@ -21,7 +21,6 @@ using Microsoft.Service.Posting;
 using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Security.User;
-using Microsoft.Foundation.PaymentTerms;
 
 page 5935 "Service Credit Memo"
 {
@@ -182,26 +181,6 @@ page 5935 "Service Credit Memo"
                     Importance = Promoted;
                     ShowMandatory = ExternalDocNoMandatory;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
-                }
-                field("Operation Occurred Date"; Rec."Operation Occurred Date")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the date when the VAT operation occurred on the transaction.';
-
-                    trigger OnValidate()
-                    begin
-                        OperationOccurredDateOnAfterValidate();
-                    end;
-                }
-                field("Operation Type"; Rec."Operation Type")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the operation type that is assigned to the posted service shipment.';
-                }
-                field("Activity Code"; Rec."Activity Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
@@ -445,31 +424,6 @@ page 5935 "Service Credit Memo"
                         PricesIncludingVATOnAfterValid();
                     end;
                 }
-                field("Fattura Document Type"; Rec."Fattura Document Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the value to export in TipoDocument XML node of the Fattura document.';
-                }
-                field("Fattura Project Code"; Rec."Fattura Project Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the code for the Fattura project.';
-                }
-                field("Fattura Tender Code"; Rec."Fattura Tender Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the code for the Fattura tender.';
-                }
-                field("Fattura Stamp"; Rec."Fattura Stamp")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the value to export in BolloVirtuale XML node of the Fattura document.';
-                }
-                field("Fattura Stamp Amount"; Rec."Fattura Stamp Amount")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the value to export in ImportoBollo XML node of the Fattura document.';
-                }
             }
             group(Shipping)
             {
@@ -590,11 +544,6 @@ page 5935 "Service Credit Memo"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Service Tariff No."; Rec."Service Tariff No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the ID of the service tariff that is associated with the service order or service invoice.';
-                }
             }
             group(Application)
             {
@@ -609,59 +558,10 @@ page 5935 "Service Credit Memo"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                 }
-                field("Applies-to Occurrence No."; Rec."Applies-to Occurrence No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the occurrence that applies to the transaction.';
-                }
                 field("Applies-to ID"; Rec."Applies-to ID")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
-                }
-                field("Refers to Period"; Rec."Refers to Period")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the period of time that is used to group and filter the transaction.';
-
-                    trigger OnValidate()
-                    begin
-                        ReferstoPeriodOnAfterValidate();
-                    end;
-                }
-            }
-            group(Individual)
-            {
-                Caption = 'Individual';
-                field("Individual Person"; Rec."Individual Person")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if the customer is an individual person.';
-                }
-                field(Resident; Rec.Resident)
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if the individual is a resident or non-resident of Italy.';
-                }
-                field("First Name"; Rec."First Name")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the first name of the individual person.';
-                }
-                field("Last Name"; Rec."Last Name")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the last name of the individual person.';
-                }
-                field("Date of Birth"; Rec."Date of Birth")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the date of birth of the individual person.';
-                }
-                field("Fiscal Code"; Rec."Fiscal Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the fiscal identification code that is assigned by the government to interact with state and public offices and tax authorities.';
                 }
             }
         }
@@ -836,17 +736,6 @@ page 5935 "Service Credit Memo"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
-                action("Pa&yments")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Pa&yments';
-                    Image = Payment;
-                    RunObject = Page "Payment Date Lines";
-                    RunPageLink = "Sales/Purchase" = const(Service),
-                                  Type = field("Document Type"),
-                                  Code = field("No.");
-                    ToolTip = 'View the related payments.';
-                }
                 action("Calculate Invoice Discount")
                 {
                     AccessByPermission = TableData "Cust. Invoice Disc." = R;
@@ -1006,19 +895,6 @@ page 5935 "Service Credit Memo"
                         CurrPage.Update(false);
                     end;
                 }
-                action(GenerateSplitVATLines)
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Generate Split VAT Lines';
-                    Ellipsis = true;
-                    Image = Splitlines;
-                    ToolTip = 'Create split VAT lines based on the split sales lines.';
-
-                    trigger OnAction()
-                    begin
-                        Rec.GenerateSplitVATLines();
-                    end;
-                }
             }
         }
         area(Promoted)
@@ -1057,9 +933,6 @@ page 5935 "Service Credit Memo"
                 Caption = 'Credit Memo';
 
                 actionref(Dimensions_Promoted; Dimensions)
-                {
-                }
-                actionref(GenerateSplitVATLines_Promoted; GenerateSplitVATLines)
                 {
                 }
                 actionref(Statistics_Promoted; Statistics)
@@ -1247,11 +1120,6 @@ page 5935 "Service Credit Memo"
         CurrPage.ServLines.PAGE.UpdateForm(true);
     end;
 
-    local procedure OperationOccurredDateOnAfterValidate()
-    begin
-        CurrPage.Update();
-    end;
-
     local procedure BilltoCustomerNoOnAfterValidat()
     begin
         CurrPage.Update();
@@ -1268,11 +1136,6 @@ page 5935 "Service Credit Memo"
     end;
 
     local procedure PricesIncludingVATOnAfterValid()
-    begin
-        CurrPage.Update();
-    end;
-
-    local procedure ReferstoPeriodOnAfterValidate()
     begin
         CurrPage.Update();
     end;

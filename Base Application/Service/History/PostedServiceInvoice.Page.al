@@ -8,11 +8,11 @@ using Microsoft.CRM.Contact;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Document;
-using Microsoft.Foundation.PaymentTerms;
 
 page 5978 "Posted Service Invoice"
 {
@@ -144,8 +144,9 @@ page 5978 "Posted Service Invoice"
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the VAT date on the invoice.';
-                    Visible = false;
                 }
                 group(Control11)
                 {
@@ -237,12 +238,6 @@ page 5978 "Posted Service Invoice"
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the contact person at the customer''s billing address.';
-                }
-                field("Fattura Document Type"; Rec."Fattura Document Type")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the value to export into the TipoDocument XML node of the Fattura document.';
                 }
                 group("Bill-to")
                 {
@@ -540,57 +535,6 @@ page 5978 "Posted Service Invoice"
                     Editable = false;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
-                field("Service Tariff No."; Rec."Service Tariff No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the ID of the service tariff that is associated with the service invoice.';
-                }
-                field("Transport Method"; Rec."Transport Method")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the code for the transport method used for the item on this line.';
-                }
-            }
-            group(Individual)
-            {
-                Caption = 'Individual';
-                field("Individual Person"; Rec."Individual Person")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies if the customer is an individual person.';
-                }
-                field(Resident; Rec.Resident)
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies if the individual is a resident or non-resident of Italy.';
-                }
-                field("First Name"; Rec."First Name")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the first name of the individual person.';
-                }
-                field("Last Name"; Rec."Last Name")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the last name of the individual person.';
-                }
-                field("Date of Birth"; Rec."Date of Birth")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the date of birth of the individual person.';
-                }
-                field("Fiscal Code"; Rec."Fiscal Code")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the fiscal identification code that is assigned by the government to interact with state and public offices and tax authorities.';
-                }
             }
         }
         area(factboxes)
@@ -721,20 +665,6 @@ page 5978 "Posted Service Invoice"
 
                         PAGE.Run(0, TempServDocLog);
                     end;
-                }
-                separator(Action1130001)
-                {
-                }
-                action("Pa&yments")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Pa&yments';
-                    Image = Payment;
-                    RunObject = Page "Posted Payments";
-                    RunPageLink = "Sales/Purchase" = const(Service),
-                                  Type = const(Invoice),
-                                  Code = field("No.");
-                    ToolTip = 'View the related payments.';
                 }
             }
         }
@@ -924,12 +854,16 @@ page 5978 "Posted Service Invoice"
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
         IsBillToCountyVisible: Boolean;
+        VATDateEnabled: Boolean;
 
     local procedure ActivateFields()
+    var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 }
 
