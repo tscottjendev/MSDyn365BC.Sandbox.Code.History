@@ -331,6 +331,26 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of work in process (WIP) items on a subcontractor order.';
                 }
+                field("Posted Output Quantity"; Rec."Posted Output Quantity")
+                {
+                    ApplicationArea = Manufacturing;
+                    Visible = false;
+                }
+                field("Posted Scrap Quantity"; Rec."Posted Scrap Quantity")
+                {
+                    ApplicationArea = Manufacturing;
+                    Visible = false;
+                }
+                field("Posted Run Time"; Rec."Posted Run Time")
+                {
+                    ApplicationArea = Manufacturing;
+                    Visible = false;
+                }
+                field("Posted Setup Time"; Rec."Posted Setup Time")
+                {
+                    ApplicationArea = Manufacturing;
+                    Visible = false;
+                }
             }
         }
         area(factboxes)
