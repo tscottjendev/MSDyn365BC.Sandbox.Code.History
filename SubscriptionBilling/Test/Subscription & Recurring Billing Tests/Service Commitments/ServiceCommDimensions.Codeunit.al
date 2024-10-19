@@ -411,6 +411,12 @@ codeunit 148160 "Service Comm. Dimensions"
     begin
         Initialize();
 
+        // [WHEN] Auto Insert Customer Contract Dimension Value is enabled
+        ContractTestLibrary.SetAutomaticDimentions(true);
+
+        // [WHEN] Customer Contract dimension value is created
+        ContractTestLibrary.InsertCustomerContractDimensionCode();
+
         ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 1);
         ContractTestLibrary.CreateCustomer(Customer);
         ServiceObject."End-User Customer No." := Customer."No.";
@@ -471,6 +477,12 @@ codeunit 148160 "Service Comm. Dimensions"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         Initialize();
+
+        // [WHEN] Auto Insert Customer Contract Dimension Value is enabled
+        ContractTestLibrary.SetAutomaticDimentions(true);
+
+        // [WHEN] Customer Contract dimension value is created
+        ContractTestLibrary.InsertCustomerContractDimensionCode();
 
         //Create Service Commitment Template with two packages
         //Assign packages to different customer and vendor contracts
