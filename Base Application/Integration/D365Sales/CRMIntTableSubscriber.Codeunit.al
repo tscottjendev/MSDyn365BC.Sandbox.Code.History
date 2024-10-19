@@ -598,6 +598,9 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 CreateUnitGroupAndItemUnitOfMeasure(SourceRecordRef, DestinationRecordRef);
             'CRM Product-Resource':
                 CreateUnitGroupAndResourceUnitOfMeasure(SourceRecordRef, DestinationRecordRef);
+            'CRM Salesorderdetail-Sales Line':
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                    AutoReserveSalesLine(DestinationRecordRef);
         end;
     end;
 
@@ -3156,6 +3159,15 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                     end;
                 end;
         end;
+    end;
+
+    local procedure AutoReserveSalesLine(var DestinationRecordRef: RecordRef)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        DestinationRecordRef.SetTable(SalesLine);
+        if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine.Reserve = SalesLine.Reserve::Always) then
+            SalesLine.AutoReserve();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Management", 'OnIsCRMIntegrationRecord', '', false, false)]
