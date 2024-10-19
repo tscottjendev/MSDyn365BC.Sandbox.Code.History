@@ -96,6 +96,7 @@ codeunit 7312 "Create Pick"
         QtyReservedNotFromInventoryTxt: Label 'The quantity to be picked is not in inventory yet. You must first post the supply from which the source document is reserved';
         ValidValuesIfSNDefinedErr: Label 'Field %1 can only have values -1, 0 or 1 when serial no. is defined. Current value is %2.', Comment = '%1 = field name, %2 = field value';
         BinPolicyTelemetryCategoryTok: Label 'Bin Policy', Locked = true;
+        CheckAllowBreakBulkTxt: Label 'Check "Allow Breakbulk" on Location Card';
         DefaultBinPickPolicyTelemetryTok: Label 'Default Bin Pick Policy in used for warehouse pick.', Locked = true;
         RankingBinPickPolicyTelemetryTok: Label 'Bin Ranking Bin Pick Policy in used for warehouse pick.', Locked = true;
         ProdAsmJobWhseHandlingTelemetryCategoryTok: Label 'Prod/Asm/Project Whse. Handling', Locked = true;
@@ -799,8 +800,55 @@ codeunit 7312 "Create Pick"
                     FindSmallerUOMBin(
                         LocationCode, ItemNo, VariantCode, UnitofMeasureCode, ToBinCode,
                         QtyPerUnitofMeasure, TotalQtytoPick, TempWhseItemTrackingLine2, IsCrossDock, TotalQtytoPickBase, WhseItemTrackingSetup, QtyRndPrec, QtyRndPrecBase);
-            end;
+            end
+            else
+                if not CurrLocation."Allow Breakbulk" and (TotalQtytoPickBase > 0) and not IsCrossDock then
+                    if CanSaveSummary() and not CheckCanNotBeHandledReasonAlreadyAdded(CheckAllowBreakBulkTxt) then
+                        if CheckInDifferentUoM(ItemNo, VariantCode, LocationCode, UnitofMeasureCode) then
+                            if CheckItemAvailableInAnyUoM(ItemNo, VariantCode, LocationCode, TotalQtytoPickBase, WhseItemTrackingSetup) then
+                                EnqueueCannotBeHandledReason(CheckAllowBreakBulkTxt);
         end;
+    end;
+
+    local procedure CheckInDifferentUoM(ItemNo: Code[20]; VariantCode: Code[20]; LocationCode: Code[10]; UnitofMeasureCode: Code[10]): Boolean
+    var
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        PutAwayUnitOfMeasureCode: Code[10];
+    begin
+        GetItem(ItemNo);
+        PutAwayUnitOfMeasureCode := CurrItem."Base Unit of Measure";
+        if CurrItem."Put-away Unit of Measure Code" <> '' then
+            PutAwayUnitOfMeasureCode := CurrItem."Put-away Unit of Measure Code";
+
+        StockkeepingUnit.SetLoadFields("Put-away Unit of Measure Code");
+        StockkeepingUnit.ReadIsolation := IsolationLevel::ReadUncommitted;
+        StockkeepingUnit.SetRange("Location Code", LocationCode);
+        StockkeepingUnit.SetRange("Item No.", ItemNo);
+        StockkeepingUnit.SetFilter("Variant Code", '%1|%2', '', VariantCode);
+        if StockkeepingUnit.FindLast() then
+            if StockkeepingUnit."Put-away Unit of Measure Code" <> '' then
+                PutAwayUnitOfMeasureCode := StockkeepingUnit."Put-away Unit of Measure Code";
+
+        exit(PutAwayUnitOfMeasureCode <> UnitofMeasureCode);
+    end;
+
+    local procedure CheckItemAvailableInAnyUoM(ItemNo: Code[20]; VariantCode: Code[20]; LocationCode: Code[10]; TotalQtytoPickBase: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup"): Boolean
+    var
+        BinContent: Record "Bin Content";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        BinContent.SetCurrentKey("Location Code", "Item No.", "Variant Code", "Cross-Dock Bin", "Qty. per Unit of Measure", "Bin Ranking");
+        BinContent.SetRange("Location Code", LocationCode);
+        BinContent.SetRange("Item No.", ItemNo);
+        BinContent.SetRange("Variant Code", VariantCode);
+        if BinContent.IsEmpty() then
+            exit;
+
+        WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(TempWhseItemTrackingLine);
+        exit(CalcTotalAvailQtyToPick(
+                LocationCode, ItemNo, VariantCode, WhseItemTrackingLine,
+                CurrSourceType, CurrSourceSubType, CurrSourceNo, CurrSourceLineNo,
+                CurrSourceSubLineNo, TotalQtytoPickBase, false) > 0);
     end;
 
     local procedure BinContentBlocked(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]): Boolean
@@ -3918,6 +3966,20 @@ codeunit 7312 "Create Pick"
         CannotBeHandledReason := CannotBeHandledReasons[1];
         CannotBeHandledReasons[1] := '';
         CompressArray(CannotBeHandledReasons);
+    end;
+
+    local procedure CheckCanNotBeHandledReasonAlreadyAdded(CannotBeHandledReason: Text): Boolean
+    var
+        i: Integer;
+    begin
+        repeat
+            i += 1;
+            if CannotBeHandledReasons[i] = '' then
+                exit(false);
+
+            if CannotBeHandledReasons[i] = CannotBeHandledReason then
+                exit(true);
+        until (i = ArrayLen(CannotBeHandledReasons));
     end;
 
     local procedure LockTables()
