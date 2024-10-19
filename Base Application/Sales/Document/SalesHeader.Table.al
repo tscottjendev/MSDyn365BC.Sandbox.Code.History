@@ -7485,9 +7485,9 @@ table 36 "Sales Header"
             "Tax Area Code" := SellToCustomer."Tax Area Code";
             "Tax Liable" := SellToCustomer."Tax Liable";
             "Tax Exemption No." := SellToCustomer."Tax Exemption No.";
-            "VAT Registration No." := SellToCustomer."VAT Registration No.";
             "Registration Number" := SellToCustomer."Registration Number";
             "VAT Country/Region Code" := SellToCustomer."Country/Region Code";
+            "VAT Registration No." := SellToCustomer.GetVATRegistrationNo();
             "Shipping Advice" := SellToCustomer."Shipping Advice";
             "Ship-to Code" := SellToCustomer."Ship-to Code";
             IsHandled := false;
