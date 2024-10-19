@@ -1760,6 +1760,59 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         Assert.AreEqual(CRMSalesorder.StateCode, CRMSalesorder.StateCode::Fulfilled, 'CRM sales order should be fulfilled.');
     end;
 
+    [Test]
+    procedure BidirectionalSalesOrderReservationEntry()
+    var
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        Item: Record Item;
+        CRMProduct: Record "CRM Product";
+        CRMSalesorder: Record "CRM Salesorder";
+        SalesLine: Record "Sales Line";
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        ItemJournalLine: Record "Item Journal Line";
+        LibraryInventory: Codeunit "Library - Inventory";
+
+    begin
+        // [SCENARIO] Bidirectional sales order creates reservation entry
+        Initialize(true);
+        ClearCRMData();
+
+        // [GIVEN] A coupled customer and item with auto reservation
+        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        Customer.Reserve := Customer.Reserve::Always;
+        Customer.Modify();
+        LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
+        Item.Reserve := Item.Reserve::Always;
+        Item.Modify();
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', LibraryRandom.RandIntInRange(10, 100));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        // A CRM sales order
+        LibraryCRMIntegration.CreateCRMSalesOrder(CRMSalesorder);
+        CRMSalesorder.OrderNumber := LibraryUtility.GenerateGUID();
+        CRMSalesorder.StateCode := CRMSalesorder.StateCode::Submitted;
+        CRMSalesorder.StatusCode := CRMSalesorder.StatusCode::InProgress;
+        CRMSalesorder.CustomerId := CRMAccount.AccountId;
+        CRMSalesorder.CustomerIdType := CRMSalesorder.CustomerIdType::account;
+        CRMSalesorder.Modify();
+        LibraryCRMIntegration.PrepareCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail, CRMProduct.ProductId);
+
+        // [WHEN] CRM sales order is synced
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        CRMSalesorder.SetRange(SalesOrderId, CRMSalesorder.SalesOrderId);
+        CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMSalesorder);
+        LibraryCRMIntegration.RunJobQueueEntry(Database::"CRM Salesorder", CRMSalesorder.GetView(), IntegrationTableMapping);
+
+        // [THEN] Reservation entry is created
+        CRMIntegrationRecord.SetRange("CRM ID", CRMSalesorderdetail.SalesOrderDetailId);
+        CRMIntegrationRecord.FindFirst();
+        SalesLine.GetBySystemId(CRMIntegrationRecord."Integration ID");
+        SalesLine.CalcFields("Reserved Quantity");
+        Assert.AreNotEqual(SalesLine."Reserved Quantity", 0, 'Reserved quantity should not be equal to zero.');
+    end;
+
     local procedure Initialize(BidirectionalSOIntegrationEnabled: Boolean)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
