@@ -7286,9 +7286,9 @@ table 36 "Sales Header"
                 Validate("VAT Bus. Posting Group", SellToCustomer."VAT Bus. Posting Group");
             "Tax Area Code" := SellToCustomer."Tax Area Code";
             "Tax Liable" := SellToCustomer."Tax Liable";
-            "VAT Registration No." := SellToCustomer."VAT Registration No.";
             "Registration Number" := SellToCustomer."Registration Number";
             "VAT Country/Region Code" := SellToCustomer."Country/Region Code";
+            "VAT Registration No." := SellToCustomer.GetVATRegistrationNo();
             "Shipping Advice" := SellToCustomer."Shipping Advice";
             "Account Code" := SellToCustomer."Account Code";
             IsHandled := false;

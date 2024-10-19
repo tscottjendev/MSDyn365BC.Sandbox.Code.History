@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.Customer;
+﻿namespace Microsoft.Sales.Customer;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.DirectDebit;
@@ -1838,14 +1838,14 @@ table 18 Customer
             NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(SalesSetup."Customer Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
             if not IsHandled then begin
 #endif
-                "No. Series" := SalesSetup."Customer Nos.";
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
+            "No. Series" := SalesSetup."Customer Nos.";
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series");
+            Customer.ReadIsolation(IsolationLevel::ReadUncommitted);
+            Customer.SetLoadFields("No.");
+            while Customer.Get("No.") do
                 "No." := NoSeries.GetNextNo("No. Series");
-                Customer.ReadIsolation(IsolationLevel::ReadUncommitted);
-                Customer.SetLoadFields("No.");
-                while Customer.Get("No.") do
-                    "No." := NoSeries.GetNextNo("No. Series");
 #if not CLEAN24
                 NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", SalesSetup."Customer Nos.", 0D, "No.");
             end;
@@ -3383,6 +3383,13 @@ table 18 Customer
             Rec.Validate("Format Region", LanguageSelection."Language Tag");
     end;
 
+    procedure GetVATRegistrationNo() VATRegNo: Text[20]
+    begin
+        VATRegNo := "VAT Registration No.";
+
+       OnAfterGetVATRegistrationNo(Rec, VATRegNo);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsContactUpdateNeeded(Customer: Record Customer; xCustomer: Record Customer; var UpdateNeeded: Boolean; ForceUpdateContact: Boolean)
     begin
@@ -3685,6 +3692,11 @@ table 18 Customer
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetTotalAmountLCYCommon(var Customer: Record Customer; var TotalAmountLCY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVATRegistrationNo(var Customer: Record Customer; var VATRegNo: Text[20]);
     begin
     end;
 }

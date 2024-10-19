@@ -916,6 +916,8 @@ table 5992 "Service Invoice Header"
 
     trigger OnDelete()
     begin
+        OnBeforeOnDelete(Rec);
+
         TestField("No. Printed");
         LockTable();
 
@@ -1102,6 +1104,11 @@ table 5992 "Service Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenStatisticsOnAfterSetStatPageID(var ServiceInvoiceHeader: Record "Service Invoice Header"; var StatPageID: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var ServiceInvoiceHeader: Record "Service Invoice Header")
     begin
     end;
 }
