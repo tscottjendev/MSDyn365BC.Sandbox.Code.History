@@ -904,6 +904,7 @@ codeunit 1535 "Approvals Mgmt."
         UserSetup: Record "User Setup";
         UsrId: Code[50];
         SequenceNo: Integer;
+        IsUserAllowedToApproveIfNoApprovalUserExists: Boolean;
     begin
         UsrId := UserId;
 
@@ -912,11 +913,12 @@ codeunit 1535 "Approvals Mgmt."
         if not UserSetup.Get(UserId) then
             Error(UserIdNotInSetupErr, UsrId);
 
-        OnCreateApprovalRequestForApproverOnAfterCheckUserSetupUserID(UserSetup, WorkflowStepArgument, ApprovalEntryArgument);
+        IsUserAllowedToApproveIfNoApprovalUserExists := UserSetup."Approval Administrator";
+        OnCreateApprovalRequestForApproverOnAfterCheckUserSetupUserID(UserSetup, WorkflowStepArgument, ApprovalEntryArgument, IsUserAllowedToApproveIfNoApprovalUserExists);
 
         UsrId := UserSetup."Approver ID";
         if not UserSetup.Get(UsrId) then begin
-            if not UserSetup."Approval Administrator" then
+            if not IsUserAllowedToApproveIfNoApprovalUserExists then
                 Error(ApproverUserIdNotInSetupErr, UserSetup."User ID");
             UsrId := UserId;
         end;
@@ -2873,7 +2875,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateApprovalRequestForApproverOnAfterCheckUserSetupUserID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    local procedure OnCreateApprovalRequestForApproverOnAfterCheckUserSetupUserID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry"; var IsUserAllowedToAproveIfNoApprovalUserExists: Boolean)
     begin
     end;
 

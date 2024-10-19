@@ -2257,6 +2257,92 @@ codeunit 137501 "SCM Available to Pick UT"
         WarehousePickSummaryTestPage.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('CreatePickFromWhseShowCalcSummaryShptReqHandler')]
+    procedure DirectedPutAwayPickSimpleScenarioNotAllowBreakbulkSummaryPage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WhseReceiptLine: Record "Warehouse Receipt Line";
+        WhseActivityLine: Record "Warehouse Activity Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        Location: Record Location;
+        WhseReceiptHeader: Record "Warehouse Receipt Header";
+        WhseShipmentLine: Record "Warehouse Shipment Line";
+        WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary";
+        NothingToHandleMsg: Label 'Nothing to handle. Check "Allow Breakbulk" on Location Card.';
+        BaseQty: Decimal;
+        UoMQty: Decimal;
+        QtyPerUoM: Decimal;
+        Quantities: List of [Decimal];
+        EmptyBinCode: List of [Code[20]];
+    begin
+        // [SCENARIO 545255] Directed Put-away and Pick warehouse pick with different unit of measure 
+        Initialize();
+
+        // [GIVEN] Location with Directed Put-away and Pick, Shipment required enabled, Breakbulk disabled
+        SetupLocationWithBins(Location, 1);
+        if Location."Allow Breakbulk" then begin
+            Location.Validate("Allow Breakbulk", false);
+            Location.Modify();
+        end;
+
+        // [GIVEN] Item with additional UoM - Box. 1 Box = 12 PCS.
+        LibraryInventory.CreateItem(Item);
+        QtyPerUoM := 12;
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUOM, Item."No.", QtyPerUoM);
+
+        // [GIVEN] Item available on the location in base unit of measure
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        BaseQty := LibraryRandom.RandIntInRange(100, 200);
+        Quantities.Add(BaseQty);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", BaseQty);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        WhseReceiptLine.SetRange("Source Document", WhseReceiptLine."Source Document"::"Purchase Order");
+        WhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        WhseReceiptLine.FindFirst();
+
+        WhseReceiptHeader.Get(WhseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WhseReceiptHeader);
+
+        SetEmptyBinCodeList(EmptyBinCode, 1);
+        RegisterWhseActivity(WhseActivityLine."Activity Type"::"Put-away", 39, WhseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.", Quantities, EmptyBinCode, EmptyBinCode);
+
+        // [GIVEN] Released Sales order for item with different UoM (3 Boxes)
+        UoMQty := LibraryRandom.RandInt(5);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", UoMQty);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Unit of Measure Code", ItemUOM.Code);
+        SalesLine.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Warehouse shipment for the Sales order
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
+        WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WhseShipmentLine.FindFirst();
+
+        // [WHEN] Create warehouse pick
+        WhseShipmentHeader.Get(WhseShipmentLine."No.");
+        CreateWhsePickAndTrapSummary(WhseShipmentHeader, WarehousePickSummaryTestPage); //CreatePickFromWhseShowCalcSummaryShptReqHandler will show calculation summary page.
+
+        // [THEN] Warehouse pick summary page is shown, there is nothing to handle due to the location settings - Allow Breakbulk = false
+        WarehousePickSummaryTestPage.First();
+        CheckWarehouseSummaryLineDetails(WarehousePickSummaryTestPage, Enum::"Warehouse Activity Source Document"::"Sales Order", SalesHeader."No.", SalesLine."Line No.", Item."No.", UoMQty * QtyPerUoM, 0);
+        CheckWhseSummaryFactBoxValues(WarehousePickSummaryTestPage, false, false, false, BaseQty, BaseQty, BaseQty, 0, 0, 0, 0, 0, 0, 0, 0);
+        Assert.AreEqual(NothingToHandleMsg, WarehousePickSummaryTestPage.Message.Value, 'Message is not correct');
+        WarehousePickSummaryTestPage.Close();
+    end;
+
     local procedure SetupAssemblyOrderScenario(var AsmChild: Record Item; var AsmParent: Record Item; CostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; AsmPolicy: Enum "Assembly Policy"; Quantity: Decimal; Location: Record Location)
     var
         PurchaseHeader: Record "Purchase Header";
