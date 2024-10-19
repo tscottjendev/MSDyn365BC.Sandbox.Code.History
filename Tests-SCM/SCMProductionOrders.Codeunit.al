@@ -4510,6 +4510,70 @@ codeunit 137069 "SCM Production Orders"
         DemandForecastCard."Date Filter".AssertEquals('');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProdOrderRoutingLineFlowFieldsFromCapacityLedgerEntry()
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+        RoutingNo, ProdOrderNo, OperationNo : Code[10];
+        PostingTimes, I, RunTime, SetupTime, OutputQty, ScrapQty, RoutingRefNo, EntryNo : Integer;
+    begin
+        // [SCENARIO 554896] New flow fields in Production Order Routing Line table based on data from corresponding Capacity Ledger Entry table
+        Initialize();
+
+        OutputQty := LibraryRandom.RandInt(10);
+        ScrapQty := LibraryRandom.RandInt(10);
+        RunTime := LibraryRandom.RandInt(10);
+        SetupTime := LibraryRandom.RandInt(10);
+
+        RoutingNo := LibraryUtility.GenerateGUID();
+        ProdOrderNo := LibraryUtility.GenerateGUID();
+        OperationNo := LibraryUtility.GenerateGUID();
+        RoutingRefNo := LibraryRandom.RandInt(10);
+
+        CapacityLedgerEntry.SetCurrentKey("Entry No.");
+        CapacityLedgerEntry.FindLast();
+        EntryNo := CapacityLedgerEntry."Entry No.";
+
+        // [GIVEN] Few CapacityLedgerEntry records for the same references
+        PostingTimes := LibraryRandom.RandInt(5);
+        for I := 1 to PostingTimes do begin
+            CapacityLedgerEntry.Init();
+            CapacityLedgerEntry."Entry No." := EntryNo + I;
+            CapacityLedgerEntry."Order Type" := Enum::"Inventory Order Type"::Production;
+
+            CapacityLedgerEntry."Routing No." := RoutingNo;
+            CapacityLedgerEntry."Order No." := ProdOrderNo;
+            CapacityLedgerEntry."Operation No." := OperationNo;
+            CapacityLedgerEntry."Routing Reference No." := RoutingRefNo;
+            CapacityLedgerEntry."Output Quantity" := OutputQty;
+            CapacityLedgerEntry."Scrap Quantity" := ScrapQty;
+            CapacityLedgerEntry."Run Time" := RunTime;
+            CapacityLedgerEntry."Setup Time" := SetupTime;
+            CapacityLedgerEntry.Insert(true);
+        end;
+
+        ProdOrderRoutingLine.Init();
+        ProdOrderRoutingLine."Routing No." := RoutingNo;
+        ProdOrderRoutingLine."Prod. Order No." := ProdOrderNo;
+        ProdOrderRoutingLine."Operation No." := OperationNo;
+        ProdOrderRoutingLine."Routing Reference No." := RoutingRefNo;
+        ProdOrderRoutingLine.Insert(true);
+
+        // [WHEN] Calculating the new flow fields
+        ProdOrderRoutingLine.CalcFields("Posted Output Quantity");
+        ProdOrderRoutingLine.CalcFields("Posted Scrap Quantity");
+        ProdOrderRoutingLine.CalcFields("Posted Run Time");
+        ProdOrderRoutingLine.CalcFields("Posted Setup Time");
+
+        // [THEN] The values in the flow fields match the expected values
+        Assert.AreEqual(ProdOrderRoutingLine."Posted Output Quantity", PostingTimes * OutputQty, '');
+        Assert.AreEqual(ProdOrderRoutingLine."Posted Scrap Quantity", PostingTimes * ScrapQty, '');
+        Assert.AreEqual(ProdOrderRoutingLine."Posted Run Time", PostingTimes * RunTime, '');
+        Assert.AreEqual(ProdOrderRoutingLine."Posted Setup Time", PostingTimes * SetupTime, '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -650,6 +650,54 @@ table 5409 "Prod. Order Routing Line"
             Caption = 'From-Production Bin Code';
             Editable = false;
         }
+        field(7304; "Posted Output Quantity"; Decimal)
+        {
+            Caption = 'Posted Output Quantity';
+            ToolTip = 'Specifies the total output quantity that has been posted to the capacity ledger. Value expressed in base unit of measure.';
+            FieldClass = FlowField;
+            CalcFormula = sum("Capacity Ledger Entry"."Output Quantity" where("Routing No." = field("Routing No."),
+                                                                              "Order No." = field("Prod. Order No."),
+                                                                              "Operation No." = field("Operation No."),
+                                                                              "Order Type" = const(Production),
+                                                                              "Routing Reference No." = field("Routing Reference No.")));
+            Editable = false;
+        }
+        field(7305; "Posted Scrap Quantity"; Decimal)
+        {
+            Caption = 'Posted Scrap Quantity';
+            ToolTip = 'Specifies the total scrap quantity that has been posted to the capacity ledger. Value expressed in base unit of measure.';
+            FieldClass = FlowField;
+            CalcFormula = sum("Capacity Ledger Entry"."Scrap Quantity" where("Routing No." = field("Routing No."),
+                                                                             "Order No." = field("Prod. Order No."),
+                                                                             "Operation No." = field("Operation No."),
+                                                                             "Order Type" = const(Production),
+                                                                             "Routing Reference No." = field("Routing Reference No.")));
+            Editable = false;
+        }
+        field(7306; "Posted Run Time"; Decimal)
+        {
+            Caption = 'Posted Run Time';
+            ToolTip = 'Specifies the total run time that has been posted to the capacity ledger.';
+            FieldClass = FlowField;
+            CalcFormula = sum("Capacity Ledger Entry"."Run Time" where("Routing No." = field("Routing No."),
+                                                                       "Order No." = field("Prod. Order No."),
+                                                                       "Operation No." = field("Operation No."),
+                                                                       "Order Type" = const(Production),
+                                                                       "Routing Reference No." = field("Routing Reference No.")));
+            Editable = false;
+        }
+        field(7307; "Posted Setup Time"; Decimal)
+        {
+            Caption = 'Posted Setup Time';
+            ToolTip = 'Specifies the total set up time that has been posted to the capacity ledger.';
+            FieldClass = FlowField;
+            CalcFormula = sum("Capacity Ledger Entry"."Setup Time" where("Routing No." = field("Routing No."),
+                                                                         "Order No." = field("Prod. Order No."),
+                                                                         "Operation No." = field("Operation No."),
+                                                                         "Order Type" = const(Production),
+                                                                         "Routing Reference No." = field("Routing Reference No.")));
+            Editable = false;
+        }
     }
 
     keys
