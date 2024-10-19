@@ -867,6 +867,7 @@ codeunit 5988 "Serv-Documents Mgt."
             WarrantyLedgerEntry.SetRange("No.", ServShptLine."No.");
             WarrantyLedgerEntry.SetRange(Open, true);
             WarrantyLedgerEntry.ModifyAll(Open, false);
+            OnPrepareShipmentLineOnAfterWarrantyLedgerEntryModify(ServShptLine);
         end;
     end;
 
@@ -2899,6 +2900,11 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetInvoicePostingParameters(var InvoicePostingParameters: Record "Invoice Posting Parameters"; var ServiceInvoiceHeader: Record "Service Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareShipmentLineOnAfterWarrantyLedgerEntryModify(ServiceShipmentLine: Record "Service Shipment Line")
     begin
     end;
 }
