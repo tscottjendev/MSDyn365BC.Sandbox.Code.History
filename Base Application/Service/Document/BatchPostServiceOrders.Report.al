@@ -93,6 +93,8 @@ report 6001 "Batch Post Service Orders"
                         begin
                             if ReplacePostingDate then
                                 Message(Text003);
+
+                            OnAfterValidateReplacePostingDate("Service Header", ReplacePostingDate);
                         end;
                     }
                     field(ReplaceDocumentDate_Option; ReplaceDocumentDate)
@@ -240,5 +242,9 @@ report 6001 "Batch Post Service Orders"
     local procedure OnBeforePreReport()
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateReplacePostingDate(var ServiceHeader: Record "Service Header"; ReplacePostingDate: Boolean)
+    begin
+    end;
+}
