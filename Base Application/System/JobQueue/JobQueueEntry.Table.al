@@ -1202,6 +1202,8 @@ table 472 "Job Queue Entry"
         end;
         Status := NewStatus;
         Modify();
+
+        OnAfterSetStatusValue(Rec, xRec)
     end;
 
     procedure ShowStatusMsg(JQID: Guid)
@@ -1339,7 +1341,7 @@ table 472 "Job Queue Entry"
         OldParams := GetReportParameters();
         Params := REPORT.RunRequestPage("Object ID to Run", OldParams);
 
-        if(Params <> '') and (Params <> OldParams) then begin
+        if (Params <> '') and (Params <> OldParams) then begin
             "User ID" := UserId();
             SetReportParameters(Params);
         end;
@@ -1798,6 +1800,11 @@ table 472 "Job Queue Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateReportOutputTypeOnBeforeShowPrintNotAllowedInSaaS(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetStatusValue(var JobQueueEntry: Record "Job Queue Entry"; var xJobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 }

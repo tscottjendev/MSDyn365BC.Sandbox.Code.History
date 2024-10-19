@@ -85,6 +85,8 @@ report 6004 "Batch Post Service Invoices"
                         begin
                             if ReplacePostingDate then
                                 Message(Text003);
+
+                            OnAfterValidateReplacePostingDate("Service Header", ReplacePostingDate);
                         end;
                     }
                     field(ReplaceDocumentDate; ReplaceDocumentDate)
@@ -192,5 +194,9 @@ report 6004 "Batch Post Service Invoices"
     local procedure OnBeforePreReport()
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateReplacePostingDate(var ServiceHeader: Record "Service Header"; ReplacePostingDate: Boolean)
+    begin
+    end;
+}
