@@ -1174,6 +1174,9 @@ table 5902 "Service Line"
                 "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                 "VAT Identifier" := VATPostingSetup."VAT Identifier";
                 "VAT Clause Code" := VATPostingSetup."VAT Clause Code";
+
+                OnValidateVATProdPostingGroupOnAfterCopyFields(Rec, xRec, ServHeader);
+
                 CheckVATCalculationType(VATPostingSetup);
                 GetServHeader();
                 if ServHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
@@ -2871,6 +2874,8 @@ table 5902 "Service Line"
             OnDeleteOnAfterServiceLineSetFilter(ServiceLine2, Rec);
             ServiceLine2.DeleteAll(true);
         end;
+
+        OnAfterOnDelete(Rec);
     end;
 
     trigger OnInsert()
@@ -6946,6 +6951,11 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateVATProdPostingGroupOnAfterCopyFields(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(var ServiceLine: Record "Service Line"; Item: Record Item)
     begin
     end;
@@ -7362,6 +7372,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; var ServiceLine: Record "Service Line"; NewVATBaseAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnDelete(var ServiceLine: Record "Service Line")
     begin
     end;
 
