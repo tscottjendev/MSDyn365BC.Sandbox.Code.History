@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.Customer;
+﻿namespace Microsoft.Sales.Customer;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.DirectDebit;
@@ -1821,19 +1821,16 @@ table 18 Customer
         key(Key13; Contact)
         {
         }
-        key(Key14; ABN)
+        key(Key14; Blocked)
         {
         }
-        key(Key15; Blocked)
+        key(Key15; "Primary Contact No.")
         {
         }
-        key(Key16; "Primary Contact No.")
+        key(Key16; "Salesperson Code")
         {
         }
-        key(Key17; "Salesperson Code")
-        {
-        }
-        key(Key18; SystemModifiedAt)
+        key(Key17; SystemModifiedAt)
         {
         }
         key(Key20; "Partner Type", "Country/Region Code")
@@ -3454,6 +3451,13 @@ table 18 Customer
             Rec.Validate("Format Region", LanguageSelection."Language Tag");
     end;
 
+    procedure GetVATRegistrationNo() VATRegNo: Text[20]
+    begin
+        VATRegNo := "VAT Registration No.";
+
+       OnAfterGetVATRegistrationNo(Rec, VATRegNo);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsContactUpdateNeeded(Customer: Record Customer; xCustomer: Record Customer; var UpdateNeeded: Boolean; ForceUpdateContact: Boolean)
     begin
@@ -3756,6 +3760,11 @@ table 18 Customer
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetTotalAmountLCYCommon(var Customer: Record Customer; var TotalAmountLCY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVATRegistrationNo(var Customer: Record Customer; var VATRegNo: Text[20]);
     begin
     end;
 }

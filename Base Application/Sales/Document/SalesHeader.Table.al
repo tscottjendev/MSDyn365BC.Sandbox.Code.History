@@ -7402,9 +7402,9 @@ table 36 "Sales Header"
             "WHT Business Posting Group" := SellToCustomer."WHT Business Posting Group";
             "Tax Area Code" := SellToCustomer."Tax Area Code";
             "Tax Liable" := SellToCustomer."Tax Liable";
-            "VAT Registration No." := SellToCustomer."VAT Registration No.";
             "Registration Number" := SellToCustomer."Registration Number";
             "VAT Country/Region Code" := SellToCustomer."Country/Region Code";
+            "VAT Registration No." := SellToCustomer.GetVATRegistrationNo();
             "Shipping Advice" := SellToCustomer."Shipping Advice";
             IsHandled := false;
             OnCopySelltoCustomerAddressFieldsFromCustomerOnBeforeAssignRespCenter(Rec, SellToCustomer, IsHandled);
