@@ -302,6 +302,26 @@ page 99000817 "Prod. Order Routing"
                     ToolTip = 'Specifies the corresponding bin at the machine or work center if the location code matches the setup of that machine or work center.';
                     Visible = false;
                 }
+                field("Posted Output Quantity"; Rec."Posted Output Quantity")
+                {
+                    ApplicationArea = Manufacturing;
+                    Visible = false;
+                }
+                field("Posted Scrap Quantity"; Rec."Posted Scrap Quantity")
+                {
+                    ApplicationArea = Manufacturing;
+                    Visible = false;
+                }
+                field("Posted Run Time"; Rec."Posted Run Time")
+                {
+                    ApplicationArea = Manufacturing;
+                    Visible = false;
+                }
+                field("Posted Setup Time"; Rec."Posted Setup Time")
+                {
+                    ApplicationArea = Manufacturing;
+                    Visible = false;
+                }
             }
         }
         area(factboxes)
