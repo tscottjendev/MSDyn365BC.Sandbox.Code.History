@@ -2173,7 +2173,7 @@ table 5965 "Service Contract Header"
             exit;
 
         IsHandled := false;
-        OnBeforeCreateDim(Rec, IsHandled);
+        OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo, DefaultDimSource);
         if IsHandled then
             exit;
 
@@ -3020,7 +3020,7 @@ table 5965 "Service Contract Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateDim(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateDim(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean; CurrFieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 
