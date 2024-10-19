@@ -42,6 +42,12 @@ page 5705 "Location Card Part"
                     Caption = 'Directed Put-away and Pick';
                     ToolTip = 'Specifies if the location requires advanced warehouse functionality, such as calculated bin suggestion.';
                 }
+                field("Allow Breakbulk"; Rec."Allow Breakbulk")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Allow Breakbulk';
+                    ToolTip = 'Specifies that an order can be fulfilled with items stored in alternate units of measure, if an item stored in the requested unit of measure is not found.';
+                }
                 group(Bin)
                 {
                     field(BinMandatory; Rec."Bin Mandatory")

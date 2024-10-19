@@ -1013,6 +1013,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Available to Pick UT - NamedType TooManyPickLinesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3765369633 - Method 1244813970 - NamedType 1358359271" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Nothing to handle. Check "Allow Breakbulk" on Location Card.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Available to Pick UT - Method DirectedPutAwayPickSimpleScenarioNotAllowBreakbulkSummaryPage - NamedType NothingToHandleMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 832189813 - NamedType 3891824465" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Average Cost (ACY) is incorrect.]]></Val>

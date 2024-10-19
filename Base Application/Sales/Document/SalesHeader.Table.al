@@ -3141,19 +3141,16 @@ table 36 "Sales Header"
         key(Key9; "Incoming Document Entry No.")
         {
         }
-        key(Key10; "Salesperson Code", "Document Type")
+        key(Key10; "Document Date")
         {
         }
-        key(Key11; "Document Date")
+        key(Key11; "Shipment Date", Status, "Location Code", "Responsibility Center")
         {
         }
-        key(Key12; "Shipment Date", Status, "Location Code", "Responsibility Center")
+        key(Key12; "Salesperson Code")
         {
         }
-        key(Key13; "Salesperson Code")
-        {
-        }
-        key(Key14; SystemModifiedAt)
+        key(Key13; SystemModifiedAt)
         {
         }
     }
@@ -7298,9 +7295,9 @@ table 36 "Sales Header"
                 Validate("VAT Bus. Posting Group", SellToCustomer."VAT Bus. Posting Group");
             "Tax Area Code" := SellToCustomer."Tax Area Code";
             "Tax Liable" := SellToCustomer."Tax Liable";
-            "VAT Registration No." := SellToCustomer."VAT Registration No.";
             "Registration Number" := SellToCustomer."Registration Number";
             "VAT Country/Region Code" := SellToCustomer."Country/Region Code";
+            "VAT Registration No." := SellToCustomer.GetVATRegistrationNo();
             "Shipping Advice" := SellToCustomer."Shipping Advice";
             IsHandled := false;
             OnCopySelltoCustomerAddressFieldsFromCustomerOnBeforeAssignRespCenter(Rec, SellToCustomer, IsHandled);
