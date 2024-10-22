@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA26 
 namespace System.Integration.PowerBI;
 
 /// <summary>
@@ -91,3 +92,5 @@ table 6304 "Power BI User Configuration"
     begin
     end;
 }
+ 
+#endif

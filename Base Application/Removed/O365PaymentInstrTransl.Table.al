@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2156 "O365 Payment Instr. Transl."
 {
     Caption = 'O365 Payment Instr. Transl.';
@@ -46,3 +47,5 @@ table 2156 "O365 Payment Instr. Transl."
     }
 }
 
+ 
+#endif

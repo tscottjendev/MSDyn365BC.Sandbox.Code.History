@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2122 "O365 Social Network"
 {
     Caption = 'O365 Social Network';
@@ -38,3 +39,5 @@ table 2122 "O365 Social Network"
     {
     }
 }
+ 
+#endif

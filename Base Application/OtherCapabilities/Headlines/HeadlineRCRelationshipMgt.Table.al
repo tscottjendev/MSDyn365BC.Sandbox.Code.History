@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 namespace System.Visualization;
 
 table 1444 "Headline RC Relationship Mgt."
@@ -33,3 +34,5 @@ table 1444 "Headline RC Relationship Mgt."
 
 }
 
+ 
+#endif

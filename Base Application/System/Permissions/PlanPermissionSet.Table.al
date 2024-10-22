@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA23 
 namespace System.Security.AccessControl;
 
 table 9006 "Plan Permission Set"
@@ -41,3 +42,5 @@ table 9006 "Plan Permission Set"
     }
 }
 
+ 
+#endif
