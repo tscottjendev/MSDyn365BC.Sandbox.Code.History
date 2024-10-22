@@ -1,4 +1,5 @@
-﻿table 2831 "Native - Payment"
+#if not CLEANSCHEMA23 
+table 2831 "Native - Payment"
 {
     Caption = 'Native - Payment';
     ReplicateData = false;
@@ -123,3 +124,5 @@
     }
 }
 
+ 
+#endif

@@ -1,4 +1,5 @@
-﻿namespace Microsoft.Sales.Pricing;
+#if not CLEANSCHEMA28 
+namespace Microsoft.Sales.Pricing;
 
 #if not CLEAN25
 using Microsoft.CRM.Campaign;
@@ -20,7 +21,7 @@ table 7002 "Sales Price"
     ObsoleteTag = '16.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '26.0';
+    ObsoleteTag = '28.0';
 #endif    
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
     DataClassification = CustomerContent;
@@ -405,3 +406,5 @@ table 7002 "Sales Price"
 #endif
 }
 
+ 
+#endif

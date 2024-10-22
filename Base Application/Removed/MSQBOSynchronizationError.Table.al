@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 7825 "MS-QBO Synchronization Error"
 {
     Caption = 'MS-QBO Synchronization Error';
@@ -52,3 +53,5 @@ table 7825 "MS-QBO Synchronization Error"
     }
 }
 
+ 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 namespace System.Visualization;
 
 table 1455 "Headline RC Whse. Basic"
@@ -33,3 +34,5 @@ table 1455 "Headline RC Whse. Basic"
 
 }
 
+ 
+#endif

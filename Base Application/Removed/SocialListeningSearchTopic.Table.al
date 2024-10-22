@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 871 "Social Listening Search Topic"
 {
     Caption = 'Social Listening Search Topic';
@@ -43,3 +44,5 @@ table 871 "Social Listening Search Topic"
     }
 }
 
+ 
+#endif

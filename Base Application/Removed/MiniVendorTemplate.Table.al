@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 1303 "Mini Vendor Template"
 {
     Caption = 'Mini Vendor Template';
@@ -128,3 +129,5 @@ table 1303 "Mini Vendor Template"
     }
 }
 
+ 
+#endif

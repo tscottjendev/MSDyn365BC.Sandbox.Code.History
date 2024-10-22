@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2110 "O365 Sales Initial Setup"
 {
     Caption = 'O365 Sales Initial Setup';
@@ -120,3 +121,5 @@ table 2110 "O365 Sales Initial Setup"
     }
 }
 
+ 
+#endif

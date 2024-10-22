@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 5479 "Journal Lines Entity Setup"
 {
     Caption = 'Journal Lines Entity Setup';
@@ -33,3 +34,5 @@ table 5479 "Journal Lines Entity Setup"
     }
 }
 
+ 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 9888 "SmartList Export Results"
 {
     DataClassification = SystemMetadata;
@@ -36,3 +37,5 @@ table 9888 "SmartList Export Results"
         }
     }
 }
+ 
+#endif
