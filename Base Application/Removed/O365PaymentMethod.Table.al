@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2154 "O365 Payment Method"
 {
     Caption = 'O365 Payment Method';
@@ -37,3 +38,5 @@ table 2154 "O365 Payment Method"
 }
 
 
+ 
+#endif

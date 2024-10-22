@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2163 "O365 Sales Event"
 {
     Caption = 'O365 Sales Event';
@@ -39,3 +40,5 @@ table 2163 "O365 Sales Event"
     }
 }
 
+ 
+#endif
