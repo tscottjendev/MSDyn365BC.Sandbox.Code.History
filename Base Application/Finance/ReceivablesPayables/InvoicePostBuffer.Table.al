@@ -1,4 +1,5 @@
-﻿namespace Microsoft.Finance.ReceivablesPayables;
+#if not CLEANSCHEMA26 
+namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
@@ -327,3 +328,5 @@ table 49 "Invoice Post. Buffer"
     {
     }
 }
+ 
+#endif

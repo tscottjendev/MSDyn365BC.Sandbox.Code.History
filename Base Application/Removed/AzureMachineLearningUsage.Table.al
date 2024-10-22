@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 namespace System.AI;
 
 using System.Environment;
@@ -97,3 +98,5 @@ table 2002 "Azure Machine Learning Usage"
     end;
 }
 
+ 
+#endif
