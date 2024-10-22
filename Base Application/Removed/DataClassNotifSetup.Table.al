@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 1751 "Data Class. Notif. Setup"
 {
     Caption = 'Data Class. Notif. Setup';
@@ -33,3 +34,5 @@ table 1751 "Data Class. Notif. Setup"
     }
 }
 
+ 
+#endif

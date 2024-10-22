@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 1300 "Mini Customer Template"
 {
     Caption = 'Mini Customer Template';
@@ -162,3 +163,5 @@ table 1300 "Mini Customer Template"
 
 }
 
+ 
+#endif

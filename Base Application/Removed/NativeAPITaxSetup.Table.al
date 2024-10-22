@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA23 
 table 2850 "Native - API Tax Setup"
 {
     Caption = 'Native - API Tax Setup';
@@ -134,4 +135,5 @@ table 2850 "Native - API Tax Setup"
     fieldgroups
     {
     }
-}
+} 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 9069 "O365 Sales Cue"
 {
     Caption = 'O365 Sales Cue';
@@ -121,3 +122,5 @@ table 9069 "O365 Sales Cue"
     }
 }
 
+ 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA19 
 #pragma warning disable AS0018
 namespace System.Utilities;
 
@@ -35,3 +36,5 @@ table 99008535 TempBlob
 }
 #pragma warning restore AS0018
 
+ 
+#endif
