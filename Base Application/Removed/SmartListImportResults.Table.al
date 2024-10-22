@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 9889 "SmartList Import Results"
 {
     DataClassification = SystemMetadata;
@@ -35,4 +36,5 @@ table 9889 "SmartList Import Results"
             MaintainSqlIndex = false;
         }
     }
-}
+} 
+#endif

@@ -1,4 +1,5 @@
-﻿table 5151 "Integration Record"
+#if not CLEANSCHEMA22 
+table 5151 "Integration Record"
 {
     Caption = 'Integration Record';
     ObsoleteState = Removed;
@@ -131,3 +132,5 @@
         exit(true);
     end;
 }
+ 
+#endif
