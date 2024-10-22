@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2101 "O365 Item Basket Entry"
 {
     Caption = 'O365 Item Basket Entry';
@@ -69,3 +70,5 @@ table 2101 "O365 Item Basket Entry"
     }
 }
 
+ 
+#endif

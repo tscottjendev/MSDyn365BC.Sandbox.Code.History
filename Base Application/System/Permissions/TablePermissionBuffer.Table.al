@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 namespace System.Security.AccessControl;
 
 using System.Reflection;
@@ -109,3 +110,5 @@ table 9800 "Table Permission Buffer"
     }
 }
 
+ 
+#endif

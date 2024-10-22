@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 table 7861 "MS- PayPal Standard Template"
 {
     Caption = 'MS- PayPal Standard Template';
@@ -69,3 +70,5 @@ table 7861 "MS- PayPal Standard Template"
     }
 }
 
+ 
+#endif

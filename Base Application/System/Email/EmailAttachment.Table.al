@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 namespace System.Email;
 
 table 9501 "Email Attachment"
@@ -42,3 +43,5 @@ table 9501 "Email Attachment"
     }
 }
 
+ 
+#endif
