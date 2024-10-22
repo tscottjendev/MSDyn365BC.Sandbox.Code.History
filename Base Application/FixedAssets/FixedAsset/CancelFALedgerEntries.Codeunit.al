@@ -129,12 +129,14 @@ codeunit 5624 "Cancel FA Ledger Entries"
         OnAfterInsertFAJnlLine(FAJnlLine, FALedgEntry);
     end;
 
-    local procedure InsertGenJnlLine(var FALedgEntry: Record "FA Ledger Entry"; BalAccount: Boolean)
+    procedure InsertGenJnlLine(var FALedgEntry: Record "FA Ledger Entry"; BalAccount: Boolean)
     var
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
     begin
         if not GenJnlUsedOnce then begin
             GenJnlLine.LockTable();
+            if DeprBook.Code = '' then
+                DeprBook.Get(FALedgEntry."Depreciation Book Code");
             FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
             GenJnlUsedOnce := true;
             GenJnlDocumentNo :=
