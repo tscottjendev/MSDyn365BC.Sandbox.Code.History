@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 7828 "MS-QBO Sync Buffer"
 {
     Caption = 'MS-QBO Sync Buffer';
@@ -38,3 +39,5 @@ table 7828 "MS-QBO Sync Buffer"
     }
 }
 
+ 
+#endif

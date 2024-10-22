@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 namespace System.Visualization;
 
 table 1446 "Headline RC Team Member"
@@ -33,3 +34,5 @@ table 1446 "Headline RC Team Member"
 
 }
 
+ 
+#endif

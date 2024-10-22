@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 870 "Social Listening Setup"
 {
     Caption = 'Social Engagement Setup';
@@ -66,3 +67,5 @@ table 870 "Social Listening Setup"
     }
 }
 
+ 
+#endif
