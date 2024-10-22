@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 namespace System.Tooling;
 
 table 888 "SmartList Designer Setup"
@@ -47,4 +48,5 @@ table 888 "SmartList Designer Setup"
             Clustered = true;
         }
     }
-}
+} 
+#endif
