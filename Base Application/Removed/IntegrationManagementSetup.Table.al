@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 5515 "Integration Management Setup"
 {
     Caption = 'Integration Management Setup';
@@ -50,3 +51,5 @@ table 5515 "Integration Management Setup"
     }
 }
 
+ 
+#endif

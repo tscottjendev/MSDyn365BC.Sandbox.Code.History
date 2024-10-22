@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 7823 "MS-QBO Modified Field List"
 {
     Caption = 'MS-QBO Modified Field List';
@@ -37,3 +38,5 @@ table 7823 "MS-QBO Modified Field List"
     }
 }
 
+ 
+#endif

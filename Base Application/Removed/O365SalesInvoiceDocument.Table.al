@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2200 "O365 Sales Invoice Document"
 {
     Caption = 'O365 Sales Invoice Document';
@@ -40,3 +41,5 @@ table 2200 "O365 Sales Invoice Document"
     }
 }
 
+ 
+#endif

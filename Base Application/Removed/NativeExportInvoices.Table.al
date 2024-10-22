@@ -1,4 +1,5 @@
-﻿table 2822 "Native - Export Invoices"
+#if not CLEANSCHEMA23 
+table 2822 "Native - Export Invoices"
 {
     Caption = 'Native - Export Invoices';
     ReplicateData = false;
@@ -40,3 +41,5 @@
     }
 }
 
+ 
+#endif

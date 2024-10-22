@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 5451 "Graph Integration Record"
 {
     ObsoleteState = Removed;
@@ -64,3 +65,5 @@ table 5451 "Graph Integration Record"
     }
 }
 
+ 
+#endif
