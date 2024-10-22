@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 5456 "Graph Business Profile"
 {
     ObsoleteState = Removed;
@@ -239,3 +240,5 @@ table 5456 "Graph Business Profile"
     end;
 }
 
+ 
+#endif

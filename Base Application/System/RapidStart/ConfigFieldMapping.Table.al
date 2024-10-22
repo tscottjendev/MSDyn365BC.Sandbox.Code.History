@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA19 
 namespace System.IO;
 
 using System.Reflection;
@@ -57,3 +58,5 @@ table 8628 "Config. Field Mapping"
     }
 }
 
+ 
+#endif
