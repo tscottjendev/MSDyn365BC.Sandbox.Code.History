@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 31066 "VIES Declaration Header"
 {
     Caption = 'VIES Declaration Header';
@@ -340,3 +341,5 @@ table 31066 "VIES Declaration Header"
     }
 
 }
+ 
+#endif

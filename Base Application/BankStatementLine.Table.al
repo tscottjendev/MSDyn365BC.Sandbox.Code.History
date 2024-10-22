@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 11705 "Bank Statement Line"
 {
     Caption = 'Bank Statement Line';
@@ -207,4 +208,5 @@ table 11705 "Bank Statement Line"
     fieldgroups
     {
     }
-}
+} 
+#endif

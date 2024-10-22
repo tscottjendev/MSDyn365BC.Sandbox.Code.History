@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11731 "Cash Document Line"
 {
     Caption = 'Cash Document Line';
@@ -374,4 +375,5 @@ table 11731 "Cash Document Line"
     fieldgroups
     {
     }
-}
+} 
+#endif

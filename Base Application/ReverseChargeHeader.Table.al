@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 31093 "Reverse Charge Header"
 {
     Caption = 'Reverse Charge Header';
@@ -265,4 +266,5 @@ table 31093 "Reverse Charge Header"
         {
         }
     }
-}
+} 
+#endif

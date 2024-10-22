@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 11784 "Non Deductible VAT Setup"
 {
     Caption = 'Non Deductible VAT Setup';
@@ -44,3 +45,5 @@ table 11784 "Non Deductible VAT Setup"
     }
 }
 
+ 
+#endif

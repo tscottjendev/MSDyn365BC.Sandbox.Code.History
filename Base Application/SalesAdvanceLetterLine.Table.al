@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31001 "Sales Advance Letter Line"
 {
     Caption = 'Sales Advance Letter Line';
@@ -299,3 +300,5 @@ table 31001 "Sales Advance Letter Line"
     }
 }
 
+ 
+#endif

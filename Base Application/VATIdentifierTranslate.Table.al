@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 11768 "VAT Identifier Translate"
 {
     Caption = 'VAT Identifier Translate';
@@ -39,3 +40,5 @@ table 11768 "VAT Identifier Translate"
     }
 }
 
+ 
+#endif

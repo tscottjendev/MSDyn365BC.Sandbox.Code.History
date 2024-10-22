@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 11799 "No. Series Link"
 {
     Caption = 'No. Series Link';
@@ -152,3 +153,5 @@ table 11799 "No. Series Link"
     end;
 }
 
+ 
+#endif

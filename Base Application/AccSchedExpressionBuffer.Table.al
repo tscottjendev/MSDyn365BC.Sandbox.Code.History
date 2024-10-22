@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31084 "Acc. Sched. Expression Buffer"
 {
     Caption = 'Acc. Sched. Expression Buffer';
@@ -78,3 +79,5 @@ table 31084 "Acc. Sched. Expression Buffer"
     }
 }
 
+ 
+#endif

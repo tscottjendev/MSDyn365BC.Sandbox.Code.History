@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 31062 "Statistic Indication"
 {
     Caption = 'Statistic Indication';
@@ -51,3 +52,5 @@ table 31062 "Statistic Indication"
     {
     }
 }
+ 
+#endif

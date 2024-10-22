@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 11785 "Posting Description"
 {
     Caption = 'Posting Description';
@@ -47,3 +48,5 @@ table 11785 "Posting Description"
 
 }
 
+ 
+#endif

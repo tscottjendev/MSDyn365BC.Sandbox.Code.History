@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31030 "Purchase Adv. Payment Template"
 {
     Caption = 'Purchase Adv. Payment Template';
@@ -76,3 +77,5 @@ table 31030 "Purchase Adv. Payment Template"
     }
 }
 
+ 
+#endif

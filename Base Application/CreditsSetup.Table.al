@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31048 "Credits Setup"
 {
     Caption = 'Credits Setup';
@@ -91,3 +92,5 @@ table 31048 "Credits Setup"
         end;
     end;
 }
+ 
+#endif

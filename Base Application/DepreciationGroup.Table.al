@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31041 "Depreciation Group"
 {
     Caption = 'Depreciation Group';
@@ -104,3 +105,5 @@ table 31041 "Depreciation Group"
         }
     }
 }
+ 
+#endif

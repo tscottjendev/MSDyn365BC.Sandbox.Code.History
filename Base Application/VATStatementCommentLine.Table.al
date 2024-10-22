@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11772 "VAT Statement Comment Line"
 {
     Caption = 'VAT Statement Comment Line';
@@ -46,3 +47,5 @@ table 11772 "VAT Statement Comment Line"
     {
     }
 }
+ 
+#endif

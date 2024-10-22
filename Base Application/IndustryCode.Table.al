@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 11791 "Industry Code"
 {
     Caption = 'Industry Code';
@@ -32,3 +33,5 @@ table 11791 "Industry Code"
     }
 }
 
+ 
+#endif

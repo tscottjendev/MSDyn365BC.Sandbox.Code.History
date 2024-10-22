@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11741 "Cash Desk Event"
 {
     Caption = 'Cash Desk Event';
@@ -196,4 +197,5 @@ table 11741 "Cash Desk Event"
         FA: Record "Fixed Asset";
         BankAccount: Record "Bank Account";
 
-}
+} 
+#endif

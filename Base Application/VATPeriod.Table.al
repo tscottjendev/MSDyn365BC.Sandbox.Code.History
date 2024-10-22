@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11780 "VAT Period"
 {
     Caption = 'VAT Period';
@@ -53,3 +54,5 @@ table 11780 "VAT Period"
     var
         MonthTxt: Label '<Month Text>', Locked = true;
 }
+ 
+#endif

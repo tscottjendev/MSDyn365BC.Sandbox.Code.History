@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 31102 "VAT Control Report Section"
 {
     Caption = 'VAT Control Report Section';
@@ -41,3 +42,5 @@ table 31102 "VAT Control Report Section"
     {
     }
 }
+ 
+#endif

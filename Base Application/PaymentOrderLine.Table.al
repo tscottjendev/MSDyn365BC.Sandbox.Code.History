@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 11709 "Payment Order Line"
 {
     Caption = 'Payment Order Line';
@@ -408,4 +409,5 @@ table 11709 "Payment Order Line"
     fieldgroups
     {
     }
-}
+} 
+#endif

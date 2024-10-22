@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA23 
 table 11771 "Bank Acc. Adjustment Buffer"
 {
     Caption = 'Bank Acc. Adjustment Buffer';
@@ -69,3 +70,5 @@ table 11771 "Bank Acc. Adjustment Buffer"
     }
 }
 
+ 
+#endif

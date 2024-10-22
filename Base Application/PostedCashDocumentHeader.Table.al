@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11735 "Posted Cash Document Header"
 {
     Caption = 'Posted Cash Document Header';
@@ -274,4 +275,5 @@ table 11735 "Posted Cash Document Header"
     fieldgroups
     {
     }
-}
+} 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31042 "FA Extended Posting Group"
 {
     Caption = 'FA Extended Posting Group';
@@ -144,3 +145,5 @@ table 31042 "FA Extended Posting Group"
         end;
     end;
 }
+ 
+#endif

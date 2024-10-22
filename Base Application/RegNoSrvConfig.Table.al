@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11757 "Reg. No. Srv Config"
 {
     Caption = 'Reg. No. Srv Config';
@@ -34,3 +35,5 @@ table 11757 "Reg. No. Srv Config"
     {
     }
 }
+ 
+#endif

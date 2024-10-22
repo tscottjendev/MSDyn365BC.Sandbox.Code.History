@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 11708 "Payment Order Header"
 {
     Caption = 'Payment Order Header';
@@ -193,3 +194,5 @@ table 11708 "Payment Order Header"
     {
     }
 }
+ 
+#endif

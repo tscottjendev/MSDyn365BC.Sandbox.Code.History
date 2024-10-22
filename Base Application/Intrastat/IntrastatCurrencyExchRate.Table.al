@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31061 "Intrastat Currency Exch. Rate"
 {
     Caption = 'Intrastat Currency Exch. Rate';
@@ -61,3 +62,5 @@ table 31061 "Intrastat Currency Exch. Rate"
         exit("Exchange Rate Amount");
     end;
 }
+ 
+#endif

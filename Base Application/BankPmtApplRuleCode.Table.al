@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 11702 "Bank Pmt. Appl. Rule Code"
 {
     Caption = 'Bank Pmt. Appl. Rule Code';
@@ -36,3 +37,5 @@ table 11702 "Bank Pmt. Appl. Rule Code"
     }
 }
 
+ 
+#endif

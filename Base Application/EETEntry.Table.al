@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31123 "EET Entry"
 {
     Caption = 'EET Entry';
@@ -201,4 +202,5 @@ table 31123 "EET Entry"
     begin
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
-}
+} 
+#endif

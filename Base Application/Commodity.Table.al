@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 31095 Commodity
 {
     Caption = 'Commodity';
@@ -32,3 +33,5 @@ table 31095 Commodity
     {
     }
 }
+ 
+#endif

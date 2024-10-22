@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31086 "Acc. Schedule Result Header"
 {
     Caption = 'Acc. Schedule Result Header';
@@ -78,3 +79,5 @@ table 31086 "Acc. Schedule Result Header"
     }
 }
 
+ 
+#endif

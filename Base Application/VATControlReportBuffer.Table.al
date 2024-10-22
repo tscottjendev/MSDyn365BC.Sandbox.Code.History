@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 31103 "VAT Control Report Buffer"
 {
     Caption = 'VAT Control Report Buffer';
@@ -227,3 +228,5 @@ table 31103 "VAT Control Report Buffer"
     {
     }
 }
+ 
+#endif

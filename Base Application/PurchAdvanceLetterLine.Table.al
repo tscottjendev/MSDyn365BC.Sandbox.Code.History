@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31021 "Purch. Advance Letter Line"
 {
     Caption = 'Purch. Advance Letter Line';
@@ -347,3 +348,5 @@ table 31021 "Purch. Advance Letter Line"
     {
     }
 }
+ 
+#endif

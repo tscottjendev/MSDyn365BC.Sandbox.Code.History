@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31010 "Sales Adv. Payment Template"
 {
     Caption = 'Sales Adv. Payment Template';
@@ -67,3 +68,5 @@ table 31010 "Sales Adv. Payment Template"
     }
 }
 
+ 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31063 "Specific Movement"
 {
     Caption = 'Specific Movement';
@@ -31,3 +32,5 @@ table 31063 "Specific Movement"
     {
     }
 }
+ 
+#endif

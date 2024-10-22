@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31087 "Acc. Schedule Result Value"
 {
     Caption = 'Acc. Schedule Result Value';
@@ -44,3 +45,5 @@ table 31087 "Acc. Schedule Result Value"
     end;
 }
 
+ 
+#endif

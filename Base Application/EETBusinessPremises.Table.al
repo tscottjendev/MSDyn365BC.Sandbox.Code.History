@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31121 "EET Business Premises"
 {
     Caption = 'EET Business Premises';
@@ -40,3 +41,5 @@ table 31121 "EET Business Premises"
     {
     }
 }
+ 
+#endif

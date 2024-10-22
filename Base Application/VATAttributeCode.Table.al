@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11779 "VAT Attribute Code"
 {
     Caption = 'VAT Attribute Code';
@@ -48,3 +49,5 @@ table 11779 "VAT Attribute Code"
         }
     }
 }
+ 
+#endif

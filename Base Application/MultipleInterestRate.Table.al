@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA23 
 table 11783 "Multiple Interest Rate"
 {
     Caption = 'Multiple Interest Rate';
@@ -46,3 +47,5 @@ table 11783 "Multiple Interest Rate"
     }
 }
 
+ 
+#endif

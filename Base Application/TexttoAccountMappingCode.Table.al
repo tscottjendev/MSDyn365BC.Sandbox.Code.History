@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 11703 "Text-to-Account Mapping Code"
 {
     Caption = 'Text-to-Account Mapping Code';
@@ -32,3 +33,5 @@ table 11703 "Text-to-Account Mapping Code"
     }
 }
 
+ 
+#endif

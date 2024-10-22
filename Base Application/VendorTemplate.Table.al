@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 11794 "Vendor Template"
 {
     Caption = 'Vendor Template';
@@ -151,3 +152,5 @@ table 11794 "Vendor Template"
             exit(true);
     end;
 }
+ 
+#endif

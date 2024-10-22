@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11765 "Excel Template"
 {
     Caption = 'Excel Template';
@@ -42,4 +43,5 @@ table 11765 "Excel Template"
     fieldgroups
     {
     }
-}
+} 
+#endif

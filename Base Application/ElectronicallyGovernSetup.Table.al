@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11761 "Electronically Govern. Setup"
 {
     Caption = 'Electronically Govern. Setup';
@@ -74,3 +75,5 @@ table 11761 "Electronically Govern. Setup"
         }
     }
 }
+ 
+#endif

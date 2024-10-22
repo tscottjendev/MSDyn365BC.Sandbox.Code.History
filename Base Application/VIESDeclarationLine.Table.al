@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 31067 "VIES Declaration Line"
 {
     Caption = 'VIES Declaration Line';
@@ -150,3 +151,5 @@ table 31067 "VIES Declaration Line"
     }
 
 }
+ 
+#endif

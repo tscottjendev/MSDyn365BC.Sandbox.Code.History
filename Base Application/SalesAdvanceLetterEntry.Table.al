@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31002 "Sales Advance Letter Entry"
 {
     Caption = 'Sales Advance Letter Entry';
@@ -168,3 +169,5 @@ table 31002 "Sales Advance Letter Entry"
     }
 }
 
+ 
+#endif

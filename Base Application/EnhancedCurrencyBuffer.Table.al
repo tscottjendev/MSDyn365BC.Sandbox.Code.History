@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA23 
 table 11774 "Enhanced Currency Buffer"
 {
     Caption = 'Enhanced Currency Buffer';
@@ -56,3 +57,5 @@ table 11774 "Enhanced Currency Buffer"
     }
 }
 
+ 
+#endif

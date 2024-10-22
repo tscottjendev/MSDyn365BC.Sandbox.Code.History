@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31120 "EET Service Setup"
 {
     Caption = 'EET Service Setup (Obsolete)';
@@ -55,3 +56,5 @@ table 31120 "EET Service Setup"
     {
     }
 }
+ 
+#endif

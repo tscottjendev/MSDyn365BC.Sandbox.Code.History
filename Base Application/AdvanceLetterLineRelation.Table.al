@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31026 "Advance Letter Line Relation"
 {
     Caption = 'Advance Letter Line Relation';
@@ -102,3 +103,5 @@ table 31026 "Advance Letter Line Relation"
     }
 }
 
+ 
+#endif

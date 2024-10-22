@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31057 "Posted Credit Header"
 {
     Caption = 'Posted Credit Header';
@@ -119,3 +120,5 @@ table 31057 "Posted Credit Header"
     {
     }
 }
+ 
+#endif

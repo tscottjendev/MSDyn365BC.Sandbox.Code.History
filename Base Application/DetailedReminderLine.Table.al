@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA23 
 table 11789 "Detailed Reminder Line"
 {
     Caption = 'Detailed Reminder Line';
@@ -92,3 +93,5 @@ table 11789 "Detailed Reminder Line"
     }
 }
 
+ 
+#endif

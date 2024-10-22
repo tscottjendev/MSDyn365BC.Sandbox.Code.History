@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA23 
 table 31080 "Export Acc. Schedule"
 {
     Caption = 'Export Acc. Schedule';
@@ -47,3 +48,5 @@ table 31080 "Export Acc. Schedule"
     }
 }
 
+ 
+#endif

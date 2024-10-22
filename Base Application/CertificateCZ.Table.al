@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 table 31131 "Certificate CZ"
 {
     Caption = 'Certificate';
@@ -73,3 +74,5 @@ table 31131 "Certificate CZ"
     }
 }
 
+ 
+#endif

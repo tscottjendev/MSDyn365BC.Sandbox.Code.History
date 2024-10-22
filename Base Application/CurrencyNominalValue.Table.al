@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11743 "Currency Nominal Value"
 {
     Caption = 'Currency Nominal Value';
@@ -34,3 +35,5 @@ table 11743 "Currency Nominal Value"
     {
     }
 }
+ 
+#endif

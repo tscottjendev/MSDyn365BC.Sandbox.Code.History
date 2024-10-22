@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 11796 "User Setup Line"
 {
     Caption = 'User Setup Line (Obsolete)';
@@ -79,4 +80,5 @@ table 11796 "User Setup Line"
     fieldgroups
     {
     }
-}
+} 
+#endif

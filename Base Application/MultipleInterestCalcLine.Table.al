@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA23 
 table 11777 "Multiple Interest Calc. Line"
 {
     Caption = 'Multiple Interest Calc. Line';
@@ -39,3 +40,5 @@ table 11777 "Multiple Interest Calc. Line"
     }
 }
 
+ 
+#endif

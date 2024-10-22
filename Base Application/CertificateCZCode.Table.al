@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31130 "Certificate CZ Code"
 {
     Caption = 'Certificate Code';
@@ -30,4 +31,5 @@ table 31130 "Certificate CZ Code"
     fieldgroups
     {
     }
-}
+} 
+#endif

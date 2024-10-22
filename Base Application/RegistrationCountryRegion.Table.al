@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 11762 "Registration Country/Region"
 {
     Caption = 'Registration Country/Region';
@@ -126,3 +127,5 @@ table 11762 "Registration Country/Region"
     {
     }
 }
+ 
+#endif

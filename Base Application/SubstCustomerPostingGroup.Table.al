@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 11781 "Subst. Customer Posting Group"
 {
     Caption = 'Subst. Customer Posting Group';
@@ -41,3 +42,5 @@ table 11781 "Subst. Customer Posting Group"
     var
         PostGrpSubstErr: Label 'Posting Group cannot substitute itself.';
 }
+ 
+#endif

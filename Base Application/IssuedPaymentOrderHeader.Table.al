@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 11710 "Issued Payment Order Header"
 {
     Caption = 'Issued Payment Order Header';
@@ -193,4 +194,5 @@ table 11710 "Issued Payment Order Header"
     fieldgroups
     {
     }
-}
+} 
+#endif

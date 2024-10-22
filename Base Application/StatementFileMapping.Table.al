@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11766 "Statement File Mapping"
 {
     Caption = 'Statement File Mapping';
@@ -65,3 +66,5 @@ table 11766 "Statement File Mapping"
     {
     }
 }
+ 
+#endif

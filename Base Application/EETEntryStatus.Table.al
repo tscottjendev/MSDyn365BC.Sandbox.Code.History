@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31124 "EET Entry Status"
 {
     Caption = 'EET Entry Status';
@@ -75,3 +76,5 @@ table 31124 "EET Entry Status"
         ErrorMessage.DeleteAll();
     end;
 }
+ 
+#endif

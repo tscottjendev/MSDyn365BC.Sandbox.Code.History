@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11759 "Cash Desk Report Selections"
 {
     Caption = 'Cash Desk Report Selections';
@@ -51,3 +52,5 @@ table 11759 "Cash Desk Report Selections"
     {
     }
 }
+ 
+#endif

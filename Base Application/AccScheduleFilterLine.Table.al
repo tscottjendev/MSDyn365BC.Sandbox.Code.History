@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA23 
 table 31081 "Acc. Schedule Filter Line"
 {
     Caption = 'Acc. Schedule Filter Line';
@@ -67,3 +68,5 @@ table 31081 "Acc. Schedule Filter Line"
     }
 }
 
+ 
+#endif

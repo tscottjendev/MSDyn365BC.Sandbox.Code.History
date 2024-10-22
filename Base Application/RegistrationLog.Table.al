@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11758 "Registration Log"
 {
     Caption = 'Registration Log';
@@ -91,3 +92,5 @@ table 11758 "Registration Log"
     {
     }
 }
+ 
+#endif

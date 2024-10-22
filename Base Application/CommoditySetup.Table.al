@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 31096 "Commodity Setup"
 {
     Caption = 'Commodity Setup';
@@ -41,3 +42,5 @@ table 31096 "Commodity Setup"
     {
     }
 }
+ 
+#endif

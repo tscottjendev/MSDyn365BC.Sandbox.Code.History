@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 11786 "Posting Desc. Parameter"
 {
     Caption = 'Posting Desc. Parameter';
@@ -53,3 +54,5 @@ table 11786 "Posting Desc. Parameter"
     end;
 }
 
+ 
+#endif

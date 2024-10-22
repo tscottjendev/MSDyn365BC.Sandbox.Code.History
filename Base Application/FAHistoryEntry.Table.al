@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31044 "FA History Entry"
 {
     Caption = 'FA History Entry';
@@ -95,3 +96,5 @@ table 31044 "FA History Entry"
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 }
+ 
+#endif

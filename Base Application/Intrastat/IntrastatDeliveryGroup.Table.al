@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31064 "Intrastat Delivery Group"
 {
     Caption = 'Intrastat Delivery Group';
@@ -31,3 +32,5 @@ table 31064 "Intrastat Delivery Group"
     {
     }
 }
+ 
+#endif

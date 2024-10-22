@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11773 "VAT Statement Attachment"
 {
     Caption = 'VAT Statement Attachment';
@@ -54,4 +55,5 @@ table 11773 "VAT Statement Attachment"
     fieldgroups
     {
     }
-}
+} 
+#endif

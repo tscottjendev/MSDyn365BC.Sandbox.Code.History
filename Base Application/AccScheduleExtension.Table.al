@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31089 "Acc. Schedule Extension"
 {
     Caption = 'Acc. Schedule Extension';
@@ -210,3 +211,5 @@ table 31089 "Acc. Schedule Extension"
         RenameErr: Label 'You cannot rename a %1.';
 }
 
+ 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31122 "EET Cash Register"
 {
     Caption = 'EET Cash Register';
@@ -62,4 +63,5 @@ table 31122 "EET Cash Register"
     fieldgroups
     {
     }
-}
+} 
+#endif

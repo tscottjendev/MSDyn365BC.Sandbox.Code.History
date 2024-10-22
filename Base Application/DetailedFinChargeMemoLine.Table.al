@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA23 
 table 11787 "Detailed Fin. Charge Memo Line"
 {
     Caption = 'Detailed Fin. Charge Memo Line';
@@ -92,3 +93,5 @@ table 11787 "Detailed Fin. Charge Memo Line"
     }
 }
 
+ 
+#endif

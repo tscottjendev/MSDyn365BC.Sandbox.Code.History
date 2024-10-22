@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11792 "Company Officials"
 {
     Caption = 'Company Officials';
@@ -185,3 +186,5 @@ table 11792 "Company Officials"
         PostCode: Record "Post Code";
 
 }
+ 
+#endif

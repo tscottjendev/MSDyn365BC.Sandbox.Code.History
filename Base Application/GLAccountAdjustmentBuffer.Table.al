@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA23 
 table 11770 "G/L Account Adjustment Buffer"
 {
     Caption = 'G/L Account Adjustment Buffer';
@@ -53,3 +54,5 @@ table 11770 "G/L Account Adjustment Buffer"
     }
 }
 
+ 
+#endif

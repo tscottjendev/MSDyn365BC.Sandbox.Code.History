@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11740 "Cash Desk User"
 {
     Caption = 'Cash Desk User';
@@ -67,3 +68,5 @@ table 11740 "Cash Desk User"
     {
     }
 }
+ 
+#endif

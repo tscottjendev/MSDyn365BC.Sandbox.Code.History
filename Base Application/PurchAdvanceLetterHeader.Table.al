@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31020 "Purch. Advance Letter Header"
 {
     Caption = 'Purch. Advance Letter Header';
@@ -465,4 +466,5 @@ table 31020 "Purch. Advance Letter Header"
     fieldgroups
     {
     }
-}
+} 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31029 "Adv. Letter Line Rel. Buffer"
 {
     Caption = 'Adv. Letter Line Rel. Buffer';
@@ -124,3 +125,5 @@ table 31029 "Adv. Letter Line Rel. Buffer"
     }
 }
 
+ 
+#endif

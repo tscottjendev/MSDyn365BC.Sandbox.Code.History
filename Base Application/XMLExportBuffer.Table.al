@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 11798 "XML Export Buffer"
 {
     Caption = 'XML Export Buffer';
@@ -31,4 +32,5 @@ table 11798 "XML Export Buffer"
     fieldgroups
     {
     }
-}
+} 
+#endif

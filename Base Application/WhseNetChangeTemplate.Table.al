@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 31073 "Whse. Net Change Template"
 {
     Caption = 'Whse. Net Change Template';
@@ -43,3 +44,5 @@ table 31073 "Whse. Net Change Template"
     {
     }
 }
+ 
+#endif

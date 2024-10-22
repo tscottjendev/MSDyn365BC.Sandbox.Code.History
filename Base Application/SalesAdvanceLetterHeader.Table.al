@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31000 "Sales Advance Letter Header"
 {
     Caption = 'Sales Advance Letter Header';
@@ -444,4 +445,5 @@ table 31000 "Sales Advance Letter Header"
     fieldgroups
     {
     }
-}
+} 
+#endif

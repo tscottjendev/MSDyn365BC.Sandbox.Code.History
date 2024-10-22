@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31065 "Stat. Reporting Setup"
 {
     Caption = 'Stat. Reporting Setup';
@@ -595,4 +596,5 @@ table 31065 "Stat. Reporting Setup"
     fieldgroups
     {
     }
-}
+} 
+#endif

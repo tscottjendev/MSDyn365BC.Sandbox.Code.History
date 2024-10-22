@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31035 "Advance Letter Matching Buffer"
 {
     Caption = 'Advance Letter Matching Buffer';
@@ -85,3 +86,5 @@ table 31035 "Advance Letter Matching Buffer"
     }
 }
 
+ 
+#endif

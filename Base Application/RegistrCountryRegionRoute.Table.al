@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 11763 "Registr. Country/Region Route"
 {
     Caption = 'Registr. Country/Region Route';
@@ -42,3 +43,5 @@ table 11763 "Registr. Country/Region Route"
     }
 }
 
+ 
+#endif

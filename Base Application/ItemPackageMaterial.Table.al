@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 31071 "Item Package Material"
 {
     Caption = 'Item Package Material';
@@ -46,3 +47,5 @@ table 31071 "Item Package Material"
     }
 }
 
+ 
+#endif

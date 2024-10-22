@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31051 "Credit Line"
 {
     Caption = 'Credit Line';
@@ -206,3 +207,5 @@ table 31051 "Credit Line"
     {
     }
 }
+ 
+#endif

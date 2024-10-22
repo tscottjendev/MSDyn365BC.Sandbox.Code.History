@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 11764 "Perf. Country Curr. Exch. Rate"
 {
     Caption = 'Perf. Country Curr. Exch. Rate';
@@ -71,3 +72,5 @@ table 11764 "Perf. Country Curr. Exch. Rate"
     {
     }
 }
+ 
+#endif

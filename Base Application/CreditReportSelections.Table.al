@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31049 "Credit Report Selections"
 {
     Caption = 'Credit Report Selections';
@@ -52,3 +53,5 @@ table 31049 "Credit Report Selections"
     }
 
 }
+ 
+#endif

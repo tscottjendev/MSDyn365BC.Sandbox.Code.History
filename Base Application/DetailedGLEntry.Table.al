@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 11778 "Detailed G/L Entry"
 {
     Caption = 'Detailed G/L Entry';
@@ -83,3 +84,5 @@ table 11778 "Detailed G/L Entry"
     }
 }
 
+ 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 31072 "Stockkeeping Unit Template"
 {
     Caption = 'Stockkeeping Unit Template';
@@ -74,3 +75,5 @@ table 31072 "Stockkeeping Unit Template"
     {
     }
 }
+ 
+#endif

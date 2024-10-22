@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 31097 "Document Footer"
 {
     Caption = 'Document Footer';
@@ -31,3 +32,5 @@ table 31097 "Document Footer"
     {
     }
 }
+ 
+#endif

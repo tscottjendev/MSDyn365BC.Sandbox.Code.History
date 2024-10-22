@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31027 "VAT Amount Line Adv. Payment"
 {
     Caption = 'VAT Amount Line Adv. Payment';
@@ -85,3 +86,5 @@ table 31027 "VAT Amount Line Adv. Payment"
     }
 }
 
+ 
+#endif

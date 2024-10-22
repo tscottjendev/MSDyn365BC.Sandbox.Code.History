@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31017 "Advance Link"
 {
     Caption = 'Advance Link';
@@ -98,3 +99,5 @@ table 31017 "Advance Link"
     }
 }
 
+ 
+#endif

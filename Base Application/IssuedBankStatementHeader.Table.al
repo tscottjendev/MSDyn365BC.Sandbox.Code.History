@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 11706 "Issued Bank Statement Header"
 {
     Caption = 'Issued Bank Statement Header';
@@ -209,3 +210,5 @@ table 11706 "Issued Bank Statement Header"
     {
     }
 }
+ 
+#endif

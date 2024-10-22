@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31050 "Credit Header"
 {
     Caption = 'Credit Header';
@@ -158,3 +159,5 @@ table 31050 "Credit Header"
     }
 }
 
+ 
+#endif

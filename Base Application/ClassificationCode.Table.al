@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31040 "Classification Code"
 {
     Caption = 'Classification Code';
@@ -43,3 +44,5 @@ table 31040 "Classification Code"
     }
 }
 
+ 
+#endif

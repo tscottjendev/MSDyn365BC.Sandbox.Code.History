@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 31104 "VAT Ctrl.Rep. - VAT Entry Link"
 {
     Caption = 'VAT Ctrl.Rep. - VAT Entry Link';
@@ -38,3 +39,5 @@ table 31104 "VAT Ctrl.Rep. - VAT Entry Link"
     {
     }
 }
+ 
+#endif

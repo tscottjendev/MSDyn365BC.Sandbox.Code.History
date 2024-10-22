@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 31036 "Advance Link Buffer - Entry"
 {
     Caption = 'Advance Link Buffer - Entry';
@@ -64,3 +65,5 @@ table 31036 "Advance Link Buffer - Entry"
     }
 }
 
+ 
+#endif

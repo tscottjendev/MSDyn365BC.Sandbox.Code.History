@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11730 "Cash Document Header"
 {
     Caption = 'Cash Document Header';
@@ -310,3 +311,5 @@ table 11730 "Cash Document Header"
     {
     }
 }
+ 
+#endif

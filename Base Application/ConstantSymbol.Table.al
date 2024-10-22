@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 11701 "Constant Symbol"
 {
     Caption = 'Constant Symbol';
@@ -34,3 +35,5 @@ table 11701 "Constant Symbol"
     }
 }
 
+ 
+#endif

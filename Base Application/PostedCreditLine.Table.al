@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 table 31058 "Posted Credit Line"
 {
     Caption = 'Posted Credit Line';
@@ -190,3 +191,5 @@ table 31058 "Posted Credit Line"
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo(Text001Txt, TableCaption(), "Credit No.", "Line No."));
     end;
 }
+ 
+#endif

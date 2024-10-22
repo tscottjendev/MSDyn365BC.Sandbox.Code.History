@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 31043 "SKP Code"
 {
     Caption = 'SKP Code';
@@ -36,3 +37,5 @@ table 31043 "SKP Code"
     }
 }
 
+ 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 31060 "VIES Transaction Buffer"
 {
     Caption = 'VIES Transaction Buffer';
@@ -32,3 +33,5 @@ table 31060 "VIES Transaction Buffer"
     {
     }
 }
+ 
+#endif

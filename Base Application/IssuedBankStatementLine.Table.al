@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 11707 "Issued Bank Statement Line"
 {
     Caption = 'Issued Bank Statement Line';
@@ -149,4 +150,5 @@ table 11707 "Issued Bank Statement Line"
                 exit(BankAccReconLine."Account Type"::"G/L Account".AsInteger());
         end;
     end;
-}
+} 
+#endif

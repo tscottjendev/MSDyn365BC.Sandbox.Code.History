@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 11760 "Uncertainty Payer Entry"
 {
     Caption = 'Uncertainty Payer Entry';
@@ -88,3 +89,5 @@ table 11760 "Uncertainty Payer Entry"
     {
     }
 }
+ 
+#endif

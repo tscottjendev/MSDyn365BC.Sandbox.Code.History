@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 31094 "Reverse Charge Line"
 {
     Caption = 'Reverse Charge Line';
@@ -138,3 +139,5 @@ table 31094 "Reverse Charge Line"
         end;
     end;
 }
+ 
+#endif
