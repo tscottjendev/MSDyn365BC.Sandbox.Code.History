@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 table 5377 "Ext Txt ID Integration Record"
 {
     Caption = 'Ext Txt ID Integration Record';
@@ -231,3 +232,5 @@ table 5377 "Ext Txt ID Integration Record"
     end;
 }
 
+ 
+#endif

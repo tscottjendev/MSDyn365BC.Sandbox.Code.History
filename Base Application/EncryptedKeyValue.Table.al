@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 namespace System.Security.Encryption;
 
 table 1805 "Encrypted Key/Value"
@@ -66,3 +67,5 @@ table 1805 "Encrypted Key/Value"
     end;
 }
 
+ 
+#endif
