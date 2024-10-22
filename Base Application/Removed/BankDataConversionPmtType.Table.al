@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 table 1281 "Bank Data Conversion Pmt. Type"
 {
     Caption = 'Bank Data Conversion Pmt. Type';
@@ -30,3 +31,5 @@ table 1281 "Bank Data Conversion Pmt. Type"
     {
     }
 }
+ 
+#endif

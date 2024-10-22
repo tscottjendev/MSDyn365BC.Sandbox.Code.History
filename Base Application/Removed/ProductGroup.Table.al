@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 table 5723 "Product Group"
 {
     Caption = 'Product Group';
@@ -45,3 +46,5 @@ table 5723 "Product Group"
     }
 }
 
+ 
+#endif

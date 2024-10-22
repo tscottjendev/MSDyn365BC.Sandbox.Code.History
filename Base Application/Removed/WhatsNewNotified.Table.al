@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA19 
 /// <summary>
 /// Stores which user has seen the What's New Wizard page.
 /// </summary>
@@ -37,4 +38,5 @@ table 897 "What's New Notified"
             Clustered = true;
         }
     }
-}
+} 
+#endif

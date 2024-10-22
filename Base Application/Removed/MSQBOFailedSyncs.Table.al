@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 7827 "MS-QBO Failed Syncs"
 {
     Caption = 'MS-QBO Failed Syncs';
@@ -42,3 +43,5 @@ table 7827 "MS-QBO Failed Syncs"
     }
 }
 
+ 
+#endif

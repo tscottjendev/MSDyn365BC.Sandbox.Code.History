@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 namespace System.Visualization;
 
 table 1449 "Headline RC Security Admin"
@@ -33,3 +34,5 @@ table 1449 "Headline RC Security Admin"
 
 }
 
+ 
+#endif

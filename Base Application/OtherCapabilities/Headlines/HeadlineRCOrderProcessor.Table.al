@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 namespace System.Visualization;
 
 table 1441 "Headline RC Order Processor"
@@ -33,3 +34,5 @@ table 1441 "Headline RC Order Processor"
 
 }
 
+ 
+#endif
