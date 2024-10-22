@@ -930,6 +930,8 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             Database::"CRM Salesorder":
                 IgnoreArchievedCRMSalesordersOnQueryPostFilterIgnoreRecord(SourceRecordRef, IgnoreRecord);
         end;
+
+        OnAfterHandlePostFilterIgnoreRecord(SourceRecordRef, IgnoreRecord);
     end;
 
     local procedure IgnoreArchievedSalesOrdersOnQueryPostFilterIgnoreRecord(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
@@ -3288,6 +3290,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindQuoteSalesHeader(var QuoteSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHandlePostFilterIgnoreRecord(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
     begin
     end;
 }
