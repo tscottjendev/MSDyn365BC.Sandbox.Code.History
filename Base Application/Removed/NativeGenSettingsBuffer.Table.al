@@ -1,4 +1,5 @@
-﻿table 2840 "Native - Gen. Settings Buffer"
+#if not CLEANSCHEMA23 
+table 2840 "Native - Gen. Settings Buffer"
 {
     Caption = 'Native - Gen. Settings Buffer';
     ReplicateData = false;
@@ -128,3 +129,5 @@
     {
     }
 }
+ 
+#endif

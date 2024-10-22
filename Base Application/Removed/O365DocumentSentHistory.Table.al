@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2158 "O365 Document Sent History"
 {
     Caption = 'O365 Document Sent History';
@@ -98,3 +99,5 @@ table 2158 "O365 Document Sent History"
     }
 }
 
+ 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 namespace System.Reflection;
 
 table 7800 "MS-Event Emitter Event Codes"
@@ -35,3 +36,5 @@ table 7800 "MS-Event Emitter Event Codes"
     }
 }
 
+ 
+#endif

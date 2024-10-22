@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 namespace System.Email;
 
 table 409 "SMTP Mail Setup"
@@ -81,3 +82,5 @@ table 409 "SMTP Mail Setup"
     {
     }
 }
+ 
+#endif

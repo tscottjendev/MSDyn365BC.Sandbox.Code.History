@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 7821 "MS-QBO Item"
 {
     Caption = 'MS-QBO Item';
@@ -144,3 +145,5 @@ table 7821 "MS-QBO Item"
     }
 }
 
+ 
+#endif

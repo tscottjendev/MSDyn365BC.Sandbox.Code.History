@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2107 "O365 Customer"
 {
     Caption = 'O365 Customer';
@@ -71,3 +72,5 @@ table 2107 "O365 Customer"
     }
 }
 
+ 
+#endif
