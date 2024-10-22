@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 table 136604 "Obsolete Removed Table"
 {
     ObsoleteReason = 'Removed table';
@@ -26,3 +27,5 @@ table 136604 "Obsolete Removed Table"
     }
 }
 
+ 
+#endif
