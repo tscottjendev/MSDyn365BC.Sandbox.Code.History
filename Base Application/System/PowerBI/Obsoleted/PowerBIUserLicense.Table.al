@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 namespace System.Integration.PowerBI;
 
 /// <summary>
@@ -42,3 +43,5 @@ table 6311 "Power BI User License"
     }
 }
 
+ 
+#endif

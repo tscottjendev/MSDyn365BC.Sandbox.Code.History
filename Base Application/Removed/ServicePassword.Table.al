@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 table 1261 "Service Password"
 {
     Caption = 'Service Password';
@@ -62,3 +63,5 @@ table 1261 "Service Password"
     end;
 }
 
+ 
+#endif

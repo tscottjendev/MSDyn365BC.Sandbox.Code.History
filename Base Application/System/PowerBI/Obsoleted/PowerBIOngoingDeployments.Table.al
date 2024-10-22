@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21 
 namespace System.Integration.PowerBI;
 
 /// <summary>
@@ -54,3 +55,5 @@ table 6308 "Power BI Ongoing Deployments"
     }
 }
 
+ 
+#endif

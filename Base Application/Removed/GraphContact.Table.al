@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 5450 "Graph Contact"
 {
     ObsoleteState = Removed;
@@ -607,3 +608,5 @@ table 5450 "Graph Contact"
     end;
 }
 
+ 
+#endif
