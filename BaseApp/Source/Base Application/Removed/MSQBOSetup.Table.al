@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 7824 "MS-QBO Setup"
 {
     Caption = 'MS-QBO Setup';
@@ -84,3 +85,5 @@ table 7824 "MS-QBO Setup"
     }
 }
 
+ 
+#endif

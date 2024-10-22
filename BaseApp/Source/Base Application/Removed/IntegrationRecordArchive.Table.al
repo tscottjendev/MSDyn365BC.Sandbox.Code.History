@@ -1,4 +1,5 @@
-﻿table 5152 "Integration Record Archive"
+#if not CLEANSCHEMA22 
+table 5152 "Integration Record Archive"
 {
     Caption = 'Integration Record Archive';
     ObsoleteState = Removed;
@@ -84,3 +85,5 @@
     end;
 }
 
+ 
+#endif
