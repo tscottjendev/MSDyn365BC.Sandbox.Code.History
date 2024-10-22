@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2152 "O365 Country/Region"
 {
     Caption = 'O365 Country/Region';
@@ -39,3 +40,5 @@ table 2152 "O365 Country/Region"
     }
 }
 
+ 
+#endif

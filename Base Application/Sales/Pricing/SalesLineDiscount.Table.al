@@ -1,4 +1,5 @@
-﻿namespace Microsoft.Sales.Pricing;
+#if not CLEANSCHEMA28 
+namespace Microsoft.Sales.Pricing;
 
 using Microsoft.CRM.Campaign;
 using Microsoft.Finance.Currency;
@@ -14,7 +15,7 @@ table 7004 "Sales Line Discount"
     ObsoleteTag = '16.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '26.0';
+    ObsoleteTag = '28.0';
 #endif    
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
     DataClassification = CustomerContent;
@@ -199,3 +200,5 @@ table 7004 "Sales Line Discount"
 
 }
 
+ 
+#endif

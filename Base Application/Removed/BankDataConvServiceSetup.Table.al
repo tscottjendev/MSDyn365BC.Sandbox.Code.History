@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 table 1260 "Bank Data Conv. Service Setup"
 {
     Caption = 'Bank Data Conv. Service Setup';
@@ -154,3 +155,5 @@ table 1260 "Bank Data Conv. Service Setup"
         exit(EnvironmentInfo.IsSaaS() and CompanyInformationMgt.IsDemoCompany());
     end;
 }
+ 
+#endif

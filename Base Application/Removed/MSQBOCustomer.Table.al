@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 7820 "MS-QBO Customer"
 {
     Caption = 'MS-QBO Customer';
@@ -187,3 +188,5 @@ table 7820 "MS-QBO Customer"
     }
 }
 
+ 
+#endif
