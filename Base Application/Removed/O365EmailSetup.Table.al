@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2118 "O365 Email Setup"
 {
     Caption = 'O365 Email Setup';
@@ -49,3 +50,5 @@ table 2118 "O365 Email Setup"
 }
 
 
+ 
+#endif

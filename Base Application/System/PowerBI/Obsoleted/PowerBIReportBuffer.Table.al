@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA26 
 namespace System.Integration.PowerBI;
 
 table 6302 "Power BI Report Buffer"
@@ -74,3 +75,5 @@ table 6302 "Power BI Report Buffer"
     {
     }
 }
+ 
+#endif

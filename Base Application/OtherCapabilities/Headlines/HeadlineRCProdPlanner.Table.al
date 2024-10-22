@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 namespace System.Visualization;
 
 table 1447 "Headline RC Prod. Planner"
@@ -33,3 +34,5 @@ table 1447 "Headline RC Prod. Planner"
 
 }
 
+ 
+#endif

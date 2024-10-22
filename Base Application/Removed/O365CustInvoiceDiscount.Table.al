@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2113 "O365 Cust. Invoice Discount"
 {
     Caption = 'O365 Cust. Invoice Discount';
@@ -48,3 +49,5 @@ table 2113 "O365 Cust. Invoice Discount"
     }
 }
 
+ 
+#endif

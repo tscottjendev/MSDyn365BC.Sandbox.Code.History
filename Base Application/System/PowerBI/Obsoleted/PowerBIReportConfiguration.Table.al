@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA26 
 namespace System.Integration.PowerBI;
 
 /// <summary>
@@ -84,3 +85,5 @@ table 6301 "Power BI Report Configuration"
     {
     }
 }
+ 
+#endif
