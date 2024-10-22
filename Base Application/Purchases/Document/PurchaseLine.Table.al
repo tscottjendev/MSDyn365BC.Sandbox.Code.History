@@ -5829,17 +5829,21 @@ table 39 "Purchase Line"
                     LocalGLAcc.Get(FAPostingGr.GetMaintenanceExpenseAccount());
             end;
 
-        LocalGLAcc.CheckGLAcc();
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
-            LocalGLAcc.TestField("Gen. Prod. Posting Group");
-        "Posting Group" := FADeprBook."FA Posting Group";
-        "Gen. Prod. Posting Group" := LocalGLAcc."Gen. Prod. Posting Group";
-        "Tax Group Code" := LocalGLAcc."Tax Group Code";
-        if BASManagement.VendorRegistered("Buy-from Vendor No.") then
-            ValidateVATProdPostingGroupFromGLAcc(LocalGLAcc)
-        else
-            "VAT Prod. Posting Group" := BASManagement.GetUnregGSTProdPostGroup("VAT Bus. Posting Group", "Buy-from Vendor No.");
-        Validate("VAT Prod. Posting Group");
+        IsHandled := false;
+        OnGetFAPostingGroupOnBeforeCheckGLAcc(Rec, LocalGLAcc, FADeprBook, IsHandled);
+        if not IsHandled then begin
+            LocalGLAcc.CheckGLAcc();
+            if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
+                LocalGLAcc.TestField("Gen. Prod. Posting Group");
+            "Posting Group" := FADeprBook."FA Posting Group";
+            "Gen. Prod. Posting Group" := LocalGLAcc."Gen. Prod. Posting Group";
+            "Tax Group Code" := LocalGLAcc."Tax Group Code";
+            if BASManagement.VendorRegistered("Buy-from Vendor No.") then
+                ValidateVATProdPostingGroupFromGLAcc(LocalGLAcc)
+            else
+                "VAT Prod. Posting Group" := BASManagement.GetUnregGSTProdPostGroup("VAT Bus. Posting Group", "Buy-from Vendor No.");
+            Validate("VAT Prod. Posting Group");
+        end;
 
         OnAfterGetFAPostingGroup(Rec, LocalGLAcc);
     end;
@@ -12526,6 +12530,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPostingSetup(var PurchaseLine: Record "Purchase Line"; var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnGetFAPostingGroupOnBeforeCheckGLAcc(var PurchaseLine: Record "Purchase Line"; var GLAccount: Record "G/L Account"; FADeprBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
 }
