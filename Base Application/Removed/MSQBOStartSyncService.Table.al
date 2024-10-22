@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 7826 "MS-QBO Start Sync. Service"
 {
     Caption = 'MS-QBO Start Sync. Service';
@@ -56,3 +57,5 @@ table 7826 "MS-QBO Start Sync. Service"
     }
 }
 
+ 
+#endif

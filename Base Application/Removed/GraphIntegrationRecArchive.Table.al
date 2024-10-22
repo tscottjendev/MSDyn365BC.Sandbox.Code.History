@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA20 
 table 5452 "Graph Integration Rec. Archive"
 {
     ObsoleteState = Removed;
@@ -111,3 +112,5 @@ table 5452 "Graph Integration Rec. Archive"
         exit(GraphIntegrationRecArchive.FindFirst());
     end;
 }
+ 
+#endif

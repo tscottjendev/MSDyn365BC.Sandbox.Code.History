@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 table 7862 "MS- PayPal Transaction"
 {
     Caption = 'MS- PayPal Transaction';
@@ -98,3 +99,5 @@ table 7862 "MS- PayPal Transaction"
     }
 }
 
+ 
+#endif

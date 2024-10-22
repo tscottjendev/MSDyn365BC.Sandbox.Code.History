@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2112 "O365 Field Excel Mapping"
 {
     Caption = 'O365 Field Excel Mapping';
@@ -55,3 +56,5 @@ table 2112 "O365 Field Excel Mapping"
     }
 }
 
+ 
+#endif

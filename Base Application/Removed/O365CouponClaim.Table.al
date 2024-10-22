@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2115 "O365 Coupon Claim"
 {
     Caption = 'O365 Coupon Claim';
@@ -127,3 +128,5 @@ table 2115 "O365 Coupon Claim"
     }
 }
 
+ 
+#endif
