@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2105 "O365 Payment History Buffer"
 {
     Caption = 'O365 Payment History Buffer';
@@ -55,3 +56,5 @@ table 2105 "O365 Payment History Buffer"
     }
 }
 
+ 
+#endif

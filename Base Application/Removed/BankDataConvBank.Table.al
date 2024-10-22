@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 table 1259 "Bank Data Conv. Bank"
 {
     Caption = 'Bank Data Conv. Bank';
@@ -50,3 +51,5 @@ table 1259 "Bank Data Conv. Bank"
         }
     }
 }
+ 
+#endif

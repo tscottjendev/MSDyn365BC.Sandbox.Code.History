@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 namespace System.AI;
 
 table 851 "Cortana Intelligence"
@@ -62,3 +63,5 @@ table 851 "Cortana Intelligence"
     }
 }
 
+ 
+#endif

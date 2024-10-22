@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 table 7860 "MS- PayPal Standard Account"
 {
     Caption = 'MS- PayPal Standard Account';
@@ -95,3 +96,5 @@ table 7860 "MS- PayPal Standard Account"
     end;
 }
 
+ 
+#endif

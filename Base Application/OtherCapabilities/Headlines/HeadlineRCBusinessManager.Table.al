@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 namespace System.Visualization;
 
 table 1440 "Headline RC Business Manager"
@@ -33,3 +34,5 @@ table 1440 "Headline RC Business Manager"
 
 }
 
+ 
+#endif
