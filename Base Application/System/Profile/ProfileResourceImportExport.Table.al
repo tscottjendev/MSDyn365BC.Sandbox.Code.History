@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 namespace System.Environment.Configuration;
 
 table 9170 "Profile Resource Import/Export"
@@ -62,3 +63,5 @@ table 9170 "Profile Resource Import/Export"
     end;
 }
 
+ 
+#endif

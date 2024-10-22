@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA26 
 namespace System.Integration.PowerBI;
 
 /// <summary>
@@ -41,3 +42,5 @@ table 6325 "Power BI User Status"
     }
 }
 
+ 
+#endif

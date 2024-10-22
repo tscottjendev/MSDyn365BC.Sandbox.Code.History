@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2132 "O365 Settings Menu"
 {
     Caption = 'O365 Settings Menu';
@@ -56,3 +57,5 @@ table 2132 "O365 Settings Menu"
     }
 }
 
+ 
+#endif
