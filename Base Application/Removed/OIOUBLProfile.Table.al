@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 table 13600 "OIOUBL Profile"
 {
     Caption = 'OIOUBL Profile';
@@ -39,3 +40,5 @@ table 13600 "OIOUBL Profile"
     }
 }
 
+ 
+#endif
