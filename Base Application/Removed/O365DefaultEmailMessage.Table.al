@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2170 "O365 Default Email Message"
 {
     Caption = 'O365 Default Email Message';
@@ -34,3 +35,5 @@ table 2170 "O365 Default Email Message"
     }
 }
 
+ 
+#endif

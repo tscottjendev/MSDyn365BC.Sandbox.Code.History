@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA24 
 table 2103 "O365 Sales Document"
 {
     Caption = 'O365 Sales Document';
@@ -208,3 +209,5 @@ table 2103 "O365 Sales Document"
     }
 }
 
+ 
+#endif

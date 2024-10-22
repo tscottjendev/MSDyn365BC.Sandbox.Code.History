@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA22 
 namespace System.Security.User;
 
 using System.Security.AccessControl;
@@ -33,4 +34,5 @@ table 1552 "User Callouts"
             Clustered = true;
         }
     }
-}
+} 
+#endif

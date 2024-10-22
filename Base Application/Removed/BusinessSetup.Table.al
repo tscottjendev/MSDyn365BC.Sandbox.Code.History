@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA18 
 table 1875 "Business Setup"
 {
     Caption = 'Business Setup';
@@ -54,3 +55,5 @@ table 1875 "Business Setup"
     }
 }
 
+ 
+#endif

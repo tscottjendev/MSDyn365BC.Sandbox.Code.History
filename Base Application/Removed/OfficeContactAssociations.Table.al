@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15 
 table 1625 "Office Contact Associations"
 {
     Caption = 'Office Contact Associations';
@@ -74,3 +75,5 @@ table 1625 "Office Contact Associations"
     end;
 }
 
+ 
+#endif
