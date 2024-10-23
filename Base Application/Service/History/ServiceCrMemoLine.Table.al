@@ -746,6 +746,12 @@ table 5995 "Service Cr.Memo Line"
         end;
     end;
 
+    internal procedure GetVATPct() VATPct: Decimal
+    begin
+        VATPct := "VAT %";
+        OnAfterGetVATPct(Rec, VATPct);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeInsertLine(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
     begin
@@ -758,6 +764,11 @@ table 5995 "Service Cr.Memo Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyToVATAmountLine(ServiceCrMemoLine: Record "Service Cr.Memo Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVATPct(var ServiceCrMemoLine: Record "Service Cr.Memo Line"; var VATPct: Decimal)
     begin
     end;
 }
