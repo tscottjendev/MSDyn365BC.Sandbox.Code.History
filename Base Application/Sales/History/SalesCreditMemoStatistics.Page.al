@@ -309,7 +309,7 @@ page 398 "Sales Credit Memo Statistics"
                 CustAmount += SalesCrMemoLine.Amount;
                 AmountInclVAT += SalesCrMemoLine."Amount Including VAT";
                 if Rec."Prices Including VAT" then
-                    InvDiscAmount += SalesCrMemoLine."Inv. Discount Amount" / (1 + SalesCrMemoLine."VAT %" / 100)
+                    InvDiscAmount += SalesCrMemoLine."Inv. Discount Amount" / (1 + SalesCrMemoLine.GetVATPct() / 100)
                 else
                     InvDiscAmount += SalesCrMemoLine."Inv. Discount Amount";
                 CostLCY += SalesCrMemoLine.Quantity * SalesCrMemoLine."Unit Cost (LCY)";
@@ -321,7 +321,7 @@ page 398 "Sales Credit Memo Statistics"
                     TotalParcels += Round(SalesCrMemoLine.Quantity / SalesCrMemoLine."Units per Parcel", 1, '>');
                 if SalesCrMemoLine."VAT %" <> VATpercentage then
                     if VATpercentage = 0 then
-                        VATpercentage := SalesCrMemoLine."VAT %"
+                        VATpercentage := SalesCrMemoLine.GetVATPct()
                     else
                         VATpercentage := -1;
                 TotalAdjCostLCY +=
