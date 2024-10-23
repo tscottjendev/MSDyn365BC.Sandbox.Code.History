@@ -3748,7 +3748,7 @@ codeunit 90 "Purch.-Post"
         if TotalPurchLine."VAT %" = 0 then
             VATAmountText := VATAmountTxt
         else
-            VATAmountText := StrSubstNo(VATRateTxt, TotalPurchLine."VAT %");
+            VATAmountText := StrSubstNo(VATRateTxt, TotalPurchLine.GetVATPct());
         NewTotalPurchLine := TotalPurchLine;
         NewTotalPurchLineLCY := TotalPurchLineLCY;
     end;
@@ -5345,7 +5345,7 @@ codeunit 90 "Purch.-Post"
                     (TotalPrepmtAmtToDeduct + PurchLine."Prepmt Amt to Deduct") / (1 + PurchLine."Prepayment VAT %" / 100),
                     Currency."Amount Rounding Precision") -
                   Round(
-                    TotalPrepmtAmtToDeduct / (1 + PurchLine."Prepayment VAT %" / 100),
+                    TotalPrepmtAmtToDeduct / (1 + PurchLine.GetPrepaymentVATPct() / 100),
                     Currency."Amount Rounding Precision")
         else
             PrepmtVATBaseToDeduct := PurchLine."Prepmt Amt to Deduct";

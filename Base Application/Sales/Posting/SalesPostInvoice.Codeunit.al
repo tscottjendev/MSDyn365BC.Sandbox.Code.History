@@ -346,7 +346,7 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
         InvoicePostingBuffer."Global Dimension 2 Code" := SalesLine."Shortcut Dimension 2 Code";
         InvoicePostingBuffer."Dimension Set ID" := SalesLine."Dimension Set ID";
         InvoicePostingBuffer."Job No." := SalesLine."Job No.";
-        InvoicePostingBuffer."VAT %" := SalesLine."VAT %";
+        InvoicePostingBuffer."VAT %" := SalesLine.GetVATPct();
         InvoicePostingBuffer."VAT Difference" := SalesLine."VAT Difference";
         InvoicePostingBuffer."VAT Base (ACY)" := SalesLine."VAT Base (ACY)";
         InvoicePostingBuffer."VAT Difference (ACY)" := SalesLine."VAT Difference (ACY)";

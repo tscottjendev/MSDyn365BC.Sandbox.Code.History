@@ -1020,6 +1020,12 @@ table 125 "Purch. Cr. Memo Line"
                 Currency.InitRoundingPrecision();
     end;
 
+    internal procedure GetVATPct() VATPct: Decimal
+    begin
+        VATPct := "VAT %";
+        OnAfterGetVATPct(Rec, VATPct);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromPurchLine(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; PurchLine: Record "Purchase Line"; var PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     begin
@@ -1037,6 +1043,11 @@ table 125 "Purch. Cr. Memo Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVATPct(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var VATPct: Decimal)
     begin
     end;
 }

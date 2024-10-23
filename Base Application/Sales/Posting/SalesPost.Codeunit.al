@@ -3890,7 +3890,7 @@ codeunit 80 "Sales-Post"
         if TotalSalesLine."VAT %" = 0 then
             VATAmountText := VATAmountTxt
         else
-            VATAmountText := StrSubstNo(VATRateTxt, TotalSalesLine."VAT %");
+            VATAmountText := StrSubstNo(VATRateTxt, TotalSalesLine.GetVATPct());
         NewTotalSalesLine := TotalSalesLine;
         NewTotalSalesLineLCY := TotalSalesLineLCY;
     end;
@@ -5397,10 +5397,10 @@ codeunit 80 "Sales-Post"
             end else
                 PrepmtVATBaseToDeduct :=
                   Round(
-                    (TotalPrepmtAmtToDeduct + SalesLine."Prepmt Amt to Deduct") / (1 + SalesLine."Prepayment VAT %" / 100),
+                    (TotalPrepmtAmtToDeduct + SalesLine."Prepmt Amt to Deduct") / (1 + SalesLine.GetPrepaymentVATPct() / 100),
                     Currency."Amount Rounding Precision") -
                   Round(
-                    TotalPrepmtAmtToDeduct / (1 + SalesLine."Prepayment VAT %" / 100),
+                    TotalPrepmtAmtToDeduct / (1 + SalesLine.GetPrepaymentVATPct() / 100),
                     Currency."Amount Rounding Precision")
         else
             PrepmtVATBaseToDeduct := SalesLine."Prepmt Amt to Deduct";

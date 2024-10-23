@@ -1052,7 +1052,7 @@ codeunit 442 "Sales-Post Prepayments"
 
         ApplyFilter(SalesHeader, DocumentType, SalesLine);
         SalesLine.LockTable();
-        SalesLine.CalcSums(SalesLine."Prepmt. Line Amount", SalesLine."Prepmt. Amt. Inv.");
+        SalesLine.CalcSums("Prepmt. Line Amount", "Prepmt. Amt. Inv.");
         PrepmtAmtToInvTotal := SalesLine."Prepmt. Line Amount" - SalesLine."Prepmt. Amt. Inv.";
         if SalesLine.FindSet() then
             repeat
@@ -1468,10 +1468,10 @@ codeunit 442 "Sales-Post Prepayments"
         UpdateVATOnLines(SalesHeader, SalesLine, VATAmountLine, 2);
         BuildInvLineBuffer(SalesHeader, SalesLine, 2, TempPrepmtInvLineBuf, false);
         if TempPrepmtInvLineBuf.Find('-') then begin
-            PrevVATPct := TempPrepmtInvLineBuf."VAT %";
+            PrevVATPct := TempPrepmtInvLineBuf.GetVATPct();
             repeat
                 RoundAmounts(SalesHeader, TempPrepmtInvLineBuf, TotalPrepmtInvLineBuf, TotalPrepmtInvLineBufLCY);
-                if TempPrepmtInvLineBuf."VAT %" <> PrevVATPct then
+                if TempPrepmtInvLineBuf.GetVATPct() <> PrevVATPct then
                     DifVATPct := true;
             until TempPrepmtInvLineBuf.Next() = 0;
         end;
