@@ -329,7 +329,7 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         InvoicePostingBuffer."Global Dimension 2 Code" := PurchLine."Shortcut Dimension 2 Code";
         InvoicePostingBuffer."Dimension Set ID" := PurchLine."Dimension Set ID";
         InvoicePostingBuffer."Job No." := PurchLine."Job No.";
-        InvoicePostingBuffer."VAT %" := PurchLine."VAT %";
+        InvoicePostingBuffer."VAT %" := PurchLine.GetVATPct();
         NonDeductibleVAT.Copy(InvoicePostingBuffer, PurchLine);
         InvoicePostingBuffer."VAT Difference" := PurchLine."VAT Difference";
         if InvoicePostingBuffer.Type = InvoicePostingBuffer.Type::"Fixed Asset" then begin
