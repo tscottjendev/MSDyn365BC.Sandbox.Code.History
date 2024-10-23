@@ -320,7 +320,7 @@ page 397 "Sales Invoice Statistics"
                 CustAmount += SalesInvLine.Amount;
                 AmountInclVAT += SalesInvLine."Amount Including VAT";
                 if Rec."Prices Including VAT" then
-                    InvDiscAmount += SalesInvLine."Inv. Discount Amount" / (1 + SalesInvLine."VAT %" / 100)
+                    InvDiscAmount += SalesInvLine."Inv. Discount Amount" / (1 + SalesInvLine.GetVATPct() / 100)
                 else
                     InvDiscAmount += SalesInvLine."Inv. Discount Amount";
                 CostLCY += SalesInvLine.Quantity * SalesInvLine."Unit Cost (LCY)";
@@ -332,7 +332,7 @@ page 397 "Sales Invoice Statistics"
                     TotalParcels += Round(SalesInvLine.Quantity / SalesInvLine."Units per Parcel", 1, '>');
                 if SalesInvLine."VAT %" <> VATPercentage then
                     if VATPercentage = 0 then
-                        VATPercentage := SalesInvLine."VAT %"
+                        VATPercentage := SalesInvLine.GetVATPct()
                     else
                         VATPercentage := -1;
                 TotalAdjCostLCY +=

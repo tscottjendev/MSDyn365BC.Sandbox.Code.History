@@ -891,7 +891,7 @@ table 39 "Purchase Line"
                             "VAT Base Amount" :=
                               Round(Amount * (1 - GetVatBaseDiscountPct(PurchHeader) / 100), Currency."Amount Rounding Precision");
                             "Amount Including VAT" :=
-                              Round(Amount + "VAT Base Amount" * "VAT %" / 100, Currency."Amount Rounding Precision");
+                              Round(Amount + "VAT Base Amount" * GetVATPct() / 100, Currency."Amount Rounding Precision");
                             OnValidateAmountOnAfterCalculateNormalVAT(Rec, PurchHeader, Currency);
                         end;
                     "VAT Calculation Type"::"Full VAT":
@@ -919,7 +919,7 @@ table 39 "Purchase Line"
                                     "VAT %" :=
                                       Round(100 * ("Amount Including VAT" - "VAT Base Amount") / "VAT Base Amount", 0.00001)
                                 else
-                                    "VAT %" := 0;
+                                    ClearVATpct();
                             end;
                         end;
                 end;
@@ -946,7 +946,7 @@ table 39 "Purchase Line"
                             Amount :=
                               Round(
                                 "Amount Including VAT" /
-                                (1 + (1 - GetVatBaseDiscountPct(PurchHeader) / 100) * "VAT %" / 100),
+                                (1 + (1 - GetVatBaseDiscountPct(PurchHeader) / 100) * GetVATPct() / 100),
                                 Currency."Amount Rounding Precision");
                             "VAT Base Amount" :=
                               Round(Amount * (1 - GetVatBaseDiscountPct(PurchHeader) / 100), Currency."Amount Rounding Precision");
@@ -976,7 +976,7 @@ table 39 "Purchase Line"
                                     "VAT %" :=
                                       Round(100 * ("Amount Including VAT" - "VAT Base Amount") / "VAT Base Amount", 0.00001)
                                 else
-                                    "VAT %" := 0;
+                                    ClearVATPct();
                             end;
                         end;
                 end;
@@ -1478,14 +1478,10 @@ table 39 "Purchase Line"
                     if not IsHandled then
                         VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                     OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(VATPostingSetup);
-                    "VAT Difference" := 0;
+                    ClearVATDifference();
                     NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
                     GetPurchHeader();
-                    "VAT %" := VATPostingSetup."VAT %";
-                    "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
-                    if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
-                        Validate("Allow Invoice Disc.", false);
-                    "VAT Identifier" := VATPostingSetup."VAT Identifier";
+                    CopyFromVATPostingSetup(VATPostingSetup);
                     NonDeductibleVAT.SetNonDeductiblePct(Rec);
 
                     IsHandled := false;
@@ -1494,7 +1490,7 @@ table 39 "Purchase Line"
                         case "VAT Calculation Type" of
                             "VAT Calculation Type"::"Reverse Charge VAT",
                             "VAT Calculation Type"::"Sales Tax":
-                                "VAT %" := 0;
+                                ClearVATPct();
                             "VAT Calculation Type"::"Full VAT":
                                 begin
                                     TestField(Type, Type::"G/L Account");
@@ -1506,7 +1502,7 @@ table 39 "Purchase Line"
                     if ShouldUpdateUnitCost then
                         Validate("Direct Unit Cost",
                         Round(
-                            "Direct Unit Cost" * (100 + "VAT %") / (100 + xRec."VAT %"),
+                            "Direct Unit Cost" * (100 + GetVATPct()) / (100 + xRec.GetVATPct()),
                             Currency."Unit-Amount Rounding Precision"));
                     UpdateAmounts();
                 end;
@@ -3753,7 +3749,9 @@ table 39 "Purchase Line"
         }
         key(Key4; "Document Type", "Pay-to Vendor No.", "Currency Code", "Document No.")
         {
+#pragma warning disable AS0038
             IncludedFields = "Outstanding Amount", "Amt. Rcd. Not Invoiced", "Outstanding Amount (LCY)", "Amt. Rcd. Not Invoiced (LCY)", "Prepmt. Amount Inv. (LCY)", "Prepmt. VAT Amount Inv. (LCY)";
+#pragma warning RESTORE AS0038
         }
         key(Key7; "Document Type", "Blanket Order No.", "Blanket Order Line No.")
         {
@@ -3763,7 +3761,7 @@ table 39 "Purchase Line"
         }
         key(Key9; "Document Type", "Document No.", "Location Code")
         {
-            IncludedFields = Amount, "Amount Including VAT";
+            IncludedFields = Amount, "Amount Including VAT", "VAT Base Amount";
         }
         key(Key10; "Document Type", "Receipt No.", "Receipt Line No.")
         {
@@ -4404,7 +4402,7 @@ table 39 "Purchase Line"
 
             if OldInvDiscAmtToInv <> "Inv. Disc. Amount to Invoice" then begin
                 "Amount Including VAT" := "Amount Including VAT" - "VAT Difference";
-                "VAT Difference" := 0;
+                ClearVATDifference();
                 NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
             end;
             NotifyOnMissingSetup(FieldNo("Inv. Discount Amount"));
@@ -5201,7 +5199,7 @@ table 39 "Purchase Line"
         else
             if PurchHeader."Prices Including VAT" then
                 "Unit Cost" :=
-                  ("Direct Unit Cost" - DiscountAmountPerQty) * (1 + "Indirect Cost %" / 100) / (1 + "VAT %" / 100) +
+                  ("Direct Unit Cost" - DiscountAmountPerQty) * (1 + "Indirect Cost %" / 100) / (1 + GetVATPct() / 100) +
                   GetOverheadRateFCY() - "VAT Difference"
             else
                 "Unit Cost" :=
@@ -5421,7 +5419,7 @@ table 39 "Purchase Line"
                         begin
                             Amount :=
                               Round(
-                                (TotalLineAmount - TotalInvDiscAmount + CalcLineAmount()) / (1 + "VAT %" / 100),
+                                (TotalLineAmount - TotalInvDiscAmount + CalcLineAmount()) / (1 + GetVATPct() / 100),
                                 Currency."Amount Rounding Precision") -
                               TotalAmount;
                             "VAT Base Amount" :=
@@ -5431,7 +5429,7 @@ table 39 "Purchase Line"
                             "Amount Including VAT" :=
                               TotalLineAmount + "Line Amount" -
                               Round(
-                                (TotalAmount + Amount) * (GetVatBaseDiscountPct(PurchHeader) / 100) * "VAT %" / 100,
+                                (TotalAmount + Amount) * (GetVatBaseDiscountPct(PurchHeader) / 100) * GetVATPct() / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
                               TotalAmountInclVAT - TotalInvDiscAmount - "Inv. Discount Amount";
                             NonDeductibleVAT.Update(Rec, Currency);
@@ -5465,7 +5463,7 @@ table 39 "Purchase Line"
                                 "VAT %" :=
                                   Round(100 * ("Amount Including VAT" - "VAT Base Amount") / "VAT Base Amount", 0.00001)
                             else
-                                "VAT %" := 0;
+                                ClearVATPct();
                         end;
                 end
             else
@@ -5479,7 +5477,7 @@ table 39 "Purchase Line"
                             "Amount Including VAT" :=
                               TotalAmount + Amount +
                               Round(
-                                (TotalAmount + Amount) * (1 - GetVatBaseDiscountPct(PurchHeader) / 100) * "VAT %" / 100,
+                                (TotalAmount + Amount) * (1 - GetVatBaseDiscountPct(PurchHeader) / 100) * GetVATPct() / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
                               TotalAmountInclVAT + TotalVATDifference;
                             NonDeductibleVAT.Update(Rec, Currency);
@@ -5512,7 +5510,7 @@ table 39 "Purchase Line"
                                 "VAT %" :=
                                   Round(100 * ("Amount Including VAT" - "VAT Base Amount") / "VAT Base Amount", 0.00001)
                             else
-                                "VAT %" := 0;
+                                ClearVATPct();
                         end;
                 end;
         end;
@@ -5549,13 +5547,7 @@ table 39 "Purchase Line"
             OnAfterGetPostingSetup(Rec, VATPostingSetup);
             if ("Prepayment VAT %" <> 0) and ("Prepayment VAT %" <> VATPostingSetup."VAT %") and ("Prepmt. Amt. Inv." <> 0) then
                 Error(CannotChangePrepmtAmtDiffVAtPctErr);
-            "Prepayment VAT %" := VATPostingSetup."VAT %";
-            "Prepmt. VAT Calc. Type" := VATPostingSetup."VAT Calculation Type";
-            "Prepayment VAT Identifier" := VATPostingSetup."VAT Identifier";
-            if "Prepmt. VAT Calc. Type" in
-               ["Prepmt. VAT Calc. Type"::"Reverse Charge VAT", "Prepmt. VAT Calc. Type"::"Sales Tax"]
-            then
-                "Prepayment VAT %" := 0;
+            CopyPrepaymentFromVATPostingSetup(VATPostingSetup);
             "Prepayment Tax Group Code" := GLAcc."Tax Group Code";
         end;
     end;
@@ -6305,7 +6297,7 @@ table 39 "Purchase Line"
         else
             if PurchHeader."Prices Including VAT" then
                 ItemChargeAssgntLineAmt :=
-                  Round(CalcLineAmount() / (1 + "VAT %" / 100), Currency."Amount Rounding Precision")
+                  Round(CalcLineAmount() / (1 + GetVATPct() / 100), Currency."Amount Rounding Precision")
             else
                 ItemChargeAssgntLineAmt := CalcLineAmount();
 
@@ -6877,13 +6869,13 @@ table 39 "Purchase Line"
                                 NewAmount, NewVATBaseAmount, PurchLine);
                         end else begin
                             if VATAmountLine.CalcLineAmount() = 0 then
-                                VATDifference := 0
+                                ClearVATDifference()
                             else
                                 VATDifference :=
                                   TempVATAmountLineRemainder."VAT Difference" +
                                   VATAmountLine."VAT Difference" * (LineAmountToInvoice - InvDiscAmount) / VATAmountLine.CalcLineAmount();
                             if LineAmountToInvoice = 0 then begin
-                                PurchLine."VAT Difference" := 0;
+                                PurchLine.ClearVATDifference();
                                 NonDedVATAmount := 0;
                                 NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
                             end else begin
@@ -6976,7 +6968,7 @@ table 39 "Purchase Line"
                     if PurchLine."VAT Calculation Type" in
                        [PurchLine."VAT Calculation Type"::"Reverse Charge VAT", PurchLine."VAT Calculation Type"::"Sales Tax"]
                     then
-                        PurchLine."VAT %" := 0;
+                        PurchLine.ClearVATPct();
 
                     if not FindVATAmountLine(PurchLine, VATAmountLine) then begin
                         InsertVATAmountLine(PurchLine, VATAmountLine);
@@ -9280,14 +9272,14 @@ table 39 "Purchase Line"
             exit;
 
         if Rec."Line Amount" <> xRec."Line Amount" then begin
-            "VAT Difference" := 0;
+            ClearVATDifference();
             NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
             LineAmountChanged := true;
         end;
         if "Line Amount" <> Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision") - "Line Discount Amount" then begin
             "Line Amount" :=
               Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision") - "Line Discount Amount";
-            "VAT Difference" := 0;
+            ClearVATDifference();
             NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
             LineAmountChanged := true;
         end;
@@ -9743,6 +9735,58 @@ table 39 "Purchase Line"
             Codeunit::"Purchase Line - Price",
             'SetPurchaseReceiveQty',
             StrSubstNo(QtyReceiveActionDescriptionLbl, Rec.FieldCaption("Qty. to Receive"), Rec.Quantity)));
+    end;
+
+    internal procedure ClearVATPct()
+    begin
+        "VAT %" := 0;
+        OnAfterClearVATPct(Rec);
+    end;
+
+    internal procedure ClearPrepaymentVATPct()
+    begin
+        "Prepayment VAT %" := 0;
+        OnAfterClearPrepaymentVATPct(Rec);
+    end;
+
+    internal procedure ClearVATDifference()
+    begin
+        "VAT Difference" := 0;
+        OnAfterClearVATDifference(Rec);
+    end;
+
+    internal procedure GetVATPct() VATPct: Decimal
+    begin
+        VATPct := "VAT %";
+        OnAfterGetVATPct(Rec, VATPct);
+    end;
+
+    internal procedure GetPrepaymentVATPct() PrepaymentVATPct: Decimal
+    begin
+        PrepaymentVATPct := "Prepayment VAT %";
+        OnAfterGetPrepaymentVATPct(Rec, PrepaymentVATPct);
+    end;
+
+    internal procedure CopyFromVATPostingSetup(var VATPostingSetupFrom: Record "VAT Posting Setup")
+    begin
+        "VAT %" := VATPostingSetup."VAT %";
+        "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
+        if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
+            Validate("Allow Invoice Disc.", false);
+        "VAT Identifier" := VATPostingSetup."VAT Identifier";
+
+        OnAfterCopyFromVATPostingSetup(Rec, VATPostingSetupFrom);
+    end;
+
+    internal procedure CopyPrepaymentFromVATPostingSetup(var VATPostingSetupFrom: Record "VAT Posting Setup")
+    begin
+        "Prepayment VAT %" := VATPostingSetup."VAT %";
+        "Prepmt. VAT Calc. Type" := VATPostingSetup."VAT Calculation Type";
+        "Prepayment VAT Identifier" := VATPostingSetup."VAT Identifier";
+        if "Prepmt. VAT Calc. Type" in ["Prepmt. VAT Calc. Type"::"Reverse Charge VAT", "Prepmt. VAT Calc. Type"::"Sales Tax"] then
+            ClearPrepaymentVATPct();
+
+        OnAfterCopyPrepaymentFromVATPostingSetup(Rec, VATPostingSetupFrom);
     end;
 
     [IntegrationEvent(false, false)]
@@ -11667,6 +11711,41 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPostingSetup(var PurchaseLine: Record "Purchase Line"; var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearVATPct(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearPrepaymentVATPct(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearVATDifference(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVATPct(var PurchaseLine: Record "Purchase Line"; var VATPct: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPrepaymentVATPct(var PurchaseLine: Record "Purchase Line"; var PrepaymentVATPct: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromVATPostingSetup(var PurchaseLine: Record "Purchase Line"; var VATPostingSetupFrom: Record "VAT Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyPrepaymentFromVATPostingSetup(var PurchaseLine: Record "Purchase Line"; var VATPostingSetupFrom: Record "VAT Posting Setup")
     begin
     end;
 
