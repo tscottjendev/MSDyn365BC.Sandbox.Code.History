@@ -8563,7 +8563,7 @@ table 37 "Sales Line"
 
     local procedure CheckWMS()
     begin
-        if CurrFieldNo <> 0 then
+        if (CurrFieldNo <> 0) or (SalesHeader."VAT Bus. Posting Group" <> Rec."VAT Bus. Posting Group") then
             CheckLocationOnWMS();
     end;
 
