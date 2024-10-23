@@ -991,7 +991,7 @@ table 113 "Sales Invoice Line"
             exit;
 
         DeferralUtilities.OpenLineScheduleView(
-            "Deferral Code", Enum::"Deferral Document Type"::Sales.AsInteger(), '', '',
+            "Deferral Code", "Deferral Document Type"::Sales.AsInteger(), '', '',
             GetDocumentType(), "Document No.", "Line No.");
     end;
 
@@ -1062,6 +1062,12 @@ table 113 "Sales Invoice Line"
             CalculationDate := WorkDate();
     end;
 
+    internal procedure GetVATPct() VATPct: Decimal
+    begin
+        VATPct := "VAT %";
+        OnAfterGetVATPct(Rec, VATPct);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQty(var SalesInvoiceLine: Record "Sales Invoice Line"; QtyBase: Decimal; var Result: Decimal)
     begin
@@ -1094,6 +1100,11 @@ table 113 "Sales Invoice Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var SalesInvoiceLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVATPct(var SalesInvoiceLine: Record "Sales Invoice Line"; var VATPct: Decimal)
     begin
     end;
 }
