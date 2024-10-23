@@ -227,7 +227,7 @@ page 6034 "Service Credit Memo Statistics"
                 CustAmount := CustAmount + ServCrMemoLine.Amount;
                 AmountInclVAT := AmountInclVAT + ServCrMemoLine."Amount Including VAT";
                 if Rec."Prices Including VAT" then
-                    InvDiscAmount := InvDiscAmount + ServCrMemoLine."Inv. Discount Amount" / (1 + ServCrMemoLine."VAT %" / 100)
+                    InvDiscAmount := InvDiscAmount + ServCrMemoLine."Inv. Discount Amount" / (1 + ServCrMemoLine.GetVATPct() / 100)
                 else
                     InvDiscAmount := InvDiscAmount + ServCrMemoLine."Inv. Discount Amount";
                 CostLCY := CostLCY + (ServCrMemoLine.Quantity * ServCrMemoLine."Unit Cost (LCY)");
@@ -239,7 +239,7 @@ page 6034 "Service Credit Memo Statistics"
                     TotalParcels := TotalParcels + Round(ServCrMemoLine.Quantity / ServCrMemoLine."Units per Parcel", 1, '>');
                 if ServCrMemoLine."VAT %" <> VATpercentage then
                     if VATpercentage = 0 then
-                        VATpercentage := ServCrMemoLine."VAT %"
+                        VATpercentage := ServCrMemoLine.GetVATPct()
                     else
                         VATpercentage := -1;
                 TotalAdjCostLCY := TotalAdjCostLCY + ServCostCalculationMgt.CalcServCrMemoLineCostLCY(ServCrMemoLine);
