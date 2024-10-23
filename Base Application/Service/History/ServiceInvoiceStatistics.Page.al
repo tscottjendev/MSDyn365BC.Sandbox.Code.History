@@ -227,7 +227,7 @@ page 6033 "Service Invoice Statistics"
                 CustAmount := CustAmount + ServInvLine.Amount;
                 AmountInclVAT := AmountInclVAT + ServInvLine."Amount Including VAT";
                 if Rec."Prices Including VAT" then
-                    InvDiscAmount := InvDiscAmount + ServInvLine."Inv. Discount Amount" / (1 + ServInvLine."VAT %" / 100)
+                    InvDiscAmount := InvDiscAmount + ServInvLine."Inv. Discount Amount" / (1 + ServInvLine.GetVATPct() / 100)
                 else
                     InvDiscAmount := InvDiscAmount + ServInvLine."Inv. Discount Amount";
                 CostLCY := CostLCY + (ServInvLine.Quantity * ServInvLine."Unit Cost (LCY)");
@@ -239,7 +239,7 @@ page 6033 "Service Invoice Statistics"
                     TotalParcels := TotalParcels + Round(ServInvLine.Quantity / ServInvLine."Units per Parcel", 1, '>');
                 if ServInvLine."VAT %" <> VATPercentage then
                     if VATPercentage = 0 then
-                        VATPercentage := ServInvLine."VAT %"
+                        VATPercentage := ServInvLine.GetVATPct()
                     else
                         VATPercentage := -1;
                 TotalAdjCostLCY := TotalAdjCostLCY + ServCostCalculationMgt.CalcServInvLineCostLCY(ServInvLine);
