@@ -961,10 +961,10 @@ codeunit 444 "Purchase-Post Prepayments"
         UpdateVATOnLines(PurchHeader, PurchLine, VATAmountLine, 2);
         BuildInvLineBuffer(PurchHeader, PurchLine, 2, TempPrepmtInvLineBuf, false);
         if TempPrepmtInvLineBuf.Find('-') then begin
-            PrevVATPct := TempPrepmtInvLineBuf."VAT %";
+            PrevVATPct := TempPrepmtInvLineBuf.GetVATPct();
             repeat
                 RoundAmounts(PurchHeader, TempPrepmtInvLineBuf, TotalPrepmtInvLineBuf, TotalPrepmtInvLineBufLCY);
-                if TempPrepmtInvLineBuf."VAT %" <> PrevVATPct then
+                if TempPrepmtInvLineBuf.GetVATPct() <> PrevVATPct then
                     DifVATPct := true;
             until TempPrepmtInvLineBuf.Next() = 0;
         end;
