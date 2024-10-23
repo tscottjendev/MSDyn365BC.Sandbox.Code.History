@@ -3734,7 +3734,7 @@ codeunit 90 "Purch.-Post"
         if (TotalPurchLine."VAT %" = 0) and (TotalPurchLine."EC %" = 0) then
             VATAmountText := VATAmountTxt
         else
-            VATAmountText := StrSubstNo(VATRateTxt, (TotalPurchLine."VAT %" + TotalPurchLine."EC %"));
+            VATAmountText := StrSubstNo(VATRateTxt, TotalPurchLine.GetVATPct());
         NewTotalPurchLine := TotalPurchLine;
         NewTotalPurchLineLCY := TotalPurchLineLCY;
     end;
@@ -5307,10 +5307,10 @@ codeunit 90 "Purch.-Post"
         if PurchHeader."Prices Including VAT" then
             PrepmtVATBaseToDeduct :=
               Round(
-                (TotalPrepmtAmtToDeduct + PurchLine."Prepmt Amt to Deduct") / (1 + (PurchLine."Prepayment VAT %" + PurchLine."Prepayment EC %") / 100),
+                (TotalPrepmtAmtToDeduct + PurchLine."Prepmt Amt to Deduct") / (1 + PurchLine.GetPrepaymentVATPct() / 100),
                 Currency."Amount Rounding Precision") -
               Round(
-                TotalPrepmtAmtToDeduct / (1 + (PurchLine."Prepayment VAT %" + PurchLine."Prepayment EC %") / 100),
+                TotalPrepmtAmtToDeduct / (1 + PurchLine.GetPrepaymentVATPct() / 100),
                 Currency."Amount Rounding Precision")
         else
             PrepmtVATBaseToDeduct := PurchLine."Prepmt Amt to Deduct";
@@ -7902,8 +7902,7 @@ codeunit 90 "Purch.-Post"
                 IsHandled := false;
                 OnPostItemTrackingForShipmentOnBeforeSetItemEntryRelationForShipment(ItemEntryRelation, ReturnShptLine, TempTrackingSpecification, IsHandled);
                 if not IsHandled then
-                    if TrackingSpecificationExists then begin
-                        // Item Tracking
+                    if TrackingSpecificationExists then begin // Item Tracking
                         ItemEntryRelation.Get(TempTrackingSpecification."Item Ledger Entry No.");
                         ReturnShptLine.Get(ItemEntryRelation."Source ID", ItemEntryRelation."Source Ref. No.");
                     end else

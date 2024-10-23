@@ -455,7 +455,7 @@ codeunit 5986 "Serv-Amounts Mgt."
         if TotalServiceLine."VAT %" = 0 then
             VATAmountText := Text016
         else
-            VATAmountText := StrSubstNo(Text017, (TotalServiceLine."VAT %" + TotalServiceLine."EC %"));
+            VATAmountText := StrSubstNo(Text017, TotalServiceLine.GetVATPct());
         NewTotalServLine := TotalServiceLine;
         NewTotalServLineLCY := TotalServiceLineLCY;
     end;

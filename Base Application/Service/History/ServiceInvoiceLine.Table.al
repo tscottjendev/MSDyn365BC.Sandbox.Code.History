@@ -844,6 +844,12 @@ table 5993 "Service Invoice Line"
         end;
     end;
 
+    internal procedure GetVATPct() VATPct: Decimal
+    begin
+        VATPct := "VAT %" + "EC %";
+        OnAfterGetVATPct(Rec, VATPct);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeInsertLine(ServInvHeader: Record "Service Invoice Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
     begin
@@ -856,6 +862,11 @@ table 5993 "Service Invoice Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyToVATAmountLine(ServiceInvoiceLine: Record "Service Invoice Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVATPct(var ServiceInvoiceLine: Record "Service Invoice Line"; var VATPct: Decimal)
     begin
     end;
 }
