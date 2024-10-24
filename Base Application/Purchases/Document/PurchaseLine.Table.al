@@ -394,12 +394,15 @@ table 39 "Purchase Line"
                     if "Location Code" <> xRec."Location Code" then
                         PlanPriceCalcByField(FieldNo("Location Code"));
 
-                if "Location Code" = '' then begin
-                    if InvtSetup.Get() then
-                        "Inbound Whse. Handling Time" := InvtSetup."Inbound Whse. Handling Time";
-                end else
-                    if Location.Get("Location Code") then
-                        "Inbound Whse. Handling Time" := Location."Inbound Whse. Handling Time";
+                IsHandled := false;
+                OnValidateLocationCodeOnBeforeSetInboundWhseHandlingTime(CurrFieldNo, Rec, xRec, IsHandled);
+                if not IsHandled then
+                    if "Location Code" = '' then begin
+                        if InvtSetup.Get() then
+                            "Inbound Whse. Handling Time" := InvtSetup."Inbound Whse. Handling Time";
+                    end else
+                        if Location.Get("Location Code") then
+                            "Inbound Whse. Handling Time" := Location."Inbound Whse. Handling Time";
 
                 UpdateLeadTimeFields();
                 UpdateDates();
@@ -3296,8 +3299,13 @@ table 39 "Purchase Line"
                 end else
                     "Expected Receipt Date" := "Planned Receipt Date";
 
-                if not TrackingBlocked then
-                    CheckDateConflict.PurchLineCheck(Rec, CurrFieldNo <> 0);
+                if not TrackingBlocked then begin
+                    IsHandled := false;
+                    OnValidateOrderDateOnBeforeCheckDateConflict(Rec, CurrFieldNo, IsHandled);
+                    if not IsHandled then
+                        CheckDateConflict.PurchLineCheck(Rec, CurrFieldNo <> 0);
+                end;
+
 
                 OnAfterValidateOrderDate(Rec, xRec, CurrFieldNo);
             end;
@@ -10108,6 +10116,7 @@ table 39 "Purchase Line"
             LineAmountChanged := true;
             "VAT Difference (ACY)" := 0;
         end;
+	    OnAfterUpdateLineAmount(Rec, xRec, Currency, LineAmountChanged);
     end;
 
     local procedure CheckLocationRequireReceive();
@@ -12615,6 +12624,21 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnGetFAPostingGroupOnBeforeCheckGLAcc(var PurchaseLine: Record "Purchase Line"; var GLAccount: Record "G/L Account"; FADeprBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateLineAmount(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; Currency: Record Currency; var LineAmountChanged: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLocationCodeOnBeforeSetInboundWhseHandlingTime(CurrFieldNo: Integer; PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateOrderDateOnBeforeCheckDateConflict(var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }
