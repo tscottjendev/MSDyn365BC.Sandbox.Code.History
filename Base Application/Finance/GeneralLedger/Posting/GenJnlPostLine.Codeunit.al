@@ -2185,7 +2185,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
         LastSourceCurrencyVATAmount := 0;
         if TempGLEntryBuf.FindSet() then begin
             repeat
-                UpdateSourceCurrencyAmounts(TempGLEntryBuf, LastSourceCurrencyVATAmount);
+                if TempGLEntryBuf."Source Currency Code" <> '' then
+                    UpdateSourceCurrencyAmounts(TempGLEntryBuf, LastSourceCurrencyVATAmount);
                 TempGLEntryPreview := TempGLEntryBuf;
                 TempGLEntryPreview.Insert();
                 GlobalGLEntry := TempGLEntryBuf;
