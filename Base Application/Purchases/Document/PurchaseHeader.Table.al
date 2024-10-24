@@ -4684,7 +4684,7 @@ table 38 "Purchase Header"
         if not GetHideValidationDialog() then begin
             DefaultAnswer := true;
             OnUpdateAllLineDimOnBeforeConfirmUpdateAllLineDim(Rec, DefaultAnswer);
-            if not ConfirmManagement.GetResponseOrDefault(Text051, true) then
+            if not ConfirmManagement.GetResponseOrDefault(Text051, DefaultAnswer) then
                 exit;
         end;
 
@@ -5886,16 +5886,15 @@ table 38 "Purchase Header"
         OnAfterUpdatePayToAddressFromBuyFromAddress(Rec, xRec, FieldNumber);
     end;
 
-    local procedure PayToAddressEqualsOldBuyFromAddress(): Boolean
+    local procedure PayToAddressEqualsOldBuyFromAddress() Result: Boolean
     begin
-        if (xRec."Buy-from Address" = "Pay-to Address") and
+        Result := (xRec."Buy-from Address" = "Pay-to Address") and
            (xRec."Buy-from Address 2" = "Pay-to Address 2") and
            (xRec."Buy-from City" = "Pay-to City") and
            (xRec."Buy-from County" = "Pay-to County") and
            (xRec."Buy-from Post Code" = "Pay-to Post Code") and
-           (xRec."Buy-from Country/Region Code" = "Pay-to Country/Region Code")
-        then
-            exit(true);
+           (xRec."Buy-from Country/Region Code" = "Pay-to Country/Region Code");
+        OnAfterPayToAddressEqualsOldBuyFromAddress(Rec, xRec, Result);
     end;
 
     /// <summary>
@@ -8845,6 +8844,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnIsApprovedForPostingOnBeforeError(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var Approved: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPayToAddressEqualsOldBuyFromAddress(PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var Result: Boolean)
     begin
     end;
 }
