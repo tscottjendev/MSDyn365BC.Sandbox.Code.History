@@ -1163,6 +1163,7 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServShptHeader.FindFirst() then begin
                 ServiceShipmentHeader2.Init();
                 ServiceShipmentHeader2.Copy(ServShptHeader);
+                OnFinalizeShipmentDocumentOnBeforeServiceShipmentHeaderInsert(ServiceShipmentHeader2, ServShptHeader, ServHeader);
                 ServiceShipmentHeader2.Insert();
             end;
             ServShptHeader.DeleteAll();
@@ -1204,6 +1205,7 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServInvHeader.FindFirst() then begin
                 ServiceInvoiceHeader2.Init();
                 ServiceInvoiceHeader2.Copy(ServInvHeader);
+                OnFinalizeInvoiceDocumentOnBeforeServiceInvoiceHeaderInsert(ServiceInvoiceHeader2, ServInvHeader, ServHeader);
                 ServiceInvoiceHeader2.Insert();
             end;
             ServInvHeader.DeleteAll();
@@ -1263,6 +1265,7 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServCrMemoHeader.FindFirst() then begin
                 PServCrMemoHeader.Init();
                 PServCrMemoHeader.Copy(ServCrMemoHeader);
+                OnFinalizeCrMemoDocumentOnBeforeServiceCreditMemoHeaderInsert(PServCrMemoHeader, ServCrMemoHeader, ServHeader);
                 PServCrMemoHeader.Insert();
             end;
             ServCrMemoHeader.DeleteAll();
@@ -2905,6 +2908,21 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnPrepareShipmentLineOnAfterWarrantyLedgerEntryModify(ServiceShipmentLine: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeShipmentDocumentOnBeforeServiceShipmentHeaderInsert(var ServiceShipmentHeaderToInsert: Record "Service Shipment Header"; var TempServiceShipmentHeader: Record "Service Shipment Header" temporary; var TempServiceHeader: Record "Service Header" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeInvoiceDocumentOnBeforeServiceInvoiceHeaderInsert(var ServiceInvoiceHeaderToInsert: Record "Service Invoice Header"; var TempServiceInvoiceHeader: Record "Service Invoice Header" temporary; var TempServiceHeader: Record "Service Header" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeCrMemoDocumentOnBeforeServiceCreditMemoHeaderInsert(var ServiceCrMemoHeaderToInsert: Record "Service Cr.Memo Header"; var TempServiceCrMemoHeader: Record "Service Cr.Memo Header" temporary; var TempServiceHeader: Record "Service Header" temporary)
     begin
     end;
 }
