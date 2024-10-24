@@ -1,5 +1,7 @@
 namespace Microsoft.Warehouse.Activity;
 
+using Microsoft.Warehouse.Journal;
+
 page 5785 "Warehouse Activity Lines"
 {
     Caption = 'Warehouse Activity Lines';
@@ -277,6 +279,17 @@ page 5785 "Warehouse Activity Lines"
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        WMSManagement: Codeunit "WMS Management";
+    begin
+        WMSManagement.CheckUserIsWhseEmployee();
+
+        Rec.FilterGroup(2); // set group of filters user cannot change
+        Rec.SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId()));
+        Rec.FilterGroup(0); // set filter group back to standard
+    end;
 
     trigger OnAfterGetCurrRecord()
     begin
