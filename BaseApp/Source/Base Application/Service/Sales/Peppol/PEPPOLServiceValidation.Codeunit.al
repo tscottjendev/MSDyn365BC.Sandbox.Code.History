@@ -52,6 +52,7 @@ codeunit 1621 "PEPPOL Service Validation"
         PEPPOLManagement.TransferHeaderToSalesHeader(ServiceInvoiceHeader, SalesHeader);
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         SalesHeader."Shipment Date" := SalesHeader."Posting Date";
+        OnCheckServiceInvoiceOnBeforeCheckSalesDocument(SalesHeader, ServiceInvoiceHeader);
         PEPPOLValidation.CheckSalesDocument(SalesHeader);
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         if ServiceInvoiceLine.FindSet() then
@@ -106,6 +107,11 @@ codeunit 1621 "PEPPOL Service Validation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetServiceLineFilter(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckServiceInvoiceOnBeforeCheckSalesDocument(var SalesHeader: Record "Sales Header"; ServiceInvoiceHeader: Record "Service Invoice Header")
     begin
     end;
 }
