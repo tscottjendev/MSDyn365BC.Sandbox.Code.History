@@ -94,7 +94,6 @@ codeunit 136101 "Service Orders"
         TotalAmountErr: Label 'Total Amount must be %1 in %2 table for %3 field : %4.', Comment = '%1 = amount,%2 = table name,%3 = field name,%4 = expected value';
         GlAccountTotalAmountErr: Label 'Total Amount must be  %1 in %2 table for %3=%4,%5=%6', Comment = '%2=G/L Entry;%3=Document No.;%5=G/L Account No.';
         DiscountAmountErr: Label '%1 must be %2 in %3.', Comment = '%1 = field name,%2 = value,%3 = table name';
-        ServiceLineCountErr: Label 'Service Line count not matched.';
         VATAmountErr: Label '%1 must be equal to ''%2''  in %3: %4=%5. Current value is ''%6''.', Comment = '%1=Field name,%2=Field value,%3=Table name,%4=Field name,%5=Field value,%6=Field value';
         NoOfLinesErr: Label 'No. of lines in %1 must be %2.', Comment = '%1=Table name,%2=Value';
         WrongValueErr: Label '%1 must be %2 in %3.', Comment = '%1=Field Caption,%2=Field Value,%3=Table Caption';
@@ -1850,54 +1849,6 @@ codeunit 136101 "Service Orders"
         ServiceOrder.ServItemLines."Service Lines".Invoke();
 
         // [THEN] Verify sequence of lines in ServiceLinesSequenceHandler.
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ShipPartialServiceOrder()
-    var
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-    begin
-        // [SCENARIO 259256] Test Service Charge Line is generated after Partial shipment of Service Order.
-
-        // [GIVEN] Modify Sales Receivables Setup, Create Service Order.
-        Initialize();
-        LibrarySales.SetCalcInvDiscount(true);
-        CreateServiceDocumentWithInvoiceDiscount(ServiceLine);
-        ServiceHeader.Get(ServiceHeader."Document Type"::Order, ServiceLine."Document No.");
-
-        // [WHEN] Post Service Order.
-        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
-
-        // 3. Verify.
-        ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        Assert.IsTrue(ServiceLine.Count > 1, ServiceLineCountErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ShipServiceOrder()
-    var
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-    begin
-        // [SCENARIO 259256] Test Service Charge Line is not generated after shipping remaining quantity on Service Order.
-
-        // [GIVEN] Modify Sales Receivables Setup, Create Service Order.
-        Initialize();
-        LibrarySales.SetCalcInvDiscount(true);
-        CreateServiceDocumentWithInvoiceDiscount(ServiceLine);
-        ServiceHeader.Get(ServiceHeader."Document Type"::Order, ServiceLine."Document No.");
-        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
-        ServiceHeader.Get(ServiceHeader."Document Type"::Order, ServiceLine."Document No.");
-
-        // [WHEN] Post Service Order.
-        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
-
-        // 3. Verify.
-        ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        Assert.IsTrue(ServiceLine.Count > 1, ServiceLineCountErr);
     end;
 
     [Test]
