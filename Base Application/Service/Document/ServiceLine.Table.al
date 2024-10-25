@@ -2615,12 +2615,10 @@ table 5902 "Service Line"
             OptionCaption = ' ,Adjusted,Modified';
             OptionMembers = " ",Adjusted,Modified;
         }
-        field(5997; "Line Discount Type"; Option)
+        field(5997; "Line Discount Type"; Enum "Service Line Discount Type")
         {
             Caption = 'Line Discount Type';
             Editable = false;
-            OptionCaption = ' ,Warranty Disc.,Contract Disc.,Line Disc.,Manual';
-            OptionMembers = " ","Warranty Disc.","Contract Disc.","Line Disc.",Manual;
         }
         field(5999; "Copy Components From"; Option)
         {
@@ -3374,7 +3372,7 @@ table 5902 "Service Line"
 
         for i := 1 to 4 do
             if Discounts[i] > "Line Discount %" then begin
-                "Line Discount Type" := i;
+                "Line Discount Type" := "Service Line Discount Type".FromInteger(i);
                 "Line Discount %" := Discounts[i];
             end;
 

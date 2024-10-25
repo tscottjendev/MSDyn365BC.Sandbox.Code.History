@@ -124,7 +124,7 @@ codeunit 136120 "Service Warranty and Discounts"
         WarrantyContractDiscount(false, true, ServiceLine."Line Discount Type"::"Warranty Disc.");
     end;
 
-    local procedure WarrantyContractDiscount(ExcludeWarranty: Boolean; ExcludeContractDiscount: Boolean; LineDiscountType: Option)
+    local procedure WarrantyContractDiscount(ExcludeWarranty: Boolean; ExcludeContractDiscount: Boolean; LineDiscountType: Enum "Service Line Discount Type")
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -662,7 +662,7 @@ codeunit 136120 "Service Warranty and Discounts"
         ServiceLine.FindSet();
     end;
 
-    local procedure UpdateAndPostServiceLine(var TempServiceLine: Record "Service Line" temporary; LineDiscountType: Option; OrderNo: Code[20])
+    local procedure UpdateAndPostServiceLine(var TempServiceLine: Record "Service Line" temporary; LineDiscountType: Enum "Service Line Discount Type"; OrderNo: Code[20])
     var
         ServiceLine: Record "Service Line";
         ServiceHeader: Record "Service Header";
@@ -715,7 +715,7 @@ codeunit 136120 "Service Warranty and Discounts"
         until ServiceLine.Next() = 0;
     end;
 
-    local procedure UpdateServiceLine(OrderNo: Code[20]; LineDiscountType: Option)
+    local procedure UpdateServiceLine(OrderNo: Code[20]; LineDiscountType: Enum "Service Line Discount Type")
     var
         ServiceLine: Record "Service Line";
     begin
