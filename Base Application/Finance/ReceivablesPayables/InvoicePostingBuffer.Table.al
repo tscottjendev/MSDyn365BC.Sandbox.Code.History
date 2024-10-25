@@ -740,7 +740,14 @@ table 55 "Invoice Posting Buffer"
     end;
 
     procedure ClearVATFields()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeClearVATFields(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         "VAT Amount" := 0;
         "VAT Base Amount" := 0;
         "VAT Amount (ACY)" := 0;
@@ -918,6 +925,11 @@ table 55 "Invoice Posting Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcDiscountOnAfterUpdateVATAmount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; PricesInclVAT: Boolean; DiscountAmount: Decimal; DiscountAmountACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearVATFields(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var IsHandled: Boolean)
     begin
     end;
 }
