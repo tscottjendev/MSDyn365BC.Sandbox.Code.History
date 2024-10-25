@@ -1257,7 +1257,7 @@ codeunit 136101 "Service Orders"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler,ContractTemplateHandler,MessageHandler')]
+    [HandlerFunctions('ConfirmMessageHandler,ContractTemplateHandler')]
     [Scope('OnPrem')]
     procedure ShipOrderServiceContract()
     var
@@ -1288,7 +1288,7 @@ codeunit 136101 "Service Orders"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler,ContractTemplateHandler,MessageHandler')]
+    [HandlerFunctions('ConfirmMessageHandler,ContractTemplateHandler')]
     [Scope('OnPrem')]
     procedure ConsumeServiceOrderContract()
     var
