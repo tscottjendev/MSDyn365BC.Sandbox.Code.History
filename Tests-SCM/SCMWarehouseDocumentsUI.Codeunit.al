@@ -29,6 +29,7 @@ codeunit 137081 "SCM Warehouse Documents UI"
         PurchaseLine: Record "Purchase Line";
         WhseReceiptHeader: Record "Warehouse Receipt Header";
         WhseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseEmployee: Record "Warehouse Employee";
         PurchOrderListPage: TestPage "Purchase Order List";
         PurchaseOrderPage: TestPage "Purchase Order";
         WhseActivityLines: TestPage "Warehouse Activity Lines";
@@ -36,9 +37,11 @@ codeunit 137081 "SCM Warehouse Documents UI"
         // [FEATURE] [Purchase Order] [Put-away]
         // [SCWNARIO] View related warehouse put-aways from the Purchase Order List and Purchase Order pages
         Initialize();
+        WarehouseEmployee.DeleteAll();
 
         // [GIVEN] Location "L" with warehouse receipt and put-away required
         LibraryWarehouse.CreateLocationWMS(Location, false, true, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
         // [GIVEN] Create a purchase order "PO" on the location "L" and release the order
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, LibraryPurchase.CreateVendorNo(), Location.Code);
@@ -86,6 +89,7 @@ codeunit 137081 "SCM Warehouse Documents UI"
         SalesLine: Record "Sales Line";
         WhseShipmentHeader: Record "Warehouse Shipment Header";
         WhseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseEmployee: Record "Warehouse Employee";
         SalesOrderListPage: TestPage "Sales Order List";
         SalesOrderPage: TestPage "Sales Order";
         WhseActivityLines: TestPage "Warehouse Activity Lines";
@@ -93,9 +97,11 @@ codeunit 137081 "SCM Warehouse Documents UI"
         // [FEATURE] [Sales Order] [Pick]
         // [SCWNARIO] View related warehouse picks from the Sales Order List and Sales Order pages
         Initialize();
+        WarehouseEmployee.DeleteAll();
 
         // [GIVEN] Location "L" with warehouse shipment and pick required
         LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
         // [GIVEN] Item "I" with stock on location "L"
         LibraryInventory.CreateItem(Item);
@@ -148,6 +154,7 @@ codeunit 137081 "SCM Warehouse Documents UI"
         TransferLine: Record "Transfer Line";
         WhseShipmentHeader: Record "Warehouse Shipment Header";
         WhseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseEmployee: Record "Warehouse Employee";
         TransferOrdersPage: TestPage "Transfer Orders";
         TransferOrderPage: TestPage "Transfer Order";
         WhseActivityLines: TestPage "Warehouse Activity Lines";
@@ -155,11 +162,15 @@ codeunit 137081 "SCM Warehouse Documents UI"
         // [FEATURE] [Transfer Order] [Pick]
         // [SCWNARIO] View related warehouse picks from the Transfer Orders and Transfer Order pages
         Initialize();
+        WarehouseEmployee.DeleteAll();
 
         // [GIVEN] Locations "L1" with warehouse shipment and pick enabled, and "L2" setup for warehouse receipt and put-away
         LibraryWarehouse.CreateLocationWMS(Locations[1], false, false, true, false, true);
         LibraryWarehouse.CreateLocationWMS(Locations[2], false, true, true, true, true);
         LibraryWarehouse.CreateInTransitLocation(Locations[3]);
+
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Locations[1].Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Locations[2].Code, false);
 
         // [GIVEN] Item "I" with stock on location "L1"
         LibraryInventory.CreateItem(Item);
@@ -211,6 +222,7 @@ codeunit 137081 "SCM Warehouse Documents UI"
         ServiceLine: Record "Service Line";
         WhseShipmentHeader: Record "Warehouse Shipment Header";
         WhseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseEmployee: Record "Warehouse Employee";
         ServiceOrdersPage: TestPage "Service Orders";
         ServiceOrderPage: TestPage "Service Order";
         WhseActivityLines: TestPage "Warehouse Activity Lines";
@@ -218,9 +230,11 @@ codeunit 137081 "SCM Warehouse Documents UI"
         // [FEATURE] [Service Order] [Pick]
         // [SCWNARIO] View related warehouse picks from the Service Orders and Service Order pages
         Initialize();
+        WarehouseEmployee.DeleteAll();
 
         // [GIVEN] Location "L" with warehouse shipment and pick required
         LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
         // [GIVEN] Service order "SO" with a service line for item "I" on location "L"
         LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::Order);
@@ -275,6 +289,7 @@ codeunit 137081 "SCM Warehouse Documents UI"
         PurchaseLine: Record "Purchase Line";
         WhseShipmentHeader: Record "Warehouse Shipment Header";
         WhseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseEmployee: Record "Warehouse Employee";
         PurchRetOrderListPage: TestPage "Purchase Return Order List";
         PurchReturnOrderPage: TestPage "Purchase Return Order";
         WhseActivityLines: TestPage "Warehouse Activity Lines";
@@ -282,9 +297,11 @@ codeunit 137081 "SCM Warehouse Documents UI"
         // [FEATURE] [Purchase Return Order] [Pick]
         // [SCWNARIO] View related warehouse picks from the Purchase Return Order List and Purchase Return Order pages
         Initialize();
+        WarehouseEmployee.DeleteAll();
 
         // [GIVEN] location "L" with warehouse shipments and picks enabled
         LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
         // [GIVEN] Create a purchase order on the location L and post the purchase receipt
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, LibraryPurchase.CreateVendorNo(), Location.Code);
@@ -337,6 +354,7 @@ codeunit 137081 "SCM Warehouse Documents UI"
         SalesLine: Record "Sales Line";
         WhseReceiptHeader: Record "Warehouse Receipt Header";
         WhseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseEmployee: Record "Warehouse Employee";
         SalesRetOrderListPage: TestPage "Sales Return Order List";
         SalesRetOrderPage: TestPage "Sales Return Order";
         WhseActivityLinesPage: TestPage "Warehouse Activity Lines";
@@ -344,9 +362,11 @@ codeunit 137081 "SCM Warehouse Documents UI"
         // [FEATURE] [Sales Return Order] [Put-away]
         // [SCWNARIO] View related warehouse put-aways from the Sales Return Order List and Sales Return Order pages
         Initialize();
+        WarehouseEmployee.DeleteAll();
 
         // [GIVEN] Location "L" with warehouse receipt and put-away required
         LibraryWarehouse.CreateLocationWMS(Location, false, true, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
         // [GIVEN] Item "I" with stock on location "L"
         LibraryInventory.CreateItem(Item);

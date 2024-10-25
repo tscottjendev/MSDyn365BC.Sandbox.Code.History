@@ -1646,6 +1646,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 LotAccumulationPeriodStartDate := 0D;
             end;
 
+        OnPlanItemNextStateMatchDatesOnAfterCalcNewSupplyDate(NewSupplyDate, TempSKU, SupplyInvtProfile, LotAccumulationPeriodStartDate);
         DemandDueDate := DemandInvtProfile."Due Date";
         if TempSKU."Replenishment System" = TempSKU."Replenishment System"::Purchase then
             DemandDueDate := GetPrevAvailDateFromCompanyCalendar(DemandInvtProfile."Due Date");
@@ -6059,6 +6060,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransRcptTransLineToProfileOnAfterInsertInventoryProfile(var TransferLine: Record "Transfer Line"; var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPlanItemNextStateMatchDatesOnAfterCalcNewSupplyDate(var NewSupplyDate: Date; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var SupplyInvtProfile: Record "Inventory Profile"; LotAccumulationPeriodStartDate: Date)
     begin
     end;
 }
