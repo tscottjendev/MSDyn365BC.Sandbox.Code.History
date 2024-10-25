@@ -1184,7 +1184,7 @@ codeunit 6610 "FS Int. Table Subscriber"
         if ConnectionType <> TableConnectionType::CRM then
             exit;
 
-        if FSConnectionSetup.IsEnabled() then
+        if not FSConnectionSetup.IsEnabled() then
             exit;
 
         IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
