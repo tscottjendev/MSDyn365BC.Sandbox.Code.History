@@ -815,15 +815,6 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - NamedType BaseVersionMustBeLessThanVersionErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 3812009960 - NamedType 2425245140" ItemType=";Table - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You have modified the input dataset.\\Do you want to update the lines?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - NamedType InputDatasetChangedQst)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Table 3812009960 - Field 3058980257 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Base Version]]></Val>
@@ -2541,6 +2532,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3812009960 - NamedType 2425245140" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You have modified the input dataset.\\Do you want to update the lines?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite - NamedType InputDatasetChangedQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3812009960 - NamedType 650077689" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
