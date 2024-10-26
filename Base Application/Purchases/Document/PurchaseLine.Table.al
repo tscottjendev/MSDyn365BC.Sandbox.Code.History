@@ -5838,12 +5838,12 @@ table 39 "Purchase Line"
             "Posting Group" := FADeprBook."FA Posting Group";
             "Gen. Prod. Posting Group" := LocalGLAcc."Gen. Prod. Posting Group";
             "Tax Group Code" := LocalGLAcc."Tax Group Code";
-            if BASManagement.VendorRegistered("Buy-from Vendor No.") then
-                ValidateVATProdPostingGroupFromGLAcc(LocalGLAcc)
-            else
-                "VAT Prod. Posting Group" := BASManagement.GetUnregGSTProdPostGroup("VAT Bus. Posting Group", "Buy-from Vendor No.");
-            Validate("VAT Prod. Posting Group");
         end;
+        if BASManagement.VendorRegistered("Buy-from Vendor No.") then
+            ValidateVATProdPostingGroupFromGLAcc(LocalGLAcc)
+        else
+            "VAT Prod. Posting Group" := BASManagement.GetUnregGSTProdPostGroup("VAT Bus. Posting Group", "Buy-from Vendor No.");
+        Validate("VAT Prod. Posting Group");
 
         OnAfterGetFAPostingGroup(Rec, LocalGLAcc);
     end;
@@ -12622,7 +12622,7 @@ table 39 "Purchase Line"
     begin
     end;
 
-    [IntegrationEvent(true, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnGetFAPostingGroupOnBeforeCheckGLAcc(var PurchaseLine: Record "Purchase Line"; var GLAccount: Record "G/L Account"; FADeprBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
