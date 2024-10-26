@@ -181,7 +181,7 @@ codeunit 1393 "Cancel Issued Reminder"
         CustLedgerEntry.SetRange("Document No.", IssuedReminderHeader."No.");
         if CustLedgerEntry.FindFirst() then begin
             CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
-            OnCheckAppliedReminderCustLedgerEntryAfterCalcFields(CustLedgerEntry);
+            OnCheckAppliedReminderCustLedgerEntryOnAfterCalcFields(CustLedgerEntry);
             if CustLedgerEntry.Amount <> CustLedgerEntry."Remaining Amount" then begin
                 TempErrorMessage.LogMessage(
                   IssuedReminderHeader,
@@ -477,7 +477,7 @@ codeunit 1393 "Cancel Issued Reminder"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckAppliedReminderCustLedgerEntryAfterCalcFields(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnCheckAppliedReminderCustLedgerEntryOnAfterCalcFields(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
