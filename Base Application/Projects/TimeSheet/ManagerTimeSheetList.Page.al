@@ -143,10 +143,10 @@ page 953 "Manager Time Sheet List"
     {
         area(processing)
         {
-            action("&Edit Time Sheet")
+            action("Edit Time Sheet")
             {
                 ApplicationArea = Jobs;
-                Caption = '&Review Time Sheet';
+                Caption = 'Review Time Sheet';
                 Image = OpenJournal;
                 ShortCutKey = 'Return';
                 ToolTip = 'Open the time sheet to approve its details. This requires that you''re the time sheet owner, administrator, or approver.';
@@ -230,7 +230,7 @@ page 953 "Manager Time Sheet List"
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
-                actionref("&Edit Time Sheet_Promoted"; "&Edit Time Sheet")
+                actionref("Edit Time Sheet_Promoted"; "Edit Time Sheet")
                 {
                 }
                 actionref(MoveTimeSheetsToArchive_Promoted; MoveTimeSheetsToArchive)
