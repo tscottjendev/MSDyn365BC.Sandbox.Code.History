@@ -11882,7 +11882,7 @@ table 39 "Purchase Line"
     begin
     end;
 
-    [IntegrationEvent(true, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnGetFAPostingGroupOnBeforeCheckGLAcc(var PurchaseLine: Record "Purchase Line"; var GLAccount: Record "G/L Account"; FADeprBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
