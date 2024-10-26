@@ -3006,7 +3006,7 @@ codeunit 6620 "Copy Document Mgt."
                 UpdateWindow(1, FromLineCounter);
                 if CopyLine then begin
                     NextLineNo := GetLastToSalesLineNo(ToSalesHeader);
-                    OnCopySalesShptLinesToDocOnAfterCalcNextLineNo(ToSalesHeader, FromSalesShptLine, FromSalesHeader, NextLineNo, InsertDocNoLine);
+                    OnCopySalesShptLinesToDocOnAfterCalcNextLineNo(ToSalesHeader, FromSalesShptLine, FromSalesHeader, NextLineNo, InsertDocNoLine, FromLineCounter, FromSalesLineBuf);
                     AsmHdrExistsForFromDocLine := FromSalesShptLine.AsmToShipmentExists(PostedAsmHeader);
                     InitAsmCopyHandling(true);
                     if AsmHdrExistsForFromDocLine then begin
@@ -3525,7 +3525,7 @@ codeunit 6620 "Copy Document Mgt."
 
                 if CopyLine then begin
                     NextLineNo := GetLastToSalesLineNo(ToSalesHeader);
-                    OnCopySalesReturnRcptLinesToDocOnAfterCalcNextLineNo(ToSalesHeader, FromReturnRcptLine, FromSalesHeader, NextLineNo, InsertDocNoLine);
+                    OnCopySalesReturnRcptLinesToDocOnAfterCalcNextLineNo(ToSalesHeader, FromReturnRcptLine, FromSalesHeader, NextLineNo, InsertDocNoLine, FromLineCounter, FromSalesLineBuf);
                     if InsertDocNoLine then begin
                         InsertOldSalesDocNoLine(ToSalesHeader, FromReturnRcptLine."Document No.", 3, NextLineNo);
                         InsertDocNoLine := false;
@@ -6018,6 +6018,7 @@ codeunit 6620 "Copy Document Mgt."
         ToSalesHeader."Shortcut Dimension 1 Code" := FromSalesHeaderArchive."Shortcut Dimension 1 Code";
         ToSalesHeader."Shortcut Dimension 2 Code" := FromSalesHeaderArchive."Shortcut Dimension 2 Code";
         ToSalesHeader."Dimension Set ID" := FromSalesHeaderArchive."Dimension Set ID";
+        OnAfterCopyFromArchSalesDocDimToHdr(ToSalesHeader, FromSalesHeaderArchive);
     end;
 
     local procedure CopyFromArchSalesDocDimToLine(var ToSalesLine: Record "Sales Line"; FromSalesLineArchive: Record "Sales Line Archive")
@@ -6027,6 +6028,7 @@ codeunit 6620 "Copy Document Mgt."
             ToSalesLine."Shortcut Dimension 2 Code" := FromSalesLineArchive."Shortcut Dimension 2 Code";
             ToSalesLine."Dimension Set ID" := FromSalesLineArchive."Dimension Set ID";
         end;
+        OnAfterCopyFromArchSalesDocDimToLine(ToSalesLine, FromSalesLineArchive);
     end;
 
     local procedure CopyFromArchPurchDocDimToHdr(var ToPurchHeader: Record "Purchase Header"; FromPurchHeaderArchive: Record "Purchase Header Archive")
@@ -9688,7 +9690,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopySalesReturnRcptLinesToDocOnAfterCalcNextLineNo(var ToSalesHeader: Record "Sales Header"; FromReturnRcptLine: Record "Return Receipt Line"; FromSalesHeader: Record "Sales Header"; var NextLineNo: Integer; var InsertDocNoLine: Boolean)
+    local procedure OnCopySalesReturnRcptLinesToDocOnAfterCalcNextLineNo(var ToSalesHeader: Record "Sales Header"; FromReturnRcptLine: Record "Return Receipt Line"; FromSalesHeader: Record "Sales Header"; var NextLineNo: Integer; var InsertDocNoLine: Boolean; FromLineCounter: Integer; var FromSalesLineBuf: Record "Sales Line" temporary)
     begin
     end;
 
@@ -9738,7 +9740,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopySalesShptLinesToDocOnAfterCalcNextLineNo(var ToSalesHeader: Record "Sales Header"; FromSalesShptLine: Record "Sales Shipment Line"; FromSalesHeader: Record "Sales Header"; var NextLineNo: Integer; var InsertDocNoLine: Boolean)
+    local procedure OnCopySalesShptLinesToDocOnAfterCalcNextLineNo(var ToSalesHeader: Record "Sales Header"; FromSalesShptLine: Record "Sales Shipment Line"; FromSalesHeader: Record "Sales Header"; var NextLineNo: Integer; var InsertDocNoLine: Boolean; FromLineCounter: Integer; FromSalesLineBuf: Record "Sales Line" temporary)
     begin
     end;
 
@@ -10559,6 +10561,16 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnInitAndCheckSalesDocumentsOnBeforeFromSalesHeaderArchiveCheckFields(var FromSalesHeaderArchive: Record "Sales Header Archive"; var ToSalesHeader: Record "Sales Header"; IncludeHeader: Boolean; RecalculateLines: Boolean; var SkipFromSalesHeaderArchiveCheck: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromArchSalesDocDimToLine(var ToSalesLine: Record "Sales Line"; FromSalesLineArchive: Record "Sales Line Archive")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromArchSalesDocDimToHdr(var ToSalesHeader: Record "Sales Header"; FromSalesHeaderArchive: Record "Sales Header Archive")
     begin
     end;
 }
