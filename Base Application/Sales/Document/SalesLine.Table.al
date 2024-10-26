@@ -5443,6 +5443,15 @@ table 37 "Sales Line"
     /// If the quantity cannot be reserved automatically, a message is shown and the user is prompted to reserve manually.
     /// </summary>
     procedure AutoReserve()
+    begin
+        AutoReserve(true);
+    end;
+
+    /// <summary>
+    /// Attempts to automatically reserve the quantity of the current sales line based on the item availability.
+    /// </summary>
+    /// <param name="ShowReservationForm">If true, when the quantity cannot be reserved automatically, a message is shown and the user is prompted to reserve manually.</param> 
+    procedure AutoReserve(ShowReservationForm: Boolean)
     var
         SalesSetup: Record "Sales & Receivables Setup";
         Item: Record Item;
@@ -5471,7 +5480,7 @@ table 37 "Sales Line"
             CalcFields("Reserved Quantity");
             Find();
             SalesSetup.Get();
-            if (not FullAutoReservation) and (not SalesSetup."Skip Manual Reservation") then begin
+            if (not FullAutoReservation) and (not SalesSetup."Skip Manual Reservation") and ShowReservationForm then begin
                 Commit();
                 if ConfirmManagement.GetResponse(ManualReserveQst, true) then begin
                     Rec.ShowReservation();
