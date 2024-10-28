@@ -2,7 +2,7 @@
   "id": "3099ffc7-4cf7-4df6-9b96-7e4bc2bb587c",
   "name": "Subscription & Recurring Billing",
   "publisher": "Microsoft",
-  "version": "26.0.25937.0",
+  "version": "26.0.25940.0",
   "brief": "Sell and manage recurring services",
   "description": "The app enables the selling of recurring services and provides accurate billing for a wide range of pricing models.",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -18,6 +18,11 @@
       "id": "2ac317ef-11a5-4753-92f4-31c84b520c7b",
       "name": "Subscription & Recurring Billing Test",
       "publisher": "Microsoft"
+    },
+    {
+      "id": "b6bdb244-0e09-4313-b975-24e6343d00df",
+      "name": "Subscription & Recurring Billing Plus",
+      "publisher": "Singhammer IT Consulting AG"
     },
     {
       "id": "d4ccd4d9-ea68-4efe-802a-423348ec8d5a",
@@ -52,6 +57,11 @@
     {
       "id": "6be55868-7c39-4363-8df2-b709d0805e73",
       "name": "DYCE Happy Texts",
+      "publisher": "Singhammer IT Consulting AG"
+    },
+    {
+      "id": "018ff6a2-4cf8-4945-b60f-2b40878ef5c4",
+      "name": "Subscription & Recurring Billing Plus Test",
       "publisher": "Singhammer IT Consulting AG"
     },
     {
