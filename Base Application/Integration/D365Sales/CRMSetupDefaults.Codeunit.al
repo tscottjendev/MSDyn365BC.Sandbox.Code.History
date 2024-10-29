@@ -1396,6 +1396,14 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationFieldMapping.Direction::Bidirectional,
           '', true, false);
 
+        // "Requested Delivery Date" -> RequestDeliveryBy
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesLine.FieldNo("Requested Delivery Date"),
+          CRMSalesorderdetail.FieldNo(RequestDeliveryBy),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
         OnResetBidirectionalSalesOrderLineMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
     end;
 
