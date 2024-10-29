@@ -1056,7 +1056,13 @@ table 274 "Bank Acc. Reconciliation Line"
     local procedure GetCustomerLedgerEntriesInAmountRange(var CustLedgerEntry: Record "Cust. Ledger Entry"; AccountNo: Code[20]; AmountFilter: Text; MinAmount: Decimal; MaxAmount: Decimal): Integer
     var
         BankAccount: Record "Bank Account";
+        Result: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCustomerLedgerEntriesInAmountRange(Rec, CustLedgerEntry, AccountNo, AmountFilter, MinAmount, MaxAmount, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
         CustLedgerEntry.SetAutoCalcFields("Remaining Amount", "Remaining Amt. (LCY)");
         BankAccount.Get("Bank Account No.");
         GetApplicableCustomerLedgerEntries(CustLedgerEntry, BankAccount."Currency Code", AccountNo);
@@ -1662,4 +1668,8 @@ table 274 "Bank Acc. Reconciliation Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCustomerLedgerEntriesInAmountRange(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; AccountNo: Code[20]; AmountFilter: Text; MinAmount: Decimal; MaxAmount: Decimal; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
 }
