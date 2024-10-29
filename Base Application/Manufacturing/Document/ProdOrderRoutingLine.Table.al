@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -580,6 +580,7 @@ table 5409 "Prod. Order Routing Line"
         field(81; "Flushing Method"; Enum "Flushing Method Routing")
         {
             Caption = 'Flushing Method';
+            ToolTip = 'Specifies the method to use to calculate and handle output at the work or machine center. Manual: Output must be posted manually by using the output journal. Forward: Output is automatically calculated and posted when you change the status of a simulated, planned (or firm planned) production order to Released. You can still post output manually from the output journal. Backward: Output is automatically calculated and posted when you change the status of a released production order to Finished. You can still post output manually from the output journal.';
         }
         field(90; "Expected Operation Cost Amt."; Decimal)
         {
