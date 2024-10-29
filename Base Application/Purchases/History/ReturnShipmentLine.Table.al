@@ -606,7 +606,13 @@ table 6651 "Return Shipment Line"
     procedure ShowItemTrackingLines()
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowItemTrackingLines(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemTrackingDocMgt.ShowItemTrackingForShptRcptLine(DATABASE::"Return Shipment Line", 0, "Document No.", '', 0, "Line No.");
     end;
 
@@ -929,6 +935,11 @@ table 6651 "Return Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var ReturnShipmentLine: Record "Return Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemTrackingLines(var ReturnShipmentLine: Record "Return Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 }
