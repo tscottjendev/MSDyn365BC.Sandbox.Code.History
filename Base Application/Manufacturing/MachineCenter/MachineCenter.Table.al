@@ -431,6 +431,7 @@ table 99000758 "Machine Center"
         field(60; "Flushing Method"; Enum "Flushing Method Routing")
         {
             Caption = 'Flushing Method';
+            ToolTip = 'Specifies the method to use to calculate and handle output at the machine center. Manual: Output must be posted manually by using the output journal. Forward: Output is automatically calculated and posted when you change the status of a simulated, planned (or firm planned) production order to Released. You can still post output manually from the output journal. Backward: Output is automatically calculated and posted when you change the status of a released production order to Finished. You can still post output manually from the output journal. The setting you make in this field is copied to the Flushing Method field on the production order routing line according to the machine/work center of the master routing, but you can change the field for an individual production order to allow a different output posting of that order.';
         }
         field(62; "Minimum Process Time"; Decimal)
         {

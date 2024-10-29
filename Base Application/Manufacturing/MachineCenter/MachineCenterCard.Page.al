@@ -94,7 +94,6 @@ page 99000760 "Machine Center Card"
                 {
                     ApplicationArea = Manufacturing;
                     Importance = Promoted;
-                    ToolTip = 'Specifies how consumption of the item (component) is calculated and handled in production processes. Manual: Enter and post consumption in the consumption journal manually. Forward: Automatically posts consumption according to the production order component lines when the first operation starts. Backward: Automatically calculates and posts consumption according to the production order component lines when the production order is finished. Pick + Forward / Pick + Backward: Variations with warehousing.';
                 }
                 field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
