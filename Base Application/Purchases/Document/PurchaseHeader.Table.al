@@ -4859,27 +4859,32 @@ table 38 "Purchase Header"
 
     local procedure CopyAddressInfoFromOrderAddress()
     var
-        OrderAddr: Record "Order Address";
+        OrderAddress: Record "Order Address";
+        IsHandled: Boolean;
     begin
-        OrderAddr.Get("Buy-from Vendor No.", "Order Address Code");
-        "Buy-from Vendor Name" := OrderAddr.Name;
-        "Buy-from Vendor Name 2" := OrderAddr."Name 2";
-        "Buy-from Address" := OrderAddr.Address;
-        "Buy-from Address 2" := OrderAddr."Address 2";
-        "Buy-from City" := OrderAddr.City;
-        "Buy-from Contact" := OrderAddr.Contact;
-        "Buy-from Post Code" := OrderAddr."Post Code";
-        "Buy-from County" := OrderAddr.County;
-        "Buy-from Country/Region Code" := OrderAddr."Country/Region Code";
+        OrderAddress.Get("Buy-from Vendor No.", "Order Address Code");
+        IsHandled := false;
+        OnCopyAddressInfoFromOrderAddressOnBeforeCopyBuyFromVendorAddressFieldsFromOrderAddress(Rec, xRec, OrderAddress, IsHandled);
+        if not IsHandled then begin
+            "Buy-from Vendor Name" := OrderAddress.Name;
+            "Buy-from Vendor Name 2" := OrderAddress."Name 2";
+            "Buy-from Address" := OrderAddress.Address;
+            "Buy-from Address 2" := OrderAddress."Address 2";
+            "Buy-from City" := OrderAddress.City;
+            "Buy-from Contact" := OrderAddress.Contact;
+            "Buy-from Post Code" := OrderAddress."Post Code";
+            "Buy-from County" := OrderAddress.County;
+            "Buy-from Country/Region Code" := OrderAddress."Country/Region Code";
+        end;
 
         if IsCreditDocType() then begin
             SetShipToAddress(
-                OrderAddr.Name, OrderAddr."Name 2", OrderAddr.Address, OrderAddr."Address 2",
-                OrderAddr.City, OrderAddr."Post Code", OrderAddr.County, OrderAddr."Country/Region Code");
-            "Ship-to Phone No." := OrderAddr."Phone No.";
-            "Ship-to Contact" := OrderAddr.Contact;
+                OrderAddress.Name, OrderAddress."Name 2", OrderAddress.Address, OrderAddress."Address 2",
+                OrderAddress.City, OrderAddress."Post Code", OrderAddress.County, OrderAddress."Country/Region Code");
+            "Ship-to Phone No." := OrderAddress."Phone No.";
+            "Ship-to Contact" := OrderAddress.Contact;
         end;
-        OnAfterCopyAddressInfoFromOrderAddress(OrderAddr, Rec);
+        OnAfterCopyAddressInfoFromOrderAddress(OrderAddress, Rec);
     end;
 
     /// <summary>
@@ -8767,6 +8772,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPayToAddressEqualsOldBuyFromAddress(PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyAddressInfoFromOrderAddressOnBeforeCopyBuyFromVendorAddressFieldsFromOrderAddress(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; OrderAddress: Record "Order Address"; var IsHandled: Boolean);
     begin
     end;
 }
