@@ -1788,7 +1788,9 @@ page 6630 "Sales Return Order"
         LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
         Rec.SendToPosting(PostingCodeunitID);
 
-        DocumentIsPosted := not SalesHeader.Get(Rec."Document Type", Rec."No.");
+        SalesHeader.SetRange("Document Type", Rec."Document Type");
+        SalesHeader.SetRange("No.", Rec."No.");
+        DocumentIsPosted := SalesHeader.IsEmpty();
 
         DocumentIsScheduledForPosting := Rec."Job Queue Status" = Rec."Job Queue Status"::"Scheduled for Posting";
         OnPostDocumentOnAfterCalcDocumentIsScheduledForPosting(Rec, DocumentIsScheduledForPosting, DocumentIsPosted);
