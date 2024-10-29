@@ -2536,17 +2536,18 @@ page 50 "Purchase Order"
         PurchaseHeader: Record "Purchase Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
-        IsScheduledPosting: Boolean;
+        DocumentIsScheduledForPosting: Boolean;
         IsHandled: Boolean;
     begin
         LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
         Rec.SendToPosting(PostingCodeunitID);
 
-        IsScheduledPosting := Rec."Job Queue Status" = Rec."Job Queue Status"::"Scheduled for Posting";
-        DocumentIsPosted := (not PurchaseHeader.Get(Rec."Document Type", Rec."No.")) or IsScheduledPosting;
+        DocumentIsScheduledForPosting := Rec."Job Queue Status" = Rec."Job Queue Status"::"Scheduled for Posting";
+        DocumentIsPosted := (not PurchaseHeader.Get(Rec."Document Type", Rec."No.")) or DocumentIsScheduledForPosting;
 
-        if IsScheduledPosting then
+        OnPostDocumentOnAfterCalcDocumentIsScheduledForPosting(Rec, DocumentIsScheduledForPosting, DocumentIsPosted);
+        if DocumentIsScheduledForPosting then
             CurrPage.Close();
         CurrPage.Update(false);
 
@@ -2564,7 +2565,7 @@ page 50 "Purchase Order"
                     if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
                         ShowPostedConfirmationMessage();
 
-                    if IsScheduledPosting or DocumentIsPosted then
+                    if DocumentIsScheduledForPosting or DocumentIsPosted then
                         CurrPage.Close();
                 end;
             Enum::"Navigate After Posting"::"New Document":
@@ -2877,6 +2878,11 @@ page 50 "Purchase Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCurrencyCodeOnAssistEdit(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentOnAfterCalcDocumentIsScheduledForPosting(var PurchaseHeader: Record "Purchase Header"; var DocumentIsScheduledForPosting: Boolean; var DocumentIsPosted: Boolean)
     begin
     end;
 }
