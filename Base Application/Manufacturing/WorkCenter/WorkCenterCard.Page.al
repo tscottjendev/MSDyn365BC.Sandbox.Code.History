@@ -122,7 +122,6 @@ page 99000754 "Work Center Card"
                 {
                     ApplicationArea = Manufacturing;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the method to use to calculate and handle output at the work center. Manual: Output must be posted manually by using the output journal. Forward: Output is automatically calculated and posted when you change the status of a simulated, planned (or firm planned) production order to Released. You can still post output manually from the output journal. Backward: Output is automatically calculated and posted when you change the status of a released production order to Finished or when the last operation is finished. You can still post output manually from the output journal. The setting you make in this field is copied to the Flushing Method field on the production order routing line according to the machine/work center of the master routing, but you can change the field for an individual production order to allow a different output (or consumption) posting of that order.';
                 }
                 field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
