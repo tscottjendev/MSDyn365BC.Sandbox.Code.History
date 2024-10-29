@@ -4236,7 +4236,13 @@ table 5900 "Service Header"
         ErrorMessageMgt: Codeunit "Error Message Management";
         ErrorMessageHandler: Codeunit "Error Message Handler";
         ServPostYesNo: Codeunit "Service-Post (Yes/No)";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendToPostWithLines(Rec, TempServLine, CodeunitId, IsHandled, IsSuccess);
+        if IsHandled then
+            exit(IsSuccess);
+
         Commit();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, '');
@@ -6195,6 +6201,11 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnBeforeShowPostedDocsToPrint(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendToPostWithLines(var ServiceHeader: Record "Service Header"; var TempServiceLine: Record "Service Line" temporary; PostingCodeunitID: Integer; var IsHandled: Boolean; var IsSuccess: Boolean)
     begin
     end;
 }

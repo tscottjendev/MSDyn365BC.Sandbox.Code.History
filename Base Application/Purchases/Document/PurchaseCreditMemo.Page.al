@@ -1731,7 +1731,7 @@ page 52 "Purchase Credit Memo"
         InstructionMgt: Codeunit "Instruction Mgt.";
         PreAssignedNo: Code[20];
         xLastPostingNo: Code[20];
-        IsScheduledPosting: Boolean;
+        DocumentIsScheduledForPosting: Boolean;
         IsHandled: Boolean;
     begin
         LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
@@ -1740,10 +1740,11 @@ page 52 "Purchase Credit Memo"
 
         Rec.SendToPosting(PostingCodeunitID);
 
-        IsScheduledPosting := Rec."Job Queue Status" = Rec."Job Queue Status"::"Scheduled for Posting";
-        DocumentIsPosted := (not PurchaseHeader.Get(Rec."Document Type", Rec."No.")) or IsScheduledPosting;
+        DocumentIsScheduledForPosting := Rec."Job Queue Status" = Rec."Job Queue Status"::"Scheduled for Posting";
+        DocumentIsPosted := (not PurchaseHeader.Get(Rec."Document Type", Rec."No.")) or DocumentIsScheduledForPosting;
 
-        if IsScheduledPosting then
+        OnPostDocumentOnAfterCalcDocumentIsScheduledForPosting(Rec, DocumentIsScheduledForPosting, DocumentIsPosted);
+        if DocumentIsScheduledForPosting then
             CurrPage.Close();
         CurrPage.Update(false);
 
@@ -1948,6 +1949,11 @@ page 52 "Purchase Credit Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCurrencyCodeOnAssistEdit(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentOnAfterCalcDocumentIsScheduledForPosting(var PurchaseHeader: Record "Purchase Header"; var DocumentIsScheduledForPosting: Boolean; var DocumentIsPosted: Boolean)
     begin
     end;
 }
