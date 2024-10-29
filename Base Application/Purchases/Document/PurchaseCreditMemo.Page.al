@@ -1771,7 +1771,13 @@ page 52 "Purchase Credit Memo"
         Rec.SendToPosting(PostingCodeunitID);
 
         DocumentIsScheduledForPosting := Rec."Job Queue Status" = Rec."Job Queue Status"::"Scheduled for Posting";
-        DocumentIsPosted := (not PurchaseHeader.Get(Rec."Document Type", Rec."No.")) or DocumentIsScheduledForPosting;
+        if DocumentIsScheduledForPosting then
+            DocumentIsPosted := true
+        else begin
+            PurchaseHeader.SetRange("Document Type", Rec."Document Type");
+            PurchaseHeader.SetRange("No.", Rec."No.");
+            DocumentIsPosted := PurchaseHeader.IsEmpty();
+        end;
 
         OnPostDocumentOnAfterCalcDocumentIsScheduledForPosting(Rec, DocumentIsScheduledForPosting, DocumentIsPosted);
         if DocumentIsScheduledForPosting then
