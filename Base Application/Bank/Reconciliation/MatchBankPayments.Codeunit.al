@@ -655,6 +655,8 @@ codeunit 1255 "Match Bank Payments"
         LineSplitMsg: Text;
         ParentLineNo: Integer;
         TransactionID: Text[50];
+        DifferenceTransferred: Boolean;
+        SuppressMessage: Boolean;
     begin
         if BankAccReconciliationLine.IsEmpty() or (BankAccReconciliationLine.Difference = 0) then
             exit;
@@ -664,7 +666,8 @@ codeunit 1255 "Match Bank Payments"
         if not TempGenJournalLine.Insert() then
             TempGenJournalLine.Modify();
 
-        if PAGE.RunModal(PAGE::"Transfer Difference to Account", TempGenJournalLine) = ACTION::LookupOK then begin
+        RunTransferDifferencetoAccount(BankAccReconciliationLine, TempGenJournalLine, DifferenceTransferred);
+        if DifferenceTransferred then begin
             if TempGenJournalLine."Account No." = '' then
                 Error(MustChooseAccountErr);
 
@@ -709,9 +712,25 @@ codeunit 1255 "Match Bank Payments"
             BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
             BankAccReconciliationLine.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
             UpdatePaymentMatchDetails(BankAccReconciliationLine);
-            if LineSplitMsg <> '' then
-                Message(LineSplitMsg);
+            if LineSplitMsg <> '' then begin
+                OnBeforeShowLineSplitMessage(BankAccReconciliationLine, SuppressMessage);
+                if not SuppressMessage then
+                    Message(LineSplitMsg);
+            end;
         end;
+    end;
+
+    local procedure RunTransferDifferencetoAccount(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; var DifferenceTransferred: Boolean)
+    begin
+        DifferenceTransferred := false;
+        OnTransferDifference(BankAccReconciliationLine, TempGenJnlLine, DifferenceTransferred);
+        if DifferenceTransferred then
+            exit;
+
+        if not GuiAllowed() then
+            exit;
+
+        DifferenceTransferred := Page.RunModal(Page::"Transfer Difference to Account", TempGenJnlLine) = Action::LookupOK;
     end;
 
     procedure MatchSingleLineCustomer(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AppliesToEntryNo: Integer; var NoOfLedgerEntriesWithinTolerance: Integer; var NoOfLedgerEntriesOutsideTolerance: Integer)
@@ -2622,6 +2641,16 @@ codeunit 1255 "Match Bank Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindTextMappingsOnAfterTextMapperMatched(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TextToAccountMapping: Record "Text-to-Account Mapping"; var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferDifference(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; var DifferenceTransferred: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowLineSplitMessage(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var SuppressMessage: Boolean)
     begin
     end;
 }
