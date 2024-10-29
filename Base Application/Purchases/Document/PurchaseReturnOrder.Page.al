@@ -1804,7 +1804,9 @@ page 6640 "Purchase Return Order"
         LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
         Rec.SendToPosting(PostingCodeunitID);
 
-        DocumentIsPosted := not PurchaseHeader.Get(Rec."Document Type", Rec."No.");
+        PurchaseHeader.SetRange("Document Type", Rec."Document Type");
+        PurchaseHeader.SetRange("No.", Rec."No.");
+        DocumentIsPosted := PurchaseHeader.IsEmpty();
 
         DocumentIsScheduledForPosting := Rec."Job Queue Status" = Rec."Job Queue Status"::"Scheduled for Posting";
         OnPostDocumentOnAfterCalcDocumentIsScheduledForPosting(Rec, DocumentIsScheduledForPosting, DocumentIsPosted);
