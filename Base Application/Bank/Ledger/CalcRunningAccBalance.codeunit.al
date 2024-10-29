@@ -9,6 +9,7 @@ codeunit 105 "Calc. Running Acc. Balance"
     InherentPermissions = X;
 
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         BankAccountLedgerEntry2: Record "Bank Account Ledger Entry";
         ClientTypeManagement: Codeunit System.Environment."Client Type Management";
         DayTotals: Dictionary of [Date, Decimal];
