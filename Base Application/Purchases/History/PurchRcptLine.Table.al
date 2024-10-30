@@ -458,6 +458,12 @@ table 121 "Purch. Rcpt. Line"
         {
             Caption = 'Project Currency Code';
         }
+        field(1019; "Job Planning Line No."; Integer)
+        {
+            AccessByPermission = TableData Job = R;
+            BlankZero = true;
+            Caption = 'Project Planning Line No.';
+        }
         field(5401; "Prod. Order No."; Code[20])
         {
             Caption = 'Prod. Order No.';
