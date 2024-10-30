@@ -337,6 +337,12 @@ table 6651 "Return Shipment Line"
             Caption = 'Project Task No.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
+        field(1019; "Job Planning Line No."; Integer)
+        {
+            AccessByPermission = TableData Job = R;
+            BlankZero = true;
+            Caption = 'Project Planning Line No.';
+        }
         field(5401; "Prod. Order No."; Code[20])
         {
             Caption = 'Prod. Order No.';
