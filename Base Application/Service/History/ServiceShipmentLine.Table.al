@@ -22,6 +22,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Inventory.Journal;
+using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.TimeSheet;
@@ -183,6 +184,16 @@ table 5991 "Service Shipment Line"
             Editable = false;
             TableRelation = "Customer Price Group";
         }
+        field(45; "Job No."; Code[20])
+        {
+            Caption = 'Project No.';
+            TableRelation = Job;
+        }
+        field(46; "Job Task No."; Code[20])
+        {
+            Caption = 'Project Task No.';
+            TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
+        }
         field(52; "Work Type Code"; Code[10])
         {
             Caption = 'Work Type Code';
@@ -327,6 +338,12 @@ table 5991 "Service Shipment Line"
             Caption = 'Time Sheet Date';
             TableRelation = "Time Sheet Detail".Date where("Time Sheet No." = field("Time Sheet No."),
                                                             "Time Sheet Line No." = field("Time Sheet Line No."));
+        }
+        field(1019; "Job Planning Line No."; Integer)
+        {
+            AccessByPermission = TableData Job = R;
+            BlankZero = true;
+            Caption = 'Project Planning Line No.';
         }
         field(5402; "Variant Code"; Code[10])
         {
