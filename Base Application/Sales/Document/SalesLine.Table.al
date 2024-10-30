@@ -4637,14 +4637,14 @@ table 37 "Sales Line"
             exit(true);
     end;
 
-    local procedure CopyUnitPriceAndLineDiscountPct(BlanketOrderSalesLine: Record "Sales Line"; CalledByFieldNo: Integer)
+    procedure CopyUnitPriceAndLineDiscountPct(BlanketOrderSalesLine: Record "Sales Line"; CalledByFieldNo: Integer)
     begin
         Validate("Unit Price", BlanketOrderSalesLine."Unit Price");
         Validate("Line Discount %", BlanketOrderSalesLine."Line Discount %");
         OnAfterCopyUnitPriceAndLineDiscountPct(Rec, BlanketOrderSalesLine, CalledByFieldNo, SalesHeader);
     end;
 
-    local procedure ShowUnitPriceChangedMsg()
+    procedure ShowUnitPriceChangedMsg()
     var
         IsHandled: Boolean;
     begin
@@ -10098,7 +10098,7 @@ table 37 "Sales Line"
         end;
     end;
 
-    local procedure CalcUnitPriceUsingUOMCoef()
+    procedure CalcUnitPriceUsingUOMCoef()
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
