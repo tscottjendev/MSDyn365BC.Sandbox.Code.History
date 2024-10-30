@@ -76,7 +76,7 @@ page 6532 "Continuous Item Tracking"
         CurrentQty: Decimal;
         AvailableQty: Decimal;
 
-    internal procedure GetInput(): Text
+    procedure GetInput(): Text
     begin
         exit(LastInput);
     end;
