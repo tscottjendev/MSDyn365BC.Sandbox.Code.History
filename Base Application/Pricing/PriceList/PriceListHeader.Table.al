@@ -556,7 +556,10 @@ table 7000 "Price List Header"
         xAmountType: Enum "Price Amount Type";
     begin
         xAmountType := "Amount Type";
-        "Amount Type" := CalcAmountType();
+        if "Source Type" in ["Source Type"::"Customer Disc. Group", "Source Type"::"Customer Price Group"] then
+            "Amount Type" := PriceSource.GetDefaultAmountType()
+        else
+            "Amount Type" := CalcAmountType();
         if "Amount Type" <> xAmountType then
             Modify()
     end;
