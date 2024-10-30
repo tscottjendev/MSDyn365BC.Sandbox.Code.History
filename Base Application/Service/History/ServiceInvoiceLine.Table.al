@@ -21,6 +21,7 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Calculation;
+using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
@@ -197,6 +198,16 @@ table 5993 "Service Invoice Line"
             Editable = false;
             TableRelation = "Customer Price Group";
         }
+        field(45; "Job No."; Code[20])
+        {
+            Caption = 'Project No.';
+            TableRelation = Job;
+        }
+        field(46; "Job Task No."; Code[20])
+        {
+            Caption = 'Project Task No.';
+            TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
+        }
         field(52; "Work Type Code"; Code[10])
         {
             Caption = 'Work Type Code';
@@ -349,6 +360,12 @@ table 5993 "Service Invoice Line"
             begin
                 Rec.ShowDimensions();
             end;
+        }
+        field(1019; "Job Planning Line No."; Integer)
+        {
+            AccessByPermission = TableData Job = R;
+            BlankZero = true;
+            Caption = 'Project Planning Line No.';
         }
         field(5402; "Variant Code"; Code[10])
         {
