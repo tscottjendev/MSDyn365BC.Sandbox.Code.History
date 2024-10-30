@@ -326,6 +326,16 @@ table 6661 "Return Receipt Line"
                 Rec.ShowDimensions();
             end;
         }
+        field(1001; "Job Task No."; Code[20])
+        {
+            Caption = 'Project Task No.';
+            TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
+        }
+        field(1002; "Job Contract Entry No."; Integer)
+        {
+            BlankZero = true;
+            Caption = 'Project Contract Entry No.';
+        }
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
