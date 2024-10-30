@@ -922,7 +922,7 @@ codeunit 6501 "Item Tracking Data Collection"
         end;
     end;
 
-    internal procedure GetFullGlobalDataSetExists(): Boolean
+    procedure GetFullGlobalDataSetExists(): Boolean
     begin
         exit(FullGlobalDataSetExists);
     end;

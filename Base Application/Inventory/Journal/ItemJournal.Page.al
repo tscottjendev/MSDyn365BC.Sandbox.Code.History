@@ -1086,7 +1086,6 @@ page 40 "Item Journal"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ClientTypeManagement: Codeunit "Client Type Management";
         ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
-        CurrentJnlBatchName: Code[10];
         ItemDescription: Text[100];
         ExtendedPriceEnabled: Boolean;
         BackgroundErrorCheck: Boolean;
@@ -1104,6 +1103,7 @@ page 40 "Item Journal"
     protected var
         EntryType: Enum "Item Journal Entry Type";
         ShortcutDimCode: array[8] of Code[20];
+        CurrentJnlBatchName: Code[10];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
