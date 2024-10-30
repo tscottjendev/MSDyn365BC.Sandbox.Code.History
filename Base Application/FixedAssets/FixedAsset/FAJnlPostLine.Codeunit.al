@@ -278,7 +278,7 @@ codeunit 5632 "FA Jnl.-Post Line"
             CalculateDisposal.CalcGainLoss(FANo, DeprBookCode, EntryAmounts);
             for i := 1 to 14 do
                 if EntryAmounts[i] <> 0 then begin
-                    FALedgEntry."FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
+                    FALedgEntry."FA Posting Category" := CalculateDisposal.SetFALedgerPostingCategory(i);
                     FALedgEntry."FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
                     FALedgEntry.Amount := EntryAmounts[i];
                     if i = 1 then
@@ -297,7 +297,7 @@ codeunit 5632 "FA Jnl.-Post Line"
             CalculateDisposal.CalcSecondGainLoss(FANo, DeprBookCode, FALedgEntry.Amount, EntryAmounts);
             for i := 1 to 2 do
                 if EntryAmounts[i] <> 0 then begin
-                    FALedgEntry."FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
+                    FALedgEntry."FA Posting Category" := CalculateDisposal.SetFALedgerPostingCategory(i);
                     FALedgEntry."FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
                     FALedgEntry.Amount := EntryAmounts[i];
                     if i = 1 then
@@ -324,7 +324,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                 if EntryNumbers[i] <> 0 then begin
                     FALedgEntry.Amount := EntryAmounts[i];
                     FALedgEntry."Entry No." := EntryNumbers[i];
-                    FALedgEntry."FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
+                    FALedgEntry."FA Posting Category" := CalculateDisposal.SetFALedgerPostingCategory(i);
                     FALedgEntry."FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
                     if i = 1 then
                         FALedgEntry."Result on Disposal" := FALedgEntry."Result on Disposal"::Gain;
