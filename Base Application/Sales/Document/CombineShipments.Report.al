@@ -351,25 +351,19 @@ report 295 "Combine Shipments"
 
     var
         SalesSetup: Record "Sales & Receivables Setup";
-        Cust: Record Customer;
         GLSetup: Record "General Ledger Setup";
         OperationType: Record "No. Series";
         PaymentTermsLine: Record "Payment Lines";
         PaymentSales: Record "Payment Lines";
-        LanguageMgt: Codeunit Language;
         SalesCalcDisc: Codeunit "Sales-Calc. Discount";
         SalesPost: Codeunit "Sales-Post";
         LocalAppMgt: Codeunit LocalApplicationManagement;
         Window: Dialog;
-        HasAmount: Boolean;
         HideDialog: Boolean;
-        NoOfSalesInvErrors: Integer;
         NoOfSalesInv: Integer;
         OperationDateFrom: Date;
         OperationDateTo: Date;
         NoOfskippedShiment: Integer;
-        ReportLanguage: Integer;
-        ReportFormatRegion: Text[80];
 #pragma warning disable AA0074
         Text000: Label 'Enter the posting date.';
         Text001: Label 'Enter the document date.';
@@ -401,14 +395,20 @@ report 295 "Combine Shipments"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesShptLine: Record "Sales Shipment Line";
+        Cust: Record Customer;
+        LanguageMgt: Codeunit Language;
         PostingDateReq: Date;
         DocDateReq: Date;
         VATDateReq: Date;
         CalcInvDisc: Boolean;
+        HasAmount: Boolean;
         PostInv: Boolean;
         OnlyStdPmtTerms: Boolean;
         CopyTextLines: Boolean;
         VATDateEnabled: Boolean;
+        NoOfSalesInvErrors: Integer;
+        ReportLanguage: Integer;
+        ReportFormatRegion: Text[80];
 
     local procedure FinalizeSalesInvHeader()
     var
