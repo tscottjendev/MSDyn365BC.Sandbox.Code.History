@@ -82,11 +82,9 @@ table 5601 "FA Ledger Entry"
             Caption = 'Depreciation Book Code';
             TableRelation = "Depreciation Book";
         }
-        field(12; "FA Posting Category"; Option)
+        field(12; "FA Posting Category"; Enum "FA Ledger Posting Category")
         {
             Caption = 'FA Posting Category';
-            OptionCaption = ' ,Disposal,Bal. Disposal';
-            OptionMembers = " ",Disposal,"Bal. Disposal";
         }
         field(13; "FA Posting Type"; Enum "FA Ledger Entry FA Posting Type")
         {
