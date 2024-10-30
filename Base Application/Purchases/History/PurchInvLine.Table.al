@@ -489,6 +489,12 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Project Currency Code';
         }
+        field(1019; "Job Planning Line No."; Integer)
+        {
+            AccessByPermission = TableData Job = R;
+            BlankZero = true;
+            Caption = 'Project Planning Line No.';
+        }
         field(1700; "Deferral Code"; Code[10])
         {
             Caption = 'Deferral Code';
