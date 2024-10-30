@@ -1225,7 +1225,7 @@ table 121 "Purch. Rcpt. Line"
           Round("Job Line Disc. Amount (LCY)" * Factor, Currency."Amount Rounding Precision");
     end;
 
-    local procedure CalcBaseQuantities(var PurchaseLine: Record "Purchase Line"; QtyFactor: Decimal)
+    procedure CalcBaseQuantities(var PurchaseLine: Record "Purchase Line"; QtyFactor: Decimal)
     begin
         PurchaseLine."Quantity (Base)" :=
           Round(PurchaseLine.Quantity * QtyFactor, UOMMgt.QtyRndPrecision());
