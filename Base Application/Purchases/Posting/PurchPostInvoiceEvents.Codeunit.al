@@ -246,13 +246,23 @@ codeunit 826 "Purch. Post Invoice Events"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('Replaced by prodcedure that also receives PurchHeader', '26.0')]
     procedure RunOnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        PurchHeader: Record "Purchase Header";
     begin
-        OnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(VATPostingSetup);
+        OnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(VATPostingSetup, PurchHeader);
+    end;
+#endif
+
+    procedure RunOnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; PurchHeader: Record "Purchase Header")
+    begin
+        OnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(VATPostingSetup, PurchHeader);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    local procedure OnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; PurchHeader: Record "Purchase Header")
     begin
     end;
 
