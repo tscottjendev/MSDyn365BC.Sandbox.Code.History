@@ -5,6 +5,7 @@
 namespace Microsoft.Assembly.Document;
 
 using Microsoft.Assembly.Comment;
+using Microsoft.Assembly.Costing;
 using Microsoft.Assembly.Setup;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -19,7 +20,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Activity;
@@ -1225,12 +1225,12 @@ table 900 "Assembly Header"
 
     procedure UpdateUnitCost()
     var
-        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+        CalculateAssemblyCost: Codeunit "Calculate Assembly Cost";
         RolledUpAsmUnitCost: Decimal;
         OverHeadAmt: Decimal;
     begin
         RolledUpAsmUnitCost := CalcRolledUpAsmUnitCost();
-        OverHeadAmt := CalculateStandardCost.CalcOverHeadAmt(RolledUpAsmUnitCost, "Indirect Cost %", "Overhead Rate");
+        OverHeadAmt := CalculateAssemblyCost.CalcOverHeadAmt(RolledUpAsmUnitCost, "Indirect Cost %", "Overhead Rate");
         Validate("Unit Cost", RoundUnitAmount(RolledUpAsmUnitCost + OverHeadAmt));
         Modify(true);
     end;

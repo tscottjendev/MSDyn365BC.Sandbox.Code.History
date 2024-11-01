@@ -9383,15 +9383,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Payment Recon. E2E Tests 2 - NamedType ClosedBankLedgerEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1570463600 - NamedType 90541444" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The remaining amount to apply is %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 is the amount that is not applied (there is filed on the page named Remaining Amount To Apply)]D;]A;(LookupHint=Codeunit Payment Recon. E2E Tests 2 - NamedType ExcessiveAmountErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1570463600 - NamedType 971919354" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No bank transaction lines exist. Choose the Import Bank Transactions action to fill in the lines from a file, or enter lines manually.]]></Val>

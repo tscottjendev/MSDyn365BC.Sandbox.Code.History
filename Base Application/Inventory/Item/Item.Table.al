@@ -41,7 +41,6 @@ using Microsoft.Manufacturing.Forecast;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Job;
@@ -3252,7 +3251,7 @@ table 27 Item
 
     local procedure CheckStdCostWksh(CurrentFieldNo: Integer)
     var
-        StandardCostWorksheet: Record "Standard Cost Worksheet";
+        StandardCostWorksheet: Record Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet";
         IsHandled: Boolean;
     begin
         if "No." = '' then
