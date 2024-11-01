@@ -13,7 +13,6 @@ using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Activity;
@@ -555,7 +554,7 @@ page 900 "Assembly Order"
                         ApplicationArea = Manufacturing;
                         Caption = 'Capacity Ledger Entries';
                         Image = CapacityLedger;
-                        RunObject = Page "Capacity Ledger Entries";
+                        RunObject = Page Microsoft.Manufacturing.Capacity."Capacity Ledger Entries";
                         RunPageLink = "Order Type" = const(Assembly),
                                       "Order No." = field("No.");
                         RunPageView = sorting("Order Type", "Order No.");
