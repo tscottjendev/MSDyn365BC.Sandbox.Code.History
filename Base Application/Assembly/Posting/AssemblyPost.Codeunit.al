@@ -26,7 +26,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.Sales.Document;
@@ -1166,7 +1165,7 @@ codeunit 900 "Assembly-Post"
 
     local procedure SumCapQtyPosted(OrderNo: Code[20]; OrderLineNo: Integer): Decimal
     var
-        CapLedgEntry: Record "Capacity Ledger Entry";
+        CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
     begin
         CapLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.");
         CapLedgEntry.SetRange("Order Type", CapLedgEntry."Order Type"::Assembly);

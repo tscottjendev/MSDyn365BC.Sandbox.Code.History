@@ -595,6 +595,20 @@ page 99000818 "Prod. Order Components"
                     end;
                 }
             }
+            action(SelectMultiItems)
+            {
+                AccessByPermission = TableData Item = R;
+                ApplicationArea = Manufacturing;
+                Caption = 'Select items';
+                Ellipsis = true;
+                Image = NewItem;
+                ToolTip = 'Add two or more items from the list of your inventory items.';
+
+                trigger OnAction()
+                begin
+                    Rec.SelectMultipleItems();
+                end;
+            }
             action("&Print")
             {
                 ApplicationArea = Manufacturing;
