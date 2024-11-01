@@ -855,7 +855,7 @@ codeunit 1255 "Match Bank Payments"
     begin
         InitializeBankPmtApplSettings();
         TempLedgerEntryMatchingBuffer.Reset();
-        OnFindMatchingEntriesOnBeforeFindFirst(TempBankAccReconciliationLine, TempLedgerEntryMatchingBuffer, AccountType, ApplyEntries);
+        OnFindMatchingEntriesOnBeforeFindFirst(TempBankAccReconciliationLine, TempLedgerEntryMatchingBuffer, AccountType, SkipOtherEntries, ApplyEntries);
         if TempLedgerEntryMatchingBuffer.FindFirst() then
             repeat
                 FindMatchingEntry(TempLedgerEntryMatchingBuffer, TempBankAccReconciliationLine, AccountType, BankPmtApplRule);
@@ -2378,6 +2378,7 @@ codeunit 1255 "Match Bank Payments"
         CustLedgEntry.CalcFields("Remaining Amount");
         CustLedgEntry."Applies-to ID" := AppliesToID;
         CustLedgEntry."Amount to Apply" := CustLedgEntry."Remaining Amount";
+        OnSetCustAppicationDataOnBeforeCustEntryEdit(CustLedgEntry);
         CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgEntry);
     end;
 
@@ -2389,6 +2390,7 @@ codeunit 1255 "Match Bank Payments"
         VendLedgEntry.CalcFields("Remaining Amount");
         VendLedgEntry."Applies-to ID" := AppliesToID;
         VendLedgEntry."Amount to Apply" := VendLedgEntry."Remaining Amount";
+        OnSetVendAppicationDataOnBeforeVendEntryEdit(VendLedgEntry);
         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
     end;
 
@@ -2500,7 +2502,7 @@ codeunit 1255 "Match Bank Payments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindMatchingEntriesOnBeforeFindFirst(var TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; AccountType: Enum "Gen. Journal Account Type"; var SkipOtherEntries: Boolean)
+    local procedure OnFindMatchingEntriesOnBeforeFindFirst(var TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; AccountType: Enum "Gen. Journal Account Type"; var SkipOtherEntries: Boolean; var ApplyEntries: Boolean)
     begin
     end;
 
@@ -2645,7 +2647,17 @@ codeunit 1255 "Match Bank Payments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnSetCustAppicationDataOnBeforeCustEntryEdit(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTransferDifference(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; var DifferenceTransferred: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetVendAppicationDataOnBeforeVendEntryEdit(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 

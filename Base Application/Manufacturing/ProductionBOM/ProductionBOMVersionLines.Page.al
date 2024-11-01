@@ -139,6 +139,20 @@ page 99000789 "Production BOM Version Lines"
     {
         area(processing)
         {
+            action(SelectMultiItems)
+            {
+                AccessByPermission = TableData Item = R;
+                ApplicationArea = Manufacturing;
+                Caption = 'Select items';
+                Ellipsis = true;
+                Image = NewItem;
+                ToolTip = 'Add two or more items from the list of your inventory items.';
+
+                trigger OnAction()
+                begin
+                    Rec.SelectMultipleItems();
+                end;
+            }
             group("&Component")
             {
                 Caption = '&Component';
