@@ -4,9 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.BOM;
 
+using Microsoft.Assembly.Costing;
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Projects.Resources.Resource;
 
 page 36 "Assembly BOM"
@@ -199,9 +199,9 @@ page 36 "Assembly BOM"
 
                 trigger OnAction()
                 var
-                    CalcStdCost: Codeunit "Calculate Standard Cost";
+                    CalculateAssemblyCost: Codeunit "Calculate Assembly Cost";
                 begin
-                    CalcStdCost.CalcItem(Rec."Parent Item No.", true)
+                    CalculateAssemblyCost.CalcItem(Rec."Parent Item No.");
                 end;
             }
             action(CalcUnitPrice)
@@ -213,9 +213,9 @@ page 36 "Assembly BOM"
 
                 trigger OnAction()
                 var
-                    CalcStdCost: Codeunit "Calculate Standard Cost";
+                    CalculateAssemblyCost: Codeunit "Calculate Assembly Cost";
                 begin
-                    CalcStdCost.CalcAssemblyItemPrice(Rec."Parent Item No.")
+                    CalculateAssemblyCost.CalcAssemblyItemPrice(Rec."Parent Item No.")
                 end;
             }
             action("Cost Shares")

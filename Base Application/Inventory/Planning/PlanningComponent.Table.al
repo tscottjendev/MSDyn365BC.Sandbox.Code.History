@@ -1232,6 +1232,75 @@ table 99000829 "Planning Component"
         CreateDim(DefaultDimSource);
     end;
 
+    /// <summary>
+    /// Opens a page for selecting multiple items to add to the document.
+    /// Selected items are added to the document.
+    /// </summary>
+    procedure SelectMultipleItems()
+    var
+        ItemListPage: Page "Item List";
+        SelectionFilter: Text;
+    begin
+        SelectionFilter := ItemListPage.SelectActiveItems();
+
+        if SelectionFilter <> '' then
+            AddItems(SelectionFilter);
+    end;
+
+    /// <summary>
+    /// Adds items to the document based on the provided selection filter.
+    /// </summary>
+    /// <param name="SelectionFilter">The filter to use for selecting items.</param>
+    procedure AddItems(SelectionFilter: Text)
+    var
+        Item: Record Item;
+        PlanningComponent: Record "Planning Component";
+    begin
+        InitNewLine(PlanningComponent);
+        Item.SetLoadFields("No.");
+        Item.SetFilter("No.", SelectionFilter);
+        if Item.FindSet() then
+            repeat
+                AddItem(PlanningComponent, Item."No.");
+            until Item.Next() = 0;
+    end;
+
+    /// <summary>
+    /// Adds an item to the document.
+    /// </summary>
+    /// <remarks>
+    /// After the line is added, assembly order is automatically created if required.
+    /// If the item has extended text, the text is added as a line.
+    /// </remarks>
+    /// <param name="PlanningComponent">Return value: New Planning Component Record. Planning Component must have the number set.</param>
+    /// <param name="ItemNo">Return value: The number of the item to add.</param>
+    procedure AddItem(var PlanningComponent: Record "Planning Component"; ItemNo: Code[20])
+    begin
+        PlanningComponent.Init();
+        PlanningComponent."Line No." += 10000;
+        PlanningComponent.Validate("Item No.", ItemNo);
+        PlanningComponent.Insert(true);
+    end;
+
+    /// <summary>
+    /// Initializes a new Planning Component based on the current Planning Component.
+    /// </summary>
+    /// <param name="NewPlanningComponent">Return value: The new Planning Component.</param>
+    procedure InitNewLine(var NewPlanningComponent: Record "Planning Component")
+    var
+        PlanningComponent: Record "Planning Component";
+    begin
+        NewPlanningComponent.Copy(Rec);
+        PlanningComponent.SetLoadFields("Line No.");
+        PlanningComponent.SetRange("Worksheet Template Name", NewPlanningComponent."Worksheet Template Name");
+        PlanningComponent.SetRange("Worksheet Batch Name", NewPlanningComponent."Worksheet Batch Name");
+        PlanningComponent.SetRange("Worksheet Line No.", NewPlanningComponent."Worksheet Line No.");
+        if PlanningComponent.FindLast() then
+            NewPlanningComponent."Line No." := PlanningComponent."Line No."
+        else
+            NewPlanningComponent."Line No." := 0;
+    end;
+
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
         DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.");

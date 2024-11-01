@@ -7,6 +7,7 @@ namespace Microsoft.Inventory.Planning;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 
 page 99000862 "Planning Components"
@@ -307,6 +308,20 @@ page 99000862 "Planning Components"
                     trigger OnAction()
                     begin
                         Rec.OpenItemTrackingLines();
+                    end;
+                }
+                action(SelectMultiItems)
+                {
+                    AccessByPermission = TableData Item = R;
+                    ApplicationArea = Planning;
+                    Caption = 'Select items';
+                    Ellipsis = true;
+                    Image = NewItem;
+                    ToolTip = 'Add two or more items from the list of your inventory items.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.SelectMultipleItems();
                     end;
                 }
             }
