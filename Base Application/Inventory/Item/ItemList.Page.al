@@ -28,7 +28,6 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Reports;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Reports;
@@ -1875,8 +1874,10 @@ page 31 "Item List"
                         ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s assembly BOM. The unit cost of a parent item must equal the total of the unit costs of its components, subassemblies, and any resources.';
 
                         trigger OnAction()
+                        var
+                            CalculateAssemblyCost: Codeunit Microsoft.Assembly.Costing."Calculate Assembly Cost";
                         begin
-                            CalculateStdCost.CalcItem(Rec."No.", true);
+                            CalculateAssemblyCost.CalcItem(Rec."No.");
                         end;
                     }
                     action("Calc. Unit Price")
@@ -1888,8 +1889,10 @@ page 31 "Item List"
                         ToolTip = 'Calculate the unit price based on the unit cost and the profit percentage.';
 
                         trigger OnAction()
+                        var
+                            CalculateAssemblyCost: Codeunit Microsoft.Assembly.Costing."Calculate Assembly Cost";
                         begin
-                            CalculateStdCost.CalcAssemblyItemPrice(Rec."No.");
+                            CalculateAssemblyCost.CalcAssemblyItemPrice(Rec."No.");
                         end;
                     }
                 }
@@ -1943,8 +1946,10 @@ page 31 "Item List"
                         ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s production BOM. The unit cost of a parent item must equal the total of the unit costs of its components, subassemblies, and any resources.';
 
                         trigger OnAction()
+                        var
+                            CalculateStandardCost: Codeunit Microsoft.Manufacturing.StandardCost."Calculate Standard Cost";
                         begin
-                            CalculateStdCost.CalcItem(Rec."No.", false);
+                            CalculateStandardCost.CalcItem(Rec."No.", false);
                         end;
                     }
                 }
@@ -2527,7 +2532,6 @@ page 31 "Item List"
         TempItemFilteredFromAttributes: Record Item temporary;
         TempItemFilteredFromPickItem: Record Item temporary;
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        CalculateStdCost: Codeunit "Calculate Standard Cost";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         ClientTypeManagement: Codeunit "Client Type Management";

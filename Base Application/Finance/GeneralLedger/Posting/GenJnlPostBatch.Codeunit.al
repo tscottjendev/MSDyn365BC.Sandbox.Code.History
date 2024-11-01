@@ -403,7 +403,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             if not GenJnlLine.EmptyLine() then begin
                 ShouldCheckDocNoBasedOnNoSeries := not PreviewMode and (GenJnlBatch."No. Series" <> '') and (LastDocNo <> GenJnlLine."Document No.");
                 SkipCheckingPostingNoSeries := false;
-                OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries(GenJnlLine, GenJnlBatch, ShouldCheckDocNoBasedOnNoSeries, SkipCheckingPostingNoSeries);
+                OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries(GenJnlLine, GenJnlBatch, ShouldCheckDocNoBasedOnNoSeries, SkipCheckingPostingNoSeries, LastDocNo, CurrentBalance);
 #if not CLEAN24
                 if ShouldCheckDocNoBasedOnNoSeries then begin
                     // raises the old event.
@@ -430,7 +430,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                 CheckCorrection(GenJnlLine);
             end;
             LastDocTypeOption := LastDocType.AsInteger();
-            OnBeforeIfCheckBalance(GenJnlTemplate, GenJnlLine, LastDocTypeOption, LastDocNo, LastDate, ForceCheckBalance, SuppressCommit, IsHandled);
+            OnBeforeIfCheckBalance(GenJnlTemplate, GenJnlLine, LastDocTypeOption, LastDocNo, LastDate, ForceCheckBalance, SuppressCommit, IsHandled, CurrentBalance);
             LastDocType := "Gen. Journal Document Type".FromInteger(LastDocTypeOption);
             if not IsHandled then
                 if ForceCheckBalance or (GenJnlLine."Posting Date" <> LastDate) or GenJnlTemplate."Force Doc. Balance" and
@@ -2155,7 +2155,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIfCheckBalance(GenJnlTemplate: Record "Gen. Journal Template"; GenJnlLine: Record "Gen. Journal Line"; var LastDocType: Option; var LastDocNo: Code[20]; var LastDate: Date; var CheckIfBalance: Boolean; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeIfCheckBalance(GenJnlTemplate: Record "Gen. Journal Template"; GenJnlLine: Record "Gen. Journal Line"; var LastDocType: Option; var LastDocNo: Code[20]; var LastDate: Date; var CheckIfBalance: Boolean; CommitIsSuppressed: Boolean; var IsHandled: Boolean; CurrentBalance: Decimal)
     begin
     end;
 
@@ -2280,7 +2280,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; var ShouldCheckDocNoBasedOnNoSeries: Boolean; var SkipCheckingPostingNoSeries: Boolean)
+    local procedure OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; var ShouldCheckDocNoBasedOnNoSeries: Boolean; var SkipCheckingPostingNoSeries: Boolean; LastDocNo: Code[20]; CurrentBalance: Decimal)
     begin
     end;
 
