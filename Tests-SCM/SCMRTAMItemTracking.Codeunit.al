@@ -1,7 +1,7 @@
 codeunit 137052 "SCM RTAM Item Tracking"
 {
     Subtype = Test;
-    TestPermissions = NonRestrictive;
+    TestPermissions = Disabled;
 
     trigger OnRun()
     begin

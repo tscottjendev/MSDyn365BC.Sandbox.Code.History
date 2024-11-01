@@ -5012,6 +5012,126 @@
         Assert.AreEqual(NewSetupTime, ProdOrderRoutingLine."Setup Time", ProdOrderRtngLineNotUpdatedMsg);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,SelectMultiItemsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ProdOrderComponentSelectMultipleItems()
+    var
+        Item: Record Item;
+        ParentItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProdOrderComponents: TestPage "Prod. Order Components";
+    begin
+        // [SCENARIO 347825] Run Action "Select items" on Prod. Order Components Page adds selected items.
+        Initialize();
+
+        // [GIVEN] Create Items Setup With Production and Tracking.
+        CreateItemsSetupWithProductionAndTracking(Item, ParentItem, ProductionOrder, LibraryRandom.RandInt(100), '');
+
+        // [GIVEN] Update Flushing Method On Prod Component.
+        UpdateFlushingMethodOnProdComp(ProductionOrder."No.", Item."Flushing Method"::Backward);
+
+        // [WHEN] Run action "Select items" on Prod. Order Component Page.
+        ProdOrderComponents.OpenEdit();
+        ProdOrderComponents.FILTER.SetFilter("Item No.", Item."No.");
+        ProdOrderComponents.SelectMultiItems.Invoke();
+
+        // [VERIFY] Verify the count of Prod. Order Component as one line is added.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        Assert.RecordCount(ProdOrderComponent, 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,SelectCancelMultiItemsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ProdOrderComponentCancelSelectMultipleItems()
+    var
+        Item: Record Item;
+        ParentItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProdOrderComponents: TestPage "Prod. Order Components";
+    begin
+        // [SCENARIO 347825] Run Action "Select items" on Prod. Order Components Page not add selected items.
+        Initialize();
+
+        // [GIVEN] Create Items Setup With Production and Tracking.
+        CreateItemsSetupWithProductionAndTracking(Item, ParentItem, ProductionOrder, LibraryRandom.RandInt(100), '');
+
+        // [GIVEN] Update Flushing Method On Prod Component.
+        UpdateFlushingMethodOnProdComp(ProductionOrder."No.", Item."Flushing Method"::Backward);
+
+        // [WHEN] Run action "Select items" on Prod. Order Component Page.
+        ProdOrderComponents.OpenEdit();
+        ProdOrderComponents.FILTER.SetFilter("Item No.", Item."No.");
+        ProdOrderComponents.SelectMultiItems.Invoke();
+
+        // [THEN] Verify the count of Prod. Order Component as line is not added.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        Assert.RecordCount(ProdOrderComponent, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectMultiItemsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ProdBOMLinesSelectMultipleItems()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionBOM: TestPage "Production BOM";
+    begin
+        // [SCENARIO 347825] Run Action "Select items" on Prod. BOM Lines Page adds selected items.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+
+        // [WHEN] Run action "Select items" on Production BOM Lines Page.
+        ProductionBOM.OpenEdit();
+        ProductionBOM.GoToRecord(ProductionBOMHeader);
+        ProductionBOM.ProdBOMLine.SelectMultiItems.Invoke();
+
+        // [THEN] Verify the count of Prod. BOM Line as one line is added.
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
+        Assert.RecordCount(ProductionBOMLine, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectCancelMultiItemsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ProdBOMLinesCancelSelectMultipleItems()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionBOM: TestPage "Production BOM";
+    begin
+        // [SCENARIO 347825] Run Action "Select items" on Prod. BOM Lines Page not add selected items.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+
+        // [WHEN] Run action "Select items" on Production BOM Lines Page.
+        ProductionBOM.OpenEdit();
+        ProductionBOM.GoToRecord(ProductionBOMHeader);
+        ProductionBOM.ProdBOMLine.SelectMultiItems.Invoke();
+
+        // [THEN] Verify the count of Prod. BOM Line as line is not added.
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
+        Assert.RecordCount(ProductionBOMLine, 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -7063,6 +7183,22 @@
     procedure AllLevelsStrMenuHandler(StrMenuText: Text; var Choice: Integer; InstructionText: Text)
     begin
         Choice := 2; // All levels
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectMultiItemsModalPageHandler(var ItemList: TestPage "Item List")
+    begin
+        ItemList.Next();
+        ItemList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectCancelMultiItemsModalPageHandler(var ItemList: TestPage "Item List")
+    begin
+        ItemList.Next();
+        ItemList.Cancel().Invoke();
     end;
 }
 

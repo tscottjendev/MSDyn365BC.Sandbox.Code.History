@@ -11,7 +11,6 @@ using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Utilities;
 using System.Utilities;
 
@@ -205,10 +204,19 @@ report 5899 "Calculate Inventory Value"
                 GLSetup.Get();
                 SourceCodeSetup.Get();
 
-                if CalcBase in [CalcBase::"Standard Cost - Assembly List", CalcBase::"Standard Cost - Manufacturing"] then begin
-                    CalculateStdCost.SetProperties(PostingDate, true, CalcBase = CalcBase::"Standard Cost - Assembly List", false, '', true);
-                    CalculateStdCost.CalcItems(Item, TempNewStdCostItem);
-                    Clear(CalculateStdCost);
+                case CalcBase of
+                    CalcBase::"Standard Cost - Assembly List":
+                        begin
+                            CalculateAssemblyCost.SetProperties(PostingDate, true, false, '', true);
+                            CalculateAssemblyCost.CalcItems(Item, TempNewStdCostItem);
+                            Clear(CalculateAssemblyCost);
+                        end;
+                    CalcBase::"Standard Cost - Manufacturing":
+                        begin
+                            CalculateStandardCost.SetProperties(PostingDate, true, false, false, '', true);
+                            CalculateStandardCost.CalcItems(Item, TempNewStdCostItem);
+                            Clear(CalculateStandardCost);
+                        end;
                 end;
 
                 OnAfterOnPreDataItem(Item);
@@ -330,7 +338,8 @@ report 5899 "Calculate Inventory Value"
         CalendarPeriod: Record Date;
         CalcInvtValCheck: Codeunit "Calc. Inventory Value-Check";
         NoSeriesBatch: Codeunit "No. Series - Batch";
-        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        CalculateAssemblyCost: Codeunit Microsoft.Assembly.Costing."Calculate Assembly Cost";
+        CalculateStandardCost: Codeunit Microsoft.Manufacturing.StandardCost."Calculate Standard Cost";
         AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
         Window: Dialog;
         CalculatePer: Enum "Inventory Value Calc. Per";

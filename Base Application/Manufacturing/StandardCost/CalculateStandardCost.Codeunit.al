@@ -1210,5 +1210,30 @@ codeunit 5812 "Calculate Standard Cost"
     local procedure OnCalcRtngLineCostOnAfterCalcRoutingCostPerUnit(RoutingLine: Record "Routing Line"; WorkCenter: Record "Work Center"; var MfgItemQtyBase: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type")
     begin
     end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Standard Cost Worksheet", 'OnAfterValidateEvent', 'No.', false, false)]
+    local procedure OnValidateNoByType(var Rec: Record "Standard Cost Worksheet")
+    var
+        MachineCenter: Record "Machine Center";
+        WorkCenter: Record "Work Center";
+    begin
+        if Rec."No." = '' then
+            exit;
+
+        case Rec.Type of
+            Rec.Type::"Work Center":
+                begin
+                    WorkCenter.Get(Rec."No.");
+                    Rec.Description := WorkCenter.Name;
+                    Rec.GetWorkCenterCosts(WorkCenter);
+                end;
+            Rec.Type::"Machine Center":
+                begin
+                    MachineCenter.Get(Rec."No.");
+                    Rec.Description := MachineCenter.Name;
+                    Rec.GetMachineCenterCosts(MachineCenter);
+                end;
+        end;
+    end;
 }
 

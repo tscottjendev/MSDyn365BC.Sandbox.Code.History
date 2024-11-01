@@ -5,9 +5,7 @@
 namespace Microsoft.Manufacturing.StandardCost;
 
 using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Inventory.StandardCost;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Resources.Resource;
 
 table 5841 "Standard Cost Worksheet"
@@ -38,10 +36,6 @@ table 5841 "Standard Cost Worksheet"
             NotBlank = true;
             TableRelation = if (Type = const(Item)) Item
             else
-            if (Type = const("Machine Center")) "Machine Center"
-            else
-            if (Type = const("Work Center")) "Work Center"
-            else
             if (Type = const(Resource)) Resource;
 
             trigger OnValidate()
@@ -64,18 +58,6 @@ table 5841 "Standard Cost Worksheet"
                             Description := Item.Description;
                             "Replenishment System" := Item."Replenishment System";
                             GetItemCosts();
-                        end;
-                    Type::"Work Center":
-                        begin
-                            WorkCtr.Get("No.");
-                            Description := WorkCtr.Name;
-                            GetWorkCtrCosts();
-                        end;
-                    Type::"Machine Center":
-                        begin
-                            MachCtr.Get("No.");
-                            Description := MachCtr.Name;
-                            GetMachCtrCosts();
                         end;
                     Type::Resource:
                         begin
@@ -159,118 +141,133 @@ table 5841 "Standard Cost Worksheet"
         {
             AutoFormatType = 2;
             Caption = 'New Single-Lvl Material Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(23; "Single-Lvl Cap. Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'Single-Lvl Cap. Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(24; "New Single-Lvl Cap. Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'New Single-Lvl Cap. Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(25; "Single-Lvl Subcontrd Cost"; Decimal)
         {
-            AccessByPermission = TableData "Machine Center" = R;
             AutoFormatType = 2;
             Caption = 'Single-Lvl Subcontrd Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(26; "New Single-Lvl Subcontrd Cost"; Decimal)
         {
-            AccessByPermission = TableData "Machine Center" = R;
             AutoFormatType = 2;
             Caption = 'New Single-Lvl Subcontrd Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(27; "Single-Lvl Cap. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'Single-Lvl Cap. Ovhd Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(28; "New Single-Lvl Cap. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'New Single-Lvl Cap. Ovhd Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(29; "Single-Lvl Mfg. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'Single-Lvl Mfg. Ovhd Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(30; "New Single-Lvl Mfg. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'New Single-Lvl Mfg. Ovhd Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(41; "Rolled-up Material Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'Rolled-up Material Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(42; "New Rolled-up Material Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'New Rolled-up Material Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(43; "Rolled-up Cap. Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'Rolled-up Cap. Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(44; "New Rolled-up Cap. Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'New Rolled-up Cap. Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(45; "Rolled-up Subcontrd Cost"; Decimal)
         {
-            AccessByPermission = TableData "Machine Center" = R;
             AutoFormatType = 2;
             Caption = 'Rolled-up Subcontrd Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(46; "New Rolled-up Subcontrd Cost"; Decimal)
         {
-            AccessByPermission = TableData "Machine Center" = R;
             AutoFormatType = 2;
             Caption = 'New Rolled-up Subcontrd Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(47; "Rolled-up Cap. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'Rolled-up Cap. Ovhd Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(48; "New Rolled-up Cap. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'New Rolled-up Cap. Ovhd Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(49; "Rolled-up Mfg. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'Rolled-up Mfg. Ovhd Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(50; "New Rolled-up Mfg. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'New Rolled-up Mfg. Ovhd Cost';
+            DataClassification = CustomerContent;
             Editable = false;
         }
     }
@@ -294,8 +291,6 @@ table 5841 "Standard Cost Worksheet"
 
     var
         Item: Record Item;
-        WorkCtr: Record "Work Center";
-        MachCtr: Record "Machine Center";
         Res: Record Resource;
         StdCostWkshName: Record "Standard Cost Worksheet Name";
 
@@ -310,34 +305,9 @@ table 5841 "Standard Cost Worksheet"
         "Indirect Cost %" := Item."Indirect Cost %";
         "New Indirect Cost %" := Item."Indirect Cost %";
 
-        if Item.IsMfgItem() then
-            TransferManufCostsFromItem()
-        else
-            TransferStandardCostFromItem();
-    end;
+        TransferStandardCostFromItem();
 
-    local procedure GetWorkCtrCosts()
-    begin
-        OnBeforeGetWorkCtrCosts(Rec, WorkCtr);
-
-        "Standard Cost" := WorkCtr."Unit Cost";
-        "New Standard Cost" := WorkCtr."Unit Cost";
-        "Overhead Rate" := WorkCtr."Overhead Rate";
-        "New Overhead Rate" := WorkCtr."Overhead Rate";
-        "Indirect Cost %" := WorkCtr."Indirect Cost %";
-        "New Indirect Cost %" := WorkCtr."Indirect Cost %";
-    end;
-
-    local procedure GetMachCtrCosts()
-    begin
-        OnBeforeGetMachCtrCosts(Rec, MachCtr);
-
-        "Standard Cost" := MachCtr."Unit Cost";
-        "New Standard Cost" := MachCtr."Unit Cost";
-        "Overhead Rate" := MachCtr."Overhead Rate";
-        "New Overhead Rate" := MachCtr."Overhead Rate";
-        "Indirect Cost %" := MachCtr."Indirect Cost %";
-        "New Indirect Cost %" := MachCtr."Indirect Cost %";
+        OnAfterGetItemCosts(Rec, Item);
     end;
 
     local procedure GetResourceCosts()
@@ -394,33 +364,6 @@ table 5841 "Standard Cost Worksheet"
         exit(Round(Amt * AmtAdjustFactor, 0.00001));
     end;
 
-    local procedure TransferManufCostsFromItem()
-    begin
-        "Single-Lvl Material Cost" := Item."Single-Level Material Cost";
-        "New Single-Lvl Material Cost" := Item."Single-Level Material Cost";
-        "Single-Lvl Cap. Cost" := Item."Single-Level Capacity Cost";
-        "New Single-Lvl Cap. Cost" := Item."Single-Level Capacity Cost";
-        "Single-Lvl Subcontrd Cost" := Item."Single-Level Subcontrd. Cost";
-        "New Single-Lvl Subcontrd Cost" := Item."Single-Level Subcontrd. Cost";
-        "Single-Lvl Cap. Ovhd Cost" := Item."Single-Level Cap. Ovhd Cost";
-        "New Single-Lvl Cap. Ovhd Cost" := Item."Single-Level Cap. Ovhd Cost";
-        "Single-Lvl Mfg. Ovhd Cost" := Item."Single-Level Mfg. Ovhd Cost";
-        "New Single-Lvl Mfg. Ovhd Cost" := Item."Single-Level Mfg. Ovhd Cost";
-
-        "Rolled-up Material Cost" := Item."Rolled-up Material Cost";
-        "New Rolled-up Material Cost" := Item."Rolled-up Material Cost";
-        "Rolled-up Cap. Cost" := Item."Rolled-up Capacity Cost";
-        "New Rolled-up Cap. Cost" := Item."Rolled-up Capacity Cost";
-        "Rolled-up Subcontrd Cost" := Item."Rolled-up Subcontracted Cost";
-        "New Rolled-up Subcontrd Cost" := Item."Rolled-up Subcontracted Cost";
-        "Rolled-up Cap. Ovhd Cost" := Item."Rolled-up Cap. Overhead Cost";
-        "New Rolled-up Cap. Ovhd Cost" := Item."Rolled-up Cap. Overhead Cost";
-        "Rolled-up Mfg. Ovhd Cost" := Item."Rolled-up Mfg. Ovhd Cost";
-        "New Rolled-up Mfg. Ovhd Cost" := Item."Rolled-up Mfg. Ovhd Cost";
-
-        OnAfterTransferManufCostsFromItem(Rec, Item);
-    end;
-
     local procedure TransferStandardCostFromItem()
     begin
         "Single-Lvl Material Cost" := Item."Standard Cost";
@@ -449,32 +392,22 @@ table 5841 "Standard Cost Worksheet"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferStandardCostFromItem(var StandardCostWorksheet: Record "Standard Cost Worksheet"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateCostShares(var StandardCostWorksheet: Record "Standard Cost Worksheet"; Ratio: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferManufCostsFromItem(var StandardCostWorksheet: Record "Standard Cost Worksheet"; Item: Record Item)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferStandardCostFromItem(var StandardCostWorksheet: Record "Standard Cost Worksheet"; Item: Record Item)
+    local procedure OnAfterGetItemCosts(var StandardCostWorksheet: Record "Standard Cost Worksheet"; var Item: Record Item)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetItemCosts(var StandardCostWorksheet: Record "Standard Cost Worksheet"; var Item: Record Item)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetWorkCtrCosts(var StandardCostWorksheet: Record "Standard Cost Worksheet"; var WorkCenter: Record "Work Center")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetMachCtrCosts(var StandardCostWorksheet: Record "Standard Cost Worksheet"; var MachineCenter: Record "Machine Center")
     begin
     end;
 
