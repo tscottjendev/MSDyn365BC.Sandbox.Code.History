@@ -4,15 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
-using Microsoft.Assembly.Document;
-using Microsoft.Assembly.History;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Routing;
 
 table 5896 "Inventory Adjmt. Entry (Order)"
 {
@@ -39,15 +35,6 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         {
             Caption = 'Item No.';
             TableRelation = Item;
-        }
-        field(7; "Routing No."; Code[20])
-        {
-            Caption = 'Routing No.';
-            TableRelation = "Routing Header"."No.";
-        }
-        field(8; "Routing Reference No."; Integer)
-        {
-            Caption = 'Routing Reference No.';
         }
         field(21; "Indirect Cost %"; Decimal)
         {
@@ -321,54 +308,6 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         end;
     end;
 
-    procedure SetProdOrderLine(ProdOrderLine: Record "Prod. Order Line")
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeSetProdOrderLine(Rec, ProdOrderLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        Init();
-        "Order Type" := "Order Type"::Production;
-        "Order No." := ProdOrderLine."Prod. Order No.";
-        "Order Line No." := ProdOrderLine."Line No.";
-        "Item No." := ProdOrderLine."Item No.";
-        "Routing No." := ProdOrderLine."Routing No.";
-        "Routing Reference No." := ProdOrderLine."Routing Reference No.";
-        "Cost is Adjusted" := false;
-        "Is Finished" := ProdOrderLine.Status = ProdOrderLine.Status::Finished;
-        "Indirect Cost %" := ProdOrderLine."Indirect Cost %";
-        "Overhead Rate" := ProdOrderLine."Overhead Rate";
-        OnAfterSetProdOrderLineTransferFields(Rec, ProdOrderLine);
-
-        GetUnitCostsFromProdOrderLine();
-        if not Insert() then;
-    end;
-
-    procedure SetAsmOrder(AssemblyHeader: Record "Assembly Header")
-    begin
-        SetAssemblyDoc(AssemblyHeader."No.", AssemblyHeader."Item No.");
-    end;
-
-    procedure SetPostedAsmOrder(PostedAssemblyHeader: Record "Posted Assembly Header")
-    begin
-        SetAssemblyDoc(PostedAssemblyHeader."Order No.", PostedAssemblyHeader."Item No.");
-    end;
-
-    local procedure SetAssemblyDoc(OrderNo: Code[20]; ItemNo: Code[20])
-    begin
-        Init();
-        "Order Type" := "Order Type"::Assembly;
-        "Order No." := OrderNo;
-        "Item No." := ItemNo;
-        "Cost is Adjusted" := false;
-        "Is Finished" := true;
-        GetCostsFromItem(1);
-        if not Insert() then;
-    end;
-
     procedure CalcDirectCostFromCostShares()
     begin
         "Direct Cost" :=
@@ -553,11 +492,6 @@ table 5896 "Inventory Adjmt. Entry (Order)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetProdOrderLineTransferFields(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; ProdOrderLine: Record "Prod. Order Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnAfterAddSingleLvlMaterialCost(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CostAmtLCY: Decimal; var CostAmtACY: Decimal)
     begin
     end;
@@ -574,11 +508,6 @@ table 5896 "Inventory Adjmt. Entry (Order)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddSingleLvlCapacityCost(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CostAmtLCY: Decimal; var CostAmtACY: Decimal)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetProdOrderLine(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 
