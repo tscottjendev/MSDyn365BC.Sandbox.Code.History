@@ -154,7 +154,7 @@ codeunit 7313 "Create Put-away"
                     OnCodeOnBeforeCreateBinTypeFilter(PostedWhseReceiptLine, CurrWarehouseActivityLine, CurrWarehouseActivityHeader, CurrLocation, LineNo, BreakbulkNo, BreakbulkFilter, QtyToPutAwayBase, RemQtyToPutAwayBase, BreakPackage, Breakbulk, CrossDockInfo, PutAwayItemUnitOfMeasure, DoNotFillQtytoHandle, EverythingHandled, IsHandled);
                     if not IsHandled then
                         if CurrLocation."Directed Put-away and Pick" then
-                            BinType.CreateBinTypeFilter(BinTypeFilter, BinType.FieldNo("Put away"));
+                            BinType.MakeBinTypeFilter(BinTypeFilter, BinType.FieldNo("Put away"));
 
                     IsHandled := false;
                     OnCodeOnBeforeSearchBin(PostedWhseReceiptLine, CurrWarehouseActivityLine, CurrWarehouseActivityHeader, CurrLocation, LineNo, BreakbulkNo, BreakbulkFilter, QtyToPutAwayBase, RemQtyToPutAwayBase, BreakPackage, Breakbulk, CrossDockInfo, PutAwayItemUnitOfMeasure, DoNotFillQtytoHandle, EverythingHandled, IsHandled);

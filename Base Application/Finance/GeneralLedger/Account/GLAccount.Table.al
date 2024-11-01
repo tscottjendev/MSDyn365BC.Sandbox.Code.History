@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Account;
 
 using Microsoft.Bank.BankAccount;
@@ -143,11 +147,9 @@ table 15 "G/L Account"
                 UpdateAccountCategoryOfSubAccounts();
             end;
         }
-        field(9; "Income/Balance"; Option)
+        field(9; "Income/Balance"; Enum "G/L Account Report Type")
         {
             Caption = 'Income/Balance';
-            OptionCaption = 'Income Statement,Balance Sheet';
-            OptionMembers = "Income Statement","Balance Sheet";
 
             trigger OnValidate()
             var
