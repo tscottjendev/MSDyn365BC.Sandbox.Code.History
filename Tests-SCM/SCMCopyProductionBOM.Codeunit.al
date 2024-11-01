@@ -399,6 +399,60 @@ codeunit 137210 "SCM Copy Production BOM"
         // [Verify] Verify Production BOM Version through "ProductionBOMVersionPageHandler".
     end;
 
+    [Test]
+    [HandlerFunctions('SelectMultiItemsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ProdBOMVersionLinesSelectMultipleItems()
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMVersion: Record "Production BOM Version";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionBOMVersionTestPage: TestPage "Production BOM Version";
+    begin
+        // [SCENARIO 347825] Run Action "Select items" on Prod. BOM Version Lines Page adds selected items.
+        Initialize();
+
+        // [GIVEN] Create a Production BOM with BOM Versions.
+        SetupCopyBOM(ProductionBOMHeader, ProductionBOMVersion, ProductionBOMHeader.Status::New);
+
+        // [WHEN] Run action "Select items" on Production BOM Version Lines Page.
+        ProductionBOMVersionTestPage.OpenEdit();
+        ProductionBOMVersionTestPage.GoToRecord(ProductionBOMVersion);
+        ProductionBOMVersionTestPage.ProdBOMLine.SelectMultiItems.Invoke();
+
+        // [THEN] Verify the count of Prod. BOM Version Line as one line is added.
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMVersion."Production BOM No.");
+        ProductionBOMLine.SetRange("Version Code", ProductionBOMVersion."Version Code");
+        Assert.RecordCount(ProductionBOMLine, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectCancelMultiItemsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ProdBOMVersionLinesCancelSelectMultipleItems()
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMVersion: Record "Production BOM Version";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionBOMVersionTestPage: TestPage "Production BOM Version";
+    begin
+        // [SCENARIO 347825] Run Action "Select items" on Prod. BOM Version Lines Page not add selected items.
+        Initialize();
+
+        // [GIVEN] Create a Production BOM with BOM Versions.
+        SetupCopyBOM(ProductionBOMHeader, ProductionBOMVersion, ProductionBOMHeader.Status::New);
+
+        // [WHEN] Run action "Select items" on Production BOM Version Lines Page.
+        ProductionBOMVersionTestPage.OpenEdit();
+        ProductionBOMVersionTestPage.GoToRecord(ProductionBOMVersion);
+        ProductionBOMVersionTestPage.ProdBOMLine.SelectMultiItems.Invoke();
+
+        // [THEN] Verify the count of Prod. BOM Version Line as line is not added.
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMVersion."Production BOM No.");
+        ProductionBOMLine.SetRange("Version Code", ProductionBOMVersion."Version Code");
+        Assert.RecordCount(ProductionBOMLine, 0);
+    end;
+
     [Normal]
     local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header")
     var
@@ -541,6 +595,22 @@ codeunit 137210 "SCM Copy Production BOM"
     procedure ProductionBOMVersionPageHandler(var ProductionBOMVersion: TestPage "Production BOM Version")
     begin
         ProductionBOMVersion."Version Code".AssertEquals(LibraryVariableStorage.DequeueText());
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectMultiItemsModalPageHandler(var ItemList: TestPage "Item List")
+    begin
+        ItemList.Next();
+        ItemList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectCancelMultiItemsModalPageHandler(var ItemList: TestPage "Item List")
+    begin
+        ItemList.Next();
+        ItemList.Cancel().Invoke();
     end;
 }
 
