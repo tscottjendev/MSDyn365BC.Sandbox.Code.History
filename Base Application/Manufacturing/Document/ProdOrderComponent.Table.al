@@ -1423,6 +1423,75 @@ table 5407 "Prod. Order Component"
         DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
     end;
 
+    /// <summary>
+    /// Opens a page for selecting multiple items to add to the document.
+    /// Selected items are added to the document.
+    /// </summary>
+    procedure SelectMultipleItems()
+    var
+        ItemListPage: Page "Item List";
+        SelectionFilter: Text;
+    begin
+        SelectionFilter := ItemListPage.SelectActiveItems();
+
+        if SelectionFilter <> '' then
+            AddItems(SelectionFilter);
+    end;
+
+    /// <summary>
+    /// Adds items to the document based on the provided selection filter.
+    /// </summary>
+    /// <param name="SelectionFilter">The filter to use for selecting items.</param>
+    procedure AddItems(SelectionFilter: Text)
+    var
+        Item: Record Item;
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        InitNewLine(ProdOrderComponent);
+        Item.SetLoadFields("No.");
+        Item.SetFilter("No.", SelectionFilter);
+        if Item.FindSet() then
+            repeat
+                AddItem(ProdOrderComponent, Item."No.");
+            until Item.Next() = 0;
+    end;
+
+    /// <summary>
+    /// Adds an item to the document.
+    /// </summary>
+    /// <remarks>
+    /// After the line is added, assembly order is automatically created if required.
+    /// If the item has extended text, the text is added as a line.
+    /// </remarks>
+    /// <param name="ProdOrderComponent">Return value: The added Prod. Order Component. Prod. Order Component must have the number set.</param>
+    /// <param name="ItemNo">Return value: The number of the item to add.</param>
+    procedure AddItem(var ProdOrderComponent: Record "Prod. Order Component"; ItemNo: Code[20])
+    begin
+        ProdOrderComponent.Init();
+        ProdOrderComponent."Line No." += 10000;
+        ProdOrderComponent.Validate("Item No.", ItemNo);
+        ProdOrderComponent.Insert(true);
+    end;
+
+    /// <summary>
+    /// Initializes a new Prod. Order Component based on the current Prod. Order Component.
+    /// </summary>
+    /// <param name="NewProdOrderComponent">Return value: The new Prod. Order Component.</param>
+    procedure InitNewLine(var NewProdOrderComponent: Record "Prod. Order Component")
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        NewProdOrderComponent.Copy(Rec);
+        ProdOrderComponent.SetLoadFields("Line No.");
+        ProdOrderComponent.SetRange(Status, NewProdOrderComponent.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", NewProdOrderComponent."Prod. Order No.");
+        ProdOrderComponent.SetRange("Prod. Order Line No.", NewProdOrderComponent."Prod. Order Line No.");
+        if ProdOrderComponent.FindLast() then
+            NewProdOrderComponent."Line No." := ProdOrderComponent."Line No."
+        else
+            NewProdOrderComponent."Line No." := 0;
+    end;
+
     local procedure GetUpdateFromSKU()
     var
         SKU: Record "Stockkeeping Unit";
@@ -2347,12 +2416,12 @@ table 5407 "Prod. Order Component"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateRoutingLinkCodeOnBeforeSubcontractorProcurementCheck(var ProdOrderComponent: Record "Prod. Order Component"; Vendor: Record Vendor; var IsHandled: Boolean)
+    local procedure OnAfterShowDimensions(var ProdOrderComponent: Record "Prod. Order Component"; xProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterShowDimensions(var ProdOrderComponent: Record "Prod. Order Component"; xProdOrderComponent: Record "Prod. Order Component")
+    local procedure OnValidateRoutingLinkCodeOnBeforeSubcontractorProcurementCheck(var ProdOrderComponent: Record "Prod. Order Component"; Vendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
 }

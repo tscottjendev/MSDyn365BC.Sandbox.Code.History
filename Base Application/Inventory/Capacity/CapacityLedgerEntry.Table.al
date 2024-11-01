@@ -9,14 +9,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Resources.Resource;
-using Microsoft.Purchases.Document;
-using Microsoft.Purchases.Vendor;
 using Microsoft.Utilities;
 
 table 5832 "Capacity Ledger Entry"
@@ -35,11 +28,7 @@ table 5832 "Capacity Ledger Entry"
         field(2; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = if (Type = const("Machine Center")) "Machine Center"
-            else
-            if (Type = const("Work Center")) "Work Center"
-            else
-            if (Type = const(Resource)) Resource;
+            TableRelation = if (Type = const(Resource)) Resource;
         }
         field(3; "Posting Date"; Date)
         {
@@ -57,53 +46,15 @@ table 5832 "Capacity Ledger Entry"
         {
             Caption = 'Description';
         }
-        field(8; "Operation No."; Code[10])
-        {
-            Caption = 'Operation No.';
-        }
-        field(9; "Work Center No."; Code[20])
-        {
-            Caption = 'Work Center No.';
-            TableRelation = "Work Center";
-        }
         field(10; Quantity; Decimal)
         {
             Caption = 'Quantity';
-            DecimalPlaces = 0 : 5;
-        }
-        field(11; "Setup Time"; Decimal)
-        {
-            Caption = 'Setup Time';
-            DecimalPlaces = 0 : 5;
-        }
-        field(12; "Run Time"; Decimal)
-        {
-            Caption = 'Run Time';
-            DecimalPlaces = 0 : 5;
-        }
-        field(13; "Stop Time"; Decimal)
-        {
-            Caption = 'Stop Time';
             DecimalPlaces = 0 : 5;
         }
         field(15; "Invoiced Quantity"; Decimal)
         {
             Caption = 'Invoiced Quantity';
             DecimalPlaces = 0 : 5;
-        }
-        field(16; "Output Quantity"; Decimal)
-        {
-            Caption = 'Output Quantity';
-            DecimalPlaces = 0 : 5;
-        }
-        field(17; "Scrap Quantity"; Decimal)
-        {
-            Caption = 'Scrap Quantity';
-            DecimalPlaces = 0 : 5;
-        }
-        field(19; "Concurrent Capacity"; Decimal)
-        {
-            Caption = 'Concurrent Capacity';
         }
         field(28; "Cap. Unit of Measure Code"; Code[10])
         {
@@ -127,30 +78,9 @@ table 5832 "Capacity Ledger Entry"
             Caption = 'Global Dimension 2 Code';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
-        field(39; "Last Output Line"; Boolean)
-        {
-            Caption = 'Last Output Line';
-        }
         field(42; "Completely Invoiced"; Boolean)
         {
             Caption = 'Completely Invoiced';
-        }
-        field(43; "Starting Time"; Time)
-        {
-            Caption = 'Starting Time';
-        }
-        field(44; "Ending Time"; Time)
-        {
-            Caption = 'Ending Time';
-        }
-        field(52; "Routing No."; Code[20])
-        {
-            Caption = 'Routing No.';
-            TableRelation = "Routing Header";
-        }
-        field(53; "Routing Reference No."; Integer)
-        {
-            Caption = 'Routing Reference No.';
         }
         field(56; "Item No."; Code[20])
         {
@@ -179,26 +109,6 @@ table 5832 "Capacity Ledger Entry"
         field(61; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
-        }
-        field(65; "Stop Code"; Code[10])
-        {
-            Caption = 'Stop Code';
-            TableRelation = Stop;
-        }
-        field(66; "Scrap Code"; Code[10])
-        {
-            Caption = 'Scrap Code';
-            TableRelation = Scrap;
-        }
-        field(68; "Work Center Group Code"; Code[10])
-        {
-            Caption = 'Work Center Group Code';
-            TableRelation = "Work Center Group";
-        }
-        field(69; "Work Shift Code"; Code[10])
-        {
-            Caption = 'Work Shift Code';
-            TableRelation = "Work Shift";
         }
         field(71; "Direct Cost"; Decimal)
         {
@@ -251,14 +161,11 @@ table 5832 "Capacity Ledger Entry"
         {
             Caption = 'Order No.';
             Editable = false;
-            TableRelation = if ("Order Type" = const(Production)) "Production Order"."No." where(Status = filter(Released ..));
         }
         field(92; "Order Line No."; Integer)
         {
             Caption = 'Order Line No.';
             Editable = false;
-            TableRelation = if ("Order Type" = const(Production)) "Prod. Order Line"."Line No." where(Status = filter(Released ..),
-                                                                                                     "Prod. Order No." = field("Order No."));
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -325,32 +232,6 @@ table 5832 "Capacity Ledger Entry"
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(8)));
         }
-        field(12180; "WIP Item Qty."; Decimal)
-        {
-            Caption = 'WIP Item Qty.';
-            DecimalPlaces = 0 : 5;
-        }
-        field(12181; "Shipping Document No."; Code[20])
-        {
-            Caption = 'Shipping Document No.';
-            Editable = false;
-        }
-        field(12182; "Subcontractor No."; Code[20])
-        {
-            Caption = 'Subcontractor No.';
-            TableRelation = Vendor;
-        }
-        field(12183; "Subcontr. Purch. Order No."; Code[20])
-        {
-            Caption = 'Subcontr. Purch. Order No.';
-            TableRelation = "Purchase Header"."No." where("Document Type" = const(Order));
-        }
-        field(12184; "Subcontr. Purch. Order Line"; Integer)
-        {
-            Caption = 'Subcontr. Purch. Order Line';
-            TableRelation = "Purchase Line"."Line No." where("Document Type" = const(Order),
-                                                              "Document No." = field("Subcontr. Purch. Order No."));
-        }
     }
 
     keys
@@ -362,26 +243,10 @@ table 5832 "Capacity Ledger Entry"
         key(Key2; "Document No.", "Posting Date")
         {
         }
-        key(Key3; "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line")
-        {
-            MaintainSIFTIndex = false;
-            SumIndexFields = Quantity, "Output Quantity";
-        }
-        key(Key4; "Work Center No.", "Work Shift Code", "Posting Date")
+        key(Key5; Type, "No.", "Item No.", "Posting Date")
         {
         }
-        key(Key5; Type, "No.", "Work Shift Code", "Item No.", "Posting Date")
-        {
-        }
-        key(Key6; "Subcontr. Purch. Order No.", "Subcontr. Purch. Order Line")
-        {
-            SumIndexFields = "WIP Item Qty.";
-        }
-        key(Key7; "Order Type", "Order No.", "Routing Reference No.", "Operation No.", Type, "Subcontr. Purch. Order No.")
-        {
-            SumIndexFields = "WIP Item Qty.";
-        }
-        key(Key8; "Item No.", "Order Type", "Order No.", "Posting Date", Subcontracting)
+        key(Key6; "Order Type", "Order No.")
         {
         }
     }
@@ -418,15 +283,6 @@ table 5832 "Capacity Ledger Entry"
         DimMgt: Codeunit DimensionManagement;
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
-    end;
-
-    procedure SetFilterByProdOrderRoutingLine(ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ProdOrderRoutingNo: Code[20]; ProdOrderRoutingLineNo: Integer)
-    begin
-        SetRange("Order Type", "Order Type"::Production);
-        SetRange("Order No.", ProdOrderNo);
-        SetRange("Order Line No.", ProdOrderLineNo);
-        SetRange("Routing No.", ProdOrderRoutingNo);
-        SetRange("Routing Reference No.", ProdOrderRoutingLineNo);
     end;
 }
 
