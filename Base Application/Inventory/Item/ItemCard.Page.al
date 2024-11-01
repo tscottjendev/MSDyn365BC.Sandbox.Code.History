@@ -28,7 +28,6 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -2343,9 +2342,10 @@ page 30 "Item Card"
                         ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s assembly BOM. The unit cost of a parent item must equal the total of the unit costs of its components, subassemblies, and any resources.';
 
                         trigger OnAction()
+                        var
+                            CalculateAssemblyCost: Codeunit Microsoft.Assembly.Costing."Calculate Assembly Cost";
                         begin
-                            Clear(CalculateStdCost);
-                            CalculateStdCost.CalcItem(Rec."No.", true);
+                            CalculateAssemblyCost.CalcItem(Rec."No.");
                         end;
                     }
                     action("Calc. Unit Price")
@@ -2357,9 +2357,10 @@ page 30 "Item Card"
                         ToolTip = 'Calculate the unit price based on the unit cost and the profit percentage.';
 
                         trigger OnAction()
+                        var
+                            CalculateAssemblyCost: Codeunit Microsoft.Assembly.Costing."Calculate Assembly Cost";
                         begin
-                            Clear(CalculateStdCost);
-                            CalculateStdCost.CalcAssemblyItemPrice(Rec."No.")
+                            CalculateAssemblyCost.CalcAssemblyItemPrice(Rec."No.")
                         end;
                     }
                 }
@@ -2413,8 +2414,9 @@ page 30 "Item Card"
                         ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s production BOM. The unit cost of a parent item must equal the total of the unit costs of its components, subassemblies, and any resources.';
 
                         trigger OnAction()
+                        var
+                            CalculateStdCost: Codeunit Microsoft.Manufacturing.StandardCost."Calculate Standard Cost";
                         begin
-                            Clear(CalculateStdCost);
                             CalculateStdCost.CalcItem(Rec."No.", false);
                         end;
                     }
@@ -2784,7 +2786,6 @@ page 30 "Item Card"
 
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        CalculateStdCost: Codeunit "Calculate Standard Cost";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";

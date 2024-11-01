@@ -10,6 +10,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Inventory.Requisition;
 
 codeunit 99000837 "Prod. Order Line-Reserve"
 {
@@ -977,6 +978,56 @@ codeunit 99000837 "Prod. Order Line-Reserve"
             if ProdOrderLine.Get(OrderTrackingEntry."For Subtype", OrderTrackingEntry."For ID", OrderTrackingEntry."For Prod. Order Line") then
                 OrderTrackingEntry."Starting Date" := ProdOrderLine."Starting Date";
         OrderTrackingEntry."Ending Date" := ProdOrderLine."Ending Date";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::OrderTrackingManagement, 'OnDrillOrdersUpCaseElse', '', false, false)]
+    local procedure OnDrillOrdersUpCaseElse(var ReservationEntry3: Record "Reservation Entry"; var ReservationEntry2: Record "Reservation Entry"; SearchUp: Boolean; var ContinueDrillUp: Boolean; var IncludePlanningFilter: Boolean)
+    begin
+        case ReservationEntry3."Source Type" of
+            DATABASE::"Prod. Order Line":
+                FiltersForTrackingFromProdOrderLine(ReservationEntry3, ReservationEntry2);
+            DATABASE::"Prod. Order Component":
+                FiltersForTrackingFromProdOrderComponents(ReservationEntry3, ReservationEntry2);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::OrderTrackingManagement, 'OnDerivePlanningFilterOnSetRequisitionLineFilters', '', false, false)]
+    local procedure OnDerivePlanningFilterOnSetRequisitionLineFilters(var ToReservEntry: Record "Reservation Entry"; FilterReqLine: Record "Requisition Line"; var OK: Boolean);
+    begin
+        case FilterReqLine."Ref. Order Type" of
+            FilterReqLine."Ref. Order Type"::"Prod. Order":
+                begin
+                    ToReservEntry.SetSourceFilter(
+                        DATABASE::"Prod. Order Line", FilterReqLine."Ref. Order Status".AsInteger(), FilterReqLine."Ref. Order No.", -1, true);
+                    ToReservEntry.SetRange("Source Prod. Order Line", FilterReqLine."Ref. Line No.");
+                    OK := ToReservEntry.Find('-');
+                end;
+        end;
+    end;
+
+    local procedure FiltersForTrackingFromProdOrderLine(FromReservationEntry: Record "Reservation Entry"; var ToReservationEntry: Record "Reservation Entry")
+    begin
+        ToReservationEntry.Reset();
+        ToReservationEntry.SetSourceFilter(DATABASE::"Prod. Order Component", FromReservationEntry."Source Subtype", FromReservationEntry."Source ID", -1, true);
+        ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", FromReservationEntry."Source Ref. No.");
+    end;
+
+    local procedure FiltersForTrackingFromProdOrderComponents(FromReservationEntry: Record "Reservation Entry"; var ToReservationEntry: Record "Reservation Entry")
+    begin
+        ToReservationEntry.Reset();
+        ToReservationEntry.SetSourceFilter(DATABASE::"Prod. Order Line", FromReservationEntry."Source Subtype", FromReservationEntry."Source ID", -1, true);
+        ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", FromReservationEntry."Source Prod. Order Line");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::OrderTrackingManagement, 'OnDerivePlanningFilterOnSetToReservationFilter', '', false, false)]
+    local procedure OnDerivePlanningFilterOnSetToReservationFilter(var ToReservEntry: Record "Reservation Entry"; FilterPlanningComponent: Record "Planning Component")
+    begin
+        case FilterPlanningComponent."Ref. Order Type" of
+            FilterPlanningComponent."Ref. Order Type"::"Prod. Order":
+                ToReservEntry.SetSourceFilter(
+                    DATABASE::"Prod. Order Component", FilterPlanningComponent."Ref. Order Status".AsInteger(),
+                    FilterPlanningComponent."Ref. Order No.", FilterPlanningComponent."Line No.", true);
+        end;
     end;
 
     // Inventory Profile
