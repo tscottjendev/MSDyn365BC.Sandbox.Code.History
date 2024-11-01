@@ -743,7 +743,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    procedure CreateGLAccount(var GLAccount: Record "G/L Account"; IncomeBalance: Option; Name: Text[30])
+    procedure CreateGLAccount(var GLAccount: Record "G/L Account"; IncomeBalance: Enum "G/L Account Report Type"; Name: Text[30])
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Validate("Income/Balance", IncomeBalance);
