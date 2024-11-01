@@ -977,5 +977,16 @@ codeunit 926 "Assembly Line-Reserve"
                 OrderTrackingEntry."Ending Date" := AssemblyLine."Due Date";
             end;
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::OrderTrackingManagement, 'OnDerivePlanningFilterOnSetToReservationFilter', '', false, false)]
+    local procedure OnDerivePlanningFilterOnSetToReservationFilter(var ToReservEntry: Record "Reservation Entry"; FilterPlanningComponent: Record "Planning Component")
+    begin
+        case FilterPlanningComponent."Ref. Order Type" of
+            FilterPlanningComponent."Ref. Order Type"::Assembly:
+                ToReservEntry.SetSourceFilter(
+                    DATABASE::"Assembly Line", FilterPlanningComponent."Ref. Order Status".AsInteger(),
+                    FilterPlanningComponent."Ref. Order No.", FilterPlanningComponent."Line No.", true);
+        end;
+    end;
 }
 
