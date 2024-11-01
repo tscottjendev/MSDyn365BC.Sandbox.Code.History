@@ -9,7 +9,6 @@ using Microsoft.Foundation.Company;
 using Microsoft.HumanResources.Employee;
 using Microsoft.Intercompany.Journal;
 using Microsoft.Inventory.Analysis;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Purchases.Archive;
@@ -201,8 +200,6 @@ codeunit 700 "Page Management"
                 exit(PAGE::"Cash Flow Setup");
             Database::"Sales Invoice Header":
                 exit(PAGE::"Posted Sales Invoice");
-            Database::"Production Order":
-                exit(GetProductionOrderPageID(RecRef));
             Database::User:
                 exit(Page::"User Card");
             Database::Employee:
@@ -388,25 +385,6 @@ codeunit 700 "Page Management"
                 exit(PAGE::"Requests to Approve");
             else
                 exit(PAGE::"Approval Entries");
-        end;
-    end;
-
-    local procedure GetProductionOrderPageID(RecRef: RecordRef): Integer
-    var
-        ProductionOrder: Record "Production Order";
-    begin
-        RecRef.SetTable(ProductionOrder);
-        case ProductionOrder.Status of
-            ProductionOrder.Status::Simulated:
-                exit(PAGE::"Simulated Production Order");
-            ProductionOrder.Status::Planned:
-                exit(PAGE::"Planned Production Order");
-            ProductionOrder.Status::"Firm Planned":
-                exit(PAGE::"Firm Planned Prod. Order");
-            ProductionOrder.Status::Released:
-                exit(PAGE::"Released Production Order");
-            ProductionOrder.Status::Finished:
-                exit(PAGE::"Finished Production Order");
         end;
     end;
 

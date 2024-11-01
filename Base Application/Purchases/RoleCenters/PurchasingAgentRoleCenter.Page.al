@@ -10,6 +10,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Purchases.Analysis;
@@ -19,14 +20,13 @@ using Microsoft.Purchases.History;
 #if CLEAN25
 using Microsoft.Purchases.Pricing;
 #endif
+using Microsoft.Purchases.Reports;
 using Microsoft.Purchases.Vendor;
 #if not CLEAN25
 using Microsoft.RoleCenters;
 #endif
 using Microsoft.Sales.Document;
 using System.Threading;
-using Microsoft.Purchases.Reports;
-using Microsoft.Inventory.Reports;
 
 page 9007 "Purchasing Agent Role Center"
 {
