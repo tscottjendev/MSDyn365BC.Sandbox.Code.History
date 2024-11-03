@@ -49,6 +49,7 @@ page 9620 "Page Fields"
                     Caption = 'Caption';
                     ToolTip = 'Specifies the caption of the field.';
                 }
+#pragma warning disable AL0432
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = All;
@@ -58,6 +59,7 @@ page 9620 "Page Fields"
                     StyleExpr = FieldPlaced;
                     ToolTip = 'Specifies the field''s status, such as if the field is already placed on the page.';
                 }
+#pragma warning restore AL0432
                 field(Tooltip; Rec.Tooltip)
                 {
                     ApplicationArea = All;
@@ -117,7 +119,9 @@ page 9620 "Page Fields"
     var
         DesignerPageId: Codeunit DesignerPageId;
     begin
+#pragma warning disable AL0432
         FieldPlaced := Rec.Status = 1;
+#pragma warning restore AL0432
         DesignerPageId.SetPageId(Rec."Page ID");
     end;
 
