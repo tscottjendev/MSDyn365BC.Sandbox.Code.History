@@ -1487,14 +1487,14 @@ codeunit 900 "Assembly-Post"
 
     local procedure DeleteWhseRequest(AssemblyHeader: Record "Assembly Header")
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
     begin
-        WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        WhseRqst.SetRange("Source Type", DATABASE::"Assembly Line");
-        WhseRqst.SetRange("Source Subtype", AssemblyHeader."Document Type");
-        WhseRqst.SetRange("Source No.", AssemblyHeader."No.");
-        if not WhseRqst.IsEmpty() then
-            WhseRqst.DeleteAll(true);
+        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WarehouseRequest.SetRange("Source Type", DATABASE::"Assembly Line");
+        WarehouseRequest.SetRange("Source Subtype", AssemblyHeader."Document Type");
+        WarehouseRequest.SetRange("Source No.", AssemblyHeader."No.");
+        if not WarehouseRequest.IsEmpty() then
+            WarehouseRequest.DeleteAll(true);
     end;
 
     procedure UpdateBlanketATO(xBlanketOrderSalesLine: Record "Sales Line"; BlanketOrderSalesLine: Record "Sales Line")
