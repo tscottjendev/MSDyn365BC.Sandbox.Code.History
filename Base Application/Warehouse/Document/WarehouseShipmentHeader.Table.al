@@ -172,14 +172,14 @@ table 7320 "Warehouse Shipment Header"
 
             trigger OnValidate()
             var
-                WhsePickRqst: Record "Whse. Pick Request";
+                WhsePickRequest: Record "Whse. Pick Request";
             begin
                 CalcFields("Completely Picked");
                 if "Completely Picked" <> xRec."Completely Picked" then begin
-                    WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
-                    WhsePickRqst.SetRange("Document No.", "No.");
-                    if not WhsePickRqst.IsEmpty() then
-                        WhsePickRqst.ModifyAll("Completely Picked", "Completely Picked");
+                    WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
+                    WhsePickRequest.SetRange("Document No.", "No.");
+                    if not WhsePickRequest.IsEmpty() then
+                        WhsePickRequest.ModifyAll("Completely Picked", "Completely Picked");
                 end;
             end;
         }
@@ -469,44 +469,44 @@ table 7320 "Warehouse Shipment Header"
         end;
     end;
 
-    procedure GetDocumentStatus(LineNo: Integer): Integer
+    procedure GetDocumentStatus(SkipLineNo: Integer): Integer
     var
-        WhseShptLine: Record "Warehouse Shipment Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        WhseShptLine.SetRange("No.", "No.");
-        if LineNo <> 0 then
-            WhseShptLine.SetFilter("Line No.", '<>%1', LineNo);
-        if not WhseShptLine.FindFirst() then
-            exit(WhseShptLine.Status::" ");
+        WarehouseShipmentLine.SetRange("No.", "No.");
+        if SkipLineNo <> 0 then
+            WarehouseShipmentLine.SetFilter("Line No.", '<>%1', SkipLineNo);
+        if not WarehouseShipmentLine.FindFirst() then
+            exit(WarehouseShipmentLine.Status::" ");
 
-        OnGetDocumentStatusOnBeforeCheckPartllyShipped(Rec, WhseShptLine);
-        WhseShptLine.SetRange(Status, WhseShptLine.Status::"Partially Shipped");
-        if WhseShptLine.FindFirst() then
-            exit(WhseShptLine.Status);
+        OnGetDocumentStatusOnBeforeCheckPartllyShipped(Rec, WarehouseShipmentLine);
+        WarehouseShipmentLine.SetRange(Status, WarehouseShipmentLine.Status::"Partially Shipped");
+        if not WarehouseShipmentLine.IsEmpty() then
+            exit(WarehouseShipmentLine.Status::"Partially Shipped");
 
-        WhseShptLine.SetRange(Status, WhseShptLine.Status::"Partially Picked");
-        if WhseShptLine.FindFirst() then
-            exit(WhseShptLine.Status);
+        WarehouseShipmentLine.SetRange(Status, WarehouseShipmentLine.Status::"Partially Picked");
+        if not WarehouseShipmentLine.IsEmpty() then
+            exit(WarehouseShipmentLine.Status::"Partially Picked");
 
-        WhseShptLine.SetRange(Status, WhseShptLine.Status::"Completely Picked");
-        if WhseShptLine.FindFirst() then begin
-            WhseShptLine.SetFilter(Status, '<%1', WhseShptLine.Status::"Completely Picked");
-            if WhseShptLine.FindFirst() then
-                exit(WhseShptLine.Status::"Partially Picked");
+        WarehouseShipmentLine.SetRange(Status, WarehouseShipmentLine.Status::"Completely Picked");
+        if not WarehouseShipmentLine.IsEmpty() then begin
+            WarehouseShipmentLine.SetFilter(Status, '<%1', WarehouseShipmentLine.Status::"Completely Picked");
+            if not WarehouseShipmentLine.IsEmpty() then
+                exit(WarehouseShipmentLine.Status::"Partially Picked");
 
-            exit(WhseShptLine.Status);
+            exit(WarehouseShipmentLine.Status::"Completely Picked");
         end;
 
-        WhseShptLine.SetRange(Status, WhseShptLine.Status::"Completely Shipped");
-        if WhseShptLine.FindFirst() then begin
-            WhseShptLine.SetFilter(Status, '<%1', WhseShptLine.Status::"Completely Shipped");
-            if WhseShptLine.FindFirst() then
-                exit(WhseShptLine.Status::"Partially Shipped");
+        WarehouseShipmentLine.SetRange(Status, WarehouseShipmentLine.Status::"Completely Shipped");
+        if not WarehouseShipmentLine.IsEmpty() then begin
+            WarehouseShipmentLine.SetFilter(Status, '<%1', WarehouseShipmentLine.Status::"Completely Shipped");
+            if not WarehouseShipmentLine.IsEmpty() then
+                exit(WarehouseShipmentLine.Status::"Partially Shipped");
 
-            exit(WhseShptLine.Status);
+            exit(WarehouseShipmentLine.Status::"Completely Shipped");
         end;
 
-        exit(WhseShptLine.Status);
+        exit(WarehouseShipmentLine.Status::" ");
     end;
 
     procedure MessageIfShipmentLinesExist(ChangedFieldName: Text[80])
@@ -557,13 +557,13 @@ table 7320 "Warehouse Shipment Header"
 
     procedure DeleteRelatedLines()
     var
-        WhsePickRqst: Record "Whse. Pick Request";
+        WhsePickRequest: Record "Whse. Pick Request";
         WhseComment: Record "Warehouse Comment Line";
     begin
-        WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
-        WhsePickRqst.SetRange("Document No.", "No.");
-        if not WhsePickRqst.IsEmpty() then
-            WhsePickRqst.DeleteAll();
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
+        WhsePickRequest.SetRange("Document No.", "No.");
+        if not WhsePickRequest.IsEmpty() then
+            WhsePickRequest.DeleteAll();
 
         WhseComment.SetRange("Table Name", WhseComment."Table Name"::"Whse. Shipment");
         WhseComment.SetRange(Type, WhseComment.Type::" ");
