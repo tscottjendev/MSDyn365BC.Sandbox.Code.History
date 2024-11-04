@@ -235,9 +235,9 @@ table 5766 "Warehouse Activity Header"
 
             trigger OnValidate()
             var
-                WhseRequest: Record "Warehouse Request";
-                CreateInvtPutAway: Codeunit "Create Inventory Put-away";
-                CreateInvtPick: Codeunit "Create Inventory Pick/Movement";
+                WarehouseRequest: Record "Warehouse Request";
+                CreateInventoryPutAway: Codeunit "Create Inventory Put-away";
+                CreateInventoryPickMovement: Codeunit "Create Inventory Pick/Movement";
             begin
                 if "Source No." <> xRec."Source No." then begin
                     if LineExist() then
@@ -250,26 +250,26 @@ table 5766 "Warehouse Activity Header"
 
                     if ("Source Type" <> 0) and ("Source No." <> '') then begin
                         if Type = Type::"Invt. Put-away" then begin
-                            WhseRequest.Get(
-                              WhseRequest.Type::Inbound, "Location Code", "Source Type", "Source Subtype", "Source No.");
-                            WhseRequest.TestField("Document Status", WhseRequest."Document Status"::Released);
-                            CreateInvtPutAway.SetWhseRequest(WhseRequest, true);
-                            CreateInvtPutAway.Run(Rec);
+                            WarehouseRequest.Get(
+                              WarehouseRequest.Type::Inbound, "Location Code", "Source Type", "Source Subtype", "Source No.");
+                            WarehouseRequest.TestField("Document Status", WarehouseRequest."Document Status"::Released);
+                            CreateInventoryPutAway.SetWhseRequest(WarehouseRequest, true);
+                            CreateInventoryPutAway.Run(Rec);
                         end;
                         if Type = Type::"Invt. Pick" then begin
-                            WhseRequest.Get(
-                              WhseRequest.Type::Outbound, "Location Code", "Source Type", "Source Subtype", "Source No.");
-                            WhseRequest.TestField("Document Status", WhseRequest."Document Status"::Released);
-                            CreateInvtPick.SetWhseRequest(WhseRequest, true);
-                            CreateInvtPick.Run(Rec);
+                            WarehouseRequest.Get(
+                              WarehouseRequest.Type::Outbound, "Location Code", "Source Type", "Source Subtype", "Source No.");
+                            WarehouseRequest.TestField("Document Status", WarehouseRequest."Document Status"::Released);
+                            CreateInventoryPickMovement.SetWhseRequest(WarehouseRequest, true);
+                            CreateInventoryPickMovement.Run(Rec);
                         end;
                         if Type = Type::"Invt. Movement" then begin
-                            WhseRequest.Get(
-                              WhseRequest.Type::Outbound, "Location Code", "Source Type", "Source Subtype", "Source No.");
-                            WhseRequest.TestField("Document Status", WhseRequest."Document Status"::Released);
-                            CreateInvtPick.SetInvtMovement(true);
-                            CreateInvtPick.SetWhseRequest(WhseRequest, true);
-                            CreateInvtPick.Run(Rec);
+                            WarehouseRequest.Get(
+                              WarehouseRequest.Type::Outbound, "Location Code", "Source Type", "Source Subtype", "Source No.");
+                            WarehouseRequest.TestField("Document Status", WarehouseRequest."Document Status"::Released);
+                            CreateInventoryPickMovement.SetInvtMovement(true);
+                            CreateInventoryPickMovement.SetWhseRequest(WarehouseRequest, true);
+                            CreateInventoryPickMovement.Run(Rec);
                         end;
                     end;
                 end;
