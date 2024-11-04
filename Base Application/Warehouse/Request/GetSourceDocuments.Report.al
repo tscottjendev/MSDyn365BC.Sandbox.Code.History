@@ -430,7 +430,7 @@ report 5753 "Get Source Documents"
                 group(Options)
                 {
                     Caption = 'Options';
-                    field(DoNotFillQtytoHandle; DoNotFillQtytoHandle)
+                    field(DoNotFillQtytoHandle; DoNotFillQuantityToHandle)
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Do Not Fill Qty. to Handle';
@@ -486,7 +486,7 @@ report 5753 "Get Source Documents"
         Location: Record Location;
         ActivitiesCreated: Integer;
         Completed: Boolean;
-        DoNotFillQtytoHandle: Boolean;
+        DoNotFillQuantityToHandle: Boolean;
         SalesHeaderCounted: Boolean;
         SkippedSourceDoc: Integer;
         SuppressCommit: Boolean;
@@ -543,9 +543,9 @@ report 5753 "Get Source Documents"
             OneHeaderCreated := true;
     end;
 
-    procedure SetDoNotFillQtytoHandle(DoNotFillQtytoHandle2: Boolean)
+    procedure SetDoNotFillQtytoHandle(DoNotFillQtytoHandleToSet: Boolean)
     begin
-        DoNotFillQtytoHandle := DoNotFillQtytoHandle2;
+        DoNotFillQuantityToHandle := DoNotFillQtytoHandleToSet;
     end;
 
     procedure SetReservedFromStock(NewReservedFromStock: Enum "Reservation From Stock")
@@ -573,10 +573,8 @@ report 5753 "Get Source Documents"
     procedure SetPurchLineFilters(var PurchLine: Record "Purchase Line"; WarehouseRequest: Record "Warehouse Request")
     begin
         PurchLine.SetRange(Type, PurchLine.Type::Item);
-        if ((WarehouseRequest.Type = WarehouseRequest.Type::Inbound) and
-            (WarehouseRequest."Source Document" = WarehouseRequest."Source Document"::"Purchase Order")) or
-            ((WarehouseRequest.Type = WarehouseRequest.Type::Outbound) and
-            (WarehouseRequest."Source Document" = WarehouseRequest."Source Document"::"Purchase Return Order"))
+        if ((WarehouseRequest.Type = WarehouseRequest.Type::Inbound) and (WarehouseRequest."Source Document" = WarehouseRequest."Source Document"::"Purchase Order")) or
+           ((WarehouseRequest.Type = WarehouseRequest.Type::Outbound) and (WarehouseRequest."Source Document" = WarehouseRequest."Source Document"::"Purchase Return Order"))
         then
             PurchLine.SetFilter("Outstanding Quantity", '>0')
         else
@@ -604,17 +602,17 @@ report 5753 "Get Source Documents"
         exit(Completed);
     end;
 
-    procedure CreateActivityFromSalesLine2ShptLine(WhseShptHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"): Boolean
+    procedure CreateActivityFromSalesLine2ShptLine(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"): Boolean
     var
         SalesWarehouseMgt: Codeunit "Sales Warehouse Mgt.";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateActivityFromSalesLine2ShptLine(WhseShptHeader, SalesLine, IsHandled);
+        OnBeforeCreateActivityFromSalesLine2ShptLine(WarehouseShipmentHeader, SalesLine, IsHandled);
         if IsHandled then
             exit(true);
 
-        exit(SalesWarehouseMgt.FromSalesLine2ShptLine(WhseShptHeader, SalesLine));
+        exit(SalesWarehouseMgt.FromSalesLine2ShptLine(WarehouseShipmentHeader, SalesLine));
     end;
 
     procedure CreateShptHeader()
@@ -816,9 +814,9 @@ report 5753 "Get Source Documents"
 
     local procedure CheckFillQtyToHandle()
     begin
-        OnBeforeCheckFillQtyToHandle(DoNotFillQtytoHandle, RequestType);
+        OnBeforeCheckFillQtyToHandle(DoNotFillQuantityToHandle, RequestType);
 
-        if not DoNotFillQtytoHandle then
+        if not DoNotFillQuantityToHandle then
             exit;
 
         case RequestType of
