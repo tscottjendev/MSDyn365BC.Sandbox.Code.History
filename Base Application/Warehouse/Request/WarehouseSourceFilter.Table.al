@@ -323,67 +323,67 @@ table 5771 "Warehouse Source Filter"
 
     procedure SetFilters(var GetSourceDocuments: Report "Get Source Documents"; LocationCode: Code[10])
     var
-        WhseRequest: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
     begin
         "Source Document" := '';
 
         if "Sales Orders" then begin
-            WhseRequest."Source Document" := WhseRequest."Source Document"::"Sales Order";
-            AddFilter("Source Document", Format(WhseRequest."Source Document"));
+            WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Sales Order";
+            AddFilter("Source Document", Format(WarehouseRequest."Source Document"));
         end;
 
         if "Sales Return Orders" then begin
-            WhseRequest."Source Document" := WhseRequest."Source Document"::"Sales Return Order";
-            AddFilter("Source Document", Format(WhseRequest."Source Document"));
+            WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Sales Return Order";
+            AddFilter("Source Document", Format(WarehouseRequest."Source Document"));
         end;
 
         if "Outbound Transfers" then begin
-            WhseRequest."Source Document" := WhseRequest."Source Document"::"Outbound Transfer";
-            AddFilter("Source Document", Format(WhseRequest."Source Document"));
+            WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Outbound Transfer";
+            AddFilter("Source Document", Format(WarehouseRequest."Source Document"));
         end;
 
         if "Purchase Orders" then begin
-            WhseRequest."Source Document" := WhseRequest."Source Document"::"Purchase Order";
-            AddFilter("Source Document", Format(WhseRequest."Source Document"));
+            WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Purchase Order";
+            AddFilter("Source Document", Format(WarehouseRequest."Source Document"));
         end;
 
         if "Purchase Return Orders" then begin
-            WhseRequest."Source Document" := WhseRequest."Source Document"::"Purchase Return Order";
-            AddFilter("Source Document", Format(WhseRequest."Source Document"));
+            WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Purchase Return Order";
+            AddFilter("Source Document", Format(WarehouseRequest."Source Document"));
         end;
 
         if "Inbound Transfers" then begin
-            WhseRequest."Source Document" := WhseRequest."Source Document"::"Inbound Transfer";
-            AddFilter("Source Document", Format(WhseRequest."Source Document"));
+            WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Inbound Transfer";
+            AddFilter("Source Document", Format(WarehouseRequest."Source Document"));
         end;
 
-        OnSetFiltersOnAfterSetSourceFilters(Rec, WhseRequest);
+        OnSetFiltersOnAfterSetSourceFilters(Rec, WarehouseRequest);
 
         if "Source Document" = '' then
             Error(MustBeChosenErr, FieldCaption("Source Document"));
 
-        WhseRequest.SetFilter("Source Document", "Source Document");
-        WhseRequest.SetFilter("Source No.", "Source No. Filter");
-        WhseRequest.SetFilter("Shipment Method Code", "Shipment Method Code Filter");
+        WarehouseRequest.SetFilter("Source Document", "Source Document");
+        WarehouseRequest.SetFilter("Source No.", "Source No. Filter");
+        WarehouseRequest.SetFilter("Shipment Method Code", "Shipment Method Code Filter");
 
         "Shipping Advice Filter" := '';
 
         if Partial then begin
-            WhseRequest."Shipping Advice" := WhseRequest."Shipping Advice"::Partial;
-            AddFilter("Shipping Advice Filter", Format(WhseRequest."Shipping Advice"));
+            WarehouseRequest."Shipping Advice" := WarehouseRequest."Shipping Advice"::Partial;
+            AddFilter("Shipping Advice Filter", Format(WarehouseRequest."Shipping Advice"));
         end;
 
         if Complete then begin
-            WhseRequest."Shipping Advice" := WhseRequest."Shipping Advice"::Complete;
-            AddFilter("Shipping Advice Filter", Format(WhseRequest."Shipping Advice"));
+            WarehouseRequest."Shipping Advice" := WarehouseRequest."Shipping Advice"::Complete;
+            AddFilter("Shipping Advice Filter", Format(WarehouseRequest."Shipping Advice"));
         end;
 
-        WhseRequest.SetFilter("Shipping Advice", "Shipping Advice Filter");
-        WhseRequest.SetRange("Location Code", LocationCode);
+        WarehouseRequest.SetFilter("Shipping Advice", "Shipping Advice Filter");
+        WarehouseRequest.SetRange("Location Code", LocationCode);
 
-        OnSetFiltersOnSourceTables(Rec, GetSourceDocuments, WhseRequest);
+        OnSetFiltersOnSourceTables(Rec, GetSourceDocuments, WarehouseRequest);
 
-        GetSourceDocuments.SetTableView(WhseRequest);
+        GetSourceDocuments.SetTableView(WarehouseRequest);
         GetSourceDocuments.SetDoNotFillQtytoHandle("Do Not Fill Qty. to Handle");
         GetSourceDocuments.SetReservedFromStock("Reserved From Stock");
 
