@@ -528,8 +528,8 @@ codeunit 7307 "Whse.-Activity-Register"
     /// <param name="WhseActivLine">Provided warehouse activity line.</param>
     procedure UpdateWhseDocHeader(WhseActivLine: Record "Warehouse Activity Line")
     var
-        WhsePutAwayRqst: Record "Whse. Put-away Request";
-        WhsePickRqst: Record "Whse. Pick Request";
+        WhsePutAwayRequest: Record "Whse. Put-away Request";
+        WhsePickRequest: Record "Whse. Pick Request";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -557,9 +557,9 @@ codeunit 7307 "Whse.-Activity-Register"
                     if PostedWhseRcptHeader."Document Status" =
                        PostedWhseRcptHeader."Document Status"::"Completely Put Away"
                     then begin
-                        WhsePutAwayRqst.SetRange("Document Type", WhsePutAwayRqst."Document Type"::Receipt);
-                        WhsePutAwayRqst.SetRange("Document No.", PostedWhseRcptHeader."No.");
-                        WhsePutAwayRqst.DeleteAll();
+                        WhsePutAwayRequest.SetRange("Document Type", WhsePutAwayRequest."Document Type"::Receipt);
+                        WhsePutAwayRequest.SetRange("Document No.", PostedWhseRcptHeader."No.");
+                        WhsePutAwayRequest.DeleteAll();
                         ItemTrackingMgt.DeleteWhseItemTrkgLines(
                           Database::"Posted Whse. Receipt Line", 0, PostedWhseRcptHeader."No.", '', 0, 0, '', false);
                     end;
@@ -609,9 +609,9 @@ codeunit 7307 "Whse.-Activity-Register"
                     ProdOrder.Get(WhseActivLine."Source Subtype", WhseActivLine."Source No.");
                     ProdOrder.CalcFields("Completely Picked");
                     if ProdOrder."Completely Picked" then begin
-                        WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Production);
-                        WhsePickRqst.SetRange("Document No.", ProdOrder."No.");
-                        WhsePickRqst.ModifyAll("Completely Picked", true);
+                        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Production);
+                        WhsePickRequest.SetRange("Document No.", ProdOrder."No.");
+                        WhsePickRequest.ModifyAll("Completely Picked", true);
                         ItemTrackingMgt.DeleteWhseItemTrkgLines(
                           Database::"Prod. Order Component", WhseActivLine."Source Subtype", WhseActivLine."Source No.", '', 0, 0, '', false);
                     end;
@@ -620,9 +620,9 @@ codeunit 7307 "Whse.-Activity-Register"
                 if WhseActivLine."Action Type" <> WhseActivLine."Action Type"::Take then begin
                     AssemblyHeader.Get(WhseActivLine."Source Subtype", WhseActivLine."Source No.");
                     if AssemblyHeader.CompletelyPicked() then begin
-                        WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Assembly);
-                        WhsePickRqst.SetRange("Document No.", AssemblyHeader."No.");
-                        WhsePickRqst.ModifyAll("Completely Picked", true);
+                        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Assembly);
+                        WhsePickRequest.SetRange("Document No.", AssemblyHeader."No.");
+                        WhsePickRequest.ModifyAll("Completely Picked", true);
                         ItemTrackingMgt.DeleteWhseItemTrkgLines(
                           Database::"Assembly Line", WhseActivLine."Source Subtype", WhseActivLine."Source No.", '', 0, 0, '', false);
                     end;
@@ -632,9 +632,9 @@ codeunit 7307 "Whse.-Activity-Register"
                     Job.Get(WhseActivLine."Whse. Document No.");
                     Job.CalcFields("Completely Picked");
                     if Job."Completely Picked" then begin
-                        WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Job);
-                        WhsePickRqst.SetRange("Document No.", Job."No.");
-                        WhsePickRqst.ModifyAll("Completely Picked", true);
+                        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Job);
+                        WhsePickRequest.SetRange("Document No.", Job."No.");
+                        WhsePickRequest.ModifyAll("Completely Picked", true);
                         ItemTrackingMgt.DeleteWhseItemTrkgLines(
                           Database::"Job Planning Line", WhseActivLine."Source Subtype", WhseActivLine."Source No.", '', 0, 0, '', false);
                     end;
