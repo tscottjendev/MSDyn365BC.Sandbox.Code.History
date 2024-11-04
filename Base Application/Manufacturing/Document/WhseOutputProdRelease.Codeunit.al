@@ -35,13 +35,13 @@ codeunit 7325 "Whse.-Output Prod. Release"
         if ProdOrderLine.Find('-') then
             repeat
                 if ProdOrderLine."Location Code" <> LocationCode2 then
-                    CreateWhseRqst(ProdOrderLine, ProdHeader);
+                    CreateWarehouseRequest(ProdOrderLine, ProdHeader);
                 LocationCode2 := ProdOrderLine."Location Code";
             until ProdOrderLine.Next() = 0;
         exit(WhseRqstCreated);
     end;
 
-    local procedure CreateWhseRqst(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrder: Record "Production Order")
+    local procedure CreateWarehouseRequest(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrder: Record "Production Order")
     var
         ProdOrderLine2: Record "Prod. Order Line";
         ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
@@ -79,9 +79,9 @@ codeunit 7325 "Whse.-Output Prod. Release"
     procedure DeleteLine(ProdOrderLine: Record "Prod. Order Line")
     var
         ProdOrderLine2: Record "Prod. Order Line";
-        KeepWhseRqst: Boolean;
+        KeepWarehouseRequest: Boolean;
     begin
-        KeepWhseRqst := false;
+        KeepWarehouseRequest := false;
         GetLocation(ProdOrderLine2."Location Code");
         if (Location."Prod. Output Whse. Handling" = Location."Prod. Output Whse. Handling"::"Inventory Put-away") and (not Location."Directed Put-away and Pick") then begin
             ProdOrderLine2.Reset();
@@ -95,17 +95,17 @@ codeunit 7325 "Whse.-Output Prod. Release"
                         (ProdOrderLine2."Line No." <> ProdOrderLine."Line No.")) and
                        (ProdOrderLine2."Remaining Quantity" <> 0)
                     then
-                        KeepWhseRqst := true;
-                until (ProdOrderLine2.Next() = 0) or KeepWhseRqst;
+                        KeepWarehouseRequest := true;
+                until (ProdOrderLine2.Next() = 0) or KeepWarehouseRequest;
         end;
 
-        if not KeepWhseRqst then
-            DeleteWhseRqst(ProdOrderLine, false);
+        if not KeepWarehouseRequest then
+            DeleteWarehouseRequest(ProdOrderLine, false);
 
-        OnAfterDeleteLine(ProdOrderLine, KeepWhseRqst);
+        OnAfterDeleteLine(ProdOrderLine, KeepWarehouseRequest);
     end;
 
-    local procedure DeleteWhseRqst(ProdOrderLine: Record "Prod. Order Line"; DeleteAllWhseRqst: Boolean)
+    local procedure DeleteWarehouseRequest(ProdOrderLine: Record "Prod. Order Line"; DeleteAllWhseRqst: Boolean)
     var
         WarehouseRequest: Record "Warehouse Request";
     begin
@@ -125,7 +125,7 @@ codeunit 7325 "Whse.-Output Prod. Release"
         ProdOrderLine.SetRange(Status, ProdHeader.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdHeader."No.");
         if ProdOrderLine.Find('-') then
-            DeleteWhseRqst(ProdOrderLine, true);
+            DeleteWarehouseRequest(ProdOrderLine, true);
     end;
 
     local procedure ProdOrderCompletelyHandled(ProdOrder: Record "Production Order"; LocationCode: Code[10]): Boolean
