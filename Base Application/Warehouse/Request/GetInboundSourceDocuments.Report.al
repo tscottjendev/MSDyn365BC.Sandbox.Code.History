@@ -23,6 +23,7 @@ report 7306 "Get Inbound Source Documents"
                 {
                     DataItemLink = "No." = field("No.");
                     DataItemTableView = sorting("No.", "Line No.");
+                    CalcFields = "Put-away Qty.", "Put-away Qty. (Base)";
 
                     trigger OnPreDataItem()
                     begin
@@ -32,7 +33,6 @@ report 7306 "Get Inbound Source Documents"
                     trigger OnAfterGetRecord()
                     begin
                         OnBeforeWhsePutAwayRequestOnAfterGetRecord("Posted Whse. Receipt Line");
-                        CalcFields("Put-away Qty.", "Put-away Qty. (Base)");
                         if "Qty. (Base)" > "Qty. Put Away (Base)" + "Put-away Qty. (Base)" then
                             if WhseWkshCreate.FromWhseRcptLine(
                                  WhseWkshTemplateName, WhseWkshName, LocationCode, "Posted Whse. Receipt Line")
@@ -43,9 +43,7 @@ report 7306 "Get Inbound Source Documents"
 
                 trigger OnPreDataItem()
                 begin
-                    if "Whse. Put-away Request"."Document Type" <>
-                       "Whse. Put-away Request"."Document Type"::Receipt
-                    then
+                    if "Whse. Put-away Request"."Document Type" <> "Whse. Put-away Request"."Document Type"::Receipt then
                         CurrReport.Break();
                 end;
             }
@@ -57,10 +55,10 @@ report 7306 "Get Inbound Source Documents"
                 {
                     DataItemLink = "No." = field("No.");
                     DataItemTableView = sorting("No.", "Line No.");
+                    CalcFields = "Put-away Qty.", "Put-away Qty. (Base)";
 
                     trigger OnAfterGetRecord()
                     begin
-                        CalcFields("Put-away Qty.", "Put-away Qty. (Base)");
                         if "Qty. (Base)" > "Qty. Put Away (Base)" + "Put-away Qty. (Base)" then
                             if WhseWkshCreate.FromWhseInternalPutawayLine(
                                  WhseWkshTemplateName, WhseWkshName, LocationCode, "Whse. Internal Put-away Line")
@@ -71,36 +69,18 @@ report 7306 "Get Inbound Source Documents"
 
                 trigger OnPreDataItem()
                 begin
-                    if "Whse. Put-away Request"."Document Type" <>
-                       "Whse. Put-away Request"."Document Type"::"Internal Put-away"
-                    then
+                    if "Whse. Put-away Request"."Document Type" <> "Whse. Put-away Request"."Document Type"::"Internal Put-away" then
                         CurrReport.Break();
                 end;
             }
         }
     }
 
-    requestpage
-    {
-
-        layout
-        {
-        }
-
-        actions
-        {
-        }
-    }
-
-    labels
-    {
-    }
-
     trigger OnPostReport()
     begin
         if not HideDialog then
             if not LineCreated then
-                Error(Text000);
+                Error(NoLinesCreatedErr);
     end;
 
     trigger OnPreReport()
@@ -110,10 +90,7 @@ report 7306 "Get Inbound Source Documents"
 
     var
         WhseWkshCreate: Codeunit "Whse. Worksheet-Create";
-
-#pragma warning disable AA0074
-        Text000: Label 'There are no Warehouse Worksheet Lines created.';
-#pragma warning restore AA0074
+        NoLinesCreatedErr: Label 'There are no Warehouse Worksheet Lines created.';
 
     protected var
         WhseWkshTemplateName: Code[10];
