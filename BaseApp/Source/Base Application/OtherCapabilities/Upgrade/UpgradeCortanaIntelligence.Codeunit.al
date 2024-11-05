@@ -5,8 +5,7 @@
 namespace Microsoft.Upgrade;
 
 using Microsoft.CashFlow.Setup;
-using System.AI;
-using System.Environment;
+Using System.Environment;
 using System.Upgrade;
 
 codeunit 104045 "Upgrade Cortana Intelligence"
@@ -25,7 +24,6 @@ codeunit 104045 "Upgrade Cortana Intelligence"
             exit;
 
         UpgradeCashFlowCortanaIntelligenceFields();
-        UpgradeCortanaIntelligenceUsageTable();
     end;
 
     // "Show Cortana Notification" and "Cortana Intelligence Enabled" fields in "Cash Flow" are being 
@@ -45,33 +43,5 @@ codeunit 104045 "Upgrade Cortana Intelligence"
         CashFlowSetup.Modify();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCashFlowCortanaFieldsUpgradeTag());
-    end;
-
-    // "Cortana Intelligence Usage" table is being deprecated and replaced by "Azure AI Usage".
-    local procedure UpgradeCortanaIntelligenceUsageTable()
-    var
-        CortanaIntelligenceUsage: Record "Cortana Intelligence Usage";
-        AzureAIUsage: Record "Azure AI Usage";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCortanaIntelligenceUsageUpgradeTag()) then
-            exit;
-
-        if CortanaIntelligenceUsage.Get() then begin
-            if not AzureAIUsage.Get() then begin
-                AzureAIUsage.Init();
-
-                AzureAIUsage.Service := CortanaIntelligenceUsage.Service;
-                AzureAIUsage."Total Resource Usage" := CortanaIntelligenceUsage."Total Resource Usage";
-                AzureAIUsage."Original Resource Limit" := CortanaIntelligenceUsage."Original Resource Limit";
-                AzureAIUsage."Limit Period" := CortanaIntelligenceUsage."Limit Period";
-                AzureAIUsage."Last DateTime Updated" := CortanaIntelligenceUsage."Last DateTime Updated";
-
-                AzureAIUsage.Insert();
-            end;
-
-            CortanaIntelligenceUsage.DeleteAll();
-        end;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCortanaIntelligenceUsageUpgradeTag());
     end;
 }
