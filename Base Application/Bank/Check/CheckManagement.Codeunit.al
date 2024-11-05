@@ -542,6 +542,7 @@ codeunit 367 CheckManagement
             MakeAppliesID(AppliesID, CheckLedgEntry."Document No.");
             OrigPaymentCustLedgerEntry."Applies-to ID" := AppliesID;
             OrigPaymentCustLedgerEntry.CalcFields(OrigPaymentCustLedgerEntry."Remaining Amount");
+            OnUnApplyCustInvoicesOnAfterCalcRemainingAmount(OrigPaymentCustLedgerEntry);
             OrigPaymentCustLedgerEntry."Amount to Apply" := OrigPaymentCustLedgerEntry."Remaining Amount";
             OrigPaymentCustLedgerEntry."Accepted Pmt. Disc. Tolerance" := false;
             OrigPaymentCustLedgerEntry."Accepted Payment Tolerance" := 0;
@@ -1071,5 +1072,9 @@ codeunit 367 CheckManagement
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnUnApplyCustInvoicesOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
 }
 
