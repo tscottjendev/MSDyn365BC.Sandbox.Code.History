@@ -1844,6 +1844,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         CustLedgerEntry.CalcFields(
             Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)", "Original Amt. (LCY)",
             "Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
+        OnAdjustCustomerLedgerEntryOnAfterCalcFields(CustLedgerEntry);
 
         // Calculate Old Unrealized Gains and Losses
         SetUnrealizedGainLossFilterCust(DtldCustLedgEntry, CustLedgerEntry."Entry No.");
@@ -3043,6 +3044,11 @@ codeunit 699 "Exch. Rate Adjmt. Process"
 
     [IntegrationEvent(false, false)]
     local procedure OnAdjustExchRateCustOnAfterCalcFields(var CustomerLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustCustomerLedgerEntryOnAfterCalcFields(var CustomerLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }
