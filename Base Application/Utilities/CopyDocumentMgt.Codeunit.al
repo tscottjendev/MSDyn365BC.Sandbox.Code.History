@@ -848,6 +848,26 @@ codeunit 6620 "Copy Document Mgt."
         end;
     end;
 
+    local procedure HandleZeroAmountPostedPurchaseInvoices(var FromPurchInvHeader: Record "Purch. Inv. Header"; var ToPurchaseHeader: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; FromDocNo: Code[20])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeHandleZeroAmountPostedPurchaseInvoices(FromPurchInvHeader, ToPurchaseHeader, FromDocType, FromDocNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        // Apply credit memo to invoice in case of Purchase Invoices with total amount 0
+        FromPurchInvHeader.CalcFields(Amount);
+        if (ToPurchaseHeader."Applies-to Doc. Type" = ToPurchaseHeader."Applies-to Doc. Type"::" ") and (ToPurchaseHeader."Applies-to Doc. No." = '') and
+               (FromDocType = "Purchase Document Type From"::"Posted Invoice") and (FromPurchInvHeader.Amount = 0) and
+               (ToPurchaseHeader."Document Type" = ToPurchaseHeader."Document Type"::"Credit Memo")
+            then begin
+            ToPurchaseHeader."Applies-to Doc. Type" := ToPurchaseHeader."Applies-to Doc. Type"::Invoice;
+            ToPurchaseHeader."Applies-to Doc. No." := FromDocNo;
+        end;
+    end;
+
     procedure CopyPurchaseDocForInvoiceCancelling(FromDocNo: Code[20]; var ToPurchaseHeader: Record "Purchase Header")
     begin
         SkipWarningNotification := true;
@@ -1214,6 +1234,8 @@ codeunit 6620 "Copy Document Mgt."
             not (ToPurchHeader."Document Type" in [ToPurchHeader."Document Type"::"Return Order", ToPurchHeader."Document Type"::"Credit Memo"]))
         then
             UpdateVendLedgEntry(ToPurchHeader, FromDocType, FromDocNo);
+
+        HandleZeroAmountPostedPurchaseInvoices(FromPurchInvHeader, ToPurchHeader, FromDocType, FromDocNo);
 
         if ToPurchHeader."Document Type" in [ToPurchHeader."Document Type"::"Blanket Order", ToPurchHeader."Document Type"::Quote] then
             ToPurchHeader."Posting Date" := 0D;
@@ -8264,6 +8286,10 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandleZeroAmountPostedPurchaseInvoices(var FromPurchInvHeader: Record "Purch. Inv. Header"; var ToPurchaseHeader: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; FromDocNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesShptLinesToDocOnAfterSplitPstdSalesLinesPerILE(var FromSalesLineBuf: Record "Sales Line" temporary; var FromSalesShptLine: Record "Sales Shipment Line")
