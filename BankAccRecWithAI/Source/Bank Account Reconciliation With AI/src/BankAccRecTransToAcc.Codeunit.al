@@ -96,7 +96,8 @@ codeunit 7251 "Bank Acc. Rec. Trans. to Acc."
     [NonDebuggable]
     local procedure GetCompletionResponse(var AOAIChatMessages: Codeunit "AOAI Chat Messages"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var GLAccount: Record "G/L Account"; var AzureOpenAI: Codeunit "Azure OpenAi"; var AOAIChatCompletionParams: Codeunit "AOAI Chat Completion Params"; var AOAIOperationResponse: Codeunit "AOAI Operation Response")
     begin
-        AOAIChatMessages.AddSystemMessage(BuildBankRecCompletionPrompt(BuildMostAppropriateGLAccountPromptTask(), BuildBankRecStatementLines(BankAccReconciliationLine, TempBankStatementMatchingBuffer), BuildGLAccounts(GLAccount)).Unwrap());
+        AOAIChatMessages.AddSystemMessage(BuildMostAppropriateGLAccountPromptTask().Unwrap());
+        AOAIChatMessages.AddUserMessage(BuildBankRecPromptUserMessage(BuildBankRecStatementLines(BankAccReconciliationLine, TempBankStatementMatchingBuffer), BuildGLAccounts(GLAccount)).Unwrap());
         AzureOpenAI.GenerateChatCompletion(AOAIChatMessages, AOAIChatCompletionParams, AOAIOperationResponse);
     end;
 
@@ -484,6 +485,19 @@ codeunit 7251 "Bank Acc. Rec. Trans. to Acc."
         CompletionPrompt := SecretStrSubstNo(ConcatSubstrTok, TaskPrompt, StatementLine);
         CompletionPrompt := SecretStrSubstNo(ConcatSubstrTok, CompletionPrompt, GLAccounts);
         exit(CompletionPrompt);
+    end;
+
+    procedure BuildBankRecPromptUserMessage(StatementLine: Text; GLAccounts: Text): SecretText
+    var
+        UserMessagePrompt: SecretText;
+        EmptyText: SecretText;
+        ConcatSubstrTok: Label '%1%2', Locked = true;
+    begin
+        GLAccounts += '"""\n';
+        StatementLine += '"""\n';
+        UserMessagePrompt := SecretStrSubstNo(ConcatSubstrTok, EmptyText, StatementLine);
+        UserMessagePrompt := SecretStrSubstNo(ConcatSubstrTok, UserMessagePrompt, GLAccounts);
+        exit(UserMessagePrompt);
     end;
 
     procedure FoundInputWithReservedWords(): Boolean
