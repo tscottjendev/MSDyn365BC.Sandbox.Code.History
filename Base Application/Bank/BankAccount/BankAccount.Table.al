@@ -199,6 +199,7 @@ table 270 "Bank Account"
 
                 BankAccount := Rec;
                 BankAccount.CalcFields(Balance, "Balance (LCY)");
+                OnValidateCurrencyCodeOnBeforeTestBalanceFields(BankAccount);
                 BankAccount.TestField(Balance, 0);
                 BankAccount.TestField("Balance (LCY)", 0);
 
@@ -1587,6 +1588,11 @@ table 270 "Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDirectDebitMessageNo(var DirectDebitMsgNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCurrencyCodeOnBeforeTestBalanceFields(var BankAccount: Record "Bank Account")
     begin
     end;
 }
