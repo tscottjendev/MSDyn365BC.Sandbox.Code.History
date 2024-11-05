@@ -14,8 +14,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.ADCS;
@@ -155,9 +153,7 @@ table 5401 "Item Variant"
         RequisitionLine: Record "Requisition Line";
         PurchaseLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
-        ProdOrderComponent: Record "Prod. Order Component";
         TransferLine: Record "Transfer Line";
-        ProductionBOMLine: Record "Production BOM Line";
         AssemblyHeader: Record "Assembly Header";
         ItemSubstitution: Record "Item Substitution";
         ItemVendor: Record "Item Vendor";
@@ -173,22 +169,6 @@ table 5401 "Item Variant"
         BOMComponent.SetRange("Variant Code", Code);
         if not BOMComponent.IsEmpty() then
             Error(Text001, Code, BOMComponent.TableCaption());
-
-        ProductionBOMLine.SetCurrentKey(Type, "No.");
-        ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
-        ProductionBOMLine.SetRange("No.", "Item No.");
-        ProductionBOMLine.SetRange("Variant Code", Code);
-        if not ProductionBOMLine.IsEmpty() then
-            Error(Text001, Code, ProductionBOMLine.TableCaption());
-
-        ProdOrderComponent.SetCurrentKey(Status, "Item No.");
-        ProdOrderComponent.SetRange("Item No.", "Item No.");
-        ProdOrderComponent.SetRange("Variant Code", Code);
-        if not ProdOrderComponent.IsEmpty() then
-            Error(Text001, Code, ProdOrderComponent.TableCaption());
-
-        if ProdOrderExist() then
-            Error(Text002, "Item No.");
 
         AssemblyHeader.SetCurrentKey("Document Type", "Item No.");
         AssemblyHeader.SetRange("Item No.", "Item No.");
@@ -253,6 +233,8 @@ table 5401 "Item Variant"
         if not ValueEntry.IsEmpty() then
             Error(Text001, Code, ValueEntry.TableCaption());
 
+        OnDeleteOnAfterCheck(Rec);
+
         ItemTranslation.SetRange("Item No.", "Item No.");
         ItemTranslation.SetRange("Variant Code", Code);
         ItemTranslation.DeleteAll();
@@ -292,24 +274,10 @@ table 5401 "Item Variant"
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text001: Label 'You cannot delete item variant %1 because there is at least one %2 that includes this Variant Code.';
-        Text002: Label 'You cannot delete item variant %1 because there are one or more outstanding production orders that include this item.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         CannotRenameItemUsedInSalesLinesErr: Label 'You cannot rename %1 in a %2, because it is used in sales document lines.', Comment = '%1 = Item No. caption, %2 = Table caption.';
         CannotRenameItemUsedInPurchaseLinesErr: Label 'You cannot rename %1 in a %2, because it is used in purchase document lines.', Comment = '%1 = Item No. caption, %2 = Table caption.';
-
-    local procedure ProdOrderExist(): Boolean
-    var
-        ProdOrderLine: Record "Prod. Order Line";
-    begin
-        ProdOrderLine.SetCurrentKey(Status, "Item No.");
-        ProdOrderLine.SetRange("Item No.", "Item No.");
-        ProdOrderLine.SetRange("Variant Code", Code);
-        if not ProdOrderLine.IsEmpty() then
-            exit(true);
-
-        exit(false);
-    end;
 
     procedure UpdateReferencedIds()
     var
@@ -328,6 +296,11 @@ table 5401 "Item Variant"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnDelete(ItemVariant: Record "Item Variant")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnAfterCheck(var ItemVariant: Record "Item Variant")
     begin
     end;
 }

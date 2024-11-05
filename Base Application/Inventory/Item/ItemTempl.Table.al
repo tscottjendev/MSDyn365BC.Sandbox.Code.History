@@ -19,10 +19,6 @@ using Microsoft.Inventory.Intrastat;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
@@ -628,7 +624,6 @@ table 1382 "Item Templ."
         }
         field(5401; "Lot Size"; Decimal)
         {
-            AccessByPermission = TableData "Production Order" = R;
             Caption = 'Lot Size';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
@@ -650,7 +645,6 @@ table 1382 "Item Templ."
         }
         field(5407; "Scrap %"; Decimal)
         {
-            AccessByPermission = TableData "Production Order" = R;
             Caption = 'Scrap %';
             DecimalPlaces = 0 : 2;
             MaxValue = 100;
@@ -738,16 +732,6 @@ table 1382 "Item Templ."
                 ValidateItemField(FieldNo("Safety Lead Time"));
             end;
         }
-        field(5417; "Flushing Method"; Enum "Flushing Method")
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            Caption = 'Flushing Method';
-
-            trigger OnValidate()
-            begin
-                ValidateItemField(FieldNo("Flushing Method"));
-            end;
-        }
         field(5419; "Replenishment System"; Enum "Replenishment System")
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
@@ -760,7 +744,6 @@ table 1382 "Item Templ."
         }
         field(5422; "Rounding Precision"; Decimal)
         {
-            AccessByPermission = TableData "Production Order" = R;
             Caption = 'Rounding Precision';
             DecimalPlaces = 0 : 5;
             InitValue = 1;
@@ -800,7 +783,7 @@ table 1382 "Item Templ."
                 ValidateItemField(FieldNo("Include Inventory"));
             end;
         }
-        field(5442; "Manufacturing Policy"; Enum "Manufacturing Policy")
+        field(5442; "Manufacturing Policy"; Enum Microsoft.Manufacturing.Setup."Manufacturing Policy")
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Manufacturing Policy';
@@ -1012,62 +995,14 @@ table 1382 "Item Templ."
                 ValidateItemField(FieldNo("Over-Receipt Code"));
             end;
         }
-        field(99000750; "Routing No."; Code[20])
-        {
-            Caption = 'Routing No.';
-            TableRelation = "Routing Header";
-
-            trigger OnValidate()
-            begin
-                ValidateItemField(FieldNo("Routing No."));
-            end;
-        }
-        field(99000751; "Production BOM No."; Code[20])
-        {
-            Caption = 'Production BOM No.';
-            TableRelation = "Production BOM Header";
-
-            trigger OnValidate()
-            begin
-                ValidateItemField(FieldNo("Production BOM No."));
-            end;
-        }
         field(99000757; "Overhead Rate"; Decimal)
         {
-            AccessByPermission = TableData "Production Order" = R;
             AutoFormatType = 2;
             Caption = 'Overhead Rate';
 
             trigger OnValidate()
             begin
                 ValidateItemField(FieldNo("Overhead Rate"));
-            end;
-        }
-        field(99000773; "Order Tracking Policy"; Enum "Order Tracking Policy")
-        {
-            Caption = 'Order Tracking Policy';
-
-            trigger OnValidate()
-            begin
-                ValidateItemField(FieldNo("Order Tracking Policy"));
-            end;
-        }
-        field(99000875; Critical; Boolean)
-        {
-            Caption = 'Critical';
-
-            trigger OnValidate()
-            begin
-                ValidateItemField(FieldNo(Critical));
-            end;
-        }
-        field(99008500; "Common Item No."; Code[20])
-        {
-            Caption = 'Common Item No.';
-
-            trigger OnValidate()
-            begin
-                ValidateItemField(FieldNo("Common Item No."));
             end;
         }
         field(10500; "Reverse Charge Applies"; Boolean)

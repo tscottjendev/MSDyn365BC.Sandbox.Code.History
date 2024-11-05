@@ -4,8 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Routing;
 using Microsoft.Purchases.Vendor;
 
 page 9090 "Item Replenishment FactBox"
@@ -58,47 +56,6 @@ page 9090 "Item Replenishment FactBox"
                     ApplicationArea = Planning;
                     Lookup = false;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
-                }
-            }
-            group(Production)
-            {
-                Caption = 'Production';
-                field("Manufacturing Policy"; Rec."Manufacturing Policy")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies if additional orders for any related components are calculated.';
-                }
-                field("Routing No."; Rec."Routing No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    Lookup = false;
-                    ToolTip = 'Specifies the production route that contains the operations needed to manufacture this item.';
-
-                    trigger OnDrillDown()
-                    var
-                        RoutingHeader: Record "Routing Header";
-                    begin
-                        if Rec."Routing No." <> '' then begin
-                            RoutingHeader.SetFilter("No.", Rec."Routing No.");
-                            Page.Run(Page::Routing, RoutingHeader);
-                        end;
-                    end;
-                }
-                field("Production BOM No."; Rec."Production BOM No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    Lookup = false;
-                    ToolTip = 'Specifies the production BOM that is used to manufacture this item.';
-
-                    trigger OnDrillDown()
-                    var
-                        ProductionBOMHeader: Record "Production BOM Header";
-                    begin
-                        if Rec."Production BOM No." <> '' then begin
-                            ProductionBOMHeader.SetRange("No.", Rec."Production BOM No.");
-                            Page.Run(Page::"Production BOM", ProductionBOMHeader);
-                        end;
-                    end;
                 }
             }
         }
