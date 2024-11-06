@@ -255,6 +255,10 @@ table 8073 "Service Commitment Archive"
         {
             Caption = 'Perform Update On';
         }
+        field(96; "Variant Code (Service Object)"; Code[10])
+        {
+            Caption = 'Variant Code (Service Object)';
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -280,6 +284,7 @@ table 8073 "Service Commitment Archive"
         ServiceObject.Get(ServiceCommitment."Service Object No.");
         Rec."Quantity Decimal (Service Ob.)" := ServiceObject."Quantity Decimal";
         Rec."Serial No. (Service Object)" := ServiceObject."Serial No.";
+        Rec."Variant Code (Service Object)" := ServiceObject."Variant Code";
         Rec."Original Entry No." := ServiceCommitment."Entry No.";
         Rec."Package Code" := ServiceCommitment."Package Code";
         Rec."Template" := ServiceCommitment."Template";

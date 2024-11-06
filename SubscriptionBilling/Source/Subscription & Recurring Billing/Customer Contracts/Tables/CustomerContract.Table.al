@@ -997,6 +997,8 @@ table 8052 "Customer Contract"
         ModifySellToCustomerAddressNotificationDescriptionTxt: Label 'Warn if the sell-to address on customer contract is different from the customer''s existing address.';
         ModifyBillToCustomerAddressNotificationNameTxt: Label 'Update Bill-to Customer Address';
         ModifyBillToCustomerAddressNotificationDescriptionTxt: Label 'Warn if the bill-to address on customer contract is different from the customer''s existing address.';
+        NotifySalesLineDiscountNotTransferredNotificationNameTxt: Label 'Sales Line Discount to Sales Service Commitment';
+        NotifySalesLineDiscountNotTransferredDescriptionTxt: Label 'Warn if a Sales Line Discount is not transferred to a Sales Service Commitment.';
         UpdateDimensionsOnLinesQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         AssignServicePricesMustBeRecalculatedMsg: Label 'You added services to a contract in which a different currency is stored than in the services. The prices for the services must therefore be recalculated.';
         CurrCodeChangePricesMustBeRecalculatedMsg: Label 'If you change the currency code, the prices for existing services must be recalculated.';
@@ -1819,6 +1821,11 @@ table 8052 "Customer Contract"
         exit('9CF909A0-8C02-4153-89FD-8E30CD413E17');
     end;
 
+    internal procedure GetNotificationIdDiscountIsNotTransferredFromSalesLine(): Guid
+    begin
+        exit('c4ede62f-7719-41af-a061-c1148cc18cfc');
+    end;
+
     internal procedure DontNotifyCurrentUserAgain(NotificationID: Guid)
     var
         MyNotifications: Record "My Notifications";
@@ -1831,6 +1838,12 @@ table 8052 "Customer Contract"
                 GetModifyBillToCustomerAddressNotificationId():
                     MyNotifications.InsertDefault(NotificationID, ModifyBillToCustomerAddressNotificationNameTxt,
                       ModifyBillToCustomerAddressNotificationDescriptionTxt, false);
+                GetNotificationIdDiscountIsNotTransferredFromSalesLine():
+                    MyNotifications.InsertDefault(
+                        NotificationID,
+                        NotifySalesLineDiscountNotTransferredNotificationNameTxt,
+                        NotifySalesLineDiscountNotTransferredDescriptionTxt,
+                        false);
             end;
     end;
 

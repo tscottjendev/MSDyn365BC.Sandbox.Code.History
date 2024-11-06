@@ -1211,7 +1211,8 @@ table 8059 "Service Commitment"
         ServiceCommitmentArchive: Record "Service Commitment Archive";
     begin
         if (xServiceObject."Quantity Decimal" <> ServiceObject."Quantity Decimal") or
-           (xServiceObject."Serial No." <> ServiceObject."Serial No.")
+           (xServiceObject."Serial No." <> ServiceObject."Serial No.") or
+           (xServiceObject."Variant Code" <> ServiceObject."Variant Code")
         then begin
             CreateServiceCommitmentArchive(ServiceCommitmentArchive, Rec, 0D, "Type Of Price Update"::None);
             ServiceCommitmentArchive."Quantity Decimal (Service Ob.)" := xServiceObject."Quantity Decimal";
@@ -1288,7 +1289,7 @@ table 8059 "Service Commitment"
             "Service Partner"::Customer:
                 begin
                     ContractsItemManagement.CreateTempSalesHeader(TempSalesHeader, TempSalesHeader."Document Type"::Order, ServiceObject."End-User Customer No.", ServiceObject."Bill-to Customer No.", Rec."Service Start Date", Rec."Currency Code");
-                    ContractsItemManagement.CreateTempSalesLine(TempSalesLine, TempSalesHeader, ServiceObject."Item No.", ServiceObject."Quantity Decimal", Rec."Service Start Date");
+                    ContractsItemManagement.CreateTempSalesLine(TempSalesLine, TempSalesHeader, ServiceObject."Item No.", ServiceObject."Quantity Decimal", Rec."Service Start Date", ServiceObject."Variant Code");
                     Rec."Calculation Base Amount" := ContractsItemManagement.CalculateUnitPrice(TempSalesHeader, TempSalesLine);
                 end;
             "Service Partner"::Vendor:

@@ -525,6 +525,7 @@ codeunit 139687 "Recurring Billing Docs Test"
         Initialize();
 
         InitAndCreateBillingDocument(Enum::"Service Partner"::Customer);
+        Commit(); //persist Invoice until the end of the test
         BillingLine.FindLast();
         SalesHeader.Get(Enum::"Sales Document Type"::Invoice, BillingLine."Document No.");
         FilterSalesLineOnDocumentLine(BillingLine.GetSalesDocumentTypeFromBillingDocumentType(), BillingLine."Document No.", BillingLine."Document Line No.");
@@ -541,7 +542,8 @@ codeunit 139687 "Recurring Billing Docs Test"
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesInvoiceHeader.Get(PostedDocumentNo);
         CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader); //check if its neccessary to test Cr Memo
-        BillingLine.FindLast(); //Retrieve Cr Memo Billing Line
+        Commit(); //persist Credit Memo until the end of the test
+        BillingLine.FindLast(); //Fetch new BillingLine created for Cr Memo
         FilterSalesLineOnDocumentLine(BillingLine.GetSalesDocumentTypeFromBillingDocumentType(), BillingLine."Document No.", BillingLine."Document Line No.");
         SalesLine.FindFirst();
         SalesCrMemoSubForm.OpenEdit();
@@ -586,6 +588,7 @@ codeunit 139687 "Recurring Billing Docs Test"
         Initialize();
 
         InitAndCreateBillingDocument(Enum::"Service Partner"::Vendor);
+        Commit(); //persist Invoice until the end of the test
         BillingLine.FindLast();
         PurchaseHeader.Get(Enum::"Purchase Document Type"::Invoice, BillingLine."Document No.");
         FilterPurchaseLineOnDocumentLine(BillingLine.GetPurchaseDocumentTypeFromBillingDocumentType(), BillingLine."Document No.", BillingLine."Document Line No.");
@@ -605,6 +608,7 @@ codeunit 139687 "Recurring Billing Docs Test"
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         PurchaseInvoiceHeader.Get(PostedDocumentNo);
         CorrectPostedPurchaseInvoice.CreateCreditMemoCopyDocument(PurchaseInvoiceHeader, PurchaseHeader); //check if its neccessary to test Cr Memo
+        Commit(); //persist Credit Memo until the end of the test
         BillingLine.FindLast(); //Fetch new BillingLine created for Cr Memo
         FilterPurchaseLineOnDocumentLine(BillingLine.GetPurchaseDocumentTypeFromBillingDocumentType(), BillingLine."Document No.", BillingLine."Document Line No.");
         PurchaseLine.FindFirst();
@@ -715,7 +719,7 @@ codeunit 139687 "Recurring Billing Docs Test"
     begin
         Initialize();
 
-        //Check if correct dialog opens       
+        //Check if correct dialog opens
         //Unposted invoice exists
         InitAndCreateBillingDocument("Service Partner"::Customer);
         DialogMsg := UnpostedSalesInvExistsMsg;
@@ -728,7 +732,7 @@ codeunit 139687 "Recurring Billing Docs Test"
     begin
         Initialize();
 
-        //Check if correct dialog opens       
+        //Check if correct dialog opens
         //Credit Memo exists
         InitAndCreateBillingDocument("Service Partner"::Customer);
         DialogMsg := SalesCrMemoExistsMsg;
@@ -812,7 +816,7 @@ codeunit 139687 "Recurring Billing Docs Test"
     begin
         Initialize();
 
-        //Check if correct dialog opens       
+        //Check if correct dialog opens
         //Unposted invoice exists
         InitAndCreateBillingDocument("Service Partner"::Vendor);
         DialogMsg := UnpostedPurchaseInvExistsMsg;
@@ -827,7 +831,7 @@ codeunit 139687 "Recurring Billing Docs Test"
     begin
         Initialize();
 
-        //Check if correct dialog opens       
+        //Check if correct dialog opens
         //Credit Memo exists
         PostPurchaseInvoice();
         DialogMsg := PurchCrMemoExistsMsg;
@@ -1661,13 +1665,13 @@ codeunit 139687 "Recurring Billing Docs Test"
         Initialize();
 
         //[GIVEN]:
-        //Setup service commitment item with purchase price 
+        //Setup service commitment item with purchase price
         //Create service object from the Sales order
         //Assign the service commitment to the vendor contract (at this point service commitment has prices taken from the sales order)
         ClearAll();
         ContractTestLibrary.ResetContractRecords();
 
-        ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate, '<1M>', 100, "Invoicing Via"::Contract, "Calculation Base Type"::"Document Price");
+        ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate, '<1M>', 100, "Invoicing Via"::Contract, "Calculation Base Type"::"Document Price", false);
         ContractTestLibrary.CreateServiceCommitmentPackageWithLine(ServiceCommitmentTemplate.Code, ServiceCommitmentPackage, ServiceCommPackageLine);
         ContractTestLibrary.UpdateServiceCommitmentPackageLine(ServiceCommPackageLine, '<1M>', 100, '', "Service Partner"::Vendor, Item."No.", "Invoicing Via"::Contract, "Calculation Base Type"::"Document Price", '', '<1M>', false);
         ContractTestLibrary.SetupSalesServiceCommitmentItemAndAssignToServiceCommitmentPackage(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item", ServiceCommitmentPackage.Code);
@@ -1713,13 +1717,13 @@ codeunit 139687 "Recurring Billing Docs Test"
         Initialize();
 
         //[GIVEN]:
-        //Setup service commitment item with sales price 
+        //Setup service commitment item with sales price
         //Create service object from the Sales order
         //Assign the service commitment to the customer contract (at this point service commitment has prices taken from the sales order)
         ClearAll();
         ContractTestLibrary.ResetContractRecords();
 
-        ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate, '<1M>', 100, "Invoicing Via"::Contract, "Calculation Base Type"::"Document Price");
+        ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate, '<1M>', 100, "Invoicing Via"::Contract, "Calculation Base Type"::"Document Price", false);
         ContractTestLibrary.CreateServiceCommitmentPackageWithLine(ServiceCommitmentTemplate.Code, ServiceCommitmentPackage, ServiceCommPackageLine);
         ContractTestLibrary.UpdateServiceCommitmentPackageLine(ServiceCommPackageLine, '<1M>', 100, '', "Service Partner"::Customer, Item."No.", "Invoicing Via"::Contract, "Calculation Base Type"::"Document Price", '', '<1M>', false);
         ContractTestLibrary.SetupSalesServiceCommitmentItemAndAssignToServiceCommitmentPackage(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item", ServiceCommitmentPackage.Code);

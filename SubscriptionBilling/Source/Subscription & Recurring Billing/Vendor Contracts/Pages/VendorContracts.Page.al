@@ -6,7 +6,7 @@ page 8071 "Vendor Contracts"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor Contracts';
-    CardPageID = "Vendor Contract";
+    CardPageId = "Vendor Contract";
     DataCaptionFields = "Buy-from Vendor No.";
     Editable = false;
     PageType = List;
@@ -112,7 +112,7 @@ page 8071 "Vendor Contracts"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    ShortCutKey = 'Alt+D';
+                    ShortcutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
@@ -126,7 +126,7 @@ page 8071 "Vendor Contracts"
                     ToolTip = 'Vendor Contract Deferrals.';
                     Image = LedgerEntries;
                     ShortcutKey = 'Ctrl+F7';
-                    RunObject = Page "Vendor Contract Deferrals";
+                    RunObject = page "Vendor Contract Deferrals";
                     RunPageView = sorting("Contract No.");
                     RunPageLink = "Contract No." = field("No.");
 

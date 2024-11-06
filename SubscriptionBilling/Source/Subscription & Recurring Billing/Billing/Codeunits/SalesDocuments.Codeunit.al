@@ -493,6 +493,7 @@ codeunit 8063 "Sales Documents"
         ServiceObject."Ship-to Contact" := SalesHeader."Ship-to Contact";
         ServiceObject."Customer Price Group" := SalesHeader."Customer Price Group";
         ServiceObject."Customer Reference" := SalesHeader."Your Reference";
+        ServiceObject."Variant Code" := SalesLine."Variant Code";
         OnCreateServiceObjectFromSalesLineBeforeInsertServiceObject(ServiceObject, SalesHeader, SalesLine);
         ServiceObject.Insert(true);
         OnCreateServiceObjectFromSalesLineAfterInsertServiceObject(ServiceObject, SalesHeader, SalesLine);

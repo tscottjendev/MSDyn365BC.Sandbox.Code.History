@@ -44,7 +44,7 @@ page 8085 "Sub. Billing Activities"
                 field("Jobs Over Budget"; Rec."Jobs Over Budget")
                 {
                     Caption = 'Over Budget';
-                    DrillDownPageID = "Job List";
+                    DrillDownPageId = "Job List";
                     Editable = false;
                     ToolTip = 'Specifies the number of projects where the usage cost exceeds the budgeted cost.';
                 }
@@ -56,14 +56,14 @@ page 8085 "Sub. Billing Activities"
                 field("Customer Contract Invoices"; Rec."Customer Contract Invoices")
                 {
                     Caption = 'Contract Invoices';
-                    DrillDownPageID = "Sales Invoice List";
+                    DrillDownPageId = "Sales Invoice List";
                     Editable = false;
                     ToolTip = 'Shows Open Customer Contract Invoices.';
                 }
                 field("Customer Contract Credit Memos"; Rec."Customer Contract Credit Memos")
                 {
                     Caption = 'Contract Credit Memos';
-                    DrillDownPageID = "Sales Credit Memos";
+                    DrillDownPageId = "Sales Credit Memos";
                     Editable = false;
                     ToolTip = 'Shows Open Customer Contract Credit Memos.';
                 }
@@ -74,14 +74,14 @@ page 8085 "Sub. Billing Activities"
                 field("Vendor Contract Invoices"; Rec."Vendor Contract Invoices")
                 {
                     Caption = 'Contract Invoices';
-                    DrillDownPageID = "Purchase Invoices";
+                    DrillDownPageId = "Purchase Invoices";
                     Editable = false;
                     ToolTip = 'Shows Open Vendor Contract Invoices.';
                 }
                 field("Vendor Contract Credit Memos"; Rec."Vendor Contract Credit Memos")
                 {
                     Caption = 'Contract Credit Memos';
-                    DrillDownPageID = "Purchase Credit Memos";
+                    DrillDownPageId = "Purchase Credit Memos";
                     Editable = false;
                     ToolTip = 'Shows Open Vendor Contract Credit Memos.';
                 }
@@ -92,14 +92,14 @@ page 8085 "Sub. Billing Activities"
                 field("Serv. Comm. wo Cust. Contract"; Rec."Serv. Comm. wo Cust. Contract")
                 {
                     Caption = 'Customer';
-                    DrillDownPageID = "Serv. Comm. WO Cust. Contract";
+                    DrillDownPageId = "Serv. Comm. WO Cust. Contract";
                     Editable = false;
                     ToolTip = 'Shows Service Commitments without Customer Contract.';
                 }
                 field("Serv. Comm. wo Vend. Contract"; Rec."Serv. Comm. wo Vend. Contract")
                 {
                     Caption = 'Vendor';
-                    DrillDownPageID = "Serv. Comm. WO Vend. Contract";
+                    DrillDownPageId = "Serv. Comm. WO Vend. Contract";
                     Editable = false;
                     ToolTip = 'Shows Service Commitments without Vendor Contract.';
                 }
@@ -119,7 +119,7 @@ page 8085 "Sub. Billing Activities"
                 }
                 field("Not Invoiced"; Rec."Not Invoiced")
                 {
-                    DrillDownPageID = "Billing Lines";
+                    DrillDownPageId = "Billing Lines";
                     Editable = false;
                     ToolTip = 'Shows Billing Lines for Service Commitments that have not been called into Posting Documents, yet.';
                 }

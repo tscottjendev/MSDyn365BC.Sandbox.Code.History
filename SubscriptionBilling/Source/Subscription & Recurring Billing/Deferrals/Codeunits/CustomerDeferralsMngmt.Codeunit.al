@@ -67,6 +67,20 @@ codeunit 8067 "Customer Deferrals Mngmt."
         InsertContractDeferrals(SalesHeader, xSalesLine, SalesInvHeader."No.");
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnPostSalesLineOnBeforeInsertCrMemoLine, '', false, false)]
+    local procedure InsertCustomerDeferralsFromSalesCrMemoOnPostSalesLineOnBeforeInsertCrMemoLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean; xSalesLine: Record "Sales Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    var
+        SalesDocuments: Codeunit "Sales Documents";
+    begin
+        if (xSalesLine.Quantity >= 0) or (xSalesLine."Unit Price" >= 0) then
+            exit;
+
+        if SalesDocuments.GetAppliesToDocNo(SalesHeader) <> '' then
+            exit;
+
+        InsertContractDeferrals(SalesHeader, xSalesLine, SalesCrMemoHeader."No.");
+    end;
+
     local procedure InsertContractDeferrals(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; DocumentNo: Code[20])
     var
         CustContractHeader: Record "Customer Contract";

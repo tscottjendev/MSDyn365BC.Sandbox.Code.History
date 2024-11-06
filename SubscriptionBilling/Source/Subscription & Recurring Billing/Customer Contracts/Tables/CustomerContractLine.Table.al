@@ -112,6 +112,7 @@ table 8062 "Customer Contract Line"
         ContractsGeneralMgt: Codeunit "Contracts General Mgt.";
         ConfirmManagement: Codeunit "Confirm Management";
         CalledFromDeleteServiceCommitment: Boolean;
+        HideValidationDialog: Boolean;
         DeletionNotAllowedErr: Label 'Deletion is not allowed because the line is linked to a contract billing line. Please delete the billing proposal first.';
         ClosedContractLinesDeletionQst: Label 'Deleting the contract line breaks the link to the service in the service object. Do you want to continue?';
         OneContractLineSelectedErr: Label 'Please select the lines you want to combine.';
@@ -295,7 +296,7 @@ table 8062 "Customer Contract Line"
     begin
         if not Rec.Closed then
             exit;
-        if not ConfirmManagement.GetResponse(ClosedContractLinesDeletionQst, true) then
+        if not GetConfirmResponse(ClosedContractLinesDeletionQst, true) then
             Error(TextManagement.GetProcessingAbortedErr());
     end;
 
@@ -512,6 +513,23 @@ table 8062 "Customer Contract Line"
         ServiceAmount := 0;
         CalculationBasePercent := 0;
         CalculationBaseAmount := 0;
+    end;
+
+    procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    begin
+        HideValidationDialog := NewHideValidationDialog;
+    end;
+
+    procedure GetHideValidationDialog(): Boolean
+    begin
+        exit(HideValidationDialog);
+    end;
+
+    local procedure GetConfirmResponse(ConfirmQuestion: Text; DefaultButton: Boolean): Boolean
+    begin
+        if HideValidationDialog then
+            exit(true);
+        exit(ConfirmManagement.GetResponse(ConfirmQuestion, DefaultButton));
     end;
 
     internal procedure SetCalledFromDeleteServiceCommitment(NewCalledFromDeleteServiceCommitment: Boolean)
