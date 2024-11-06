@@ -752,6 +752,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Journal - NamedType TestForBlankValuesPassed)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 948787226 - NamedType 1473162410" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Quantity must be %1 in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Value, %2=Table Name.]D;]A;(LookupHint=Codeunit Job Order Tracking - NamedType QuantityErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 948787226 - NamedType 1801570682" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[ROLLBACK.]]></Val>
