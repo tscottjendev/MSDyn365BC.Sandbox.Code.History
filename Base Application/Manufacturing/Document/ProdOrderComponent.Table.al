@@ -1107,7 +1107,6 @@ table 5407 "Prod. Order Component"
         UOMMgt: Codeunit "Unit of Measure Management";
         DimMgt: Codeunit DimensionManagement;
         WhseProdRelease: Codeunit "Whse.-Production Release";
-        ItemSubstitutionMgt: Codeunit "Item Subst.";
         Reservation: Page Reservation;
         Blocked: Boolean;
         GLSetupRead: Boolean;
@@ -1831,6 +1830,7 @@ table 5407 "Prod. Order Component"
 
     procedure ShowItemSub()
     var
+        MfgItemSubstitution: Codeunit "Mfg. Item Substitution";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1838,7 +1838,7 @@ table 5407 "Prod. Order Component"
         if IsHandled then
             exit;
 
-        ItemSubstitutionMgt.GetCompSubst(Rec);
+        MfgItemSubstitution.GetProdOrderCompSubst(Rec);
     end;
 
     local procedure GetSKU() Result: Boolean
