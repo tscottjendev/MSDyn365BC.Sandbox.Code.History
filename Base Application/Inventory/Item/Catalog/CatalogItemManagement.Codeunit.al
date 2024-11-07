@@ -10,7 +10,6 @@ using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Archive;
 using Microsoft.Sales.Document;
@@ -375,12 +374,11 @@ codeunit 5703 "Catalog Item Management"
     var
         BOMComp: Record "BOM Component";
         ItemLedgEntry: Record "Item Ledger Entry";
-        ProdBOMHeader: Record "Production BOM Header";
-        ProdBOMLine: Record "Production BOM Line";
         PurchLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
         SalesLineArch: Record "Sales Line Archive";
         IsHandled: Boolean;
+        ShouldExit: Boolean;
     begin
         IsHandled := false;
         OnBeforeDelNonStockItem(Item, IsHandled);
@@ -416,19 +414,7 @@ codeunit 5703 "Catalog Item Management"
         if not SalesLineArch.IsEmpty() then
             exit;
 
-        ProdBOMLine.Reset();
-        ProdBOMLine.SetCurrentKey(Type, "No.");
-        ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
-        ProdBOMLine.SetRange("No.", Item."No.");
-        if ProdBOMLine.Find('-') then
-            repeat
-                if ProdBOMHeader.Get(ProdBOMLine."Production BOM No.") and
-                   (ProdBOMHeader.Status = ProdBOMHeader.Status::Certified)
-                then
-                    exit;
-            until ProdBOMLine.Next() = 0;
-
-        OnDelNonStockItemOnAfterCheckRelations(Item);
+        OnDelNonStockItemOnAfterCheckRelations(Item, ShouldExit);
 
         NewItem.Get(Item."No.");
         DeleteCreatedFromNonstockItem();
@@ -957,7 +943,7 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDelNonStockItemOnAfterCheckRelations(var Item: Record Item)
+    local procedure OnDelNonStockItemOnAfterCheckRelations(var Item: Record Item; var ShouldExit: Boolean)
     begin
     end;
 }
