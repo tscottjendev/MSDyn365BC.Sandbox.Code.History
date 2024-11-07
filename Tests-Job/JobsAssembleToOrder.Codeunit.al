@@ -28,6 +28,7 @@ codeunit 136322 "Jobs - Assemble-to Order"
         RemainingQtyGreaterThanErr: Label 'Remaining Quantity (Base) cannot be more than %1 in Assembly Header Document Type=''%2'',No.=''%3''', Comment = 'Remaining Quantity, Document Type, No.';
         BillableLineTypeErr: Label 'Line Type must not be Billable in Project Planning Line Project No.=''%1'',Project Task No.=''%2'',Line No.=''%3''.';
         ZeroJobContractLineMsg: Label 'Job Contract Entry No. is empty.';
+        FieldValueIsNotCorrect: Label '%1 is not correct', Comment = 'Field Name';
 
     [Test]
     procedure AssemblyOrderIsCreated()
@@ -326,6 +327,43 @@ codeunit 136322 "Jobs - Assemble-to Order"
         JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
         Assert.RecordCount(JobPlanningLine, 3);
+    end;
+
+    [Test]
+    procedure LineTypeIsCopiedFromOriginalPlanningLineOnExplodeBOMForTextType()
+    var
+        ParentItem, CompItem1, CompItem2 : Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        Type: Enum "Job Planning Line Line Type";
+    begin
+        // [SCENARIO 556632] Verify Line Type is copied from original planning line on Explode BOM for Text Type
+        Initialize();
+
+        // [GIVEN] Create an assembly item with 2 components.
+        CreateAssemblyItemWithBOM(ParentItem, CompItem1, CompItem2);
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobAndJobTask(Job, JobTask);
+
+        // [GIVEN] Create Job Planning Line
+        CreateSimpleJobPlanningLineWithAssemblyItem(JobPlanningLine, JobTask, ParentItem."No.");
+
+        // [GIVEN] Save Job Planning Line Type
+        Type := JobPlanningLine."Line Type";
+
+        // [GIVEN] Remove Qty. to Assemble
+        JobPlanningLine.Validate("Qty. to Assemble", 0);
+        JobPlanningLine.Modify(true);
+
+        // [WHEN] Explode BOM
+        Codeunit.Run(Codeunit::"Job-Explode BOM", JobPlanningLine);
+
+        // [THEN] Verify results
+        FilterJobPlanningLine(JobPlanningLine);
+        JobPlanningLine.FindFirst();
+        Assert.AreEqual(JobPlanningLine."Line Type", Type, StrSubstNo(FieldValueIsNotCorrect, JobPlanningLine.FieldName("Line Type")));
     end;
 
     [Test]
@@ -1138,6 +1176,14 @@ codeunit 136322 "Jobs - Assemble-to Order"
         JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
         JobPlanningLine.SetFilter(Type, '<>%1', JobPlanningLine.Type::Text);
+    end;
+
+    local procedure FilterJobPlanningLine(var JobPlanningLine: Record "Job Planning Line")
+    begin
+        JobPlanningLine.Reset();
+        JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
+        JobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Text);
     end;
 
     [ModalPageHandler]
