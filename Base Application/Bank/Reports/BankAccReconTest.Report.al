@@ -394,7 +394,6 @@ report 1408 "Bank Acc. Recon. - Test"
                 }
                 dataitem(OutstandingBankTransaction; "Outstanding Bank Transaction")
                 {
-                    DataItemTableView = sorting("Entry No.");
                     UseTemporary = true;
                     column(Outstd_Bank_Transac_Amount; Amount)
                     {
@@ -426,7 +425,6 @@ report 1408 "Bank Acc. Recon. - Test"
                 }
                 dataitem(OutstandingPayment; "Outstanding Bank Transaction")
                 {
-                    DataItemTableView = sorting("Entry No.");
                     UseTemporary = true;
                     column(Outstd_Payment_Amount; Amount)
                     {
