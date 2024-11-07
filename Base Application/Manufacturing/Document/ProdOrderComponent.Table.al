@@ -1022,7 +1022,6 @@ table 5407 "Prod. Order Component"
         UOMMgt: Codeunit "Unit of Measure Management";
         DimMgt: Codeunit DimensionManagement;
         WhseProdRelease: Codeunit "Whse.-Production Release";
-        ItemSubstitutionMgt: Codeunit "Item Subst.";
         Reservation: Page Reservation;
         Blocked: Boolean;
         GLSetupRead: Boolean;
@@ -1399,7 +1398,7 @@ table 5407 "Prod. Order Component"
         ProdOrderComponent.SetLoadFields("Line No.");
         ProdOrderComponent.SetRange(Status, NewProdOrderComponent.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", NewProdOrderComponent."Prod. Order No.");
-        ProdOrderComponent.SetRange("Prod. Order Line No.",  NewProdOrderComponent."Prod. Order Line No.");
+        ProdOrderComponent.SetRange("Prod. Order Line No.", NewProdOrderComponent."Prod. Order Line No.");
         if ProdOrderComponent.FindLast() then
             NewProdOrderComponent."Line No." := ProdOrderComponent."Line No."
         else
@@ -1743,6 +1742,7 @@ table 5407 "Prod. Order Component"
 
     procedure ShowItemSub()
     var
+        MfgItemSubstitution: Codeunit "Mfg. Item Substitution";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1750,7 +1750,7 @@ table 5407 "Prod. Order Component"
         if IsHandled then
             exit;
 
-        ItemSubstitutionMgt.GetCompSubst(Rec);
+        MfgItemSubstitution.GetProdOrderCompSubst(Rec);
     end;
 
     local procedure GetSKU() Result: Boolean
@@ -1908,6 +1908,7 @@ table 5407 "Prod. Order Component"
         if Rec."Variant Code" = '' then
             Description := Item.Description
         else begin
+            ItemVariant.SetLoadFields(Description, Blocked);
             ItemVariant.Get("Item No.", "Variant Code");
             ItemVariant.TestField(Blocked, false);
             Description := ItemVariant.Description;
