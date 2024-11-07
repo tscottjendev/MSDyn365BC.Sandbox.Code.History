@@ -373,7 +373,7 @@ codeunit 7251 "Bank Acc. Rec. Trans. to Acc."
                         GenJnlLine.Validate(Amount, -TempBankAccRecAIProposal.Difference);
                         GLAccount.Get(TempBankAccRecAIProposal."G/L Account No.");
                         GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::"G/L Account");
-                        GenJnlLine."Account No." := TempBankAccRecAIProposal."G/L Account No.";
+                        GenJnlLine.Validate("Account No.", TempBankAccRecAIProposal."G/L Account No.");
                         GenJnlLine.Description := TempBankAccRecAIProposal.Description;
                         GenJnlLine."Keep Description" := true;
                         GenJnlLine."Source Code" := SourceCodeSetup."Trans. Bank Rec. to Gen. Jnl.";
