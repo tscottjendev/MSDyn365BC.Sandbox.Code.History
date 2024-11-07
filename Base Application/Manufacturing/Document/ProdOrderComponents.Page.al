@@ -387,6 +387,16 @@ page 99000818 "Prod. Order Components"
                 ApplicationArea = Notes;
                 Visible = false;
             }
+            part(Control44; "Prod. Order Comp. Item FactBox")
+            {
+                ApplicationArea = Manufacturing;
+                SubPageLink = Status = field(Status),
+                              "Prod. Order No." = field("Prod. Order No."),
+                              "Prod. Order Line No." = field("Prod. Order Line No."),
+                              "Line No." = field("Line No."),
+                              "Item No." = field("Item No.");
+                UpdatePropagation = Both;
+            }
         }
     }
 
