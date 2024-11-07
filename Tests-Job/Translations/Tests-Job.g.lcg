@@ -1202,6 +1202,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Jobs - Assemble-to Order - NamedType CreateAsmForJobErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1292684493 - NamedType 1591768236" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is not correct]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Field Name]D;]A;(LookupHint=Codeunit Jobs - Assemble-to Order - NamedType FieldValueIsNotCorrect)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1292684493 - NamedType 1632888944" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Remaining Quantity (Base) cannot be more than %1 in Assembly Header Document Type='%2',No.='%3']]></Val>
