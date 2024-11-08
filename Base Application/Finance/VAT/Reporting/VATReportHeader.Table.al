@@ -255,6 +255,7 @@ table 740 "VAT Report Header"
                 TestField(Status, Status::Open);
             end;
         }
+#if not CLEANSCHEMA25
         field(22; "Date Type"; Enum "VAT Date Type")
         {
             Caption = 'Date Type';
@@ -262,6 +263,7 @@ table 740 "VAT Report Header"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(28; "Trade Type"; Option)
         {
             Caption = 'Trade Type';
@@ -416,6 +418,7 @@ table 740 "VAT Report Header"
             Caption = 'Amounts in Add. Rep. Currency';
             Editable = false;
         }
+#if not CLEANSCHEMA18
         field(4800; "VATGroup Return"; Boolean)
         {
             ObsoleteState = Removed;
@@ -434,6 +437,7 @@ table 740 "VAT Report Header"
             ObsoleteReason = 'Moved to VAT Group Management extension field 4702 VAT Group Settlement Posted';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     keys

@@ -96,6 +96,7 @@ table 5342 "CRM Contact"
             ExternalType = 'Lookup';
             TableRelation = "CRM Systemuser".SystemUserId;
         }
+#if not CLEANSCHEMA19
         field(9; PaymentTermsCode; Option)
         {
             Caption = 'Payment Terms';
@@ -110,6 +111,7 @@ table 5342 "CRM Contact"
             ObsoleteReason = 'This field is replaced by field 193 PaymentTermsCodeEnum';
             ObsoleteTag = '19.0';
         }
+#endif
         field(10; ShippingMethodCode; Option)
         {
             Caption = 'Shipping Method';
@@ -764,6 +766,7 @@ table 5342 "CRM Contact"
             MaxValue = 1500;
             MinValue = -1500;
         }
+#if not CLEANSCHEMA19
         field(93; Address1_FreightTermsCode; Option)
         {
             Caption = 'Address 1: Freight Terms';
@@ -778,6 +781,7 @@ table 5342 "CRM Contact"
             ObsoleteReason = 'This field is replaced by field 194 Address1_FreightTermsCodeEnum';
             ObsoleteTag = '19.0';
         }
+#endif
         field(94; Address1_UPSZone; Text[4])
         {
             Caption = 'Address 1: UPS Zone';
@@ -806,6 +810,7 @@ table 5342 "CRM Contact"
             ExternalName = 'address1_longitude';
             ExternalType = 'Double';
         }
+#if not CLEANSCHEMA19
         field(98; Address1_ShippingMethodCode; Option)
         {
             Caption = 'Address 1: Shipping Method';
@@ -820,6 +825,7 @@ table 5342 "CRM Contact"
             ObsoleteReason = 'This field is replaced by field 194 Address1_ShippingMethodCodeEnum';
             ObsoleteTag = '19.0';
         }
+#endif
         field(99; Address1_Telephone2; Text[50])
         {
             Caption = 'Address 1: Telephone 2';
