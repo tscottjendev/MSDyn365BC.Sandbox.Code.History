@@ -30,6 +30,7 @@ table 6304 "Power BI User Configuration"
             Caption = 'Profile ID';
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA24
         field(4; "Report Visibility"; Boolean)
         {
             Caption = 'Report Visibility';
@@ -38,6 +39,7 @@ table 6304 "Power BI User Configuration"
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
         }
+#endif
         field(5; "Selected Report ID"; Guid)
         {
             Caption = 'Selected Report ID';
@@ -92,5 +94,5 @@ table 6304 "Power BI User Configuration"
     begin
     end;
 }
- 
+
 #endif

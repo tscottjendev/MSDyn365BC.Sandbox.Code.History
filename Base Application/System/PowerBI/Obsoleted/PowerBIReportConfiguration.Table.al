@@ -31,6 +31,7 @@ table 6301 "Power BI Report Configuration"
             Description = 'Identifies the page, role center, or other host container the report is selected for.';
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA19
         field(4; EmbedUrl; Text[250])
         {
             ObsoleteState = Removed;
@@ -40,6 +41,7 @@ table 6301 "Power BI Report Configuration"
             Description = 'Cached display URL.';
             ObsoleteTag = '19.0';
         }
+#endif
         field(5; ReportName; Text[200])
         {
             Caption = 'ReportName';
@@ -85,5 +87,5 @@ table 6301 "Power BI Report Configuration"
     {
     }
 }
- 
+
 #endif

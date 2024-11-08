@@ -504,6 +504,7 @@ table 113 "Sales Invoice Line"
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
+#if not CLEANSCHEMA22
         field(5705; "Cross-Reference No."; Code[20])
         {
             Caption = 'Cross-Reference No.';
@@ -534,6 +535,7 @@ table 113 "Sales Invoice Line"
             ObsoleteState = Removed;
             ObsoleteTag = '22.0';
         }
+#endif
         field(5709; "Item Category Code"; Code[20])
         {
             Caption = 'Item Category Code';
@@ -548,6 +550,7 @@ table 113 "Sales Invoice Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
+#if not CLEANSCHEMA15
         field(5712; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -555,6 +558,7 @@ table 113 "Sales Invoice Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(5725; "Item Reference No."; Code[50])
         {
             AccessByPermission = TableData "Item Reference" = R;
