@@ -79,6 +79,7 @@ table 5330 "CRM Connection Setup"
                         xRec.DeletePassword();
             end;
         }
+#if not CLEANSCHEMA15
         field(5; "Last Update Invoice Entry No."; Integer)
         {
             Caption = 'Last Update Invoice Entry No.';
@@ -87,6 +88,7 @@ table 5330 "CRM Connection Setup"
             ObsoleteReason = 'Moved this field to Table 5328 - CRM Synch Status as this field is getting updated by job queue and it is blocking the record. ';
             ObsoleteTag = '15.0';
         }
+#endif
         field(59; "Restore Connection"; Boolean)
         {
             Caption = 'Restore Connection';
@@ -123,6 +125,7 @@ table 5330 "CRM Connection Setup"
                 end;
             end;
         }
+#if not CLEANSCHEMA26
         field(61; "Is User Mapping Required"; Boolean)
         {
             ObsoleteReason = 'This functionality is not in use and not supported';
@@ -138,6 +141,7 @@ table 5330 "CRM Connection Setup"
             ObsoleteReason = 'This functionality is not in use and not supported';
             Caption = 'Is User Mapped To CRM User';
         }
+#endif
         field(63; "CRM Version"; Text[30])
         {
             Caption = 'CRM Version';
@@ -186,6 +190,7 @@ table 5330 "CRM Connection Setup"
         {
             Caption = 'Is CRM Solution Installed';
         }
+#if not CLEANSCHEMA26
         field(68; "Is Enabled For User"; Boolean)
         {
             ObsoleteTag = '26.0';
@@ -193,6 +198,7 @@ table 5330 "CRM Connection Setup"
             ObsoleteReason = 'Use field "Is Enabled" instead.';
             Caption = 'Is Enabled For User';
         }
+#endif
         field(69; "Dynamics NAV URL"; Text[250])
         {
             Caption = 'Dynamics NAV URL';
@@ -202,6 +208,7 @@ table 5330 "CRM Connection Setup"
                 CRMIntegrationManagement.SetCRMNAVConnectionUrl("Dynamics NAV URL");
             end;
         }
+#if not CLEANSCHEMA23
         field(70; "Dynamics NAV OData URL"; Text[250])
         {
             ObsoleteState = Removed;
@@ -224,6 +231,7 @@ table 5330 "CRM Connection Setup"
             ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
             Caption = 'Dynamics NAV OData Accesskey';
         }
+#endif
         field(75; "Default CRM Price List ID"; Guid)
         {
             Caption = 'Default CRM Price List ID';

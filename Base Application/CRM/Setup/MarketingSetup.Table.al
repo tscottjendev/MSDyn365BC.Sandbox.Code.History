@@ -201,6 +201,7 @@ table 5079 "Marketing Setup"
         {
             Caption = 'Default Correspondence Type';
         }
+#if not CLEANSCHEMA25
         field(56; "Queue Folder Path"; Text[250])
         {
             Caption = 'Queue Folder Path';
@@ -231,10 +232,12 @@ table 5079 "Marketing Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(67; "Default To-do Date Calculation"; DateFormula)
         {
             Caption = 'Default Task Date Calculation';
         }
+#if not CLEANSCHEMA25
         field(69; "Autodiscovery E-Mail Address"; Text[250])
         {
             Caption = 'Autodiscovery Email Address';
@@ -265,10 +268,12 @@ table 5079 "Marketing Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(73; "Exchange Account Password Key"; Guid)
         {
             Caption = 'Exchange Account Password Key';
         }
+#if not CLEANSCHEMA20
         field(74; "Sync with Microsoft Graph"; Boolean)
         {
             Caption = 'Sync with Microsoft Graph';
@@ -277,6 +282,7 @@ table 5079 "Marketing Setup"
             ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
             ObsoleteTag = '20.0';
         }
+#endif
         field(75; "WebHook Run Notification As"; Guid)
         {
             Caption = 'WebHook Run Notification As';
@@ -294,6 +300,7 @@ table 5079 "Marketing Setup"
             Caption = 'Exchange Tenant Id Key';
             DataClassification = EndUserPseudonymousIdentifiers;
         }
+#if not CLEANSCHEMA25
         field(79; "Exchange Client Id"; Text[250])
         {
             Caption = 'Exchange Client Id';
@@ -326,6 +333,7 @@ table 5079 "Marketing Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(83; "Inherit Format Region"; Boolean)
         {
             Caption = 'Inherit Format Region';

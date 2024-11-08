@@ -14,6 +14,7 @@ table 6300 "Azure AD App Setup"
             Caption = 'App ID';
             NotBlank = true;
         }
+#if not CLEANSCHEMA28
         field(2; "Secret Key"; BLOB)
         {
             Caption = 'Secret Key';
@@ -26,6 +27,7 @@ table 6300 "Azure AD App Setup"
             ObsoleteTag = '17.0';
 #endif
         }
+#endif
         field(3; "Primary Key"; Integer)
         {
             AutoIncrement = true;
