@@ -24,6 +24,7 @@ tableextension 99000800 "Mfg. Inventory Adjmt. Entry" extends "Inventory Adjmt. 
         }
     }
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Inventory Adjmt. Entry (Order)", 'I')]
     procedure SetProdOrderLine(ProdOrderLine: Record "Prod. Order Line")
     var
         IsHandled: Boolean;
