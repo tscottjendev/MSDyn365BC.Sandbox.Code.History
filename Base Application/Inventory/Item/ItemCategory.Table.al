@@ -62,6 +62,7 @@ table 5722 "Item Category"
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -69,6 +70,7 @@ table 5722 "Item Category"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

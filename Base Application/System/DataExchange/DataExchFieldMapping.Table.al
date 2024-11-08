@@ -99,6 +99,7 @@ table 1225 "Data Exch. Field Mapping"
             Caption = 'Target Table Caption';
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA23
 #pragma warning disable AS0086
         field(13; "Target Field Caption"; Text[80])
         {
@@ -111,6 +112,7 @@ table 1225 "Data Exch. Field Mapping"
             ObsoleteReason = 'Redesigned to a new field "Target Table Field Calcucation"';
         }
 #pragma warning restore AS0086
+#endif
         field(14; "Target Table Field Caption"; Text[80])
         {
             CalcFormula = lookup(Field."Field Caption" where(TableNo = field("Target Table ID"),

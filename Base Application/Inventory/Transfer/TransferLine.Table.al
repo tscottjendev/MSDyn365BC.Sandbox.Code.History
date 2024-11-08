@@ -852,6 +852,7 @@ table 5741 "Transfer Line"
             Caption = 'Item Category Code';
             TableRelation = "Item Category";
         }
+#if not CLEANSCHEMA15
         field(5707; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -859,6 +860,7 @@ table 5741 "Transfer Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(5750; "Whse. Inbnd. Otsdg. Qty (Base)"; Decimal)
         {
             BlankZero = true;

@@ -1,4 +1,3 @@
-#if not CLEANSCHEMA15 
 table 134400 "Merge Duplicate Obsolete"
 {
     ObsoleteState = Removed;
@@ -25,4 +24,3 @@ table 134400 "Merge Duplicate Obsolete"
     }
 
 } 
-#endif

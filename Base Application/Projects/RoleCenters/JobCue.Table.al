@@ -99,6 +99,7 @@ table 9057 "Job Cue"
             Caption = 'User ID Filter';
             FieldClass = FlowFilter;
         }
+#if not CLEANSCHEMA28
         field(24; "Coupled Data Synch Errors"; Integer)
         {
             CalcFormula = count("CRM Integration Record" where(Skipped = const(true)));
@@ -127,6 +128,7 @@ table 9057 "Job Cue"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
     }
 
     keys
