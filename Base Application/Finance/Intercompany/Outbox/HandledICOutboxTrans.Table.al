@@ -63,6 +63,7 @@ table 416 "Handled IC Outbox Trans."
             OptionCaption = 'Sent to IC Partner,Rejection Sent to IC Partner,Cancelled';
             OptionMembers = "Sent to IC Partner","Rejection Sent to IC Partner",Cancelled;
         }
+#if not CLEANSCHEMA25
         field(12; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
@@ -70,6 +71,7 @@ table 416 "Handled IC Outbox Trans."
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(13; "Source Line No."; Integer)
         {
             Caption = 'Source Line No.';

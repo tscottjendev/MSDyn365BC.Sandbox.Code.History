@@ -2347,6 +2347,7 @@ table 36 "Sales Header"
                 MailManagement.CheckValidEmailAddresses("Sell-to E-Mail");
             end;
         }
+#if not CLEANSCHEMA21
         field(175; "Payment Instructions Id"; Integer)
         {
             Caption = 'Payment Instructions Id';
@@ -2355,6 +2356,7 @@ table 36 "Sales Header"
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
         }
+#endif
         field(178; "Journal Templ. Name"; Code[10])
         {
             Caption = 'Journal Template Name';
@@ -2384,6 +2386,7 @@ table 36 "Sales Header"
                 end;
             end;
         }
+#if not CLEANSCHEMA23
         field(180; "Rcvd-from Country/Region Code"; Code[10])
         {
             Caption = 'Received-from Country/Region Code';
@@ -2392,6 +2395,7 @@ table 36 "Sales Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(181; "Rcvd.-from Count./Region Code"; Code[10])
         {
             Caption = 'Received-from Country/Region Code';
@@ -2456,6 +2460,7 @@ table 36 "Sales Header"
         {
             Caption = 'Payment Service Set ID';
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
@@ -2464,6 +2469,7 @@ table 36 "Sales Header"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -2511,6 +2517,7 @@ table 36 "Sales Header"
                 CreateDimFromDefaultDim(Rec.FieldNo("Campaign No."));
             end;
         }
+#if not CLEANSCHEMA21
         field(5051; "Sell-to Customer Template Code"; Code[10])
         {
             Caption = 'Sell-to Customer Template Code';
@@ -2518,6 +2525,7 @@ table 36 "Sales Header"
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
         }
+#endif
         field(5052; "Sell-to Contact No."; Code[20])
         {
             Caption = 'Sell-to Contact No.';
@@ -2664,6 +2672,7 @@ table 36 "Sales Header"
                 UpdateBillToCust("Bill-to Contact No.");
             end;
         }
+#if not CLEANSCHEMA21
         field(5054; "Bill-to Customer Template Code"; Code[10])
         {
             Caption = 'Bill-to Customer Template Code';
@@ -2671,6 +2680,7 @@ table 36 "Sales Header"
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
         }
+#endif
         field(5055; "Opportunity No."; Code[20])
         {
             Caption = 'Opportunity No.';
@@ -8923,7 +8933,12 @@ table 36 "Sales Header"
     procedure CreateDimFromDefaultDim(FieldNo: Integer)
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDimFromDefaultDim(Rec, FieldNo, IsHandled);
+        if IsHandled then
+            exit;
         InitDefaultDimensionSources(DefaultDimSource, FieldNo);
         CreateDim(DefaultDimSource);
     end;
@@ -11087,6 +11102,11 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckCreditLimitOnAfterCreditLimitCheck(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDimFromDefaultDim(var Rec: Record "Sales Header"; FieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

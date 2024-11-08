@@ -1069,6 +1069,7 @@ table 5940 "Service Item"
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA28
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -1084,6 +1085,7 @@ table 5940 "Service Item"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
     }
 
     keys
