@@ -619,6 +619,7 @@ table 112 "Sales Invoice Header"
             OptimizeForTextSearch = true;
             ExtendedDatatype = EMail;
         }
+#if not CLEANSCHEMA22
         field(176; "Payment Instructions"; BLOB)
         {
             Caption = 'Payment Instructions';
@@ -635,6 +636,7 @@ table 112 "Sales Invoice Header"
             ObsoleteState = Removed;
             ObsoleteTag = '22.0';
         }
+#endif
         field(179; "VAT Reporting Date"; Date)
         {
             Caption = 'VAT Date';
@@ -696,6 +698,7 @@ table 112 "Sales Invoice Header"
             Caption = 'Doc. Exch. Original Identifier';
             OptimizeForTextSearch = true;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
@@ -704,6 +707,7 @@ table 112 "Sales Invoice Header"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -827,6 +831,7 @@ table 112 "Sales Invoice Header"
         {
             Caption = 'Get Shipment Used';
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -834,6 +839,7 @@ table 112 "Sales Invoice Header"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(8001; "Draft Invoice SystemId"; Guid)
         {
             Caption = 'Draft Invoice SystemId';

@@ -71,6 +71,7 @@ table 9500 "Email Item"
         {
             Caption = 'Body';
         }
+#if not CLEANSCHEMA28
         field(9; "Attachment File Path"; Text[250])
         {
             Caption = 'Attachment File Path';
@@ -95,6 +96,7 @@ table 9500 "Email Item"
             ObsoleteTag = '17.2';
 #endif
         }
+#endif
         field(11; "Plaintext Formatted"; Boolean)
         {
             Caption = 'Plaintext Formatted';
@@ -129,6 +131,7 @@ table 9500 "Email Item"
             Caption = 'Send as HTML';
             InitValue = true;
         }
+#if not CLEANSCHEMA28
         field(21; "Attachment File Path 2"; Text[250])
         {
             Caption = 'Attachment File Path 2';
@@ -273,6 +276,8 @@ table 9500 "Email Item"
             ObsoleteTag = '17.2';
 #endif
         }
+#endif
+#if not CLEANSCHEMA19
         field(33; "Source Table"; Integer)
         {
             Access = Internal;
@@ -289,6 +294,7 @@ table 9500 "Email Item"
             ObsoleteReason = 'Replaced with method AddSourceDocument.';
             ObsoleteTag = '18.1';
         }
+#endif
     }
 
     keys

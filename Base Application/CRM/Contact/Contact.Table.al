@@ -282,6 +282,7 @@ table 5050 Contact
                     VATRegistrationValidation();
             end;
         }
+#if not CLEANSCHEMA18
         field(89; Picture; BLOB)
         {
             Caption = 'Picture';
@@ -290,6 +291,7 @@ table 5050 Contact
             SubType = Bitmap;
             ObsoleteTag = '18.0';
         }
+#endif
         field(91; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
@@ -410,6 +412,7 @@ table 5050 Contact
                 Validate("Privacy Blocked", true);
             end;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
@@ -418,6 +421,7 @@ table 5050 Contact
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -641,6 +645,7 @@ table 5050 Contact
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA22
         field(5075; "Business Relation"; Text[50])
         {
             Caption = 'Business Relation';
@@ -650,6 +655,7 @@ table 5050 Contact
             ObsoleteReason = 'Replaced by the Contact Business Relation field.';
             ObsoleteTag = '22.0';
         }
+#endif
         field(5076; "Cost (LCY)"; Decimal)
         {
             AutoFormatType = 1;

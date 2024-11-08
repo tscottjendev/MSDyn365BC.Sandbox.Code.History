@@ -361,6 +361,7 @@ table 5911 "Service Mgt. Setup"
             Caption = 'Copy Line Descr. to G/L Entry';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA23
         field(810; "Invoice Posting Setup"; Enum "Service Invoice Posting")
         {
             Caption = 'Invoice Posting Setup';
@@ -368,6 +369,7 @@ table 5911 "Service Mgt. Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(950; "Copy Time Sheet to Order"; Boolean)
         {
             Caption = 'Copy Time Sheet to Order';
