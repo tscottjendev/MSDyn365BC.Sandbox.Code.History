@@ -230,6 +230,7 @@ table 311 "Sales & Receivables Setup"
             OptionCaption = 'Remainder,Blank';
             OptionMembers = Remainder,Blank;
         }
+#if not CLEANSCHEMA18
         field(37; "Archive Quotes and Orders"; Boolean)
         {
             Caption = 'Archive Quotes and Orders';
@@ -237,6 +238,7 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '18.0';
         }
+#endif
         field(38; "Post with Job Queue"; Boolean)
         {
             Caption = 'Post with Job Queue';
@@ -376,6 +378,7 @@ table 311 "Sales & Receivables Setup"
                     UpdateNameInLedgerEntries.NotifyAboutBlankNamesInLedgerEntries(RecordId);
             end;
         }
+#if not CLEANSCHEMA23
         field(60; "Batch Archiving Quotes"; Boolean)
         {
             Caption = 'Batch Archiving Quotes';
@@ -383,6 +386,7 @@ table 311 "Sales & Receivables Setup"
             ObsoleteTag = '23.0';
             ObsoleteReason = 'The field is part of the removed functionality.';
         }
+#endif
         field(61; "Ignore Updated Addresses"; Boolean)
         {
             Caption = 'Ignore Updated Addresses';
@@ -397,6 +401,7 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Disable Search by Name';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA18
         field(170; "Insert Std. Sales Lines Mode"; Option)
         {
             Caption = 'Insert Std. Sales Lines Mode';
@@ -439,6 +444,7 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '18.0';
         }
+#endif
         field(175; "Allow Multiple Posting Groups"; Boolean)
         {
             Caption = 'Allow Multiple Posting Groups';
@@ -531,6 +537,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = CustomerContent;
             TableRelation = "No. Series";
         }
+#if not CLEANSCHEMA23
         field(810; "Invoice Posting Setup"; Enum "Sales Invoice Posting")
         {
             Caption = 'Invoice Posting Setup';
@@ -538,6 +545,7 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(5329; "Write-in Product Type"; Option)
         {
             Caption = 'Write-in Product Type';

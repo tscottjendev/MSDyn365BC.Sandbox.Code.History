@@ -575,6 +575,7 @@ table 98 "General Ledger Setup"
             Editable = false;
             MinValue = 0;
         }
+#if not CLEANSCHEMA24
         field(96; "Adapt Main Menu to Permissions"; Boolean)
         {
             Caption = 'Adapt Main Menu to Permissions';
@@ -583,6 +584,7 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Replaced with UI Elements Removal feature.';
             ObsoleteTag = '24.0';
         }
+#endif
         field(97; "Allow G/L Acc. Deletion Before"; Date)
         {
             Caption = 'Check G/L Acc. Deletion After';
@@ -618,6 +620,7 @@ table 98 "General Ledger Setup"
             Caption = 'Block Deletion of G/L Accounts';
             InitValue = true;
         }
+#if not CLEANSCHEMA25
         field(110; "Acc. Sched. for Balance Sheet"; Code[10])
         {
             Caption = 'Account Schedule for Balance Sheet';
@@ -670,6 +673,7 @@ table 98 "General Ledger Setup"
                 Error(AccSchedObsoleteErr);
             end;
         }
+#endif
         field(114; "Fin. Rep. for Balance Sheet"; Code[10])
         {
             Caption = 'Financial Report for Balance Sheet';
@@ -731,6 +735,7 @@ table 98 "General Ledger Setup"
                 end;
             end;
         }
+#if not CLEANSCHEMA21
         field(152; "Use Legacy G/L Entry Locking"; Boolean)
         {
             Caption = 'Use Legacy G/L Entry Locking';
@@ -738,11 +743,13 @@ table 98 "General Ledger Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
         }
+#endif
         field(160; "Payroll Trans. Import Format"; Code[20])
         {
             Caption = 'Payroll Trans. Import Format';
             TableRelation = "Data Exch. Def" where(Type = const("Payroll Import"));
         }
+#if not CLEANSCHEMA18
         field(161; "VAT Reg. No. Validation URL"; Text[250])
         {
             Caption = 'VAT Reg. No. Validation URL';
@@ -755,6 +762,7 @@ table 98 "General Ledger Setup"
                 Error(ObsoleteErr);
             end;
         }
+#endif
         field(162; "Local Currency Symbol"; Text[10])
         {
             Caption = 'Local Currency Symbol';

@@ -61,6 +61,7 @@ table 1511 "Notification Entry"
             Editable = false;
             TableRelation = User."User Name";
         }
+#if not CLEANSCHEMA18
         field(15; "Error Message 2"; Text[250])
         {
             Caption = 'Error Message 2';
@@ -82,6 +83,7 @@ table 1511 "Notification Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '18.0';
         }
+#endif
         field(18; "Sender User ID"; Code[50])
         {
             Caption = 'Sender User ID';

@@ -480,6 +480,7 @@ table 4 Currency
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
@@ -488,6 +489,7 @@ table 4 Currency
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -495,6 +497,7 @@ table 4 Currency
             Editable = false;
             CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::Currency)));
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -502,6 +505,7 @@ table 4 Currency
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(15000000; "Units to NOK"; Integer)
         {
             Caption = 'Units to NOK';
