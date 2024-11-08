@@ -1194,6 +1194,7 @@ table 27 Item
             Caption = 'Application Wksh. User ID';
             DataClassification = EndUserIdentifiableInformation;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
@@ -1202,6 +1203,7 @@ table 27 Item
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -1590,6 +1592,7 @@ table 27 Item
             Caption = 'Created From Catalog Item';
             Editable = false;
         }
+#if not CLEANSCHEMA15
         field(5704; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -1597,6 +1600,7 @@ table 27 Item
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(5706; "Substitutes Exist"; Boolean)
         {
             CalcFormula = exist("Item Substitution" where(Type = const(Item),
@@ -1929,6 +1933,7 @@ table 27 Item
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -1936,6 +1941,7 @@ table 27 Item
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(8001; "Unit of Measure Id"; Guid)
         {
             Caption = 'Unit of Measure Id';

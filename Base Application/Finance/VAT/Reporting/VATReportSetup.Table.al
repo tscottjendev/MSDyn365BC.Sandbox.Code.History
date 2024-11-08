@@ -44,6 +44,7 @@ table 743 "VAT Report Setup"
             Caption = 'Report Version';
             TableRelation = "VAT Reports Configuration"."VAT Report Version" where("VAT Report Type" = const("VAT Return"));
         }
+#if not CLEANSCHEMA20
         field(22; "Period Reminder Time"; Integer)
         {
             Caption = 'Period Reminder Time';
@@ -52,6 +53,7 @@ table 743 "VAT Report Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '20.0';
         }
+#endif
         field(23; "Update Period Job Frequency"; Option)
         {
             Caption = 'Update Period Job Frequency';
@@ -129,6 +131,7 @@ table 743 "VAT Report Setup"
         {
             Caption = 'Report VAT Note';
         }
+#if not CLEANSCHEMA18
         field(4800; "VATGroup Role"; Option)
         {
             ObsoleteState = Removed;
@@ -240,12 +243,15 @@ table 743 "VAT Report Setup"
             ObsoleteTag = '18.0';
             OptionMembers = BC,NAV2018,NAV2017;
         }
+#endif
+#if not CLEANSCHEMA21
         field(10541; "MTD-FP Public IP Service URL"; Text[250])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'Moved to Making Tax Digital extension.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

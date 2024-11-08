@@ -79,6 +79,7 @@ table 418 "IC Inbox Transaction"
         {
             Caption = 'Original Document No.';
         }
+#if not CLEANSCHEMA25
         field(12; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
@@ -86,6 +87,7 @@ table 418 "IC Inbox Transaction"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(13; "Source Line No."; Integer)
         {
             Caption = 'Source Line No.';

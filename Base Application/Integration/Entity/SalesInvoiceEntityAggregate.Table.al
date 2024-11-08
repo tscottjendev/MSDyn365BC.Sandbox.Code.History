@@ -391,6 +391,7 @@ table 5475 "Sales Invoice Entity Aggregate"
             Caption = 'Invoice Discount Value';
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA15
         field(167; "Last Email Sent Status"; Option)
         {
             Caption = 'Last Email Sent Status';
@@ -400,6 +401,7 @@ table 5475 "Sales Invoice Entity Aggregate"
             OptionMembers = "Not Sent","In Process",Finished,Error;
             ObsoleteTag = '15.0';
         }
+#endif
         field(170; IsTest; Boolean)
         {
             Caption = 'IsTest';
