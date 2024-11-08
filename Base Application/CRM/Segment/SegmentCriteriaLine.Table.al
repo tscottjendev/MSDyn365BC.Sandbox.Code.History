@@ -42,6 +42,7 @@ table 5097 "Segment Criteria Line"
         {
             Caption = 'View';
         }
+#if not CLEANSCHEMA25
         field(7; View; Text[250])
         {
             Caption = 'View';
@@ -49,6 +50,7 @@ table 5097 "Segment Criteria Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(8; "Allow Existing Contacts"; Boolean)
         {
             Caption = 'Allow Existing Contacts';

@@ -214,6 +214,7 @@ table 472 "Job Queue Entry"
             OptionCaption = 'Ready,In Process,Error,On Hold,Finished,On Hold with Inactivity Timeout,Waiting';
             OptionMembers = Ready,"In Process",Error,"On Hold",Finished,"On Hold with Inactivity Timeout",Waiting;
         }
+#if not CLEANSCHEMA15
         field(14; Priority; Integer)
         {
             Caption = 'Priority';
@@ -222,6 +223,7 @@ table 472 "Job Queue Entry"
             ObsoleteReason = 'No longer supported.';
             ObsoleteTag = '15.0';
         }
+#endif
         field(15; "Record ID to Process"; RecordID)
         {
             Caption = 'Record ID to Process';
@@ -387,6 +389,7 @@ table 472 "Job Queue Entry"
         {
             Caption = 'Error Message';
         }
+#if not CLEANSCHEMA15
         field(35; "Error Message 2"; Text[250])
         {
             Caption = 'Error Message 2';
@@ -408,6 +411,7 @@ table 472 "Job Queue Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(40; "User Service Instance ID"; Integer)
         {
             Caption = 'User Service Instance ID';
@@ -418,6 +422,7 @@ table 472 "Job Queue Entry"
             Caption = 'User Session Started';
             Editable = false;
         }
+#if not CLEANSCHEMA15
         field(42; "Timeout (sec.)"; Integer)
         {
             Caption = 'Timeout (sec.)';
@@ -426,6 +431,7 @@ table 472 "Job Queue Entry"
             ObsoleteReason = 'No longer supported.';
             ObsoleteTag = '15.0';
         }
+#endif
         field(43; "Notify On Success"; Boolean)
         {
             Caption = 'Notify On Success';
@@ -495,6 +501,7 @@ table 472 "Job Queue Entry"
         {
             Caption = 'Manual Recurrence';
         }
+#if not CLEANSCHEMA18
         field(51; "On Hold Due to Inactivity"; Boolean)
         {
             Caption = 'On Hold Due to Inactivity';
@@ -502,6 +509,7 @@ table 472 "Job Queue Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '18.0';
         }
+#endif
         field(52; "Inactivity Timeout Period"; Integer)
         {
             Caption = 'Inactivity Timeout Period';
@@ -519,6 +527,7 @@ table 472 "Job Queue Entry"
             Caption = 'Job Timeout';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA23
         field(55; "Recovery Task Id"; Guid)
         {
             Caption = 'Recovery Task Id';
@@ -528,6 +537,7 @@ table 472 "Job Queue Entry"
             ObsoleteTag = '23.0';
             ObsoleteReason = 'The recovery job is no longer needed.';
         }
+#endif
         field(56; "Entry No."; BigInteger)
         {
             Caption = 'Entry No.';
