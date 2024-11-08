@@ -60,6 +60,7 @@ table 5777 "Item Reference"
             Caption = 'Description';
             OptimizeForTextSearch = true;
         }
+#if not CLEANSCHEMA21
         field(8; "Discontinue Bar Code"; Boolean)
         {
             Caption = 'Discontinue Bar Code';
@@ -67,6 +68,7 @@ table 5777 "Item Reference"
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
         }
+#endif
         field(9; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
