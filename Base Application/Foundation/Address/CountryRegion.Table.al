@@ -102,6 +102,7 @@ table 9 "Country/Region"
         {
             Caption = 'County Name';
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -109,6 +110,8 @@ table 9 "Country/Region"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA25
         field(2000000; "ISO Country/Region Code"; Code[2])
         {
             Caption = 'ISO Country/Region Code';
@@ -116,6 +119,7 @@ table 9 "Country/Region"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(2000001; "IBAN Country/Region"; Boolean)
         {
             Caption = 'IBAN Country/Region';
@@ -326,7 +330,7 @@ table 9 "Country/Region"
                 end;
         end;
         CreateAddressFormat(Rec.Code, 7, CompanyInformation.FieldNo("Country/Region Code"));
-        
+
         if LineNo <> 0 then begin
             CustomAddressFormat.Get(Code, LineNo);
             CustomAddressFormat.BuildAddressFormat();

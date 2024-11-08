@@ -46,6 +46,7 @@ table 6307 "Power BI Report Uploads"
             DataClassification = CustomerContent;
             Description = 'The version that was uploaded, so we know when to overwrite with newer reports.';
         }
+#if not CLEANSCHEMA26
         field(6; "Is Selection Done"; Boolean)
         {
             Caption = 'Is Selection Done';
@@ -55,6 +56,8 @@ table 6307 "Power BI Report Uploads"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(7; "Embed Url"; Text[250])
         {
             ObsoleteState = Removed;
@@ -64,6 +67,8 @@ table 6307 "Power BI Report Uploads"
             Description = 'URL to cache when selecting the reporting.';
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA26
         field(8; "Should Retry"; Boolean)
         {
             Caption = 'Should Retry';
@@ -73,12 +78,14 @@ table 6307 "Power BI Report Uploads"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(9; "Retry After"; DateTime)
         {
             Caption = 'Retry After';
             DataClassification = CustomerContent;
             Description = 'The point in time after which it''s ok to retry this upload.';
         }
+#if not CLEANSCHEMA26
         field(10; "Needs Deletion"; Boolean)
         {
             Caption = 'Needs Deletion';
@@ -88,6 +95,7 @@ table 6307 "Power BI Report Uploads"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(11; IsGP; Boolean)
         {
             Caption = 'IsGP';

@@ -164,6 +164,7 @@ table 313 "Inventory Setup"
             Caption = 'Catalog Item Nos.';
             TableRelation = "No. Series";
         }
+#if not CLEANSCHEMA22
         field(5725; "Use Item References"; Boolean)
         {
             AccessByPermission = TableData "Item Reference" = R;
@@ -172,6 +173,7 @@ table 313 "Inventory Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '22.0';
         }
+#endif
         field(5790; "Outbound Whse. Handling Time"; DateFormula)
         {
             AccessByPermission = TableData Location = R;
@@ -283,6 +285,7 @@ table 313 "Inventory Setup"
             Caption = 'Posted Phys. Invt. Order Nos.';
             TableRelation = "No. Series";
         }
+#if not CLEANSCHEMA27
         field(5877; "Invt. Orders Package Tracking"; Boolean)
         {
             Caption = 'Invt. Orders Package Tracking';
@@ -295,6 +298,7 @@ table 313 "Inventory Setup"
             ObsoleteTag = '27.0';
 #endif
         }
+#endif
         field(6500; "Package Caption"; Text[30])
         {
             Caption = 'Package Caption';

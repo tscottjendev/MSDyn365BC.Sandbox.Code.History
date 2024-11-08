@@ -33,6 +33,7 @@ table 1512 "Notification Setup"
             Caption = 'Schedule';
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA15
         field(6; "Display Target"; Option)
         {
             ObsoleteState = Removed;
@@ -42,6 +43,7 @@ table 1512 "Notification Setup"
             OptionMembers = Web,Windows;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

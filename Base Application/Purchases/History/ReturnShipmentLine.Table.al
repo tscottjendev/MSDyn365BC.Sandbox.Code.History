@@ -439,6 +439,7 @@ table 6651 "Return Shipment Line"
             TableRelation = "Responsibility Center";
             ValidateTableRelation = true;
         }
+#if not CLEANSCHEMA22
         field(5705; "Cross-Reference No."; Code[20])
         {
             Caption = 'Cross-Reference No.';
@@ -469,6 +470,7 @@ table 6651 "Return Shipment Line"
             ObsoleteState = Removed;
             ObsoleteTag = '22.0';
         }
+#endif
         field(5709; "Item Category Code"; Code[20])
         {
             Caption = 'Item Category Code';
@@ -483,6 +485,7 @@ table 6651 "Return Shipment Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
+#if not CLEANSCHEMA15
         field(5712; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -490,6 +493,7 @@ table 6651 "Return Shipment Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(5725; "Item Reference No."; Code[50])
         {
             AccessByPermission = TableData "Item Reference" = R;

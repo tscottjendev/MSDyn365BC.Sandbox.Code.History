@@ -735,6 +735,7 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'VAT Date';
         }
+#if not CLEANSCHEMA23
         field(180; "Rcvd-from Country/Region Code"; Code[10])
         {
             Caption = 'Received-from Country/Region Code';
@@ -743,6 +744,7 @@ table 5107 "Sales Header Archive"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(181; "Rcvd.-from Count./Region Code"; Code[10])
         {
             Caption = 'Received-from Country/Region Code';
@@ -769,6 +771,7 @@ table 5107 "Sales Header Archive"
                 Rec.ShowDimensions();
             end;
         }
+#if not CLEANSCHEMA15
         field(827; "Credit Card No."; Code[20])
         {
             Caption = 'Credit Card No.';
@@ -776,6 +779,7 @@ table 5107 "Sales Header Archive"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(3998; "Source Doc. Exists"; Boolean)
         {
             FieldClass = Flowfield;
@@ -825,6 +829,7 @@ table 5107 "Sales Header Archive"
             Caption = 'Campaign No.';
             TableRelation = Campaign;
         }
+#if not CLEANSCHEMA21
         field(5051; "Sell-to Customer Template Code"; Code[10])
         {
             Caption = 'Sell-to Customer Template Code';
@@ -832,6 +837,7 @@ table 5107 "Sales Header Archive"
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
         }
+#endif
         field(5052; "Sell-to Contact No."; Code[20])
         {
             Caption = 'Sell-to Contact No.';
@@ -842,6 +848,7 @@ table 5107 "Sales Header Archive"
             Caption = 'Bill-to Contact No.';
             TableRelation = Contact;
         }
+#if not CLEANSCHEMA25
         field(5054; "Bill-to Customer Template Code"; Code[10])
         {
             Caption = 'Bill-to Customer Template Code (obsoleted)';
@@ -849,6 +856,7 @@ table 5107 "Sales Header Archive"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(5055; "Opportunity No."; Code[20])
         {
             Caption = 'Opportunity No.';

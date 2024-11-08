@@ -35,6 +35,7 @@ table 291 "Shipping Agent"
         {
             Caption = 'Account No.';
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
@@ -43,6 +44,7 @@ table 291 "Shipping Agent"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
     }
 
     keys
