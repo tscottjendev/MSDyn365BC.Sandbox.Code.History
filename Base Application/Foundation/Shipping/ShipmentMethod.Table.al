@@ -30,6 +30,7 @@ table 10 "Shipment Method"
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
@@ -38,6 +39,8 @@ table 10 "Shipment Method"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -45,6 +48,7 @@ table 10 "Shipment Method"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(12100; "Intra Shipping Code"; Code[10])
         {
             Caption = 'Intra Shipping Code';

@@ -176,6 +176,7 @@ table 740 "VAT Report Header"
             Caption = 'Amounts in Add. Rep. Currency';
             Editable = false;
         }
+#if not CLEANSCHEMA18
         field(4800; "VATGroup Return"; Boolean)
         {
             ObsoleteState = Removed;
@@ -194,6 +195,7 @@ table 740 "VAT Report Header"
             ObsoleteReason = 'Moved to VAT Group Management extension field 4702 VAT Group Settlement Posted';
             ObsoleteTag = '18.0';
         }
+#endif
         field(12100; "Tax Auth. Receipt No."; Code[17])
         {
             Caption = 'Tax Auth. Receipt No.';
@@ -204,6 +206,7 @@ table 740 "VAT Report Header"
                     Error(Text002, Format(Status));
             end;
         }
+#if not CLEANSCHEMA22
         field(12101; "Tax Auth. Doc. No."; Code[6])
         {
             Caption = 'Tax Auth. Doc. No.';
@@ -211,6 +214,7 @@ table 740 "VAT Report Header"
             ObsoleteState = Removed;
             ObsoleteTag = '22.0';
         }
+#endif
         field(12102; "Tax Auth. Document No."; Code[18])
         {
             Caption = 'Tax Auth. Document No.';

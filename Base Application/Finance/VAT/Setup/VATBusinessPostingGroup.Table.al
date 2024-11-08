@@ -30,6 +30,7 @@ table 323 "VAT Business Posting Group"
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -37,6 +38,7 @@ table 323 "VAT Business Posting Group"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(12100; "Default Sales Operation Type"; Code[20])
         {
             Caption = 'Default Sales Operation Type';

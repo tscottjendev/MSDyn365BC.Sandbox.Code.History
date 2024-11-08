@@ -240,6 +240,7 @@ table 843 "Cash Flow Setup"
             Caption = 'Service Pass API Key ID';
             Description = 'The Key for retrieving the API Key from Isolated Storage.';
         }
+#if not CLEANSCHEMA15
         field(31; "Cortana Intelligence Enabled"; Boolean)
         {
             ObsoleteState = Removed;
@@ -256,6 +257,7 @@ table 843 "Cash Flow Setup"
             InitValue = true;
             ObsoleteTag = '15.0';
         }
+#endif
         field(33; "Time Series Model"; Option)
         {
             Caption = 'Time Series Model';

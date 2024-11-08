@@ -103,6 +103,7 @@ table 9 "Country/Region"
         {
             Caption = 'County Name';
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -110,11 +111,13 @@ table 9 "Country/Region"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(12100; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
         }
+#if not CLEANSCHEMA25
         field(12101; Blacklisted; Boolean)
         {
             Caption = 'Blacklisted';
@@ -122,6 +125,7 @@ table 9 "Country/Region"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(12102; "Foreign Country/Region Code"; Code[3])
         {
             Caption = 'Foreign Country/Region Code';

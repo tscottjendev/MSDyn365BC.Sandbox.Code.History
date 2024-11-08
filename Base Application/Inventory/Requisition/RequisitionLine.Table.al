@@ -951,6 +951,7 @@ table 246 "Requisition Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
+#if not CLEANSCHEMA15
         field(5705; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -958,6 +959,7 @@ table 246 "Requisition Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(5706; "Transfer-from Code"; Code[10])
         {
             Caption = 'Transfer-from Code';

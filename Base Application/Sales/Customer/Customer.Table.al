@@ -840,6 +840,7 @@ table 18 Customer
                         Validate("VAT Bus. Posting Group", GenBusPostingGrp."Def. VAT Bus. Posting Group");
             end;
         }
+#if not CLEANSCHEMA19
         field(89; Picture; BLOB)
         {
             Caption = 'Picture';
@@ -848,6 +849,7 @@ table 18 Customer
             SubType = Bitmap;
             ObsoleteTag = '19.0';
         }
+#endif
         field(90; GLN; Code[13])
         {
             Caption = 'GLN';
@@ -1334,6 +1336,7 @@ table 18 Customer
             Caption = 'Preferred Bank Account Code';
             TableRelation = "Customer Bank Account".Code where("Customer No." = field("No."));
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
@@ -1342,6 +1345,7 @@ table 18 Customer
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -1642,6 +1646,7 @@ table 18 Customer
         {
             Caption = 'Validate EU VAT Reg. No.';
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -1649,6 +1654,7 @@ table 18 Customer
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(8001; "Currency Id"; Guid)
         {
             Caption = 'Currency Id';
@@ -1698,6 +1704,7 @@ table 18 Customer
                 UpdateTaxAreaCode();
             end;
         }
+#if not CLEANSCHEMA15
         field(9004; "Tax Area Display Name"; Text[100])
         {
             CalcFormula = lookup("Tax Area".Description where(Code = field("Tax Area Code")));
@@ -1708,6 +1715,7 @@ table 18 Customer
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(9005; "Contact ID"; Guid)
         {
             Caption = 'Contact ID';

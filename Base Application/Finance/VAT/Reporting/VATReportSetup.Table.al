@@ -38,6 +38,7 @@ table 743 "VAT Report Setup"
         {
             Caption = 'Report Version';
         }
+#if not CLEANSCHEMA20
         field(22; "Period Reminder Time"; Integer)
         {
             Caption = 'Period Reminder Time';
@@ -46,6 +47,7 @@ table 743 "VAT Report Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '20.0';
         }
+#endif
         field(23; "Update Period Job Frequency"; Option)
         {
             Caption = 'Update Period Job Frequency';
@@ -109,6 +111,7 @@ table 743 "VAT Report Setup"
         {
             Caption = 'Report VAT Note';
         }
+#if not CLEANSCHEMA18
         field(4800; "VATGroup Role"; Option)
         {
             ObsoleteState = Removed;
@@ -220,6 +223,7 @@ table 743 "VAT Report Setup"
             ObsoleteTag = '18.0';
             OptionMembers = BC,NAV2018,NAV2017;
         }
+#endif
         field(12100; "Intermediary VAT Reg. No."; Text[20])
         {
             Caption = 'Intermediary VAT Reg. No.';

@@ -173,6 +173,7 @@ table 5200 Employee
         {
             Caption = 'Alt. Address End Date';
         }
+#if not CLEANSCHEMA18
         field(19; Picture; BLOB)
         {
             Caption = 'Picture';
@@ -181,6 +182,7 @@ table 5200 Employee
             SubType = Bitmap;
             ObsoleteTag = '18.0';
         }
+#endif
         field(20; "Birth Date"; Date)
         {
             Caption = 'Birth Date';
@@ -490,6 +492,7 @@ table 5200 Employee
             Caption = 'Cost Object Code';
             TableRelation = "Cost Object";
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -497,6 +500,7 @@ table 5200 Employee
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(12101; "Birth Place"; Text[30])
         {
             Caption = 'Birth Place';

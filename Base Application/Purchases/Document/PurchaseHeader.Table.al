@@ -2589,6 +2589,7 @@ table 38 "Purchase Header"
         {
             Caption = 'Price Calculation Method';
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -2596,6 +2597,7 @@ table 38 "Purchase Header"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';

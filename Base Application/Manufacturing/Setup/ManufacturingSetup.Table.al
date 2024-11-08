@@ -162,6 +162,7 @@ table 99000765 "Manufacturing Setup"
             Caption = 'Show Capacity In';
             TableRelation = "Capacity Unit of Measure".Code;
         }
+#if not CLEANSCHEMA23
         field(3687; "Optimize low-level code calc."; Boolean)
         {
             Caption = 'Optimize low-level code calculation';
@@ -169,6 +170,7 @@ table 99000765 "Manufacturing Setup"
             ObsoleteReason = 'Codeunit Calc. Low-level code is obsolete. Use Codeunit Low-Level Code Calculator instead.';
             ObsoleteTag = '23.0';
         }
+#endif
         field(5500; "Preset Output Quantity"; Option)
         {
             Caption = 'Preset Output Quantity';
