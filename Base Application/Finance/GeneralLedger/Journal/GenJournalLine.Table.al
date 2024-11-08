@@ -1977,6 +1977,7 @@ table 81 "Gen. Journal Line"
         {
             Caption = 'IC Direction';
         }
+#if not CLEANSCHEMA25
         field(116; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
@@ -1985,6 +1986,7 @@ table 81 "Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(117; "IC Partner Transaction No."; Integer)
         {
             Caption = 'IC Partner Transaction No.';
@@ -2212,6 +2214,7 @@ table 81 "Gen. Journal Line"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
+#if not CLEANSCHEMA15
         field(827; "Credit Card No."; Code[20])
         {
             Caption = 'Credit Card No.';
@@ -2219,6 +2222,7 @@ table 81 "Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(1000; "Remit-to Code"; Code[20])
         {
             Caption = 'Remit-to Code';
@@ -2936,6 +2940,7 @@ table 81 "Gen. Journal Line"
         {
             Caption = 'Non-Ded. VAT FA Cost';
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -2943,6 +2948,7 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(8001; "Account Id"; Guid)
         {
             Caption = 'Account Id';

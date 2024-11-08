@@ -61,6 +61,7 @@ table 1275 "Doc. Exch. Service Setup"
                     WebRequestHelper.IsSecureHttpUrl("Sign-in URL");
             end;
         }
+#if not CLEANSCHEMA26
         field(7; "Consumer Key"; Guid)
         {
             Caption = 'Consumer Key';
@@ -101,6 +102,7 @@ table 1275 "Doc. Exch. Service Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(12; "User Agent"; Text[30])
         {
             Caption = 'User Agent';

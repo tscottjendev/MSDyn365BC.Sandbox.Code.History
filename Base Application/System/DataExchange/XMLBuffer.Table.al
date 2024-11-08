@@ -49,6 +49,7 @@ table 1235 "XML Buffer"
             Caption = 'Parent Entry No.';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA18
         field(8; "Is Parent"; Boolean)
         {
             Caption = 'Is Parent';
@@ -57,6 +58,7 @@ table 1235 "XML Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '18.0';
         }
+#endif
         field(9; "Data Type"; Option)
         {
             Caption = 'Data Type';
@@ -64,6 +66,7 @@ table 1235 "XML Buffer"
             OptionCaption = 'Text,Date,Decimal,DateTime';
             OptionMembers = Text,Date,Decimal,DateTime;
         }
+#if not CLEANSCHEMA18
         field(10; "Code"; Code[20])
         {
             Caption = 'Code';
@@ -89,6 +92,7 @@ table 1235 "XML Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '18.0';
         }
+#endif
         field(13; "Node Number"; Integer)
         {
             Caption = 'Node Number';
