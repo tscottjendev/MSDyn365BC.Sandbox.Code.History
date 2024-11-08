@@ -218,6 +218,7 @@ table 5351 "CRM Quote"
             ExternalName = 'requestdeliveryby';
             ExternalType = 'DateTime';
         }
+#if not CLEANSCHEMA19
         field(26; ShippingMethodCode; Option)
         {
             Caption = 'Shipping Method';
@@ -260,6 +261,7 @@ table 5351 "CRM Quote"
             ObsoleteReason = 'This field is replaced by field 101 FreightTermsCodeEnum';
             ObsoleteTag = '19.0';
         }
+#endif
         field(29; CreatedBy; Guid)
         {
             Caption = 'Created By';

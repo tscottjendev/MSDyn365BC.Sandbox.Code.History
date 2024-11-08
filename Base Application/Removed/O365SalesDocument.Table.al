@@ -136,6 +136,7 @@ table 2103 "O365 Sales Document"
         {
             Caption = 'Outstanding Status';
         }
+#if not CLEANSCHEMA24
         field(2108; "Document Icon"; MediaSet)
         {
             Caption = 'Document Icon';
@@ -143,6 +144,7 @@ table 2103 "O365 Sales Document"
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
         }
+#endif
         field(2109; "Payment Method"; Code[10])
         {
             Caption = 'Payment Method';
@@ -209,5 +211,5 @@ table 2103 "O365 Sales Document"
     }
 }
 
- 
+
 #endif

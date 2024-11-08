@@ -337,6 +337,7 @@ table 79 "Company Information"
         {
             Caption = 'Industrial Classification';
         }
+#if not CLEANSCHEMA23
         field(41; "IC Partner Code"; Code[20])
         {
             AccessByPermission = TableData "IC G/L Account" = R;
@@ -372,6 +373,7 @@ table 79 "Company Information"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(46; "System Indicator"; Option)
         {
             Caption = 'System Indicator';
@@ -497,6 +499,7 @@ table 79 "Company Information"
             Caption = 'Cal. Convergence Time Frame';
             InitValue = '1Y';
         }
+#if not CLEANSCHEMA18
         field(7602; "Show Chart On RoleCenter"; Boolean)
         {
             Caption = 'Show Chart On RoleCenter';
@@ -504,6 +507,8 @@ table 79 "Company Information"
             ObsoleteReason = 'Only the Help and Chart Wrapper pages used this. The page has been changed to assume that this field is always set.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(7603; "Sync with O365 Bus. profile"; Boolean)
         {
             Caption = 'Sync with O365 Bus. profile';
@@ -511,6 +516,8 @@ table 79 "Company Information"
             ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -518,6 +525,7 @@ table 79 "Company Information"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(11000; "Area"; Code[10])
         {
             Caption = 'Area';
@@ -614,6 +622,7 @@ table 79 "Company Information"
             OptionCaption = ' ,Schleswig-Holstein,Hamburg,Niedersachsen,Bremen,Nordrhein-Westfalen,Hessen,Rheinland-Pfalz,Baden-Wurttemberg,Bayern,Saarland,Brandenburg,Mecklenburg-Vorpommern,Sachsen,Sachsen-Anhalt,Thuringen,Berlin';
             OptionMembers = " ","Schleswig-Holstein",Hamburg,Niedersachsen,Bremen,"Nordrhein-Westfalen",Hessen,"Rheinland-Pfalz","Baden-Wurttemberg",Bayern,Saarland,Brandenburg,"Mecklenburg-Vorpommern",Sachsen,"Sachsen-Anhalt",Thuringen,Berlin;
         }
+#if not CLEANSCHEMA22
         field(11017; "Check Transport Method"; Boolean)
         {
             Caption = 'Check Transport Method';
@@ -630,6 +639,7 @@ table 79 "Company Information"
             ObsoleteTag = '22.0';
             ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
         }
+#endif
         field(11019; "VAT Representative"; Text[45])
         {
             Caption = 'VAT Representative';
@@ -638,6 +648,7 @@ table 79 "Company Information"
         {
             Caption = 'Participant No.';
         }
+#if not CLEANSCHEMA22
         field(11051; "Check for Partner VAT ID"; Boolean)
         {
             Caption = 'Check for Partner VAT ID';
@@ -654,6 +665,7 @@ table 79 "Company Information"
             ObsoleteTag = '22.0';
             ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
         }
+#endif
         field(11100; "Statistic No."; Code[20])
         {
             Caption = 'Statistic No.';

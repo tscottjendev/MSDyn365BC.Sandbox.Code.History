@@ -146,6 +146,7 @@ table 130 "Incoming Document"
             Caption = 'URL';
             Editable = false;
         }
+#if not CLEANSCHEMA15
         field(19; URL1; Text[250])
         {
             Caption = 'URL1';
@@ -178,6 +179,7 @@ table 130 "Incoming Document"
             ObsoleteReason = 'URL field was introduced';
             ObsoleteTag = '15.0';
         }
+#endif
         field(23; "Vendor Name"; Text[100])
         {
             Caption = 'Vendor Name';
