@@ -189,6 +189,7 @@ table 312 "Purchases & Payables Setup"
             OptionCaption = 'Remainder,Blank';
             OptionMembers = Remainder,Blank;
         }
+#if not CLEANSCHEMA18
         field(37; "Archive Quotes and Orders"; Boolean)
         {
             Caption = 'Archive Quotes and Orders';
@@ -196,6 +197,7 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '18.0';
         }
+#endif
         field(38; "Post with Job Queue"; Boolean)
         {
             Caption = 'Post with Job Queue';
@@ -322,6 +324,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Disable Search by Name';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA18
         field(170; "Insert Std. Purch. Lines Mode"; Option)
         {
             Caption = 'Insert Std. Purch. Lines Mode';
@@ -364,6 +367,7 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '18.0';
         }
+#endif
         field(175; "Allow Multiple Posting Groups"; Boolean)
         {
             Caption = 'Allow Multiple Posting Groups';
@@ -409,6 +413,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Copy Line Descr. to G/L Entry';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA23
         field(810; "Invoice Posting Setup"; Enum "Purchase Invoice Posting")
         {
             Caption = 'Invoice Posting Setup';
@@ -416,6 +421,7 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(1217; "Debit Acc. for Non-Item Lines"; Code[20])
         {
             Caption = 'Debit Acc. for Non-Item Lines';

@@ -102,6 +102,7 @@ table 9 "Country/Region"
         {
             Caption = 'County Name';
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -109,6 +110,7 @@ table 9 "Country/Region"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(10700; "VAT Registration No. digits"; Integer)
         {
             AutoFormatType = 0;
@@ -317,7 +319,7 @@ table 9 "Country/Region"
                 end;
         end;
         CreateAddressFormat(Rec.Code, 7, CompanyInformation.FieldNo("Country/Region Code"));
-        
+
         if LineNo <> 0 then begin
             CustomAddressFormat.Get(Code, LineNo);
             CustomAddressFormat.BuildAddressFormat();

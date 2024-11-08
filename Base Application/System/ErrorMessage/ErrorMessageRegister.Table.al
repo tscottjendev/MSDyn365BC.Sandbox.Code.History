@@ -25,6 +25,7 @@ table 701 "Error Message Register"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
         }
+#if not CLEANSCHEMA25
         field(4; "Description"; Text[250])
         {
             Caption = 'Description';
@@ -33,6 +34,7 @@ table 701 "Error Message Register"
             ObsoleteTag = '25.0';
             ObsoleteReason = 'Replaced by "Message"';
         }
+#endif
         field(5; Errors; Integer)
         {
             CalcFormula = count("Error Message" where("Register ID" = field(ID),

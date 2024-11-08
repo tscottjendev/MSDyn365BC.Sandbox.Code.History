@@ -462,6 +462,7 @@ table 156 Resource
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
             end;
         }
+#if not CLEANSCHEMA18
         field(52; Picture; BLOB)
         {
             Caption = 'Picture';
@@ -470,6 +471,7 @@ table 156 Resource
             SubType = Bitmap;
             ObsoleteTag = '18.0';
         }
+#endif
         field(53; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
@@ -559,6 +561,7 @@ table 156 Resource
                     Blocked := false;
             end;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
@@ -567,6 +570,7 @@ table 156 Resource
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;

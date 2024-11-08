@@ -2412,6 +2412,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                 VendLedgerEntry2.Get(TempVendLedgerEntry."Entry No.");
                 VendLedgerEntry2.SetRange("Date Filter", 0D, PostingDate2);
                 VendLedgerEntry2.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+                OnAdjustExchRateVendOnAfterCalcFields(VendLedgerEntry2);
                 if ShouldAdjustEntry(
                     PostingDate2, VendLedgerEntry2."Currency Code",
                     VendLedgerEntry2."Remaining Amount", VendLedgerEntry2."Remaining Amt. (LCY)", VendLedgerEntry2."Adjusted Currency Factor")
@@ -3049,6 +3050,11 @@ codeunit 699 "Exch. Rate Adjmt. Process"
 
     [IntegrationEvent(false, false)]
     local procedure OnAdjustCustomerLedgerEntryOnAfterCalcFields(var CustomerLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustExchRateVendOnAfterCalcFields(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

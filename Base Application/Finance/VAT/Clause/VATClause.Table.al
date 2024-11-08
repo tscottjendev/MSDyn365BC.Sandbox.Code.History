@@ -36,6 +36,7 @@ table 560 "VAT Clause"
             Caption = 'Last Modified DateTime';
             Editable = false;
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -43,6 +44,7 @@ table 560 "VAT Clause"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(10700; "SII Exemption Code"; Enum "SII Exemption Code")
         {
             Caption = 'SII Exemption Code';

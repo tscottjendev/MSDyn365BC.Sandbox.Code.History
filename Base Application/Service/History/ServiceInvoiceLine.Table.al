@@ -418,6 +418,7 @@ table 5993 "Service Invoice Line"
             Caption = 'Catalog';
             Editable = false;
         }
+#if not CLEANSCHEMA15
         field(5712; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -425,6 +426,7 @@ table 5993 "Service Invoice Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(5725; "Item Reference No."; Code[50])
         {
             AccessByPermission = TableData "Item Reference" = R;

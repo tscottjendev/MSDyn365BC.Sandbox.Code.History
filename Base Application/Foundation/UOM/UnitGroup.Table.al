@@ -45,6 +45,7 @@ table 5400 "Unit Group"
             else
             "Resource"."No.";
         }
+#if not CLEANSCHEMA24
         field(4; "Code"; Code[50])
         {
             DataClassification = SystemMetadata;
@@ -68,6 +69,7 @@ table 5400 "Unit Group"
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';

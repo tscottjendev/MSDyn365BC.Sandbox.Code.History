@@ -1823,6 +1823,7 @@ table 5902 "Service Line"
             Caption = 'Catalog';
             Editable = false;
         }
+#if not CLEANSCHEMA15
         field(5712; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -1830,6 +1831,7 @@ table 5902 "Service Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(5750; "Whse. Outstanding Qty. (Base)"; Decimal)
         {
             BlankZero = true;

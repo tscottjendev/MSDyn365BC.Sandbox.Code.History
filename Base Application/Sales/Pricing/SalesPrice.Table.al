@@ -182,6 +182,7 @@ table 7002 "Sales Price"
                         Error(Text002, "Sales Type");
             end;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
@@ -190,6 +191,7 @@ table 7002 "Sales Price"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -318,5 +320,5 @@ table 7002 "Sales Price"
 #endif
 }
 
- 
+
 #endif
