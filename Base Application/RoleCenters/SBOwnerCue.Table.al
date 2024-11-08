@@ -64,6 +64,7 @@ table 9060 "SB Owner Cue"
             Caption = 'Overdue Sales Documents';
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA18
         field(7; "SOs Shipped Not Invoiced"; Integer)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
@@ -76,6 +77,7 @@ table 9060 "SB Owner Cue"
             ObsoleteState = Removed;
             ObsoleteTag = '18.0';
         }
+#endif
         field(8; "Customers - Blocked"; Integer)
         {
             CalcFormula = count(Customer where(Blocked = filter(<> " ")));

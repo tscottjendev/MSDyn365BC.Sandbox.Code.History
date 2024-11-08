@@ -184,6 +184,7 @@ table 5745 "Transfer Shipment Line"
             Caption = 'Item Category Code';
             TableRelation = "Item Category";
         }
+#if not CLEANSCHEMA15
         field(5707; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -191,6 +192,7 @@ table 5745 "Transfer Shipment Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(5817; "Correction Line"; Boolean)
         {
             Caption = 'Correction';

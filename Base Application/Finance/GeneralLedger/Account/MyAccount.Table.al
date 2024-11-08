@@ -33,6 +33,7 @@ table 9153 "My Account"
             Caption = 'Name';
             Editable = false;
         }
+#if not CLEANSCHEMA18
         field(4; Balance; Decimal)
         {
             CalcFormula = sum("G/L Entry".Amount where("G/L Account No." = field("Account No.")));
@@ -43,6 +44,7 @@ table 9153 "My Account"
             ObsoleteState = Removed;
             ObsoleteTag = '18.0';
         }
+#endif
         field(5; "Account Balance"; Decimal)
         {
             Caption = 'Account Balance';

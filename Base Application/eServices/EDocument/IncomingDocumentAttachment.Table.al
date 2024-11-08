@@ -166,6 +166,7 @@ table 133 "Incoming Document Attachment"
                 CheckMainAttachment();
             end;
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -173,6 +174,7 @@ table 133 "Incoming Document Attachment"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys
