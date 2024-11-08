@@ -78,6 +78,7 @@ table 414 "IC Outbox Transaction"
                 end;
             end;
         }
+#if not CLEANSCHEMA25
         field(12; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
@@ -85,6 +86,7 @@ table 414 "IC Outbox Transaction"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(13; "Source Line No."; Integer)
         {
             Caption = 'Source Line No.';

@@ -403,6 +403,7 @@ table 5505 "Sales Quote Entity Buffer"
             DataClassification = CustomerContent;
             Editable = false;
         }
+#if not CLEANSCHEMA15
         field(167; "Last Email Sent Status"; Option)
         {
             Caption = 'Last Email Sent Status';
@@ -413,6 +414,7 @@ table 5505 "Sales Quote Entity Buffer"
             OptionMembers = "Not Sent","In Process",Finished,Error;
             ObsoleteTag = '15.0';
         }
+#endif
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';

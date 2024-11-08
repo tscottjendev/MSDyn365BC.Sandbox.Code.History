@@ -330,6 +330,7 @@ table 79 "Company Information"
         {
             Caption = 'Industrial Classification';
         }
+#if not CLEANSCHEMA23
         field(41; "IC Partner Code"; Code[20])
         {
             AccessByPermission = TableData "IC G/L Account" = R;
@@ -365,6 +366,7 @@ table 79 "Company Information"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(46; "System Indicator"; Option)
         {
             Caption = 'System Indicator';
@@ -490,6 +492,7 @@ table 79 "Company Information"
             Caption = 'Cal. Convergence Time Frame';
             InitValue = '1Y';
         }
+#if not CLEANSCHEMA18
         field(7602; "Show Chart On RoleCenter"; Boolean)
         {
             Caption = 'Show Chart On RoleCenter';
@@ -497,6 +500,8 @@ table 79 "Company Information"
             ObsoleteReason = 'Only the Help and Chart Wrapper pages used this. The page has been changed to assume that this field is always set.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(7603; "Sync with O365 Bus. profile"; Boolean)
         {
             Caption = 'Sync with O365 Bus. profile';
@@ -504,6 +509,8 @@ table 79 "Company Information"
             ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -511,6 +518,7 @@ table 79 "Company Information"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(10005; "Ship-to UPS Zone"; Code[2])
         {
             Caption = 'Ship-to UPS Zone';
@@ -545,6 +553,7 @@ table 79 "Company Information"
         {
             Caption = 'Software Identification Code';
         }
+#if not CLEANSCHEMA25
         field(10023; "RFC No."; Code[12])
         {
             Caption = 'RFC No.';
@@ -552,6 +561,7 @@ table 79 "Company Information"
             ObsoleteTag = '25.0';
             ObsoleteState = Removed;
         }
+#endif
         field(10024; "CURP No."; Code[18])
         {
             Caption = 'CURP No.';
@@ -589,6 +599,7 @@ table 79 "Company Information"
         {
             Caption = 'SAT Postal Code';
         }
+#if not CLEANSCHEMA25
         field(27002; "SCT Permission Type"; Code[10])
         {
             Caption = 'SCT Permission Type';
@@ -604,6 +615,7 @@ table 79 "Company Information"
             ObsoleteTag = '25.0';
             ObsoleteState = Removed;
         }
+#endif
     }
 
     keys

@@ -591,6 +591,7 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'VAT Date';
             Editable = false;
         }
+#if not CLEANSCHEMA23
         field(180; "Rcvd-from Country/Region Code"; Code[10])
         {
             Caption = 'Received-from Country/Region Code';
@@ -599,6 +600,7 @@ table 114 "Sales Cr.Memo Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(181; "Rcvd.-from Count./Region Code"; Code[10])
         {
             Caption = 'Received-from Country/Region Code';
@@ -739,6 +741,7 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Get Return Receipt Used';
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -746,6 +749,7 @@ table 114 "Sales Cr.Memo Header"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(8001; "Draft Cr. Memo SystemId"; Guid)
         {
             Caption = 'Draft Cr. Memo System Id';

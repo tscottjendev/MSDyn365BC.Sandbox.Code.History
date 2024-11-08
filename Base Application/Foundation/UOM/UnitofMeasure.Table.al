@@ -42,6 +42,7 @@ table 204 "Unit of Measure"
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
@@ -50,6 +51,7 @@ table 204 "Unit of Measure"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -57,6 +59,7 @@ table 204 "Unit of Measure"
             Editable = false;
             CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::"Unit of Measure")));
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -64,6 +67,7 @@ table 204 "Unit of Measure"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(27000; "SAT UofM Classification"; Code[10])
         {
             Caption = 'SAT UofM Classification';

@@ -181,6 +181,7 @@ table 5360 "CRM Customeraddress"
             ExternalName = 'longitude';
             ExternalType = 'Double';
         }
+#if not CLEANSCHEMA19
         field(22; ShippingMethodCode; Option)
         {
             Caption = 'Shipping Method';
@@ -195,6 +196,7 @@ table 5360 "CRM Customeraddress"
             ObsoleteReason = 'This field is replaced by field 50 ShippingMethodCodeEnum';
             ObsoleteTag = '19.0';
         }
+#endif
         field(23; Telephone2; Text[50])
         {
             Caption = 'Phone 2';

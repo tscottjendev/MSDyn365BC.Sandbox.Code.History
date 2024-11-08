@@ -16,6 +16,7 @@ table 9176 "Experience Tier Setup"
             Caption = 'Company Name';
             TableRelation = Company;
         }
+#if not CLEANSCHEMA18
         field(40; Invoicing; Boolean)
         {
             Caption = 'Invoicing';
@@ -23,6 +24,7 @@ table 9176 "Experience Tier Setup"
             ObsoleteReason = 'Microsoft Invoicing is not supported on Business Central';
             ObsoleteTag = '18.0';
         }
+#endif
         field(100; Basic; Boolean)
         {
             Caption = 'Basic';
