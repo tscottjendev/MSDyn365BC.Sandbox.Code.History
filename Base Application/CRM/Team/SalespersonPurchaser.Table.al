@@ -53,6 +53,7 @@ table 13 "Salesperson/Purchaser"
         {
             Caption = 'Privacy Blocked';
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
@@ -61,6 +62,7 @@ table 13 "Salesperson/Purchaser"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;

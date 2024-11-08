@@ -20,6 +20,7 @@ table 407 "Graph Mail Setup"
         {
             Caption = 'Code';
         }
+#if not CLEANSCHEMA15
         field(2; "Refresh Code"; BLOB)
         {
             Caption = 'Refresh Code';
@@ -27,6 +28,7 @@ table 407 "Graph Mail Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(3; "Expires On"; DateTime)
         {
             Caption = 'Expires On';
@@ -62,5 +64,5 @@ table 407 "Graph Mail Setup"
     }
 }
 
- 
+
 #endif

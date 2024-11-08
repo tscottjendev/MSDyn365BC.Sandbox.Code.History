@@ -25,6 +25,7 @@ table 84 "Acc. Schedule Name"
             Caption = 'Description';
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA25
         field(3; "Default Column Layout"; Code[10])
         {
             Caption = 'Default Column Layout';
@@ -34,6 +35,7 @@ table 84 "Acc. Schedule Name"
             ObsoleteTag = '25.0';
             ObsoleteState = Removed;
         }
+#endif
         field(4; "Analysis View Name"; Code[10])
         {
             Caption = 'Analysis View Name';

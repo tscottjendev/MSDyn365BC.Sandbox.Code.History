@@ -743,6 +743,7 @@ table 5108 "Sales Line Archive"
             Caption = 'Originally Ordered Var. Code';
             TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("Originally Ordered No."));
         }
+#if not CLEANSCHEMA22
         field(5705; "Cross-Reference No."; Code[20])
         {
             Caption = 'Cross-Reference No.';
@@ -774,6 +775,7 @@ table 5108 "Sales Line Archive"
             ObsoleteState = Removed;
             ObsoleteTag = '22.0';
         }
+#endif
         field(5709; "Item Category Code"; Code[20])
         {
             Caption = 'Item Category Code';
@@ -788,6 +790,7 @@ table 5108 "Sales Line Archive"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
+#if not CLEANSCHEMA15
         field(5712; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -795,6 +798,7 @@ table 5108 "Sales Line Archive"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(5713; "Special Order"; Boolean)
         {
             Caption = 'Special Order';

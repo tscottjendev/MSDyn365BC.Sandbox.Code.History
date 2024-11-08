@@ -462,6 +462,7 @@ table 5700 "Stockkeeping Unit"
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA28
         field(5421; "Scheduled Need (Qty.)"; Decimal)
         {
             ObsoleteReason = 'Use the field ''Qty. on Component Lines'' instead';
@@ -484,6 +485,7 @@ table 5700 "Stockkeeping Unit"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(5423; "Bin Filter"; Code[20])
         {
             Caption = 'Bin Filter';

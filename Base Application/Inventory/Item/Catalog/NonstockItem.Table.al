@@ -160,15 +160,17 @@ table 5718 "Nonstock Item"
                 ValidateField(Rec.FieldNo("Net Weight"));
             end;
         }
+#if not CLEANSCHEMA21
         field(12; "Item Template Code"; Code[10])
         {
             Caption = 'Item Template Code';
             TableRelation = "Config. Template Header".Code where("Table ID" = const(27));
             ObsoleteReason = 'This field will be removed with other functionality related to "old" templates. Use "Item Templ. Code" field instead.';
             ObsoleteState = Removed;
-            ;
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -176,6 +178,7 @@ table 5718 "Nonstock Item"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(14; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';

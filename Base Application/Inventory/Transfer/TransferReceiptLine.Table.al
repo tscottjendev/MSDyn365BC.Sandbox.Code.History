@@ -178,6 +178,7 @@ table 5747 "Transfer Receipt Line"
             Caption = 'Item Category Code';
             TableRelation = "Item Category";
         }
+#if not CLEANSCHEMA15
         field(5707; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -185,6 +186,7 @@ table 5747 "Transfer Receipt Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(7301; "Transfer-To Bin Code"; Code[20])
         {
             Caption = 'Transfer-To Bin Code';

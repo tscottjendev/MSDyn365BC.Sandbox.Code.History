@@ -677,6 +677,7 @@ table 753 "Standard Item Journal Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
+#if not CLEANSCHEMA15
         field(5707; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -684,6 +685,7 @@ table 753 "Standard Item Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(5800; "Value Entry Type"; Enum "Cost Entry Type")
         {
             Caption = 'Value Entry Type';

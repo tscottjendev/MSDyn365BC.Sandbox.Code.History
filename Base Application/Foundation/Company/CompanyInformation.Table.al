@@ -327,6 +327,7 @@ table 79 "Company Information"
         {
             Caption = 'Industrial Classification';
         }
+#if not CLEANSCHEMA23
         field(41; "IC Partner Code"; Code[20])
         {
             AccessByPermission = TableData "IC G/L Account" = R;
@@ -362,6 +363,7 @@ table 79 "Company Information"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(46; "System Indicator"; Option)
         {
             Caption = 'System Indicator';
@@ -487,6 +489,7 @@ table 79 "Company Information"
             Caption = 'Cal. Convergence Time Frame';
             InitValue = '1Y';
         }
+#if not CLEANSCHEMA18
         field(7602; "Show Chart On RoleCenter"; Boolean)
         {
             Caption = 'Show Chart On RoleCenter';
@@ -494,6 +497,8 @@ table 79 "Company Information"
             ObsoleteReason = 'Only the Help and Chart Wrapper pages used this. The page has been changed to assume that this field is always set.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(7603; "Sync with O365 Bus. profile"; Boolean)
         {
             Caption = 'Sync with O365 Bus. profile';
@@ -501,6 +506,8 @@ table 79 "Company Information"
             ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -508,6 +515,8 @@ table 79 "Company Information"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11700; "Bank Account Format Check"; Boolean)
         {
             Caption = 'Bank Account Format Check';
@@ -529,6 +538,8 @@ table 79 "Company Information"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(11760; "Default Bank Account Code"; Code[20])
         {
             Caption = 'Default Bank Account Code';
@@ -536,6 +547,8 @@ table 79 "Company Information"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech. (Prolonged to support Advance Letters)';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11761; "Branch Name"; Text[50])
         {
             Caption = 'Branch Name';
@@ -566,6 +579,8 @@ table 79 "Company Information"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11793; "Industry Code"; Code[20])
         {
             Caption = 'Industry Code';
@@ -573,6 +588,8 @@ table 79 "Company Information"
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11794; "Equity Capital"; Decimal)
         {
             Caption = 'Equity Capital';
@@ -615,6 +632,7 @@ table 79 "Company Information"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

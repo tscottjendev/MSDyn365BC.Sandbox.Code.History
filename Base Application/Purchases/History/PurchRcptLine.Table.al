@@ -560,6 +560,7 @@ table 121 "Purch. Rcpt. Line"
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
+#if not CLEANSCHEMA22
         field(5705; "Cross-Reference No."; Code[20])
         {
             Caption = 'Cross-Reference No.';
@@ -590,6 +591,7 @@ table 121 "Purch. Rcpt. Line"
             ObsoleteState = Removed;
             ObsoleteTag = '22.0';
         }
+#endif
         field(5725; "Item Reference No."; Code[50])
         {
             AccessByPermission = TableData "Item Reference" = R;
@@ -622,6 +624,7 @@ table 121 "Purch. Rcpt. Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
+#if not CLEANSCHEMA15
         field(5712; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -629,6 +632,7 @@ table 121 "Purch. Rcpt. Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(5714; "Special Order Sales No."; Code[20])
         {
             Caption = 'Special Order Sales No.';
@@ -697,6 +701,7 @@ table 121 "Purch. Rcpt. Line"
             Caption = 'Over-Receipt Quantity';
             Editable = false;
         }
+#if not CLEANSCHEMA20
         field(8510; "Over-Receipt Code"; Code[10])
         {
             Caption = 'Over-Receipt Code';
@@ -706,6 +711,7 @@ table 121 "Purch. Rcpt. Line"
             ObsoleteReason = 'Replaced with field 8512 due to wrong field length';
             ObsoleteTag = '20.0';
         }
+#endif
         field(8512; "Over-Receipt Code 2"; Code[20])
         {
             Caption = 'Over-Receipt Code';

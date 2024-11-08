@@ -31,6 +31,7 @@ table 1262 "Isolated Certificate"
             OptionMembers = ,Company,User,CompanyAndUser;
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA18
         field(3; Password; Text[50])
         {
             Caption = 'Password';
@@ -39,6 +40,7 @@ table 1262 "Isolated Certificate"
             ObsoleteState = Removed;
             ObsoleteTag = '18.0';
         }
+#endif
         field(4; "Expiry Date"; DateTime)
         {
             Caption = 'Expiry Date';

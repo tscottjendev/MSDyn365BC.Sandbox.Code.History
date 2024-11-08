@@ -41,6 +41,7 @@ table 204 "Unit of Measure"
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
@@ -49,6 +50,7 @@ table 204 "Unit of Measure"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -56,6 +58,7 @@ table 204 "Unit of Measure"
             Editable = false;
             CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::"Unit of Measure")));
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -63,6 +66,8 @@ table 204 "Unit of Measure"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31060; "Unspecified Intrastat"; Boolean)
         {
             Caption = 'Unspecified Intrastat';
@@ -77,6 +82,8 @@ table 204 "Unit of Measure"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31070; "Indivisible Unit"; Boolean)
         {
             Caption = 'Indivisible Unit';
@@ -84,6 +91,7 @@ table 204 "Unit of Measure"
             ObsoleteReason = 'The functionality of Indivisible unit of measure will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     keys
