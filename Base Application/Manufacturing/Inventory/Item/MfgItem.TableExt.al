@@ -44,6 +44,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA28
         field(5421; "Scheduled Need (Qty.)"; Decimal)
         {
             ObsoleteReason = 'Use the field ''Qty. on Component Lines'' instead';
@@ -67,6 +68,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(5429; "Reserved Qty. on Prod. Order"; Decimal)
         {
             AccessByPermission = TableData "Production Order" = R;

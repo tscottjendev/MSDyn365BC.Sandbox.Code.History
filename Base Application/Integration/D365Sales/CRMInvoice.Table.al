@@ -198,6 +198,7 @@ table 5355 "CRM Invoice"
             ExternalName = 'totaltax';
             ExternalType = 'Money';
         }
+#if not CLEANSCHEMA19
         field(23; ShippingMethodCode; Option)
         {
             Caption = 'Shipping Method';
@@ -226,6 +227,7 @@ table 5355 "CRM Invoice"
             ObsoleteReason = 'This field is replaced by field 96 PaymentTermsCodeEnum';
             ObsoleteTag = '19.0';
         }
+#endif
         field(25; CreatedOn; DateTime)
         {
             Caption = 'Created On';

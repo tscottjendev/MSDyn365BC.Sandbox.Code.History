@@ -761,6 +761,7 @@ table 23 Vendor
                         Validate("VAT Bus. Posting Group", GenBusPostingGrp."Def. VAT Bus. Posting Group");
             end;
         }
+#if not CLEANSCHEMA18
         field(89; Picture; BLOB)
         {
             Caption = 'Picture';
@@ -769,6 +770,7 @@ table 23 Vendor
             SubType = Bitmap;
             ObsoleteTag = '18.0';
         }
+#endif
         field(90; GLN; Code[13])
         {
             Caption = 'GLN';
@@ -1232,6 +1234,7 @@ table 23 Vendor
             Caption = 'Preferred Bank Account Code';
             TableRelation = "Vendor Bank Account".Code where("Vendor No." = field("No."));
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
@@ -1240,6 +1243,7 @@ table 23 Vendor
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -1542,6 +1546,7 @@ table 23 Vendor
         {
             Caption = 'Validate EU VAT Reg. No.';
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -1549,6 +1554,7 @@ table 23 Vendor
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(8001; "Currency Id"; Guid)
         {
             Caption = 'Currency Id';

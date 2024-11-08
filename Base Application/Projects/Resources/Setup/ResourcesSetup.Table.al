@@ -57,6 +57,7 @@ table 314 "Resources Setup"
                 end;
             end;
         }
+#if not CLEANSCHEMA25
         field(953; "Use New Time Sheet Experience"; Boolean)
         {
             Caption = 'Use New Time Sheet Experience';
@@ -66,6 +67,7 @@ table 314 "Resources Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(954; "Time Sheet Submission Policy"; Option)
         {
             Caption = 'Time Sheet Submission Policy';

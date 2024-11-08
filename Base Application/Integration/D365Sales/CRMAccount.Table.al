@@ -158,6 +158,7 @@ table 5341 "CRM Account"
             ExternalType = 'Lookup';
             TableRelation = "CRM Systemuser".SystemUserId;
         }
+#if not CLEANSCHEMA19
         field(15; PaymentTermsCode; Option)
         {
             Caption = 'Payment Terms Code';
@@ -172,6 +173,7 @@ table 5341 "CRM Account"
             ObsoleteReason = 'This field is replaced by field 203 PaymentTermsCodeEnum.';
             ObsoleteTag = '19.0';
         }
+#endif
         field(16; ShippingMethodCode; Option)
         {
             Caption = 'Shipping Method Code';
@@ -636,6 +638,7 @@ table 5341 "CRM Account"
             MaxValue = 1500;
             MinValue = -1500;
         }
+#if not CLEANSCHEMA19
         field(75; Address1_FreightTermsCode; Option)
         {
             Caption = 'Address 1: Freight Terms Code';
@@ -650,6 +653,7 @@ table 5341 "CRM Account"
             ObsoleteReason = 'This field is replaced by field 204 Address1_FreightTermsCodeEnum.';
             ObsoleteTag = '19.0';
         }
+#endif
         field(76; Address1_UPSZone; Text[4])
         {
             Caption = 'Address 1: UPS Zone';
@@ -678,6 +682,7 @@ table 5341 "CRM Account"
             ExternalName = 'address1_longitude';
             ExternalType = 'Double';
         }
+#if not CLEANSCHEMA19
         field(80; Address1_ShippingMethodCode; Option)
         {
             Caption = 'Address 1: Shipping Method';
@@ -692,6 +697,7 @@ table 5341 "CRM Account"
             ObsoleteReason = 'This field is replaced by field 205 Address1_ShippingMethodCodeEnum.';
             ObsoleteTag = '19.0';
         }
+#endif
         field(81; Address1_Telephone2; Text[50])
         {
             Caption = 'Address 1: Telephone 2';
@@ -1265,6 +1271,7 @@ table 5341 "CRM Account"
             ExternalType = 'Lookup';
             TableRelation = "CRM Account Statistics".AccountStatisticsId;
         }
+#if not CLEANSCHEMA24
         field(201; AccountStatiticsName; Text[100])
         {
             CalcFormula = lookup("CRM Account Statistics".Name where(AccountStatisticsId = field(AccountStatiticsId)));
@@ -1277,6 +1284,7 @@ table 5341 "CRM Account"
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
         }
+#endif
         field(202; CompanyId; Guid)
         {
             Caption = 'Company Id';
