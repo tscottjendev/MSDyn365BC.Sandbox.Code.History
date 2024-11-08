@@ -66,7 +66,12 @@ codeunit 6762 "Reminder-Send"
     var
         DefaultDocumentSendingProfile: Record "Document Sending Profile";
         Customer: Record Customer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDocumentSendingProfile(IssuedReminderHeader, DocumentSendingProfile, IsHandled);
+        if IsHandled then
+            exit;
         Clear(DocumentSendingProfile);
         Customer.Get(IssuedReminderHeader."Customer No.");
 
@@ -108,6 +113,11 @@ codeunit 6762 "Reminder-Send"
             if GlobalSendReminderSetup."Send by Email" then
                 DocumentSendingProfile."E-Mail" := DocumentSendingProfile."E-Mail"::"Yes (Use Default Settings)";
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDocumentSendingProfile(var IssuedReminderHeader: Record "Issued Reminder Header"; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
+    begin
     end;
 }
 
