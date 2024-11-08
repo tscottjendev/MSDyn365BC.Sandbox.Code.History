@@ -232,6 +232,7 @@ table 5353 "CRM Salesorder"
             ExternalName = 'totaltax';
             ExternalType = 'Money';
         }
+#if not CLEANSCHEMA19
         field(27; ShippingMethodCode; Option)
         {
             Caption = 'Shipping Method';
@@ -274,6 +275,7 @@ table 5353 "CRM Salesorder"
             ObsoleteReason = 'This field is replaced by field 106 FreightTermsCode';
             ObsoleteTag = '19.0';
         }
+#endif
         field(30; CreatedBy; Guid)
         {
             Caption = 'Created By';

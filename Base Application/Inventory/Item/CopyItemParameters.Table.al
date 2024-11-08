@@ -117,6 +117,7 @@ table 728 "Copy Item Parameters"
             Caption = 'Attributes';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA23
         field(27; "Item Cross References"; Boolean)
         {
             Caption = 'Item Cross References';
@@ -125,6 +126,7 @@ table 728 "Copy Item Parameters"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(28; "Item References"; Boolean)
         {
             Caption = 'Item References';

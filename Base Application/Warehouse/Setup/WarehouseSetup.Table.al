@@ -108,6 +108,7 @@ table 5769 "Warehouse Setup"
                     ConfirmDiscontinuedFieldBeingSet(Rec.FieldCaption("Require Shipment"), Rec.TableCaption);
             end;
         }
+#if not CLEANSCHEMA28
         field(17; "Last Whse. Posting Ref. No."; Integer)
         {
             Caption = 'Last Whse. Posting Ref. No.';
@@ -121,6 +122,7 @@ table 5769 "Warehouse Setup"
             ObsoleteTag = '19.0';
 #endif
         }
+#endif
         field(18; "Receipt Posting Policy"; Option)
         {
             Caption = 'Receipt Posting Policy';

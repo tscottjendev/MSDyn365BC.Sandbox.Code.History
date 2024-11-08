@@ -33,6 +33,7 @@ table 485 "Business Chart Buffer"
             OptionCaption = 'String,Integer,Decimal,DateTime';
             OptionMembers = String,"Integer",Decimal,DateTime;
         }
+#if not CLEANSCHEMA23
         field(4; XML; BLOB)
         {
             Caption = 'XML';
@@ -41,6 +42,7 @@ table 485 "Business Chart Buffer"
             ObsoleteTag = '23.0';
             ObsoleteReason = 'Use codeunit Temp Blob instead.';
         }
+#endif
         field(5; "Drill-Down X Index"; Integer)
         {
             Caption = 'Drill-Down X Index';
