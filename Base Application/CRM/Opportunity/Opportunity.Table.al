@@ -508,6 +508,7 @@ table 5092 Opportunity
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
@@ -516,6 +517,7 @@ table 5092 Opportunity
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
