@@ -24,6 +24,7 @@ table 6303 "Azure AD Mgt. Setup"
             Caption = 'Azure AD User Mgt. Codeunit ID';
             TableRelation = "CodeUnit Metadata".ID;
         }
+#if not CLEANSCHEMA24
         field(4; "PBI Service Mgt. Codeunit ID"; Integer)
         {
             Caption = 'PBI Service Mgt. Codeunit ID';
@@ -32,6 +33,7 @@ table 6303 "Azure AD Mgt. Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
         }
+#endif
     }
 
     keys

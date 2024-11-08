@@ -28,6 +28,7 @@ table 318 "Tax Area"
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -35,6 +36,7 @@ table 318 "Tax Area"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(10010; "Country/Region"; Option)
         {
             BlankZero = false;

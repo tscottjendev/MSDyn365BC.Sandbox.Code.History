@@ -50,6 +50,7 @@ table 3 "Payment Terms"
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
@@ -58,6 +59,8 @@ table 3 "Payment Terms"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -65,6 +68,7 @@ table 3 "Payment Terms"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(27000; "SAT Payment Term"; Code[10])
         {
             Caption = 'SAT Payment Term';

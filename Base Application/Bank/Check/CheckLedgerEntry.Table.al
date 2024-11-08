@@ -160,6 +160,7 @@ table 272 "Check Ledger Entry"
         {
             Caption = 'Positive Pay Exported';
         }
+#if not CLEANSCHEMA27
         field(26; "Record ID to Print"; RecordId)
         {
             Caption = 'Record ID to Print';
@@ -174,6 +175,7 @@ table 272 "Check Ledger Entry"
             ObsoleteTag = '27.0';
 #endif
         }
+#endif
         field(27; "Print Gen Jnl Line SystemId"; Guid)
         {
             Caption = 'SystemId to Print';

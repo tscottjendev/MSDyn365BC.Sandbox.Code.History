@@ -233,6 +233,7 @@ table 273 "Bank Acc. Reconciliation"
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA24
         field(27; "Total Applied Amount Payments"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
@@ -247,6 +248,7 @@ table 273 "Bank Acc. Reconciliation"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif 
         field(28; "Bank Account Balance (LCY)"; Decimal)
         {
             CalcFormula = sum("Bank Account Ledger Entry"."Amount (LCY)" where("Bank Account No." = field("Bank Account No.")));
@@ -278,6 +280,7 @@ table 273 "Bank Acc. Reconciliation"
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA24
         field(31; "Total Positive Difference"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
@@ -308,6 +311,7 @@ table 273 "Bank Acc. Reconciliation"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(33; "Copy VAT Setup to Jnl. Line"; Boolean)
         {
             Caption = 'Copy VAT Setup to Jnl. Line';
