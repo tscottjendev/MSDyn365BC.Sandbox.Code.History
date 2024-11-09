@@ -2,6 +2,9 @@ namespace Microsoft.Inventory.Item;
 
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Inventory.Location;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Manufacturing.WorkCenter;
 
 codeunit 99000795 "Mfg. Item Integration"
 {
@@ -161,5 +164,81 @@ codeunit 99000795 "Mfg. Item Integration"
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckNoRemQtyProdOrderComponent(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var ProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
     begin
+    end;
+
+    // Location
+
+    [EventSubscriber(ObjectType::Table, Database::Location, 'OnAfterValidateEvent', 'Use As In-Transit', false, false)]
+    local procedure LocationOnAfterValidateEventUseAsInTransit(var Rec: Record Location)
+    begin
+        if Rec."Use As In-Transit" then begin
+            Rec.TestField("Prod. Consump. Whse. Handling", "Prod. Consump. Whse. Handling"::"No Warehouse Handling");
+            Rec.TestField("Prod. Output Whse. Handling", "Prod. Output Whse. Handling"::"No Warehouse Handling");
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Location, 'OnAfterValidateEvent', 'Directed Put-away and Pick', false, false)]
+    local procedure LocationOnAfterValidateEventDirectedPutawayandPick(var Rec: Record Location)
+    begin
+        if Rec."Directed Put-away and Pick" then begin
+            Rec."Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+            Rec."Prod. Output Whse. Handling" := "Prod. Output Whse. Handling"::"No Warehouse Handling";
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Location, 'OnAfterDeleteEvent', '', false, false)]
+    local procedure OnAfterOnDelete(var Rec: Record Location)
+    var
+        WorkCenter: Record "Work Center";
+    begin
+        WorkCenter.SetRange("Location Code", Rec.Code);
+        if WorkCenter.FindSet(true) then
+            repeat
+                WorkCenter.Validate("Location Code", '');
+                WorkCenter.Modify(true);
+            until WorkCenter.Next() = 0;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Location, 'OnGetLocationSetupOnAfterInitLocation', '', false, false)]
+    local procedure OnGetLocationSetupOnAfterInitLocation(var Location: Record Location; var Location2: Record Location)
+    begin
+        case true of
+            not Location2."Require Pick" and not Location2."Require Shipment",
+            not Location2."Require Pick" and Location2."Require Shipment":
+                Location2."Prod. Consump. Whse. Handling" := Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+            Location2."Require Pick" and not Location2."Require Shipment":
+                Location2."Prod. Consump. Whse. Handling" := Enum::"Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+            Location2."Require Pick" and Location2."Require Shipment":
+                Location2."Prod. Consump. Whse. Handling" := Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+        end;
+
+        case true of
+            not Location2."Require Put-away" and not Location2."Require Receive",
+            not Location2."Require Put-away" and Location2."Require Receive",
+            Location2."Require Put-away" and Location2."Require Receive":
+                Location2."Prod. Output Whse. Handling" := Enum::"Prod. Output Whse. Handling"::"No Warehouse Handling";
+            Location2."Require Put-away" and not Location2."Require Receive":
+                Location2."Prod. Output Whse. Handling" := Enum::"Prod. Output Whse. Handling"::"Inventory Put-away";
+        end;
+    end;
+
+    // Stockkeeping Unit
+
+    [EventSubscriber(ObjectType::Table, Database::"Stockkeeping Unit", 'OnAfterValidateEvent', 'Variant Code', false, false)]
+    local procedure LocationOnAfterValidateEventVariantCode(var Rec: Record "Stockkeeping Unit")
+    begin
+        Rec.CalcFields("Qty. on Prod. Order", "Qty. on Component Lines");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Stockkeeping Unit", 'OnAfterValidateEvent', 'Location Code', false, false)]
+    local procedure LocationOnAfterValidateEventLocationCode(var Rec: Record "Stockkeeping Unit")
+    begin
+        Rec.CalcFields("Qty. on Prod. Order", "Qty. on Component Lines");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Stockkeeping Unit", 'OnAfterCopyFromItem', '', false, false)]
+    local procedure OnAfterCopyFromItem(var StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item)
+    begin
+        StockkeepingUnit."Flushing Method" := Item."Flushing Method";
     end;
 }
