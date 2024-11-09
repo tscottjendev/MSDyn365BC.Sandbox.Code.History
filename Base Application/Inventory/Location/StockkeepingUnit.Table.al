@@ -17,10 +17,6 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -68,8 +64,8 @@ table 5700 "Stockkeeping Unit"
             trigger OnValidate()
             begin
                 CalcFields(
-                  Inventory, "Qty. on Purch. Order", "Qty. on Prod. Order", "Qty. in Transit",
-                  "Qty. on Component Lines", "Qty. on Sales Order", "Qty. on Job Order",
+                  Inventory, "Qty. on Purch. Order", "Qty. in Transit",
+                  "Qty. on Sales Order", "Qty. on Job Order",
                   "Qty. on Assembly Order", "Qty. on Asm. Component");
             end;
         }
@@ -84,8 +80,8 @@ table 5700 "Stockkeeping Unit"
                     Validate("Replenishment System");
                 CheckTransferRoute();
                 CalcFields(
-                  Inventory, "Qty. on Purch. Order", "Qty. on Prod. Order", "Qty. in Transit",
-                  "Qty. on Component Lines", "Qty. on Sales Order", "Qty. on Job Order",
+                  Inventory, "Qty. on Purch. Order", "Qty. in Transit",
+                  "Qty. on Sales Order", "Qty. on Job Order",
                   "Qty. on Assembly Order", "Qty. on Asm. Component");
             end;
         }
@@ -359,7 +355,6 @@ table 5700 "Stockkeeping Unit"
         }
         field(5401; "Lot Size"; Decimal)
         {
-            AccessByPermission = TableData "Production Order" = R;
             Caption = 'Lot Size';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
@@ -411,10 +406,6 @@ table 5700 "Stockkeeping Unit"
             Caption = 'Components at Location';
             TableRelation = Location;
         }
-        field(5417; "Flushing Method"; Enum "Flushing Method")
-        {
-            Caption = 'Flushing Method';
-        }
         field(5419; "Replenishment System"; Enum "Replenishment System")
         {
             Caption = 'Replenishment System';
@@ -448,44 +439,6 @@ table 5700 "Stockkeeping Unit"
                 end;
             end;
         }
-        field(5420; "Scheduled Receipt (Qty.)"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = filter(Planned .. Released),
-                                                                                "Item No." = field("Item No."),
-                                                                                "Location Code" = field("Location Code"),
-                                                                                "Variant Code" = field("Variant Code"),
-                                                                                "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                "Ending Date" = field("Date Filter")));
-            Caption = 'Scheduled Receipt (Qty.)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-#if not CLEANSCHEMA28
-        field(5421; "Scheduled Need (Qty.)"; Decimal)
-        {
-            ObsoleteReason = 'Use the field ''Qty. on Component Lines'' instead';
-#if CLEAN25
-            ObsoleteState = Removed;
-            ObsoleteTag = '28.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
-            CalcFormula = sum("Prod. Order Component"."Remaining Qty. (Base)" where(Status = filter(Planned .. Released),
-                                                                                     "Item No." = field("Item No."),
-                                                                                     "Location Code" = field("Location Code"),
-                                                                                     "Variant Code" = field("Variant Code"),
-                                                                                     "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                     "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                     "Due Date" = field("Date Filter")));
-            Caption = 'Scheduled Need (Qty.)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-#endif
         field(5423; "Bin Filter"; Code[20])
         {
             Caption = 'Bin Filter';
@@ -517,7 +470,7 @@ table 5700 "Stockkeeping Unit"
         {
             Caption = 'Include Inventory';
         }
-        field(5442; "Manufacturing Policy"; Enum "Manufacturing Policy")
+        field(5442; "Manufacturing Policy"; Enum Microsoft.Manufacturing.Setup."Manufacturing Policy")
         {
             Caption = 'Manufacturing Policy';
         }
@@ -724,72 +677,6 @@ table 5700 "Stockkeeping Unit"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
-        field(99000750; "Routing No."; Code[20])
-        {
-            Caption = 'Routing No.';
-            TableRelation = "Routing Header";
-        }
-        field(99000751; "Production BOM No."; Code[20])
-        {
-            Caption = 'Production BOM No.';
-            TableRelation = "Production BOM Header";
-        }
-        field(99000765; "Planned Order Receipt (Qty.)"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = const(Planned),
-                                                                                "Item No." = field("Item No."),
-                                                                                "Variant Code" = field("Variant Code"),
-                                                                                "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                "Location Code" = field("Location Code"),
-                                                                                "Ending Date" = field("Date Filter")));
-            Caption = 'Planned Order Receipt (Qty.)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(99000766; "FP Order Receipt (Qty.)"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = const("Firm Planned"),
-                                                                                "Item No." = field("Item No."),
-                                                                                "Variant Code" = field("Variant Code"),
-                                                                                "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                "Location Code" = field("Location Code"),
-                                                                                "Ending Date" = field("Date Filter")));
-            Caption = 'FP Order Receipt (Qty.)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(99000767; "Rel. Order Receipt (Qty.)"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = const(Released),
-                                                                                "Item No." = field("Item No."),
-                                                                                "Variant Code" = field("Variant Code"),
-                                                                                "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                "Location Code" = field("Location Code"),
-                                                                                "Ending Date" = field("Date Filter")));
-            Caption = 'Rel. Order Receipt (Qty.)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(99000769; "Planned Order Release (Qty.)"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = const(Planned),
-                                                                                "Item No." = field("Item No."),
-                                                                                "Variant Code" = field("Variant Code"),
-                                                                                "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                "Location Code" = field("Location Code"),
-                                                                                "Starting Date" = field("Date Filter")));
-            Caption = 'Planned Order Release (Qty.)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
         field(99000770; "Purch. Req. Receipt (Qty.)"; Decimal)
         {
             CalcFormula = sum("Requisition Line"."Quantity (Base)" where(Type = const(Item),
@@ -814,34 +701,6 @@ table 5700 "Stockkeeping Unit"
                                                                           "Order Date" = field("Date Filter")));
             Caption = 'Purch. Req. Release (Qty.)';
             DecimalPlaces = 0 : 5;
-            FieldClass = FlowField;
-        }
-        field(99000777; "Qty. on Prod. Order"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = filter(Planned .. Released),
-                                                                                "Item No." = field("Item No."),
-                                                                                "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                "Location Code" = field("Location Code"),
-                                                                                "Variant Code" = field("Variant Code"),
-                                                                                "Due Date" = field("Date Filter")));
-            Caption = 'Qty. on Prod. Order';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(99000778; "Qty. on Component Lines"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Component"."Remaining Qty. (Base)" where(Status = filter(Planned .. Released),
-                                                                                     "Item No." = field("Item No."),
-                                                                                     "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                     "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                     "Location Code" = field("Location Code"),
-                                                                                     "Variant Code" = field("Variant Code"),
-                                                                                     "Due Date" = field("Date Filter")));
-            Caption = 'Qty. on Component Lines';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
             FieldClass = FlowField;
         }
     }
@@ -1085,7 +944,6 @@ table 5700 "Stockkeeping Unit"
         "Safety Stock Quantity" := Item."Safety Stock Quantity";
         "Order Multiple" := Item."Order Multiple";
         "Safety Lead Time" := Item."Safety Lead Time";
-        "Flushing Method" := Item."Flushing Method";
         "Replenishment System" := Item."Replenishment System";
         "Time Bucket" := Item."Time Bucket";
         "Rescheduling Period" := Item."Rescheduling Period";
@@ -1099,7 +957,7 @@ table 5700 "Stockkeeping Unit"
         "Standard Cost" := Item."Standard Cost";
         "Unit Cost" := Item."Unit Cost";
 
-        OnAfterCopyFromItem(Rec, Item)
+        OnAfterCopyFromItem(Rec, Item);
     end;
 
     [IntegrationEvent(false, false)]
