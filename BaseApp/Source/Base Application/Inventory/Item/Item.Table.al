@@ -2586,6 +2586,7 @@ table 27 Item
                 ItemVend."Vendor Item No." := StockkeepingUnit."Vendor Item No.";
             ItemVend."Lead Time Calculation" := StockkeepingUnit."Lead Time Calculation";
         end;
+        OnFindItemVendOnAfterFindItemVend(ItemVend, Rec, StockkeepingUnit, LocationCode);
         ItemVend.FindLeadTimeCalculation(Rec, StockkeepingUnit, LocationCode);
         ItemVend.Reset();
 
@@ -3992,6 +3993,11 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateItemCategoryId(var Item: Record Item; var ItemCategory: Record "Item Category")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindItemVendOnAfterFindItemVend(var ItemVendor: Record "Item Vendor"; Item: Record Item; var StockkeepingUnit: Record "Stockkeeping Unit"; LocationCode: Code[10])
     begin
     end;
 }
