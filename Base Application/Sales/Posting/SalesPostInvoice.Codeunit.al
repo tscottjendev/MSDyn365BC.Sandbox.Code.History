@@ -378,7 +378,7 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
             SalesSetup."Copy Line Descr. to G/L Entry",
             SalesLine."Line No.",
             SalesLine.Description,
-            SalesHeader."Posting Description", 
+            SalesHeader."Posting Description",
             (SalesLine.Type = SalesLine.Type::"Fixed Asset") or SalesSetup."Copy Line Descr. to G/L Entry");
     end;
 
@@ -768,6 +768,7 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
                             DeferralPostingBuffer."Deferral Account" := DeferralAccount;
                             DeferralPostingBuffer."Period Description" := DeferralTemplate."Period Description";
                             DeferralPostingBuffer."Deferral Line No." := InvDefLineNo;
+                            SalesPostInvoiceEvents.RunOnPrepareDeferralLineOnBeforeDeferralPostingBufferUpdate(DeferralPostingBuffer, TempDeferralLine, RemainAmtToDefer);
                             DeferralPostingBuffer.Update(DeferralPostingBuffer);
                         end else
                             Error(ZeroDeferralAmtErr, SalesLine."No.", SalesLine."Deferral Code");
@@ -780,6 +781,7 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
                 Error(NoDeferralScheduleErr, SalesLine."No.", SalesLine."Deferral Code")
         end else
             Error(NoDeferralScheduleErr, SalesLine."No.", SalesLine."Deferral Code");
+        SalesPostInvoiceEvents.RunOnAfterPrepareDeferralLine(DeferralPostingBuffer, SalesHeader, SalesLine, InvoicePostingParameters."Document No.", DeferralAccount, SalesAccount, InvDefLineNo, DeferralLineNo, RemainAmtToDefer);
     end;
 
     procedure CalcDeferralAmounts(SalesHeaderVar: Variant; SalesLineVar: Variant; OriginalDeferralAmount: Decimal)
