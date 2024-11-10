@@ -1617,30 +1617,36 @@ codeunit 7312 "Create Pick"
     end;
 
     local procedure CreateWhseActivHeader(LocationCode: Code[10]; var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20]; var NoOfSourceDoc: Integer; var NoOfLines: Integer; var WhseDocCreated: Boolean)
+    var
+        IsHandled: Boolean;
     begin
-        CurrWarehouseActivityHeader.Init();
-        CurrWarehouseActivityHeader."No." := '';
-        if CreatePickParameters."Whse. Document Type" = CreatePickParameters."Whse. Document Type"::Movement then
-            CurrWarehouseActivityHeader.Type := CurrWarehouseActivityHeader.Type::Movement
-        else
-            CurrWarehouseActivityHeader.Type := CurrWarehouseActivityHeader.Type::Pick;
-        CurrWarehouseActivityHeader."Location Code" := LocationCode;
-        if CreatePickParameters."Assigned ID" <> '' then
-            CurrWarehouseActivityHeader.Validate("Assigned User ID", CreatePickParameters."Assigned ID");
-        CurrWarehouseActivityHeader."Sorting Method" := CreatePickParameters."Sorting Method";
-        CurrWarehouseActivityHeader."Breakbulk Filter" := CreatePickParameters."Breakbulk Filter";
-        OnBeforeWhseActivHeaderInsert(CurrWarehouseActivityHeader, TempWarehouseActivityLine, CreatePickParameters, CurrWarehouseShipmentLine);
-        CurrWarehouseActivityHeader.Insert(true);
-        OnCreateWhseActivHeaderOnAfterWhseActivHeaderInsert(CurrWarehouseActivityHeader, TempWarehouseActivityLine, CreatePickParameters);
+        IsHandled := false;
+        OnBeforeCreateWhseActivHeader(CurrWarehouseActivityHeader, LocationCode, FirstWhseDocNo, LastWhseDocNo, NoOfSourceDoc, NoOfLines, WhseDocCreated, IsHandled);
+        if not IsHandled then begin
+            CurrWarehouseActivityHeader.Init();
+            CurrWarehouseActivityHeader."No." := '';
+            if CreatePickParameters."Whse. Document Type" = CreatePickParameters."Whse. Document Type"::Movement then
+                CurrWarehouseActivityHeader.Type := CurrWarehouseActivityHeader.Type::Movement
+            else
+                CurrWarehouseActivityHeader.Type := CurrWarehouseActivityHeader.Type::Pick;
+            CurrWarehouseActivityHeader."Location Code" := LocationCode;
+            if CreatePickParameters."Assigned ID" <> '' then
+                CurrWarehouseActivityHeader.Validate("Assigned User ID", CreatePickParameters."Assigned ID");
+            CurrWarehouseActivityHeader."Sorting Method" := CreatePickParameters."Sorting Method";
+            CurrWarehouseActivityHeader."Breakbulk Filter" := CreatePickParameters."Breakbulk Filter";
+            OnBeforeWhseActivHeaderInsert(CurrWarehouseActivityHeader, TempWarehouseActivityLine, CreatePickParameters, CurrWarehouseShipmentLine);
+            CurrWarehouseActivityHeader.Insert(true);
+            OnCreateWhseActivHeaderOnAfterWhseActivHeaderInsert(CurrWarehouseActivityHeader, TempWarehouseActivityLine, CreatePickParameters);
 
-        NoOfLines := 1;
-        NoOfSourceDoc := 1;
+            NoOfLines := 1;
+            NoOfSourceDoc := 1;
 
-        if not WhseDocCreated then begin
-            FirstWhseDocNo := CurrWarehouseActivityHeader."No.";
-            WhseDocCreated := true;
+            if not WhseDocCreated then begin
+                FirstWhseDocNo := CurrWarehouseActivityHeader."No.";
+                WhseDocCreated := true;
+            end;
+            LastWhseDocNo := CurrWarehouseActivityHeader."No.";
         end;
-        LastWhseDocNo := CurrWarehouseActivityHeader."No.";
     end;
 
     local procedure CreateWhseDocLine()
@@ -4805,6 +4811,11 @@ codeunit 7312 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeProcessDoNotFillQtytoHandle(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var CreatePickParameters: Record "Create Pick Parameters" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseActivHeader(var CurrWarehouseActivityHeader: Record "Warehouse Activity Header"; LocationCode: Code[10]; var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20]; var NoOfSourceDoc: Integer; var NoOfLines: Integer; var WhseDocCreated: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
