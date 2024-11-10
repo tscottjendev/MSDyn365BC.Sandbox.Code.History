@@ -28,16 +28,21 @@ codeunit 353 "Item Availability Forms Mgt"
     procedure CalcItemPlanningFields(var Item: Record Item; CalculateTransferQuantities: Boolean)
     begin
         Item.Init();
-        Item.CalcFields(
-          Inventory,
-          "Net Change",
-          "Purch. Req. Receipt (Qty.)",
-          "Planning Issues (Qty.)",
-          "Purch. Req. Release (Qty.)");
-
-        if CalculateTransferQuantities then
+        if not CalculateTransferQuantities then
             Item.CalcFields(
-                "Trans. Ord. Shipment (Qty.)", "Qty. in Transit", "Trans. Ord. Receipt (Qty.)");
+              Inventory,
+              "Net Change",
+              "Purch. Req. Receipt (Qty.)",
+              "Planning Issues (Qty.)",
+              "Purch. Req. Release (Qty.)")
+        else
+            Item.CalcFields(
+              Inventory,
+              "Net Change",
+              "Purch. Req. Receipt (Qty.)",
+              "Planning Issues (Qty.)",
+              "Purch. Req. Release (Qty.)",
+              "Trans. Ord. Shipment (Qty.)", "Qty. in Transit", "Trans. Ord. Receipt (Qty.)");
 
         OnAfterCalcItemPlanningFields(Item);
     end;
@@ -47,30 +52,36 @@ codeunit 353 "Item Availability Forms Mgt"
         TransOrdShipmentQty: Decimal;
         QtyinTransit: Decimal;
         TransOrdReceiptQty: Decimal;
+        IsHandled: Boolean;
     begin
-        CalcItemPlanningFields(Item, true);
+        IsHandled := false;
+        OnBeforeCalculateNeed(Item, GrossRequirement, PlannedOrderReceipt, ScheduledReceipt, PlannedOrderReleases, IsHandled);
+        if not IsHandled then begin
+            CalcItemPlanningFields(Item, true);
 
-        if Item.GetFilter("Location Filter") = '' then begin
-            TransOrdShipmentQty := 0;
-            QtyinTransit := 0;
-            TransOrdReceiptQty := 0;
-        end else begin
-            TransOrdShipmentQty := Item."Trans. Ord. Shipment (Qty.)";
-            QtyinTransit := Item."Qty. in Transit";
-            TransOrdReceiptQty := Item."Trans. Ord. Receipt (Qty.)";
+            if Item.GetFilter("Location Filter") = '' then begin
+                TransOrdShipmentQty := 0;
+                QtyinTransit := 0;
+                TransOrdReceiptQty := 0;
+            end else begin
+                TransOrdShipmentQty := Item."Trans. Ord. Shipment (Qty.)";
+                QtyinTransit := Item."Qty. in Transit";
+                TransOrdReceiptQty := Item."Trans. Ord. Receipt (Qty.)";
+            end;
+            GrossRequirement :=
+                Item."Qty. on Sales Order" + Item."Qty. on Job Order" + Item."Qty. on Component Lines" +
+                TransOrdShipmentQty + Item."Planning Issues (Qty.)" + Item."Qty. on Asm. Component" + Item."Qty. on Purch. Return";
+            OnCalculateNeedOnAfterCalcGrossRequirement(Item, GrossRequirement);
+            PlannedOrderReceipt :=
+                Item."Planned Order Receipt (Qty.)" + Item."Purch. Req. Receipt (Qty.)";
+            ScheduledReceipt :=
+                Item."FP Order Receipt (Qty.)" + Item."Rel. Order Receipt (Qty.)" + Item."Qty. on Purch. Order" +
+                QtyinTransit + TransOrdReceiptQty + Item."Qty. on Assembly Order" + Item."Qty. on Sales Return";
+            OnCalculateNeedOnAfterCalcScheduledReceipt(Item, ScheduledReceipt, QtyinTransit, TransOrdReceiptQty);
+            PlannedOrderReleases :=
+                Item."Planned Order Release (Qty.)" + Item."Purch. Req. Release (Qty.)";
         end;
-        GrossRequirement :=
-            Item."Qty. on Sales Order" + Item."Qty. on Job Order" + Item."Qty. on Component Lines" +
-            TransOrdShipmentQty + Item."Planning Issues (Qty.)" + Item."Qty. on Asm. Component" + Item."Qty. on Purch. Return";
-        OnCalculateNeedOnAfterCalcGrossRequirement(Item, GrossRequirement);
-        PlannedOrderReceipt :=
-            Item."Planned Order Receipt (Qty.)" + Item."Purch. Req. Receipt (Qty.)";
-        ScheduledReceipt :=
-            Item."FP Order Receipt (Qty.)" + Item."Rel. Order Receipt (Qty.)" + Item."Qty. on Purch. Order" +
-            QtyinTransit + TransOrdReceiptQty + Item."Qty. on Assembly Order" + Item."Qty. on Sales Return";
-        OnCalculateNeedOnAfterCalcScheduledReceipt(Item, ScheduledReceipt, QtyinTransit, TransOrdReceiptQty);
-        PlannedOrderReleases :=
-            Item."Planned Order Release (Qty.)" + Item."Purch. Req. Release (Qty.)";
+
         OnAfterCalculateNeed(Item, GrossRequirement, PlannedOrderReceipt, ScheduledReceipt, PlannedOrderReleases);
     end;
 
@@ -1071,6 +1082,11 @@ codeunit 353 "Item Availability Forms Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFilterItem(var Item: Record Item; LocationCode: Code[20]; VariantCode: Code[20]; Date: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateNeed(var Item: Record Item; var GrossRequirement: Decimal; var PlannedOrderReceipt: Decimal; var ScheduledReceipt: Decimal; var PlannedOrderReleases: Decimal; var IsHandled: Boolean)
     begin
     end;
 }
