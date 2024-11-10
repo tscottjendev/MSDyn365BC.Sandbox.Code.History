@@ -623,7 +623,7 @@ codeunit 99000773 "Calculate Prod. Order"
                   CapLedgEntry.TableCaption());
         end;
 
-        ProdOrderLine.TestField(Quantity);
+        CheckProdOrderLineQuantity(ProdOrderLine);
         if Direction = Direction::Backward then
             ProdOrderLine.TestField("Ending Date")
         else
@@ -989,6 +989,16 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderLine2 := ProdOrderLine;
     end;
 
+    local procedure CheckProdOrderLineQuantity(var ProdOrderLineToCheck: Record "Prod. Order Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckProdOrderLineQuantity(ProdOrderLineToCheck, IsHandled);
+        if not IsHandled then
+            ProdOrderLineToCheck.TestField(Quantity);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertProdRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
     begin
@@ -1236,6 +1246,11 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateRoutingOnBeforeUpdateProdOrderRoutingLineDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckProdOrderLineQuantity(ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 }
