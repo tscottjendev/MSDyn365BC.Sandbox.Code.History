@@ -3074,6 +3074,15 @@
       <Cmt Name="Dev"><![CDATA[%1=Field Caption;%2=Field Value;]D;]A;(LookupHint=Codeunit ERM Financial Reports III - NamedType RowNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 152012793 - NamedType 2114012794" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TotalAmountDiscounted must be available]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Financial Reports III - NamedType TotalAmountDiscountedMustBeAvailableErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 152012793 - NamedType 1487513605" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Error must be Same.]]></Val>
