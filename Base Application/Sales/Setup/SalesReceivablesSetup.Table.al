@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Setup;
+namespace Microsoft.Sales.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -691,6 +691,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             InitValue = true;
         }
+#if not CLEANSCHEMA19
         field(11500; "Block ship. when neg. invent."; Boolean)
         {
             Caption = 'Block ship. when neg. invent.';
@@ -698,6 +699,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(5005130; "Arch. Orders and Ret. Orders"; Boolean)
         {
             Caption = 'Arch. Orders and Ret. Orders';
@@ -705,6 +708,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(5005132; "Archiving Sales Quote"; Option)
         {
             Caption = 'Archiving Sales Quote';
@@ -714,6 +719,8 @@ table 311 "Sales & Receivables Setup"
             OptionMembers = Never,Question,Always;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(5005133; "Archiving Blanket Sales Order"; Boolean)
         {
             Caption = 'Archiving Blanket Sales Order';
@@ -721,6 +728,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(5005134; "Batch Archiving Sales Quote"; Boolean)
         {
             Caption = 'Batch Archiving Sales Quote';
@@ -730,6 +739,7 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
     }
 
     keys

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Document;
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.AllocationAccount;
@@ -3619,6 +3619,7 @@ table 39 "Purchase Line"
         {
             Caption = 'Over-Receipt Approval Status';
         }
+#if not CLEANSCHEMA25
         field(5005396; "Order No. (Old)"; Code[20])
         {
             Caption = 'Order No. (Old)';
@@ -3626,6 +3627,8 @@ table 39 "Purchase Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
+#if not CLEANSCHEMA25
         field(5005397; "Order Line No. (Old)"; Integer)
         {
             Caption = 'Order Line No. (Old)';
@@ -3633,6 +3636,7 @@ table 39 "Purchase Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';
