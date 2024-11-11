@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Setup;
+namespace Microsoft.Purchases.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -517,6 +517,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA25
         field(5005230; "Arch. Orders and Ret. Orders"; Boolean)
         {
             Caption = 'Arch. Orders and Ret. Orders';
@@ -524,6 +525,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
+#if not CLEANSCHEMA25
         field(5005232; "Archiving Purchase Quote"; Option)
         {
             Caption = 'Archiving Purchase Quote';
@@ -533,6 +536,8 @@ table 312 "Purchases & Payables Setup"
             OptionMembers = Never,Question,Always;
             ObsoleteTag = '25.0';
         }
+#endif
+#if not CLEANSCHEMA25
         field(5005233; "Archiving Blanket Purch. Order"; Boolean)
         {
             Caption = 'Archiving Blanket Purch. Order';
@@ -540,6 +545,7 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(5005270; "Delivery Reminder Nos."; Code[20])
         {
             Caption = 'Delivery Reminder Nos.';

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.History;
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
@@ -680,6 +680,7 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Price Calculation Method';
         }
+#if not CLEANSCHEMA15
         field(5005396; "Order No. (Old)"; Code[20])
         {
             Caption = 'Order No. (Old)';
@@ -687,6 +688,8 @@ table 125 "Purch. Cr. Memo Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(5005397; "Order Line No. (Old)"; Integer)
         {
             Caption = 'Order Line No. (Old)';
@@ -694,6 +697,7 @@ table 125 "Purch. Cr. Memo Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

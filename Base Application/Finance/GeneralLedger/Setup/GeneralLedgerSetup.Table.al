@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Setup;
+namespace Microsoft.Finance.GeneralLedger.Setup;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Analysis;
@@ -908,6 +908,7 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Currency Code For EURO';
         }
+#if not CLEANSCHEMA25
         field(11011; "Sales VAT Advance Notif. Nos."; Code[20])
         {
             Caption = 'Sales VAT Advance Notif. Nos.';
@@ -916,6 +917,7 @@ table 98 "General Ledger Setup"
             TableRelation = "No. Series";
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys
