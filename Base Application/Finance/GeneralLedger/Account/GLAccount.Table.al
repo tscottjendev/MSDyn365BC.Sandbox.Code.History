@@ -786,6 +786,7 @@ table 15 "G/L Account"
             Caption = 'WHT Product Posting Group';
             TableRelation = "WHT Product Posting Group";
         }
+#if not CLEANSCHEMA25
         field(28160; "G/L Entry Type Filter"; Option)
         {
             Caption = 'G/L Entry Type Filter';
@@ -796,6 +797,7 @@ table 15 "G/L Account"
             OptionMembers = Definitive,Simulation;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

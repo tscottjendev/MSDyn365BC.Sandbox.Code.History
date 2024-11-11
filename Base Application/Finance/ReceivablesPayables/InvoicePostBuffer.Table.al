@@ -372,6 +372,7 @@ table 49 "Invoice Post. Buffer"
             Caption = 'Line No.';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA25
         field(28111; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
@@ -380,6 +381,7 @@ table 49 "Invoice Post. Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys
@@ -394,5 +396,5 @@ table 49 "Invoice Post. Buffer"
     {
     }
 }
- 
+
 #endif
