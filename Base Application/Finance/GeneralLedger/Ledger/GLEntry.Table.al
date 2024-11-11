@@ -478,6 +478,7 @@ table 17 "G/L Entry"
             Caption = 'Last Modified DateTime';
             Editable = false;
         }
+#if not CLEANSCHEMA15
         field(10810; "Entry Type"; Option)
         {
             Caption = 'Entry Type';
@@ -487,6 +488,7 @@ table 17 "G/L Entry"
             OptionMembers = Definitive,Simulation;
             ObsoleteTag = '15.0';
         }
+#endif
         field(10811; "Applies-to ID"; Code[50])
         {
             Caption = 'Applies-to ID';

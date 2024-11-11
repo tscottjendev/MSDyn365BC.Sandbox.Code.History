@@ -1565,6 +1565,7 @@ table 23 Vendor
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA26
         field(10880; "Exclude from Payment Reporting"; Boolean)
         {
             Caption = 'Exclude from Payment Reporting';
@@ -1573,6 +1574,7 @@ table 23 Vendor
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
     }
 
     keys

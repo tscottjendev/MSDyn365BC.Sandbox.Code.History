@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Customer;
+namespace Microsoft.Sales.Customer;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.DirectDebit;
@@ -1728,6 +1728,7 @@ table 18 Customer
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA26
         field(10880; "Exclude from Payment Reporting"; Boolean)
         {
             Caption = 'Exclude from Payment Reporting';
@@ -1736,6 +1737,7 @@ table 18 Customer
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
     }
 
     keys

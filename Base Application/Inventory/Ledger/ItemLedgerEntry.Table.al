@@ -521,6 +521,7 @@ table 32 "Item Ledger Entry"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
+#if not CLEANSCHEMA25
         field(10800; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
@@ -529,6 +530,7 @@ table 32 "Item Ledger Entry"
             TableRelation = "Shipment Method";
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -3048,6 +3048,7 @@ table 81 "Gen. Journal Line"
         {
             Caption = 'Bank Account Name';
         }
+#if not CLEANSCHEMA15
         field(10810; "Entry Type"; Option)
         {
             Caption = 'Entry Type';
@@ -3057,6 +3058,7 @@ table 81 "Gen. Journal Line"
             OptionMembers = Definitive,Simulation;
             ObsoleteTag = '15.0';
         }
+#endif
         field(10860; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
