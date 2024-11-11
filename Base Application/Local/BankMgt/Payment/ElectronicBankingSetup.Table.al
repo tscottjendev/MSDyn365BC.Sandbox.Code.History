@@ -36,6 +36,7 @@ table 11306 "Electronic Banking Setup"
             Caption = 'Cut off Payment Message Texts';
             InitValue = false;
         }
+#if not CLEANSCHEMA19
         field(21; "IBS Version"; Option)
         {
             Caption = 'IBS Version';
@@ -131,6 +132,7 @@ table 11306 "Electronic Banking Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
     }
 
     keys

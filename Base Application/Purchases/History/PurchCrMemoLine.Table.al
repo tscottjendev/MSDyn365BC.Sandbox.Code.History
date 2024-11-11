@@ -680,6 +680,7 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Price Calculation Method';
         }
+#if not CLEANSCHEMA15
         field(11302; "Pmt. Discount Amount (Old)"; Decimal)
         {
             Caption = 'Pmt. Discount Amount (Old)';
@@ -688,6 +689,7 @@ table 125 "Purch. Cr. Memo Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(11305; "Non Deductible VAT %"; Decimal)
         {
             BlankZero = true;

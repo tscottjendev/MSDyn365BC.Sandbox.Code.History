@@ -696,6 +696,7 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Promised Pay Date';
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA23
         field(11300; "Journal Template Name"; Code[10])
         {
             Caption = 'Template Name (obsolete)';
@@ -712,6 +713,7 @@ table 21 "Cust. Ledger Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

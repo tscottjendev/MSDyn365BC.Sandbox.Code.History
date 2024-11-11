@@ -310,6 +310,7 @@ table 49 "Invoice Post. Buffer"
             Caption = 'Line No.';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA25
         field(11301; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
@@ -318,6 +319,8 @@ table 49 "Invoice Post. Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(11302; "Base Before Pmt. Disc. (Old)"; Decimal)
         {
             Caption = 'Base Before Pmt. Disc. (Old)';
@@ -326,6 +329,7 @@ table 49 "Invoice Post. Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(11303; "Non Deductible VAT Amt."; Decimal)
         {
             Caption = 'Non Deductible VAT Amt.';
@@ -355,5 +359,5 @@ table 49 "Invoice Post. Buffer"
     {
     }
 }
- 
+
 #endif

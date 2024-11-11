@@ -350,6 +350,7 @@ table 313 "Inventory Setup"
             Caption = 'Internal Movement Nos.';
             TableRelation = "No. Series";
         }
+#if not CLEANSCHEMA23
         field(11300; "Jnl. Templ. Name Cost Posting"; Code[10])
         {
             Caption = 'Jnl. Templ. Name Cost Posting';
@@ -364,6 +365,7 @@ table 313 "Inventory Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

@@ -478,6 +478,7 @@ table 17 "G/L Entry"
             Caption = 'Last Modified DateTime';
             Editable = false;
         }
+#if not CLEANSCHEMA23
         field(11300; "Journal Template Name"; Code[10])
         {
             Caption = 'Template Name (obsolete)';
@@ -486,6 +487,7 @@ table 17 "G/L Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(11301; Open; Boolean)
         {
             Caption = 'Open';

@@ -3050,6 +3050,7 @@ table 36 "Sales Header"
             Caption = 'Get Shipment Used';
             Editable = false;
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -3057,6 +3058,7 @@ table 36 "Sales Header"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';
@@ -3071,6 +3073,7 @@ table 36 "Sales Header"
                       RespCenter.TableCaption(), UserSetupMgt.GetSalesFilter("Assigned User ID"));
             end;
         }
+#if not CLEANSCHEMA23
         field(11300; "Journal Template Name"; Code[10])
         {
             Caption = 'Template Name (obsolete)';
@@ -3079,6 +3082,7 @@ table 36 "Sales Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(11310; "Enterprise No."; Text[50])
         {
             Caption = 'Enterprise No.';

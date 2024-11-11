@@ -3619,6 +3619,7 @@ table 39 "Purchase Line"
         {
             Caption = 'Over-Receipt Approval Status';
         }
+#if not CLEANSCHEMA15
         field(11302; "Pmt. Discount Amount (Old)"; Decimal)
         {
             Caption = 'Pmt. Discount Amount (Old)';
@@ -3627,6 +3628,7 @@ table 39 "Purchase Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(11303; "Suggested Line"; Boolean)
         {
             Caption = 'Suggested Line';
@@ -3645,6 +3647,7 @@ table 39 "Purchase Line"
                 UpdateDeferralAmounts();
             end;
         }
+#if not CLEANSCHEMA23
         field(11306; "Prepmt. Pmt. Disc. Amount"; Decimal)
         {
             Caption = 'Prepmt. Pmt. Disc. Amount';
@@ -3652,6 +3655,7 @@ table 39 "Purchase Line"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';
@@ -9419,7 +9423,7 @@ table 39 "Purchase Line"
         end;
         if ("VAT %" <> xRec."VAT %") or ("Non Deductible VAT %" <> xRec."Non Deductible VAT %") then
             LineAmountChanged := true;
-	    OnAfterUpdateLineAmount(Rec, xRec, Currency, LineAmountChanged);
+        OnAfterUpdateLineAmount(Rec, xRec, Currency, LineAmountChanged);
     end;
 
     local procedure CheckLocationRequireReceive();

@@ -8,6 +8,7 @@ tableextension 11300 "Service Header BE" extends "Service Header"
 {
     fields
     {
+#if not CLEANSCHEMA23
         field(11300; "Journal Template Name"; Code[10])
         {
             Caption = 'Template Name (obsolete)';
@@ -16,6 +17,7 @@ tableextension 11300 "Service Header BE" extends "Service Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(11310; "Enterprise No."; Text[50])
         {
             Caption = 'Enterprise No.';

@@ -691,6 +691,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             InitValue = true;
         }
+#if not CLEANSCHEMA23
         field(11310; "Journal Templ. Sales Invoice"; Code[10])
         {
             Caption = 'Journal Templ. Sales Invoice';
@@ -723,6 +724,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA28
         field(11316; Orders; Boolean)
         {
             Caption = 'Orders';
@@ -735,6 +738,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteTag = '20.0';
 #endif
         }
+#endif
+#if not CLEANSCHEMA23
         field(11317; Invoices; Boolean)
         {
             Caption = 'Invoices';
@@ -781,6 +786,7 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

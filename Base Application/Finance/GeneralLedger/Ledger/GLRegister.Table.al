@@ -76,6 +76,7 @@ table 45 "G/L Register"
         {
             Caption = 'Journal Template Name';
         }
+#if not CLEANSCHEMA23
         field(11300; "Journal Template Name"; Code[10])
         {
             Caption = 'Template Name (obsolete)';
@@ -84,6 +85,7 @@ table 45 "G/L Register"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

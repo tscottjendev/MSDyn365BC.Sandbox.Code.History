@@ -1133,6 +1133,7 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'Indentation';
         }
+#if not CLEANSCHEMA23
         field(11301; "Original Pmt. Disc. Possible"; Decimal)
         {
             Caption = 'Original Pmt. Disc. Possible';
@@ -1147,6 +1148,7 @@ table 181 "Posted Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(11310; "Enterprise No."; Text[50])
         {
             Caption = 'Enterprise No.';

@@ -696,6 +696,7 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Price Calculation Method';
         }
+#if not CLEANSCHEMA15
         field(11302; "Pmt. Discount Amount (Old)"; Decimal)
         {
             Caption = 'Pmt. Discount Amount (Old)';
@@ -704,6 +705,7 @@ table 123 "Purch. Inv. Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(11305; "Non Deductible VAT %"; Decimal)
         {
             BlankZero = true;

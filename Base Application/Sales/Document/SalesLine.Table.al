@@ -3408,6 +3408,7 @@ table 37 "Sales Line"
             FieldClass = FlowField;
             BlankZero = true;
         }
+#if not CLEANSCHEMA15
         field(11302; "Pmt. Discount Amount (Old)"; Decimal)
         {
             Caption = 'Pmt. Discount Amount (Old)';
@@ -3416,6 +3417,8 @@ table 37 "Sales Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11303; "Prepmt. Pmt. Disc. Amount"; Decimal)
         {
             Caption = 'Prepmt. Pmt. Disc. Amount';
@@ -3423,6 +3426,7 @@ table 37 "Sales Line"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

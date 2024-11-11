@@ -444,6 +444,7 @@ table 382 "CV Ledger Entry Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Gen. Journal Template";
         }
+#if not CLEANSCHEMA23
         field(11306; "Org. Pmt. Disc. Possible (LCY)"; Decimal)
         {
             AutoFormatType = 1;
@@ -453,6 +454,7 @@ table 382 "CV Ledger Entry Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

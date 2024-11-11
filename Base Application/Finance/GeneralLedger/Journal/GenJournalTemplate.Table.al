@@ -319,6 +319,7 @@ table 80 "Gen. Journal Template"
         {
             Caption = 'Allow Posting Date To';
         }
+#if not CLEANSCHEMA23
         field(11300; "Allow Posting From"; Date)
         {
             Caption = 'Allow Posting From (Obsoleted)';
@@ -333,6 +334,7 @@ table 80 "Gen. Journal Template"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

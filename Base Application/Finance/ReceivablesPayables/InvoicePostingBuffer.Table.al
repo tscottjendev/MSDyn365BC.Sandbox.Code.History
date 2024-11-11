@@ -327,6 +327,7 @@ table 55 "Invoice Posting Buffer"
             Caption = 'Non Ded. VAT Amt. (ACY)';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA23
         field(11305; "Journal Template Name"; Code[10])
         {
             Caption = 'Journal Template Name';
@@ -335,6 +336,7 @@ table 55 "Invoice Posting Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

@@ -903,6 +903,7 @@ table 98 "General Ledger Setup"
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA23
         field(11314; "Payment Recon. Template Name"; Code[10])
         {
             Caption = 'Payment Recon. Template Name';
@@ -911,6 +912,7 @@ table 98 "General Ledger Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(11315; "VAT Statement Template Name"; Code[10])
         {
             Caption = 'VAT Statement Template Name';
@@ -930,6 +932,7 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Use Workdate for Appl./Unappl.';
         }
+#if not CLEANSCHEMA23
         field(11318; "Jnl. Templ. Name for Applying"; Code[10])
         {
             Caption = 'Jnl. Templ. Name for Applying';
@@ -945,6 +948,7 @@ table 98 "General Ledger Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(11320; "Simplified Intrastat Decl."; Boolean)
         {
             Caption = 'Simplified Intrastat Decl.';

@@ -200,6 +200,7 @@ table 461 "Prepayment Inv. Line Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Job Task";
         }
+#if not CLEANSCHEMA23
         field(11300; "Original Pmt. Disc. Possible"; Decimal)
         {
             Caption = 'Original Pmt. Disc. Possible';
@@ -208,6 +209,8 @@ table 461 "Prepayment Inv. Line Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(11301; "Base Before Pmt. Disc. (Old)"; Decimal)
         {
             Caption = 'Base Before Pmt. Disc. (Old)';
@@ -216,6 +219,7 @@ table 461 "Prepayment Inv. Line Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

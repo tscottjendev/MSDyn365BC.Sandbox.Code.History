@@ -340,6 +340,7 @@ table 273 "Bank Acc. Reconciliation"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
+#if not CLEANSCHEMA23
         field(11314; "Journal Template Name"; Code[10])
         {
             Caption = 'Journal Template Name';
@@ -348,6 +349,7 @@ table 273 "Bank Acc. Reconciliation"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

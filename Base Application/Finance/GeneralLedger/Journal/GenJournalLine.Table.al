@@ -3032,6 +3032,7 @@ table 81 "Gen. Journal Line"
                 UpdateVendorNo();
             end;
         }
+#if not CLEANSCHEMA23
         field(11301; "Original Pmt. Disc. Possible"; Decimal)
         {
             Caption = 'Original Pmt. Disc. Possible';
@@ -3053,6 +3054,7 @@ table 81 "Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(11310; "Enterprise No."; Text[50])
         {
             Caption = 'Enterprise No.';
@@ -5307,7 +5309,7 @@ table 81 "Gen. Journal Line"
     begin
         UpdateDocumentTypeAndAppliesTo(DocType, DocNo);
 
-        if("Applies-to Doc. Type" = "Applies-to Doc. Type"::Invoice) and ("Document Type" = "Document Type"::Payment) then
+        if ("Applies-to Doc. Type" = "Applies-to Doc. Type"::Invoice) and ("Document Type" = "Document Type"::Payment) then
             "Applies-to Ext. Doc. No." := ExtDocNo;
     end;
 

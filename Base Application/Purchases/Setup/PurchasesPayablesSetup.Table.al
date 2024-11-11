@@ -517,6 +517,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA23
         field(11310; "Journal Templ. Purch. Invoice"; Code[10])
         {
             Caption = 'Journal Templ. Purch. Invoice';
@@ -565,6 +566,7 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

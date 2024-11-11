@@ -539,6 +539,7 @@ table 254 "VAT Entry"
             Caption = 'Non-Deductible VAT Difference ACY';
             Editable = false;
         }
+#if not CLEANSCHEMA23
         field(11300; "Journal Template Name"; Code[10])
         {
             Caption = 'Template Name (obsolete)';
@@ -547,6 +548,8 @@ table 254 "VAT Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(11309; "Base Before Pmt. Disc. (Old)"; Decimal)
         {
             Caption = 'Base Before Pmt. Disc. (Old)';
@@ -554,6 +557,7 @@ table 254 "VAT Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(11310; "Enterprise No."; Text[50])
         {
             Caption = 'Enterprise No.';
