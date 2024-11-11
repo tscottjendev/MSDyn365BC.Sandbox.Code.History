@@ -218,6 +218,7 @@ table 325 "VAT Posting Setup"
                 NonDeductibleVAT.CheckVATPostingSetupChangeIsAllowed(Rec);
             end;
         }
+#if not CLEANSCHEMA26
         field(6201; "Non-Ded. Sales VAT Account"; Code[20])
         {
             Caption = 'Non-Deductible Sales VAT Account';
@@ -226,6 +227,7 @@ table 325 "VAT Posting Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(6202; "Non-Ded. Purchase VAT Account"; Code[20])
         {
             Caption = 'Non-Deductible Purchase VAT Account';
@@ -255,6 +257,7 @@ table 325 "VAT Posting Setup"
             Caption = 'Proportional Deduction VAT %';
             DecimalPlaces = 0 : 5;
         }
+#if not CLEANSCHEMA26
         field(10606; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
@@ -263,6 +266,7 @@ table 325 "VAT Posting Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(10607; "VAT Number"; Code[20])
         {
             TableRelation = "VAT Reporting Code".Code;
@@ -287,6 +291,7 @@ table 325 "VAT Posting Setup"
             OptionCaption = 'Normal,Medium,Low';
             OptionMembers = Normal,Medium,Low;
         }
+#if not CLEANSCHEMA26
         field(10609; "Sales VAT Reporting Code"; Code[10])
         {
             Caption = 'Sales VAT Reporting Code';
@@ -295,6 +300,8 @@ table 325 "VAT Posting Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
+#if not CLEANSCHEMA26
         field(10610; "Purchase VAT Reporting Code"; Code[10])
         {
             Caption = 'Purchase VAT Reporting Code';
@@ -303,6 +310,8 @@ table 325 "VAT Posting Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(10620; "Sales SAFT Tax Code"; Integer)
         {
             Caption = 'Sales SAF-T Tax Code';
@@ -311,6 +320,8 @@ table 325 "VAT Posting Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(10621; "Purchase SAFT Tax Code"; Integer)
         {
             Caption = 'Purchase SAF-T Tax Code';
@@ -319,6 +330,8 @@ table 325 "VAT Posting Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(10622; "Sales SAFT Standard Tax Code"; Code[10])
         {
             Caption = 'Sales SAF-T Standard Tax Code';
@@ -327,6 +340,8 @@ table 325 "VAT Posting Setup"
             TableRelation = "VAT Code";
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(10623; "Purch. SAFT Standard Tax Code"; Code[10])
         {
             Caption = 'Purch. SAF-T Standard Tax Code';
@@ -335,6 +350,7 @@ table 325 "VAT Posting Setup"
             TableRelation = "VAT Code";
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.VAT.Ledger;
+namespace Microsoft.Finance.VAT.Ledger;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -537,6 +537,7 @@ table 254 "VAT Entry"
             Caption = 'Non-Deductible VAT Difference ACY';
             Editable = false;
         }
+#if not CLEANSCHEMA15
         field(10603; "Add.-Curr. Inv.tax Amount"; Decimal)
         {
             Caption = 'Add.-Curr. Inv.tax Amount';
@@ -544,6 +545,8 @@ table 254 "VAT Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(10604; "Add.-Curr. Inv.tax Base"; Decimal)
         {
             Caption = 'Add.-Curr. Inv.tax Base';
@@ -551,12 +554,14 @@ table 254 "VAT Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(10606; "Base Amount Type"; Option)
         {
             Caption = 'Base Amount Type';
             OptionCaption = ' ,With VAT,Without VAT,Outside Tax Area';
             OptionMembers = " ","With VAT","Without VAT","Outside Tax Area";
         }
+#if not CLEANSCHEMA26
         field(10607; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
@@ -565,6 +570,7 @@ table 254 "VAT Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(10610; "VAT Number"; Code[20])
         {
             TableRelation = "VAT Reporting Code".Code;

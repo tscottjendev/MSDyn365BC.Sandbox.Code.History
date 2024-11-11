@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -146,6 +146,7 @@ table 256 "VAT Statement Line"
         {
             Caption = 'Box No.';
         }
+#if not CLEANSCHEMA26
         field(10600; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
@@ -154,6 +155,7 @@ table 256 "VAT Statement Line"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(10601; "Incl. Non Deductible VAT"; Boolean)
         {
             Caption = 'Incl. Non Deductible VAT';

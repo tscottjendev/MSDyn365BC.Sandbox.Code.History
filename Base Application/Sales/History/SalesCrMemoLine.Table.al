@@ -591,6 +591,7 @@ table 115 "Sales Cr.Memo Line"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
+#if not CLEANSCHEMA26
         field(10604; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
@@ -599,6 +600,7 @@ table 115 "Sales Cr.Memo Line"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(10605; "Account Code"; Text[30])
         {
             Caption = 'Account Code';

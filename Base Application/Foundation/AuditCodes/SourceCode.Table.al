@@ -25,6 +25,7 @@ table 230 "Source Code"
         {
             Caption = 'Description';
         }
+#if not CLEANSCHEMA15
         field(10620; "SAFT Source Code"; Code[9])
         {
             Caption = 'SAF-T Source Code';
@@ -32,6 +33,7 @@ table 230 "Source Code"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Setup;
+namespace Microsoft.Sales.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -693,6 +693,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             InitValue = true;
         }
+#if not CLEANSCHEMA25
         field(10600; "Print Receipt on Giro"; Boolean)
         {
             Caption = 'Print Receipt on Giro';
@@ -700,6 +701,7 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(10603; "KID Setup"; Option)
         {
             Caption = 'KID Setup';

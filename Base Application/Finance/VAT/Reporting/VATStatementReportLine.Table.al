@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -57,18 +57,22 @@ table 742 "VAT Statement Report Line"
         {
             Caption = 'Note';
         }
+#if not CLEANSCHEMA18
         field(4800; RepresentativeAmount; Decimal)
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'Moved to VAT Group Management extension field 4700 Representative Amount';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(4801; GroupAmount; Decimal)
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'Moved to VAT Group Management extension field 4701 Group Amount';
             ObsoleteTag = '18.0';
         }
+#endif
         field(10600; "Non-Deductible Base"; Decimal)
         {
             AutoFormatType = 1;

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -3038,6 +3038,7 @@ table 81 "Gen. Journal Line"
                 UpdateVendorNo();
             end;
         }
+#if not CLEANSCHEMA26
         field(10604; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
@@ -3046,6 +3047,8 @@ table 81 "Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
+#if not CLEANSCHEMA26
         field(10605; "Bal. VAT Code"; Code[10])
         {
             Caption = 'Bal. VAT Code';
@@ -3054,6 +3057,8 @@ table 81 "Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(10606; "Source Curr. Inv.tax Amount"; Decimal)
         {
             Caption = 'Source Curr. Inv.tax Amount';
@@ -3062,6 +3067,8 @@ table 81 "Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(10607; "Source Curr. Inv.tax Base"; Decimal)
         {
             Caption = 'Source Curr. Inv.tax Base';
@@ -3070,6 +3077,7 @@ table 81 "Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(10608; "VAT Base Amount Type"; Option)
         {
             Caption = 'VAT Base Amount Type';

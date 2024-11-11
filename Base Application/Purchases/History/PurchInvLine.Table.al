@@ -697,6 +697,7 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Price Calculation Method';
         }
+#if not CLEANSCHEMA26
         field(10604; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
@@ -705,6 +706,7 @@ table 123 "Purch. Inv. Line"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(10610; "VAT Number"; Code[20])
         {
             TableRelation = "VAT Reporting Code".Code;

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -737,6 +737,7 @@ table 15000004 "Waiting Journal"
         {
             Caption = 'Description';
         }
+#if not CLEANSCHEMA26
         field(10604; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
@@ -745,6 +746,8 @@ table 15000004 "Waiting Journal"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
+#if not CLEANSCHEMA26
         field(10605; "Bal. VAT Code"; Code[10])
         {
             Caption = 'Bal. VAT Code';
@@ -753,6 +756,8 @@ table 15000004 "Waiting Journal"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(10606; "Source Curr. Inv.tax Amount"; Decimal)
         {
             Caption = 'Source Curr. Inv.tax Amount';
@@ -761,6 +766,8 @@ table 15000004 "Waiting Journal"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(10607; "Source Curr. Inv.tax Base"; Decimal)
         {
             Caption = 'Source Curr. Inv.tax Base';
@@ -769,6 +776,7 @@ table 15000004 "Waiting Journal"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(10608; "VAT Base Amount Type"; Option)
         {
             Caption = 'VAT Base Amount Type';

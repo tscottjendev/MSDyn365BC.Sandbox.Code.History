@@ -607,6 +607,7 @@ table 113 "Sales Invoice Line"
             Caption = 'Price description';
             OptimizeForTextSearch = true;
         }
+#if not CLEANSCHEMA26
         field(10604; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
@@ -615,6 +616,7 @@ table 113 "Sales Invoice Line"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(10605; "Account Code"; Text[30])
         {
             Caption = 'Account Code';

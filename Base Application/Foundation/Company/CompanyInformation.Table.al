@@ -347,6 +347,7 @@ table 79 "Company Information"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#if not CLEANSCHEMA25
         field(43; "IC Inbox Details"; Text[250])
         {
             AccessByPermission = TableData "IC G/L Account" = R;
@@ -355,6 +356,7 @@ table 79 "Company Information"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(44; "Auto. Send Transactions"; Boolean)
         {
             AccessByPermission = TableData "IC G/L Account" = R;

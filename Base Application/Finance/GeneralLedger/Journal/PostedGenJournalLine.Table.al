@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -1135,6 +1135,7 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'Indentation';
         }
+#if not CLEANSCHEMA26
         field(10604; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
@@ -1143,6 +1144,8 @@ table 181 "Posted Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
+#if not CLEANSCHEMA26
         field(10605; "Bal. VAT Code"; Code[10])
         {
             Caption = 'Bal. VAT Code';
@@ -1151,6 +1154,7 @@ table 181 "Posted Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(10608; "VAT Base Amount Type"; Option)
         {
             Caption = 'VAT Base Amount Type';

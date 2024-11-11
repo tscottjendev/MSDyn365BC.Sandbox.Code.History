@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Document;
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.History;
@@ -3411,6 +3411,7 @@ table 37 "Sales Line"
             FieldClass = FlowField;
             BlankZero = true;
         }
+#if not CLEANSCHEMA26
         field(10604; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
@@ -3419,6 +3420,7 @@ table 37 "Sales Line"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(10605; "Account Code"; Text[30])
         {
             Caption = 'Account Code';

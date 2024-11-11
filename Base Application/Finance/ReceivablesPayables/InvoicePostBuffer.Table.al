@@ -305,6 +305,7 @@ table 49 "Invoice Post. Buffer"
             Caption = 'Non-Deductible VAT Difference';
             Editable = false;
         }
+#if not CLEANSCHEMA15
         field(10604; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
@@ -314,6 +315,7 @@ table 49 "Invoice Post. Buffer"
             TableRelation = "VAT Code".Code;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

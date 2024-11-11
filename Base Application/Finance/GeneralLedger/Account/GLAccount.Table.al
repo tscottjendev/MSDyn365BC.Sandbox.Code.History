@@ -776,6 +776,7 @@ table 15 "G/L Account"
             Caption = 'API Account Type';
             Editable = false;
         }
+#if not CLEANSCHEMA26
         field(10601; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
@@ -784,6 +785,7 @@ table 15 "G/L Account"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(10610; "VAT Number"; Code[20])
         {
             TableRelation = "VAT Reporting Code".Code;
