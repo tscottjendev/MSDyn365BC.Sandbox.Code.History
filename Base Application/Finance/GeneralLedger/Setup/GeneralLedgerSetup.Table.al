@@ -895,7 +895,7 @@ table 98 "General Ledger Setup"
             TableRelation = "G/L Account Category";
             Caption = 'Account Receivables G/L Account Category';
         }
-	    field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
+        field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
         {
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;

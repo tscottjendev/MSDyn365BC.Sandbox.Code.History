@@ -504,6 +504,7 @@ table 17 "G/L Entry"
         {
             Caption = 'Consol. Version No.';
         }
+#if not CLEANSCHEMA15
         field(28160; "Entry Type"; Option)
         {
             Caption = 'Entry Type';
@@ -513,6 +514,7 @@ table 17 "G/L Entry"
             OptionMembers = Definitive,Simulation;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

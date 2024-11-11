@@ -3268,6 +3268,7 @@ table 81 "Gen. Journal Line"
         {
             Caption = 'Interest Amount (LCY)';
         }
+#if not CLEANSCHEMA15
         field(28160; "Entry Type"; Option)
         {
             Caption = 'Entry Type';
@@ -3277,6 +3278,7 @@ table 81 "Gen. Journal Line"
             OptionMembers = Definitive,Simulation;
             ObsoleteTag = '15.0';
         }
+#endif
         field(28161; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
