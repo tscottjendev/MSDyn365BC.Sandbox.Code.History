@@ -96,6 +96,7 @@ table 1262 "Isolated Certificate"
             Editable = false;
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA21
         field(31130; "Certificate Code"; Code[20])
         {
             Caption = 'Certificate Code';
@@ -105,6 +106,7 @@ table 1262 "Isolated Certificate"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

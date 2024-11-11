@@ -696,6 +696,7 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Price Calculation Method';
         }
+#if not CLEANSCHEMA21
         field(11764; "VAT Difference (LCY)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
@@ -705,6 +706,8 @@ table 123 "Purch. Inv. Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11765; "VAT % (Non Deductible)"; Decimal)
         {
             Caption = 'VAT % (Non Deductible)';
@@ -714,6 +717,8 @@ table 123 "Purch. Inv. Line"
             ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11766; "VAT Base (Non Deductible)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
@@ -723,6 +728,8 @@ table 123 "Purch. Inv. Line"
             ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11767; "VAT Amount (Non Deductible)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
@@ -732,6 +739,8 @@ table 123 "Purch. Inv. Line"
             ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11770; "Ext. Amount (LCY)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
@@ -742,6 +751,8 @@ table 123 "Purch. Inv. Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11771; "Ext.Amount Including VAT (LCY)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
@@ -752,6 +763,8 @@ table 123 "Purch. Inv. Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11772; "Ext. VAT Difference (LCY)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
@@ -762,6 +775,8 @@ table 123 "Purch. Inv. Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31010; "Prepayment Cancelled"; Boolean)
         {
             Caption = 'Prepayment Cancelled';
@@ -769,6 +784,8 @@ table 123 "Purch. Inv. Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31011; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
@@ -776,6 +793,8 @@ table 123 "Purch. Inv. Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31012; "VAT Doc. Letter No."; Code[20])
         {
             Caption = 'VAT Doc. Letter No.';
@@ -783,6 +802,8 @@ table 123 "Purch. Inv. Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
@@ -791,6 +812,8 @@ table 123 "Purch. Inv. Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
@@ -798,6 +821,8 @@ table 123 "Purch. Inv. Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31063; "Country/Region of Origin Code"; Code[10])
         {
             Caption = 'Country/Region of Origin Code';
@@ -805,6 +830,7 @@ table 123 "Purch. Inv. Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';

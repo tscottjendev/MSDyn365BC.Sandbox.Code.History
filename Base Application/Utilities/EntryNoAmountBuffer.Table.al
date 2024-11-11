@@ -44,6 +44,7 @@ table 386 "Entry No. Amount Buffer"
             Caption = 'End Date';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA23
         field(11760; "Debit Amount"; Decimal)
         {
             AutoFormatType = 1;
@@ -54,6 +55,8 @@ table 386 "Entry No. Amount Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11761; "Credit Amount"; Decimal)
         {
             AutoFormatType = 1;
@@ -64,6 +67,7 @@ table 386 "Entry No. Amount Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

@@ -521,6 +521,7 @@ table 32 "Item Ledger Entry"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
+#if not CLEANSCHEMA21
         field(11790; "Source No. 2"; Code[20])
         {
             Caption = 'Invoice-to Source No.';
@@ -557,6 +558,8 @@ table 32 "Item Ledger Entry"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31043; "FA No."; Code[20])
         {
             Caption = 'FA No.';
@@ -578,6 +581,8 @@ table 32 "Item Ledger Entry"
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
@@ -599,6 +604,8 @@ table 32 "Item Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31065; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
@@ -607,6 +614,8 @@ table 32 "Item Ledger Entry"
             TableRelation = "Shipment Method";
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31066; "Net Weight"; Decimal)
         {
             Caption = 'Net Weight';
@@ -646,6 +655,7 @@ table 32 "Item Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

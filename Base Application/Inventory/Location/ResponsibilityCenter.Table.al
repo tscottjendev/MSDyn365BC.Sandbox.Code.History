@@ -178,6 +178,7 @@ table 5714 "Responsibility Center"
             Caption = 'Date Filter';
             FieldClass = FlowFilter;
         }
+#if not CLEANSCHEMA21
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
@@ -229,6 +230,7 @@ table 5714 "Responsibility Center"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

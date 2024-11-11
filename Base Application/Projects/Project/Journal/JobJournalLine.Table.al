@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Projects.Project.Journal;
+namespace Microsoft.Projects.Project.Journal;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -1107,6 +1107,7 @@ table 210 "Job Journal Line"
         {
             Caption = 'Cost Calculation Method';
         }
+#if not CLEANSCHEMA21
         field(11763; Correction; Boolean)
         {
             Caption = 'Correction';
@@ -1114,6 +1115,8 @@ table 210 "Job Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31043; "FA No."; Code[20])
         {
             Caption = 'FA No.';
@@ -1121,6 +1124,8 @@ table 210 "Job Journal Line"
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31044; "Maintenance Code"; Code[10])
         {
             Caption = 'Maintenance Code';
@@ -1129,6 +1134,8 @@ table 210 "Job Journal Line"
             ObsoleteTag = '18.0';
 
         }
+#endif
+#if not CLEANSCHEMA21
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
@@ -1136,6 +1143,8 @@ table 210 "Job Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
@@ -1143,6 +1152,8 @@ table 210 "Job Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31063; "Country/Region of Origin Code"; Code[10])
         {
             Caption = 'Country/Region of Origin Code';
@@ -1150,6 +1161,8 @@ table 210 "Job Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31064; "Intrastat Transaction"; Boolean)
         {
             Caption = 'Intrastat Transaction';
@@ -1158,6 +1171,8 @@ table 210 "Job Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31065; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
@@ -1165,6 +1180,8 @@ table 210 "Job Journal Line"
             ObsoleteReason = 'Merge to W1';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31066; "Net Weight"; Decimal)
         {
             Caption = 'Net Weight';
@@ -1173,6 +1190,8 @@ table 210 "Job Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31070; "Whse. Net Change Template"; Code[10])
         {
             Caption = 'Whse. Net Change Template';
@@ -1180,6 +1199,7 @@ table 210 "Job Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

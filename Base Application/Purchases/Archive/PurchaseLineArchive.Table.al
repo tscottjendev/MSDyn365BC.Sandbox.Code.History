@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Archive;
+namespace Microsoft.Purchases.Archive;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
@@ -1007,6 +1007,7 @@ table 5110 "Purchase Line Archive"
         {
             Caption = 'Price Calculation Method';
         }
+#if not CLEANSCHEMA21
         field(11780; "External VAT Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
@@ -1016,6 +1017,8 @@ table 5110 "Purchase Line Archive"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31060; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
@@ -1023,6 +1026,7 @@ table 5110 "Purchase Line Archive"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';

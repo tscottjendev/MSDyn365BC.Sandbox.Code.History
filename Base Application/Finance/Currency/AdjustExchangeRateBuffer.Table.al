@@ -74,6 +74,7 @@ table 331 "Adjust Exchange Rate Buffer"
             Caption = 'Index';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA24
         field(11760; "Initial G/L Account No."; Code[20])
         {
             Caption = 'Initial G/L Account No.';
@@ -82,6 +83,8 @@ table 331 "Adjust Exchange Rate Buffer"
             ObsoleteTag = '24.0';
             ObsoleteReason = 'The field is not used anymore.';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11761; "Document Type"; Option)
         {
             Caption = 'Document Type';
@@ -108,6 +111,8 @@ table 331 "Adjust Exchange Rate Buffer"
             ObsoleteReason = 'Field Entry No. will be removed and this field should not be used.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA24
         field(31000; Advance; Boolean)
         {
             Caption = 'Advance';
@@ -116,6 +121,7 @@ table 331 "Adjust Exchange Rate Buffer"
             ObsoleteTag = '24.0';
             ObsoleteReason = 'The field is not used anymore.';
         }
+#endif
     }
 
     keys

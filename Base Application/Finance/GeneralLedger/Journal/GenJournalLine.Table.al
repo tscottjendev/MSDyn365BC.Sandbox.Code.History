@@ -3026,6 +3026,7 @@ table 81 "Gen. Journal Line"
                 UpdateVendorNo();
             end;
         }
+#if not CLEANSCHEMA21
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
@@ -3089,6 +3090,8 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
@@ -3096,6 +3099,8 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11761; Compensation; Boolean)
         {
             Caption = 'Compensation';
@@ -3103,6 +3108,8 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11763; "Postponed VAT"; Boolean)
         {
             Caption = 'Postponed VAT';
@@ -3110,6 +3117,8 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11764; "VAT Delay"; Boolean)
         {
             Caption = 'VAT Delay';
@@ -3118,6 +3127,8 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11765; "VAT % (Non Deductible)"; Decimal)
         {
             Caption = 'VAT % (Non Deductible)';
@@ -3145,6 +3156,8 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11768; "Currency Factor VAT"; Decimal)
         {
             Caption = 'Currency Factor VAT';
@@ -3163,6 +3176,8 @@ table 81 "Gen. Journal Line"
             ObsoleteTag = '20.0';
 
         }
+#endif
+#if not CLEANSCHEMA18
         field(11770; "Primary VAT Entry No."; Integer)
         {
             Caption = 'Primary VAT Entry No.';
@@ -3187,6 +3202,8 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11774; "VAT Difference (LCY)"; Decimal)
         {
             Caption = 'VAT Difference (LCY)';
@@ -3201,6 +3218,8 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
@@ -3215,6 +3234,8 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31000; "Prepayment Type"; Option)
         {
             Caption = 'Prepayment Type';
@@ -3266,6 +3287,8 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
@@ -3273,6 +3296,8 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
@@ -3280,6 +3305,8 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31070; "Item Ledger Entry No."; Integer)
         {
             Caption = 'Item Ledger Entry No.';
@@ -3287,6 +3314,8 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31100; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
@@ -3310,6 +3339,7 @@ table 81 "Gen. Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

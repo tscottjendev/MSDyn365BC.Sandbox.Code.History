@@ -2030,6 +2030,7 @@ table 27 Item
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
         }
+#if not CLEANSCHEMA18
         field(11792; "Full Description"; Text[250])
         {
             Caption = 'Full Description';
@@ -2038,6 +2039,8 @@ table 27 Item
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31060; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
@@ -2045,6 +2048,8 @@ table 27 Item
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31061; "Specific Movement"; Code[10])
         {
             Caption = 'Specific Movement';
@@ -2052,6 +2057,7 @@ table 27 Item
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
         field(99000757; "Overhead Rate"; Decimal)
         {
             AutoFormatType = 2;

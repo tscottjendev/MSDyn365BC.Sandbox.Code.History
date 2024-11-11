@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Document;
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Bank.BankAccount;
@@ -3047,6 +3047,7 @@ table 36 "Sales Header"
             Caption = 'Get Shipment Used';
             Editable = false;
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -3054,6 +3055,7 @@ table 36 "Sales Header"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';
@@ -3068,6 +3070,7 @@ table 36 "Sales Header"
                       RespCenter.TableCaption(), UserSetupMgt.GetSalesFilter("Assigned User ID"));
             end;
         }
+#if not CLEANSCHEMA21
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
@@ -3078,6 +3081,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
@@ -3087,6 +3092,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
@@ -3095,6 +3102,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
@@ -3103,6 +3112,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
@@ -3111,6 +3122,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
@@ -3119,6 +3132,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
@@ -3128,6 +3143,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
@@ -3135,6 +3152,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
@@ -3143,6 +3162,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
@@ -3151,6 +3172,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11730; "Cash Desk Code"; Code[20])
         {
             Caption = 'Cash Desk Code';
@@ -3158,6 +3181,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11731; "Cash Document Status"; Option)
         {
             Caption = 'Cash Document Status';
@@ -3167,6 +3192,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
@@ -3174,6 +3201,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11761; "VAT Currency Factor"; Decimal)
         {
             Caption = 'VAT Currency Factor';
@@ -3183,6 +3212,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11762; "Tax Corrective Document"; Boolean)
         {
             Caption = 'Tax Corrective Document';
@@ -3190,6 +3221,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11763; "Postponed VAT"; Boolean)
         {
             Caption = 'Postponed VAT';
@@ -3197,6 +3230,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11765; "Posting Desc. Code"; Code[10])
         {
             Caption = 'Posting Desc. Code';
@@ -3204,6 +3239,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11766; "Credit Memo Type"; Option)
         {
             Caption = 'Credit Memo Type';
@@ -3213,6 +3250,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
@@ -3221,6 +3260,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
@@ -3229,6 +3270,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11792; "Original User ID"; Code[50])
         {
             Caption = 'Original User ID';
@@ -3239,6 +3282,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'This field is not needed and it should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(11793; "Quote Validity"; Date)
         {
             Caption = 'Quote Validity';
@@ -3246,6 +3291,8 @@ table 36 "Sales Header"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31000; "Prepayment Type"; Option)
         {
             Caption = 'Prepayment Type';
@@ -3255,6 +3302,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31001; "Advance Letter No. Series"; Code[20])
         {
             Caption = 'Advance Letter No. Series';
@@ -3263,6 +3312,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31002; "Advance Letter No."; Code[20])
         {
             Caption = 'Advance Letter No.';
@@ -3270,6 +3321,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
@@ -3277,6 +3330,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31061; "Perf. Country Currency Factor"; Decimal)
         {
             Caption = 'Perf. Country Currency Factor';
@@ -3287,6 +3342,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
@@ -3294,6 +3351,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
@@ -3301,6 +3360,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31065; "Industry Code"; Code[20])
         {
             Caption = 'Industry Code';
@@ -3308,6 +3369,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
@@ -3315,6 +3378,8 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31100; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
@@ -3322,6 +3387,7 @@ table 36 "Sales Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

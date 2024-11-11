@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Vendor;
+namespace Microsoft.Purchases.Vendor;
 
 using Microsoft.Bank.Setup;
 using Microsoft.Finance.Currency;
@@ -226,6 +226,7 @@ table 288 "Vendor Bank Account"
             Caption = 'Bank Clearing Standard';
             TableRelation = "Bank Clearing Standard";
         }
+#if not CLEANSCHEMA21
         field(11700; Priority; Integer)
         {
             BlankZero = true;
@@ -234,6 +235,8 @@ table 288 "Vendor Bank Account"
             ObsoleteReason = 'Removed from Base Application, use Preferred Bank Account Code instead.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
@@ -242,6 +245,8 @@ table 288 "Vendor Bank Account"
             ObsoleteReason = 'Removed from Base Application.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11792; "Third Party Bank Account"; Boolean)
         {
             Caption = 'Third Party Bank Account';
@@ -249,6 +254,7 @@ table 288 "Vendor Bank Account"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

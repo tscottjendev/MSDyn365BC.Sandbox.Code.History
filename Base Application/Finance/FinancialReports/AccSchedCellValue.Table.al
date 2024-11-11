@@ -29,6 +29,7 @@ table 342 "Acc. Sched. Cell Value"
         {
             Caption = 'Period Error';
         }
+#if not CLEANSCHEMA24
         field(31080; "Schedule Name"; Code[10])
         {
             Caption = 'Schedule Name';
@@ -37,6 +38,7 @@ table 342 "Acc. Sched. Cell Value"
             ObsoleteTag = '24.0';
             ObsoleteReason = 'The field is not used anymore.';
         }
+#endif
     }
 
     keys

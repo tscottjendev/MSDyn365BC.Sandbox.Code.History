@@ -602,6 +602,7 @@ table 111 "Sales Shipment Line"
                 UpdateDocumentNo();
             end;
         }
+#if not CLEANSCHEMA23
         field(11791; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
@@ -610,6 +611,8 @@ table 111 "Sales Shipment Line"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
@@ -618,6 +621,8 @@ table 111 "Sales Shipment Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
@@ -625,6 +630,7 @@ table 111 "Sales Shipment Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

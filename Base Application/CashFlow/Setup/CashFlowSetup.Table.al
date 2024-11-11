@@ -264,6 +264,7 @@ table 843 "Cash Flow Setup"
             OptionCaption = 'ARIMA,ETS,STL,ETS+ARIMA,ETS+STL,ALL,TBATS', Locked = true;
             OptionMembers = ARIMA,ETS,STL,"ETS+ARIMA","ETS+STL",ALL,TBATS;
         }
+#if not CLEANSCHEMA22
         field(31000; "S. Adv. Letter CF Account No."; Code[20])
         {
             Caption = 'S. Adv. Letter CF Account No.';
@@ -278,6 +279,7 @@ table 843 "Cash Flow Setup"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
         field(34; "Azure AI Enabled"; Boolean)
         {
             Caption = 'Azure AI Enabled';

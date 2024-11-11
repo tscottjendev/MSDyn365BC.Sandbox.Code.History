@@ -439,6 +439,7 @@ table 5606 "FA Posting Group"
                 CheckGLAcc("Book Val. Acc. on Disp. (Loss)", false);
             end;
         }
+#if not CLEANSCHEMA21
         field(31040; "Acq. Cost Bal. Acc. on Disp."; Code[20])
         {
             Caption = 'Acq. Cost Bal. Acc. on Disp.';
@@ -457,6 +458,8 @@ table 5606 "FA Posting Group"
             ObsoleteTag = '21.0';
 
         }
+#endif
+#if not CLEANSCHEMA18
         field(31042; "Use Standard Disposal"; Boolean)
         {
             Caption = 'Use Standard Disposal';
@@ -464,6 +467,7 @@ table 5606 "FA Posting Group"
             ObsoleteReason = 'The functionality of Disposal Posting was changed and this field should not be used. This field is replaced by a UseStandardDisposal function. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     keys

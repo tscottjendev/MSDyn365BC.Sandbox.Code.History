@@ -185,6 +185,7 @@ table 5846 "Inventory Report Entry"
         {
             Caption = 'Deleted G/L Accounts Warning';
         }
+#if not CLEANSCHEMA21
         field(11760; "Inv. Rounding Adj."; Decimal)
         {
             Caption = 'Inv. Rounding Adj.';
@@ -213,6 +214,7 @@ table 5846 "Inventory Report Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

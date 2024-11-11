@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA21
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -8,6 +9,7 @@ tableextension 11807 "Service Shipment Header CZ" extends "Service Shipment Head
 {
     fields
     {
+#if not CLEANSCHEMA20
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
@@ -16,6 +18,8 @@ tableextension 11807 "Service Shipment Header CZ" extends "Service Shipment Head
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
@@ -24,6 +28,8 @@ tableextension 11807 "Service Shipment Header CZ" extends "Service Shipment Head
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
@@ -32,6 +38,8 @@ tableextension 11807 "Service Shipment Header CZ" extends "Service Shipment Head
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31061; "Curr. Factor Perf. Country/Reg"; Decimal)
         {
             Caption = 'Curr. Factor Perf. Country/Reg';
@@ -43,6 +51,8 @@ tableextension 11807 "Service Shipment Header CZ" extends "Service Shipment Head
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
@@ -51,6 +61,8 @@ tableextension 11807 "Service Shipment Header CZ" extends "Service Shipment Head
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
@@ -59,6 +71,8 @@ tableextension 11807 "Service Shipment Header CZ" extends "Service Shipment Head
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31065; "Industry Code"; Code[20])
         {
             Caption = 'Industry Code';
@@ -67,6 +81,8 @@ tableextension 11807 "Service Shipment Header CZ" extends "Service Shipment Head
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
@@ -75,5 +91,7 @@ tableextension 11807 "Service Shipment Header CZ" extends "Service Shipment Head
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 }
+#endif

@@ -265,6 +265,7 @@ table 5611 "Depreciation Book"
                     until FADeprBook.Next() = 0;
             end;
         }
+#if not CLEANSCHEMA21
         field(31040; "Deprication from 1st Month Day"; Boolean)
         {
             Caption = 'Depreciation from 1st Month Day';
@@ -323,6 +324,7 @@ table 5611 "Depreciation Book"
             ObsoleteTag = '21.0';
 
         }
+#endif
     }
 
     keys

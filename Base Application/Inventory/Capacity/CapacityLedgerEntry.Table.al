@@ -232,6 +232,7 @@ table 5832 "Capacity Ledger Entry"
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(8)));
         }
+#if not CLEANSCHEMA21
         field(11790; "User ID"; Code[50])
         {
             Caption = 'User ID';
@@ -240,6 +241,7 @@ table 5832 "Capacity Ledger Entry"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

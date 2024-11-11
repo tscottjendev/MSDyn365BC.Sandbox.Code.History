@@ -35,6 +35,7 @@ table 5719 "Nonstock Item Setup"
                         FieldError("No. Format");
             end;
         }
+#if not CLEANSCHEMA21
         field(31070; "No. From No. Series"; Boolean)
         {
             Caption = 'No. From No. Series';
@@ -42,6 +43,7 @@ table 5719 "Nonstock Item Setup"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

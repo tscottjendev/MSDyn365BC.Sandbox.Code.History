@@ -53,6 +53,7 @@ table 31100 "VAT Control Report Header"
             OptionCaption = 'Open,Release';
             OptionMembers = Open,Release;
         }
+#if not CLEANSCHEMA18
         field(15; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
@@ -60,6 +61,7 @@ table 31100 "VAT Control Report Header"
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
         field(20; "VAT Statement Template Name"; Code[10])
         {
             Caption = 'VAT Statement Template Name';
@@ -96,5 +98,5 @@ table 31100 "VAT Control Report Header"
     }
 
 }
- 
+
 #endif

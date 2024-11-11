@@ -1550,6 +1550,7 @@ table 23 Vendor
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
         }
+#if not CLEANSCHEMA23
         field(11760; "Last Statement No."; Integer)
         {
             Caption = 'Last Statement No.';
@@ -1557,6 +1558,8 @@ table 23 Vendor
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11761; "Print Statements"; Boolean)
         {
             Caption = 'Print Statements';
@@ -1564,6 +1567,8 @@ table 23 Vendor
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11762; "Last Statement Date"; Date)
         {
             Caption = 'Last Statement Date';
@@ -1572,6 +1577,8 @@ table 23 Vendor
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11765; "Disable Uncertainty Check"; Boolean)
         {
             Caption = 'Disable Uncertainty Check';
@@ -1579,6 +1586,8 @@ table 23 Vendor
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
@@ -1587,6 +1596,8 @@ table 23 Vendor
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
@@ -1595,6 +1606,8 @@ table 23 Vendor
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11792; "Registered Name"; Text[250])
         {
             Caption = 'Registered Name';
@@ -1603,6 +1616,8 @@ table 23 Vendor
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11793; "Default Order Address Code"; Code[10])
         {
             Caption = 'Default Order Address Code';
@@ -1611,6 +1626,8 @@ table 23 Vendor
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31060; "Transaction Type"; Code[10])
         {
             Caption = 'Transaction Type';
@@ -1619,6 +1636,8 @@ table 23 Vendor
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31061; "Transaction Specification"; Code[10])
         {
             Caption = 'Transaction Specification';
@@ -1627,6 +1646,8 @@ table 23 Vendor
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31062; "Transport Method"; Code[10])
         {
             Caption = 'Transport Method';
@@ -1635,6 +1656,8 @@ table 23 Vendor
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31063; "Industry Code"; Code[20])
         {
             Caption = 'Industry Code';
@@ -1642,6 +1665,7 @@ table 23 Vendor
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     keys

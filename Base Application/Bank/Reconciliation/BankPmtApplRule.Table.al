@@ -69,6 +69,7 @@ table 1252 "Bank Pmt. Appl. Rule"
         {
             Caption = 'Apply Immediatelly';
         }
+#if not CLEANSCHEMA22
         field(11705; "Variable Symbol Matched"; Option)
         {
             Caption = 'Variable Symbol Matched';
@@ -105,6 +106,7 @@ table 1252 "Bank Pmt. Appl. Rule"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

@@ -643,6 +643,7 @@ table 25 "Vendor Ledger Entry"
             Caption = 'Remit-to Code';
             TableRelation = "Remit Address".Code where("Vendor No." = field("Vendor No."));
         }
+#if not CLEANSCHEMA21
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
@@ -653,6 +654,8 @@ table 25 "Vendor Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
@@ -662,6 +665,8 @@ table 25 "Vendor Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
@@ -671,6 +676,8 @@ table 25 "Vendor Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
@@ -679,6 +686,8 @@ table 25 "Vendor Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
@@ -687,6 +696,8 @@ table 25 "Vendor Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
@@ -696,6 +707,8 @@ table 25 "Vendor Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
@@ -703,6 +716,8 @@ table 25 "Vendor Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
@@ -710,6 +725,8 @@ table 25 "Vendor Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
@@ -718,6 +735,8 @@ table 25 "Vendor Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11761; Compensation; Boolean)
         {
             Caption = 'Compensation';
@@ -725,6 +744,8 @@ table 25 "Vendor Ledger Entry"
             ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31000; "Prepayment Type"; Option)
         {
             Caption = 'Prepayment Type';
@@ -735,6 +756,8 @@ table 25 "Vendor Ledger Entry"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31003; "Open For Advance Letter"; Boolean)
         {
             Caption = 'Open For Advance Letter';
@@ -742,6 +765,7 @@ table 25 "Vendor Ledger Entry"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

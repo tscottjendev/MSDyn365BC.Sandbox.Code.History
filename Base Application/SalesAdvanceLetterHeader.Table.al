@@ -406,6 +406,7 @@ table 31000 "Sales Advance Letter Header"
             OptionCaption = ' ,Never,Optional,Always';
             OptionMembers = " ",Never,Optional,Always;
         }
+#if not CLEANSCHEMA18
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
@@ -423,6 +424,7 @@ table 31000 "Sales Advance Letter Header"
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries hase been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     keys
@@ -445,5 +447,5 @@ table 31000 "Sales Advance Letter Header"
     fieldgroups
     {
     }
-} 
+}
 #endif

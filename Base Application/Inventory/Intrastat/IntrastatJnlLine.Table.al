@@ -206,6 +206,7 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Counterparty';
         }
+#if not CLEANSCHEMA21
         field(31060; "Additional Costs"; Boolean)
         {
             Caption = 'Additional Costs';
@@ -269,6 +270,8 @@ table 263 "Intrastat Jnl. Line"
             ObsoleteTag = '21.0';
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31069; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
@@ -277,6 +280,8 @@ table 263 "Intrastat Jnl. Line"
             TableRelation = "Shipment Method";
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31070; "Specific Movement"; Code[10])
         {
             Caption = 'Specific Movement';
@@ -318,6 +323,7 @@ table 263 "Intrastat Jnl. Line"
             ObsoleteTag = '21.0';
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
+#endif
     }
 
     keys
@@ -345,5 +351,5 @@ table 263 "Intrastat Jnl. Line"
     }
 }
 
- 
+
 #endif

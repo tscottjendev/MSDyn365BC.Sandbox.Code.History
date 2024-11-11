@@ -77,6 +77,7 @@ table 1250 "Bank Statement Matching Buffer"
         {
             Caption = 'Date Matches';
         }
+#if not CLEANSCHEMA22
         field(11700; "No. of Match to Doc. No."; Integer)
         {
             Caption = 'No. of Match to Doc. No.';
@@ -109,6 +110,8 @@ table 1250 "Bank Statement Matching Buffer"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA25
         field(30000; "Letter Type"; Option)
         {
             Caption = 'Letter Type';
@@ -127,6 +130,7 @@ table 1250 "Bank Statement Matching Buffer"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '25.0';
         }
+#endif
         field(20; "Doc. No. Exact Score"; Integer)
         {
             Caption = 'Doc. No. Exact Score';

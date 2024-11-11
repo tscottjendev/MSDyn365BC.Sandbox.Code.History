@@ -242,6 +242,7 @@ table 11736 "Posted Cash Document Line"
             Caption = 'VAT Identifier';
             Editable = false;
         }
+#if not CLEANSCHEMA28
         field(62; "VAT Difference (LCY)"; Decimal)
         {
             Caption = 'VAT Difference (LCY)';
@@ -254,6 +255,7 @@ table 11736 "Posted Cash Document Line"
             ObsoleteTag = '25.0';
 #endif
         }
+#endif
         field(63; "System-Created Entry"; Boolean)
         {
             Caption = 'System-Created Entry';
@@ -321,6 +323,7 @@ table 11736 "Posted Cash Document Line"
             Editable = false;
             TableRelation = "Dimension Set Entry";
         }
+#if not CLEANSCHEMA18
         field(602; "VAT % (Non Deductible)"; Decimal)
         {
             Caption = 'VAT % (Non Deductible)';
@@ -348,6 +351,8 @@ table 11736 "Posted Cash Document Line"
             ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31125; "EET Transaction"; Boolean)
         {
             Caption = 'EET Transaction';
@@ -356,6 +361,7 @@ table 11736 "Posted Cash Document Line"
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys
@@ -377,5 +383,5 @@ table 11736 "Posted Cash Document Line"
     fieldgroups
     {
     }
-} 
+}
 #endif

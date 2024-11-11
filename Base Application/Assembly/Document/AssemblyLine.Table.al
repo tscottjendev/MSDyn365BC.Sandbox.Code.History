@@ -723,6 +723,7 @@ table 901 "Assembly Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
+#if not CLEANSCHEMA21
         field(11700; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
@@ -731,6 +732,7 @@ table 901 "Assembly Line"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

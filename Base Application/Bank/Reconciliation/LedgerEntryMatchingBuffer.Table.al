@@ -78,6 +78,7 @@ table 1248 "Ledger Entry Matching Buffer"
         {
             Caption = 'Pmt. Discount Due Date';
         }
+#if not CLEANSCHEMA22
         field(11700; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
@@ -105,6 +106,7 @@ table 1248 "Ledger Entry Matching Buffer"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

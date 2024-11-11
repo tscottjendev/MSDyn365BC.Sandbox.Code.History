@@ -394,6 +394,7 @@ table 13 "Salesperson/Purchaser"
         {
             Caption = 'Blocked';
         }
+#if not CLEANSCHEMA23
         field(11795; "Instant Messaging"; Text[250])
         {
             Caption = 'Instant Messaging';
@@ -409,6 +410,7 @@ table 13 "Salesperson/Purchaser"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

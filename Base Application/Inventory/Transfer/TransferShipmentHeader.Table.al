@@ -239,6 +239,7 @@ table 5744 "Transfer Shipment Header"
                 Rec.ShowDimensions();
             end;
         }
+#if not CLEANSCHEMA21
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
@@ -260,6 +261,7 @@ table 5744 "Transfer Shipment Header"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

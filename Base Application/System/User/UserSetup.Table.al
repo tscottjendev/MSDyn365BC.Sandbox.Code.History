@@ -1,4 +1,4 @@
-﻿namespace System.Security.User;
+namespace System.Security.User;
 
 using Microsoft.CRM.Team;
 using Microsoft.HumanResources.Employee;
@@ -319,6 +319,7 @@ table 91 "User Setup"
         {
             Caption = 'Service Invoice Posting Policy';
         }	
+#if not CLEANSCHEMA22
         field(11700; "Check Payment Orders"; Boolean)
         {
             Caption = 'Check Payment Orders';
@@ -326,6 +327,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(11701; "Check Bank Statements"; Boolean)
         {
             Caption = 'Check Bank Statements';
@@ -333,6 +336,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11730; "Cash Resp. Ctr. Filter"; Code[10])
         {
             Caption = 'Cash Resp. Ctr. Filter';
@@ -341,6 +346,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11760; "Check Document Date(work date)"; Boolean)
         {
             Caption = 'Check Document Date(work date)';
@@ -348,6 +355,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11761; "Check Document Date(sys. date)"; Boolean)
         {
             Caption = 'Check Document Date(sys. date)';
@@ -355,6 +364,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11762; "Check Posting Date (work date)"; Boolean)
         {
             Caption = 'Check Posting Date (work date)';
@@ -362,6 +373,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11763; "Check Posting Date (sys. date)"; Boolean)
         {
             Caption = 'Check Posting Date (sys. date)';
@@ -369,6 +382,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11764; "Check Bank Accounts"; Boolean)
         {
             Caption = 'Check Bank Accounts';
@@ -376,6 +391,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11765; "Check Journal Templates"; Boolean)
         {
             Caption = 'Check Journal Templates';
@@ -383,6 +400,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11766; "Check Dimension Values"; Boolean)
         {
             Caption = 'Check Dimension Values';
@@ -390,6 +409,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11767; "Allow Posting to Closed Period"; Boolean)
         {
             Caption = 'Allow Posting to Closed Period';
@@ -397,6 +418,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11768; "Allow VAT Posting From"; Date)
         {
             Caption = 'Allow VAT Posting From';
@@ -404,6 +427,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11769; "Allow VAT Posting To"; Date)
         {
             Caption = 'Allow VAT Posting To';
@@ -411,6 +436,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11790; "Allow Complete Job"; Boolean)
         {
             Caption = 'Allow Complete Job';
@@ -418,6 +445,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11791; "Employee No."; Code[20])
         {
             Caption = 'Employee No.';
@@ -426,6 +455,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11792; "User Name"; Text[50])
         {
             Caption = 'User Name';
@@ -433,6 +464,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31070; "Allow Item Unapply"; Boolean)
         {
             Caption = 'Allow Item Unapply';
@@ -440,6 +473,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31071; "Check Location Code"; Boolean)
         {
             Caption = 'Check Location Code';
@@ -447,6 +482,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31072; "Check Release Location Code"; Boolean)
         {
             Caption = 'Check Release Location Code';
@@ -454,6 +491,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31073; "Check Whse. Net Change Temp."; Boolean)
         {
             Caption = 'Check Whse. Net Change Temp.';
@@ -461,6 +500,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31110; "Bank Amount Approval Limit"; Integer)
         {
             BlankZero = true;
@@ -469,6 +510,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31111; "Unlimited Bank Approval"; Boolean)
         {
             Caption = 'Unlimited Bank Approval';
@@ -476,6 +519,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31112; "Cash Desk Amt. Approval Limit"; Integer)
         {
             BlankZero = true;
@@ -484,6 +529,8 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31113; "Unlimited Cash Desk Approval"; Boolean)
         {
             Caption = 'Unlimited Cash Desk Approval';
@@ -491,6 +538,7 @@ table 91 "User Setup"
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

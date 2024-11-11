@@ -176,6 +176,7 @@ table 305 "Issued Fin. Charge Memo Line"
             Caption = 'System-Created Entry';
             Editable = false;
         }
+#if not CLEANSCHEMA23
         field(11761; Days; Integer)
         {
             Caption = 'Days';
@@ -183,6 +184,8 @@ table 305 "Issued Fin. Charge Memo Line"
             ObsoleteTag = '23.0';
             ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11762; "Multiple Interest Rate"; Decimal)
         {
             Caption = 'Multiple Interest Rate';
@@ -190,6 +193,8 @@ table 305 "Issued Fin. Charge Memo Line"
             ObsoleteTag = '23.0';
             ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11770; "Tax Amount"; Decimal)
         {
             Caption = 'Tax Amount';
@@ -197,6 +202,8 @@ table 305 "Issued Fin. Charge Memo Line"
             ObsoleteTag = '23.0';
             ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11771; "Tax Days"; Integer)
         {
             Caption = 'Tax Days';
@@ -204,6 +211,7 @@ table 305 "Issued Fin. Charge Memo Line"
             ObsoleteTag = '23.0';
             ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
+#endif
     }
 
     keys

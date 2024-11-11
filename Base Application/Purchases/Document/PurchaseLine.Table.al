@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Document;
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.AllocationAccount;
@@ -3619,6 +3619,7 @@ table 39 "Purchase Line"
         {
             Caption = 'Over-Receipt Approval Status';
         }
+#if not CLEANSCHEMA21
         field(11763; "VAT Correction"; Boolean)
         {
             Caption = 'VAT Correction';
@@ -3627,6 +3628,8 @@ table 39 "Purchase Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11764; "VAT Difference (LCY)"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -3637,6 +3640,8 @@ table 39 "Purchase Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11765; "VAT % (Non Deductible)"; Decimal)
         {
             Caption = 'VAT % (Non Deductible)';
@@ -3646,6 +3651,8 @@ table 39 "Purchase Line"
             ObsoleteReason = 'The functionality of Non-deductible VAT hase been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11766; "VAT Base (Non Deductible)"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -3655,6 +3662,8 @@ table 39 "Purchase Line"
             ObsoleteReason = 'The functionality of Non-deductible VAT hase been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11767; "VAT Amount (Non Deductible)"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -3664,6 +3673,8 @@ table 39 "Purchase Line"
             ObsoleteReason = 'The functionality of Non-deductible VAT hase been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11768; Negative; Boolean)
         {
             Caption = 'Negative';
@@ -3671,6 +3682,8 @@ table 39 "Purchase Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11770; "Ext. Amount (LCY)"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -3681,6 +3694,8 @@ table 39 "Purchase Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11771; "Ext.Amount Including VAT (LCY)"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -3691,6 +3706,8 @@ table 39 "Purchase Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11772; "Ext. VAT Difference (LCY)"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -3701,6 +3718,8 @@ table 39 "Purchase Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31001; "Amt. Prep. To Inv. Incl. VAT"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -3711,6 +3730,8 @@ table 39 "Purchase Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31006; "Adjust Prepmt. Relation"; Boolean)
         {
             Caption = 'Adjust Prepmt. Relation';
@@ -3720,6 +3741,8 @@ table 39 "Purchase Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31008; "Prepmt. VAT Amount Inv."; Decimal)
         {
             Caption = 'Prepmt. VAT Amount Inv.';
@@ -3727,6 +3750,8 @@ table 39 "Purchase Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31060; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
@@ -3734,6 +3759,8 @@ table 39 "Purchase Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
@@ -3742,6 +3769,8 @@ table 39 "Purchase Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
@@ -3750,6 +3779,8 @@ table 39 "Purchase Line"
             ObsoleteTag = '20.0';
 
         }
+#endif
+#if not CLEANSCHEMA21
         field(31063; "Country/Region of Origin Code"; Code[10])
         {
             Caption = 'Country/Region of Origin Code';
@@ -3757,6 +3788,7 @@ table 39 "Purchase Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';

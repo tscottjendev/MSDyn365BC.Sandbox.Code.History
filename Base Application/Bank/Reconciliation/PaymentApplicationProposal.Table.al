@@ -250,6 +250,7 @@ table 1293 "Payment Application Proposal"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
         }
+#if not CLEANSCHEMA22
         field(11700; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
@@ -282,6 +283,7 @@ table 1293 "Payment Application Proposal"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

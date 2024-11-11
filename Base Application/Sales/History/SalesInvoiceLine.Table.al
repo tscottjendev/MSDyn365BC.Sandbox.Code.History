@@ -606,6 +606,7 @@ table 113 "Sales Invoice Line"
             Caption = 'Price description';
             OptimizeForTextSearch = true;
         }
+#if not CLEANSCHEMA21
         field(11762; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
@@ -614,6 +615,8 @@ table 113 "Sales Invoice Line"
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11764; "VAT Difference (LCY)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
@@ -623,6 +626,8 @@ table 113 "Sales Invoice Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31010; "Prepayment Cancelled"; Boolean)
         {
             Caption = 'Prepayment Cancelled';
@@ -630,6 +635,8 @@ table 113 "Sales Invoice Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31011; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
@@ -637,6 +644,8 @@ table 113 "Sales Invoice Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31012; "VAT Doc. Letter No."; Code[20])
         {
             Caption = 'VAT Doc. Letter No.';
@@ -644,6 +653,8 @@ table 113 "Sales Invoice Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
@@ -652,6 +663,8 @@ table 113 "Sales Invoice Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
@@ -659,6 +672,8 @@ table 113 "Sales Invoice Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31063; "Country/Region of Origin Code"; Code[10])
         {
             Caption = 'Country/Region of Origin Code';
@@ -666,6 +681,7 @@ table 113 "Sales Invoice Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

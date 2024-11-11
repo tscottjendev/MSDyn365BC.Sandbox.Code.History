@@ -496,6 +496,7 @@ table 254 "VAT Entry"
                 VATDateReportingMgt.UpdateLinkedEntries(Rec);
             end;
         }
+#if not CLEANSCHEMA20
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
@@ -504,6 +505,8 @@ table 254 "VAT Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11763; "Postponed VAT"; Boolean)
         {
             Caption = 'Postponed VAT';
@@ -512,6 +515,8 @@ table 254 "VAT Entry"
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11764; "VAT Delay"; Boolean)
         {
             Caption = 'VAT Delay';
@@ -520,6 +525,8 @@ table 254 "VAT Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11765; "VAT % (Non Deductible)"; Decimal)
         {
             Caption = 'VAT % (Non Deductible)';
@@ -546,6 +553,8 @@ table 254 "VAT Entry"
             ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11768; "VAT Settlement No."; Code[15])
         {
             Caption = 'VAT Settlement No.';
@@ -554,6 +563,8 @@ table 254 "VAT Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11770; "Primary Entry No."; Integer)
         {
             Caption = 'Primary Entry No.';
@@ -589,6 +600,8 @@ table 254 "VAT Entry"
             ObsoleteReason = 'The functionality of Dimension for VAT Entry will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11776; "VAT Identifier"; Code[20])
         {
             Caption = 'VAT Identifier';
@@ -597,6 +610,8 @@ table 254 "VAT Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11780; "Pmt.Disc. Tax Corr.Doc. No."; Code[20])
         {
             Caption = 'Pmt.Disc. Tax Corr.Doc. No.';
@@ -605,6 +620,8 @@ table 254 "VAT Entry"
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
@@ -613,6 +630,8 @@ table 254 "VAT Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31000; "Prepayment Type"; Option)
         {
             Caption = 'Prepayment Type';
@@ -655,6 +674,8 @@ table 254 "VAT Entry"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
@@ -663,6 +684,8 @@ table 254 "VAT Entry"
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31061; "Currency Factor"; Decimal)
         {
             Caption = 'Currency Factor';
@@ -682,6 +705,8 @@ table 254 "VAT Entry"
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
@@ -697,6 +722,7 @@ table 254 "VAT Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
         field(6200; "Non-Deductible VAT %"; Decimal)
         {
             Caption = 'Non-Deductible VAT %"';

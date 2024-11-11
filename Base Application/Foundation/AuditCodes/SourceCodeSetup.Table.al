@@ -419,6 +419,7 @@ table 242 "Source Code Setup"
             Caption = 'Compress Whse. Entries';
             TableRelation = "Source Code";
         }
+#if not CLEANSCHEMA20
         field(11760; "Purchase VAT Delay"; Code[10])
         {
             Caption = 'Purchase VAT Delay';
@@ -435,6 +436,8 @@ table 242 "Source Code Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11762; "VAT Coefficient"; Code[10])
         {
             Caption = 'VAT Coefficient';
@@ -443,6 +446,8 @@ table 242 "Source Code Setup"
             ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(11764; "Close Balance Sheet"; Code[10])
         {
             Caption = 'Close Balance Sheet';
@@ -459,6 +464,8 @@ table 242 "Source Code Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11766; "Cash Desk"; Code[10])
         {
             Caption = 'Cash Desk';
@@ -467,6 +474,8 @@ table 242 "Source Code Setup"
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31041; "Maintenance Adjustment"; Code[10])
         {
             Caption = 'Maintenance Adjustment';
@@ -475,6 +484,8 @@ table 242 "Source Code Setup"
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31050; Credit; Code[10])
         {
             Caption = 'Credit';
@@ -483,6 +494,7 @@ table 242 "Source Code Setup"
             ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

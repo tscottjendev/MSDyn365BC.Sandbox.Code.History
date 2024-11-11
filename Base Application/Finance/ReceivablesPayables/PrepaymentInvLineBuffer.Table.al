@@ -200,6 +200,7 @@ table 461 "Prepayment Inv. Line Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Job Task";
         }
+#if not CLEANSCHEMA22
         field(31000; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
@@ -252,6 +253,7 @@ table 461 "Prepayment Inv. Line Buffer"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

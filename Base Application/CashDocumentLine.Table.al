@@ -315,6 +315,7 @@ table 11731 "Cash Document Line"
             Editable = false;
             TableRelation = "Dimension Set Entry";
         }
+#if not CLEANSCHEMA18
         field(602; "VAT % (Non Deductible)"; Decimal)
         {
             Caption = 'VAT % (Non Deductible)';
@@ -342,6 +343,8 @@ table 11731 "Cash Document Line"
             ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31001; "Advance Letter Link Code"; Code[30])
         {
             Caption = 'Advance Letter Link Code';
@@ -349,6 +352,8 @@ table 11731 "Cash Document Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31125; "EET Transaction"; Boolean)
         {
             Caption = 'EET Transaction';
@@ -357,6 +362,7 @@ table 11731 "Cash Document Line"
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys
@@ -375,5 +381,5 @@ table 11731 "Cash Document Line"
     fieldgroups
     {
     }
-} 
+}
 #endif

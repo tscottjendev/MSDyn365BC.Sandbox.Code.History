@@ -70,6 +70,7 @@ table 905 "Assembly Setup"
         {
             Caption = 'Create Movements Automatically';
         }
+#if not CLEANSCHEMA21
         field(11700; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
@@ -77,6 +78,7 @@ table 905 "Assembly Setup"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

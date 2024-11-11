@@ -14,6 +14,7 @@ table 11761 "Electronically Govern. Setup"
         {
             Caption = 'Primary Key';
         }
+#if not CLEANSCHEMA18
         field(30; "Proxy Server"; Text[30])
         {
             Caption = 'Proxy Server';
@@ -28,6 +29,8 @@ table 11761 "Electronically Govern. Setup"
             ObsoleteReason = 'The functionality of Communication using Proxy server will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(32; "Proxy Password"; Text[30])
         {
             Caption = 'Proxy Password';
@@ -36,6 +39,8 @@ table 11761 "Electronically Govern. Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(33; "Proxy Password Key"; Guid)
         {
             Caption = 'Proxy Password Key';
@@ -43,6 +48,7 @@ table 11761 "Electronically Govern. Setup"
             ObsoleteReason = 'The functionality of Communication using Proxy server will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
         field(80; UncertaintyPayerWebService; Text[250])
         {
             Caption = 'UncertaintyPayerWebService';
@@ -75,5 +81,5 @@ table 11761 "Electronically Govern. Setup"
         }
     }
 }
- 
+
 #endif

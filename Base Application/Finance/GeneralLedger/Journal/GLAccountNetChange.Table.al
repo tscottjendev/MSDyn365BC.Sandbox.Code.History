@@ -27,6 +27,7 @@ table 269 "G/L Account Net Change"
             AutoFormatType = 1;
             Caption = 'Balance after Posting';
         }
+#if not CLEANSCHEMA21
         field(11760; Type; Option)
         {
             Caption = 'Type';
@@ -36,6 +37,7 @@ table 269 "G/L Account Net Change"
             ObsoleteReason = 'The functionality of GL Journal reconciliation by type has been removed.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

@@ -295,6 +295,7 @@ table 5079 "Marketing Setup"
         {
             Caption = 'Cust. Template Person Code';
         }
+#if not CLEANSCHEMA18
         field(11792; "Inherit Registered Name"; Boolean)
         {
             Caption = 'Inherit Registered Name';
@@ -302,6 +303,7 @@ table 5079 "Marketing Setup"
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
         field(78; "Exchange Tenant Id Key"; Guid)
         {
             Caption = 'Exchange Tenant Id Key';

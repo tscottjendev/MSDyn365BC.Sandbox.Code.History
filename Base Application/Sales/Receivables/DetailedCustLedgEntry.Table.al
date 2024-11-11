@@ -223,6 +223,7 @@ table 379 "Detailed Cust. Ledg. Entry"
             Editable = false;
             TableRelation = "Exch. Rate Adjmt. Reg.";
         }
+#if not CLEANSCHEMA21
         field(11768; "Customer Posting Group"; Code[20])
         {
             Caption = 'Customer Posting Group';
@@ -231,6 +232,8 @@ table 379 "Detailed Cust. Ledg. Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31000; Advance; Boolean)
         {
             Caption = 'Advance';
@@ -238,6 +241,7 @@ table 379 "Detailed Cust. Ledg. Entry"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

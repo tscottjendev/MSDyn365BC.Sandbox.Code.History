@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Archive;
+namespace Microsoft.Sales.Archive;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
@@ -957,6 +957,7 @@ table 5108 "Sales Line Archive"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
+#if not CLEANSCHEMA21
         field(11762; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
@@ -965,6 +966,8 @@ table 5108 "Sales Line Archive"
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31060; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
@@ -972,6 +975,7 @@ table 5108 "Sales Line Archive"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

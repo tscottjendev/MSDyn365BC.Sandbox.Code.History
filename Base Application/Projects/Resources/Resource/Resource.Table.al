@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Projects.Resources.Resource;
+namespace Microsoft.Projects.Resources.Resource;
 
 using Microsoft.Assembly.Document;
 using Microsoft.EServices.OnlineMap;
@@ -638,6 +638,7 @@ table 156 Resource
             Caption = 'Default Deferral Template Code';
             TableRelation = "Deferral Template"."Deferral Code";
         }
+#if not CLEANSCHEMA20
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
@@ -645,6 +646,7 @@ table 156 Resource
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

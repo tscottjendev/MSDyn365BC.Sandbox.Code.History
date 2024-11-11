@@ -42,6 +42,7 @@ table 926 "G/L Acc. Balance Buffer"
             Caption = 'Net Change';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA23
         field(11762; "Net Change (VAT Date)"; Decimal)
         {
             Caption = 'Net Change (VAT Date)';
@@ -50,6 +51,7 @@ table 926 "G/L Acc. Balance Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

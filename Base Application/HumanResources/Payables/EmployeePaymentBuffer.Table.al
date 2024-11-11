@@ -107,6 +107,7 @@ table 5225 "Employee Payment Buffer"
             Editable = false;
             TableRelation = "Dimension Set Entry";
         }
+#if not CLEANSCHEMA23
         field(11760; "Employee Posting Group"; Code[20])
         {
             Caption = 'Employee Posting Group';
@@ -116,6 +117,7 @@ table 5225 "Employee Payment Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

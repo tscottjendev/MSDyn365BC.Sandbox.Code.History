@@ -775,6 +775,7 @@ table 15 "G/L Account"
             Caption = 'API Account Type';
             Editable = false;
         }
+#if not CLEANSCHEMA20
         field(11760; "G/L Account Group"; Option)
         {
             Caption = 'G/L Account Group';
@@ -784,6 +785,8 @@ table 15 "G/L Account"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11761; "Apply Entries"; Boolean)
         {
             Caption = 'Apply Entries';
@@ -791,6 +794,8 @@ table 15 "G/L Account"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11792; "Full Name"; Text[100])
         {
             Caption = 'Full Name';
@@ -799,6 +804,7 @@ table 15 "G/L Account"
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     keys

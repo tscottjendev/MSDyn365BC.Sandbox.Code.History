@@ -471,6 +471,7 @@ table 1226 "Payment Export Data"
         {
             Caption = 'Format Form Type';
         }
+#if not CLEANSCHEMA22
         field(11700; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
@@ -495,6 +496,7 @@ table 1226 "Payment Export Data"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

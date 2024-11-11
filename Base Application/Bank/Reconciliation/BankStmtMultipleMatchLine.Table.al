@@ -39,6 +39,7 @@ table 1249 "Bank Stmt Multiple Match Line"
         {
             Caption = 'Due Date';
         }
+#if not CLEANSCHEMA22
         field(11700; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
@@ -79,6 +80,7 @@ table 1249 "Bank Stmt Multiple Match Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

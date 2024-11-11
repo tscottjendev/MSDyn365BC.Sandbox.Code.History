@@ -163,6 +163,7 @@ table 11711 "Issued Payment Order Line"
         {
             Caption = 'Letter Line No.';
         }
+#if not CLEANSCHEMA20
         field(190; "VAT Uncertainty Payer"; Boolean)
         {
             Caption = 'VAT Uncertainty Payer';
@@ -187,6 +188,7 @@ table 11711 "Issued Payment Order Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
         field(200; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
@@ -217,5 +219,5 @@ table 11711 "Issued Payment Order Line"
     fieldgroups
     {
     }
-} 
+}
 #endif

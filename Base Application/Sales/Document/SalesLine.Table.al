@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Document;
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.History;
@@ -3408,6 +3408,7 @@ table 37 "Sales Line"
             FieldClass = FlowField;
             BlankZero = true;
         }
+#if not CLEANSCHEMA21
         field(11762; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
@@ -3416,6 +3417,8 @@ table 37 "Sales Line"
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11763; "VAT Correction"; Boolean)
         {
             Caption = 'VAT Correction';
@@ -3424,6 +3427,8 @@ table 37 "Sales Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11764; "VAT Difference (LCY)"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -3434,6 +3439,8 @@ table 37 "Sales Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11768; Negative; Boolean)
         {
             Caption = 'Negative';
@@ -3441,6 +3448,8 @@ table 37 "Sales Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31001; "Amt. Prep. To Inv. Incl. VAT"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -3451,6 +3460,8 @@ table 37 "Sales Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31006; "Adjust Prepmt. Relation"; Boolean)
         {
             Caption = 'Adjust Prepmt. Relation';
@@ -3460,6 +3471,8 @@ table 37 "Sales Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31008; "Prepmt. VAT Amount Inv."; Decimal)
         {
             Caption = 'Prepmt. VAT Amount Inv.';
@@ -3467,6 +3480,8 @@ table 37 "Sales Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31060; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
@@ -3474,6 +3489,8 @@ table 37 "Sales Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
@@ -3482,6 +3499,8 @@ table 37 "Sales Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
@@ -3489,6 +3508,8 @@ table 37 "Sales Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31063; "Country/Region of Origin Code"; Code[10])
         {
             Caption = 'Country/Region of Origin Code';
@@ -3496,6 +3517,7 @@ table 37 "Sales Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

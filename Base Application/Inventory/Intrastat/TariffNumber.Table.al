@@ -25,6 +25,7 @@ table 260 "Tariff Number"
         {
             Caption = 'Supplementary Units';
         }
+#if not CLEANSCHEMA20
         field(11760; "Statement Code"; Code[10])
         {
             Caption = 'Statement Code';
@@ -53,6 +54,8 @@ table 260 "Tariff Number"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11792; "Full Name"; Text[250])
         {
             Caption = 'Full Name';
@@ -67,6 +70,8 @@ table 260 "Tariff Number"
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31060; "Supplem. Unit of Measure Code"; Code[10])
         {
             Caption = 'Supplem. Unit of Measure Code';
@@ -74,6 +79,7 @@ table 260 "Tariff Number"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

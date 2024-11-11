@@ -525,6 +525,7 @@ table 6661 "Return Receipt Line"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
+#if not CLEANSCHEMA21
         field(11762; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
@@ -533,6 +534,7 @@ table 6661 "Return Receipt Line"
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

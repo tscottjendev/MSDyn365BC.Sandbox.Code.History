@@ -901,11 +901,12 @@ table 98 "General Ledger Setup"
             TableRelation = "G/L Account Category";
             Caption = 'Account Receivables G/L Account Category';
         }
-	    field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
+        field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
         {
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA20
         field(11730; "Cash Desk Nos."; Code[20])
         {
             Caption = 'Cash Desk Nos.';
@@ -923,6 +924,8 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11760; "Closed Period Entry Pos.Date"; Date)
         {
             Caption = 'Closed Period Entry Pos.Date';
@@ -937,6 +940,8 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11762; "Statement Templ. Name Coeff."; Code[10])
         {
             Caption = 'Statement Templ. Name Coeff.';
@@ -974,6 +979,8 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'The functionality is no longer needed.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11768; "Allow VAT Posting From"; Date)
         {
             Caption = 'Allow VAT Posting From';
@@ -988,6 +995,8 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(11770; "Use VAT Date"; Boolean)
         {
             Caption = 'Use VAT Date';
@@ -995,6 +1004,8 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech. (Prolonged to support Advance Letters)';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11771; "Check VAT Identifier"; Boolean)
         {
             Caption = 'Check VAT Identifier';
@@ -1002,6 +1013,8 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'The enhanced functionality of VAT Identifier will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11772; "Check Posting Debit/Credit"; Boolean)
         {
             Caption = 'Check Posting Debit/Credit';
@@ -1016,6 +1029,8 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11774; "Company Officials Nos."; Code[20])
         {
             Caption = 'Company Officials Nos.';
@@ -1024,6 +1039,8 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(11775; "Correction As Storno"; Boolean)
         {
             Caption = 'Correction As Storno';
@@ -1031,6 +1048,8 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11776; "Dont Check Dimension"; Boolean)
         {
             Caption = 'Dont Check Dimension';
@@ -1038,6 +1057,8 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11790; "User Checks Allowed"; Boolean)
         {
             Caption = 'User Checks Allowed';
@@ -1051,8 +1072,9 @@ table 98 "General Ledger Setup"
             ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of user ID Lookup only user Check has been removed and this field should not be used.';
             ObsoleteTag = '21.0';
-
         }
+#endif
+#if not CLEANSCHEMA18
         field(11792; "Delete Card with Entries"; Boolean)
         {
             Caption = 'Delete Card with Entries';
@@ -1060,6 +1082,8 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'The functionality of Disable Cards Deleting will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(11793; "Reg. No. Validation URL"; Text[250])
         {
             Caption = 'Reg. No. Validation URL';
@@ -1068,6 +1092,8 @@ table 98 "General Ledger Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31000; "Prepayment Type"; Option)
         {
             Caption = 'Prepayment Type';
@@ -1098,6 +1124,7 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

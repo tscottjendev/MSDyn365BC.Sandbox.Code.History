@@ -959,6 +959,7 @@ table 5741 "Transfer Line"
                 end;
             end;
         }
+#if not CLEANSCHEMA21
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
@@ -996,6 +997,7 @@ table 5741 "Transfer Line"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
         field(99000755; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
             Caption = 'Planning Flexibility';

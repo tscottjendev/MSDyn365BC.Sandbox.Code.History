@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Setup;
+namespace Microsoft.Purchases.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -517,6 +517,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA19
         field(11760; "G/L Entry as Doc. Lines (Acc.)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Acc.)';
@@ -524,6 +525,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'Replaced by "Copy Line Descr. to G/L Entry" field. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11761; "G/L Entry as Doc. Lines (Item)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Item)';
@@ -531,6 +534,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11762; "G/L Entry as Doc. Lines (FA)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (FA)';
@@ -538,6 +543,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11764; "G/L Entry as Doc. Lines (Char)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Char)';
@@ -545,6 +552,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11765; "Posting Desc. Code"; Code[10])
         {
             Caption = 'Posting Desc. Code';
@@ -552,6 +561,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(11766; "Default VAT Date"; Option)
         {
             Caption = 'Default VAT Date';
@@ -561,6 +572,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech. (Prolonged to support Advance Letter)';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11767; "Allow Alter Posting Groups"; Boolean)
         {
             Caption = 'Allow Alter Posting Groups';
@@ -568,6 +581,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(11768; "Automatic Adv. Invoice Posting"; Boolean)
         {
             Caption = 'Automatic Adv. Invoice Posting';
@@ -575,6 +590,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31000; "Advance Letter Nos."; Code[20])
         {
             Caption = 'Advance Letter Nos.';
@@ -582,6 +599,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31001; "Advance Invoice Nos."; Code[20])
         {
             Caption = 'Advance Invoice Nos.';
@@ -589,6 +608,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31002; "Advance Credit Memo Nos."; Code[20])
         {
             Caption = 'Advance Credit Memo Nos.';
@@ -596,6 +617,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31100; "Default Orig. Doc. VAT Date"; Option)
         {
             Caption = 'Default Orig. Doc. VAT Date';
@@ -605,6 +628,7 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech. (Prolonged to support Advance Letters)';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Reminder;
+namespace Microsoft.Sales.Reminder;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
@@ -349,6 +349,7 @@ table 297 "Issued Reminder Header"
             DataClassification = CustomerContent;
             TableRelation = "Reminder Action Group"."Code";
         }
+#if not CLEANSCHEMA23
         field(11700; "Bank No."; Code[20])
         {
             Caption = 'Bank No.';
@@ -357,6 +358,8 @@ table 297 "Issued Reminder Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
@@ -364,6 +367,8 @@ table 297 "Issued Reminder Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
@@ -371,6 +376,8 @@ table 297 "Issued Reminder Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
@@ -380,6 +387,8 @@ table 297 "Issued Reminder Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
@@ -388,6 +397,8 @@ table 297 "Issued Reminder Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
@@ -396,6 +407,8 @@ table 297 "Issued Reminder Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
@@ -404,6 +417,8 @@ table 297 "Issued Reminder Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
@@ -411,6 +426,8 @@ table 297 "Issued Reminder Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
@@ -418,6 +435,8 @@ table 297 "Issued Reminder Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
@@ -425,6 +444,8 @@ table 297 "Issued Reminder Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11761; "Multiple Interest Rates"; Boolean)
         {
             Caption = 'Multiple Interest Rates';
@@ -432,6 +453,8 @@ table 297 "Issued Reminder Header"
             ObsoleteTag = '23.0';
             ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
@@ -439,6 +462,8 @@ table 297 "Issued Reminder Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
@@ -446,6 +471,7 @@ table 297 "Issued Reminder Header"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

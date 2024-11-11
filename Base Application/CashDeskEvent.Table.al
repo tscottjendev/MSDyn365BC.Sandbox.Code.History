@@ -171,6 +171,7 @@ table 11741 "Cash Desk Event"
             Caption = 'VAT Prod. Posting Group';
             TableRelation = "VAT Product Posting Group";
         }
+#if not CLEANSCHEMA21
         field(31125; "EET Transaction"; Boolean)
         {
             Caption = 'EET Transaction';
@@ -178,6 +179,7 @@ table 11741 "Cash Desk Event"
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys
@@ -197,5 +199,5 @@ table 11741 "Cash Desk Event"
         FA: Record "Fixed Asset";
         BankAccount: Record "Bank Account";
 
-} 
+}
 #endif

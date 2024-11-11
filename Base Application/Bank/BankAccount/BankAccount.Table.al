@@ -747,6 +747,7 @@ table 270 "Bank Account"
                         FieldError("Mobile Phone No.", PhoneNoCannotContainLettersErr);
             end;
         }
+#if not CLEANSCHEMA22
         field(11700; "Default Constant Symbol"; Code[10])
         {
             Caption = 'Default Constant Symbol';
@@ -763,6 +764,8 @@ table 270 "Bank Account"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
@@ -771,6 +774,8 @@ table 270 "Bank Account"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(11705; "Domestic Payment Order"; Integer)
         {
             BlankZero = true;
@@ -928,6 +933,8 @@ table 270 "Bank Account"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11730; "Max. Balance Checking"; Option)
         {
             Caption = 'Max. Balance Checking';
@@ -1103,6 +1110,8 @@ table 270 "Bank Account"
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11769; "Exclude from Exch. Rate Adj."; Boolean)
         {
             Caption = 'Exclude from Exch. Rate Adj.';
@@ -1110,6 +1119,8 @@ table 270 "Bank Account"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11770; "Cashier No."; Code[20])
         {
             Caption = 'Cashier No.';
@@ -1117,6 +1128,8 @@ table 270 "Bank Account"
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(11779; "Run Apply Automatically"; Boolean)
         {
             Caption = 'Run Apply Automatically';
@@ -1189,6 +1202,7 @@ table 270 "Bank Account"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

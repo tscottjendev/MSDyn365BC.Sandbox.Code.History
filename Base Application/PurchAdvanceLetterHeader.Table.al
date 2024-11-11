@@ -423,6 +423,7 @@ table 31020 "Purch. Advance Letter Header"
             OptionCaption = ' ,Never,Optional,Always';
             OptionMembers = " ",Never,Optional,Always;
         }
+#if not CLEANSCHEMA18
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
@@ -440,6 +441,7 @@ table 31020 "Purch. Advance Letter Header"
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries hase been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
         field(31100; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
@@ -466,5 +468,5 @@ table 31020 "Purch. Advance Letter Header"
     fieldgroups
     {
     }
-} 
+}
 #endif

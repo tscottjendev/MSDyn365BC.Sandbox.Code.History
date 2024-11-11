@@ -718,6 +718,7 @@ table 121 "Purch. Rcpt. Line"
             TableRelation = "Over-Receipt Code";
             Editable = false;
         }
+#if not CLEANSCHEMA23
         field(11790; "Vendor Shipment No."; Code[35])
         {
             Caption = 'Vendor Shipment No.';
@@ -725,6 +726,8 @@ table 121 "Purch. Rcpt. Line"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
@@ -733,6 +736,8 @@ table 121 "Purch. Rcpt. Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
@@ -740,6 +745,8 @@ table 121 "Purch. Rcpt. Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31063; "Country/Region of Origin Code"; Code[10])
         {
             Caption = 'Country/Region of Origin Code';
@@ -747,6 +754,7 @@ table 121 "Purch. Rcpt. Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';

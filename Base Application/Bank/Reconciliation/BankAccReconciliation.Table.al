@@ -339,6 +339,7 @@ table 273 "Bank Acc. Reconciliation"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
+#if not CLEANSCHEMA22
         field(11706; "Created From Iss. Bank Stat."; Boolean)
         {
             Caption = 'Created From Iss. Bank Stat.';
@@ -347,6 +348,7 @@ table 273 "Bank Acc. Reconciliation"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

@@ -290,6 +290,7 @@ table 274 "Bank Acc. Reconciliation Line"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
+#if not CLEANSCHEMA22
         field(11700; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
@@ -462,6 +463,7 @@ table 274 "Bank Acc. Reconciliation Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

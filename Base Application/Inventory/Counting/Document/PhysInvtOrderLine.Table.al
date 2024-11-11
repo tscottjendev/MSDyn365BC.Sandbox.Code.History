@@ -407,6 +407,7 @@ table 5876 "Phys. Invt. Order Line"
             OptionCaption = ' ,Item,SKU';
             OptionMembers = " ",Item,SKU;
         }
+#if not CLEANSCHEMA20
         field(31077; "Whse. Net Change Template"; Code[10])
         {
             Caption = 'Whse. Net Change Template';
@@ -414,6 +415,7 @@ table 5876 "Phys. Invt. Order Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

@@ -438,6 +438,7 @@ table 382 "CV Ledger Entry Buffer"
             Editable = false;
             TableRelation = "Dimension Set Entry";
         }
+#if not CLEANSCHEMA22
         field(31000; "Prepayment Type"; Option)
         {
             Caption = 'Prepayment Type';
@@ -456,6 +457,7 @@ table 382 "CV Ledger Entry Buffer"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

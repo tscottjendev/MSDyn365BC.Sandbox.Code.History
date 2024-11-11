@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Customer;
+namespace Microsoft.Sales.Customer;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.DirectDebit;
@@ -1713,6 +1713,7 @@ table 18 Customer
             Caption = 'Contact Graph Id';
             OptimizeForTextSearch = true;
         }
+#if not CLEANSCHEMA23
         field(11760; "Last Statement Date"; Date)
         {
             Caption = 'Last Statement Date';
@@ -1721,6 +1722,8 @@ table 18 Customer
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
@@ -1729,6 +1732,8 @@ table 18 Customer
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
@@ -1737,6 +1742,8 @@ table 18 Customer
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11792; "Registered Name"; Text[250])
         {
             Caption = 'Registered Name';
@@ -1745,6 +1752,8 @@ table 18 Customer
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(11793; "Default Ship-to Address Code"; Code[10])
         {
             Caption = 'Default Ship-to Address Code';
@@ -1753,6 +1762,8 @@ table 18 Customer
             TableRelation = "Ship-to Address".Code where("Customer No." = field("No."));
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31060; "Transaction Type"; Code[10])
         {
             Caption = 'Transaction Type';
@@ -1761,6 +1772,8 @@ table 18 Customer
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31061; "Transaction Specification"; Code[10])
         {
             Caption = 'Transaction Specification';
@@ -1769,6 +1782,8 @@ table 18 Customer
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31062; "Transport Method"; Code[10])
         {
             Caption = 'Transport Method';
@@ -1777,6 +1792,8 @@ table 18 Customer
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31063; "Industry Code"; Code[20])
         {
             Caption = 'Industry Code';
@@ -1784,6 +1801,7 @@ table 18 Customer
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     keys

@@ -719,6 +719,7 @@ table 5612 "FA Depreciation Book"
                     FieldError("Default FA Depreciation Book", OnlyOneDefaultDeprBookErr);
             end;
         }
+#if not CLEANSCHEMA18
         field(31040; "Depr. FA Appreciation From"; Date)
         {
             Caption = 'Depr. FA Appreciation From';
@@ -726,6 +727,8 @@ table 5612 "FA Depreciation Book"
             ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021))';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31041; "Depreciation Interupt"; Boolean)
         {
             Caption = 'Depreciation Interupt';
@@ -769,6 +772,7 @@ table 5612 "FA Depreciation Book"
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

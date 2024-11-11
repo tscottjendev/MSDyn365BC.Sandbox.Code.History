@@ -269,6 +269,7 @@ table 85 "Acc. Schedule Line"
             FieldClass = FlowFilter;
             TableRelation = "Cost Budget Name";
         }
+#if not CLEANSCHEMA20
         field(31080; Calc; Option)
         {
             Caption = 'Calc';
@@ -295,6 +296,8 @@ table 85 "Acc. Schedule Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31083; "Source Table"; Option)
         {
             Caption = 'Source Table';
@@ -304,6 +307,7 @@ table 85 "Acc. Schedule Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

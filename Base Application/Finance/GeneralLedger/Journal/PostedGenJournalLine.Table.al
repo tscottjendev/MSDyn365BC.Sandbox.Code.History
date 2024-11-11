@@ -1133,6 +1133,7 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'Indentation';
         }
+#if not CLEANSCHEMA21
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
@@ -1247,6 +1248,8 @@ table 181 "Posted Gen. Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31000; "Prepayment Type"; Option)
         {
             Caption = 'Prepayment Type';
@@ -1298,6 +1301,7 @@ table 181 "Posted Gen. Journal Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

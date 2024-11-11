@@ -13,6 +13,7 @@ table 31065 "Stat. Reporting Setup"
         {
             Caption = 'Primary Key';
         }
+#if not CLEANSCHEMA20
         field(27; "Tax Office Number"; Code[20])
         {
             Caption = 'Tax Office Number';
@@ -94,6 +95,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(60; "Transaction Type Mandatory"; Boolean)
         {
             Caption = 'Transaction Type Mandatory';
@@ -101,6 +104,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(61; "Transaction Spec. Mandatory"; Boolean)
         {
             Caption = 'Transaction Spec. Mandatory';
@@ -108,6 +113,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(62; "Transport Method Mandatory"; Boolean)
         {
             Caption = 'Transport Method Mandatory';
@@ -115,6 +122,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(63; "Shipment Method Mandatory"; Boolean)
         {
             Caption = 'Shipment Method Mandatory';
@@ -122,6 +131,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(64; "Tariff No. Mandatory"; Boolean)
         {
             Caption = 'Tariff No. Mandatory';
@@ -129,6 +140,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(65; "Net Weight Mandatory"; Boolean)
         {
             Caption = 'Net Weight Mandatory';
@@ -136,6 +149,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(66; "Country/Region of Origin Mand."; Boolean)
         {
             Caption = 'Country/Region of Origin Mand.';
@@ -143,6 +158,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(67; "Get Tariff No. From"; Option)
         {
             Caption = 'Get Tariff No. From';
@@ -152,6 +169,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(68; "Get Net Weight From"; Option)
         {
             Caption = 'Get Net Weight From';
@@ -161,6 +180,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(69; "Get Country/Region of Origin"; Option)
         {
             Caption = 'Get Country/Region of Origin';
@@ -170,6 +191,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(70; "Intrastat Rounding Type"; Option)
         {
             Caption = 'Intrastat Rounding Type';
@@ -179,6 +202,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(71; "No Item Charges in Intrastat"; Boolean)
         {
             Caption = 'No Item Charges in Intrastat';
@@ -186,6 +211,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11700; "Natural Person First Name"; Text[30])
         {
             Caption = 'Natural Person First Name';
@@ -292,6 +319,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'This unused field is discontinued and will be removed.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11716; "Customs Office No."; Code[20])
         {
             Caption = 'Customs Office No.';
@@ -299,6 +328,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Unsupported functionality';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11717; "Customs Office Name"; Text[30])
         {
             Caption = 'Customs Office Name';
@@ -306,6 +337,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Unsupported functionality';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11718; "Intrastat Declaration Nos."; Code[20])
         {
             Caption = 'Intrastat Declaration Nos.';
@@ -314,6 +347,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11725; "VIES Number of Lines"; Integer)
         {
             Caption = 'VIES Number of Lines';
@@ -400,6 +435,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'This unused field is discontinued and will be removed.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31060; "Include other Period add.Costs"; Boolean)
         {
             Caption = 'Include other Period add.Costs';
@@ -407,6 +444,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31061; "Intrastat Export Object Type"; Option)
         {
             BlankZero = true;
@@ -418,6 +457,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'This field is discontinued. Use Intrastat Jnl. Line event OnBeforeExportIntrastatJournalCZL to change export means.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31062; "Intrastat Export Object No."; Integer)
         {
             BlankZero = true;
@@ -426,6 +467,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'This field is discontinued. Use Intrastat Jnl. Line event OnBeforeExportIntrastatJournalCZL to change export means.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31063; "Intrastat Exch.Rate Mandatory"; Boolean)
         {
             Caption = 'Intrastat Exch.Rate Mandatory';
@@ -433,6 +476,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Unsupported functionality';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31064; "Tax Office Region Number"; Code[20])
         {
             Caption = 'Tax Office Region Number';
@@ -440,6 +485,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31065; "Stat. Value Reporting"; Option)
         {
             Caption = 'Stat. Value Reporting';
@@ -449,6 +496,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31066; "Cost Regulation %"; Decimal)
         {
             Caption = 'Cost Regulation %';
@@ -457,6 +506,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31067; "Ignore Intrastat Ex.Rate From"; Date)
         {
             Caption = 'Ignore Intrastat Ex.Rate From';
@@ -464,6 +515,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Unsupported functionality';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31090; "Reverse Charge Nos."; Code[20])
         {
             Caption = 'Reverse Charge Nos.';
@@ -486,6 +539,8 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31100; "VAT Control Report Nos."; Code[20])
         {
             Caption = 'VAT Control Report Nos.';
@@ -583,6 +638,7 @@ table 31065 "Stat. Reporting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys
@@ -596,5 +652,5 @@ table 31065 "Stat. Reporting Setup"
     fieldgroups
     {
     }
-} 
+}
 #endif

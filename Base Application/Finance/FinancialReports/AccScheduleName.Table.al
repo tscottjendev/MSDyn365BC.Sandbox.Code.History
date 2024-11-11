@@ -73,6 +73,7 @@ table 84 "Acc. Schedule Name"
                 end;
             end;
         }
+#if not CLEANSCHEMA20
         field(31080; "Acc. Schedule Type"; Option)
         {
             Caption = 'Acc. Schedule Type';
@@ -82,6 +83,7 @@ table 84 "Acc. Schedule Name"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

@@ -194,6 +194,7 @@ table 5747 "Transfer Receipt Line"
                                             "Item Filter" = field("Item No."),
                                             "Variant Filter" = field("Variant Code"));
         }
+#if not CLEANSCHEMA23
         field(11761; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
@@ -201,6 +202,8 @@ table 5747 "Transfer Receipt Line"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31070; "Gen. Bus. Post. Group Ship"; Code[20])
         {
             Caption = 'Gen. Bus. Post. Group Ship';
@@ -217,6 +220,7 @@ table 5747 "Transfer Receipt Line"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

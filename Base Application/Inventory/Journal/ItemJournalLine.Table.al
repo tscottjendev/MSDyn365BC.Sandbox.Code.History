@@ -2263,6 +2263,7 @@ table 83 "Item Journal Line"
             OptionCaption = ' ,Item,SKU';
             OptionMembers = " ",Item,SKU;
         }
+#if not CLEANSCHEMA21
         field(11763; "G/L Correction"; Boolean)
         {
             Caption = 'G/L Correction';
@@ -2270,6 +2271,8 @@ table 83 "Item Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11790; "Source No. 2"; Code[20])
         {
             Caption = 'Source No. 2';
@@ -2277,6 +2280,8 @@ table 83 "Item Journal Line"
             ObsoleteReason = 'This field is replaced by "Invoice-to Source No." field.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11791; "Source No. 3"; Code[20])
         {
             Caption = 'Delivery-to Source No.';
@@ -2284,6 +2289,8 @@ table 83 "Item Journal Line"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31043; "FA No."; Code[20])
         {
             Caption = 'FA No.';
@@ -2305,6 +2312,8 @@ table 83 "Item Journal Line"
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
@@ -2319,6 +2328,8 @@ table 83 "Item Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31065; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
@@ -2326,6 +2337,8 @@ table 83 "Item Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31066; "Net Weight"; Decimal)
         {
             Caption = 'Net Weight';
@@ -2382,6 +2395,8 @@ table 83 "Item Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31077; "Whse. Net Change Template"; Code[10])
         {
             Caption = 'Whse. Net Change Template';
@@ -2389,6 +2404,7 @@ table 83 "Item Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
@@ -5010,7 +5026,7 @@ table 83 "Item Journal Line"
                 if ((FirstDocNo <> GetTempRenumberDocumentNo()) and (ItemJnlLine2.GetFilter("Document No.") = '')) then begin
                     Commit();
                     ItemJnlBatch.Get(ItemJnlLine2."Journal Template Name", ItemJnlLine2."Journal Batch Name");
-                        TempFirstDocNo := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", ItemJnlLine2."Posting Date");
+                    TempFirstDocNo := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", ItemJnlLine2."Posting Date");
                     if (FirstDocNo <> TempFirstDocNo) and (FirstDocNo <> IncStr(TempFirstDocNo)) then begin
                         DocNo := TempFirstDocNo;
                         FirstDocNo := DocNo;

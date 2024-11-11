@@ -179,6 +179,7 @@ table 911 "Posted Assembly Line"
                 Rec.ShowDimensions();
             end;
         }
+#if not CLEANSCHEMA21
         field(11700; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
@@ -187,6 +188,7 @@ table 911 "Posted Assembly Line"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

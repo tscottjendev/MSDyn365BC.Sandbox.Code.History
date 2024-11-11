@@ -481,6 +481,7 @@ table 169 "Job Ledger Entry"
             Caption = 'Package No.';
             CaptionClass = '6,1';
         }
+#if not CLEANSCHEMA21
         field(11763; Correction; Boolean)
         {
             Caption = 'Correction';
@@ -488,6 +489,8 @@ table 169 "Job Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
@@ -496,6 +499,8 @@ table 169 "Job Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
@@ -503,6 +508,8 @@ table 169 "Job Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31063; "Intrastat Transaction"; Boolean)
         {
             Caption = 'Intrastat Transaction';
@@ -510,6 +517,8 @@ table 169 "Job Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31064; "Country/Region of Origin Code"; Code[10])
         {
             Caption = 'Country/Region of Origin Code';
@@ -518,6 +527,8 @@ table 169 "Job Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31065; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
@@ -526,6 +537,8 @@ table 169 "Job Ledger Entry"
             ObsoleteReason = 'Merge to W1';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31066; "Net Weight"; Decimal)
         {
             Caption = 'Net Weight';
@@ -534,6 +547,7 @@ table 169 "Job Ledger Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

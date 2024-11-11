@@ -257,6 +257,7 @@ table 31066 "VIES Declaration Header"
                 TestField(Status, Status::Open);
             end;
         }
+#if not CLEANSCHEMA18
         field(80; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
@@ -264,6 +265,7 @@ table 31066 "VIES Declaration Header"
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
         field(11700; "Natural Person First Name"; Text[30])
         {
             Caption = 'Natural Person First Name';

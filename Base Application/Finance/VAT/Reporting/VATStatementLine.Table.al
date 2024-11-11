@@ -140,6 +140,7 @@ table 256 "VAT Statement Line"
         {
             Caption = 'Box No.';
         }
+#if not CLEANSCHEMA20
         field(11763; "Attribute Code"; Code[20])
         {
             Caption = 'Attribute Code';
@@ -194,6 +195,8 @@ table 256 "VAT Statement Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31000; "Prepayment Type"; Option)
         {
             Caption = 'Prepayment Type';
@@ -203,6 +206,8 @@ table 256 "VAT Statement Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31060; "EU-3 Party Trade"; Option)
         {
             Caption = 'EU-3 Party Trade';
@@ -235,6 +240,7 @@ table 256 "VAT Statement Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

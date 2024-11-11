@@ -125,6 +125,7 @@ table 31103 "VAT Control Report Buffer"
             OptionMembers = " ","Insolvency Proceedings (p.44)","Bad Receivable (p.46 resp. 74a)";
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA15
         field(44; "Insolvency Proceedings (p.44)"; Boolean)
         {
             Caption = 'Insolvency Proceedings (p.44)';
@@ -133,6 +134,7 @@ table 31103 "VAT Control Report Buffer"
             DataClassification = SystemMetadata;
             ObsoleteTag = '15.0';
         }
+#endif
         field(45; "Ratio Use"; Boolean)
         {
             Caption = 'Ratio Use';
@@ -228,5 +230,5 @@ table 31103 "VAT Control Report Buffer"
     {
     }
 }
- 
+
 #endif

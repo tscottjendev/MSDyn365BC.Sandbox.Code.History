@@ -198,6 +198,7 @@ table 290 "VAT Amount Line"
             Caption = 'Non-Deductible VAT Difference';
             Editable = false;
         }
+#if not CLEANSCHEMA21
         field(11764; "VAT Difference (LCY)"; Decimal)
         {
             AutoFormatType = 1;
@@ -207,6 +208,8 @@ table 290 "VAT Amount Line"
             ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11765; "VAT % (Non Deductible)"; Decimal)
         {
             Caption = 'VAT % (Non Deductible)';
@@ -233,6 +236,8 @@ table 290 "VAT Amount Line"
             ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11770; "Ext. VAT Base (LCY)"; Decimal)
         {
             AutoFormatType = 1;
@@ -328,6 +333,8 @@ table 290 "VAT Amount Line"
             ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31000; "Letter VAT Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
@@ -346,6 +353,7 @@ table 290 "VAT Amount Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

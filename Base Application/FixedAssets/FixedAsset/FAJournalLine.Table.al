@@ -342,6 +342,7 @@ table 5621 "FA Journal Line"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
+#if not CLEANSCHEMA18
         field(31040; "Item Ledger Entry No."; Integer)
         {
             Caption = 'Item Ledger Entry No.';
@@ -349,6 +350,7 @@ table 5621 "FA Journal Line"
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     keys

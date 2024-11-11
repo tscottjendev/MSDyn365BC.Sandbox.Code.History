@@ -140,6 +140,7 @@ table 1296 "Posted Payment Recon. Line"
         {
             Caption = 'Reconciled';
         }
+#if not CLEANSCHEMA22
         field(11700; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
@@ -243,6 +244,8 @@ table 1296 "Posted Payment Recon. Line"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA25
         field(31000; "Advance Letter Link Code"; Code[30])
         {
             Caption = 'Advance Letter Link Code';
@@ -250,6 +253,7 @@ table 1296 "Posted Payment Recon. Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

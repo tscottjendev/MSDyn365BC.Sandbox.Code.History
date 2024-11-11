@@ -218,6 +218,7 @@ table 325 "VAT Posting Setup"
                 NonDeductibleVAT.CheckVATPostingSetupChangeIsAllowed(Rec);
             end;
         }
+#if not CLEANSCHEMA26
         field(6201; "Non-Ded. Sales VAT Account"; Code[20])
         {
             Caption = 'Non-Deductible Sales VAT Account';
@@ -226,6 +227,7 @@ table 325 "VAT Posting Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(6202; "Non-Ded. Purchase VAT Account"; Code[20])
         {
             Caption = 'Non-Deductible Purchase VAT Account';
@@ -246,6 +248,7 @@ table 325 "VAT Posting Setup"
                 NonDeductibleVAT.CheckVATPostingSetupChangeIsAllowed(Rec);
             end;
         }
+#if not CLEANSCHEMA20
         field(11760; "Reverse Charge Check"; Option)
         {
             Caption = 'Reverse Charge Check';
@@ -271,6 +274,8 @@ table 325 "VAT Posting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11763; "Non Deduct. VAT Corr. Account"; Code[20])
         {
             Caption = 'Non Deduct. VAT Corr. Account';
@@ -287,6 +292,8 @@ table 325 "VAT Posting Setup"
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11765; "Allow Blank VAT Date"; Boolean)
         {
             Caption = 'Allow Blank VAT Date';
@@ -294,6 +301,8 @@ table 325 "VAT Posting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11766; "Allow Non Deductible VAT"; Boolean)
         {
             Caption = 'Allow Non Deductible VAT';
@@ -301,6 +310,8 @@ table 325 "VAT Posting Setup"
             ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31000; "Sales Ded. VAT Base Adj. Acc."; Code[20])
         {
             Caption = 'Sales Ded. VAT Base Adj. Acc.';
@@ -349,6 +360,8 @@ table 325 "VAT Posting Setup"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31060; "VIES Purchases"; Boolean)
         {
             Caption = 'VIES Purchases';
@@ -363,6 +376,8 @@ table 325 "VAT Posting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31070; "Intrastat Service"; Boolean)
         {
             Caption = 'Intrastat Service';
@@ -370,6 +385,8 @@ table 325 "VAT Posting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31100; "VAT Rate"; Option)
         {
             Caption = 'VAT Rate';
@@ -388,6 +405,8 @@ table 325 "VAT Posting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(31102; "Insolvency Proceedings (p.44)"; Boolean)
         {
             Caption = 'Insolvency Proceedings (p.44)';
@@ -395,6 +414,8 @@ table 325 "VAT Posting Setup"
             ObsoleteReason = 'Replaced by "Corrections for Bad Receivable"';
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31103; "Ratio Coefficient"; Boolean)
         {
             Caption = 'Ratio Coefficient';
@@ -411,6 +432,7 @@ table 325 "VAT Posting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

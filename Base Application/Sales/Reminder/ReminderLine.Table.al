@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Reminder;
+namespace Microsoft.Sales.Reminder;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -492,6 +492,7 @@ table 296 "Reminder Line"
             Caption = 'System-Created Entry';
             Editable = false;
         }
+#if not CLEANSCHEMA23
         field(11761; Days; Integer)
         {
             Caption = 'Days';
@@ -499,6 +500,8 @@ table 296 "Reminder Line"
             ObsoleteTag = '23.0';
             ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11762; "Multiple Interest Rate"; Decimal)
         {
             Caption = 'Multiple Interest Rate';
@@ -506,6 +509,7 @@ table 296 "Reminder Line"
             ObsoleteTag = '23.0';
             ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
+#endif
     }
 
     keys

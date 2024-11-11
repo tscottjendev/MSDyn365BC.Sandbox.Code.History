@@ -898,6 +898,7 @@ table 5050 Contact
             Caption = 'Xrm Id';
             Editable = false;
         }
+#if not CLEANSCHEMA20
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
@@ -914,6 +915,8 @@ table 5050 Contact
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11792; "Registered Name"; Text[250])
         {
             Caption = 'Registered Name';
@@ -922,6 +925,8 @@ table 5050 Contact
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(11795; "Instant Messaging"; Text[250])
         {
             Caption = 'Instant Messaging';
@@ -930,6 +935,7 @@ table 5050 Contact
             ObsoleteReason = 'Instant Messaging has been discontinued.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

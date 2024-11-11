@@ -207,6 +207,7 @@ table 1294 "Applied Payment Entry"
             Editable = false;
             InitValue = "None";
         }
+#if not CLEANSCHEMA22
         field(11700; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
@@ -239,6 +240,7 @@ table 1294 "Applied Payment Entry"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

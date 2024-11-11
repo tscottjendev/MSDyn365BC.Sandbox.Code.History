@@ -478,6 +478,7 @@ table 17 "G/L Entry"
             Caption = 'Last Modified DateTime';
             Editable = false;
         }
+#if not CLEANSCHEMA21
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
@@ -486,6 +487,8 @@ table 17 "G/L Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
@@ -494,6 +497,8 @@ table 17 "G/L Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(11762; "Closed at Date"; Date)
         {
             Caption = 'Closed at Date';
@@ -546,6 +551,7 @@ table 17 "G/L Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
     }
 
     keys

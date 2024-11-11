@@ -244,6 +244,7 @@ table 352 "Default Dimension"
                 "Dimension Value Code" := DimensionValue.Code;
             end;
         }
+#if not CLEANSCHEMA22
         field(11790; "Automatic Create"; Boolean)
         {
             Caption = 'Automatic Create';
@@ -291,6 +292,7 @@ table 352 "Default Dimension"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

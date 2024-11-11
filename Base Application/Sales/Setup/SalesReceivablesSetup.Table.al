@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Setup;
+namespace Microsoft.Sales.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -691,6 +691,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             InitValue = true;
         }
+#if not CLEANSCHEMA19
         field(11760; "G/L Entry as Doc. Lines (Acc.)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Acc.)';
@@ -698,6 +699,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'Replaced by "Copy Line Descr. to G/L Entry" field. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11761; "G/L Entry as Doc. Lines (Item)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Item)';
@@ -705,6 +708,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11762; "G/L Entry as Doc. Lines (FA)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (FA)';
@@ -712,6 +717,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11763; "G/L Entry as Doc. Lines (Res.)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Res.)';
@@ -719,6 +726,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11764; "G/L Entry as Doc. Lines (Char)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Char)';
@@ -726,6 +735,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11765; "Posting Desc. Code"; Code[10])
         {
             Caption = 'Posting Desc. Code';
@@ -733,6 +744,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(11766; "Default VAT Date"; Option)
         {
             Caption = 'Default VAT Date';
@@ -742,6 +755,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech. (Prolonged to support Advance Letters)';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11767; "Allow Alter Posting Groups"; Boolean)
         {
             Caption = 'Allow Alter Posting Groups';
@@ -749,6 +764,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(11768; "Automatic Adv. Invoice Posting"; Boolean)
         {
             Caption = 'Automatic Adv. Invoice Posting';
@@ -756,6 +773,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11772; "Reas.Cd. on Tax Corr.Doc.Mand."; Boolean)
         {
             Caption = 'Reas.Cd. on Tax Corr.Doc.Mand.';
@@ -763,6 +782,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11773; "Pmt.Disc.Tax Corr.Doc. Nos."; Code[20])
         {
             Caption = 'Pmt.Disc.Tax Corr.Doc. Nos.';
@@ -770,6 +791,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11774; "Copy As Tax Corr. Document"; Boolean)
         {
             Caption = 'Copy As Tax Corr. Document';
@@ -777,6 +800,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11775; "Reason Code For Payment Disc."; Code[10])
         {
             Caption = 'Reason Code For Payment Disc.';
@@ -784,6 +809,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11777; "Credit Memo Confirmation"; Boolean)
         {
             Caption = 'Credit Memo Confirmation';
@@ -791,6 +818,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11778; "Multiple Interest Rates"; Boolean)
         {
             Caption = 'Multiple Interest Rates';
@@ -798,6 +827,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteTag = '23.0';
             ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11779; "Fin. Charge Posting Desc. Code"; Code[10])
         {
             Caption = 'Fin. Charge Posting Desc. Code';
@@ -805,6 +836,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31000; "Advance Letter Nos."; Code[20])
         {
             Caption = 'Advance Letter Nos.';
@@ -812,6 +845,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31001; "Advance Invoice Nos."; Code[20])
         {
             Caption = 'Advance Invoice Nos.';
@@ -819,6 +854,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31002; "Advance Credit Memo Nos."; Code[20])
         {
             Caption = 'Advance Credit Memo Nos.';
@@ -826,6 +863,7 @@ table 311 "Sales & Receivables Setup"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

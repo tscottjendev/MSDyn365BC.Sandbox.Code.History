@@ -88,6 +88,7 @@ table 5800 "Item Charge"
                 Rec.ValidateShortcutDimCode(2, "Global Dimension 2 Code");
             end;
         }
+#if not CLEANSCHEMA21
         field(31060; "Incl. in Intrastat Amount"; Boolean)
         {
             Caption = 'Incl. in Intrastat Amount';
@@ -102,6 +103,8 @@ table 5800 "Item Charge"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31070; "Use Ledger Entry Dimensions"; Boolean)
         {
             Caption = 'Use Ledger Entry Dimensions';
@@ -165,6 +168,7 @@ table 5800 "Item Charge"
             ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     keys

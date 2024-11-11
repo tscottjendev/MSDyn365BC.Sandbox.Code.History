@@ -430,6 +430,7 @@ table 753 "Standard Item Journal Line"
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
         }
+#if not CLEANSCHEMA24
         field(50; "New Location Code"; Code[10])
         {
             Caption = 'New Location Code';
@@ -438,6 +439,7 @@ table 753 "Standard Item Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
         }
+#endif
         field(53; "Qty. (Calculated)"; Decimal)
         {
             Caption = 'Qty. (Calculated)';
@@ -714,6 +716,7 @@ table 753 "Standard Item Journal Line"
         {
             Caption = 'Price Calculation Method';
         }
+#if not CLEANSCHEMA20
         field(31077; "Whse. Net Change Template"; Code[10])
         {
             Caption = 'Whse. Net Change Template';
@@ -721,6 +724,7 @@ table 753 "Standard Item Journal Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';

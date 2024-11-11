@@ -176,6 +176,7 @@ table 99000765 "Manufacturing Setup"
             OptionCaption = 'Expected Quantity,Zero on All Operations,Zero on Last Operation';
             OptionMembers = "Expected Quantity","Zero on All Operations","Zero on Last Operation";
         }
+#if not CLEANSCHEMA21
         field(31070; "Default Gen.Bus. Posting Group"; Code[20])
         {
             Caption = 'Default Gen.Bus. Posting Group';
@@ -183,6 +184,8 @@ table 99000765 "Manufacturing Setup"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31071; "Exact Cost Rev.Manda. (Cons.)"; Boolean)
         {
             Caption = 'Exact Cost Rev.Manda. (Cons.)';
@@ -190,6 +193,7 @@ table 99000765 "Manufacturing Setup"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

@@ -28,9 +28,7 @@ codeunit 104150 "Upgrade - Local App"
         UpdateVATControlReportLine();
         UpdateSalesReceivablesSetup();
         UpdateVendorTemplate();
-        UpdateIntrastatJnlLine();
         UpdateItemJournalLine();
-        UpdateItemLedgerEntry();
         UpdateCashDeskWorkflowTemplate();
         UpdateCreditWorkflowTemplate();
         UpdatePaymentOrderWorkflowTemplate();
@@ -178,25 +176,6 @@ codeunit 104150 "Upgrade - Local App"
         UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetVendorTemplateUpgradeTag());
     end;
 
-    local procedure UpdateIntrastatJnlLine()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetIntrastatJnlLineShipmentMethodCodeUpgradeTag()) then
-            exit;
-
-        IntrastatJnlLine.SetFilter("Shipment Method Code", '<>%1', '');
-        if IntrastatJnlLine.FindSet() then
-            repeat
-                IntrastatJnlLine."Shpt. Method Code" := IntrastatJnlLine."Shipment Method Code";
-                IntrastatJnlLine.Modify();
-            until IntrastatJnlLine.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetIntrastatJnlLineShipmentMethodCodeUpgradeTag());
-    end;
-
     local procedure UpdateItemJournalLine()
     var
         ItemJournalLine: Record "Item Journal Line";
@@ -214,25 +193,6 @@ codeunit 104150 "Upgrade - Local App"
             until ItemJournalLine.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetItemJournalLineShipmentMethodCodeUpgradeTag());
-    end;
-
-    local procedure UpdateItemLedgerEntry()
-    var
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetItemLedgerEntryShipmentMethodCodeUpgradeTag()) then
-            exit;
-
-        ItemLedgerEntry.SetFilter("Shipment Method Code", '<>%1', '');
-        if ItemLedgerEntry.FindSet() then
-            repeat
-                ItemLedgerEntry."Shpt. Method Code" := ItemLedgerEntry."Shipment Method Code";
-                ItemLedgerEntry.Modify();
-            until ItemLedgerEntry.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetItemLedgerEntryShipmentMethodCodeUpgradeTag());
     end;
 
     local procedure UpdateCashDeskWorkflowTemplate()

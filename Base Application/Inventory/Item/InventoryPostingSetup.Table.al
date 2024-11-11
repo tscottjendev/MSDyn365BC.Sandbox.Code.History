@@ -85,6 +85,7 @@ table 5813 "Inventory Posting Setup"
                       FieldNo("Inventory Account (Interim)"), "Inventory Account (Interim)", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory());
             end;
         }
+#if not CLEANSCHEMA21
         field(11760; "Consumption Account"; Code[20])
         {
             Caption = 'Consumption Account';
@@ -92,7 +93,6 @@ table 5813 "Inventory Posting Setup"
             ObsoleteState = Removed;
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
-
         }
 
         field(11761; "Change In Inv.Of WIP Acc."; Code[20])
@@ -111,6 +111,7 @@ table 5813 "Inventory Posting Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

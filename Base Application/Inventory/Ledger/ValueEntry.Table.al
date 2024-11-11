@@ -457,6 +457,7 @@ table 5802 "Value Entry"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
+#if not CLEANSCHEMA21
         field(11763; "G/L Correction"; Boolean)
         {
             Caption = 'G/L Correction';
@@ -514,6 +515,7 @@ table 5802 "Value Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

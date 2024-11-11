@@ -123,6 +123,7 @@ table 86 "Exch. Rate Adjmt. Reg."
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA23
         field(11760; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
@@ -144,6 +145,7 @@ table 86 "Exch. Rate Adjmt. Reg."
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

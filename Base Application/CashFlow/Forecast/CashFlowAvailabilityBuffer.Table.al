@@ -79,6 +79,7 @@ table 930 "Cash Flow Availability Buffer"
         {
             Caption = 'Total';
         }
+#if not CLEANSCHEMA22
         field(11700; "Sales Advances"; Decimal)
         {
             Caption = 'Sales Advances';
@@ -95,6 +96,7 @@ table 930 "Cash Flow Availability Buffer"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

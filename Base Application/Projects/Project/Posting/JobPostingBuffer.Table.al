@@ -130,6 +130,7 @@ table 212 "Job Posting Buffer"
             Editable = false;
             TableRelation = "Dimension Set Entry";
         }
+#if not CLEANSCHEMA23
         field(11763; Correction; Boolean)
         {
             Caption = 'Correction';
@@ -138,6 +139,7 @@ table 212 "Job Posting Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

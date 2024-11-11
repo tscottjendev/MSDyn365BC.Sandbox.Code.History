@@ -48,6 +48,7 @@ table 5742 "Transfer Route"
             Caption = 'Shipping Agent Service Code';
             TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
         }
+#if not CLEANSCHEMA21
         field(31070; "Gen. Bus. Post. Group Ship"; Code[20])
         {
             Caption = 'Gen. Bus. Post. Group Ship';
@@ -62,6 +63,7 @@ table 5742 "Transfer Route"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

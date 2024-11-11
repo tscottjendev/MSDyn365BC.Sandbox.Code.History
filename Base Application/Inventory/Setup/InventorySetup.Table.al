@@ -350,6 +350,7 @@ table 313 "Inventory Setup"
             Caption = 'Internal Movement Nos.';
             TableRelation = "No. Series";
         }
+#if not CLEANSCHEMA18
         field(11765; "Posting Desc. Code"; Code[10])
         {
             Caption = 'Posting Desc. Code';
@@ -364,6 +365,8 @@ table 313 "Inventory Setup"
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31071; "Use GPPG from SKU"; Boolean)
         {
             Caption = 'Use GPPG from SKU';
@@ -378,6 +381,8 @@ table 313 "Inventory Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31073; "Def.Template for Phys.Pos.Adj"; Code[10])
         {
             Caption = 'Def.Template for Phys.Pos.Adj';
@@ -392,6 +397,8 @@ table 313 "Inventory Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31075; "Skip Update SKU on Posting"; Boolean)
         {
             Caption = 'Skip Update SKU on Posting';
@@ -399,6 +406,8 @@ table 313 "Inventory Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31076; "Check Item Charge Pst.Group"; Boolean)
         {
             Caption = 'Check Item Charge Pst.Group';
@@ -406,6 +415,8 @@ table 313 "Inventory Setup"
             ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA22
         field(31077; "Exact Cost Reversing Mandatory"; Boolean)
         {
             Caption = 'Exact Cost Reversing Mandatory';
@@ -413,6 +424,8 @@ table 313 "Inventory Setup"
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31078; "Post Neg. Transfers as Corr."; Boolean)
         {
             Caption = 'Post Neg. Transfers as Corr.';
@@ -427,6 +440,7 @@ table 313 "Inventory Setup"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

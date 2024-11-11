@@ -75,6 +75,7 @@ table 1251 "Text-to-Account Mapping"
             Caption = 'Vendor No.';
             TableRelation = Vendor;
         }
+#if not CLEANSCHEMA22
         field(11701; Description; Text[50])
         {
             Caption = 'Description';
@@ -145,6 +146,7 @@ table 1251 "Text-to-Account Mapping"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '22.0';
         }
+#endif
     }
 
     keys

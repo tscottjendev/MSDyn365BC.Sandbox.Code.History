@@ -110,6 +110,7 @@ table 5615 "FA Allocation"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Global Dimension 1 Code", "Global Dimension 2 Code");
             end;
         }
+#if not CLEANSCHEMA21
         field(11760; "Reason/Maintenance Code"; Code[10])
         {
             Caption = 'Reason/Maintenance Code';
@@ -117,6 +118,7 @@ table 5615 "FA Allocation"
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

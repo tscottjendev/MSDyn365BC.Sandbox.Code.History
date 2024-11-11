@@ -50,6 +50,7 @@ table 262 "Intrastat Jnl. Batch"
             AccessByPermission = TableData Currency = R;
             Caption = 'Currency Identifier';
         }
+#if not CLEANSCHEMA18
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
@@ -57,6 +58,8 @@ table 262 "Intrastat Jnl. Batch"
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31061; "Declaration No."; Code[20])
         {
             Caption = 'Declaration No.';
@@ -73,6 +76,7 @@ table 262 "Intrastat Jnl. Batch"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys
@@ -88,5 +92,5 @@ table 262 "Intrastat Jnl. Batch"
     }
 }
 
- 
+
 #endif

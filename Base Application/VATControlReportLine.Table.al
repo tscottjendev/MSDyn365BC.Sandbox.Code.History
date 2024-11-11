@@ -116,6 +116,7 @@ table 31101 "VAT Control Report Line"
             OptionCaption = ' ,Insolvency Proceedings (p.44),Bad Receivable (p.46 resp. 74a)';
             OptionMembers = " ","Insolvency Proceedings (p.44)","Bad Receivable (p.46 resp. 74a)";
         }
+#if not CLEANSCHEMA15
         field(44; "Insolvency Proceedings (p.44)"; Boolean)
         {
             Caption = 'Insolvency Proceedings (p.44)';
@@ -123,6 +124,7 @@ table 31101 "VAT Control Report Line"
             ObsoleteReason = 'Replaced by "Corrections for Bad Receivable"';
             ObsoleteTag = '15.0';
         }
+#endif
         field(45; "Ratio Use"; Boolean)
         {
             Caption = 'Ratio Use';
@@ -177,5 +179,5 @@ table 31101 "VAT Control Report Line"
     }
 
 }
- 
+
 #endif

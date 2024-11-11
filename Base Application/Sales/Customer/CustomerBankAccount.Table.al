@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Customer;
+namespace Microsoft.Sales.Customer;
 
 using Microsoft.Bank.Setup;
 using Microsoft.Finance.Currency;
@@ -221,6 +221,7 @@ table 287 "Customer Bank Account"
             Caption = 'Bank Clearing Standard';
             TableRelation = "Bank Clearing Standard";
         }
+#if not CLEANSCHEMA21
         field(11700; Priority; Integer)
         {
             BlankZero = true;
@@ -229,6 +230,8 @@ table 287 "Customer Bank Account"
             ObsoleteReason = 'Removed from Base Application, use Preferred Bank Account Code instead.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
@@ -237,6 +240,7 @@ table 287 "Customer Bank Account"
             ObsoleteReason = 'Removed from Base Application.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys

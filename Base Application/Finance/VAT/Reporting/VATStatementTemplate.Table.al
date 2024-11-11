@@ -57,6 +57,7 @@ table 255 "VAT Statement Template"
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA18
         field(11760; "XML Format"; Option)
         {
             Caption = 'XML Format';
@@ -67,6 +68,8 @@ table 255 "VAT Statement Template"
             ObsoleteReason = 'The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This field will be removed and should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA20
         field(11761; "Allow Comments/Attachments"; Boolean)
         {
             Caption = 'Allow Comments/Attachments';
@@ -75,6 +78,7 @@ table 255 "VAT Statement Template"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

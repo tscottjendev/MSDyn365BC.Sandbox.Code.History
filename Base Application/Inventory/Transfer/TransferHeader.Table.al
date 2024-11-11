@@ -668,6 +668,7 @@ table 5740 "Transfer Header"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
+#if not CLEANSCHEMA18
         field(11730; "Receiving Wh. No. Series"; Code[20])
         {
             Caption = 'Receiving Wh. No. Series';
@@ -700,6 +701,8 @@ table 5740 "Transfer Header"
             ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
@@ -723,8 +726,8 @@ table 5740 "Transfer Header"
             ObsoleteState = Removed;
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '21.0';
-
         }
+#endif
     }
 
     keys

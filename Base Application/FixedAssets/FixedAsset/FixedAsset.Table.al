@@ -328,6 +328,7 @@ table 5600 "Fixed Asset"
                 UpdateResponsibleEmployeeCode();
             end;
         }
+#if not CLEANSCHEMA18
         field(11792; "Full Description"; Text[100])
         {
             Caption = 'Full Description';
@@ -344,6 +345,8 @@ table 5600 "Fixed Asset"
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31043; "Tax Depreciation Group Code"; Code[20])
         {
             Caption = 'Tax Depreciation Group Code';
@@ -352,6 +355,8 @@ table 5600 "Fixed Asset"
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(31044; "SKP Code"; Code[20])
         {
             Caption = 'SKP Code';
@@ -359,6 +364,8 @@ table 5600 "Fixed Asset"
             ObsoleteReason = 'The functionality of Fixed Assets Clasification by SKP codes will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(31045; "Clasification Code"; Code[20])
         {
             Caption = 'Clasification Code';
@@ -366,6 +373,7 @@ table 5600 "Fixed Asset"
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
     }
 
     keys
@@ -534,8 +542,8 @@ table 5600 "Fixed Asset"
         FA := Rec;
         FASetup.Get();
         FASetup.TestField("Fixed Asset Nos.");
-            if NoSeries.LookupRelatedNoSeries(FASetup."Fixed Asset Nos.", OldFA."No. Series", FA."No. Series") then begin
-                FA."No." := NoSeries.GetNextNo(FA."No. Series");
+        if NoSeries.LookupRelatedNoSeries(FASetup."Fixed Asset Nos.", OldFA."No. Series", FA."No. Series") then begin
+            FA."No." := NoSeries.GetNextNo(FA."No. Series");
             Rec := FA;
             exit(true);
         end;

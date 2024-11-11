@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -143,6 +143,7 @@ table 370 "Excel Buffer"
             Caption = 'Cell Value as Blob';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA23
         field(11790; "Font Color"; Integer)
         {
             Caption = 'Font Color';
@@ -152,6 +153,8 @@ table 370 "Excel Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11791; "Foreground Color"; Integer)
         {
             Caption = 'Foreground Color';
@@ -161,6 +164,8 @@ table 370 "Excel Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
+#if not CLEANSCHEMA23
         field(11792; "Font Name"; Text[80])
         {
             Caption = 'Font Name';
@@ -169,6 +174,7 @@ table 370 "Excel Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

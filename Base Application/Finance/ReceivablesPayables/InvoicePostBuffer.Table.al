@@ -305,6 +305,7 @@ table 49 "Invoice Post. Buffer"
             Caption = 'Non-Deductible VAT Difference';
             Editable = false;
         }
+#if not CLEANSCHEMA24
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
@@ -313,6 +314,8 @@ table 49 "Invoice Post. Buffer"
             ObsoleteTag = '24.0';
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11761; Description; Text[100])
         {
             Caption = 'Description';
@@ -321,6 +324,8 @@ table 49 "Invoice Post. Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11763; Correction; Boolean)
         {
             Caption = 'Correction';
@@ -338,6 +343,8 @@ table 49 "Invoice Post. Buffer"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA18
         field(11765; "VAT % (Non Deductible)"; Decimal)
         {
             Caption = 'VAT % (Non Deductible)';
@@ -366,6 +373,8 @@ table 49 "Invoice Post. Buffer"
             ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEANSCHEMA21
         field(11770; "Ext. Amount"; Decimal)
         {
             AutoFormatType = 1;
@@ -393,6 +402,8 @@ table 49 "Invoice Post. Buffer"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '21.0';
         }
+#endif
+#if not CLEANSCHEMA24
         field(31000; "Prepayment Type"; Option)
         {
             Caption = 'Prepayment Type';
@@ -403,6 +414,8 @@ table 49 "Invoice Post. Buffer"
             ObsoleteTag = '24.0';
             ObsoleteReason = 'The field is not needed anymore.';
         }
+#endif
+#if not CLEANSCHEMA20
         field(31100; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
@@ -411,6 +424,7 @@ table 49 "Invoice Post. Buffer"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys
