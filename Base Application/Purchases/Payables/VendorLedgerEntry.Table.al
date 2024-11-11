@@ -646,6 +646,7 @@ table 25 "Vendor Ledger Entry"
             Caption = 'Remit-to Code';
             TableRelation = "Remit Address".Code where("Vendor No." = field("Vendor No."));
         }
+#if not CLEANSCHEMA28
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
@@ -659,6 +660,8 @@ table 25 "Vendor Ledger Entry"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
+#if not CLEANSCHEMA28
         field(10021; "IRS 1099 Amount"; Decimal)
         {
             Caption = 'IRS 1099 Amount';
@@ -671,6 +674,7 @@ table 25 "Vendor Ledger Entry"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
     }
 
     keys

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.History;
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -612,6 +612,7 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'STE Transaction ID';
             Editable = false;
         }
+#if not CLEANSCHEMA28
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
@@ -625,6 +626,7 @@ table 124 "Purch. Cr. Memo Hdr."
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
         field(10042; "Fiscal Invoice Number PAC"; Text[50])
         {
             Caption = 'Fiscal Invoice Number PAC';

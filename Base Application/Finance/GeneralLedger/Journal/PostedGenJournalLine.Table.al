@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -1162,6 +1162,7 @@ table 181 "Posted Gen. Journal Line"
             Caption = 'STE Transaction ID';
             Editable = false;
         }
+#if not CLEANSCHEMA28
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
@@ -1175,6 +1176,8 @@ table 181 "Posted Gen. Journal Line"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
+#if not CLEANSCHEMA28
         field(10021; "IRS 1099 Amount"; Decimal)
         {
             Caption = 'IRS 1099 Amount';
@@ -1187,6 +1190,7 @@ table 181 "Posted Gen. Journal Line"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
         field(10030; "Foreign Exchange Indicator"; Option)
         {
             Caption = 'Foreign Exchange Indicator';

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Document;
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.AllocationAccount;
@@ -3747,6 +3747,7 @@ table 39 "Purchase Line"
                 end;
             end;
         }
+#if not CLEANSCHEMA28
         field(10022; "IRS 1099 Liable"; Boolean)
         {
             Caption = 'IRS 1099 Liable';
@@ -3759,6 +3760,7 @@ table 39 "Purchase Line"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
         field(10025; "GST/HST"; Enum "GST HST Tax Type")
         {
             Caption = 'GST/HST';
