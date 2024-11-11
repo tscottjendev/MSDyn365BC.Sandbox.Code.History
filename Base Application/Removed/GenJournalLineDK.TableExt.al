@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13672 "Gen. Journal Line DK" extends "Gen. Journal Line"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13650; "Giro Acc. No."; Code[8])
         {
             Caption = 'Giro Acc. No.';
@@ -10,5 +12,7 @@ tableextension 13672 "Gen. Journal Line DK" extends "Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13664 "Bank Acc. Recon. Line DK" extends "Bank Acc. Reconciliation Line"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13600; "Payment Reference"; Code[20])
         {
             Caption = 'Payment Reference';
@@ -10,5 +12,7 @@ tableextension 13664 "Bank Acc. Recon. Line DK" extends "Bank Acc. Reconciliatio
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

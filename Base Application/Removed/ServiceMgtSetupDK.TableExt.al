@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13698 "Service Mgt. Setup DK" extends "Service Mgt. Setup"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13600; "OIOUBL Service Invoice Path"; Text[250])
         {
             Caption = 'OIOUBL Service Invoice Path';
@@ -10,6 +12,8 @@ tableextension 13698 "Service Mgt. Setup DK" extends "Service Mgt. Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13601; "OIOUBL Service Cr. Memo Path"; Text[250])
         {
             Caption = 'OIOUBL Service Cr. Memo Path';
@@ -18,5 +22,7 @@ tableextension 13698 "Service Mgt. Setup DK" extends "Service Mgt. Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

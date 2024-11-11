@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13701 "Payment Export Data DK" extends "Payment Export Data"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13650; "Recipient Giro Acc. No."; Code[8])
         {
             Caption = 'Recipient Giro Acc. No.';
@@ -10,5 +12,7 @@ tableextension 13701 "Payment Export Data DK" extends "Payment Export Data"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

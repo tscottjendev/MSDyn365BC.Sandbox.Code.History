@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13680 "Purch. Inv. Header DK" extends "Purch. Inv. Header"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13650; "Giro Acc. No."; Code[8])
         {
             Caption = 'Giro Acc. No.';
@@ -10,5 +12,7 @@ tableextension 13680 "Purch. Inv. Header DK" extends "Purch. Inv. Header"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

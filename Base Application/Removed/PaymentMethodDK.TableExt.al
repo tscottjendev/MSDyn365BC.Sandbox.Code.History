@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13677 "Payment Method DK" extends "Payment Method"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13600; "Payment Channel"; Option)
         {
             Caption = 'Payment Channel';
@@ -12,6 +14,8 @@ tableextension 13677 "Payment Method DK" extends "Payment Method"
             OptionMembers = " ","Payment Slip","Account Transfer","National Clearing","Direct Debit";
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13601; "Payment Type Validation"; Option)
         {
             Caption = 'Payment Type Validation';
@@ -22,5 +26,7 @@ tableextension 13677 "Payment Method DK" extends "Payment Method"
             OptionMembers = " ","FIK 71","FIK 73","FIK 01","FIK 04",Domestic,International;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

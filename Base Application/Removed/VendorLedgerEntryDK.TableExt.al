@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13700 "Vendor Ledger Entry DK" extends "Vendor Ledger Entry"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13650; "Giro Acc. No."; Code[8])
         {
             Caption = 'Giro Acc. No.';
@@ -10,5 +12,7 @@ tableextension 13700 "Vendor Ledger Entry DK" extends "Vendor Ledger Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

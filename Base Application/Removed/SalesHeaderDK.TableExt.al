@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13686 "Sales Header DK" extends "Sales Header"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13600; "EAN No."; Code[13])
         {
             Caption = 'EAN No.';
@@ -10,6 +12,8 @@ tableextension 13686 "Sales Header DK" extends "Sales Header"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13602; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
@@ -18,6 +22,8 @@ tableextension 13686 "Sales Header DK" extends "Sales Header"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13604; "OIOUBL Profile Code"; Code[10])
         {
             Caption = 'OIOUBL Profile Code';
@@ -26,6 +32,8 @@ tableextension 13686 "Sales Header DK" extends "Sales Header"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13605; "Sell-to Contact Phone No."; Text[30])
         {
             Caption = 'Sell-to Contact Phone No.';
@@ -35,6 +43,8 @@ tableextension 13686 "Sales Header DK" extends "Sales Header"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13606; "Sell-to Contact Fax No."; Text[30])
         {
             Caption = 'Sell-to Contact Fax No.';
@@ -43,6 +53,8 @@ tableextension 13686 "Sales Header DK" extends "Sales Header"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13607; "Sell-to Contact E-Mail"; Text[80])
         {
             Caption = 'Sell-to Contact E-Mail';
@@ -52,6 +64,8 @@ tableextension 13686 "Sales Header DK" extends "Sales Header"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13608; "Sell-to Contact Role"; Option)
         {
             Caption = 'Sell-to Contact Role';
@@ -62,6 +76,8 @@ tableextension 13686 "Sales Header DK" extends "Sales Header"
             OptionMembers = " ",,,"Purchase Responsible",,,Accountant,,,"Budget Responsible",,,Requisitioner;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13620; "Payment Channel"; Option)
         {
             Caption = 'Payment Channel';
@@ -72,5 +88,7 @@ tableextension 13686 "Sales Header DK" extends "Sales Header"
             OptionMembers = " ","Payment Slip","Account Transfer","National Clearing","Direct Debit";
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

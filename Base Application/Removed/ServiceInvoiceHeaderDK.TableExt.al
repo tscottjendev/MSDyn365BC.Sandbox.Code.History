@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13695 "Service Invoice Header DK" extends "Service Invoice Header"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13600; "EAN No."; Code[13])
         {
             Caption = 'EAN No.';
@@ -10,6 +12,8 @@ tableextension 13695 "Service Invoice Header DK" extends "Service Invoice Header
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13601; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
@@ -18,6 +22,8 @@ tableextension 13695 "Service Invoice Header DK" extends "Service Invoice Header
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13602; "Electronic Invoice Created"; Boolean)
         {
             Caption = 'Electronic Invoice Created';
@@ -27,6 +33,8 @@ tableextension 13695 "Service Invoice Header DK" extends "Service Invoice Header
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13604; "OIOUBL Profile Code"; Code[10])
         {
             Caption = 'OIOUBL Profile Code';
@@ -35,6 +43,8 @@ tableextension 13695 "Service Invoice Header DK" extends "Service Invoice Header
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13608; "Contact Role"; Option)
         {
             Caption = 'Contact Role';
@@ -45,6 +55,8 @@ tableextension 13695 "Service Invoice Header DK" extends "Service Invoice Header
             OptionMembers = " ",,,"Purchase Responsible",,,Accountant,,,"Budget Responsible",,,Requisitioner;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13620; "Payment Channel"; Option)
         {
             Caption = 'Payment Channel';
@@ -55,5 +67,7 @@ tableextension 13695 "Service Invoice Header DK" extends "Service Invoice Header
             OptionMembers = " ","Payment Slip","Account Transfer","National Clearing","Direct Debit";
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

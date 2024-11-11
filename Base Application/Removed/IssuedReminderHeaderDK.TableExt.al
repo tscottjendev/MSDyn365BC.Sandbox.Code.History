@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13675 "Issued Reminder Header DK" extends "Issued Reminder Header"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13600; "EAN No."; Code[13])
         {
             Caption = 'EAN No.';
@@ -10,6 +12,8 @@ tableextension 13675 "Issued Reminder Header DK" extends "Issued Reminder Header
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13601; "Electronic Reminder Created"; Boolean)
         {
             Caption = 'Electronic Reminder Created';
@@ -19,6 +23,8 @@ tableextension 13675 "Issued Reminder Header DK" extends "Issued Reminder Header
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13602; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
@@ -27,6 +33,8 @@ tableextension 13675 "Issued Reminder Header DK" extends "Issued Reminder Header
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13605; "Contact Phone No."; Text[30])
         {
             Caption = 'Contact Phone No.';
@@ -36,6 +44,8 @@ tableextension 13675 "Issued Reminder Header DK" extends "Issued Reminder Header
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13606; "Contact Fax No."; Text[30])
         {
             Caption = 'Contact Fax No.';
@@ -44,6 +54,8 @@ tableextension 13675 "Issued Reminder Header DK" extends "Issued Reminder Header
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13607; "Contact E-Mail"; Text[80])
         {
             Caption = 'Contact E-Mail';
@@ -53,6 +65,8 @@ tableextension 13675 "Issued Reminder Header DK" extends "Issued Reminder Header
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13608; "Contact Role"; Option)
         {
             Caption = 'Contact Role';
@@ -63,6 +77,8 @@ tableextension 13675 "Issued Reminder Header DK" extends "Issued Reminder Header
             OptionMembers = " ",,,"Purchase Responsible",,,Accountant,,,"Budget Responsible",,,Requisitioner;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13620; "Payment Channel"; Option)
         {
             Caption = 'Payment Channel';
@@ -73,5 +89,7 @@ tableextension 13675 "Issued Reminder Header DK" extends "Issued Reminder Header
             OptionMembers = " ","Payment Slip","Account Transfer","National Clearing","Direct Debit";
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

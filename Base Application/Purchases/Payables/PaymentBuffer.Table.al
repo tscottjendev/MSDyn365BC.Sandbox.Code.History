@@ -125,6 +125,7 @@ table 372 "Payment Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Remit Address".Code where("Vendor No." = field("Vendor No."));
         }
+#if not CLEANSCHEMA15
         field(13650; "Giro Acc. No."; Code[8])
         {
             Caption = 'Giro Acc. No.';
@@ -133,6 +134,7 @@ table 372 "Payment Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

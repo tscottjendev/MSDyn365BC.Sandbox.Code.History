@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13697 "Service Line DK" extends "Service Line"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13600; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
@@ -10,5 +12,7 @@ tableextension 13697 "Service Line DK" extends "Service Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

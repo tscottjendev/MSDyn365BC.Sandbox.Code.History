@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13665 "Bank Statement Match Buffer DK" extends "Bank Statement Matching Buffer"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13600; Description; Text[50])
         {
             Caption = 'Description';
@@ -10,6 +12,8 @@ tableextension 13665 "Bank Statement Match Buffer DK" extends "Bank Statement Ma
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13601; "Match Status"; Option)
         {
             Caption = 'Match Status';
@@ -20,5 +24,7 @@ tableextension 13665 "Bank Statement Match Buffer DK" extends "Bank Statement Ma
             OptionMembers = " ",NoMatch,Duplicate,IsPaid,Partial,Extra,Fully;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

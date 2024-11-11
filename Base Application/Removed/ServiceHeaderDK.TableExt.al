@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13694 "Service Header DK" extends "Service Header"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13600; "EAN No."; Code[13])
         {
             Caption = 'EAN No.';
@@ -10,6 +12,8 @@ tableextension 13694 "Service Header DK" extends "Service Header"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13601; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
@@ -18,6 +22,8 @@ tableextension 13694 "Service Header DK" extends "Service Header"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13604; "OIOUBL Profile Code"; Code[10])
         {
             Caption = 'OIOUBL Profile Code';
@@ -26,6 +32,8 @@ tableextension 13694 "Service Header DK" extends "Service Header"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13608; "Contact Role"; Option)
         {
             Caption = 'Contact Role';
@@ -36,6 +44,8 @@ tableextension 13694 "Service Header DK" extends "Service Header"
             OptionMembers = " ",,,"Purchase Responsible",,,Accountant,,,"Budget Responsible",,,Requisitioner;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13620; "Payment Channel"; Option)
         {
             Caption = 'Payment Channel';
@@ -46,5 +56,7 @@ tableextension 13694 "Service Header DK" extends "Service Header"
             OptionMembers = " ","Payment Slip","Account Transfer","National Clearing","Direct Debit";
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

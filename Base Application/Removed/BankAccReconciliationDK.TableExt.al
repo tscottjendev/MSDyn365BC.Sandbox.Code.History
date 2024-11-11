@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13663 "Bank Acc. Reconciliation DK" extends "Bank Acc. Reconciliation"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13600; "FIK Payment Reconciliation"; Boolean)
         {
             Caption = 'FIK Payment Reconciliation';
@@ -10,5 +12,7 @@ tableextension 13663 "Bank Acc. Reconciliation DK" extends "Bank Acc. Reconcilia
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

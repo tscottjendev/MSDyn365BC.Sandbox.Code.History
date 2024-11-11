@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13689 "Sales Line Archive DK" extends "Sales Line Archive"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13602; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
@@ -10,5 +12,7 @@ tableextension 13689 "Sales Line Archive DK" extends "Sales Line Archive"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

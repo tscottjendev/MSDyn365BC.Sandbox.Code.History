@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13666 "Company Information DK" extends "Company Information"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13600; "Bank Creditor No."; Code[8])
         {
             Caption = 'Bank Creditor No.';
@@ -11,5 +13,7 @@ tableextension 13666 "Company Information DK" extends "Company Information"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

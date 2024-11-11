@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13691 "Sales & Receivables Setup DK" extends "Sales & Receivables Setup"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13600; "OIOUBL Invoice Path"; Text[250])
         {
             Caption = 'OIOUBL Invoice Path';
@@ -10,6 +12,8 @@ tableextension 13691 "Sales & Receivables Setup DK" extends "Sales & Receivables
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13601; "OIOUBL Cr. Memo Path"; Text[250])
         {
             Caption = 'OIOUBL Cr. Memo Path';
@@ -18,6 +22,8 @@ tableextension 13691 "Sales & Receivables Setup DK" extends "Sales & Receivables
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13602; "OIOUBL Reminder Path"; Text[250])
         {
             Caption = 'OIOUBL Reminder Path';
@@ -26,6 +32,8 @@ tableextension 13691 "Sales & Receivables Setup DK" extends "Sales & Receivables
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13603; "OIOUBL Fin. Chrg. Memo Path"; Text[250])
         {
             Caption = 'OIOUBL Fin. Chrg. Memo Path';
@@ -34,6 +42,8 @@ tableextension 13691 "Sales & Receivables Setup DK" extends "Sales & Receivables
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(13604; "Default OIOUBL Profile Code"; Code[10])
         {
             Caption = 'Default OIOUBL Profile Code';
@@ -42,5 +52,7 @@ tableextension 13691 "Sales & Receivables Setup DK" extends "Sales & Receivables
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

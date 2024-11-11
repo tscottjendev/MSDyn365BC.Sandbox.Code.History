@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13676 "Issued Reminder Line DK" extends "Issued Reminder Line"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13600; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
@@ -10,5 +12,7 @@ tableextension 13676 "Issued Reminder Line DK" extends "Issued Reminder Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif

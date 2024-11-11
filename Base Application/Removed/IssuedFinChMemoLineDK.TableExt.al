@@ -1,7 +1,9 @@
+#if not CLEANSCHEMA15
 tableextension 13674 "Issued Fin.Ch. Memo Line DK" extends "Issued Fin. Charge Memo Line"
 {
     fields
     {
+#if not CLEANSCHEMA15
         field(13600; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
@@ -10,5 +12,7 @@ tableextension 13674 "Issued Fin.Ch. Memo Line DK" extends "Issued Fin. Charge M
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 }
+#endif
