@@ -3054,12 +3054,14 @@ table 81 "Gen. Journal Line"
                 UpdateVendorNo();
             end;
         }
+#if not CLEANSCHEMA18
         field(11510; "Swiss QRBill"; Boolean)
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11514 Swiss QR-Bill Gen Journal Line';
             ObsoleteTag = '18.0';
         }
+#endif
         field(11580; "Payment Fee Code"; Option)
         {
             Caption = 'Payment Fee Code';

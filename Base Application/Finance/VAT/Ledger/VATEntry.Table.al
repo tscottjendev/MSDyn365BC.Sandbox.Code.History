@@ -531,6 +531,7 @@ table 254 "VAT Entry"
             Caption = 'Non-Deductible VAT Difference';
             Editable = false;
         }
+#if not CLEANSCHEMA25
         field(11000; "G/L Account No."; Code[20])
         {
             Caption = 'G/L Account No. (Obsoleted)';
@@ -539,6 +540,7 @@ table 254 "VAT Entry"
             TableRelation = "G/L Account";
             ObsoleteTag = '25.0';
         }
+#endif
         field(11500; "VAT %"; Decimal)
         {
             Caption = 'VAT %';

@@ -3623,6 +3623,7 @@ table 39 "Purchase Line"
         {
             Caption = 'Over-Receipt Approval Status';
         }
+#if not CLEANSCHEMA25
         field(5005396; "Order No. (Old)"; Code[20])
         {
             Caption = 'Order No. (Old)';
@@ -3637,6 +3638,7 @@ table 39 "Purchase Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';

@@ -692,6 +692,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             InitValue = true;
         }
+#if not CLEANSCHEMA19
         field(11500; "Block ship. when neg. invent."; Boolean)
         {
             Caption = 'Block ship. when neg. invent.';
@@ -699,6 +700,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA25
         field(11501; "Line Amt. Round LCY"; Decimal)
         {
             Caption = 'Line Amt. Round LCY';
@@ -710,6 +713,7 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(11502; "Apply Inv. Round. Amt. To VAT"; Boolean)
         {
             Caption = 'Apply Inv. Round. Amt. To VAT';
@@ -727,6 +731,7 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Automatic recalculate Quotes';
         }
+#if not CLEANSCHEMA19
         field(5005130; "Arch. Orders and Ret. Orders"; Boolean)
         {
             Caption = 'Arch. Orders and Ret. Orders';
@@ -759,6 +764,7 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
     }
 
     keys

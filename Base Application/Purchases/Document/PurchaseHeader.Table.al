@@ -2565,6 +2565,7 @@ table 38 "Purchase Header"
             Caption = 'Registration No.';
             OptimizeForTextSearch = true;
         }
+#if not CLEANSCHEMA18
         field(11510; "Swiss QRBill"; Boolean)
         {
             ObsoleteState = Removed;
@@ -2601,6 +2602,7 @@ table 38 "Purchase Header"
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11513 Swiss QR-Bill Purchase Header';
             ObsoleteTag = '18.0';
         }
+#endif
         field(3010541; "Reference No."; Code[35])
         {
             Caption = 'Reference No.';
@@ -2956,14 +2958,14 @@ table 38 "Purchase Header"
                 NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(NoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
                 if not IsHandled then begin
 #endif
-                "No. Series" := NoSeriesCode;
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
-                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-                PurchaseHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
-                PurchaseHeader2.SetLoadFields("No.");
-                while PurchaseHeader2.Get("Document Type", "No.") do
+                    "No. Series" := NoSeriesCode;
+                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                        "No. Series" := xRec."No. Series";
                     "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+                    PurchaseHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
+                    PurchaseHeader2.SetLoadFields("No.");
+                    while PurchaseHeader2.Get("Document Type", "No.") do
+                        "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
 #if not CLEAN24
                     NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", NoSeriesCode, "Posting Date", "No.");
                 end;

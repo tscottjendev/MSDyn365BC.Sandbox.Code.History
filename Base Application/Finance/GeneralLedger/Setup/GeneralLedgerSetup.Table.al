@@ -894,7 +894,7 @@ table 98 "General Ledger Setup"
             TableRelation = "G/L Account Category";
             Caption = 'Account Receivables G/L Account Category';
         }
-	    field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
+        field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
         {
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
@@ -903,6 +903,7 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Currency Code For EURO';
         }
+#if not CLEANSCHEMA25
         field(11004; "Post Pmt.Disc Tol. to Pmt.Disc"; Boolean)
         {
             Caption = 'Post Pmt.Disc Tol. to Pmt.Disc';
@@ -918,6 +919,7 @@ table 98 "General Ledger Setup"
             TableRelation = "No. Series";
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

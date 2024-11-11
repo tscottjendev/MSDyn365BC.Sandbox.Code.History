@@ -629,6 +629,7 @@ table 115 "Sales Cr.Memo Line"
             Caption = 'Classification';
             Editable = false;
         }
+#if not CLEANSCHEMA15
         field(5005396; "Order No. (Old)"; Code[20])
         {
             Caption = 'Order No. (Old)';
@@ -643,6 +644,7 @@ table 115 "Sales Cr.Memo Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

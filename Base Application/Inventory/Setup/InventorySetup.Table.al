@@ -350,6 +350,7 @@ table 313 "Inventory Setup"
             Caption = 'Internal Movement Nos.';
             TableRelation = "No. Series";
         }
+#if not CLEANSCHEMA25
         field(5005350; "Phys. Inv. Order Nos."; Code[20])
         {
             Caption = 'Phys. Inv. Order Nos.';
@@ -358,6 +359,8 @@ table 313 "Inventory Setup"
             TableRelation = "No. Series";
             ObsoleteTag = '25.0';
         }
+#endif
+#if not CLEANSCHEMA25
         field(5005352; "Posted Phys. Inv. Order Nos."; Code[20])
         {
             Caption = 'Posted Phys. Inv. Order Nos.';
@@ -366,6 +369,7 @@ table 313 "Inventory Setup"
             TableRelation = "No. Series";
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

@@ -2034,6 +2034,7 @@ table 27 Item
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
         }
+#if not CLEANSCHEMA25
         field(11500; "No Stockkeeping"; Boolean)
         {
             Caption = 'No Stockkeeping';
@@ -2041,11 +2042,13 @@ table 27 Item
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(11501; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
             TableRelation = Location;
         }
+#if not CLEANSCHEMA25
         field(11503; "Sale blocked"; Boolean)
         {
             Caption = 'Sale blocked';
@@ -2060,6 +2063,7 @@ table 27 Item
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(11505; "Inventory Price"; Decimal)
         {
             Caption = 'Inventory Price';

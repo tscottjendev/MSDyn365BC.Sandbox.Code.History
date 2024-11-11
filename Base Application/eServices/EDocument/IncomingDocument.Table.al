@@ -349,6 +349,7 @@ table 130 "Incoming Document"
         {
             Caption = 'Processed';
         }
+#if not CLEANSCHEMA18
         field(11530; "Swiss QRBill"; Boolean)
         {
             ObsoleteState = Removed;
@@ -446,6 +447,7 @@ table 130 "Incoming Document"
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     keys
