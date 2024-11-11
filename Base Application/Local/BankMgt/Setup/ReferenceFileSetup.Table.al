@@ -22,6 +22,7 @@ table 32000000 "Reference File Setup"
             Caption = 'No.';
             TableRelation = "Bank Account"."No.";
         }
+#if not CLEANSCHEMA15
         field(2; "Export Reference Payments"; Text[250])
         {
             Caption = 'Export Reference Payments';
@@ -29,6 +30,8 @@ table 32000000 "Reference File Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(3; "Export Foreign Payments"; Text[250])
         {
             Caption = 'Export Foreign Payments';
@@ -36,6 +39,8 @@ table 32000000 "Reference File Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA15
         field(4; "Import Reference Payments"; Text[250])
         {
             Caption = 'Import Reference Payments';
@@ -43,6 +48,7 @@ table 32000000 "Reference File Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(8; "Exchange Rate Contract No."; Code[14])
         {
             Caption = 'Exchange Rate Contract No.';
@@ -57,6 +63,7 @@ table 32000000 "Reference File Setup"
         {
             Caption = 'Batch by Payment Date';
         }
+#if not CLEANSCHEMA15
         field(13; "Currency Exchange Rate File"; Text[250])
         {
             Caption = 'Currency Exchange Rate File';
@@ -64,6 +71,7 @@ table 32000000 "Reference File Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(14; "Default Payment Method"; Code[1])
         {
             Caption = 'Default Payment Method';

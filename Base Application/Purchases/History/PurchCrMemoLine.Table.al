@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.History;
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.AutomaticAccounts;
 using Microsoft.Finance.Currency;
@@ -681,6 +681,7 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Price Calculation Method';
         }
+#if not CLEANSCHEMA25
         field(11200; "Auto. Acc. Group"; Code[10])
         {
             Caption = 'Auto. Acc. Group';
@@ -689,6 +690,7 @@ table 125 "Purch. Cr. Memo Line"
 			ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

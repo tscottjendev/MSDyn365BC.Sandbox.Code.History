@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Document;
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.AllocationAccount;
@@ -3620,6 +3620,7 @@ table 39 "Purchase Line"
         {
             Caption = 'Over-Receipt Approval Status';
         }
+#if not CLEANSCHEMA25
         field(11200; "Auto. Acc. Group"; Code[10])
         {
             Caption = 'Auto. Acc. Group';
@@ -3628,6 +3629,7 @@ table 39 "Purchase Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Document;
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.History;
@@ -3409,6 +3409,7 @@ table 37 "Sales Line"
             FieldClass = FlowField;
             BlankZero = true;
         }
+#if not CLEANSCHEMA25
         field(11200; "Auto. Acc. Group"; Code[10])
         {
             Caption = 'Auto. Acc. Group';
@@ -3417,6 +3418,7 @@ table 37 "Sales Line"
 			ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

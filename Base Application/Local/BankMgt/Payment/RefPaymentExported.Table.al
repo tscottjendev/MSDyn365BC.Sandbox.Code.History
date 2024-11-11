@@ -49,6 +49,7 @@ table 32000002 "Ref. Payment - Exported"
                 end;
             end;
         }
+#if not CLEANSCHEMA23
         field(3; Description; Text[30])
         {
             Caption = 'Description';
@@ -56,6 +57,7 @@ table 32000002 "Ref. Payment - Exported"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
         field(4; "Payment Account"; Code[20])
         {
             Caption = 'Payment Account';

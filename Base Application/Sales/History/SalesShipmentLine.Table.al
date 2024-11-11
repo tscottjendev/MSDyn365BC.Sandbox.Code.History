@@ -603,6 +603,7 @@ table 111 "Sales Shipment Line"
                 UpdateDocumentNo();
             end;
         }
+#if not CLEANSCHEMA25
         field(11200; "Auto. Acc. Group"; Code[10])
         {
             Caption = 'Auto. Acc. Group';
@@ -611,6 +612,7 @@ table 111 "Sales Shipment Line"
 			ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

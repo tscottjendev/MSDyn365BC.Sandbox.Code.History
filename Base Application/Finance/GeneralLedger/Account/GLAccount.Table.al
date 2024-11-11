@@ -776,6 +776,7 @@ table 15 "G/L Account"
             Caption = 'API Account Type';
             Editable = false;
         }
+#if not CLEANSCHEMA25
         field(11200; "Auto. Acc. Group"; Code[10])
         {
             Caption = 'Auto. Acc. Group';
@@ -784,6 +785,7 @@ table 15 "G/L Account"
 			ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

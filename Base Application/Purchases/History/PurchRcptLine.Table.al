@@ -719,6 +719,7 @@ table 121 "Purch. Rcpt. Line"
             TableRelation = "Over-Receipt Code";
             Editable = false;
         }
+#if not CLEANSCHEMA25
         field(11200; "Auto. Acc. Group"; Code[10])
         {
             Caption = 'Auto. Acc. Group';
@@ -727,6 +728,7 @@ table 121 "Purch. Rcpt. Line"
 			ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';
