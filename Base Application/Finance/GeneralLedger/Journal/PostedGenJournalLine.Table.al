@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -1133,12 +1133,14 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'Indentation';
         }
+#if not CLEANSCHEMA26
         field(10500; "Invoice Receipt Date"; Date)
         {
             ObsoleteReason = 'Replaced by W1 field "Invoice Received Date".';
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
     }
 
     keys

@@ -206,6 +206,7 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Counterparty';
         }
+#if not CLEANSCHEMA20
         field(10500; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
@@ -214,6 +215,7 @@ table 263 "Intrastat Jnl. Line"
             TableRelation = "Shipment Method";
             ObsoleteTag = '20.0';
         }
+#endif
     }
 
     keys

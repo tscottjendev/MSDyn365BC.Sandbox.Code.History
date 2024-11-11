@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Customer;
+namespace Microsoft.Sales.Customer;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.DirectDebit;
@@ -1713,6 +1713,7 @@ table 18 Customer
             Caption = 'Contact Graph Id';
             OptimizeForTextSearch = true;
         }
+#if not CLEANSCHEMA15
         field(10500; "Type of Supply Code"; Code[10])
         {
             Caption = 'Type of Supply Code';
@@ -1720,6 +1721,7 @@ table 18 Customer
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

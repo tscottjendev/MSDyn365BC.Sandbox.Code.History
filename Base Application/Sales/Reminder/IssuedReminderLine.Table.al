@@ -194,6 +194,7 @@ table 298 "Issued Reminder Line"
             Caption = 'System-Created Entry';
             Editable = false;
         }
+#if not CLEANSCHEMA15
         field(10500; "Multiple Interest Rates Entry"; Boolean)
         {
             Caption = 'Multiple Interest Rates Entry';
@@ -201,6 +202,7 @@ table 298 "Issued Reminder Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

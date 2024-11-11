@@ -980,6 +980,7 @@ table 5107 "Sales Header Archive"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
+#if not CLEANSCHEMA15
         field(10501; "Type of Supply Code"; Code[10])
         {
             Caption = 'Type of Supply Code';
@@ -987,6 +988,7 @@ table 5107 "Sales Header Archive"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

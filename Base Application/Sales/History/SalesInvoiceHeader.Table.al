@@ -853,6 +853,7 @@ table 112 "Sales Invoice Header"
                 UpdateDisputeStatus();
             end;
         }
+#if not CLEANSCHEMA15
         field(10501; "Type of Supply Code"; Code[10])
         {
             Caption = 'Type of Supply Code';
@@ -860,6 +861,7 @@ table 112 "Sales Invoice Header"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

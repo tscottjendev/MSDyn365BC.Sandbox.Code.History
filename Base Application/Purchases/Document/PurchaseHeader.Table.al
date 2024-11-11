@@ -2555,6 +2555,7 @@ table 38 "Purchase Header"
             Caption = 'Pending Approvals';
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA15
         field(10501; "Type of Supply Code"; Code[10])
         {
             Caption = 'Type of Supply Code';
@@ -2562,12 +2563,15 @@ table 38 "Purchase Header"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA26
         field(10502; "Invoice Receipt Date"; Date)
         {
             ObsoleteReason = 'Replaced by W1 field "Invoice Received Date".';
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
     }
 
     keys

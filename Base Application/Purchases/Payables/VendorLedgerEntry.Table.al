@@ -643,6 +643,7 @@ table 25 "Vendor Ledger Entry"
             Caption = 'Remit-to Code';
             TableRelation = "Remit Address".Code where("Vendor No." = field("Vendor No."));
         }
+#if not CLEANSCHEMA26
         field(10500; "Invoice Receipt Date"; Date)
         {
 
@@ -650,6 +651,7 @@ table 25 "Vendor Ledger Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
     }
 
     keys

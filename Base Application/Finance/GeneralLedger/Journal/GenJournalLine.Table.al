@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -3026,6 +3026,7 @@ table 81 "Gen. Journal Line"
                 UpdateVendorNo();
             end;
         }
+#if not CLEANSCHEMA26
         field(10500; "Invoice Receipt Date"; Date)
         {
 
@@ -3033,6 +3034,7 @@ table 81 "Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
     }
 
     keys

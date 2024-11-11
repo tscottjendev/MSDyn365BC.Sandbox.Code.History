@@ -481,6 +481,7 @@ table 169 "Job Ledger Entry"
             Caption = 'Package No.';
             CaptionClass = '6,1';
         }
+#if not CLEANSCHEMA25
         field(10500; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
@@ -489,6 +490,7 @@ table 169 "Job Ledger Entry"
             TableRelation = "Shipment Method";
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

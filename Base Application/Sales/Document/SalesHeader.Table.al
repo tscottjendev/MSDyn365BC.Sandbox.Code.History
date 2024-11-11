@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Document;
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Bank.BankAccount;
@@ -3046,6 +3046,7 @@ table 36 "Sales Header"
             Caption = 'Get Shipment Used';
             Editable = false;
         }
+#if not CLEANSCHEMA22
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -3053,6 +3054,7 @@ table 36 "Sales Header"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
+#endif
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';
@@ -3067,6 +3069,7 @@ table 36 "Sales Header"
                       RespCenter.TableCaption(), UserSetupMgt.GetSalesFilter("Assigned User ID"));
             end;
         }
+#if not CLEANSCHEMA15
         field(10501; "Type of Supply Code"; Code[10])
         {
             Caption = 'Type of Supply Code';
@@ -3074,6 +3077,7 @@ table 36 "Sales Header"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

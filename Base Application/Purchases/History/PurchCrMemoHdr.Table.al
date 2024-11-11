@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.History;
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -591,6 +591,7 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'Draft Cr. Memo System Id';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA15
         field(10501; "Type of Supply Code"; Code[10])
         {
             Caption = 'Type of Supply Code';
@@ -598,6 +599,7 @@ table 124 "Purch. Cr. Memo Hdr."
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

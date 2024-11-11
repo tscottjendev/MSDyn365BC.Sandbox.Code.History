@@ -1550,6 +1550,7 @@ table 23 Vendor
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
         }
+#if not CLEANSCHEMA15
         field(10500; "Type of Supply Code"; Code[10])
         {
             Caption = 'Type of Supply Code';
@@ -1557,6 +1558,8 @@ table 23 Vendor
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
+#if not CLEANSCHEMA26
         field(10501; "Exclude from Pmt. Pract. Rep."; Boolean)
         {
             Caption = 'Exclude from Payment Practices Report';
@@ -1564,6 +1567,7 @@ table 23 Vendor
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
     }
 
     keys

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Projects.Project.Journal;
+namespace Microsoft.Projects.Project.Journal;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -1107,6 +1107,7 @@ table 210 "Job Journal Line"
         {
             Caption = 'Cost Calculation Method';
         }
+#if not CLEANSCHEMA19
         field(10500; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
@@ -1115,6 +1116,7 @@ table 210 "Job Journal Line"
             TableRelation = "Shipment Method";
             ObsoleteTag = '19.0';
         }
+#endif
     }
 
     keys
