@@ -2663,6 +2663,7 @@ table 38 "Purchase Header"
             Caption = 'GST HST Tax Type';
             Editable = false;
         }
+#if not CLEANSCHEMA28
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
@@ -2676,6 +2677,8 @@ table 38 "Purchase Header"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
+#if not CLEANSCHEMA28
         field(10021; "IRS 1099 Amount"; Decimal)
         {
             Caption = 'IRS 1099 Amount';
@@ -2689,6 +2692,7 @@ table 38 "Purchase Header"
 #endif
             Editable = false;
         }
+#endif
         field(10042; "Fiscal Invoice Number PAC"; Text[50])
         {
             Caption = 'Fiscal Invoice Number PAC';
@@ -2714,6 +2718,7 @@ table 38 "Purchase Header"
                 Error(PrepmtIncludeTaxErr, FieldCaption("Prepmt. Include Tax"));
             end;
         }
+#if not CLEANSCHEMA15
         field(27040; "DIOT-Type of Operation"; Option)
         {
             Caption = 'DIOT Type of Operation';
@@ -2722,6 +2727,7 @@ table 38 "Purchase Header"
             OptionMembers = " ","Prof. Services","Lease and Rent","Others";
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

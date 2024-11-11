@@ -264,6 +264,7 @@ table 9054 "Finance Cue"
             Caption = 'Bank Acc. Reconciliations';
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA23
         field(10140; "Deposits to Post"; Integer)
         {
             CalcFormula = count("Deposit Header" where("Total Deposit Lines" = filter(<> 0)));
@@ -273,6 +274,7 @@ table 9054 "Finance Cue"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
     }
 
     keys

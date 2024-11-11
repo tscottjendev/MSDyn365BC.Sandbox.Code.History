@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -218,6 +218,7 @@ table 325 "VAT Posting Setup"
                 NonDeductibleVAT.CheckVATPostingSetupChangeIsAllowed(Rec);
             end;
         }
+#if not CLEANSCHEMA26
         field(6201; "Non-Ded. Sales VAT Account"; Code[20])
         {
             Caption = 'Non-Deductible Sales VAT Account';
@@ -226,6 +227,7 @@ table 325 "VAT Posting Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(6202; "Non-Ded. Purchase VAT Account"; Code[20])
         {
             Caption = 'Non-Deductible Purchase VAT Account';
@@ -259,6 +261,7 @@ table 325 "VAT Posting Setup"
             Caption = 'CFDI Subject to Tax';
             TableRelation = "CFDI Subject to Tax";
         }
+#if not CLEANSCHEMA15
         field(27010; "DIOT-WHT %"; Decimal)
         {
             Caption = 'DIOT WHT Percent';
@@ -267,6 +270,7 @@ table 325 "VAT Posting Setup"
             ObsoleteReason = 'Moved to extension';
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

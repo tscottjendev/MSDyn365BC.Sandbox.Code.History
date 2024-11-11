@@ -1580,6 +1580,7 @@ table 23 Vendor
             OptionCaption = ' ,-,.,/';
             OptionMembers = " ","-",".","/";
         }
+#if not CLEANSCHEMA28
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
@@ -1602,6 +1603,7 @@ table 23 Vendor
             end;
 #endif
         }
+#endif
         field(10021; "Balance on Date"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -1663,6 +1665,7 @@ table 23 Vendor
             Caption = 'State Inscription';
             OptimizeForTextSearch = true;
         }
+#if not CLEANSCHEMA28
         field(10026; "FATCA filing requirement"; Boolean)
         {
             Caption = 'FATCA filing requirement';
@@ -1675,10 +1678,12 @@ table 23 Vendor
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
         field(14020; "Tax Identification Type"; Enum "Tax Identification Type")
         {
             Caption = 'Tax Identification Type';
         }
+#if not CLEANSCHEMA15
         field(27040; "DIOT-Type of Operation"; Option)
         {
             Caption = 'DIOT Type of Operation';
@@ -1687,6 +1692,7 @@ table 23 Vendor
             OptionMembers = " ","Prof. Services","Lease and Rent","Others";
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

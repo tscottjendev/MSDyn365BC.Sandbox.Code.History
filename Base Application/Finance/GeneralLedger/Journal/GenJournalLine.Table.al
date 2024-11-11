@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -3098,6 +3098,7 @@ table 81 "Gen. Journal Line"
             Caption = 'STE Transaction ID';
             Editable = false;
         }
+#if not CLEANSCHEMA28
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
@@ -3124,6 +3125,8 @@ table 81 "Gen. Journal Line"
             end;
 #endif
         }
+#endif
+#if not CLEANSCHEMA28
         field(10021; "IRS 1099 Amount"; Decimal)
         {
             Caption = 'IRS 1099 Amount';
@@ -3136,6 +3139,7 @@ table 81 "Gen. Journal Line"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
         field(10030; "Foreign Exchange Indicator"; Option)
         {
             Caption = 'Foreign Exchange Indicator';
@@ -3207,6 +3211,7 @@ table 81 "Gen. Journal Line"
         {
             Caption = 'EFT Export Sequence No.';
         }
+#if not CLEANSCHEMA15
         field(27040; "DIOT-Type of Operation"; Option)
         {
             Caption = 'DIOT Type of Operation';
@@ -3215,6 +3220,7 @@ table 81 "Gen. Journal Line"
             OptionMembers = " ","Prof. Services","Lease and Rent","Others";
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

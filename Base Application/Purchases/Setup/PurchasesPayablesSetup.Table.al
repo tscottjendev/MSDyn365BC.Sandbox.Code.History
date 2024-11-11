@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Setup;
+namespace Microsoft.Purchases.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -527,6 +527,7 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Use Vendor''s Tax Area Code';
         }
+#if not CLEANSCHEMA15
         field(27040; "DIOT Default Vendor Type"; Option)
         {
             Caption = 'Default Vendor DIOT Type';
@@ -535,6 +536,7 @@ table 312 "Purchases & Payables Setup"
             OptionMembers = " ","Prof. Services","Lease and Rent","Others";
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

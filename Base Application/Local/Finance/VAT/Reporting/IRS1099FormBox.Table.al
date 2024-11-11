@@ -47,6 +47,7 @@ table 10010 "IRS 1099 Form-Box"
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA28
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -59,6 +60,7 @@ table 10010 "IRS 1099 Form-Box"
             ObsoleteTag = '17.0';
 #endif
         }
+#endif
     }
 
     keys

@@ -680,6 +680,7 @@ table 122 "Purch. Inv. Header"
             OptimizeForTextSearch = true;
             Editable = false;
         }
+#if not CLEANSCHEMA28
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
@@ -693,12 +694,14 @@ table 122 "Purch. Inv. Header"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
         field(10042; "Fiscal Invoice Number PAC"; Text[50])
         {
             Caption = 'Fiscal Invoice Number PAC';
             OptimizeForTextSearch = true;
             Editable = false;
         }
+#if not CLEANSCHEMA15
         field(27040; "DIOT-Type of Operation"; Option)
         {
             Caption = 'DIOT Type of Operation';
@@ -707,6 +710,7 @@ table 122 "Purch. Inv. Header"
             OptionMembers = " ","Prof. Services","Lease and Rent","Others";
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Setup;
+namespace Microsoft.Finance.GeneralLedger.Setup;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Analysis;
@@ -913,6 +913,7 @@ table 98 "General Ledger Setup"
             Caption = 'Deposit Nos.';
             TableRelation = "No. Series";
         }
+#if not CLEANSCHEMA25
         field(10004; "SAT Certificate Thumbprint"; Text[250])
         {
             Caption = 'SAT Certificate Thumbprint';
@@ -920,6 +921,7 @@ table 98 "General Ledger Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(10005; "Send PDF Report"; Boolean)
         {
             Caption = 'Send PDF Report';
@@ -974,6 +976,7 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Sim. Request Stamp';
         }
+#if not CLEANSCHEMA26
         field(10120; "Bank Recon. with Auto. Match"; Boolean)
         {
             Caption = 'Bank Recon. with Auto. Match';
@@ -982,6 +985,7 @@ table 98 "General Ledger Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(10121; "SAT Certificate"; Code[20])
         {
             Caption = 'SAT Certificate';
