@@ -607,6 +607,7 @@ table 113 "Sales Invoice Line"
             Caption = 'Price description';
             OptimizeForTextSearch = true;
         }
+#if not CLEANSCHEMA25
         field(11200; "Auto. Acc. Group"; Code[10])
         {
             Caption = 'Auto. Acc. Group';
@@ -615,6 +616,7 @@ table 113 "Sales Invoice Line"
 			ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

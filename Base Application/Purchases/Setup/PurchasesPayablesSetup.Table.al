@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Setup;
+namespace Microsoft.Purchases.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -517,6 +517,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA19
         field(11200; "Inward Reg. Nos."; Code[20])
         {
             Caption = 'Inward Reg. Nos.';
@@ -524,6 +525,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11201; "Inward Posting Description"; Text[50])
         {
             Caption = 'Inward Posting Description';
@@ -531,6 +534,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11202; "Reverse Posting Description"; Text[50])
         {
             Caption = 'Reverse Posting Description';
@@ -538,6 +543,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11204; "Latest Return Date Calc."; DateFormula)
         {
             Caption = 'Latest Return Date Calc.';
@@ -545,6 +552,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11205; "Accumulated Inward Reg. Lines"; Boolean)
         {
             Caption = 'Accumulated Inward Reg. Lines';
@@ -552,6 +561,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11206; "Def. Inward Reg. Prod. Post Gr"; Code[20])
         {
             Caption = 'Def. Inward Reg. Prod. Post Gr';
@@ -559,6 +570,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11207; "Copy Dimensions to Inward Reg."; Boolean)
         {
             Caption = 'Copy Dimensions to Inward Reg.';
@@ -566,6 +579,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA26
         field(11214; "Part. Pay. Nos."; Code[20])
         {
             Caption = 'Part. Pay. Nos.';
@@ -574,6 +589,8 @@ table 312 "Purchases & Payables Setup"
 			ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11230; "Show Inward Reg. in Balances"; Boolean)
         {
             Caption = 'Show Inward Reg. in Balances';
@@ -581,6 +598,7 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
     }
 
     keys

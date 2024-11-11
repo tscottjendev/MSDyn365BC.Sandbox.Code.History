@@ -697,6 +697,7 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Price Calculation Method';
         }
+#if not CLEANSCHEMA25
         field(11200; "Auto. Acc. Group"; Code[10])
         {
             Caption = 'Auto. Acc. Group';
@@ -705,6 +706,7 @@ table 123 "Purch. Inv. Line"
 			ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';

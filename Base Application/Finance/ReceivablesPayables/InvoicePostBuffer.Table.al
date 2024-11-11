@@ -305,6 +305,7 @@ table 49 "Invoice Post. Buffer"
             Caption = 'Non-Deductible VAT Difference';
             Editable = false;
         }
+#if not CLEANSCHEMA25
         field(11200; "Auto. Acc. Group"; Code[10])
         {
             Caption = 'Auto. Acc. Group';
@@ -313,6 +314,7 @@ table 49 "Invoice Post. Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(11203; "VAT Base Amount (LCY)"; Decimal)
         {
             Caption = 'VAT Base Amount (LCY)';

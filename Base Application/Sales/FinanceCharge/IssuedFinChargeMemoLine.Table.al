@@ -176,6 +176,7 @@ table 305 "Issued Fin. Charge Memo Line"
             Caption = 'System-Created Entry';
             Editable = false;
         }
+#if not CLEANSCHEMA15
         field(3010590; "Multiple Interest Rates Entry"; Boolean)
         {
             Caption = 'Multiple Interest Rates Entry';
@@ -183,6 +184,7 @@ table 305 "Issued Fin. Charge Memo Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

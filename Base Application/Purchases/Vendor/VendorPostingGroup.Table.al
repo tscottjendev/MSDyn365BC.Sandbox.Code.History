@@ -293,6 +293,7 @@ table 93 "Vendor Posting Group"
         {
             Caption = 'View All Accounts on Lookup';
         }
+#if not CLEANSCHEMA15
         field(11200; "Inward Reg. Bridging Debt"; Code[20])
         {
             Caption = 'Inward Reg. Bridging Debt';
@@ -300,6 +301,7 @@ table 93 "Vendor Posting Group"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

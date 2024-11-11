@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.History;
+namespace Microsoft.Sales.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -752,6 +752,7 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Draft Cr. Memo System Id';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA26
         field(11200; "Source Inv. No."; Code[20])
         {
             Caption = 'Source Inv. No.';
@@ -760,6 +761,8 @@ table 114 "Sales Cr.Memo Header"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
+#if not CLEANSCHEMA26
         field(11201; "Source Inv. VAT"; Decimal)
         {
             Caption = 'Source Inv. VAT';
@@ -768,6 +771,8 @@ table 114 "Sales Cr.Memo Header"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
+#if not CLEANSCHEMA26
         field(11202; "Source Inv. Total"; Decimal)
         {
             Caption = 'Source Inv. Total';
@@ -776,6 +781,7 @@ table 114 "Sales Cr.Memo Header"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
     }
 
     keys

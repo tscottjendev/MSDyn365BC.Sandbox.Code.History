@@ -657,6 +657,7 @@ table 122 "Purch. Inv. Header"
             Caption = 'Draft Invoice SystemId';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA26
         field(11200; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
@@ -664,6 +665,7 @@ table 122 "Purch. Inv. Header"
             ObsoleteTag = '26.0';
             ObsoleteReason = 'Moved to the EU 3-Party Trade Purchase app.';
         }
+#endif
     }
 
     keys
