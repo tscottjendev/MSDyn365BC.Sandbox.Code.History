@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Setup;
+namespace Microsoft.Sales.Setup;
 
 #if not CLEAN24
 using Microsoft.Finance;
@@ -694,6 +694,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             InitValue = true;
         }
+#if not CLEANSCHEMA25
         field(10900; "Credit Memo Nos. Paym. Disc."; Code[10])
         {
             Caption = 'Credit Memo Nos. Paym. Disc.';
@@ -701,6 +702,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
+#if not CLEANSCHEMA27
         field(10901; "Electronic Invoicing"; Boolean)
         {
             Caption = 'Electronic Invoicing';
@@ -724,6 +727,7 @@ table 311 "Sales & Receivables Setup"
             end;
 #endif
         }
+#endif
     }
 
     keys

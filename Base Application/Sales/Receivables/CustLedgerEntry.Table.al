@@ -696,6 +696,7 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Promised Pay Date';
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA25
         field(10900; "Credit Memo Document"; Code[20])
         {
             Caption = 'Credit Memo Document';
@@ -703,6 +704,7 @@ table 21 "Cust. Ledger Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

@@ -775,6 +775,7 @@ table 15 "G/L Account"
             Caption = 'API Account Type';
             Editable = false;
         }
+#if not CLEANSCHEMA27
         field(10900; "IRS Number"; Code[10])
         {
             Caption = 'IRS Number';
@@ -788,6 +789,7 @@ table 15 "G/L Account"
             ObsoleteTag = '24.0';
 #endif
         }
+#endif
     }
 
     keys

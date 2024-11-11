@@ -265,6 +265,7 @@ table 5611 "Depreciation Book"
                     until FADeprBook.Next() = 0;
             end;
         }
+#if not CLEANSCHEMA27
         field(10900; "Revalue in Year Purch."; Boolean)
         {
             Caption = 'Revalue in Year Purch.';
@@ -277,6 +278,8 @@ table 5611 "Depreciation Book"
             ObsoleteTag = '24.0';
 #endif
         }
+#endif
+#if not CLEANSCHEMA27
         field(10901; "Residual Value %"; Decimal)
         {
             Caption = 'Residual Value %';
@@ -290,6 +293,7 @@ table 5611 "Depreciation Book"
             ObsoleteTag = '24.0';
 #endif
         }
+#endif
     }
 
     keys
