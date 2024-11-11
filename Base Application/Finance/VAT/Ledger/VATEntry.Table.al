@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.VAT.Ledger;
+namespace Microsoft.Finance.VAT.Ledger;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Contact;
@@ -622,6 +622,7 @@ table 254 "VAT Entry"
         {
             Caption = 'Plafond Entry';
         }
+#if not CLEANSCHEMA25
         field(12130; Blacklisted; Boolean)
         {
             Caption = 'Blacklisted';
@@ -630,6 +631,8 @@ table 254 "VAT Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
+#if not CLEANSCHEMA25
         field(12131; "Blacklist Amount"; Decimal)
         {
             Caption = 'Blacklist Amount';
@@ -638,6 +641,7 @@ table 254 "VAT Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(12132; "Related Entry No."; Integer)
         {
             Caption = 'Related Entry No.';
