@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.VAT.Ledger;
+namespace Microsoft.Finance.VAT.Ledger;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -541,6 +541,7 @@ table 254 "VAT Entry"
         {
             Caption = 'GST/HST';
         }
+#if not CLEANSCHEMA15
         field(27040; "DIOT-Type of Operation"; Option)
         {
             Caption = 'DIOT Type of Operation';
@@ -549,6 +550,7 @@ table 254 "VAT Entry"
             OptionMembers = " ","Prof. Services","Lease and Rent","Others";
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys
