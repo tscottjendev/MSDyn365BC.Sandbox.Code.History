@@ -235,6 +235,7 @@ table 325 "VAT Posting Setup"
                 NonDeductibleVAT.CheckVATPostingSetupChangeIsAllowed(Rec);
             end;
         }
+#if not CLEANSCHEMA26
         field(6201; "Non-Ded. Sales VAT Account"; Code[20])
         {
             Caption = 'Non-Deductible Sales VAT Account';
@@ -243,6 +244,7 @@ table 325 "VAT Posting Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(6202; "Non-Ded. Purchase VAT Account"; Code[20])
         {
             Caption = 'Non-Deductible Purchase VAT Account';

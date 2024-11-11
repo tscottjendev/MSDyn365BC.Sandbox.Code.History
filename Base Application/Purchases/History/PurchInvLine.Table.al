@@ -697,6 +697,7 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Price Calculation Method';
         }
+#if not CLEANSCHEMA15
         field(10700; "Pmt. Disc. Rcd. Amount (Old)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
@@ -707,6 +708,7 @@ table 123 "Purch. Inv. Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(10701; "EC %"; Decimal)
         {
             Caption = 'EC %';

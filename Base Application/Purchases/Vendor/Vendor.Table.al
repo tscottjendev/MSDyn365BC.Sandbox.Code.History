@@ -1571,6 +1571,7 @@ table 23 Vendor
             TableRelation = Vendor;
             ValidateTableRelation = false;
         }
+#if not CLEANSCHEMA25
         field(10702; "Self Employed"; Boolean)
         {
             Caption = 'Self Employed';
@@ -1578,6 +1579,7 @@ table 23 Vendor
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

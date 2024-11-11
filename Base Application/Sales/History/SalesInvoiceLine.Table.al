@@ -607,6 +607,7 @@ table 113 "Sales Invoice Line"
             Caption = 'Price description';
             OptimizeForTextSearch = true;
         }
+#if not CLEANSCHEMA15
         field(10700; "Pmt. Disc. Given Amount (Old)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
@@ -617,6 +618,7 @@ table 113 "Sales Invoice Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(10701; "EC %"; Decimal)
         {
             Caption = 'EC %';

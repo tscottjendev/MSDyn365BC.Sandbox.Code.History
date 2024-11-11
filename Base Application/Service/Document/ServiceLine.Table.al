@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -2724,6 +2724,7 @@ table 5902 "Service Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
+#if not CLEANSCHEMA15
         field(10700; "Pmt. Disc. Given Amount (Old)"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -2734,6 +2735,7 @@ table 5902 "Service Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(10701; "EC %"; Decimal)
         {
             Caption = 'EC %';

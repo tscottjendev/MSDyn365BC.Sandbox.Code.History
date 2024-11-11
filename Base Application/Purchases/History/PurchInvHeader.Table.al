@@ -744,6 +744,7 @@ table 122 "Purch. Inv. Header"
             Caption = 'Vendor Bank Acc. Code';
             TableRelation = "Vendor Bank Account".Code where("Vendor No." = field("Pay-to Vendor No."));
         }
+#if not CLEANSCHEMA25
         field(7000003; "Pay-at Code"; Code[10])
         {
             Caption = 'Pay-at Code';
@@ -752,6 +753,7 @@ table 122 "Purch. Inv. Header"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

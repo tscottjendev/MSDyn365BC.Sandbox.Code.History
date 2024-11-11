@@ -43,6 +43,7 @@ table 10751 "SII Setup"
                     Session.LogAuditMessage(StrSubstNo(SIISetupConsentProvidedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
             end;
         }
+#if not CLEANSCHEMA15
         field(3; Certificate; BLOB)
         {
             ObsoleteReason = 'Replaced with the Certificate Code field.';
@@ -50,6 +51,8 @@ table 10751 "SII Setup"
             ObsoleteTag = '15.3';
             Caption = 'Certificate';
         }
+#endif
+#if not CLEANSCHEMA15
         field(4; Password; Text[250])
         {
             ObsoleteReason = 'Replaced with the Certificate Code field.';
@@ -57,6 +60,7 @@ table 10751 "SII Setup"
             ObsoleteTag = '15.3';
             Caption = 'Password';
         }
+#endif
         field(5; InvoicesIssuedEndpointUrl; Text[250])
         {
             Caption = 'InvoicesIssuedEndpointUrl';
@@ -81,6 +85,7 @@ table 10751 "SII Setup"
             InitValue = 'https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/fe/SiiFactCOBV1SOAP';
             NotBlank = true;
         }
+#if not CLEANSCHEMA25
         field(9; IntracommunityEndpointUrl; Text[250])
         {
             Caption = 'IntracommunityEndpointUrl';
@@ -90,6 +95,7 @@ table 10751 "SII Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(10; "Enable Batch Submissions"; Boolean)
         {
             Caption = 'Enable Batch Submissions';

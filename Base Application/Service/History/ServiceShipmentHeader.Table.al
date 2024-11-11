@@ -773,6 +773,7 @@ table 5990 "Service Shipment Header"
             Caption = 'Cust. Bank Acc. Code';
             TableRelation = "Customer Bank Account".Code where("Customer No." = field("Bill-to Customer No."));
         }
+#if not CLEANSCHEMA25
         field(7000003; "Pay-at Code"; Code[10])
         {
             Caption = 'Pay-at Code';
@@ -781,6 +782,7 @@ table 5990 "Service Shipment Header"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

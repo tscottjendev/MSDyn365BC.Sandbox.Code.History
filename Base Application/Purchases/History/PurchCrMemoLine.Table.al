@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.History;
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
@@ -681,6 +681,7 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Price Calculation Method';
         }
+#if not CLEANSCHEMA15
         field(10700; "Pmt. Disc. Rcd. Amount (Old)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
@@ -691,6 +692,7 @@ table 125 "Purch. Cr. Memo Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(10701; "EC %"; Decimal)
         {
             Caption = 'EC %';

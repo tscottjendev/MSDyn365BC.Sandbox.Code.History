@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.History;
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -693,6 +693,7 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'Vendor Bank Acc. Code';
             TableRelation = "Vendor Bank Account".Code where("Vendor No." = field("Pay-to Vendor No."));
         }
+#if not CLEANSCHEMA25
         field(7000003; "Pay-at Code"; Code[10])
         {
             Caption = 'Pay-at Code';
@@ -701,6 +702,7 @@ table 124 "Purch. Cr. Memo Hdr."
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

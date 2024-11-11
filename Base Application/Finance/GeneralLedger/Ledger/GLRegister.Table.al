@@ -80,6 +80,7 @@ table 45 "G/L Register"
             Caption = 'Posting Date';
             ClosingDates = true;
         }
+#if not CLEANSCHEMA15
         field(10701; "Period Trans. No."; Integer)
         {
             BlankZero = true;
@@ -88,6 +89,7 @@ table 45 "G/L Register"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
     }
 
     keys

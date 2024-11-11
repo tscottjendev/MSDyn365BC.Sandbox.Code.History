@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -3302,6 +3302,7 @@ table 81 "Gen. Journal Line"
         {
             Caption = 'Applies-to Bill No.';
         }
+#if not CLEANSCHEMA25
         field(7000003; "Pmt. Address Code"; Code[10])
         {
             Caption = 'Pmt. Address Code';
@@ -3309,6 +3310,7 @@ table 81 "Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

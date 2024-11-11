@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Document;
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.AllocationAccount;
@@ -3627,6 +3627,7 @@ table 39 "Purchase Line"
         {
             Caption = 'Over-Receipt Approval Status';
         }
+#if not CLEANSCHEMA15
         field(10700; "Pmt. Disc. Rcd. Amount (Old)"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -3637,6 +3638,7 @@ table 39 "Purchase Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(10701; "EC %"; Decimal)
         {
             Caption = 'EC %';

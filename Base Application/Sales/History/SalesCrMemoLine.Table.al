@@ -591,6 +591,7 @@ table 115 "Sales Cr.Memo Line"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
+#if not CLEANSCHEMA15
         field(10700; "Pmt. Disc. Given Amount (Old)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
@@ -601,6 +602,7 @@ table 115 "Sales Cr.Memo Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(10701; "EC %"; Decimal)
         {
             Caption = 'EC %';

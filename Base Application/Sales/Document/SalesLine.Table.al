@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Document;
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.History;
@@ -3417,6 +3417,7 @@ table 37 "Sales Line"
             FieldClass = FlowField;
             BlankZero = true;
         }
+#if not CLEANSCHEMA15
         field(10700; "Pmt. Disc. Given Amount (Old)"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -3427,6 +3428,7 @@ table 37 "Sales Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(10701; "EC %"; Decimal)
         {
             Caption = 'EC %';

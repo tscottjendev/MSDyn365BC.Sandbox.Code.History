@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -2754,6 +2754,7 @@ table 5900 "Service Header"
             Caption = 'Cust. Bank Acc. Code';
             TableRelation = "Customer Bank Account".Code where("Customer No." = field("Bill-to Customer No."));
         }
+#if not CLEANSCHEMA25
         field(7000003; "Pay-at Code"; Code[10])
         {
             Caption = 'Pay-at Code';
@@ -2762,6 +2763,7 @@ table 5900 "Service Header"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -216,6 +216,7 @@ table 290 "VAT Amount Line"
                 "EC Difference" := "EC Amount" - "Calculated EC Amount";
             end;
         }
+#if not CLEANSCHEMA15
         field(10702; "Pmt. Disc. Given Amount (Old)"; Decimal)
         {
             Caption = 'Pmt. Disc. Given Amount (Old)';
@@ -223,6 +224,7 @@ table 290 "VAT Amount Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+#endif
         field(10703; "Line Discount Amount"; Decimal)
         {
             Caption = 'Line Discount Amount';

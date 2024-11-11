@@ -210,6 +210,7 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Place of Receipt';
         }
+#if not CLEANSCHEMA20
         field(10701; "Shipment Method Code #1"; Code[10])
         {
             Caption = 'Shipment Method Code #1';
@@ -218,6 +219,7 @@ table 263 "Intrastat Jnl. Line"
             TableRelation = "Shipment Method";
             ObsoleteTag = '20.0';
         }
+#endif
         field(10702; "Shipment Method Code #2"; Option)
         {
             Caption = 'Shipment Method Code #2';
