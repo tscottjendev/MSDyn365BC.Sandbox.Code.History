@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Setup;
+namespace Microsoft.Purchases.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -517,6 +517,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA19
         field(11312; "Show Totals on Purch. Inv./CM."; Boolean)
         {
             Caption = 'Show Totals on Purch. Inv./CM.';
@@ -524,6 +525,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11313; "Insert Std. Vend. Purch. Lines"; Option)
         {
             Caption = 'Insert Std. Vend. Purch. Lines';
@@ -533,6 +536,8 @@ table 312 "Purchases & Payables Setup"
             OptionMembers = Manual,Automatic,"Always Ask";
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11314; Quotes; Boolean)
         {
             Caption = 'Quotes';
@@ -540,6 +545,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11316; Orders; Boolean)
         {
             Caption = 'Orders';
@@ -547,6 +554,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11317; Invoices; Boolean)
         {
             Caption = 'Invoices';
@@ -554,6 +563,8 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11319; "Credit Memos"; Boolean)
         {
             Caption = 'Credit Memos';
@@ -561,6 +572,7 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
         field(11320; "Check Doc. Total Amounts"; Boolean)
         {
             Caption = 'Check Doc. Total Amounts';

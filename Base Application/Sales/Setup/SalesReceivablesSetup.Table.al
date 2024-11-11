@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Setup;
+namespace Microsoft.Sales.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -691,6 +691,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             InitValue = true;
         }
+#if not CLEANSCHEMA19
         field(11313; "Insert Std. Cust. Sales Lines"; Option)
         {
             Caption = 'Insert Std. Cust. Sales Lines';
@@ -700,6 +701,8 @@ table 311 "Sales & Receivables Setup"
             OptionMembers = Manual,Automatic,"Always Ask";
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11314; Quotes; Boolean)
         {
             Caption = 'Quotes';
@@ -707,10 +710,12 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
         field(11316; Orders; Boolean)
         {
             Caption = 'Orders';
         }
+#if not CLEANSCHEMA19
         field(11317; Invoices; Boolean)
         {
             Caption = 'Invoices';
@@ -718,6 +723,8 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
+#if not CLEANSCHEMA19
         field(11319; "Credit Memos"; Boolean)
         {
             Caption = 'Credit Memos';
@@ -725,6 +732,7 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '19.0';
         }
+#endif
     }
 
     keys
