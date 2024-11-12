@@ -253,8 +253,16 @@ page 9326 "Released Production Orders"
                     Caption = 'Change &Status';
                     Ellipsis = true;
                     Image = ChangeStatus;
-                    RunObject = Codeunit "Prod. Order Status Management";
                     ToolTip = 'Change the production order to another status, such as Released.';
+
+                    trigger OnAction()
+                    var
+                        ProductionOrder: record "Production Order";
+                        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+                    begin
+                        CurrPage.SetSelectionFilter(ProductionOrder);
+                        ProdOrderStatusMgt.ChangeStatusWithSelectionFilter(ProductionOrder);
+                    end;
                 }
                 action("&Update Unit Cost")
                 {
@@ -464,5 +472,6 @@ page 9326 "Released Production Orders"
 
     var
         ManuPrintReport: Codeunit "Manu. Print Report";
+
 }
 

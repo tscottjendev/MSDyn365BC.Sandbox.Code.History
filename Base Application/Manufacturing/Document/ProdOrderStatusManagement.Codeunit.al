@@ -94,6 +94,9 @@ codeunit 5407 "Prod. Order Status Management"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         ProdOrderCompRemainToPickErr: Label 'You cannot finish production order no. %1 because there is an outstanding pick for one or more components.', Comment = '%1: Production Order No.';
+        ChangingStatusInfoLbl: Label 'Changing status to %1...\\', Comment = '%1 - New Status';
+        ProcessingProgressTxt: Label 'Prod. Order #1###### @2@@@@@@@@@@@@@', Comment = '%1 - Production Order No.; %2 - Progress Percentage';
+        ConfirmationLbl: Label '%1 production orders will have their status changed from %2 to %3.', Comment = '%1 - Number of Prod. Orders selected; %2 - Current status; %3 - New status';
 
     procedure ChangeProdOrderStatus(ProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
     var
@@ -1080,6 +1083,38 @@ codeunit 5407 "Prod. Order Status Management"
     begin
         ChangeProdOrderStatus(ProdOrder, NewStatus, NewPostingDate, NewUpdateUnitCost);
         NewProdOrder := ToProdOrder;
+    end;
+
+    internal procedure ChangeStatusWithSelectionFilter(var ProductionOrder: Record "Production Order")
+    var
+        ChangeStatusOnProdOrder: Page "Change Status on Prod. Order";
+        NewProductionOrderStatusLocal: Enum "Production Order Status";
+        NewPostingDateLocal: Date;
+        NewUpdateUnitCostLocal: Boolean;
+        ProgressDialog: Dialog;
+        NoOfProductionOrdersToProcess: Integer;
+        ProcessedProductionOrdersCounter: Integer;
+    begin
+        if ProductionOrder.FindSet() then begin
+            ChangeStatusOnProdOrder.Set(ProductionOrder);
+            if ChangeStatusOnProdOrder.RunModal() <> Action::Yes then
+                exit;
+            ChangeStatusOnProdOrder.ReturnPostingInfo(NewProductionOrderStatusLocal, NewPostingDateLocal, NewUpdateUnitCostLocal);
+
+            NoOfProductionOrdersToProcess := ProductionOrder.Count();
+            if NoOfProductionOrdersToProcess > 1 then
+                if not Confirm(StrSubstNo(ConfirmationLbl, NoOfProductionOrdersToProcess, ProductionOrder.Status, NewProductionOrderStatusLocal)) then
+                    exit;
+            ProcessedProductionOrdersCounter := 0;
+            ProgressDialog.Open(StrSubstNo(ChangingStatusInfoLbl, NewProductionOrderStatusLocal) + ProcessingProgressTxt);
+            repeat
+                ProcessedProductionOrdersCounter += 1;
+                ProgressDialog.Update(1, ProductionOrder."No.");
+                ProgressDialog.Update(2, Round(ProcessedProductionOrdersCounter / NoOfProductionOrdersToProcess * 10000, 1));
+                ChangeProdOrderStatus(ProductionOrder, NewProductionOrderStatusLocal, NewPostingDateLocal, NewUpdateUnitCostLocal);
+                Commit();
+            until ProductionOrder.Next() = 0;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

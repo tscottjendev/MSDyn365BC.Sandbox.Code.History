@@ -612,6 +612,11 @@ table 32 "Item Ledger Entry"
         key(Key25; "Entry Type", "Item No.")
         {
         }
+		key(Key12183; "Entry Type", "Location Code", "Prod. Order No.", "Prod. Order Line No.", "Prod. Order Comp. Line No.", "Subcontr. Purch. Order No.")
+        {
+			MaintainSQLIndex = false;
+            SumIndexFields = Quantity;
+        }
     }
 
     fieldgroups
