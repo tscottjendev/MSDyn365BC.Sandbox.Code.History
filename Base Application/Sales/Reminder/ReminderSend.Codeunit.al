@@ -62,14 +62,14 @@ codeunit 6762 "Reminder-Send"
         OnAfterPrintRecords(Rec, ShowRequestForm, SendAsEmail, HideDialog, DocumentSendingProfile);
     end;
 
-    local procedure GetDocumentSendingProfile(var IssuedReminderHeader: Record "Issued Reminder Header"; var DocumentSendingProfile: Record "Document Sending Profile"): Boolean
+    local procedure GetDocumentSendingProfile(var IssuedReminderHeader: Record "Issued Reminder Header"; var DocumentSendingProfile: Record "Document Sending Profile") DocumentSendingProfileFound: Boolean
     var
         DefaultDocumentSendingProfile: Record "Document Sending Profile";
         Customer: Record Customer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetDocumentSendingProfile(IssuedReminderHeader, DocumentSendingProfile, IsHandled);
+        OnBeforeGetDocumentSendingProfile(IssuedReminderHeader, DocumentSendingProfile, DocumentSendingProfileFound, IsHandled);
         if IsHandled then
             exit;
         Clear(DocumentSendingProfile);
@@ -116,7 +116,7 @@ codeunit 6762 "Reminder-Send"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetDocumentSendingProfile(var IssuedReminderHeader: Record "Issued Reminder Header"; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
+    local procedure OnBeforeGetDocumentSendingProfile(var IssuedReminderHeader: Record "Issued Reminder Header"; var DocumentSendingProfile: Record "Document Sending Profile"; var DocumentSendingProfileFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
