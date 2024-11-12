@@ -294,8 +294,16 @@ page 9325 "Firm Planned Prod. Orders"
                     ApplicationArea = Manufacturing;
                     Caption = 'Change &Status';
                     Image = ChangeStatus;
-                    RunObject = Codeunit "Prod. Order Status Management";
                     ToolTip = 'Change the production order to another status, such as Released.';
+
+                    trigger OnAction()
+                    var
+                        ProductionOrder: record "Production Order";
+                        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+                    begin
+                        CurrPage.SetSelectionFilter(ProductionOrder);
+                        ProdOrderStatusMgt.ChangeStatusWithSelectionFilter(ProductionOrder);
+                    end;
                 }
                 action("&Update Unit Cost")
                 {
