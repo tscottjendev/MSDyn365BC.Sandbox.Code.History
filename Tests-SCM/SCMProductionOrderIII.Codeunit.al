@@ -5245,6 +5245,40 @@
         VerifyProdOrderCapacity(ProductionOrder, WorkCenters[3], 1);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,ChangeStatusOnProdOrderPageHandler')]
+    [Scope('OnPrem')]
+    procedure ProdOrderChangeStatusBulk()
+    var
+        ProductionOrder: Record "Production Order";
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        ProdOrderNo1, ProdOrderNo2 : Code[20];
+    begin
+        // [SCENARIO 555888] Multiple selected Production Orders with the same status can have their status changed at the same time (new action on page)
+        Initialize();
+
+        // [GIVEN] Two production orders with status released
+        CreateItem(Item);
+        CreateRoutingAndUpdateItem(Item, WorkCenter);
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandDec(100, 2));
+        ProdOrderNo1 := ProductionOrder."No.";
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandDec(100, 2));
+        ProdOrderNo2 := ProductionOrder."No.";
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
+        ProductionOrder.SetFilter("No.", '%1|%2', ProdOrderNo1, ProdOrderNo2);
+
+        // [WHEN] Using the new action
+        ProdOrderStatusMgt.ChangeStatusWithSelectionFilter(ProductionOrder);
+
+        // [THEN] The statuses have changed only for the selected production orders
+        asserterror ProductionOrder.Get(ProductionOrder.Status::Released, ProdOrderNo1);
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProdOrderNo1);
+        asserterror ProductionOrder.Get(ProductionOrder.Status::Released, ProdOrderNo2);
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProdOrderNo2);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -7692,6 +7726,16 @@
         ProdOrderRouting.Type.SetValue(ProdOrderRoutingLine.Type::"Work Center");
         ProdOrderRouting."No.".SetValue(LibraryVariableStorage.DequeueText());
         ProdOrderRouting.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ChangeStatusOnProdOrderPageHandler(var ChangeStatusOnProdOrder: TestPage "Change Status on Prod. Order")
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        ChangeStatusOnProdOrder.FirmPlannedStatus.SetValue(ProductionOrder.Status::Finished);
+        ChangeStatusOnProdOrder.Yes().Invoke();
     end;
 }
 
