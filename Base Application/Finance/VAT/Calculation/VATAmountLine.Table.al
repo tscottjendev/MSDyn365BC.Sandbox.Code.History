@@ -645,7 +645,13 @@ table 290 "VAT Amount Line"
         PrevVATAmountLine: Record "VAT Amount Line";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         VATBaseDiscountPerc: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateLines(Rec, TotalVATAmount, Currency, CurrencyFactor, PricesIncludingVAT, VATBaseDiscountPercHeader, TaxAreaCode, TaxLiable, PostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
         if FindSet() then
             repeat
                 if (PrevVATAmountLine."VAT Identifier" <> "VAT Identifier") or
@@ -1096,6 +1102,11 @@ table 290 "VAT Amount Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromPurchCrMemoLineOnAfterSetLineAmount(var VATAmountLine: Record "VAT Amount Line"; var PurchCrMemoLine: Record "Purch. Cr. Memo Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeUpdateLines(var VATAmountLine: Record "VAT Amount Line"; var TotalVATAmount: Decimal; Currency: Record Currency; CurrencyFactor: Decimal; PricesIncludingVAT: Boolean; VATBaseDiscountPercHeader: Decimal; TaxAreaCode: Code[20]; TaxLiable: Boolean; PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 }
