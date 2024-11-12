@@ -1435,6 +1435,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     var
         GenJournalLine1: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
+        IsHandled: Boolean;
     begin
         LineCount := 0;
         LastDocNo := '';
@@ -1448,8 +1449,10 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                 GenJournalLine2.Copy(GenJournalLine1);
                 PrepareGenJnlLineAddCurr(GenJournalLine2);
                 UpdateDimBalBatchName(GenJournalLine2);
-                OnPostReversingLinesOnBeforeGenJnlPostLine(GenJournalLine2, GenJnlPostLine);
-                GenJnlPostLine.RunWithCheck(GenJournalLine2);
+                IsHandled := false;
+                OnPostReversingLinesOnBeforeGenJnlPostLine(GenJournalLine2, GenJnlPostLine, IsHandled);
+                if not IsHandled then
+                    GenJnlPostLine.RunWithCheck(GenJournalLine2);
                 PostAllocations(GenJournalLine1, TempGenJnlLine, true);
             until TempGenJnlLine.Next() = 0;
 
@@ -2279,7 +2282,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostReversingLinesOnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnPostReversingLinesOnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean)
     begin
     end;
 
