@@ -69,6 +69,7 @@ table 5401 "Item Variant"
             var
                 Item: Record Item;
             begin
+                Item.SetLoadFields("No.");
                 if IsNullGuid("Item Id") then
                     "Item No." := ''
                 else
@@ -288,6 +289,7 @@ table 5401 "Item Variant"
             exit;
         end;
 
+        Item.SetLoadFields(SystemId);
         if not Item.Get("Item No.") then
             exit;
 
