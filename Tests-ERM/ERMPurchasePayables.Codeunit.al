@@ -53,6 +53,7 @@
         NotificationBatchPurchHeaderMsg: Label 'An error or warning occured during operation Batch processing of Purchase Header records.';
         VendorInvNoErr: Label 'You need to enter the document number of the document from the vendor in the Vendor Invoice No. field';
         CannotRenameItemUsedInPurchaseLinesErr: Label 'You cannot rename %1 in a %2, because it is used in purchase document lines.', Comment = '%1 = Item No. caption, %2 = Table caption.';
+        CannotRenameItemErr: Label 'You cannot rename %1 in a %2, because it is used in %3.', Comment = '%1 = Item No. caption, %2 = Table caption, %3 = Reference Table caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -2586,6 +2587,48 @@
 
         //[THEN] The errors "Bank Acount No. can't be found in Bank Account table" and "G/L Acount No. can't be found in G/L Account table" are executed
         Assert.ExpectedErrorCode(ExpectedErrorCodeLbl);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RenameItemVariantExistsInItemLedgerEntry()
+    var
+        Item: array[2] of Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+
+        // [SCENARIO 554729] Users are able to delete an Item Variant that has been posted to the Item Ledger Entries and has existing inventory quantity.
+        Initialize();
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item[1]);
+        LibraryInventory.CreateItem(Item[2]);
+
+        // [GIVEN] Create Item Variant
+        LibraryInventory.CreateItemVariant(ItemVariant, Item[1]."No.");
+
+        // [GIVEN] Create and Post Item Journal
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name",
+          ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item[1]."No.", LibraryRandom.RandDecInRange(10, 20, 2));
+        ItemJournalLine.Validate("Variant Code", ItemVariant.Code);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [WHEN] Rename Item Variant "Code"
+        ItemVariant.Rename(Item[1]."No.", LibraryUtility.GenerateRandomCode(ItemVariant.FieldNo(Code), Database::"Item Variant"));
+
+        // [WHEN] Rename Item Variant "Item No."
+        asserterror ItemVariant.Rename(Item[2]."No.", ItemVariant.Code);
+
+        // [THEN] Error is raised
+        Assert.ExpectedError(StrSubstNo(CannotRenameItemErr, ItemVariant.FieldCaption("Item No."), ItemVariant.TableCaption(), ItemLedgerEntry.TableCaption()));
     end;
 
     local procedure Initialize()
