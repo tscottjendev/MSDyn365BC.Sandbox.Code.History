@@ -1285,6 +1285,7 @@ table 121 "Purch. Rcpt. Line"
             exit;
         end;
 
+        ParentPurchRcptHeader.SetLoadFields("No.", SystemId);
         if not ParentPurchRcptHeader.Get("Document No.") then
             exit;
 
@@ -1300,6 +1301,7 @@ table 121 "Purch. Rcpt. Line"
             exit;
         end;
 
+        ParentPurchRcptHeader.SetLoadFields("No.", SystemId);
         if not ParentPurchRcptHeader.GetBySystemId(Rec."Document Id") then
             exit;
 
