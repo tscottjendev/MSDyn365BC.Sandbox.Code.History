@@ -3941,6 +3941,7 @@ table 81 "Gen. Journal Line"
         PrevDocNo: Code[20];
         FirstDocNo: Code[20];
         TempFirstDocNo: Code[20];
+        PrevCustVendNo: Code[20];
         First: Boolean;
         IsHandled: Boolean;
         PrevPostingDate: Date;
@@ -3973,12 +3974,14 @@ table 81 "Gen. Journal Line"
                 if not First and
                     ((GenJnlLine2."Document No." <> PrevDocNo) or
                       (GenJnlLine2."Posting Date" <> PrevPostingDate) or
+                      (not (GetCustVendNo(GenJnlLine2) in [PrevCustVendNo, ''])) or
                     ((GenJnlLine2."Bal. Account No." <> '') and (GenJnlLine2."Document No." = ''))) and
                     not LastGenJnlLine.EmptyLine()
                 then
                     DocNo := IncStr(DocNo);
                 PrevDocNo := GenJnlLine2."Document No.";
                 PrevPostingDate := GenJnlLine2."Posting Date";
+                PrevCustVendNo := GetCustVendNo(GenJnlLine2);
                 if GenJnlLine2."Document No." <> '' then begin
                     if GenJnlLine2."Applies-to ID" = GenJnlLine2."Document No." then
                         GenJnlLine2.RenumberAppliesToID(GenJnlLine2, GenJnlLine2."Document No.", DocNo);
@@ -7553,6 +7556,14 @@ table 81 "Gen. Journal Line"
         CheckPaymentTolerance();
 
         OnAfterAccountNoOnValidateGetVendorAccount(Rec, Vend, CurrFieldNo);
+    end;
+
+    local procedure GetCustVendNo(GenJnlLineToCheck: Record "Gen. Journal Line"): Code[20]
+    begin
+        if GenJnlLineToCheck."Account Type" in [GenJnlLineToCheck."Account Type"::Customer, GenJnlLineToCheck."Account Type"::Vendor] then
+            exit(GenJnlLineToCheck."Account No.");
+        if GenJnlLineToCheck."Bal. Account Type" in [GenJnlLineToCheck."Bal. Account Type"::Customer, GenJnlLineToCheck."Bal. Account Type"::Vendor] then
+            exit(GenJnlLineToCheck."Bal. Account No.");
     end;
 
     local procedure CheckConfirmDifferentVendorAndPayToVendor(Vend: Record Vendor; AccountNo: Code[20])
