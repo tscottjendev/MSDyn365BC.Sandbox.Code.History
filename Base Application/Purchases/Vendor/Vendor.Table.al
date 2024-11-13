@@ -2533,6 +2533,7 @@ table 23 Vendor
             exit;
         end;
 
+        Currency.SetLoadFields(SystemId);
         if not Currency.Get("Currency Code") then
             exit;
 
@@ -2548,6 +2549,7 @@ table 23 Vendor
             exit;
         end;
 
+        PaymentTerms.SetLoadFields(SystemId);
         if not PaymentTerms.Get("Payment Terms Code") then
             exit;
 
@@ -2563,6 +2565,7 @@ table 23 Vendor
             exit;
         end;
 
+        PaymentMethod.SetLoadFields(SystemId);
         if not PaymentMethod.Get("Payment Method Code") then
             exit;
 
@@ -2578,6 +2581,7 @@ table 23 Vendor
     var
         Currency: Record Currency;
     begin
+        Currency.SetLoadFields(Code);
         if not IsNullGuid("Currency Id") then
             Currency.GetBySystemId("Currency Id");
 
@@ -2588,6 +2592,7 @@ table 23 Vendor
     var
         PaymentTerms: Record "Payment Terms";
     begin
+        PaymentTerms.SetLoadFields(Code);
         if not IsNullGuid("Payment Terms Id") then
             PaymentTerms.GetBySystemId("Payment Terms Id");
 
@@ -2598,6 +2603,7 @@ table 23 Vendor
     var
         PaymentMethod: Record "Payment Method";
     begin
+        PaymentMethod.SetLoadFields(Code);
         if not IsNullGuid("Payment Method Id") then
             PaymentMethod.GetBySystemId("Payment Method Id");
 
