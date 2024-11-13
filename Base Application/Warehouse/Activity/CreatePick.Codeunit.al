@@ -1896,15 +1896,17 @@ codeunit 7312 "Create Pick"
     end;
 
     local procedure ProcessDoNotFillQtytoHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeProcessDoNotFillQtytoHandle(WarehouseActivityLine, TempWarehouseActivityLine, CreatePickParameters);
-
-        if CreatePickParameters."Do Not Fill Qty. to Handle" then begin
-            WarehouseActivityLine."Qty. to Handle" := 0;
-            WarehouseActivityLine."Qty. to Handle (Base)" := 0;
-            WarehouseActivityLine.Cubage := 0;
-            WarehouseActivityLine.Weight := 0;
-        end;
+        OnBeforeProcessDoNotFillQtytoHandle(WarehouseActivityLine, TempWarehouseActivityLine, CreatePickParameters, IsHandled);
+        if not IsHandled then
+            if CreatePickParameters."Do Not Fill Qty. to Handle" then begin
+                WarehouseActivityLine."Qty. to Handle" := 0;
+                WarehouseActivityLine."Qty. to Handle (Base)" := 0;
+                WarehouseActivityLine.Cubage := 0;
+                WarehouseActivityLine.Weight := 0;
+            end;
 
         OnAfterProcessDoNotFillQtytoHandle(WarehouseActivityLine, TempWarehouseActivityLine);
     end;
@@ -4810,7 +4812,7 @@ codeunit 7312 "Create Pick"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeProcessDoNotFillQtytoHandle(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var CreatePickParameters: Record "Create Pick Parameters" temporary)
+    local procedure OnBeforeProcessDoNotFillQtytoHandle(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var CreatePickParameters: Record "Create Pick Parameters" temporary; var IsHandled: Boolean)
     begin
     end;
 
