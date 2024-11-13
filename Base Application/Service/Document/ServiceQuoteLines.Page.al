@@ -82,8 +82,29 @@ page 5966 "Service Quote Lines"
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
+                        if Rec."Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
                         NoOnAfterValidate();
+                    end;
+                }
+                field("Item Reference No."; Rec."Item Reference No.")
+                {
+                    AccessByPermission = tabledata "Item Reference" = R;
+                    ApplicationArea = Service, ItemReferences;
+                    QuickEntry = false;
+                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a service document.';
+                    Visible = ItemReferenceVisible;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ServItemReferenceMgt: Codeunit "Serv. Item Reference Mgt.";
+                    begin
+                        ServItemReferenceMgt.ServiceReferenceNoLookup(Rec);
+                        NoOnAfterValidate();
+                        CurrPage.Update();
                     end;
                 }
                 field("Variant Code"; Rec."Variant Code")
@@ -91,6 +112,15 @@ page 5966 "Service Quote Lines"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
+                    ShowMandatory = VariantCodeMandatory;
+
+                    trigger OnValidate()
+                    var
+                        Item: Record "Item";
+                    begin
+                        if Rec."Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
+                    end;
                 }
                 field(Description; Rec.Description)
                 {
@@ -777,8 +807,12 @@ page 5966 "Service Quote Lines"
     }
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
     begin
         Rec.ShowShortcutDimCode(ShortcutDimCode);
+        if Rec."Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -801,6 +835,7 @@ page 5966 "Service Quote Lines"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Clear(ShortcutDimCode);
+
         ServHeader.Get(Rec."Document Type", Rec."Document No.");
         if ServHeader."Link Service to Service Item" then
             if SelectionFilter <> SelectionFilter::"Lines Not Item Related" then
@@ -820,6 +855,7 @@ page 5966 "Service Quote Lines"
         if not IsHandled then begin
             Clear(SelectionFilter);
             SetSelectionFilter();
+            SetItemReferenceVisibility();
 
             ServMgtSetup.Get();
             case ServMgtSetup."Fault Reporting Level" of
@@ -863,6 +899,8 @@ page 5966 "Service Quote Lines"
         ServAvailabilityMgt: Codeunit "Serv. Availability Mgt.";
         ServItemLineNo: Integer;
         SelectionFilter: Option "All Service Lines","Lines per Selected Service Item","Lines Not Item Related";
+        ItemReferenceVisible: Boolean;
+        VariantCodeMandatory: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -938,6 +976,13 @@ page 5966 "Service Quote Lines"
     begin
         CurrPage.Update();
         SetSelectionFilter();
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReference: Record "Item Reference";
+    begin
+        ItemReferenceVisible := not ItemReference.IsEmpty();
     end;
 
     [IntegrationEvent(true, false)]
