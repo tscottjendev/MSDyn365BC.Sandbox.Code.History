@@ -484,6 +484,7 @@ table 21 "Cust. Ledger Entry"
             begin
                 TestField(Open, true);
                 CalcFields(Amount, "Remaining Amount");
+                OnValidateMaxPaymentToleranceOnBeforeFieldError(Rec);
 
                 if "Max. Payment Tolerance" * Amount < 0 then
                     FieldError("Max. Payment Tolerance", StrSubstNo(Text000, FieldCaption(Amount)));
@@ -1049,6 +1050,7 @@ table 21 "Cust. Ledger Entry"
         if FindFirst() then begin
             if "Amount to Apply" = 0 then begin
                 CalcFields("Remaining Amount");
+                OnSetAmountToApplyOnAfterCalcRemainingAmount(Rec);
                 "Amount to Apply" := "Remaining Amount";
             end else
                 "Amount to Apply" := 0;
@@ -1293,6 +1295,16 @@ table 21 "Cust. Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAmountsForApplication(var CustLedgerEntry: Record "Cust. Ledger Entry"; ApplnDate: Date; ApplnCurrencyCode: Code[10]; RoundAmounts: Boolean; UpdateMaxPaymentTolerance: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetAmountToApplyOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateMaxPaymentToleranceOnBeforeFieldError(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }
