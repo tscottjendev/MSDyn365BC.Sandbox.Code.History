@@ -2007,15 +2007,17 @@ table 27 Item
             TableRelation = "Gen. Product Posting Group".SystemId;
             trigger OnValidate()
             var
-                GenProdPostGroup: Record "Gen. Product Posting Group";
+                GenProductPostingGroup: Record "Gen. Product Posting Group";
                 GenProdPostGroupExists: Boolean;
             begin
                 GenProdPostGroupExists := false;
-                if not IsNullGuid("Gen. Prod. Posting Group Id") then
-                    GenProdPostGroupExists := GenProdPostGroup.GetBySystemId("Gen. Prod. Posting Group Id");
+                if not IsNullGuid("Gen. Prod. Posting Group Id") then begin
+                    GenProductPostingGroup.SetLoadFields("Code");
+                    GenProdPostGroupExists := GenProductPostingGroup.GetBySystemId("Gen. Prod. Posting Group Id");
+                end;
 
                 if GenProdPostGroupExists then
-                    Validate("Gen. Prod. Posting Group", GenProdPostGroup."Code")
+                    Validate("Gen. Prod. Posting Group", GenProductPostingGroup."Code")
                 else
                     Validate("Gen. Prod. Posting Group", '')
             end;
@@ -3324,6 +3326,7 @@ table 27 Item
             exit;
         end;
 
+        UnitOfMeasure.SetLoadFields(SystemId);
         if not UnitOfMeasure.Get("Base Unit of Measure") then
             exit;
 
@@ -3380,6 +3383,7 @@ table 27 Item
             exit;
         end;
 
+        TaxGroup.SetLoadFields(SystemId);
         if not TaxGroup.Get("Tax Group Code") then
             exit;
 
@@ -3390,6 +3394,7 @@ table 27 Item
     var
         UnitOfMeasure: Record "Unit of Measure";
     begin
+        UnitOfMeasure.SetLoadFields("Code");
         if not IsNullGuid("Unit of Measure Id") then
             UnitOfMeasure.GetBySystemId("Unit of Measure Id");
 
@@ -3400,6 +3405,7 @@ table 27 Item
     var
         TaxGroup: Record "Tax Group";
     begin
+        TaxGroup.SetLoadFields("Code");
         if not IsNullGuid("Tax Group Id") then
             TaxGroup.GetBySystemId("Tax Group Id");
 
@@ -3410,6 +3416,7 @@ table 27 Item
     var
         ItemCategory: Record "Item Category";
     begin
+        ItemCategory.SetLoadFields("Code");
         if not IsNullGuid("Item Category Id") then
             ItemCategory.GetBySystemId("Item Category Id");
 

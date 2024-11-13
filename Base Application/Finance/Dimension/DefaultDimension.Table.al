@@ -991,24 +991,36 @@ table 352 "Default Dimension"
     begin
         case ParentType of
             "Parent Type"::Customer:
-                if Customer.GetBySystemId(ParentId) then begin
-                    "No." := Customer."No.";
-                    exit;
+                begin
+                    Customer.SetLoadFields("No.");
+                    if Customer.GetBySystemId(ParentId) then begin
+                        "No." := Customer."No.";
+                        exit;
+                    end;
                 end;
             "Parent Type"::Employee:
-                if Employee.GetBySystemId(ParentId) then begin
-                    "No." := Employee."No.";
-                    exit;
+                begin
+                    Employee.SetLoadFields("No.");
+                    if Employee.GetBySystemId(ParentId) then begin
+                        "No." := Employee."No.";
+                        exit;
+                    end;
                 end;
             "Parent Type"::Item:
-                if Item.GetBySystemId(ParentId) then begin
-                    "No." := Item."No.";
-                    exit;
+                begin
+                    Item.SetLoadFields("No.");
+                    if Item.GetBySystemId(ParentId) then begin
+                        "No." := Item."No.";
+                        exit;
+                    end;
                 end;
             "Parent Type"::Vendor:
-                if Vendor.GetBySystemId(ParentId) then begin
-                    "No." := Vendor."No.";
-                    exit;
+                begin
+                    Vendor.SetLoadFields("No.");
+                    if Vendor.GetBySystemId(ParentId) then begin
+                        "No." := Vendor."No.";
+                        exit;
+                    end;
                 end;
         end;
         Error(ParentNotFoundErr);
@@ -1026,38 +1038,42 @@ table 352 "Default Dimension"
         if not GetRecordRefFromFilter(Id, ParentRecordRef) then
             Error(ParentIdDoesNotMatchAnIntegrationRecordErr);
 
-        ParentRecordRefId := ParentRecordRef.RecordId;
+        ParentRecordRefId := ParentRecordRef.RecordId();
 
-        case ParentRecordRefId.TableNo of
+        case ParentRecordRefId.TableNo() of
             Database::Item:
                 begin
+                    Item.SetLoadFields("No.");
                     Item.Get(ParentRecordRefId);
                     "No." := Item."No.";
                     "Parent Type" := "Parent Type"::Item;
                 end;
             Database::Customer:
                 begin
+                    Customer.SetLoadFields("No.");
                     Customer.Get(ParentRecordRefId);
                     "No." := Customer."No.";
                     "Parent Type" := "Parent Type"::Customer;
                 end;
             Database::Vendor:
                 begin
+                    Vendor.SetLoadFields("No.");
                     Vendor.Get(ParentRecordRefId);
                     "No." := Vendor."No.";
                     "Parent Type" := "Parent Type"::Vendor;
                 end;
             Database::Employee:
                 begin
+                    Employee.SetLoadFields("No.");
                     Employee.Get(ParentRecordRefId);
                     "No." := Employee."No.";
                     "Parent Type" := "Parent Type"::Employee;
                 end;
             else
-                ThrowEntityNotSupportedError(ParentRecordRefId.TableNo);
+                ThrowEntityNotSupportedError(ParentRecordRefId.TableNo());
         end;
 
-        "Table ID" := ParentRecordRefId.TableNo;
+        "Table ID" := ParentRecordRefId.TableNo();
     end;
 
     local procedure GetRecordRefFromFilter(IDFilter: Text; var ParentRecordRef: RecordRef): Boolean
@@ -1135,17 +1151,29 @@ table 352 "Default Dimension"
     begin
         case "Table ID" of
             Database::Item:
-                if Item.Get("No.") then
-                    NewParentId := Item.SystemId;
+                begin
+                    Item.SetLoadFields(SystemId);
+                    if Item.Get("No.") then
+                        NewParentId := Item.SystemId;
+                end;
             Database::Customer:
-                if Customer.Get("No.") then
-                    NewParentId := Customer.SystemId;
+                begin
+                    Customer.SetLoadFields(SystemId);
+                    if Customer.Get("No.") then
+                        NewParentId := Customer.SystemId;
+                end;
             Database::Vendor:
-                if Vendor.Get("No.") then
-                    NewParentId := Vendor.SystemId;
+                begin
+                    Vendor.SetLoadFields(SystemId);
+                    if Vendor.Get("No.") then
+                        NewParentId := Vendor.SystemId;
+                end;
             Database::Employee:
-                if Employee.Get("No.") then
-                    NewParentId := Employee.SystemId;
+                begin
+                    Employee.SetLoadFields(SystemId);
+                    if Employee.Get("No.") then
+                        NewParentId := Employee.SystemId;
+                end;
         end;
 
         if NewParentId = ParentId then
@@ -1159,6 +1187,7 @@ table 352 "Default Dimension"
     var
         Dimension: Record Dimension;
     begin
+        Dimension.SetLoadFields(SystemId);
         if not Dimension.Get("Dimension Code") then
             exit(false);
 
@@ -1173,6 +1202,7 @@ table 352 "Default Dimension"
     var
         DimensionValue: Record "Dimension Value";
     begin
+        DimensionValue.SetLoadFields(SystemId);
         if DimensionValue.Get("Dimension Code", "Dimension Value Code") then begin
             if DimensionValueId = DimensionValue.SystemId then
                 exit(false);

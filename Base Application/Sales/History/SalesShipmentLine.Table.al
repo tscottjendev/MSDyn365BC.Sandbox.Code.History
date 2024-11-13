@@ -1175,6 +1175,7 @@ table 111 "Sales Shipment Line"
             exit;
         end;
 
+        SalesShipmentHeader.SetLoadFields("No.", SystemId);
         if not SalesShipmentHeader.Get("Document No.") then
             exit;
 
@@ -1191,6 +1192,7 @@ table 111 "Sales Shipment Line"
             exit;
         end;
 
+        SalesShipmentHeader.SetLoadFields("No.", SystemId);
         if not SalesShipmentHeader.GetBySystemId(Rec."Document Id") then
             exit;
 
