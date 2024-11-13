@@ -2380,7 +2380,7 @@ table 167 Job
         TimeSheetDetail: Record "Time Sheet Detail";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        if IsTemporary then
+        if IsTemporary() then
             exit;
 
         if not GraphMgtGeneralTools.IsApiEnabled() then
