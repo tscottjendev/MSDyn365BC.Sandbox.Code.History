@@ -2094,7 +2094,7 @@ table 5080 "To-do"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeConfirmReassignmentOpenedNotMeetingToDo(Rec, IsHandled);
+        OnBeforeConfirmReassignmentOpenedNotMeetingToDo(Rec, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -3102,7 +3102,7 @@ table 5080 "To-do"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeConfirmReassignmentOpenedNotMeetingToDo(var ToTask: Record "To-do"; var IsHandled: Boolean)
+    local procedure OnBeforeConfirmReassignmentOpenedNotMeetingToDo(var ToTask: Record "To-do"; var IsHandled: Boolean; xToTask: Record "To-do")
     begin
     end;
 
