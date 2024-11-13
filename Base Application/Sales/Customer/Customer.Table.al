@@ -3203,6 +3203,7 @@ table 18 Customer
     var
         Currency: Record Currency;
     begin
+        Currency.SetLoadFields(Code);
         if not IsNullGuid("Currency Id") then
             Currency.GetBySystemId("Currency Id");
 
@@ -3213,6 +3214,7 @@ table 18 Customer
     var
         PaymentTerms: Record "Payment Terms";
     begin
+        PaymentTerms.SetLoadFields(Code);
         if not IsNullGuid("Payment Terms Id") then
             PaymentTerms.GetBySystemId("Payment Terms Id");
 
@@ -3223,6 +3225,7 @@ table 18 Customer
     var
         ShipmentMethod: Record "Shipment Method";
     begin
+        ShipmentMethod.SetLoadFields(Code);
         if not IsNullGuid("Shipment Method Id") then
             ShipmentMethod.GetBySystemId("Shipment Method Id");
 
@@ -3233,6 +3236,7 @@ table 18 Customer
     var
         PaymentMethod: Record "Payment Method";
     begin
+        PaymentMethod.SetLoadFields(Code);
         if not IsNullGuid("Payment Method Id") then
             PaymentMethod.GetBySystemId("Payment Method Id");
 
@@ -3248,6 +3252,7 @@ table 18 Customer
             exit;
         end;
 
+        Currency.SetLoadFields(SystemId);
         if not Currency.Get("Currency Code") then
             exit;
 
@@ -3263,6 +3268,7 @@ table 18 Customer
             exit;
         end;
 
+        PaymentTerms.SetLoadFields(SystemId);
         if not PaymentTerms.Get("Payment Terms Code") then
             exit;
 
@@ -3278,6 +3284,7 @@ table 18 Customer
             exit;
         end;
 
+        ShipmentMethod.SetLoadFields(SystemId);
         if not ShipmentMethod.Get("Shipment Method Code") then
             exit;
 
@@ -3293,6 +3300,7 @@ table 18 Customer
             exit;
         end;
 
+        PaymentMethod.SetLoadFields(SystemId);
         if not PaymentMethod.Get("Payment Method Code") then
             exit;
 
@@ -3309,6 +3317,7 @@ table 18 Customer
         if IsHandled then
             exit;
 
+        PaymentMethod.SetLoadFields("Direct Debit", "Direct Debit Pmt. Terms Code");
         PaymentMethod.Get("Payment Method Code");
         if PaymentMethod."Direct Debit" and ("Payment Terms Code" = '') then
             Validate("Payment Terms Code", PaymentMethod."Direct Debit Pmt. Terms Code");
@@ -3327,6 +3336,7 @@ table 18 Customer
                 exit;
             end;
 
+            VATBusinessPostingGroup.SetLoadFields(SystemId);
             if not VATBusinessPostingGroup.Get("VAT Bus. Posting Group") then
                 exit;
 
@@ -3337,6 +3347,7 @@ table 18 Customer
                 exit;
             end;
 
+            TaxArea.SetLoadFields(SystemId);
             if not TaxArea.Get("Tax Area Code") then
                 exit;
 
@@ -3354,9 +3365,11 @@ table 18 Customer
             exit;
 
         if GeneralLedgerSetup.UseVat() then begin
+            VATBusinessPostingGroup.SetLoadFields(Code);
             VATBusinessPostingGroup.GetBySystemId("Tax Area ID");
             "VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
         end else begin
+            TaxArea.SetLoadFields(Code);
             TaxArea.GetBySystemId("Tax Area ID");
             "Tax Area Code" := TaxArea.Code;
         end;

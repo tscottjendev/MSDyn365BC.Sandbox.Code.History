@@ -424,6 +424,7 @@ table 55 "Invoice Posting Buffer"
         TotalAmount := TotalAmount - Amount;
         TotalAmountACY := TotalAmountACY - "Amount (ACY)";
         "G/L Account" := AccountNo;
+        OnAfterSetAccount(Rec, "G/L Account");
     end;
 
     procedure SetAmounts(TotalVAT: Decimal; TotalVATACY: Decimal; TotalAmount: Decimal; TotalAmountACY: Decimal; VATDifference: Decimal; TotalVATBase: Decimal; TotalVATBaseACY: Decimal)
@@ -885,6 +886,11 @@ table 55 "Invoice Posting Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeClearVATFields(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetAccount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; AccountNo: Code[20])
     begin
     end;
 }
