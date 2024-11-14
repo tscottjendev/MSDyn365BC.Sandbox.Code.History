@@ -634,16 +634,18 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     begin
         // [SCENARIO 363951] Create new item from template with filled "Blocked"
         // [SCENARIO 378441] Add "Service Blocked"
+        // [SCENARIO 382546] Add "Production Blocked"
         Initialize();
         ItemTempl.DeleteAll();
         BindSubscription(CustVendItemEmplTemplates);
         CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
 
-        // [GIVEN] Template with "Blocked" = true, "Sales Blocked" = true, "Service Blocked" = true, "Purchasing Blocked" = true
+        // [GIVEN] Template with "Blocked" = true, "Sales Blocked" = true, "Service Blocked" = true, "Production Blocked" = true, "Purchasing Blocked" = true
         LibraryTemplates.CreateItemTemplate(ItemTempl);
         ItemTempl.Blocked := true;
         ItemTempl."Sales Blocked" := true;
         ItemTempl."Service Blocked" := true;
+        ItemTempl."Production Blocked" := true;
         ItemTempl."Purchasing Blocked" := true;
         ItemTempl.Modify(true);
 
@@ -653,10 +655,12 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         // [THEN] Item "Blocked" = true
         // [THEN] Item "Sales Blocked" = true
         // [THEN] Item "Service Blocked" = true
+        // [THEN] Item "Production Blocked" = true
         // [THEN] Item "Purchasing Blocked" = true
         Assert.IsTrue(Item.Blocked, InsertedItemErr);
         Assert.IsTrue(Item."Sales Blocked", InsertedItemErr);
         Assert.IsTrue(Item."Service Blocked", InsertedItemErr);
+        Assert.IsTrue(Item."Production Blocked", InsertedItemErr);
         Assert.IsTrue(Item."Purchasing Blocked", InsertedItemErr);
 
         LibraryVariableStorage.AssertEmpty();
