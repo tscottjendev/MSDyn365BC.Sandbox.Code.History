@@ -135,6 +135,8 @@ report 99001015 "Calculate Subcontracts"
         Text001: Label 'Processing Orders         #2########## ';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
+        ProductionBlockedQst: Label 'Item No. %1 is blocked for production and cannot be calculated. Do you want to continue?.', Comment = '%1 Item No.';
+        BlockedItemVariantQst: Label 'Variant %1 for item %2 is blocked for production and cannot be calculated. Do you want to continue?.', Comment = '%1 - Item Variant Code, %2 - Item No.';
 
     procedure SetWkShLine(NewReqLine: Record "Requisition Line")
     begin
@@ -154,6 +156,9 @@ report 99001015 "Calculate Subcontracts"
 
         ReqLine.SetSubcontracting(true);
         ReqLine.BlockDynamicTracking(true);
+
+        if not CanCreateRequisitionLineFromProdOrderLine(ProdOrderLine."Item No.", ProdOrderLine."Variant Code") then
+            exit;
 
         ReqLine.Init();
         ReqLine."Line No." := ReqLine."Line No." + 10000;
@@ -278,6 +283,47 @@ report 99001015 "Calculate Subcontracts"
         Item.FindItemVend(ItemVendor, ReqLine."Location Code");
         ReqLine.Validate("Vendor Item No.", ItemVendor."Vendor Item No.");
         OnAfterSetVendorItemNo(ReqLine, ItemVendor, Item);
+    end;
+
+    local procedure CanCreateRequisitionLineFromProdOrderLine(ItemNo: Code[20]; VariantCode: Code[20]): Boolean
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+    begin
+        if not GuiAllowed() then
+            exit;
+
+        if ItemNo <> '' then begin
+            Item.SetLoadFields("Production Blocked");
+            Item.Get(ItemNo);
+            if Item."Production Blocked" then begin
+                ShowProdBlockedForItemConfirmation(ItemNo);
+                exit(false);
+            end;
+        end;
+
+        if VariantCode <> '' then begin
+            ItemVariant.SetLoadFields(Blocked, "Production Blocked");
+            ItemVariant.Get(ItemNo, VariantCode);
+            if ItemVariant."Production Blocked" then begin
+                ShowProdBlockedForItemVariantConfirmation(ItemNo, VariantCode);
+                exit(false);
+            end;
+        end;
+
+        exit(true);
+    end;
+
+    local procedure ShowProdBlockedForItemConfirmation(ItemNo: Code[20])
+    begin
+        if not Confirm(StrSubstNo(ProductionBlockedQst, ItemNo)) then
+            Error('');
+    end;
+
+    local procedure ShowProdBlockedForItemVariantConfirmation(ItemNo: Code[20]; VariantCode: Code[20])
+    begin
+        if not Confirm(StrSubstNo(BlockedItemVariantQst, VariantCode, ItemNo)) then
+            Error('');
     end;
 
     [IntegrationEvent(false, false)]
