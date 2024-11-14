@@ -5095,6 +5095,16 @@ codeunit 22 "Item Jnl.-Post Line"
         OnAfterCheckItemAndVariant(ItemJnlLine, CalledFromAdjustment);
     end;
 
+    local procedure CheckItemAndItemVariantProductionBlocked(ItemJnlLine: Record "Item Journal Line")
+    var
+        OutputItem: Record Item;
+    begin
+        if ItemJnlLine."Entry Type" <> ItemJnlLine."Entry Type"::Output then
+            exit;
+
+        OutputItem.CheckItemAndVariantForProdBlocked(ItemJnlLine."Item No.", ItemJnlLine."Variant Code");
+    end;
+
     /// <summary>
     /// Checks the tracking information of an item journal. If serial, lot or package numbers are required but are missing, an error is thrown.
     /// </summary>
@@ -7318,6 +7328,7 @@ codeunit 22 "Item Jnl.-Post Line"
         GetGLSetup();
         GetInvtSetup();
         CheckItemAndItemVariant(ItemJnlLineToPost."Item No.", ItemJnlLineToPost."Variant Code");
+        CheckItemAndItemVariantProductionBlocked(ItemJnlLineToPost);
 
         OnAfterPrepareItem(ItemJnlLineToPost);
     end;
