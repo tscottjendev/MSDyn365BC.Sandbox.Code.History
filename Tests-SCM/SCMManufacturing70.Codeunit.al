@@ -3210,6 +3210,179 @@ codeunit 137063 "SCM Manufacturing 7.0"
                 FamilyLine.TableCaption()));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure CalculateSubContractsShouldSkipThoseItemsIfProductionBlockedIsTrueOnItem()
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+    begin
+        // [SCENARIO 382546] Verify "Calculate Subcontracts" should skip those item if "Production Blocked" is true on "Item".
+        Initialize();
+
+        // [GIVEN] Delete Prod. Order Routing Lines.
+        ProdOrderRoutingLine.DeleteAll(false);
+
+        // [GIVEN] Create Production Order with SubContracting Work Center.
+        CreateProdOrderWithSubcontractWorkCenter(WorkCenter, ProductionOrder);
+
+        // [GIVEN] Update "Production Blocked" on Item.
+        Item.Get(ProductionOrder."Source No.");
+        Item.Validate("Production Blocked", true);
+        Item.Modify(true);
+
+        // [WHEN] Run subcontracting worksheet and execute "Calculate Subcontracts".
+        LibraryManufacturing.CalculateSubcontractOrder(WorkCenter);
+
+        // [VERIFY] Verify there should be no requisition line if "Production Blocked" is true on "Item".
+        RequisitionLine.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
+        RequisitionLine.SetRange("No.", ProductionOrder."Source No.");
+        RequisitionLine.SetRange("Ref. Order Status", ProductionOrder.Status);
+        RequisitionLine.SetRange("Ref. Order No.", ProductionOrder."No.");
+        Assert.RecordCount(RequisitionLine, 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure CalculateSubContractsShouldCreateOnlyThoseLinesIfProductionBlockedIsFalseOnItem()
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        ProductionOrder: array[2] of Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 382546] Verify "Calculate Subcontracts" should create only those lines if "Production Blocked" is False on "Item".
+        Initialize();
+
+        // [GIVEN] Create Production Order with SubContracting Work Center.
+        CreateProdOrderWithSubcontractWorkCenter(WorkCenter, ProductionOrder[1]);
+
+        // [GIVEN] Create another Production Order with SubContracting Work Center.
+        CreateProdOrderWithSubcontractWorkCenter(WorkCenter, ProductionOrder[2]);
+
+        // [GIVEN] Update "Production Blocked" on Item.
+        Item.Get(ProductionOrder[1]."Source No.");
+        Item.Validate("Production Blocked", true);
+        Item.Modify(true);
+
+        // [WHEN] Run subcontracting worksheet and execute "Calculate Subcontracts".
+        LibraryManufacturing.CalculateSubcontractOrder(WorkCenter);
+
+        // [VERIFY] Verify there should be two requisition lines if "Production Blocked" is false on "Item".
+        RequisitionLine.SetRange("No.", ProductionOrder[2]."Source No.");
+        RequisitionLine.SetRange("Ref. Order Status", ProductionOrder[2].Status);
+        RequisitionLine.SetRange("Ref. Order No.", ProductionOrder[2]."No.");
+        Assert.RecordCount(RequisitionLine, 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure CalculateSubContractsShouldSkipThoseItemsIfProductionBlockedIsTrueOnItemVariant()
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        ItemVariant: Record "Item Variant";
+        RoutingHeader: Record "Routing Header";
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 382546] Verify "Calculate Subcontracts" should skip those item if "Production Blocked" is true on "Item Variant".
+        Initialize();
+
+        // [GIVEN] Create Work Center.
+        CreateSubcontractingSetup(WorkCenter, RoutingHeader, Format(10 + LibraryRandom.RandInt(10)));
+
+        // [GIVEN] Create Item With Rounting.
+        CreateProdItem(Item, RoutingHeader."No.");
+
+        // [GIVEN] Create Item Variant.
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [GIVEN] Create Released production order with Variant Code.
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10));
+        ProductionOrder.Validate("Variant Code", ItemVariant.Code);
+        ProductionOrder.Modify(true);
+
+        // [GIVEN] Refresh Production Order.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Update "Production Blocked" on "Item Variant".
+        ItemVariant.Validate("Production Blocked", true);
+        ItemVariant.Modify(true);
+
+        // [WHEN] Run subcontracting worksheet and execute "Calculate Subcontracts".
+        LibraryManufacturing.CalculateSubcontractOrder(WorkCenter);
+
+        // [VERIFY] Verify there should be no requisition line if "Production Blocked" is true on "Item Variant".
+        RequisitionLine.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
+        RequisitionLine.SetRange("No.", ProductionOrder."Source No.");
+        RequisitionLine.SetRange("Ref. Order Status", ProductionOrder.Status);
+        RequisitionLine.SetRange("Ref. Order No.", ProductionOrder."No.");
+        Assert.RecordCount(RequisitionLine, 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure CalculateSubContractsShouldCreateOnlyThoseLinesIfProductionBlockedIsFalseOnItemVariant()
+    var
+        Item: array[2] of Record Item;
+        WorkCenter: Record "Work Center";
+        ItemVariant: array[2] of Record "Item Variant";
+        RoutingHeader: Record "Routing Header";
+        ProductionOrder: array[2] of Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 382546] Verify "Calculate Subcontracts" should create only those lines if "Production Blocked" is False on "Item Variant".
+        Initialize();
+
+        // [GIVEN] Create Work Center.
+        CreateSubcontractingSetup(WorkCenter, RoutingHeader, Format(10 + LibraryRandom.RandInt(10)));
+
+        // [GIVEN] Create Item and Item Variant With Rounting.
+        CreateProdItem(Item[1], RoutingHeader."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant[1], Item[1]."No.");
+
+        // [GIVEN] Create another Item and Item Variant With Rounting.
+        CreateProdItem(Item[2], RoutingHeader."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant[2], Item[2]."No.");
+
+        // [GIVEN] Create Released production order with Variant Code.
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder[1], ProductionOrder[1].Status::Released, ProductionOrder[1]."Source Type"::Item, Item[1]."No.", LibraryRandom.RandInt(10));
+        ProductionOrder[1].Validate("Variant Code", ItemVariant[1].Code);
+        ProductionOrder[1].Modify(true);
+
+        // [GIVEN] Create another Released production order with Variant Code.
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder[2], ProductionOrder[2].Status::Released, ProductionOrder[2]."Source Type"::Item, Item[2]."No.", LibraryRandom.RandInt(10));
+        ProductionOrder[2].Validate("Variant Code", ItemVariant[2].Code);
+        ProductionOrder[2].Modify(true);
+
+        // [GIVEN] Refresh Production Order.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder[1], false, true, true, true, false);
+
+        // [GIVEN] Refresh another Production Order.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder[2], false, true, true, true, false);
+
+        // [GIVEN] Update "Production Blocked" on "Item Variant".
+        ItemVariant[1].Validate("Production Blocked", true);
+        ItemVariant[1].Modify(true);
+
+        // [WHEN] Run subcontracting worksheet and execute "Calculate Subcontracts".
+        LibraryManufacturing.CalculateSubcontractOrder(WorkCenter);
+
+        // [VERIFY] Verify there should be one requisition line if "Production Blocked" is false on "Item Variant".
+        RequisitionLine.SetRange("No.", ProductionOrder[2]."Source No.");
+        RequisitionLine.SetRange("Ref. Order Status", ProductionOrder[2].Status);
+        RequisitionLine.SetRange("Ref. Order No.", ProductionOrder[2]."No.");
+        Assert.RecordCount(RequisitionLine, 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
