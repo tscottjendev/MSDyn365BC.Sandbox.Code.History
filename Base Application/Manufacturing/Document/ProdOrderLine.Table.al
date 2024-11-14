@@ -49,7 +49,7 @@ table 5406 "Prod. Order Line"
         field(11; "Item No."; Code[20])
         {
             Caption = 'Item No.';
-            TableRelation = Item where(Type = const(Inventory));
+            TableRelation = Item where(Type = const(Inventory), "Production Blocked" = const(false));
 
             trigger OnValidate()
             var
@@ -128,7 +128,8 @@ table 5406 "Prod. Order Line"
         {
             Caption = 'Variant Code';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."),
-                                                       Code = field("Variant Code"));
+                                                       Code = field("Variant Code"),
+                                                       "Production Blocked" = const(false));
 
             trigger OnValidate()
             var
