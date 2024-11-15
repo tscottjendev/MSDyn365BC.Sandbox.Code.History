@@ -59,7 +59,7 @@ page 5907 "Service Item Worksheet Subform"
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Service, ItemReferences;
                     QuickEntry = false;
-                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a service document.';
+                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a sales or purchase document.';
                     Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
