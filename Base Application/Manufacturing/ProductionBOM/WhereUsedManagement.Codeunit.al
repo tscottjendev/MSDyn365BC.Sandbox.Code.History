@@ -22,7 +22,7 @@ codeunit 99000770 "Where-Used Management"
         TempWhereUsedList: Record "Where-Used Line" temporary;
         UOMMgt: Codeunit "Unit of Measure Management";
         VersionMgt: Codeunit VersionManagement;
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         MultiLevel: Boolean;
         NextWhereUsedEntryNo: Integer;
 
@@ -143,7 +143,7 @@ codeunit 99000770 "Where-Used Management"
                           ProdBOMComponent."Production BOM No.",
                           CalcDate,
                           Level + 1,
-                          CostCalcMgt.CalcCompItemQtyBase(ProdBOMComponent, CalcDate, Quantity, '', false));
+                          MfgCostCalcMgt.CalcCompItemQtyBase(ProdBOMComponent, CalcDate, Quantity, '', false));
                 end;
             until ProdBOMComponent.Next() = 0;
 
