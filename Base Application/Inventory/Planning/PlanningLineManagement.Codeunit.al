@@ -52,7 +52,7 @@ codeunit 99000809 "Planning Line Management"
         TempPlanningErrorLog: Record "Planning Error Log" temporary;
         CalcPlanningRtngLine: Codeunit "Calculate Planning Route Line";
         UOMMgt: Codeunit "Unit of Measure Management";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         PlanningRoutingMgt: Codeunit PlanningRoutingManagement;
         VersionMgt: Codeunit VersionManagement;
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
@@ -117,7 +117,7 @@ codeunit 99000809 "Planning Line Management"
 
         OnTransferRoutingLineOnBeforeCalcRoutingCostPerUnit(PlanningRoutingLine, ReqLine, RoutingLine);
 
-        CostCalcMgt.CalcRoutingCostPerUnit(
+        MfgCostCalcMgt.CalcRoutingCostPerUnit(
           PlanningRoutingLine.Type, PlanningRoutingLine."No.", PlanningRoutingLine."Direct Unit Cost", PlanningRoutingLine."Indirect Cost %", PlanningRoutingLine."Overhead Rate", PlanningRoutingLine."Unit Cost per", PlanningRoutingLine."Unit Cost Calculation");
 
         OnTransferRoutingLineOnBeforeValidateDirectUnitCost(ReqLine, RoutingLine, PlanningRoutingLine);

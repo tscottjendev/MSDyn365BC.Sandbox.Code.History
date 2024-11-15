@@ -735,16 +735,10 @@ table 39 "Purchase Line"
                 OnValidateQtyToReceiveOnAfterInitQty(Rec, xRec, CurrFieldNo, IsHandled);
                 if not OverReceiptProcessing() then
                     if not IsHandled then begin
-                        if ((("Qty. to Receive" < 0) xor (Quantity < 0)) and (Quantity <> 0) and ("Qty. to Receive" <> 0)) or
-                           (Abs("Qty. to Receive") > Abs("Outstanding Quantity")) or
-                           (((Quantity < 0) xor ("Outstanding Quantity" < 0)) and (Quantity <> 0) and ("Outstanding Quantity" <> 0))
-                        then
+                        if not CanReceiveQty() then
                             Error(CannotReceiveErrorInfo());
 
-                        if ((("Qty. to Receive (Base)" < 0) xor ("Quantity (Base)" < 0)) and ("Quantity (Base)" <> 0) and ("Qty. to Receive (Base)" <> 0)) or
-                           (Abs("Qty. to Receive (Base)") > Abs("Outstanding Qty. (Base)")) or
-                           ((("Quantity (Base)" < 0) xor ("Outstanding Qty. (Base)" < 0)) and ("Quantity (Base)" <> 0) and ("Outstanding Qty. (Base)" <> 0))
-                        then
+                        if not CanReceiveBaseQty() then
                             Error(Text009, "Outstanding Qty. (Base)");
                     end;
 
@@ -4418,6 +4412,42 @@ table 39 "Purchase Line"
         LineAmount := "Line Amount" - "Inv. Discount Amount";
 
         OnAfterCalcLineAmount(Rec, LineAmount);
+    end;
+
+    local procedure CanReceiveQty(): Boolean
+    begin
+        if Abs("Qty. to Receive") > Abs("Outstanding Quantity") then
+            exit(false);
+
+        if ("Qty. to Receive" < 0) and (Quantity > 0) or
+           ("Qty. to Receive" > 0) and (Quantity < 0)
+        then
+            exit(false);
+
+        if ("Outstanding Quantity" < 0) and (Quantity > 0) or
+           ("Outstanding Quantity" > 0) and (Quantity < 0)
+        then
+            exit(false);
+
+        exit(true);
+    end;
+
+    local procedure CanReceiveBaseQty(): Boolean
+    begin
+        if Abs("Qty. to Receive (Base)") > Abs("Outstanding Qty. (Base)") then
+            exit(false);
+
+        if ("Qty. to Receive (Base)" < 0) and ("Quantity (Base)" > 0) or
+           ("Qty. to Receive (Base)" > 0) and ("Quantity (Base)" < 0)
+        then
+            exit(false);
+
+        if ("Outstanding Qty. (Base)" < 0) and ("Quantity (Base)" > 0) or
+           ("Outstanding Qty. (Base)" > 0) and ("Quantity (Base)" < 0)
+        then
+            exit(false);
+
+        exit(true);
     end;
 
     local procedure CheckLineAmount(MaxLineAmount: Decimal)
