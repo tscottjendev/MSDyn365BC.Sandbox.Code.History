@@ -91,8 +91,8 @@ page 99000816 "Production Order Statistics"
                             var
                                 CalendarMgt: Codeunit "Shop Calendar Management";
                             begin
-                                ExpCapNeed := CostCalcMgt.CalcProdOrderExpCapNeed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
-                                ActTimeUsed := CostCalcMgt.CalcProdOrderActTimeUsed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
+                                ExpCapNeed := MfgCostCalcMgt.CalcProdOrderExpCapNeed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
+                                ActTimeUsed := MfgCostCalcMgt.CalcProdOrderActTimeUsed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
                             end;
                         }
                     }
@@ -149,7 +149,7 @@ page 99000816 "Production Order Statistics"
 
                             trigger OnDrillDown()
                             begin
-                                CostCalcMgt.CalcProdOrderExpCapNeed(Rec, true);
+                                MfgCostCalcMgt.CalcProdOrderExpCapNeed(Rec, true);
                             end;
                         }
                     }
@@ -206,7 +206,7 @@ page 99000816 "Production Order Statistics"
 
                             trigger OnDrillDown()
                             begin
-                                CostCalcMgt.CalcProdOrderActTimeUsed(Rec, true);
+                                MfgCostCalcMgt.CalcProdOrderActTimeUsed(Rec, true);
                             end;
                         }
                     }
@@ -337,26 +337,26 @@ page 99000816 "Production Order Statistics"
         Clear(StdCost);
         Clear(ExpCost);
         Clear(ActCost);
-        Clear(CostCalcMgt);
+        Clear(MfgCostCalcMgt);
 
         GLSetup.Get();
 
-        ExpCapNeed := CostCalcMgt.CalcProdOrderExpCapNeed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
-        ActTimeUsed := CostCalcMgt.CalcProdOrderActTimeUsed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
+        ExpCapNeed := MfgCostCalcMgt.CalcProdOrderExpCapNeed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
+        ActTimeUsed := MfgCostCalcMgt.CalcProdOrderActTimeUsed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
         ProdOrderLine.SetRange(Status, Rec.Status);
         ProdOrderLine.SetRange("Prod. Order No.", Rec."No.");
         ProdOrderLine.SetRange("Planning Level Code", 0);
         ProdOrderLine.SetFilter("Item No.", '<>%1', '');
         if ProdOrderLine.Find('-') then
             repeat
-                CostCalcMgt.CalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
-                CostCalcMgt.CalcProdOrderLineStdCost(
+                MfgCostCalcMgt.CalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
+                MfgCostCalcMgt.CalcProdOrderLineStdCost(
                   ProdOrderLine, 1, GLSetup."Amount Rounding Precision",
                   StdCost[1], StdCost[2], StdCost[3], StdCost[4], StdCost[5]);
-                CostCalcMgt.CalcProdOrderLineExpCost(
+                MfgCostCalcMgt.CalcProdOrderLineExpCost(
                   ProdOrderLine, ShareOfTotalCapCost,
                   ExpCost[1], ExpCost[2], ExpCost[3], ExpCost[4], ExpCost[5]);
-                CostCalcMgt.CalcProdOrderLineActCost(
+                MfgCostCalcMgt.CalcProdOrderLineActCost(
                   ProdOrderLine,
                   ActCost[1], ActCost[2], ActCost[3], ActCost[4], ActCost[5],
                   DummyVar, DummyVar, DummyVar, DummyVar, DummyVar);
@@ -381,7 +381,7 @@ page 99000816 "Production Order Statistics"
     var
         ProdOrderLine: Record "Prod. Order Line";
         GLSetup: Record "General Ledger Setup";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         DummyVar: Decimal;
         ShareOfTotalCapCost: Decimal;
         TimeExpendedPct: Decimal;

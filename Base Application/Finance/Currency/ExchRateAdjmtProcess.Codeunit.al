@@ -454,6 +454,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         TempDimSetEntry.Reset();
         TempDimSetEntry.DeleteAll();
         GLAccount.CalcFields("Net Change", "Additional-Currency Net Change");
+        OnProcessGLAccountAdjustmentOnBeforePostGLAccAdjmt(GLAccount);
         case GLAccount."Exchange Rate Adjustment" of
             GLAccount."Exchange Rate Adjustment"::"Adjust Amount":
                 PostGLAccAdjmt(
@@ -3055,6 +3056,11 @@ codeunit 699 "Exch. Rate Adjmt. Process"
 
     [IntegrationEvent(false, false)]
     local procedure OnAdjustExchRateVendOnAfterCalcFields(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessGLAccountAdjustmentOnBeforePostGLAccAdjmt(var GLAccount: Record "G/L Account");
     begin
     end;
 }
