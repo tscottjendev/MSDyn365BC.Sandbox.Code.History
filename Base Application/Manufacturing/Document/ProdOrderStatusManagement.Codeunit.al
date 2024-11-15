@@ -73,6 +73,7 @@ codeunit 5407 "Prod. Order Status Management"
         Item: Record Item;
         InvtSetup: Record "Inventory Setup";
         DimMgt: Codeunit DimensionManagement;
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         ProdOrderLineReserve: Codeunit "Prod. Order Line-Reserve";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         ReservMgt: Codeunit "Reservation Management";
@@ -657,7 +658,6 @@ codeunit 5407 "Prod. Order Status Management"
     local procedure FlushProdOrderProcessProdOrderRtngLine(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRtngLine: Record "Prod. Order Routing Line"; PostingDate: Date)
     var
         ItemJnlLine: Record "Item Journal Line";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
         IsLastOperation: Boolean;
         ActualOutputAndScrapQty: Decimal;
         ActualOutputAndScrapQtyBase: Decimal;
@@ -677,9 +677,9 @@ codeunit 5407 "Prod. Order Status Management"
             OnFlushProdOrderOnAfterFindProdOrderRtngLine(ProdOrderRtngLine, IsLastOperation);
             if ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Backward then begin
                 ActualOutputAndScrapQtyBase :=
-                  CostCalcMgt.CalcActOperOutputAndScrap(ProdOrderLine, ProdOrderRtngLine);
+                  MfgCostCalcMgt.CalcActOperOutputAndScrap(ProdOrderLine, ProdOrderRtngLine);
                 ActualOutputAndScrapQty := ActualOutputAndScrapQtyBase / ProdOrderLine."Qty. per Unit of Measure";
-                PutawayQtyBaseToCalc := CostCalcMgt.CalcActualOutputQtyWithNoCapacity(ProdOrderLine, ProdOrderRtngLine);
+                PutawayQtyBaseToCalc := MfgCostCalcMgt.CalcActualOutputQtyWithNoCapacity(ProdOrderLine, ProdOrderRtngLine);
             end;
 
             if (ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Forward) or IsLastOperation then begin
@@ -974,8 +974,6 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     procedure SetTimeAndQuantityOmItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"; OutputQtyBase: Decimal; OutputQty: Decimal; PutawayQtyBaseToCalc: Decimal)
-    var
-        CostCalculationManagement: Codeunit "Cost Calculation Management";
     begin
         if ItemJnlLine.SubcontractingWorkCenterUsed() then begin
             ItemJnlLine.Validate("Output Quantity", 0);
@@ -993,7 +991,7 @@ codeunit 5407 "Prod. Order Status Management"
                 UOMMgt.TimeRndPrecision()));
             ItemJnlLine.Validate(
               "Run Time",
-              CostCalculationManagement.CalculateCostTime(
+              MfgCostCalcMgt.CalculateCostTime(
                 OutputQtyBase + PutawayQtyBaseToCalc,
                 ProdOrderRtngLine."Setup Time", ProdOrderRtngLine."Setup Time Unit of Meas. Code",
                 ProdOrderRtngLine."Run Time", ProdOrderRtngLine."Run Time Unit of Meas. Code",
@@ -1007,13 +1005,12 @@ codeunit 5407 "Prod. Order Status Management"
 
     local procedure GetOutputQtyForProdOrderRoutingLine(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"; IsLastOperation: Boolean; LastOutputQty: Decimal): Decimal
     var
-        CostCalculationManagement: Codeunit "Cost Calculation Management";
         OutputQty: Decimal;
     begin
         if (ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Forward) or IsLastOperation then
             exit(LastOutputQty);
         OutputQty := LastOutputQty -
-          CostCalculationManagement.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRtngLine) / ProdOrderLine."Qty. per Unit of Measure";
+          MfgCostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRtngLine) / ProdOrderLine."Qty. per Unit of Measure";
         if OutputQty > 0 then
             exit(OutputQty);
         exit(0);

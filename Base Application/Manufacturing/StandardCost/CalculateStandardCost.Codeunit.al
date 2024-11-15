@@ -39,6 +39,7 @@ codeunit 5812 "Calculate Standard Cost"
         TempProductionBOMVersion: Record "Production BOM Version" temporary;
         TempRoutingVersion: Record "Routing Version" temporary;
         CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         VersionMgt: Codeunit VersionManagement;
         UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
@@ -535,7 +536,7 @@ codeunit 5812 "Calculate Standard Cost"
         if Item.IsMfgItem() then begin
             if Item."Lot Size" <> 0 then
                 LotSize := Item."Lot Size";
-            MfgItemQtyBase := CostCalcMgt.CalcQtyAdjdForBOMScrap(LotSize, Item."Scrap %");
+            MfgItemQtyBase := MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(LotSize, Item."Scrap %");
             OnCalcMfgItemOnBeforeCalcRtngCost(Item, Level, LotSize, MfgItemQtyBase);
             CalcRtngCost(Item."Routing No.", MfgItemQtyBase, SLCap, SLSub, SLCapOvhd, Item);
             CalcProdBOMCost(
@@ -631,7 +632,7 @@ codeunit 5812 "Calculate Standard Cost"
 
                 CompItemQtyBase :=
                   UOMMgt.RoundQty(
-                    CostCalcMgt.CalcCompItemQtyBase(ProdBOMLine, CalculationDate, MfgItemQtyBase, RtngNo, IsTypeItem) / UOMFactor);
+                    MfgCostCalcMgt.CalcCompItemQtyBase(ProdBOMLine, CalculationDate, MfgItemQtyBase, RtngNo, IsTypeItem) / UOMFactor);
 
                 OnCalcProdBOMCostOnAfterCalcCompItemQtyBase(
                   CalculationDate, MfgItem, MfgItemQtyBase, IsTypeItem, ProdBOMLine, CompItemQtyBase, RtngNo, UOMFactor);
@@ -702,7 +703,7 @@ codeunit 5812 "Calculate Standard Cost"
         if IsHandled then
             exit;
 
-        CostCalcMgt.CalcRoutingCostPerUnit(
+        MfgCostCalcMgt.CalcRoutingCostPerUnit(
             Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter);
     end;
 
@@ -1001,7 +1002,6 @@ codeunit 5812 "Calculate Standard Cost"
     internal procedure CalcRtngLineCost(RoutingLine: Record "Routing Line"; MfgItemQtyBase: Decimal; var SLCap: Decimal; var SLSub: Decimal; var SLCapOvhd: Decimal; var ParentItem: Record Item)
     var
         WorkCenter: Record "Work Center";
-        CostCalculationMgt: Codeunit "Cost Calculation Management";
         UnitCost: Decimal;
         DirUnitCost: Decimal;
         IndirCostPct: Decimal;
@@ -1017,7 +1017,7 @@ codeunit 5812 "Calculate Standard Cost"
         CalcRoutingCostPerUnit(RoutingLine.Type, RoutingLine."No.", DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation);
         OnCalcRtngLineCostOnAfterCalcRoutingCostPerUnit(RoutingLine, WorkCenter, MfgItemQtyBase, UnitCostCalculation);
         CostTime :=
-          CostCalculationMgt.CalculateCostTime(
+          MfgCostCalcMgt.CalculateCostTime(
             MfgItemQtyBase,
             RoutingLine."Setup Time", RoutingLine."Setup Time Unit of Meas. Code",
             RoutingLine."Run Time", RoutingLine."Run Time Unit of Meas. Code", RoutingLine."Lot Size",

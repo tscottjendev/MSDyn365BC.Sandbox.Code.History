@@ -2023,6 +2023,8 @@ table 83 "Item Journal Line"
             trigger OnValidate()
             var
                 ProdOrderRtngLine: Record "Prod. Order Routing Line";
+                CostCalcMgt: Codeunit "Cost Calculation Management";
+                MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
                 IsHandled: Boolean;
             begin
                 if Type <> Type::Resource then begin
@@ -2045,7 +2047,7 @@ table 83 "Item Journal Line"
                                 "Unit Cost" := ProdOrderRtngLine."Unit Cost per";
                                 OnValidateCapUnitofMeasureCodeOnBeforeRoutingCostPerUnit(Rec, ProdOrderRtngLine, IsHandled);
                                 if not IsHandled then
-                                    CostCalcMgt.CalcRoutingCostPerUnit(
+                                    MfgCostCalcMgt.CalcRoutingCostPerUnit(
                                       Type, "No.", "Unit Amount", "Indirect Cost %", "Overhead Rate", "Unit Cost", "Unit Cost Calculation");
                             end;
                         "Order Type"::Assembly:
@@ -2461,7 +2463,6 @@ table 83 "Item Journal Line"
         DimMgt: Codeunit DimensionManagement;
         UserMgt: Codeunit "User Setup Management";
         CalendarMgt: Codeunit "Shop Calendar Management";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
         WMSManagement: Codeunit "WMS Management";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         ItemReferenceManagement: Codeunit "Item Reference Management";
@@ -4932,7 +4933,7 @@ table 83 "Item Journal Line"
                 if ((FirstDocNo <> GetTempRenumberDocumentNo()) and (ItemJnlLine2.GetFilter("Document No.") = '')) then begin
                     Commit();
                     ItemJnlBatch.Get(ItemJnlLine2."Journal Template Name", ItemJnlLine2."Journal Batch Name");
-                        TempFirstDocNo := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", ItemJnlLine2."Posting Date");
+                    TempFirstDocNo := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", ItemJnlLine2."Posting Date");
                     if (FirstDocNo <> TempFirstDocNo) and (FirstDocNo <> IncStr(TempFirstDocNo)) then begin
                         DocNo := TempFirstDocNo;
                         FirstDocNo := DocNo;
