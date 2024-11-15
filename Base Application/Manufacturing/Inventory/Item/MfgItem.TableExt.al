@@ -99,6 +99,12 @@ tableextension 99000750 "Mfg. Item" extends Item
             Editable = false;
             FieldClass = FlowField;
         }
+        field(8011; "Production Blocked"; Boolean)
+        {
+            Caption = 'Production Blocked';
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies that the item cannot be entered on production documents, except requisition worksheet, planning worksheet and journals.';
+        }
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';
@@ -344,6 +350,8 @@ tableextension 99000750 "Mfg. Item" extends Item
 
     var
         NoActiveBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1', Comment = '%1 - Item No.';
+        ProductionBlockedErr: Label 'You cannot produce %1 %2 because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption';
+        BlockedItemVariantErr: Label 'You cannot produce variant %1  for Item %2 because it is blocked for production.', Comment = '%1 - Item Variant Code, %2 - Item No.';
 
 #if not CLEAN25
     [Obsolete('Replaced by procedure CheckProdOrderLine() in codeunit CheckProdOrderDocument', '25.0')]
@@ -413,6 +421,26 @@ tableextension 99000750 "Mfg. Item" extends Item
                 Error(NoActiveBOMVersionFoundErr, ItemNo);
 
             Page.RunModal(Page::"Production BOM", ProductionBOMHeader);
+        end;
+    end;
+
+    procedure CheckItemAndVariantForProdBlocked(ItemNo: Code[20]; VariantCode: Code[20])
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+    begin
+        if ItemNo <> '' then begin
+            Item.SetLoadFields("Production Blocked");
+            Item.Get(ItemNo);
+            if Item."Production Blocked" then
+                Error(ProductionBlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked"));
+        end;
+
+        if VariantCode <> '' then begin
+            ItemVariant.SetLoadFields(Blocked, "Production Blocked");
+            ItemVariant.Get(ItemNo, VariantCode);
+            if ItemVariant."Production Blocked" then
+                Error(BlockedItemVariantErr, VariantCode, ItemNo);
         end;
     end;
 }

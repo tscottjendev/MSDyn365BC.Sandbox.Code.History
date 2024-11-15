@@ -30,6 +30,7 @@ codeunit 5870 "Calculate BOM Tree"
         ItemFilter: Record Item;
         TempItem: Record Item temporary;
         AvailableToPromise: Codeunit "Available to Promise";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
         WindowUpdateDateTime: DateTime;
@@ -285,7 +286,6 @@ codeunit 5870 "Calculate BOM Tree"
         ParentBOMBuffer: Record "BOM Buffer";
         UOMMgt: Codeunit "Unit of Measure Management";
         VersionMgt: Codeunit VersionManagement;
-        CostCalculationMgt: Codeunit "Cost Calculation Management";
         LotSize: Decimal;
         BomQtyPerUom: Decimal;
         IsHandled: Boolean;
@@ -356,7 +356,7 @@ codeunit 5870 "Calculate BOM Tree"
                                         BOMBuffer."Qty. per Parent" := ProdBOMLine."Quantity per";
 
                                     BOMBuffer."Scrap %" := CombineScrapFactors(BOMBuffer."Scrap %", ProdBOMLine."Scrap %");
-                                    if CostCalculationMgt.FindRountingLine(RoutingLine, ProdBOMLine, WorkDate(), ParentItem."Routing No.") then
+                                    if MfgCostCalcMgt.FindRoutingLine(RoutingLine, ProdBOMLine, WorkDate(), ParentItem."Routing No.") then
                                         BOMBuffer."Scrap %" := CombineScrapFactors(BOMBuffer."Scrap %", RoutingLine."Scrap Factor % (Accumulated)" * 100);
                                     BOMBuffer."Scrap %" := Round(BOMBuffer."Scrap %", 0.00001);
 
@@ -963,7 +963,6 @@ codeunit 5870 "Calculate BOM Tree"
     local procedure CalcRoutingLineCosts(RoutingLine: Record "Routing Line"; LotSize: Decimal; ScrapPct: Decimal; var BOMBuffer: Record "BOM Buffer"; ParentItem: Record Item)
     var
         CalcStdCost: Codeunit "Calculate Standard Cost";
-        CostCalculationMgt: Codeunit "Cost Calculation Management";
         CapCost: Decimal;
         SubcontractedCapCost: Decimal;
         CapOverhead: Decimal;
@@ -972,7 +971,7 @@ codeunit 5870 "Calculate BOM Tree"
 
         CalcStdCost.SetProperties(WorkDate(), false, false, false, '', false);
         CalcStdCost.CalcRtngLineCost(
-          RoutingLine, CostCalculationMgt.CalcQtyAdjdForBOMScrap(LotSize, ScrapPct), CapCost, SubcontractedCapCost, CapOverhead, ParentItem);
+          RoutingLine, MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(LotSize, ScrapPct), CapCost, SubcontractedCapCost, CapOverhead, ParentItem);
 
         OnCalcRoutingLineCostsOnBeforeBOMBufferAdd(RoutingLine, LotSize, ScrapPct, CapCost, SubcontractedCapCost, CapOverhead, BOMBuffer);
 

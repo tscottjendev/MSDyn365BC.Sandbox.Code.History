@@ -14,7 +14,7 @@ codeunit 6475 "Service Company Initialize"
     Permissions = tabledata "Service Mgt. Setup" = i;
 
     var
-        ServiceTxt: Label 'SERVICE';
+        ServiceTxt: Label 'SERVICE', MaxLength = 10;
         ServiceManagementTxt: Label 'Service Management';
         PEPPOLBIS3_ElectronicFormatTxt: Label 'PEPPOL BIS3', Locked = true;
         PEPPOLBIS3_ElectronicFormatDescriptionTxt: Label 'PEPPOL BIS3 Format (Pan-European Public Procurement Online)';
