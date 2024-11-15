@@ -1179,7 +1179,7 @@ table 5407 "Prod. Order Component"
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         CapLedgEntry: Record "Capacity Ledger Entry";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         OutputQtyBase: Decimal;
         CompQtyBase: Decimal;
         NeededQty: Decimal;
@@ -1222,7 +1222,7 @@ table 5407 "Prod. Order Component"
                     until CapLedgEntry.Next() = 0;
             end;
 
-            CompQtyBase := CostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, Rec, OutputQtyBase);
+            CompQtyBase := MfgCostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, Rec, OutputQtyBase);
             OnGetNeededQtyAfterCalcCompQtyBase(Rec, CompQtyBase, OutputQtyBase);
 
             NeededQty := UOMMgt.RoundToItemRndPrecision(CompQtyBase / "Qty. per Unit of Measure", RoundingPrecision);
