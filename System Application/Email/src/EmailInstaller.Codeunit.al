@@ -31,6 +31,7 @@ codeunit 1596 "Email Installer"
     procedure AddRetentionPolicyAllowedTables()
     begin
         AddRetentionPolicyAllowedTables(false);
+        AddRetentionPolicyEmailInboxAllowedTable(false);
         CreateRetentionPolicySetup(false);
     end;
 
@@ -52,11 +53,26 @@ codeunit 1596 "Email Installer"
             UpgradeTag.SetUpgradeTag(GetEmailTablesAddedToAllowedListUpgradeTag());
     end;
 
-    procedure CreateRetentionPolicySetup(ForceUpdate: Boolean)
+    procedure AddRetentionPolicyEmailInboxAllowedTable(ForceUpdate: Boolean)
     var
         Field: Record Field;
-        RetentionPolicySetup: Record "Retention Policy Setup";
         RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        IsInitialSetup: Boolean;
+    begin
+        IsInitialSetup := not UpgradeTag.HasUpgradeTag(GetEmailInboxAddedToAllowedListUpgradeTag());
+        if not (IsInitialSetup or ForceUpdate) then
+            exit;
+
+        RetenPolAllowedTables.AddAllowedTable(Database::"Email Inbox", Field.FieldNo(SystemCreatedAt), 2);
+
+        if IsInitialSetup then
+            UpgradeTag.SetUpgradeTag(GetEmailInboxAddedToAllowedListUpgradeTag());
+    end;
+
+    procedure CreateRetentionPolicySetup(ForceUpdate: Boolean)
+    var
+        RetentionPolicySetup: Record "Retention Policy Setup";
         RetentionPolicySetupCU: Codeunit "Retention Policy Setup";
         UpgradeTag: Codeunit "Upgrade Tag";
         DateFormula: DateFormula;
@@ -64,9 +80,6 @@ codeunit 1596 "Email Installer"
     begin
         IsInitialSetup := not UpgradeTag.HasUpgradeTag(GetEmailInboxPolicyAddedToAllowedListUpgradeTag());
         if not (IsInitialSetup or ForceUpdate) then
-            exit;
-
-        if not RetenPolAllowedTables.AddAllowedTable(Database::"Email Inbox", Field.FieldNo(SystemCreatedAt), 2) then
             exit;
 
         RetentionPolicySetup.SetRange("Table Id", Database::"Email Inbox");
@@ -90,6 +103,11 @@ codeunit 1596 "Email Installer"
         exit('MS-373161-EmailLogEntryAdded-20201005');
     end;
 
+    local procedure GetEmailInboxAddedToAllowedListUpgradeTag(): Code[250]
+    begin
+        exit('MS-539754-EmailInboxAdded-20240827');
+    end;
+
     local procedure GetEmailInboxPolicyAddedToAllowedListUpgradeTag(): Code[250]
     begin
         exit('MS-539754-EmailInboxPolicyAdded-20240827');
@@ -99,6 +117,7 @@ codeunit 1596 "Email Installer"
     local procedure AddAllowedTablesOnRefreshAllowedTables()
     begin
         AddRetentionPolicyAllowedTables(true);
+        AddRetentionPolicyEmailInboxAllowedTable(true);
         CreateRetentionPolicySetup(true);
     end;
 
