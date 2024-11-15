@@ -295,7 +295,6 @@ page 99000818 "Prod. Order Components"
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location where the component is stored. Copies the location code from the corresponding field on the production order line.';
-                    Visible = false;
 
                     trigger OnValidate()
                     begin
