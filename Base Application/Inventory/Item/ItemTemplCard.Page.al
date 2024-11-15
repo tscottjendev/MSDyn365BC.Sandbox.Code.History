@@ -373,6 +373,10 @@ page 1384 "Item Templ. Card"
                         ToolTip = 'Specifies the default number of units of the item that are processed in one production operation. This affects standard cost calculations and capacity planning. If the item routing includes fixed costs such as setup time, the value in this field is used to calculate the standard cost and distribute the setup costs. During demand planning, this value is used together with the value in the Default Dampener % field to ignore negligible changes in demand and avoid re-planning. Note that if you leave the field blank, it will be threated as 1.';
                         Visible = false;
                     }
+                    field("Production Blocked"; Rec."Production Blocked")
+                    {
+                        ApplicationArea = Manufacturing;
+                    }
                 }
                 group(Replenishment_Assembly)
                 {
