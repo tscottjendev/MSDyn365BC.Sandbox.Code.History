@@ -138,7 +138,6 @@ page 99000862 "Planning Components"
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the inventory location, where the item on the planning component line will be registered.';
-                    Visible = false;
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {

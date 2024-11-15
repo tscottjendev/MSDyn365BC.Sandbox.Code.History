@@ -574,7 +574,7 @@ codeunit 137304 "SCM Manufacturing Reports"
     var
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
-        CostCalculationManagement: Codeunit "Cost Calculation Management";
+        MfgCostCalculationMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         ShareOfTotalCapCost: Decimal;
         ExpMatCost: Decimal;
         ExpCapDirCost: Decimal;
@@ -589,9 +589,9 @@ codeunit 137304 "SCM Manufacturing Reports"
         // Verify: Check the value of Production Order No, Production Item in the report.
         ProductionOrder.FindFirst();
         SelectProdOrderLine(ProdOrderLine, ProductionOrder."No.", ProductionOrder.Status);
-        CostCalculationManagement.CalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
+        MfgCostCalculationMgt.CalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
         Assert.AreEqual(1, ShareOfTotalCapCost, '');
-        CostCalculationManagement.CalcProdOrderLineExpCost(ProdOrderLine, ShareOfTotalCapCost, ExpMatCost,
+        MfgCostCalculationMgt.CalcProdOrderLineExpCost(ProdOrderLine, ShareOfTotalCapCost, ExpMatCost,
           ExpCapDirCost, ExpSubDirCost, ExpCapOvhdCost, ExpMfgOvhdCost);
 
         LibraryReportDataset.LoadDataSetFile();
