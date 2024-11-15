@@ -44,7 +44,7 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderRoutingLine2: Record "Prod. Order Routing Line";
         ProdBOMLine: array[99] of Record "Production BOM Line";
         UOMMgt: Codeunit "Unit of Measure Management";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         VersionMgt: Codeunit VersionManagement;
         ProdOrderRouteMgt: Codeunit "Prod. Order Route Management";
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
@@ -137,7 +137,7 @@ codeunit 99000773 "Calculate Prod. Order"
         end;
 
         OnTransferRoutingOnBeforeCalcRoutingCostPerUnit(ProdOrderRoutingLine, ProdOrderLine, RoutingLine);
-        CostCalcMgt.CalcRoutingCostPerUnit(
+        MfgCostCalcMgt.CalcRoutingCostPerUnit(
             ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.",
             ProdOrderRoutingLine."Direct Unit Cost", ProdOrderRoutingLine."Indirect Cost %", ProdOrderRoutingLine."Overhead Rate",
             ProdOrderRoutingLine."Unit Cost per", ProdOrderRoutingLine."Unit Cost Calculation");
@@ -1019,7 +1019,7 @@ codeunit 99000773 "Calculate Prod. Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculate(var ItemLedgerEntry: Record "Item Ledger Entry"; var CapacityLedgerEntry: Record "Capacity Ledger Entry"; Direction: Option Forward,Backward; CalcRouting: Boolean; CalcComponents: Boolean; DeleteRelations: Boolean; LetDueDateDecrease: Boolean; var IsHandled: Boolean; var ProdOrderLine: Record "Prod. Order Line"; var ErrorOccured: Boolean)
+    local procedure OnBeforeCalculate(var ItemLedgerEntry: Record "Item Ledger Entry"; var CapacityLedgerEntry: Record "Capacity Ledger Entry"; Direction: Option Forward,Backward; CalcRouting: Boolean; CalcComponents: Boolean; var DeleteRelations: Boolean; LetDueDateDecrease: Boolean; var IsHandled: Boolean; var ProdOrderLine: Record "Prod. Order Line"; var ErrorOccured: Boolean)
     begin
     end;
 
