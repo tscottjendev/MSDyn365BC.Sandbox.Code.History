@@ -104,7 +104,7 @@ table 5405 "Production Order"
         field(10; "Source No."; Code[20])
         {
             Caption = 'Source No.';
-            TableRelation = if ("Source Type" = const(Item)) Item where(Type = const(Inventory))
+            TableRelation = if ("Source Type" = const(Item)) Item where(Type = const(Inventory), "Production Blocked" = const(false))
             else
             if ("Source Type" = const(Family)) Family
             else
@@ -177,7 +177,8 @@ table 5405 "Production Order"
         {
             Caption = 'Variant Code';
             TableRelation = if ("Source Type" = const(Item)) "Item Variant".Code where("Item No." = field("Source No."),
-                                                                                        Code = field("Variant Code"));
+                                                                                        Code = field("Variant Code"),
+                                                                                        "Production Blocked" = const(false));
 
             trigger OnValidate()
             var
