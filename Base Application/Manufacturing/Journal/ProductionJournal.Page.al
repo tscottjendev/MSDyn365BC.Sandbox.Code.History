@@ -828,7 +828,7 @@ page 5510 "Production Journal"
         Item: Record Item;
         ProdOrderComp: Record "Prod. Order Component";
         TempItemJnlLine: Record "Item Journal Line" temporary;
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         ReportPrint: Codeunit "Test Report-Print";
         UOMMgt: Codeunit "Unit of Measure Management";
         PostingDate: Date;
@@ -923,7 +923,7 @@ page 5510 "Production Journal"
                             if not ProdOrderLine.Get(ProdOrder.Status, ProdOrder."No.", Rec."Order Line No.") then
                                 Clear(ProdOrderLine);
                         if ProdOrderLine."Prod. Order No." <> '' then begin
-                            CostCalcMgt.CalcActTimeAndQtyBase(
+                            MfgCostCalcMgt.CalcActTimeAndQtyBase(
                               ProdOrderLine, Rec."Operation No.", ActualRunTime, ActualSetupTime, ActualOutputQty, ActualScrapQty);
                             ActualSetupTime :=
                               Round(ActualSetupTime / Rec."Qty. per Cap. Unit of Measure", UOMMgt.TimeRndPrecision());
