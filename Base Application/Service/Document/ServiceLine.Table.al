@@ -470,20 +470,11 @@ table 5902 "Service Line"
                 end;
 
                 OnValidateQtyToShipOnBeforeQtyToShipCheck(Rec);
-                if ((("Qty. to Ship" < 0) xor (Quantity < 0)) and (Quantity <> 0) and ("Qty. to Ship" <> 0)) or
-                   (Abs("Qty. to Ship") > Abs("Outstanding Quantity")) or
-                   (((Quantity < 0) xor ("Outstanding Quantity" < 0)) and (Quantity <> 0) and ("Outstanding Quantity" <> 0))
-                then
-                    Error(
-                      Text016,
-                      "Outstanding Quantity");
-                if ((("Qty. to Ship (Base)" < 0) xor ("Quantity (Base)" < 0)) and ("Qty. to Ship (Base)" <> 0) and ("Quantity (Base)" <> 0)) or
-                   (Abs("Qty. to Ship (Base)") > Abs("Outstanding Qty. (Base)")) or
-                   ((("Quantity (Base)" < 0) xor ("Outstanding Qty. (Base)" < 0)) and ("Quantity (Base)" <> 0) and ("Outstanding Qty. (Base)" <> 0))
-                then
-                    Error(
-                      Text017,
-                      "Outstanding Qty. (Base)");
+                if not CanShipQty() then
+                    Error(Text016, "Outstanding Quantity");
+
+                if not CanShipBaseQty() then
+                    Error(Text017, "Outstanding Qty. (Base)");
             end;
         }
         field(22; "Unit Price"; Decimal)
@@ -3931,6 +3922,42 @@ table 5902 "Service Line"
         LineAmount := "Line Amount" - "Inv. Discount Amount";
 
         OnAfterCalcLineAmount(Rec, LineAmount);
+    end;
+
+    local procedure CanShipQty(): Boolean
+    begin
+        if Abs("Qty. to Ship") > Abs("Outstanding Quantity") then
+            exit(false);
+
+        if ("Qty. to Ship" < 0) and (Quantity > 0) or
+           ("Qty. to Ship" > 0) and (Quantity < 0)
+        then
+            exit(false);
+
+        if ("Outstanding Quantity" < 0) and (Quantity > 0) or
+           ("Outstanding Quantity" > 0) and (Quantity < 0)
+        then
+            exit(false);
+
+        exit(true);
+    end;
+
+    local procedure CanShipBaseQty(): Boolean
+    begin
+        if Abs("Qty. to Ship (Base)") > Abs("Outstanding Qty. (Base)") then
+            exit(false);
+
+        if ("Qty. to Ship (Base)" < 0) and ("Quantity (Base)" > 0) or
+           ("Qty. to Ship (Base)" > 0) and ("Quantity (Base)" < 0)
+        then
+            exit(false);
+
+        if ("Outstanding Qty. (Base)" < 0) and ("Quantity (Base)" > 0) or
+           ("Outstanding Qty. (Base)" > 0) and ("Quantity (Base)" < 0)
+        then
+            exit(false);
+
+        exit(true);
     end;
 
     local procedure CopyFromCost()
