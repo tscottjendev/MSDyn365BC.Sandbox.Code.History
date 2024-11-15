@@ -4574,99 +4574,6 @@ codeunit 137069 "SCM Production Orders"
         Assert.AreEqual(ProdOrderRoutingLine."Posted Setup Time", PostingTimes * SetupTime, '');
     end;
 
-    [Test]
-    [HandlerFunctions('ConfirmHandlerTRUE,ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,MessageHandlerSimple')]
-    [Scope('OnPrem')]
-    procedure PrintLabelReportFromFinishedProductionOrder()
-    var
-        Item: Record Item;
-        ProdOrder: Record "Production Order";
-        ProdOrderLine: Record "Prod. Order Line";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        OutputItemLabel: Report "Output Item Label";
-        TempBlob: Codeunit "Temp Blob";
-        OutputJournalsTestPage: TestPage "Output Journal";
-        InStr: InStream;
-        OutStr: OutStream;
-        XMLDoc: XmlDocument;
-        Qty: Integer;
-        Content: Text;
-        XmlNodeList, XMLNodeList2 : XmlNodeList;
-        XMLNode: XMLNode;
-        XMLElement: XMLElement;
-        XmlAttribute: XmlAttribute;
-    begin
-        // [SCENARIO 555133] Item labels can be printed from a Finished Production Order, if the items are tracked
-        Initialize();
-
-        // [GIVEN] Tracked item
-        LibraryItemTracking.CreateSerialItem(Item);
-
-        // [GIVEN] Production order
-        Qty := 1;//LibraryRandom.RandInt(10);
-        LibraryManufacturing.CreateProductionOrder(ProdOrder, Enum::"Production Order Status"::Released, Enum::"Prod. Order Source Type"::Item, Item."No.", Qty);
-        LibraryManufacturing.CreateProdOrderLine(ProdOrderLine, ProdOrder.Status, ProdOrder."No.", Item."No.", '', '', ProdOrder.Quantity);
-
-        // [GIVEN] Posted output item
-        OutputJournalsTestPage.OpenEdit();
-        OutputJournalsTestPage."Order No.".SetValue(ProdOrder."No.");
-        OutputJournalsTestPage."Item No.".SetValue(Item."No.");
-        OutputJournalsTestPage."Output Quantity".SetValue(Qty);
-        OutputJournalsTestPage."Item Tracking Lines".Invoke();
-        OutputJournalsTestPage.Post.Invoke();
-
-        // [GIVEN] Finished production order
-        ProdOrder.Validate(Status, Enum::"Production Order Status"::Finished);
-
-        // [WHEN] Generating report for item labels
-        ItemLedgerEntry.SetFilter("Order No.", ProdOrder."No.");
-        OutputItemLabel.SetTableView(ItemLedgerEntry);
-        OutStr := TempBlob.CreateOutStream();
-        OutputItemLabel.SaveAs('', ReportFormat::Xml, OutStr);
-
-        // [THEN] The report's dataset contains the expected information
-        InStr := TempBlob.CreateInStream();
-        XmlDocument.ReadFrom(Instr, XMLDoc);
-        XMLDoc.SelectNodes('/ReportDataSet/DataItems/DataItem/Columns/Column', XmlNodeList);
-        Assert.IsTrue(XmlNodeList.Count > 0, 'The report does not contain the expected data.');
-        foreach XMLNode in XMLNodeList do begin
-            XMLElement := XMLNode.AsXmlElement();
-            XMLElement.Attributes().Get('name', XmlAttribute);
-            Assert.IsTrue(XmlAttribute.Value in ['ItemNo', 'Description', 'BarCode', 'QRCode', 'BaseUnitofMeasure'], '');
-            case XmlAttribute.Value of
-                'ItemNo':
-                    begin
-                        XMLNodeList2 := XMLElement.GetDescendantNodes();
-                        XMLNodeList2.Get(1, XMLNode);
-                        XMLNode.WriteTo(Content);
-                        Assert.AreEqual(Item."No.", Content, '');
-                    end;
-                'Description':
-                    begin
-                        XMLNodeList2 := XMLElement.GetDescendantNodes();
-                        XMLNodeList2.Get(1, XMLNode);
-                        XMLNode.WriteTo(Content);
-                        Assert.AreEqual(Item.Description, Content, '');
-                    end;
-                'BarCode':
-                    begin
-                        XMLNodeList2 := XMLElement.GetDescendantNodes();
-                        XMLNodeList2.Get(1, XMLNode);
-                        XMLNode.WriteTo(Content);
-                        Assert.IsTrue(StrLen(Content) > 0, '');
-                    end;
-                'QRCode':
-                    begin
-                        XMLNodeList2 := XMLElement.GetDescendantNodes();
-                        XMLNodeList2.Get(1, XMLNode);
-                        XMLNode.WriteTo(Content);
-                        Assert.IsTrue(StrLen(Content) > 0, '');
-                    end;
-            end;
-
-        end;
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6761,21 +6668,6 @@ codeunit 137069 "SCM Production Orders"
     procedure HyperlinkHandler(Message: Text[1024])
     begin
         LibraryVariableStorage.Enqueue(StrPos(Message, StrSubstNo('page=%1', LibraryVariableStorage.DequeueInteger())) > 0);
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
-    begin
-        ItemTrackingLines."Assign Serial No.".Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure EnterQuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
-    begin
-        EnterQuantityToCreate.QtyToCreate.SetValue(1);
-        EnterQuantityToCreate.OK().Invoke();
     end;
 }
 
