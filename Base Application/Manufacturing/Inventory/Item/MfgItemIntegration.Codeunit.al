@@ -4,13 +4,6 @@ using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Inventory.Location;
 using Microsoft.Manufacturing.Setup;
-using Microsoft.Inventory.Requisition;
-using Microsoft.Inventory.Transfer;
-using Microsoft.Inventory.Ledger;
-using Microsoft.Inventory.Journal;
-using Microsoft.Warehouse.Structure;
-using Microsoft.Assembly.Document;
-using Microsoft.Inventory.BOM;
 using Microsoft.Manufacturing.WorkCenter;
 
 codeunit 99000795 "Mfg. Item Integration"
@@ -20,7 +13,7 @@ codeunit 99000795 "Mfg. Item Integration"
         CannotDeleteDocumentErr: Label 'You cannot delete item variant %1 because there is at least one %2 that includes this Variant Code.', Comment = '%1 - item variant, %2 - document number';
         CannotDeleteProdOrderErr: Label 'You cannot delete item variant %1 because there are one or more outstanding production orders that include this item.', Comment = '%1 - variant code';
         CannotModifyUnitOfMeasureErr: Label 'You cannot modify %1 %2 for item %3 because non-zero %5 with %2 exists in %4.', Comment = '%1 Table name (Item Unit of measure), %2 Value of Measure (KG, PCS...), %3 Item ID, %4 Entry Table Name, %5 Field Caption';
-        CannotRenameItemErr: Label 'You cannot rename %1 in a %2, because it is used in %3.', Comment = '%1 = Item No. caption, %2 = Table caption, %3 = Reference Table caption';
+
     // Item
 
     [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterHasBOM', '', false, false)]
@@ -112,88 +105,6 @@ codeunit 99000795 "Mfg. Item Integration"
         ProdOrderLine.SetRange("Variant Code", ItemVariant.Code);
         if not ProdOrderLine.IsEmpty() then
             Error(CannotDeleteProdOrderErr, ItemVariant."Item No.");
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Item Variant", 'OnBeforeRenameEvent', '', false, false)]
-    local procedure OnBeforeRenameItemVariant(var Rec: Record "Item Variant"; var xRec: Record "Item Variant")
-    var
-        BOMComponent: Record "BOM Component";
-        AssemblyHeader: Record "Assembly Header";
-        AssemblyLine: Record "Assembly Line";
-        ProductionBOMLine: Record "Production BOM Line";
-        ProdOrderComponent: Record "Prod. Order Component";
-        BinContent: Record "Bin Content";
-        RequisitionLine: Record "Requisition Line";
-        TransferLine: Record "Transfer Line";
-        ItemJournalLine: Record "Item Journal Line";
-        ValueEntry: Record "Value Entry";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        ProdOrderLine: Record "Prod. Order Line";
-    begin
-        if xRec."Item No." <> Rec."Item No." then begin
-            ProdOrderLine.SetRange("Item No.", xRec."Item No.");
-            ProdOrderLine.SetRange("Variant Code", xRec.Code);
-            if not ProdOrderLine.IsEmpty() then
-                Error(CannotRenameItemErr, Rec.FieldCaption(Rec."Item No."), Rec.TableCaption(), ProdOrderLine.TableCaption());
-
-            BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-            BOMComponent.SetRange("No.", xRec."Item No.");
-            BOMComponent.SetRange("Variant Code", xRec.Code);
-            if not BOMComponent.IsEmpty() then
-                Error(CannotRenameItemErr, Rec.FieldCaption("Item No."), Rec.TableCaption(), BOMComponent.TableCaption());
-
-            ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
-            ProductionBOMLine.SetRange("No.", xRec."Item No.");
-            ProductionBOMLine.SetRange("Variant Code", xRec.Code);
-            if not ProductionBOMLine.IsEmpty() then
-                Error(CannotRenameItemErr, Rec.FieldCaption("Item No."), Rec.TableCaption(), ProductionBOMLine.TableCaption());
-
-            ProdOrderComponent.SetRange("Item No.", xRec."Item No.");
-            ProdOrderComponent.SetRange("Variant Code", xRec.Code);
-            if not ProdOrderComponent.IsEmpty() then
-                Error(CannotRenameItemErr, Rec.FieldCaption("Item No."), Rec.TableCaption(), ProdOrderComponent.TableCaption());
-
-            AssemblyHeader.SetRange("Item No.", xRec."Item No.");
-            AssemblyHeader.SetRange("Variant Code", xRec.Code);
-            if not AssemblyHeader.IsEmpty() then
-                Error(CannotRenameItemErr, Rec.FieldCaption("Item No."), Rec.TableCaption(), AssemblyHeader.TableCaption());
-
-            AssemblyLine.SetRange("No.", xRec."Item No.");
-            AssemblyLine.SetRange("Variant Code", xRec.Code);
-            if not AssemblyLine.IsEmpty() then
-                Error(CannotRenameItemErr, Rec.FieldCaption("Item No."), Rec.TableCaption(), AssemblyLine.TableCaption());
-
-            BinContent.SetRange("Item No.", xRec."Item No.");
-            BinContent.SetRange("Variant Code", xRec.Code);
-            if not BinContent.IsEmpty() then
-                Error(CannotRenameItemErr, Rec.FieldCaption("Item No."), Rec.TableCaption(), BinContent.TableCaption());
-
-            TransferLine.SetRange("Item No.", xRec."Item No.");
-            TransferLine.SetRange("Variant Code", xRec.Code);
-            if not TransferLine.IsEmpty() then
-                Error(CannotRenameItemErr, Rec.FieldCaption("Item No."), Rec.TableCaption(), TransferLine.TableCaption());
-
-            RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
-            RequisitionLine.SetRange("No.", xRec."Item No.");
-            RequisitionLine.SetRange("Variant Code", xRec.Code);
-            if not RequisitionLine.IsEmpty() then
-                Error(CannotRenameItemErr, Rec.FieldCaption("Item No."), Rec.TableCaption(), RequisitionLine.TableCaption());
-
-            ItemJournalLine.SetRange("Item No.", xRec."Item No.");
-            ItemJournalLine.SetRange("Variant Code", xRec.Code);
-            if not ItemJournalLine.IsEmpty() then
-                Error(CannotRenameItemErr, Rec.FieldCaption("Item No."), Rec.TableCaption(), ItemJournalLine.TableCaption());
-
-            ItemLedgerEntry.SetRange("Item No.", xRec."Item No.");
-            ItemLedgerEntry.SetRange("Variant Code", xRec.Code);
-            if not ItemLedgerEntry.IsEmpty() then
-                Error(CannotRenameItemErr, Rec.FieldCaption("Item No."), Rec.TableCaption(), ItemLedgerEntry.TableCaption());
-
-            ValueEntry.SetRange("Item No.", xRec."Item No.");
-            ValueEntry.SetRange("Variant Code", xRec.Code);
-            if not ValueEntry.IsEmpty() then
-                Error(CannotRenameItemErr, Rec.FieldCaption("Item No."), Rec.TableCaption(), ValueEntry.TableCaption());
-        end;
     end;
 
     // Item Unit of Measure

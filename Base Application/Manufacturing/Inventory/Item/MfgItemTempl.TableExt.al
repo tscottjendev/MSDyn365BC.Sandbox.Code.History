@@ -25,17 +25,6 @@ tableextension 99000757 "Mfg. Item Templ." extends "Item Templ."
                 ValidateItemField(FieldNo("Flushing Method"));
             end;
         }
-        field(8011; "Production Blocked"; Boolean)
-        {
-            Caption = 'Production Blocked';
-            DataClassification = CustomerContent;
-            ToolTip = 'Specifies that the item cannot be entered on production documents, except requisition worksheet, planning worksheet and journals.';
-
-            trigger OnValidate()
-            begin
-                ValidateItemField(FieldNo("Production Blocked"));
-            end;
-        }
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';
