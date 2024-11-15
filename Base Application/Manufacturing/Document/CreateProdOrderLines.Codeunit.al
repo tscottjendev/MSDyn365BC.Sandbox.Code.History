@@ -414,7 +414,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         OnAfterShouldIncreasePlanningLevel(ProdOrderComp, StockkeepingUnit, IncreasePlanningLevel);
     end;
 
-    procedure CheckMakeOrderLine(var ProdOrderComp: Record "Prod. Order Component"; var ProdOrderLine: Record "Prod. Order Line"; Direction: Option Forward,Backward; MultiLevel: Boolean; LetDueDateDecrease: Boolean): Boolean
+    local procedure CheckMakeOrderLine(var ProdOrderComp: Record "Prod. Order Component"; var ProdOrderLine: Record "Prod. Order Line"; Direction: Option Forward,Backward; MultiLevel: Boolean; LetDueDateDecrease: Boolean): Boolean
     var
         Item: Record Item;
         ParentItem: Record Item;
@@ -489,7 +489,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         exit(true);
     end;
 
-    procedure ReserveMultiLevelStructure(var ProdOrderComp2: Record "Prod. Order Component")
+    local procedure ReserveMultiLevelStructure(var ProdOrderComp2: Record "Prod. Order Component")
     var
         ProdOrderComp3: Record "Prod. Order Component";
         ProdOrderLine3: Record "Prod. Order Line";
