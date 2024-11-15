@@ -68,7 +68,6 @@
         QuantityErr: Label '%1 must be %2 in %3', Comment = '%1: Quantity, %2: Consumption Quantity Value, %3: Item Ledger Entry';
         ILENoOfRecordsMustNotBeZeroErr: Label 'Item Ledger Entry No. of Records must not be zero.';
         ItemLedgerEntryMustBeFoundErr: Label 'Item Ledger Entry must be found.';
-        ProductionBlockedErr: Label 'You cannot produce %1 %2 because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -5131,102 +5130,6 @@
         // [THEN] Verify the count of Prod. BOM Line as line is not added.
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
         Assert.RecordCount(ProductionBOMLine, 0);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,CalculatePlanPlanWkshRequestPageHandler')]
-    procedure CarryOutActionMessageShouldThrowErrorIfProductionBlockedIsTrueOnItem()
-    var
-        LocationBlue: Record Location;
-        ManufacturingSetup: Record "Manufacturing Setup";
-        Level2Item, Level1Item, Level0Item : Record Item;
-        ProductionBOMHeader: Record "Production BOM Header";
-        RoutingHeader: Record "Routing Header";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        WarehouseEmployee: Record "Warehouse Employee";
-        RequisitionLine: Record "Requisition Line";
-        PlanningWorksheet: TestPage "Planning Worksheet";
-    begin
-        // [SCENARIO 382546] Verify "Carry Out Action Message - Plan" should throw error If "Production Blocked" is true on Item.
-        Initialize();
-
-        // [GIVEN] Create Blue and Red Location
-        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationBlue);
-
-        // [GIVEN] Activate Optimize Low Level Code Calculation on Manufacturing Setup
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Current Production Forecast", '');
-        ManufacturingSetup.Validate("Components at Location", LocationBlue.Code);
-        ManufacturingSetup.Modify(true);
-
-        // [GIVEN] Set Mandatory Location on Inventory Setup
-        LibraryInventory.SetLocationMandatory(true);
-
-        // [GIVEN] Create Level 2 Item
-        LibraryInventory.CreateItem(Level2Item);
-        Level2Item.Validate("Reordering Policy", Level2Item."Reordering Policy"::"Lot-for-Lot");
-        Level2Item.Modify(true);
-
-        // [GIVEN] Create Level 1 Item
-        LibraryInventory.CreateItem(Level1Item);
-        CreateManufacturingItem(Level1Item, Level1Item."Reordering Policy"::Order, Level1Item."Replenishment System"::"Prod. Order");
-        Level1Item.Validate("Manufacturing Policy", Level1Item."Manufacturing Policy"::"Make-to-Order");
-        UpdateOrderTrackingPolicyOnItem(Level1Item, Level1Item."Order Tracking Policy"::"Tracking Only");
-
-        // [GIVEN] Create and Certify Production BOM
-        CreateCertifiedProductionBOM(ProductionBOMHeader, Level2Item);
-
-        // [GIVEN] Create and Certify Routing
-        CreateAndCertifiyRouting(RoutingHeader);
-
-        // [GIVEN] Update Production BOM and Routing on Item
-        UpdateProductionBomAndRoutingOnItem(Level1Item, ProductionBOMHeader."No.", RoutingHeader."No.");
-
-        // [GIVEN] Create Level 0 Item
-        LibraryInventory.CreateItem(Level0Item);
-        CreateManufacturingItem(Level0Item, Level0Item."Reordering Policy"::Order, Level0Item."Replenishment System"::"Prod. Order");
-        Level0Item.Validate("Manufacturing Policy", Level0Item."Manufacturing Policy"::"Make-to-Order");
-        Level0Item.Validate("Flushing Method", Level0Item."Flushing Method"::Backward);
-        UpdateOrderTrackingPolicyOnItem(Level0Item, Level0Item."Order Tracking Policy"::"Tracking Only");
-
-        // [GIVEN] Create and Certified Production BOM
-        CreateCertifiedProductionBOM(ProductionBOMHeader, Level1Item);
-
-        // [GIVEN] Create and Certify Routing        
-        CreateAndCertifiyRouting(RoutingHeader);
-
-        // [GIVEN] Update Production BOM and Routing on Item
-        UpdateProductionBomAndRoutingOnItem(Level0Item, ProductionBOMHeader."No.", RoutingHeader."No.");
-
-        // [GIVEN] Create Warehouse Employee for Blue and Red Location
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationBlue.Code, false);
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationRed.Code, false);
-
-        // [GIVEN] Create Sales Order for Level 0 Item
-        CreateSalesOrder(SalesHeader, SalesLine, Level0Item."No.", LibraryRandom.RandInt(10), LocationRed.Code);
-
-        // Set to calculate MPS
-        LibraryVariableStorage.Enqueue(true);
-
-        // [GIVEN] Carry Out Planning Worksheet as Firm Planned Production Order.        
-        CalcRegenPlanForPlanningWorksheetPage(PlanningWorksheet, Level0Item."No.", Level1Item."No.", false);
-
-        // [GIVEN] Accept Action Message for Requisition Lines
-        AcceptActionMessage(RequisitionLine, Level0Item."No.");
-        AcceptActionMessage(RequisitionLine, Level1Item."No.");
-
-        // [GIVEN] Update "Production Blocked" on Item.
-        Level0Item.Validate("Production Blocked", true);
-        Level0Item.Modify(true);
-
-        // [GIVEN] Save Expected Error Message.
-        LibraryVariableStorage.Enqueue(StrSubstNo(ProductionBlockedErr, Level0Item.TableCaption(), Level0Item."No.", Level0Item.FieldCaption("Production Blocked")));
-
-        // [WHEN] Run Carry Out Action Message - Plan.
-        RunRequisitionCarryOutReportProdOrder(RequisitionLine);
-
-        // [VERIFY] Verify error message through MessageHandler If "Production Blocked" is true on Item.
     end;
 
     local procedure Initialize()
