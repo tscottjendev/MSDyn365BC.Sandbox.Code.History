@@ -297,26 +297,6 @@ page 99000867 "Finished Production Order"
                 }
             }
         }
-        area(Processing)
-        {
-            action(PrintLabel)
-            {
-                ApplicationArea = Manufacturing;
-                Image = Print;
-                Caption = 'Print Label';
-                ToolTip = 'Print Labels for the items on the order lines.';
-
-                trigger OnAction()
-                var
-                    ItemLedgerEntry: Record "Item Ledger Entry";
-                    OutputItemLabel: Report "Output Item Label";
-                begin
-                    ItemLedgerEntry.SetRange("Order No.", Rec."No.");
-                    OutputItemLabel.SetTableView(ItemLedgerEntry);
-                    OutputItemLabel.RunModal();
-                end;
-            }
-        }
         area(Promoted)
         {
             group(Category_Category4)

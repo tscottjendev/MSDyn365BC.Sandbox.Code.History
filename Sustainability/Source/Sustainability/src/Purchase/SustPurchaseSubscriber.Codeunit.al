@@ -1,11 +1,9 @@
 namespace Microsoft.Sustainability.Purchase;
 
-using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Preview;
 using Microsoft.Inventory.Item;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Posting;
-using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sustainability.Account;
 using Microsoft.Sustainability.Journal;
 using Microsoft.Sustainability.Posting;
@@ -29,6 +27,7 @@ codeunit 6225 "Sust. Purchase Subscriber"
     begin
         Rec.UpdateSustainabilityEmission(Rec);
     end;
+
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterPostPurchLine', '', false, false)]
     local procedure OnAfterPostPurchLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; SrcCode: Code[10]; GenJnlLineDocNo: Code[20])
@@ -62,30 +61,6 @@ codeunit 6225 "Sust. Purchase Subscriber"
     local procedure OnBeforePostUpdateOrderLineModifyTempLine(var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
         TempPurchaseLine.UpdateSustainabilityEmission(TempPurchaseLine);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnNotHandledCopyFromGLAccount', '', false, false)]
-    local procedure OnAfterAssignGLAccountValues(var PurchaseLine: Record "Purchase Line"; GLAccount: Record "G/L Account")
-    begin
-        PurchaseLine.Validate("Sust. Account No.", GLAccount."Default Sust. Account");
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterAssignItemValues', '', false, false)]
-    local procedure OnAfterAssignItemValues(var PurchLine: Record "Purchase Line"; Item: Record Item)
-    begin
-        PurchLine.Validate("Sust. Account No.", Item."Default Sust. Account");
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterAssignResourceValues', '', false, false)]
-    local procedure OnAfterAssignResourceValues(var PurchaseLine: Record "Purchase Line"; Resource: Record Resource)
-    begin
-        PurchaseLine.Validate("Sust. Account No.", Resource."Default Sust. Account");
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterAssignItemChargeValues', '', false, false)]
-    local procedure OnAfterAssignItemChargeValues(var PurchLine: Record "Purchase Line"; ItemCharge: Record "Item Charge")
-    begin
-        PurchLine.Validate("Sust. Account No.", ItemCharge."Default Sust. Account");
     end;
 
     local procedure InitEmissionOnPurchLine(var PurchaseLine: Record "Purchase Line")

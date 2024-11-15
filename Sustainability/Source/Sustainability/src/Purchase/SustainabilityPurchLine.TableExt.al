@@ -3,7 +3,6 @@ namespace Microsoft.Sustainability.Purchase;
 using Microsoft.Sustainability.Account;
 using Microsoft.Sustainability.Setup;
 using Microsoft.Purchases.Document;
-using Microsoft.Projects.Resources.Resource;
 using Microsoft.Inventory.Item;
 
 tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
@@ -37,10 +36,12 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
                     Rec.Validate("Sust. Account Name", SustainabilityAccount.Name);
                     Rec.Validate("Sust. Account Category", SustainabilityAccount.Category);
                     Rec.Validate("Sust. Account Subcategory", SustainabilityAccount.Subcategory);
-                    UpdateDefaultEmissionOnPurchLine(Rec);
                 end;
 
                 CreateDimFromDefaultDim(FieldNo(Rec."Sust. Account No."));
+
+                if Rec.Type = Rec.Type::Item then
+                    UpdateCarbonCreditInformation();
             end;
         }
         field(6211; "Sust. Account Name"; Text[100])
@@ -243,44 +244,6 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             PurchLine."Emission N2O Per Unit" := PurchLine."Emission N2O" / Denominator;
     end;
 
-    local procedure UpdateDefaultEmissionOnPurchLine(var PurchaseLine: Record "Purchase Line")
-    var
-        Item: Record Item;
-        Resource: Record Resource;
-        ItemCharge: Record "Item Charge";
-    begin
-        case PurchaseLine.Type of
-            PurchaseLine.Type::Item:
-                begin
-                    Item.Get(PurchaseLine."No.");
-
-                    if Item."GHG Credit" then
-                        PurchaseLine.Validate("Emission CO2 Per Unit", Item."Carbon Credit Per UOM")
-                    else begin
-                        PurchaseLine.Validate("Emission CO2 Per Unit", Item."Default CO2 Emission");
-                        PurchaseLine.Validate("Emission CH4 Per Unit", Item."Default CH4 Emission");
-                        PurchaseLine.Validate("Emission N2O Per Unit", Item."Default N2O Emission");
-                    end;
-                end;
-            PurchaseLine.Type::Resource:
-                begin
-                    Resource.Get(PurchaseLine."No.");
-
-                    PurchaseLine.Validate("Emission CO2 Per Unit", Resource."Default CO2 Emission");
-                    PurchaseLine.Validate("Emission CH4 Per Unit", Resource."Default CH4 Emission");
-                    PurchaseLine.Validate("Emission N2O Per Unit", Resource."Default N2O Emission");
-                end;
-            PurchaseLine.Type::"Charge (Item)":
-                begin
-                    ItemCharge.Get(PurchaseLine."No.");
-
-                    PurchaseLine.Validate("Emission CO2 Per Unit", ItemCharge."Default CO2 Emission");
-                    PurchaseLine.Validate("Emission CH4 Per Unit", ItemCharge."Default CH4 Emission");
-                    PurchaseLine.Validate("Emission N2O Per Unit", ItemCharge."Default N2O Emission");
-                end;
-        end
-    end;
-
     local procedure ClearEmissionInformation(var PurchLine: Record "Purchase Line")
     begin
         PurchLine.Validate("Emission CO2 Per Unit", 0);
@@ -324,6 +287,19 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
                             Error(NotAllowedToUseSustAccountForWaterOrWasteErr, PurchaseLine."Sust. Account No.");
                 end;
         end;
+    end;
+
+    local procedure UpdateCarbonCreditInformation()
+    var
+        Item: Record Item;
+    begin
+        if not Item.Get(Rec."No.") then
+            exit;
+
+        if not Item."GHG Credit" then
+            exit;
+
+        Rec.Validate("Emission CO2 Per Unit", Item."Carbon Credit Per UOM");
     end;
 
     var
