@@ -95,8 +95,6 @@ codeunit 99000813 "Carry Out Action"
         TryWkshName: Code[10];
         LineNo: Integer;
         CouldNotChangeSupplyTxt: Label 'The supply type could not be changed in order %1, order line %2.', Comment = '%1 - Production Order No. or Assembly Header No. or Purchase Header No., %2 - Production Order Line or Assembly Line No. or Purchase Line No.';
-        ProductionBlockedErr: Label 'You cannot produce %1 %2 because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption';
-        BlockedItemVariantErr: Label 'You cannot produce variant %1  for Item %2 because it is blocked for production', Comment = '%1 - Item Variant Code, %2 - Item No.';
 
     procedure TryCarryOutAction(SourceType: Enum "Planning Create Source Type"; var RequisitionLine: Record "Requisition Line"; Choice: Option; WkshTempl: Code[10]; WkshName: Code[10]): Boolean
     begin
@@ -608,8 +606,6 @@ codeunit 99000813 "Carry Out Action"
             end;
 
             OnInsertProdOrderOnBeforeProdOrderInit(RequisitionLine);
-
-            Item.CheckItemAndVariantForProdBlocked(RequisitionLine."No.", RequisitionLine."Variant Code");
             ProductionOrder.Init();
             if ProdOrderChoice = ProdOrderChoice::"Firm Planned & Print" then
                 ProductionOrder.Status := ProductionOrder.Status::"Firm Planned"
@@ -664,8 +660,6 @@ codeunit 99000813 "Carry Out Action"
         ProdOrderLine: Record "Prod. Order Line";
         NextLineNo: Integer;
     begin
-        Item.CheckItemAndVariantForProdBlocked(RequisitionLine."No.", RequisitionLine."Variant Code");
-
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.LockTable();
@@ -674,7 +668,6 @@ codeunit 99000813 "Carry Out Action"
         else
             NextLineNo := 10000;
 
-        CheckItemAndVariantForProdBlocked(RequisitionLine."No.", RequisitionLine."Variant Code");
         OnInsertProdOrderLineOnBeforeProdOrderLineInit(RequisitionLine, Item);
         ProdOrderLine.Init();
         ProdOrderLine.BlockDynamicTracking(true);
@@ -1523,26 +1516,6 @@ codeunit 99000813 "Carry Out Action"
                             ProdOrderCompCmtLine.Modify();
                     until ProductionBOMCommentLine.Next() = 0;
             until ProductionBOMLine.Next() = 0;
-    end;
-
-    local procedure CheckItemAndVariantForProdBlocked(ItemNo: Code[20]; VariantCode: Code[20])
-    var
-        Item: Record Item;
-        ItemVariant: Record "Item Variant";
-    begin
-        if ItemNo <> '' then begin
-            Item.SetLoadFields("Production Blocked");
-            Item.Get(ItemNo);
-            if Item."Production Blocked" then
-                Error(ProductionBlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked"));
-        end;
-
-        if VariantCode <> '' then begin
-            ItemVariant.SetLoadFields(Blocked, "Production Blocked");
-            ItemVariant.Get(ItemNo, VariantCode);
-            if ItemVariant."Production Blocked" then
-                Error(BlockedItemVariantErr, VariantCode, ItemNo);
-        end;
     end;
 
     [IntegrationEvent(false, false)]
