@@ -908,8 +908,6 @@ page 5740 "Transfer Order"
     trigger OnOpenPage()
     begin
         SetDocNoVisible();
-        EnableTransferFields := not IsPartiallyShipped();
-        ActivateFields();
     end;
 
     var

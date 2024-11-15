@@ -10967,15 +10967,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Prod. Whse. Handling - Method ProdOutputAsNoWhseHandling_CreateInventoryPutawayLinesThrowsNothingToCreate - NamedType ThereIsNothingToCreateMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 571731545 - NamedType 1478111089" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot produce variant %1  for Item %2 because it is blocked for production.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Item Variant Code, %2 - Item No.]D;]A;(LookupHint=Codeunit SCM Production Journal - NamedType BlockedItemVariantErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 571731545 - NamedType 3766319504" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[BOM Fixed Quantity Calculation Formula should be used to calculate the values.]]></Val>
@@ -11064,24 +11055,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1: Field(Code)]D;]A;(LookupHint=Codeunit SCM Production Journal - NamedType LocationWithDirectedPutAwayAndPickErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 571731545 - NamedType 4187434658" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot produce %1 %2 because the %3 check box is selected on the %1 card.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption]D;]A;(LookupHint=Codeunit SCM Production Journal - NamedType ProductionBlockedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 571731545 - NamedType 2455020164" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The field %1 of table %2 contains a value (%3) that cannot be found in the related table (%4).]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Field Caption, %2 - Table Caption, %3 - Value, %4 - Related Table Caption]D;]A;(LookupHint=Codeunit SCM Production Journal - NamedType ProductionItemNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 571731545 - NamedType 3098962420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -11712,15 +11685,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders II - NamedType ProdOrderRtngLineNotUpdatedMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3590079757 - NamedType 4187434658" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot produce %1 %2 because the %3 check box is selected on the %1 card.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption]D;]A;(LookupHint=Codeunit SCM Production Orders II - NamedType ProductionBlockedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3590079757 - NamedType 1473162410" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -13910,15 +13874,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Supply Planning -III - NamedType AvailabilityWarningConfirmationMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2380721185 - NamedType 1478111089" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot produce variant %1  for Item %2 because it is blocked for production]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Item Variant Code, %2 - Item No.]D;]A;(LookupHint=Codeunit SCM Supply Planning -III - NamedType BlockedItemVariantErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2380721185 - NamedType 436941642" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot purchase Item %1 because the Purchasing Blocked check box is selected on the Item card.]]></Val>
@@ -13962,15 +13917,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Supply Planning -III - NamedType OrderDateChangeMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2380721185 - NamedType 4187434658" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot produce %1 %2 because the %3 check box is selected on the %1 card.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption]D;]A;(LookupHint=Codeunit SCM Supply Planning -III - NamedType ProductionBlockedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2380721185 - NamedType 932749839" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

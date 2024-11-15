@@ -100,7 +100,6 @@ codeunit 99000886 "Capable to Promise"
             exit(NeededDate);
         RemoveReqLines(LocOrderPromisingID, LocSourceLineNo, LastValidLine, false);
         SetOrderPromisingParameters(LocOrderPromisingID, LocSourceLineNo, PeriodLengthFormula);
-        OnCalcCapableToPromiseDateOnAfterSetOrderPromisingParameters(ItemNo, VariantCode, LocationCode, PeriodLengthFormula, OrderPromisingStart, OrderPromisingEnd);
 
         CapableToPromiseDate := 0D;
         CalculationStartDate := NeededDate;
@@ -475,11 +474,6 @@ codeunit 99000886 "Capable to Promise"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTransferShptCTP(RequisitionLine: Record "Requisition Line"; PeriodType: Enum "Analysis Period Type"; var Result: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(true, false)]
-    local procedure OnCalcCapableToPromiseDateOnAfterSetOrderPromisingParameters(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; PeriodLengthFormula: DateFormula; var OrderPromisingStart: Date; var OrderPromisingEnd: Date);
     begin
     end;
 }
