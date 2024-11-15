@@ -14,10 +14,10 @@ codeunit 99000790 "Mfg. Company Initialize"
     Permissions = tabledata "Manufacturing Setup" = i;
 
     var
-        ConsumpJnlTxt: Label 'CONSUMPJNL';
-        OutputJnlTxt: Label 'POINOUTJNL';
-        CapacityJnlTxt: Label 'CAPACITJNL';
-        ProdOrderTxt: Label 'PRODORDER';
+        ConsumpJnlTxt: Label 'CONSUMPJNL', MaxLength = 10;
+        OutputJnlTxt: Label 'POINOUTJNL', MaxLength = 10;
+        CapacityJnlTxt: Label 'CAPACITJNL', MaxLength = 10;
+        ProdOrderTxt: Label 'PRODORDER', MaxLength = 10;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnAfterInitSetupTables', '', false, false)]
     local procedure OnAfterInitSetupTables()

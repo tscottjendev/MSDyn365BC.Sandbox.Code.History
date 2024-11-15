@@ -272,6 +272,8 @@ codeunit 5749 "Serv. Whse Post-Shipment"
                     ServiceInvoiceHeader.Get(DocumentEntryToPrint."Document No.");
                     ServiceInvoiceHeader.Mark(true);
                 until DocumentEntryToPrint.Next() = 0;
+
+            ServiceInvoiceHeader.MarkedOnly(true);
             ServiceInvoiceHeader.PrintRecords(false);
         end;
 
@@ -282,6 +284,8 @@ codeunit 5749 "Serv. Whse Post-Shipment"
                     ServiceShipmentHeader.Get(DocumentEntryToPrint."Document No.");
                     ServiceShipmentHeader.Mark(true);
                 until DocumentEntryToPrint.Next() = 0;
+
+            ServiceShipmentHeader.MarkedOnly(true);
             ServiceShipmentHeader.PrintRecords(false);
         end;
     end;
