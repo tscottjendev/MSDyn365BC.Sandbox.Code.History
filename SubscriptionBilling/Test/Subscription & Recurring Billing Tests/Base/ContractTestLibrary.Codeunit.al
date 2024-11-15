@@ -901,11 +901,6 @@ codeunit 139685 "Contract Test Library"
     begin
         CustomerContract.UpdateServicesDates();
     end;
-
-    procedure ServiceCommitmentIsClosed(var ServiceCommitment: Record "Service Commitment"): Boolean
-    begin
-        exit(ServiceCommitment.IsClosed());
-    end;
     #EndRegion Make local / internal functions public for external test apps
 
     procedure CreateTranslationForField(var FieldTranslation: Record "Field Translation"; SourceRecord: Variant; FieldID: Integer; LanguageCode: Code[10])

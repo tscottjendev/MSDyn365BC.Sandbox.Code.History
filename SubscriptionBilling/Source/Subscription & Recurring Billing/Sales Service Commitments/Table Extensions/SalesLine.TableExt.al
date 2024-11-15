@@ -305,9 +305,7 @@ tableextension 8054 "Sales Line" extends "Sales Line"
     var
         BillingLine: Record "Billing Line";
     begin
-        BillingLine.SetRange("Document Type", BillingLine.GetBillingDocumentTypeFromSalesDocumentType(Rec."Document Type"));
-        BillingLine.SetRange("Document No.", Rec."Document No.");
-        BillingLine.SetRange("Document Line No.", Rec."Line No.");
+        BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromSalesDocumentType(Rec."Document Type"), Rec."Document No.", Rec."Line No.");
         exit(not BillingLine.IsEmpty());
     end;
 

@@ -420,7 +420,7 @@ table 8062 "Customer Contract Line"
         ServiceCommitment: Record "Service Commitment";
     begin
         CreateServiceObject(ServiceObject, RefCustomerContractLine."Service Object No.", CustomerContractLine);
-        CreateMergedServiceCommitment(ServiceCommitment, ServiceObject."No.", RefCustomerContractLine, CustomerContractLine);
+        CreateMergedServiceCommitment(ServiceCommitment, ServiceObject, RefCustomerContractLine);
         CloseCustomerContractLines(CustomerContractLine);
         if not AssignNewServiceCommitmentToCustomerContract(CustomerContractLine."Contract No.", ServiceCommitment) then
             exit(false);
@@ -446,12 +446,12 @@ table 8062 "Customer Contract Line"
         ServiceObject.Insert(true);
     end;
 
-    local procedure CreateMergedServiceCommitment(var ServiceCommitment: Record "Service Commitment"; NewServiceObjectNo: Code[20]; RefCustomerContractLine: Record "Customer Contract Line"; var CustomerContractLine: Record "Customer Contract Line")
+    local procedure CreateMergedServiceCommitment(var ServiceCommitment: Record "Service Commitment"; ServiceObject: Record "Service Object"; RefCustomerContractLine: Record "Customer Contract Line")
     begin
         RefCustomerContractLine.GetServiceCommitment(ServiceCommitment);
         ServiceCommitment."Entry No." := 0;
-        ServiceCommitment."Service Object No." := NewServiceObjectNo;
-        ServiceCommitment.Validate("Service Amount", ServiceCommitment.GetTotalServiceAmountFromCustContractLines(CustomerContractLine));
+        ServiceCommitment."Service Object No." := ServiceObject."No.";
+        ServiceCommitment.Validate("Service Amount", ServiceCommitment.Price * ServiceObject."Quantity Decimal");
         ServiceCommitment.Validate("Service Start Date", ServiceCommitment."Next Billing Date");
         ServiceCommitment.Insert(true);
     end;
@@ -487,7 +487,9 @@ table 8062 "Customer Contract Line"
         ServiceCommitment."Service End Date" := ServiceCommitment."Next Billing Date";
         ServiceCommitment."Next Billing Date" := 0D;
         ServiceCommitment.Validate("Service End Date");
+        ServiceCommitment.Closed := true;
         ServiceCommitment.Modify(false);
+
         CustomerContractLine.Closed := true;
         CustomerContractLine.Modify(false);
     end;

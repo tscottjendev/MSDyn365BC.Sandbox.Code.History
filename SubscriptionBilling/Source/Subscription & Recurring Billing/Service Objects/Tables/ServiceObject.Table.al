@@ -1772,6 +1772,7 @@ table 8057 "Service Object"
                 if (ServiceCommitment."Service End Date" <> 0D) and (Today() > ServiceCommitment."Service End Date") and ServiceCommitment.IsFullyInvoiced() then begin
                     ServiceCommitment."Cancellation Possible Until" := 0D;
                     ServiceCommitment."Term Until" := 0D;
+                    ServiceCommitment.Closed := true;
                     ServiceCommitment.Modify(false);
                     case ServiceCommitment.Partner of
                         ServiceCommitment.Partner::Customer:

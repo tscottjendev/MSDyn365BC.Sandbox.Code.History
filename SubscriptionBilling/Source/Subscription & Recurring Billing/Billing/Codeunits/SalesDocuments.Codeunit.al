@@ -123,11 +123,7 @@ codeunit 8063 "Sales Documents"
 
     local procedure FilterBillingLinePerSalesLine(var BillingLine: Record "Billing Line"; SalesLine: Record "Sales Line")
     begin
-        BillingLine.SetRange("Document Type", BillingLine.GetBillingDocumentTypeFromSalesDocumentType(SalesLine."Document Type"));
-        BillingLine.SetRange("Document No.", SalesLine."Document No.");
-        BillingLine.SetRange("Document Line No.", SalesLine."Line No.");
-        BillingLine.SetFilter("Billing from", '>=%1', SalesLine."Recurring Billing from");
-        BillingLine.SetFilter("Billing to", '<=%1', SalesLine."Recurring Billing to");
+        BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromSalesDocumentType(SalesLine."Document Type"), SalesLine."Document No.", SalesLine."Line No.");
     end;
 
     local procedure ResetSalesDocumentFieldsForBillingLines(var BillingLine: Record "Billing Line")
@@ -619,10 +615,9 @@ codeunit 8063 "Sales Documents"
     var
         BillingLine: Record "Billing Line";
     begin
-        if not SalesLine.IsLineAttachedToBillingLine() then
-            exit;
         BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromSalesDocumentType(SalesLine."Document Type"), SalesLine."Document No.", SalesLine."Line No.");
-        BillingLine.FindFirst();
+        if not BillingLine.FindFirst() then
+            exit;
         SalesInvLine."Contract No." := BillingLine."Contract No.";
         SalesInvLine."Contract Line No." := BillingLine."Contract Line No.";
     end;
@@ -632,10 +627,9 @@ codeunit 8063 "Sales Documents"
     var
         BillingLine: Record "Billing Line";
     begin
-        if not SalesLine.IsLineAttachedToBillingLine() then
-            exit;
         BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromSalesDocumentType(SalesLine."Document Type"), SalesLine."Document No.", SalesLine."Line No.");
-        BillingLine.FindFirst();
+        if not BillingLine.FindFirst() then
+            exit;
         SalesCrMemoLine."Contract No." := BillingLine."Contract No.";
         SalesCrMemoLine."Contract Line No." := BillingLine."Contract Line No.";
     end;

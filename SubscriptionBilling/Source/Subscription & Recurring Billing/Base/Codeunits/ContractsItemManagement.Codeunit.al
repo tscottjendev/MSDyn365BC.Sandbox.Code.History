@@ -2,6 +2,7 @@ namespace Microsoft.SubscriptionBilling;
 
 using Microsoft.Sales.Document;
 using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Posting;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Inventory.Item;
@@ -46,11 +47,29 @@ codeunit 8055 "Contracts Item Management"
     local procedure PurchaseLineOnBeforeValidateEvent(var Rec: Record "Purchase Line")
     begin
         if Rec.Type = Rec.Type::Item then begin
-            if (not Rec.IsLineAttachedToBillingLine()) then
+            if not Rec.IsLineAttachedToBillingLine() then
                 PreventBillingItem(Rec."No.");
-            if not (Rec."Document Type" = Enum::"Purchase Document Type"::Order) and (not Rec.IsLineAttachedToBillingLine()) then
+            if not Rec.IsPurchaseInvoice() and not Rec.IsPurchaseOrderLineAttachedToBillingLine() then
                 PreventServiceCommitmentItem(Rec."No.");
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", OnBeforePostPurchLine, '', false, false)]
+    local procedure OnBeforePostPurchLine(var PurchLine: Record "Purchase Line")
+    var
+        Item: Record Item;
+        LinkToContractRequiredErr: Label 'Service Commitment items and Invoicing items require a link to a contract line before they can be posted.';
+    begin
+        if PurchLine."Document Type" <> Enum::"Purchase Document Type"::Invoice then
+            exit;
+        if PurchLine.Type <> PurchLine.Type::Item then
+            exit;
+        if PurchLine.IsLineAttachedToBillingLine() then
+            exit;
+        if not Item.Get(PurchLine."No.") then
+            exit;
+        if Item."Service Commitment Option" in ["Item Service Commitment Type"::"Invoicing Item", "Item Service Commitment Type"::"Service Commitment Item"] then
+            Error(LinkToContractRequiredErr);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"BOM Component", OnBeforeValidateEvent, "No.", false, false)]

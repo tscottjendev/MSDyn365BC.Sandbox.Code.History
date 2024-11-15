@@ -160,7 +160,8 @@ table 8073 "Service Commitment Archive"
         field(29; "Contract Line No."; Integer)
         {
             Caption = 'Contract Line No.';
-            TableRelation = if (Partner = const(Customer)) "Customer Contract Line"."Line No." where("Contract No." = field("Contract No."));
+            TableRelation = if (Partner = const(Customer)) "Customer Contract Line"."Line No." where("Contract No." = field("Contract No.")) else
+            if (Partner = const(Vendor)) "Vendor Contract Line"."Line No." where("Contract No." = field("Contract No."));
         }
         field(30; "Customer Price Group"; Code[10])
         {
@@ -259,6 +260,10 @@ table 8073 "Service Commitment Archive"
         {
             Caption = 'Variant Code (Service Object)';
         }
+        field(107; "Closed"; Boolean)
+        {
+            Caption = 'Closed';
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -322,6 +327,7 @@ table 8073 "Service Commitment Archive"
         Rec."Calculation Base Amount (LCY)" := ServiceCommitment."Calculation Base Amount (LCY)";
         Rec."Dimension Set ID" := ServiceCommitment."Dimension Set ID";
         Rec."Next Price Update" := ServiceCommitment."Next Price Update";
+        Rec.Closed := ServiceCommitment.Closed;
         OnAfterCopyFromServiceCommitment(Rec, ServiceCommitment);
     end;
 

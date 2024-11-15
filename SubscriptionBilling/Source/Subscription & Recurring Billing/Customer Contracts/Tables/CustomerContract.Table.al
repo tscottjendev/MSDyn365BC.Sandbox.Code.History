@@ -18,6 +18,7 @@ using Microsoft.CRM.Outlook;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.Currency;
 using Microsoft.Bank.BankAccount;
+using System.Security.AccessControl;
 
 table 8052 "Customer Contract"
 {
@@ -806,7 +807,7 @@ table 8052 "Customer Contract"
         {
             Caption = 'Assigned User ID';
             DataClassification = EndUserIdentifiableInformation;
-            TableRelation = "User Setup"."User ID";
+            TableRelation = User."User Name";
         }
         field(9500; Active; Boolean)
         {
@@ -2134,11 +2135,8 @@ table 8052 "Customer Contract"
         ServiceCommitment.SetAscending("Next Billing Date", true);
         ServiceCommitment.SetRange("Contract No.", Rec."No.");
         ServiceCommitment.SetFilter("Contract Line No.", '<>%1', DeletedCustContractLineNo);
-        if ServiceCommitment.FindFirst() then
-            repeat
-                if not ServiceCommitment.IsClosed() then
-                    ServiceCommitmentFound := true;
-            until (ServiceCommitmentFound = true) or (ServiceCommitment.Next() = 0);
+        ServiceCommitment.SetRange(Closed, false);
+        ServiceCommitmentFound := ServiceCommitment.FindFirst();
     end;
 
     internal procedure IsContractEmpty(): Boolean

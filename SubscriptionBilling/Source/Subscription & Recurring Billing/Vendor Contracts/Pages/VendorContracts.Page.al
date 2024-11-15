@@ -183,6 +183,20 @@ page 8071 "Vendor Contracts"
         Rec.SetRange(Active, true);
     end;
 
+    internal procedure GetVendorContractSelection() FilterText: Text
+    var
+        VendorContract: Record "Vendor Contract";
+        FilterTextBuilder: TextBuilder;
+    begin
+        CurrPage.SetSelectionFilter(VendorContract);
+        if VendorContract.FindSet() then
+            repeat
+                FilterTextBuilder.Append(VendorContract."No.");
+                FilterTextBuilder.Append('|');
+            until VendorContract.Next() = 0;
+        FilterText := FilterTextBuilder.ToText().TrimEnd('|');
+    end;
+
     var
         DescriptionText: Text;
         UpdateDimensionsInDeferralsEnabled: Boolean;

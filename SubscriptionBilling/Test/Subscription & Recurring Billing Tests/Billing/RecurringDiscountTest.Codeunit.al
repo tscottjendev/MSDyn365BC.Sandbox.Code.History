@@ -18,9 +18,9 @@ codeunit 139689 "Recurring Discount Test"
     begin
         ClearAll();
         ContractTestLibrary.InitContractsApp();
-        LibraryERMContryData.UpdateSalesReceivablesSetup();
-        LibraryERMContryData.UpdatePurchasesPayablesSetup();
-        LibraryERMContryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
     end;
 
     [Test]
@@ -739,7 +739,7 @@ codeunit 139689 "Recurring Discount Test"
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryERMContryData: Codeunit "Library - ERM Country Data";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         BillingProposal: Codeunit "Billing Proposal";
         Assert: Codeunit Assert;
         NoDeferralLinesErr: Label 'No Deferral lines were found.', Locked = true;

@@ -1656,6 +1656,7 @@ codeunit 139687 "Recurring Billing Docs Test"
     var
         Item: Record Item;
         ServiceCommitmentTemplate: Record "Service Commitment Template";
+
         ServiceCommitmentPackage: Record "Service Commitment Package";
         ServiceCommPackageLine: Record "Service Comm. Package Line";
         PriceListHeader: Record "Price List Header";
@@ -1751,6 +1752,128 @@ codeunit 139687 "Recurring Billing Docs Test"
         SalesLine.SetRange("Line Amount", ServiceCommitment."Service Amount");
         SalesLine.SetRange("Line Discount %", ServiceCommitment."Discount %");
         AssertThat.RecordIsNotEmpty(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,GetVendorContractLinesPageHandler,ExchangeRateSelectionModalPageHandler')]
+    procedure GetVendorContractLinesInPurchaseInvoices()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+    begin
+        //[SCENARIO]: Test if vendor contract line can be fetched to purchase invoice and test if invoice can be posted
+
+        //[GIVEN]: Setup Service Object with service commitment and assign it to vendor contract
+        ClearAll();
+        ContractTestLibrary.ResetContractRecords();
+        Clear(ServiceObject);
+        ContractTestLibrary.CreateVendor(Vendor);
+        ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, "Invoicing Via"::Contract, false, Item, 0, 1);
+        ContractTestLibrary.CreateVendorContract(VendorContract, Vendor."No.");
+        ContractTestLibrary.AssignServiceObjectToVendorContract(VendorContract, ServiceObject, false);
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
+
+        //[WHEN]: Invoke Get Vendor Contract Lines
+        PurchaseHeader.RunGetVendorContractLines();
+        Commit();
+
+        //[THEN]: Test if purchase line is created with Item No. from service object
+        GetVendorContractServiceCommitment(VendorContract."No.");
+        PurchaseLine.Reset();
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", ServiceCommitment."Invoicing Item No.");
+        AssertThat.RecordIsNotEmpty(PurchaseLine);
+
+        //[THEN]: Test if Purchase header is marked as Recurring billing
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        PurchaseHeader.TestField("Recurring Billing", true);
+
+        //[THEN]: Test if billing lines exist
+        PurchaseLine.FindFirst();
+        BillingLine.Reset();
+        BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromPurchaseDocumentType(PurchaseLine."Document Type"), PurchaseLine."Document No.", PurchaseLine."Line No.");
+        AssertThat.RecordIsNotEmpty(BillingLine);
+
+        //[THEN]: If Purchase Line is deleted, billing lines are deleted as well
+        PurchaseLine.Delete(true);
+        BillingLine.Reset();
+        BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromPurchaseDocumentType(PurchaseLine."Document Type"), PurchaseLine."Document No.", PurchaseLine."Line No.");
+        AssertThat.RecordIsEmpty(BillingLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,GetVendorContractLinesProducesCorrectAmountsDuringSelectionPageHandler,ExchangeRateSelectionModalPageHandler')]
+    procedure GetVendorContractLinesProducesCorrectAmountsDuringSelection()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+    begin
+        //[SCENARIO:] Test if selection in the "Get Vendor Contract Lines" page is updating amounts correctly during Assignment
+
+        //[GIVEN]: Setup Service Object with service commitment and assign it to vendor contract
+        //[GIVEN]: Create Purchase Invoice with Purchase Invoice Line
+        ClearAll();
+        ContractTestLibrary.ResetContractRecords();
+        ContractTestLibrary.CreateVendor(Vendor);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, Vendor."No.");
+        GetVendorContractServiceCommitment(VendorContract."No.");
+        ServiceCommitment."Billing Rhythm" := ServiceCommitment."Billing Base Period";
+        ServiceCommitment.Modify();
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
+        ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify();
+        //[WHEN]: Invoke Get Vendor Contract Lines
+        PurchaseHeader.RunGetVendorContractLines(); //Testing is done in the modal page handler
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,GetVendorContractLinesPageHandler,ExchangeRateSelectionModalPageHandler')]
+    procedure AssignVendorContractLinesToExistingPurchaseInvoiceLine()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+    begin
+        //[SCENARIO]: Test if vendor contract line can be assigned to purchase invoice line
+
+        //[GIVEN]: Setup Service Object with service commitment and assign it to vendor contract
+        //[GIVEN]: Create Purchase Invoice with Purchase Invoice Line
+        ClearAll();
+        ContractTestLibrary.ResetContractRecords();
+        ContractTestLibrary.CreateVendor(Vendor);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, Vendor."No.");
+        GetVendorContractServiceCommitment(VendorContract."No.");
+        ServiceCommitment."Billing Rhythm" := ServiceCommitment."Billing Base Period";
+        ServiceCommitment.Modify();
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
+        ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify();
+        //[WHEN]: Invoke Get Vendor Contract Lines
+        PurchaseLine.AssignVendorContractLine();
+        Commit();
+
+        //[THEN]: Test if Purchase header is marked as Recurring billing
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        PurchaseHeader.TestField("Recurring Billing", true);
+
+        //[THEN]: Test if billing lines exist
+        BillingLine.Reset();
+        BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromPurchaseDocumentType(PurchaseLine."Document Type"), PurchaseLine."Document No.", PurchaseLine."Line No.");
+        AssertThat.RecordIsNotEmpty(BillingLine);
+        BillingLine.CalcSums("Service Amount");
+        AssertThat.AreEqual(PurchaseLine."Line Amount", BillingLine."Service Amount", 'Service amount was not taken from purchase line');
+
+        //[THEN]: If Purchase Line is deleted, billing lines are deleted as well
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        PurchaseLine.Delete(true);
+        BillingLine.Reset();
+        BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromPurchaseDocumentType(PurchaseLine."Document Type"), PurchaseLine."Document No.", PurchaseLine."Line No.");
+        AssertThat.RecordIsEmpty(BillingLine);
     end;
 
     local procedure Initialize()
@@ -2367,5 +2490,55 @@ codeunit 139687 "Recurring Billing Docs Test"
             until not BillingLinesArchive.Next();
         AssertThat.AreEqual(NoOfRecords, ExpectedNoOfArchivedLines, 'Page Billing Lines Archive is not filtered properly.');
         BillingLinesArchive.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure GetVendorContractLinesPageHandler(var GetVendorContractLines: TestPage "Get Vendor Contract Lines")
+    begin
+        GetVendorContractLines.Expand(true);
+        GetVendorContractLines.Next(); //Skip Grouping line
+        GetVendorContractLines.Selected.SetValue(true);
+        GetVendorContractLines.OK().Invoke()
+    end;
+
+    [ModalPageHandler]
+    procedure GetVendorContractLinesProducesCorrectAmountsDuringSelectionPageHandler(var GetVendorContractLines: TestPage "Get Vendor Contract Lines")
+    var
+        Selected: Boolean;
+        CalculationBasePerc: Decimal;
+        CalculationBaseAmount: Decimal;
+        ServiceAmount: Decimal;
+        Price: Decimal;
+    begin
+        GetVendorContractLines.Expand(true);
+        GetVendorContractLines.Next(); //Skip Grouping line
+        //[WHEN]: Change the value of Vendor Invoice Amount on the page
+        GetVendorContractLines."Vendor Invoice Amount".SetValue(LibraryRandom.RandDecInDecimalRange(0, 100, 2)); //Change value of Vendor Invoice Amount
+
+        //[THEN]: Test if Selected is set to true
+        Evaluate(Selected, GetVendorContractLines.Selected.Value());
+        AssertThat.IsTrue(Selected, 'Service commitment is not selected when Vendor Invoice Amount is changed');
+
+        //[THEN]: Test if service commitment data is recalculated on the page
+        Evaluate(CalculationBasePerc, GetVendorContractLines."Calculation Base %".Value);
+        Evaluate(CalculationBaseAmount, GetVendorContractLines."Calculation Base Amount".Value);
+        Evaluate(ServiceAmount, GetVendorContractLines."Service Amount".Value);
+        Evaluate(Price, GetVendorContractLines.Price.Value);
+        AssertThat.AreNotEqual(ServiceCommitment."Calculation Base %", CalculationBasePerc, 'Service commitment was not calculated on the page');
+        AssertThat.AreNotEqual(ServiceCommitment."Calculation Base Amount", CalculationBaseAmount, 'Service commitment was not calculated on the page');
+        AssertThat.AreNotEqual(ServiceCommitment."Service Amount", ServiceAmount, 'Service commitment was not calculated on the page');
+        AssertThat.AreNotEqual(ServiceCommitment."Price", Price, 'Service commitment was not calculated on the page');
+
+        //[WHEN]: Deselect service commitment
+        GetVendorContractLines.Selected.SetValue(false);
+        //[THEN]: Test if service commitment data is recalculated on the page
+        Evaluate(CalculationBasePerc, GetVendorContractLines."Calculation Base %".Value);
+        Evaluate(CalculationBaseAmount, GetVendorContractLines."Calculation Base Amount".Value);
+        Evaluate(ServiceAmount, GetVendorContractLines."Service Amount".Value);
+        Evaluate(Price, GetVendorContractLines.Price.Value);
+        AssertThat.AreEqual(ServiceCommitment."Calculation Base %", CalculationBasePerc, 'Service commitment was not reset on the page');
+        AssertThat.AreEqual(ServiceCommitment."Calculation Base Amount", CalculationBaseAmount, 'Service commitment was not reset on the page');
+        AssertThat.AreEqual(ServiceCommitment."Service Amount", ServiceAmount, 'Service commitment was not reset on the page');
+        AssertThat.AreEqual(ServiceCommitment."Price", Price, 'Service commitment was not reset on the page');
     end;
 }

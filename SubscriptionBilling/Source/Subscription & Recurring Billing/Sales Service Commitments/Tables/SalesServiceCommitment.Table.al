@@ -413,6 +413,7 @@ table 8068 "Sales Service Commitment"
 
         MaxServiceAmount := Round((Price * SalesLine.Quantity), Currency."Amount Rounding Precision");
         if CalledByFieldNo = FieldNo("Service Amount") then begin
+            "Service Amount" := Round("Service Amount", Currency."Amount Rounding Precision");
             if "Service Amount" > MaxServiceAmount then
                 Error(ServiceAmountIncreaseErr, FieldCaption("Service Amount"), Format(MaxServiceAmount));
             "Discount Amount" := Round(MaxServiceAmount - "Service Amount", Currency."Amount Rounding Precision");

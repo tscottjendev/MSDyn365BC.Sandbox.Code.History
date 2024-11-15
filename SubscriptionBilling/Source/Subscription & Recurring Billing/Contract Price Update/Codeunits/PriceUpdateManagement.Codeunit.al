@@ -135,7 +135,7 @@ codeunit 8009 "Price Update Management"
         ServiceCommitment.SetRange("Usage Based Billing", false);
         OnAfterFilterServiceCommitmentOnAfterGetAndApplyFiltersOnServiceCommitment(ServiceCommitment);
 
-        ServiceCommitment.MarkOpenServiceCommitments();
+        ServiceCommitment.SetRange(Closed, false);
     end;
 
     local procedure ApplyContractFilterOnMarkedServiceCommitments(var ServiceCommitment: Record "Service Commitment"; ServicePartner: Enum "Service Partner"; ContractFilterText: Text): Boolean
