@@ -2720,7 +2720,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     local procedure VerifyMaterialCost(ProductionOrderNo: Code[20]; ExpectedMaterialCost: Decimal)
     var
         ProdOrderLine: Record "Prod. Order Line";
-        CostCalculationMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalculationMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         ActualMaterialCost: Decimal;
         StdCost: array[6] of Decimal;
     begin
@@ -2728,7 +2728,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderLine.FindSet();
         repeat
-            CostCalculationMgt.CalcProdOrderLineStdCost(
+            MfgCostCalculationMgt.CalcProdOrderLineStdCost(
               ProdOrderLine, 1, LibraryERM.GetUnitAmountRoundingPrecision(),
               StdCost[1], StdCost[2], StdCost[3], StdCost[4], StdCost[5]);
             ActualMaterialCost += StdCost[1] / ProdOrderLine."Quantity (Base)";
