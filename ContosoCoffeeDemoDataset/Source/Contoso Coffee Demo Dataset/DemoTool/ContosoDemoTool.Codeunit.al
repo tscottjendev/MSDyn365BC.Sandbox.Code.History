@@ -1,5 +1,3 @@
-// using Microsoft.Utilities;
-// using System.Privacy;
 codeunit 5193 "Contoso Demo Tool"
 {
     InherentEntitlements = X;

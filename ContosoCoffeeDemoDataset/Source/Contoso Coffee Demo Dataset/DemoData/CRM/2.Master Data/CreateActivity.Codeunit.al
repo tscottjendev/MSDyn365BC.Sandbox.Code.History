@@ -20,7 +20,7 @@ codeunit 5383 "Create Activity"
 
     procedure CompanyPresentation(): Code[10]
     begin
-        exit(CPresTemplateTok);
+        exit(CompanyPresentationTemplateTok);
     end;
 
     procedure Initial(): Code[10]
@@ -64,15 +64,15 @@ codeunit 5383 "Create Activity"
     end;
 
     var
-        CPresTemplateTok: Label 'C-PRES', MaxLength = 10, Locked = true;
-        InitTemplateTok: Label 'INIT', MaxLength = 10, Locked = true;
-        NeedsTemplateTok: Label 'NEEDS', MaxLength = 10, Locked = true;
-        PPresTemplateTok: Label 'P-PRES', MaxLength = 10, Locked = true;
-        ProposalTemplateTok: Label 'PROPOSAL', MaxLength = 10, Locked = true;
-        PWorkTemplateTok: Label 'P-WORK', MaxLength = 10, Locked = true;
-        QualTok: Label 'QUAL', MaxLength = 10, Locked = true;
-        SignTemplateTok: Label 'SIGN', MaxLength = 10, Locked = true;
-        WorkshopTemplateTok: Label 'WORKSHOP', MaxLength = 10, Locked = true;
+        CompanyPresentationTemplateTok: Label 'C-PRES', MaxLength = 10;
+        InitTemplateTok: Label 'INIT', MaxLength = 10;
+        NeedsTemplateTok: Label 'NEEDS', MaxLength = 10;
+        PPresTemplateTok: Label 'P-PRES', MaxLength = 10;
+        ProposalTemplateTok: Label 'PROPOSAL', MaxLength = 10;
+        PWorkTemplateTok: Label 'P-WORK', MaxLength = 10;
+        QualTok: Label 'QUAL', MaxLength = 10;
+        SignTemplateTok: Label 'SIGN', MaxLength = 10;
+        WorkshopTemplateTok: Label 'WORKSHOP', MaxLength = 10;
         CompanyPresentationTasksLbl: Label 'Company Presentation tasks', MaxLength = 100;
         InitialTasksLbl: Label 'Initial tasks', MaxLength = 100;
         UnderstandingNeedsTasksLbl: Label 'Understanding needs tasks', MaxLength = 100;

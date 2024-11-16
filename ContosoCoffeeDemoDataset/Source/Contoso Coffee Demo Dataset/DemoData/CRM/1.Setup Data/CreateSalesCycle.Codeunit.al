@@ -23,8 +23,8 @@ codeunit 5384 "Create Sales Cycle"
 
 
     var
-        ExistingSalesCycleTok: Label 'EXISTING', MaxLength = 10, Locked = true;
-        NewSalesCycleTok: Label 'NEW', MaxLength = 10, Locked = true;
+        ExistingSalesCycleTok: Label 'EXISTING', MaxLength = 10;
+        NewSalesCycleTok: Label 'NEW', MaxLength = 10;
         NewCustomerLbl: Label 'New customer', MaxLength = 100;
         ExistingCustomerLbl: Label 'Existing customer', MaxLength = 100;
 }

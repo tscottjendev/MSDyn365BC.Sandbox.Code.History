@@ -56,11 +56,11 @@ codeunit 5207 "Create Location"
     end;
 
     var
-        EastLocationTok: Label 'EAST', Locked = true;
-        MainLocationTok: Label 'MAIN', Locked = true;
-        OutLogLocationTok: Label 'OUT. LOG.', Locked = true;
-        OwnLogLocationTok: Label 'OWN LOG.', Locked = true;
-        WestLocationTok: Label 'WEST', Locked = true;
+        EastLocationTok: Label 'EAST', MaxLength = 10;
+        MainLocationTok: Label 'MAIN', MaxLength = 10;
+        OutLogLocationTok: Label 'OUT. LOG.', MaxLength = 10, Comment = 'Outsourced Logistics';
+        OwnLogLocationTok: Label 'OWN LOG.', MaxLength = 10, Comment = 'Own Logistics';
+        WestLocationTok: Label 'WEST', MaxLength = 10;
         EastLocationDescLbl: Label 'East Warehouse', MaxLength = 100;
         MainLocationDescLbl: Label 'Main Warehouse', MaxLength = 100;
         OutLogLocationDescLbl: Label 'Outsourced Logistics', MaxLength = 100;

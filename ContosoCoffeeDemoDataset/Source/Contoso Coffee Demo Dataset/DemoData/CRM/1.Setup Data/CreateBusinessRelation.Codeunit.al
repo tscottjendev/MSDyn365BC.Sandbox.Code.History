@@ -35,10 +35,10 @@ codeunit 5329 "Create Business Relation"
 
 
     var
-        CustBusinessRelationTok: Label 'CUST', MaxLength = 10, Locked = true;
-        VendBusinessRelationTok: Label 'VEND', MaxLength = 10, Locked = true;
-        EmpBusinessRelationTok: Label 'EMP', MaxLength = 10, Locked = true;
-        BankBusinessRelationTok: Label 'BANK', MaxLength = 10, Locked = true;
+        CustBusinessRelationTok: Label 'CUST', MaxLength = 10;
+        VendBusinessRelationTok: Label 'VEND', MaxLength = 10;
+        EmpBusinessRelationTok: Label 'EMP', MaxLength = 10;
+        BankBusinessRelationTok: Label 'BANK', MaxLength = 10;
         BankAccountLbl: Label 'Bank Account', MaxLength = 100;
         CustomerLbl: Label 'Customer', MaxLength = 100;
         EmployeeLbl: Label 'Employee', MaxLength = 100;

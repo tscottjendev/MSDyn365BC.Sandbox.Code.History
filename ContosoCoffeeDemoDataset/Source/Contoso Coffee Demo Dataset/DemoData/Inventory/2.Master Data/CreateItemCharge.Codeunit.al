@@ -54,13 +54,13 @@ codeunit 5386 "Create Item Charge"
     end;
 
     var
-        JBFreightTok: Label 'JB-FREIGHT', Locked = true;
-        PurchAllowanceTok: Label 'P-ALLOWANCE', Locked = true;
-        PurchFreightTok: Label 'P-FREIGHT', Locked = true;
-        PurchRestockTok: Label 'P-RESTOCK', Locked = true;
-        SaleAllowanceTok: Label 'S-ALLOWANCE', Locked = true;
-        SaleFreightTok: Label 'S-FREIGHT', Locked = true;
-        SaleRestockTok: Label 'S-RESTOCK', Locked = true;
+        JBFreightTok: Label 'JB-FREIGHT', MaxLength = 20;
+        PurchAllowanceTok: Label 'P-ALLOWANCE', MaxLength = 20;
+        PurchFreightTok: Label 'P-FREIGHT', MaxLength = 20;
+        PurchRestockTok: Label 'P-RESTOCK', MaxLength = 20;
+        SaleAllowanceTok: Label 'S-ALLOWANCE', MaxLength = 20;
+        SaleFreightTok: Label 'S-FREIGHT', MaxLength = 20;
+        SaleRestockTok: Label 'S-RESTOCK', MaxLength = 20;
         FreightChargeJBSpeditionLbl: Label 'Freight Charge (JB-Spedition)', Maxlength = 100;
         PurchaseAllowanceLbl: Label 'Purchase Allowance', Maxlength = 100;
         MiscFreightChargePurchLbl: Label 'Misc. Freight Charge (Purch.)', Maxlength = 100;

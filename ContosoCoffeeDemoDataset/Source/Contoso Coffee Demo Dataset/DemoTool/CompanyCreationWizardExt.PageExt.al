@@ -21,21 +21,15 @@ pageextension 5240 "Company Creation Wizard Ext" extends "Company Creation Wizar
             var
                 TempContosoDemoDataModule: Record "Contoso Demo Data Module" temporary;
                 CompanyCreationContoso: Codeunit "Company Creation Contoso";
-                NewCopmanyData: Enum "Company Demo Data Type";
-                StartTime, EndTime : DateTime;
-                NCDuration: Duration;
+                NewCompanyData: Enum "Company Demo Data Type";
             begin
-                StartTime := CurrentDateTime();
-                NewCopmanyData := GetNewCompanyData();
+                NewCompanyData := GetNewCompanyData();
 
-                if not (NewCopmanyData in [NewCopmanyData::"Production - Setup Data Only", NewCopmanyData::"Evaluation - Contoso Sample Data"]) then
+                if not (NewCompanyData in [Enum::"Company Demo Data Type"::"Production - Setup Data Only", Enum::"Company Demo Data Type"::"Evaluation - Contoso Sample Data"]) then
                     exit;
 
                 CurrPage."Contoso Modules Part".Page.GetContosoRecord(TempContosoDemoDataModule);
-                CompanyCreationContoso.CreateContosoDemodataInCompany(TempContosoDemoDataModule, GetNewCompanyName(), NewCopmanyData);
-                EndTime := CurrentDateTime();
-                NCDuration := StartTime - EndTime;
-                Message('Contoso Time: %1', NCDuration);
+                CompanyCreationContoso.CreateContosoDemodataInCompany(TempContosoDemoDataModule, GetNewCompanyName(), NewCompanyData);
             end;
         }
         addbefore(ActionBack)
@@ -47,6 +41,7 @@ pageextension 5240 "Company Creation Wizard Ext" extends "Company Creation Wizar
                 Image = AllLines;
                 InFooterBar = true;
                 Visible = DemoDataStepVisible;
+
                 trigger OnAction()
                 var
                     TempContosoDemoDataModule: Record "Contoso Demo Data Module" temporary;
@@ -82,6 +77,7 @@ pageextension 5240 "Company Creation Wizard Ext" extends "Company Creation Wizar
             end;
         }
     }
+
     var
         DemoDataStepVisible: Boolean;
 }

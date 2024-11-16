@@ -18,23 +18,23 @@ codeunit 5442 "Create Campaign"
 
     procedure IncreaseSale(): Code[20]
     begin
-        exit(CP1001Tok);
+        exit(Campaign1001Tok);
     end;
 
     procedure EventCampaign(): Code[20]
     begin
-        exit(CP1002Tok);
+        exit(Campaign1002Tok);
     end;
 
     procedure WorkingPlaceArrangement(): Code[20]
     begin
-        exit(CP1003Tok);
+        exit(Campaign1003Tok);
     end;
 
     var
-        CP1001Tok: Label 'CP1001', MaxLength = 20;
-        CP1002Tok: Label 'CP1002', MaxLength = 20;
-        CP1003Tok: Label 'CP1003', MaxLength = 20;
+        Campaign1001Tok: Label 'CP1001', MaxLength = 20;
+        Campaign1002Tok: Label 'CP1002', MaxLength = 20;
+        Campaign1003Tok: Label 'CP1003', MaxLength = 20;
         IncreaseSaleLbl: Label 'Increase sale', MaxLength = 100;
         EventLbl: Label 'Event', MaxLength = 100;
         WorkingPlaceArrangementLbl: Label 'Working place arrangement', MaxLength = 100;

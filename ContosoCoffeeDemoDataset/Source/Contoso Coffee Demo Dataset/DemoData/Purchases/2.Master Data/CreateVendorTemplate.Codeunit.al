@@ -36,9 +36,9 @@ codeunit 5319 "Create Vendor Template"
     end;
 
     var
-        VendorCompanyTok: Label 'VENDOR COMPANY';
-        VendorEUCompanyTok: Label 'VENDOR EU COMPANY';
-        VendorPersonTok: Label 'VENDOR PERSON';
+        VendorCompanyTok: Label 'VENDOR COMPANY', MaxLength = 20;
+        VendorEUCompanyTok: Label 'VENDOR EU COMPANY', MaxLength = 20;
+        VendorPersonTok: Label 'VENDOR PERSON', MaxLength = 20;
         B2BVendorLbl: Label 'Business-to-Business Vendor (Bank)', MaxLength = 100;
         EUVendorLbl: Label 'EU Vendor (Bank)', MaxLength = 100;
         CashPaymentLbl: Label 'Cash-Payment Vendor (Cash)', MaxLength = 100;

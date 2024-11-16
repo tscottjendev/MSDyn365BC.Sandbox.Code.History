@@ -22,7 +22,7 @@ codeunit 5382 "Company Creation Contoso"
 
         ContosoDemoTool.RefreshModules(ContosoDemoDataModule);
 
-        ContosoDemoTool.CreateNewCompanyDemoData(Rec, true);
+        ContosoDemoTool.CreateNewCompanyDemoData(Rec, Rec."Is Setup Company");
 
         // Set company setup status to completed
         AssistedCompanySetupStatus.Get(CompanyName);

@@ -19,7 +19,7 @@ codeunit 5279 "Generate Contoso Demo Data"
             JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
             JobQueueEntry."Object ID to Run" := CODEUNIT::"Company Creation Contoso";
             JobQueueEntry.Status := JobQueueEntry.Status::Error;
-            JobQueueEntry."Error Message" := CopyStr(GetLastErrorText, 0, MaxStrLen(JobQueueEntry."Error Message"));
+            JobQueueEntry."Error Message" := CopyStr(GetLastErrorText, 1, MaxStrLen(JobQueueEntry."Error Message"));
             JobQueueEntry.Description := DescriptionTxt;
             JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
             JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry);

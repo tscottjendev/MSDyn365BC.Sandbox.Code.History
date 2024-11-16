@@ -144,21 +144,21 @@ codeunit 5678 "Create Opportunity"
 
 
     var
-        OP100015Tok: Label 'OP100015';
-        OP100016Tok: Label 'OP100016';
-        OP100017Tok: Label 'OP100017';
-        OP100018Tok: Label 'OP100018';
-        OP100019Tok: Label 'OP100019';
-        OP100022Tok: Label 'OP100022';
-        OP100023Tok: Label 'OP100023';
-        OP100024Tok: Label 'OP100024';
-        OP100025Tok: Label 'OP100025';
-        OP100026Tok: Label 'OP100026';
-        OP100027Tok: Label 'OP100027';
-        OP100037Tok: Label 'OP100037';
-        OP100038Tok: Label 'OP100038';
-        OP100039Tok: Label 'OP100039';
-        OP100040Tok: Label 'OP100040';
+        OP100015Tok: Label 'OP100015', Locked = true;
+        OP100016Tok: Label 'OP100016', Locked = true;
+        OP100017Tok: Label 'OP100017', Locked = true;
+        OP100018Tok: Label 'OP100018', Locked = true;
+        OP100019Tok: Label 'OP100019', Locked = true;
+        OP100022Tok: Label 'OP100022', Locked = true;
+        OP100023Tok: Label 'OP100023', Locked = true;
+        OP100024Tok: Label 'OP100024', Locked = true;
+        OP100025Tok: Label 'OP100025', Locked = true;
+        OP100026Tok: Label 'OP100026', Locked = true;
+        OP100027Tok: Label 'OP100027', Locked = true;
+        OP100037Tok: Label 'OP100037', Locked = true;
+        OP100038Tok: Label 'OP100038', Locked = true;
+        OP100039Tok: Label 'OP100039', Locked = true;
+        OP100040Tok: Label 'OP100040', Locked = true;
         AssemblingFurnitureLbl: Label 'Assembling furniture', MaxLength = 100;
         FurnitureToSalesDepartmentLbl: Label 'Furniture to sales department', MaxLength = 100;
         FurnitureForConferenceLbl: Label 'Furniture for the conference', MaxLength = 100;

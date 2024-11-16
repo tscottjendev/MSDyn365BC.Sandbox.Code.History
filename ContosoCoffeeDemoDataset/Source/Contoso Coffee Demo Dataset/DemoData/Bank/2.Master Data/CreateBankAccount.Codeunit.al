@@ -34,8 +34,8 @@ codeunit 5457 "Create Bank Account"
         BankaccountAddressLbl: Label '1 High Holborn', MaxLength = 100;
         BankAccountCityLbl: Label 'London', MaxLength = 30;
         BankAccountContactLbl: Label 'Grant Culbertson', MaxLength = 100;
-        CheckingBankAccountNoLbl: Label '99-99-888', MaxLength = 30;
-        SavingBankAccountNoLbl: Label '99-44-567', MaxLength = 30;
-        PostCodeLbl: Label 'WC1 3DG', MaxLength = 20;
-        BankBranchNoLbl: Label 'BG99999', MaxLength = 20;
+        CheckingBankAccountNoLbl: Label '99-99-888', Locked = true;
+        SavingBankAccountNoLbl: Label '99-44-567', Locked = true;
+        PostCodeLbl: Label 'WC1 3DG', Locked = true;
+        BankBranchNoLbl: Label 'BG99999', Locked = true;
 }

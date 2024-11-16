@@ -93,20 +93,6 @@ page 5194 "Contoso Demo Tool"
                     Module.RunConfigurationPage();
                 end;
             }
-            action("Run All Contoso")
-            {
-                Caption = 'Run All Contoso';
-                ToolTip = 'Temp action to test company creation';
-                Image = Setup;
-
-                trigger OnAction()
-                var
-                    ContosoDemoTool: Codeunit "Contoso Demo Tool";
-
-                begin
-                    ContosoDemoTool.CreateAllDemoData();
-                end;
-            }
         }
         area(Promoted)
         {
