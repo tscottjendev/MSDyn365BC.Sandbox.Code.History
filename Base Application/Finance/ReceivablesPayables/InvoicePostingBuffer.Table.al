@@ -489,6 +489,7 @@ table 55 "Invoice Posting Buffer"
         "VAT Amount" := -"VAT Amount";
         "VAT Amount (ACY)" := -"VAT Amount (ACY)";
         NonDeductibleVAT.Reverse(Rec);
+        OnAfterReverseAmounts(Rec);
     end;
 
     procedure SetAmountsNoVAT(TotalAmount: Decimal; TotalAmountACY: Decimal; VATDifference: Decimal)
@@ -878,6 +879,11 @@ table 55 "Invoice Posting Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetAccount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; AccountNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReverseAmounts(var InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin
     end;
 }
