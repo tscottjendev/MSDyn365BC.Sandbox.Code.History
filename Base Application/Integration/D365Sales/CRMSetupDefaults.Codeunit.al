@@ -2559,10 +2559,18 @@ codeunit 5334 "CRM Setup Defaults"
     begin
         OnBeforeAddEntityTableMapping(CRMEntityTypeName, TableID, TempNameValueBuffer);
         TempNameValueBuffer.Init();
-        TempNameValueBuffer.ID := TempNameValueBuffer.Count + 1;
+        TempNameValueBuffer.ID := GetLastNameValueBuffer(TempNameValueBuffer);
         TempNameValueBuffer.Name := CopyStr(CRMEntityTypeName, 1, MaxStrLen(TempNameValueBuffer.Name));
         TempNameValueBuffer.Value := Format(TableID);
         TempNameValueBuffer.Insert();
+    end;
+
+    local procedure GetLastNameValueBuffer(var TempNameValueBuffer: Record "Name/Value Buffer" temporary): Integer
+    begin
+        if TempNameValueBuffer.FindLast() then
+            exit(TempNameValueBuffer.ID + 1)
+        else
+            exit(1);
     end;
 
     local procedure ResetDefaultCRMPricelevel(CRMConnectionSetup: Record "CRM Connection Setup")
