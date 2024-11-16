@@ -346,7 +346,6 @@ codeunit 1800 "Assisted Company Setup"
     end;
 
 #pragma warning disable AS0072
-    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssistedCompanySetupStatusEnabled(NewCompanyName: Text[30])
     begin
