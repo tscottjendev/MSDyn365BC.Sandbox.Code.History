@@ -1,32 +1,25 @@
-#if not CLEAN26
-#pragma warning disable AS0049, AS0072
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Utilities;
 
-enum 9121 "Company Data Type (Production)"
+enum 9125 "Company Demo Data Type"
 {
-    Extensible = true;
+    Extensible = false;
     AssignmentCompatibility = true;
-    ObsoleteTag = '25.2';
-    Access = Internal;
-    ObsoleteReason = 'Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084';
-    ObsoleteState = Pending;
 
-    value(0; "Evaluation - Sample Data")
+    value(0; "Create New - No Data")
     {
-        Caption = 'Evaluation - Contoso Sample Data';
+        Caption = 'Create New - No Data';
     }
+
     value(1; "Production - Setup Data Only")
     {
         Caption = 'Production - Setup Data Only';
     }
-    value(2; "Create New - No Data")
+    value(2; "Evaluation - Contoso Sample Data")
     {
-        Caption = 'Create New - No Data';
+        Caption = 'Evaluation - Contoso Sample Data';
     }
 }
-#pragma warning restore AS0049, AS0072
-#endif
