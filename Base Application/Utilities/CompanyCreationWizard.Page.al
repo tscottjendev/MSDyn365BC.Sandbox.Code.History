@@ -343,7 +343,7 @@ page 9192 "Company Creation Wizard"
         TrialPeriodTxt: Label '\\You will be able to use this company for a 30-day trial period.';
         EvalPeriodTxt: Label '\\You will be able to use the company to try out the product for as long as you want. ';
         IsSandbox: Boolean;
-        CompanySetUpInProgressMsg: Label 'Company %1 is created, but we are still setting it up.\This might take some time, so take a break before you begin to use it. When it is ready, its status is Completed. Refresh the page to update the status.\n Time taken to create new company: %2\nTimeTaken to setup new company: %3\nOtherDuration: %4', Comment = '%1 - a company name';
+        CompanySetUpInProgressMsg: Label 'Company %1 is created, but we are still setting it up.\This might take some time, so take a break before you begin to use it. When it is ready, its status is Completed. Refresh the page to update the status.', Comment = '%1 - a company name';
         AddUsersVisible: Boolean;
         ManageUsersLbl: Label 'Manage Users';
         CanManageUser: Boolean;
@@ -388,22 +388,12 @@ page 9192 "Company Creation Wizard"
     var
         AssistedCompanySetup: Codeunit "Assisted Company Setup";
         PermissionManager: Codeunit "Permission Manager";
-        StartTime, EndTime : DateTime;
-        NCDuration, SCDuration, PermissionDuration : Duration;
     begin
-        // Timing just for testing  -- maybe emit to telemetry?
-        StartTime := CurrentDateTime();
         AssistedCompanySetup.CreateNewCompany(NewCompanyName);
         OnAfterCreateNewCompany(NewCompanyData, NewCompanyName);
-        EndTime := CurrentDateTime();
-        NCDuration := StartTime - EndTime;
 
-        StartTime := CurrentDateTime();
         AssistedCompanySetup.SetUpNewCompany(NewCompanyName, NewCompanyData);
-        EndTime := CurrentDateTime();
-        SCDuration := StartTime - EndTime;
 
-        StartTime := CurrentDateTime();
         if Rec.FindSet() then
             repeat
                 PermissionManager.AssignDefaultPermissionsToUser(Rec."User Security ID", NewCompanyName);
@@ -413,10 +403,8 @@ page 9192 "Company Creation Wizard"
         OnFinishActionOnBeforeCurrPageClose(NewCompanyData, NewCompanyName);
         CurrPage.Close();
 
-        EndTime := CurrentDateTime();
-        PermissionDuration := StartTime - EndTime;
         if not (NewCompanyData in [NewCompanyData::"Create New - No Data"]) then
-            Message(CompanySetUpInProgressMsg, NewCompanyName, NCDuration, SCDuration, PermissionDuration);
+            Message(CompanySetUpInProgressMsg, NewCompanyName);
     end;
 
     local procedure NextStep(Backwards: Boolean)
@@ -548,7 +536,6 @@ page 9192 "Company Creation Wizard"
     end;
 
 #pragma warning disable AS0072
-    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     [IntegrationEvent(false, false)]
     local procedure OnFinishActionOnBeforeCurrPageClose(NewCompanyData: Enum "Company Demo Data Type"; NewCompanyName: Text[30])
     begin
