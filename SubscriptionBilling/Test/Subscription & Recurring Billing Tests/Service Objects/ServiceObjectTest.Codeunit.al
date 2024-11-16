@@ -8,6 +8,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
 using Microsoft.CRM.Contact;
+using Microsoft.Pricing.Calculation;
 using Microsoft.Finance.Currency;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Asset;
@@ -805,6 +806,9 @@ codeunit 148157 "Service Object Test"
         // [SCENARIO]: Change the Variant Code in Service Object and check the value of Calculation Base Amount in Service Commitment
         // [SCENARIO]: Calculation Base Amount should be recalculated based on value of Variant Code that has been set in Sales Price
 
+        // [GIVEN] New pricing enabled
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN]: Setup
         ClearAll();
         SetupServiceObjectWithServiceCommitment(true, true);
