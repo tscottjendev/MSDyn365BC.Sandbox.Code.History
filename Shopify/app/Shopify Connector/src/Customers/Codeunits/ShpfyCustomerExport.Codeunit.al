@@ -15,6 +15,7 @@ codeunit 30116 "Shpfy Customer Export"
     trigger OnRun()
     var
         Customer: Record Customer;
+        ShopifyCustomer: Record "Shpfy Customer";
         CustomerMapping: Codeunit "Shpfy Customer Mapping";
         CustomerId: BigInteger;
     begin
@@ -27,10 +28,14 @@ codeunit 30116 "Shpfy Customer Export"
                 if CustomerId = 0 then begin
                     if CreateCustomers then
                         CreateShopifyCustomer(Customer);
-                end else
-                    if Shop."Can Update Shopify Customer" then
-                        UpdateShopifyCustomer(Customer, CustomerId);
-
+                end else begin
+                    ShopifyCustomer.Get(CustomerId);
+                    if ShopifyCustomer."Customer SystemId" <> Customer.SystemId then
+                        SkippedRecord.LogSkippedRecord(Customer.RecordId, CustomerWithPhoneNoOrEmailExistsLbl, Shop)
+                    else
+                        if Shop."Can Update Shopify Customer" then
+                            UpdateShopifyCustomer(Customer, ShopifyCustomer);
+                end;
                 Commit();
             until Customer.Next() = 0;
         end;
@@ -71,7 +76,8 @@ codeunit 30116 "Shpfy Customer Export"
                 CustomerAddress.Insert();
             end;
 
-        UpdateMetafields(ShopifyCustomer.Id);
+        if ShopifyCustomer.Id > 0 then
+            UpdateMetafields(ShopifyCustomer.Id);
     end;
 
     /// <summary> 
@@ -243,18 +249,11 @@ codeunit 30116 "Shpfy Customer Export"
     /// </summary>
     /// <param name="Customer">Parameter of type Record Customer.</param>
     /// <param name="CustomerId">Parameter of type BigInteger.</param>
-    local procedure UpdateShopifyCustomer(Customer: Record Customer; CustomerId: BigInteger)
+    local procedure UpdateShopifyCustomer(Customer: Record Customer; var ShopifyCustomer: Record "Shpfy Customer")
     var
-        ShopifyCustomer: Record "Shpfy Customer";
         CustomerAddress: Record "Shpfy Customer Address";
     begin
-        ShopifyCustomer.Get(CustomerID);
-        if ShopifyCustomer."Customer SystemId" <> Customer.SystemId then begin
-            SkippedRecord.LogSkippedRecord(ShopifyCustomer.Id, Customer.RecordId, CustomerWithPhoneNoOrEmailExistsLbl, Shop);
-            exit;  // An other customer with the same e-mail or phone is the source of it.
-        end;
-
-        CustomerAddress.SetRange("Customer Id", CustomerId);
+        CustomerAddress.SetRange("Customer Id", ShopifyCustomer.Id);
         CustomerAddress.SetRange(Default, true);
         if not CustomerAddress.FindFirst() then begin
             CustomerAddress.SetRange(Default);
