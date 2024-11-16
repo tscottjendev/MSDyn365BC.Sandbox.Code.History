@@ -71,7 +71,7 @@ codeunit 6762 "Reminder-Send"
         IsHandled := false;
         OnBeforeGetDocumentSendingProfile(IssuedReminderHeader, DocumentSendingProfile, DocumentSendingProfileFound, IsHandled);
         if IsHandled then
-            exit;
+            exit(DocumentSendingProfileFound);
         Clear(DocumentSendingProfile);
         Customer.Get(IssuedReminderHeader."Customer No.");
 
