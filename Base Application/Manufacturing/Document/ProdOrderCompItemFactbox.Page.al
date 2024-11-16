@@ -185,7 +185,7 @@ page 874 "Prod. Order Comp. Item FactBox"
     begin
         SetRecalculateItem();
         if (Rec."Item No." <> '') then begin
-            Item.SetAutoCalcFields("No. of Substitutes"); 
+            Item.SetAutoCalcFields("No. of Substitutes");
             if Item.Get(Rec."Item No.") then;
         end;
     end;
@@ -250,7 +250,7 @@ page 874 "Prod. Order Comp. Item FactBox"
         if Rec."Item No." = '' then
             exit(0);
         Rec.CalcFields("Reserved Quantity");
-        exit(Rec.Quantity - Rec."Reserved Quantity");
+        exit(Rec."Expected Quantity" - Rec."Reserved Quantity");
     end;
 
     local procedure ShowDueDate(): Text
