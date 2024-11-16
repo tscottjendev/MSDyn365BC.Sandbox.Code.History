@@ -93,6 +93,20 @@ page 5194 "Contoso Demo Tool"
                     Module.RunConfigurationPage();
                 end;
             }
+            action("Run All Contoso")
+            {
+                Caption = 'Run All Contoso';
+                ToolTip = 'Temp action to test company creation';
+                Image = Setup;
+
+                trigger OnAction()
+                var
+                    ContosoDemoTool: Codeunit "Contoso Demo Tool";
+
+                begin
+                    ContosoDemoTool.CreateAllDemoData();
+                end;
+            }
         }
         area(Promoted)
         {
@@ -113,32 +127,8 @@ page 5194 "Contoso Demo Tool"
         ContosoDemoTool: Codeunit "Contoso Demo Tool";
     begin
         FeatureTelemetry.LogUptake('0000KZY', ContosoCoffeeDemoDatasetFeatureNameTok, Enum::"Feature Uptake Status"::Discovered);
-        ContosoDemoTool.RefreshModules();
-        FilterModulesWithApplicationAreas();
+        ContosoDemoTool.RefreshModules(Rec);
         FeatureTelemetry.LogUptake('0000KZZ', ContosoCoffeeDemoDatasetFeatureNameTok, Enum::"Feature Uptake Status"::"Set up");
-    end;
-
-    local procedure FilterModulesWithApplicationAreas()
-    var
-        ApplicationAreaMgt: Codeunit "Application Area Mgmt. Facade";
-    begin
-        if not ApplicationAreaMgt.IsServiceEnabled() then
-            FilterOutModule(Enum::"Contoso Demo Data Module"::"Service Module");
-
-        if not ApplicationAreaMgt.IsManufacturingEnabled() then
-            FilterOutModule(Enum::"Contoso Demo Data Module"::"Manufacturing Module");
-    end;
-
-    local procedure FilterOutModule(Module: Enum "Contoso Demo Data Module")
-    var
-        ModuleFilter: Text;
-    begin
-        ModuleFilter := Rec.GetFilter(Module);
-
-        if ModuleFilter = '' then
-            Rec.SetFilter(Module, '<>%1', Module)
-        else
-            Rec.SetFilter(Module, ModuleFilter + '&<>%1', Module);
     end;
 
     var
