@@ -253,7 +253,7 @@ page 9326 "Released Production Orders"
                     Caption = 'Change &Status';
                     Ellipsis = true;
                     Image = ChangeStatus;
-                    ToolTip = 'Change the production order to another status, such as Released.';
+                    ToolTip = 'Change the status of the selected production order(s) to a new one.';
 
                     trigger OnAction()
                     var
