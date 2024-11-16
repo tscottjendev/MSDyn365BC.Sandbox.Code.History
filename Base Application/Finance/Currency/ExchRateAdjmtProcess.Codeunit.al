@@ -2029,6 +2029,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         VendLedgerEntry.CalcFields(
             Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)", "Original Amt. (LCY)",
             "Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
+        OnAdjustVendorLedgerEntryOnAfterCalcFields(VendLedgerEntry);
 
         // Calculate Old Unrealized GainLoss
         SetUnrealizedGainLossFilterVend(DtldVendLedgEntry, VendLedgerEntry."Entry No.");
@@ -3061,6 +3062,11 @@ codeunit 699 "Exch. Rate Adjmt. Process"
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessGLAccountAdjustmentOnBeforePostGLAccAdjmt(var GLAccount: Record "G/L Account");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustVendorLedgerEntryOnAfterCalcFields(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }
