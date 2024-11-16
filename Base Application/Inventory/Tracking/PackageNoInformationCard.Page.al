@@ -82,6 +82,7 @@ page 6526 "Package No. Information Card"
                 }
                 action(Comment)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Comment';
                     Image = ViewComments;
                     RunObject = Page "Item Tracking Comments";
@@ -123,6 +124,7 @@ page 6526 "Package No. Information Card"
                 Visible = ButtonFunctionsVisible;
                 action("Copy &Info")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Copy &Info';
                     Ellipsis = true;
                     Image = CopySerialNo;
@@ -155,6 +157,7 @@ page 6526 "Package No. Information Card"
             }
             action(Navigate)
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
                 ToolTip = 'Find entries and documents that exist for the package number on the selected record. (Formerly this action was named Navigate.)';
