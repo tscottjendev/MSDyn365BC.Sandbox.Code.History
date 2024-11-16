@@ -294,7 +294,7 @@ page 9325 "Firm Planned Prod. Orders"
                     ApplicationArea = Manufacturing;
                     Caption = 'Change &Status';
                     Image = ChangeStatus;
-                    ToolTip = 'Change the production order to another status, such as Released.';
+                    ToolTip = 'Change the status of the selected production order(s) to a new one.';
 
                     trigger OnAction()
                     var
