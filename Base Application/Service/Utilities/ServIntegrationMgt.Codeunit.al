@@ -124,11 +124,13 @@ codeunit 6450 "Serv. Integration Mgt."
     begin
         case CustLedgerEntry."Document Type" of
             CustLedgerEntry."Document Type"::Invoice:
-                if ServiceInvoiceHeader.Get(CustLedgerEntry."Document No.") then
-                    OpenDocumentAttachmentDetails(ServiceInvoiceHeader);
+                if ServiceInvoiceHeader.ReadPermission() then
+                    if ServiceInvoiceHeader.Get(CustLedgerEntry."Document No.") then
+                        OpenDocumentAttachmentDetails(ServiceInvoiceHeader);
             CustLedgerEntry."Document Type"::"Credit Memo":
-                if ServiceCrMemoHeader.Get(CustLedgerEntry."Document No.") then
-                    OpenDocumentAttachmentDetails(ServiceCrMemoHeader);
+                if ServiceCrMemoHeader.ReadPermission() then
+                    if ServiceCrMemoHeader.Get(CustLedgerEntry."Document No.") then
+                        OpenDocumentAttachmentDetails(ServiceCrMemoHeader);
         end;
     end;
 
@@ -153,11 +155,13 @@ codeunit 6450 "Serv. Integration Mgt."
     begin
         case CustLedgerEntry."Document Type" of
             CustLedgerEntry."Document Type"::Invoice:
-                if ServiceInvoiceHeader.Get(CustLedgerEntry."Document No.") then
-                    HasPostedDocumentAttachment := DocumentAttachment.HasPostedDocumentAttachment(ServiceInvoiceHeader);
+                if ServiceInvoiceHeader.ReadPermission() then
+                    if ServiceInvoiceHeader.Get(CustLedgerEntry."Document No.") then
+                        HasPostedDocumentAttachment := DocumentAttachment.HasPostedDocumentAttachment(ServiceInvoiceHeader);
             CustLedgerEntry."Document Type"::"Credit Memo":
-                if ServiceCrMemoHeader.Get(CustLedgerEntry."Document No.") then
-                    HasPostedDocumentAttachment := DocumentAttachment.HasPostedDocumentAttachment(ServiceCrMemoHeader);
+                if ServiceCrMemoHeader.ReadPermission() then
+                    if ServiceCrMemoHeader.Get(CustLedgerEntry."Document No.") then
+                        HasPostedDocumentAttachment := DocumentAttachment.HasPostedDocumentAttachment(ServiceCrMemoHeader);
         end;
     end;
 
