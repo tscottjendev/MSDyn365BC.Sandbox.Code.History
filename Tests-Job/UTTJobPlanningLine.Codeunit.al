@@ -2035,6 +2035,51 @@ codeunit 136353 "UT T Job Planning Line"
         Assert.AreEqual(TextJobPlanningLine."Document No.", JobPlanningLine."Document No.", 'Document No. is not equal');
     end;
 
+    [Test]
+    [HandlerFunctions('ItemListLookForItem')]
+    procedure ExtendedTextLineIsCreatedOnSelectItemsActionFromProjectPlanningLines()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        TextJobPlanningLine: Record "Job Planning Line";
+        ExtendedTextHeader: Record "Extended Text Header";
+        ExtendedTextLine: Record "Extended Text Line";
+        JobPlanningLines: TestPage "Job Planning Lines";
+    begin
+        // [SCENARIO 556635] Extended Text Line is created on Select Items action from Project Planning Lines
+        Initialize();
+
+        // [GIVEN] Create Item with Automatic Ext. Text
+        CreateItemWithAutomaticExtText(Item);
+
+        // [GIVEN] Create Extended Text for the Item
+        UpdateAllLanguagesCodeOnExtendedTextHeader(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        ExtendedTextLine.Validate(Text, ExtendedTextHeader."No.");
+        ExtendedTextLine.Modify(true);
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobAndJobTask(Job, JobTask, false, '');
+
+        // [GIVEN] Create Job Planning Line
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
+            JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+
+        // [GIVEN] Enqueue Item No.
+        LibraryVariableStorage.Enqueue(Item."No.");
+
+        // [WHEN] Open Job Planning Lines page and set Item No.
+        JobPlanningLines.OpenEdit();
+        JobPlanningLines.GotoRecord(JobPlanningLine);
+        JobPlanningLines.SelectMultiItems.Invoke();
+
+        // [THEN] Verify Planning Date and Document No. Planning Line
+        FindJobPlanningLine(TextJobPlanningLine, JobTask, Job, JobPlanningLine.Type::Text);
+        Assert.RecordIsNotEmpty(TextJobPlanningLine, CompanyName);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2421,6 +2466,13 @@ codeunit 136353 "UT T Job Planning Line"
         JobTransfertoSalesInvoice.CreateNewInvoice.SetValue(false);
         JobTransfertoSalesInvoice.AppendToSalesInvoiceNo.SetValue(LibraryVariableStorage.DequeueText());
         JobTransfertoSalesInvoice.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemListLookForItem(var ItemList: TestPage "Item List")
+    begin
+        ItemList.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ItemList.OK().Invoke();
     end;
 }
 
