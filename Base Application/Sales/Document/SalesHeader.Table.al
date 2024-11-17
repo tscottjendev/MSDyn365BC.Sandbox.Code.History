@@ -3419,6 +3419,7 @@ table 36 "Sales Header"
         WarnZeroQuantitySalesPostingDescriptionTxt: Label 'Warn before posting lines on Sales documents where quantity is 0.';
         CompressPrepaymentCannotBeUsedWithApplyInvRoundAmtToVATErr: Label 'You cannot use %1 for %2 %3 when %4 is enabled in %5.', Comment = '%1 - Compress Prepayment field caption, %2 - Document Type field value, %3 - No. field value, %4 - Apply Inv. Round. Amt. To VAT field caption, %5 - Sales & Receivables Setup table caption.';
         CalledFromWhseDoc: Boolean;
+        DocumentNotOpenErr: Label 'The document''s status must be Open. To change the status, use the Reopen action.';
 
     protected var
         Customer: Record Customer;
@@ -8610,6 +8611,30 @@ table 36 "Sales Header"
         TestField(Status, Status::Open);
 
         OnAfterTestStatusOpen(Rec);
+    end;
+
+    /// <summary>
+    /// Checks if sales document status is open. If it is not, an error is raised.
+    /// </summary>
+    /// <param name="ThrowErrorIfNot">Determines if an error should be raised if status is not open.</param>
+    /// <returns>True if status is open, otherwise false.</returns>
+    /// <remakrs>
+    /// If global flag StatusCheckSuspended is set to true, the procedure is not executed.
+    /// </remakrs>
+    procedure TestStatusOpen(ThrowErrorIfNot: Boolean): Boolean
+    begin
+        OnBeforeTestStatusOpen(Rec, xRec, CurrFieldNo);
+
+        if StatusCheckSuspended then
+            exit(true);
+
+        if Rec.Status <> Rec.Status::Open then begin
+            if ThrowErrorIfNot then
+                Error(DocumentNotOpenErr);
+            exit(false)
+        end;
+        OnAfterTestStatusOpen(Rec);
+        exit(true)
     end;
 
     /// <summary>
