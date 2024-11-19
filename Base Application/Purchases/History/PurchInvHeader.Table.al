@@ -643,15 +643,6 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'Price Calculation Method';
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(8001; "Draft Invoice SystemId"; Guid)
         {
             Caption = 'Draft Invoice SystemId';
@@ -895,4 +886,3 @@ table 122 "Purch. Inv. Header"
     begin
     end;
 }
-

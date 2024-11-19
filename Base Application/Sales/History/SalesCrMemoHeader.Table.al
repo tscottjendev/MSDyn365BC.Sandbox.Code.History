@@ -738,15 +738,6 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Get Return Receipt Used';
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(8001; "Draft Cr. Memo SystemId"; Guid)
         {
             Caption = 'Draft Cr. Memo System Id';
@@ -1160,4 +1151,3 @@ table 114 "Sales Cr.Memo Header"
     begin
     end;
 }
-
