@@ -499,33 +499,6 @@ table 79 "Company Information"
             Caption = 'Cal. Convergence Time Frame';
             InitValue = '1Y';
         }
-#if not CLEANSCHEMA18
-        field(7602; "Show Chart On RoleCenter"; Boolean)
-        {
-            Caption = 'Show Chart On RoleCenter';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Only the Help and Chart Wrapper pages used this. The page has been changed to assume that this field is always set.';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(7603; "Sync with O365 Bus. profile"; Boolean)
-        {
-            Caption = 'Sync with O365 Bus. profile';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(11000; "Area"; Code[10])
         {
             Caption = 'Area';
@@ -622,24 +595,6 @@ table 79 "Company Information"
             OptionCaption = ' ,Schleswig-Holstein,Hamburg,Niedersachsen,Bremen,Nordrhein-Westfalen,Hessen,Rheinland-Pfalz,Baden-Wurttemberg,Bayern,Saarland,Brandenburg,Mecklenburg-Vorpommern,Sachsen,Sachsen-Anhalt,Thuringen,Berlin';
             OptionMembers = " ","Schleswig-Holstein",Hamburg,Niedersachsen,Bremen,"Nordrhein-Westfalen",Hessen,"Rheinland-Pfalz","Baden-Wurttemberg",Bayern,Saarland,Brandenburg,"Mecklenburg-Vorpommern",Sachsen,"Sachsen-Anhalt",Thuringen,Berlin;
         }
-#if not CLEANSCHEMA22
-        field(11017; "Check Transport Method"; Boolean)
-        {
-            Caption = 'Check Transport Method';
-            InitValue = true;
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-            ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
-        }
-        field(11018; "Check Transaction Specific."; Boolean)
-        {
-            Caption = 'Check Transaction Specific.';
-            InitValue = true;
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-            ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
-        }
-#endif
         field(11019; "VAT Representative"; Text[45])
         {
             Caption = 'VAT Representative';
@@ -648,24 +603,6 @@ table 79 "Company Information"
         {
             Caption = 'Participant No.';
         }
-#if not CLEANSCHEMA22
-        field(11051; "Check for Partner VAT ID"; Boolean)
-        {
-            Caption = 'Check for Partner VAT ID';
-            InitValue = true;
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-            ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
-        }
-        field(11052; "Check for Country of Origin"; Boolean)
-        {
-            Caption = 'Check for Country of Origin';
-            InitValue = true;
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-            ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
-        }
-#endif
         field(11100; "Statistic No."; Code[20])
         {
             Caption = 'Statistic No.';
@@ -691,14 +628,6 @@ table 79 "Company Information"
         {
             Caption = 'BUR Number';
         }
-#if not CLEANSCHEMA18
-        field(11502; "Swiss QRBill IBAN"; Code[50])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11511 Swiss QR-Bill Company Info';
-            ObsoleteTag = '18.0';
-        }
-#endif
     }
 
     keys
@@ -1049,4 +978,3 @@ table 79 "Company Information"
     begin
     end;
 }
-

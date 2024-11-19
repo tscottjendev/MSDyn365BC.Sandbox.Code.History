@@ -102,15 +102,6 @@ table 289 "Payment Method"
                 end;
             end;
         }
-#if not CLEANSCHEMA15
-        field(9; "Bank Data Conversion Pmt. Type"; Text[50])
-        {
-            Caption = 'Bank Data Conversion Pmt. Type';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Changed to AMC Banking 365 Fundamentals Extension';
-            ObsoleteTag = '15.0';
-        }
-#endif
 #if not CLEANSCHEMA24
         field(10; "Use for Invoicing"; Boolean)
         {
@@ -125,31 +116,6 @@ table 289 "Payment Method"
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(11500; "Swiss QRBill Layout"; Code[20])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11512 Swiss QR-Bill Payment Method';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11501; "Swiss QRBill Bank Account No."; Code[20])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11512 Swiss QR-Bill Payment Method';
-            ObsoleteTag = '19.0';
-        }
-#endif
     }
 
     keys
@@ -234,4 +200,3 @@ table 289 "Payment Method"
     begin
     end;
 }
-

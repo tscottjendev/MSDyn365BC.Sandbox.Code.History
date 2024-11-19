@@ -771,15 +771,6 @@ table 5107 "Sales Header Archive"
                 Rec.ShowDimensions();
             end;
         }
-#if not CLEANSCHEMA15
-        field(827; "Credit Card No."; Code[20])
-        {
-            Caption = 'Credit Card No.';
-            ObsoleteReason = 'This field is not needed and it is not used anymore.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(3998; "Source Doc. Exists"; Boolean)
         {
             FieldClass = Flowfield;
@@ -829,15 +820,6 @@ table 5107 "Sales Header Archive"
             Caption = 'Campaign No.';
             TableRelation = Campaign;
         }
-#if not CLEANSCHEMA21
-        field(5051; "Sell-to Customer Template Code"; Code[10])
-        {
-            Caption = 'Sell-to Customer Template Code';
-            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Sell-to Customer Templ. Code".';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-#endif
         field(5052; "Sell-to Contact No."; Code[20])
         {
             Caption = 'Sell-to Contact No.';
@@ -1137,4 +1119,3 @@ table 5107 "Sales Header Archive"
     begin
     end;
 }
-

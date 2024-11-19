@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -2240,15 +2240,6 @@ table 81 "Gen. Journal Line"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
-#if not CLEANSCHEMA15
-        field(827; "Credit Card No."; Code[20])
-        {
-            Caption = 'Credit Card No.';
-            ObsoleteReason = 'This field is not needed and it is not used anymore.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(1000; "Remit-to Code"; Code[20])
         {
             Caption = 'Remit-to Code';
@@ -2966,15 +2957,6 @@ table 81 "Gen. Journal Line"
         {
             Caption = 'Non-Ded. VAT FA Cost';
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(8001; "Account Id"; Guid)
         {
             Caption = 'Account Id';
@@ -3054,14 +3036,6 @@ table 81 "Gen. Journal Line"
                 UpdateVendorNo();
             end;
         }
-#if not CLEANSCHEMA18
-        field(11510; "Swiss QRBill"; Boolean)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11514 Swiss QR-Bill Gen Journal Line';
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(11580; "Payment Fee Code"; Option)
         {
             Caption = 'Payment Fee Code';

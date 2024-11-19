@@ -2528,15 +2528,6 @@ table 38 "Purchase Header"
         {
             Caption = 'Price Calculation Method';
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';
@@ -2565,44 +2556,6 @@ table 38 "Purchase Header"
             Caption = 'Registration No.';
             OptimizeForTextSearch = true;
         }
-#if not CLEANSCHEMA18
-        field(11510; "Swiss QRBill"; Boolean)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11513 Swiss QR-Bill Purchase Header';
-            ObsoleteTag = '18.0';
-        }
-        field(11511; "Swiss QRBill IBAN"; Code[50])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11513 Swiss QR-Bill Purchase Header';
-            ObsoleteTag = '18.0';
-        }
-        field(11512; "Swiss QRBill Bill Info"; Text[140])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11513 Swiss QR-Bill Purchase Header';
-            ObsoleteTag = '18.0';
-        }
-        field(11513; "Swiss QRBill Unstr. Message"; Text[140])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11513 Swiss QR-Bill Purchase Header';
-            ObsoleteTag = '18.0';
-        }
-        field(11514; "Swiss QRBill Amount"; Decimal)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11513 Swiss QR-Bill Purchase Header';
-            ObsoleteTag = '18.0';
-        }
-        field(11515; "Swiss QRBill Currency"; Code[10])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11513 Swiss QR-Bill Purchase Header';
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(3010541; "Reference No."; Code[35])
         {
             Caption = 'Reference No.';

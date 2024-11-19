@@ -54,15 +54,6 @@ table 6702 "Booking Sync"
         {
             Caption = 'Customer Filter';
         }
-#if not CLEANSCHEMA21
-        field(10; "Customer Template Code"; Code[10])
-        {
-            Caption = 'Customer Template Code';
-            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. replaced by "Customer Templ. Code".';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-#endif
         field(12; "Sync Services"; Boolean)
         {
             Caption = 'Sync Services';
@@ -146,4 +137,3 @@ table 6702 "Booking Sync"
             exit(Get() and ("Last Service Sync" <> 0DT));
     end;
 }
-

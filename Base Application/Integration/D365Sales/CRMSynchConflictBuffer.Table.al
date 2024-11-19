@@ -162,16 +162,6 @@ table 5374 "CRM Synch. Conflict Buffer"
             Caption = 'Failed On';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA22
-        field(15; "Deleted On"; DateTime)
-        {
-            Caption = 'Deleted On';
-            ObsoleteReason = 'This field is obsolete and should not be used after Integration Record is deprecated.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-            DataClassification = SystemMetadata;
-        }
-#endif
         field(16; "Record Exists"; Boolean)
         {
             Caption = 'Record Exists';
@@ -677,5 +667,4 @@ table 5374 "CRM Synch. Conflict Buffer"
     begin
     end;
 }
-
 

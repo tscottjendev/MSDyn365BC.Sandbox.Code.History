@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Setup;
+namespace Microsoft.Sales.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -228,16 +228,6 @@ table 311 "Sales & Receivables Setup"
             OptionCaption = 'Remainder,Blank';
             OptionMembers = Remainder,Blank;
         }
-#if not CLEANSCHEMA18
-        field(37; "Archive Quotes and Orders"; Boolean)
-        {
-            Caption = 'Archive Quotes and Orders';
-            Enabled = false;
-            ObsoleteReason = 'Replaced by new fields Archive Quotes and Archive Orders';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(38; "Post with Job Queue"; Boolean)
         {
             Caption = 'Post with Job Queue';
@@ -400,50 +390,6 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Disable Search by Name';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA18
-        field(170; "Insert Std. Sales Lines Mode"; Option)
-        {
-            Caption = 'Insert Std. Sales Lines Mode';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            OptionCaption = 'Manual,Automatic,Always Ask';
-            OptionMembers = Manual,Automatic,"Always Ask";
-            ObsoleteTag = '18.0';
-        }
-        field(171; "Insert Std. Lines on Quotes"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Quotes';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(172; "Insert Std. Lines on Orders"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Orders';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(173; "Insert Std. Lines on Invoices"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Invoices';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(174; "Insert Std. Lines on Cr. Memos"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Cr. Memos';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(175; "Allow Multiple Posting Groups"; Boolean)
         {
             Caption = 'Allow Multiple Posting Groups';
@@ -692,15 +638,6 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             InitValue = true;
         }
-#if not CLEANSCHEMA19
-        field(11500; "Block ship. when neg. invent."; Boolean)
-        {
-            Caption = 'Block ship. when neg. invent.';
-            ObsoleteReason = 'Replaced by W1 feature';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
 #if not CLEANSCHEMA25
         field(11501; "Line Amt. Round LCY"; Decimal)
         {
@@ -731,40 +668,6 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Automatic recalculate Quotes';
         }
-#if not CLEANSCHEMA19
-        field(5005130; "Arch. Orders and Ret. Orders"; Boolean)
-        {
-            Caption = 'Arch. Orders and Ret. Orders';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-        field(5005132; "Archiving Sales Quote"; Option)
-        {
-            Caption = 'Archiving Sales Quote';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            OptionCaption = 'Never,Question,Always';
-            OptionMembers = Never,Question,Always;
-            ObsoleteTag = '19.0';
-        }
-        field(5005133; "Archiving Blanket Sales Order"; Boolean)
-        {
-            Caption = 'Archiving Blanket Sales Order';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-        field(5005134; "Batch Archiving Sales Quote"; Boolean)
-        {
-            Caption = 'Batch Archiving Sales Quote';
-            Editable = false;
-            InitValue = false;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
     }
 
     keys
@@ -815,4 +718,3 @@ table 311 "Sales & Receivables Setup"
         end;
     end;
 }
-

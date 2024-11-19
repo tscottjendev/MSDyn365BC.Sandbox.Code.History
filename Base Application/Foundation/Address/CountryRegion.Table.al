@@ -103,15 +103,6 @@ table 9 "Country/Region"
         {
             Caption = 'County Name';
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys
@@ -317,4 +308,3 @@ table 9 "Country/Region"
     begin
     end;
 }
-
