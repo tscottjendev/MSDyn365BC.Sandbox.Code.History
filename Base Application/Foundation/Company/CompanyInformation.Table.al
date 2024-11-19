@@ -489,33 +489,6 @@ table 79 "Company Information"
             Caption = 'Cal. Convergence Time Frame';
             InitValue = '1Y';
         }
-#if not CLEANSCHEMA18
-        field(7602; "Show Chart On RoleCenter"; Boolean)
-        {
-            Caption = 'Show Chart On RoleCenter';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Only the Help and Chart Wrapper pages used this. The page has been changed to assume that this field is always set.';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(7603; "Sync with O365 Bus. profile"; Boolean)
-        {
-            Caption = 'Sync with O365 Bus. profile';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
 #if not CLEANSCHEMA26
         field(11200; "Plus Giro No."; Text[20])
         {
@@ -882,4 +855,3 @@ table 79 "Company Information"
     begin
     end;
 }
-

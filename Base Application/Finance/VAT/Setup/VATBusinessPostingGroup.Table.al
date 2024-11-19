@@ -28,15 +28,6 @@ table 323 "VAT Business Posting Group"
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys
@@ -74,4 +65,3 @@ table 323 "VAT Business Posting Group"
         "Last Modified Date Time" := CurrentDateTime;
     end;
 }
-

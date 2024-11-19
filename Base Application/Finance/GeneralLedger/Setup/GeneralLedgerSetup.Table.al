@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Setup;
+namespace Microsoft.Finance.GeneralLedger.Setup;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Analysis;
@@ -735,34 +735,11 @@ table 98 "General Ledger Setup"
                 end;
             end;
         }
-#if not CLEANSCHEMA21
-        field(152; "Use Legacy G/L Entry Locking"; Boolean)
-        {
-            Caption = 'Use Legacy G/L Entry Locking';
-            ObsoleteReason = 'Legacy G/L Locking is no longer supported.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-#endif
         field(160; "Payroll Trans. Import Format"; Code[20])
         {
             Caption = 'Payroll Trans. Import Format';
             TableRelation = "Data Exch. Def" where(Type = const("Payroll Import"));
         }
-#if not CLEANSCHEMA18
-        field(161; "VAT Reg. No. Validation URL"; Text[250])
-        {
-            Caption = 'VAT Reg. No. Validation URL';
-            ObsoleteReason = 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-
-            trigger OnValidate()
-            begin
-                Error(ObsoleteErr);
-            end;
-        }
-#endif
         field(162; "Local Currency Symbol"; Text[10])
         {
             Caption = 'Local Currency Symbol';
@@ -957,7 +934,6 @@ table 98 "General Ledger Setup"
 #pragma warning disable AA0470
         DependentFieldActivatedErr: Label 'You cannot change %1 because %2 is selected.';
 #pragma warning restore AA0470
-        ObsoleteErr: Label 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
         AccSchedObsoleteErr: Label 'This field is obsolete and it has been replaced by Table 88 Financial Report';
         VATDateFeatureTok: Label 'VAT Date', Locked = true;
         VATPeriodControlUsageMsg: Label 'Control VAT Period set to %1', Locked = true;
@@ -1211,4 +1187,3 @@ table 98 "General Ledger Setup"
     begin
     end;
 }
-
