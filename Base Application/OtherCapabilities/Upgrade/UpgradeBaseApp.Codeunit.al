@@ -14,7 +14,6 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
 using Microsoft.Bank.Payment;
 using Microsoft.Bank.Reconciliation;
-using Microsoft.EServices.EDocument;
 using Microsoft.EServices.OnlineMap;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -23,7 +22,6 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
-using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
@@ -154,14 +152,9 @@ codeunit 104000 "Upgrade - BaseApp"
         UpdateGenJournalBatchReferencedIds();
         UpdateJobs();
         UpdateItemTrackingCodes();
-        UpgradeJobQueueEntries();
-        UpgradeNotificationEntries();
-        UpgradeVATReportSetup();
         UpgradeStandardCustomerSalesCodes();
         UpgradeStandardVendorPurchaseCode();
         MoveLastUpdateInvoiceEntryNoValue();
-        CopyIncomingDocumentURLsIntoOneFiled();
-        UpgradePowerBiEmbedUrl();
         UpgradePowerBiReportUploads();
         UpgradeSearchEmail();
         UpgradeIntegrationTableMapping();
@@ -175,7 +168,9 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTemplates();
         AddPowerBIWorkspaces();
         UpgradePowerBiDisplayedElements();
+#if not CLEAN26        
         UpgradePurchaseRcptLineOverReceiptCode();
+#endif
         UpgradeContactMobilePhoneNo();
         UpgradePostCodeServiceKey();
         UpgradeDimensionSetEntry();
@@ -580,32 +575,12 @@ codeunit 104000 "Upgrade - BaseApp"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetLastUpdateInvoiceEntryNoUpgradeTag()) then
             exit;
 
-        if CRMConnectionSetup.Get() then
-            CRMSynchStatus."Last Update Invoice Entry No." := CRMConnectionSetup."Last Update Invoice Entry No."
-        else
+        if not CRMConnectionSetup.Get() then
             CRMSynchStatus."Last Update Invoice Entry No." := 0;
 
         if CRMSynchStatus.Insert() then;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetLastUpdateInvoiceEntryNoUpgradeTag());
-    end;
-
-    local procedure CopyIncomingDocumentURLsIntoOneFiled()
-    var
-        IncomingDocument: Record "Incoming Document";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIncomingDocumentURLUpgradeTag()) then
-            exit;
-
-        if IncomingDocument.FindSet() then
-            repeat
-                IncomingDocument.URL := IncomingDocument.URL1 + IncomingDocument.URL2 + IncomingDocument.URL3 + IncomingDocument.URL4;
-                IncomingDocument.Modify();
-            until IncomingDocument.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIncomingDocumentURLUpgradeTag());
     end;
 
     local procedure CopyRecordLinkURLsIntoOneField()
@@ -1255,91 +1230,6 @@ codeunit 104000 "Upgrade - BaseApp"
         end;
     end;
 
-    local procedure UpgradeJobQueueEntries()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        JobQueueLogEntry: Record "Job Queue Log Entry";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        OldErrorMsg: Text;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag()) then
-            exit;
-
-        JobQueueEntry.SETFILTER("Error Message 2", '<>%1', '');
-        if JobQueueEntry.FINDSET(true) then
-            repeat
-                JobQueueEntry."Error Message" := JobQueueEntry."Error Message" + JobQueueEntry."Error Message 2" +
-                    JobQueueEntry."Error Message 3" + JobQueueEntry."Error Message 4";
-                JobQueueEntry."Error Message 2" := '';
-                JobQueueEntry."Error Message 3" := '';
-                JobQueueEntry."Error Message 4" := '';
-                JobQueueEntry.Modify();
-            until JobQueueEntry.Next() = 0;
-
-        JobQueueLogEntry.SETFILTER("Error Message 2", '<>%1', '');
-        if JobQueueLogEntry.FINDSET(true) then
-            repeat
-                OldErrorMsg := JobQueueLogEntry."Error Message" + JobQueueLogEntry."Error Message 2" +
-                  JobQueueLogEntry."Error Message 3" + JobQueueLogEntry."Error Message 4";
-                JobQueueLogEntry."Error Message 2" := '';
-                JobQueueLogEntry."Error Message 3" := '';
-                JobQueueLogEntry."Error Message 4" := '';
-                JobQueueLogEntry.Modify();
-            until JobQueueLogEntry.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag());
-    end;
-
-    local procedure UpgradeNotificationEntries()
-    var
-        NotificationEntry: Record "Notification Entry";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNotificationEntryMergeErrorMessageFieldsUpgradeTag()) then
-            exit;
-
-        if NotificationEntry.FindSet(true) then
-            repeat
-                NotificationEntry."Error Message" :=
-                    CopyStr(
-                        NotificationEntry."Error Message" +
-                        NotificationEntry."Error Message 2" +
-                        NotificationEntry."Error Message 3" +
-                        NotificationEntry."Error Message 4",
-                        1, MaxStrLen(NotificationEntry."Error Message"));
-
-                NotificationEntry.Modify();
-            until NotificationEntry.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNotificationEntryMergeErrorMessageFieldsUpgradeTag());
-    end;
-
-    local procedure UpgradeVATReportSetup()
-    var
-        VATReportSetup: Record "VAT Report Setup";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        DateFormulaText: Text;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATRepSetupPeriodRemCalcUpgradeTag()) then
-            exit;
-
-        if not VATReportSetup.Get() then
-            exit;
-        if VATReportSetup.IsPeriodReminderCalculation() or (VATReportSetup."Period Reminder Time" = 0) then
-            exit;
-
-        DateFormulaText := StrSubstNo('<%1D>', VATReportSetup."Period Reminder Time");
-        EVALUATE(VATReportSetup."Period Reminder Calculation", DateFormulaText);
-        VATReportSetup."Period Reminder Time" := 0;
-
-        if VATReportSetup.Modify() then;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATRepSetupPeriodRemCalcUpgradeTag());
-    end;
-
     local procedure UpgradeStandardCustomerSalesCodes()
     var
         StandardSalesCode: Record "Standard Sales Code";
@@ -1398,35 +1288,6 @@ codeunit 104000 "Upgrade - BaseApp"
             PowerBIReportConfiguration.ModifyAll("Workspace Name", PowerBIWorkspaceMgt.GetMyWorkspaceLabel());
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPowerBIWorkspacesUpgradeTag());
-    end;
-
-    local procedure UpgradePowerBiEmbedUrl()
-    var
-        PowerBIReportUploads: Record "Power BI Report Uploads";
-        PowerBIReportConfiguration: Record "Power BI Report Configuration";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPowerBiEmbedUrlTooShortUpgradeTag()) then
-            exit;
-
-        if PowerBIReportUploads.FindSet(true) then
-            repeat
-                if PowerBIReportUploads."Report Embed Url" = '' then begin
-                    PowerBIReportUploads."Report Embed Url" := PowerBIReportUploads."Embed Url";
-                    PowerBIReportUploads.Modify();
-                end;
-            until PowerBIReportUploads.Next() = 0;
-
-        if PowerBIReportConfiguration.FindSet(true) then
-            repeat
-                if PowerBIReportConfiguration.ReportEmbedUrl = '' then begin
-                    PowerBIReportConfiguration.ReportEmbedUrl := PowerBIReportConfiguration.EmbedUrl;
-                    PowerBIReportConfiguration.Modify();
-                end;
-            until PowerBIReportConfiguration.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPowerBiEmbedUrlTooShortUpgradeTag());
     end;
 
     local procedure UpgradePowerBIDisplayedElements()
@@ -1769,7 +1630,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag()) then 
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag()) then
             exit;
         AADApplicationSetup.CreateDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag());
@@ -2269,25 +2130,12 @@ codeunit 104000 "Upgrade - BaseApp"
         CustomerTempl.Modify();
     end;
 
+#if not CLEAN26
+    [Obsolete('Field "Over-Receipt Code" has been deleted in version 26.', '26.0')]
     procedure UpgradePurchaseRcptLineOverReceiptCode()
-    var
-        PurchRcptLine: Record "Purch. Rcpt. Line";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.PurchRcptLineOverReceiptCodeUpgradeTag()) then
-            exit;
-
-        PurchRcptLine.SetFilter("Over-Receipt Code", '<>''''');
-        PurchRcptLine.SetRange("Over-Receipt Code 2", '');
-        if PurchRcptLine.FindSet(true) then
-            repeat
-                PurchRcptLine."Over-Receipt Code 2" := PurchRcptLine."Over-Receipt Code";
-                PurchRcptLine.Modify(false);
-            until PurchRcptLine.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.PurchRcptLineOverReceiptCodeUpgradeTag());
     end;
+#endif
 
     local procedure UpgradePurchRcptLineDocumentId()
     var

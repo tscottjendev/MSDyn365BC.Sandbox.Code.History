@@ -62,15 +62,6 @@ table 5722 "Item Category"
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys
@@ -205,4 +196,3 @@ table 5722 "Item Category"
             until ItemCategory.Next() = 0;
     end;
 }
-
