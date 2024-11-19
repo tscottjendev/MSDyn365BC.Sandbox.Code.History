@@ -103,15 +103,6 @@ table 9 "Country/Region"
         {
             Caption = 'County Name';
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(27000; "SAT Country Code"; Code[10])
         {
             Caption = 'SAT Country Code';
@@ -330,4 +321,3 @@ table 9 "Country/Region"
     begin
     end;
 }
-

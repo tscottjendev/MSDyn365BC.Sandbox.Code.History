@@ -31,15 +31,6 @@ table 9178 "Application Area Setup"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
         }
-#if not CLEANSCHEMA18
-        field(40; Invoicing; Boolean)
-        {
-            Caption = 'Invoicing';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Microsoft Invoicing is not supported on Business Central';
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(100; Basic; Boolean)
         {
             Caption = 'Basic';
@@ -296,4 +287,3 @@ table 9178 "Application Area Setup"
     {
     }
 }
-
