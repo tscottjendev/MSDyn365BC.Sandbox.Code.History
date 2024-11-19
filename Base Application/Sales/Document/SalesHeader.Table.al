@@ -8719,7 +8719,7 @@ table 36 "Sales Header"
             Error(Text028, FieldCaption("Requested Delivery Date"), FieldCaption("Promised Delivery Date"));
     end;
 
-    local procedure SetBillToCustomerNo(var Cust: Record Customer)
+    procedure SetBillToCustomerNo(var Cust: Record Customer)
     var
         IsHandled: Boolean;
     begin
@@ -9156,7 +9156,7 @@ table 36 "Sales Header"
         exit(InstructionMgt.IsMyNotificationEnabled(GetShowExternalDocAlreadyExistNotificationId()));
     end;
 
-    internal procedure UpdateSalesOrderLineIfExist()
+    procedure UpdateSalesOrderLineIfExist()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCreditMemoHeader: Record "Sales Cr.Memo Header";

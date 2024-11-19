@@ -1048,7 +1048,7 @@ codeunit 5760 "Whse.-Post Receipt"
             PostWhseJnlLine(PostedWhseReceiptHeader, PostedWhseReceiptLine, TempHandlingSpecification);
     end;
 
-    local procedure UpdateWhseRcptLineBuf(WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    procedure UpdateWhseRcptLineBuf(WarehouseReceiptLine: Record "Warehouse Receipt Line")
     begin
         TempWarehouseReceiptLine."No." := WarehouseReceiptLine."No.";
         TempWarehouseReceiptLine."Line No." := WarehouseReceiptLine."Line No.";
@@ -1059,7 +1059,7 @@ codeunit 5760 "Whse.-Post Receipt"
         end;
     end;
 
-    local procedure PostWhseJnlLine(var PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header"; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var TempWhseSplitSpecification: Record "Tracking Specification" temporary)
+    procedure PostWhseJnlLine(var PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header"; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var TempWhseSplitSpecification: Record "Tracking Specification" temporary)
     var
         TempWhseJnlLine2: Record "Warehouse Journal Line" temporary;
         IsHandled: Boolean;
