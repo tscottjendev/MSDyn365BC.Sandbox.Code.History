@@ -273,16 +273,6 @@ table 5079 "Marketing Setup"
         {
             Caption = 'Exchange Account Password Key';
         }
-#if not CLEANSCHEMA20
-        field(74; "Sync with Microsoft Graph"; Boolean)
-        {
-            Caption = 'Sync with Microsoft Graph';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
-            ObsoleteTag = '20.0';
-        }
-#endif
         field(75; "WebHook Run Notification As"; Guid)
         {
             Caption = 'WebHook Run Notification As';
@@ -423,4 +413,3 @@ table 5079 "Marketing Setup"
         end
     end;
 }
-

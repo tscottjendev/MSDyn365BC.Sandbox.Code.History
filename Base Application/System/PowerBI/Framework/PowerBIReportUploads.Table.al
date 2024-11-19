@@ -57,17 +57,6 @@ table 6307 "Power BI Report Uploads"
             ObsoleteTag = '26.0';
         }
 #endif
-#if not CLEANSCHEMA19
-        field(7; "Embed Url"; Text[250])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The field has been extended to a bigger field. Use "Report Embed Url" field instead.';
-            Caption = 'Embed Url';
-            DataClassification = CustomerContent;
-            Description = 'URL to cache when selecting the reporting.';
-            ObsoleteTag = '19.0';
-        }
-#endif
 #if not CLEANSCHEMA26
         field(8; "Should Retry"; Boolean)
         {

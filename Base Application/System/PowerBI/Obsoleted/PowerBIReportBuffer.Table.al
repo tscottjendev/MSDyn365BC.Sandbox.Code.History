@@ -30,16 +30,6 @@ table 6302 "Power BI Report Buffer"
             Caption = 'ReportName';
             DataClassification = CustomerContent;
         }
-#if not CLEANSCHEMA19
-        field(3; EmbedUrl; Text[250])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The field has been extended to a bigger field. Use ReportEmbedUrl field instead.';
-            Caption = 'EmbedUrl';
-            DataClassification = CustomerContent;
-            ObsoleteTag = '19.0';
-        }
-#endif
         field(4; Enabled; Boolean)
         {
             Caption = 'Enabled';

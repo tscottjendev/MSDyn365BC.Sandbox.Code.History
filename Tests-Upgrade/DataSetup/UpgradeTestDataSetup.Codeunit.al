@@ -9,9 +9,6 @@ codeunit 132802 "Upgrade Test Data Setup"
     begin
         if not CRMConnectionSetup.get() then
             CRMConnectionSetup.Insert();
-
-        CRMConnectionSetup."Last Update Invoice Entry No." := 15;
-        CRMConnectionSetup.Modify();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Test Data Setup Mgt.", 'OnGetTablesToBackupPerCompany', '', false, false)]

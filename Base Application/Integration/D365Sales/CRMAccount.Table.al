@@ -158,22 +158,6 @@ table 5341 "CRM Account"
             ExternalType = 'Lookup';
             TableRelation = "CRM Systemuser".SystemUserId;
         }
-#if not CLEANSCHEMA19
-        field(15; PaymentTermsCode; Option)
-        {
-            Caption = 'Payment Terms Code';
-            Description = 'Select the payment terms to indicate when the customer needs to pay the total amount.';
-            ExternalName = 'paymenttermscode';
-            ExternalType = 'Picklist';
-            InitValue = " ";
-            OptionCaption = ' ,Net 30,2% 10; Net 30,Net 45,Net 60';
-            OptionOrdinalValues = -1, 1, 2, 3, 4;
-            OptionMembers = " ",Net30,"2%10Net30",Net45,Net60;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This field is replaced by field 203 PaymentTermsCodeEnum.';
-            ObsoleteTag = '19.0';
-        }
-#endif
         field(16; ShippingMethodCode; Option)
         {
             Caption = 'Shipping Method Code';
@@ -638,22 +622,6 @@ table 5341 "CRM Account"
             MaxValue = 1500;
             MinValue = -1500;
         }
-#if not CLEANSCHEMA19
-        field(75; Address1_FreightTermsCode; Option)
-        {
-            Caption = 'Address 1: Freight Terms Code';
-            Description = 'Select the freight terms for the primary address to make sure shipping orders are processed correctly.';
-            ExternalName = 'address1_freighttermscode';
-            ExternalType = 'Picklist';
-            InitValue = " ";
-            OptionCaption = ' ,FOB,No Charge';
-            OptionOrdinalValues = -1, 1, 2;
-            OptionMembers = " ",FOB,NoCharge;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This field is replaced by field 204 Address1_FreightTermsCodeEnum.';
-            ObsoleteTag = '19.0';
-        }
-#endif
         field(76; Address1_UPSZone; Text[4])
         {
             Caption = 'Address 1: UPS Zone';
@@ -682,22 +650,6 @@ table 5341 "CRM Account"
             ExternalName = 'address1_longitude';
             ExternalType = 'Double';
         }
-#if not CLEANSCHEMA19
-        field(80; Address1_ShippingMethodCode; Option)
-        {
-            Caption = 'Address 1: Shipping Method';
-            Description = 'Select a shipping method for deliveries sent to this address.';
-            ExternalName = 'address1_shippingmethodcode';
-            ExternalType = 'Picklist';
-            InitValue = " ";
-            OptionCaption = ' ,Airborne,DHL,FedEx,UPS,Postal Mail,Full Load,Will Call';
-            OptionOrdinalValues = -1, 1, 2, 3, 4, 5, 6, 7;
-            OptionMembers = " ",Airborne,DHL,FedEx,UPS,PostalMail,FullLoad,WillCall;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This field is replaced by field 205 Address1_ShippingMethodCodeEnum.';
-            ObsoleteTag = '19.0';
-        }
-#endif
         field(81; Address1_Telephone2; Text[50])
         {
             Caption = 'Address 1: Telephone 2';
@@ -1337,4 +1289,3 @@ table 5341 "CRM Account"
         }
     }
 }
-
