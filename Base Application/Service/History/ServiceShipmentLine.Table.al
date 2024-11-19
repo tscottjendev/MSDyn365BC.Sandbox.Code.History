@@ -399,15 +399,6 @@ table 5991 "Service Shipment Line"
         {
             Caption = 'Catalog';
         }
-#if not CLEANSCHEMA15
-        field(5712; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(5817; Correction; Boolean)
         {
             Caption = 'Correction';
@@ -1035,4 +1026,3 @@ table 5991 "Service Shipment Line"
     begin
     end;
 }
-

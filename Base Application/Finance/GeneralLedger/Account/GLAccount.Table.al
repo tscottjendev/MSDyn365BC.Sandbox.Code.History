@@ -773,15 +773,6 @@ table 15 "G/L Account"
             Caption = 'Default Deferral Template Code';
             TableRelation = "Deferral Template"."Deferral Code";
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(9000; "API Account Type"; Enum "G/L Account Type")
         {
             Caption = 'API Account Type';
@@ -1212,4 +1203,3 @@ table 15 "G/L Account"
     begin
     end;
 }
-
