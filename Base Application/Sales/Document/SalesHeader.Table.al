@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Document;
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Bank.BankAccount;
@@ -2353,16 +2353,6 @@ table 36 "Sales Header"
                 MailManagement.CheckValidEmailAddresses("Sell-to E-Mail");
             end;
         }
-#if not CLEANSCHEMA21
-        field(175; "Payment Instructions Id"; Integer)
-        {
-            Caption = 'Payment Instructions Id';
-            TableRelation = "O365 Payment Instructions";
-            ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-#endif
         field(178; "Journal Templ. Name"; Code[10])
         {
             Caption = 'Journal Template Name';
@@ -2523,15 +2513,6 @@ table 36 "Sales Header"
                 CreateDimFromDefaultDim(Rec.FieldNo("Campaign No."));
             end;
         }
-#if not CLEANSCHEMA21
-        field(5051; "Sell-to Customer Template Code"; Code[10])
-        {
-            Caption = 'Sell-to Customer Template Code';
-            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Sell-to Customer Templ. Code".';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-#endif
         field(5052; "Sell-to Contact No."; Code[20])
         {
             Caption = 'Sell-to Contact No.';
@@ -2678,15 +2659,6 @@ table 36 "Sales Header"
                 UpdateBillToCust("Bill-to Contact No.");
             end;
         }
-#if not CLEANSCHEMA21
-        field(5054; "Bill-to Customer Template Code"; Code[10])
-        {
-            Caption = 'Bill-to Customer Template Code';
-            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Bill-to Customer Templ. Code".';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-#endif
         field(5055; "Opportunity No."; Code[20])
         {
             Caption = 'Opportunity No.';
@@ -3051,13 +3023,6 @@ table 36 "Sales Header"
         {
             Caption = 'Get Shipment Used';
             Editable = false;
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
         }
         field(9000; "Assigned User ID"; Code[50])
         {

@@ -25,15 +25,6 @@ table 230 "Source Code"
         {
             Caption = 'Description';
         }
-#if not CLEANSCHEMA15
-        field(28160; Simulation; Boolean)
-        {
-            Caption = 'Simulation';
-            ObsoleteReason = 'Discontinued feature';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
@@ -51,4 +42,3 @@ table 230 "Source Code"
         }
     }
 }
-
