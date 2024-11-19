@@ -1,4 +1,4 @@
-﻿namespace System.Email;
+namespace System.Email;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Sales.Document;
@@ -277,24 +277,6 @@ table 9500 "Email Item"
 #endif
         }
 #endif
-#if not CLEANSCHEMA19
-        field(33; "Source Table"; Integer)
-        {
-            Access = Internal;
-            Caption = 'Email Source Table';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced with method AddSourceDocument.';
-            ObsoleteTag = '18.1';
-        }
-        field(34; "Source System Id"; Guid)
-        {
-            Access = Internal;
-            Caption = 'The system id of the source record';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced with method AddSourceDocument.';
-            ObsoleteTag = '18.1';
-        }
-#endif
     }
 
     keys
@@ -549,4 +531,3 @@ table 9500 "Email Item"
     begin
     end;
 }
-
