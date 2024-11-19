@@ -3337,7 +3337,7 @@ table 38 "Purchase Header"
         end;
     end;
 
-    internal procedure LookupBuyFromContact()
+    procedure LookupBuyFromContact()
     var
         Contact: Record Contact;
     begin
