@@ -59,15 +59,6 @@ table 247 "Intrastat Setup"
             else
             if ("Intrastat Contact Type" = const(Vendor)) Vendor."No.";
         }
-#if not CLEANSCHEMA22
-        field(8; "Use Advanced Checklist"; Boolean)
-        {
-            Caption = 'Use Advanced Checklist';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-            ObsoleteReason = 'Unconditionally replaced by Advanced Intrastat Checklist';
-        }
-#endif
         field(9; "Cust. VAT No. on File"; Enum "Intrastat VAT No. On File")
         {
             Caption = 'Customer VAT No. on File';

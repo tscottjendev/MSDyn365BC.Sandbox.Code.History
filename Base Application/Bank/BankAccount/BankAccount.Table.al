@@ -384,16 +384,6 @@ table 270 "Bank Account"
         {
             Caption = 'Telex Answer Back';
         }
-#if not CLEANSCHEMA18
-        field(89; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(91; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
@@ -667,15 +657,6 @@ table 270 "Bank Account"
             Caption = 'Bank Clearing Standard';
             TableRelation = "Bank Clearing Standard";
         }
-#if not CLEANSCHEMA15
-        field(1213; "Bank Name - Data Conversion"; Text[50])
-        {
-            Caption = 'Bank Name - Data Conversion';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Changed to AMC Banking 365 Fundamentals Extension';
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(1250; "Match Tolerance Type"; Option)
         {
             Caption = 'Match Tolerance Type';
@@ -1715,4 +1696,3 @@ table 270 "Bank Account"
     begin
     end;
 }
-

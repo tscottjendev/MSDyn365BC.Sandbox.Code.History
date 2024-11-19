@@ -236,16 +236,6 @@ table 5600 "Fixed Asset"
         {
             Caption = 'Blocked';
         }
-#if not CLEANSCHEMA18
-        field(22; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(23; "Maintenance Vendor No."; Code[20])
         {
             Caption = 'Maintenance Vendor No.';
@@ -760,4 +750,3 @@ table 5600 "Fixed Asset"
     begin
     end;
 }
-
