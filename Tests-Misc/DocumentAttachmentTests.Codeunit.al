@@ -22,6 +22,7 @@ codeunit 134776 "Document Attachment Tests"
         LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryJob: Codeunit "Library - Job";
+        LibraryMarketing: Codeunit "Library - Marketing";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -36,6 +37,17 @@ codeunit 134776 "Document Attachment Tests"
         DeleteAttachmentsConfirmQst: Label 'Do you want to delete the attachments for this document?';
         ConfirmOpeningNewOrderAfterQuoteToOrderQst: Label 'Do you want to open the new order?';
         AttachedDateInvalidErr: Label 'Attached date is invalid';
+        FirstAttachmentFileNameMismatchErr: Label 'First file name not equal to saved attachment.';
+        FlowPurchaseValueForFirstAttachmentMismatchErr: Label 'Flow purchase value not equal for first attachment.';
+        FlowPurchaseValueForSecondAttachmentMismatchErr: Label 'Flow purchase value not equal for second attachment.';
+        FlowSalesValueForFirstAttachmentMismatchErr: Label 'Flow sales value not equal for first attachment.';
+        FlowSalesValueForSecondAttachmentMismatchErr: Label 'Flow sales value not equal for second attachment.';
+        JpegFileNameTok: Label '%1.jpeg';
+        OpportunityOneLbl: Label 'Opportunity1';
+        OpportunityTwoLbl: Label 'Opportunity2';
+        RenameCodeLbl: Label 'T';
+        SecondAttachmentFileNameMismatchErr: Label 'Second file name not equal to saved attachment.';
+        TwoAttachmentsExpectedErr: Label 'Two attachments were expected for this record.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1781,6 +1793,48 @@ codeunit 134776 "Document Attachment Tests"
         Assert.IsFalse(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for second attachment.');
     end;
 
+    [Test]
+    procedure EnsureAttachmentsAreRetainedWhenOpportunityNoIsChanged()
+    var
+        Contact: Record Contact;
+        Opportunity: Record Opportunity;
+        DocumentAttachment: Record "Document Attachment";
+        RecRef: RecordRef;
+    begin
+        // [SCENARIO] Test to ensure that attachments for a Opportunity are kept after change in [No.] which is a primary key
+        Initialize();
+
+        // [GIVEN] Create opportunity
+        LibraryMarketing.CreateCompanyContact(Contact);
+        LibraryMarketing.CreateOpportunity(Opportunity, Contact."No.");
+
+        // [GIVEN] Opportunity with an attachment
+        RecRef.GetTable(Opportunity);
+
+        CreateDocAttach(RecRef, StrSubstNo(JpegFileNameTok, OpportunityOneLbl), false, true);
+        CreateDocAttach(RecRef, StrSubstNo(JpegFileNameTok, OpportunityTwoLbl), false, false);
+
+        // [WHEN] No. is changed
+        Opportunity.Rename(RenameCodeLbl);
+
+        // [THEN] No errors. Verfiy document attachments are retained with all the properties
+        DocumentAttachment.SetRange("Table ID", RecRef.Number());
+        DocumentAttachment.SetRange("No.", RenameCodeLbl);
+
+        Assert.AreEqual(2, DocumentAttachment.Count, TwoAttachmentsExpectedErr);
+
+        DocumentAttachment.FindFirst();
+
+        Assert.AreEqual(DocumentAttachment."File Name", OpportunityOneLbl, FirstAttachmentFileNameMismatchErr);
+        Assert.IsFalse(DocumentAttachment."Document Flow Purchase", FlowPurchaseValueForFirstAttachmentMismatchErr);
+        Assert.IsTrue(DocumentAttachment."Document Flow Sales", FlowSalesValueForFirstAttachmentMismatchErr);
+
+        DocumentAttachment.FindLast();
+
+        Assert.AreEqual(DocumentAttachment."File Name", OpportunityTwoLbl, SecondAttachmentFileNameMismatchErr);
+        Assert.IsFalse(DocumentAttachment."Document Flow Purchase", FlowPurchaseValueForSecondAttachmentMismatchErr);
+        Assert.IsFalse(DocumentAttachment."Document Flow Sales", FlowSalesValueForSecondAttachmentMismatchErr);
+    end;
 
     [Test]
     [HandlerFunctions('PrintedToAttachmentNotificationHandler')]
