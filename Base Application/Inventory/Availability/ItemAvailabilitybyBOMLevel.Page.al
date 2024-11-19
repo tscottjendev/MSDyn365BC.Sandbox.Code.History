@@ -470,7 +470,6 @@ page 5871 "Item Availability by BOM Level"
         ProdOrderLine: Record "Prod. Order Line";
         IsParentExpr: Boolean;
         DemandDate: Date;
-        IsCalculated: Boolean;
         ShowTotalAvailability: Boolean;
         HasWarning: Boolean;
 #pragma warning disable AA0074
@@ -483,6 +482,7 @@ page 5871 "Item Availability by BOM Level"
         ItemFilter: Code[250];
         LocationFilter: Code[250];
         VariantFilter: Code[250];
+        IsCalculated: Boolean;
         ShowBy: Enum "BOM Structure Show By";
 
     procedure InitItem(var NewItem: Record Item)
@@ -511,7 +511,7 @@ page 5871 "Item Availability by BOM Level"
         DemandDate := NewDemandDate;
     end;
 
-    local procedure RefreshPage()
+    protected procedure RefreshPage()
     var
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
         IsHandled: Boolean;
