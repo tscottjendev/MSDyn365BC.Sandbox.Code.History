@@ -2696,6 +2696,60 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType DuplicateErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2785749549 - NamedType 1463565453" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[First file name not equal to saved attachment.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType FirstAttachmentFileNameMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2785749549 - NamedType 3896596661" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Flow purchase value not equal for first attachment.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType FlowPurchaseValueForFirstAttachmentMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2785749549 - NamedType 2416734587" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Flow purchase value not equal for second attachment.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType FlowPurchaseValueForSecondAttachmentMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2785749549 - NamedType 1830050508" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Flow sales value not equal for first attachment.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType FlowSalesValueForFirstAttachmentMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2785749549 - NamedType 1651218446" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Flow sales value not equal for second attachment.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType FlowSalesValueForSecondAttachmentMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2785749549 - NamedType 1322642731" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1.jpeg]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType JpegFileNameTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2785749549 - NamedType 2456682063" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The selected file '%1' has no content. Please choose another file.]]></Val>
@@ -2714,6 +2768,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType NoSaveToPDFReportTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2785749549 - NamedType 594065569" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Opportunity1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType OpportunityOneLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2785749549 - NamedType 2897205537" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Opportunity2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType OpportunityTwoLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2785749549 - NamedType 2093419934" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The document has been printed to attachments.]]></Val>
@@ -2721,6 +2793,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType PrintedToAttachmentTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2785749549 - NamedType 3810184017" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[T]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType RenameCodeLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2785749549 - NamedType 4197956619" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Second file name not equal to saved attachment.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType SecondAttachmentFileNameMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2785749549 - NamedType 489279367" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Two attachments were expected for this record.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType TwoAttachmentsExpectedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2785749549 - Method 4031811529 - NamedType 3055573370" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
