@@ -269,45 +269,6 @@ table 85 "Acc. Schedule Line"
             FieldClass = FlowFilter;
             TableRelation = "Cost Budget Name";
         }
-#if not CLEANSCHEMA20
-        field(31080; Calc; Option)
-        {
-            Caption = 'Calc';
-            InitValue = Always;
-            OptionCaption = 'Always,Never,When Positive,When Negative';
-            OptionMembers = Always,Never,"When Positive","When Negative";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31081; "Row Correction"; Code[10])
-        {
-            Caption = 'Row Correction';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31082; "Assets/Liabilities Type"; Option)
-        {
-            Caption = 'Assets/Liabilities Type';
-            OptionCaption = ' ,Assets,Liabilities';
-            OptionMembers = " ",Assets,Liabilities;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(31083; "Source Table"; Option)
-        {
-            Caption = 'Source Table';
-            OptionCaption = ' ,VAT Entry,Value Entry,Customer Entry,Vendor Entry';
-            OptionMembers = " ","VAT Entry","Value Entry","Customer Entry","Vendor Entry";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys

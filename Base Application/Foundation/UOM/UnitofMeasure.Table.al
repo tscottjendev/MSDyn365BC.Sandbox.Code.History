@@ -58,40 +58,6 @@ table 204 "Unit of Measure"
             Editable = false;
             CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::"Unit of Measure")));
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31060; "Unspecified Intrastat"; Boolean)
-        {
-            Caption = 'Unspecified Intrastat';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Unsupported functionality';
-            ObsoleteTag = '21.0';
-        }
-        field(31061; "Tariff Number UOM Code"; Code[20])
-        {
-            Caption = 'Tariff Number UOM Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31070; "Indivisible Unit"; Boolean)
-        {
-            Caption = 'Indivisible Unit';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Indivisible unit of measure will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
     }
 
     keys
@@ -190,4 +156,3 @@ table 204 "Unit of Measure"
         "Last Modified Date Time" := DotNet_DateTimeOffset.ConvertToUtcDateTime(CurrentDateTime);
     end;
 }
-

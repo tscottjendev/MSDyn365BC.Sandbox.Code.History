@@ -184,15 +184,6 @@ table 5745 "Transfer Shipment Line"
             Caption = 'Item Category Code';
             TableRelation = "Item Category";
         }
-#if not CLEANSCHEMA15
-        field(5707; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(5817; "Correction Line"; Boolean)
         {
             Caption = 'Correction';
@@ -220,24 +211,6 @@ table 5745 "Transfer Shipment Line"
             ObsoleteReason = 'The functionality will be removed and this field should not be used.';
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31070; "Gen. Bus. Post. Group Ship"; Code[20])
-        {
-            Caption = 'Gen. Bus. Post. Group Ship';
-            TableRelation = "Gen. Business Posting Group";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31071; "Gen. Bus. Post. Group Receive"; Code[20])
-        {
-            Caption = 'Gen. Bus. Post. Group Receive';
-            TableRelation = "Gen. Business Posting Group";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
         }
 #endif
 #if not CLEANSCHEMA23
@@ -327,4 +300,3 @@ table 5745 "Transfer Shipment Line"
     begin
     end;
 }
-

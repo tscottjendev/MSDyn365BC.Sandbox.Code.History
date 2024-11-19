@@ -77,40 +77,6 @@ table 1250 "Bank Statement Matching Buffer"
         {
             Caption = 'Date Matches';
         }
-#if not CLEANSCHEMA22
-        field(11700; "No. of Match to Doc. No."; Integer)
-        {
-            Caption = 'No. of Match to Doc. No.';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11701; "No. of Match to V. Symbol"; Integer)
-        {
-            Caption = 'No. of Match to V. Symbol';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11702; "No. of Match to S. Symbol"; Integer)
-        {
-            Caption = 'No. of Match to S. Symbol';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11703; "No. of Match to C. Symbol"; Integer)
-        {
-            Caption = 'No. of Match to C. Symbol';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
 #if not CLEANSCHEMA25
         field(30000; "Letter Type"; Option)
         {
@@ -204,4 +170,3 @@ table 1250 "Bank Statement Matching Buffer"
         Modify(true);
     end;
 }
-

@@ -108,34 +108,6 @@ table 1200 "Bank Export/Import Setup"
             FieldClass = FlowField;
         }
 #pragma warning restore AS0086
-#if not CLEANSCHEMA22
-        field(11700; "Processing Report ID"; Integer)
-        {
-            Caption = 'Processing Report ID';
-            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Report));
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(11705; "Default Folder Path"; Text[250])
-        {
-            Caption = 'Default Folder Path';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Folder path isn''t supported to use in DownloadFromStream, UploadToStream, Download and Upload functions for web client';
-            ObsoleteTag = '15.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(11706; "Default File Type"; Text[10])
-        {
-            Caption = 'Default File Type';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys
@@ -150,4 +122,3 @@ table 1200 "Bank Export/Import Setup"
     {
     }
 }
-

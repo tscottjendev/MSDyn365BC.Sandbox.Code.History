@@ -471,32 +471,6 @@ table 1226 "Payment Export Data"
         {
             Caption = 'Format Form Type';
         }
-#if not CLEANSCHEMA22
-        field(11700; "Specific Symbol"; Code[10])
-        {
-            Caption = 'Specific Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11701; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11702; "Constant Symbol"; Code[10])
-        {
-            Caption = 'Constant Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys
@@ -783,4 +757,3 @@ table 1226 "Payment Export Data"
     begin
     end;
 }
-

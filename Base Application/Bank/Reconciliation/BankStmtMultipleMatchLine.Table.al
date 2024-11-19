@@ -39,48 +39,6 @@ table 1249 "Bank Stmt Multiple Match Line"
         {
             Caption = 'Due Date';
         }
-#if not CLEANSCHEMA22
-        field(11700; "Specific Symbol"; Code[10])
-        {
-            Caption = 'Specific Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11701; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11702; "Constant Symbol"; Code[10])
-        {
-            Caption = 'Constant Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(30000; "Letter Type"; Option)
-        {
-            Caption = 'Letter Type';
-            OptionCaption = 'Sales,Purchase';
-            OptionMembers = Sales,Purchase;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31001; "Letter No."; Code[20])
-        {
-            Caption = 'Letter No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys
@@ -112,4 +70,3 @@ table 1249 "Bank Stmt Multiple Match Line"
     begin
     end;
 }
-

@@ -497,25 +497,6 @@ table 4 Currency
             Editable = false;
             CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::Currency)));
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11760; "Customs Currency Code"; Code[10])
-        {
-            Caption = 'Customs Currency Code';
-            TableRelation = Currency;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Unsupported functionality';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     keys
@@ -925,4 +906,3 @@ table 4 Currency
     begin
     end;
 }
-

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Setup;
+namespace Microsoft.Finance.GeneralLedger.Setup;
 
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
@@ -427,16 +427,6 @@ table 252 "General Posting Setup"
                 CheckGLAcc("COGS Account (Interim)");
             end;
         }
-#if not CLEANSCHEMA21
-        field(11760; "Invt. Rounding Adj. Account"; Code[20])
-        {
-            Caption = 'Invt. Rounding Adj. Account';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
         field(99000752; "Direct Cost Applied Account"; Code[20])
         {
             Caption = 'Direct Cost Applied Account';

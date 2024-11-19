@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -85,33 +85,6 @@ table 5813 "Inventory Posting Setup"
                       FieldNo("Inventory Account (Interim)"), "Inventory Account (Interim)", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory());
             end;
         }
-#if not CLEANSCHEMA21
-        field(11760; "Consumption Account"; Code[20])
-        {
-            Caption = 'Consumption Account';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-
-        field(11761; "Change In Inv.Of WIP Acc."; Code[20])
-        {
-            Caption = 'Change In Inv.Of WIP Acc.';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11762; "Change In Inv.Of Product Acc."; Code[20])
-        {
-            Caption = 'Change In Inv.Of Product Acc.';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     keys
@@ -227,4 +200,3 @@ table 5813 "Inventory Posting Setup"
     begin
     end;
 }
-

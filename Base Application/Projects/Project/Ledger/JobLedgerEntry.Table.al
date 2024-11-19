@@ -481,73 +481,6 @@ table 169 "Job Ledger Entry"
             Caption = 'Package No.';
             CaptionClass = '6,1';
         }
-#if not CLEANSCHEMA21
-        field(11763; Correction; Boolean)
-        {
-            Caption = 'Correction';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31061; "Tariff No."; Code[20])
-        {
-            Caption = 'Tariff No.';
-            TableRelation = "Tariff Number";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31062; "Statistic Indication"; Code[10])
-        {
-            Caption = 'Statistic Indication';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31063; "Intrastat Transaction"; Boolean)
-        {
-            Caption = 'Intrastat Transaction';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31064; "Country/Region of Origin Code"; Code[10])
-        {
-            Caption = 'Country/Region of Origin Code';
-            TableRelation = "Country/Region";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31065; "Shipment Method Code"; Code[10])
-        {
-            Caption = 'Shipment Method Code';
-            TableRelation = "Shipment Method";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Merge to W1';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31066; "Net Weight"; Decimal)
-        {
-            Caption = 'Net Weight';
-            DecimalPlaces = 0 : 5;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     keys
@@ -639,4 +572,3 @@ table 169 "Job Ledger Entry"
     begin
     end;
 }
-

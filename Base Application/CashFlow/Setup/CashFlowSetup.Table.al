@@ -240,46 +240,12 @@ table 843 "Cash Flow Setup"
             Caption = 'Service Pass API Key ID';
             Description = 'The Key for retrieving the API Key from Isolated Storage.';
         }
-#if not CLEANSCHEMA15
-        field(31; "Cortana Intelligence Enabled"; Boolean)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Renamed to Azure AI Enabled';
-            Caption = 'Cortana Intelligence Enabled';
-            InitValue = false;
-            ObsoleteTag = '15.0';
-        }
-        field(32; "Show Cortana Notification"; Boolean)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Renamed to Show AzureAI Notification';
-            Caption = 'Show AzureAI Notification';
-            InitValue = true;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(33; "Time Series Model"; Option)
         {
             Caption = 'Time Series Model';
             OptionCaption = 'ARIMA,ETS,STL,ETS+ARIMA,ETS+STL,ALL,TBATS', Locked = true;
             OptionMembers = ARIMA,ETS,STL,"ETS+ARIMA","ETS+STL",ALL,TBATS;
         }
-#if not CLEANSCHEMA22
-        field(31000; "S. Adv. Letter CF Account No."; Code[20])
-        {
-            Caption = 'S. Adv. Letter CF Account No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31001; "P. Adv. Letter CF Account No."; Code[20])
-        {
-            Caption = 'P. Adv. Letter CF Account No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(34; "Azure AI Enabled"; Boolean)
         {
             Caption = 'Azure AI Enabled';
@@ -622,4 +588,3 @@ table 843 "Cash Flow Setup"
         exit(not (IsNullGuid("Service Pass API Key ID") or ("API URL" = '')));
     end;
 }
-

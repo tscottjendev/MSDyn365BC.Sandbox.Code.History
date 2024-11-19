@@ -828,16 +828,6 @@ table 18 Customer
                         Validate("VAT Bus. Posting Group", GenBusPostingGrp."Def. VAT Bus. Posting Group");
             end;
         }
-#if not CLEANSCHEMA19
-        field(89; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '19.0';
-        }
-#endif
         field(90; GLN; Code[13])
         {
             Caption = 'GLN';
@@ -1634,15 +1624,6 @@ table 18 Customer
         {
             Caption = 'Validate EU VAT Reg. No.';
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(8001; "Currency Id"; Guid)
         {
             Caption = 'Currency Id';
@@ -1692,18 +1673,6 @@ table 18 Customer
                 UpdateTaxAreaCode();
             end;
         }
-#if not CLEANSCHEMA15
-        field(9004; "Tax Area Display Name"; Text[100])
-        {
-            CalcFormula = lookup("Tax Area".Description where(Code = field("Tax Area Code")));
-            Caption = 'Tax Area Display Name';
-            OptimizeForTextSearch = true;
-            FieldClass = FlowField;
-            ObsoleteReason = 'This field is not needed and it should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(9005; "Contact ID"; Guid)
         {
             Caption = 'Contact ID';
@@ -1721,85 +1690,6 @@ table 18 Customer
             ObsoleteReason = 'The functionality will be removed and this field should not be used.';
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(11790; "Registration No."; Text[20])
-        {
-            Caption = 'Registration No.';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(11791; "Tax Registration No."; Text[20])
-        {
-            Caption = 'Tax Registration No.';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(11792; "Registered Name"; Text[250])
-        {
-            Caption = 'Registered Name';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(11793; "Default Ship-to Address Code"; Code[10])
-        {
-            Caption = 'Default Ship-to Address Code';
-            ObsoleteReason = 'Replaced by "Ship-to Code" ';
-            ObsoleteState = Removed;
-            TableRelation = "Ship-to Address".Code where("Customer No." = field("No."));
-            ObsoleteTag = '15.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31060; "Transaction Type"; Code[10])
-        {
-            Caption = 'Transaction Type';
-            TableRelation = "Transaction Type";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31061; "Transaction Specification"; Code[10])
-        {
-            Caption = 'Transaction Specification';
-            TableRelation = "Transaction Specification";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31062; "Transport Method"; Code[10])
-        {
-            Caption = 'Transport Method';
-            TableRelation = "Transport Method";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31063; "Industry Code"; Code[20])
-        {
-            Caption = 'Industry Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
         }
 #endif
     }

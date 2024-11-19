@@ -65,7 +65,6 @@ using System;
 using System.Automation;
 using System.Globalization;
 using System.Reflection;
-using System.Security.AccessControl;
 using System.Utilities;
 using Microsoft.Foundation.NoSeries;
 using System.Threading;
@@ -2348,16 +2347,6 @@ table 36 "Sales Header"
                 MailManagement.CheckValidEmailAddresses("Sell-to E-Mail");
             end;
         }
-#if not CLEANSCHEMA21
-        field(175; "Payment Instructions Id"; Integer)
-        {
-            Caption = 'Payment Instructions Id';
-            TableRelation = "O365 Payment Instructions";
-            ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-#endif
         field(178; "Journal Templ. Name"; Code[10])
         {
             Caption = 'Journal Template Name';
@@ -2518,15 +2507,6 @@ table 36 "Sales Header"
                 CreateDimFromDefaultDim(Rec.FieldNo("Campaign No."));
             end;
         }
-#if not CLEANSCHEMA21
-        field(5051; "Sell-to Customer Template Code"; Code[10])
-        {
-            Caption = 'Sell-to Customer Template Code';
-            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Sell-to Customer Templ. Code".';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-#endif
         field(5052; "Sell-to Contact No."; Code[20])
         {
             Caption = 'Sell-to Contact No.';
@@ -2673,15 +2653,6 @@ table 36 "Sales Header"
                 UpdateBillToCust("Bill-to Contact No.");
             end;
         }
-#if not CLEANSCHEMA21
-        field(5054; "Bill-to Customer Template Code"; Code[10])
-        {
-            Caption = 'Bill-to Customer Template Code';
-            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Bill-to Customer Templ. Code".';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-#endif
         field(5055; "Opportunity No."; Code[20])
         {
             Caption = 'Opportunity No.';
@@ -3047,15 +3018,6 @@ table 36 "Sales Header"
             Caption = 'Get Shipment Used';
             Editable = false;
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';
@@ -3070,324 +3032,6 @@ table 36 "Sales Header"
                       RespCenter.TableCaption(), UserSetupMgt.GetSalesFilter("Assigned User ID"));
             end;
         }
-#if not CLEANSCHEMA21
-        field(11700; "Bank Account Code"; Code[20])
-        {
-            Caption = 'Bank Account Code';
-            TableRelation = if ("Document Type" = filter(Quote | Order | Invoice | "Blanket Order")) "Bank Account"
-            else
-            if ("Document Type" = filter("Credit Memo" | "Return Order")) "Customer Bank Account".Code where("Customer No." = field("Bill-to Customer No."));
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11701; "Bank Account No."; Text[30])
-        {
-            Caption = 'Bank Account No.';
-            OptimizeForTextSearch = true;
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11702; "Bank Branch No."; Text[20])
-        {
-            Caption = 'Bank Branch No.';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11703; "Specific Symbol"; Code[10])
-        {
-            Caption = 'Specific Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11704; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11705; "Constant Symbol"; Code[10])
-        {
-            Caption = 'Constant Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11706; "Transit No."; Text[20])
-        {
-            Caption = 'Transit No.';
-            OptimizeForTextSearch = true;
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11707; IBAN; Code[50])
-        {
-            Caption = 'IBAN';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11708; "SWIFT Code"; Code[20])
-        {
-            Caption = 'SWIFT Code';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11709; "Bank Name"; Text[100])
-        {
-            Caption = 'Bank Name';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(11730; "Cash Desk Code"; Code[20])
-        {
-            Caption = 'Cash Desk Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(11731; "Cash Document Status"; Option)
-        {
-            Caption = 'Cash Document Status';
-            OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
-            OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(11760; "VAT Date"; Date)
-        {
-            Caption = 'VAT Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(11761; "VAT Currency Factor"; Decimal)
-        {
-            Caption = 'VAT Currency Factor';
-            DecimalPlaces = 0 : 15;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(11762; "Tax Corrective Document"; Boolean)
-        {
-            Caption = 'Tax Corrective Document';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(11763; "Postponed VAT"; Boolean)
-        {
-            Caption = 'Postponed VAT';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(11765; "Posting Desc. Code"; Code[10])
-        {
-            Caption = 'Posting Desc. Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(11766; "Credit Memo Type"; Option)
-        {
-            Caption = 'Credit Memo Type';
-            OptionCaption = ',Corrective Tax Document,Internal Correction,Insolvency Tax Document';
-            OptionMembers = ,"Corrective Tax Document","Internal Correction","Insolvency Tax Document";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(11790; "Registration No."; Text[20])
-        {
-            Caption = 'Registration No.';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(11791; "Tax Registration No."; Text[20])
-        {
-            Caption = 'Tax Registration No.';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(11792; "Original User ID"; Code[50])
-        {
-            Caption = 'Original User ID';
-            DataClassification = EndUserIdentifiableInformation;
-            TableRelation = User."User Name";
-            ValidateTableRelation = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This field is not needed and it should not be used.';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(11793; "Quote Validity"; Date)
-        {
-            Caption = 'Quote Validity';
-            ObsoleteReason = 'Moved to Quote Valid Until Date';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(31000; "Prepayment Type"; Option)
-        {
-            Caption = 'Prepayment Type';
-            OptionCaption = ' ,Prepayment,Advance';
-            OptionMembers = " ",Prepayment,Advance;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(31001; "Advance Letter No. Series"; Code[20])
-        {
-            Caption = 'Advance Letter No. Series';
-            TableRelation = "No. Series";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(31002; "Advance Letter No."; Code[20])
-        {
-            Caption = 'Advance Letter No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31060; "Perform. Country/Region Code"; Code[10])
-        {
-            Caption = 'Perform. Country/Region Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31061; "Perf. Country Currency Factor"; Decimal)
-        {
-            Caption = 'Perf. Country Currency Factor';
-            DecimalPlaces = 0 : 15;
-            Editable = false;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31063; "Physical Transfer"; Boolean)
-        {
-            Caption = 'Physical Transfer';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31064; "Intrastat Exclude"; Boolean)
-        {
-            Caption = 'Intrastat Exclude';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31065; "Industry Code"; Code[20])
-        {
-            Caption = 'Industry Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(31066; "EU 3-Party Intermediate Role"; Boolean)
-        {
-            Caption = 'EU 3-Party Intermediate Role';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(31100; "Original Document VAT Date"; Date)
-        {
-            Caption = 'Original Document VAT Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
     }
 
     keys

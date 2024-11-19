@@ -272,16 +272,6 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             Caption = 'Non-Deductible VAT Amount ACY';
             Editable = false;
         }
-#if not CLEANSCHEMA22
-        field(31000; Advance; Boolean)
-        {
-            Caption = 'Advance';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys
@@ -562,4 +552,3 @@ table 383 "Detailed CV Ledg. Entry Buffer"
     begin
     end;
 }
-

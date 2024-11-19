@@ -281,16 +281,6 @@ table 5050 Contact
                     VATRegistrationValidation();
             end;
         }
-#if not CLEANSCHEMA18
-        field(89; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(91; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
@@ -644,17 +634,6 @@ table 5050 Contact
             Editable = false;
             FieldClass = FlowField;
         }
-#if not CLEANSCHEMA22
-        field(5075; "Business Relation"; Text[50])
-        {
-            Caption = 'Business Relation';
-            OptimizeForTextSearch = true;
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by the Contact Business Relation field.';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(5076; "Cost (LCY)"; Decimal)
         {
             AutoFormatType = 1;
@@ -898,44 +877,6 @@ table 5050 Contact
             Caption = 'Xrm Id';
             Editable = false;
         }
-#if not CLEANSCHEMA20
-        field(11790; "Registration No."; Text[20])
-        {
-            Caption = 'Registration No.';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11791; "Tax Registration No."; Text[20])
-        {
-            Caption = 'Tax Registration No.';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(11792; "Registered Name"; Text[250])
-        {
-            Caption = 'Registered Name';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(11795; "Instant Messaging"; Text[250])
-        {
-            Caption = 'Instant Messaging';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Instant Messaging has been discontinued.';
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys
@@ -3985,4 +3926,3 @@ table 5050 Contact
     begin
     end;
 }
-

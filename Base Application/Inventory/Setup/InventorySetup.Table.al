@@ -164,16 +164,6 @@ table 313 "Inventory Setup"
             Caption = 'Catalog Item Nos.';
             TableRelation = "No. Series";
         }
-#if not CLEANSCHEMA22
-        field(5725; "Use Item References"; Boolean)
-        {
-            AccessByPermission = TableData "Item Reference" = R;
-            Caption = 'Use Item References';
-            ObsoleteReason = 'Replaced by default visibility for Item Reference''s fields and actions.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(5790; "Outbound Whse. Handling Time"; DateFormula)
         {
             AccessByPermission = TableData Location = R;
@@ -350,97 +340,6 @@ table 313 "Inventory Setup"
             Caption = 'Internal Movement Nos.';
             TableRelation = "No. Series";
         }
-#if not CLEANSCHEMA18
-        field(11765; "Posting Desc. Code"; Code[10])
-        {
-            Caption = 'Posting Desc. Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31042; "Automatic Maintenance Posting"; Boolean)
-        {
-            Caption = 'Automatic Maintenance Posting';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31071; "Use GPPG from SKU"; Boolean)
-        {
-            Caption = 'Use GPPG from SKU';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31072; "Date Order Inventory Change"; Boolean)
-        {
-            Caption = 'Date Order Inventory Change';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(31073; "Def.Template for Phys.Pos.Adj"; Code[10])
-        {
-            Caption = 'Def.Template for Phys.Pos.Adj';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31074; "Def.Template for Phys.Neg.Adj"; Code[10])
-        {
-            Caption = 'Def.Template for Phys.Neg.Adj';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31075; "Skip Update SKU on Posting"; Boolean)
-        {
-            Caption = 'Skip Update SKU on Posting';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31076; "Check Item Charge Pst.Group"; Boolean)
-        {
-            Caption = 'Check Item Charge Pst.Group';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(31077; "Exact Cost Reversing Mandatory"; Boolean)
-        {
-            Caption = 'Exact Cost Reversing Mandatory';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31078; "Post Neg. Transfers as Corr."; Boolean)
-        {
-            Caption = 'Post Neg. Transfers as Corr.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31079; "Post Exp. Cost Conv. as Corr."; Boolean)
-        {
-            Caption = 'Post Exp. Cost Conv. as Corr.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     keys
@@ -531,4 +430,3 @@ table 313 "Inventory Setup"
         exit("Automatic Cost Adjustment" <> "Automatic Cost Adjustment"::Never);
     end;
 }
-

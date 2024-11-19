@@ -526,102 +526,6 @@ table 295 "Reminder Header"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
-#if not CLEANSCHEMA21
-        field(11700; "Bank No."; Code[20])
-        {
-            Caption = 'Bank No.';
-            TableRelation = "Bank Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11701; "Bank Account No."; Text[30])
-        {
-            Caption = 'Bank Account No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11702; "Bank Branch No."; Text[20])
-        {
-            Caption = 'Bank Branch No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11703; "Specific Symbol"; Code[10])
-        {
-            Caption = 'Specific Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11704; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11705; "Constant Symbol"; Code[10])
-        {
-            Caption = 'Constant Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11706; "Transit No."; Text[20])
-        {
-            Caption = 'Transit No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11707; IBAN; Code[50])
-        {
-            Caption = 'IBAN';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11708; "SWIFT Code"; Code[20])
-        {
-            Caption = 'SWIFT Code';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11709; "Bank Name"; Text[100])
-        {
-            Caption = 'Bank Name';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
 #if not CLEANSCHEMA23
         field(11761; "Multiple Interest Rates"; Boolean)
         {
@@ -629,24 +533,6 @@ table 295 "Reminder Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
             ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(11790; "Registration No."; Text[20])
-        {
-            Caption = 'Registration No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(11791; "Tax Registration No."; Text[20])
-        {
-            Caption = 'Tax Registration No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
         }
 #endif
     }
@@ -1667,4 +1553,3 @@ table 295 "Reminder Header"
     begin
     end;
 }
-

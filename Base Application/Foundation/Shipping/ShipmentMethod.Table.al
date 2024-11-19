@@ -39,47 +39,6 @@ table 10 "Shipment Method"
             ObsoleteTag = '26.0';
         }
 #endif
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31060; "Include Item Charges (Amount)"; Boolean)
-        {
-            Caption = 'Include Item Charges (Amount)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31061; "Intrastat Delivery Group Code"; Code[10])
-        {
-            Caption = 'Intrastat Delivery Group Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31062; "Incl. Item Charges (Stat.Val.)"; Boolean)
-        {
-            Caption = 'Incl. Item Charges (Stat.Val.)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31063; "Adjustment %"; Decimal)
-        {
-            Caption = 'Adjustment %';
-            MaxValue = 100;
-            MinValue = -100;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     keys
@@ -136,4 +95,3 @@ table 10 "Shipment Method"
         "Last Modified Date Time" := CurrentDateTime;
     end;
 }
-

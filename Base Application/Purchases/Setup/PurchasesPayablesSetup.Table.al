@@ -188,15 +188,6 @@ table 312 "Purchases & Payables Setup"
             OptionCaption = 'Remainder,Blank';
             OptionMembers = Remainder,Blank;
         }
-#if not CLEANSCHEMA18
-        field(37; "Archive Quotes and Orders"; Boolean)
-        {
-            Caption = 'Archive Quotes and Orders';
-            ObsoleteReason = 'Replaced by new fields Archive Quotes and Archive Orders';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(38; "Post with Job Queue"; Boolean)
         {
             Caption = 'Post with Job Queue';
@@ -323,50 +314,6 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Disable Search by Name';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA18
-        field(170; "Insert Std. Purch. Lines Mode"; Option)
-        {
-            Caption = 'Insert Std. Purch. Lines Mode';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            OptionCaption = 'Manual,Automatic,Always Ask';
-            OptionMembers = Manual,Automatic,"Always Ask";
-            ObsoleteTag = '18.0';
-        }
-        field(171; "Insert Std. Lines on Quotes"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Quotes';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(172; "Insert Std. Lines on Orders"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Orders';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(173; "Insert Std. Lines on Invoices"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Invoices';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(174; "Insert Std. Lines on Cr. Memos"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Cr. Memos';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(175; "Allow Multiple Posting Groups"; Boolean)
         {
             Caption = 'Allow Multiple Posting Groups';
@@ -517,118 +464,6 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA19
-        field(11760; "G/L Entry as Doc. Lines (Acc.)"; Boolean)
-        {
-            Caption = 'G/L Entry as Doc. Lines (Acc.)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by "Copy Line Descr. to G/L Entry" field. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11761; "G/L Entry as Doc. Lines (Item)"; Boolean)
-        {
-            Caption = 'G/L Entry as Doc. Lines (Item)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11762; "G/L Entry as Doc. Lines (FA)"; Boolean)
-        {
-            Caption = 'G/L Entry as Doc. Lines (FA)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11764; "G/L Entry as Doc. Lines (Char)"; Boolean)
-        {
-            Caption = 'G/L Entry as Doc. Lines (Char)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(11765; "Posting Desc. Code"; Code[10])
-        {
-            Caption = 'Posting Desc. Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(11766; "Default VAT Date"; Option)
-        {
-            Caption = 'Default VAT Date';
-            OptionCaption = 'Posting Date,Document Date,Blank';
-            OptionMembers = "Posting Date","Document Date",Blank;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech. (Prolonged to support Advance Letter)';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11767; "Allow Alter Posting Groups"; Boolean)
-        {
-            Caption = 'Allow Alter Posting Groups';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(11768; "Automatic Adv. Invoice Posting"; Boolean)
-        {
-            Caption = 'Automatic Adv. Invoice Posting';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(31000; "Advance Letter Nos."; Code[20])
-        {
-            Caption = 'Advance Letter Nos.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(31001; "Advance Invoice Nos."; Code[20])
-        {
-            Caption = 'Advance Invoice Nos.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(31002; "Advance Credit Memo Nos."; Code[20])
-        {
-            Caption = 'Advance Credit Memo Nos.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(31100; "Default Orig. Doc. VAT Date"; Option)
-        {
-            Caption = 'Default Orig. Doc. VAT Date';
-            OptionCaption = 'Blank,Posting Date,VAT Date,Document Date';
-            OptionMembers = Blank,"Posting Date","VAT Date","Document Date";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech. (Prolonged to support Advance Letters)';
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys
@@ -663,4 +498,3 @@ table 312 "Purchases & Payables Setup"
         exit("Post with Job Queue" or "Post & Print with Job Queue");
     end;
 }
-

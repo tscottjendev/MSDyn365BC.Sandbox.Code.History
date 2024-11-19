@@ -179,16 +179,6 @@ table 911 "Posted Assembly Line"
                 Rec.ShowDimensions();
             end;
         }
-#if not CLEANSCHEMA21
-        field(11700; "Gen. Bus. Posting Group"; Code[20])
-        {
-            Caption = 'Gen. Bus. Posting Group';
-            TableRelation = "Gen. Business Posting Group";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     keys
@@ -304,4 +294,3 @@ table 911 "Posted Assembly Line"
     begin
     end;
 }
-

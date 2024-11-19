@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.FinancialReports;
+namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -73,17 +73,6 @@ table 84 "Acc. Schedule Name"
                 end;
             end;
         }
-#if not CLEANSCHEMA20
-        field(31080; "Acc. Schedule Type"; Option)
-        {
-            Caption = 'Acc. Schedule Type';
-            OptionCaption = ' ,Balance Sheet,Income Statement';
-            OptionMembers = " ","Balance Sheet","Income Statement";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
     }
 
     keys

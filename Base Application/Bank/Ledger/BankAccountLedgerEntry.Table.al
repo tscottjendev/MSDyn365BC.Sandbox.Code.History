@@ -305,17 +305,6 @@ table 271 "Bank Account Ledger Entry"
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(8)));
         }
-#if not CLEANSCHEMA20
-        field(11730; "Cash Document Type"; Option)
-        {
-            Caption = 'Cash Document Type';
-            OptionCaption = ' ,Receipt,Withdrawal';
-            OptionMembers = " ",Receipt,Withdrawal;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
     }
 
     keys
@@ -545,4 +534,3 @@ table 271 "Bank Account Ledger Entry"
     begin
     end;
 }
-

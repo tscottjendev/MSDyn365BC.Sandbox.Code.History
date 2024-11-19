@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.Dimension;
+namespace Microsoft.Finance.Dimension;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CashFlow.Setup;
@@ -244,55 +244,6 @@ table 352 "Default Dimension"
                 "Dimension Value Code" := DimensionValue.Code;
             end;
         }
-#if not CLEANSCHEMA22
-        field(11790; "Automatic Create"; Boolean)
-        {
-            Caption = 'Automatic Create';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11791; "Dimension Description Field ID"; Integer)
-        {
-            Caption = 'Dimension Description Field ID';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11792; "Dim. Description Field Name"; Text[100])
-        {
-            Caption = 'Dim. Description Field Name';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11793; "Dimension Description Update"; Option)
-        {
-            Caption = 'Dimension Description Update';
-            OptionCaption = ' ,Create,Update';
-            OptionMembers = " ",Create,Update;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11794; "Dimension Description Format"; Text[50])
-        {
-            Caption = 'Dimension Description Format';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11795; "Automatic Cr. Value Posting"; Option)
-        {
-            Caption = 'Automatic Cr. Value Posting';
-            OptionCaption = ' ,Code Mandatory,Same Code,No Code';
-            OptionMembers = " ","Code Mandatory","Same Code","No Code";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys
@@ -1532,4 +1483,3 @@ table 352 "Default Dimension"
     begin
     end;
 }
-

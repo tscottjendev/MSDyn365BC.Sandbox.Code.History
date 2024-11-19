@@ -457,65 +457,6 @@ table 5802 "Value Entry"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
-#if not CLEANSCHEMA21
-        field(11763; "G/L Correction"; Boolean)
-        {
-            Caption = 'G/L Correction';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11790; "Source No. 2"; Code[20])
-        {
-            Caption = 'Invoice-to Source No.';
-            TableRelation = if ("Source Type" = const(Customer)) Customer
-            else
-            if ("Source Type" = const(Vendor)) Vendor;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11791; "Source No. 3"; Code[20])
-        {
-            Caption = 'Delivery-to Source No.';
-            TableRelation = if ("Source Type" = const(Customer)) "Ship-to Address".Code where("Customer No." = field("Source No."))
-            else
-            if ("Source Type" = const(Vendor)) "Order Address".Code where("Vendor No." = field("Source No."));
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31060; "Currency Code"; Code[10])
-        {
-            Caption = 'Currency Code';
-            TableRelation = Currency;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31061; "Currency Factor"; Decimal)
-        {
-            Caption = 'Currency Factor';
-            DecimalPlaces = 0 : 15;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31062; "Incl. in Intrastat Amount"; Boolean)
-        {
-            Caption = 'Incl. in Intrastat Amount';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31063; "Incl. in Intrastat Stat. Value"; Boolean)
-        {
-            Caption = 'Incl. in Intrastat Stat. Value';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     keys
@@ -934,4 +875,3 @@ table 5802 "Value Entry"
     begin
     end;
 }
-

@@ -679,15 +679,6 @@ table 753 "Standard Item Journal Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
-#if not CLEANSCHEMA15
-        field(5707; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(5800; "Value Entry Type"; Enum "Cost Entry Type")
         {
             Caption = 'Value Entry Type';
@@ -716,15 +707,6 @@ table 753 "Standard Item Journal Line"
         {
             Caption = 'Price Calculation Method';
         }
-#if not CLEANSCHEMA20
-        field(31077; "Whse. Net Change Template"; Code[10])
-        {
-            Caption = 'Whse. Net Change Template';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
@@ -1070,4 +1052,3 @@ table 753 "Standard Item Journal Line"
     begin
     end;
 }
-

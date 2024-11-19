@@ -1460,15 +1460,6 @@ table 83 "Item Journal Line"
             Caption = 'Changed by User';
             Editable = false;
         }
-#if not CLEANSCHEMA22
-        field(5700; "Cross-Reference No."; Code[20])
-        {
-            Caption = 'Cross-Reference No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(5701; "Originally Ordered No."; Code[20])
         {
             AccessByPermission = TableData "Item Substitution" = R;
@@ -1500,15 +1491,6 @@ table 83 "Item Journal Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
-#if not CLEANSCHEMA15
-        field(5707; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(5725; "Item Reference No."; Code[50])
         {
             AccessByPermission = TableData "Item Reference" = R;
@@ -2265,148 +2247,6 @@ table 83 "Item Journal Line"
             OptionCaption = ' ,Item,SKU';
             OptionMembers = " ",Item,SKU;
         }
-#if not CLEANSCHEMA21
-        field(11763; "G/L Correction"; Boolean)
-        {
-            Caption = 'G/L Correction';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(11790; "Source No. 2"; Code[20])
-        {
-            Caption = 'Source No. 2';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This field is replaced by "Invoice-to Source No." field.';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11791; "Source No. 3"; Code[20])
-        {
-            Caption = 'Delivery-to Source No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31043; "FA No."; Code[20])
-        {
-            Caption = 'FA No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31044; "Maintenance Code"; Code[10])
-        {
-            Caption = 'Maintenance Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31060; "Perform. Country/Region Code"; Code[10])
-        {
-            Caption = 'Perform. Country/Region Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31061; "Tariff No."; Code[20])
-        {
-            Caption = 'Tariff No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31063; "Physical Transfer"; Boolean)
-        {
-            Caption = 'Physical Transfer';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31065; "Shipment Method Code"; Code[10])
-        {
-            Caption = 'Shipment Method Code';
-            ObsoleteReason = 'Merge to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31066; "Net Weight"; Decimal)
-        {
-            Caption = 'Net Weight';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31069; "Incl. in Intrastat Stat. Value"; Boolean)
-        {
-            Caption = 'Incl. in Intrastat Stat. Value';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31070; "Incl. in Intrastat Amount"; Boolean)
-        {
-            Caption = 'Incl. in Intrastat Amount';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31071; "Country/Region of Origin Code"; Code[10])
-        {
-            Caption = 'Country/Region of Origin Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31072; "Statistic Indication"; Code[10])
-        {
-            Caption = 'Statistic Indication';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31074; "Currency Code"; Code[10])
-        {
-            Caption = 'Currency Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31075; "Currency Factor"; Decimal)
-        {
-            Caption = 'Currency Factor';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31076; "Intrastat Transaction"; Boolean)
-        {
-            Caption = 'Intrastat Transaction';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(31077; "Whse. Net Change Template"; Code[10])
-        {
-            Caption = 'Whse. Net Change Template';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';

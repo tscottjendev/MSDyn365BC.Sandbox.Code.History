@@ -77,50 +77,6 @@ table 5603 "FA Setup"
             Caption = 'Insurance Nos.';
             TableRelation = "No. Series";
         }
-#if not CLEANSCHEMA21
-        field(31040; "Tax Depr. Book"; Code[10])
-        {
-            Caption = 'Tax Depr. Book';
-            TableRelation = "Depreciation Book";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31042; "Fixed Asset History"; Boolean)
-        {
-            Caption = 'Fixed Asset History';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31043; "FA Maintenance By Maint. Code"; Boolean)
-        {
-            Caption = 'FA Maintenance By Maint. Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Maintenance Posting was changed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31044; "FA Acquisition As Custom 2"; Boolean)
-        {
-            Caption = 'FA Acquisition As Custom 2';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31045; "FA Disposal By Reason Code"; Boolean)
-        {
-            Caption = 'FA Disposal By Reason Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Disposal Posting was changed and this field should not be used. (Obsolete::Removed in release 01.2021))';
-            ObsoleteTag = '18.0';
-        }
-#endif
     }
 
     keys
@@ -135,4 +91,3 @@ table 5603 "FA Setup"
     {
     }
 }
-

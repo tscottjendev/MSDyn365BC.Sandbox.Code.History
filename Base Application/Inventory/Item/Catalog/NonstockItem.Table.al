@@ -10,7 +10,6 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Setup;
 using Microsoft.Purchases.Vendor;
-using System.IO;
 
 table 5718 "Nonstock Item"
 {
@@ -160,25 +159,6 @@ table 5718 "Nonstock Item"
                 ValidateField(Rec.FieldNo("Net Weight"));
             end;
         }
-#if not CLEANSCHEMA21
-        field(12; "Item Template Code"; Code[10])
-        {
-            Caption = 'Item Template Code';
-            TableRelation = "Config. Template Header".Code where("Table ID" = const(27));
-            ObsoleteReason = 'This field will be removed with other functionality related to "old" templates. Use "Item Templ. Code" field instead.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(13; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(14; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
@@ -234,16 +214,6 @@ table 5718 "Nonstock Item"
                 ValidateField(Rec.FieldNo("Item Templ. Code"));
             end;
         }
-#if not CLEANSCHEMA18
-        field(11792; "Full Description"; Text[250])
-        {
-            Caption = 'Full Description';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
     }
 
     keys
@@ -507,4 +477,3 @@ table 5718 "Nonstock Item"
     begin
     end;
 }
-

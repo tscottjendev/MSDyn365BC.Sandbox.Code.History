@@ -454,24 +454,6 @@ table 297 "Issued Reminder Header"
             ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
 #endif
-#if not CLEANSCHEMA20
-        field(11790; "Registration No."; Text[20])
-        {
-            Caption = 'Registration No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(11791; "Tax Registration No."; Text[20])
-        {
-            Caption = 'Tax Registration No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
     }
 
     keys
@@ -651,4 +633,3 @@ table 297 "Issued Reminder Header"
     begin
     end;
 }
-

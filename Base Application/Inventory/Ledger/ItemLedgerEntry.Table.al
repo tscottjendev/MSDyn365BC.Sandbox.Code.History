@@ -313,15 +313,6 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Derived from Blanket Order';
         }
-#if not CLEANSCHEMA22
-        field(5700; "Cross-Reference No."; Code[20])
-        {
-            Caption = 'Cross-Reference No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(5701; "Originally Ordered No."; Code[20])
         {
             AccessByPermission = TableData "Item Substitution" = R;
@@ -352,15 +343,6 @@ table 32 "Item Ledger Entry"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
-#if not CLEANSCHEMA15
-        field(5707; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(5725; "Item Reference No."; Code[50])
         {
             Caption = 'Item Reference No.';
@@ -521,141 +503,6 @@ table 32 "Item Ledger Entry"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
-#if not CLEANSCHEMA21
-        field(11790; "Source No. 2"; Code[20])
-        {
-            Caption = 'Invoice-to Source No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11791; "Source No. 3"; Code[20])
-        {
-            Caption = 'Delivery-to Source No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11793; "Source Code"; Code[10])
-        {
-            Caption = 'Source Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11794; "Reason Code"; Code[10])
-        {
-            Caption = 'Reason Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11795; "User ID"; Code[50])
-        {
-            Caption = 'User ID';
-            DataClassification = EndUserIdentifiableInformation;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31043; "FA No."; Code[20])
-        {
-            Caption = 'FA No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31044; "Maintenance Code"; Code[10])
-        {
-            Caption = 'Maintenance Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31060; "Perform. Country/Region Code"; Code[10])
-        {
-            Caption = 'Perform. Country/Region Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31061; "Tariff No."; Code[20])
-        {
-            Caption = 'Tariff No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31062; "Statistic Indication"; Code[10])
-        {
-            Caption = 'Statistic Indication';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31063; "Physical Transfer"; Boolean)
-        {
-            Caption = 'Physical Transfer';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31065; "Shipment Method Code"; Code[10])
-        {
-            Caption = 'Shipment Method Code';
-            ObsoleteReason = 'Merge to W1';
-            ObsoleteState = Removed;
-            TableRelation = "Shipment Method";
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31066; "Net Weight"; Decimal)
-        {
-            Caption = 'Net Weight';
-            DecimalPlaces = 0 : 5;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31068; "Country/Region of Origin Code"; Code[10])
-        {
-            Caption = 'Country/Region of Origin Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31074; "Currency Code"; Code[10])
-        {
-            Caption = 'Currency Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31075; "Currency Factor"; Decimal)
-        {
-            Caption = 'Currency Factor';
-            DecimalPlaces = 0 : 15;
-            Editable = false;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31076; "Intrastat Transaction"; Boolean)
-        {
-            Caption = 'Intrastat Transaction';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     keys
@@ -1351,4 +1198,3 @@ table 32 "Item Ledger Entry"
     begin
     end;
 }
-

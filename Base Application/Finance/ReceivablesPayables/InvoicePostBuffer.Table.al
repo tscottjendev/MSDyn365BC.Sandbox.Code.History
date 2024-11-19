@@ -315,94 +315,6 @@ table 49 "Invoice Post. Buffer"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
 #endif
-#if not CLEANSCHEMA18
-        field(11761; Description; Text[100])
-        {
-            Caption = 'Description';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11763; Correction; Boolean)
-        {
-            Caption = 'Correction';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11764; "VAT Difference (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'VAT Difference (LCY)';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(11765; "VAT % (Non Deductible)"; Decimal)
-        {
-            Caption = 'VAT % (Non Deductible)';
-            DataClassification = SystemMetadata;
-            MaxValue = 100;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11766; "VAT Base (Non Deductible)"; Decimal)
-        {
-            Caption = 'VAT Base (Non Deductible)';
-            DataClassification = SystemMetadata;
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11767; "VAT Amount (Non Deductible)"; Decimal)
-        {
-            Caption = 'VAT Amount (Non Deductible)';
-            DataClassification = SystemMetadata;
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11770; "Ext. Amount"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Ext. Amount';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11771; "Ext. Amount Including VAT"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Ext. Amount Including VAT';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11772; "Ext. VAT Difference (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Ext. VAT Difference (LCY)';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
 #if not CLEANSCHEMA24
         field(31000; "Prepayment Type"; Option)
         {
@@ -413,16 +325,6 @@ table 49 "Invoice Post. Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
             ObsoleteReason = 'The field is not needed anymore.';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(31100; "Original Document VAT Date"; Date)
-        {
-            Caption = 'Original Document VAT Date';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
         }
 #endif
     }

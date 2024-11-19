@@ -78,35 +78,6 @@ table 1248 "Ledger Entry Matching Buffer"
         {
             Caption = 'Pmt. Discount Due Date';
         }
-#if not CLEANSCHEMA22
-        field(11700; "Specific Symbol"; Code[10])
-        {
-            Caption = 'Specific Symbol';
-            CharAllowed = '09';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11701; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11702; "Constant Symbol"; Code[10])
-        {
-            Caption = 'Constant Symbol';
-            CharAllowed = '09';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys
@@ -325,4 +296,3 @@ table 1248 "Ledger Entry Matching Buffer"
     begin
     end;
 }
-

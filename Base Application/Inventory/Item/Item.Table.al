@@ -1592,15 +1592,6 @@ table 27 Item
             Caption = 'Created From Catalog Item';
             Editable = false;
         }
-#if not CLEANSCHEMA15
-        field(5704; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(5706; "Substitutes Exist"; Boolean)
         {
             CalcFormula = exist("Item Substitution" where(Type = const(Item),
@@ -1933,15 +1924,6 @@ table 27 Item
             Editable = false;
             FieldClass = FlowField;
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(8001; "Unit of Measure Id"; Guid)
         {
             Caption = 'Unit of Measure Id';
@@ -2032,34 +2014,6 @@ table 27 Item
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
         }
-#if not CLEANSCHEMA18
-        field(11792; "Full Description"; Text[250])
-        {
-            Caption = 'Full Description';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(31060; "Statistic Indication"; Code[10])
-        {
-            Caption = 'Statistic Indication';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31061; "Specific Movement"; Code[10])
-        {
-            Caption = 'Specific Movement';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
         field(99000757; "Overhead Rate"; Decimal)
         {
             AutoFormatType = 2;

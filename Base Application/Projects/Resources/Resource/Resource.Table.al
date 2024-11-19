@@ -462,16 +462,6 @@ table 156 Resource
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
             end;
         }
-#if not CLEANSCHEMA18
-        field(52; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(53; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
@@ -638,15 +628,6 @@ table 156 Resource
             Caption = 'Default Deferral Template Code';
             TableRelation = "Deferral Template"."Deferral Code";
         }
-#if not CLEANSCHEMA20
-        field(31061; "Tariff No."; Code[20])
-        {
-            Caption = 'Tariff No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
     }
 
     keys
@@ -1072,4 +1053,3 @@ table 156 Resource
     begin
     end;
 }
-

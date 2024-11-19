@@ -732,16 +732,6 @@ table 23 Vendor
                         Validate("VAT Bus. Posting Group", GenBusPostingGrp."Def. VAT Bus. Posting Group");
             end;
         }
-#if not CLEANSCHEMA18
-        field(89; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(90; GLN; Code[13])
         {
             Caption = 'GLN';
@@ -1506,15 +1496,6 @@ table 23 Vendor
         {
             Caption = 'Validate EU VAT Reg. No.';
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(8001; "Currency Id"; Guid)
         {
             Caption = 'Currency Id';
@@ -1578,45 +1559,6 @@ table 23 Vendor
             ObsoleteTag = '23.0';
         }
 #endif
-#if not CLEANSCHEMA20
-        field(11765; "Disable Uncertainty Check"; Boolean)
-        {
-            Caption = 'Disable Uncertainty Check';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(11790; "Registration No."; Text[20])
-        {
-            Caption = 'Registration No.';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(11791; "Tax Registration No."; Text[20])
-        {
-            Caption = 'Tax Registration No.';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(11792; "Registered Name"; Text[250])
-        {
-            Caption = 'Registered Name';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
 #if not CLEANSCHEMA23
         field(11793; "Default Order Address Code"; Code[10])
         {
@@ -1625,45 +1567,6 @@ table 23 Vendor
             ObsoleteReason = 'The functionality will be removed and this field should not be used.';
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31060; "Transaction Type"; Code[10])
-        {
-            Caption = 'Transaction Type';
-            TableRelation = "Transaction Type";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31061; "Transaction Specification"; Code[10])
-        {
-            Caption = 'Transaction Specification';
-            TableRelation = "Transaction Specification";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31062; "Transport Method"; Code[10])
-        {
-            Caption = 'Transport Method';
-            TableRelation = "Transport Method";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31063; "Industry Code"; Code[20])
-        {
-            Caption = 'Industry Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
         }
 #endif
     }
@@ -2985,4 +2888,3 @@ table 23 Vendor
     begin
     end;
 }
-

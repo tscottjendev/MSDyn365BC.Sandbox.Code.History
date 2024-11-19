@@ -560,38 +560,6 @@ table 121 "Purch. Rcpt. Line"
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
-#if not CLEANSCHEMA22
-        field(5705; "Cross-Reference No."; Code[20])
-        {
-            Caption = 'Cross-Reference No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
-        {
-            Caption = 'Unit of Measure (Cross Ref.)';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5707; "Cross-Reference Type"; Option)
-        {
-            Caption = 'Cross-Reference Type';
-            OptionCaption = ' ,Customer,Vendor,Bar Code';
-            OptionMembers = " ",Customer,Vendor,"Bar Code";
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5708; "Cross-Reference Type No."; Code[30])
-        {
-            Caption = 'Cross-Reference Type No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(5725; "Item Reference No."; Code[50])
         {
             AccessByPermission = TableData "Item Reference" = R;
@@ -624,15 +592,6 @@ table 121 "Purch. Rcpt. Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
-#if not CLEANSCHEMA15
-        field(5712; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(5714; "Special Order Sales No."; Code[20])
         {
             Caption = 'Special Order Sales No.';
@@ -701,17 +660,6 @@ table 121 "Purch. Rcpt. Line"
             Caption = 'Over-Receipt Quantity';
             Editable = false;
         }
-#if not CLEANSCHEMA20
-        field(8510; "Over-Receipt Code"; Code[10])
-        {
-            Caption = 'Over-Receipt Code';
-            TableRelation = "Over-Receipt Code";
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced with field 8512 due to wrong field length';
-            ObsoleteTag = '20.0';
-        }
-#endif
         field(8512; "Over-Receipt Code 2"; Code[20])
         {
             Caption = 'Over-Receipt Code';
@@ -725,34 +673,6 @@ table 121 "Purch. Rcpt. Line"
             ObsoleteReason = 'The functionality will be removed and this field should not be used.';
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(31061; "Tariff No."; Code[20])
-        {
-            Caption = 'Tariff No.';
-            TableRelation = "Tariff Number";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(31062; "Statistic Indication"; Code[10])
-        {
-            Caption = 'Statistic Indication';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31063; "Country/Region of Origin Code"; Code[10])
-        {
-            Caption = 'Country/Region of Origin Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
         }
 #endif
         field(99000750; "Routing No."; Code[20])
@@ -1462,4 +1382,3 @@ table 121 "Purch. Rcpt. Line"
     begin
     end;
 }
-

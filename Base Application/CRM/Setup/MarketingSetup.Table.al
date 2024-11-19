@@ -273,16 +273,6 @@ table 5079 "Marketing Setup"
         {
             Caption = 'Exchange Account Password Key';
         }
-#if not CLEANSCHEMA20
-        field(74; "Sync with Microsoft Graph"; Boolean)
-        {
-            Caption = 'Sync with Microsoft Graph';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
-            ObsoleteTag = '20.0';
-        }
-#endif
         field(75; "WebHook Run Notification As"; Guid)
         {
             Caption = 'WebHook Run Notification As';
@@ -295,15 +285,6 @@ table 5079 "Marketing Setup"
         {
             Caption = 'Cust. Template Person Code';
         }
-#if not CLEANSCHEMA18
-        field(11792; "Inherit Registered Name"; Boolean)
-        {
-            Caption = 'Inherit Registered Name';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(78; "Exchange Tenant Id Key"; Guid)
         {
             Caption = 'Exchange Tenant Id Key';
@@ -432,4 +413,3 @@ table 5079 "Marketing Setup"
         end
     end;
 }
-

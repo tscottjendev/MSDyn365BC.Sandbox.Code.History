@@ -13,8 +13,6 @@ codeunit 104150 "Upgrade - Local App"
     begin
         if not HybridDeployment.VerifyCanStartUpgrade('') then
             exit;
-
-        UpdatePermissions();
     end;
 
     trigger OnUpgradePerCompany()
@@ -24,175 +22,11 @@ codeunit 104150 "Upgrade - Local App"
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
 
-        UpdateVATPostingSetup();
-        UpdateVATControlReportLine();
-        UpdateSalesReceivablesSetup();
-        UpdateVendorTemplate();
-        UpdateItemJournalLine();
         UpdateCashDeskWorkflowTemplate();
         UpdateCreditWorkflowTemplate();
         UpdatePaymentOrderWorkflowTemplate();
         UpdateAdvanceLetterWorkflowTemplate();
         UpdateReplaceMultipleInterestRate();
-    end;
-
-    local procedure UpdateVATPostingSetup()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetCorrectionsForBadReceivableUpgradeTag()) then
-            exit;
-
-        if VATPostingSetup.FindSet() then
-            repeat
-                // "Insolvency Proceedings (p.44)" field replaced by "Corrections for Bad Receivable" field
-                VATPostingSetup."Corrections for Bad Receivable" := VATPostingSetup."Corrections for Bad Receivable"::" ";
-                if VATPostingSetup."Insolvency Proceedings (p.44)" then begin
-                    VATPostingSetup."Corrections for Bad Receivable" := VATPostingSetup."Corrections for Bad Receivable"::"Insolvency Proceedings (p.44)";
-                    VATPostingSetup.Modify();
-                end;
-            until VATPostingSetup.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetCorrectionsForBadReceivableUpgradeTag());
-    end;
-
-    local procedure UpdateVATControlReportLine()
-    var
-        VATControlReportLine: Record "VAT Control Report Line";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetCorrectionsForBadReceivableUpgradeTag()) then
-            exit;
-
-        if VATControlReportLine.FindSet() then
-            repeat
-                // "Insolvency Proceedings (p.44)" field replaced by "Corrections for Bad Receivable" field
-                VATControlReportLine."Corrections for Bad Receivable" := VATControlReportLine."Corrections for Bad Receivable"::" ";
-                if VATControlReportLine."Insolvency Proceedings (p.44)" then begin
-                    VATControlReportLine."Corrections for Bad Receivable" := VATControlReportLine."Corrections for Bad Receivable"::"Insolvency Proceedings (p.44)";
-                    VATControlReportLine.Modify();
-                end;
-            until VATControlReportLine.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetCorrectionsForBadReceivableUpgradeTag());
-    end;
-
-    local procedure UpdatePermissions()
-    var
-        Permission: Record Permission;
-        NewPermission: Record Permission;
-        UpgradeTag: Codeunit "Upgrade Tag";
-        LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetUseIsolatedCertificateInsteadOfCertificateCZ()) then
-            exit;
-
-        Permission.SetRange("Object Type", Permission."Object Type"::"Table Data");
-        Permission.SetRange("Object ID", Database::"Certificate CZ");
-        if Permission.FindSet() then
-            repeat
-                if not NewPermission.Get(Permission."Role ID", Permission."Object Type", Database::"Isolated Certificate") then begin
-                    NewPermission.Init();
-                    NewPermission := Permission;
-                    NewPermission."Object ID" := Database::"Isolated Certificate";
-                    NewPermission.Insert();
-                end;
-                Permission.Delete();
-            until Permission.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetUseIsolatedCertificateInsteadOfCertificateCZ());
-    end;
-
-    local procedure UpdateSalesReceivablesSetup()
-    var
-        SalesSetup: Record "Sales & Receivables Setup";
-        LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
-    begin
-        if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetObsoleteGeneralLedgerEntryDescriptionFeatureUpgradeTag()) then
-            exit;
-
-        if SalesSetup.Get() then begin
-            SalesSetup."Copy Line Descr. to G/L Entry" := SalesSetup."G/L Entry as Doc. Lines (Acc.)";
-            SalesSetup.Modify();
-        end;
-
-        UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetObsoleteGeneralLedgerEntryDescriptionFeatureUpgradeTag());
-    end;
-
-    local procedure UpdateVendorTemplate()
-    var
-        VendorTemplate: Record "Vendor Template";
-        VendorTempl: Record "Vendor Templ.";
-        SourceDefaultDimension: Record "Default Dimension";
-        DestDefaultDimension: Record "Default Dimension";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetVendorTemplateUpgradeTag()) then
-            exit;
-
-        if VendorTemplate.FindSet() then
-            repeat
-                if not VendorTempl.Get(VendorTemplate.Code) then begin
-                    VendorTempl.Init();
-                    VendorTempl.Code := VendorTemplate.Code;
-                    VendorTempl.Description := VendorTemplate.Description;
-                    VendorTempl."Global Dimension 1 Code" := VendorTemplate."Global Dimension 1 Code";
-                    VendorTempl."Global Dimension 2 Code" := VendorTemplate."Global Dimension 2 Code";
-                    VendorTempl."Vendor Posting Group" := VendorTemplate."Vendor Posting Group";
-                    VendorTempl."Currency Code" := VendorTemplate."Currency Code";
-                    VendorTempl."Language Code" := VendorTemplate."Language Code";
-                    VendorTempl."Payment Terms Code" := VendorTemplate."Payment Terms Code";
-                    VendorTempl."Invoice Disc. Code" := VendorTemplate."Invoice Disc. Code";
-                    VendorTempl."Country/Region Code" := VendorTemplate."Country/Region Code";
-                    VendorTempl."Payment Method Code" := VendorTemplate."Payment Method Code";
-                    VendorTempl."Gen. Bus. Posting Group" := VendorTemplate."Gen. Bus. Posting Group";
-                    VendorTempl."VAT Bus. Posting Group" := VendorTemplate."VAT Bus. Posting Group";
-                    VendorTempl.Insert(true);
-
-                    DestDefaultDimension.SetRange("Table ID", Database::"Vendor Templ.");
-                    DestDefaultDimension.SetRange("No.", VendorTempl.Code);
-                    DestDefaultDimension.DeleteAll(true);
-
-                    SourceDefaultDimension.SetRange("Table ID", Database::"Vendor Template");
-                    SourceDefaultDimension.SetRange("No.", VendorTemplate.Code);
-                    if SourceDefaultDimension.FindSet() then
-                        repeat
-                            DestDefaultDimension.Init();
-                            DestDefaultDimension.Validate("Table ID", Database::"Vendor Templ.");
-                            DestDefaultDimension.Validate("No.", VendorTempl.Code);
-                            DestDefaultDimension.Validate("Dimension Code", SourceDefaultDimension."Dimension Code");
-                            DestDefaultDimension.Validate("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
-                            DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
-                            if DestDefaultDimension.Insert(true) then;
-                        until SourceDefaultDimension.Next() = 0;
-                end;
-            until VendorTemplate.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetVendorTemplateUpgradeTag());
-    end;
-
-    local procedure UpdateItemJournalLine()
-    var
-        ItemJournalLine: Record "Item Journal Line";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetItemJournalLineShipmentMethodCodeUpgradeTag()) then
-            exit;
-
-        ItemJournalLine.SetFilter("Shipment Method Code", '<>%1', '');
-        if ItemJournalLine.FindSet() then
-            repeat
-                ItemJournalLine."Shpt. Method Code" := ItemJournalLine."Shipment Method Code";
-                ItemJournalLine.Modify();
-            until ItemJournalLine.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetItemJournalLineShipmentMethodCodeUpgradeTag());
     end;
 
     local procedure UpdateCashDeskWorkflowTemplate()

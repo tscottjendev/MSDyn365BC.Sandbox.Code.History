@@ -851,15 +851,6 @@ table 5741 "Transfer Line"
             Caption = 'Item Category Code';
             TableRelation = "Item Category";
         }
-#if not CLEANSCHEMA15
-        field(5707; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(5750; "Whse. Inbnd. Otsdg. Qty (Base)"; Decimal)
         {
             BlankZero = true;
@@ -959,45 +950,6 @@ table 5741 "Transfer Line"
                 end;
             end;
         }
-#if not CLEANSCHEMA21
-        field(31061; "Tariff No."; Code[20])
-        {
-            Caption = 'Tariff No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31062; "Statistic Indication"; Code[10])
-        {
-            Caption = 'Statistic Indication';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31063; "Country/Region of Origin Code"; Code[10])
-        {
-            Caption = 'Country/Region of Origin Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31070; "Gen. Bus. Post. Group Ship"; Code[20])
-        {
-            Caption = 'Gen. Bus. Post. Group Ship';
-            TableRelation = "Gen. Business Posting Group";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31071; "Gen. Bus. Post. Group Receive"; Code[20])
-        {
-            Caption = 'Gen. Bus. Post. Group Receive';
-            TableRelation = "Gen. Business Posting Group";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
         field(99000755; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
             Caption = 'Planning Flexibility';
@@ -2581,4 +2533,3 @@ table 5741 "Transfer Line"
     begin
     end;
 }
-

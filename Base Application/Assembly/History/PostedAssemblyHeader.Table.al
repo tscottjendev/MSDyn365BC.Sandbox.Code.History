@@ -210,16 +210,6 @@ table 910 "Posted Assembly Header"
             Caption = 'Source Code';
             TableRelation = "Source Code";
         }
-#if not CLEANSCHEMA21
-        field(11700; "Gen. Bus. Posting Group"; Code[20])
-        {
-            Caption = 'Gen. Bus. Posting Group';
-            TableRelation = "Gen. Business Posting Group";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     keys
@@ -369,4 +359,3 @@ table 910 "Posted Assembly Header"
     begin
     end;
 }
-

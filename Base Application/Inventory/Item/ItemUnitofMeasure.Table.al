@@ -141,24 +141,6 @@ table 5404 "Item Unit of Measure"
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
-#if not CLEANSCHEMA21
-        field(31060; "Intrastat Default"; Boolean)
-        {
-            Caption = 'Intrastat Default';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Unsupported functionality';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31070; "Indivisible Unit"; Boolean)
-        {
-            Caption = 'Indivisible Unit';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Indivisible unit of measure will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
     }
 
     keys
@@ -555,4 +537,3 @@ table 5404 "Item Unit of Measure"
     begin
     end;
 }
-

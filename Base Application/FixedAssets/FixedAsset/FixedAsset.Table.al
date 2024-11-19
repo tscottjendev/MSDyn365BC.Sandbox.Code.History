@@ -235,16 +235,6 @@ table 5600 "Fixed Asset"
         {
             Caption = 'Blocked';
         }
-#if not CLEANSCHEMA18
-        field(22; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(23; "Maintenance Vendor No."; Code[20])
         {
             Caption = 'Maintenance Vendor No.';
@@ -328,52 +318,6 @@ table 5600 "Fixed Asset"
                 UpdateResponsibleEmployeeCode();
             end;
         }
-#if not CLEANSCHEMA18
-        field(11792; "Full Description"; Text[100])
-        {
-            Caption = 'Full Description';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31042; "Deprec. Book Code (Mainten.)"; Code[10])
-        {
-            Caption = 'Deprec. Book Code (Mainten.)';
-            TableRelation = "Depreciation Book";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31043; "Tax Depreciation Group Code"; Code[20])
-        {
-            Caption = 'Tax Depreciation Group Code';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(31044; "SKP Code"; Code[20])
-        {
-            Caption = 'SKP Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Fixed Assets Clasification by SKP codes will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31045; "Clasification Code"; Code[20])
-        {
-            Caption = 'Clasification Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     keys
@@ -757,4 +701,3 @@ table 5600 "Fixed Asset"
     begin
     end;
 }
-

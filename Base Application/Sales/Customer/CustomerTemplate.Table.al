@@ -132,24 +132,6 @@ table 5105 "Customer Template"
         {
             Caption = 'Allow Line Disc.';
         }
-#if not CLEANSCHEMA18
-        field(11790; "No. Series"; Code[20])
-        {
-            Caption = 'No. Series';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Customer Template extension will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(11791; "Language Code"; Code[10])
-        {
-            Caption = 'Language Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Customer Template extension will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
     }
 
     keys

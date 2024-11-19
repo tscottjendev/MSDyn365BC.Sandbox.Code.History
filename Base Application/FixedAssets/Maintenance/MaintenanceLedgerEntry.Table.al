@@ -344,15 +344,6 @@ table 5625 "Maintenance Ledger Entry"
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(8)));
         }
-#if not CLEANSCHEMA18
-        field(31040; "Item Ledger Entry No."; Integer)
-        {
-            Caption = 'Item Ledger Entry No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
     }
 
     keys
@@ -413,4 +404,3 @@ table 5625 "Maintenance Ledger Entry"
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 }
-

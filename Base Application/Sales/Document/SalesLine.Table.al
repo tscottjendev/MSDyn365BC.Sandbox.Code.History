@@ -2763,38 +2763,6 @@ table 37 "Sales Line"
             Caption = 'Originally Ordered Var. Code';
             TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("Originally Ordered No."));
         }
-#if not CLEANSCHEMA22
-        field(5705; "Cross-Reference No."; Code[20])
-        {
-            Caption = 'Cross-Reference No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
-        {
-            Caption = 'Unit of Measure (Cross Ref.)';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5707; "Cross-Reference Type"; Option)
-        {
-            Caption = 'Cross-Reference Type';
-            OptionCaption = ' ,Customer,Vendor,Bar Code';
-            OptionMembers = " ",Customer,Vendor,"Bar Code";
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5708; "Cross-Reference Type No."; Code[30])
-        {
-            Caption = 'Cross-Reference Type No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(5709; "Item Category Code"; Code[20])
         {
             Caption = 'Item Category Code';
@@ -2876,15 +2844,6 @@ table 37 "Sales Line"
                 end;
             end;
         }
-#if not CLEANSCHEMA15
-        field(5712; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(5713; "Special Order"; Boolean)
         {
             AccessByPermission = TableData "Drop Shpt. Post. Buffer" = R;
@@ -3402,116 +3361,6 @@ table 37 "Sales Line"
             FieldClass = FlowField;
             BlankZero = true;
         }
-#if not CLEANSCHEMA21
-        field(11762; "Reason Code"; Code[10])
-        {
-            Caption = 'Reason Code';
-            TableRelation = "Reason Code";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11763; "VAT Correction"; Boolean)
-        {
-            Caption = 'VAT Correction';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11764; "VAT Difference (LCY)"; Decimal)
-        {
-            AutoFormatExpression = Rec."Currency Code";
-            AutoFormatType = 1;
-            Caption = 'VAT Difference (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11768; Negative; Boolean)
-        {
-            Caption = 'Negative';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(31001; "Amt. Prep. To Inv. Incl. VAT"; Decimal)
-        {
-            AutoFormatExpression = Rec."Currency Code";
-            AutoFormatType = 1;
-            Caption = 'Amt. Prep. To Inv. Incl. VAT';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(31006; "Adjust Prepmt. Relation"; Boolean)
-        {
-            Caption = 'Adjust Prepmt. Relation';
-            Editable = false;
-            InitValue = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(31008; "Prepmt. VAT Amount Inv."; Decimal)
-        {
-            Caption = 'Prepmt. VAT Amount Inv.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31060; "Physical Transfer"; Boolean)
-        {
-            Caption = 'Physical Transfer';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(31061; "Tariff No."; Code[20])
-        {
-            Caption = 'Tariff No.';
-            TableRelation = "Tariff Number";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA20
-        field(31062; "Statistic Indication"; Code[10])
-        {
-            Caption = 'Statistic Indication';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(31063; "Country/Region of Origin Code"; Code[10])
-        {
-            Caption = 'Country/Region of Origin Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     keys

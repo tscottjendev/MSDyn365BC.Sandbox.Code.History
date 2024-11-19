@@ -761,31 +761,11 @@ table 15 "G/L Account"
             Caption = 'Default Deferral Template Code';
             TableRelation = "Deferral Template"."Deferral Code";
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(9000; "API Account Type"; Enum "G/L Account Type")
         {
             Caption = 'API Account Type';
             Editable = false;
         }
-#if not CLEANSCHEMA20
-        field(11760; "G/L Account Group"; Option)
-        {
-            Caption = 'G/L Account Group';
-            OptionCaption = ' ,Internal,Sub balance,3,4,5,6,7,8,9,10';
-            OptionMembers = " ",Internal,"Sub balance","3","4","5","6","7","8","9","10";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
 #if not CLEANSCHEMA23
         field(11761; "Apply Entries"; Boolean)
         {
@@ -793,16 +773,6 @@ table 15 "G/L Account"
             ObsoleteReason = 'The functionality will be removed and this field should not be used.';
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
-        }
-#endif
-#if not CLEANSCHEMA18
-        field(11792; "Full Name"; Text[100])
-        {
-            Caption = 'Full Name';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
         }
 #endif
     }
@@ -1213,4 +1183,3 @@ table 15 "G/L Account"
     begin
     end;
 }
-

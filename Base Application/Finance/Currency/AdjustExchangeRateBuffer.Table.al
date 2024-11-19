@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -82,34 +82,6 @@ table 331 "Adjust Exchange Rate Buffer"
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
             ObsoleteReason = 'The field is not used anymore.';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(11761; "Document Type"; Option)
-        {
-            Caption = 'Document Type';
-            DataClassification = SystemMetadata;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,Advance';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,Advance;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11762; "Document No."; Code[20])
-        {
-            Caption = 'Document No.';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11763; "Entry No."; Integer)
-        {
-            Caption = 'Entry No.';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Field Entry No. will be removed and this field should not be used.';
-            ObsoleteTag = '21.0';
         }
 #endif
 #if not CLEANSCHEMA24

@@ -41,15 +41,6 @@ table 261 "Intrastat Jnl. Template"
         {
             DataClassification = CustomerContent;
         }
-#if not CLEANSCHEMA18
-        field(31060; "Perform. Country/Region Code"; Code[10])
-        {
-            Caption = 'Perform. Country/Region Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-#endif
     }
 
     keys

@@ -293,16 +293,6 @@ table 93 "Vendor Posting Group"
         {
             Caption = 'View All Accounts on Lookup';
         }
-#if not CLEANSCHEMA22
-        field(31001; "Advance Account"; Code[20])
-        {
-            Caption = 'Advance Account';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys
@@ -455,4 +445,3 @@ table 93 "Vendor Posting Group"
         GLAccountCategoryMgt.LookupGLAccount(Database::"Vendor Posting Group", CurrFieldNo, AccountNo, AccountCategory, AccountSubcategoryFilter);
     end;
 }
-

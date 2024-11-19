@@ -27,17 +27,6 @@ table 269 "G/L Account Net Change"
             AutoFormatType = 1;
             Caption = 'Balance after Posting';
         }
-#if not CLEANSCHEMA21
-        field(11760; Type; Option)
-        {
-            Caption = 'Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset,IC Partner,Employee';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of GL Journal reconciliation by type has been removed.';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     keys
@@ -52,4 +41,3 @@ table 269 "G/L Account Net Change"
     {
     }
 }
-

@@ -1,4 +1,4 @@
-﻿namespace System.AI;
+namespace System.AI;
 
 using System.Security.Encryption;
 using System.Utilities;
@@ -16,22 +16,6 @@ table 2020 "Image Analysis Setup"
             AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
-#if not CLEANSCHEMA15
-        field(2; "Period start date"; DateTime)
-        {
-            Caption = 'Period start date';
-            ObsoleteReason = 'Use of Table 2003 to track usage instead.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(3; "Number of calls"; Integer)
-        {
-            Caption = 'Number of calls';
-            ObsoleteReason = 'Use of Table 2003 to track usage instead.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(4; "Api Uri"; Text[250])
         {
             Caption = 'Api Uri';
@@ -46,24 +30,6 @@ table 2020 "Image Analysis Setup"
             Caption = 'Api Key Key';
             ExtendedDatatype = Masked;
         }
-#if not CLEANSCHEMA15
-        field(6; "Limit value"; Integer)
-        {
-            Caption = 'Limit value';
-            ObsoleteReason = 'Use of Table 2003 to track usage instead.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(7; "Limit type"; Option)
-        {
-            Caption = 'Limit type';
-            ObsoleteReason = 'Use of Table 2003 to track usage instead.';
-            ObsoleteState = Removed;
-            OptionCaption = 'Year,Month,Day,Hour';
-            OptionMembers = Year,Month,Day,Hour;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
@@ -196,4 +162,3 @@ table 2020 "Image Analysis Setup"
         end;
     end;
 }
-

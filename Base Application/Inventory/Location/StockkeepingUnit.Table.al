@@ -670,15 +670,6 @@ table 5700 "Stockkeeping Unit"
         {
             Caption = 'Next Counting End Date';
         }
-#if not CLEANSCHEMA20
-        field(31070; "Gen. Prod. Posting Group"; Code[20])
-        {
-            Caption = 'Gen. Prod. Posting Group';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-#endif
         field(99000770; "Purch. Req. Receipt (Qty.)"; Decimal)
         {
             CalcFormula = sum("Requisition Line"."Quantity (Base)" where(Type = const(Item),
@@ -992,4 +983,3 @@ table 5700 "Stockkeeping Unit"
     begin
     end;
 }
-
