@@ -1592,15 +1592,6 @@ table 27 Item
             Caption = 'Created From Catalog Item';
             Editable = false;
         }
-#if not CLEANSCHEMA15
-        field(5704; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(5706; "Substitutes Exist"; Boolean)
         {
             CalcFormula = exist("Item Substitution" where(Type = const(Item),
@@ -1933,15 +1924,6 @@ table 27 Item
             Editable = false;
             FieldClass = FlowField;
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(8001; "Unit of Measure Id"; Guid)
         {
             Caption = 'Unit of Measure Id';

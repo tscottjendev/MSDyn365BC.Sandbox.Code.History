@@ -20,15 +20,6 @@ table 407 "Graph Mail Setup"
         {
             Caption = 'Code';
         }
-#if not CLEANSCHEMA15
-        field(2; "Refresh Code"; BLOB)
-        {
-            Caption = 'Refresh Code';
-            ObsoleteReason = 'The suggested way to store the secrets is Isolated Storage, therefore this field will be removed.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(3; "Expires On"; DateTime)
         {
             Caption = 'Expires On';

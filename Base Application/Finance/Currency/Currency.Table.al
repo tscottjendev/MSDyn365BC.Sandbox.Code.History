@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.Currency;
+namespace Microsoft.Finance.Currency;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -499,15 +499,6 @@ table 4 Currency
             Editable = false;
             CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::Currency)));
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(7000000; "Bill Groups - Collection"; Boolean)
         {
             Caption = 'Bill Groups - Collection';

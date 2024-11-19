@@ -1,4 +1,4 @@
-﻿namespace System.IO;
+namespace System.IO;
 
 using System.Reflection;
 using System.Utilities;
@@ -49,16 +49,6 @@ table 1235 "XML Buffer"
             Caption = 'Parent Entry No.';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA18
-        field(8; "Is Parent"; Boolean)
-        {
-            Caption = 'Is Parent';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Is not used anomore';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(9; "Data Type"; Option)
         {
             Caption = 'Data Type';
@@ -66,33 +56,6 @@ table 1235 "XML Buffer"
             OptionCaption = 'Text,Date,Decimal,DateTime';
             OptionMembers = Text,Date,Decimal,DateTime;
         }
-#if not CLEANSCHEMA18
-        field(10; "Code"; Code[20])
-        {
-            Caption = 'Code';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Is not used anymore';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(11; "Node Name"; Text[250])
-        {
-            Caption = 'Node Name';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Is not used anymore';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(12; "Has Attributes"; Boolean)
-        {
-            Caption = 'Has Attributes';
-            DataClassification = SystemMetadata;
-            Editable = false;
-            ObsoleteReason = 'Is not used anymore';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(13; "Node Number"; Integer)
         {
             Caption = 'Node Number';
@@ -499,4 +462,3 @@ table 1235 "XML Buffer"
     begin
     end;
 }
-

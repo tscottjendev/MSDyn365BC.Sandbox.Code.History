@@ -20,15 +20,6 @@ table 277 "Bank Account Posting Group"
             Caption = 'Code';
             NotBlank = true;
         }
-#if not CLEANSCHEMA20
-        field(2; "G/L Bank Account No."; Code[20])
-        {
-            Caption = 'G/L Bank Account No.';
-            ObsoleteReason = 'Moved to G/L Account No.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '20.0';
-        }
-#endif
         field(3; "G/L Account No."; Code[20])
         {
             Caption = 'G/L Account No.';
@@ -94,4 +85,3 @@ table 277 "Bank Account Posting Group"
         end;
     end;
 }
-

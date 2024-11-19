@@ -405,15 +405,6 @@ table 5995 "Service Cr.Memo Line"
             Caption = 'Catalog';
             Editable = false;
         }
-#if not CLEANSCHEMA15
-        field(5712; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(5725; "Item Reference No."; Code[50])
         {
             AccessByPermission = TableData "Item Reference" = R;
@@ -817,4 +808,3 @@ table 5995 "Service Cr.Memo Line"
     begin
     end;
 }
-

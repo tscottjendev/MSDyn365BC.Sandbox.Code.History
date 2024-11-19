@@ -60,15 +60,6 @@ table 3 "Payment Terms"
             ObsoleteTag = '26.0';
         }
 #endif
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(10710; "Max. No. of Days till Due Date"; Integer)
         {
             BlankZero = true;

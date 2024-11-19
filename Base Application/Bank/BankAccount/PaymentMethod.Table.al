@@ -103,15 +103,6 @@ table 289 "Payment Method"
                 end;
             end;
         }
-#if not CLEANSCHEMA15
-        field(9; "Bank Data Conversion Pmt. Type"; Text[50])
-        {
-            Caption = 'Bank Data Conversion Pmt. Type';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Changed to AMC Banking 365 Fundamentals Extension';
-            ObsoleteTag = '15.0';
-        }
-#endif
 #if not CLEANSCHEMA24
         field(10; "Use for Invoicing"; Boolean)
         {
@@ -126,15 +117,6 @@ table 289 "Payment Method"
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(10700; "SII Payment Method Code"; Option)
         {
             Caption = 'SII Payment Method Code';
@@ -262,4 +244,3 @@ table 289 "Payment Method"
     begin
     end;
 }
-
