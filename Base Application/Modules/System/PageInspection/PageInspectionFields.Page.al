@@ -71,10 +71,9 @@ page 9632 "Page Inspection Fields"
                 Scope = Repeater;
 
                 trigger OnAction()
-                var
-                    PageInspectionVSCodeHelper: Codeunit "Page Inspection VS Code Helper";
                 begin
-                    PageInspectionVSCodeHelper.NavigateFieldDefinitionInVSCode(Rec);
+                    PageInspectionVSCodeHelper.NavigateFieldDefinitionInVSCode(Rec, UpdateDependencies);
+                    UpdateDependencies := false;
                 end;
             }
         }
@@ -88,8 +87,10 @@ page 9632 "Page Inspection Fields"
     end;
 
     var
+        PageInspectionVSCodeHelper: Codeunit "Page Inspection VS Code Helper";
         HasSourceTable: Boolean;
         EmptyText: Text;
+        UpdateDependencies: Boolean;
 
     [Scope('OnPrem')]
     procedure UpdatePage(FormServerHandleId: Text; FormServerBookmark: Text)
@@ -104,6 +105,8 @@ page 9632 "Page Inspection Fields"
 
         // this will actually update the content of the page
         CurrPage.Update(false);
+
+        UpdateDependencies := true;
     end;
 
     [Scope('OnPrem')]

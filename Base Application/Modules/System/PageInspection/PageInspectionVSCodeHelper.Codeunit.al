@@ -9,14 +9,11 @@ codeunit 5378 "Page Inspection VS Code Helper"
     Access = Internal;
 
     var
-        AllObjWithCaption: Record AllObjWithCaption;
+        NavAppInstalledApp: Record "NAV App Installed App";
         VSCodeIntegration: Codeunit "VS Code Integration";
-        FilterConditions: Text;
 
     [Scope('OnPrem')]
     procedure NavigateToPageDefinitionInVSCode(var PageInfoAndFields: Record "Page Info And Fields"; UpdateDependencies: Boolean)
-    var
-        NavAppInstalledApp: Record "NAV App Installed App";
     begin
         // There's a performance overhead when computing dependencies, only do when necessary, 
         if UpdateDependencies then
@@ -25,11 +22,10 @@ codeunit 5378 "Page Inspection VS Code Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure NavigateFieldDefinitionInVSCode(var PageInfoAndFields: Record "Page Info And Fields"): Text
-    var
-        NavAppInstalledApp: Record "NAV App Installed App";
+    procedure NavigateFieldDefinitionInVSCode(var PageInfoAndFields: Record "Page Info And Fields"; UpdateDependencies: Boolean): Text
     begin
-        FilterForExtAffectingPage(PageInfoAndFields."Page ID", PageInfoAndFields."Source Table No.", PageInfoAndFields."Current Form ID", NavAppInstalledApp);
+        if UpdateDependencies then
+            FilterForExtAffectingPage(PageInfoAndFields."Page ID", PageInfoAndFields."Source Table No.", PageInfoAndFields."Current Form ID", NavAppInstalledApp);
         VSCodeIntegration.NavigateFieldDefinitionInVSCode(PageInfoAndFields, NavAppInstalledApp);
     end;
 
@@ -55,8 +51,10 @@ codeunit 5378 "Page Inspection VS Code Helper"
     procedure FilterForExtAffectingPage(PageId: Integer; TableId: Integer; FormId: Guid; var NAVAppInstalledApp: Record "NAV App Installed App")
     var
         ExtensionExecutionInfo: Record "Extension Execution Info";
+        AllObjWithCaption: Record AllObjWithCaption;
         TempGuid: Guid;
         OrFilterFmtLbl: Label '%1|', Locked = true;
+        FilterConditions: Text;
     begin
         if AllObjWithCaption.ReadPermission() then begin
             // check if this page was added by extension
