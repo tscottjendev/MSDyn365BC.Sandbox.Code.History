@@ -71,7 +71,6 @@
       <DataExchMapping TableId="1214" UseAsIntermediateTable="true" Name="OCRINVOICE to Purchase Invoice">
         <DataExchFieldMapping ColumnNo="1" TargetTableID="39" TargetFieldID="22" />
         <DataExchFieldMapping ColumnNo="2" TargetTableID="39" TargetFieldID="15" />
-        <DataExchFieldMapping ColumnNo="3" Optional="true" TargetTableID="39" TargetFieldID="5705" />
         <DataExchFieldMapping ColumnNo="4" TargetTableID="39" TargetFieldID="11" />
         <DataExchFieldMapping ColumnNo="5" Optional="true" TargetTableID="39" TargetFieldID="29" />
         <DataExchFieldMapping ColumnNo="6" TargetTableID="39" TargetFieldID="0" />
