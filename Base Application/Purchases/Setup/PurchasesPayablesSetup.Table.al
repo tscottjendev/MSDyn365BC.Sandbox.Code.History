@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Setup;
+namespace Microsoft.Purchases.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -188,15 +188,6 @@ table 312 "Purchases & Payables Setup"
             OptionCaption = 'Remainder,Blank';
             OptionMembers = Remainder,Blank;
         }
-#if not CLEANSCHEMA18
-        field(37; "Archive Quotes and Orders"; Boolean)
-        {
-            Caption = 'Archive Quotes and Orders';
-            ObsoleteReason = 'Replaced by new fields Archive Quotes and Archive Orders';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(38; "Post with Job Queue"; Boolean)
         {
             Caption = 'Post with Job Queue';
@@ -323,50 +314,6 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Disable Search by Name';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA18
-        field(170; "Insert Std. Purch. Lines Mode"; Option)
-        {
-            Caption = 'Insert Std. Purch. Lines Mode';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            OptionCaption = 'Manual,Automatic,Always Ask';
-            OptionMembers = Manual,Automatic,"Always Ask";
-            ObsoleteTag = '18.0';
-        }
-        field(171; "Insert Std. Lines on Quotes"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Quotes';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(172; "Insert Std. Lines on Orders"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Orders';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(173; "Insert Std. Lines on Invoices"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Invoices';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(174; "Insert Std. Lines on Cr. Memos"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Cr. Memos';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(175; "Allow Multiple Posting Groups"; Boolean)
         {
             Caption = 'Allow Multiple Posting Groups';
@@ -578,4 +525,3 @@ table 312 "Purchases & Payables Setup"
         exit("Post with Job Queue" or "Post & Print with Job Queue");
     end;
 }
-

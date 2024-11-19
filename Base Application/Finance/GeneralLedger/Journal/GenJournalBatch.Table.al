@@ -186,15 +186,6 @@ table 232 "Gen. Journal Batch"
                 end;
             end;
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(8001; "Last Modified DateTime"; DateTime)
         {
             Caption = 'Last Modified DateTime';
@@ -474,4 +465,3 @@ table 232 "Gen. Journal Batch"
     end;
 
 }
-

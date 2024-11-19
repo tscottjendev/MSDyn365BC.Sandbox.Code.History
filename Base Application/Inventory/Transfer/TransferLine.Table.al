@@ -856,15 +856,6 @@ table 5741 "Transfer Line"
             Caption = 'Item Category Code';
             TableRelation = "Item Category";
         }
-#if not CLEANSCHEMA15
-        field(5707; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(5750; "Whse. Inbnd. Otsdg. Qty (Base)"; Decimal)
         {
             BlankZero = true;
@@ -2689,4 +2680,3 @@ table 5741 "Transfer Line"
     begin
     end;
 }
-

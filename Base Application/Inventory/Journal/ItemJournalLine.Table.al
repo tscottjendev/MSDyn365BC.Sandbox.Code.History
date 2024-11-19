@@ -1460,15 +1460,6 @@ table 83 "Item Journal Line"
             Caption = 'Changed by User';
             Editable = false;
         }
-#if not CLEANSCHEMA22
-        field(5700; "Cross-Reference No."; Code[20])
-        {
-            Caption = 'Cross-Reference No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(5701; "Originally Ordered No."; Code[20])
         {
             AccessByPermission = TableData "Item Substitution" = R;
@@ -1500,15 +1491,6 @@ table 83 "Item Journal Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
-#if not CLEANSCHEMA15
-        field(5707; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(5725; "Item Reference No."; Code[50])
         {
             AccessByPermission = TableData "Item Reference" = R;

@@ -103,15 +103,6 @@ table 9 "Country/Region"
         {
             Caption = 'County Name';
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(12100; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
@@ -351,4 +342,3 @@ table 9 "Country/Region"
     begin
     end;
 }
-

@@ -746,16 +746,6 @@ table 23 Vendor
                         Validate("VAT Bus. Posting Group", GenBusPostingGrp."Def. VAT Bus. Posting Group");
             end;
         }
-#if not CLEANSCHEMA18
-        field(89; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(90; GLN; Code[13])
         {
             Caption = 'GLN';
@@ -1520,15 +1510,6 @@ table 23 Vendor
         {
             Caption = 'Validate EU VAT Reg. No.';
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(8001; "Currency Id"; Guid)
         {
             Caption = 'Currency Id';
@@ -3273,4 +3254,3 @@ table 23 Vendor
     begin
     end;
 }
-
