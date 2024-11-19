@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Projects.Resources.Resource;
+namespace Microsoft.Projects.Resources.Resource;
 
 using Microsoft.Assembly.Document;
 using Microsoft.EServices.OnlineMap;
@@ -462,16 +462,6 @@ table 156 Resource
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
             end;
         }
-#if not CLEANSCHEMA18
-        field(52; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(53; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
@@ -1063,4 +1053,3 @@ table 156 Resource
     begin
     end;
 }
-
