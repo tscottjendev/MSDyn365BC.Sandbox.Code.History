@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -79,16 +79,6 @@ table 5330 "CRM Connection Setup"
                         xRec.DeletePassword();
             end;
         }
-#if not CLEANSCHEMA15
-        field(5; "Last Update Invoice Entry No."; Integer)
-        {
-            Caption = 'Last Update Invoice Entry No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved this field to Table 5328 - CRM Synch Status as this field is getting updated by job queue and it is blocking the record. ';
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(59; "Restore Connection"; Boolean)
         {
             Caption = 'Restore Connection';
@@ -1557,4 +1547,3 @@ table 5330 "CRM Connection Setup"
     begin
     end;
 }
-

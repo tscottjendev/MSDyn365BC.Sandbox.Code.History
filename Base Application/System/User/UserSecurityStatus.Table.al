@@ -1,4 +1,4 @@
-﻿namespace System.Security.User;
+namespace System.Security.User;
 
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
@@ -36,17 +36,6 @@ table 9062 "User Security Status"
         {
             Caption = 'Reviewed';
         }
-#if not CLEANSCHEMA15
-        field(14; "Belongs To Subscription Plan"; Boolean)
-        {
-            CalcFormula = exist(System.Azure.Identity."User Plan" where("User Security ID" = field("User Security ID")));
-            Caption = 'Belongs To Subscription Plan';
-            FieldClass = FlowField;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Removed because it uses the table "User Plan" (internal table). The logic has been moved to the page where the value is used';
-            ObsoleteTag = '15.0';
-        }
-#endif
 #if not CLEANSCHEMA25
         field(15; "Belongs to User Group"; Boolean)
         {
@@ -65,16 +54,6 @@ table 9062 "User Security Status"
             Caption = 'Users - To review';
             FieldClass = FlowField;
         }
-#if not CLEANSCHEMA15
-        field(21; "Users - Without Subscriptions"; Integer)
-        {
-            Caption = 'Users - Without Subscriptions';
-            FieldClass = FlowField;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Removed because it refers to the field "Belongs To Subscription Plan" (marked as obsolete). The logic has been moved to the page where the value is used';
-            ObsoleteTag = '15.0';
-        }
-#endif
 #if not CLEANSCHEMA25
         field(22; "Users - Not Group Members"; Integer)
         {
@@ -174,4 +153,3 @@ table 9062 "User Security Status"
         ActivityLog.LogActivity(RecordId, ActivityLog.Status::Success, SecurityContextTok, SecurityActivityTok, ActivityMessage);
     end;
 }
-
