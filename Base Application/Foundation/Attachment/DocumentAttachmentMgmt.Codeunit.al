@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Attachment;
 
+using Microsoft.CRM.Opportunity;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.HumanResources.Employee;
@@ -110,6 +111,7 @@ codeunit 1173 "Document Attachment Mgmt"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         VATReportHeader: Record "VAT Report Header";
+        Opportunity: Record Opportunity;
     begin
         case DocumentAttachment."Table ID" of
             0:
@@ -197,6 +199,12 @@ codeunit 1173 "Document Attachment Mgmt"
                     RecRef.Open(Database::"VAT Report Header");
                     if VATReportHeader.Get(DocumentAttachment."VAT Report Config. Code", DocumentAttachment."No.") then
                         RecRef.GetTable(VATReportHeader);
+                end;
+            Database::Opportunity:
+                begin
+                    RecRef.Open(Database::Opportunity);
+                    if Opportunity.Get(DocumentAttachment."No.") then
+                        RecRef.GetTable(Opportunity);
                 end;
         end;
 
@@ -351,7 +359,8 @@ codeunit 1173 "Document Attachment Mgmt"
             Database::"Fixed Asset",
             Database::Job,
             Database::Resource,
-            Database::"VAT Report Header":
+            Database::"VAT Report Header",
+            Database::Opportunity:
                 begin
                     FieldNo := 1;
                     exit(true);
@@ -1128,6 +1137,15 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::Opportunity, OnAfterDeleteEvent, '', false, false)]
+    local procedure DeleteAttachedDocumentsOnAfterDeleteOpportunity(var Rec: Record Opportunity; RunTrigger: Boolean)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(Rec);
+        DeleteAttachedDocuments(RecRef);
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterRenameEvent', '', false, false)]
     local procedure MoveAttachedDocumentsOnAfterRenameCustomer(var Rec: Record Customer; var xRec: Record Customer; RunTrigger: Boolean)
     var
@@ -1213,6 +1231,19 @@ codeunit 1173 "Document Attachment Mgmt"
         MoveToRecRef: RecordRef;
     begin
         // Moves attached docs when an Job record is renamed [When No. is changed] from old to new rec
+        MoveFromRecRef.GetTable(xRec);
+        MoveToRecRef.GetTable(Rec);
+
+        MoveAttachmentsWithinSameRecordType(MoveFromRecRef, MoveToRecRef);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Opportunity, OnAfterRenameEvent, '', false, false)]
+    local procedure MoveAttachedDocumentsOnAfterRenameOpportunity(var Rec: Record Opportunity; var xRec: Record Opportunity; RunTrigger: Boolean)
+    var
+        MoveFromRecRef: RecordRef;
+        MoveToRecRef: RecordRef;
+    begin
+        // Moves attached docs when an Opportunity record is renamed [When No. is changed] from old to new rec
         MoveFromRecRef.GetTable(xRec);
         MoveToRecRef.GetTable(Rec);
 
@@ -1595,7 +1626,8 @@ codeunit 1173 "Document Attachment Mgmt"
                                 Database::Employee,
                                 Database::"Fixed Asset",
                                 Database::Resource,
-                                Database::Item];
+                                Database::Item,
+                                Database::Opportunity];
 
         OnAfterTableIsEntity(TableNo, IsEntity);
     end;
