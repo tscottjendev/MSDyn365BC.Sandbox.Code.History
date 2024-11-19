@@ -690,7 +690,6 @@ report 1309 "Standard Sales - Return Rcpt."
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
         CustAddr: array[8] of Text[100];
-        CompanyAddr: array[8] of Text[100];
         SalesPersonText: Text[50];
         FormattedQuantity: Text;
         MoreLines: Boolean;
@@ -739,6 +738,7 @@ report 1309 "Standard Sales - Return Rcpt."
     protected var
         CompanyInfo: Record "Company Information";
         ShipToAddr: array[8] of Text[100];
+        CompanyAddr: array[8] of Text[100];
         HideLinesWithZeroQuantity: Boolean;
 
     local procedure InitLogInteraction()
