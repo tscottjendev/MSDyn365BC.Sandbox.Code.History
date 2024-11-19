@@ -95,16 +95,6 @@ table 5331 "CRM Integration Record"
                         "Statistics Uploaded" := false;
             end;
         }
-#if not CLEANSCHEMA21
-        field(12; "Option Mapping Failure"; Boolean)
-        {
-            Caption = 'Option Mapping Failure';
-            Editable = false;
-            ObsoleteReason = 'This field is deprecated.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-#endif
         field(13; "Statistics Uploaded"; Boolean)
         {
             Caption = 'Statistics Uploaded';
@@ -909,4 +899,3 @@ table 5331 "CRM Integration Record"
     begin
     end;
 }
-

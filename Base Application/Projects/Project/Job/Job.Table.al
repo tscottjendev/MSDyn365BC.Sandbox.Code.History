@@ -326,16 +326,6 @@ table 167 Job
             Editable = false;
             FieldClass = FlowField;
         }
-#if not CLEANSCHEMA18
-        field(57; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(58; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
@@ -1269,16 +1259,6 @@ table 167 Job
             Caption = 'Completely Picked';
             FieldClass = FlowField;
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys
@@ -3387,4 +3367,3 @@ table 167 Job
     begin
     end;
 }
-

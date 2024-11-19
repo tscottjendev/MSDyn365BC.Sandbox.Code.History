@@ -282,16 +282,6 @@ table 5050 Contact
                     VATRegistrationValidation();
             end;
         }
-#if not CLEANSCHEMA18
-        field(89; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(91; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
@@ -645,17 +635,6 @@ table 5050 Contact
             Editable = false;
             FieldClass = FlowField;
         }
-#if not CLEANSCHEMA22
-        field(5075; "Business Relation"; Text[50])
-        {
-            Caption = 'Business Relation';
-            OptimizeForTextSearch = true;
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by the Contact Business Relation field.';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(5076; "Cost (LCY)"; Decimal)
         {
             AutoFormatType = 1;
@@ -4022,4 +4001,3 @@ table 5050 Contact
     begin
     end;
 }
-
