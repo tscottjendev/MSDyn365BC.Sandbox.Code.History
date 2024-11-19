@@ -12,6 +12,7 @@ using Microsoft.CRM.Reports;
 using Microsoft.CRM.Segment;
 using Microsoft.CRM.Task;
 using Microsoft.CRM.Team;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Integration.Dataverse;
 
 page 5123 "Opportunity List"
@@ -154,6 +155,14 @@ page 5123 "Opportunity List"
             {
                 ApplicationArea = RelationshipMgmt;
                 SubPageLink = "No." = field("No.");
+            }
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::Opportunity),
+                              "No." = field("No.");
             }
             systempart(Control1900383207; Links)
             {
