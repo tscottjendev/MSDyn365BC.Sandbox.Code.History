@@ -828,16 +828,6 @@ table 18 Customer
                         Validate("VAT Bus. Posting Group", GenBusPostingGrp."Def. VAT Bus. Posting Group");
             end;
         }
-#if not CLEANSCHEMA19
-        field(89; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '19.0';
-        }
-#endif
         field(90; GLN; Code[13])
         {
             Caption = 'GLN';
@@ -1634,15 +1624,6 @@ table 18 Customer
         {
             Caption = 'Validate EU VAT Reg. No.';
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(8001; "Currency Id"; Guid)
         {
             Caption = 'Currency Id';
@@ -1692,18 +1673,6 @@ table 18 Customer
                 UpdateTaxAreaCode();
             end;
         }
-#if not CLEANSCHEMA15
-        field(9004; "Tax Area Display Name"; Text[100])
-        {
-            CalcFormula = lookup("Tax Area".Description where(Code = field("Tax Area Code")));
-            Caption = 'Tax Area Display Name';
-            OptimizeForTextSearch = true;
-            FieldClass = FlowField;
-            ObsoleteReason = 'This field is not needed and it should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(9005; "Contact ID"; Guid)
         {
             Caption = 'Contact ID';
