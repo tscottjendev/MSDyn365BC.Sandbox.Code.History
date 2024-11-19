@@ -525,6 +525,11 @@ enum 30111 "Shpfy GraphQL Type" implements "Shpfy IGraphQL"
         Caption = 'Get Next Delivery Methods';
         Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextDeliveryMethods";
     }
+    value(110; GetMetafieldDefinitions)
+    {
+        Caption = 'Get Metafield Definitions';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL MetafieldDefinitions";
+    }
     value(111; InventoryActivate)
     {
         Caption = 'Inventory Activate';

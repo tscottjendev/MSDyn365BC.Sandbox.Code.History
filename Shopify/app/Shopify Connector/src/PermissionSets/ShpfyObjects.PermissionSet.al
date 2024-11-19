@@ -178,6 +178,7 @@ permissionset 30104 "Shpfy - Objects"
         codeunit "Shpfy GQL LocationOrderLines" = X,
         codeunit "Shpfy GQL Locations" = X,
         codeunit "Shpfy GQL MarkOrderAsPaid" = X,
+        codeunit "Shpfy GQL MetafieldDefinitions" = X,
         codeunit "Shpfy GQL MetafieldsSet" = X,
         codeunit "Shpfy GQL Modify Inventory" = X,
         codeunit "Shpfy GQL Next Locations" = X,

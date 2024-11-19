@@ -44,6 +44,7 @@ codeunit 30116 "Shpfy Customer Export"
     var
         Shop: Record "Shpfy Shop";
         CustomerApi: Codeunit "Shpfy Customer API";
+        MetafieldAPI: Codeunit "Shpfy Metafield API";
         SkippedRecord: Codeunit "Shpfy Skipped Record";
         CreateCustomers: Boolean;
         CountyCodeTooLongLbl: Label 'Can not export customer %1 %2. The length of the string is %3, but it must be less than or equal to %4 characters. Value: %5, field: %6', Comment = '%1 - Customer No., %2 - Customer Name, %3 - Length, %4 - Max Length, %5 - Value, %6 - Field Name';
@@ -219,6 +220,7 @@ codeunit 30116 "Shpfy Customer Export"
     begin
         Shop := ShopifyShop;
         CustomerApi.SetShop(Shop);
+        MetafieldAPI.SetShop(Shop)
     end;
 
     /// <summary> 
@@ -275,8 +277,6 @@ codeunit 30116 "Shpfy Customer Export"
     end;
 
     local procedure UpdateMetafields(CustomerId: BigInteger)
-    var
-        MetafieldAPI: Codeunit "Shpfy Metafield API";
     begin
         MetafieldAPI.CreateOrUpdateMetafieldsInShopify(Database::"Shpfy Customer", CustomerId);
     end;
