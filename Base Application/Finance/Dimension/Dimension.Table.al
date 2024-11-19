@@ -87,15 +87,6 @@ table 348 Dimension
                 end;
             end;
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(8001; "Last Modified Date Time"; DateTime)
         {
             Caption = 'Last Modified Date Time';
@@ -669,4 +660,3 @@ table 348 Dimension
     begin
     end;
 }
-

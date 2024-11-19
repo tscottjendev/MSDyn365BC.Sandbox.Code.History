@@ -618,24 +618,6 @@ table 112 "Sales Invoice Header"
             OptimizeForTextSearch = true;
             ExtendedDatatype = EMail;
         }
-#if not CLEANSCHEMA22
-        field(176; "Payment Instructions"; BLOB)
-        {
-            Caption = 'Payment Instructions';
-            ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(177; "Payment Instructions Name"; Text[20])
-        {
-            Caption = 'Payment Instructions Name';
-            OptimizeForTextSearch = true;
-            DataClassification = CustomerContent;
-            ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(179; "VAT Reporting Date"; Date)
         {
             Caption = 'VAT Date';
@@ -830,15 +812,6 @@ table 112 "Sales Invoice Header"
         {
             Caption = 'Get Shipment Used';
         }
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(8001; "Draft Invoice SystemId"; Guid)
         {
             Caption = 'Draft Invoice SystemId';
@@ -1432,4 +1405,3 @@ table 112 "Sales Invoice Header"
     begin
     end;
 }
-

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -64,20 +64,6 @@ table 9060 "SB Owner Cue"
             Caption = 'Overdue Sales Documents';
             FieldClass = FlowField;
         }
-#if not CLEANSCHEMA18
-        field(7; "SOs Shipped Not Invoiced"; Integer)
-        {
-            AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = count("Sales Header" where("Document Type" = const(Order),
-                                                      "Completely Shipped" = const(true),
-                                                      "Shipped Not Invoiced" = const(true)));
-            Caption = 'SOs Shipped Not Invoiced';
-            FieldClass = FlowField;
-            ObsoleteReason = 'Poor performance';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-#endif
         field(8; "Customers - Blocked"; Integer)
         {
             CalcFormula = count(Customer where(Blocked = filter(<> " ")));
@@ -193,4 +179,3 @@ table 9060 "SB Owner Cue"
         PAGE.Run(PAGE::"Sales Order List", SalesHeader);
     end;
 }
-
