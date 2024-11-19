@@ -40,15 +40,6 @@ table 10 "Shipment Method"
             ObsoleteTag = '26.0';
         }
 #endif
-#if not CLEANSCHEMA22
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(11300; "Incoterm in Intrastat Decl."; Code[10])
         {
             Caption = 'Incoterm in Intrastat Decl.';
@@ -110,4 +101,3 @@ table 10 "Shipment Method"
         "Last Modified Date Time" := CurrentDateTime;
     end;
 }
-

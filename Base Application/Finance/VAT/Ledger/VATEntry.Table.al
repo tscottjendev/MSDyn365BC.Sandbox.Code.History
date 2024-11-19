@@ -549,15 +549,6 @@ table 254 "VAT Entry"
             ObsoleteTag = '23.0';
         }
 #endif
-#if not CLEANSCHEMA15
-        field(11309; "Base Before Pmt. Disc. (Old)"; Decimal)
-        {
-            Caption = 'Base Before Pmt. Disc. (Old)';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(11310; "Enterprise No."; Text[50])
         {
             Caption = 'Enterprise No.';
@@ -986,4 +977,3 @@ table 254 "VAT Entry"
     begin
     end;
 }
-

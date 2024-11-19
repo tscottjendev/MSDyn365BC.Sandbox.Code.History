@@ -226,16 +226,6 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'No. of Supplementary Units';
             Editable = false;
         }
-#if not CLEANSCHEMA21
-        field(11318; "Partner ID"; Text[50])
-        {
-            Caption = 'Partner ID';
-            DataClassification = CustomerContent;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteTag = '21.0';
-            ObsoleteState = Removed;
-        }
-#endif
     }
 
     keys

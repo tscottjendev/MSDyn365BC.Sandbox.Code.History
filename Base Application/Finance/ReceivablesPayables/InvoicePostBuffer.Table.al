@@ -320,16 +320,6 @@ table 49 "Invoice Post. Buffer"
             ObsoleteTag = '25.0';
         }
 #endif
-#if not CLEANSCHEMA15
-        field(11302; "Base Before Pmt. Disc. (Old)"; Decimal)
-        {
-            Caption = 'Base Before Pmt. Disc. (Old)';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(11303; "Non Deductible VAT Amt."; Decimal)
         {
             Caption = 'Non Deductible VAT Amt.';

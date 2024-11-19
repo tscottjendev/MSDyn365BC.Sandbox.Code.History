@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.ReceivablesPayables;
+namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -208,16 +208,6 @@ table 461 "Prepayment Inv. Line Buffer"
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(11301; "Base Before Pmt. Disc. (Old)"; Decimal)
-        {
-            Caption = 'Base Before Pmt. Disc. (Old)';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
 #endif
     }
@@ -496,4 +486,3 @@ table 461 "Prepayment Inv. Line Buffer"
     begin
     end;
 }
-

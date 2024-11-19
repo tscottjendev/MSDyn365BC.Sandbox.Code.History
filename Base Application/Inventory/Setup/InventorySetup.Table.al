@@ -164,16 +164,6 @@ table 313 "Inventory Setup"
             Caption = 'Catalog Item Nos.';
             TableRelation = "No. Series";
         }
-#if not CLEANSCHEMA22
-        field(5725; "Use Item References"; Boolean)
-        {
-            AccessByPermission = TableData "Item Reference" = R;
-            Caption = 'Use Item References';
-            ObsoleteReason = 'Replaced by default visibility for Item Reference''s fields and actions.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(5790; "Outbound Whse. Handling Time"; DateFormula)
         {
             AccessByPermission = TableData Location = R;
@@ -456,4 +446,3 @@ table 313 "Inventory Setup"
         exit("Automatic Cost Adjustment" <> "Automatic Cost Adjustment"::Never);
     end;
 }
-

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -204,16 +204,6 @@ table 290 "VAT Amount Line"
             Caption = 'VAT Base (Lowered)';
             Editable = false;
         }
-#if not CLEANSCHEMA15
-        field(11302; "Pmt. Discount Amount (Old)"; Decimal)
-        {
-            Caption = 'Pmt. Discount Amount (Old)';
-            Editable = false;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
@@ -1126,4 +1116,3 @@ table 290 "VAT Amount Line"
     begin
     end;
 }
-
