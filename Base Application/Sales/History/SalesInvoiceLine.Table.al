@@ -565,24 +565,6 @@ table 113 "Sales Invoice Line"
             Caption = 'Price description';
             OptimizeForTextSearch = true;
         }
-#if not CLEANSCHEMA15
-        field(5005396; "Order No. (Old)"; Code[20])
-        {
-            Caption = 'Order No. (Old)';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(5005397; "Order Line No. (Old)"; Integer)
-        {
-            Caption = 'Order Line No. (Old)';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys

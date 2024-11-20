@@ -654,24 +654,6 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Price Calculation Method';
         }
-#if not CLEANSCHEMA15
-        field(5005396; "Order No. (Old)"; Code[20])
-        {
-            Caption = 'Order No. (Old)';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(5005397; "Order Line No. (Old)"; Integer)
-        {
-            Caption = 'Order Line No. (Old)';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';

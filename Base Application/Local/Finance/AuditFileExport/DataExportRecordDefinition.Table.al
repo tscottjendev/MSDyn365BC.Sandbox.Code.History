@@ -42,15 +42,6 @@ table 11003 "Data Export Record Definition"
         {
             Caption = 'Description';
         }
-#if not CLEANSCHEMA15
-        field(4; "Export Path"; Text[250])
-        {
-            Caption = 'Export Path';
-            ObsoleteReason = 'This field is obsolete after refactoring.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(5; "DTD File Name"; Text[50])
         {
             Caption = 'DTD File Name';
@@ -317,4 +308,3 @@ table 11003 "Data Export Record Definition"
     begin
     end;
 }
-

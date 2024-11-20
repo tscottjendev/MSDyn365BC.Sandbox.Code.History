@@ -549,24 +549,6 @@ table 115 "Sales Cr.Memo Line"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
-#if not CLEANSCHEMA15
-        field(5005396; "Order No. (Old)"; Code[20])
-        {
-            Caption = 'Order No. (Old)';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(5005397; "Order Line No. (Old)"; Integer)
-        {
-            Caption = 'Order Line No. (Old)';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys

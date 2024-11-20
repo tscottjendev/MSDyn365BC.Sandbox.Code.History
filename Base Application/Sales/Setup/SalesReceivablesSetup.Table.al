@@ -638,55 +638,6 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             InitValue = true;
         }
-#if not CLEANSCHEMA19
-        field(11500; "Block ship. when neg. invent."; Boolean)
-        {
-            Caption = 'Block ship. when neg. invent.';
-            ObsoleteReason = 'Replaced by W1 feature';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(5005130; "Arch. Orders and Ret. Orders"; Boolean)
-        {
-            Caption = 'Arch. Orders and Ret. Orders';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(5005132; "Archiving Sales Quote"; Option)
-        {
-            Caption = 'Archiving Sales Quote';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            OptionCaption = 'Never,Question,Always';
-            OptionMembers = Never,Question,Always;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(5005133; "Archiving Blanket Sales Order"; Boolean)
-        {
-            Caption = 'Archiving Blanket Sales Order';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(5005134; "Batch Archiving Sales Quote"; Boolean)
-        {
-            Caption = 'Batch Archiving Sales Quote';
-            Editable = false;
-            InitValue = false;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
     }
 
     keys
