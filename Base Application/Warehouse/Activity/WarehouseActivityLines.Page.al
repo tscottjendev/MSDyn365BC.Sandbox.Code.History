@@ -224,22 +224,6 @@ page 5785 "Warehouse Activity Lines"
             {
                 Caption = '&Line';
                 Image = Line;
-                action(Card)
-                {
-                    ApplicationArea = Warehouse;
-                    Caption = 'Card';
-                    Image = EditLines;
-                    ShortCutKey = 'Shift+F7';
-                    ToolTip = 'View or change detailed information about the record on the document or journal line.';
-                    ObsoleteReason = 'Replaced by "Show Document" action';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-
-                    trigger OnAction()
-                    begin
-                        Rec.ShowActivityDoc();
-                    end;
-                }
                 action(ShowDocument)
                 {
                     ApplicationArea = Warehouse;
