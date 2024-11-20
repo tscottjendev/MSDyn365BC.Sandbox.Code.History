@@ -10,7 +10,7 @@ using Microsoft.Sales.Setup;
 
 table 1230 "SEPA Direct Debit Mandate"
 {
-    Caption = 'SEPA Direct Debit Mandate';
+    Caption = 'Direct Debit Mandate';
     DataCaptionFields = ID, "Customer Bank Account Code";
     DrillDownPageID = "SEPA Direct Debit Mandates";
     LookupPageID = "SEPA Direct Debit Mandates";
