@@ -8,6 +8,7 @@ using Microsoft.Sales.History;
 using System.Environment;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.BankAccount;
+using Microsoft.Finance.FinancialReports;
 using System.Environment.Configuration;
 using System.Feedback;
 
@@ -53,6 +54,7 @@ codeunit 1351 "Telemetry Subscribers"
         BankAccountRecPostedWithBankAccCurrencyCodeMsg: Label 'Bank Account Reconciliation posted with CurrencyCode set to: %1', Locked = true;
         BankAccountRecTextToAccountCountLbl: Label 'Number of lines where Text-To-Applied was used: %1', Locked = true;
         BankAccountRecTransferToGJMsg: Label 'Lines of Bank Statement to transfer to GJ: %1', Locked = true;
+        FinancialReportFeatureTok: Label 'Financial Report', Locked = true;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Conf./Personalization Mgt.", 'OnProfileChanged', '', true, true)]
     local procedure SendTraceOnProfileChanged(PrevAllProfile: Record "All Profile"; CurrentAllProfile: Record "All Profile")
@@ -553,5 +555,122 @@ codeunit 1351 "Telemetry Subscribers"
     begin
         Codeunit.Run(Codeunit::"Emit Database Wait Statistics");
         OnboardingSignal.CheckAndEmitOnboardingSignals();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Financial Report", OnAfterInsertEvent, '', true, true)]
+    local procedure LogFinancialReportLifecycleInsert(var Rec: Record "Financial Report")
+    begin
+        LogFinancialReportTelemetry(Rec, '0000O77', 'Financial Report created');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Financial Report", OnAfterModifyEvent, '', true, true)]
+    local procedure LogFinancialReportLifecycleModify(var Rec: Record "Financial Report")
+    begin
+        LogFinancialReportTelemetry(Rec, '0000O78', 'Financial Report modified');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Financial Report", OnAfterRenameEvent, '', true, true)]
+    local procedure LogFinancialReportLifecycleRename(var Rec: Record "Financial Report")
+    begin
+        LogFinancialReportTelemetry(Rec, '0000O79', 'Financial Report renamed');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Financial Report", OnAfterDeleteEvent, '', true, true)]
+    local procedure LogFinancialReportLifecycleDelete(var Rec: Record "Financial Report")
+    begin
+        LogFinancialReportTelemetry(Rec, '0000O80', 'Financial Report deleted');
+    end;
+
+    local procedure LogFinancialReportTelemetry(FinancialReport: Record "Financial Report"; EventId: Text; EventName: Text)
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        if FinancialReport.IsTemporary() then
+            exit;
+
+        if not IsSaaS() then
+            exit;
+
+        TelemetryDimensions.Add('ReportDefinitionCode', FinancialReport.Name);
+        FeatureTelemetry.LogUsage(EventId, FinancialReportFeatureTok, EventName, TelemetryDimensions);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Name", OnAfterInsertEvent, '', true, true)]
+    local procedure LogAccScheduleNameLifecycleInsert(var Rec: Record "Acc. Schedule Name")
+    begin
+        LogAccScheduleNameTelemetry(Rec, '0000O81', 'Financial Report Row Definition created');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Name", OnAfterModifyEvent, '', true, true)]
+    local procedure LogAccScheduleNameLifecycleModify(var Rec: Record "Acc. Schedule Name")
+    begin
+        LogAccScheduleNameTelemetry(Rec, '0000O82', 'Financial Report Row Definition modified');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Name", OnAfterRenameEvent, '', true, true)]
+    local procedure LogAccScheduleNameLifecycleRename(var Rec: Record "Acc. Schedule Name")
+    begin
+        LogAccScheduleNameTelemetry(Rec, '0000O83', 'Financial Report Row Definition renamed');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Name", OnAfterDeleteEvent, '', true, true)]
+    local procedure LogAccScheduleNameLifecycleDelete(var Rec: Record "Acc. Schedule Name")
+    begin
+        LogAccScheduleNameTelemetry(Rec, '0000O84', 'Financial Report Row Definition deleted');
+    end;
+
+    local procedure LogAccScheduleNameTelemetry(AccScheduleName: Record "Acc. Schedule Name"; EventId: Text; EventName: Text)
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        if AccScheduleName.IsTemporary() then
+            exit;
+
+        if not IsSaaS() then
+            exit;
+
+        TelemetryDimensions.Add('RowDefinitionCode', AccScheduleName.Name);
+        FeatureTelemetry.LogUsage(EventId, FinancialReportFeatureTok, EventName, TelemetryDimensions);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Column Layout Name", OnAfterInsertEvent, '', true, true)]
+    local procedure LogColumnLayoutNameLifecycleInsert(var Rec: Record "Column Layout Name")
+    begin
+        LogColumnLayoutNameTelemetry(Rec, '0000O85', 'Financial Report Column Definition created');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Column Layout Name", OnAfterModifyEvent, '', true, true)]
+    local procedure LogColumnLayoutNameLifecycleModify(var Rec: Record "Column Layout Name")
+    begin
+        LogColumnLayoutNameTelemetry(Rec, '0000O86', 'Financial Report Column Definition modified');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Column Layout Name", OnAfterRenameEvent, '', true, true)]
+    local procedure LogColumnLayoutNameLifecycleRename(var Rec: Record "Column Layout Name")
+    begin
+        LogColumnLayoutNameTelemetry(Rec, '0000O87', 'Financial Report Column Definition renamed');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Column Layout Name", OnAfterDeleteEvent, '', true, true)]
+    local procedure LogColumnLayoutNameLifecycleDelete(var Rec: Record "Column Layout Name")
+    begin
+        LogColumnLayoutNameTelemetry(Rec, '0000O88', 'Financial Report Column Definition deleted');
+    end;
+
+    local procedure LogColumnLayoutNameTelemetry(ColumnLayoutName: Record "Column Layout Name"; EventId: Text; EventName: Text)
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        if ColumnLayoutName.IsTemporary() then
+            exit;
+
+        if not IsSaaS() then
+            exit;
+
+        TelemetryDimensions.Add('ColumnDefinitionCode', ColumnLayoutName.Name);
+        FeatureTelemetry.LogUsage(EventId, FinancialReportFeatureTok, EventName, TelemetryDimensions);
     end;
 }
