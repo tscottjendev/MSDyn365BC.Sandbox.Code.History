@@ -473,18 +473,18 @@ codeunit 5703 "Catalog Item Management"
         OnAfterInsertUnitOfMeasure(UnitOfMeasureCode, ItemNo);
     end;
 
+#if not CLEAN22
     [Obsolete('Replaced by GetNewItemNo(NonstockItem)', '22.0')]
     procedure GetNewItemNo(NonstockItem: Record "Nonstock Item"; Length1: Integer; Length2: Integer) NewItemNo: Code[20]
     var
         IsHandled: Boolean;
     begin
-        OnBeforeGetNewItemNo(NonstockItem, Length1, Length2, NewItemNo, IsHandled);
         if IsHandled then
             exit(NewItemNo);
         DetermineItemNoAndItemNoSeries(NonstockItem);
         NewItemNo := NonstockItem."Item No.";
-        OnAfterGetNewItemNo(NonstockItem, NewItemNo);
     end;
+#endif
 
     procedure DetermineItemNoAndItemNoSeries(var NonstockItem: Record "Nonstock Item")
     var
@@ -577,12 +577,6 @@ codeunit 5703 "Catalog Item Management"
         end;
 #endif
         OnAfterGetItemNoFromNoSeries(NonstockItem);
-    end;
-
-    [Obsolete('Replaced by CreateNewItem(NonstockItem)', '22.0')]
-    procedure CreateNewItem(ItemNo: Code[20]; NonstockItem: Record "Nonstock Item")
-    begin
-        CreateNewItem(NonstockItem);
     end;
 
     procedure CreateNewItem(NonstockItem: Record "Nonstock Item")
@@ -680,12 +674,6 @@ codeunit 5703 "Catalog Item Management"
     begin
     end;
 
-    [Obsolete('Replaced by OnAfterDetermineItemNoAndItemNoSeries(NonstockItem)', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetNewItemNo(NonstockItem: Record "Nonstock Item"; var NewItemNo: Code[20])
-    begin
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterDetermineItemNoAndItemNoSeries(var NonstockItem: Record "Nonstock Item")
     begin
@@ -753,12 +741,6 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteCreatedFromNonstockItem(var NewItem: Record Item; var NonStock: Record "Nonstock Item"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [Obsolete('Replaced by OnBeforeDetermineItemNoAndItemNoSeries(NonstockItem, IsHandled)', '21.4')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetNewItemNo(NonstockItem: Record "Nonstock Item"; Length1: Integer; Length2: Integer; var NewItemNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
