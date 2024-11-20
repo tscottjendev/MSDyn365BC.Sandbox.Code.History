@@ -480,6 +480,38 @@ page 9311 "Purchase Return Order List"
                     DocPrint.PrintPurchHeader(Rec);
                 end;
             }
+            action(Email)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Send by Email';
+                Ellipsis = true;
+                Image = Email;
+                ToolTip = 'Finalize and prepare to email the document. The Send Email window opens prefilled with the vendor''s email address so you can add or edit information.';
+
+                trigger OnAction()
+                var
+                    DocPrint: Codeunit "Document-Print";
+                begin
+                    DocPrint.EmailPurchHeader(Rec);
+                end;
+            }
+            action(Send)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Send';
+                Ellipsis = true;
+                Image = SendToMultiple;
+                ToolTip = 'Prepare to send the document according to the vendor''s sending profile, such as attached to an email. The Send document to window opens first so you can confirm or select a sending profile.';
+
+                trigger OnAction()
+                var
+                    PurchaseHeader: Record "Purchase Header";
+                begin
+                    PurchaseHeader := Rec;
+                    CurrPage.SetSelectionFilter(PurchaseHeader);
+                    PurchaseHeader.SendRecords();
+                end;
+            }
             action(AttachAsPDF)
             {
                 ApplicationArea = Basic, Suite;
@@ -831,7 +863,13 @@ page 9311 "Purchase Return Order List"
             {
                 Caption = 'Print/Send';
 
+                actionref(Email_Promoted; Email)
+                {
+                }
                 actionref(Print_Promoted; Print)
+                {
+                }
+                actionref(Send_Promoted; Send)
                 {
                 }
                 actionref(AttachAsPDF_Promoted; AttachAsPDF)
