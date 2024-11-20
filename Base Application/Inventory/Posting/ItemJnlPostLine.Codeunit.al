@@ -1056,7 +1056,13 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     local procedure InsertCapLedgEntry(var CapLedgEntry: Record "Capacity Ledger Entry"; Qty: Decimal; InvdQty: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeProcedureInsertCapLedgEntry(ItemJnlLine, CapLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if CapLedgEntryNo = 0 then begin
             CapLedgEntry.LockTable();
             CapLedgEntryNo := CapLedgEntry.GetLastEntryNo();
@@ -8346,6 +8352,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUndoValuePostingWithJob(OldItemLedgEntryNo: Integer; NewItemLedgEntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcedureInsertCapLedgEntry(var ItemJournalLine: Record "Item Journal Line"; var CapacityLedgerEntry: Record "Capacity Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }
