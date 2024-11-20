@@ -38,8 +38,10 @@ tableextension 4701 "VAT Report Setup Extension" extends "VAT Report Setup"
         }
 #if not CLEANSCHEMA25
 #pragma warning disable AL0432
+#pragma warning disable AS0105
         field(4704; "Authentication Type"; Enum "VAT Group Authentication Type OnPrem")
 #pragma warning restore
+#pragma warning restore AS0105
         {
             DataClassification = CustomerContent;
             Caption = 'Authentication Type';
