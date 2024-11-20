@@ -464,62 +464,6 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA19
-        field(11312; "Show Totals on Purch. Inv./CM."; Boolean)
-        {
-            Caption = 'Show Totals on Purch. Inv./CM.';
-            ObsoleteReason = 'Duplicate to W1 document totals';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11313; "Insert Std. Vend. Purch. Lines"; Option)
-        {
-            Caption = 'Insert Std. Vend. Purch. Lines';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            OptionCaption = 'Manual,Automatic,Always Ask';
-            OptionMembers = Manual,Automatic,"Always Ask";
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11314; Quotes; Boolean)
-        {
-            Caption = 'Quotes';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11316; Orders; Boolean)
-        {
-            Caption = 'Orders';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11317; Invoices; Boolean)
-        {
-            Caption = 'Invoices';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11319; "Credit Memos"; Boolean)
-        {
-            Caption = 'Credit Memos';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
         field(11320; "Check Doc. Total Amounts"; Boolean)
         {
             Caption = 'Check Doc. Total Amounts';

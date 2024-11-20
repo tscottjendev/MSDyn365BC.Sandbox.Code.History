@@ -638,48 +638,10 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             InitValue = true;
         }
-#if not CLEANSCHEMA19
-        field(11313; "Insert Std. Cust. Sales Lines"; Option)
-        {
-            Caption = 'Insert Std. Cust. Sales Lines';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            OptionCaption = 'Manual,Automatic,Always Ask';
-            OptionMembers = Manual,Automatic,"Always Ask";
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11314; Quotes; Boolean)
-        {
-            Caption = 'Quotes';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
         field(11316; Orders; Boolean)
         {
             Caption = 'Orders';
         }
-#if not CLEANSCHEMA19
-        field(11317; Invoices; Boolean)
-        {
-            Caption = 'Invoices';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11319; "Credit Memos"; Boolean)
-        {
-            Caption = 'Credit Memos';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
     }
 
     keys
