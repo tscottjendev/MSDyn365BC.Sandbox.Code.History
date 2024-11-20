@@ -137,22 +137,6 @@ page 99000815 "Production Order List"
             {
                 Caption = 'Pro&d. Order';
                 Image = "Order";
-                action(Card)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Card';
-                    Image = EditLines;
-                    ShortCutKey = 'Shift+F7';
-                    ToolTip = 'View or change detailed information about the record on the document or journal line.';
-                    ObsoleteReason = 'Replaced by "Show Document" action';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-
-                    trigger OnAction()
-                    begin
-                        OpenSourceCard();
-                    end;
-                }
                 action(ShowDocument)
                 {
                     ApplicationArea = Manufacturing;
