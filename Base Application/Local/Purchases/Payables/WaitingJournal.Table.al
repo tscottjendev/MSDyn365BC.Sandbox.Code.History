@@ -757,26 +757,6 @@ table 15000004 "Waiting Journal"
             ObsoleteTag = '26.0';
         }
 #endif
-#if not CLEANSCHEMA15
-        field(10606; "Source Curr. Inv.tax Amount"; Decimal)
-        {
-            Caption = 'Source Curr. Inv.tax Amount';
-            Editable = false;
-            ObsoleteReason = 'Redesign';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(10607; "Source Curr. Inv.tax Base"; Decimal)
-        {
-            Caption = 'Source Curr. Inv.tax Base';
-            Editable = false;
-            ObsoleteReason = 'Redesign';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(10608; "VAT Base Amount Type"; Option)
         {
             Caption = 'VAT Base Amount Type';
@@ -1126,4 +1106,3 @@ table 15000004 "Waiting Journal"
     begin
     end;
 }
-

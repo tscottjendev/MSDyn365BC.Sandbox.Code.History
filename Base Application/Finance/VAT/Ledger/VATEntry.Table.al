@@ -537,24 +537,6 @@ table 254 "VAT Entry"
             Caption = 'Non-Deductible VAT Difference ACY';
             Editable = false;
         }
-#if not CLEANSCHEMA15
-        field(10603; "Add.-Curr. Inv.tax Amount"; Decimal)
-        {
-            Caption = 'Add.-Curr. Inv.tax Amount';
-            ObsoleteReason = 'Redesign';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(10604; "Add.-Curr. Inv.tax Base"; Decimal)
-        {
-            Caption = 'Add.-Curr. Inv.tax Base';
-            ObsoleteReason = 'Redesign';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(10606; "Base Amount Type"; Option)
         {
             Caption = 'Base Amount Type';
@@ -971,4 +953,3 @@ table 254 "VAT Entry"
     begin
     end;
 }
-

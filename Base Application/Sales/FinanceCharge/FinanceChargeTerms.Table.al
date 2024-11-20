@@ -89,15 +89,6 @@ table 5 "Finance Charge Terms"
         {
             Caption = 'Detailed Lines Description';
         }
-#if not CLEANSCHEMA15
-        field(3010590; "Multiple Lines Description"; Text[50])
-        {
-            Caption = 'Multiple Lines Description';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
@@ -134,4 +125,3 @@ table 5 "Finance Charge Terms"
 
         InterestRateNotificationMsg: Label 'This interest rate will only be used if no relevant interest rate per date has been entered.';
 }
-

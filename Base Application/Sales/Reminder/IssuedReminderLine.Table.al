@@ -198,15 +198,6 @@ table 298 "Issued Reminder Line"
         {
             Caption = 'Account Code';
         }
-#if not CLEANSCHEMA15
-        field(3010590; "Multiple Interest Rates Entry"; Boolean)
-        {
-            Caption = 'Multiple Interest Rates Entry';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
@@ -290,4 +281,3 @@ table 298 "Issued Reminder Line"
     begin
     end;
 }
-

@@ -357,6 +357,7 @@ table 79 "Company Information"
             ObsoleteTag = '25.0';
         }
 #endif
+#if not CLEANSCHEMA23
         field(44; "Auto. Send Transactions"; Boolean)
         {
             AccessByPermission = TableData "IC G/L Account" = R;
@@ -365,6 +366,7 @@ table 79 "Company Information"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
+#endif
 #endif
         field(46; "System Indicator"; Option)
         {
@@ -495,15 +497,6 @@ table 79 "Company Information"
         {
             Caption = 'Enterpriseregister';
         }
-#if not CLEANSCHEMA15
-        field(10620; "SAFT Contact No."; Code[20])
-        {
-            Caption = 'SAF-T Contact No.';
-            ObsoleteReason = 'Moved to extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys

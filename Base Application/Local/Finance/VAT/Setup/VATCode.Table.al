@@ -48,24 +48,6 @@ table 10602 "VAT Code"
             OptionCaption = ' ,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19';
             OptionMembers = " ","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19";
         }
-#if not CLEANSCHEMA21
-        field(7; "VAT % For Reporting"; Decimal)
-        {
-            Caption = 'VAT Rate For Reporting';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to extension';
-        }
-#endif
-#if not CLEANSCHEMA21
-        field(8; "Report VAT %"; Boolean)
-        {
-            Caption = 'Report VAT Rate';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to extension';
-        }
-#endif
         field(9; "VAT Specification Code"; Code[50])
         {
             Caption = 'VAT Specification Code';
@@ -84,15 +66,6 @@ table 10602 "VAT Code"
             Caption = 'VAT Note Code';
             TableRelation = "VAT Note";
         }
-#if not CLEANSCHEMA15
-        field(10620; "SAFT Compensation"; Boolean)
-        {
-            Caption = 'Compensation';
-            ObsoleteReason = 'Moved to extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(10621; "Linked VAT Reporting Code"; Code[20]) { }
     }
 

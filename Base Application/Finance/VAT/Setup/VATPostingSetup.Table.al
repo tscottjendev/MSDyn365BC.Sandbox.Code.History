@@ -311,46 +311,6 @@ table 325 "VAT Posting Setup"
             ObsoleteTag = '26.0';
         }
 #endif
-#if not CLEANSCHEMA15
-        field(10620; "Sales SAFT Tax Code"; Integer)
-        {
-            Caption = 'Sales SAF-T Tax Code';
-            Editable = false;
-            ObsoleteReason = 'Moved to extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(10621; "Purchase SAFT Tax Code"; Integer)
-        {
-            Caption = 'Purchase SAF-T Tax Code';
-            Editable = false;
-            ObsoleteReason = 'Moved to extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(10622; "Sales SAFT Standard Tax Code"; Code[10])
-        {
-            Caption = 'Sales SAF-T Standard Tax Code';
-            ObsoleteReason = 'Moved to extension';
-            ObsoleteState = Removed;
-            TableRelation = "VAT Code";
-            ObsoleteTag = '15.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(10623; "Purch. SAFT Standard Tax Code"; Code[10])
-        {
-            Caption = 'Purch. SAF-T Standard Tax Code';
-            ObsoleteReason = 'Moved to extension';
-            ObsoleteState = Removed;
-            TableRelation = "VAT Code";
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
@@ -626,4 +586,3 @@ table 325 "VAT Posting Setup"
     begin
     end;
 }
-

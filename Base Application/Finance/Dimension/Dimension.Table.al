@@ -91,25 +91,6 @@ table 348 Dimension
         {
             Caption = 'Last Modified Date Time';
         }
-#if not CLEANSCHEMA15
-        field(10620; "SAFT Analysis Type"; Code[9])
-        {
-            Caption = 'SAF-T Analysis Type';
-            ObsoleteReason = 'Moved to extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(10621; "Export to SAFT"; Boolean)
-        {
-            Caption = 'Export to SAF-T';
-            InitValue = true;
-            ObsoleteReason = 'Moved to extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
