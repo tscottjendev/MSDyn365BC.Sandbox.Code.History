@@ -1474,7 +1474,7 @@ codeunit 136102 "Service Contracts"
         // 2. Exercise: Post the Service Invoice from the handler.
         ServiceDocumentRegisters.OpenEdit();
         ServiceDocumentRegisters.FILTER.SetFilter("Source Document No.", ServiceContract."Contract No.".Value);
-        ServiceDocumentRegisters.Card.Invoke();
+        ServiceDocumentRegisters.ShowDocument.Invoke();
         LibraryVariableStorage.Dequeue(LineAmount);
         Evaluate(Amount, Format(LineAmount));
 

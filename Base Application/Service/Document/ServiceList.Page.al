@@ -125,24 +125,6 @@ page 5901 "Service List"
             {
                 Caption = '&Line';
                 Image = Line;
-                action(Card)
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Card';
-                    Image = EditLines;
-                    ShortCutKey = 'Shift+F7';
-                    ToolTip = 'View or change detailed information about the record on the document or journal line.';
-                    ObsoleteReason = 'Replaced by "Show Document" action';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-
-                    trigger OnAction()
-                    var
-                        PageManagement: Codeunit "Page Management";
-                    begin
-                        PageManagement.PageRun(Rec);
-                    end;
-                }
                 action(ShowDocument)
                 {
                     ApplicationArea = Service;
