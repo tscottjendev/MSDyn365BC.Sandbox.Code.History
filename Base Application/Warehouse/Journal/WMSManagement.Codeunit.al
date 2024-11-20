@@ -427,10 +427,14 @@ codeunit 7302 "WMS Management"
         if not ShowError then
             ShowError := CheckBinCodeChange(ItemJnlLine."New Location Code", ItemJnlLine."New Bin Code", xItemJnlLine."New Bin Code");
 
-        if ShowError then
-            Error(Text015,
-              CurrFieldCaption,
-              LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
+        if ShowError then begin
+            IsHandled := false;
+            OnCheckItemJnlLineFieldChangeOnBeforeShowError(ItemJnlLine, xItemJnlLine, IsHandled);
+            if not IsHandled then
+                Error(Text015,
+                  CurrFieldCaption,
+                  LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
+        end;
 
         if ItemJnlLine."Entry Type" in
            [ItemJnlLine."Entry Type"::"Negative Adjmt.", ItemJnlLine."Entry Type"::"Positive Adjmt.", ItemJnlLine."Entry Type"::Sale, ItemJnlLine."Entry Type"::Purchase]
@@ -454,16 +458,20 @@ codeunit 7302 "WMS Management"
             end;
 
             if ShowError then begin
-                if ItemJnlLine."Phys. Inventory" then
+                IsHandled := false;
+                OnCheckItemJnlLineFieldChangeOnBeforeShowError(ItemJnlLine, xItemJnlLine, IsHandled);
+                if not IsHandled then begin
+                    if ItemJnlLine."Phys. Inventory" then
+                        Error(Text010,
+                          CurrFieldCaption,
+                          Location.TableCaption(), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
+                          WhsePhysInvtJournal.Caption);
+
                     Error(Text010,
                       CurrFieldCaption,
                       Location.TableCaption(), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
-                      WhsePhysInvtJournal.Caption);
-
-                Error(Text010,
-                  CurrFieldCaption,
-                  Location.TableCaption(), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
-                  WhseItemJournal.Caption);
+                      WhseItemJournal.Caption);
+                end;
             end;
             GetLocation(ItemJnlLine."Location Code");
             if not Location."Bin Mandatory" then
@@ -2117,6 +2125,11 @@ codeunit 7302 "WMS Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetCaptionClass(DestinationType: Enum "Warehouse Destination Type"; Selection: Integer; var CaptionClass: Text[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckItemJnlLineFieldChangeOnBeforeShowError(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -2769,7 +2769,7 @@ page 50 "Purchase Order"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnPostDocumentBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting"; DocumentIsPosted: Boolean; var IsHandled: Boolean)
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting"; var DocumentIsPosted: Boolean; var IsHandled: Boolean)
     begin
     end;
 
