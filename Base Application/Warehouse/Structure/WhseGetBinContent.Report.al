@@ -34,7 +34,7 @@ report 7391 "Whse. Get Bin Content"
 
                 QtyToEmptyBase := GetQtyToEmptyBase(DummyItemTrackingSetup);
                 ShouldSkipReportForQty := QtyToEmptyBase <= 0;
-                OnBinContenOnAfterGetRecordOnAfterCalcShouldSkipReportForQty("Bin Content", ShouldSkipReportForQty, DestinationType2, WhseWorksheetLine, WhseInternalPutawayLine, ItemJournalLine, TransferLine, InternalMovementLine);
+                OnBinContenOnAfterGetRecordOnAfterCalcShouldSkipReportForQty("Bin Content", ShouldSkipReportForQty, DestinationType2, WhseWorksheetLine, WhseInternalPutawayLine, ItemJournalLine, TransferLine, InternalMovementLine, PostingDate, DocNo);
                 if ShouldSkipReportForQty then
                     CurrReport.Skip();
 
@@ -507,7 +507,7 @@ report 7391 "Whse. Get Bin Content"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBinContenOnAfterGetRecordOnAfterCalcShouldSkipReportForQty(var BinContent: Record "Bin Content"; var ShouldSkipReportForQty: Boolean; DestinationType2: Enum "Warehouse Destination Type 2"; WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseInternalPutawayLine: Record "Whse. Internal Put-away Line"; ItemJournalLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; InternalMovementLine: Record "Internal Movement Line")
+    local procedure OnBinContenOnAfterGetRecordOnAfterCalcShouldSkipReportForQty(var BinContent: Record "Bin Content"; var ShouldSkipReportForQty: Boolean; DestinationType2: Enum "Warehouse Destination Type 2"; WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseInternalPutawayLine: Record "Whse. Internal Put-away Line"; ItemJournalLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; InternalMovementLine: Record "Internal Movement Line"; PostingDate: Date; DocumentNo: Code[20])
     begin
     end;
 
