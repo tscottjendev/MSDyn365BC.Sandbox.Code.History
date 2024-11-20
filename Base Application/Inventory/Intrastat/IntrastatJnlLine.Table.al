@@ -222,25 +222,6 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Counterparty';
         }
-#if not CLEANSCHEMA20
-        field(10800; "Shipment Method Code"; Code[10])
-        {
-            Caption = 'Shipment Method Code';
-            ObsoleteReason = 'Merge to W1';
-            ObsoleteState = Removed;
-            TableRelation = "Shipment Method";
-            ObsoleteTag = '20.0';
-        }
-#endif
-#if not CLEANSCHEMA22
-        field(10801; "Cust. VAT Registration No."; Text[20])
-        {
-            Caption = 'Cust. VAT Registration No.';
-            ObsoleteReason = 'Replaced by Partner VAT ID.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys

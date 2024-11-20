@@ -778,18 +778,6 @@ table 15 "G/L Account"
             Caption = 'API Account Type';
             Editable = false;
         }
-#if not CLEANSCHEMA15
-        field(10810; "G/L Entry Type Filter"; Option)
-        {
-            Caption = 'G/L Entry Type Filter';
-            FieldClass = FlowFilter;
-            ObsoleteReason = 'Discontinued feature';
-            ObsoleteState = Removed;
-            OptionCaption = 'Definitive,Simulation';
-            OptionMembers = Definitive,Simulation;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(10811; "Detailed Balance"; Boolean)
         {
             Caption = 'Detailed Balance';
