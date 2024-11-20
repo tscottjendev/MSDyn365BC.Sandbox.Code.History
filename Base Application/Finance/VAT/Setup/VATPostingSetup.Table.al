@@ -261,16 +261,6 @@ table 325 "VAT Posting Setup"
             Caption = 'CFDI Subject to Tax';
             TableRelation = "CFDI Subject to Tax";
         }
-#if not CLEANSCHEMA15
-        field(27010; "DIOT-WHT %"; Decimal)
-        {
-            Caption = 'DIOT WHT Percent';
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to extension';
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
@@ -541,4 +531,3 @@ table 325 "VAT Posting Setup"
     begin
     end;
 }
-
