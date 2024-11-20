@@ -464,69 +464,6 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA19
-        field(11200; "Inward Reg. Nos."; Code[20])
-        {
-            Caption = 'Inward Reg. Nos.';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11201; "Inward Posting Description"; Text[50])
-        {
-            Caption = 'Inward Posting Description';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11202; "Reverse Posting Description"; Text[50])
-        {
-            Caption = 'Reverse Posting Description';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11204; "Latest Return Date Calc."; DateFormula)
-        {
-            Caption = 'Latest Return Date Calc.';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11205; "Accumulated Inward Reg. Lines"; Boolean)
-        {
-            Caption = 'Accumulated Inward Reg. Lines';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11206; "Def. Inward Reg. Prod. Post Gr"; Code[20])
-        {
-            Caption = 'Def. Inward Reg. Prod. Post Gr';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11207; "Copy Dimensions to Inward Reg."; Boolean)
-        {
-            Caption = 'Copy Dimensions to Inward Reg.';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-#endif
 #if not CLEANSCHEMA26
         field(11214; "Part. Pay. Nos."; Code[20])
         {
@@ -535,15 +472,6 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'The field is not used and will be obsoleted';
 			ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-        }
-#endif
-#if not CLEANSCHEMA19
-        field(11230; "Show Inward Reg. in Balances"; Boolean)
-        {
-            Caption = 'Show Inward Reg. in Balances';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
         }
 #endif
     }

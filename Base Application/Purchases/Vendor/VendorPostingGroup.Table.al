@@ -293,15 +293,6 @@ table 93 "Vendor Posting Group"
         {
             Caption = 'View All Accounts on Lookup';
         }
-#if not CLEANSCHEMA15
-        field(11200; "Inward Reg. Bridging Debt"; Code[20])
-        {
-            Caption = 'Inward Reg. Bridging Debt';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
@@ -454,4 +445,3 @@ table 93 "Vendor Posting Group"
         GLAccountCategoryMgt.LookupGLAccount(Database::"Vendor Posting Group", CurrFieldNo, AccountNo, AccountCategory, AccountSubcategoryFilter);
     end;
 }
-

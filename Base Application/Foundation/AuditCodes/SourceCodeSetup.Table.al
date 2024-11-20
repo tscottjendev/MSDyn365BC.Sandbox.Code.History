@@ -419,15 +419,6 @@ table 242 "Source Code Setup"
             Caption = 'Compress Whse. Entries';
             TableRelation = "Source Code";
         }
-#if not CLEANSCHEMA15
-        field(11200; "Inward Registration"; Code[10])
-        {
-            Caption = 'Inward Registration';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
@@ -442,4 +433,3 @@ table 242 "Source Code Setup"
     {
     }
 }
-
