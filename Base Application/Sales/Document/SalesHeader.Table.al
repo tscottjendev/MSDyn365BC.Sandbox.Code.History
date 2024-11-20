@@ -3032,15 +3032,6 @@ table 36 "Sales Header"
                       RespCenter.TableCaption(), UserSetupMgt.GetSalesFilter("Assigned User ID"));
             end;
         }
-#if not CLEANSCHEMA15
-        field(10501; "Type of Supply Code"; Code[10])
-        {
-            Caption = 'Type of Supply Code';
-            ObsoleteReason = 'Removed based on feedback.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys

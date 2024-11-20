@@ -648,15 +648,6 @@ table 122 "Purch. Inv. Header"
             Caption = 'Draft Invoice SystemId';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA15
-        field(10501; "Type of Supply Code"; Code[10])
-        {
-            Caption = 'Type of Supply Code';
-            ObsoleteReason = 'Removed based on feedback.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys

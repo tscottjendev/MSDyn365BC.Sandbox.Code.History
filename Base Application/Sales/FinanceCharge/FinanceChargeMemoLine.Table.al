@@ -376,15 +376,6 @@ table 303 "Finance Charge Memo Line"
             Caption = 'System-Created Entry';
             Editable = false;
         }
-#if not CLEANSCHEMA15
-        field(10500; "Multiple Interest Rates Entry"; Boolean)
-        {
-            Caption = 'Multiple Interest Rates Entry';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
@@ -402,22 +393,6 @@ table 303 "Finance Charge Memo Line"
         key(Key3; "Finance Charge Memo No.", "Detailed Interest Rates Entry")
         {
             SumIndexFields = Amount, "VAT Amount", "Remaining Amount";
-        }
-        key(Key4; "Finance Charge Memo No.", Type, "Multiple Interest Rates Entry")
-        {
-            MaintainSIFTIndex = false;
-            MaintainSQLIndex = false;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            SumIndexFields = Amount, "VAT Amount", "Remaining Amount";
-            ObsoleteTag = '15.0';
-        }
-        key(Key5; "Finance Charge Memo No.", "Multiple Interest Rates Entry")
-        {
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            SumIndexFields = Amount, "VAT Amount", "Remaining Amount";
-            ObsoleteTag = '15.0';
         }
     }
 
@@ -1058,4 +1033,3 @@ table 303 "Finance Charge Memo Line"
     begin
     end;
 }
-

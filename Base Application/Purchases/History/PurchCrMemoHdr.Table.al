@@ -591,15 +591,6 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'Draft Cr. Memo System Id';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA15
-        field(10501; "Type of Supply Code"; Code[10])
-        {
-            Caption = 'Type of Supply Code';
-            ObsoleteReason = 'Removed based on feedback.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys

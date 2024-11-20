@@ -2546,15 +2546,6 @@ table 38 "Purchase Header"
             Caption = 'Pending Approvals';
             FieldClass = FlowField;
         }
-#if not CLEANSCHEMA15
-        field(10501; "Type of Supply Code"; Code[10])
-        {
-            Caption = 'Type of Supply Code';
-            ObsoleteReason = 'Removed based on feedback.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
 #if not CLEANSCHEMA26
         field(10502; "Invoice Receipt Date"; Date)
         {
@@ -5092,6 +5083,17 @@ table 38 "Purchase Header"
         PurchasePostViaJobQueue: Codeunit "Purchase Post via Job Queue";
     begin
         PurchasePostViaJobQueue.CancelQueueEntry(Rec);
+    end;
+
+    /// <summary>
+    /// Retrieves the full document type name based on the purchase header document type.
+    /// </summary>
+    /// <returns>Retrieved document type name.</returns>
+    procedure GetDocTypeTxt() TypeText: Text[50]
+    var
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+    begin
+        TypeText := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
     end;
 
     /// <summary>
