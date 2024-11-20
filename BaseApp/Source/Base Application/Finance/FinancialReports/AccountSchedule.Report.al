@@ -10,6 +10,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Budget;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Period;
+using System.Telemetry;
 using System.Text;
 using System.Utilities;
 
@@ -758,6 +759,7 @@ report 25 "Account Schedule"
         TransferValues();
         UpdateFilters();
         InitAccSched();
+        LogUsageTelemetry();
     end;
 
     var
@@ -1300,6 +1302,29 @@ report 25 "Account Schedule"
         if FinancialReport.Name <> '' then
             RequestOptionsPage.Caption := FinancialReport.Description;
         RequestOptionsPage.Update(false);
+    end;
+
+    local procedure LogUsageTelemetry()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
+        TelemetryDimensions.Add('ReportDefinitionCode', FinancialReportName);
+        TelemetryDimensions.Add('RowDefinitionCode', AccSchedName);
+        TelemetryDimensions.Add('ColumnDefinitionCode', ColumnLayoutName);
+        TelemetryDimensions.Add('StartDate', Format(StartDate, 0, 9));
+        TelemetryDimensions.Add('EndDate', Format(EndDate, 0, 9));
+        TelemetryDimensions.Add('GLBudgetName', GLBudgetName);
+        TelemetryDimensions.Add('CostBudgetFilter', CostBudgetFilter);
+        TelemetryDimensions.Add('Dim1Filter', Dim1Filter);
+        TelemetryDimensions.Add('Dim2Filter', Dim2Filter);
+        TelemetryDimensions.Add('Dim3Filter', Dim3Filter);
+        TelemetryDimensions.Add('Dim4Filter', Dim4Filter);
+
+        FeatureTelemetry.LogUsage('0000O76', 'Financial Report', 'Financial Report run report', TelemetryDimensions);
     end;
 
     [IntegrationEvent(false, false)]
