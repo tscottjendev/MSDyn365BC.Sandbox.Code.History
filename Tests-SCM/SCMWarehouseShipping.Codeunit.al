@@ -6393,7 +6393,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
     [Scope('OnPrem')]
     procedure WarehouseActivityLinesHandler(var WarehouseActivityLines: TestPage "Warehouse Activity Lines")
     begin
-        WarehouseActivityLines.Card.Invoke();
+        WarehouseActivityLines.ShowDocument.Invoke();
     end;
 
     [ModalPageHandler]
