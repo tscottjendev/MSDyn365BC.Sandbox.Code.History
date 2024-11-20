@@ -3029,13 +3029,6 @@ table 81 "Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
         }
-        field(11307; "Base Before Pmt. Disc. (Old)"; Decimal)
-        {
-            Caption = 'Base Before Pmt. Disc. (Old)';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
 #endif
         field(11310; "Enterprise No."; Text[50])
         {

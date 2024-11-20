@@ -5085,6 +5085,17 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
+    /// Retrieves the full document type name based on the purchase header document type.
+    /// </summary>
+    /// <returns>Retrieved document type name.</returns>
+    procedure GetDocTypeTxt() TypeText: Text[50]
+    var
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+    begin
+        TypeText := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+    end;
+
+    /// <summary>
     /// Adds the shipping information from a special order. If lines exist, it compares the current shipping information 
     /// with the information on the special order and throws an error if there's a mismatch.
     /// </summary>
