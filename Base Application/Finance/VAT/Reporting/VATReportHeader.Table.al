@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -186,15 +186,6 @@ table 740 "VAT Report Header"
                     Error(Text002, Format(Status));
             end;
         }
-#if not CLEANSCHEMA22
-        field(12101; "Tax Auth. Doc. No."; Code[6])
-        {
-            Caption = 'Tax Auth. Doc. No.';
-            ObsoleteReason = 'Replaced by Tax Auth. Document No.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-#endif
         field(12102; "Tax Auth. Document No."; Code[18])
         {
             Caption = 'Tax Auth. Document No.';

@@ -520,6 +520,21 @@ page 9307 "Purchase Order List"
                         PurchaseHeader.PrintRecords(true);
                     end;
                 }
+                action(Email)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Send by Email';
+                    Ellipsis = true;
+                    Image = Email;
+                    ToolTip = 'Finalize and prepare to email the document. The Send Email window opens prefilled with the vendor''s email address so you can add or edit information.';
+
+                    trigger OnAction()
+                    var
+                        DocPrint: Codeunit "Document-Print";
+                    begin
+                        DocPrint.EmailPurchHeader(Rec);
+                    end;
+                }
                 action(Send)
                 {
                     ApplicationArea = Basic, Suite;
@@ -859,6 +874,9 @@ page 9307 "Purchase Order List"
             {
                 Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 4.';
 
+                actionref(Email_Promoted; Email)
+                {
+                }
                 actionref(Print_Promoted; Print)
                 {
                 }
