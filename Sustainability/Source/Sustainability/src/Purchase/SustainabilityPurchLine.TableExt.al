@@ -216,9 +216,9 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
 
     procedure UpdateSustainabilityEmission(var PurchLine: Record "Purchase Line")
     begin
-        PurchLine."Emission CO2" := PurchLine."Emission CO2 Per Unit" * PurchLine."Qty. per Unit of Measure" * PurchLine."Qty. to Invoice";
-        PurchLine."Emission CH4" := PurchLine."Emission CH4 Per Unit" * PurchLine."Qty. per Unit of Measure" * PurchLine."Qty. to Invoice";
-        PurchLine."Emission N2O" := PurchLine."Emission N2O Per Unit" * PurchLine."Qty. per Unit of Measure" * PurchLine."Qty. to Invoice";
+        PurchLine."Emission CO2" := PurchLine."Emission CO2 Per Unit" * PurchLine."Qty. per Unit of Measure" * PurchLine.Quantity;
+        PurchLine."Emission CH4" := PurchLine."Emission CH4 Per Unit" * PurchLine."Qty. per Unit of Measure" * PurchLine.Quantity;
+        PurchLine."Emission N2O" := PurchLine."Emission N2O Per Unit" * PurchLine."Qty. per Unit of Measure" * PurchLine.Quantity;
     end;
 
     procedure UpdateEmissionPerUnit(var PurchLine: Record "Purchase Line")
@@ -229,10 +229,10 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
         PurchLine."Emission CH4 Per Unit" := 0;
         PurchLine."Emission N2O Per Unit" := 0;
 
-        if (PurchLine."Qty. per Unit of Measure" = 0) or (PurchLine."Qty. to Invoice" = 0) then
+        if (PurchLine."Qty. per Unit of Measure" = 0) or (PurchLine.Quantity = 0) then
             exit;
 
-        Denominator := PurchLine."Qty. per Unit of Measure" * PurchLine."Qty. to Invoice";
+        Denominator := PurchLine."Qty. per Unit of Measure" * PurchLine.Quantity;
         if PurchLine."Emission CO2" <> 0 then
             PurchLine."Emission CO2 Per Unit" := PurchLine."Emission CO2" / Denominator;
 
@@ -299,6 +299,7 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             PurchaseLine.FieldNo("Emission CH4"),
             PurchaseLine.FieldNo("Emission CH4 Per Unit"):
                 begin
+                    PurchaseLine.TestStatusOpen();
                     PurchaseLine.TestField("Sust. Account No.");
 
                     if (PurchaseLine.Type = PurchaseLine.Type::Item) and (PurchaseLine."No." <> '') then begin
@@ -309,15 +310,18 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
                 end;
             PurchaseLine.FieldNo("Emission CO2"),
             PurchaseLine.FieldNo("Emission CO2 Per Unit"):
-                PurchaseLine.TestField("Sust. Account No.");
+                begin
+                    PurchaseLine.TestStatusOpen();
+                    PurchaseLine.TestField("Sust. Account No.");
+                end;
             PurchaseLine.FieldNo("Sust. Account No."),
             PurchaseLine.FieldNo("Sust. Account Category"),
             PurchaseLine.FieldNo("Sust. Account Subcategory"),
             PurchaseLine.FieldNo("Sust. Account Name"):
                 begin
                     PurchaseLine.TestField("No.");
-                    if not (PurchaseLine.Type in [PurchaseLine.Type::Item, PurchaseLine.Type::"G/L Account"]) then
-                        Error(InvalidTypeForSustErr, PurchaseLine.Type::Item, PurchaseLine.Type::"G/L Account");
+                    if not (PurchaseLine.Type in [PurchaseLine.Type::Item, PurchaseLine.Type::"G/L Account", PurchaseLine.Type::Resource]) then
+                        Error(InvalidTypeForSustErr, PurchaseLine.Type::Item, PurchaseLine.Type::"G/L Account", PurchaseLine.Type::Resource);
 
                     if SustAccountCategory.Get(PurchaseLine."Sust. Account Category") then
                         if SustAccountCategory."Water Intensity" or SustAccountCategory."Waste Intensity" or SustAccountCategory."Discharged Into Water" then
@@ -328,6 +332,6 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
 
     var
         SustainabilitySetup: Record "Sustainability Setup";
-        InvalidTypeForSustErr: Label 'Sustainability is only applicable for Type: %1 or %2.', Comment = '%1 - Purchase Line Type Item, %2 - Purchase Line Type G/L Account';
+        InvalidTypeForSustErr: Label 'Sustainability is only applicable for Type: %1 , %2 and %3', Comment = '%1 - Purchase Line Type Item, %2 - Purchase Line Type G/L Account, %3 - Purchase Line Type Resource';
         NotAllowedToUseSustAccountForWaterOrWasteErr: Label 'It is not allowed to use Sustainability Account %1 for water or waste in purchase document.', Comment = '%1 = Sust. Account No.';
 }
