@@ -474,16 +474,6 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Use Vendor''s Tax Area Code';
         }
-#if not CLEANSCHEMA15
-        field(27040; "DIOT Default Vendor Type"; Option)
-        {
-            Caption = 'Default Vendor DIOT Type';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to extension';
-            OptionMembers = " ","Prof. Services","Lease and Rent","Others";
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys

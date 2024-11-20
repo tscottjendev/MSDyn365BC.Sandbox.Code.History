@@ -692,16 +692,6 @@ table 122 "Purch. Inv. Header"
             OptimizeForTextSearch = true;
             Editable = false;
         }
-#if not CLEANSCHEMA15
-        field(27040; "DIOT-Type of Operation"; Option)
-        {
-            Caption = 'DIOT Type of Operation';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to extension';
-            OptionMembers = " ","Prof. Services","Lease and Rent","Others";
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
