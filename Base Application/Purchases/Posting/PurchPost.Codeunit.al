@@ -6430,7 +6430,12 @@ codeunit 90 "Purch.-Post"
     local procedure CheckItemCharge(ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
     var
         PurchLineForCharge: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        OnBeforeCheckItemCharge(ItemChargeAssignmentPurch, IsHandled);
+        if IsHandled then
+            exit;
+
         case ItemChargeAssignmentPurch."Applies-to Doc. Type" of
             ItemChargeAssignmentPurch."Applies-to Doc. Type"::Order,
               ItemChargeAssignmentPurch."Applies-to Doc. Type"::Invoice:
@@ -10295,7 +10300,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnAfterPostItemJnlLineJobConsumption(var ItemJournalLine: Record "Item Journal Line"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; OriginalItemJnlLine: Record "Item Journal Line"; TempReservationEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification"; QtyToBeInvoiced: Decimal; QtyToBeReceived: Decimal; var PostJobConsumptionBeforePurch: Boolean)
+    local procedure OnPostItemJnlLineOnAfterPostItemJnlLineJobConsumption(var ItemJournalLine: Record "Item Journal Line"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; OriginalItemJnlLine: Record "Item Journal Line"; var TempReservationEntry: Record "Reservation Entry" temporary; var TrackingSpecification: Record "Tracking Specification" temporary; QtyToBeInvoiced: Decimal; QtyToBeReceived: Decimal; var PostJobConsumptionBeforePurch: Boolean)
     begin
     end;
 
@@ -11360,6 +11365,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyInvoicedQtyOnPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemCharge(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var IsHandled: Boolean)
     begin
     end;
 }
