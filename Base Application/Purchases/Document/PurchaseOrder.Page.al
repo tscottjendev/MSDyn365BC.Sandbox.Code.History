@@ -2050,6 +2050,21 @@ page 50 "Purchase Order"
                         PurchaseHeader.PrintRecords(true);
                     end;
                 }
+                action(Email)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Send by Email';
+                    Ellipsis = true;
+                    Image = Email;
+                    ToolTip = 'Finalize and prepare to email the document. The Send Email window opens prefilled with the vendor''s email address so you can add or edit information.';
+
+                    trigger OnAction()
+                    var
+                        DocPrint: Codeunit "Document-Print";
+                    begin
+                        DocPrint.EmailPurchHeader(Rec);
+                    end;
+                }
                 action(SendCustom)
                 {
                     ApplicationArea = Basic, Suite;
@@ -2193,6 +2208,9 @@ page 50 "Purchase Order"
             {
                 Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 9.';
 
+                actionref(Email_Promoted; Email)
+                {
+                }
                 actionref("&Print_Promoted"; "&Print")
                 {
                 }

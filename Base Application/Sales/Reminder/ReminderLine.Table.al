@@ -492,15 +492,6 @@ table 296 "Reminder Line"
             Caption = 'System-Created Entry';
             Editable = false;
         }
-#if not CLEANSCHEMA15
-        field(3010590; "Multiple Interest Rates Entry"; Boolean)
-        {
-            Caption = 'Multiple Interest Rates Entry';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(32000000; "Reference No."; Code[20])
         {
             Caption = 'Reference No.';
@@ -1123,4 +1114,3 @@ table 296 "Reminder Line"
     begin
     end;    
 }
-
