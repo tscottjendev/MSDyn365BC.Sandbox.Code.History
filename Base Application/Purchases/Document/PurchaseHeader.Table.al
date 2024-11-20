@@ -2709,16 +2709,6 @@ table 38 "Purchase Header"
                 Error(PrepmtIncludeTaxErr, FieldCaption("Prepmt. Include Tax"));
             end;
         }
-#if not CLEANSCHEMA15
-        field(27040; "DIOT-Type of Operation"; Option)
-        {
-            Caption = 'DIOT Type of Operation';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to extension';
-            OptionMembers = " ","Prof. Services","Lease and Rent","Others";
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
@@ -5252,6 +5242,17 @@ table 38 "Purchase Header"
         PurchasePostViaJobQueue: Codeunit "Purchase Post via Job Queue";
     begin
         PurchasePostViaJobQueue.CancelQueueEntry(Rec);
+    end;
+
+    /// <summary>
+    /// Retrieves the full document type name based on the purchase header document type.
+    /// </summary>
+    /// <returns>Retrieved document type name.</returns>
+    procedure GetDocTypeTxt() TypeText: Text[50]
+    var
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+    begin
+        TypeText := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
     end;
 
     /// <summary>
