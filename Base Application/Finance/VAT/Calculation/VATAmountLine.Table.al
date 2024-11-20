@@ -216,15 +216,6 @@ table 290 "VAT Amount Line"
                 "EC Difference" := "EC Amount" - "Calculated EC Amount";
             end;
         }
-#if not CLEANSCHEMA15
-        field(10702; "Pmt. Disc. Given Amount (Old)"; Decimal)
-        {
-            Caption = 'Pmt. Disc. Given Amount (Old)';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(10703; "Line Discount Amount"; Decimal)
         {
             Caption = 'Line Discount Amount';
@@ -1345,4 +1336,3 @@ table 290 "VAT Amount Line"
     begin
     end;
 }
-

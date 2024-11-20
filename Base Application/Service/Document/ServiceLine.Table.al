@@ -2706,18 +2706,6 @@ table 5902 "Service Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
-#if not CLEANSCHEMA15
-        field(10700; "Pmt. Disc. Given Amount (Old)"; Decimal)
-        {
-            AutoFormatExpression = Rec."Currency Code";
-            AutoFormatType = 1;
-            Caption = 'Pmt. Disc. Given Amount (Old)';
-            Editable = false;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(10701; "EC %"; Decimal)
         {
             Caption = 'EC %';

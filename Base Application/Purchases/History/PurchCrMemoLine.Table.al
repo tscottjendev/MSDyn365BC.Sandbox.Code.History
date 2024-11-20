@@ -640,18 +640,6 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Price Calculation Method';
         }
-#if not CLEANSCHEMA15
-        field(10700; "Pmt. Disc. Rcd. Amount (Old)"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            Caption = 'Pmt. Disc. Rcd. Amount (Old)';
-            Editable = false;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(10701; "EC %"; Decimal)
         {
             Caption = 'EC %';

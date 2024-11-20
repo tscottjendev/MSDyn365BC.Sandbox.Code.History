@@ -550,18 +550,6 @@ table 115 "Sales Cr.Memo Line"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
-#if not CLEANSCHEMA15
-        field(10700; "Pmt. Disc. Given Amount (Old)"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            Caption = 'Pmt. Disc. Given Amount (Old)';
-            Editable = false;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(10701; "EC %"; Decimal)
         {
             Caption = 'EC %';

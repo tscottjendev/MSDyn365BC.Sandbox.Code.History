@@ -3580,18 +3580,6 @@ table 39 "Purchase Line"
         {
             Caption = 'Over-Receipt Approval Status';
         }
-#if not CLEANSCHEMA15
-        field(10700; "Pmt. Disc. Rcd. Amount (Old)"; Decimal)
-        {
-            AutoFormatExpression = Rec."Currency Code";
-            AutoFormatType = 1;
-            Caption = 'Pmt. Disc. Rcd. Amount (Old)';
-            Editable = false;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(10701; "EC %"; Decimal)
         {
             Caption = 'EC %';

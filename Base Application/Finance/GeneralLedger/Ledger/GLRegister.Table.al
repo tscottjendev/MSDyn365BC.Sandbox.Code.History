@@ -80,16 +80,6 @@ table 45 "G/L Register"
             Caption = 'Posting Date';
             ClosingDates = true;
         }
-#if not CLEANSCHEMA15
-        field(10701; "Period Trans. No."; Integer)
-        {
-            BlankZero = true;
-            Caption = 'Period Trans. No.';
-            ObsoleteReason = 'Feature redesign';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
@@ -106,12 +96,6 @@ table 45 "G/L Register"
         }
         key(Key4; "Posting Date")
         {
-        }
-        key(Key5; "Posting Date", "Period Trans. No.")
-        {
-            ObsoleteReason = 'Feature redesign';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         key(key6; "From Entry No.", "To Entry No.")
         {
@@ -169,4 +153,3 @@ table 45 "G/L Register"
     begin
     end;
 }
-

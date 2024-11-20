@@ -478,33 +478,6 @@ table 17 "G/L Entry"
             Caption = 'Last Modified DateTime';
             Editable = false;
         }
-#if not CLEANSCHEMA15
-        field(10720; "New G/L Account No."; Code[20])
-        {
-            Caption = 'New G/L Account No.';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(10721; "Old G/L Account No."; Code[20])
-        {
-            Caption = 'Old G/L Account No.';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
-#if not CLEANSCHEMA15
-        field(10722; Updated; Boolean)
-        {
-            Caption = 'Updated';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
         field(10723; "Period Trans. No."; Integer)
         {
             Caption = 'Period Trans. No.';
@@ -894,4 +867,3 @@ table 17 "G/L Entry"
     begin
     end;
 }
-

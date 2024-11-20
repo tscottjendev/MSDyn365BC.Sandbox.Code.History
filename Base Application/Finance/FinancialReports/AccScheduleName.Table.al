@@ -73,15 +73,6 @@ table 84 "Acc. Schedule Name"
         {
             Caption = 'Standardized';
         }
-#if not CLEANSCHEMA15
-        field(10720; "Acc. No. Referred to old Acc."; Boolean)
-        {
-            Caption = 'Acc. No. Referred to old Acc.';
-            ObsoleteReason = 'Obsolete features';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-#endif
     }
 
     keys
@@ -318,4 +309,3 @@ table 84 "Acc. Schedule Name"
         end;
     end;
 }
-

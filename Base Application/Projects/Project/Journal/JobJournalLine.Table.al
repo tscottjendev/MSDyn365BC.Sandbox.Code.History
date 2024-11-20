@@ -1107,16 +1107,6 @@ table 210 "Job Journal Line"
         {
             Caption = 'Cost Calculation Method';
         }
-#if not CLEANSCHEMA22
-        field(10700; "Shipment Method Code"; Code[10])
-        {
-            Caption = 'Shipment Method Code';
-            TableRelation = "Shipment Method";
-            ObsoleteReason = 'Merged to W1, use "Shpt. Method Code" field instead.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-#endif
     }
 
     keys
@@ -2825,4 +2815,3 @@ table 210 "Job Journal Line"
     begin
     end;
 }
-
