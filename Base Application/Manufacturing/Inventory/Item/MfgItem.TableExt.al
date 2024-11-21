@@ -99,11 +99,11 @@ tableextension 99000750 "Mfg. Item" extends Item
             Editable = false;
             FieldClass = FlowField;
         }
-        field(8011; "Production Blocked"; Boolean)
+        field(8011; "Production Blocked"; Enum "Item Production Blocked")
         {
             Caption = 'Production Blocked';
             DataClassification = CustomerContent;
-            ToolTip = 'Specifies that the item cannot be entered on production documents, except requisition worksheet, planning worksheet and journals.';
+            ToolTip = 'Specifies which transactions with the item cannot be processed on production documents, except requisition worksheet, planning worksheet and journals.';
         }
         field(10013; "Rel. Scheduled Receipt (Qty.)"; Decimal)
         {
@@ -380,8 +380,8 @@ tableextension 99000750 "Mfg. Item" extends Item
 
     var
         NoActiveBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1', Comment = '%1 - Item No.';
-        ProductionBlockedErr: Label 'You cannot produce %1 %2 because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption';
-        BlockedItemVariantErr: Label 'You cannot produce variant %1  for Item %2 because it is blocked for production.', Comment = '%1 - Item Variant Code, %2 - Item No.';
+        ProductionBlockedOutputItemErr: Label 'You cannot produce %1 %2 because the %3 is %4 on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value';
+        ProductionBlockedOutputItemVariantErr: Label 'You cannot produce variant %1 for %2 %3 because it is blocked for production output.', Comment = '%1 - Item Variant Code, %2 - Table Caption (Item), %3 - Item No.';
 
 #if not CLEAN25
     [Obsolete('Replaced by procedure CheckProdOrderLine() in codeunit CheckProdOrderDocument', '25.0')]
@@ -454,23 +454,32 @@ tableextension 99000750 "Mfg. Item" extends Item
         end;
     end;
 
-    procedure CheckItemAndVariantForProdBlocked(ItemNo: Code[20]; VariantCode: Code[20])
+    procedure CheckItemAndVariantForProdBlocked(ItemNo: Code[20]; VariantCode: Code[20]; ItemProductionBlockedToCheck: Enum "Item Production Blocked")
     var
         Item: Record Item;
         ItemVariant: Record "Item Variant";
     begin
+        if ItemProductionBlockedToCheck = ItemProductionBlockedToCheck::" " then
+            exit;
+
         if ItemNo <> '' then begin
             Item.SetLoadFields("Production Blocked");
             Item.Get(ItemNo);
-            if Item."Production Blocked" then
-                Error(ProductionBlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked"));
+            case Item."Production Blocked" of
+                Item."Production Blocked"::Output:
+                    if ItemProductionBlockedToCheck = ItemProductionBlockedToCheck::Output then
+                        Error(ProductionBlockedOutputItemErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked"), Item."Production Blocked");
+            end;
         end;
 
-        if VariantCode <> '' then begin
+        if (ItemNo <> '') and (VariantCode <> '') then begin
             ItemVariant.SetLoadFields(Blocked, "Production Blocked");
             ItemVariant.Get(ItemNo, VariantCode);
-            if ItemVariant."Production Blocked" then
-                Error(BlockedItemVariantErr, VariantCode, ItemNo);
+            case ItemVariant."Production Blocked" of
+                ItemVariant."Production Blocked"::Output:
+                    if ItemProductionBlockedToCheck = ItemProductionBlockedToCheck::Output then
+                        Error(ProductionBlockedOutputItemVariantErr, VariantCode, Item.TableCaption(), ItemNo);
+            end;
         end;
     end;
 }
