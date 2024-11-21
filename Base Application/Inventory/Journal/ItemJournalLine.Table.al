@@ -1,11 +1,9 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Journal;
 
-using Microsoft.Assembly.Document;
-using Microsoft.Assembly.History;
 using Microsoft.CRM.Team;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -25,15 +23,8 @@ using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Journal;
@@ -77,11 +68,10 @@ table 83 "Item Journal Line"
 
             trigger OnValidate()
             var
-                ProdOrderLine: Record "Prod. Order Line";
-                ProdOrderComp: Record "Prod. Order Component";
-                PriceType: Enum "Price Type";
-                ShouldCopyFromSingleProdOrderLine: Boolean;
-                ShouldThrowRevaluationError: Boolean;
+#if not CLEAN26
+                DummyMachineCenter: Record Microsoft.Manufacturing.MachineCenter."Machine Center";
+                DummyWorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center";
+#endif
             begin
                 if "Item No." <> xRec."Item No." then begin
                     "Variant Code" := '';
@@ -99,7 +89,7 @@ table 83 "Item Journal Line"
                     SetNewBinCodeForSameLocationTransfer();
                 end;
 
-                if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then begin
+                if IsEntryTypeProduction() then begin
                     if "Item No." <> '' then
                         GetItem();
                     if Item.IsInventoriableType() then
@@ -149,24 +139,18 @@ table 83 "Item Journal Line"
                 OnValidateItemNoOnAfterCalcUnitCost(Rec, Item);
 
                 if ("Item No." <> xRec."Item No.") and
-                   ((("Entry Type" = "Entry Type"::Output) and (WorkCenter."No." = '') and (MachineCenter."No." = '')) or
-                   ("Entry Type" <> "Entry Type"::Output)) or
+                   ((("Entry Type" = "Entry Type"::Output) and ("No." = '')) or ("Entry Type" <> "Entry Type"::Output)) or
                    ("Value Entry Type" = "Value Entry Type"::Revaluation)
                 then
                     "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
 
                 case "Entry Type" of
-                    "Entry Type"::Purchase,
-                    "Entry Type"::Output,
-                    "Entry Type"::"Assembly Output":
-                        ApplyPrice(PriceType::Purchase, FieldNo("Item No."));
+                    "Entry Type"::Purchase:
+                        ApplyPrice("Price Type"::Purchase, FieldNo("Item No."));
                     "Entry Type"::"Positive Adjmt.",
                     "Entry Type"::"Negative Adjmt.",
-                    "Entry Type"::Consumption,
-                    "Entry Type"::"Assembly Consumption":
-                        "Unit Amount" := UnitCost;
                     "Entry Type"::Sale:
-                        ApplyPrice(PriceType::Sale, FieldNo("Item No."));
+                        ApplyPrice("Price Type"::Sale, FieldNo("Item No."));
                     "Entry Type"::Transfer:
                         begin
                             "Unit Amount" := 0;
@@ -174,53 +158,18 @@ table 83 "Item Journal Line"
                             Amount := 0;
                         end;
                 end;
-                OnValidateItemNoOnAfterCalcUnitAmount(Rec, WorkCenter, MachineCenter);
+                OnValidateItemNoOnSetCostAndPrice(Rec, UnitCost);
+#if not CLEAN26
+                OnValidateItemNoOnAfterCalcUnitAmount(Rec, DummyWorkCenter, DummyMachineCenter);
+#endif
 
                 case "Entry Type" of
                     "Entry Type"::Purchase:
                         "Unit of Measure Code" := Item."Purch. Unit of Measure";
                     "Entry Type"::Sale:
                         "Unit of Measure Code" := Item."Sales Unit of Measure";
-                    "Entry Type"::Output:
-                        begin
-                            Item.TestField("Inventory Value Zero", false);
-                            ProdOrderLine.SetFilterByReleasedOrderNo("Order No.");
-                            ProdOrderLine.SetRange("Item No.", "Item No.");
-                            OnValidateItemNoOnAfterSetProdOrderLineItemNoFilter(Rec, xRec, ProdOrderLine);
-                            if ProdOrderLine.FindFirst() then begin
-                                "Routing No." := ProdOrderLine."Routing No.";
-                                "Source Type" := "Source Type"::Item;
-                                "Source No." := ProdOrderLine."Item No.";
-                            end else begin
-                                ShouldThrowRevaluationError := ("Value Entry Type" <> "Value Entry Type"::Revaluation) and (CurrFieldNo <> 0);
-                                OnValidateItemNoOnAfterCalcShouldThrowRevaluationError(Rec, ShouldThrowRevaluationError);
-                                if ShouldThrowRevaluationError then
-                                    Error(Text031, "Item No.", "Order No.");
-                            end;
-
-                            ShouldCopyFromSingleProdOrderLine := ProdOrderLine.Count = 1;
-                            OnValidateItemNoOnAfterCalcShouldCopyFromSingleProdOrderLine(Rec, xRec, ProdOrderLine, ShouldCopyFromSingleProdOrderLine);
-                            if ShouldCopyFromSingleProdOrderLine then
-                                CopyFromProdOrderLine(ProdOrderLine)
-                            else
-                                if "Order Line No." <> 0 then begin
-                                    ProdOrderLine.SetRange("Line No.", "Order Line No.");
-                                    if ProdOrderLine.FindFirst() then
-                                        CopyFromProdOrderLine(ProdOrderLine)
-                                    else
-                                        "Unit of Measure Code" := Item."Base Unit of Measure";
-                                end else
-                                    "Unit of Measure Code" := Item."Base Unit of Measure";
-                        end;
-                    "Entry Type"::Consumption:
-                        if FindProdOrderComponent(ProdOrderComp) then
-                            CopyFromProdOrderComp(ProdOrderComp)
-                        else begin
-                            "Unit of Measure Code" := Item."Base Unit of Measure";
-                            Validate("Prod. Order Comp. Line No.", 0);
-                            OnValidateItemNoOnAfterValidateProdOrderCompLineNo(Rec, ProdOrderLine);
-                        end;
                 end;
+                OnValidateItemNoOnAfterValidateUnitofMeasureCode(Rec, xRec, Item, CurrFieldNo);
 
                 if "Unit of Measure Code" = '' then
                     "Unit of Measure Code" := Item."Base Unit of Measure";
@@ -236,7 +185,7 @@ table 83 "Item Journal Line"
 
                 CheckItemAvailable(FieldNo("Item No."));
 
-                if ((not ("Order Type" in ["Order Type"::Production, "Order Type"::Assembly])) or ("Order No." = '')) and not "Phys. Inventory" then
+                if ((not IsOrderTypeAsmOrProd()) or ("Order No." = '')) and not "Phys. Inventory" then
                     CreateDimFromDefaultDim(Rec.FieldNo("Item No."));
 
                 OnBeforeVerifyReservedQty(Rec, xRec, FieldNo("Item No."));
@@ -281,10 +230,8 @@ table 83 "Item Journal Line"
                                 "Location Code" := UserMgt.GetLocation(0, '', UserMgt.GetSalesFilter());
                             CheckItemAvailable(FieldNo("Entry Type"));
                         end;
-                    "Entry Type"::Consumption, "Entry Type"::Output:
-                        Validate("Order Type", "Order Type"::Production);
-                    "Entry Type"::"Assembly Consumption", "Entry Type"::"Assembly Output":
-                        Validate("Order Type", "Order Type"::Assembly);
+                    else
+                        OnValidateEntryTypeOnUpdateByEntryType(Rec);
                 end;
 
                 if xRec."Location Code" = '' then
@@ -346,7 +293,7 @@ table 83 "Item Journal Line"
 
                 ValidateItemDirectCostUnitAmount();
 
-                if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then begin
+                if IsEntryTypeProduction() then begin
                     GetItem();
                     if Item.IsInventoriableType() then
                         WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
@@ -409,11 +356,8 @@ table 83 "Item Journal Line"
                 if not PhysInvtEntered then
                     TestField("Phys. Inventory", false);
 
-                CallWhseCheck :=
-                  ("Entry Type" = "Entry Type"::"Assembly Consumption") or
-                  ("Entry Type" = "Entry Type"::Consumption) or
-                  ("Entry Type" = "Entry Type"::Output) and
-                  LastOutputOperation(Rec);
+                CallWhseCheck := IsEntryTypeConsumption();
+                OnValidateQuantityOnAfterSetCallWhseCheck(Rec, CallWhseCheck);
                 if CallWhseCheck then begin
                     GetItem();
                     if Item.IsInventoriableType() then
@@ -476,8 +420,7 @@ table 83 "Item Journal Line"
                     else
                         case "Entry Type" of
                             "Entry Type"::Purchase,
-                            "Entry Type"::"Positive Adjmt.",
-                            "Entry Type"::"Assembly Output":
+                            "Entry Type"::"Positive Adjmt.":
                                 begin
                                     if "Entry Type" = "Entry Type"::"Positive Adjmt." then begin
                                         GetItem();
@@ -502,9 +445,7 @@ table 83 "Item Journal Line"
                                     then
                                         Validate("Unit Cost");
                                 end;
-                            "Entry Type"::"Negative Adjmt.",
-                            "Entry Type"::Consumption,
-                            "Entry Type"::"Assembly Consumption":
+                            "Entry Type"::"Negative Adjmt.":
                                 begin
                                     GetItem();
                                     if (CurrFieldNo = FieldNo("Unit Amount")) and
@@ -519,6 +460,8 @@ table 83 "Item Journal Line"
                                     then
                                         Validate("Unit Cost");
                                 end;
+                            else
+                                OnValidateUnitAmountOnUpdateByEntryType(Rec, CurrFieldNo);
                         end;
             end;
         }
@@ -547,8 +490,7 @@ table 83 "Item Journal Line"
                     case "Entry Type" of
                         "Entry Type"::Purchase:
                             "Unit Amount" := "Unit Cost";
-                        "Entry Type"::"Positive Adjmt.",
-                        "Entry Type"::"Assembly Output":
+                        "Entry Type"::"Positive Adjmt.":
                             begin
                                 ReadGLSetup();
                                 "Unit Amount" :=
@@ -556,9 +498,7 @@ table 83 "Item Journal Line"
                                     ("Unit Cost" - "Overhead Rate" * "Qty. per Unit of Measure") / (1 + "Indirect Cost %" / 100),
                                     GLSetup."Unit-Amount Rounding Precision")
                             end;
-                        "Entry Type"::"Negative Adjmt.",
-                        "Entry Type"::Consumption,
-                        "Entry Type"::"Assembly Consumption":
+                        "Entry Type"::"Negative Adjmt.":
                             begin
                                 if Item."Costing Method" = Item."Costing Method"::Standard then
                                     Error(
@@ -566,6 +506,8 @@ table 83 "Item Journal Line"
                                       FieldCaption("Unit Cost"), Item.FieldCaption("Costing Method"), Item."Costing Method");
                                 "Unit Amount" := "Unit Cost";
                             end;
+                        else
+                            OnValidateUnitCostOnUpdateByEntryType(Rec, CurrFieldNo);
                     end;
                     UpdateAmount();
                 end;
@@ -1010,128 +952,25 @@ table 83 "Item Journal Line"
         field(91; "Order No."; Code[20])
         {
             Caption = 'Order No.';
-            TableRelation = if ("Order Type" = const(Production)) "Production Order"."No." where(Status = const(Released));
 
             trigger OnValidate()
-            var
-                AssemblyHeader: Record "Assembly Header";
-                ProdOrder: Record "Production Order";
-                ProdOrderLine: Record "Prod. Order Line";
             begin
                 case "Order Type" of
-                    "Order Type"::Production,
-                    "Order Type"::Assembly:
-                        begin
-                            if "Order No." = '' then begin
-                                case "Order Type" of
-                                    "Order Type"::Production:
-                                        CreateProdDim();
-                                    "Order Type"::Assembly:
-                                        CreateAssemblyDim();
-                                end;
-                                exit;
-                            end;
-
-                            case "Order Type" of
-                                "Order Type"::Production:
-                                    begin
-                                        GetMfgSetup();
-                                        if MfgSetup."Doc. No. Is Prod. Order No." then
-                                            "Document No." := "Order No.";
-                                        ProdOrder.Get(ProdOrder.Status::Released, "Order No.");
-                                        ProdOrder.TestField(Blocked, false);
-                                        Description := ProdOrder.Description;
-                                        OnValidateOrderNoOrderTypeProduction(Rec, ProdOrder);
-                                    end;
-                                "Order Type"::Assembly:
-                                    begin
-                                        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, "Order No.");
-                                        Description := AssemblyHeader.Description;
-                                        OnValidateOrderNoOnAfterProcessOrderTypeAssembly(Rec, ProdOrder, AssemblyHeader);
-                                    end;
-                            end;
-
-                            "Gen. Bus. Posting Group" := ProdOrder."Gen. Bus. Posting Group";
-                            case true of
-                                "Entry Type" = "Entry Type"::Output:
-                                    begin
-                                        "Inventory Posting Group" := ProdOrder."Inventory Posting Group";
-                                        "Gen. Prod. Posting Group" := ProdOrder."Gen. Prod. Posting Group";
-                                    end;
-                                "Entry Type" = "Entry Type"::"Assembly Output":
-                                    begin
-                                        "Inventory Posting Group" := AssemblyHeader."Inventory Posting Group";
-                                        "Gen. Prod. Posting Group" := AssemblyHeader."Gen. Prod. Posting Group";
-                                    end;
-                                "Entry Type" = "Entry Type"::Consumption:
-                                    begin
-                                        ProdOrderLine.SetFilterByReleasedOrderNo("Order No.");
-                                        if ProdOrderLine.Count = 1 then begin
-                                            ProdOrderLine.FindFirst();
-                                            Validate("Order Line No.", ProdOrderLine."Line No.");
-                                        end;
-                                    end;
-                            end;
-
-                            if ("Order No." <> xRec."Order No.") or ("Order Type" <> xRec."Order Type") then
-                                case "Order Type" of
-                                    "Order Type"::Production:
-                                        CreateProdDim();
-                                    "Order Type"::Assembly:
-                                        CreateAssemblyDim();
-                                end;
-                        end;
                     "Order Type"::Transfer, "Order Type"::Service, "Order Type"::" ":
                         Error(Text002, FieldCaption("Order No."), FieldCaption("Order Type"), "Order Type");
                     else
-                        OnValidateOrderNoOnCaseOrderTypeElse(Rec);
+                        OnValidateOrderNoOnCaseOrderTypeElse(Rec, xRec);
                 end;
             end;
         }
         field(92; "Order Line No."; Integer)
         {
             Caption = 'Order Line No.';
-            TableRelation = if ("Order Type" = const(Production)) "Prod. Order Line"."Line No." where(Status = const(Released),
-                                                                                                     "Prod. Order No." = field("Order No."));
 
             trigger OnValidate()
-            var
-                ProdOrderLine: Record "Prod. Order Line";
             begin
                 TestField("Order No.");
-                case "Order Type" of
-                    "Order Type"::Production,
-                    "Order Type"::Assembly:
-                        begin
-                            if "Order Type" = "Order Type"::Production then begin
-                                ProdOrderLine.SetFilterByReleasedOrderNo("Order No.");
-                                ProdOrderLine.SetRange("Line No.", "Order Line No.");
-                                OnValidateOrderLineNoOnAfterProdOrderLineSetFilters(Rec, ProdOrderLine);
-                                if ProdOrderLine.FindFirst() then begin
-                                    "Source Type" := "Source Type"::Item;
-                                    "Source No." := ProdOrderLine."Item No.";
-                                    "Order Line No." := ProdOrderLine."Line No.";
-                                    "Routing No." := ProdOrderLine."Routing No.";
-                                    "Routing Reference No." := ProdOrderLine."Routing Reference No.";
-                                    if "Entry Type" = "Entry Type"::Output then begin
-                                        "Location Code" := ProdOrderLine."Location Code";
-                                        "Bin Code" := ProdOrderLine."Bin Code";
-                                    end;
-                                    OnOrderLineNoOnValidateOnAfterAssignProdOrderLineValues(Rec, ProdOrderLine);
-                                end;
-                            end;
-
-                            if "Order Line No." <> xRec."Order Line No." then
-                                case "Order Type" of
-                                    "Order Type"::Production:
-                                        CreateProdDim();
-                                    "Order Type"::Assembly:
-                                        CreateAssemblyDim();
-                                end;
-                        end;
-                    else
-                        OnValidateOrderLineNoOnCaseOrderTypeElse(Rec);
-                end;
+                OnValidateOrderLineNoOnCaseOrderTypeElse(Rec, xRec);
             end;
         }
         field(480; "Dimension Set ID"; Integer)
@@ -1194,7 +1033,7 @@ table 83 "Item Journal Line"
                 GetItemVariant();
                 DisplayErrorIfItemVariantIsBlocked(ItemVariant);
 
-                if ("Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output]) and Item.IsInventoriableType() then
+                if IsEntryTypeProduction() and Item.IsInventoriableType() then
                     WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
 
                 if "Variant Code" <> xRec."Variant Code" then begin
@@ -1275,13 +1114,7 @@ table 83 "Item Journal Line"
                     IsHandled := false;
                     OnBinCodeOnCheckProdOrderCompBinCodeCheckNeeded(Rec, IsHandled);
                     if not IsHandled then
-                        if ("Entry Type" = "Entry Type"::Consumption) and
-                        ("Bin Code" <> '') and ("Prod. Order Comp. Line No." <> 0)
-                        then begin
-                            TestField("Order Type", "Order Type"::Production);
-                            TestField("Order No.");
-                            CheckProdOrderCompBinCode();
-                        end;
+                        OnValidateBinCodeOnCompBinCheck(Rec);
                 end;
 
                 ItemJnlLineReserve.VerifyChange(Rec, xRec);
@@ -1344,7 +1177,7 @@ table 83 "Item Journal Line"
                 "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
 
                 OnValidateUnitOfMeasureCodeOnBeforeWhseValidateSourceLine(Rec, xRec);
-                if ("Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output]) and Item.IsInventoriableType() then
+                if IsEntryTypeProduction() and Item.IsInventoriableType() then
                     WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
 
                 if (CurrFieldNo <> 0) and Item.IsInventoriableType() then
@@ -1372,10 +1205,9 @@ table 83 "Item Journal Line"
 
                 Validate("Unit Amount");
 
-                if "Entry Type" = "Entry Type"::Output then begin
-                    Validate("Output Quantity");
-                    Validate("Scrap Quantity");
-                end else
+                IsHandled := false;
+                OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(Rec, IsHandled);
+                if not IsHandled then
                     Validate(Quantity);
 
                 CheckItemAvailable(FieldNo("Unit of Measure Code"));
@@ -1448,11 +1280,6 @@ table 83 "Item Journal Line"
         field(5560; Level; Integer)
         {
             Caption = 'Level';
-            Editable = false;
-        }
-        field(5561; "Flushing Method"; Enum "Flushing Method")
-        {
-            Caption = 'Flushing Method';
             Editable = false;
         }
         field(5562; "Changed by User"; Boolean)
@@ -1700,63 +1527,34 @@ table 83 "Item Journal Line"
             else
             if ("Source Type" = const(Vendor)) Vendor;
         }
-        field(5830; Type; Enum "Capacity Type Journal")
+        field(5830; Type; Enum Microsoft.Manufacturing.Capacity."Capacity Type Journal")
         {
-            AccessByPermission = TableData "Machine Center" = R;
             Caption = 'Type';
 
             trigger OnValidate()
             begin
-                if Type = Type::Resource then
-                    TestField("Entry Type", "Entry Type"::"Assembly Output")
-                else
-                    TestField("Entry Type", "Entry Type"::Output);
+                CheckEntryType();
                 Validate("No.", '');
             end;
         }
         field(5831; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = if (Type = const("Machine Center")) "Machine Center"
-            else
-            if (Type = const("Work Center")) "Work Center"
-            else
-            if (Type = const(Resource)) Resource;
+            TableRelation = if (Type = const(Resource)) Resource;
 
             trigger OnValidate()
             var
                 Resource: Record Resource;
             begin
-                if Type = Type::Resource then
-                    TestField("Entry Type", "Entry Type"::"Assembly Output")
-                else
-                    TestField("Entry Type", "Entry Type"::Output);
+                CheckEntryType();
                 if "No." = '' then begin
-                    "Work Center No." := '';
-                    "Work Center Group Code" := '';
+                    OnValidateNoOnBeforeValidateItemNo(Rec);
                     Validate("Item No.");
-                    if Type in [Type::"Work Center", Type::"Machine Center"] then
-                        CreateDimWithProdOrderLine()
-                    else
-                        CreateDimFromDefaultDim(Rec.FieldNo("Work Center No."));
+                    OnValidateNoOnAfterValidateItemNo(Rec);
                     exit;
                 end;
 
                 case Type of
-                    Type::"Work Center":
-                        begin
-                            WorkCenter.Get("No.");
-                            WorkCenter.TestField(Blocked, false);
-                            CopyFromWorkCenter(WorkCenter);
-                        end;
-                    Type::"Machine Center":
-                        begin
-                            MachineCenter.Get("No.");
-                            MachineCenter.TestField(Blocked, false);
-                            WorkCenter.Get(MachineCenter."Work Center No.");
-                            WorkCenter.TestField(Blocked, false);
-                            CopyFromMachineCenter(MachineCenter);
-                        end;
                     Type::Resource:
                         begin
                             Resource.Get("No.");
@@ -1765,234 +1563,7 @@ table 83 "Item Journal Line"
                         end;
                 end;
 
-                if Type in [Type::"Work Center", Type::"Machine Center"] then begin
-                    "Work Center No." := WorkCenter."No.";
-                    "Work Center Group Code" := WorkCenter."Work Center Group Code";
-                    ErrorIfSubcontractingWorkCenterUsed();
-                    Validate("Cap. Unit of Measure Code", WorkCenter."Unit of Measure Code");
-                end;
-
-                if "Work Center No." <> '' then
-                    CreateDimWithProdOrderLine();
-            end;
-        }
-        field(5838; "Operation No."; Code[10])
-        {
-            Caption = 'Operation No.';
-            TableRelation = if ("Order Type" = const(Production)) "Prod. Order Routing Line"."Operation No." where(Status = const(Released),
-                                                                                                                  "Prod. Order No." = field("Order No."),
-                                                                                                                  "Routing No." = field("Routing No."),
-                                                                                                                  "Routing Reference No." = field("Routing Reference No."));
-
-            trigger OnValidate()
-            var
-                ProdOrderRtngLine: Record "Prod. Order Routing Line";
-            begin
-                TestField("Entry Type", "Entry Type"::Output);
-                if "Operation No." = '' then
-                    exit;
-
-                TestField("Order Type", "Order Type"::Production);
-                TestField("Order No.");
-                TestField("Item No.");
-
-                CheckConfirmOutputOnFinishedOperation();
-                GetProdOrderRoutingLine(ProdOrderRtngLine);
-
-                case ProdOrderRtngLine.Type of
-                    ProdOrderRtngLine.Type::"Work Center":
-                        Type := Type::"Work Center";
-                    ProdOrderRtngLine.Type::"Machine Center":
-                        Type := Type::"Machine Center";
-                end;
-                Validate("No.", ProdOrderRtngLine."No.");
-                Description := ProdOrderRtngLine.Description;
-            end;
-        }
-        field(5839; "Work Center No."; Code[20])
-        {
-            Caption = 'Work Center No.';
-            Editable = false;
-            TableRelation = "Work Center";
-
-            trigger OnValidate()
-            begin
-                ErrorIfSubcontractingWorkCenterUsed();
-            end;
-        }
-        field(5841; "Setup Time"; Decimal)
-        {
-            AccessByPermission = TableData "Machine Center" = R;
-            Caption = 'Setup Time';
-            DecimalPlaces = 0 : 5;
-
-            trigger OnValidate()
-            begin
-                if SubcontractingWorkCenterUsed() and ("Setup Time" <> 0) then
-                    Error(SubcontractedErr, FieldCaption("Setup Time"), "Line No.");
-                "Setup Time (Base)" := CalcBaseTime("Setup Time");
-            end;
-        }
-        field(5842; "Run Time"; Decimal)
-        {
-            AccessByPermission = TableData "Machine Center" = R;
-            Caption = 'Run Time';
-            DecimalPlaces = 0 : 5;
-
-            trigger OnValidate()
-            begin
-                if SubcontractingWorkCenterUsed() and ("Run Time" <> 0) then
-                    Error(SubcontractedErr, FieldCaption("Run Time"), "Line No.");
-
-                "Run Time (Base)" := CalcBaseTime("Run Time");
-            end;
-        }
-        field(5843; "Stop Time"; Decimal)
-        {
-            AccessByPermission = TableData "Machine Center" = R;
-            Caption = 'Stop Time';
-            DecimalPlaces = 0 : 5;
-
-            trigger OnValidate()
-            begin
-                "Stop Time (Base)" := CalcBaseTime("Stop Time");
-            end;
-        }
-        field(5846; "Output Quantity"; Decimal)
-        {
-            AccessByPermission = TableData "Machine Center" = R;
-            Caption = 'Output Quantity';
-            DecimalPlaces = 0 : 5;
-
-            trigger OnValidate()
-            begin
-                TestField("Entry Type", "Entry Type"::Output);
-                if SubcontractingWorkCenterUsed() and ("Output Quantity" <> 0) then
-                    Error(SubcontractedErr, FieldCaption("Output Quantity"), "Line No.");
-
-                CheckConfirmOutputOnFinishedOperation();
-
-                if LastOutputOperation(Rec) then begin
-                    GetItem();
-                    if Item.IsInventoriableType() then
-                        WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
-                end;
-
-                "Output Quantity (Base)" := CalcBaseQty("Output Quantity", FieldCaption("Output Quantity"), FieldCaption("Output Quantity (Base)"));
-
-                Validate(Quantity, "Output Quantity");
-                ValidateQuantityIsBalanced();
-            end;
-        }
-        field(5847; "Scrap Quantity"; Decimal)
-        {
-            AccessByPermission = TableData "Machine Center" = R;
-            Caption = 'Scrap Quantity';
-            DecimalPlaces = 0 : 5;
-
-            trigger OnValidate()
-            begin
-                TestField("Entry Type", "Entry Type"::Output);
-                "Scrap Quantity (Base)" := CalcBaseQty("Scrap Quantity", FieldCaption("Scrap Quantity"), FieldCaption("Scrap Quantity (Base)"));
-            end;
-        }
-        field(5849; "Concurrent Capacity"; Decimal)
-        {
-            AccessByPermission = TableData "Machine Center" = R;
-            Caption = 'Concurrent Capacity';
-            DecimalPlaces = 0 : 5;
-
-            trigger OnValidate()
-            var
-                TotalTime: Integer;
-            begin
-                TestField("Entry Type", "Entry Type"::Output);
-                if "Concurrent Capacity" = 0 then
-                    exit;
-
-                TestField("Starting Time");
-                TestField("Ending Time");
-                TotalTime := CalendarMgt.CalcTimeDelta("Ending Time", "Starting Time");
-                OnvalidateConcurrentCapacityOnAfterCalcTotalTime(Rec, TotalTime, xRec);
-                if "Ending Time" < "Starting Time" then
-                    TotalTime := TotalTime + 86400000;
-                TestField("Work Center No.");
-                WorkCenter.Get("Work Center No.");
-                Validate("Setup Time", 0);
-                Validate(
-                  "Run Time",
-                  Round(
-                    TotalTime / CalendarMgt.TimeFactor("Cap. Unit of Measure Code") *
-                    "Concurrent Capacity", WorkCenter."Calendar Rounding Precision"));
-            end;
-        }
-        field(5851; "Setup Time (Base)"; Decimal)
-        {
-            Caption = 'Setup Time (Base)';
-            DecimalPlaces = 0 : 5;
-
-            trigger OnValidate()
-            begin
-                TestField("Qty. per Cap. Unit of Measure", 1);
-                Validate("Setup Time", "Setup Time (Base)");
-            end;
-        }
-        field(5852; "Run Time (Base)"; Decimal)
-        {
-            Caption = 'Run Time (Base)';
-            DecimalPlaces = 0 : 5;
-
-            trigger OnValidate()
-            begin
-                TestField("Qty. per Cap. Unit of Measure", 1);
-                Validate("Run Time", "Run Time (Base)");
-            end;
-        }
-        field(5853; "Stop Time (Base)"; Decimal)
-        {
-            Caption = 'Stop Time (Base)';
-            DecimalPlaces = 0 : 5;
-
-            trigger OnValidate()
-            begin
-                TestField("Qty. per Cap. Unit of Measure", 1);
-                Validate("Stop Time", "Stop Time (Base)");
-            end;
-        }
-        field(5856; "Output Quantity (Base)"; Decimal)
-        {
-            Caption = 'Output Quantity (Base)';
-            DecimalPlaces = 0 : 5;
-
-            trigger OnValidate()
-            var
-                IsHandled: Boolean;
-            begin
-                IsHandled := false;
-                OnBeforeValidateOutputQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
-                if IsHandled then
-                    exit;
-
-                TestField("Qty. per Unit of Measure", 1);
-                Validate("Output Quantity", "Output Quantity (Base)");
-            end;
-        }
-        field(5857; "Scrap Quantity (Base)"; Decimal)
-        {
-            Caption = 'Scrap Quantity (Base)';
-            DecimalPlaces = 0 : 5;
-
-            trigger OnValidate()
-            var
-                IsHandled: Boolean;
-            begin
-                IsHandled := false;
-                OnBeforeValidateScrapQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
-                if IsHandled then
-                    exit;
-
-                TestField("Qty. per Unit of Measure", 1);
-                Validate("Scrap Quantity", "Scrap Quantity (Base)");
+                OnAfterValidateNo(Rec);
             end;
         }
         field(5858; "Cap. Unit of Measure Code"; Code[10])
@@ -2000,43 +1571,15 @@ table 83 "Item Journal Line"
             Caption = 'Cap. Unit of Measure Code';
             TableRelation = if (Type = const(Resource)) "Resource Unit of Measure".Code where("Resource No." = field("No."))
             else
-            "Capacity Unit of Measure";
+            Microsoft.Manufacturing.Capacity."Capacity Unit of Measure";
 
             trigger OnValidate()
-            var
-                ProdOrderRtngLine: Record "Prod. Order Routing Line";
-                CostCalcMgt: Codeunit "Cost Calculation Management";
-                MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
-                IsHandled: Boolean;
             begin
-                if Type <> Type::Resource then begin
-                    "Qty. per Cap. Unit of Measure" :=
-                      Round(
-                        CalendarMgt.QtyperTimeUnitofMeasure(
-                          "Work Center No.", "Cap. Unit of Measure Code"),
-                        UOMMgt.QtyRndPrecision());
-
-                    Validate("Setup Time");
-                    Validate("Run Time");
-                    Validate("Stop Time");
-                end;
+                if Type <> Type::Resource then
+                    OnValidateCapUnitOfMeasureCodeOnSetQtyPerCapUnitOfMeasure(Rec);
 
                 if "Order No." <> '' then
-                    case "Order Type" of
-                        "Order Type"::Production:
-                            begin
-                                GetProdOrderRoutingLine(ProdOrderRtngLine);
-                                "Unit Cost" := ProdOrderRtngLine."Unit Cost per";
-                                OnValidateCapUnitofMeasureCodeOnBeforeRoutingCostPerUnit(Rec, ProdOrderRtngLine, IsHandled);
-                                if not IsHandled then
-                                    MfgCostCalcMgt.CalcRoutingCostPerUnit(
-                                      Type, "No.", "Unit Amount", "Indirect Cost %", "Overhead Rate", "Unit Cost", "Unit Cost Calculation");
-                            end;
-                        "Order Type"::Assembly:
-                            CostCalcMgt.ResourceCostPerUnit("No.", "Unit Amount", "Indirect Cost %", "Overhead Rate", "Unit Cost");
-                        else
-                            OnValidateCapUnitOfMeasureCodeOnCaseOrderTypeElse(Rec);
-                    end;
+                    OnValidateCapUnitOfMeasureCodeOnCaseOrderTypeElse(Rec);
 
                 ReadGLSetup();
                 "Unit Cost" :=
@@ -2051,108 +1594,9 @@ table 83 "Item Journal Line"
             Caption = 'Qty. per Cap. Unit of Measure';
             DecimalPlaces = 0 : 5;
         }
-        field(5873; "Starting Time"; Time)
-        {
-            AccessByPermission = TableData "Machine Center" = R;
-            Caption = 'Starting Time';
-
-            trigger OnValidate()
-            begin
-                if "Ending Time" < "Starting Time" then
-                    "Ending Time" := "Starting Time";
-
-                Validate("Concurrent Capacity");
-            end;
-        }
-        field(5874; "Ending Time"; Time)
-        {
-            AccessByPermission = TableData "Machine Center" = R;
-            Caption = 'Ending Time';
-
-            trigger OnValidate()
-            begin
-                Validate("Concurrent Capacity");
-            end;
-        }
-        field(5882; "Routing No."; Code[20])
-        {
-            Caption = 'Routing No.';
-            Editable = false;
-            TableRelation = "Routing Header";
-        }
-        field(5883; "Routing Reference No."; Integer)
-        {
-            Caption = 'Routing Reference No.';
-        }
-        field(5884; "Prod. Order Comp. Line No."; Integer)
-        {
-            Caption = 'Prod. Order Comp. Line No.';
-            TableRelation = if ("Order Type" = const(Production)) "Prod. Order Component"."Line No." where(Status = const(Released),
-                                                                                                          "Prod. Order No." = field("Order No."),
-                                                                                                          "Prod. Order Line No." = field("Order Line No."));
-
-            trigger OnValidate()
-            var
-                ProdOrderComponent: Record "Prod. Order Component";
-            begin
-                if "Prod. Order Comp. Line No." <> xRec."Prod. Order Comp. Line No." then begin
-                    if ("Order Type" = "Order Type"::Production) and ("Prod. Order Comp. Line No." <> 0) then begin
-                        ProdOrderComponent.Get(
-                          ProdOrderComponent.Status::Released, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.");
-                        if "Item No." <> ProdOrderComponent."Item No." then
-                            Validate("Item No.", ProdOrderComponent."Item No.");
-                    end;
-
-                    CreateProdDim();
-                end;
-            end;
-        }
-        field(5885; Finished; Boolean)
-        {
-            AccessByPermission = TableData "Machine Center" = R;
-            Caption = 'Finished';
-        }
         field(5887; "Unit Cost Calculation"; Enum "Unit Cost Calculation Type")
         {
             Caption = 'Unit Cost Calculation';
-        }
-        field(5888; Subcontracting; Boolean)
-        {
-            Caption = 'Subcontracting';
-        }
-        field(5895; "Stop Code"; Code[10])
-        {
-            Caption = 'Stop Code';
-            TableRelation = Stop;
-        }
-        field(5896; "Scrap Code"; Code[10])
-        {
-            Caption = 'Scrap Code';
-            TableRelation = Scrap;
-
-            trigger OnValidate()
-            var
-                IsHandled: Boolean;
-            begin
-                IsHandled := false;
-                OnBeforeValidateScrapCode(Rec, IsHandled);
-                if IsHandled then
-                    exit;
-
-                if not (Type in [Type::"Work Center", Type::"Machine Center"]) then
-                    Error(ScrapCodeTypeErr);
-            end;
-        }
-        field(5898; "Work Center Group Code"; Code[10])
-        {
-            Caption = 'Work Center Group Code';
-            Editable = false;
-            TableRelation = "Work Center Group";
-        }
-        field(5899; "Work Shift Code"; Code[10])
-        {
-            Caption = 'Work Shift Code';
-            TableRelation = "Work Shift";
         }
         field(6500; "Serial No."; Code[50])
         {
@@ -2393,41 +1837,26 @@ table 83 "Item Journal Line"
         Item: Record Item;
         ItemVariant: Record "Item Variant";
         GLSetup: Record "General Ledger Setup";
-        MfgSetup: Record "Manufacturing Setup";
-        WorkCenter: Record "Work Center";
-        MachineCenter: Record "Machine Center";
         Location: Record Location;
         Bin: Record Bin;
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
-        DimMgt: Codeunit DimensionManagement;
         UserMgt: Codeunit "User Setup Management";
-        CalendarMgt: Codeunit "Shop Calendar Management";
-        WMSManagement: Codeunit "WMS Management";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
+        WMSManagement: Codeunit "WMS Management";
         ItemReferenceManagement: Codeunit "Item Reference Management";
         GLSetupRead: Boolean;
-        MfgSetupRead: Boolean;
 #pragma warning disable AA0074
         Text007: Label 'New ';
-#pragma warning restore AA0074
-        UpdateInterruptedErr: Label 'The update has been interrupted to respect the warning.';
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text021: Label 'The entered bin code %1 is different from the bin code %2 in production order component %3.\\Are you sure that you want to post the consumption from bin code %1?';
-#pragma warning restore AA0470
         Text029: Label 'must be positive';
         Text030: Label 'must be negative';
 #pragma warning disable AA0470
-        Text031: Label 'You can not insert item number %1 because it is not produced on released production order %2.';
         Text032: Label 'When posting, the entry %1 will be opened first.';
         Text033: Label 'If the item carries serial, lot or package numbers, then you must use the %1 field in the %2 window.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         RevaluationPerEntryNotAllowedErr: Label 'This item has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
-        SubcontractedErr: Label '%1 must be zero in line number %2 because it is linked to the subcontracted work center.', Comment = '%1 - Field Caption, %2 - Line No.';
-        FinishedOutputQst: Label 'The operation has been finished. Do you want to post output for the finished operation?';
         BlockedErr: Label 'You cannot choose %1 %2 because the %3 check box is selected on its %1 card.', Comment = '%1 - Table Caption (item/variant), %2 - Item No./Variant Code, %3 - Field Caption';
         SalesBlockedErr: Label 'You cannot sell %1 %2 because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (item/variant), %2 - Item No./Variant Code, %3 - Field Caption';
         PurchasingBlockedErr: Label 'You cannot purchase %1 %2 because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (item/variant), %2 - Item No./Variant Code, %3 - Field Caption';
@@ -2437,12 +1866,12 @@ table 83 "Item Journal Line"
         LotNoRequiredErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
         DocNoFilterErr: Label 'The document numbers cannot be renumbered while there is an active filter on the Document No. field.';
         RenumberDocNoQst: Label 'If you have many documents it can take time to sort them, and %1 might perform slowly during the process. In those cases we suggest that you sort them during non-working hours. Do you want to continue?', Comment = '%1= Business Central';
-        ScrapCodeTypeErr: Label 'When using Scrap Code, Type must be Work Center or Machine Center.';
         IncorrectQtyForSNErr: Label 'Quantity must be -1, 0 or 1 when Serial No. is stated.';
         ItemTrackingExistsErr: Label 'You cannot change %1 because item tracking already exists for this journal line.', Comment = '%1 - Serial, Lot or Package No.';
 
     protected var
         ItemJnlLine: Record "Item Journal Line";
+        DimMgt: Codeunit DimensionManagement;
         PhysInvtEntered: Boolean;
         UnitCost: Decimal;
 
@@ -2485,13 +1914,6 @@ table 83 "Item Journal Line"
             CalcFields("Reserved Qty. (Base)");
     end;
 
-    local procedure CalcBaseTime(Qty: Decimal): Decimal
-    begin
-        if "Run Time" <> 0 then
-            TestField("Qty. per Cap. Unit of Measure");
-        exit(Round(Qty * "Qty. per Cap. Unit of Measure", UOMMgt.TimeRndPrecision()));
-    end;
-
     /// <summary>
     /// Updates the amount of the current item journal line to reflect changes in quantity and unit amount.
     /// </summary>
@@ -2514,21 +1936,13 @@ table 83 "Item Journal Line"
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemJnlLine2: Record "Item Journal Line";
         PositiveFilterValue: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeSelectItemEntry(Rec, xRec, CurrentFieldNo);
 
-        if ("Entry Type" = "Entry Type"::Output) and
-           ("Value Entry Type" <> "Value Entry Type"::Revaluation) and
-           (CurrentFieldNo = FieldNo("Applies-to Entry"))
-        then begin
-            ItemLedgEntry.SetCurrentKey(
-              "Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
-            ItemLedgEntry.SetRange("Order Type", "Order Type"::Production);
-            ItemLedgEntry.SetRange("Order No.", "Order No.");
-            ItemLedgEntry.SetRange("Order Line No.", "Order Line No.");
-            ItemLedgEntry.SetRange("Entry Type", "Entry Type");
-            ItemLedgEntry.SetRange("Prod. Order Comp. Line No.", 0);
-        end else begin
+        IsHandled := true;
+        OnSelectItemEntryOnSetFilters(Rec, ItemLedgEntry, CurrentFieldNo, IsHandled);
+        if not IsHandled then begin
             ItemLedgEntry.SetCurrentKey("Item No.", Positive);
             ItemLedgEntry.SetRange("Item No.", "Item No.");
         end;
@@ -2590,28 +2004,6 @@ table 83 "Item Journal Line"
                 ItemCheckAvail.RaiseUpdateInterruptedError();
     end;
 
-    local procedure CheckProdOrderCompBinCode()
-    var
-        ProdOrderComp: Record "Prod. Order Component";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckProdOrderCompBinCode(Rec, IsHandled);
-        if IsHandled then
-            exit;
-
-        ProdOrderComp.Get(ProdOrderComp.Status::Released, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.");
-        if (ProdOrderComp."Bin Code" <> '') and (ProdOrderComp."Bin Code" <> "Bin Code") then
-            if not Confirm(
-                 Text021,
-                 false,
-                 "Bin Code",
-                 ProdOrderComp."Bin Code",
-                 "Order No.")
-            then
-                Error(UpdateInterruptedErr);
-    end;
-
     local procedure CheckReservedQtyBase()
     var
         IsHandled: Boolean;
@@ -2626,7 +2018,7 @@ table 83 "Item Journal Line"
             Error(Text001, FieldCaption("Reserved Qty. (Base)"));
     end;
 
-    local procedure GetItem()
+    procedure GetItem()
     begin
         if Item."No." <> "Item No." then
             Item.Get("Item No.");
@@ -2655,7 +2047,6 @@ table 83 "Item Journal Line"
     var
         NoSeries: Codeunit "No. Series";
     begin
-        MfgSetup.Get();
         ItemJnlTemplate.Get("Journal Template Name");
         ItemJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         ItemJnlLine.SetRange("Journal Template Name", "Journal Template Name");
@@ -2667,7 +2058,7 @@ table 83 "Item Journal Line"
             if (ItemJnlTemplate.Type in
                 [ItemJnlTemplate.Type::Consumption, ItemJnlTemplate.Type::Output])
             then begin
-                if not MfgSetup."Doc. No. Is Prod. Order No." then
+                if not IsDocNoProdOrderNo() then
                     "Document No." := LastItemJnlLine."Document No."
             end else
                 "Document No." := LastItemJnlLine."Document No.";
@@ -2678,7 +2069,7 @@ table 83 "Item Journal Line"
                 "Document No." := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", "Posting Date");
             if (ItemJnlTemplate.Type in
                 [ItemJnlTemplate.Type::Consumption, ItemJnlTemplate.Type::Output]) and
-               not MfgSetup."Doc. No. Is Prod. Order No."
+               not IsDocNoProdOrderNo()
             then
                 if ItemJnlBatch."No. Series" <> '' then
                     "Document No." := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", "Posting Date");
@@ -2717,10 +2108,9 @@ table 83 "Item Journal Line"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
+        "Price Calculation Method" := "Price Calculation Method"::" ";
         case "Entry Type" of
-            "Entry Type"::Purchase,
-            "Entry Type"::Output,
-            "Entry Type"::"Assembly Output":
+            "Entry Type"::Purchase:
                 begin
                     PurchasesPayablesSetup.Get();
                     "Price Calculation Method" := PurchasesPayablesSetup."Price Calculation Method";
@@ -2730,9 +2120,8 @@ table 83 "Item Journal Line"
                     SalesReceivablesSetup.Get();
                     "Price Calculation Method" := SalesReceivablesSetup."Price Calculation Method";
                 end;
-            else
-                "Price Calculation Method" := "Price Calculation Method"::" ";
         end;
+        OnAfterSetDefaultPriceCalculationMethod(Rec);
     end;
 
     /// <summary>
@@ -2858,15 +2247,11 @@ table 83 "Item Journal Line"
 
         case "Entry Type" of
             "Entry Type"::Purchase,
-          "Entry Type"::"Positive Adjmt.",
-          "Entry Type"::Output,
-          "Entry Type"::"Assembly Output":
+          "Entry Type"::"Positive Adjmt.":
                 Result := Value;
             "Entry Type"::Sale,
           "Entry Type"::"Negative Adjmt.",
-          "Entry Type"::Consumption,
-          "Entry Type"::Transfer,
-          "Entry Type"::"Assembly Consumption":
+          "Entry Type"::Transfer:
                 Result := -Value;
         end;
         OnAfterSigned(Rec, Value, Result);
@@ -2977,94 +2362,6 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Creates and assigns a dimension set ID to an item journal line record based on the dimensions of the associated 
-    /// production order, production order line, and production order component.
-    /// </summary>
-    procedure CreateProdDim()
-    var
-        ProdOrder: Record "Production Order";
-        ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderComp: Record "Prod. Order Component";
-        DimSetIDArr: array[10] of Integer;
-        i: Integer;
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCreateProdDim(Rec, IsHandled);
-        if IsHandled then
-            exit;
-
-        "Shortcut Dimension 1 Code" := '';
-        "Shortcut Dimension 2 Code" := '';
-        "Dimension Set ID" := 0;
-        if ("Order Type" <> "Order Type"::Production) or ("Order No." = '') then
-            exit;
-        ProdOrder.Get(ProdOrder.Status::Released, "Order No.");
-        i := 1;
-        DimSetIDArr[i] := ProdOrder."Dimension Set ID";
-        if "Order Line No." <> 0 then begin
-            i := i + 1;
-            ProdOrderLine.Get(ProdOrderLine.Status::Released, "Order No.", "Order Line No.");
-            DimSetIDArr[i] := ProdOrderLine."Dimension Set ID";
-        end;
-
-        IsHandled := false;
-        OnCreateProdDimOnBeforeCreateDimSetIDArr(Rec, DimSetIDArr, IsHandled);
-        if not IsHandled then
-            if "Prod. Order Comp. Line No." <> 0 then begin
-                i := i + 1;
-                ProdOrderComp.Get(ProdOrderLine.Status::Released, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.");
-                DimSetIDArr[i] := ProdOrderComp."Dimension Set ID";
-            end;
-
-        OnCreateProdDimOnAfterCreateDimSetIDArr(Rec, DimSetIDArr, i);
-        "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-    end;
-
-    local procedure CreateAssemblyDim()
-    var
-        AssemblyHeader: Record "Assembly Header";
-        AssemblyLine: Record "Assembly Line";
-        DimSetIDArr: array[10] of Integer;
-        i: Integer;
-    begin
-        "Shortcut Dimension 1 Code" := '';
-        "Shortcut Dimension 2 Code" := '';
-        "Dimension Set ID" := 0;
-        if ("Order Type" <> "Order Type"::Assembly) or ("Order No." = '') then
-            exit;
-        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, "Order No.");
-        i := 1;
-        DimSetIDArr[i] := AssemblyHeader."Dimension Set ID";
-        if "Order Line No." <> 0 then begin
-            i := i + 1;
-            AssemblyLine.Get(AssemblyLine."Document Type"::Order, "Order No.", "Order Line No.");
-            DimSetIDArr[i] := AssemblyLine."Dimension Set ID";
-        end;
-
-        OnCreateAssemblyDimOnAfterCreateDimSetIDArr(Rec, DimSetIDArr, i);
-        "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-
-        OnAfterCreateAssemblyDim(Rec, AssemblyHeader);
-    end;
-
-    local procedure CreateDimWithProdOrderLine()
-    var
-        ProdOrderLine: Record "Prod. Order Line";
-        InheritFromDimSetID: Integer;
-        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
-    begin
-        if "Order Type" = "Order Type"::Production then
-            if ProdOrderLine.Get(ProdOrderLine.Status::Released, "Order No.", "Order Line No.") then
-                InheritFromDimSetID := ProdOrderLine."Dimension Set ID";
-
-        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", Rec."Work Center No.");
-        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code");
-        OnCreateDimWithProdOrderLineOnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, Rec.FieldNo("No."));
-        CreateDim(DefaultDimSource, InheritFromDimSetID, Database::Item);
-    end;
-
-    /// <summary>
     /// Verifies whether the provided shortcut dimension code and value are valid.
     /// </summary>
     /// <param name="FieldNumber">Number of the shortcut dimension.</param>
@@ -3096,18 +2393,6 @@ table 83 "Item Journal Line"
             Validate("Unit Amount");
             CheckItemAvailable(FieldNo("Location Code"));
         end;
-    end;
-
-    local procedure ValidateQuantityIsBalanced()
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeValidateQuantityIsBalanced(Rec, xRec, IsHandled);
-        if IsHandled then
-            exit;
-
-        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Output Quantity", "Output Quantity (Base)", 0, 0);
     end;
 
     /// <summary>
@@ -3486,70 +2771,6 @@ table 83 "Item Journal Line"
         OnAfterCopyItemJnlLineFromJobJnlLine(Rec, JobJnlLine);
     end;
 
-    local procedure CopyFromProdOrderComp(ProdOrderComp: Record "Prod. Order Component")
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCopyFromProdOrderComp(Rec, ProdOrderComp, IsHandled);
-        if IsHandled then
-            exit;
-
-        Validate("Order Line No.", ProdOrderComp."Prod. Order Line No.");
-        Validate("Prod. Order Comp. Line No.", ProdOrderComp."Line No.");
-        "Unit of Measure Code" := ProdOrderComp."Unit of Measure Code";
-        "Location Code" := ProdOrderComp."Location Code";
-        Validate("Variant Code", ProdOrderComp."Variant Code");
-        Validate("Bin Code", ProdOrderComp."Bin Code");
-
-        OnAfterCopyFromProdOrderComp(Rec, ProdOrderComp);
-    end;
-
-    local procedure CopyFromProdOrderLine(ProdOrderLine: Record "Prod. Order Line")
-    begin
-        Validate("Order Line No.", ProdOrderLine."Line No.");
-        "Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
-        "Location Code" := ProdOrderLine."Location Code";
-        Validate("Variant Code", ProdOrderLine."Variant Code");
-        Validate("Bin Code", ProdOrderLine."Bin Code");
-
-        OnAfterCopyFromProdOrderLine(Rec, ProdOrderLine);
-    end;
-
-    local procedure CopyFromWorkCenter(WorkCenter: Record "Work Center")
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCopyFromWorkCenter(Rec, WorkCenter, IsHandled);
-        if IsHandled then
-            exit;
-
-        "Work Center No." := WorkCenter."No.";
-        Description := WorkCenter.Name;
-        "Gen. Prod. Posting Group" := WorkCenter."Gen. Prod. Posting Group";
-        "Unit Cost Calculation" := WorkCenter."Unit Cost Calculation";
-
-        OnAfterCopyFromWorkCenter(Rec, WorkCenter);
-    end;
-
-    local procedure CopyFromMachineCenter(MachineCenter: Record "Machine Center")
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCopyFromMachineCenter(Rec, MachineCenter, IsHandled);
-        if IsHandled then
-            exit;
-
-        "Work Center No." := MachineCenter."Work Center No.";
-        Description := MachineCenter.Name;
-        "Gen. Prod. Posting Group" := MachineCenter."Gen. Prod. Posting Group";
-        "Unit Cost Calculation" := "Unit Cost Calculation"::Time;
-
-        OnAfterCopyFromMachineCenter(Rec, MachineCenter);
-    end;
-
     local procedure ReadGLSetup()
     begin
         if not GLSetupRead then begin
@@ -3643,52 +2864,6 @@ table 83 "Item Journal Line"
         "Rolled-up Cap. Overhead Cost" := 0;
     end;
 
-    local procedure GetMfgSetup()
-    begin
-        if not MfgSetupRead then
-            MfgSetup.Get();
-        MfgSetupRead := true;
-    end;
-
-    local procedure GetProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeGetProdOrderRoutingLine(ProdOrderRoutingLine, Rec, IsHandled);
-        if IsHandled then
-            exit;
-
-        TestField("Order Type", "Order Type"::Production);
-        TestField("Order No.");
-        TestField("Operation No.");
-
-        ProdOrderRoutingLine.Get(
-            ProdOrderRoutingLine.Status::Released, "Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
-    end;
-
-    /// <summary>
-    /// Determines if only the stop time field of the current item journal line record is set.
-    /// </summary>
-    /// <remarks>
-    /// In order to return true, setup time and run time fields must not be set.
-    /// </remarks>
-    /// <returns>True if only the stop time is set, otherwise false.</returns>
-    procedure OnlyStopTime(): Boolean
-    begin
-        exit(("Setup Time" = 0) and ("Run Time" = 0) and ("Stop Time" <> 0));
-    end;
-
-    /// <summary>
-    /// Determines if an output value posting should be performed for an item journal line.
-    /// </summary>
-    /// <returns>True if output posting should be performed, otherwise false.</returns>
-    procedure OutputValuePosting() Result: Boolean
-    begin
-        Result := TimeIsEmpty() and ("Invoiced Quantity" <> 0) and not Subcontracting;
-        OnAfterOutputValuePosting(Rec, Result);
-    end;
-
     /// <summary>
     /// Determines if time related fields of the current item journal line record are empty.
     /// </summary>
@@ -3696,9 +2871,9 @@ table 83 "Item Journal Line"
     /// Time related fields consists of setup time, run time, and stop time fields.
     /// </remarks>
     /// <returns>True if time related fields are empty, otherwise false.</returns>
-    procedure TimeIsEmpty(): Boolean
+    procedure TimeIsEmpty() Result: Boolean
     begin
-        exit(("Setup Time" = 0) and ("Run Time" = 0) and ("Stop Time" = 0));
+        OnTimeIsEmpty(Rec, Result);
     end;
 
     /// <summary>
@@ -3807,35 +2982,6 @@ table 83 "Item Journal Line"
         exit(not ReservEntry.IsEmpty);
     end;
 
-    /// <summary>
-    /// Determines if the next operation number on the associated production order routing line exists.
-    /// </summary>
-    /// <remarks>
-    /// If item journal line entry type is not output, it returns true.
-    /// </remarks>
-    /// <returns>True if next operation number does not exists, otherwise false.</returns>
-    procedure ItemPosting() Result: Boolean
-    var
-        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
-        NextOperationNoIsEmpty: Boolean;
-        IsHandled: Boolean;
-    begin
-        OnBeforeItemPosting(Rec, Result, IsHandled);
-        if IsHandled then
-            exit(Result);
-
-        if ("Entry Type" = "Entry Type"::Output) and ("Output Quantity" <> 0) and ("Operation No." <> '') then begin
-            GetProdOrderRoutingLine(ProdOrderRoutingLine);
-            IsHandled := false;
-            OnAfterItemPosting(ProdOrderRoutingLine, NextOperationNoIsEmpty, IsHandled);
-            if IsHandled then
-                exit(NextOperationNoIsEmpty);
-            exit(ProdOrderRoutingLine."Next Operation No." = '');
-        end;
-
-        exit(true);
-    end;
-
     local procedure CheckPlanningAssignment()
     begin
         if ("Quantity (Base)" <> 0) and ("Item No." <> '') and ("Posting Date" <> 0D) and
@@ -3846,46 +2992,6 @@ table 83 "Item Journal Line"
 
             ItemJnlLineReserve.AssignForPlanning(Rec);
         end;
-    end;
-
-    /// <summary>
-    /// Determines whether the operation specified in the provided item journal line record is the last output operation 
-    /// in the associated production order routing line.
-    /// </summary>
-    /// <param name="ItemJnlLine">Item journal line to check.</param>
-    /// <returns>True if this is the last output operation, otherwise false.</returns>
-    procedure LastOutputOperation(ItemJnlLine: Record "Item Journal Line") Result: Boolean
-    var
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
-        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
-        Operation: Boolean;
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeLastOutputOperation(ItemJnlLine, Result, IsHandled);
-        if IsHandled then
-            exit(Result);
-
-        if ItemJnlLine."Operation No." <> '' then begin
-            IsHandled := false;
-            OnLastOutputOperationOnBeforeTestRoutingNo(ItemJnlLine, IsHandled);
-            if not IsHandled then
-                ItemJnlLine.TestField("Routing No.");
-            if not ProdOrderRtngLine.Get(
-                 ProdOrderRtngLine.Status::Released, ItemJnlLine."Order No.",
-                 ItemJnlLine."Routing Reference No.", ItemJnlLine."Routing No.", ItemJnlLine."Operation No.")
-            then
-                ProdOrderRtngLine.Get(
-                  ProdOrderRtngLine.Status::Finished, ItemJnlLine."Order No.",
-                  ItemJnlLine."Routing Reference No.", ItemJnlLine."Routing No.", ItemJnlLine."Operation No.");
-            if ItemJnlLine.Finished then
-                ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::Finished
-            else
-                ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::"In Progress";
-            Operation := not ItemJnlPostLine.NextOperationExist(ProdOrderRtngLine);
-        end else
-            Operation := true;
-        exit(Operation);
     end;
 
     /// <summary>
@@ -3901,81 +3007,13 @@ table 83 "Item Journal Line"
         if IsHandled then
             exit;
 
-        case "Entry Type" of
-            "Entry Type"::Consumption:
-                LookupProdOrderComp();
-            "Entry Type"::Output:
-                LookupProdOrderLine();
-            else begin
-                ItemList.LookupMode := true;
-                if "Item No." <> '' then
-                    if Item.Get("Item No.") then
-                        ItemList.SetRecord(Item);
-                if ItemList.RunModal() = ACTION::LookupOK then begin
-                    ItemList.GetRecord(Item);
-                    Validate("Item No.", Item."No.");
-                end;
-            end;
-        end;
-    end;
-
-    local procedure LookupProdOrderLine()
-    var
-        ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderLineList: Page "Prod. Order Line List";
-    begin
-        ProdOrderLine.SetFilterByReleasedOrderNo("Order No.");
-        ProdOrderLine.Status := ProdOrderLine.Status::Released;
-        ProdOrderLine."Prod. Order No." := "Order No.";
-        ProdOrderLine."Line No." := "Order Line No.";
-        ProdOrderLine."Item No." := "Item No.";
-        ProdOrderLine."Variant Code" := "Variant Code";
-
-        ProdOrderLineList.LookupMode(true);
-        ProdOrderLineList.SetTableView(ProdOrderLine);
-        ProdOrderLineList.SetRecord(ProdOrderLine);
-
-        if ProdOrderLineList.RunModal() = ACTION::LookupOK then begin
-            ProdOrderLineList.GetRecord(ProdOrderLine);
-            Validate("Item No.", ProdOrderLine."Item No.");
-            if ProdOrderLine."Variant Code" <> '' then
-                Validate("Variant Code", ProdOrderLine."Variant Code");
-            if "Order Line No." <> ProdOrderLine."Line No." then
-                Validate("Order Line No.", ProdOrderLine."Line No.");
-        end;
-    end;
-
-    local procedure LookupProdOrderComp()
-    var
-        ProdOrderComp: Record "Prod. Order Component";
-        ProdOrderCompLineList: Page "Prod. Order Comp. Line List";
-        IsHandled: Boolean;
-    begin
-        ProdOrderComp.SetFilterByReleasedOrderNo("Order No.");
-        if "Order Line No." <> 0 then
-            ProdOrderComp.SetRange("Prod. Order Line No.", "Order Line No.");
-        ProdOrderComp.Status := ProdOrderComp.Status::Released;
-        ProdOrderComp."Prod. Order No." := "Order No.";
-        ProdOrderComp."Prod. Order Line No." := "Order Line No.";
-        ProdOrderComp."Line No." := "Prod. Order Comp. Line No.";
-        ProdOrderComp."Item No." := "Item No.";
-
-        ProdOrderCompLineList.LookupMode(true);
-        OnLookupProdOrderCompOnBeforeSetTableView(ProdOrderComp, Rec);
-        ProdOrderCompLineList.SetTableView(ProdOrderComp);
-        ProdOrderCompLineList.SetRecord(ProdOrderComp);
-
-        IsHandled := false;
-        OnLookupProdOrderCompBeforeRunModal(ProdOrderComp, IsHandled);
-        if IsHandled then
-            exit;
-
-        if ProdOrderCompLineList.RunModal() = ACTION::LookupOK then begin
-            ProdOrderCompLineList.GetRecord(ProdOrderComp);
-            if "Prod. Order Comp. Line No." <> ProdOrderComp."Line No." then begin
-                Validate("Item No.", ProdOrderComp."Item No.");
-                Validate("Prod. Order Comp. Line No.", ProdOrderComp."Line No.");
-            end;
+        ItemList.LookupMode := true;
+        if "Item No." <> '' then
+            if Item.Get("Item No.") then
+                ItemList.SetRecord(Item);
+        if ItemList.RunModal() = ACTION::LookupOK then begin
+            ItemList.GetRecord(Item);
+            Validate("Item No.", Item."No.");
         end;
     end;
 
@@ -4061,7 +3099,7 @@ table 83 "Item Journal Line"
         Location.Get(LocationCode);
 
         if "Entry Type" = "Entry Type"::Output then begin
-            if Location."Prod. Output Whse. Handling" = Enum::"Prod. Output Whse. Handling"::"Inventory Put-away" then
+            if Location."Prod. Output Whse. Handling" = Enum::Microsoft.Manufacturing.Setup."Prod. Output Whse. Handling"::"Inventory Put-away" then
                 QtyToPost := 0;
         end else
             if Location."Require Put-away" and
@@ -4120,82 +3158,6 @@ table 83 "Item Journal Line"
             MarkedOnly(true);
             ShowAllLinesEnabled := true;
         end;
-    end;
-
-    /// <summary>
-    /// Posts an item journal line record from a production order.
-    /// </summary>
-    /// <param name="Print">If true, additional functionality of printing documents is executed.</param>
-    procedure PostingItemJnlFromProduction(Print: Boolean)
-    var
-        ProductionOrder: Record "Production Order";
-        IsHandled: Boolean;
-    begin
-        if ("Order Type" = "Order Type"::Production) and ("Order No." <> '') then
-            ProductionOrder.Get(ProductionOrder.Status::Released, "Order No.");
-
-        IsHandled := false;
-        OnBeforePostingItemJnlFromProduction(Rec, Print, IsHandled);
-        if IsHandled then
-            exit;
-
-        if Print then
-            CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post+Print", Rec)
-        else
-            CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post", Rec);
-    end;
-
-    internal procedure PreviewPostItemJnlFromProduction()
-    var
-        ProductionOrder: Record "Production Order";
-        ItemJnlPost: Codeunit "Item Jnl.-Post";
-    begin
-        if ("Order Type" = "Order Type"::Production) and ("Order No." <> '') then
-            ProductionOrder.Get(ProductionOrder.Status::Released, "Order No.");
-
-        ItemJnlPost.Preview(Rec);
-    end;
-
-    /// <summary>
-    /// Determines whether an item journal line represents a resource consumption line for an assembly output.
-    /// </summary>
-    /// <returns>True if the line represents a resource consumption line for an assembly output, otherwise false.</returns>
-    procedure IsAssemblyResourceConsumpLine(): Boolean
-    begin
-        exit(("Entry Type" = "Entry Type"::"Assembly Output") and (Type = Type::Resource));
-    end;
-
-    /// <summary>
-    /// Determine whether an item journal line represents an assembly output line.
-    /// </summary>
-    /// <returns>True if the linerepresents an assembly output line, otherwise false.</returns>
-    procedure IsAssemblyOutputLine(): Boolean
-    begin
-        exit(("Entry Type" = "Entry Type"::"Assembly Output") and (Type = Type::" "));
-    end;
-
-    /// <summary>
-    /// Determines whether an item journal line represents a correction for an assemble-to-order (ATO) sale.
-    /// </summary>
-    /// <returns>True if theline represents a correction for an assemble-to-order sale, otherwise false.</returns>
-    procedure IsATOCorrection(): Boolean
-    var
-        ItemLedgEntry: Record "Item Ledger Entry";
-        PostedATOLink: Record "Posted Assemble-to-Order Link";
-    begin
-        if not Correction then
-            exit(false);
-        if "Entry Type" <> "Entry Type"::Sale then
-            exit(false);
-        if not ItemLedgEntry.Get("Applies-to Entry") then
-            exit(false);
-        if ItemLedgEntry."Entry Type" <> ItemLedgEntry."Entry Type"::Sale then
-            exit(false);
-        PostedATOLink.SetCurrentKey("Document Type", "Document No.", "Document Line No.");
-        PostedATOLink.SetRange("Document Type", PostedATOLink."Document Type"::"Sales Shipment");
-        PostedATOLink.SetRange("Document No.", ItemLedgEntry."Document No.");
-        PostedATOLink.SetRange("Document Line No.", ItemLedgEntry."Document Line No.");
-        exit(not PostedATOLink.IsEmpty);
     end;
 
     local procedure RevaluationPerEntryAllowed(ItemNo: Code[20]) Result: Boolean
@@ -4484,38 +3446,17 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Determines whether a subcontracting work center is used in an item journal line.
-    /// </summary>
-    /// <returns>True if a subcontracting work center is used, otherwise false.</returns>
-    procedure SubcontractingWorkCenterUsed() Result: Boolean
-    var
-        WorkCenter: Record "Work Center";
-    begin
-        if Type = Type::"Work Center" then
-            if WorkCenter.Get("Work Center No.") then
-                Result := WorkCenter."Subcontractor No." <> '';
-        OnAfterSubcontractingWorkCenterUsed(Rec, WorkCenter, Result);
-    end;
-
-    local procedure ErrorIfSubcontractingWorkCenterUsed()
-    begin
-        if not SubcontractingWorkCenterUsed() then
-            exit;
-        if "Setup Time" <> 0 then
-            Error(ErrorInfo.Create(StrSubstNo(SubcontractedErr, FieldCaption("Setup Time"), "Line No."), true));
-        if "Run Time" <> 0 then
-            Error(ErrorInfo.Create(StrSubstNo(SubcontractedErr, FieldCaption("Run Time"), "Line No."), true));
-        if "Output Quantity" <> 0 then
-            Error(ErrorInfo.Create(StrSubstNo(SubcontractedErr, FieldCaption("Output Quantity"), "Line No."), true));
-    end;
-
-    /// <summary>
     /// Triggers the OnCheckItemJournalLinePostRestrictions event to check any additional restrictions 
     /// before posting item journal line.
     /// </summary>
     procedure CheckItemJournalLineRestriction()
     begin
         OnCheckItemJournalLinePostRestrictions();
+    end;
+
+    local procedure CheckEntryType()
+    begin
+        OnAfterCheckEntryType(Rec);
     end;
 
     /// <summary>
@@ -4633,10 +3574,28 @@ table 83 "Item Journal Line"
             Item.TestField(Type, Item.Type::Inventory);
 
         // Non-inventoriable item types are valid only for the following entry types
-        if Item.IsNonInventoriableType() and
-           not ("Entry Type" in ["Entry Type"::Consumption, "Entry Type"::"Assembly Consumption"])
-        then
+        if Item.IsNonInventoriableType() and not IsEntryTypeConsumption() then
             Item.TestField(Type, Item.Type::Inventory);
+    end;
+
+    local procedure IsEntryTypeConsumption() Result: Boolean
+    begin
+        OnAfterIsEntryTypeConsumption(Rec, Result);
+    end;
+
+    local procedure IsEntryTypeProduction() Result: Boolean
+    begin
+        OnAfterIsEntryTypeProduction(Rec, Result);
+    end;
+
+    local procedure IsOrderTypeAsmOrProd() Result: Boolean
+    begin
+        OnAfterIsOrderTypeAsmOrProd(Rec, Result);
+    end;
+
+    local procedure IsDocNoProdOrderNo() Result: Boolean
+    begin
+        OnAfterIsDocNoProdOrderNo(Rec, Result);
     end;
 
     /// <summary>
@@ -4671,39 +3630,10 @@ table 83 "Item Journal Line"
         OnAfterIsDefaultBin(Location, Result);
     end;
 
-    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text) Result: Decimal
+    procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text) Result: Decimal
     begin
         Result := UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName);
         OnAfterCalcBaseQty(Rec, xRec, FromFieldName, Result);
-    end;
-
-    local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"): Boolean
-    var
-        IsHandled: Boolean;
-        RecordCount: Integer;
-    begin
-        ProdOrderComponent.SetFilterByReleasedOrderNo("Order No.");
-        if "Order Line No." <> 0 then
-            ProdOrderComponent.SetRange("Prod. Order Line No.", "Order Line No.");
-        ProdOrderComponent.SetRange("Line No.", "Prod. Order Comp. Line No.");
-        IsHandled := false;
-        OnValidateItemNoOnAfterProdOrderCompSetFilters(Rec, ProdOrderComponent, IsHandled);
-        if IsHandled then
-            exit;
-
-        ProdOrderComponent.SetRange("Item No.", "Item No.");
-        RecordCount := ProdOrderComponent.Count();
-        if RecordCount > 1 then
-            exit(false)
-        else
-            if RecordCount = 1 then
-                exit(ProdOrderComponent.FindFirst());
-
-        ProdOrderComponent.SetRange("Line No.");
-        if ProdOrderComponent.Count() = 1 then
-            exit(ProdOrderComponent.FindFirst());
-
-        exit(false);
     end;
 
     /// <summary>
@@ -4751,8 +3681,6 @@ table 83 "Item Journal Line"
                 TableValuePair.Add(Database::Item, Rec."Item No.");
             FieldNo = Rec.FieldNo("Salespers./Purch. Code"):
                 TableValuePair.Add(Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code");
-            FieldNo = Rec.FieldNo("Work Center No."):
-                TableValuePair.Add(Database::"Work Center", Rec."Work Center No.");
             FieldNo = Rec.FieldNo("Location Code"):
                 TableValuePair.Add(Database::Location, Rec."Location Code");
             FieldNo = Rec.FieldNo("New Location Code"):
@@ -4766,7 +3694,6 @@ table 83 "Item Journal Line"
     begin
         DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.", FieldNo = Rec.FieldNo("Item No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code", FieldNo = Rec.FieldNo("Salespers./Purch. Code"));
-        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", Rec."Work Center No.", FieldNo = Rec.FieldNo("Work Center No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."New Location Code", FieldNo = Rec.FieldNo("New Location Code"));
 
@@ -5082,11 +4009,6 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateDimWithProdOrderLineOnAfterInitDefaultDimensionSources(var ItemJournalLine: Record "Item Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean; CurrFieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
     begin
     end;
@@ -5097,12 +4019,7 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSigned(ItemJournalLine: Record "Item Journal Line"; Value: Decimal; Result: Decimal)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSubcontractingWorkCenterUsed(ItemJournalLine: Record "Item Journal Line"; WorkCenter: Record "Work Center"; var Result: Boolean)
+    local procedure OnAfterSigned(ItemJournalLine: Record "Item Journal Line"; Value: Decimal; var Result: Decimal)
     begin
     end;
 
@@ -5252,31 +4169,6 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyFromProdOrderComp(var ItemJournalLine: Record "Item Journal Line"; ProdOrderComponent: Record "Prod. Order Component")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyFromProdOrderLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyFromWorkCenter(var ItemJournalLine: Record "Item Journal Line"; WorkCenter: Record "Work Center")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyFromMachineCenter(var ItemJournalLine: Record "Item Journal Line"; MachineCenter: Record "Machine Center")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateAssemblyDim(var ItemJournalLine: Record "Item Journal Line"; AssemblyHeader: Record "Assembly Header")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnAfterDisplayErrorIfItemIsBlocked(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -5285,7 +4177,6 @@ table 83 "Item Journal Line"
     local procedure OnAfterDisplayErrorIfItemVariantIsBlocked(var ItemVariant: Record "Item Variant"; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
-
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetItemChange(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line")
@@ -5309,11 +4200,6 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterHasSameNewTracking(ItemJournalLine: Record "Item Journal Line"; var IsSameTracking: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterItemPosting(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var NextOperationNoIsEmpty: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -5363,27 +4249,7 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckProdOrderCompBinCode(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReservedQtyBase(var ItemJournalLine: Record "Item Journal Line"; var Item: Record Item; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeConfirmOutputOnFinishedOperation(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyFromMachineCenter(var ItemJournalLine: Record "Item Journal Line"; var MachineCenter: Record "Machine Center"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyFromWorkCenter(var ItemJournalLine: Record "Item Journal Line"; var WorkCenter: Record "Work Center"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5408,17 +4274,7 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLastOutputOperation(ItemJournalLine: Record "Item Journal Line"; var Result: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupItemNo(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePostingItemJnlFromProduction(var ItemJournalLine: Record "Item Journal Line"; Print: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -5458,11 +4314,6 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateQuantityIsBalanced(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateUnitOfMeasureCode(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -5473,68 +4324,12 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateScrapQuantityBase(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNo: Integer; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateOutputQuantityBase(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNo: Integer; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyReservedQty(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CalledByFieldNo: Integer)
     begin
     end;
 
-    local procedure CheckConfirmOutputOnFinishedOperation()
-    var
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
-    begin
-        if ("Entry Type" <> "Entry Type"::Output) or ("Output Quantity" = 0) then
-            exit;
-
-        if not ProdOrderRtngLine.Get(
-             ProdOrderRtngLine.Status::Released, "Order No.", "Routing Reference No.", "Routing No.", "Operation No.")
-        then
-            exit;
-
-        if ProdOrderRtngLine."Routing Status" <> ProdOrderRtngLine."Routing Status"::Finished then
-            exit;
-
-        ConfirmOutputOnFinishedOperation();
-    end;
-
-    local procedure ConfirmOutputOnFinishedOperation()
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeConfirmOutputOnFinishedOperation(Rec, IsHandled);
-        if IsHandled then
-            exit;
-
-        if not Confirm(FinishedOutputQst) then
-            Error(UpdateInterruptedErr);
-    end;
-
     [IntegrationEvent(true, false)]
     local procedure OnCheckItemJournalLinePostRestrictions()
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateAssemblyDimOnAfterCreateDimSetIDArr(var ItemJournalLine: Record "Item Journal Line"; var DimSetIDArr: array[10] of Integer; var i: Integer)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateProdDimOnAfterCreateDimSetIDArr(var ItemJournalLine: Record "Item Journal Line"; var DimSetIDArr: array[10] of Integer; var i: Integer)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnLastOutputOperationOnBeforeTestRoutingNo(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5549,22 +4344,17 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnvalidateConcurrentCapacityOnAfterCalcTotalTime(var ItemJournalLine: Record "Item Journal Line"; var TotalTime: Integer; xItemJournalLine: Record "Item Journal Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnValidateCapUnitOfMeasureCodeOnCaseOrderTypeElse(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLookUpTrackingSummaryOnCaseOrderTypeElse(var ItemJournalLine: Record "Item Journal Line"; TempTrackingSpecification: Record "Tracking Specification" temporary; TrackingType: Enum "Item Tracking Type")
+    local procedure OnValidateCapUnitOfMeasureCodeOnSetQtyPerCapUnitOfMeasure(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateCapUnitofMeasureCodeOnBeforeRoutingCostPerUnit(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
+    local procedure OnLookUpTrackingSummaryOnCaseOrderTypeElse(var ItemJournalLine: Record "Item Journal Line"; TempTrackingSpecification: Record "Tracking Specification" temporary; TrackingType: Enum "Item Tracking Type")
     begin
     end;
 
@@ -5583,33 +4373,21 @@ table 83 "Item Journal Line"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('Replaced by event OnValidateOrderNoOnAfterCopyFromAssemblyHeader in codeunit Asm. Item Journal Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnValidateItemNoOnAfterCalcShouldThrowRevaluationError(var ItemJournalLine: Record "Item Journal Line"; var ShouldThrowRevaluationError: Boolean)
+    local procedure OnValidateOrderNoOnAfterProcessOrderTypeAssembly(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateOrderNoOnCaseOrderTypeElse(var ItemJournalLine: Record "Item Journal Line"; var xItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateOrderNoOrderTypeProduction(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateOrderNoOnAfterProcessOrderTypeAssembly(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order"; AssemblyHeader: Record "Assembly Header")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateOrderNoOnCaseOrderTypeElse(var ItemJournalLine: Record "Item Journal Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateOrderLineNoOnCaseOrderTypeElse(var ItemJournalLine: Record "Item Journal Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateOrderLineNoOnAfterProdOrderLineSetFilters(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnValidateOrderLineNoOnCaseOrderTypeElse(var ItemJournalLine: Record "Item Journal Line"; var xItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -5644,12 +4422,12 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateAmount(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    local procedure OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean);
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateScrapCode(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateAmount(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5664,16 +4442,6 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateItemNoOnAfterSetProdOrderLineItemNoFilter(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateItemNoOnAfterCalcShouldCopyFromSingleProdOrderLine(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line"; var ShouldCopyFromSingleProdOrderLine: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnBeforeSetDescription(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
     begin
     end;
@@ -5683,8 +4451,16 @@ table 83 "Item Journal Line"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('Replacec by event OnValidateItemNoOnSetCostAndPrice', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnValidateItemNoOnAfterCalcUnitAmount(var ItemJournalLine: Record "Item Journal Line"; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
+    local procedure OnValidateItemNoOnAfterCalcUnitAmount(var ItemJournalLine: Record "Item Journal Line"; WorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center"; MachineCenter: Record Microsoft.Manufacturing.MachineCenter."Machine Center")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnSetCostAndPrice(var ItemJournalLine: Record "Item Journal Line"; UnitCost: Decimal)
     begin
     end;
 
@@ -5694,17 +4470,7 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateItemNoOnAfterProdOrderCompSetFilters(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderComp: Record "Prod. Order Component"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyDim(var ItemJournalLine: Record "Item Journal Line"; DimenionSetID: Integer; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateProdDim(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5754,21 +4520,6 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLookupProdOrderCompBeforeRunModal(var ProdOrderComp: Record "Prod. Order Component"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateProdDimOnBeforeCreateDimSetIDArr(var ItemJournalLine: Record "Item Journal Line"; var DimSetIDArr: array[10] of Integer; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyFromProdOrderComp(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderComp: Record "Prod. Order Component"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnBinCodeOnCheckProdOrderCompBinCodeCheckNeeded(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -5779,22 +4530,12 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnOrderLineNoOnValidateOnAfterAssignProdOrderLineValues(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnBeforeAssignIndirectCostPct(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnSetUpNewLineOnBeforeSetDefaultPriceCalculationMethod(var ItemJournalLine: Record "Item Journal Line"; ItemJnlBatch: Record "Item Journal Batch"; var DimMgt: Codeunit DimensionManagement)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateItemNoOnAfterValidateProdOrderCompLineNo(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 
@@ -5810,11 +4551,6 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRenumberDocNoOnLines(var DocNo: Code[20]; var ItemJnlLine2: Record "Item Journal Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5892,23 +4628,92 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOutputValuePosting(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeItemPosting(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateNewLocationCode(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean);
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLookupProdOrderCompOnBeforeSetTableView(var ProdOrderComponent: Record "Prod. Order Component"; var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnValidateEntryTypeOnUpdateByEntryType(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitAmountOnUpdateByEntryType(var ItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitCostOnUpdateByEntryType(var ItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDefaultPriceCalculationMethod(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckEntryType(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsEntryTypeConsumption(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsEntryTypeProduction(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsOrderTypeAsmOrProd(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsDocNoProdOrderNo(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterValidateUnitofMeasureCode(var ItemJournalLine: Record "Item Journal Line"; var xItemJournalLine: Record "Item Journal Line"; var Item: Record Item; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOnAfterValidateItemNo(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOnBeforeValidateItemNo(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnAfterSetCallWhseCheck(var ItemJournalLine: Record "Item Journal Line"; var CallWhseCheck: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBinCodeOnCompBinCheck(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSelectItemEntryOnSetFilters(var ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateNo(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTimeIsEmpty(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
+    begin
+    end;
 }
