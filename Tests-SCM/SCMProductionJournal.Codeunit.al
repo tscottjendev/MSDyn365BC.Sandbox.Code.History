@@ -43,8 +43,8 @@ codeunit 137034 "SCM Production Journal"
         FieldMustBeEmptyErr: Label '%1 must be empty', Comment = '%1 - Field Caption';
         DescriptionMustBeSame: Label 'Description must be same.';
         ProductionItemNotFoundErr: Label 'The field %1 of table %2 contains a value (%3) that cannot be found in the related table (%4).', Comment = '%1 - Field Caption, %2 - Table Caption, %3 - Value, %4 - Related Table Caption';
-        ProductionBlockedErr: Label 'You cannot produce %1 %2 because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption';
-        BlockedItemVariantErr: Label 'You cannot produce variant %1  for Item %2 because it is blocked for production.', Comment = '%1 - Item Variant Code, %2 - Item No.';
+        ProductionBlockedOutputItemErr: Label 'You cannot produce %1 %2 because the %3 is %4 on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value';
+        ProductionBlockedOutputItemVariantErr: Label 'You cannot produce variant %1 for %2 %3 because it is blocked for production output.', Comment = '%1 - Item Variant Code, %2 - Table Caption (Item), %3 - Item No.';
 
     [Test]
     [HandlerFunctions('JournalReservePageHandler')]
@@ -1706,7 +1706,7 @@ codeunit 137034 "SCM Production Journal"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ItemProductionBlockedCannotBePostThroughOutputJournal()
+    procedure ItemProductionBlockedOutputCannotBePostThroughOutputJournal()
     var
         Item: Record Item;
         WorkCenter: Record "Work Center";
@@ -1715,7 +1715,7 @@ codeunit 137034 "SCM Production Journal"
         OperationNo: Code[10];
         ItemNo: Code[20];
     begin
-        // [SCENARIO 382546] Verify Output Journal cannot be post If "Production Blocked" is true on "Item".
+        // [SCENARIO 382546] Verify Output Journal cannot be post If "Production Blocked" is Output on "Item".
         Initialize();
 
         // [GIVEN] Create Work Center.
@@ -1732,23 +1732,24 @@ codeunit 137034 "SCM Production Journal"
         // [GIVEN] Create Released production order.
         CreateAndRefreshReleasedProductionOrderWithVariantCode(ProductionOrder, ItemNo, LibraryRandom.RandInt(10), '');
 
-        // [GIVEN] Update "Production Blocked" to true on Item.
+        // [GIVEN] Update "Production Blocked" to Output on Item.
         Item.Get(ItemNo);
-        Item.Validate("Production Blocked", true);
+        Item.Validate("Production Blocked", Item."Production Blocked"::Output);
         Item.Modify(true);
 
         // [WHEN] Create and Post Output Journal with "Production Blocked" on Item.
         asserterror CreateAndPostOutputJournal(ProductionOrder."No.", OperationNo, ItemNo, '', '');
 
-        // [VERIFY] Verify Output Journal cannot be post If "Production Blocked" is true on "Item".
-        Assert.ExpectedError(StrSubstNo(ProductionBlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked")));
+        // [VERIFY] Verify Output Journal cannot be post if "Production Blocked" is Output on "Item".
+        Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked"), Item."Production Blocked"));
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure ItemVariantProductionBlockedCannotBePostThroughOutputJournal()
+    procedure ItemVariantProductionBlockedOutputCannotBePostThroughOutputJournal()
     var
         WorkCenter: Record "Work Center";
+        Item: Record Item;
         ItemVariant: Record "Item Variant";
         RoutingHeader: Record "Routing Header";
         ProductionOrder: Record "Production Order";
@@ -1756,7 +1757,7 @@ codeunit 137034 "SCM Production Journal"
         OperationNo: Code[10];
         ItemNo: Code[20];
     begin
-        // [SCENARIO 382546] Verify Output Journal cannot be post If "Production Blocked" is true on "Item Variant".
+        // [SCENARIO 382546] Verify Output Journal cannot be post if "Production Blocked" is Output on "Item Variant".
         Initialize();
 
         // [GIVEN] Create Work Center.
@@ -1777,8 +1778,8 @@ codeunit 137034 "SCM Production Journal"
         // [GIVEN] Create Released production order.
         CreateAndRefreshReleasedProductionOrderWithVariantCode(ProductionOrder, ItemNo, 1, ItemVariant.Code);
 
-        // [GIVEN] Update "Production Blocked" to true on "Item Variant".
-        ItemVariant.Validate("Production Blocked", true);
+        // [GIVEN] Update "Production Blocked" to Output on "Item Variant".
+        ItemVariant.Validate("Production Blocked", ItemVariant."Production Blocked"::Output);
         ItemVariant.Modify(true);
 
         // [GIVEN] Select Item Journal Template and Batch.
@@ -1798,65 +1799,65 @@ codeunit 137034 "SCM Production Journal"
         // [WHEN] Post Output Journal with "Production Blocked" on "Item Variant".
         asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
-        // [VERIFY] Verify Output Journal cannot be post If "Production Blocked" is true on "Item Variant".
-        Assert.ExpectedError(StrSubstNo(BlockedItemVariantErr, ItemVariant.Code, ItemVariant."Item No."));
+        // [VERIFY] Verify Output Journal cannot be post if "Production Blocked" is Output on "Item Variant".
+        Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemVariantErr, ItemVariant.Code, Item.TableCaption(), ItemVariant."Item No."));
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure ItemProductionBlockedCannotbeSelectedOnProductionOrder()
+    procedure ItemProductionBlockedOutputCannotbeSelectedOnProductionOrder()
     var
         Item: Record Item;
         ProductionOrder: Record "Production Order";
     begin
-        // [SCENARIO 382546] Verify Item cannot be selected on Production Order If "Production Blocked" is true on "Item".
+        // [SCENARIO 382546] Verify Item cannot be selected on Production Order if "Production Blocked" is Output on "Item".
         Initialize();
 
-        // [GIVEN] Create and Update "Production Blocked" to true on Item.
+        // [GIVEN] Create and Update "Production Blocked" to Output on Item.
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Production Blocked", true);
+        Item.Validate("Production Blocked", Item."Production Blocked"::Output);
         Item.Modify(true);
 
         // [WHEN] Create Released production order.
         asserterror CreateAndRefreshReleasedProductionOrderWithVariantCode(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '');
 
-        // [VERIFY] Verify expected error message when Item is selected on Production Order If "Production Blocked" is true on "Item".
+        // [VERIFY] Verify expected error message when Item is selected on Production Order if "Production Blocked" is Output on "Item".
         Assert.ExpectedError(StrSubstNo(ProductionItemNotFoundErr, ProductionOrder.FieldCaption("Source No."), ProductionOrder.TableCaption(), Item."No.", Item.TableCaption()));
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure ItemVariantProductionBlockedCannotbeSelectedOnProductionOrder()
+    procedure ItemVariantProductionBlockedOutputCannotbeSelectedOnProductionOrder()
     var
         Item: Record Item;
         ItemVariant: Record "Item Variant";
         ProductionOrder: Record "Production Order";
     begin
-        // [SCENARIO 382546] Verify Variant Code cannot be selected on Production Order If "Production Blocked" is true on "Item Variant".
+        // [SCENARIO 382546] Verify Variant Code cannot be selected on Production Order if "Production Blocked" is Output on "Item Variant".
         Initialize();
 
         // [GIVEN] Create Item with Item Variant. 
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
-        ItemVariant.Validate("Production Blocked", true);
+        ItemVariant.Validate("Production Blocked", ItemVariant."Production Blocked"::Output);
         ItemVariant.Modify(true);
 
         // [WHEN] Create Released production order.
         asserterror CreateAndRefreshReleasedProductionOrderWithVariantCode(ProductionOrder, Item."No.", 1, ItemVariant.Code);
 
-        // [VERIFY] Verify expected error message when Variant Code is selected on Production Order If "Production Blocked" is true on "Item".
+        // [VERIFY] Verify expected error message when Variant Code is selected on Production Order if "Production Blocked" is Output on "Item".
         Assert.ExpectedError(StrSubstNo(ProductionItemNotFoundErr, ProductionOrder.FieldCaption("Variant Code"), ProductionOrder.TableCaption(), ItemVariant.Code, ItemVariant.TableCaption()));
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure ItemProductionBlockedCannotbeSelectedOnProductionOrderLine()
+    procedure ItemProductionBlockedOutputCannotbeSelectedOnProductionOrderLine()
     var
         Item: Record Item;
         ProductionOrder: Record "Production Order";
         ProductionOrderLine: Record "Prod. Order Line";
     begin
-        // [SCENARIO 382546] Verify Item cannot be selected on Production Order Line If "Production Blocked" is true on "Item".
+        // [SCENARIO 382546] Verify Item cannot be selected on Production Order Line if "Production Blocked" is Output on "Item".
         Initialize();
 
         // [GIVEN] Create an Item.
@@ -1866,26 +1867,26 @@ codeunit 137034 "SCM Production Journal"
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10));
 
         // [GIVEN] Update "Production Blocked" on Item.
-        Item.Validate("Production Blocked", true);
+        Item.Validate("Production Blocked", Item."Production Blocked"::Output);
         Item.Modify(true);
 
         // [WHEN] Refresh Production Order.
         asserterror LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
-        // [VERIFY] Verify expected error message when Item is selected on Production Order Line If "Production Blocked" is true on "Item".
+        // [VERIFY] Verify expected error message when Item is selected on Production Order Line if "Production Blocked" is Output on "Item".
         Assert.ExpectedError(StrSubstNo(ProductionItemNotFoundErr, ProductionOrderLine.FieldCaption("Item No."), ProductionOrderLine.TableCaption(), Item."No.", Item.TableCaption()));
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure ItemVariantProductionBlockedCannotbeSelectedOnProductionOrderLine()
+    procedure ItemVariantProductionBlockedOutputCannotbeSelectedOnProductionOrderLine()
     var
         Item: Record Item;
         ItemVariant: Record "Item Variant";
         ProductionOrder: Record "Production Order";
         ProductionOrderLine: Record "Prod. Order Line";
     begin
-        // [SCENARIO 382546] Verify Variant Code cannot be selected on Production Order Line If "Production Blocked" is true on "Item Variant".
+        // [SCENARIO 382546] Verify Variant Code cannot be selected on Production Order Line if "Production Blocked" is Output on "Item Variant".
         Initialize();
 
         // [GIVEN] Create Item with Item Variant. 
@@ -1898,26 +1899,26 @@ codeunit 137034 "SCM Production Journal"
         ProductionOrder.Modify(true);
 
         // [GIVEN] Update "Production Blocked" on "Item Variant".
-        ItemVariant.Validate("Production Blocked", true);
+        ItemVariant.Validate("Production Blocked", ItemVariant."Production Blocked"::Output);
         ItemVariant.Modify(true);
 
         // [WHEN] Refresh Production Order.
         asserterror LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
-        // [VERIFY] Verify expected error message when Variant Code is selected on Production Order Line If "Production Blocked" is true on "Item".
+        // [VERIFY] Verify expected error message when Variant Code is selected on Production Order Line if "Production Blocked" is Output on "Item".
         Assert.ExpectedError(StrSubstNo(ProductionItemNotFoundErr, ProductionOrderLine.FieldCaption("Variant Code"), ProductionOrderLine.TableCaption(), ItemVariant.Code, ItemVariant.TableCaption()));
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure ReplanProductionOrderCannotBeRunIfProductionBlockedOnItem()
+    procedure ReplanProductionOrderCannotBeRunIfProductionBlockedOutputOnItem()
     var
         Item: Record Item;
         ProductionOrder: Record "Production Order";
         Direction: Option Forward,Backward;
         CalcMethod: Option "All Levels";
     begin
-        // [SCENARIO 382546] Verify "Replan Production Order" cannot be executed If "Production Blocked" is true on "Item".
+        // [SCENARIO 382546] Verify "Replan Production Order" cannot be executed if "Production Blocked" is Output on "Item".
         Initialize();
 
         // [GIVEN] Create an Item.
@@ -1927,19 +1928,19 @@ codeunit 137034 "SCM Production Journal"
         CreateAndRefreshReleasedProductionOrderWithVariantCode(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '');
 
         // [GIVEN] Update "Production Blocked" on Item.
-        Item.Validate("Production Blocked", true);
+        Item.Validate("Production Blocked", Item."Production Blocked"::Output);
         Item.Modify(true);
 
         // [WHEN] Run Replan Production Order.
         asserterror LibraryManufacturing.RunReplanProductionOrder(ProductionOrder, Direction::Backward, CalcMethod::"All Levels");
 
-        // [VERIFY] Verify expected error message when Item is selected on Production Order If "Production Blocked" is true on "Item".
-        Assert.ExpectedError(StrSubstNo(ProductionBlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked")));
+        // [VERIFY] Verify expected error message when Item is selected on Production Order if "Production Blocked" is Output on "Item".
+        Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked"), Item."Production Blocked"));
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure ReplanProductionOrderCannotBeRunIfProductionBlockedOnItemVariant()
+    procedure ReplanProductionOrderCannotBeRunIfProductionBlockedOutputOnItemVariant()
     var
         Item: Record Item;
         ItemVariant: Record "Item Variant";
@@ -1947,7 +1948,7 @@ codeunit 137034 "SCM Production Journal"
         Direction: Option Forward,Backward;
         CalcMethod: Option "All Levels";
     begin
-        // [SCENARIO 382546] Verify "Replan Production Order" cannot be executed If "Production Blocked" is true on "Item Variant".
+        // [SCENARIO 382546] Verify "Replan Production Order" cannot be executed if "Production Blocked" is Output on "Item Variant".
         Initialize();
 
         // [GIVEN] Create Item with Item Variant. 
@@ -1958,14 +1959,14 @@ codeunit 137034 "SCM Production Journal"
         CreateAndRefreshReleasedProductionOrderWithVariantCode(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), ItemVariant.Code);
 
         // [GIVEN] Update "Production Blocked" on "Item Variant".
-        ItemVariant.Validate("Production Blocked", true);
+        ItemVariant.Validate("Production Blocked", ItemVariant."Production Blocked"::Output);
         ItemVariant.Modify(true);
 
         // [WHEN] Run Replan Production Order.
         asserterror LibraryManufacturing.RunReplanProductionOrder(ProductionOrder, Direction::Backward, CalcMethod::"All Levels");
 
-        // [VERIFY] Verify expected error message when "Replan Production Order" is executed If "Production Blocked" is true on "Item Variant".
-        Assert.ExpectedError(StrSubstNo(BlockedItemVariantErr, ItemVariant.Code, ItemVariant."Item No."));
+        // [VERIFY] Verify expected error message when "Replan Production Order" is executed if "Production Blocked" is Output on "Item Variant".
+        Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemVariantErr, ItemVariant.Code, Item.TableCaption(), ItemVariant."Item No."));
     end;
 
     local procedure Initialize()
