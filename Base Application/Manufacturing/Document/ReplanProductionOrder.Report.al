@@ -210,7 +210,7 @@ report 99001026 "Replan Production Order"
                     ProdOrderRouteMgt: Codeunit "Prod. Order Route Management";
                 begin
                     BlockDynamicTracking(true);
-                    Item.CheckItemAndVariantForProdBlocked("Prod. Order Line"."Item No.", "Prod. Order Line"."Variant Code");
+                    Item.CheckItemAndVariantForProdBlocked("Prod. Order Line"."Item No.", "Prod. Order Line"."Variant Code", Item."Production Blocked"::Output);
 
                     if "Routing No." = '' then begin
                         CalcProdOrder.BlockDynamicTracking(true);
@@ -233,7 +233,7 @@ report 99001026 "Replan Production Order"
                 Window.Update(2, "No.");
 
                 if "Production Order"."Source Type" = "Production Order"."Source Type"::Item then
-                    Item.CheckItemAndVariantForProdBlocked("Production Order"."Source No.", "Production Order"."Variant Code");
+                    Item.CheckItemAndVariantForProdBlocked("Production Order"."Source No.", "Production Order"."Variant Code", Item."Production Blocked"::Output);
 
                 if "Replan Ref. No." = '' then begin
                     "Replan Ref. No." := "No.";
