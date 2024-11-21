@@ -122,6 +122,7 @@ report 99001015 "Calculate Subcontracts"
         GLSetup: Record "General Ledger Setup";
         PurchLine: Record "Purchase Line";
         Item: Record Item;
+        ItemVariant: Record "Item Variant";
         MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
@@ -135,8 +136,8 @@ report 99001015 "Calculate Subcontracts"
         Text001: Label 'Processing Orders         #2########## ';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
-        ProductionBlockedQst: Label 'Item No. %1 is blocked for production and cannot be calculated. Do you want to continue?.', Comment = '%1 Item No.';
-        BlockedItemVariantQst: Label 'Variant %1 for item %2 is blocked for production and cannot be calculated. Do you want to continue?.', Comment = '%1 - Item Variant Code, %2 - Item No.';
+        ProductionBlockedOutputItemQst: Label 'Item %1 is blocked for production output and cannot be calculated. Do you want to continue?.', Comment = '%1 Item No.';
+        ProductionBlockedOutputItemVariantQst: Label 'Variant %1 for item %2 is blocked for production output and cannot be calculated. Do you want to continue?.', Comment = '%1 - Item Variant Code, %2 - Item No.';
 
     procedure SetWkShLine(NewReqLine: Record "Requisition Line")
     begin
@@ -286,28 +287,35 @@ report 99001015 "Calculate Subcontracts"
     end;
 
     local procedure CanCreateRequisitionLineFromProdOrderLine(ItemNo: Code[20]; VariantCode: Code[20]): Boolean
-    var
-        Item: Record Item;
-        ItemVariant: Record "Item Variant";
     begin
         if not GuiAllowed() then
             exit;
 
         if ItemNo <> '' then begin
-            Item.SetLoadFields("Production Blocked");
-            Item.Get(ItemNo);
-            if Item."Production Blocked" then begin
-                ShowProdBlockedForItemConfirmation(ItemNo);
-                exit(false);
+            if Item."No." <> ItemNo then begin
+                Item.SetLoadFields("Production Blocked");
+                Item.Get(ItemNo);
+            end;
+            case Item."Production Blocked" of
+                Item."Production Blocked"::Output:
+                    begin
+                        ShowProdBlockedForItemConfirmation(ItemNo);
+                        exit(false);
+                    end;
             end;
         end;
 
-        if VariantCode <> '' then begin
-            ItemVariant.SetLoadFields(Blocked, "Production Blocked");
-            ItemVariant.Get(ItemNo, VariantCode);
-            if ItemVariant."Production Blocked" then begin
-                ShowProdBlockedForItemVariantConfirmation(ItemNo, VariantCode);
-                exit(false);
+        if (ItemNo <> '') and (VariantCode <> '') then begin
+            if (ItemVariant."Item No." <> ItemNo) or (ItemVariant.Code <> VariantCode) then begin
+                ItemVariant.SetLoadFields("Production Blocked");
+                ItemVariant.Get(ItemNo, VariantCode);
+            end;
+            case ItemVariant."Production Blocked" of
+                ItemVariant."Production Blocked"::Output:
+                    begin
+                        ShowProdBlockedForItemVariantConfirmation(ItemNo, VariantCode);
+                        exit(false);
+                    end;
             end;
         end;
 
@@ -316,13 +324,13 @@ report 99001015 "Calculate Subcontracts"
 
     local procedure ShowProdBlockedForItemConfirmation(ItemNo: Code[20])
     begin
-        if not Confirm(StrSubstNo(ProductionBlockedQst, ItemNo)) then
+        if not Confirm(StrSubstNo(ProductionBlockedOutputItemQst, ItemNo)) then
             Error('');
     end;
 
     local procedure ShowProdBlockedForItemVariantConfirmation(ItemNo: Code[20]; VariantCode: Code[20])
     begin
-        if not Confirm(StrSubstNo(BlockedItemVariantQst, VariantCode, ItemNo)) then
+        if not Confirm(StrSubstNo(ProductionBlockedOutputItemVariantQst, VariantCode, ItemNo)) then
             Error('');
     end;
 
