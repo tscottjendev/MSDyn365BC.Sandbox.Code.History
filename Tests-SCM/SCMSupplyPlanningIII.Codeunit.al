@@ -48,8 +48,8 @@
         QuantityNotCorrectErr: Label 'Quantity is not correct in Planning Worksheet';
         VersionsWillBeClosedMsg: Label 'All versions attached to the BOM will be closed. Close BOM?';
         CannotPurchaseItemMsg: Label 'You cannot purchase Item %1 because the Purchasing Blocked check box is selected on the Item card.';
-        ProductionBlockedErr: Label 'You cannot produce %1 %2 because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption';
-        BlockedItemVariantErr: Label 'You cannot produce variant %1  for Item %2 because it is blocked for production', Comment = '%1 - Item Variant Code, %2 - Item No.';
+        ProductionBlockedOutputItemErr: Label 'You cannot produce %1 %2 because the %3 is %4 on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value';
+        ProductionBlockedOutputItemVariantErr: Label 'You cannot produce variant %1 for %2 %3 because it is blocked for production output.', Comment = '%1 - Item Variant Code, %2 - Table Caption (Item), %3 - Item No.';
 
     [Test]
     [HandlerFunctions('MessageHandler,PlanningErrorLogPageHandler')]
@@ -2944,13 +2944,13 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure CarryOutActionShouldThrowErrorIfProductionBlockedIsTrueOnItem()
+    procedure CarryOutActionShouldThrowErrorIfProductionBlockedIsOutputOnItem()
     var
         Item: Record Item;
         RequisitionLine: Record "Requisition Line";
         CarryOutAction: Codeunit "Carry Out Action";
     begin
-        // [SCENARIO 382546] Verify "Carry Out Action" should throw error if "Production Blocked" is true on "Item".
+        // [SCENARIO 382546] Verify "Carry Out Action" should throw error if "Production Blocked" is Output on "Item".
         Initialize();
 
         // [GIVEN] Create Requisition Line.
@@ -2958,25 +2958,26 @@
 
         // [GIVEN] Update "Production Blocked" on Item.
         Item.Get(RequisitionLine."No.");
-        Item.Validate("Production Blocked", true);
+        Item.Validate("Production Blocked", Item."Production Blocked"::Output);
         Item.Modify(true);
 
         // [WHEN] Call CarryOutAction.InsertProductionOrder().
         asserterror CarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned);
 
-        // [VERIFY] Verify error message If "Production Blocked" is true on Item.
-        Assert.ExpectedError(StrSubstNo(ProductionBlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked")));
+        // [VERIFY] Verify error message if "Production Blocked" is Output on Item.
+        Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked"), Item."Production Blocked"));
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure CarryOutActionShouldThrowErrorIfProductionBlockedIsTrueOnItemVariant()
+    procedure CarryOutActionShouldThrowErrorIfProductionBlockedIsOutputOnItemVariant()
     var
+        Item: Record Item;
         ItemVariant: Record "Item Variant";
         RequisitionLine: Record "Requisition Line";
         CarryOutAction: Codeunit "Carry Out Action";
     begin
-        // [SCENARIO 382546] Verify "Carry Out Action" should throw error if "Production Blocked" is true on "Item Variant".
+        // [SCENARIO 382546] Verify "Carry Out Action" should throw error if "Production Blocked" is Output on "Item Variant".
         Initialize();
 
         // [GIVEN] Create Requisition Line.
@@ -2984,14 +2985,14 @@
 
         // [GIVEN] Update "Production Blocked" on "Item Variant".
         ItemVariant.Get(RequisitionLine."No.", RequisitionLine."Variant Code");
-        ItemVariant.Validate("Production Blocked", true);
+        ItemVariant.Validate("Production Blocked", ItemVariant."Production Blocked"::Output);
         ItemVariant.Modify(true);
 
         // [WHEN] Call CarryOutAction.InsertProductionOrder().
         asserterror CarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned);
 
-        // [VERIFY] Verify error message If "Production Blocked" is true on "Item Variant".
-        Assert.ExpectedError(StrSubstNo(BlockedItemVariantErr, ItemVariant.Code, ItemVariant."Item No."));
+        // [VERIFY] Verify error message if "Production Blocked" is Output on "Item Variant".
+        Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemVariantErr, ItemVariant.Code, Item.TableCaption(), ItemVariant."Item No."));
     end;
 
     local procedure Initialize()
