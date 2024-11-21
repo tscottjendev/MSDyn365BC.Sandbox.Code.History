@@ -878,17 +878,22 @@ table 21 "Cust. Ledger Entry"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        DocumentFound: Boolean;
     begin
         case "Document Type" of
             "Document Type"::Invoice:
-                if SalesInvoiceHeader.Get("Document No.") then
+                if SalesInvoiceHeader.Get("Document No.") then begin
                     OpenDocumentAttachmentDetails(SalesInvoiceHeader);
+                    DocumentFound := true;
+                end;
             "Document Type"::"Credit Memo":
-                if SalesCrMemoHeader.Get("Document No.") then
+                if SalesCrMemoHeader.Get("Document No.") then begin
                     OpenDocumentAttachmentDetails(SalesCrMemoHeader);
+                    DocumentFound := true;
+                end;
         end;
 
-        OnAfterShowPostedDocAttachment(Rec);
+        OnAfterShowPostedDocAttachment(Rec, DocumentFound);
     end;
 
     local procedure OpenDocumentAttachmentDetails("Record": Variant)
@@ -1218,7 +1223,7 @@ table 21 "Cust. Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterShowPostedDocAttachment(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnAfterShowPostedDocAttachment(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentFound: Boolean)
     begin
     end;
 
