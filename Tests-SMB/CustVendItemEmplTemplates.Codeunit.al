@@ -640,12 +640,12 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         BindSubscription(CustVendItemEmplTemplates);
         CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
 
-        // [GIVEN] Template with "Blocked" = true, "Sales Blocked" = true, "Service Blocked" = true, "Production Blocked" = true, "Purchasing Blocked" = true
+        // [GIVEN] Template with "Blocked" = true, "Sales Blocked" = true, "Service Blocked" = true, "Production Blocked" = Output, "Purchasing Blocked" = true
         LibraryTemplates.CreateItemTemplate(ItemTempl);
         ItemTempl.Blocked := true;
         ItemTempl."Sales Blocked" := true;
         ItemTempl."Service Blocked" := true;
-        ItemTempl."Production Blocked" := true;
+        ItemTempl."Production Blocked" := ItemTempl."Production Blocked"::Output;
         ItemTempl."Purchasing Blocked" := true;
         ItemTempl.Modify(true);
 
@@ -655,12 +655,12 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         // [THEN] Item "Blocked" = true
         // [THEN] Item "Sales Blocked" = true
         // [THEN] Item "Service Blocked" = true
-        // [THEN] Item "Production Blocked" = true
+        // [THEN] Item "Production Blocked" = Output
         // [THEN] Item "Purchasing Blocked" = true
         Assert.IsTrue(Item.Blocked, InsertedItemErr);
         Assert.IsTrue(Item."Sales Blocked", InsertedItemErr);
         Assert.IsTrue(Item."Service Blocked", InsertedItemErr);
-        Assert.IsTrue(Item."Production Blocked", InsertedItemErr);
+        Assert.AreEqual(ItemTempl."Production Blocked", Item."Production Blocked", InsertedItemErr);
         Assert.IsTrue(Item."Purchasing Blocked", InsertedItemErr);
 
         LibraryVariableStorage.AssertEmpty();
