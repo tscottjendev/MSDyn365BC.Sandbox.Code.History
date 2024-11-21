@@ -5101,14 +5101,14 @@ codeunit 22 "Item Jnl.-Post Line"
         OnAfterCheckItemAndVariant(ItemJnlLine, CalledFromAdjustment);
     end;
 
-    local procedure CheckItemAndItemVariantProductionBlocked(ItemJnlLine: Record "Item Journal Line")
+    local procedure CheckItemAndItemVariantProductionBlocked(ItemJournalLine: Record "Item Journal Line")
     var
         OutputItem: Record Item;
     begin
-        if ItemJnlLine."Entry Type" <> ItemJnlLine."Entry Type"::Output then
-            exit;
-
-        OutputItem.CheckItemAndVariantForProdBlocked(ItemJnlLine."Item No.", ItemJnlLine."Variant Code");
+        case ItemJournalLine."Entry Type" of
+            ItemJournalLine."Entry Type"::Output:
+                OutputItem.CheckItemAndVariantForProdBlocked(ItemJournalLine."Item No.", ItemJournalLine."Variant Code", OutputItem."Production Blocked"::Output);
+        end;
     end;
 
     /// <summary>
