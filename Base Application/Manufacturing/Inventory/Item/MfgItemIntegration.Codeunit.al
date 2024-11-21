@@ -276,10 +276,13 @@ codeunit 99000795 "Mfg. Item Integration"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Location, 'OnAfterDeleteEvent', '', false, false)]
-    local procedure OnAfterOnDelete(var Rec: Record Location)
+    local procedure OnAfterOnDelete(var Rec: Record Location; RunTrigger: Boolean)
     var
         WorkCenter: Record "Work Center";
     begin
+        if Rec.IsTemporary() or (not RunTrigger) then
+            exit;
+
         WorkCenter.SetRange("Location Code", Rec.Code);
         if WorkCenter.FindSet(true) then
             repeat
