@@ -193,10 +193,13 @@ codeunit 6450 "Serv. Integration Mgt."
     // Table Sales Shipment Line
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Shipment Line", 'OnAfterDeleteEvent', '', false, false)]
-    local procedure SalesShipmentLineOnAfterDelete(Rec: Record "Sales Shipment Line")
+    local procedure SalesShipmentLineOnAfterDelete(Rec: Record "Sales Shipment Line"; RunTrigger: Boolean)
     var
         ServiceItem: Record "Service Item";
     begin
+        if Rec.IsTemporary() or (not RunTrigger) then
+            exit;
+
         ServiceItem.Reset();
         ServiceItem.SetCurrentKey("Sales/Serv. Shpt. Document No.", "Sales/Serv. Shpt. Line No.");
         ServiceItem.SetRange("Sales/Serv. Shpt. Document No.", Rec."Document No.");
@@ -229,12 +232,15 @@ codeunit 6450 "Serv. Integration Mgt."
     // Table Resource
 
     [EventSubscriber(ObjectType::Table, Database::Resource, 'OnAfterDeleteEvent', '', false, false)]
-    local procedure ResourceOnAfterDelete(var Rec: Record Resource)
+    local procedure ResourceOnAfterDelete(var Rec: Record Resource; RunTrigger: Boolean)
     var
         ResourceSkill: Record "Resource Skill";
         ResourceLocation: Record "Resource Location";
         ResourceServiceZone: Record "Resource Service Zone";
     begin
+        if Rec.IsTemporary() or (not RunTrigger) then
+            exit;
+
         ResourceSkill.Reset();
         ResourceSkill.SetRange(Type, "Resource Skill Type"::Resource);
         ResourceSkill.SetRange("No.", Rec."No.");
