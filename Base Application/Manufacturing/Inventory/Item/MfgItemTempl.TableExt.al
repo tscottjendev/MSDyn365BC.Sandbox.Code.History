@@ -25,11 +25,11 @@ tableextension 99000757 "Mfg. Item Templ." extends "Item Templ."
                 ValidateItemField(FieldNo("Flushing Method"));
             end;
         }
-        field(8011; "Production Blocked"; Boolean)
+        field(8011; "Production Blocked"; Enum "Item Production Blocked")
         {
             Caption = 'Production Blocked';
             DataClassification = CustomerContent;
-            ToolTip = 'Specifies that the item cannot be entered on production documents, except requisition worksheet, planning worksheet and journals.';
+            ToolTip = 'Specifies which transactions with the item cannot be processed on production documents, except requisition worksheet, planning worksheet and journals.';
 
             trigger OnValidate()
             begin
