@@ -8,11 +8,11 @@ tableextension 99000753 "Mfg. Item Variant" extends "Item Variant"
 {
     fields
     {
-        field(8020; "Production Blocked"; Boolean)
+        field(8020; "Production Blocked"; Enum "Item Production Blocked")
         {
             Caption = 'Production Blocked';
             DataClassification = CustomerContent;
-            ToolTip = 'Specifies that the item variant cannot be entered on production documents, except requisition worksheet, planning worksheet and journals.';
+            ToolTip = 'Specifies which transactions with the item variant cannot be processed on production documents, except requisition worksheet, planning worksheet and journals.';
         }
     }
 }
