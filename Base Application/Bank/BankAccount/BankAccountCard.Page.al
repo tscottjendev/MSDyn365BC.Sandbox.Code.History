@@ -253,10 +253,15 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the bank where you have the bank account.';
                 }
-                field(County; Rec.County)
+                group(CountyGroup)
                 {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the county of the bank where you have the bank account.';
+                    ShowCaption = false;
+                    Visible = IsCountyVisible;
+                    field(County; Rec.County)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the state, province or county as a part of the address.';
+                    }
                 }
                 field("Post Code"; Rec."Post Code")
                 {
@@ -280,6 +285,7 @@ page 370 "Bank Account Card"
                     trigger OnValidate()
                     begin
                         HandleAddressLookupVisibility();
+			IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
                     end;
                 }
                 field("Phone No."; Rec."Phone No.")
@@ -917,6 +923,7 @@ page 370 "Bank Account Card"
     begin
         Rec.GetOnlineFeedStatementStatus(OnlineFeedStatementStatus, Linked);
         Rec.CalcFields("Check Report Name");
+        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
     end;
 
     trigger OnOpenPage()
@@ -929,6 +936,7 @@ page 370 "Bank Account Card"
     end;
 
     var
+        FormatAddress: Codeunit "Format Address";
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text001: Label 'There may be a statement using the %1.\\Do you want to change Balance Last Statement?';
@@ -938,6 +946,7 @@ page 370 "Bank Account Card"
         ContactActionVisible: Boolean;
         Linked: Boolean;
         OnlineBankAccountLinkingErr: Label 'You must link the bank account to an online bank account.\\Choose the Link to Online Bank Account action.';
+        IsCountyVisible: Boolean;
         ShowBankLinkingActions: Boolean;
         IsAddressLookupTextEnabled: Boolean;
         NoFieldVisible: Boolean;
