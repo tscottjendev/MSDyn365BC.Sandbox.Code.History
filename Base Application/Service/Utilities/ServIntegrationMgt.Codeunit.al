@@ -117,20 +117,21 @@ codeunit 6450 "Serv. Integration Mgt."
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterShowPostedDocAttachment', '', false, false)]
-    local procedure CustLedgerEntryOnAfterShowPostedDocAttachment(CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure CustLedgerEntryOnAfterShowPostedDocAttachment(CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentFound: Boolean)
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
+        if DocumentFound then
+            exit;
+
         case CustLedgerEntry."Document Type" of
             CustLedgerEntry."Document Type"::Invoice:
-                if ServiceInvoiceHeader.ReadPermission() then
-                    if ServiceInvoiceHeader.Get(CustLedgerEntry."Document No.") then
-                        OpenDocumentAttachmentDetails(ServiceInvoiceHeader);
+                if ServiceInvoiceHeader.Get(CustLedgerEntry."Document No.") then
+                    OpenDocumentAttachmentDetails(ServiceInvoiceHeader);
             CustLedgerEntry."Document Type"::"Credit Memo":
-                if ServiceCrMemoHeader.ReadPermission() then
-                    if ServiceCrMemoHeader.Get(CustLedgerEntry."Document No.") then
-                        OpenDocumentAttachmentDetails(ServiceCrMemoHeader);
+                if ServiceCrMemoHeader.Get(CustLedgerEntry."Document No.") then
+                    OpenDocumentAttachmentDetails(ServiceCrMemoHeader);
         end;
     end;
 
