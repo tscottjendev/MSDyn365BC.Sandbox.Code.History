@@ -7,6 +7,7 @@ namespace Microsoft.Inventory.Costing;
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.History;
 
+
 tableextension 990 "Asm. Inventory Adjmt. Entry" extends "Inventory Adjmt. Entry (Order)"
 {
     procedure SetAsmOrder(AssemblyHeader: Record "Assembly Header")
@@ -19,6 +20,7 @@ tableextension 990 "Asm. Inventory Adjmt. Entry" extends "Inventory Adjmt. Entry
         SetAssemblyDoc(PostedAssemblyHeader."Order No.", PostedAssemblyHeader."Item No.");
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Inventory Adjmt. Entry (Order)", 'I')]
     local procedure SetAssemblyDoc(OrderNo: Code[20]; ItemNo: Code[20])
     begin
         Init();
