@@ -68,7 +68,7 @@
         QuantityErr: Label '%1 must be %2 in %3', Comment = '%1: Quantity, %2: Consumption Quantity Value, %3: Item Ledger Entry';
         ILENoOfRecordsMustNotBeZeroErr: Label 'Item Ledger Entry No. of Records must not be zero.';
         ItemLedgerEntryMustBeFoundErr: Label 'Item Ledger Entry must be found.';
-        ProductionBlockedErr: Label 'You cannot produce %1 %2 because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption';
+        ProductionBlockedOutputItemErr: Label 'You cannot produce %1 %2 because the %3 is %4 on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value';
 
     [Test]
     [Scope('OnPrem')]
@@ -5135,7 +5135,7 @@
 
     [Test]
     [HandlerFunctions('MessageHandler,CalculatePlanPlanWkshRequestPageHandler')]
-    procedure CarryOutActionMessageShouldThrowErrorIfProductionBlockedIsTrueOnItem()
+    procedure CarryOutActionMessageShouldThrowErrorIfProductionBlockedIsOutputOnItem()
     var
         LocationBlue: Record Location;
         ManufacturingSetup: Record "Manufacturing Setup";
@@ -5148,7 +5148,7 @@
         RequisitionLine: Record "Requisition Line";
         PlanningWorksheet: TestPage "Planning Worksheet";
     begin
-        // [SCENARIO 382546] Verify "Carry Out Action Message - Plan" should throw error If "Production Blocked" is true on Item.
+        // [SCENARIO 382546] Verify "Carry Out Action Message - Plan" should throw error if "Production Blocked" is Output on Item.
         Initialize();
 
         // [GIVEN] Create Blue and Red Location
@@ -5217,16 +5217,16 @@
         AcceptActionMessage(RequisitionLine, Level1Item."No.");
 
         // [GIVEN] Update "Production Blocked" on Item.
-        Level0Item.Validate("Production Blocked", true);
+        Level0Item.Validate("Production Blocked", Level0Item."Production Blocked"::Output);
         Level0Item.Modify(true);
 
         // [GIVEN] Save Expected Error Message.
-        LibraryVariableStorage.Enqueue(StrSubstNo(ProductionBlockedErr, Level0Item.TableCaption(), Level0Item."No.", Level0Item.FieldCaption("Production Blocked")));
+        LibraryVariableStorage.Enqueue(StrSubstNo(ProductionBlockedOutputItemErr, Level0Item.TableCaption(), Level0Item."No.", Level0Item.FieldCaption("Production Blocked"), Level0Item."Production Blocked"));
 
         // [WHEN] Run Carry Out Action Message - Plan.
         RunRequisitionCarryOutReportProdOrder(RequisitionLine);
 
-        // [VERIFY] Verify error message through MessageHandler If "Production Blocked" is true on Item.
+        // [VERIFY] Verify error message through MessageHandler if "Production Blocked" is Output on Item.
     end;
 
     local procedure Initialize()

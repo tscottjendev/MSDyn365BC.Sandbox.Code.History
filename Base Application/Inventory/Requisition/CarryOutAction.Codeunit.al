@@ -606,7 +606,7 @@ codeunit 99000813 "Carry Out Action"
 
             OnInsertProdOrderOnBeforeProdOrderInit(RequisitionLine);
 
-            Item.CheckItemAndVariantForProdBlocked(RequisitionLine."No.", RequisitionLine."Variant Code");
+            Item.CheckItemAndVariantForProdBlocked(RequisitionLine."No.", RequisitionLine."Variant Code", Item."Production Blocked"::Output);
             ProductionOrder.Init();
             if ProdOrderChoice = ProdOrderChoice::"Firm Planned & Print" then
                 ProductionOrder.Status := ProductionOrder.Status::"Firm Planned"
@@ -661,7 +661,7 @@ codeunit 99000813 "Carry Out Action"
         ProdOrderLine: Record "Prod. Order Line";
         NextLineNo: Integer;
     begin
-        Item.CheckItemAndVariantForProdBlocked(RequisitionLine."No.", RequisitionLine."Variant Code");
+        Item.CheckItemAndVariantForProdBlocked(RequisitionLine."No.", RequisitionLine."Variant Code", Item."Production Blocked"::Output);
 
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
