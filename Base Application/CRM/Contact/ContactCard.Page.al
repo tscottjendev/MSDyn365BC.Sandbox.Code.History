@@ -344,7 +344,6 @@ page 5050 "Contact Card"
 
                         trigger OnValidate()
                         begin
-                            IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
                             HandleAddressLookupVisibility();
                         end;
                     }
@@ -367,15 +366,10 @@ page 5050 "Contact Card"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the city where the contact is located.';
                     }
-                    group(CountyGroup)
+                    field(County; Rec.County)
                     {
-                        ShowCaption = false;
-                        Visible = IsCountyVisible;
-                        field(County; Rec.County)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            ToolTip = 'Specifies the state, province or county as a part of the address.';
-                        }
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the county for the contact.';
                     }
                     field(ShowMap; ShowMapLbl)
                     {
@@ -1471,11 +1465,6 @@ page 5050 "Contact Card"
         }
     }
 
-    trigger OnAfterGetRecord()
-    begin
-        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
-    end;
-
     trigger OnAfterGetCurrRecord()
     var
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
@@ -1544,7 +1533,6 @@ page 5050 "Contact Card"
 
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        FormatAddress: Codeunit "Format Address";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         CompanyDetails: Page "Company Details";
         NameDetails: Page "Name Details";
@@ -1562,7 +1550,6 @@ page 5050 "Contact Card"
         ShowMapLbl: Label 'Show Map';
         IsAddressLookupTextEnabled: Boolean;
         LookupAddressLbl: Label 'Lookup address from postcode';
-        IsCountyVisible: Boolean;
         NoFieldVisible: Boolean;
         RegistrationNumberEnabled: Boolean;
 

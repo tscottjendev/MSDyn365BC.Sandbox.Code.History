@@ -92,15 +92,10 @@ page 5703 "Location Card"
                         ApplicationArea = Location;
                         ToolTip = 'Specifies the city of the location.';
                     }
-                    group(CountyGroup)
+                    field(County; Rec.County)
                     {
-                        ShowCaption = false;
-                        Visible = IsCountyVisible;
-                        field(County; Rec.County)
-                        {
-                            ApplicationArea = Location;
-                            ToolTip = 'Specifies the state, province or county as a part of the address.';
-                        }
+                        ApplicationArea = Location;
+                        ToolTip = 'Specifies the county of the location.';
                     }
                     field("Post Code"; Rec."Post Code")
                     {
@@ -124,7 +119,6 @@ page 5703 "Location Card"
                         trigger OnValidate()
                         begin
                             HandleAddressLookupVisibility();
-			    IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
                         end;
                     }
                     field(ShowMap; ShowMapLbl)
@@ -671,7 +665,6 @@ page 5703 "Location Card"
     begin
         UpdateEnabled();
         TransitValidation();
-        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
     end;
 
     trigger OnInit()
@@ -723,9 +716,7 @@ page 5703 "Location Card"
 
     var
         CalendarManagement: Codeunit "Calendar Management";
-        FormatAddress: Codeunit "Format Address";
         EditInTransit: Boolean;
-        IsCountyVisible: Boolean;
         ShowMapLbl: Label 'Show on Map';
         LookupAddressLbl: Label 'Lookup address from postcode';
         IsAddressLookupTextEnabled: Boolean;

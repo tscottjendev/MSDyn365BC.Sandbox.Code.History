@@ -64,15 +64,10 @@ page 423 "Customer Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the bank where the customer has the bank account.';
                 }
-                group(CountyGroup)
+                field(County; Rec.County)
                 {
-                    ShowCaption = false;
-                    Visible = IsCountyVisible;
-                    field(County; Rec.County)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the state, province or county as a part of the address.';
-                    }
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the county of the bank where the customer has the bank account. ';
                 }
                 field("Country/Region Code"; Rec."Country/Region Code")
                 {
@@ -82,7 +77,6 @@ page 423 "Customer Bank Account Card"
                     trigger OnValidate()
                     begin
                         HandleAddressLookupVisibility();
-			IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
                     end;
                 }
                 field("Phone No."; Rec."Phone No.")
@@ -269,14 +263,5 @@ page 423 "Customer Bank Account Card"
         else
             IsAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode(Rec."Country/Region Code");
     end;
-
-    trigger OnAfterGetRecord()
-    begin
-        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
-    end;
-
-    var
-        FormatAddress: Codeunit "Format Address";
-        IsCountyVisible: Boolean;
 }
 
