@@ -19,7 +19,6 @@ using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Sales.Posting;
 using Microsoft.Sales.Pricing;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Upgrade;
@@ -370,15 +369,6 @@ table 311 "Sales & Receivables Setup"
                     UpdateNameInLedgerEntries.NotifyAboutBlankNamesInLedgerEntries(RecordId);
             end;
         }
-#if not CLEANSCHEMA23
-        field(60; "Batch Archiving Quotes"; Boolean)
-        {
-            Caption = 'Batch Archiving Quotes';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'The field is part of the removed functionality.';
-        }
-#endif
         field(61; "Ignore Updated Addresses"; Boolean)
         {
             Caption = 'Ignore Updated Addresses';
@@ -485,15 +475,6 @@ table 311 "Sales & Receivables Setup"
             DataClassification = CustomerContent;
             TableRelation = "No. Series";
         }
-#if not CLEANSCHEMA23
-        field(810; "Invoice Posting Setup"; Enum "Sales Invoice Posting")
-        {
-            Caption = 'Invoice Posting Setup';
-            ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(5329; "Write-in Product Type"; Option)
         {
             Caption = 'Write-in Product Type';
