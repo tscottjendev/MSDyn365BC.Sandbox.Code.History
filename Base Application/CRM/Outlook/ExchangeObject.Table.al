@@ -73,16 +73,6 @@ table 1602 "Exchange Object"
             OptionCaption = 'InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow,InitiateSendToAttachments';
             OptionMembers = InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow,InitiateSendToAttachments;
         }
-#if not CLEANSCHEMA23
-        field(14; VendorNo; Code[50])
-        {
-            Caption = 'VendorNo';
-            Description = 'Vendor Number of the current Vendor';
-            ObsoleteReason = 'Use the field RecId instead';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(15; IsInline; Boolean)
         {
             Caption = 'IsInline';
@@ -158,4 +148,3 @@ table 1602 "Exchange Object"
         CopyStream(OutStream, NewContent);
     end;
 }
-
