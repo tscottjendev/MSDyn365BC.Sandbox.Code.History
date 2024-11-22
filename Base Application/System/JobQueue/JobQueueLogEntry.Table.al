@@ -67,16 +67,6 @@ table 474 "Job Queue Log Entry"
         {
             Caption = 'Error Message';
         }
-#if not CLEANSCHEMA23
-        field(16; "Processed by User ID"; Text[65])
-        {
-            Caption = 'Processed by User ID';
-            DataClassification = EndUserIdentifiableInformation;
-            ObsoleteTag = '23.0';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The Processed by User ID is the same as User ID';
-        }
-#endif   
         field(17; "Job Queue Category Code"; Code[10])
         {
             Caption = 'Job Queue Category Code';
@@ -257,4 +247,3 @@ table 474 "Job Queue Log Entry"
         exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 }
-
