@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.History;
+namespace Microsoft.Sales.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -486,16 +486,6 @@ table 6660 "Return Receipt Header"
             MaxValue = 100;
             MinValue = 0;
         }
-#if not CLEANSCHEMA23
-        field(180; "Rcvd-from Country/Region Code"; Code[10])
-        {
-            Caption = 'Received-from Country/Region Code';
-            TableRelation = "Country/Region";
-            ObsoleteReason = 'Use new field on range 181';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(181; "Rcvd.-from Count./Region Code"; Code[10])
         {
             Caption = 'Received-from Country/Region Code';
@@ -782,4 +772,3 @@ table 6660 "Return Receipt Header"
     begin
     end;
 }
-
