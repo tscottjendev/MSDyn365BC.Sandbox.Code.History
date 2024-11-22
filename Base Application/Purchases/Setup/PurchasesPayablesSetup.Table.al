@@ -1,4 +1,4 @@
-namespace Microsoft.Purchases.Setup;
+﻿namespace Microsoft.Purchases.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -10,7 +10,6 @@ using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
-using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.Pricing;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Warehouse.Structure;
@@ -359,15 +358,6 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Copy Line Descr. to G/L Entry';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA23
-        field(810; "Invoice Posting Setup"; Enum "Purchase Invoice Posting")
-        {
-            Caption = 'Invoice Posting Setup';
-            ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(1217; "Debit Acc. for Non-Item Lines"; Code[20])
         {
             Caption = 'Debit Acc. for Non-Item Lines';
