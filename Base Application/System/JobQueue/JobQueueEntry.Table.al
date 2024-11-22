@@ -475,17 +475,6 @@ table 472 "Job Queue Entry"
             Caption = 'Job Timeout';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA23
-        field(55; "Recovery Task Id"; Guid)
-        {
-            Caption = 'Recovery Task Id';
-            Editable = false;
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'The recovery job is no longer needed.';
-        }
-#endif
         field(56; "Entry No."; BigInteger)
         {
             Caption = 'Entry No.';
