@@ -17,7 +17,7 @@ using Microsoft.Manufacturing.Capacity;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Purchases.Setup;
 
-codeunit 99000700 "Mfg. Item Journal Mgt."
+codeunit 99000801 "Mfg. Item Journal Mgt."
 {
     var
 #pragma warning disable AA0470
