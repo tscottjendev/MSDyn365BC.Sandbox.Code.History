@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -198,30 +198,6 @@ table 5330 "CRM Connection Setup"
                 CRMIntegrationManagement.SetCRMNAVConnectionUrl("Dynamics NAV URL");
             end;
         }
-#if not CLEANSCHEMA23
-        field(70; "Dynamics NAV OData URL"; Text[250])
-        {
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
-            Caption = 'Dynamics NAV OData URL';
-        }
-        field(71; "Dynamics NAV OData Username"; Text[250])
-        {
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
-            Caption = 'Dynamics NAV OData Username';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(72; "Dynamics NAV OData Accesskey"; Text[250])
-        {
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
-            Caption = 'Dynamics NAV OData Accesskey';
-        }
-#endif
         field(75; "Default CRM Price List ID"; Guid)
         {
             Caption = 'Default CRM Price List ID';
