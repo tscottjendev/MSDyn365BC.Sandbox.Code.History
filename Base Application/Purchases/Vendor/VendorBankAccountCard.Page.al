@@ -1,6 +1,5 @@
 namespace Microsoft.Purchases.Vendor;
 
-using Microsoft.Foundation.Address;
 using System.Telemetry;
 
 page 425 "Vendor Bank Account Card"
@@ -46,25 +45,15 @@ page 425 "Vendor Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the bank where the vendor has the bank account.';
                 }
-                group(CountyGroup)
+                field(County; Rec.County)
                 {
-                    ShowCaption = false;
-                    Visible = IsCountyVisible;
-                    field(County; Rec.County)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the state, province or county as a part of the address.';
-                    }
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the county of the address.';
                 }
                 field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
-
-                    trigger OnValidate()
-                    begin
-                        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
-                    end;
                 }
                 field("Phone No."; Rec."Phone No.")
                 {
@@ -193,16 +182,9 @@ page 425 "Vendor Bank Account Card"
         CurrPage.Update();
     end;
 
-    trigger OnAfterGetRecord()
-    begin
-        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
-    end;
 
     var
-        FormatAddress: Codeunit "Format Address";
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        IsCountyVisible: Boolean;
         ESElecPaymentsTok: Label 'ES Electronic Payments', Locked = true;
-
 }
 

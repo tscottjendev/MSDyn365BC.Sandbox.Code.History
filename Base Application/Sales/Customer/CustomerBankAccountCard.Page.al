@@ -1,7 +1,6 @@
 namespace Microsoft.Sales.Customer;
 
 using Microsoft.Bank.DirectDebit;
-using Microsoft.Foundation.Address;
 
 page 423 "Customer Bank Account Card"
 {
@@ -46,25 +45,15 @@ page 423 "Customer Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the bank where the customer has the bank account.';
                 }
-                group(CountyGroup)
+                field(County; Rec.County)
                 {
-                    ShowCaption = false;
-                    Visible = IsCountyVisible;
-                    field(County; Rec.County)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the state, province or county as a part of the address.';
-                    }
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the county of the address.';
                 }
                 field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
-
-                    trigger OnValidate()
-                    begin
-                        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
-                    end;
                 }
                 field("Phone No."; Rec."Phone No.")
                 {
@@ -210,14 +199,5 @@ page 423 "Customer Bank Account Card"
             }
         }
     }
-
-    trigger OnAfterGetRecord()
-    begin
-        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
-    end;
-
-    var
-        FormatAddress: Codeunit "Format Address";
-        IsCountyVisible: Boolean;
 }
 
