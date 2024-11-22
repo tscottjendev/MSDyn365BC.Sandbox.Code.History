@@ -13,7 +13,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
-using Microsoft.Bank.Deposit;
 
 table 9054 "Finance Cue"
 {
@@ -264,17 +263,6 @@ table 9054 "Finance Cue"
             Caption = 'Bank Acc. Reconciliations';
             FieldClass = FlowField;
         }
-#if not CLEANSCHEMA23
-        field(10140; "Deposits to Post"; Integer)
-        {
-            CalcFormula = count("Deposit Header" where("Total Deposit Lines" = filter(<> 0)));
-            Caption = 'Deposits to Post';
-            FieldClass = FlowField;
-            ObsoleteReason = 'Replaced by new Bank Deposits extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys
@@ -296,4 +284,3 @@ table 9054 "Finance Cue"
         exit(ActivitiesCue.GetAmountFormat());
     end;
 }
-

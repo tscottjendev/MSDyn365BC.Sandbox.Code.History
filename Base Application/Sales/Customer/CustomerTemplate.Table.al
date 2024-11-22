@@ -1,4 +1,4 @@
-#if not CLEANSCHEMA23 
+#if not CLEANSCHEMA26
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -158,14 +158,7 @@ table 5105 "Customer Template"
             Clustered = true;
         }
     }
-
-    fieldgroups
-    {
-        fieldgroup(DropDown; "Code", Description, "Country/Region Code", "Customer Posting Group")
-        {
-        }
-    }
 }
 
- 
+
 #endif
