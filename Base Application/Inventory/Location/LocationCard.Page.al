@@ -5,6 +5,7 @@
 namespace Microsoft.Inventory.Location;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Transfer;
@@ -92,11 +93,16 @@ page 5703 "Location Card"
                         ApplicationArea = Location;
                         ToolTip = 'Specifies the city of the location.';
                     }
-                    field(County; Rec.County)
+                    group(CountyGroup)
                     {
-                        ApplicationArea = Location;
-                        Caption = 'State / ZIP Code';
-                        ToolTip = 'Specifies the state or postal code for the location.';
+                        ShowCaption = false;
+                        Visible = IsCountyVisible;
+                        field(County; Rec.County)
+                        {
+                            ApplicationArea = Location;
+                            Caption = 'State / ZIP Code';
+                            ToolTip = 'Specifies the state, province or county as a part of the address.';
+                        }
                     }
                     field("Post Code"; Rec."Post Code")
                     {
@@ -107,6 +113,11 @@ page 5703 "Location Card"
                     {
                         ApplicationArea = Location;
                         ToolTip = 'Specifies the country/region of the address.';
+
+                        trigger OnValidate()
+                        begin
+                            IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+                        end;
                     }
                     field(ShowMap; ShowMapLbl)
                     {
@@ -658,6 +669,7 @@ page 5703 "Location Card"
     begin
         UpdateEnabled();
         TransitValidation();
+        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
     end;
 
     trigger OnInit()
@@ -709,7 +721,9 @@ page 5703 "Location Card"
 
     var
         CalendarManagement: Codeunit "Calendar Management";
+        FormatAddress: Codeunit "Format Address";
         EditInTransit: Boolean;
+        IsCountyVisible: Boolean;
         ShowMapLbl: Label 'Show on Map';
 
     protected var
