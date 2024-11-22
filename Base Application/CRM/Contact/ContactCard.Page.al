@@ -17,7 +17,6 @@ using Microsoft.CRM.Segment;
 using Microsoft.CRM.Setup;
 using Microsoft.CRM.Task;
 using Microsoft.Finance.VAT.Registration;
-using Microsoft.Foundation.Address;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -318,10 +317,6 @@ page 5050 "Contact Card"
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the country/region of the address.';
-                        trigger OnValidate()
-                        begin
-                            IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
-                        end;
                     }
                     field("Post Code"; Rec."Post Code")
                     {
@@ -333,16 +328,6 @@ page 5050 "Contact Card"
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the city where the contact is located.';
-                    }
-                    group(CountyGroup)
-                    {
-                        ShowCaption = false;
-                        Visible = IsCountyVisible;
-                        field(County; Rec.County)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            ToolTip = 'Specifies the state, province or county as a part of the address.';
-                        }
                     }
                     field(ShowMap; ShowMapLbl)
                     {
@@ -1438,11 +1423,6 @@ page 5050 "Contact Card"
         }
     }
 
-    trigger OnAfterGetRecord()
-    begin
-        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
-    end;
-
     trigger OnAfterGetCurrRecord()
     var
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
@@ -1509,7 +1489,6 @@ page 5050 "Contact Card"
 
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        FormatAddress: Codeunit "Format Address";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         CompanyDetails: Page "Company Details";
         NameDetails: Page "Name Details";
@@ -1525,7 +1504,6 @@ page 5050 "Contact Card"
         RelatedBankEnabled: Boolean;
         RelatedEmployeeEnabled: Boolean;
         ShowMapLbl: Label 'Show Map';
-        IsCountyVisible: Boolean;
         NoFieldVisible: Boolean;
         RegistrationNumberEnabled: Boolean;
 
