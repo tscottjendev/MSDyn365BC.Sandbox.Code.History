@@ -697,24 +697,6 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Promised Pay Date';
             DataClassification = CustomerContent;
         }
-#if not CLEANSCHEMA23
-        field(11300; "Journal Template Name"; Code[10])
-        {
-            Caption = 'Template Name (obsolete)';
-            TableRelation = "Gen. Journal Template";
-            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11306; "Org. Pmt. Disc. Possible (LCY)"; Decimal)
-        {
-            Caption = 'Org. Pmt. Disc. Possible (LCY)';
-            Editable = false;
-            ObsoleteReason = 'Replaced by W1 field Orig. Pmt. Disc. Possible(LCY)';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys
@@ -1272,4 +1254,3 @@ table 21 "Cust. Ledger Entry"
     begin
     end;
 }
-

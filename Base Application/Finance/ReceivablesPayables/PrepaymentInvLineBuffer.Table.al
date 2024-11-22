@@ -1,4 +1,4 @@
-namespace Microsoft.Finance.ReceivablesPayables;
+﻿namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -200,16 +200,6 @@ table 461 "Prepayment Inv. Line Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Job Task";
         }
-#if not CLEANSCHEMA23
-        field(11300; "Original Pmt. Disc. Possible"; Decimal)
-        {
-            Caption = 'Original Pmt. Disc. Possible';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys

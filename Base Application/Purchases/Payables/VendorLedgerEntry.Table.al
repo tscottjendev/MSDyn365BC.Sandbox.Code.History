@@ -643,24 +643,6 @@ table 25 "Vendor Ledger Entry"
             Caption = 'Remit-to Code';
             TableRelation = "Remit Address".Code where("Vendor No." = field("Vendor No."));
         }
-#if not CLEANSCHEMA23
-        field(11300; "Journal Template Name"; Code[10])
-        {
-            Caption = 'Template Name (obsolete)';
-            TableRelation = "Gen. Journal Template";
-            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11306; "Org. Pmt. Disc. Possible (LCY)"; Decimal)
-        {
-            Caption = 'Org. Pmt. Disc. Possible (LCY)';
-            Editable = false;
-            ObsoleteReason = 'Orig. Pmt. Disc. Possible(LCY)';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys
@@ -1192,4 +1174,3 @@ table 25 "Vendor Ledger Entry"
     begin
     end;
 }
-

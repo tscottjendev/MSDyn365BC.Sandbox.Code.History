@@ -323,22 +323,6 @@ table 80 "Gen. Journal Template"
         {
             Caption = 'Unlink Incoming Documents On Posting';
         }
-#if not CLEANSCHEMA23
-        field(11300; "Allow Posting From"; Date)
-        {
-            Caption = 'Allow Posting From (Obsoleted)';
-            ObsoleteReason = 'Replaced by W1 field Allow Posting Date From';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11301; "Allow Posting To"; Date)
-        {
-            Caption = 'Allow Posting To (Obsoleted)';
-            ObsoleteReason = 'Replaced by W1 field Allow Posting Date To';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys
@@ -414,4 +398,3 @@ table 80 "Gen. Journal Template"
     begin
     end;
 }
-

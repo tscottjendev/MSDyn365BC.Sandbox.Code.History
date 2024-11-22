@@ -1,4 +1,4 @@
-namespace Microsoft.Purchases.Setup;
+﻿namespace Microsoft.Purchases.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -10,7 +10,6 @@ using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
-using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.Pricing;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Warehouse.Structure;
@@ -359,15 +358,6 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Copy Line Descr. to G/L Entry';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA23
-        field(810; "Invoice Posting Setup"; Enum "Purchase Invoice Posting")
-        {
-            Caption = 'Invoice Posting Setup';
-            ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(1217; "Debit Acc. for Non-Item Lines"; Code[20])
         {
             Caption = 'Debit Acc. for Non-Item Lines';
@@ -464,56 +454,6 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA23
-        field(11310; "Journal Templ. Purch. Invoice"; Code[10])
-        {
-            Caption = 'Journal Templ. Purch. Invoice';
-            TableRelation = "Gen. Journal Template" where(Type = filter(Purchases));
-            ObsoleteReason = 'Replaced by W1 field P. Invoice Template Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11311; "Journal Templ. Purch. Cr. Memo"; Code[10])
-        {
-            Caption = 'Journal Templ. Purch. Cr. Memo';
-            TableRelation = "Gen. Journal Template" where(Type = filter(Purchases));
-            ObsoleteReason = 'Replaced by W1 field P. Cr. Memo Template Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11320; "Jnl. Templ. Prep. P. Inv."; Code[10])
-        {
-            Caption = 'Jnl. Templ. Prep. P. Inv.';
-            TableRelation = "Gen. Journal Template" where(Type = filter(Purchases));
-            ObsoleteReason = 'Replaced by W1 field P. Prep. Inv. Template Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11321; "Jnl. Templ. Prep. P. Cr. Memo"; Code[10])
-        {
-            Caption = 'Jnl. Templ. Prep. P. Cr. Memo';
-            TableRelation = "Gen. Journal Template" where(Type = filter(Purchases));
-            ObsoleteReason = 'Replaced by W1 field P. Prep. Cr.Memo Template Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11322; "IC Jnl. Templ. Purch. Invoice"; Code[10])
-        {
-            Caption = 'IC Jnl. Templ. Purch. Invoice';
-            TableRelation = "Gen. Journal Template" where(Type = filter(Intercompany));
-            ObsoleteReason = 'Replaced by W1 field IC Purch. Invoice Templ. Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11323; "IC Jnl. Templ. Purch. Cr. Memo"; Code[10])
-        {
-            Caption = 'IC Jnl. Templ. Purch. Cr. Memo';
-            TableRelation = "Gen. Journal Template" where(Type = filter(Intercompany));
-            ObsoleteReason = 'Replaced by W1 field IC Purch. Cr. Memo Templ. Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys

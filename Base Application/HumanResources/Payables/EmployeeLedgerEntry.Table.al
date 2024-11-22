@@ -450,15 +450,6 @@ table 5222 "Employee Ledger Entry"
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(8)));
         }
-#if not CLEANSCHEMA23
-        field(11300; "Journal Template Name"; Code[10])
-        {
-            Caption = 'Template Name (obsolete)';
-            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys
@@ -604,4 +595,3 @@ table 5222 "Employee Ledger Entry"
     begin
     end;
 }
-

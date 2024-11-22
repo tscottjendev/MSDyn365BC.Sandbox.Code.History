@@ -3590,15 +3590,6 @@ table 39 "Purchase Line"
                 UpdateDeferralAmounts();
             end;
         }
-#if not CLEANSCHEMA23
-        field(11306; "Prepmt. Pmt. Disc. Amount"; Decimal)
-        {
-            Caption = 'Prepmt. Pmt. Disc. Amount';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';

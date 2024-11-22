@@ -1,6 +1,5 @@
 namespace Microsoft.Finance.GeneralLedger.Ledger;
 
-using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Utilities;
@@ -76,16 +75,6 @@ table 45 "G/L Register"
         {
             Caption = 'Journal Template Name';
         }
-#if not CLEANSCHEMA23
-        field(11300; "Journal Template Name"; Code[10])
-        {
-            Caption = 'Template Name (obsolete)';
-            TableRelation = "Gen. Journal Template";
-            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys
@@ -156,4 +145,3 @@ table 45 "G/L Register"
     begin
     end;
 }
-

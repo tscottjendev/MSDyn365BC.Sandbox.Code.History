@@ -3014,22 +3014,6 @@ table 81 "Gen. Journal Line"
                 UpdateVendorNo();
             end;
         }
-#if not CLEANSCHEMA23
-        field(11301; "Original Pmt. Disc. Possible"; Decimal)
-        {
-            Caption = 'Original Pmt. Disc. Possible';
-            ObsoleteReason = 'Replaced by W1 field Orig. Pmt. Disc. Possible';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11306; "Org. Pmt. Disc. Possible (LCY)"; Decimal)
-        {
-            Caption = 'Org. Pmt. Disc. Possible (LCY)';
-            ObsoleteReason = 'Replaced by W1 field Orig. Pmt. Disc. Possible(LCY)';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(11310; "Enterprise No."; Text[50])
         {
             Caption = 'Enterprise No.';

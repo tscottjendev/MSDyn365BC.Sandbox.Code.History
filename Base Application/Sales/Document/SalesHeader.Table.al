@@ -1698,6 +1698,7 @@ table 36 "Sales Header"
 
                 if UpdateDocumentDate and ("Document Type" = "Document Type"::Quote) and ("Document Date" <> 0D) then
                     CalcQuoteValidUntilDate();
+                UpdateDocumentDate := false;
             end;
         }
         field(100; "External Document No."; Code[35])
@@ -2380,16 +2381,6 @@ table 36 "Sales Header"
                 end;
             end;
         }
-#if not CLEANSCHEMA23
-        field(180; "Rcvd-from Country/Region Code"; Code[10])
-        {
-            Caption = 'Received-from Country/Region Code';
-            TableRelation = "Country/Region";
-            ObsoleteReason = 'Use new field on range 181';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(181; "Rcvd.-from Count./Region Code"; Code[10])
         {
             Caption = 'Received-from Country/Region Code';
@@ -3036,16 +3027,6 @@ table 36 "Sales Header"
                       RespCenter.TableCaption(), UserSetupMgt.GetSalesFilter("Assigned User ID"));
             end;
         }
-#if not CLEANSCHEMA23
-        field(11300; "Journal Template Name"; Code[10])
-        {
-            Caption = 'Template Name (obsolete)';
-            TableRelation = "Gen. Journal Template" where(Type = filter(Sales));
-            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(11310; "Enterprise No."; Text[50])
         {
             Caption = 'Enterprise No.';

@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.Document;
+﻿namespace Microsoft.Sales.Document;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.History;
@@ -3361,15 +3361,6 @@ table 37 "Sales Line"
             FieldClass = FlowField;
             BlankZero = true;
         }
-#if not CLEANSCHEMA23
-        field(11303; "Prepmt. Pmt. Disc. Amount"; Decimal)
-        {
-            Caption = 'Prepmt. Pmt. Disc. Amount';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys

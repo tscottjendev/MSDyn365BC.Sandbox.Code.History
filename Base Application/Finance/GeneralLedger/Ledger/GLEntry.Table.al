@@ -478,16 +478,6 @@ table 17 "G/L Entry"
             Caption = 'Last Modified DateTime';
             Editable = false;
         }
-#if not CLEANSCHEMA23
-        field(11300; "Journal Template Name"; Code[10])
-        {
-            Caption = 'Template Name (obsolete)';
-            TableRelation = "Gen. Journal Template";
-            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(11301; Open; Boolean)
         {
             Caption = 'Open';
@@ -884,4 +874,3 @@ table 17 "G/L Entry"
     begin
     end;
 }
-

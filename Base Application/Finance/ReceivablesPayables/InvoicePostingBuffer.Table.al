@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.ReceivablesPayables;
+namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
@@ -327,16 +327,6 @@ table 55 "Invoice Posting Buffer"
             Caption = 'Non Ded. VAT Amt. (ACY)';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA23
-        field(11305; "Journal Template Name"; Code[10])
-        {
-            Caption = 'Journal Template Name';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys
@@ -900,4 +890,3 @@ table 55 "Invoice Posting Buffer"
     begin
     end;
 }
-

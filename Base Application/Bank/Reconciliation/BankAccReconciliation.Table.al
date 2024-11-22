@@ -8,7 +8,6 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Ledger;
 using Microsoft.Bank.Statement;
 using Microsoft.Finance.Dimension;
-using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
 using System.IO;
@@ -340,16 +339,6 @@ table 273 "Bank Acc. Reconciliation"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
-#if not CLEANSCHEMA23
-        field(11314; "Journal Template Name"; Code[10])
-        {
-            Caption = 'Journal Template Name';
-            TableRelation = "Gen. Journal Template";
-            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys
@@ -935,4 +924,3 @@ table 273 "Bank Acc. Reconciliation"
     begin
     end;
 }
-

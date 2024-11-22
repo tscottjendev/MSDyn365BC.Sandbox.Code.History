@@ -40,7 +40,6 @@ using Microsoft.Intercompany.Inbox;
 using Microsoft.Intercompany.Journal;
 using Microsoft.Intercompany.Outbox;
 using Microsoft.Sales.Reminder;
-using Microsoft.Intercompany.Setup;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
@@ -82,11 +81,7 @@ using System.Threading;
 using System.Upgrade;
 using System.Utilities;
 using Microsoft.Finance.GeneralLedger.Ledger;
-using Microsoft.Service.Setup;
-using Microsoft.Finance.VAT.Ledger;
-using Microsoft.Bank.Ledger;
 using Microsoft.HumanResources.Payables;
-using Microsoft.Purchases.Payables;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Setup;
 using Microsoft.Bank.Setup;
@@ -201,21 +196,9 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeDataExchFieldMapping();
         UpgradeJobReportSelection();
         UpgradeJobTaskReportSelection();
-        UpgradeICSetup();
         UpgradeJournalTemplateNamesInSetupTables();
         UpgradeGLEntryJournalTemplateName();
-        UpgradeGLRegisterJournalTemplateName();
         UpgradeGenJournalTemplates();
-        UpgradeVATEntryJournalTemplateName();
-        UpgradeBankAccLedgerEntryJournalTemplateName();
-        UpgradeCustLedgerEntryJournalTemplateName();
-        UpgradeEmplLedgerEntryJournalTemplateName();
-        UpgradeVendLedgerEntryJournalTemplateName();
-        UpgradePurchaseHeaderJournalTemplateName();
-        UpgradeSalesHeaderJournalTemplateName();
-        UpgradeCustLedgEntryPmtDiscountPossible();
-        UpgradeVendLedgEntryPmtDiscountPossible();
-        UpgradeGenJournalLinePmtDiscountPossible();
         UpgradeAccountSchedulesToFinancialReports();
         UpgradeCRMUnitGroupMapping();
         UpgradeCRMSDK90ToCRMSDK91();
@@ -324,7 +307,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if not ExportProtocol.Get('NONEURO SEPA00100109') then
             InsertExportProtocol('NONEURO SEPA00100109', XNonEuroPaymentDescTxt, Codeunit::"Check Non Euro SEPA Payments", Report::"File FCY SEPA 001.001.09 Pmts", '', ExportProtocol."Export Object Type"::Report, ExportProtocol."Code Expenses"::SHA);
 
-       UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetBankExportImportSetupSEPACT09UpgradeTag());
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetBankExportImportSetupSEPACT09UpgradeTag());
     end;
 
     local procedure InsertExportProtocol(ExpenseCode: Code[20]; ExpenseDescription: Text[50]; CheckObjectID: Integer; ExportObjectID: Integer; ExportNoSeries: Code[20]; ExportObjectType: Option; CodeExpense: Option)
@@ -2008,7 +1991,6 @@ codeunit 104000 "Upgrade - BaseApp"
         ConfigTemplateHeader: Record "Config. Template Header";
         ConfigTemplateLine: Record "Config. Template Line";
         CustomerTempl: Record "Customer Templ.";
-        CustomerTemplate: Record "Customer Template";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
         ConfigValidateManagement: Codeunit "Config. Validate Management";
@@ -2036,12 +2018,6 @@ codeunit 104000 "Upgrade - BaseApp"
                     TemplateRecordRef.Close();
                 end;
             until ConfigTemplateHeader.Next() = 0;
-
-        if CustomerTemplate.FindSet() then
-            repeat
-                if InsertNewCustomerTemplate(CustomerTempl, CustomerTemplate.Code, CustomerTemplate.Description) then
-                    UpdateNewCustomerTemplateFromConversionTemplate(CustomerTempl, CustomerTemplate);
-            until CustomerTemplate.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCustomerTemplatesUpgradeTag());
     end;
@@ -2148,29 +2124,6 @@ codeunit 104000 "Upgrade - BaseApp"
             exit(false);
 
         exit(true);
-    end;
-
-    local procedure UpdateNewCustomerTemplateFromConversionTemplate(var CustomerTempl: Record "Customer Templ."; CustomerTemplate: Record "Customer Template")
-    begin
-        CustomerTempl."Territory Code" := CustomerTemplate."Territory Code";
-        CustomerTempl."Global Dimension 1 Code" := CustomerTemplate."Global Dimension 1 Code";
-        CustomerTempl."Global Dimension 2 Code" := CustomerTemplate."Global Dimension 2 Code";
-        CustomerTempl."Customer Posting Group" := CustomerTemplate."Customer Posting Group";
-        CustomerTempl."Currency Code" := CustomerTemplate."Currency Code";
-        CustomerTempl."Customer Price Group" := CustomerTemplate."Customer Price Group";
-        CustomerTempl."Payment Terms Code" := CustomerTemplate."Payment Terms Code";
-        CustomerTempl."Shipment Method Code" := CustomerTemplate."Shipment Method Code";
-        CustomerTempl."Invoice Disc. Code" := CustomerTemplate."Invoice Disc. Code";
-        CustomerTempl."Customer Disc. Group" := CustomerTemplate."Customer Disc. Group";
-        CustomerTempl."Country/Region Code" := CustomerTemplate."Country/Region Code";
-        CustomerTempl."Payment Method Code" := CustomerTemplate."Payment Method Code";
-        CustomerTempl."Prices Including VAT" := CustomerTemplate."Prices Including VAT";
-        CustomerTempl."Gen. Bus. Posting Group" := CustomerTemplate."Gen. Bus. Posting Group";
-        CustomerTempl."VAT Bus. Posting Group" := CustomerTemplate."VAT Bus. Posting Group";
-        CustomerTempl."Contact Type" := CustomerTemplate."Contact Type";
-        CustomerTempl."Allow Line Disc." := CustomerTemplate."Allow Line Disc.";
-        OnUpdateNewCustomerTemplateFromConversionTemplateOnBeforeModify(CustomerTempl, CustomerTemplate);
-        CustomerTempl.Modify();
     end;
 
 #if not CLEAN26
@@ -2746,33 +2699,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobTaskReportSelectionUpgradeTag());
     end;
 
-    local procedure UpgradeICSetup()
-    var
-        CompanyInformation: Record "Company Information";
-        ICSetup: Record "IC Setup";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetICSetupUpgradeTag()) then
-            exit;
-
-        if not CompanyInformation.Get() then
-            exit;
-
-        if not ICSetup.Get() then begin
-            ICSetup.Init();
-            ICSetup.Insert();
-        end;
-
-        ICSetup."IC Partner Code" := CompanyInformation."IC Partner Code";
-        ICSetup."IC Inbox Type" := CompanyInformation."IC Inbox Type";
-        ICSetup."IC Inbox Details" := CompanyInformation."IC Inbox Details";
-        ICSetup."Auto. Send Transactions" := CompanyInformation."Auto. Send Transactions";
-        ICSetup.Modify();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICSetupUpgradeTag());
-    end;
-
     local procedure UpgradeCRMUnitGroupMapping()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
@@ -2979,35 +2905,10 @@ codeunit 104000 "Upgrade - BaseApp"
             exit;
 
         GLEntryDataTransfer.SetTables(Database::"G/L Entry", Database::"G/L Entry");
-        GLEntryDataTransfer.AddSourceFilter(GLEntry.FieldNo("Journal Template Name"), '<>%1', '');
-        GLEntryDataTransfer.AddFieldValue(GLEntry.FieldNo("Journal Template Name"), GLEntry.FieldNo("Journal Templ. Name"));
         GLEntryDataTransfer.UpdateAuditFields := false;
         GLEntryDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGLEntryJournalTemplateNameUpgradeTag());
-    end;
-
-    local procedure UpgradeGLRegisterJournalTemplateName()
-    var
-        GLRegister: Record "G/L Register";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        GLRegisterDataTransfer: DataTransfer;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGLRegisterJournalTemplateNameUpgradeTag()) then
-            exit;
-
-        GLRegister.SetFilter("Journal Templ. Name", '<>%1', '');
-        if not GLRegister.IsEmpty() then
-            exit;
-
-        GLRegisterDataTransfer.SetTables(Database::"G/L Register", Database::"G/L Register");
-        GLRegisterDataTransfer.AddSourceFilter(GLRegister.FieldNo("Journal Template Name"), '<>%1', '');
-        GLRegisterDataTransfer.AddFieldValue(GLRegister.FieldNo("Journal Template Name"), GLRegister.FieldNo("Journal Templ. Name"));
-        GLRegisterDataTransfer.UpdateAuditFields := false;
-        GLRegisterDataTransfer.CopyFields();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGLRegisterJournalTemplateNameUpgradeTag());
     end;
 
     local procedure UpgradeGenJournalTemplates()
@@ -3019,19 +2920,9 @@ codeunit 104000 "Upgrade - BaseApp"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGenJournalTemplateDatesUpgradeTag()) then
             exit;
 
-        GenJournalTemplate.SetLoadFields(
-            "Allow Posting Date From", "Allow Posting Date To", "Allow Posting From", "Allow Posting To");
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"Gen. Journal Template", GenJournalTemplate.Count()) then
                 exit;
-        if GenJournalTemplate.FindSet(true) then
-            repeat
-                if (GenJournalTemplate."Allow Posting From" <> 0D) or (GenJournalTemplate."Allow Posting To" <> 0D) then begin
-                    GenJournalTemplate."Allow Posting Date From" := GenJournalTemplate."Allow Posting From";
-                    GenJournalTemplate."Allow Posting Date To" := GenJournalTemplate."Allow Posting To";
-                    GenJournalTemplate.Modify();
-                end;
-            until GenJournalTemplate.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGenJournalTemplateDatesUpgradeTag());
     end;
@@ -3039,10 +2930,6 @@ codeunit 104000 "Upgrade - BaseApp"
     local procedure UpgradeJournalTemplateNamesInSetupTables()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
-        InventorySetup: Record "Inventory Setup";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        ServiceMgtSetup: Record "Service Mgt. Setup";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
@@ -3052,293 +2939,12 @@ codeunit 104000 "Upgrade - BaseApp"
         if not GeneralLedgerSetup.Get() then
             exit;
 
-        GeneralLedgerSetup."Bank Acc. Recon. Template Name" := GeneralLedgerSetup."Payment Recon. Template Name";
-        GeneralLedgerSetup."Apply Jnl. Template Name" := GeneralLedgerSetup."Jnl. Templ. Name for Applying";
-        GeneralLedgerSetup."Apply Jnl. Batch Name" := GeneralLedgerSetup."Jnl. Batch Name for Applying";
         GeneralLedgerSetup."Journal Templ. Name Mandatory" := true;
         GeneralLedgerSetup.Modify();
-
-        if InventorySetup.Get() then
-            if (InventorySetup."Jnl. Templ. Name Cost Posting" <> '') or
-                (InventorySetup."Jnl. Batch Name Cost Posting" <> '')
-            then begin
-                InventorySetup."Invt. Cost Jnl. Template Name" := InventorySetup."Jnl. Templ. Name Cost Posting";
-                InventorySetup."Invt. Cost Jnl. Batch Name" := InventorySetup."Jnl. Batch Name Cost Posting";
-                InventorySetup.Modify();
-            end;
-
-        if SalesReceivablesSetup.Get() then
-            if (SalesReceivablesSetup."IC Jnl. Templ. Sales Invoice" <> '') or (SalesReceivablesSetup."IC Jnl. Templ. Sales Cr. Memo" <> '') or
-                (SalesReceivablesSetup."Journal Templ. Sales Invoice" <> '') or (SalesReceivablesSetup."Journal Templ. Sales Cr. Memo" <> '') or
-                (SalesReceivablesSetup."Jnl. Templ. Prep. S. Inv." <> '') or (SalesReceivablesSetup."Jnl. Templ. Prep. S. Cr. Memo" > '')
-            then begin
-                SalesReceivablesSetup."S. Invoice Template Name" := SalesReceivablesSetup."Journal Templ. Sales Invoice";
-                SalesReceivablesSetup."S. Cr. Memo Template Name" := SalesReceivablesSetup."Journal Templ. Sales Cr. Memo";
-                SalesReceivablesSetup."S. Prep. Inv. Template Name" := SalesReceivablesSetup."Jnl. Templ. Prep. S. Inv.";
-                SalesReceivablesSetup."S. Prep. Inv. Template Name" := SalesReceivablesSetup."Jnl. Templ. Prep. S. Cr. Memo";
-                SalesReceivablesSetup."IC Sales Invoice Template Name" := SalesReceivablesSetup."IC Jnl. Templ. Sales Invoice";
-                SalesReceivablesSetup."IC Sales Cr. Memo Templ. Name" := SalesReceivablesSetup."IC Jnl. Templ. Sales Cr. Memo";
-                SalesReceivablesSetup.Modify();
-            end;
-
-        if PurchasesPayablesSetup.Get() then
-            if (PurchasesPayablesSetup."Journal Templ. Purch. Invoice" <> '') or (PurchasesPayablesSetup."Journal Templ. Purch. Cr. Memo" <> '') or
-                (PurchasesPayablesSetup."Jnl. Templ. Prep. P. Inv." <> '') or (PurchasesPayablesSetup."Jnl. Templ. Prep. P. Cr. Memo" <> '') or
-                (PurchasesPayablesSetup."IC Jnl. Templ. Purch. Invoice" <> '') or (PurchasesPayablesSetup."IC Jnl. Templ. Purch. Cr. Memo" <> '')
-            then begin
-                PurchasesPayablesSetup."P. Invoice Template Name" := PurchasesPayablesSetup."Journal Templ. Purch. Invoice";
-                PurchasesPayablesSetup."P. Cr. Memo Template Name" := PurchasesPayablesSetup."Journal Templ. Purch. Cr. Memo";
-                PurchasesPayablesSetup."P. Prep. Inv. Template Name" := PurchasesPayablesSetup."Jnl. Templ. Prep. P. Inv.";
-                PurchasesPayablesSetup."P. Prep. Cr.Memo Template Name" := PurchasesPayablesSetup."Jnl. Templ. Prep. P. Cr. Memo";
-                PurchasesPayablesSetup."IC Purch. Invoice Templ. Name" := PurchasesPayablesSetup."IC Jnl. Templ. Purch. Invoice";
-                PurchasesPayablesSetup."IC Purch. Cr. Memo Templ. Name" := PurchasesPayablesSetup."IC Jnl. Templ. Purch. Cr. Memo";
-                PurchasesPayablesSetup.Modify();
-            end;
-
-        if ServiceMgtSetup.Get() then
-            if (ServiceMgtSetup."Jnl. Templ. Serv. Inv." <> '') or (ServiceMgtSetup."Jnl. Templ. Serv. CM" <> '') or
-                (ServiceMgtSetup."Jnl. Templ. Serv. Contr. Inv." <> '') or (ServiceMgtSetup."Jnl. Templ. Serv. Contr. CM" <> '')
-            then begin
-                ServiceMgtSetup."Serv. Inv. Template Name" := ServiceMgtSetup."Jnl. Templ. Serv. Inv.";
-                ServiceMgtSetup."Serv. Cr. Memo Templ. Name" := ServiceMgtSetup."Jnl. Templ. Serv. Contr. Inv.";
-                ServiceMgtSetup."Serv. Contr. Inv. Templ. Name" := ServiceMgtSetup."Jnl. Templ. Serv. Contr. CM";
-                ServiceMgtSetup."Serv. Contr. Cr.M. Templ. Name" := ServiceMgtSetup."Jnl. Templ. Serv. CM";
-                ServiceMgtSetup.Modify();
-            end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGenJournalTemplateNamesSetupUpgradeTag());
     end;
 
-    local procedure UpgradeVATEntryJournalTemplateName()
-    var
-        VATEntry: Record "VAT Entry";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        VATEntryDataTransfer: DataTransfer;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATEntryJournalTemplateNameUpgradeTag()) then
-            exit;
-
-        VATEntry.SetRange("Journal Templ. Name", '<>%1', '');
-        if not VATEntry.IsEmpty() then
-            exit;
-
-        VATEntryDataTransfer.SetTables(Database::"VAT Entry", Database::"VAT Entry");
-        VATEntryDataTransfer.AddSourceFilter(VATEntry.FieldNo("Journal Template Name"), '<>%1', '');
-        VATEntryDataTransfer.AddFieldValue(VATEntry.FieldNo("Journal Template Name"), VATEntry.FieldNo("Journal Templ. Name"));
-        VATEntryDataTransfer.UpdateAuditFields := false;
-        VATEntryDataTransfer.CopyFields();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATEntryJournalTemplateNameUpgradeTag());
-    end;
-
-    local procedure UpgradeBankAccLedgerEntryJournalTemplateName()
-    var
-        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        BankAccountLedgerEntryDataTransfer: DataTransfer;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetBankAccountLedgerEntryJournalTemplateNameUpgradeTag()) then
-            exit;
-
-        BankAccountLedgerEntry.SetRange("Journal Templ. Name", '<>%1', '');
-        if not BankAccountLedgerEntry.IsEmpty() then
-            exit;
-
-        BankAccountLedgerEntryDataTransfer.SetTables(Database::"Bank Account Ledger Entry", Database::"Bank Account Ledger Entry");
-        BankAccountLedgerEntryDataTransfer.AddSourceFilter(BankAccountLedgerEntry.FieldNo("Journal Template Name"), '<>%1', '');
-        BankAccountLedgerEntryDataTransfer.AddFieldValue(BankAccountLedgerEntry.FieldNo("Journal Template Name"), BankAccountLedgerEntry.FieldNo("Journal Templ. Name"));
-        BankAccountLedgerEntryDataTransfer.UpdateAuditFields := false;
-        BankAccountLedgerEntryDataTransfer.CopyFields();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetBankAccountLedgerEntryJournalTemplateNameUpgradeTag());
-    end;
-
-    local procedure UpgradeCustLedgerEntryJournalTemplateName()
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        CustLedgerEntryDataTransfer: DataTransfer;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCustLedgerEntryJournalTemplateNameUpgradeTag()) then
-            exit;
-
-        CustLedgerEntry.SetRange("Journal Templ. Name", '<>%1', '');
-        if not CustLedgerEntry.IsEmpty() then
-            exit;
-
-        CustLedgerEntryDataTransfer.SetTables(Database::"Cust. Ledger Entry", Database::"Cust. Ledger Entry");
-        CustLedgerEntryDataTransfer.AddSourceFilter(CustLedgerEntry.FieldNo("Journal Template Name"), '<>%1', '');
-        CustLedgerEntryDataTransfer.AddFieldValue(CustLedgerEntry.FieldNo("Journal Template Name"), CustLedgerEntry.FieldNo("Journal Templ. Name"));
-        CustLedgerEntryDataTransfer.UpdateAuditFields := false;
-        CustLedgerEntryDataTransfer.CopyFields();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCustLedgerEntryJournalTemplateNameUpgradeTag());
-    end;
-
-    local procedure UpgradeEmplLedgerEntryJournalTemplateName()
-    var
-        EmployeeLedgerEntry: Record "Employee Ledger Entry";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        EmployeeLedgerEntryDataTransfer: DataTransfer;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetEmplLedgerEntryJournalTemplateNameUpgradeTag()) then
-            exit;
-
-        EmployeeLedgerEntry.SetRange("Journal Templ. Name", '<>%1', '');
-        if not EmployeeLedgerEntry.IsEmpty() then
-            exit;
-
-        EmployeeLedgerEntryDataTransfer.SetTables(Database::"Employee Ledger Entry", Database::"Employee Ledger Entry");
-        EmployeeLedgerEntryDataTransfer.AddSourceFilter(EmployeeLedgerEntry.FieldNo("Journal Template Name"), '<>%1', '');
-        EmployeeLedgerEntryDataTransfer.AddFieldValue(EmployeeLedgerEntry.FieldNo("Journal Template Name"), EmployeeLedgerEntry.FieldNo("Journal Templ. Name"));
-        EmployeeLedgerEntryDataTransfer.UpdateAuditFields := false;
-        EmployeeLedgerEntryDataTransfer.CopyFields();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetEmplLedgerEntryJournalTemplateNameUpgradeTag());
-    end;
-
-    local procedure UpgradeVendLedgerEntryJournalTemplateName()
-    var
-        VendLedgerEntry: Record "Vendor Ledger Entry";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        VendLedgerEntryDataTransfer: DataTransfer;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVendLedgerEntryJournalTemplateNameUpgradeTag()) then
-            exit;
-
-        VendLedgerEntry.SetRange("Journal Templ. Name", '<>%1', '');
-        if not VendLedgerEntry.IsEmpty() then
-            exit;
-
-        VendLedgerEntryDataTransfer.SetTables(Database::"Vendor Ledger Entry", Database::"Vendor Ledger Entry");
-        VendLedgerEntryDataTransfer.AddSourceFilter(VendLedgerEntry.FieldNo("Journal Template Name"), '<>%1', '');
-        VendLedgerEntryDataTransfer.AddFieldValue(VendLedgerEntry.FieldNo("Journal Template Name"), VendLedgerEntry.FieldNo("Journal Templ. Name"));
-        VendLedgerEntryDataTransfer.UpdateAuditFields := false;
-        VendLedgerEntryDataTransfer.CopyFields();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVendLedgerEntryJournalTemplateNameUpgradeTag());
-    end;
-
-    local procedure UpgradeSalesHeaderJournalTemplateName()
-    var
-        SalesHeader: Record "Sales Header";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        SalesHeaderDataTransfer: DataTransfer;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesHeaderJournalTemplateNameUpgradeTag()) then
-            exit;
-
-        SalesHeader.SetRange("Journal Templ. Name", '<>%1', '');
-        if not SalesHeader.IsEmpty() then
-            exit;
-
-        SalesHeaderDataTransfer.SetTables(Database::"Sales Header", Database::"Sales Header");
-        SalesHeaderDataTransfer.AddSourceFilter(SalesHeader.FieldNo("Journal Template Name"), '<>%1', '');
-        SalesHeaderDataTransfer.AddFieldValue(SalesHeader.FieldNo("Journal Template Name"), SalesHeader.FieldNo("Journal Templ. Name"));
-        SalesHeaderDataTransfer.UpdateAuditFields := false;
-        SalesHeaderDataTransfer.CopyFields();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesHeaderJournalTemplateNameUpgradeTag());
-    end;
-
-    local procedure UpgradePurchaseHeaderJournalTemplateName()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        PurchaseHeaderDataTransfer: DataTransfer;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaseHeaderJournalTemplateNameUpgradeTag()) then
-            exit;
-
-        PurchaseHeader.SetRange("Journal Templ. Name", '<>%1', '');
-        if not PurchaseHeader.IsEmpty() then
-            exit;
-
-        PurchaseHeaderDataTransfer.SetTables(Database::"Purchase Header", Database::"Purchase Header");
-        PurchaseHeaderDataTransfer.AddSourceFilter(PurchaseHeader.FieldNo("Journal Template Name"), '<>%1', '');
-        PurchaseHeaderDataTransfer.AddFieldValue(PurchaseHeader.FieldNo("Journal Template Name"), PurchaseHeader.FieldNo("Journal Templ. Name"));
-        PurchaseHeaderDataTransfer.UpdateAuditFields := false;
-        PurchaseHeaderDataTransfer.CopyFields();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaseHeaderJournalTemplateNameUpgradeTag());
-    end;
-
-    local procedure UpgradeCustLedgEntryPmtDiscountPossible()
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        CustLedgerEntryDataTransfer: DataTransfer;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCustLedgerEntryPmtDiscPossibleUpgradeTag()) then
-            exit;
-
-        CustLedgerEntry.SetFilter("Orig. Pmt. Disc. Possible(LCY)", '<>%1', 0);
-        if not CustLedgerEntry.IsEmpty() then
-            exit;
-
-        CustLedgerEntryDataTransfer.SetTables(Database::"Cust. Ledger Entry", Database::"Cust. Ledger Entry");
-        CustLedgerEntryDataTransfer.AddSourceFilter(CustLedgerEntry.FieldNo("Org. Pmt. Disc. Possible (LCY)"), '<>%1', 0);
-        CustLedgerEntryDataTransfer.AddFieldValue(CustLedgerEntry.FieldNo("Org. Pmt. Disc. Possible (LCY)"), CustLedgerEntry.FieldNo("Orig. Pmt. Disc. Possible(LCY)"));
-        CustLedgerEntryDataTransfer.UpdateAuditFields := false;
-        CustLedgerEntryDataTransfer.CopyFields();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCustLedgerEntryPmtDiscPossibleUpgradeTag());
-    end;
-
-    local procedure UpgradeVendLedgEntryPmtDiscountPossible()
-    var
-        VendLedgerEntry: Record "Vendor Ledger Entry";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        VendLedgerEntryDataTransfer: DataTransfer;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVendLedgerEntryPmtDiscPossibleUpgradeTag()) then
-            exit;
-
-        VendLedgerEntry.SetFilter("Orig. Pmt. Disc. Possible(LCY)", '<>%1', 0);
-        if not VendLedgerEntry.IsEmpty() then
-            exit;
-
-        VendLedgerEntryDataTransfer.SetTables(Database::"Vendor Ledger Entry", Database::"Vendor Ledger Entry");
-        VendLedgerEntryDataTransfer.AddSourceFilter(VendLedgerEntry.FieldNo("Org. Pmt. Disc. Possible (LCY)"), '<>%1', 0);
-        VendLedgerEntryDataTransfer.AddFieldValue(VendLedgerEntry.FieldNo("Org. Pmt. Disc. Possible (LCY)"), VendLedgerEntry.FieldNo("Orig. Pmt. Disc. Possible(LCY)"));
-        VendLedgerEntryDataTransfer.UpdateAuditFields := false;
-        VendLedgerEntryDataTransfer.CopyFields();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVendLedgerEntryPmtDiscPossibleUpgradeTag());
-    end;
-
-    local procedure UpgradeGenJournalLinePmtDiscountPossible()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        GenJournalLineDataTransfer: DataTransfer;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGenJournalLinePmtDiscPossibleUpgradeTag()) then
-            exit;
-
-        GenJournalLine.SetFilter("Orig. Pmt. Disc. Possible(LCY)", '<>%1', 0);
-        if not GenJournalLine.IsEmpty() then
-            exit;
-
-        GenJournalLineDataTransfer.SetTables(Database::"Gen. Journal Line", Database::"Gen. Journal Line");
-        GenJournalLineDataTransfer.AddSourceFilter(GenJournalLine.FieldNo("Org. Pmt. Disc. Possible (LCY)"), '<>%1', 0);
-        GenJournalLineDataTransfer.AddFieldValue(GenJournalLine.FieldNo("Original Pmt. Disc. Possible"), GenJournalLine.FieldNo("Orig. Pmt. Disc. Possible"));
-        GenJournalLineDataTransfer.AddFieldValue(GenJournalLine.FieldNo("Org. Pmt. Disc. Possible (LCY)"), GenJournalLine.FieldNo("Orig. Pmt. Disc. Possible(LCY)"));
-        GenJournalLineDataTransfer.UpdateAuditFields := false;
-        GenJournalLineDataTransfer.CopyFields();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGenJournalLinePmtDiscPossibleUpgradeTag());
-    end;
 
     local procedure LogTelemetryForManyRecords(TableNo: Integer; NoOfRecords: Integer): Boolean;
     begin
@@ -4219,9 +3825,11 @@ codeunit 104000 "Upgrade - BaseApp"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingTemplatesUpgradeTag());
     end;
-
+#if not CLEAN26
+    [Obsolete('This event has been deprecated becase "Customer Template" is marked as Removed.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnUpdateNewCustomerTemplateFromConversionTemplateOnBeforeModify(var CustomerTempl: Record "Customer Templ."; CustomerTemplate: Record "Customer Template")
     begin
     end;
+#endif
 }

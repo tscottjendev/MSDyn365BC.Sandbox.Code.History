@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.Setup;
+﻿namespace Microsoft.Sales.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -16,7 +16,6 @@ using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Sales.Posting;
 using Microsoft.Sales.Pricing;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Upgrade;
@@ -367,15 +366,6 @@ table 311 "Sales & Receivables Setup"
                     UpdateNameInLedgerEntries.NotifyAboutBlankNamesInLedgerEntries(RecordId);
             end;
         }
-#if not CLEANSCHEMA23
-        field(60; "Batch Archiving Quotes"; Boolean)
-        {
-            Caption = 'Batch Archiving Quotes';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'The field is part of the removed functionality.';
-        }
-#endif
         field(61; "Ignore Updated Addresses"; Boolean)
         {
             Caption = 'Ignore Updated Addresses';
@@ -482,15 +472,6 @@ table 311 "Sales & Receivables Setup"
             DataClassification = CustomerContent;
             TableRelation = "No. Series";
         }
-#if not CLEANSCHEMA23
-        field(810; "Invoice Posting Setup"; Enum "Sales Invoice Posting")
-        {
-            Caption = 'Invoice Posting Setup';
-            ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(5329; "Write-in Product Type"; Option)
         {
             Caption = 'Write-in Product Type';
@@ -638,40 +619,6 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             InitValue = true;
         }
-#if not CLEANSCHEMA23
-        field(11310; "Journal Templ. Sales Invoice"; Code[10])
-        {
-            Caption = 'Journal Templ. Sales Invoice';
-            TableRelation = "Gen. Journal Template" where(Type = filter(Sales));
-            ObsoleteReason = 'Replaced by W1 field S. Invoice Template Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11311; "Journal Templ. Sales Cr. Memo"; Code[10])
-        {
-            Caption = 'Journal Templ. Sales Cr. Memo';
-            TableRelation = "Gen. Journal Template" where(Type = filter(Sales));
-            ObsoleteReason = 'Replaced by W1 field S. Cr. Memo Template Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11313; "Insert Std. Cust. Sales Lines"; Option)
-        {
-            Caption = 'Insert Std. Cust. Sales Lines';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            OptionCaption = 'Manual,Automatic,Always Ask';
-            OptionMembers = Manual,Automatic,"Always Ask";
-        }
-        field(11314; Quotes; Boolean)
-        {
-            Caption = 'Quotes';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
 #if not CLEANSCHEMA28
         field(11316; Orders; Boolean)
         {
@@ -684,54 +631,6 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Pending;
             ObsoleteTag = '20.0';
 #endif
-        }
-#endif
-#if not CLEANSCHEMA23
-        field(11317; Invoices; Boolean)
-        {
-            Caption = 'Invoices';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11319; "Credit Memos"; Boolean)
-        {
-            Caption = 'Credit Memos';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11320; "Jnl. Templ. Prep. S. Inv."; Code[10])
-        {
-            Caption = 'Jnl. Templ. Prep. S. Inv.';
-            TableRelation = "Gen. Journal Template" where(Type = filter(Sales));
-            ObsoleteReason = 'Replaced by W1 field S. Prep. Inv. Template Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11321; "Jnl. Templ. Prep. S. Cr. Memo"; Code[10])
-        {
-            Caption = 'Jnl. Templ. Prep. S. Cr. Memo';
-            TableRelation = "Gen. Journal Template" where(Type = filter(Sales));
-            ObsoleteReason = 'Replaced by W1 field S. Prep. Cr.Memo Template Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11322; "IC Jnl. Templ. Sales Invoice"; Code[10])
-        {
-            Caption = 'IC Jnl. Templ. Sales Invoice';
-            TableRelation = "Gen. Journal Template" where(Type = filter(Intercompany));
-            ObsoleteReason = 'Replaced by W1 field IC Sales Invoice Template Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11323; "IC Jnl. Templ. Sales Cr. Memo"; Code[10])
-        {
-            Caption = 'IC Jnl. Templ. Sales Cr. Memo';
-            TableRelation = "Gen. Journal Template" where(Type = filter(Intercompany));
-            ObsoleteReason = 'Replaced by W1 field IC Sales Cr. Memo Templ. Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
         }
 #endif
     }

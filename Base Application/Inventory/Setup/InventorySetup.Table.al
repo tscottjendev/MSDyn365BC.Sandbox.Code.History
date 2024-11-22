@@ -340,22 +340,6 @@ table 313 "Inventory Setup"
             Caption = 'Internal Movement Nos.';
             TableRelation = "No. Series";
         }
-#if not CLEANSCHEMA23
-        field(11300; "Jnl. Templ. Name Cost Posting"; Code[10])
-        {
-            Caption = 'Jnl. Templ. Name Cost Posting';
-            ObsoleteReason = 'Replaced by field Invt. Cost Jnl. Template Name.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11306; "Jnl. Batch Name Cost Posting"; Code[10])
-        {
-            Caption = 'Jnl. Batch Name Cost Posting';
-            ObsoleteReason = 'Replaced by field Invt. Cost Jnl. Batch Name.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys

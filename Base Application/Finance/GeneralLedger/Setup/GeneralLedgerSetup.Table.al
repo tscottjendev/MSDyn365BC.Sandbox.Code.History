@@ -880,16 +880,6 @@ table 98 "General Ledger Setup"
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
         }
-#if not CLEANSCHEMA23
-        field(11314; "Payment Recon. Template Name"; Code[10])
-        {
-            Caption = 'Payment Recon. Template Name';
-            TableRelation = "Gen. Journal Template";
-            ObsoleteReason = 'Replaced by W1 field Bank Acc. Recon Template Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(11315; "VAT Statement Template Name"; Code[10])
         {
             Caption = 'VAT Statement Template Name';
@@ -909,23 +899,6 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Use Workdate for Appl./Unappl.';
         }
-#if not CLEANSCHEMA23
-        field(11318; "Jnl. Templ. Name for Applying"; Code[10])
-        {
-            Caption = 'Jnl. Templ. Name for Applying';
-            TableRelation = "Gen. Journal Template";
-            ObsoleteReason = 'Replaced by W1 field Apply Jnl. Template Name in table Gen. Jnl. Posting Setup.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11319; "Jnl. Batch Name for Applying"; Code[10])
-        {
-            Caption = 'Jnl. Batch Name for Applying';
-            ObsoleteReason = 'Replaced by W1 field Apply Jnl. Template Name in table Gen. Jnl. Posting Setup.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(11320; "Simplified Intrastat Decl."; Boolean)
         {
             Caption = 'Simplified Intrastat Decl.';
