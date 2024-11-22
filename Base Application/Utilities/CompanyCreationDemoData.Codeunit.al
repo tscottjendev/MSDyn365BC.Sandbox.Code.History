@@ -1,6 +1,5 @@
 codeunit 9192 "Company Creation Demo Data"
 {
-    Access = Internal;
 
     procedure CheckDemoDataAppsAvailability()
     var
@@ -15,49 +14,44 @@ codeunit 9192 "Company Creation Demo Data"
             MissingDemoAppsErr.AddNavigationAction(GoToExtensionManagementMsg);
             Error(MissingDemoAppsErr);
         end
+
+        // Check if extra apps are installed
+        // Notify the user about them
+        // NotifyAboutAdditionalDemoDataApps();
     end;
 
     procedure CheckAndPromptUserToInstallContosoRequiredApps(): Boolean
     var
-        DemoDataAppIDs: List of [Guid];
+        DemoDataApps: List of [Guid];
     begin
-        GetRequireDemoDataAppIDs(DemoDataAppIDs);
+        GetRequireDemoDataApps(DemoDataApps);
 
-        if AreAppsInstalled(DemoDataAppIDs) then
+        if AreAppsInstalled(DemoDataApps) then
             exit(true);
 
         if Confirm(ContosoNotInstalledMsg, true) then begin
-            InstallApps(DemoDataAppIDs);
-
-            // If the code reaches here, most likely the apps are not installed, because session fresh will be triggered after extension installation
+            InstallApps(DemoDataApps);
             // Check again if demo data apps are installed
-            exit(AreAppsInstalled(DemoDataAppIDs));
+            exit(AreAppsInstalled(DemoDataApps));
         end;
     end;
 
-    local procedure InstallApps(DemoDataAppIDs: List of [Guid])
+    local procedure InstallApps(DemoDataApps: List of [Guid])
     var
-        DemoDataAppID: Guid;
+        DemoDataApp: Guid;
     begin
-        foreach DemoDataAppID in DemoDataAppIDs do
-            TryInstallApp(DemoDataAppID);
+        foreach demoDataApp in DemoDataApps do
+            TryInstallApp(DemoDataApp);
     end;
 
     [TryFunction]
-    local procedure TryInstallApp(AppID: Guid)
+    local procedure TryInstallApp(App: Guid)
     var
-        EnvironmentInformation: Codeunit "Environment Information";
-        MySessionSettings: SessionSettings;
-        PackageId: Guid;
+        ExtensionManagement: Codeunit "Extension Management";
     begin
-        PackageId := ExtensionManagement.GetLatestVersionPackageIdByAppId(AppID);
-
-        if ExtensionManagement.InstallExtension(PackageId, GlobalLanguage(), true) then begin
-            MySessionSettings.Init();
-            MySessionSettings.RequestSessionUpdate(false);
-        end else
-            if EnvironmentInformation.IsSaaS() then
-                ExtensionManagement.InstallMarketplaceExtension(AppID);
+        if not ExtensionManagement.InstallExtension(App, GlobalLanguage, false) then
+            if IsSaas() then
+                ExtensionManagement.InstallMarketplaceExtension(App);
     end;
 
     local procedure AreAppsInstalled(DemoDataApps: List of [Guid]): Boolean
@@ -65,32 +59,90 @@ codeunit 9192 "Company Creation Demo Data"
         DemoDataApp: Guid;
     begin
         foreach DemoDataApp in DemoDataApps do
-            if not ExtensionManagement.IsInstalledByAppId(DemoDataApp) then
+            if not ExtentionManagement.IsInstalledByAppId(DemoDataApp) then
                 exit(false);
 
         exit(true);
     end;
 
-    local procedure GetRequireDemoDataAppIDs(var DemoDataApps: List of [Guid])
+    local procedure GetRequireDemoDataApps(var DemoDataApps: List of [Guid])
     var
         CountryApp: Guid;
     begin
+        DemoDataApps.Add('5a0b41e9-7a42-4123-d521-2265186cfb31');
+
         CountryApp := GetCountryContosoAppId();
         if not IsNullGuid(CountryApp) then
             DemoDataApps.Add(CountryApp);
+    end;
 
-        // The W1 app is only needed when there are no country specific apps
-        // Because country specific apps will have the W1 app as a dependency
-        // We want to avoid installing multiple apps because each installation will trigger session refresh
-        if DemoDataApps.Count() = 0 then
-            DemoDataApps.Add('5a0b41e9-7a42-4123-d521-2265186cfb31');
+    local procedure IsSaas(): Boolean
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+    begin
+        if EnvironmentInformation.IsSaaS() then
+            exit(false);
+    end;
+
+    procedure NotifyAboutAdditionalDemoDataApps(): Boolean
+    var
+        DemoDataNotification: Notification;
+        DemoDataApps, MissingDemoDataApps : List of [Guid];
+        DemoDataApp: Guid;
+    begin
+        AddDemoDataAdditionalApps(DemoDataApps);
+        OnBeforeNotifyAboutAdditionalDemoDataApps(DemoDataApps);
+
+        foreach DemoDataApp in DemoDataApps do
+            if not ExtentionManagement.IsInstalledByAppId(DemoDataApp) then
+                MissingDemoDataApps.Add(DemoDataApp);
+
+        if MissingDemoDataApps.Count > 0 then begin
+            DemoDataNotification.Id(GetAdditionalDemoDataNotificationId());
+            DemoDataNotification.SetData('NotificationId', GetAdditionalDemoDataNotificationId());
+            DemoDataNotification.Message(AdditionDemoDataAvailableMsg);
+            DemoDataNotification.AddAction(InstallAllMsg, Codeunit::"Company Creation Demo Data", 'InstallAll');
+            DemoDataNotification.AddAction(GoToExtensionManagementMsg, Codeunit::"Company Creation Demo Data", 'OpenExtensionManagement');
+            DemoDataNotification.Send();
+        end
+    end;
+
+    procedure OpenExtensionManagement(HostNotification: Notification)
+    begin
+        Page.Run(Page::"Extension Management");
+    end;
+
+    procedure InstallAll(HostNotification: Notification)
+    var
+        DemoDataApps: List of [Guid];
+        DemoDataApp: Guid;
+    begin
+        AddDemoDataAdditionalApps(DemoDataApps);
+        OnBeforeNotifyAboutAdditionalDemoDataApps(DemoDataApps);
+
+        foreach DemoDataApp in DemoDataApps do
+            if ExtentionManagement.IsInstalledByAppId(DemoDataApp) then
+                TryInstallApp(DemoDataApp);
+    end;
+
+    local procedure GetAdditionalDemoDataNotificationId(): Guid
+    var
+    begin
+        exit('3478eb81-8caf-2245-41b7-65eaa90b7821');
+    end;
+
+    local procedure AddDemoDataAdditionalApps(var DemoDataAppList: List of [Guid])
+    begin
+        // Sustainability Demo Data
+        DemoDataAppList.Add('a0673989-48a4-48a0-9517-499c9f4037d3');
+        // E-Documents Demo Data
+        DemoDataAppList.Add('de0dddf3-9917-430d-8d20-6e7679a08500');
     end;
 
     local procedure GetCountryContosoAppId(): Guid
     var
         EnvironmentInformation: Codeunit "Environment Information";
         ApplicationFamily: Text;
-        EmptyGuid: Guid;
     begin
         ApplicationFamily := EnvironmentInformation.GetApplicationFamily();
 
@@ -137,12 +189,19 @@ codeunit 9192 "Company Creation Demo Data"
                 exit('3a3f33b1-7b42-4123-a521-2265186cfb31');
         end;
 
-        exit(EmptyGuid);
+        exit('00000000-0000-0000-0000-000000000000');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNotifyAboutAdditionalDemoDataApps(var DemoDataAppList: List of [Guid])
+    begin
     end;
 
     var
-        ExtensionManagement: Codeunit "Extension Management";
-        ContosoNotInstalledMsg: Label 'Contoso Demo Data app(s) are not installed, do you want to install them?\\Note: An automatic session refresh will be triggered after the installation';
+        ExtentionManagement: Codeunit "Extension Management";
+        ContosoNotInstalledMsg: Label 'Contoso Demo Data app(s) are not installed, do you want to install them?';
+        AdditionDemoDataAvailableMsg: Label 'Additional demo data apps are available';
         GoToExtensionManagementMsg: Label 'Go to Extension Management';
+        InstallAllMsg: Label 'Install All';
         DemoDataAppsNotAvailableErr: Label 'Could not install Contoso demo data apps, you will have to go to Extension Management and install them manually';
 }
