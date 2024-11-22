@@ -9,7 +9,6 @@ page 5548 "Contoso Modules Part"
     DeleteAllowed = false;
     Caption = 'Available Modules';
     RefreshOnActivate = true;
-    Extensible = false;
 
     layout
     {
@@ -19,14 +18,34 @@ page 5548 "Contoso Modules Part"
             {
                 field(Name; Rec.Name)
                 {
-                    Editable = false;
+                    ApplicationArea = All;
                     ToolTip = 'Specifies the demo data module name';
                 }
                 field(Install; Rec.Install)
                 {
-                    Editable = true;
+                    ApplicationArea = All;
                     ToolTip = 'Specifies if the module should be installed when creating new company';
                 }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action("Select All")
+            {
+                ApplicationArea = All;
+                Caption = 'Select All';
+                Image = AllLines;
+                InFooterBar = true;
+
+                trigger OnAction()
+                var
+                begin
+                    Rec.ModifyAll(Install, true);
+                end;
             }
         }
     }
