@@ -210,15 +210,6 @@ table 232 "Gen. Journal Batch"
                 Validate("Bal. Account No.", GLAccount."No.");
             end;
         }
-#if not CLEANSCHEMA23
-        field(9000; "Background Error Check"; Boolean)
-        {
-            Caption = 'Background Error Check';
-            ObsoleteReason = 'Replaced with GLSetup.Enable Data Check';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys
