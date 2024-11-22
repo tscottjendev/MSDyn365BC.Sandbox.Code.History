@@ -123,16 +123,6 @@ table 729 "Copy Item Buffer"
             Caption = 'Attributes';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA23
-        field(27; "Item Cross References"; Boolean)
-        {
-            Caption = 'Item Cross References';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Replaced with parameter Item References';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(28; "Item References"; Boolean)
         {
             Caption = 'Item References';
@@ -152,4 +142,3 @@ table 729 "Copy Item Buffer"
     {
     }
 }
-
