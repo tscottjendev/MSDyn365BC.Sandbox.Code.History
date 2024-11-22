@@ -121,7 +121,6 @@ page 357 Companies
     {
         area(processing)
         {
-#pragma warning disable AA0194
             action("Create New Company")
             {
                 AccessByPermission = TableData Company = I;
@@ -137,7 +136,6 @@ page 357 Companies
                     // as this page is part of the Cloud Manager.
                 end;
             }
-#pragma warning restore AA0194
             action(CopyCompany)
             {
                 AccessByPermission = TableData Company = RI;
