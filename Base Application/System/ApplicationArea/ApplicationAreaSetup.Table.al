@@ -139,15 +139,6 @@ table 9178 "Application Area Setup"
         {
             Caption = 'Inventory Analysis';
         }
-#if not CLEANSCHEMA23
-        field(2700; XBRL; Boolean)
-        {
-            Caption = 'XBRL';
-            ObsoleteReason = 'XBRL feature will be discontinued';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(2800; Reservation; Boolean)
         {
             Caption = 'Reservation';

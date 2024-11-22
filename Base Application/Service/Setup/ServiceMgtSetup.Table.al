@@ -12,7 +12,6 @@ using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Service.Archive;
 using Microsoft.Service.Contract;
-using Microsoft.Service.Posting;
 using Microsoft.Service.Pricing;
 using Microsoft.Utilities;
 
@@ -361,15 +360,6 @@ table 5911 "Service Mgt. Setup"
             Caption = 'Copy Line Descr. to G/L Entry';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA23
-        field(810; "Invoice Posting Setup"; Enum "Service Invoice Posting")
-        {
-            Caption = 'Invoice Posting Setup';
-            ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(950; "Copy Time Sheet to Order"; Boolean)
         {
             Caption = 'Copy Time Sheet to Order';
@@ -415,4 +405,3 @@ table 5911 "Service Mgt. Setup"
         RecordHasBeenRead := true;
     end;
 }
-

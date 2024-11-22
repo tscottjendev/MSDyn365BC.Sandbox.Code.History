@@ -10,7 +10,6 @@ using Microsoft.Finance.VAT.Registration;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.Enums;
-using Microsoft.Intercompany.GLAccount;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Utilities;
@@ -337,43 +336,6 @@ table 79 "Company Information"
         {
             Caption = 'Industrial Classification';
         }
-#if not CLEANSCHEMA23
-        field(41; "IC Partner Code"; Code[20])
-        {
-            AccessByPermission = TableData "IC G/L Account" = R;
-            Caption = 'IC Partner Code';
-            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(42; "IC Inbox Type"; Option)
-        {
-            AccessByPermission = TableData "IC G/L Account" = R;
-            Caption = 'IC Inbox Type';
-            InitValue = Database;
-            OptionCaption = 'File Location,Database';
-            OptionMembers = "File Location",Database;
-            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(43; "IC Inbox Details"; Text[250])
-        {
-            AccessByPermission = TableData "IC G/L Account" = R;
-            Caption = 'IC Inbox Details';
-            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(44; "Auto. Send Transactions"; Boolean)
-        {
-            AccessByPermission = TableData "IC G/L Account" = R;
-            Caption = 'Auto. Send Transactions';
-            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(46; "System Indicator"; Option)
         {
             Caption = 'System Indicator';

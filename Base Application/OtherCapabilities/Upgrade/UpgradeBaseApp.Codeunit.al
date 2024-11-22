@@ -41,7 +41,6 @@ using Microsoft.Intercompany.Inbox;
 using Microsoft.Intercompany.Journal;
 using Microsoft.Intercompany.Outbox;
 using Microsoft.Sales.Reminder;
-using Microsoft.Intercompany.Setup;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
@@ -191,7 +190,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeDataExchFieldMapping();
         UpgradeJobReportSelection();
         UpgradeJobTaskReportSelection();
-        UpgradeICSetup();
         UpgradeAccountSchedulesToFinancialReports();
         UpgradeCRMUnitGroupMapping();
         UpgradeCRMSDK90ToCRMSDK91();
@@ -1972,7 +1970,6 @@ codeunit 104000 "Upgrade - BaseApp"
         ConfigTemplateHeader: Record "Config. Template Header";
         ConfigTemplateLine: Record "Config. Template Line";
         CustomerTempl: Record "Customer Templ.";
-        CustomerTemplate: Record "Customer Template";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
         ConfigValidateManagement: Codeunit "Config. Validate Management";
@@ -2000,12 +1997,6 @@ codeunit 104000 "Upgrade - BaseApp"
                     TemplateRecordRef.Close();
                 end;
             until ConfigTemplateHeader.Next() = 0;
-
-        if CustomerTemplate.FindSet() then
-            repeat
-                if InsertNewCustomerTemplate(CustomerTempl, CustomerTemplate.Code, CustomerTemplate.Description) then
-                    UpdateNewCustomerTemplateFromConversionTemplate(CustomerTempl, CustomerTemplate);
-            until CustomerTemplate.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCustomerTemplatesUpgradeTag());
     end;
@@ -2112,29 +2103,6 @@ codeunit 104000 "Upgrade - BaseApp"
             exit(false);
 
         exit(true);
-    end;
-
-    local procedure UpdateNewCustomerTemplateFromConversionTemplate(var CustomerTempl: Record "Customer Templ."; CustomerTemplate: Record "Customer Template")
-    begin
-        CustomerTempl."Territory Code" := CustomerTemplate."Territory Code";
-        CustomerTempl."Global Dimension 1 Code" := CustomerTemplate."Global Dimension 1 Code";
-        CustomerTempl."Global Dimension 2 Code" := CustomerTemplate."Global Dimension 2 Code";
-        CustomerTempl."Customer Posting Group" := CustomerTemplate."Customer Posting Group";
-        CustomerTempl."Currency Code" := CustomerTemplate."Currency Code";
-        CustomerTempl."Customer Price Group" := CustomerTemplate."Customer Price Group";
-        CustomerTempl."Payment Terms Code" := CustomerTemplate."Payment Terms Code";
-        CustomerTempl."Shipment Method Code" := CustomerTemplate."Shipment Method Code";
-        CustomerTempl."Invoice Disc. Code" := CustomerTemplate."Invoice Disc. Code";
-        CustomerTempl."Customer Disc. Group" := CustomerTemplate."Customer Disc. Group";
-        CustomerTempl."Country/Region Code" := CustomerTemplate."Country/Region Code";
-        CustomerTempl."Payment Method Code" := CustomerTemplate."Payment Method Code";
-        CustomerTempl."Prices Including VAT" := CustomerTemplate."Prices Including VAT";
-        CustomerTempl."Gen. Bus. Posting Group" := CustomerTemplate."Gen. Bus. Posting Group";
-        CustomerTempl."VAT Bus. Posting Group" := CustomerTemplate."VAT Bus. Posting Group";
-        CustomerTempl."Contact Type" := CustomerTemplate."Contact Type";
-        CustomerTempl."Allow Line Disc." := CustomerTemplate."Allow Line Disc.";
-        OnUpdateNewCustomerTemplateFromConversionTemplateOnBeforeModify(CustomerTempl, CustomerTemplate);
-        CustomerTempl.Modify();
     end;
 
 #if not CLEAN26
@@ -2684,33 +2652,6 @@ codeunit 104000 "Upgrade - BaseApp"
             exit;
         ReportSelectionMgt.InitReportSelection("Report Selection Usage"::"Job Task Quote");
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobTaskReportSelectionUpgradeTag());
-    end;
-
-    local procedure UpgradeICSetup()
-    var
-        CompanyInformation: Record "Company Information";
-        ICSetup: Record "IC Setup";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetICSetupUpgradeTag()) then
-            exit;
-
-        if not CompanyInformation.Get() then
-            exit;
-
-        if not ICSetup.Get() then begin
-            ICSetup.Init();
-            ICSetup.Insert();
-        end;
-
-        ICSetup."IC Partner Code" := CompanyInformation."IC Partner Code";
-        ICSetup."IC Inbox Type" := CompanyInformation."IC Inbox Type";
-        ICSetup."IC Inbox Details" := CompanyInformation."IC Inbox Details";
-        ICSetup."Auto. Send Transactions" := CompanyInformation."Auto. Send Transactions";
-        ICSetup.Modify();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICSetupUpgradeTag());
     end;
 
     local procedure UpgradeCRMUnitGroupMapping()
@@ -3776,9 +3717,11 @@ codeunit 104000 "Upgrade - BaseApp"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingTemplatesUpgradeTag());
     end;
-
+#if not CLEAN26
+    [Obsolete('This event has been deprecated becase "Customer Template" is marked as Removed.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnUpdateNewCustomerTemplateFromConversionTemplateOnBeforeModify(var CustomerTempl: Record "Customer Templ."; CustomerTemplate: Record "Customer Template")
     begin
     end;
+#endif
 }
