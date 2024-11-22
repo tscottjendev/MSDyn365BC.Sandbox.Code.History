@@ -89,65 +89,16 @@ codeunit 104150 "Upgrade - Local App"
 
     local procedure UpdateReplaceMultipleInterestRate()
     begin
-        UpdateMultipleInterestRateSetup();
-        UpdateMultipleInterestRate();
         UpdateMultipleInterestRateFinanceChargeMemos();
         UpdateMultipleInterestRateReminders();
         UpdateMultipleInterestRateIssuedFinanceChargeMemos();
         UpdateMultipleInterestRateIssuedReminders();
     end;
 
-    local procedure UpdateMultipleInterestRateSetup()
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetReplaceMulIntRateSalesSetupUpgradeTag()) then
-            exit;
-
-        if not SalesReceivablesSetup.Get() then
-            exit;
-
-        SalesReceivablesSetup."Multiple Interest Rates" := false;
-        SalesReceivablesSetup.Modify();
-
-        UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetReplaceMulIntRateSalesSetupUpgradeTag());
-    end;
-
-    local procedure UpdateMultipleInterestRate()
-    var
-        FinanceChargeInterestRate: Record "Finance Charge Interest Rate";
-        MultipleInterestRate: Record "Multiple Interest Rate";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetReplaceMulIntRateFinChargeIntRateUpgradeTag()) then
-            exit;
-
-        if MultipleInterestRate.FindSet() then
-            repeat
-                if not FinanceChargeInterestRate.Get(MultipleInterestRate."Finance Charge Code", MultipleInterestRate."Valid from Date") then begin
-                    FinanceChargeInterestRate.Init();
-                    FinanceChargeInterestRate."Fin. Charge Terms Code" := MultipleInterestRate."Finance Charge Code";
-                    FinanceChargeInterestRate."Start Date" := MultipleInterestRate."Valid from Date";
-                    FinanceChargeInterestRate."Interest Rate" := MultipleInterestRate."Interest Rate";
-                    FinanceChargeInterestRate."Interest Period (Days)" := MultipleInterestRate."Interest Period (Days)";
-                    FinanceChargeInterestRate.SystemId := MultipleInterestRate.SystemId;
-                    FinanceChargeInterestRate.Insert(false, true);
-                end;
-            until MultipleInterestRate.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetReplaceMulIntRateFinChargeIntRateUpgradeTag());
-    end;
-
     local procedure UpdateMultipleInterestRateFinanceChargeMemos()
     var
-        DetailedFinChargeMemoLine: Record "Detailed Fin. Charge Memo Line";
-        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
         FinanceChargeMemoLine: Record "Finance Charge Memo Line";
         TempFinanceChargeMemoLine: Record "Finance Charge Memo Line" temporary;
-        TempDetailedFinChargeMemoLine: Record "Detailed Fin. Charge Memo Line" temporary;
         UpgradeTag: Codeunit "Upgrade Tag";
         LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
         ListOfDocumentNo: List of [Code[20]];
@@ -156,21 +107,6 @@ codeunit 104150 "Upgrade - Local App"
     begin
         if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetReplaceMulIntRateFinanceChargeMemosUpgradeTag()) then
             exit;
-
-        if FinanceChargeMemoHeader.FindSet() then
-            repeat
-                FinanceChargeMemoHeader."Multiple Interest Rates" := false;
-                FinanceChargeMemoHeader.Modify();
-            until FinanceChargeMemoHeader.Next() = 0;
-
-        if DetailedFinChargeMemoLine.FindSet() then
-            repeat
-                if not ListOfDocumentNo.Contains(DetailedFinChargeMemoLine."Finance Charge Memo No.") then
-                    ListOfDocumentNo.Add(DetailedFinChargeMemoLine."Finance Charge Memo No.");
-                TempDetailedFinChargeMemoLine.Init();
-                TempDetailedFinChargeMemoLine := DetailedFinChargeMemoLine;
-                TempDetailedFinChargeMemoLine.Insert();
-            until DetailedFinChargeMemoLine.Next() = 0;
 
         // remove already upgraded documents
         foreach DocumentNo in ListOfDocumentNo do begin
@@ -203,25 +139,6 @@ codeunit 104150 "Upgrade - Local App"
                     FinanceChargeMemoLine."Line No." := LineNo;
                     FinanceChargeMemoLine.SystemId := TempFinanceChargeMemoLine.SystemId;
                     FinanceChargeMemoLine.Insert(false, true);
-
-                    if FinanceChargeMemoLine."Entry No." <> 0 then begin
-                        FinanceChargeMemoLine.Validate("Entry No.");
-                        FinanceChargeMemoLine.Modify();
-
-                        TempDetailedFinChargeMemoLine.SetRange("Finance Charge Memo No.", TempFinanceChargeMemoLine."Finance Charge Memo No.");
-                        TempDetailedFinChargeMemoLine.SetRange("Fin. Charge. Memo Line No.", TempFinanceChargeMemoLine."Line No.");
-                        if TempDetailedFinChargeMemoLine.FindSet() then
-                            repeat
-                                DetailedFinChargeMemoLine.Init();
-                                DetailedFinChargeMemoLine := TempDetailedFinChargeMemoLine;
-                                DetailedFinChargeMemoLine."Fin. Charge. Memo Line No." := FinanceChargeMemoLine."Line No.";
-                                DetailedFinChargeMemoLine.SystemId := TempDetailedFinChargeMemoLine.SystemId;
-                                DetailedFinChargeMemoLine.Insert(false, true);
-                            until TempDetailedFinChargeMemoLine.Next() = 0;
-
-                        FinanceChargeMemoLine.FindLast();
-                        LineNo := FinanceChargeMemoLine."Line No.";
-                    end;
                 until TempFinanceChargeMemoLine.Next() = 0;
         end;
 
@@ -230,11 +147,8 @@ codeunit 104150 "Upgrade - Local App"
 
     local procedure UpdateMultipleInterestRateReminders()
     var
-        DetailedReminderLine: Record "Detailed Reminder Line";
-        ReminderHeader: Record "Reminder Header";
         ReminderLine: Record "Reminder Line";
         TempReminderLine: Record "Reminder Line" temporary;
-        TempDetailedReminderLine: Record "Detailed Reminder Line" temporary;
         UpgradeTag: Codeunit "Upgrade Tag";
         LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
         ListOfDocumentNo: List of [Code[20]];
@@ -243,21 +157,6 @@ codeunit 104150 "Upgrade - Local App"
     begin
         if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetReplaceMulIntRateRemindersUpgradeTag()) then
             exit;
-
-        if ReminderHeader.FindSet() then
-            repeat
-                ReminderHeader."Multiple Interest Rates" := false;
-                ReminderHeader.Modify();
-            until ReminderHeader.Next() = 0;
-
-        if DetailedReminderLine.FindSet() then
-            repeat
-                if not ListOfDocumentNo.Contains(DetailedReminderLine."Reminder No.") then
-                    ListOfDocumentNo.Add(DetailedReminderLine."Reminder No.");
-                TempDetailedReminderLine.Init();
-                TempDetailedReminderLine := DetailedReminderLine;
-                TempDetailedReminderLine.Insert();
-            until DetailedReminderLine.Next() = 0;
 
         // remove already upgraded documents
         foreach DocumentNo in ListOfDocumentNo do begin
@@ -290,25 +189,6 @@ codeunit 104150 "Upgrade - Local App"
                     ReminderLine."Line No." := LineNo;
                     ReminderLine.SystemId := TempReminderLine.SystemId;
                     ReminderLine.Insert(false, true);
-
-                    if ReminderLine."Entry No." <> 0 then begin
-                        ReminderLine.Validate("Entry No.");
-                        ReminderLine.Modify();
-
-                        TempDetailedReminderLine.SetRange("Reminder No.", TempReminderLine."Reminder No.");
-                        TempDetailedReminderLine.SetRange("Line No.", TempReminderLine."Line No.");
-                        if TempDetailedReminderLine.FindSet() then
-                            repeat
-                                DetailedReminderLine.Init();
-                                DetailedReminderLine := TempDetailedReminderLine;
-                                DetailedReminderLine."Reminder Line No." := ReminderLine."Line No.";
-                                DetailedReminderLine.SystemId := TempDetailedReminderLine.SystemId;
-                                DetailedReminderLine.Insert(false, true);
-                            until TempDetailedReminderLine.Next() = 0;
-
-                        ReminderLine.FindLast();
-                        LineNo := ReminderLine."Line No.";
-                    end;
                 until TempReminderLine.Next() = 0;
         end;
 
@@ -317,42 +197,18 @@ codeunit 104150 "Upgrade - Local App"
 
     local procedure UpdateMultipleInterestRateIssuedFinanceChargeMemos()
     var
-        DetailedIssFinChMemoLine: Record "Detailed Iss.Fin.Ch. Memo Line";
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line";
         FinanceChargeTerms: Record "Finance Charge Terms";
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        ExtraIssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line";
         TempIssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line" temporary;
-        TempDetailedIssFinChMemoLine: Record "Detailed Iss.Fin.Ch. Memo Line" temporary;
         UpgradeTag: Codeunit "Upgrade Tag";
         LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
         ListOfDocumentNo: List of [Code[20]];
-        BaseAmount: Decimal;
         DocumentNo: Code[20];
-        DueDate: Date;
         LineNo: Integer;
-        Days: Integer;
     begin
         if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetReplaceMulIntRateIssuedFinanceChargeMemosUpgradeTag()) then
             exit;
-
-        if IssuedFinChargeMemoHeader.FindSet() then
-            repeat
-                IssuedFinChargeMemoHeader."Multiple Interest Rates" := false;
-                IssuedFinChargeMemoHeader.Modify();
-            until IssuedFinChargeMemoHeader.Next() = 0;
-
-        if DetailedIssFinChMemoLine.FindSet() then
-            repeat
-                if not ListOfDocumentNo.Contains(DetailedIssFinChMemoLine."Finance Charge Memo No.") then
-                    ListOfDocumentNo.Add(DetailedIssFinChMemoLine."Finance Charge Memo No.");
-                TempDetailedIssFinChMemoLine.Init();
-                TempDetailedIssFinChMemoLine := DetailedIssFinChMemoLine;
-                TempDetailedIssFinChMemoLine.Insert();
-
-                DetailedIssFinChMemoLine.Delete();
-            until DetailedIssFinChMemoLine.Next() = 0;
 
         // remove already upgraded documents
         foreach DocumentNo in ListOfDocumentNo do begin
@@ -388,46 +244,6 @@ codeunit 104150 "Upgrade - Local App"
                     IssuedFinChargeMemoLine."Line No." := LineNo;
                     IssuedFinChargeMemoLine.SystemId := TempIssuedFinChargeMemoLine.SystemId;
                     IssuedFinChargeMemoLine.Insert(false, true);
-
-                    if IssuedFinChargeMemoLine."Entry No." <> 0 then begin
-                        CustLedgerEntry.Get(IssuedFinChargeMemoLine."Entry No.");
-                        CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
-                        Days := 0;
-                        DueDate := CalcDate('<1D>', IssuedFinChargeMemoLine."Due Date");
-
-                        TempDetailedIssFinChMemoLine.SetRange("Finance Charge Memo No.", TempIssuedFinChargeMemoLine."Finance Charge Memo No.");
-                        TempDetailedIssFinChMemoLine.SetRange("Fin. Charge. Memo Line No.", TempIssuedFinChargeMemoLine."Line No.");
-                        if TempDetailedIssFinChMemoLine.FindSet() then
-                            repeat
-                                DetailedIssFinChMemoLine.Init();
-                                DetailedIssFinChMemoLine := TempDetailedIssFinChMemoLine;
-                                DetailedIssFinChMemoLine."Fin. Charge. Memo Line No." := IssuedFinChargeMemoLine."Line No.";
-                                DetailedIssFinChMemoLine.SystemId := TempDetailedIssFinChMemoLine.SystemId;
-                                DetailedIssFinChMemoLine.Insert(false, true);
-
-                                LineNo += 10000;
-                                ExtraIssuedFinChargeMemoLine.Init();
-                                ExtraIssuedFinChargeMemoLine := IssuedFinChargeMemoLine;
-                                ExtraIssuedFinChargeMemoLine."Line No." := LineNo;
-                                ExtraIssuedFinChargeMemoLine."Due Date" := DueDate;
-                                ExtraIssuedFinChargeMemoLine."Interest Rate" := TempDetailedIssFinChMemoLine."Interest Rate";
-                                ExtraIssuedFinChargeMemoLine.Amount := TempDetailedIssFinChMemoLine."Interest Amount";
-                                ExtraIssuedFinChargeMemoLine."Remaining Amount" := CustLedgerEntry."Remaining Amount";
-                                BaseAmount := Round(100 * ExtraIssuedFinChargeMemoLine.Amount / ExtraIssuedFinChargeMemoLine."Interest Rate");
-                                ExtraIssuedFinChargeMemoLine.Description :=
-                                    BuildDescription(
-                                        FinanceChargeTerms."Line Description", CustLedgerEntry.Description,
-                                        IssuedFinChargeMemoLine."Document Type", IssuedFinChargeMemoLine."Document No.",
-                                        IssuedFinChargeMemoHeader."Currency Code", ExtraIssuedFinChargeMemoLine."Interest Rate",
-                                        ExtraIssuedFinChargeMemoLine."Due Date", TempDetailedIssFinChMemoLine.Days,
-                                        CustLedgerEntry.Amount, BaseAmount);
-                                ExtraIssuedFinChargeMemoLine."Detailed Interest Rates Entry" := true;
-                                ExtraIssuedFinChargeMemoLine.Insert();
-
-                                Days += TempDetailedIssFinChMemoLine.Days;
-                                DueDate += Days;
-                            until TempDetailedIssFinChMemoLine.Next() = 0;
-                    end;
                 until TempIssuedFinChargeMemoLine.Next() = 0;
         end;
 
@@ -436,40 +252,16 @@ codeunit 104150 "Upgrade - Local App"
 
     local procedure UpdateMultipleInterestRateIssuedReminders()
     var
-        DetailedIssuedReminderLine: Record "Detailed Issued Reminder Line";
-        IssuedReminderHeader: Record "Issued Reminder Header";
         IssuedReminderLine: Record "Issued Reminder Line";
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        ExtraIssuedReminderLine: Record "Issued Reminder Line";
         TempIssuedReminderLine: Record "Issued Reminder Line" temporary;
-        TempDetailedIssuedReminderLine: Record "Detailed Issued Reminder Line" temporary;
         UpgradeTag: Codeunit "Upgrade Tag";
         LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
         ListOfDocumentNo: List of [Code[20]];
         DocumentNo: Code[20];
-        DueDate: Date;
         LineNo: Integer;
-        Days: Integer;
     begin
         if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetReplaceMulIntRateIssuedRemindersUpgradeTag()) then
             exit;
-
-        if IssuedReminderHeader.FindSet() then
-            repeat
-                IssuedReminderHeader."Multiple Interest Rates" := false;
-                IssuedReminderHeader.Modify();
-            until IssuedReminderHeader.Next() = 0;
-
-        if DetailedIssuedReminderLine.FindSet() then
-            repeat
-                if not ListOfDocumentNo.Contains(DetailedIssuedReminderLine."Issued Reminder No.") then
-                    ListOfDocumentNo.Add(DetailedIssuedReminderLine."Issued Reminder No.");
-                TempDetailedIssuedReminderLine.Init();
-                TempDetailedIssuedReminderLine := DetailedIssuedReminderLine;
-                TempDetailedIssuedReminderLine.Insert();
-
-                DetailedIssuedReminderLine.Delete();
-            until DetailedIssuedReminderLine.Next() = 0;
 
         // remove already upgraded documents
         foreach DocumentNo in ListOfDocumentNo do begin
@@ -502,73 +294,10 @@ codeunit 104150 "Upgrade - Local App"
                     IssuedReminderLine."Line No." := LineNo;
                     IssuedReminderLine.SystemId := TempIssuedReminderLine.SystemId;
                     IssuedReminderLine.Insert(false, true);
-
-                    if IssuedReminderLine."Entry No." <> 0 then begin
-                        CustLedgerEntry.Get(IssuedReminderLine."Entry No.");
-                        CustLedgerEntry.CalcFields("Remaining Amount");
-
-                        Days := 0;
-                        DueDate := CalcDate('<1D>', IssuedReminderLine."Due Date");
-
-                        TempDetailedIssuedReminderLine.SetRange("Issued Reminder No.", TempIssuedReminderLine."Reminder No.");
-                        TempDetailedIssuedReminderLine.SetRange("Issued Reminder Line No.", TempIssuedReminderLine."Line No.");
-                        if TempDetailedIssuedReminderLine.FindSet() then
-                            repeat
-                                DetailedIssuedReminderLine.Init();
-                                DetailedIssuedReminderLine := TempDetailedIssuedReminderLine;
-                                DetailedIssuedReminderLine."Issued Reminder Line No." := IssuedReminderLine."Line No.";
-                                DetailedIssuedReminderLine.SystemId := TempDetailedIssuedReminderLine.SystemId;
-                                DetailedIssuedReminderLine.Insert(false, true);
-
-                                LineNo += 10000;
-                                ExtraIssuedReminderLine.Init();
-                                ExtraIssuedReminderLine := IssuedReminderLine;
-                                ExtraIssuedReminderLine."Line No." := LineNo;
-                                ExtraIssuedReminderLine."Due Date" := DueDate;
-                                ExtraIssuedReminderLine."Interest Rate" := TempDetailedIssuedReminderLine."Interest Rate";
-                                ExtraIssuedReminderLine.Amount := TempDetailedIssuedReminderLine."Interest Amount";
-                                ExtraIssuedReminderLine."Remaining Amount" := CustLedgerEntry."Remaining Amount";
-                                ExtraIssuedReminderLine."Detailed Interest Rates Entry" := true;
-                                ExtraIssuedReminderLine.Insert();
-
-                                Days += TempDetailedIssuedReminderLine.Days;
-                                DueDate += Days;
-                            until TempDetailedIssuedReminderLine.Next() = 0;
-                    end;
                 until TempIssuedReminderLine.Next() = 0;
         end;
 
         UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetReplaceMulIntRateIssuedRemindersUpgradeTag());
-    end;
-
-    local procedure BuildDescription(LineDescription: Text[100]; EntryDescription: Text[100]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; CurrencyCode: Code[20]; InterestRate: Decimal; DueDate: Date; NrOfDays: Integer; OriginalAmount: Decimal; BaseAmount: Decimal): Text[100]
-    var
-        AutoFormat: Codeunit "Auto Format";
-        AutoFormatType: Enum "Auto Format";
-        DocumentTypeText: Text[30];
-        DocumentTxt: Label 'Document';
-    begin
-        if LineDescription = '' then
-            exit(CopyStr(EntryDescription, 1, 100));
-
-        DocumentTypeText := CopyStr(DelChr(Format(DocumentType), '<'), 1, 30);
-        if DocumentTypeText = '' then
-            DocumentTypeText := DocumentTxt;
-
-        exit(
-            CopyStr(
-                StrSubstNo(
-                    LineDescription,
-                    EntryDescription,
-                    DocumentTypeText,
-                    DocumentNo,
-                    InterestRate,
-                    Format(OriginalAmount, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, CurrencyCode)),
-                    Format(BaseAmount, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, CurrencyCode)),
-                    DueDate,
-                    CurrencyCode,
-                    NrOfDays),
-                1, 100));
     end;
 
     internal procedure DeleteWorkflowTemplate(WorkflowCode: Code[20])

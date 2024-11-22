@@ -666,15 +666,6 @@ table 121 "Purch. Rcpt. Line"
             TableRelation = "Over-Receipt Code";
             Editable = false;
         }
-#if not CLEANSCHEMA23
-        field(11790; "Vendor Shipment No."; Code[35])
-        {
-            Caption = 'Vendor Shipment No.';
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';

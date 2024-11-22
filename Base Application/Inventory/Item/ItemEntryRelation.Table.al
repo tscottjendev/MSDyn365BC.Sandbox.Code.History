@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -72,15 +72,6 @@ table 6507 "Item Entry Relation"
             Caption = 'Package No.';
             CaptionClass = '6,1';
         }
-#if not CLEANSCHEMA23
-        field(31070; Undo; Boolean)
-        {
-            Caption = 'Undo';
-            ObsoleteReason = 'Moved to Advance Localization Pack for Czech.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys

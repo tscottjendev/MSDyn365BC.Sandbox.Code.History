@@ -1531,44 +1531,6 @@ table 23 Vendor
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
         }
-#if not CLEANSCHEMA23
-        field(11760; "Last Statement No."; Integer)
-        {
-            Caption = 'Last Statement No.';
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
-#if not CLEANSCHEMA23
-        field(11761; "Print Statements"; Boolean)
-        {
-            Caption = 'Print Statements';
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
-#if not CLEANSCHEMA23
-        field(11762; "Last Statement Date"; Date)
-        {
-            Caption = 'Last Statement Date';
-            Editable = false;
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
-#if not CLEANSCHEMA23
-        field(11793; "Default Order Address Code"; Code[10])
-        {
-            Caption = 'Default Order Address Code';
-            TableRelation = "Order Address".Code where("Vendor No." = field("No."));
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys

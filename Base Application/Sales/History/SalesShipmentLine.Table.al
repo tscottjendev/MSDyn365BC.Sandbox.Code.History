@@ -561,16 +561,6 @@ table 111 "Sales Shipment Line"
                 UpdateDocumentNo();
             end;
         }
-#if not CLEANSCHEMA23
-        field(11791; "Package Tracking No."; Text[30])
-        {
-            Caption = 'Package Tracking No.';
-            OptimizeForTextSearch = true;
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys

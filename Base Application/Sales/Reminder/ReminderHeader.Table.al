@@ -526,15 +526,6 @@ table 295 "Reminder Header"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
-#if not CLEANSCHEMA23
-        field(11761; "Multiple Interest Rates"; Boolean)
-        {
-            Caption = 'Multiple Interest Rates';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
-        }
-#endif
     }
 
     keys

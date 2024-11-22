@@ -196,32 +196,6 @@ table 5745 "Transfer Shipment Line"
                                             "Item Filter" = field("Item No."),
                                             "Variant Filter" = field("Variant Code"));
         }
-#if not CLEANSCHEMA23
-        field(11760; Correction; Boolean)
-        {
-            Caption = 'Correction';
-            Editable = false;
-            ObsoleteReason = 'Moved to Advance Localization Pack for Czech.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11761; "Posting Date"; Date)
-        {
-            Caption = 'Posting Date';
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
-#if not CLEANSCHEMA23
-        field(31072; "Transfer Order Line No."; Integer)
-        {
-            Caption = 'Transfer Order Line No.';
-            ObsoleteReason = 'Moved to Advance Localization Pack for Czech.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys

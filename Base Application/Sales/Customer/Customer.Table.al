@@ -1682,16 +1682,6 @@ table 18 Customer
             Caption = 'Contact Graph Id';
             OptimizeForTextSearch = true;
         }
-#if not CLEANSCHEMA23
-        field(11760; "Last Statement Date"; Date)
-        {
-            Caption = 'Last Statement Date';
-            Editable = false;
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys

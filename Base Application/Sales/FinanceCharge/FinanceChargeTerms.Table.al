@@ -89,24 +89,6 @@ table 5 "Finance Charge Terms"
         {
             Caption = 'Detailed Lines Description';
         }
-#if not CLEANSCHEMA23
-        field(11760; "Detailed Line Description"; Text[50])
-        {
-            Caption = 'Detailed Line Description';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
-        }
-#endif
-#if not CLEANSCHEMA23
-        field(11761; "Grace Tax Period"; DateFormula)
-        {
-            Caption = 'Grace Tax Period';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
-        }
-#endif
     }
 
     keys
@@ -143,4 +125,3 @@ table 5 "Finance Charge Terms"
 
         InterestRateNotificationMsg: Label 'This interest rate will only be used if no relevant interest rate per date has been entered.';
 }
-

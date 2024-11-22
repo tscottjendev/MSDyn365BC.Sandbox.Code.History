@@ -766,15 +766,6 @@ table 15 "G/L Account"
             Caption = 'API Account Type';
             Editable = false;
         }
-#if not CLEANSCHEMA23
-        field(11761; "Apply Entries"; Boolean)
-        {
-            Caption = 'Apply Entries';
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -123,29 +123,6 @@ table 86 "Exch. Rate Adjmt. Reg."
             Editable = false;
             FieldClass = FlowField;
         }
-#if not CLEANSCHEMA23
-        field(11760; "Starting Date"; Date)
-        {
-            Caption = 'Starting Date';
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11761; "Ending Date"; Date)
-        {
-            Caption = 'Ending Date';
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11762; "Running Date"; Date)
-        {
-            Caption = 'Running Date';
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys
@@ -176,4 +153,3 @@ table 86 "Exch. Rate Adjmt. Reg."
         exit(GLSetup."Additional Reporting Currency");
     end;
 }
-

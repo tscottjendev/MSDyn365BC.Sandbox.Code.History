@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -394,23 +394,6 @@ table 13 "Salesperson/Purchaser"
         {
             Caption = 'Blocked';
         }
-#if not CLEANSCHEMA23
-        field(11795; "Instant Messaging"; Text[250])
-        {
-            Caption = 'Instant Messaging';
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11796; "Mobile Phone No."; Text[30])
-        {
-            Caption = 'Mobile Phone No.';
-            ExtendedDatatype = PhoneNo;
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     keys
@@ -562,4 +545,3 @@ table 13 "Salesperson/Purchaser"
     begin
     end;
 }
-
