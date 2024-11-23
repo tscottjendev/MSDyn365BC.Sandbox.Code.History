@@ -15,7 +15,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
@@ -417,7 +416,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
         if IsInitialized then
             exit;
 
-        LibraryItemReference.EnableFeature(true);
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
