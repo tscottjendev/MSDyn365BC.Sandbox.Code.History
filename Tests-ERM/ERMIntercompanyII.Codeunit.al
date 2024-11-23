@@ -18,7 +18,6 @@ codeunit 134152 "ERM Intercompany II"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
@@ -4578,7 +4577,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        LibraryItemReference.EnableFeature(true);
+
         IsInitialized := true;
         Commit();
 
