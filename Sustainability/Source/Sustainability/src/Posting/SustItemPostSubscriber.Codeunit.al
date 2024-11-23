@@ -33,6 +33,7 @@ codeunit 6256 "Sust. Item Post Subscriber"
         SustainabilityJnlLine."Dimension Set ID" := ItemJournalLine."Dimension Set ID";
         SustainabilityJnlLine."Shortcut Dimension 1 Code" := ItemJournalLine."Shortcut Dimension 1 Code";
         SustainabilityJnlLine."Shortcut Dimension 2 Code" := ItemJournalLine."Shortcut Dimension 2 Code";
+        SustainabilityJnlLine.Validate("CO2e Emission", ItemJournalLine."Total CO2e");
         SustainabilityJnlLine.Validate("Emission CO2", ItemJournalLine."Emission CO2");
         SustainabilityJnlLine.Validate("Emission CH4", ItemJournalLine."Emission CH4");
         SustainabilityJnlLine.Validate("Emission N2O", ItemJournalLine."Emission N2O");

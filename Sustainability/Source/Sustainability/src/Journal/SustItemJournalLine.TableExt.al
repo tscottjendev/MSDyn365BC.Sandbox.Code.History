@@ -1,8 +1,8 @@
 namespace Microsoft.Sustainability.Journal;
 
+using Microsoft.Inventory.Journal;
 using Microsoft.Sustainability.Account;
 using Microsoft.Sustainability.Setup;
-using Microsoft.Inventory.Journal;
 
 tableextension 6233 "Sust. Item Journal Line" extends "Item Journal Line"
 {
@@ -52,6 +52,20 @@ tableextension 6233 "Sust. Item Journal Line" extends "Item Journal Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission N2O';
+            DataClassification = CustomerContent;
+        }
+        field(6217; "CO2e per Unit"; Decimal)
+        {
+            AutoFormatType = 11;
+            AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
+            Caption = 'CO2e per Unit';
+            DataClassification = CustomerContent;
+        }
+        field(6218; "Total CO2e"; Decimal)
+        {
+            AutoFormatType = 11;
+            AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
+            Caption = 'Total CO2e';
             DataClassification = CustomerContent;
         }
     }
