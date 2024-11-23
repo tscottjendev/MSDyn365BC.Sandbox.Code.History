@@ -2080,11 +2080,13 @@ codeunit 427 ICInboxOutboxMgt
         exit(Item."No.");
     end;
 
+#if not CLEAN23
     [Obsolete('Use another implementation of GetItemFromItemRef.', '23.0')]
     procedure GetItemFromItemRef(RefNo: Code[50]; RefType: Enum "Item Reference Type"; RefTypeNo: Code[20]): Code[20]
     begin
         exit(GetItemFromItemRef(RefNo, RefType, RefTypeNo, 0D));
     end;
+#endif
 
     procedure GetItemFromItemRef(RefNo: Code[50]; RefType: Enum "Item Reference Type"; RefTypeNo: Code[20]; ToDate: Date): Code[20]
     var
