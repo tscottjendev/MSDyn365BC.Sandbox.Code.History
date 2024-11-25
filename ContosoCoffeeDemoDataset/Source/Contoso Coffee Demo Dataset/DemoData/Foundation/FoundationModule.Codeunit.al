@@ -13,7 +13,6 @@ codeunit 5203 "Foundation Module" implements "Contoso Demo Data Module"
     end;
 
     procedure CreateSetupData()
-    var
     begin
         Codeunit.Run(Codeunit::"Create Shipping Data");
         Codeunit.Run(Codeunit::"Create Language");
