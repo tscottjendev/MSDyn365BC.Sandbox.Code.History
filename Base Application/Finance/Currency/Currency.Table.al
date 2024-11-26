@@ -497,15 +497,6 @@ table 4 Currency
             Editable = false;
             CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::Currency)));
         }
-#if not CLEANSCHEMA24
-        field(2000000; "ISO Currency Code"; Code[3])
-        {
-            Caption = 'ISO Currency Code';
-            ObsoleteReason = 'replaced by W1 field ISO Code';
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-        }
-#endif
     }
 
     keys
