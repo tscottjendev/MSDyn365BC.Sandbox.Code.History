@@ -220,6 +220,7 @@ codeunit 5817 "Undo Posting Management"
     var
         WarehouseEntry: Record "Warehouse Entry";
         Location: Record Location;
+        WhsePostReceipt: Codeunit "Whse.-Post Receipt";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -229,6 +230,11 @@ codeunit 5817 "Undo Posting Management"
 
         if PostedWhseReceiptLine."Location Code" = '' then
             exit;
+
+        if PostedWhseReceiptLine."Bin Code" <> '' then
+            if WhsePostReceipt.IsReceiptForJob(PostedWhseReceiptLine) then
+                exit;
+
         Location.Get(PostedWhseReceiptLine."Location Code");
         if Location."Bin Mandatory" then begin
             WarehouseEntry.SetCurrentKey("Item No.", "Location Code", "Variant Code", "Bin Type Code");
