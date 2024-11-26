@@ -3073,7 +3073,7 @@
 
     [Test]
     [HandlerFunctions('EmptyMessageHandler')]
-    procedure InventoryPutawayCreatedOnlyForPurchaseLinesWithoutJob()
+    procedure InventoryPutawayCreatedBothForPurchaseLinesWithJobAndWithoutJob()
     var
         Location: Record Location;
         JobTask: Record "Job Task";
@@ -3083,7 +3083,7 @@
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         // [FEATURE] [Purchase] [Order] [Put-away] [Job]
-        // [SCENARIO 408137] Inventory put-away is created only for purchase lines that have no link to Job.
+        // [SCENARIO 408137] [545709] Inventory put-away is created for purchase lines regardless of link to Job.
         Initialize();
 
         // [GIVEN] Location "L" with required put-away.
@@ -3112,9 +3112,9 @@
         // [WHEN] Create inventory put-away.
         LibraryWarehouse.CreateInvtPutPickPurchaseOrder(PurchaseHeader);
 
-        // [THEN] Put-away contains only the second purchase line (without Job).
+        // [THEN] Put-away contains both the first line (with Job) and the second purchase line
         WarehouseActivityLine.SetRange("Item No.", Item[1]."No.");
-        Assert.RecordIsEmpty(WarehouseActivityLine);
+        Assert.RecordIsNotEmpty(WarehouseActivityLine);
 
         WarehouseActivityLine.SetRange("Item No.", Item[2]."No.");
         Assert.RecordIsNotEmpty(WarehouseActivityLine);
