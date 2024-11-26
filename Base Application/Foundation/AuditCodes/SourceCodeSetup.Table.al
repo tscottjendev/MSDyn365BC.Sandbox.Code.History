@@ -424,16 +424,6 @@ table 242 "Source Code Setup"
             Caption = 'Delivery Reminder';
             TableRelation = "Source Code";
         }
-#if not CLEANSCHEMA24
-        field(5005350; "Phys. Invt. Order"; Code[10])
-        {
-            Caption = 'Phys. Invt. Order';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            TableRelation = "Source Code";
-            ObsoleteTag = '24.0';
-        }
-#endif
     }
 
     keys
@@ -448,4 +438,3 @@ table 242 "Source Code Setup"
     {
     }
 }
-
