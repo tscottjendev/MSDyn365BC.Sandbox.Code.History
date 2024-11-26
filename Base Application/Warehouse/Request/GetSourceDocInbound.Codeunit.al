@@ -286,13 +286,23 @@ codeunit 5751 "Get Source Doc. Inbound"
         WMSManagement: Codeunit "WMS Management";
         IsHandled: Boolean;
     begin
-        GetSourceDocuments.GetLastReceiptHeader(WarehouseReceiptHeader);
+        GetSourceDocuments.GetCreatedReceiptHeaders(WarehouseReceiptHeader);
+        WarehouseReceiptHeader.MarkedOnly(true);
+        WarehouseReceiptHeader.FindSet();
         IsHandled := false;
         OnOpenWarehouseReceiptPage(WarehouseReceiptHeader, ServVendDocNo, IsHandled, GetSourceDocuments);
-        if not IsHandled then begin
+        if IsHandled then
+            exit;
+
+        repeat
             WMSManagement.CheckUserIsWhseEmployeeForLocation(WarehouseReceiptHeader."Location Code", true);
-            PAGE.Run(PAGE::"Warehouse Receipt", WarehouseReceiptHeader);
-        end
+        until WarehouseReceiptHeader.Next() = 0;
+        case WarehouseReceiptHeader.Count() of
+            1:
+                Page.Run(Page::"Warehouse Receipt", WarehouseReceiptHeader);
+            else
+                Page.Run(Page::"Warehouse Receipts", WarehouseReceiptHeader);
+        end;
     end;
 
     local procedure UpdateReceiptHeaderStatus(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
