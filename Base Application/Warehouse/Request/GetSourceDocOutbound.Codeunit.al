@@ -452,9 +452,18 @@ codeunit 5752 "Get Source Doc. Outbound"
         if IsHandled then
             exit;
 
-        GetSourceDocuments.GetLastShptHeader(WarehouseShipmentHeader);
-        WMSManagement.CheckUserIsWhseEmployeeForLocation(WarehouseShipmentHeader."Location Code", true);
-        PAGE.Run(PAGE::"Warehouse Shipment", WarehouseShipmentHeader);
+        GetSourceDocuments.GetCreatedShptHeaders(WarehouseShipmentHeader);
+        WarehouseShipmentHeader.MarkedOnly(true);
+        WarehouseShipmentHeader.FindSet();
+        repeat
+            WMSManagement.CheckUserIsWhseEmployeeForLocation(WarehouseShipmentHeader."Location Code", true);
+        until WarehouseShipmentHeader.Next() = 0;
+        case WarehouseShipmentHeader.Count() of
+            1:
+                Page.Run(Page::"Warehouse Shipment", WarehouseShipmentHeader);
+            else
+                Page.Run(Page::"Warehouse Shipment List", WarehouseShipmentHeader);
+        end;
     end;
 
     procedure GetRequireShipRqst(var WarehouseRequest: Record "Warehouse Request")
