@@ -48,7 +48,6 @@ codeunit 136350 "UT T Job"
         PlanningLinesNotUpdatedMsg: Label 'You have changed %1 on the project task, but it has not been changed on the existing project planning lines.', Comment = '%1 = a Field Caption like Location Code';
         UpdatePlanningLinesManuallyMsg: Label 'You must update the existing project planning lines manually.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.', Locked = true;
-        DPPLocationErr: Label 'You cannot create purchase orders for items that are set up for directed put-away and pick. You can activate and select Reserve field from personalization in order to finish this task.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1746,15 +1745,16 @@ codeunit 136350 "UT T Job"
 
     [Test]
     [HandlerFunctions('PurchOrderFromJobModalPageHandlerWithDPPLocation')]
-    procedure VerifyErrorOnCreatePurchaseOrderFromJobForDPPLocation()
+    procedure VerifyCreatePurchaseOrderFromJobForDPPLocation()
     var
         Vendor: Record Vendor;
         Item: Record Item;
         Location: Record Location;
+        PurchaseLine: Record "Purchase Line";
         PurchaseOrder: TestPage "Purchase Order";
         JobCard: TestPage "Job Card";
     begin
-        // [SCENARIO 549866] Verify error on create Purchase Order from Job for DPP Location
+        // [SCENARIO 549866] [545709] Verify create Purchase Order from Job for DPP Location
         Initialize();
 
         // [GIVEN] Create Vendor
@@ -1779,10 +1779,14 @@ codeunit 136350 "UT T Job"
         PurchaseOrder.Trap();
         JobCard.OpenEdit();
         JobCard.GotoRecord(Job);
-        asserterror JobCard.CreatePurchaseOrder.Invoke();
+        JobCard.CreatePurchaseOrder.Invoke();
 
-        // [THEN] Verify error
-        Assert.ExpectedError(DPPLocationErr);
+        // [THEN] Verify Purchase Order is created
+        PurchaseLine.SetRange("Job No.", Job."No.");
+        PurchaseLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        PurchaseLine.SetRange(Quantity, JobPlanningLine.Quantity);
+        Assert.IsFalse(PurchaseLine.IsEmpty(), 'Purchase Line not created for Job Task' + JobTask."Job Task No.");
     end;
 
     [Test]
@@ -2562,13 +2566,13 @@ codeunit 136350 "UT T Job"
         Reservation."Reserve from Current Line".Invoke();
         Reservation.OK().Invoke();
     end;
-    
+
     [ModalPageHandler]
     procedure PurchOrderFromJobModalPageHandlerWithDPPLocation(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
     begin
         PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
         PurchOrderFromSalesOrder.OK().Invoke();
-    end;    
+    end;
 
     [MessageHandler]
     procedure MessageHandler(Message: Text[1024])
