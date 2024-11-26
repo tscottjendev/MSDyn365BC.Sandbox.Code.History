@@ -305,28 +305,6 @@ table 49 "Invoice Post. Buffer"
             Caption = 'Non-Deductible VAT Difference';
             Editable = false;
         }
-#if not CLEANSCHEMA24
-        field(11760; "VAT Date"; Date)
-        {
-            Caption = 'VAT Date';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-        }
-#endif
-#if not CLEANSCHEMA24
-        field(31000; "Prepayment Type"; Option)
-        {
-            Caption = 'Prepayment Type';
-            DataClassification = SystemMetadata;
-            OptionCaption = ' ,Prepayment,Advance';
-            OptionMembers = " ",Prepayment,Advance;
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-            ObsoleteReason = 'The field is not needed anymore.';
-        }
-#endif
     }
 
     keys

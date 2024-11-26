@@ -430,16 +430,6 @@ table 753 "Standard Item Journal Line"
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
         }
-#if not CLEANSCHEMA24
-        field(50; "New Location Code"; Code[10])
-        {
-            Caption = 'New Location Code';
-            TableRelation = Location;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-        }
-#endif
         field(53; "Qty. (Calculated)"; Decimal)
         {
             Caption = 'Qty. (Calculated)';

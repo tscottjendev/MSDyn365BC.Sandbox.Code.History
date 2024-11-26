@@ -74,26 +74,6 @@ table 331 "Adjust Exchange Rate Buffer"
             Caption = 'Index';
             DataClassification = SystemMetadata;
         }
-#if not CLEANSCHEMA24
-        field(11760; "Initial G/L Account No."; Code[20])
-        {
-            Caption = 'Initial G/L Account No.';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-            ObsoleteReason = 'The field is not used anymore.';
-        }
-#endif
-#if not CLEANSCHEMA24
-        field(31000; Advance; Boolean)
-        {
-            Caption = 'Advance';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-            ObsoleteReason = 'The field is not used anymore.';
-        }
-#endif
     }
 
     keys

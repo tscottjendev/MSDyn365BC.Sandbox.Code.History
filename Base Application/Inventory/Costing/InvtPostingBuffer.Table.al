@@ -97,16 +97,6 @@ table 48 "Invt. Posting Buffer"
             Editable = false;
             TableRelation = "Dimension Set Entry";
         }
-#if not CLEANSCHEMA24
-        field(11763; "G/L Correction"; Boolean)
-        {
-            Caption = 'G/L Correction';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-            ObsoleteReason = 'The field is not used anymore.';
-        }
-#endif
     }
 
     keys
