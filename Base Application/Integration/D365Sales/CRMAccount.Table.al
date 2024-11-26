@@ -1223,20 +1223,6 @@ table 5341 "CRM Account"
             ExternalType = 'Lookup';
             TableRelation = "CRM Account Statistics".AccountStatisticsId;
         }
-#if not CLEANSCHEMA24
-        field(201; AccountStatiticsName; Text[100])
-        {
-            CalcFormula = lookup("CRM Account Statistics".Name where(AccountStatisticsId = field(AccountStatiticsId)));
-            Caption = 'AccountStatiticsName';
-            ExternalAccess = Read;
-            ExternalName = 'nav_accountstatiticsidname';
-            ExternalType = 'String';
-            FieldClass = FlowField;
-            ObsoleteReason = 'This field is obsolete. Get CRMAccountStatistics via AccountStatiticsId, then use its name.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-        }
-#endif
         field(202; CompanyId; Guid)
         {
             Caption = 'Company Id';
