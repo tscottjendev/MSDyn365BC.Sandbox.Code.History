@@ -166,6 +166,8 @@ report 5753 "Get Source Documents"
                             CurrReport.Skip();
 
                         VerifyPurchaseItemNotBlocked("Purchase Header", "Purchase Line");
+                        if "Purchase Line"."Document Type" in ["Purchase Line"."Document Type"::Order] then
+                            "Purchase Line".TestPurchaseJobFields();
                         if "Location Code" = "Warehouse Request"."Location Code" then
                             case RequestType of
                                 RequestType::Receive:
@@ -580,7 +582,8 @@ report 5753 "Get Source Documents"
         else
             PurchLine.SetFilter("Outstanding Quantity", '<0');
         PurchLine.SetRange("Drop Shipment", false);
-        PurchLine.SetRange("Job No.", '');
+        if WarehouseRequest."Source Document" = WarehouseRequest."Source Document"::"Purchase Return Order" then
+            PurchLine.SetRange("Job No.", '');
 
         OnAfterSetPurchLineFilters(PurchLine, WarehouseRequest);
     end;
