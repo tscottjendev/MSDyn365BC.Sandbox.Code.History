@@ -1380,15 +1380,13 @@ codeunit 6501 "Item Tracking Data Collection"
 
     local procedure CheckJobInPurchLine(TrackingSpecification: Record "Tracking Specification"): Boolean
     var
-        PurchLine: Record "Purchase Line";
+        PurchaseLine: Record "Purchase Line";
     begin
         if (TrackingSpecification."Source Type" = Database::"Purchase Line") and (TrackingSpecification."Source Subtype" = TrackingSpecification."Source Subtype"::"3") then begin
-            PurchLine.Reset();
-            PurchLine.SetRange("Document Type", TrackingSpecification."Source Subtype");
-            PurchLine.SetRange("Document No.", TrackingSpecification."Source ID");
-            PurchLine.SetRange("Line No.", TrackingSpecification."Source Ref. No.");
-            if PurchLine.FindFirst() then
-                exit(PurchLine."Job No." <> '');
+            PurchaseLine.ReadIsolation(IsolationLevel::ReadUncommitted);
+            PurchaseLine.SetLoadFields("Job No.");
+            if PurchaseLine.Get(TrackingSpecification."Source Subtype", TrackingSpecification."Source ID", TrackingSpecification."Source Ref. No.") then
+                exit(PurchaseLine."Job No." <> '');
         end;
     end;
 

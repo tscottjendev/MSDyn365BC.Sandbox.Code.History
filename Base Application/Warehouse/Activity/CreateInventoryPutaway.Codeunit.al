@@ -341,7 +341,8 @@ codeunit 7321 "Create Inventory Put-away"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Drop Shipment", false);
-        PurchaseLine.SetRange("Job No.", '');
+        if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Return Order" then
+            PurchaseLine.SetRange("Job No.", '');
         if not CheckLineExist then
             PurchaseLine.SetRange("Location Code", CurrWarehouseActivityHeader."Location Code");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
