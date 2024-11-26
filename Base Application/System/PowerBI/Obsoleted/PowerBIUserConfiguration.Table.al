@@ -30,16 +30,6 @@ table 6304 "Power BI User Configuration"
             Caption = 'Profile ID';
             DataClassification = CustomerContent;
         }
-#if not CLEANSCHEMA24
-        field(4; "Report Visibility"; Boolean)
-        {
-            Caption = 'Report Visibility';
-            ObsoleteReason = 'The report part visibility is now handled by the standard personalization experience. Hide the page using Personalization instead of using this value.';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-        }
-#endif
         field(5; "Selected Report ID"; Guid)
         {
             Caption = 'Selected Report ID';
