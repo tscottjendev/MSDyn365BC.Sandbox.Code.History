@@ -94,17 +94,6 @@ table 274 "Bank Acc. Reconciliation Line"
                 Difference := "Statement Amount" - "Applied Amount";
             end;
         }
-#if not CLEANSCHEMA24
-        field(10; Type; Option)
-        {
-            Caption = 'Type';
-            OptionCaption = 'Bank Account Ledger Entry,Check Ledger Entry,Difference';
-            OptionMembers = "Bank Account Ledger Entry","Check Ledger Entry",Difference;
-            ObsoleteReason = 'This field is prone to confusion and is redundant. A type Difference can be manually tracked and a type Check Ledger Entry has a related Bank Account Ledger Entry';
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-        }
-#endif
         field(11; "Applied Entries"; Integer)
         {
             Caption = 'Applied Entries';

@@ -576,16 +576,6 @@ table 98 "General Ledger Setup"
             Editable = false;
             MinValue = 0;
         }
-#if not CLEANSCHEMA24
-        field(96; "Adapt Main Menu to Permissions"; Boolean)
-        {
-            Caption = 'Adapt Main Menu to Permissions';
-            InitValue = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced with UI Elements Removal feature.';
-            ObsoleteTag = '24.0';
-        }
-#endif
         field(97; "Allow G/L Acc. Deletion Before"; Date)
         {
             Caption = 'Check G/L Acc. Deletion After';
