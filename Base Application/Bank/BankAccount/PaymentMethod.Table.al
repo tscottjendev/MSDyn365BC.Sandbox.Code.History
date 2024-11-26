@@ -103,15 +103,6 @@ table 289 "Payment Method"
                 end;
             end;
         }
-#if not CLEANSCHEMA24
-        field(10; "Use for Invoicing"; Boolean)
-        {
-            Caption = 'Use for Invoicing';
-            ObsoleteReason = 'Microsoft Invoicing is not supported on Business Central';
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-        }
-#endif
         field(11; "Last Modified Date Time"; DateTime)
         {
             Caption = 'Last Modified Date Time';
