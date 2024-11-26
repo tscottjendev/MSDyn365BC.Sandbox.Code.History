@@ -28,7 +28,7 @@ using System.Utilities;
 codeunit 5760 "Whse.-Post Receipt"
 {
     Permissions = TableData "Whse. Item Entry Relation" = ri,
-                  TableData "Posted Whse. Receipt Header" = ri,
+                  TableData "Posted Whse. Receipt Header" = rim,
                   TableData "Posted Whse. Receipt Line" = ri;
     TableNo = "Warehouse Receipt Line";
 
@@ -886,6 +886,7 @@ codeunit 5760 "Whse.-Post Receipt"
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
         WhsePutAwayRequest: Record "Whse. Put-away Request";
+        PostedWhseReceiptHeaderNo: Code[20];
         DeleteWhseRcptLine: Boolean;
     begin
         OnBeforePostUpdateWhseDocuments(WarehouseReceiptHeader);
@@ -903,6 +904,7 @@ codeunit 5760 "Whse.-Post Receipt"
             TempWarehouseReceiptLine.DeleteAll();
         end;
 
+        PostedWhseReceiptHeaderNo := WarehouseReceiptHeader."Receiving No.";
         if WarehouseReceiptHeader."Create Posted Header" then begin
             WarehouseReceiptHeader."Last Receiving No." := WarehouseReceiptHeader."Receiving No.";
             WarehouseReceiptHeader."Receiving No." := '';
@@ -919,18 +921,45 @@ codeunit 5760 "Whse.-Post Receipt"
             OnPostUpdateWhseDocumentsOnAfterWhseRcptHeaderDelete(WarehouseReceiptHeader);
         end;
 
-        OnPostUpdateWhseDocumentsOnBeforeGetLocation(WarehouseReceiptHeader);
-        GetLocation(WarehouseReceiptHeader."Location Code");
-        if Location."Require Put-away" then begin
-            WhsePutAwayRequest."Document Type" := WhsePutAwayRequest."Document Type"::Receipt;
-            WhsePutAwayRequest."Document No." := WarehouseReceiptHeader."Last Receiving No.";
-            WhsePutAwayRequest."Location Code" := WarehouseReceiptHeader."Location Code";
-            WhsePutAwayRequest."Zone Code" := WarehouseReceiptHeader."Zone Code";
-            WhsePutAwayRequest."Bin Code" := WarehouseReceiptHeader."Bin Code";
-            if WhsePutAwayRequest.Insert() then;
+        if IsWarehousePutAwayIncomplete(PostedWhseReceiptHeaderNo) then begin
+            OnPostUpdateWhseDocumentsOnBeforeGetLocation(WarehouseReceiptHeader);
+            GetLocation(WarehouseReceiptHeader."Location Code");
+            if Location."Require Put-away" then begin
+                WhsePutAwayRequest."Document Type" := WhsePutAwayRequest."Document Type"::Receipt;
+                WhsePutAwayRequest."Document No." := WarehouseReceiptHeader."Last Receiving No.";
+                WhsePutAwayRequest."Location Code" := WarehouseReceiptHeader."Location Code";
+                WhsePutAwayRequest."Zone Code" := WarehouseReceiptHeader."Zone Code";
+                WhsePutAwayRequest."Bin Code" := WarehouseReceiptHeader."Bin Code";
+                if WhsePutAwayRequest.Insert() then;
+            end;
         end;
 
         OnAfterPostUpdateWhseDocuments(WarehouseReceiptHeader, WhsePutAwayRequest);
+    end;
+
+    local procedure IsWarehousePutAwayIncomplete(PostedWhseReceiptHeaderNo: Code[20]): Boolean
+    var
+        PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header";
+    begin
+        if PostedWhseReceiptHeaderNo = '' then
+            exit(true);
+
+        if not PostedWhseReceiptHeader.Get(PostedWhseReceiptHeaderNo) then
+            exit(true);
+
+        UpdateWarehousePutAwayStatus(PostedWhseReceiptHeader);
+
+        exit(PostedWhseReceiptHeader."Document Status" <> PostedWhseReceiptHeader."Document Status"::"Completely Put Away");
+    end;
+
+    local procedure UpdateWarehousePutAwayStatus(var PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header")
+    var
+        xPostedWhseReceiptHeaderDocumentStatus: Option;
+    begin
+        xPostedWhseReceiptHeaderDocumentStatus := PostedWhseReceiptHeader."Document Status";
+        PostedWhseReceiptHeader."Document Status" := PostedWhseReceiptHeader.GetHeaderStatus(0);
+        if PostedWhseReceiptHeader."Document Status" <> xPostedWhseReceiptHeaderDocumentStatus then
+            PostedWhseReceiptHeader.Modify(true);
     end;
 
     local procedure UpdateWhseRcptLine(WarehouseReceiptLine: Record "Warehouse Receipt Line")
@@ -999,7 +1028,7 @@ codeunit 5760 "Whse.-Post Receipt"
 
     procedure CreatePostedRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header"; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var TempHandlingSpecification: Record "Tracking Specification")
     var
-        IsHandled: Boolean;
+        SkipPutAwayProcessing, IsHandled : Boolean;
     begin
         IsHandled := false;
         OnBeforeCreatePostedRcptLine(WarehouseReceiptLine, PostedWhseReceiptHeader, PostedWhseReceiptLine, TempHandlingSpecification, IsHandled);
@@ -1028,7 +1057,10 @@ codeunit 5760 "Whse.-Post Receipt"
         end;
 
         GetLocation(PostedWhseReceiptLine."Location Code");
-        if not Location."Require Put-away" then begin
+        SkipPutAwayProcessing := not Location."Require Put-away";
+        if not SkipPutAwayProcessing then
+            SkipPutAwayProcessing := IsReceiptForJob(PostedWhseReceiptLine);
+        if SkipPutAwayProcessing then begin
             PostedWhseReceiptLine."Qty. Put Away" := PostedWhseReceiptLine.Quantity;
             PostedWhseReceiptLine."Qty. Put Away (Base)" := PostedWhseReceiptLine."Qty. (Base)";
             PostedWhseReceiptLine.Status := PostedWhseReceiptLine.Status::"Completely Put Away";
@@ -1092,6 +1124,8 @@ codeunit 5760 "Whse.-Post Receipt"
                     repeat
                         OnPostWhseJnlLineOnBeforeWhseJnlRegisterLineRun(TempWhseJnlLine2, PostedWhseReceiptHeader);
                         WhseJnlRegisterLine.Run(TempWhseJnlLine2);
+                        if ConsumeWarehouseEntryForJobPurchase(TempWhseJnlLine2, PostedWhseReceiptLine) then
+                            WhseJnlRegisterLine.Run(TempWhseJnlLine2);
                     until TempWhseJnlLine2.Next() = 0;
             end;
 
@@ -1129,6 +1163,34 @@ codeunit 5760 "Whse.-Post Receipt"
                 if not IsHandled then
                     WhseItemEntryRelation.Insert();
             until TempWhseSplitSpecification.Next() = 0;
+    end;
+
+    local procedure ConsumeWarehouseEntryForJobPurchase(var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"): Boolean
+    begin
+        if PostedWhseReceiptLine."Source Document" <> PostedWhseReceiptLine."Source Document"::"Purchase Order" then
+            exit(false);
+
+        if not IsReceiptForJob(PostedWhseReceiptLine) then
+            exit(false);
+
+        case TempWarehouseJournalLine."Entry Type" of
+            TempWarehouseJournalLine."Entry Type"::"Positive Adjmt.":
+                begin
+                    TempWarehouseJournalLine."Entry Type" := TempWarehouseJournalLine."Entry Type"::"Negative Adjmt.";
+                    TempWarehouseJournalLine."From Bin Code" := TempWarehouseJournalLine."To Bin Code";
+                    TempWarehouseJournalLine."To Bin Code" := '';
+                end;
+            TempWarehouseJournalLine."Entry Type"::"Negative Adjmt.":
+                begin
+                    TempWarehouseJournalLine."Entry Type" := TempWarehouseJournalLine."Entry Type"::"Positive Adjmt.";
+                    TempWarehouseJournalLine."To Bin Code" := TempWarehouseJournalLine."From Bin Code";
+                    TempWarehouseJournalLine."From Bin Code" := ''
+                end;
+        end;
+        TempWarehouseJournalLine.Quantity := -TempWarehouseJournalLine.Quantity;
+        TempWarehouseJournalLine."Qty. (Base)" := -TempWarehouseJournalLine."Qty. (Base)";
+
+        exit(true);
     end;
 
     procedure GetFirstPutAwayDocument(var WhseActivHeader: Record "Warehouse Activity Header") Result: Boolean
@@ -1276,32 +1338,34 @@ codeunit 5760 "Whse.-Post Receipt"
             exit;
 
         repeat
-            RemQtyToHandleBase := PostedWhseReceiptLine."Qty. (Base)";
-            IsHandled := false;
-            OnBeforeCreatePutAwayDoc(WarehouseReceiptHeader, PostedWhseReceiptLine, IsHandled);
-            if not IsHandled then begin
-                CreatePutAway.SetValues('', Enum::"Whse. Activity Sorting Method"::None, false, false);
-                CreatePutAway.SetCrossDockValues(true);
+            if not IsReceiptForJob(PostedWhseReceiptLine) then begin
+                RemQtyToHandleBase := PostedWhseReceiptLine."Qty. (Base)";
+                IsHandled := false;
+                OnBeforeCreatePutAwayDoc(WarehouseReceiptHeader, PostedWhseReceiptLine, IsHandled);
+                if not IsHandled then begin
+                    CreatePutAway.SetValues('', Enum::"Whse. Activity Sorting Method"::None, false, false);
+                    CreatePutAway.SetCrossDockValues(true);
 
-                OnCreatePutAwayDocOnBeforeItemTrackingMgtGetWhseItemTrkgSetup(ItemTrackingManagement);
-                if ItemTrackingManagement.GetWhseItemTrkgSetup(PostedWhseReceiptLine."Item No.") then
-                    ItemTrackingManagement.InitItemTrackingForTempWhseWorksheetLine(
-                          Enum::"Warehouse Worksheet Document Type"::Receipt,
-                          PostedWhseReceiptLine."No.", PostedWhseReceiptLine."Line No.",
-                          PostedWhseReceiptLine."Source Type", PostedWhseReceiptLine."Source Subtype",
-                          PostedWhseReceiptLine."Source No.", PostedWhseReceiptLine."Source Line No.", 0);
+                    OnCreatePutAwayDocOnBeforeItemTrackingMgtGetWhseItemTrkgSetup(ItemTrackingManagement);
+                    if ItemTrackingManagement.GetWhseItemTrkgSetup(PostedWhseReceiptLine."Item No.") then
+                        ItemTrackingManagement.InitItemTrackingForTempWhseWorksheetLine(
+                              Enum::"Warehouse Worksheet Document Type"::Receipt,
+                              PostedWhseReceiptLine."No.", PostedWhseReceiptLine."Line No.",
+                              PostedWhseReceiptLine."Source Type", PostedWhseReceiptLine."Source Subtype",
+                              PostedWhseReceiptLine."Source No.", PostedWhseReceiptLine."Source Line No.", 0);
 
-                ItemTrackingManagement.SplitPostedWhseRcptLine(PostedWhseReceiptLine, TempPostedWhseReceiptLine);
+                    ItemTrackingManagement.SplitPostedWhseRcptLine(PostedWhseReceiptLine, TempPostedWhseReceiptLine);
 
-                TempPostedWhseReceiptLine.Reset();
-                if TempPostedWhseReceiptLine.Find('-') then
-                    repeat
-                        TempPostedWhseReceiptLine2 := TempPostedWhseReceiptLine;
-                        TempPostedWhseReceiptLine2."Line No." := PostedWhseReceiptLine."Line No.";
-                        WhseSourceCreateDocument.SetQuantity(TempPostedWhseReceiptLine2, Database::"Posted Whse. Receipt Line", RemQtyToHandleBase);
-                        OnCreatePutAwayDocOnBeforeCreatePutAwayRun(TempPostedWhseReceiptLine2, CreatePutAway, WarehouseReceiptHeader);
-                        CreatePutAway.Run(TempPostedWhseReceiptLine2);
-                    until TempPostedWhseReceiptLine.Next() = 0;
+                    TempPostedWhseReceiptLine.Reset();
+                    if TempPostedWhseReceiptLine.Find('-') then
+                        repeat
+                            TempPostedWhseReceiptLine2 := TempPostedWhseReceiptLine;
+                            TempPostedWhseReceiptLine2."Line No." := PostedWhseReceiptLine."Line No.";
+                            WhseSourceCreateDocument.SetQuantity(TempPostedWhseReceiptLine2, Database::"Posted Whse. Receipt Line", RemQtyToHandleBase);
+                            OnCreatePutAwayDocOnBeforeCreatePutAwayRun(TempPostedWhseReceiptLine2, CreatePutAway, WarehouseReceiptHeader);
+                            CreatePutAway.Run(TempPostedWhseReceiptLine2);
+                        until TempPostedWhseReceiptLine.Next() = 0;
+                end;
             end;
         until PostedWhseReceiptLine.Next() = 0;
 
@@ -1313,6 +1377,17 @@ codeunit 5760 "Whse.-Post Receipt"
             until not GetNextPutAwayDocument(WarehouseActivityHeader);
 
         OnAfterCreatePutAwayDoc(WarehouseReceiptHeader, CounterPutAways, WarehouseActivityHeader);
+    end;
+
+    internal procedure IsReceiptForJob(PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"): Boolean
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetLoadFields("Job No.");
+        if not PurchaseLine.Get(PostedWhseReceiptLine."Source Subtype", PostedWhseReceiptLine."Source No.", PostedWhseReceiptLine."Source Line No.") then
+            exit(false);
+
+        exit(PurchaseLine."Job No." <> '');
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
