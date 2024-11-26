@@ -84,6 +84,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
         PostedInvoicesQtyErr: Label 'There must be 2 Sales Invoices.';
         PostedShpmtsQtyErr: Label 'There must be 2 Sales Shipments.';
         ChangedBinCodeOnWhseShptTxt: Label 'You have changed Bin Code on the Warehouse Shipment Header';
+        SingleWarehouseShipmentCreatedMsg: Label '%1 %2 has been created.';
+        MultipleWarehouseShipmentsCreatedMsg: Label '%1 warehouse shipments have been created.';
+        SingleWarehouseReceiptCreatedMsg: Label '%1 %2 has been created.';
+        MultipleWarehouseReceiptsCreatedMsg: Label '%1 warehouse receipts have been created.';
 
     [Test]
     [HandlerFunctions('WhseItemTrackingLinesHandler,ItemTrackingPageHandler,ItemTrackingSummaryPageHandler,WhseSourceCreateDocumentHandler,MessageHandler')]
@@ -717,6 +721,62 @@ codeunit 137151 "SCM Warehouse - Shipping"
           WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.", LocationRed.Code, Item."No.", Quantity);
         VerifyWarehouseShipmentLine(
           WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.", LocationBlue.Code, Item2."No.", Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,WarehouseShipmentCardPageHandler')]
+    procedure OpeningWarehouseShipmentCardFromSalesOrderWithSingleLocation()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WhseShptHeader: Record "Warehouse Shipment Header";
+        GetSourceDocOutbound: Codeunit "Get Source Doc. Outbound";
+        Quantity: Decimal;
+    begin
+        // Setup: Create Items. Create and release Sales Order with single line.
+        Initialize();
+        LibraryVariableStorage.Enqueue(StrSubstNo(SingleWarehouseShipmentCreatedMsg, 1, WhseShptHeader.TableCaption()));  // Enqueue for MessageHandler.
+        LibraryInventory.CreateItem(Item);
+        Quantity := LibraryRandom.RandDec(10, 2);  // Taking Random value for Quantity.
+        CreateAndReleaseSalesOrderWithMultipleLinesAndItemTracking(
+          SalesHeader, SalesLine, LocationRed.Code, '', Item."No.", '', Quantity, 0, false, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationRed.Code, false);
+
+        // Exercise: Create Warehouse Shipment from Sales Order with dialog
+        GetSourceDocOutbound.CreateFromSalesOrder(SalesHeader);
+
+        // Verify: Warehouse Shipment Card has been displayed
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,WarehouseShipmentListPageHandler')]
+    procedure OpeningWarehouseShipmentListFromSalesOrderWithMultipleLocations()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        GetSourceDocOutbound: Codeunit "Get Source Doc. Outbound";
+        Quantity: Decimal;
+    begin
+        // Setup: Create Items. Create and release Sales Order with two lines for different Locations.
+        Initialize();
+        LibraryVariableStorage.Enqueue(StrSubstNo(MultipleWarehouseShipmentsCreatedMsg, 2));  // Enqueue for MessageHandler.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(Item2);
+        Quantity := LibraryRandom.RandDec(10, 2);  // Taking Random value for Quantity.
+        CreateAndReleaseSalesOrderWithMultipleLinesAndItemTracking(
+          SalesHeader, SalesLine, LocationRed.Code, LocationBlue.Code, Item."No.", Item2."No.", Quantity, Quantity, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationRed.Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationBlue.Code, false);
+
+        // Exercise: Create Warehouse Shipment from Sales Order with dialog
+        GetSourceDocOutbound.CreateFromSalesOrder(SalesHeader);
+
+        // Verify: Warehouse Shipment List has been displayed
     end;
 
     [Test]
@@ -2177,6 +2237,68 @@ codeunit 137151 "SCM Warehouse - Shipping"
           WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.", Location1.Code, Item."No.", true);
         VerifyWarehouseReceiptCreated(
           WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.", Location2.Code, Item."No.", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,WarehouseReceiptCardPageHandler')]
+    procedure OpeningWarehouseReceiptCardFromPurchaseOrderWithSingleLocation()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        GetSourceDocInbound: Codeunit "Get Source Doc. Inbound";
+        Quantity: Decimal;
+    begin
+        // Setup: Create Items. Create and release Purchase Order with single line.
+        Initialize();
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, true, false); // Create location require put-away and receive.
+        LibraryVariableStorage.Enqueue(StrSubstNo(SingleWarehouseReceiptCreatedMsg, 1, WarehouseReceiptHeader.TableCaption()));  // Enqueue for MessageHandler.
+        LibraryInventory.CreateItem(Item);
+        Quantity := LibraryRandom.RandDec(10, 2);  // Taking Random value for Quantity.
+        CreateAndReleasePurchaseOrderWithMultipleLocations(
+          PurchaseHeader, PurchaseLine, Location.Code, '', Item."No.", '', Quantity, 0, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // Exercise: Create Warehouse Receipt from Purchase Order with dialog
+        GetSourceDocInbound.CreateFromPurchOrder(PurchaseHeader);
+
+        // Verify: Warehouse Receipt Card has been displayed
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,WarehouseReceiptListPageHandler')]
+    procedure OpeningWarehouseReceiptListFromPurchaseOrderWithMultipleLocations()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        Location1: Record Location;
+        Location2: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        GetSourceDocInbound: Codeunit "Get Source Doc. Inbound";
+        Quantity: Decimal;
+    begin
+        // Setup: Create Items. Create and release Purchase Order with two lines for different Locations.
+        Initialize();
+        LibraryWarehouse.CreateLocationWMS(Location1, false, true, false, true, false); // Create location require put-away and receive.
+        LibraryWarehouse.CreateLocationWMS(Location2, false, true, false, true, false); // Create location require put-away and receive.
+        LibraryVariableStorage.Enqueue(StrSubstNo(MultipleWarehouseReceiptsCreatedMsg, 2));  // Enqueue for MessageHandler.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(Item2);
+        Quantity := LibraryRandom.RandDec(10, 2);  // Taking Random value for Quantity.
+        CreateAndReleasePurchaseOrderWithMultipleLocations(
+          PurchaseHeader, PurchaseLine, Location1.Code, Location2.Code, Item."No.", Item2."No.", Quantity, Quantity, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location1.Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location2.Code, false);
+
+        // Exercise: Create Warehouse Receipt from Purchase Order with dialog
+        GetSourceDocInbound.CreateFromPurchOrder(PurchaseHeader);
+
+        // Verify: Warehouse Receipt List has been displayed
     end;
 
     [Test]
@@ -4017,10 +4139,11 @@ codeunit 137151 "SCM Warehouse - Shipping"
     local procedure CreateAndReleasePurchaseOrderWithMultipleLocations(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10]; LocationCode2: Code[10]; ItemNo: Code[20]; ItemNo2: Code[20]; Quantity: Decimal; Quantity2: Decimal; MultipleLines: Boolean)
     begin
         CreatePurchaseOrder(PurchaseHeader, LocationCode, ItemNo, Quantity);
-        if MultipleLines then
+        if MultipleLines then begin
             LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo2, Quantity2);
-        PurchaseLine.Validate("Location Code", LocationCode2);
-        PurchaseLine.Modify(true);
+            PurchaseLine.Validate("Location Code", LocationCode2);
+            PurchaseLine.Modify(true);
+        end;
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 
@@ -6388,6 +6511,26 @@ codeunit 137151 "SCM Warehouse - Shipping"
     procedure WarehouseActivityLinesHandler(var WarehouseActivityLines: TestPage "Warehouse Activity Lines")
     begin
         WarehouseActivityLines.ShowDocument.Invoke();
+    end;
+
+    [PageHandler]
+    procedure WarehouseShipmentCardPageHandler(var WarehouseShipment: TestPage "Warehouse Shipment")
+    begin
+    end;
+
+    [PageHandler]
+    procedure WarehouseShipmentListPageHandler(var WarehouseShipmentList: TestPage "Warehouse Shipment List")
+    begin
+    end;
+
+    [PageHandler]
+    procedure WarehouseReceiptCardPageHandler(var WarehouseReceipt: TestPage "Warehouse Receipt")
+    begin
+    end;
+
+    [PageHandler]
+    procedure WarehouseReceiptListPageHandler(var WarehouseReceipts: TestPage "Warehouse Receipts")
+    begin
     end;
 
     [ModalPageHandler]
