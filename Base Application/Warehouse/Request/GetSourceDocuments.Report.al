@@ -480,6 +480,8 @@ report 5753 "Get Source Documents"
     begin
         ActivitiesCreated := 0;
         LineCreated := false;
+        WhseShptHeader.ClearMarks();
+        WhseReceiptHeader.ClearMarks();
     end;
 
     var
@@ -594,10 +596,22 @@ report 5753 "Get Source Documents"
         WhseShptHeader2 := WhseShptHeader;
     end;
 
+    procedure GetCreatedShptHeaders(var WhseShptHeader2: Record "Warehouse Shipment Header")
+    begin
+        RequestType := RequestType::Ship;
+        WhseShptHeader2.Copy(WhseShptHeader);
+    end;
+
     procedure GetLastReceiptHeader(var WhseReceiptHeader2: Record "Warehouse Receipt Header")
     begin
         RequestType := RequestType::Receive;
         WhseReceiptHeader2 := WhseReceiptHeader;
+    end;
+
+    procedure GetCreatedReceiptHeaders(var WhseReceiptHeader2: Record "Warehouse Receipt Header")
+    begin
+        RequestType := RequestType::Receive;
+        WhseReceiptHeader2.Copy(WhseReceiptHeader);
     end;
 
     procedure NotCancelled(): Boolean
@@ -639,6 +653,7 @@ report 5753 "Get Source Documents"
         WhseShptLine.LockTable();
         OnBeforeWhseShptHeaderInsert(WhseShptHeader, "Warehouse Request", "Sales Line", "Transfer Line", "Sales Header");
         WhseShptHeader.Insert(true);
+        WhseShptHeader.Mark(true);
         ActivitiesCreated := ActivitiesCreated + 1;
         WhseHeaderCreated := true;
 
@@ -664,6 +679,7 @@ report 5753 "Get Source Documents"
         OnBeforeWhseReceiptHeaderInsert(WhseReceiptHeader, "Warehouse Request");
         WhseReceiptHeader.Insert(true);
         OnCreateReceiptHeaderOnAfterWhseReceiptHeaderInsert(WhseReceiptHeader, ActivitiesCreated, RequestType);
+        WhseReceiptHeader.Mark(true);
         ActivitiesCreated := ActivitiesCreated + 1;
         WhseHeaderCreated := true;
         if not SuppressCommit then
