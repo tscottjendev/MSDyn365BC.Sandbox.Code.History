@@ -797,6 +797,7 @@ codeunit 7324 "Whse.-Activity-Post"
         PostedInvtPickHeader: Record "Posted Invt. Pick Header";
         WhseProdRelease: Codeunit "Whse.-Production Release";
         WhseOutputProdRelease: Codeunit "Whse.-Output Prod. Release";
+        PurchaseForJob: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -818,6 +819,7 @@ codeunit 7324 "Whse.-Activity-Post"
                     if (WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Pick") and (WhseActivHeader."Source Document" = WhseActivHeader."Source Document"::"Job Usage") then
                         PostJobUsage(WhseActivHeader."Posting Date")
                     else begin
+                        PurchaseForJob := IsActivityForJobPurchase(WhseActivLine);
                         IsHandled := false;
                         OnPostWhseActivityLineOnBeforePostDoc(TempWhseActivLine, WhseActivHeader, PostedSourceType, PostedSourceSubType, PostedSourceNo, IsHandled);
                         if not IsHandled then
@@ -837,7 +839,7 @@ codeunit 7324 "Whse.-Activity-Post"
             UpdateWhseActivityLine(WhseActivLine);
 
             if Location."Bin Mandatory" and (WhseActivHeader."Source Document" <> WhseActivHeader."Source Document"::"Job Usage") then
-                PostWhseJnlLine(WhseActivLine);
+                PostWhseJnlLine(WhseActivLine, PurchaseForJob);
 
             CreatePostedActivLine(WhseActivLine, PostedInvtPutAwayHeader, PostedInvtPickHeader);
         until WhseActivLine.Next() = 0;
@@ -853,7 +855,7 @@ codeunit 7324 "Whse.-Activity-Post"
             WhseActivLine."Expiration Date" := ItemTrackingMgt.ExistingExpirationDate(WhseActivLine, false, EntriesExist);
     end;
 
-    local procedure PostWhseJnlLine(WhseActivLine: Record "Warehouse Activity Line")
+    local procedure PostWhseJnlLine(WhseActivLine: Record "Warehouse Activity Line"; PurchaseForJob: Boolean)
     var
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
         WMSMgt: Codeunit "WMS Management";
@@ -867,6 +869,9 @@ codeunit 7324 "Whse.-Activity-Post"
         if TempWhseJnlLine."Entry Type" = TempWhseJnlLine."Entry Type"::"Negative Adjmt." then
             WMSMgt.CheckWhseJnlLine(TempWhseJnlLine, 4, TempWhseJnlLine."Qty. (Base)", false); // 4 = Whse. Journal
         WhseJnlRegisterLine.Run(TempWhseJnlLine);
+        if PurchaseForJob then
+            if ConsumeWarehouseEntryForJobPurchase(TempWhseJnlLine, WhseActivLine) then
+                WhseJnlRegisterLine.Run(TempWhseJnlLine);
     end;
 
     procedure CreateWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; WhseActivLine: Record "Warehouse Activity Line")
@@ -953,6 +958,54 @@ codeunit 7324 "Whse.-Activity-Post"
         WhseJnlLine."Expiration Date" := WhseActivLine."Expiration Date";
 
         OnAfterCreateWhseJnlLine(WhseJnlLine, WhseActivLine, SourceCodeSetup);
+    end;
+
+    local procedure ConsumeWarehouseEntryForJobPurchase(var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line"): Boolean
+    begin
+        if WarehouseActivityLine."Source Document" <> WarehouseActivityLine."Source Document"::"Purchase Order" then
+            exit(false);
+
+        if WarehouseActivityLine."Activity Type" <> WarehouseActivityLine."Activity Type"::"Invt. Put-away" then
+            exit(false);
+
+        case TempWarehouseJournalLine."Entry Type" of
+            TempWarehouseJournalLine."Entry Type"::"Positive Adjmt.":
+                begin
+                    TempWarehouseJournalLine."Entry Type" := TempWarehouseJournalLine."Entry Type"::"Negative Adjmt.";
+                    TempWarehouseJournalLine."From Bin Code" := TempWarehouseJournalLine."To Bin Code";
+                    TempWarehouseJournalLine."To Bin Code" := '';
+                end;
+            TempWarehouseJournalLine."Entry Type"::"Negative Adjmt.":
+                begin
+                    TempWarehouseJournalLine."Entry Type" := TempWarehouseJournalLine."Entry Type"::"Positive Adjmt.";
+                    TempWarehouseJournalLine."To Bin Code" := TempWarehouseJournalLine."From Bin Code";
+                    TempWarehouseJournalLine."From Bin Code" := ''
+                end;
+        end;
+        TempWarehouseJournalLine.Quantity := -TempWarehouseJournalLine.Quantity;
+        TempWarehouseJournalLine."Qty. (Base)" := -TempWarehouseJournalLine."Qty. (Base)";
+
+        exit(true);
+    end;
+
+    local procedure IsActivityForJobPurchase(WarehouseActivityLine: Record "Warehouse Activity Line"): Boolean
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        if WarehouseActivityLine."Source Document" <> WarehouseActivityLine."Source Document"::"Purchase Order" then
+            exit(false);
+
+        if WarehouseActivityLine."Activity Type" <> WarehouseActivityLine."Activity Type"::"Invt. Put-away" then
+            exit(false);
+
+        PurchaseLine.SetLoadFields("Job No.");
+        case WarehouseActivityLine."Source Document" of
+            WarehouseActivityLine."Source Document"::"Purchase Order":
+                if not PurchaseLine.Get(PurchaseLine."Document Type"::Order, WarehouseActivityLine."Source No.", WarehouseActivityLine."Source Line No.") then
+                    exit(false);
+        end;
+
+        exit(PurchaseLine."Job No." <> '');
     end;
 
     local procedure CreatePostedActivHeader(WhseActivHeader: Record "Warehouse Activity Header"; var PostedInvtPutAwayHeader: Record "Posted Invt. Put-away Header"; var PostedInvtPickHeader: Record "Posted Invt. Pick Header")
