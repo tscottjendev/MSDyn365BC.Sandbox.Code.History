@@ -1101,6 +1101,10 @@ table 39 "Purchase Line"
                 if CheckReservationForJobNo() then
                     TestField("Job No.", '');
 
+                if (xRec."Job No." <> "Job No.") and (Quantity <> 0) then
+                    if Type = Type::Item then
+                        PurchasesWarehouseMgt.PurchaseLineVerifyChange(Rec, xRec);
+
                 PlanPriceCalcByField(FieldNo("Job No."));
                 InitJobFields();
 
@@ -2080,12 +2084,15 @@ table 39 "Purchase Line"
                 if IsHandled then
                     exit;
 
+                TestStatusOpen();
                 TestField("Receipt No.", '');
 
                 if "Job Task No." <> xRec."Job Task No." then begin
                     Validate("Job Planning Line No.", 0);
                     if "Document Type" = "Document Type"::Order then
                         TestField("Quantity Received", 0);
+                    if (Type = Type::Item) and (Quantity <> 0) then
+                        PurchasesWarehouseMgt.PurchaseLineVerifyChange(Rec, xRec);
                     PlanPriceCalcByField(FieldNo("Job Task No."));
                 end;
 
@@ -2427,6 +2434,7 @@ table 39 "Purchase Line"
                     Error(Text047, FieldCaption("Job Remaining Qty."), FieldCaption("Job Planning Line No."));
 
                 if "Job Planning Line No." <> 0 then begin
+                    JobPlanningLine.SetLoadFields("No.", "Variant Code", Quantity, "Unit of Measure Code", "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)");
                     JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.");
                     if JobPlanningLine.Quantity >= 0 then begin
                         if "Job Remaining Qty." < 0 then
@@ -9182,9 +9190,10 @@ table 39 "Purchase Line"
     begin
         if CurrFieldNo <> 0 then
             CheckLocationOnWMS();
-        if ("Job No." <> '') and (Type = Type::Item) then
-            if Location.Get("Location Code") then
-                EnsureDirectedPutawayandPickFalse(Location);
+        if "Document Type" = "Document Type"::"Return Order" then
+            if ("Job No." <> '') and (Type = Type::Item) then
+                if Location.Get("Location Code") then
+                    EnsureDirectedPutawayandPickFalse(Location);
     end;
 
     local procedure EnsureDirectedPutawayandPickFalse(var Location: Record Location)
@@ -10648,6 +10657,14 @@ table 39 "Purchase Line"
             ClearPrepaymentVATPct();
 
         OnAfterCopyPrepaymentFromVATPostingSetup(Rec, VATPostingSetupFrom);
+    end;
+
+    internal procedure TestPurchaseJobFields()
+    begin
+        if Rec."Job No." = '' then
+            exit;
+
+        Rec.TestField("Job Task No.");
     end;
 
     [IntegrationEvent(false, false)]
