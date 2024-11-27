@@ -1052,7 +1052,9 @@ permissionset 1044 "D365 READ"
                   tabledata Maintenance = R,
                   tabledata "Maintenance Ledger Entry" = R,
                   tabledata "Maintenance Registration" = R,
+#if not CLEAN24
                   tabledata "Man. Integration Field Mapping" = R,
+#endif
                   tabledata "Man. Integration Table Mapping" = R,
                   tabledata "Man. Int. Field Mapping" = R,
                   tabledata Manufacturer = R,
