@@ -900,8 +900,8 @@ codeunit 161300 "Create Italian Data"
         SourceCode: Record "Source Code";
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
-        NoSeriesLineSales: Record "No. Series Line Sales";
-        NoSeriesLinePurchase: Record "No. Series Line Purchase";
+        NoSeriesLineSales: Record "No. Series Line";
+        NoSeriesLinePurchase: Record "No. Series Line";
         GLAccount: Record "G/L Account";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
