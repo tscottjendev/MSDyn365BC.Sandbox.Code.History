@@ -10,9 +10,13 @@ using System.Text;
 using System.Utilities;
 
 #if not CLEAN24
-codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Client", "Email - Outlook API Client v2", "Email - Outlook API Client v3"
+codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Client", "Email - Outlook API Client v2", "Email - Outlook API Client v3", "Email - Outlook API Client v4"
 #else
-codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Client v2", "Email - Outlook API Client v3"
+#if not CLEAN26
+codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Client v2", "Email - Outlook API Client v3", "Email - Outlook API Client v4"
+#else
+codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Client v2", "Email - Outlook API Client v4"
+#endif
 #endif
 {
     var
@@ -41,7 +45,6 @@ codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Clien
         ConnectionErr: Label 'Could not establish the connection to the remote service for sending email. Try again later.';
         RetrieveEmailSelectedFieldsTxt: Label 'id,conversationId,sentDateTime,receivedDateTime,subject,webLink,sender,toRecipients,ccRecipients,body,hasAttachments', Locked = true;
         RetrieveEmailsUriTxt: Label '/v1.0/users/%1/messages', Locked = true;
-        RetrieveEmailsFiltersTxt: Label '?$expand=attachments&$filter=isRead ne true&isDraft ne true&$count=true&$top=%1&$select=%2', Locked = true;
         RetrieveEmailsMessageErr: Label 'Failed to retrieve emails. Error:\\%1', Comment = '%1 = Error message';
         MarkAsReadUriTxt: Label '/v1.0/users/%1/messages/%2', Locked = true;
         RetrieveEmailUriTxt: Label '/v1.0/users/%1/messages/%2', Locked = true;
@@ -194,6 +197,13 @@ codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Clien
 
     procedure RetrieveEmails(AccessToken: SecretText; MarkAsRead: Boolean; OutlookAccount: Record "Email - Outlook Account"): JsonArray
     var
+        TempFilters: Record "Email Retrieval Filters" temporary;
+    begin
+        exit(RetrieveEmails(AccessToken, MarkAsRead, OutlookAccount, TempFilters));
+    end;
+
+    procedure RetrieveEmails(AccessToken: SecretText; MarkAsRead: Boolean; OutlookAccount: Record "Email - Outlook Account"; var Filters: Record "Email Retrieval Filters" temporary): JsonArray
+    var
         EmailsObject: JsonObject;
         EmailsArray: JsonArray;
         JsonToken: JsonToken;
@@ -201,7 +211,7 @@ codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Clien
     begin
         Session.LogMessage('0000NCA', TelemetryRetrievingEmailsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OutlookCategoryLbl);
 
-        SendRetrieveEmailsRequest(AccessToken, OutlookAccount."Email Address", EmailsObject);
+        SendRetrieveEmailsRequest(AccessToken, OutlookAccount."Email Address", Filters, EmailsObject);
 
         if not EmailsObject.Get('@odata.count', JsonToken) then begin
             Session.LogMessage('0000NCB', FailedToRetrieveEmailsErr, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OutlookCategoryLbl);
@@ -228,6 +238,17 @@ codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Clien
 
     procedure RetrieveEmail(AccessToken: SecretText; EmailAddress: Text[250]; ExternalMessageId: Text; AsHtml: Boolean): JsonObject
     var
+        Filters: Record "Email Retrieval Filters";
+    begin
+        if AsHtml then
+            Filters."Body Type" := Filters."Body Type"::HTML
+        else
+            Filters."Body Type" := Filters."Body Type"::Text;
+        exit(RetrieveEmail(AccessToken, EmailAddress, ExternalMessageId, Filters));
+    end;
+
+    procedure RetrieveEmail(AccessToken: SecretText; EmailAddress: Text[250]; ExternalMessageId: Text; var Filters: Record "Email Retrieval Filters" temporary): JsonObject
+    var
         MailHttpRequestMessage: HttpRequestMessage;
         MailHttpResponseMessage: HttpResponseMessage;
         MailRequestHeaders: HttpHeaders;
@@ -240,7 +261,7 @@ codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Clien
         RequestUri := GraphURLTxt + StrSubstNo(RetrieveEmailUriTxt, EmailAddress, ExternalMessageId);
         CreateRequest('GET', RequestUri, AccessToken, MailHttpRequestMessage);
         MailHttpRequestMessage.GetHeaders(MailRequestHeaders);
-        if not AsHtml then
+        if Filters."Body Type" = Filters."Body Type"::Text then
             MailRequestHeaders.Add('Prefer', 'outlook.body-content-type="text"');
         SendRequest(MailHttpRequestMessage, MailHttpResponseMessage);
 
@@ -283,7 +304,7 @@ codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Clien
                 Error(ConnectionErr);
     end;
 
-    local procedure SendRetrieveEmailsRequest(AccessToken: SecretText; EmailAddress: Text; var ResponseJsonObject: JsonObject): Boolean
+    local procedure SendRetrieveEmailsRequest(AccessToken: SecretText; EmailAddress: Text; var Filters: Record "Email Retrieval Filters" temporary; var ResponseJsonObject: JsonObject): Boolean
     var
         MailHttpRequestMessage: HttpRequestMessage;
         MailHttpResponseMessage: HttpResponseMessage;
@@ -291,12 +312,43 @@ codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Clien
         HttpErrorMessage: Text;
         RequestUri: Text;
         JsonContent: Text;
+        QueryParameters: Text;
+        FilterParameters: Text;
     begin
-        RequestUri := GraphURLTxt + StrSubstNo(RetrieveEmailsUriTxt, EmailAddress) + StrSubstNo(RetrieveEmailsFiltersTxt, Format(GetMaxNumberOfEmailsToRetrieve()), RetrieveEmailSelectedFieldsTxt);
+        RequestUri := GraphURLTxt + StrSubstNo(RetrieveEmailsUriTxt, EmailAddress) + '?';
+
+        if Filters."Load Attachments" then
+            QueryParameters := QueryParameters + '$expand=attachments&';
+
+        QueryParameters := QueryParameters + '$top=' + Format(Filters."Max No. of Emails") + '&';
+        QueryParameters := QueryParameters + '$select=' + RetrieveEmailSelectedFieldsTxt + '&';
+        QueryParameters := QueryParameters + '$count=true&';
+
+        FilterParameters := '$filter=';
+        if Filters."Unread Emails" then
+            FilterParameters := FilterParameters + 'isRead ne true&';
+        if Filters."Draft Emails" then
+            FilterParameters := FilterParameters + 'isDraft eq true&'
+        else
+            FilterParameters := FilterParameters + 'isDraft ne true&';
+        if Filters."Earliest Email" <> 0DT then
+            FilterParameters := FilterParameters + 'receivedDateTime ge ' + Format(Filters."Earliest Email", 0, 9) + '&';
+
+        if FilterParameters <> '$filter=' then begin
+            QueryParameters := QueryParameters + FilterParameters;
+            QueryParameters := CopyStr(QueryParameters, 1, StrLen(QueryParameters) - 1);
+        end;
+
+        RequestUri := RequestUri + QueryParameters;
 
         CreateRequest('GET', RequestUri, AccessToken, MailHttpRequestMessage);
+
         MailHttpRequestMessage.GetHeaders(MailRequestHeaders);
-        MailRequestHeaders.Add('Prefer', 'outlook.body-content-type="text"');
+        if Filters."Body Type" = Filters."Body Type"::HTML then
+            MailRequestHeaders.Add('Prefer', 'outlook.body-content-type="html"')
+        else
+            MailRequestHeaders.Add('Prefer', 'outlook.body-content-type="text"');
+
         SendRequest(MailHttpRequestMessage, MailHttpResponseMessage);
 
         if MailHttpResponseMessage.HttpStatusCode <> 200 then begin
@@ -317,11 +369,6 @@ codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Clien
         end;
 
         exit(true);
-    end;
-
-    local procedure GetMaxNumberOfEmailsToRetrieve(): Integer
-    begin
-        exit(50);
     end;
 
     local procedure SendReplyEmailRequest(AccessToken: SecretText; EmailAddress: Text[250]; ExternalMessageId: Text; MessageJsonText: Text): Boolean
