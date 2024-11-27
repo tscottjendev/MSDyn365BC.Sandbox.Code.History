@@ -111,7 +111,9 @@
         ListOfTablesToMigrate.Add(Database::"Maintenance Ledger Entry");
         ListOfTablesToMigrate.Add(Database::"Maintenance Registration");
         ListOfTablesToMigrate.Add(Database::"Maintenance");
+#if not CLEAN24
         ListOfTablesToMigrate.Add(Database::"Man. Integration Field Mapping");
+#endif
         ListOfTablesToMigrate.Add(Database::"Man. Integration Table Mapping");
         ListOfTablesToMigrate.Add(Database::"Man. Int. Field Mapping");
         ListOfTablesToMigrate.Add(Database::"Manufacturer");

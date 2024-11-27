@@ -15,6 +15,7 @@ enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
         ObsoleteTag = '19.0';
     }
 #endif
+#if not CLEAN24
     value(5409; EnablePlatformBasedReportSelection)
     {
         Implementation = "Feature Data Update" = "Feature - Report Selection";
@@ -22,6 +23,7 @@ enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
         ObsoleteReason = 'Feature EnablePlatformBasedReportSelection will be enabled by default in version 24.0.';
         ObsoleteTag = '24.0';
     }
+#endif
 #if not CLEAN24
     value(5877; PhysInvtOrderPackageTracking)
     {

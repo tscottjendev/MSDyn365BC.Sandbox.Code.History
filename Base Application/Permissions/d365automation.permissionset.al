@@ -1090,7 +1090,9 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Logged Segment" = RIMd,
                   tabledata "Lot Bin Buffer" = RIMD,
                   tabledata "Lot No. Information" = RIMD,
+#if not CLEAN24
                   tabledata "Man. Integration Field Mapping" = RIMD,
+#endif
                   tabledata "Man. Integration Table Mapping" = RIMD,
                   tabledata "Man. Int. Field Mapping" = RIMD,
                   tabledata "Machine Center" = RIMD,
