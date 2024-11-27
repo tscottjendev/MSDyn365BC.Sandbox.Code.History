@@ -703,7 +703,9 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"CRM Integration Record");
         SetTableFieldsToNormal(DATABASE::"Integration Table Mapping");
         SetTableFieldsToNormal(DATABASE::"Integration Field Mapping");
+#if not CLEAN24
         SetTableFieldsToNormal(DATABASE::"Man. Integration Field Mapping");
+#endif
         SetTableFieldsToNormal(DATABASE::"Man. Integration Table Mapping");
         SetTableFieldsToNormal(DATABASE::"Temp Integration Field Mapping");
         SetTableFieldsToNormal(DATABASE::"Man. Int. Field Mapping");

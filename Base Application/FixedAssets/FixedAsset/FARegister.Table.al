@@ -76,13 +76,20 @@ table 5617 "FA Register"
             Caption = 'To Maintenance Entry No.';
             TableRelation = "Maintenance Ledger Entry";
         }
+#if not CLEANSCHEMA27
         field(13; "Creation Time"; Time)
         {
             Caption = 'Creation Time';
+#if CLEAN24
+            ObsoleteState = Removed;
+            ObsoleteTag = '27.0';
+#else
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
+#endif
             ObsoleteReason = 'Use the system audit field "System Created at" instead.';
         }
+#endif
     }
 
     keys
