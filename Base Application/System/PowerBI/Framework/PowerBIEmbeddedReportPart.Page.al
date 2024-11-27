@@ -220,7 +220,7 @@ page 6325 "Power BI Embedded Report Part"
                 label(NoReportsMessage)
                 {
                     ApplicationArea = All;
-                    Caption = 'If you just started the upload of new reports from Business Central, choose Refresh to see if they''ve completed.';
+                    Caption = 'If you just started the upload of new reports from Business Central, choose Reload to see if they''ve completed.';
                     Editable = false;
                     ShowCaption = false;
                 }
@@ -503,8 +503,8 @@ page 6325 "Power BI Embedded Report Part"
         GettingStartedTxt: Label 'Get started with Power BI';
         DeployReportsTxt: Label 'Upload demo reports for this page';
         UnsupportedElementTypeErr: Label 'Displaying Power BI elements of type %1 is currently not supported.', Comment = '%1 = an element type, such as Report or Workspace';
-        ReportsDeployingMsg: Label 'We are uploading a demo report to Power BI in the background for you. Once the upload finishes, choose Refresh to see it in this page.\\If you have already reports in your Power BI workspace, you can choose Select Reports instead.';
-        StillDeployingMsg: Label 'We are still uploading your demo report. Once the upload finishes, choose Refresh again to see it in this page.\\If you have already reports in your Power BI workspace, you can choose Select Reports instead.';
+        ReportsDeployingMsg: Label 'We are uploading a demo report to Power BI in the background for you. Once the upload finishes, choose Reload to see it in this page.\\If you have already reports in your Power BI workspace, you can choose Select Reports instead.';
+        StillDeployingMsg: Label 'We are still uploading your demo report. Once the upload finishes, choose Reload again to see it in this page.\\If you have already reports in your Power BI workspace, you can choose Select Reports instead.';
         RefreshPartTxt: Label 'Reload';
         SelectReportsTxt: Label 'Select reports';
         PageState: Option GetStarted,ShouldDeploy,NoElementSelected,NoElementSelectedButDeploying,ElementVisible;
