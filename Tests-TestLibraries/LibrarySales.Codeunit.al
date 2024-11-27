@@ -188,7 +188,7 @@ codeunit 130509 "Library - Sales"
         CustomerPostingGroup.Insert(true);
     end;
 
-    procedure CreateAltCustomerPostingGroup(ParentCode: Code[10]; AltCode: Code[10])
+    procedure CreateAltCustomerPostingGroup(ParentCode: Code[20]; AltCode: Code[20])
     var
         AltCustomerPostingGroup: Record "Alt. Customer Posting Group";
     begin
