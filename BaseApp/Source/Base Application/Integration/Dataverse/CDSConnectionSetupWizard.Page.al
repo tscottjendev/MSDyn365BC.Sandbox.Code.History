@@ -995,7 +995,7 @@ page 7201 "CDS Connection Setup Wizard"
     var
         OAuth2: Codeunit OAuth2;
         Scopes: List of [Text];
-        Token: Text;
+        Token: SecretText;
         RedirectUrl: Text;
     begin
         if SoftwareAsAService then
