@@ -1069,7 +1069,9 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata Maintenance = RM,
                   tabledata "Maintenance Ledger Entry" = Rm,
                   tabledata "Maintenance Registration" = RM,
+#if not CLEAN24
                   tabledata "Man. Integration Field Mapping" = RIMD,
+#endif
                   tabledata "Man. Integration Table Mapping" = RIMD,
                   tabledata "Man. Int. Field Mapping" = RIMD,
                   tabledata Manufacturer = RM,
