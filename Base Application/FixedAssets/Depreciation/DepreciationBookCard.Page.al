@@ -33,12 +33,10 @@ page 5610 "Depreciation Book Card"
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies a code that identifies the depreciation book.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the purpose of the depreciation book.';
                 }
                 field("Default Final Rounding Amount"; Rec."Default Final Rounding Amount")
                 {
