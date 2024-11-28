@@ -25,11 +25,13 @@ table 5611 "Depreciation Book"
         field(1; "Code"; Code[10])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies a code that identifies the depreciation book.';
             NotBlank = true;
         }
         field(2; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the purpose of the depreciation book.';
         }
         field(3; "G/L Integration - Acq. Cost"; Boolean)
         {
