@@ -24,12 +24,10 @@ page 5615 "FA Classes"
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies a code for the class that the fixed asset belongs to.';
                 }
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the name of the fixed asset class.';
                 }
             }
         }

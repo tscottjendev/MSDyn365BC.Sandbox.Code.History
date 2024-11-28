@@ -24,12 +24,10 @@ page 5617 "FA Locations"
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies a location code for the fixed asset.';
                 }
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the name of the fixed asset location.';
                 }
             }
         }
