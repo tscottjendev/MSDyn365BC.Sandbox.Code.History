@@ -30,12 +30,10 @@ page 5611 "Depreciation Book List"
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies a code that identifies the depreciation book.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the purpose of the depreciation book.';
                 }
             }
         }
