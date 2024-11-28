@@ -425,9 +425,9 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Serial No." := WarehouseActivityLine."Serial No.";
         JobJnlLine."Lot No." := WarehouseActivityLine."Lot No.";
         JobJnlLine."Package No." := WarehouseActivityLine."Package No.";
-        JobJnlLine."Assemble to Order" := JobPlanningLine."Assemble to Order";
 
         JobJnlLine.Validate(Quantity, WarehouseActivityLine."Qty. to Handle");
+        JobJnlLine."Assemble to Order" := WarehouseActivityLine."Assemble to Order";
         JobJnlLine.Validate("Qty. per Unit of Measure", WarehouseActivityLine."Qty. per Unit of Measure");
         JobJnlLine."Direct Unit Cost (LCY)" := JobPlanningLine."Direct Unit Cost (LCY)";
         JobJnlLine.Validate("Unit Cost", JobPlanningLine."Unit Cost");

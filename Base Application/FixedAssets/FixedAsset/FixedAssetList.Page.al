@@ -44,7 +44,6 @@ page 5601 "Fixed Asset List"
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies a description of the fixed asset.';
                 }
                 field("Vendor No."; Rec."Vendor No.")
                 {

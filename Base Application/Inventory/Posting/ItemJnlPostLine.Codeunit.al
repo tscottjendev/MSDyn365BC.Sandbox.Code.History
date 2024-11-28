@@ -2031,7 +2031,8 @@ codeunit 22 "Item Jnl.-Post Line"
                         else
                             ReservEntry.SetRange("Source Subtype", 1);
 
-                UseReservationApplication := ReservEntry.FindFirst() and not SkipReservationCheck;
+                if not SkipReservationCheck then
+                    UseReservationApplication := FindReservationEntryWithAdditionalCheckForAssemblyItem(ReservEntry);
 
                 Handled := false;
                 OnApplyItemLedgEntryOnBeforeCloseSurplusTrackingEntry(ItemJnlLine, StartApplication, UseReservationApplication, Handled);
@@ -2200,6 +2201,28 @@ codeunit 22 "Item Jnl.-Post Line"
             end;
             OnApplyItemLedgEntryOnApplicationLoop(ItemLedgEntry);
         until false;
+    end;
+
+    local procedure FindReservationEntryWithAdditionalCheckForAssemblyItem(var ReservEntry: Record "Reservation Entry"): Boolean
+    begin
+        if not ReservEntry.FindFirst() then
+            exit(false);
+
+        if AssemblyReservationEntryMismatchWithItemJnlLine(ReservEntry) then
+            exit(false);
+
+        exit(true);
+    end;
+
+    local procedure AssemblyReservationEntryMismatchWithItemJnlLine(var ReservEntry: Record "Reservation Entry"): Boolean
+    var
+        ReservEntry2: Record "Reservation Entry";
+    begin
+        ReservEntry2.SetLoadFields("Source Type", "Source Subtype");
+        ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
+        if (ReservEntry2."Source Type" = Database::"Assembly Header") and (ReservEntry2."Source Subtype" = 1)
+             and (not ItemJnlLine."Assemble to Order") then
+            exit(true);
     end;
 
     local procedure UpdateReservationEntryForNonInventoriableItem()
