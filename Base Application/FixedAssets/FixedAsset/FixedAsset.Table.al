@@ -49,6 +49,7 @@ table 5600 "Fixed Asset"
         field(2; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the fixed asset.';
             OptimizeForTextSearch = true;
 
             trigger OnValidate()
