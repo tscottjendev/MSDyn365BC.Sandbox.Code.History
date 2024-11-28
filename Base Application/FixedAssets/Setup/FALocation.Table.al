@@ -15,11 +15,13 @@ table 5609 "FA Location"
         field(1; "Code"; Code[10])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies a location code for the fixed asset.';
             NotBlank = true;
         }
         field(2; Name; Text[50])
         {
             Caption = 'Name';
+            ToolTip = 'Specifies the name of the fixed asset location.';
         }
     }
 
