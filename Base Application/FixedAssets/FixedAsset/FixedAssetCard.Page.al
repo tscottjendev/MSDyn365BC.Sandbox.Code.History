@@ -58,7 +58,6 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies a description of the fixed asset.';
 
                     trigger OnValidate()
                     begin
