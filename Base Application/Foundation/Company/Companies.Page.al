@@ -129,7 +129,6 @@ page 357 Companies
                 Caption = 'Create New Company';
                 Image = Company;
                 ToolTip = 'Get assistance with creating a new company.';
-                Visible = SoftwareAsAService;
 
                 trigger OnAction()
                 begin
