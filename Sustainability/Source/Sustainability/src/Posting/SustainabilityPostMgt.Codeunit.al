@@ -6,11 +6,18 @@ using Microsoft.Sales.Document;
 using Microsoft.Sustainability.Account;
 using Microsoft.Sustainability.Emission;
 using Microsoft.Sustainability.Journal;
+using Microsoft.Inventory.Journal;
 using Microsoft.Sustainability.Ledger;
 
 codeunit 6212 "Sustainability Post Mgt"
 {
     Access = Internal;
+
+    procedure InsertLedgerEntry(SustainabilityJnlLine: Record "Sustainability Jnl. Line"; ItemJnlLine: Record "Item Journal Line")
+    begin
+        SkipUpdateCarbonEmissionValue := ItemJnlLine."Entry Type" <> ItemJnlLine."Entry Type"::Purchase;
+        InsertLedgerEntry(SustainabilityJnlLine);
+    end;
 
     procedure InsertLedgerEntry(SustainabilityJnlLine: Record "Sustainability Jnl. Line"; SalesLie: Record "Sales Line")
     begin
@@ -49,6 +56,11 @@ codeunit 6212 "Sustainability Post Mgt"
 
         SustainabilityValueEntry."Entry No." := SustainabilityValueEntry.GetLastEntryNo() + 1;
         SustainabilityValueEntry.CopyFromValueEntry(ValueEntry);
+
+        if (ValueEntry."Order Type" = ValueEntry."Order Type"::Production) and
+           (ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Output)
+        then
+            SustainabilityValueEntry."Expected Emission" := false;
 
         SustainabilityValueEntry.Validate("User ID", CopyStr(UserId(), 1, 50));
         UpdateCarbonFeeEmissionForValueEntry(SustainabilityValueEntry, SustainabilityJnlLine);
@@ -133,15 +145,15 @@ codeunit 6212 "Sustainability Post Mgt"
         SustainabilityValueEntry."CO2e per Unit" := CalcCO2ePerUnit(CO2eEmission, SustainabilityValueEntry."Valued Quantity");
     end;
 
-    local procedure UpdateCarbonFeeEmissionValues(
-        ScopeType: Enum "Emission Scope";
-        PostingDate: Date;
-        CountryRegionCode: Code[10];
-        EmissionCO2: Decimal;
-        EmissionN2O: Decimal;
-        EmissionCH4: Decimal;
-        var CO2eEmission: Decimal;
-        var CarbonFee: Decimal): Decimal
+    procedure UpdateCarbonFeeEmissionValues(
+       ScopeType: Enum "Emission Scope";
+       PostingDate: Date;
+       CountryRegionCode: Code[10];
+       EmissionCO2: Decimal;
+       EmissionN2O: Decimal;
+       EmissionCH4: Decimal;
+       var CO2eEmission: Decimal;
+       var CarbonFee: Decimal): Decimal
     var
         EmissionFee: Record "Emission Fee";
         CO2Factor: Decimal;

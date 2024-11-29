@@ -12,6 +12,7 @@ codeunit 148190 "Sust. Value Entry Test"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
         AccountCodeLbl: Label 'AccountCode%1', Locked = true, Comment = '%1 = Number';
@@ -2037,6 +2038,515 @@ codeunit 148190 "Sust. Value Entry Test"
             StrSubstNo(ValueMustBeEqualErr, Item.FieldCaption("CO2e per Unit"), ExpectedCO2eEmission, Item.TableCaption()));
     end;
 
+    [Test]
+    procedure VerifyCO2ePerUnitShouldBeUpdatedInRoutingLineFromWorkCenter()
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+    begin
+        // [SCENARIO 537479] Verify "CO2e per Unit" should be updated in Routing Line from Work Center.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create a Work Center.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        WorkCenter.Validate("CO2e per Unit", LibraryRandom.RandInt(10));
+        WorkCenter.Modify();
+
+        // [GIVEN] Create Routing Header.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        // [WHEN] Create Routing Line with Work Center.
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+
+        // [THEN] Verify "CO2e per Unit" should be updated in Routing Line.
+        Assert.AreEqual(
+            WorkCenter."CO2e per Unit",
+            RoutingLine."CO2e per Unit",
+            StrSubstNo(ValueMustBeEqualErr, RoutingLine.FieldCaption("CO2e per Unit"), WorkCenter."CO2e per Unit", RoutingLine.TableCaption()));
+    end;
+
+    [Test]
+    procedure VerifyCO2ePerUnitShouldBeUpdatedInRoutingLineFromMachineCenter()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        MachineCenter: Record "Machine Center";
+    begin
+        // [SCENARIO 537479] Verify "CO2e per Unit" should be updated in Routing Line from Machine Center.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create a Work Center.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Create a Machine Center.
+        LibraryManufacturing.CreateMachineCenterWithCalendar(MachineCenter, WorkCenter."No.", LibraryRandom.RandInt(10));
+        MachineCenter.Validate("CO2e per Unit", LibraryRandom.RandInt(10));
+        MachineCenter.Modify();
+
+        // [GIVEN] Create Routing Header.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        // [WHEN] Create Routing Line with Machine Center.
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Machine Center", MachineCenter."No.");
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+
+        // [THEN] Verify "CO2e per Unit" should be updated in Routing Line.
+        Assert.AreEqual(
+            MachineCenter."CO2e per Unit",
+            RoutingLine."CO2e per Unit",
+            StrSubstNo(ValueMustBeEqualErr, RoutingLine.FieldCaption("CO2e per Unit"), MachineCenter."CO2e per Unit", RoutingLine.TableCaption()));
+    end;
+
+    [Test]
+    procedure VerifyCO2ePerUnitShouldBeUpdatedInProdBOMLineFromItem()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        // [SCENARIO 537479] Verify "CO2e per Unit" should be updated in Production BOM Line from Item.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create Items.
+        CreateItems(ProdItem, CompItem);
+
+        // [GIVEN] Update "CO2e per Unit" in Component Item.
+        CompItem.Validate("CO2e per Unit", LibraryRandom.RandInt(100));
+        CompItem.Modify();
+
+        // [GIVEN] Create Production BOM with Component Item.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, CompItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [THEN] Verify "CO2e per Unit" should be updated in Production BOM Line.
+        Assert.AreEqual(
+            CompItem."CO2e per Unit",
+            ProductionBOMLine."CO2e per Unit",
+            StrSubstNo(ValueMustBeEqualErr, ProductionBOMLine.FieldCaption("CO2e per Unit"), CompItem."CO2e per Unit", ProductionBOMLine.TableCaption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsShouldBeUpdatedAfterRefreshProductionOrder()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        RoutingHeader: Record "Routing Header";
+        WorkCenter: Record "Work Center";
+        ProductionOrder: Record "Production Order";
+        ProductionBOMHeader: Record "Production BOM Header";
+        SustainabilityAccount: Record "Sustainability Account";
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+        Quanity: Decimal;
+        ExpectedCO2ePerUnit: Decimal;
+    begin
+        // [SCENARIO 537479] Verify "Default Sust. Account","CO2e per Unit","Total CO2e" should be updated after refresh Production Order.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+        SustainabilityAccount.Get(AccountCode);
+
+        // [GIVEN] Create a Work Center.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        WorkCenter.Validate("Default Sust. Account", AccountCode);
+        WorkCenter.Validate("CO2e per Unit", LibraryRandom.RandInt(10));
+        WorkCenter.Modify();
+
+        // [GIVEN] Create Routing Header.
+        RoutingHeader.Get(CreateRoutingWithWorkCenter(WorkCenter, 0));
+
+        // [GIVEN] Create Production and Component Item.
+        CreateItems(ProdItem, CompItem);
+
+        // [GIVEN] Update "Default Sust. Account","CO2e per Unit" in Component Item.
+        CompItem.Validate("Default Sust. Account", AccountCode);
+        CompItem.Validate("CO2e per Unit", LibraryRandom.RandInt(100));
+        CompItem.Modify();
+
+        // [GIVEN] Update "Default Sust. Account","CO2e per Unit" in Production Item.
+        ProdItem.Validate("Default Sust. Account", AccountCode);
+        ProdItem.Validate("CO2e per Unit", LibraryRandom.RandInt(100));
+        ProdItem.Modify();
+
+        // [GIVEN] Create Production BOM.
+        CreateProductionBOM(ProductionBOMHeader, CompItem, 0);
+
+        // [GIVEN] Update "Production BOM No.","Routing No." in Production Item.
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Routing No.", RoutingHeader."No.");
+        ProdItem.Modify();
+
+        // [GIVEN] Generate Quantity and Expected CO2e per unit for Prod Order Line.
+        Quanity := LibraryRandom.RandIntInRange(10, 10);
+        ExpectedCO2ePerUnit := (WorkCenter."CO2e per Unit" * Quanity + CompItem."CO2e per Unit" * Quanity) / Quanity;
+
+        // [WHEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProdItem."No.", Quanity);
+
+        // [THEN] Verify "Default Sust. Account","CO2e per Unit","Total CO2e" should be updated after refresh Production Order.
+        VerifyProductionOrderLine(ProductionOrder, ProdItem."Default Sust. Account", ExpectedCO2ePerUnit, ExpectedCO2ePerUnit * Quanity, 0);
+        VerifyProductionOrderComponent(ProductionOrder, CompItem."Default Sust. Account", CompItem."CO2e per Unit", CompItem."CO2e per Unit" * Quanity, 0);
+        VerifyProductionOrderRoutingLine(ProductionOrder, WorkCenter."Default Sust. Account", WorkCenter."CO2e per Unit", WorkCenter."CO2e per Unit" * Quanity, 0);
+    end;
+
+    [Test]
+    procedure VerifySustainabilityFieldsShouldBeUpdatedAfterRefreshProductionOrderFromRoutingLineAndProductionBOM()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        RoutingHeader: Record "Routing Header";
+        WorkCenter: Record "Work Center";
+        ProductionOrder: Record "Production Order";
+        ProductionBOMHeader: Record "Production BOM Header";
+        SustainabilityAccount: Record "Sustainability Account";
+        ExpectedCO2ePerUnit: array[2] of Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+        Quanity: Decimal;
+        ExpectedCO2ePerUnitForProdOrderLine: Decimal;
+    begin
+        // [SCENARIO 537479] Verify "Default Sust. Account","CO2e per Unit","Total CO2e" should be updated after refresh Production Order from Routing Line and Production BOM.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+        SustainabilityAccount.Get(AccountCode);
+
+        // [GIVEN] Create a Work Center.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        WorkCenter.Validate("Default Sust. Account", AccountCode);
+        WorkCenter.Validate("CO2e per Unit", LibraryRandom.RandInt(10));
+        WorkCenter.Modify();
+
+        // [GIVEN] Save Quantity and Expected "CO2e per Unit" for Routing.
+        ExpectedCO2ePerUnit[1] := LibraryRandom.RandInt(100);
+        Quanity := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create Routing Header.
+        RoutingHeader.Get(CreateRoutingWithWorkCenter(WorkCenter, ExpectedCO2ePerUnit[1]));
+
+        // [GIVEN] Create Production and Component Item.
+        CreateItems(ProdItem, CompItem);
+
+        // [GIVEN] Update "Default Sust. Account","CO2e per Unit" in Component Item.
+        CompItem.Validate("Default Sust. Account", AccountCode);
+        CompItem.Validate("CO2e per Unit", LibraryRandom.RandInt(100));
+        CompItem.Modify();
+
+        // [GIVEN] Update "Default Sust. Account","CO2e per Unit" in Production Item.
+        ProdItem.Validate("Default Sust. Account", AccountCode);
+        ProdItem.Validate("CO2e per Unit", LibraryRandom.RandInt(100));
+        ProdItem.Modify();
+
+        // [GIVEN] Save Expected "CO2e per Unit" for Production BOM.
+        ExpectedCO2ePerUnit[2] := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create Production BOM.
+        CreateProductionBOM(ProductionBOMHeader, CompItem, ExpectedCO2ePerUnit[2]);
+
+        // [GIVEN] Update "Production BOM No.","Routing No." in Production Item.
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Routing No.", RoutingHeader."No.");
+        ProdItem.Modify();
+
+        // [GIVEN] Save  Expected "CO2e per Unit" for Prod Order Line.
+        ExpectedCO2ePerUnitForProdOrderLine := (ExpectedCO2ePerUnit[1] * Quanity + ExpectedCO2ePerUnit[2] * Quanity) / Quanity;
+
+        // [WHEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProdItem."No.", Quanity);
+
+        // [THEN] Verify "Default Sust. Account","CO2e per Unit","Total CO2e" should be updated after refresh Production Order.
+        VerifyProductionOrderLine(ProductionOrder, ProdItem."Default Sust. Account", ExpectedCO2ePerUnitForProdOrderLine, ExpectedCO2ePerUnitForProdOrderLine * Quanity, 0);
+        VerifyProductionOrderRoutingLine(ProductionOrder, WorkCenter."Default Sust. Account", ExpectedCO2ePerUnit[1], ExpectedCO2ePerUnit[1] * Quanity, 0);
+        VerifyProductionOrderComponent(ProductionOrder, CompItem."Default Sust. Account", ExpectedCO2ePerUnit[2], ExpectedCO2ePerUnit[2] * Quanity, 0);
+    end;
+
+    [Test]
+    procedure VerifySustainabilityFieldsShouldBeUpdatedFromItemAndWorkCenter()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        RoutingHeader: Record "Routing Header";
+        WorkCenter: Record "Work Center";
+        ProductionOrder: Record "Production Order";
+        ProductionOrderComponent: Record "Prod. Order Component";
+        ProductionOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        SustainabilityAccount: Record "Sustainability Account";
+        ExpectedCO2ePerUnit: array[2] of Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+    begin
+        // [SCENARIO 537479] Verify "Default Sust. Account","CO2e per Unit","Total CO2e" should be updated from Item and Work Center.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+        SustainabilityAccount.Get(AccountCode);
+
+        // [GIVEN] Create a Work Center.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        WorkCenter.Validate("Default Sust. Account", AccountCode);
+        WorkCenter.Validate("CO2e per Unit", LibraryRandom.RandInt(10));
+        WorkCenter.Modify();
+
+        // [GIVEN] Save Expected "CO2e per Unit" for Routing.
+        ExpectedCO2ePerUnit[1] := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create Routing Header.
+        RoutingHeader.Get(CreateRoutingWithWorkCenter(WorkCenter, ExpectedCO2ePerUnit[1]));
+
+        // [GIVEN] Create Production and Component Item.
+        CreateItems(ProdItem, CompItem);
+
+        // [GIVEN] Update "Default Sust. Account","CO2e per Unit" in Component Item.
+        CompItem.Validate("Default Sust. Account", AccountCode);
+        CompItem.Validate("CO2e per Unit", LibraryRandom.RandInt(100));
+        CompItem.Modify();
+
+        // [GIVEN] Update "Production BOM No.","Routing No.","Default Sust. Account","CO2e per Unit" in Production Item.
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Routing No.", RoutingHeader."No.");
+        ProdItem.Validate("Default Sust. Account", AccountCode);
+        ProdItem.Validate("CO2e per Unit", LibraryRandom.RandInt(100));
+        ProdItem.Modify();
+
+        // [GIVEN] Save Expected "CO2e per Unit" for Production BOM.
+        ExpectedCO2ePerUnit[2] := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create Production BOM.
+        CreateProductionBOM(ProductionBOMHeader, CompItem, ExpectedCO2ePerUnit[2]);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProdItem."No.", LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Delete Prod. Order Component.
+        ProductionOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProductionOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProductionOrderComponent.DeleteAll();
+
+        // [WHEN] Create Prod. Order Component.
+        LibraryManufacturing.CreateProductionOrderComponent(ProductionOrderComponent, ProductionOrder.Status, ProductionOrder."No.", 10000);
+        ProductionOrderComponent.Validate("Item No.", CompItem."No.");
+        ProductionOrderComponent.Validate("Quantity per", LibraryRandom.RandIntInRange(1, 1));
+        ProductionOrderComponent.Modify();
+
+        // [THEN] Verify "Default Sust. Account","CO2e per Unit","Total CO2e" should be updated from Component Item.
+        VerifyProductionOrderComponent(ProductionOrder, CompItem."Default Sust. Account", CompItem."CO2e per Unit", CompItem."CO2e per Unit" * 10, 0);
+
+        // [GIVEN] Find Prod. Order Routing Line.
+        ProductionOrderRoutingLine.SetRange(Status, ProductionOrder.Status);
+        ProductionOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProductionOrderRoutingLine.FindFirst();
+
+        // [GIVEN] Update "No." in Prod. Order Routing Line.
+        ProductionOrderRoutingLine.Validate("No.", '');
+        ProductionOrderRoutingLine.Validate("No.", WorkCenter."No.");
+        ProductionOrderRoutingLine.Modify();
+
+        // [THEN] Verify "Default Sust. Account","CO2e per Unit","Total CO2e" should be updated from Work Center.
+        VerifyProductionOrderRoutingLine(ProductionOrder, WorkCenter."Default Sust. Account", WorkCenter."CO2e per Unit", WorkCenter."CO2e per Unit" * 10, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ConfirmHandler,MessageHandler')]
+    procedure VerifyLedgerEntryShouldBeUpdatedWhenProductionjournalIsPosted()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        RoutingHeader: Record "Routing Header";
+        WorkCenter: Record "Work Center";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProdOrderComponent: Record "Prod. Order Component";
+        SustainabilityLedgerEntry: Record "Sustainability Ledger Entry";
+        SustainabilityValueEntry: Record "Sustainability Value Entry";
+        ExpectedCO2ePerUnit: array[2] of Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: array[3] of Code[20];
+    begin
+        // [SCENARIO 537479] Verify Sustainability Ledger Entry should be created When Production Journal is posted.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create a Sustainability Account for Work Center.
+        CreateSustainabilityAccount(AccountCode[1], CategoryCode, SubcategoryCode, LibraryRandom.RandIntInRange(1, 1));
+
+        // [GIVEN] Create a Work Center.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        WorkCenter.Validate("Default Sust. Account", AccountCode[1]);
+        WorkCenter.Validate("CO2e per Unit", LibraryRandom.RandInt(10));
+        WorkCenter.Modify();
+
+        // [GIVEN] Save Expected "CO2e per Unit" for Routing.
+        ExpectedCO2ePerUnit[1] := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create Routing Header.
+        RoutingHeader.Get(CreateRoutingWithWorkCenter(WorkCenter, ExpectedCO2ePerUnit[1]));
+
+        // [GIVEN] Create Production and Component Item.
+        CreateItems(ProdItem, CompItem);
+
+        // [GIVEN] Create a Sustainability Account for Comp Item.
+        CreateSustainabilityAccount(AccountCode[2], CategoryCode, SubcategoryCode, LibraryRandom.RandIntInRange(2, 2));
+
+        // [GIVEN] Update "Default Sust. Account","CO2e per Unit" in Component Item.
+        CompItem.Validate("Default Sust. Account", AccountCode[2]);
+        CompItem.Validate("CO2e per Unit", LibraryRandom.RandInt(100));
+        CompItem.Modify();
+
+        // [GIVEN] Post Inventory for Component Item.
+        PostInventoryForItem(CompItem."No.");
+
+        // [GIVEN] Create a Sustainability Account for Production Item.
+        CreateSustainabilityAccount(AccountCode[3], CategoryCode, SubcategoryCode, LibraryRandom.RandIntInRange(3, 3));
+
+        // [GIVEN] Update "Default Sust. Account","CO2e per Unit" in Production Item.
+        ProdItem.Validate("Default Sust. Account", AccountCode[3]);
+        ProdItem.Validate("CO2e per Unit", LibraryRandom.RandInt(100));
+        ProdItem.Modify();
+
+        // [GIVEN] Save Expected "CO2e per Unit" for Production BOM.
+        ExpectedCO2ePerUnit[2] := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create Production BOM.
+        CreateProductionBOM(ProductionBOMHeader, CompItem, ExpectedCO2ePerUnit[2]);
+
+        // [GIVEN] Update "Production BOM No.","Routing No." in Production Item.
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Routing No.", RoutingHeader."No.");
+        ProdItem.Modify();
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProdItem."No.", LibraryRandom.RandIntInRange(10, 10));
+
+        // [WHEN] Post Production Journal.
+        FindProdOrderLine(ProdOrderLine, ProductionOrder, ProdItem."No.");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [THEN] Verify Sustainability Ledger Entry should be created When Production Journal is posted.
+        SustainabilityLedgerEntry.SetRange("Document No.", ProductionOrder."No.");
+        Assert.RecordCount(SustainabilityLedgerEntry, 2);
+
+        SustainabilityValueEntry.SetRange("Document No.", ProductionOrder."No.");
+        Assert.RecordCount(SustainabilityValueEntry, 2);
+
+        // [THEN] Verify Sustainability Value Entry and Sustainability Ledger Entry should be created for Production Order Line.
+        VerifySustLedgerEntryForProductionOrder(ProductionOrder, ProdOrderLine."Sust. Account No.", ProdOrderLine."Total CO2e");
+        VerifySustValueEntryForProductionOrder(ProductionOrder, ProdOrderLine."Item No.", ProdOrderLine."Total CO2e");
+
+        // [THEN] Verify Sustainability Value Entry and Sustainability Ledger Entry should be created for Production Order Component.
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder, CompItem."No.");
+        VerifySustLedgerEntryForProductionOrder(ProductionOrder, ProdOrderComponent."Sust. Account No.", -ProdOrderComponent."Total CO2e");
+        VerifySustValueEntryForProductionOrder(ProductionOrder, ProdOrderComponent."Item No.", -ProdOrderComponent."Total CO2e");
+    end;
+
+    [Test]
+    [HandlerFunctions('PartiallyPostProductionJournalModalPageHandler,ConfirmHandler,MessageHandler')]
+    procedure VerifyLedgerEntryShouldBeUpdatedWhenProductionjournalIsPartiallyPosted()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        RoutingHeader: Record "Routing Header";
+        WorkCenter: Record "Work Center";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProdOrderComponent: Record "Prod. Order Component";
+        SustainabilityLedgerEntry: Record "Sustainability Ledger Entry";
+        SustainabilityValueEntry: Record "Sustainability Value Entry";
+        ExpectedCO2ePerUnit: array[2] of Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: array[3] of Code[20];
+    begin
+        // [SCENARIO 537479] Verify Sustainability Ledger Entry should be created When Production Journal is partially posted.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create a Sustainability Account for Work Center.
+        CreateSustainabilityAccount(AccountCode[1], CategoryCode, SubcategoryCode, LibraryRandom.RandIntInRange(1, 1));
+
+        // [GIVEN] Create a Work Center.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        WorkCenter.Validate("Default Sust. Account", AccountCode[1]);
+        WorkCenter.Validate("CO2e per Unit", LibraryRandom.RandInt(10));
+        WorkCenter.Modify();
+
+        // [GIVEN] Save Expected "CO2e per Unit" for Routing.
+        ExpectedCO2ePerUnit[1] := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create Routing Header.
+        RoutingHeader.Get(CreateRoutingWithWorkCenter(WorkCenter, ExpectedCO2ePerUnit[1]));
+
+        // [GIVEN] Create Production and Component Item.
+        CreateItems(ProdItem, CompItem);
+
+        // [GIVEN] Create a Sustainability Account for Comp Item.
+        CreateSustainabilityAccount(AccountCode[2], CategoryCode, SubcategoryCode, LibraryRandom.RandIntInRange(2, 2));
+
+        // [GIVEN] Update "Default Sust. Account","CO2e per Unit" in Component Item.
+        CompItem.Validate("Default Sust. Account", AccountCode[2]);
+        CompItem.Validate("CO2e per Unit", LibraryRandom.RandInt(100));
+        CompItem.Modify();
+
+        // [GIVEN] Post Inventory for Component Item.
+        PostInventoryForItem(CompItem."No.");
+
+        // [GIVEN] Create a Sustainability Account for Production Item.
+        CreateSustainabilityAccount(AccountCode[3], CategoryCode, SubcategoryCode, LibraryRandom.RandIntInRange(3, 3));
+
+        // [GIVEN] Update "Default Sust. Account","CO2e per Unit" in Production Item.
+        ProdItem.Validate("Default Sust. Account", AccountCode[3]);
+        ProdItem.Validate("CO2e per Unit", LibraryRandom.RandInt(100));
+        ProdItem.Modify();
+
+        // [GIVEN] Save Expected "CO2e per Unit" for Production BOM.
+        ExpectedCO2ePerUnit[2] := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create Production BOM.
+        CreateProductionBOM(ProductionBOMHeader, CompItem, ExpectedCO2ePerUnit[2]);
+
+        // [GIVEN] Update "Production BOM No.","Routing No." in Production Item.
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Routing No.", RoutingHeader."No.");
+        ProdItem.Modify();
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProdItem."No.", LibraryRandom.RandIntInRange(10, 10));
+
+        // [WHEN] Post Production Journal.
+        FindProdOrderLine(ProdOrderLine, ProductionOrder, ProdItem."No.");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [THEN] Verify Sustainability Ledger Entry should be created When Production Journal is posted.
+        SustainabilityLedgerEntry.SetRange("Document No.", ProductionOrder."No.");
+        Assert.RecordCount(SustainabilityLedgerEntry, 2);
+
+        SustainabilityValueEntry.SetRange("Document No.", ProductionOrder."No.");
+        Assert.RecordCount(SustainabilityValueEntry, 2);
+
+        // [THEN] Verify Sustainability Value Entry and Sustainability Ledger Entry should be created for Production Order Line.
+        FindProdOrderLine(ProdOrderLine, ProductionOrder, ProdItem."No.");
+        VerifySustLedgerEntryForProductionOrder(ProductionOrder, ProdOrderLine."Sust. Account No.", 5 * ProdOrderLine."CO2e per Unit");
+        VerifySustValueEntryForProductionOrder(ProductionOrder, ProdOrderLine."Item No.", 5 * ProdOrderLine."CO2e per Unit");
+
+        // [THEN] Verify Sustainability Value Entry and Sustainability Ledger Entry should be created for Production Order Component.
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder, CompItem."No.");
+        VerifySustLedgerEntryForProductionOrder(ProductionOrder, ProdOrderComponent."Sust. Account No.", -5 * ProdOrderComponent."CO2e per Unit");
+        VerifySustValueEntryForProductionOrder(ProductionOrder, ProdOrderComponent."Item No.", -5 * ProdOrderComponent."CO2e per Unit");
+    end;
 
     local procedure CreateSustainabilityAccount(var AccountCode: Code[20]; var CategoryCode: Code[20]; var SubcategoryCode: Code[20]; i: Integer): Record "Sustainability Account"
     begin
@@ -2213,6 +2723,207 @@ codeunit 148190 "Sust. Value Entry Test"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
+    local procedure PostInventoryForItem(ItemNo: Code[20])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        SelectItemJournalBatch(ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase, ItemNo, LibraryRandom.RandIntInRange(100, 100));
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        SelectItemJournalBatchByTemplateType(ItemJournalBatch, ItemJournalTemplate.Type::Item);
+    end;
+
+    local procedure SelectItemJournalBatchByTemplateType(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, TemplateType);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+    end;
+
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order"; ItemNo: Code[20])
+    begin
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.FindFirst();
+    end;
+
+    local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrder: Record "Production Order"; ItemNo: Code[20])
+    begin
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", ItemNo);
+        ProdOrderComponent.FindFirst();
+    end;
+
+    local procedure CreateRoutingWithWorkCenter(var WorkCenter: Record "Work Center"; CO2ePerUnit: Decimal): Code[20]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        if CO2ePerUnit <> 0 then begin
+            RoutingLine.Validate("CO2e per Unit", CO2ePerUnit);
+            RoutingLine.Modify();
+        end;
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+
+        exit(RoutingHeader."No.");
+    end;
+
+    local procedure CreateItems(var ProdItem: Record Item; var CompItem: Record Item)
+    begin
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem.Validate("Costing Method", ProdItem."Costing Method"::Standard);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Modify(true);
+    end;
+
+    local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; CompItem: Record Item; CO2ePerUnit: Decimal)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, CompItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", 1);
+        if CO2ePerUnit <> 0 then begin
+            ProductionBOMLine.Validate("CO2e per Unit", CO2ePerUnit);
+            ProductionBOMLine.Modify();
+        end;
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal)
+    begin
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, SourceNo, Quantity);
+
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure VerifyProductionOrderLine(ProductionOrder: Record "Production Order"; AccountCode: Code[20]; CO2ePerUnit: Decimal; TotalCO2e: Decimal; PostedTotalCO2e: Decimal)
+    var
+        ProductionOrderLine: Record "Prod. Order Line";
+    begin
+        ProductionOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProductionOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProductionOrderLine.FindFirst();
+
+        Assert.AreEqual(
+            AccountCode,
+            ProductionOrderLine."Sust. Account No.",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrderLine.FieldCaption("Sust. Account No."), AccountCode, ProductionOrderLine.TableCaption()));
+        Assert.AreEqual(
+            CO2ePerUnit,
+            ProductionOrderLine."CO2e per Unit",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrderLine.FieldCaption("CO2e per Unit"), CO2ePerUnit, ProductionOrderLine.TableCaption()));
+        Assert.AreEqual(
+            TotalCO2e,
+            ProductionOrderLine."Total CO2e",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrderLine.FieldCaption("Total CO2e"), TotalCO2e, ProductionOrderLine.TableCaption()));
+        Assert.AreEqual(
+            PostedTotalCO2e,
+            ProductionOrderLine."Posted Total CO2e",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrderLine.FieldCaption("Posted Total CO2e"), PostedTotalCO2e, ProductionOrderLine.TableCaption()));
+    end;
+
+    local procedure VerifyProductionOrderComponent(ProductionOrder: Record "Production Order"; AccountCode: Code[20]; CO2ePerUnit: Decimal; TotalCO2e: Decimal; PostedTotalCO2e: Decimal)
+    var
+        ProductionOrderComponent: Record "Prod. Order Component";
+    begin
+        ProductionOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProductionOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProductionOrderComponent.FindFirst();
+
+        Assert.AreEqual(
+            AccountCode,
+            ProductionOrderComponent."Sust. Account No.",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrderComponent.FieldCaption("Sust. Account No."), AccountCode, ProductionOrderComponent.TableCaption()));
+        Assert.AreEqual(
+            CO2ePerUnit,
+            ProductionOrderComponent."CO2e per Unit",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrderComponent.FieldCaption("CO2e per Unit"), CO2ePerUnit, ProductionOrderComponent.TableCaption()));
+        Assert.AreEqual(
+            TotalCO2e,
+            ProductionOrderComponent."Total CO2e",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrderComponent.FieldCaption("Total CO2e"), TotalCO2e, ProductionOrderComponent.TableCaption()));
+        Assert.AreEqual(
+            PostedTotalCO2e,
+            ProductionOrderComponent."Posted Total CO2e",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrderComponent.FieldCaption("Posted Total CO2e"), PostedTotalCO2e, ProductionOrderComponent.TableCaption()));
+    end;
+
+    local procedure VerifyProductionOrderRoutingLine(ProductionOrder: Record "Production Order"; AccountCode: Code[20]; CO2ePerUnit: Decimal; TotalCO2e: Decimal; PostedTotalCO2e: Decimal)
+    var
+        ProductionOrderRoutingLine: Record "Prod. Order Routing Line";
+    begin
+        ProductionOrderRoutingLine.SetRange(Status, ProductionOrder.Status);
+        ProductionOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProductionOrderRoutingLine.FindFirst();
+
+        Assert.AreEqual(
+            AccountCode,
+            ProductionOrderRoutingLine."Sust. Account No.",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrderRoutingLine.FieldCaption("Sust. Account No."), AccountCode, ProductionOrderRoutingLine.TableCaption()));
+        Assert.AreEqual(
+            CO2ePerUnit,
+            ProductionOrderRoutingLine."CO2e per Unit",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrderRoutingLine.FieldCaption("CO2e per Unit"), CO2ePerUnit, ProductionOrderRoutingLine.TableCaption()));
+        Assert.AreEqual(
+            TotalCO2e,
+            ProductionOrderRoutingLine."Total CO2e",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrderRoutingLine.FieldCaption("Total CO2e"), TotalCO2e, ProductionOrderRoutingLine.TableCaption()));
+        Assert.AreEqual(
+            PostedTotalCO2e,
+            ProductionOrderRoutingLine."Posted Total CO2e",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrderRoutingLine.FieldCaption("Posted Total CO2e"), PostedTotalCO2e, ProductionOrderRoutingLine.TableCaption()));
+    end;
+
+    local procedure VerifySustLedgerEntryForProductionOrder(ProductionOrder: Record "Production Order"; AccountCode: Code[20]; ExpectedCO2eEmission: Decimal)
+    var
+        SustainabilityLedgerEntry: Record "Sustainability Ledger Entry";
+    begin
+        SustainabilityLedgerEntry.SetRange("Document No.", ProductionOrder."No.");
+        SustainabilityLedgerEntry.SetRange("Account No.", AccountCode);
+        SustainabilityLedgerEntry.FindFirst();
+
+        Assert.AreEqual(
+            ExpectedCO2eEmission,
+            SustainabilityLedgerEntry."CO2e Emission",
+            StrSubstNo(ValueMustBeEqualErr, SustainabilityLedgerEntry.FieldCaption("CO2e Emission"), ExpectedCO2eEmission, SustainabilityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            0,
+            SustainabilityLedgerEntry."Carbon Fee",
+            StrSubstNo(ValueMustBeEqualErr, SustainabilityLedgerEntry.FieldCaption("Carbon Fee"), 0, SustainabilityLedgerEntry.TableCaption()));
+    end;
+
+    local procedure VerifySustValueEntryForProductionOrder(ProductionOrder: Record "Production Order"; ItemNo: Code[20]; ExpectedCO2eEmission: Decimal)
+    var
+        SustainabilityValueEntry: Record "Sustainability Value Entry";
+    begin
+        SustainabilityValueEntry.SetRange("Document No.", ProductionOrder."No.");
+        SustainabilityValueEntry.SetRange("Item No.", ItemNo);
+        SustainabilityValueEntry.FindFirst();
+        Assert.AreEqual(
+            ExpectedCO2eEmission,
+            SustainabilityValueEntry."CO2e Amount (Actual)",
+            StrSubstNo(ValueMustBeEqualErr, SustainabilityValueEntry.FieldCaption("CO2e Amount (Actual)"), ExpectedCO2eEmission, SustainabilityValueEntry.TableCaption()));
+        Assert.AreEqual(
+            0,
+            SustainabilityValueEntry."CO2e Amount (Expected)",
+            StrSubstNo(ValueMustBeEqualErr, SustainabilityValueEntry.FieldCaption("CO2e Amount (Expected)"), 0, SustainabilityValueEntry.TableCaption()));
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatisticsPage: TestPage "Purchase Order Statistics")
@@ -2299,5 +3010,39 @@ codeunit 148190 "Sust. Value Entry Test"
 
         SalesOrderStatisticsPage."Total CO2e".AssertEquals(TotalCO2e);
         SalesOrderStatisticsPage."Posted Total CO2e".AssertEquals(PostedTotalCO2e);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.Post.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PartiallyPostProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.First();
+        repeat
+            ProductionJournal.Quantity.SetValue(LibraryRandom.RandIntInRange(5, 5));
+            if ProductionJournal."No.".Value <> '' then
+                ProductionJournal."Output Quantity".SetValue(LibraryRandom.RandIntInRange(5, 5));
+        until not ProductionJournal.Next();
+
+        ProductionJournal.Post.Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 }
