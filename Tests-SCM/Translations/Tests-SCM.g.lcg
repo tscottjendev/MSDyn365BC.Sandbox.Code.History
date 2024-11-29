@@ -1033,7 +1033,7 @@
   </Item>
   <Item ItemId=";Codeunit 3765369633 - NamedType 659113089" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is no active Production BOM for the item %1]]></Val>
+      <Val><![CDATA[There is no active Production BOM for the item %1.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
