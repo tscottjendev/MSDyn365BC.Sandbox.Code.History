@@ -31,7 +31,7 @@ codeunit 137501 "SCM Available to Pick UT"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         OverStockErr: Label 'item no. %1 is not available';
-        NoActiveProductionBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1', Comment = '%1 - Item No.';
+        NoActiveProductionBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1.', Comment = '%1 - Item No.';
         BlockMovementGlobal: Option " ",Inbound,Outbound,All;
         BinCodeDictionary: Dictionary of [Text, List of [Code[20]]];
 

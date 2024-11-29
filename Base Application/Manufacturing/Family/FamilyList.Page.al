@@ -45,7 +45,6 @@ page 99000791 "Family List"
                 field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                     Visible = false;
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
