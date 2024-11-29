@@ -349,7 +349,7 @@ tableextension 99000750 "Mfg. Item" extends Item
     }
 
     var
-        NoActiveBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1', Comment = '%1 - Item No.';
+        NoActiveBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1.', Comment = '%1 - Item No.';
         ProductionBlockedOutputItemErr: Label 'You cannot produce %1 %2 because the %3 is %4 on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value';
         ProductionBlockedOutputItemVariantErr: Label 'You cannot produce variant %1 for %2 %3 because it is blocked for production output.', Comment = '%1 - Item Variant Code, %2 - Table Caption (Item), %3 - Item No.';
 
@@ -398,7 +398,7 @@ tableextension 99000750 "Mfg. Item" extends Item
     begin
     end;
 
-    procedure OpenActiveProdBOMForItem(ProdBOMNo: Code[20]; ItemNo: Code[20])
+    internal procedure OpenActiveProdBOMForItem(ProdBOMNo: Code[20]; ItemNo: Code[20])
     var
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBOMVersion: Record "Production BOM Version";
@@ -424,7 +424,7 @@ tableextension 99000750 "Mfg. Item" extends Item
         end;
     end;
 
-    procedure CheckItemAndVariantForProdBlocked(ItemNo: Code[20]; VariantCode: Code[20]; ItemProductionBlockedToCheck: Enum "Item Production Blocked")
+    internal procedure CheckItemAndVariantForProdBlocked(ItemNo: Code[20]; VariantCode: Code[20]; ItemProductionBlockedToCheck: Enum "Item Production Blocked")
     var
         Item: Record Item;
         ItemVariant: Record "Item Variant";
