@@ -3825,6 +3825,7 @@ codeunit 104000 "Upgrade - BaseApp"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingTemplatesUpgradeTag());
     end;
+
 #if not CLEAN26
     [Obsolete('This event has been deprecated becase "Customer Template" is marked as Removed.', '26.0')]
     [IntegrationEvent(false, false)]
