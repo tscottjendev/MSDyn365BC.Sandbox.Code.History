@@ -2392,6 +2392,8 @@ table 37 "Sales Line"
 
                 if Type = Type::Item then begin
                     GetUnitCost();
+                    if "Document Type" = "Document Type"::"Return Order" then
+                        ValidateReturnReasonCode(FieldNo("Variant Code"));
                     if "Variant Code" <> xRec."Variant Code" then
                         PlanPriceCalcByField(FieldNo("Variant Code"));
                 end;
