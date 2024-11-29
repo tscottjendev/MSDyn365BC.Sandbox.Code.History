@@ -6917,6 +6917,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Documents III - NamedType ShipToContactMustBeEditableErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2641639841 - NamedType 4003750766" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unit Cost (LCY) must be zero.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Documents III - NamedType UniCostLCYErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2641639841 - NamedType 1702585329" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must update the existing sales lines manually.]]></Val>

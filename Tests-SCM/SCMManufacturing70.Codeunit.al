@@ -1770,6 +1770,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     end;
 
     [Test]
+    [HandlerFunctions('ProductionBOMPageHandler')]
     [Scope('OnPrem')]
     procedure CalculateProdOrderWithSKUWithRoutingAndProdBOMNo()
     var
@@ -1783,9 +1784,12 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProductionBOMLine: Record "Production BOM Line";
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
+        StockkeepingUnitCard: TestPage "Stockkeeping Unit Card";
+        StockkeepingUnitList: TestPage "Stockkeeping Unit List";
     begin
         // Check assignment of Routing No. and Production BOM No. from SKU
         // Setup: Create Item, Routing Header and Production BOM 
+        // [SCENARIO 555088] "Production BOM" action opens Production BOM page. Also "Prod. Active BOM Version" does the same, when there is no version.
         Initialize();
 
         CreateItem(ChildItem, ChildItem."Replenishment System"::Purchase, ChildItem."Reordering Policy"::Order, false, 0, 0, 0, '');
@@ -1816,6 +1820,42 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProdOrderLine.TestField("Variant Code", ProductionOrder."Variant Code");
         ProdOrderLine.TestField("Routing No.", StockkeepingUnit."Routing No.");
         ProdOrderLine.TestField("Production BOM No.", StockkeepingUnit."Production BOM No.");
+
+        // [WHEN] Open Production BOM page from Stockkeeping Unit Card.
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+        StockkeepingUnitCard.OpenEdit();
+        StockkeepingUnitCard.GotoRecord(StockkeepingUnit);
+        StockkeepingUnitCard."Production BOM".Invoke();
+        StockkeepingUnitCard.Close();
+
+        // [Verify] Verify Production BOM is opened through "ProductionBOMPageHandler".
+
+        // [WHEN] Open Production BOM Version page from Stockkeeping Unit Card.
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+        StockkeepingUnitCard.OpenEdit();
+        StockkeepingUnitCard.GotoRecord(StockkeepingUnit);
+        StockkeepingUnitCard."Prod. Active BOM Version".Invoke();
+        StockkeepingUnitCard.Close();
+
+        // [Verify] Verify Production BOM is opened through "ProductionBOMPageHandler".
+
+        // [WHEN] Open Production BOM page from Stockkeeping Unit List.
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+        StockkeepingUnitList.OpenView();
+        StockkeepingUnitList.GotoRecord(StockkeepingUnit);
+        StockkeepingUnitList."Production BOM".Invoke();
+        StockkeepingUnitList.Close();
+
+        // [Verify] Verify Production BOM is opened through "ProductionBOMPageHandler".
+
+        // [WHEN] Open Production BOM Version page from Stockkeeping Unit List.
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+        StockkeepingUnitList.OpenView();
+        StockkeepingUnitList.GotoRecord(StockkeepingUnit);
+        StockkeepingUnitList."Prod. Active BOM Version".Invoke();
+        StockkeepingUnitList.Close();
+
+        // [Verify] Verify Production BOM is opened through "ProductionBOMPageHandler".
     end;
 
     [Test]
@@ -5584,6 +5624,13 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         ChangeStatusonProductionOrder.FirmPlannedStatus.SetValue(ProductionOrder.Status::Released);
         ChangeStatusonProductionOrder.Yes().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionBOMPageHandler(var ProductionBOM: TestPage "Production BOM")
+    begin
+        ProductionBOM."No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [ConfirmHandler]

@@ -176,6 +176,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Tests - NamedType IncorrectNoOfRecordsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 976138744 - NamedType 4054336904" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[300]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Tests - NamedType ProtocolNo300Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 976138744 - NamedType 3157372558" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[BBRUBEBB]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Tests - NamedType SWIFTCodeBBRUBEBBTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 976138744 - NamedType 3167555257" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Tests - NamedType VersionCodeTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3345070057 - NamedType 2504206096" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is not correct for line %2.]]></Val>
