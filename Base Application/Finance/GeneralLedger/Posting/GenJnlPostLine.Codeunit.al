@@ -5671,6 +5671,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
 
         // Look one more time
+        if DetailedCustLedgEntry."Transaction No." = 0 then
+            DetailedCustLedgEntry2.SetCurrentKey("Application No.", "Customer No.", "Entry Type")
+        else
+            DetailedCustLedgEntry2.SetCurrentKey("Transaction No.", "Customer No.", "Entry Type");
+
         OnOnUnapplyCustLedgEntryOnBeforeSecondLook(DetailedCustLedgEntry2, NextDtldLedgEntryNo);
         DetailedCustLedgEntry2.FindSet();
         TempDimensionPostingBuffer.DeleteAll();
@@ -6421,6 +6426,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
     begin
+        DetailedCustLedgEntry.SetCurrentKey("Entry No.");
         if not DetailedCustLedgEntry.FindSet() then
             exit;
         repeat
