@@ -58,7 +58,6 @@ table 950 "Time Sheet Header"
         field(6; "Resource Name"; Text[100])
         {
             Caption = 'Resource Name';
-            OptimizeForTextSearch = true;
             FieldClass = FlowField;
             CalcFormula = lookup(Resource.Name where("No." = field("Resource No.")));
             Editable = false;
