@@ -317,7 +317,6 @@ table 5409 "Prod. Order Routing Line"
         field(34; "Routing Link Code"; Code[10])
         {
             Caption = 'Routing Link Code';
-            Editable = false;
             TableRelation = "Routing Link";
 
             trigger OnValidate()
@@ -343,6 +342,8 @@ table 5409 "Prod. Order Routing Line"
 
                 if "Routing Link Code" <> '' then
                     TestField("WIP Item", false);
+
+                AdjustProdOrderComponentForRoutingLinkCode(Rec, xRec);
             end;
         }
         field(35; "Standard Task Code"; Code[10])
@@ -1131,7 +1132,7 @@ table 5409 "Prod. Order Routing Line"
             "Overhead Rate" := WorkCenter."Overhead Rate";
             "Unit Cost Calculation" := WorkCenter."Unit Cost Calculation";
             FillDefaultLocationAndBins();
-	        GetSubcPricelist();
+            GetSubcPricelist();
         end;
         OnAfterWorkCenterTransferFields(Rec, WorkCenter);
     end;
@@ -1762,6 +1763,81 @@ table 5409 "Prod. Order Routing Line"
         StartingDate := DT2Date("Starting Date-Time");
         EndingTime := DT2Time("Ending Date-Time");
         EndingDate := DT2Date("Ending Date-Time");
+    end;
+
+    local procedure AdjustProdOrderComponentForRoutingLinkCode(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; xProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        ProdOrderComponent.SetRange(Status, ProdOrderRoutingLine.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
+        ProdOrderComponent.SetFilter("Routing Link Code", '%1|%2', ProdOrderRoutingLine."Routing Link Code", xProdOrderRoutingLine."Routing Link Code");
+        if ProdOrderComponent.FindSet() then
+            repeat
+                UpdateDueDateTimeAndBinCodeInProdOrderComponent(ProdOrderComponent, ProdOrderRoutingLine);
+            until ProdOrderComponent.Next() = 0;
+    end;
+
+    local procedure UpdateDueDateTimeAndBinCodeInProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"): DateTime
+    begin
+        GetProdOrderLine();
+
+        ProdOrderComponent."Due Date" := ProdOrderLine."Starting Date";
+        ProdOrderComponent."Due Time" := ProdOrderLine."Starting Time";
+
+        UpdateProdOrderComponentFromRoutingLine(ProdOrderComponent, ProdOrderRoutingLine);
+
+        if Format(ProdOrderComponent."Lead-Time Offset") <> '' then begin
+            ProdOrderComponent."Due Date" := ProdOrderComponent."Due Date" - (CalcDate(ProdOrderComponent."Lead-Time Offset", WorkDate()) - WorkDate());
+            ProdOrderComponent."Due Time" := 0T;
+        end;
+
+        ProdOrderComponent.Validate("Due Date");
+        ProdOrderComponent.GetDefaultBin();
+        ProdOrderComponent.Modify(true);
+    end;
+
+    local procedure UpdateProdOrderComponentFromRoutingLine(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    var
+        ExistingProdOrderRoutingLine: Record "Prod. Order Routing Line";
+    begin
+        if ProdOrderComponent."Routing Link Code" = '' then
+            exit;
+
+        if ProdOrderLine."Routing No." <> ProdOrderRoutingLine."Routing No." then
+            exit;
+
+        if ProdOrderLine."Routing Reference No." <> ProdOrderRoutingLine."Routing Reference No." then
+            exit;
+
+        if FindEarliestProdOrderRoutingLine(ExistingProdOrderRoutingLine, ProdOrderRoutingLine, ProdOrderComponent) then
+            UpdateProdOrderComponentDueDateTime(ProdOrderComponent, ExistingProdOrderRoutingLine)
+        else
+            if ProdOrderRoutingLine."Routing Link Code" = ProdOrderComponent."Routing Link Code" then
+                if ProdOrderRoutingLine."Routing Link Code" <> '' then
+                    UpdateProdOrderComponentDueDateTime(ProdOrderComponent, ProdOrderRoutingLine);
+    end;
+
+    local procedure FindEarliestProdOrderRoutingLine(var ExistingProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderComponent: Record "Prod. Order Component"): Boolean
+    begin
+        ExistingProdOrderRoutingLine.SetCurrentKey("Starting Date", "Starting Time", "Routing Status");
+        ExistingProdOrderRoutingLine.SetRange(Status, ProdOrderComponent.Status);
+        ExistingProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderComponent."Prod. Order No.");
+        ExistingProdOrderRoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+        ExistingProdOrderRoutingLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+        ExistingProdOrderRoutingLine.SetRange("Routing Link Code", ProdOrderComponent."Routing Link Code");
+        ExistingProdOrderRoutingLine.SetFilter("Operation No.", '<>%1', ProdOrderRoutingLine."Operation No.");
+        if ExistingProdOrderRoutingLine.FindFirst() then
+            if (ProdOrderRoutingLine."Routing Link Code" <> '') and (ProdOrderRoutingLine."Routing Link Code" = ExistingProdOrderRoutingLine."Routing Link Code") then
+                exit(ExistingProdOrderRoutingLine."Starting Date-Time" < ProdOrderRoutingLine."Starting Date-Time")
+            else
+                exit(true);
+    end;
+
+    local procedure UpdateProdOrderComponentDueDateTime(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+        ProdOrderComponent."Due Date" := ProdOrderRoutingLine."Starting Date";
+        ProdOrderComponent."Due Time" := ProdOrderRoutingLine."Starting Time";
     end;
 
     [IntegrationEvent(false, false)]

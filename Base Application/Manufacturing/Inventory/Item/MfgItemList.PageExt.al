@@ -29,7 +29,7 @@ pageextension 99000751 "Mfg. Item List" extends "Item List"
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Prod. Active BOM Version';
-                    Image = BOM;
+                    Image = BOMVersions;
                     ToolTip = 'Open the item''s active production bill of material to view or edit the components.';
 
                     trigger OnAction()

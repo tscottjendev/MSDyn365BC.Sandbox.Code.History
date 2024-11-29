@@ -316,6 +316,7 @@ table 99000758 "Machine Center"
         field(38; Blocked; Boolean)
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies whether the machine center is blocked from being posted in transactions, for example, if the machine center is out of order.';
         }
         field(39; "Date Filter"; Date)
         {
