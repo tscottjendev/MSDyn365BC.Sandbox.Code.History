@@ -388,6 +388,7 @@ table 99000754 "Work Center"
         field(38; Blocked; Boolean)
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies whether the work center is blocked from being posted in transactions, for example, if the machine center is out of order.';
         }
         field(39; "Date Filter"; Date)
         {
@@ -674,10 +675,10 @@ table 99000754 "Work Center"
             NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(MfgSetup."Work Center Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
             if not IsHandled then begin
 #endif
-            "No. Series" := MfgSetup."Work Center Nos.";
-            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                "No. Series" := xRec."No. Series";
-            "No." := NoSeries.GetNextNo("No. Series");
+                "No. Series" := MfgSetup."Work Center Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
 #if not CLEAN24
                 NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", MfgSetup."Work Center Nos.", 0D, "No.");
             end;

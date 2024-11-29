@@ -218,7 +218,6 @@ page 99000817 "Prod. Order Routing"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a routing link code.';
-                    Visible = false;
                 }
                 field("Scrap Factor %"; Rec."Scrap Factor %")
                 {
