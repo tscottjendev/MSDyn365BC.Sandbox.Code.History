@@ -707,6 +707,15 @@
       <Cmt Name="Dev"><![CDATA[%1: original selection filter;%2: returned selection filter]D;]A;(LookupHint=Codeunit ERM Apply Unapply Customer - NamedType SelectionFilterErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1263311647 - NamedType 1385563968" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong count of VAT Entries created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Unapply Customer - NamedType VATEntryCntLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4182006359 - NamedType 3918827133" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 %2 does not have an application entry.]]></Val>
