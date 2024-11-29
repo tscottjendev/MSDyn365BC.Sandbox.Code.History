@@ -67,16 +67,22 @@ page 99000786 "Production BOM"
                     ApplicationArea = Manufacturing;
                     Caption = 'Active Version';
                     Editable = false;
+                    Style = Strong;
+                    Enabled = ActiveVersionCode <> '';
                     ToolTip = 'Specifies which version of the production BOM is valid.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnAssistEdit()
                     var
-                        ProdBOMVersion: Record "Production BOM Version";
+                        ProductionBOMVersion: Record "Production BOM Version";
+                        VersionManagement: Codeunit VersionManagement;
                     begin
-                        ProdBOMVersion.SetRange("Production BOM No.", Rec."No.");
-                        ProdBOMVersion.SetRange("Version Code", ActiveVersionCode);
-                        PAGE.RunModal(PAGE::"Production BOM Version", ProdBOMVersion);
-                        ActiveVersionCode := VersionMgt.GetBOMVersion(Rec."No.", WorkDate(), true);
+                        if ActiveVersionCode = '' then
+                            exit;
+
+                        ProductionBOMVersion.SetRange("Production BOM No.", Rec."No.");
+                        ProductionBOMVersion.SetRange("Version Code", ActiveVersionCode);
+                        Page.RunModal(Page::"Production BOM Version", ProductionBOMVersion);
+                        ActiveVersionCode := VersionManagement.GetBOMVersion(Rec."No.", WorkDate(), true);
                     end;
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
@@ -144,12 +150,11 @@ page 99000786 "Production BOM"
 
                     trigger OnAction()
                     var
-                        BOMMatrixForm: Page "Prod. BOM Matrix per Version";
+                        ProdBOMMatrixPerVersion: Page "Prod. BOM Matrix per Version";
                     begin
-                        BOMMatrixForm.Set(Rec);
-
-                        BOMMatrixForm.RunModal();
-                        Clear(BOMMatrixForm);
+                        ProdBOMMatrixPerVersion.Set(Rec);
+                        ProdBOMMatrixPerVersion.RunModal();
+                        Clear(ProdBOMMatrixPerVersion);
                     end;
                 }
                 action("Where-used")
@@ -160,6 +165,8 @@ page 99000786 "Production BOM"
                     ToolTip = 'View a list of BOMs in which the item is used.';
 
                     trigger OnAction()
+                    var
+                        ProdBOMWhereUsed: Page "Prod. BOM Where-Used";
                     begin
                         ProdBOMWhereUsed.SetProdBOM(Rec, WorkDate());
                         ProdBOMWhereUsed.RunModal();
@@ -183,11 +190,14 @@ page 99000786 "Production BOM"
                     ToolTip = 'Copy an existing production BOM to quickly create a similar BOM.';
 
                     trigger OnAction()
+                    var
+                        ProductionBOMHeader: Record "Production BOM Header";
+                        ProductionBOMCopy: Codeunit "Production BOM-Copy";
                     begin
                         Rec.TestField("No.");
-                        OnCopyBOMOnBeforeLookup(Rec, ProdBOMHeader);
-                        if PAGE.RunModal(0, ProdBOMHeader) = ACTION::LookupOK then
-                            ProductionBOMCopy.CopyBOM(ProdBOMHeader."No.", '', Rec, '');
+                        OnCopyBOMOnBeforeLookup(Rec, ProductionBOMHeader);
+                        if Page.RunModal(0, ProductionBOMHeader) = Action::LookupOK then
+                            ProductionBOMCopy.CopyBOM(ProductionBOMHeader."No.", '', Rec, '');
                     end;
                 }
             }
@@ -227,15 +237,13 @@ page 99000786 "Production BOM"
     }
 
     trigger OnAfterGetRecord()
+    var
+        VersionManagement: Codeunit VersionManagement;
     begin
-        ActiveVersionCode := VersionMgt.GetBOMVersion(Rec."No.", WorkDate(), true);
+        ActiveVersionCode := VersionManagement.GetBOMVersion(Rec."No.", WorkDate(), true);
     end;
 
     var
-        ProdBOMHeader: Record "Production BOM Header";
-        ProductionBOMCopy: Codeunit "Production BOM-Copy";
-        VersionMgt: Codeunit VersionManagement;
-        ProdBOMWhereUsed: Page "Prod. BOM Where-Used";
         ActiveVersionCode: Code[20];
 
     [IntegrationEvent(false, false)]

@@ -95,7 +95,7 @@ pageextension 99000750 "Mfg. Item Card" extends "Item Card"
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Prod. Active BOM Version';
-                    Image = BOM;
+                    Image = BOMVersions;
                     ToolTip = 'Open the item''s active production bill of material to view or edit the components.';
 
                     trigger OnAction()
