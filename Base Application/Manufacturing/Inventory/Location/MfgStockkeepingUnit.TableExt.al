@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Location;
 
+using Microsoft.Inventory.Item;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
@@ -153,4 +154,55 @@ tableextension 99000759 "Mfg. Stockkeeping Unit" extends "Stockkeeping Unit"
             FieldClass = FlowField;
         }
     }
+
+    var
+        NoActiveBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1', Comment = '%1 - Item No.';
+
+    internal procedure OpenProductionBOMForSKUItem(ProductionBOMNo: Code[20]; ItemNo: Code[20])
+    var
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        if ProductionBOMNo = '' then begin
+            Item.SetLoadFields("Production BOM No.");
+            if Item.Get(ItemNo) then
+                ProductionBOMNo := Item."Production BOM No.";
+        end;
+
+        ProductionBOMHeader.SetRange("No.", ProductionBOMNo);
+        Page.RunModal(Page::"Production BOM", ProductionBOMHeader);
+    end;
+
+    internal procedure OpenActiveProductionBOMForSKUItem(ProductionBOMNo: Code[20]; ItemNo: Code[20])
+    var
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMVersion: Record "Production BOM Version";
+        VersionManagement: Codeunit VersionManagement;
+        ActiveVersionNo: Code[20];
+    begin
+        if ProductionBOMNo = '' then begin
+            Item.SetLoadFields("Production BOM No.");
+            if Item.Get(ItemNo) then
+                ProductionBOMNo := Item."Production BOM No.";
+        end;
+
+        if ProductionBOMNo = '' then
+            Error(NoActiveBOMVersionFoundErr, ItemNo);
+
+        ActiveVersionNo := VersionManagement.GetBOMVersion(ProductionBOMNo, WorkDate(), true);
+
+        if ActiveVersionNo <> '' then begin
+            ProductionBOMVersion.SetRange("Production BOM No.", ProductionBOMNo);
+            ProductionBOMVersion.SetRange("Version Code", ActiveVersionNo);
+            Page.RunModal(Page::"Production BOM Version", ProductionBOMVersion);
+        end else begin
+            ProductionBOMHeader.SetRange("No.", ProductionBOMNo);
+            ProductionBOMHeader.SetRange(Status, ProductionBOMHeader.Status::Certified);
+            if ProductionBOMHeader.IsEmpty() then
+                Error(NoActiveBOMVersionFoundErr, ItemNo);
+
+            Page.RunModal(Page::"Production BOM", ProductionBOMHeader);
+        end;
+    end;
 }
