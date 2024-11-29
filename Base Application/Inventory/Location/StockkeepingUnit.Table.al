@@ -89,7 +89,6 @@ table 5700 "Stockkeeping Unit"
         {
             CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
             Caption = 'Description';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -97,7 +96,6 @@ table 5700 "Stockkeeping Unit"
         {
             CalcFormula = lookup(Item."Description 2" where("No." = field("Item No.")));
             Caption = 'Description 2';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
