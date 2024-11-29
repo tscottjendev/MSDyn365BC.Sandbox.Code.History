@@ -58,7 +58,6 @@ page 99000760 "Machine Center Card"
                 field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
                 {
