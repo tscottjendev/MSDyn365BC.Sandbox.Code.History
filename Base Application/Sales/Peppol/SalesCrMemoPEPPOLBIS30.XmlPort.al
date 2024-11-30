@@ -2194,6 +2194,8 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                     SalesCrMemoHeader.SetRecFilter();
                     SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
                     SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
+
+                    OnBeforeFindSalesCrMemoLine(SalesCrMemoLine);
                     if SalesCrMemoLine.FindSet() then
                         repeat
                             SalesLine.TransferFields(SalesCrMemoLine);
@@ -2243,6 +2245,11 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindNextCreditMemoLineRec(Position: Integer; var SalesLine: Record "Sales Line"; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line")
     begin
     end;
 }
