@@ -222,6 +222,7 @@ codeunit 6458 "Serv. PEPPOL Management"
             ServiceCrMemoHeader.SetRecFilter();
             ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
             ServiceCrMemoLine.SetFilter(Type, '<>%1', ServiceCrMemoLine.Type::" ");
+            OnBeforeFindServiceCrMemoLine(ServiceCrMemoLine);
             if ServiceCrMemoLine.FindSet() then
                 repeat
                     PEPPOLManagement.TransferLineToSalesLine(ServiceCrMemoLine, SalesLine);
@@ -372,6 +373,7 @@ codeunit 6458 "Serv. PEPPOL Management"
             ServiceInvoiceHeader.SetRecFilter();
             ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
             ServiceInvoiceLine.SetFilter(Type, '<>%1', ServiceInvoiceLine.Type::" ");
+            OnBeforeFindServiceInvoiceLine(ServiceInvoiceLine);
             if ServiceInvoiceLine.FindSet() then
                 repeat
                     PEPPOLManagement.TransferLineToSalesLine(ServiceInvoiceLine, SalesLine);
@@ -414,6 +416,16 @@ codeunit 6458 "Serv. PEPPOL Management"
                     PEPPOLManagement.GetTaxCategories(SalesLine, TempVATProductPostingGroup);
                 until ServiceInvoiceLine.Next() = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindServiceInvoiceLine(var SalesInvoiceLine: Record "Service Invoice Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindServiceCrMemoLine(var ServiceCrMemoLine: Record "Service Cr.Memo Line")
+    begin
     end;
 
 }
