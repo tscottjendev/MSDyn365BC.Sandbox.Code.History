@@ -2096,6 +2096,8 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     SalesInvoiceHeader.SetRecFilter();
                     SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
                     SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
+                    OnBeforeFindSalesInvoiceLine(SalesInvoiceLine);
+
                     if SalesInvoiceLine.FindSet() then
                         repeat
                             SalesLine.TransferFields(SalesInvoiceLine);
@@ -2147,5 +2149,11 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
     local procedure OnFindNextInvoiceLineRec(Position: Integer; var SalesLine: Record "Sales Line"; var Found: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line")
+    begin
+    end;
+
 }
 
