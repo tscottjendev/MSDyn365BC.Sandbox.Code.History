@@ -1530,6 +1530,7 @@ table 83 "Item Journal Line"
         field(5830; Type; Enum Microsoft.Manufacturing.Capacity."Capacity Type Journal")
         {
             Caption = 'Type';
+            InitValue = " ";
 
             trigger OnValidate()
             begin
