@@ -2410,7 +2410,7 @@
   </Item>
   <Item ItemId=";Page 2175372352 - Action 2726531340 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Import data-driven test inputs from a JSON or JSONL file]]></Val>
+      <Val><![CDATA[Import data-driven test inputs from a JSON, JSONL or YAML file]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2464,7 +2464,7 @@
   </Item>
   <Item ItemId=";Page 3769155473 - Action 2726531340 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Import data-driven test inputs from a JSON file]]></Val>
+      <Val><![CDATA[Import data-driven test inputs from a JSON, JSONL or YAML file]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
