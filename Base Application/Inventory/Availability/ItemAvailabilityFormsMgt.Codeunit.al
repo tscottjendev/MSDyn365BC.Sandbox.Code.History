@@ -551,7 +551,7 @@ codeunit 353 "Item Availability Forms Mgt"
 
     procedure ShowItemAvailabilityByLocation(var Item: Record Item; FieldCaption: Text; OldLocationCode: Code[10]; var NewLocationCode: Code[10]): Boolean
     var
-        ItemAvailByLoc: Page "Item Availability by Location";
+        ItemAvailabilityByLocation: Page "Item Availability by Location";
         IsHandled: Boolean;
         Result: Boolean;
     begin
@@ -567,11 +567,11 @@ codeunit 353 "Item Availability Forms Mgt"
 
         Item.SetRange("Location Filter");
         if FieldCaption <> '' then
-            ItemAvailByLoc.LookupMode(true);
-        ItemAvailByLoc.SetRecord(Item);
-        ItemAvailByLoc.SetTableView(Item);
-        if ItemAvailByLoc.RunModal() = ACTION::LookupOK then begin
-            NewLocationCode := ItemAvailByLoc.GetLastLocation();
+            ItemAvailabilityByLocation.LookupMode(true);
+        ItemAvailabilityByLocation.SetRecord(Item);
+        ItemAvailabilityByLocation.SetTableView(Item);
+        if ItemAvailabilityByLocation.RunModal() = Action::LookupOK then begin
+            NewLocationCode := ItemAvailabilityByLocation.GetLastLocation();
             if OldLocationCode <> NewLocationCode then
                 if Confirm(Text012, true, FieldCaption, OldLocationCode, NewLocationCode) then
                     exit(true);
@@ -817,7 +817,7 @@ codeunit 353 "Item Availability Forms Mgt"
     end;
 
 #if not CLEAN25
-    [Obsolete('Replaced by event OnBeforeShowItemAvailabilityByBOMLeve', '25.0')]
+    [Obsolete('Replaced by event OnBeforeShowItemAvailabilityByBOMLevel', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemAvailByBOMLevel(var Item: Record Item; FieldCaption: Text[80]; OldDate: Date; var NewDate: Date; var Result: Boolean; var IsHandled: Boolean)
     begin
@@ -843,7 +843,7 @@ codeunit 353 "Item Availability Forms Mgt"
     end;
 
 #if not CLEAN25
-    [Obsolete('Replaced by event OnBeforeShowItemAvailabilityByLocation', '25.0')]
+    [Obsolete('Replaced by event OnBeforeShowItemAvailabilityByEvent', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemAvailByEvent(var Item: Record Item; FieldCaption: Text[80]; OldDate: Date; var NewDate: Date; var IncludeForecast: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
@@ -869,7 +869,7 @@ codeunit 353 "Item Availability Forms Mgt"
     end;
 
 #if not CLEAN25
-    [Obsolete('Replaced by event OnBeforeShowItemAvailabilityByLocation', '25.0')]
+    [Obsolete('Replaced by event OnBeforeShowItemAvailabilityByUOM', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemAvailByUOM(var Item: Record Item; FieldCaption: Text[80]; OldUoMCode: Code[20]; var NewUoMCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
