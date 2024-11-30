@@ -2173,6 +2173,18 @@
         Assert.ExpectedError(StrSubstNo(BlockedBinContentErr, ItemJournalLine."Location Code", ItemJournalLine."Bin Code", ItemJournalLine."Item No.", ItemJournalLine."Variant Code", ItemJournalLine."Unit of Measure Code"));
     end;
 
+    [Test]
+    procedure InitValueOfTypeFieldOnItemJournalLine()
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [SCENARIO] Init value of the Type field on Item Journal Line is <blank>.
+        Initialize();
+
+        ItemJournalLine.Init();
+        ItemJournalLine.TestField(Type, ItemJournalLine.Type::" ");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
