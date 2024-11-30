@@ -72,6 +72,7 @@ page 5114 "Contact Profile Answers"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Set';
                     ToolTip = 'Specifies the answer to the question.';
+                    Editable = (Rec.Type = Rec.Type::Answer);
 
                     trigger OnValidate()
                     begin
