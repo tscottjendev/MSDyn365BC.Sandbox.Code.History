@@ -9,17 +9,16 @@ enum 9125 "Company Demo Data Type"
     Extensible = false;
     AssignmentCompatibility = true;
 
-    value(0; "Create New - No Data")
+    value(0; "Evaluation - Contoso Sample Data")
     {
-        Caption = 'Create New - No Data';
+        Caption = 'Evaluation - Contoso Sample Data';
     }
-
     value(1; "Production - Setup Data Only")
     {
         Caption = 'Production - Setup Data Only';
     }
-    value(2; "Evaluation - Contoso Sample Data")
+    value(2; "Create New - No Data")
     {
-        Caption = 'Evaluation - Contoso Sample Data';
+        Caption = 'Create New - No Data';
     }
 }
