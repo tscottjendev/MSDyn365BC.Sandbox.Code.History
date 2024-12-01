@@ -429,6 +429,7 @@ codeunit 7302 "WMS Management"
         if not ShowError then
             ShowError := CheckBinCodeChange(ItemJnlLine."New Location Code", ItemJnlLine."New Bin Code", xItemJnlLine."New Bin Code");
 
+        OnCheckItemJnlLineFieldChangeOnAfterCheckBinCodeChange(ItemJnlLine, xItemJnlLine, CurrFieldCaption, ShowError, BinIsEligible);
         if ShowError then begin
             IsHandled := false;
             OnCheckItemJnlLineFieldChangeOnBeforeShowError(ItemJnlLine, xItemJnlLine, IsHandled);
@@ -459,6 +460,7 @@ codeunit 7302 "WMS Management"
                 ShowError := Location."Directed Put-away and Pick";
             end;
 
+            OnCheckItemJnlLineFieldChangeOnAfterAssignShowError(ItemJnlLine, xItemJnlLine, CurrFieldCaption, ShowError);
             if ShowError then begin
                 IsHandled := false;
                 OnCheckItemJnlLineFieldChangeOnBeforeShowError(ItemJnlLine, xItemJnlLine, IsHandled);
@@ -2145,6 +2147,16 @@ codeunit 7302 "WMS Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckItemJnlLineFieldChangeOnBeforeShowError(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCheckItemJnlLineFieldChangeOnAfterCheckBinCodeChange(var ItemJournalLine: Record "Item Journal Line"; var xItemJournalLine: Record "Item Journal Line"; CurrFieldCaption: Text[30]; var ShowError: Boolean; var BinIsEligible: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCheckItemJnlLineFieldChangeOnAfterAssignShowError(var ItemJournalLine: Record "Item Journal Line"; var xItemJournalLine: Record "Item Journal Line"; CurrFieldCaption: Text[30]; var ShowError: Boolean)
     begin
     end;
 }

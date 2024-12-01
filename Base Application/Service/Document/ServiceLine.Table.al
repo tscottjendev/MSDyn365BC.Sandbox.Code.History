@@ -3540,7 +3540,7 @@ table 5902 "Service Line"
         Item.Get("No.");
     end;
 
-    local procedure GetDate(): Date
+    procedure GetDate(): Date
     begin
         if ServHeader."Document Type" = ServHeader."Document Type"::Quote then
             exit(WorkDate());
