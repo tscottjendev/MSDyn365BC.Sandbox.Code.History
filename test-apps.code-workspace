@@ -133,6 +133,9 @@
       "path": "./ServiceDeclaration/Test/Service Declaration Tests"
     },
     {
+      "path": "./EDocumentConnectors/Microsoft365/Test/E-Document Connector - Microsoft 365 Tests"
+    },
+    {
       "path": "./EDocumentConnectors/Avalara/Test/E-Document Connector - Avalara Tests"
     },
     {
