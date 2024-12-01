@@ -32,7 +32,7 @@ codeunit 99000756 VersionManagement
         else
             ProductionBOMVersion.SetFilter(Status, '<>%1', ProductionBOMVersion.Status::Closed);
         ProductionBOMVersion.SetLoadFields("Version Code");
-
+        OnGetBOMVersionOnBeforeProdBOMVersionFindLast(ProductionBOMVersion, BOMHeaderNo, Date, OnlyCertified);
         if not ProductionBOMVersion.FindLast() then
             exit('');
 
@@ -101,6 +101,11 @@ codeunit 99000756 VersionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetRtngVersion(RoutingNo: Code[20]; Date: Date; OnlyCertified: Boolean; var VersionCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBOMVersionOnBeforeProdBOMVersionFindLast(var ProductionBOMVersion: Record "Production BOM Version"; BOMHeaderNo: Code[20]; Date: Date; OnlyCertified: Boolean)
     begin
     end;
 }
