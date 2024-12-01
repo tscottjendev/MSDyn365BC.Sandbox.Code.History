@@ -257,7 +257,7 @@ codeunit 7308 Replenishment
         exit(Blocked);
     end;
 
-    local procedure UseForReplenishment(FromBinContent: Record "Bin Content"): Boolean
+    procedure UseForReplenishment(FromBinContent: Record "Bin Content"): Boolean
     begin
         if FromBinContent."Block Movement" in
            [FromBinContent."Block Movement"::Outbound,
