@@ -38,6 +38,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         PaymentLineAppliedMsg: Label '%1 payment lines out of 1 are applied.\\', Comment = '%1 - number';
         WrongAmountErr: Label '%1 must be %2.', Locked = true;
         HasBankEntriesMsg: Label 'When you use action Delete the bank statement will be deleted';
+        AnalysisViewErr: Label 'Last Entry No. must be %1 in %2.', Comment = '%1= Field Value ,%2= Table Name.';
 
     [Test]
     [HandlerFunctions('GenJnlPageHandler')]
@@ -4463,6 +4464,56 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryReportDataset.AssertElementWithValueNotExist('Outstanding_BankTransaction_Amount', Amount[2]);
         LibraryReportDataset.AssertElementWithValueNotExist('Outstanding_BankTransaction_Amount', Amount[4]);
         LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdBankTransactions', TotalOutstandingTransactionAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
+    procedure PostingGeneralReconciliationUpdatesAnalysisView()
+    var
+        AnalysisView: Record "Analysis View";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+    begin
+        // [SCENARIO 554706] Payment Reconciliation Journal does not update in Analysis View
+        Initialize();
+
+        // [GIVEN] Create Analysis View.
+        LibraryERM.CreateAnalysisView(AnalysisView);
+
+        // [GIVEN] Create and Get GL Account.
+        GLAccount.Get(LibraryERM.CreateGLAccountNo());
+
+        // [GIVEN] Validate Update On Posting, Account Source and Account Filter in Analysis View.
+        AnalysisView.Validate("Update on Posting", true);
+        AnalysisView.Validate("Account Source", AnalysisView."Account Source"::"G/L Account");
+        AnalysisView.Validate("Account Filter", GLAccount."No.");
+        AnalysisView.Modify(true);
+
+        // [GIVEN] Create Bank Reconciliation With GLAccount.
+        CreateBankReconciliationWithGLAccount(BankAccReconciliation, BankAccReconciliationLine, GLAccount."No.");
+
+        // [GIVEN] Update Bank Account Statement Ending Balance.
+        UpdateBankAccRecStmEndingBalance(
+            BankAccReconciliation,
+            BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
+
+        // [WHEN] Post Bank Account Reconciliation.
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [THEN] Last Entry No. on Analysis View is updated with GL Entry created by Reconciliation.
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
+        GLEntry.SetRange("Bal. Account No.", GLAccount."No.");
+        GLEntry.FindLast();
+        AnalysisView.Get(AnalysisView.Code);
+        Assert.AreEqual(
+            GLEntry."Entry No.",
+            AnalysisView."Last Entry No.",
+            StrSubstNo(
+                AnalysisViewErr,
+                GLEntry."Entry No.",
+                AnalysisView.TableCaption()));
     end;
 
     local procedure Initialize()

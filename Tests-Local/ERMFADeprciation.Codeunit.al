@@ -1144,6 +1144,72 @@ codeunit 144143 "ERM FA Deprciation"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler,DepreciationBookRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckReclassAmtinDepreciationBook()
+    var
+        FADepreciationBook: array[2] of Record "FA Depreciation Book";
+        GenJournalLine: Record "Gen. Journal Line";
+        DepreciationTableCode: Code[10];
+        DepreciationBookCode: Code[10];
+        FAPostingGroupCode: Code[20];
+        ReclassAmountTxt: Label 'ReclassAmount_4_';
+        AcqAmount: Decimal;
+    begin
+        // [SCENARIO 555392] Check Reclass amount is correct in the Depreciation Book report when Reclassification is the first Ledger Entry for a Fixed Asset in the Italian version.
+        Initialize();
+
+        // [GIVEN] Modify Company Info
+        UpdateCompanyInfo();
+
+        // [GIVEN] Created a Depreciation Book and table code, FA Posting Group.
+        DepreciationBookCode := CreateDepreciationBookAndFAJournalSetup();
+        DepreciationTableCode := CreateDepreciationTableWithMultipleLines();
+        CreateFAPostingGroup(FAPostingGroupCode);
+
+        // [GIVEN] Generate a random Depreciation Amount and Acquisition Cost Percentage and save them in a variable.
+        AcqAmount := LibraryRandom.RandIntInRange(100, 20000);
+
+        // [GIVEN] Created a Fixed Asset "FA1".
+        CreateFAWithDepreciationBookSetup(FADepreciationBook[1], FAPostingGroupCode, DepreciationBookCode, DepreciationTableCode);
+
+        // [GIVEN] Create and Post a Gen Journal Line with FA Posting Type "Aquisition Cost".
+        CreateAndPostGenJournalLine(
+            FADepreciationBook[1],
+            GenJournalLine."FA Posting Type"::"Acquisition Cost",
+            AcqAmount,
+            WorkDate());
+
+        // [GIVEN] "FA1" reclassified to "FA2".
+        CreateFAWithDepreciationBookSetup(FADepreciationBook[2], FAPostingGroupCode, DepreciationBookCode, DepreciationTableCode);
+        ReclassifyAndPostFAReclassJournal(
+            CreateFAReclassJournalLine(
+                FADepreciationBook,
+                AcqAmount,
+                WorkDate()),
+                DepreciationBookCode);
+
+        // [GIVEN] Create and Post a Gen Journal Line with FA Posting Type "Aquisition Cost" for "FA2".
+        CreateAndPostGenJournalLine(
+            FADepreciationBook[2],
+            GenJournalLine."FA Posting Type"::"Acquisition Cost",
+            LibraryRandom.RandIntInRange(100, 20000),
+            WorkDate());
+
+        // [WHEN] Run report "Depreciation Book" for "FA1" and "FA2".
+        RunDepreciationBookReport(
+            DepreciationBookCode,
+            FADepreciationBook[2]."FA No.",
+            '',
+            true,
+            CalcDate('<-CY>', WorkDate()));
+
+        // [THEN] Verify the Reclass Amount in the Depreciation Book report.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(ReclassAmountTxt, AcqAmount);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1774,6 +1840,23 @@ codeunit 144143 "ERM FA Deprciation"
         FAReclassJournalLine.Modify(true);
 
         exit(FAReclassJournalBatch.Name);
+    end;
+
+    local procedure UpdateCompanyInfo()
+    var
+        CompanyInfo: Record "Company Information";
+    begin
+        CompanyInfo.get();
+        CompanyInfo."Fiscal Code" := CopyStr(
+            LibraryUtility.GenerateRandomCode(CompanyInfo.FieldNo("Fiscal Code"), Database::"Company Information"),
+            1,
+            LibraryUtility.GetFieldLength(Database::"Company Information", CompanyInfo.FieldNo("Fiscal Code")));
+
+        CompanyInfo."Register Company No." := CopyStr(
+            LibraryUtility.GenerateRandomCode(CompanyInfo.FieldNo("Register Company No."), Database::"Company Information"),
+            1,
+            LibraryUtility.GetFieldLength(Database::"Company Information", CompanyInfo.FieldNo("Register Company No.")));
+        CompanyInfo.Modify();
     end;
 
     [RequestPageHandler]
