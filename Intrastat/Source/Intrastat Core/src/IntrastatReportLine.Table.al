@@ -392,26 +392,26 @@ table 4812 "Intrastat Report Line"
 
             trigger OnLookup()
             var
-                IntrastatReportHeader2: Record "Intrastat Report Header";
+                IntrastatReportHeaderWithFiltersSet: Record "Intrastat Report Header";
             begin
-                SetIntrastatReportHeaderFilters(IntrastatReportHeader2);
-                IntrastatReportHeader2."No." := "Corrected Intrastat Report No.";
-                if Page.RunModal(0, IntrastatReportHeader2, IntrastatReportHeader2."No.") = Action::LookupOK then
-                    Validate("Corrected Intrastat Report No.", IntrastatReportHeader2."No.");
+                SetIntrastatReportHeaderFilters(IntrastatReportHeaderWithFiltersSet);
+                IntrastatReportHeaderWithFiltersSet."No." := "Corrected Intrastat Report No.";
+                if Page.RunModal(0, IntrastatReportHeaderWithFiltersSet, IntrastatReportHeaderWithFiltersSet."No.") = Action::LookupOK then
+                    Validate("Corrected Intrastat Report No.", IntrastatReportHeaderWithFiltersSet."No.");
             end;
 
             trigger OnValidate()
             var
-                IntrastatReportHeader2: Record "Intrastat Report Header";
+                IntrastatReportHeaderWithFiltersSet: Record "Intrastat Report Header";
             begin
                 if "Corrected Intrastat Report No." <> '' then begin
                     IntrastatReportHeader.CheckEUServAndCorrection("Intrastat No.", false, true);
-                    SetIntrastatReportHeaderFilters(IntrastatReportHeader2);
-                    IntrastatReportHeader2.SetRange("No.", "Corrected Intrastat Report No.");
-                    if not IntrastatReportHeader2.FindFirst() then
+                    SetIntrastatReportHeaderFilters(IntrastatReportHeaderWithFiltersSet);
+                    IntrastatReportHeaderWithFiltersSet.SetRange("No.", "Corrected Intrastat Report No.");
+                    if not IntrastatReportHeaderWithFiltersSet.FindFirst() then
                         FieldError("Corrected Intrastat Report No.")
                     else
-                        Validate("Reference Period", IntrastatReportHeader2."Statistics Period");
+                        Validate("Reference Period", IntrastatReportHeaderWithFiltersSet."Statistics Period");
                 end;
             end;
         }
@@ -890,16 +890,19 @@ table 4812 "Intrastat Report Line"
         exit(IntrastatReportSetup."Def. VAT for Unknown State");
     end;
 
-    procedure SetIntrastatReportHeaderFilters(var IntrastatReportHeader2: Record "Intrastat Report Header")
+    procedure SetIntrastatReportHeaderFilters(var IntrastatReportHeaderWithFiltersSet: Record "Intrastat Report Header")
     var
-        IntrastatReportHeader3: Record "Intrastat Report Header";
+        IntrastatReportHeaderForLine: Record "Intrastat Report Header";
     begin
-        IntrastatReportHeader3.Get("Intrastat No.");
-        IntrastatReportHeader2.SetRange("Corrective Entry", false);
-        IntrastatReportHeader2.SetRange(Reported, true);
-        IntrastatReportHeader2.SetRange("EU Service", IntrastatReportHeader3."EU Service");
-        IntrastatReportHeader2.SetRange(Periodicity, IntrastatReportHeader3.Periodicity);
-        IntrastatReportHeader2.SetRange(Type, IntrastatReportHeader3.Type);
+        IntrastatReportHeaderForLine.SetLoadFields("EU Service", Periodicity, Type);
+        IntrastatReportHeaderForLine.Get("Intrastat No.");
+        IntrastatReportHeaderWithFiltersSet.SetRange("Corrective Entry", false);
+        IntrastatReportHeaderWithFiltersSet.SetRange(Reported, true);
+        IntrastatReportHeaderWithFiltersSet.SetRange("EU Service", IntrastatReportHeaderForLine."EU Service");
+        IntrastatReportHeaderWithFiltersSet.SetRange(Periodicity, IntrastatReportHeaderForLine.Periodicity);
+        IntrastatReportHeaderWithFiltersSet.SetRange(Type, IntrastatReportHeaderForLine.Type);
+
+        OnAfterSetIntrastatReportHeaderFilters(IntrastatReportHeaderWithFiltersSet, IntrastatReportHeaderForLine);
     end;
 
     [IntegrationEvent(false, false)]
@@ -964,6 +967,11 @@ table 4812 "Intrastat Report Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDateInRange(var IntrastatReportLine: Record "Intrastat Report Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetIntrastatReportHeaderFilters(var IntrastatReportHeaderWithFiltersSet: Record "Intrastat Report Header"; IntrastatReportHeaderForLine: Record "Intrastat Report Header")
     begin
     end;
 }
