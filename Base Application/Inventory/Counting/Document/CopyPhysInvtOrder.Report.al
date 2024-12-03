@@ -30,7 +30,7 @@ report 5882 "Copy Phys. Invt. Order"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Document Type';
                         OptionCaption = 'Phys. Invt. Order,Posted Phys. Invt. Order ';
-                        ToolTip = 'Specifies the number of the document.';
+                        ToolTip = 'Specifies the type of the document.';
 
                         trigger OnValidate()
                         begin
