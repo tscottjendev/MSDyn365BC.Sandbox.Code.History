@@ -184,7 +184,11 @@ codeunit 333 "Req. Wksh.-Make Order"
         OrderCounter := 0;
         OrderLineCounter := 0;
         Clear(PurchOrderHeader);
-        SetPurchOrderHeader();
+
+        IsHandled := false;
+        OnCodeOnBeforeSetPurchOrderHeader(ReqLine, IsHandled);
+        if not IsHandled then
+            SetPurchOrderHeader();
         SetReqLineSortingKey(ReqLine);
 
         ProcessReqLineActions(ReqLine);
@@ -793,7 +797,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         ShouldValidateSellToCustNo: Boolean;
         ShouldSetShipToForSpecOrder: Boolean;
     begin
-        OnBeforeInsertHeader(ReqLine2, PurchOrderHeader, OrderDateReq, PostingDateReq, ReceiveDateReq, ReferenceReq);
+        OnBeforeInsertHeader(ReqLine2, PurchOrderHeader, OrderDateReq, PostingDateReq, ReceiveDateReq, ReferenceReq, NameAddressDetails);
 
         OrderCounter := OrderCounter + 1;
         if not PlanningResiliency then
@@ -1298,8 +1302,12 @@ codeunit 333 "Req. Wksh.-Make Order"
     var
         CheckInsert: Boolean;
         CheckAddressDetailsResult: Boolean;
+        IsHandled: Boolean;
     begin
-        CheckAddressDetailsResult := CheckAddressDetails(RequisitionLine."Sales Order No.", RequisitionLine."Sales Order Line No.", UpdateAddressDetails);
+        IsHandled := false;
+        OnCheckInsertFinalizePurchaseOrderHeaderOnBeforeCheckAddressDetails(RequisitionLine, CheckAddressDetailsResult, IsHandled);
+        if not IsHandled then
+            CheckAddressDetailsResult := CheckAddressDetails(RequisitionLine."Sales Order No.", RequisitionLine."Sales Order Line No.", UpdateAddressDetails);
         CheckInsert :=
               (PurchOrderHeader."Buy-from Vendor No." <> RequisitionLine."Vendor No.") or
               (PurchOrderHeader."Sell-to Customer No." <> RequisitionLine."Sell-to Customer No.") or
@@ -1491,7 +1499,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertHeader(RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var OrderDateReq: Date; var PostingDateReq: Date; var ReceiveDateReq: Date; var ReferenceReq: Text[35])
+    local procedure OnBeforeInsertHeader(RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var OrderDateReq: Date; var PostingDateReq: Date; var ReceiveDateReq: Date; var ReferenceReq: Text[35]; var NameAddressDetails: Text)
     begin
     end;
 
@@ -1832,6 +1840,16 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertPurchOrderLineOnBeforeUpdateAssociatedSalesLine(var PurchaseLine: Record "Purchase Line"; var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCheckInsertFinalizePurchaseOrderHeaderOnBeforeCheckAddressDetails(var RequisitionLine: Record "Requisition Line"; var CheckAddressDetailsResult: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCodeOnBeforeSetPurchOrderHeader(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }
