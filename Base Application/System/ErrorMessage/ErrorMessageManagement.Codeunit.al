@@ -409,17 +409,20 @@ codeunit 28 "Error Message Management"
     var
         ErrorList: list of [ErrorInfo];
         ErrInfo: ErrorInfo;
+        NextID: Integer;
     begin
         if HasCollectedErrors() then begin
             ErrorList := GetCollectedErrors(true);
+            NextID := TempLineErrorMessage.FindLastID() + 1;
             foreach ErrInfo in ErrorList do begin
                 TempLineErrorMessage.Init();
-                TempLineErrorMessage.ID := TempLineErrorMessage.ID + 1;
+                TempLineErrorMessage.ID := NextID;
                 TempLineErrorMessage."Message" := copystr(ErrInfo.Message, 1, MaxStrLen(TempLineErrorMessage."Message"));
                 TempLineErrorMessage.Validate("Context Record ID", ErrInfo.RecordId);
                 TempLineErrorMessage."Context Field Number" := ErrInfo.FieldNo;
                 TempLineErrorMessage.SetErrorCallStack(ErrInfo.Callstack);
                 TempLineErrorMessage.Insert();
+                NextID += 1;
             end;
         end;
     end;
