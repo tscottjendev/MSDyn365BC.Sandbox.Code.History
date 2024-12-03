@@ -103,6 +103,7 @@ codeunit 905 "Assembly Line Management"
     var
         DueDateBeforeWorkDateMsgShown: Boolean;
         SkipVerificationsThatChangeDatabase: Boolean;
+        IsHandled: Boolean;
     begin
         SkipVerificationsThatChangeDatabase := AsmLineRecordIsTemporary;
         AssemblyLine.SetSkipVerificationsThatChangeDatabase(SkipVerificationsThatChangeDatabase);
@@ -123,15 +124,18 @@ codeunit 905 "Assembly Line Management"
                 "Quantity per",
                 AssemblyLine.CalcBOMQuantity(
                 BOMComponent.Type, BOMComponent."Quantity per", 1, QtyPerUoM, AssemblyLine."Resource Usage Type"));
-        OnAddBOMLineOnBeforeValidateQuantity(AssemblyHeader, AssemblyLine, BOMComponent);
-        AssemblyLine.Validate(
-            Quantity,
-            AssemblyLine.CalcBOMQuantity(
-                BOMComponent.Type, BOMComponent."Quantity per", AssemblyHeader.Quantity, QtyPerUoM, AssemblyLine."Resource Usage Type"));
-        AssemblyLine.Validate(
-            "Quantity to Consume",
-            AssemblyLine.CalcBOMQuantity(
-                BOMComponent.Type, BOMComponent."Quantity per", AssemblyHeader."Quantity to Assemble", QtyPerUoM, AssemblyLine."Resource Usage Type"));
+        IsHandled := false;
+        OnAddBOMLineOnBeforeValidateQuantity(AssemblyHeader, AssemblyLine, BOMComponent, IsHandled);
+        if not IsHandled then begin
+            AssemblyLine.Validate(
+                Quantity,
+                AssemblyLine.CalcBOMQuantity(
+                    BOMComponent.Type, BOMComponent."Quantity per", AssemblyHeader.Quantity, QtyPerUoM, AssemblyLine."Resource Usage Type"));
+            AssemblyLine.Validate(
+                "Quantity to Consume",
+                AssemblyLine.CalcBOMQuantity(
+                    BOMComponent.Type, BOMComponent."Quantity per", AssemblyHeader."Quantity to Assemble", QtyPerUoM, AssemblyLine."Resource Usage Type"));
+        end;
         AssemblyLine.ValidateDueDate(AssemblyHeader, AssemblyHeader."Starting Date", ShowDueDateBeforeWorkDateMessage);
         DueDateBeforeWorkDateMsgShown := (AssemblyLine."Due Date" < WorkDate()) and ShowDueDateBeforeWorkDateMessage;
         AssemblyLine.ValidateLeadTimeOffset(
@@ -946,7 +950,7 @@ codeunit 905 "Assembly Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAddBOMLineOnBeforeValidateQuantity(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component")
+    local procedure OnAddBOMLineOnBeforeValidateQuantity(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component"; var IsHandled: Boolean)
     begin
     end;
 
