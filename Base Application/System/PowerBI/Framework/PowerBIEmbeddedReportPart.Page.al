@@ -594,8 +594,12 @@ page 6325 "Power BI Embedded Report Part"
         PowerBIContextSettings.CreateOrUpdateSelectedElement(Rec);
         ClearNotifications();
 
-        CurrPage.PowerBIAddin.SetSettings(false, Rec.ShowPanesInNormalMode, Rec.ShowPanesInNormalMode,
-            false, true, false, false);
+        if (rec.ShowPanesInNormalMode) then begin
+            CurrPage.PowerBIAddin.SetFiltersVisible(true);
+            CurrPage.PowerBIAddin.SetPageSelectionVisible(true);
+        end;
+
+        CurrPage.PowerBIAddin.SetTransparentBackground(true);
         CurrPage.PowerBIAddin.SetLocale(TypeHelper.GetCultureName());
         PowerBiServiceMgt.InitializeAddinToken(CurrPage.PowerBIAddin);
 
