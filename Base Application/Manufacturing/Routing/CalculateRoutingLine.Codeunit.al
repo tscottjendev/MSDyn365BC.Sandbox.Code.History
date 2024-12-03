@@ -167,7 +167,7 @@ codeunit 99000774 "Calculate Routing Line"
               ProdOrderRoutingLine."Expected Capacity Need" + ProdOrderCapNeed."Needed Time (ms)";
         end;
 
-        OnAfterInitProdOrderCapNeed(ProdOrder, ProdOrderRoutingLine, ProdOrderCapNeed, NeedQty);
+        OnAfterInitProdOrderCapNeed(ProdOrder, ProdOrderRoutingLine, ProdOrderCapNeed, NeedQty, TimeType, ActuallyPostedTime, DistributedCapNeed);
     end;
 
     local procedure CreateLoadBack(TimeType: Enum "Routing Time Type"; Write: Boolean)
@@ -2113,7 +2113,7 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitProdOrderCapNeed(ProdOrder: Record "Production Order"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; var NeedQty: Decimal)
+    local procedure OnAfterInitProdOrderCapNeed(ProdOrder: Record "Production Order"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; var NeedQty: Decimal; TimeType: Enum "Routing Time Type"; var ActuallyPostedTime: Decimal; var DistributedCapNeed: Decimal)
     begin
     end;
 
