@@ -41,6 +41,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         SummarizedStockByItemTrkg: Query "Summarized Stock By Item Trkg.";
         QtyReservedFromItemLedger: Query "Qty. Reserved From Item Ledger";
         NonReservedQtyLotSN: Decimal;
+        DoInsertEntrySummary: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -69,9 +70,9 @@ codeunit 7326 "Whse. Item Tracking FEFO"
                 if QtyReservedFromItemLedger.Read() then
                     NonReservedQtyLotSN -= QtyReservedFromItemLedger.Quantity__Base_;
 
-                if NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(
-                      ItemNo, VariantCode, Location.Code, ItemTrackingSetup, HasExpirationDate) > 0
-                then
+                DoInsertEntrySummary := NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(ItemNo, VariantCode, Location.Code, ItemTrackingSetup, HasExpirationDate) > 0;
+                OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(Location, ItemNo, VariantCode, HasExpirationDate, NonReservedQtyLotSN, ItemTrackingSetup, SummarizedStockByItemTrkg.Expiration_Date, DoInsertEntrySummary);
+                if DoInsertEntrySummary then
                     InsertEntrySummaryFEFO(ItemTrackingSetup, SummarizedStockByItemTrkg.Expiration_Date);
             end;
         end;
@@ -317,6 +318,11 @@ codeunit 7326 "Whse. Item Tracking FEFO"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindNextEntrySummaryFEFO(var EntrySummary: Record "Entry Summary"; var TempGlobalEntrySummary: Record "Entry Summary" temporary; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(var Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; HasExpirationDate: Boolean; NonReservedQtyLotSN: Decimal; var ItemTrackingSetup: Record "Item Tracking Setup"; ExpirationDate: Date; var DoInsertEntrySummary: Boolean)
     begin
     end;
 }
