@@ -492,6 +492,7 @@ codeunit 4810 IntrastatReportManagement
                     else
                         SupplConversionFactor := 0;
                     NetWeight := Item."Net Weight";
+                    OnRecalculateWeightAndSupplUOMQtyOnAfterCalculateNetWeight(IntrastatReportLine, NetWeight);
                 end;
 
                 if Selection <> 1 then begin
@@ -1205,6 +1206,11 @@ codeunit 4810 IntrastatReportManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnGetOriginalCurrencyFromItemLedgerElseCase(ItemLedgerEntry: Record "Item Ledger Entry"; var CurrencyCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecalculateWeightAndSupplUOMQtyOnAfterCalculateNetWeight(var IntrastatReportLine: Record "Intrastat Report Line"; var NetWeight: Decimal)
     begin
     end;
 }
