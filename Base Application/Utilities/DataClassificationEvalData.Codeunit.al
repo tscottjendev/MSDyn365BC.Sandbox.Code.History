@@ -2414,6 +2414,8 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(8886, 8); // External Message Id
         SetFieldToPersonal(8886, 11); // Received DateTime
         SetFieldToPersonal(8886, 12); // Sent DateTime
+        SetFieldToPersonal(8886, 13); // Is Read
+        SetFieldToPersonal(8886, 14); // Is Draft
     end;
 
     local procedure ClassifySentEmail()
