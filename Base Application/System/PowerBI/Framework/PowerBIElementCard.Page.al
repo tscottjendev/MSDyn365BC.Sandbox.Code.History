@@ -250,7 +250,12 @@ page 6323 "Power BI Element Card"
         PageName: Text[200];
         VisualName: Text[200];
     begin
-        CurrPage.PowerBIManagement.SetSettings(false, PowerBIDisplayedElement.ShowPanesInExpandedMode, PowerBIDisplayedElement.ShowPanesInExpandedMode, false, false, false, true);
+        if (PowerBIDisplayedElement.ShowPanesInExpandedMode) then begin
+            CurrPage.PowerBIManagement.SetFiltersVisible(true);
+            CurrPage.PowerBIManagement.SetPageSelectionVisible(true);
+        end;
+
+        CurrPage.PowerBIManagement.AddBottomPadding(true);
         CurrPage.PowerBIManagement.SetLocale(TypeHelper.GetCultureName());
         PowerBiServiceMgt.InitializeAddinToken(CurrPage.PowerBIManagement);
 
