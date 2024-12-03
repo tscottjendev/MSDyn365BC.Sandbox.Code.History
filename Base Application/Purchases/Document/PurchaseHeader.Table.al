@@ -4056,6 +4056,8 @@ table 38 "Purchase Header"
                     DimMgt.UpdateGlobalDimFromDimSetID(Rec."Dimension Set ID", Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
                 end;
 
+        OnCreateDimOnAfterConfirmKeepExisting(Rec, xRec, CurrFieldNo, OldDimSetID, DefaultDimSource);
+
         if (OldDimSetID <> "Dimension Set ID") and PurchLinesExist() then begin
             Modify();
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
@@ -8761,6 +8763,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromVendor(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; VendorCaption: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDimOnAfterConfirmKeepExisting(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; OldDimSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 }
