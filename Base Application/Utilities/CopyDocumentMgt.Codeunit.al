@@ -404,27 +404,29 @@ codeunit 6620 "Copy Document Mgt."
             LinkJobPlanningLine(ToSalesHeader);
         end;
 
+        IsHandled := false;
         OnCopySalesDocOnAfterCopySalesDocLines(
-          FromDocType.AsInteger(), FromDocNo, FromDocOccurrenceNo, FromDocVersionNo, FromSalesHeader, IncludeHeader, ToSalesHeader, HideDialog);
+          FromDocType.AsInteger(), FromDocNo, FromDocOccurrenceNo, FromDocVersionNo, FromSalesHeader, IncludeHeader, ToSalesHeader, HideDialog, ReleaseDocument, IsHandled);
 
-        if ReleaseDocument then begin
-            ToSalesHeader.Status := ToSalesHeader.Status::Released;
-            ReleaseSalesDocument.Reopen(ToSalesHeader);
-        end else
-            if (FromDocType in
-                ["Sales Document Type From"::Quote,
-                 "Sales Document Type From"::"Blanket Order",
-                 "Sales Document Type From"::Order,
-                 "Sales Document Type From"::Invoice,
-                 "Sales Document Type From"::"Return Order",
-                 "Sales Document Type From"::"Credit Memo"])
-               and not IncludeHeader and not RecalculateLines
-            then
-                if FromSalesHeader.Status = FromSalesHeader.Status::Released then begin
-                    ReleaseSalesDocument.SetSkipCheckReleaseRestrictions();
-                    ReleaseSalesDocument.Run(ToSalesHeader);
-                    ReleaseSalesDocument.Reopen(ToSalesHeader);
-                end;
+        if IsHandled then
+            if ReleaseDocument then begin
+                ToSalesHeader.Status := ToSalesHeader.Status::Released;
+                ReleaseSalesDocument.Reopen(ToSalesHeader);
+            end else
+                if (FromDocType in
+                    ["Sales Document Type From"::Quote,
+                     "Sales Document Type From"::"Blanket Order",
+                     "Sales Document Type From"::Order,
+                     "Sales Document Type From"::Invoice,
+                     "Sales Document Type From"::"Return Order",
+                     "Sales Document Type From"::"Credit Memo"])
+                   and not IncludeHeader and not RecalculateLines
+                then
+                    if FromSalesHeader.Status = FromSalesHeader.Status::Released then begin
+                        ReleaseSalesDocument.SetSkipCheckReleaseRestrictions();
+                        ReleaseSalesDocument.Run(ToSalesHeader);
+                        ReleaseSalesDocument.Reopen(ToSalesHeader);
+                    end;
 
         if ShowWarningNotification(ToSalesHeader, MissingExCostRevLink) then begin
             ErrorMessageHandler.NotifyAboutErrors();
@@ -1014,26 +1016,28 @@ codeunit 6620 "Copy Document Mgt."
         if MoveNegLines then
             DeletePurchLinesWithNegQty(FromPurchHeader, false);
 
-        OnCopyPurchDocOnAfterCopyPurchDocLines(FromDocType.AsInteger(), FromDocNo, FromPurchHeader, IncludeHeader, ToPurchHeader, MoveNegLines);
+        IsHandled := false;
+        OnCopyPurchDocOnAfterCopyPurchDocLines(FromDocType.AsInteger(), FromDocNo, FromPurchHeader, IncludeHeader, ToPurchHeader, MoveNegLines, ReleaseDocument, IsHandled);
 
-        if ReleaseDocument then begin
-            ToPurchHeader.Status := ToPurchHeader.Status::Released;
-            ReleasePurchaseDocument.Reopen(ToPurchHeader);
-        end else
-            if (FromDocType in
-                ["Purchase Document Type From"::Quote,
-                 "Purchase Document Type From"::"Blanket Order",
-                 "Purchase Document Type From"::Order,
-                 "Purchase Document Type From"::Invoice,
-                 "Purchase Document Type From"::"Return Order",
-                 "Purchase Document Type From"::"Credit Memo"])
-               and not IncludeHeader and not RecalculateLines
-            then
-                if FromPurchHeader.Status = FromPurchHeader.Status::Released then begin
-                    ReleasePurchaseDocument.SetSkipCheckReleaseRestrictions();
-                    ReleasePurchaseDocument.Run(ToPurchHeader);
-                    ReleasePurchaseDocument.Reopen(ToPurchHeader);
-                end;
+        if not IsHandled then
+            if ReleaseDocument then begin
+                ToPurchHeader.Status := ToPurchHeader.Status::Released;
+                ReleasePurchaseDocument.Reopen(ToPurchHeader);
+            end else
+                if (FromDocType in
+                    ["Purchase Document Type From"::Quote,
+                     "Purchase Document Type From"::"Blanket Order",
+                     "Purchase Document Type From"::Order,
+                     "Purchase Document Type From"::Invoice,
+                     "Purchase Document Type From"::"Return Order",
+                     "Purchase Document Type From"::"Credit Memo"])
+                   and not IncludeHeader and not RecalculateLines
+                then
+                    if FromPurchHeader.Status = FromPurchHeader.Status::Released then begin
+                        ReleasePurchaseDocument.SetSkipCheckReleaseRestrictions();
+                        ReleasePurchaseDocument.Run(ToPurchHeader);
+                        ReleasePurchaseDocument.Reopen(ToPurchHeader);
+                    end;
 
         if ShowWarningNotification(ToPurchHeader, MissingExCostRevLink) then begin
             ErrorMessageHandler.NotifyAboutErrors();
@@ -1953,6 +1957,7 @@ codeunit 6620 "Copy Document Mgt."
     var
         RoundingLineInserted: Boolean;
         CopyThisLine: Boolean;
+        ShouldRevertQuantitySign: Boolean;
         IsHandled: Boolean;
     begin
         CopyThisLine := true;
@@ -2016,9 +2021,10 @@ codeunit 6620 "Copy Document Mgt."
 
         RecalculateAndApplyPurchLine(ToPurchHeader, ToPurchLine, FromPurchLine, RecalculateAmount);
 
-        OnCopyPurchLineOnBeforeValidateQuantity(ToPurchLine, RecalculateLines, FromPurchLine, MoveNegLines);
+        ShouldRevertQuantitySign := MoveNegLines and (ToPurchLine.Type <> ToPurchLine.Type::" ");
+        OnCopyPurchLineOnBeforeValidateQuantity(ToPurchLine, RecalculateLines, FromPurchLine, MoveNegLines, ShouldRevertQuantitySign);
 
-        if MoveNegLines and (ToPurchLine.Type <> ToPurchLine.Type::" ") then begin
+        if ShouldRevertQuantitySign then begin
             ToPurchLine.Validate(Quantity, -FromPurchLine.Quantity);
             OnCopyPurchLineOnAfterValidateQuantityMoveNegLines(ToPurchLine, FromPurchLine);
             ToPurchLine."Appl.-to Item Entry" := FromPurchLine."Appl.-to Item Entry"
@@ -9444,7 +9450,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyPurchDocOnAfterCopyPurchDocLines(FromDocType: Option; FromDocNo: Code[20]; FromPurchaseHeader: Record "Purchase Header"; IncludeHeader: Boolean; var ToPurchHeader: Record "Purchase Header"; MoveNegLines: Boolean)
+    local procedure OnCopyPurchDocOnAfterCopyPurchDocLines(FromDocType: Option; FromDocNo: Code[20]; FromPurchaseHeader: Record "Purchase Header"; IncludeHeader: Boolean; var ToPurchHeader: Record "Purchase Header"; MoveNegLines: Boolean; var ReleaseDocument: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -9494,7 +9500,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopySalesDocOnAfterCopySalesDocLines(FromDocType: Option; FromDocNo: Code[20]; FromDocOccurrenceNo: Integer; FromDocVersionNo: Integer; FromSalesHeader: Record "Sales Header"; IncludeHeader: Boolean; var ToSalesHeader: Record "Sales Header"; var HideDialog: Boolean)
+    local procedure OnCopySalesDocOnAfterCopySalesDocLines(FromDocType: Option; FromDocNo: Code[20]; FromDocOccurrenceNo: Integer; FromDocVersionNo: Integer; FromSalesHeader: Record "Sales Header"; IncludeHeader: Boolean; var ToSalesHeader: Record "Sales Header"; var HideDialog: Boolean; var ReleaseDocument: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -9919,7 +9925,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyPurchLineOnBeforeValidateQuantity(var ToPurchLine: Record "Purchase Line"; RecalculateLines: Boolean; FromPurchaseLine: Record "Purchase Line"; MoveNegLines: Boolean)
+    local procedure OnCopyPurchLineOnBeforeValidateQuantity(var ToPurchLine: Record "Purchase Line"; RecalculateLines: Boolean; FromPurchaseLine: Record "Purchase Line"; MoveNegLines: Boolean; var ShouldRevertQuantitySign: Boolean)
     begin
     end;
 
