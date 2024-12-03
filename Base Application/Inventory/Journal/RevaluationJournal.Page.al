@@ -718,6 +718,8 @@ page 5803 "Revaluation Journal"
         ReportPrint: Codeunit "Test Report-Print";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ClientTypeManagement: Codeunit "Client Type Management";
+        CurrentJnlBatchName: Code[10];
+        ItemDescription: Text[100];
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text001: Label 'To make sure that all items are adjusted before you start the revaluation, you should run the %1 batch job first.\Do you want to continue with the revaluation?';
@@ -727,8 +729,6 @@ page 5803 "Revaluation Journal"
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
-        CurrentJnlBatchName: Code[10];
-        ItemDescription: Text[100];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
