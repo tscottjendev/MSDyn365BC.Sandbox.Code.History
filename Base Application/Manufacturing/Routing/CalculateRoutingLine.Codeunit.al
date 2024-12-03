@@ -135,6 +135,8 @@ codeunit 99000774 "Calculate Routing Line"
         ActuallyPostedTime: Decimal;
         DistributedCapNeed: Decimal;
     begin
+        OnBeforeInitProdOrderCapNeed(ProdOrder, ProdOrderRoutingLine, ProdOrderCapNeed, TimeType, NeedDate, StartingTime, EndingTime, NeedQty, LotSize);
+
         ProdOrderCapNeed.Init();
         ProdOrderCapNeed.Status := ProdOrder.Status;
         ProdOrderCapNeed."Prod. Order No." := ProdOrder."No.";
@@ -2342,6 +2344,11 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateRoutingLineOnAfterCalcMaxLotSize(ProdOrderQty: Decimal; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TotalScrap: Decimal; var MaxLotSize: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitProdOrderCapNeed(ProductionOrder: Record "Production Order"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; RoutingTimeType: Enum "Routing Time Type"; NeedDate: Date; StartingTime: Time; EndingTime: Time; NeedQty: Decimal; LotSize: Decimal)
     begin
     end;
 }

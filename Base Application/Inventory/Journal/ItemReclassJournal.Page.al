@@ -945,8 +945,6 @@ page 393 "Item Reclass. Journal"
         ReportPrint: Codeunit "Test Report-Print";
         ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        CurrentJnlBatchName: Code[10];
-        ItemDescription: Text[100];
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
@@ -963,6 +961,8 @@ page 393 "Item Reclass. Journal"
     protected var
         ShortcutDimCode: array[8] of Code[20];
         NewShortcutDimCode: array[8] of Code[20];
+        CurrentJnlBatchName: Code[10];
+        ItemDescription: Text[100];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
