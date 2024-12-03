@@ -405,11 +405,16 @@ codeunit 99000886 "Capable to Promise"
         NoSeries: Codeunit "No. Series";
 #if not CLEAN24
         NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
 #endif
         NewRefOrderNo: Code[20];
         LastRefOrderNo: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReassignRefOrderNos(OrderPromisingID, IsHandled);
+        if IsHandled then
+            exit;
+
         RequisitionLine.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
         RequisitionLine.SetRange("Order Promising ID", OrderPromisingID);
         RequisitionLine.SetRange("Ref. Order Type", RequisitionLine."Ref. Order Type"::"Prod. Order");
@@ -440,6 +445,7 @@ codeunit 99000886 "Capable to Promise"
             end;
 #endif
             RequisitionLine.ModifyAll("Ref. Order No.", NewRefOrderNo);
+            OnReassignRefOrderNosOnAfterRequisitionLineModifyAll(RequisitionLine);
             RequisitionLine.SetFilter("Ref. Order No.", '<>%1&<=%2', '', LastRefOrderNo);
         until RequisitionLine.Next() = 0;
     end;
@@ -481,6 +487,16 @@ codeunit 99000886 "Capable to Promise"
 
     [IntegrationEvent(true, false)]
     local procedure OnCalcCapableToPromiseDateOnAfterSetOrderPromisingParameters(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; PeriodLengthFormula: DateFormula; var OrderPromisingStart: Date; var OrderPromisingEnd: Date);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReassignRefOrderNos(OrderPromisingID: Code[20]; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReassignRefOrderNosOnAfterRequisitionLineModifyAll(var RequisitionLine: Record "Requisition Line");
     begin
     end;
 }
