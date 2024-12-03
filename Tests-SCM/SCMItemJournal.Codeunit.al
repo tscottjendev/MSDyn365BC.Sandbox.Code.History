@@ -36,6 +36,9 @@
         RoundingTo0Err: Label 'Rounding of the field';
         BlockedBinContentErr: Label 'Block Movement must not be All in Bin Content Location Code=''%1'',Bin Code=''%2'',Item No.=''%3'',Variant Code=''%4'',Unit of Measure Code=''%5''.',
                               Comment = '%1= Location Code, %2= Bin Code, %3= Item No., %4= Varient Code, %5= Unit of Measure Code';
+        ValueMustBeEqualErr: Label '%1 value must be equal to %2 in %3', Comment = '%1 = Field Name, %2= Expected Value, %3 = Table Name';
+        ValueMustBeNegativeErr: Label '%1 Value must be negative', Comment = '%1=FieldName';
+        ValueMustBePositiveErr: Label '%1 Value must be positive', Comment = '%1=FieldName';
 
     [Test]
     [Scope('OnPrem')]
@@ -2174,6 +2177,74 @@
     end;
 
     [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    procedure ItemReclassGenerateNegativeAndPositiveWeightinSequenceInWshEntry()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemJnlBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJnlTemplate: Record "Item Journal Template";
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        BinCode: array[2] of Code[20];
+        LotNo: Code[10];
+        Qty: Integer;
+    begin
+        // [SCENARIO 557303] Item Reclass Journal generates negative and then positive weight in Warehouse Entry. 
+        Initialize();
+
+        // [GIVEN] Create a Location with two bin and "Bin Capacity Policy" = "Allow More Than Max. Capacity".
+        CreateLocationWithBinAndCapicityPolicy(Location, 1, BinCode[1], BinCode[2]);
+
+        // [GIVEN] Create an Item with lot No.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Update the weight of Item Unit of Measure.
+        ItemUnitofMeasure.Get(Item."No.", Item."Base Unit of Measure");
+        ItemUnitofMeasure.Weight := LibraryRandom.RandInt(100);
+        ItemUnitofMeasure.Modify(true);
+
+        // [GIVEN] Create an Item Journal Template and Item Journal Batch.
+        LibraryInventory.CreateItemJournalTemplate(ItemJnlTemplate);
+        LibraryInventory.CreateItemJournalBatch(ItemJnlBatch, ItemJnlTemplate.Name);
+
+        // [GIVEN] Set Qty and LotNo variables.
+        Qty := LibraryRandom.RandInt(10);
+        LotNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create a Positive Adjustment for the Item using first bin code and location.
+        CreateItemJnlWithLocationAndBin(
+            ItemJournalLine, ItemJnlTemplate.Name, ItemJnlBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
+            Location.Code, '', BinCode[1], '', Item."No.", Qty);
+
+        // [GIVEN] Enqueue lotNo and Qty.
+        EnqueItrLotQty(1, LotNo, Qty);
+
+        // [GIVEN] Open item tracking line.
+        ItemJournalLine.OpenItemTrackingLines(false);
+
+        // [GIVEN] Post the Positive Adjustment Journal.
+        LibraryInventory.PostItemJournalLine(ItemJnlBatch."Journal Template Name", ItemJnlBatch.Name);
+
+        // [GIVEN] Create Item Rclassification Journal using same Item, Quantity, location and "lot No." whereas "New Bin Code"= Bincode[2].
+        CreateItemJnlWithLocationAndBin(
+           ItemJournalLine, ItemJnlTemplate.Name, ItemJnlBatch.Name, ItemJournalLine."Entry Type"::Transfer,
+           Location.Code, Location.Code, BinCode[1], BinCode[2], Item."No.", Qty);
+
+        // [GIVEN] Enqueue LotNo and Qty.
+        EnqueItrLotQty(1, LotNo, Qty);
+
+        // [GIVEN] Open item tracking line for Item Reclassification Journal.
+        ItemJournalLine.OpenItemTrackingLines(true);
+
+        // [WHEN] Posting the Item Reclassification Journal.
+        LibraryInventory.PostItemJournalLine(ItemJnlBatch."Journal Template Name", ItemJnlBatch.Name);
+
+        // [THEN] Verify that Item Reclassification Journal generates two warehouse entries, first with a negative weight and second with a positive. Also, the Quantity and Weight should have the same sign in the warehouse entry (Positive weight for a positive qty and negative weight for a negative qty).
+        VerifyWshEntryforItemReclassJournal(Item."No.", LotNo, ItemUnitofMeasure.Weight);
+    end;
+
+    [Test]
     procedure InitValueOfTypeFieldOnItemJournalLine()
     var
         ItemJournalLine: Record "Item Journal Line";
@@ -2773,6 +2844,83 @@
             asserterror ItemJournalLine.Validate("Scrap Code", Scrap.Code)
         else
             ItemJournalLine.Validate("Scrap Code", Scrap.Code);
+    end;
+
+    local procedure CreateLocationWithBinAndCapicityPolicy(
+        var Location: Record Location;
+        BinCapacityPolicy: Option "Never Check Capacity","Allow More Than Max. Capacity","Prohibit More Than Max. Cap.";
+        var BinCode: Code[20];
+        var BinCode2: Code[20])
+    var
+        Bin: Record Bin;
+        Zone: Record Zone;
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Bin Capacity Policy", BinCapacityPolicy);
+        Location.Modify(true);
+
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 2, false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+        BinCode := Bin.Code;
+
+        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 2);
+        BinCode2 := Bin.Code;
+    end;
+
+    local procedure CreateItemJnlWithLocationAndBin(
+        var ItemJournalLine: Record "Item Journal Line";
+        ItemJnlTemplateName: Code[10];
+        ItemJnlBatchName: Code[10];
+        EntryType: Enum "Item Ledger Entry Type";
+        LocationCode: Code[10];
+        NewLocationCode: Code[10];
+        BinCode: Code[20];
+        NewBinCode: Code[20];
+        ItemNo: Code[20];
+        ItemQty: Integer)
+    begin
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJnlTemplateName, ItemJnlBatchName, EntryType, ItemNo, ItemQty);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine."Bin Code" := BinCode;
+        if EntryType = EntryType::Transfer then begin
+            ItemJournalLine.Validate("New Location Code", NewLocationCode);
+            ItemJournalLine.Validate("New Bin Code", NewBinCode);
+        end;
+        ItemJournalLine.Modify(true);
+    end;
+
+    procedure EnqueItrLotQty(Iteration: Integer; LotNo: Code[10]; Qty: Integer)
+    begin
+        LibraryVariableStorage.Enqueue(Iteration);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+    end;
+
+    procedure VerifyWshEntryforItemReclassJournal(ItemNo: Code[20]; LotNo: Code[10]; UOMWeight: Integer)
+    var
+        WarehouseEntry: Record "Warehouse Entry";
+        i: Integer;
+    begin
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.SetRange("Lot No.", LotNo);
+        WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::Movement);
+        Assert.RecordCount(WarehouseEntry, 2);
+
+        if WarehouseEntry.FindSet() then
+            repeat
+                i += 1;
+                Assert.AreEqual(
+                    UOMWeight * WarehouseEntry.Quantity,
+                    WarehouseEntry.Weight,
+                    StrSubstNo(ValueMustBeEqualErr, WarehouseEntry.FieldCaption(Weight), UOMWeight * WarehouseEntry.Quantity, WarehouseEntry.TableCaption));
+
+                if i = 1 then
+                    Assert.IsTrue(WarehouseEntry.weight < 0, StrSubstNo(ValueMustBeNegativeErr, WarehouseEntry.FieldCaption(Weight)));
+                if i = 2 then
+                    Assert.IsTrue(WarehouseEntry.weight > 0, StrSubstNo(ValueMustBePositiveErr, WarehouseEntry.FieldCaption(Weight)));
+
+            until WarehouseEntry.Next() = 0;
     end;
 
     [SendNotificationHandler]
