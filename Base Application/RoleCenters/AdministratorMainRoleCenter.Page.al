@@ -942,7 +942,7 @@ page 8900 "Administrator Main Role Center"
                 action("CopilotAICapabilities")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Copilot & AI capabilities';
+                    Caption = 'Copilot & agent capabilities';
                     RunObject = page "Copilot AI Capabilities";
                 }
             }
