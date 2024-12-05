@@ -8,6 +8,8 @@ table 5719 "Nonstock Item Setup"
 {
     Caption = 'Nonstock Item Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Catalog Item Setup";
+    LookupPageID = "Catalog Item Setup";
 
     fields
     {

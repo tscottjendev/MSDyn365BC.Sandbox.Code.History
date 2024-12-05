@@ -25,6 +25,7 @@ codeunit 137404 "SCM Manufacturing"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
+        ProductionBOMCopy: Codeunit "Production BOM-Copy";
         DateChangeFormula: DateFormula;
         ExchangeNo: Code[20];
         ItemNo2: Code[20];
@@ -81,6 +82,11 @@ codeunit 137404 "SCM Manufacturing"
         ProdOrderNoHandlerErr: Label 'Prod. Order No. must be %1, actual value is %2.', Comment = '%1: Expected Prod. Order No. Value; %2: Actual Prod. Order No. Value.';
         ProdOrderStatusHandlerErr: Label 'Prod. Order Status must be %1, actual value is %2.', Comment = '%1: Expected Prod. Order Status Value; %2: Actual Prod. Order Status Value.';
         ItemLedgerEntryMustBeFoundErr: Label 'Item Ledger Entry must be found.';
+        ValueMustBeEqualErr: Label '%1 field value must be equal to %2 in %3', Comment = '%1 = Field Name, %2 = Expected Value, %3 = Page Name';
+        CaptionMustBeEqualErr: Label '%1 caption must be equal to %2 in %3', Comment = '%1 = Field Caption, %2 = Expected Caption Name, %3 = Page Name';
+        ActionMustBeVisibleErr: Label 'Action %1 must be visible in %2', Comment = ' %1 = Action Name , %2 = Page Name';
+        PreviousSetLbl: Label 'Previous Set';
+        NextSetLbl: Label 'Next Set';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,OutputJournalItemtrackingPageHandler,MessageHandler')]
@@ -4317,6 +4323,214 @@ codeunit 137404 "SCM Manufacturing"
         Assert.IsFalse(ItemLedgerEntry.IsEmpty(), ItemLedgerEntryMustBeFoundErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ProdBOMVersionComparisonHandlerForActionSet')]
+    [Scope('OnPrem')]
+    procedure PreviousSetAndNextSetActionMustBeVisibleInProdBOMMatrPerVersionMatrPageFromProductionBOMPage()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ProdBOMHeader: Record "Production BOM Header";
+        ProdBOMVersion: Record "Production BOM Version";
+        ProductionBOM: TestPage "Production BOM";
+        ProductionBOMNo: Code[20];
+    begin
+        // [SCENARIO 335050] Verify that "Prod. BOM Version Comparison" page has "Previous Set" and "Next Set" action must be visible When executing the "Prod. BOM Version Comparison" from "Production BOM" page.
+        Initialize();
+
+        // [GIVEN] Create a Unit of Measure.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [GIVEN] Create five Items.
+        CreateSetofItems(Item, 5);
+
+        // [GIVEN] Create a Production BOM with five Items.
+        ProductionBOMNo := CreateProductionBOMForSetOfItems(Item, UnitOfMeasure.Code);
+
+        // [GIVEN] Get the Production BOM.
+        ProdBOMHeader.Get(ProductionBOMNo);
+
+        // [GIVEN] Create a Production BOM Version.  
+        LibraryManufacturing.CreateProductionBOMVersion(ProdBomVersion, ProductionBOMNo, LibraryUtility.GenerateGUID(), UnitOfMeasure.Code);
+
+        // [GIVEN] Copy BOM for Production BOM Version.
+        ProductionBOMCopy.CopyBOM(ProdBomVersion."Production BOM No.", '', ProdBOMHeader, ProdBomVersion."Version Code");
+
+        // [GIVEN] Open Production BOM page.
+        ProductionBOM.OpenEdit();
+        ProductionBOM.GoToRecord(ProdBOMHeader);
+
+        // [WHEN] Executing the "Prod. BOM Version Comparison" action in Production BOM page.
+        ProductionBOM."Prod. BOM Version Comparison".Invoke();
+
+        // [THEN] Verify that "Prod. BOM Version Comparison" page has "Previous Set" and "Next Set" action must be visible through "ProdBOMVersionComparisonHandlerForActionSet" handler.
+        ProductionBOM.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ProdBOMVersionComparisonHandlerForBOMVersion')]
+    [Scope('OnPrem')]
+    procedure VerifyProdBOMVersionDetailMustBeshownOnProdBOMMatPerVerMatrPageFromProductionBOMPage()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ProdBOMHeader: Record "Production BOM Header";
+        ProdBOMVersion: Record "Production BOM Version";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionBOM: TestPage "Production BOM";
+        ProductionBOMNo: Code[20];
+    begin
+        // [SCENARIO 335050] Verify that Production BOM and each Production BOM version must be shown on "Prod. BOM Matr. per Version Matr." page When executing the "Prod. BOM Version Comparison" action from "Production BOM" page.
+        Initialize();
+
+        // [GIVEN] Create a Unit of Measure.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [GIVEN] Create five Items.
+        CreateSetofItems(Item, 5);
+
+        // [GIVEN] Create a Production BOM with five Items.
+        ProductionBOMNo := CreateProductionBOMForSetOfItems(Item, UnitOfMeasure.Code);
+
+        // [GIVEN] Get the Production BOM Header.
+        ProdBOMHeader.Get(ProductionBOMNo);
+
+        // [GIVEN] Create a Production BOM Version.  
+        LibraryManufacturing.CreateProductionBOMVersion(ProdBomVersion, ProductionBOMNo, LibraryUtility.GenerateGUID(), UnitOfMeasure.Code);
+
+        // [GIVEN] Copy BOM for Production BOM Version.
+        ProductionBOMCopy.CopyBOM(ProdBomVersion."Production BOM No.", '', ProdBOMHeader, ProdBomVersion."Version Code");
+
+        // [GIVEN] Find the Production BOM Version Line.
+        FindProductionBOMVersionLine(ProductionBOMLine, ProductionBOMNo, ProdBOMVersion."Version Code");
+
+        // [GIVEN] Enqueue Quantity of Production BOM Line.
+        LibraryVariableStorage.Enqueue(ProductionBOMLine.Quantity);
+
+        // [GIVEN] Modify the Quantity of Production BOM Version Line.
+        ProductionBOMLine.Validate(Quantity, LibraryRandom.RandInt(1000));
+        ProductionBOMLine.Modify(true);
+
+        // [GIVEN] Enqueue Quantity, "Version Code" and "Production BOM No." of Production BOM Version Line.
+        LibraryVariableStorage.Enqueue(ProductionBOMLine.Quantity);
+        LibraryVariableStorage.Enqueue(ProductionBOMLine."Version Code");
+        LibraryVariableStorage.Enqueue(ProductionBOMLine."Production BOM No.");
+
+        // [GIVEN] Open Production BOM page.
+        ProductionBOM.OpenEdit();
+        ProductionBOM.GoToRecord(ProdBOMHeader);
+
+        // [WHEN] Executing the "Prod. BOM Version Comparison" action in Production BOM page.
+        ProductionBOM."Prod. BOM Version Comparison".Invoke();
+
+        // [THEN] Verify that Production BOM and each Production BOM version must be shown on "Prod. BOM Matr. per Version Matr." page through ProdBOMVersionComparisonHandlerForBOMVersion handler.
+        ProductionBOM.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ProdBOMVersionComparisonListHandlerForActionSet')]
+    [Scope('OnPrem')]
+    procedure PreviousSetAndNextSetActionMustBeVisibleInProdBOMMatrPerVersionMatrPageFromProductionBOMListPage()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ProdBOMHeader: Record "Production BOM Header";
+        ProdBOMVersion: Record "Production BOM Version";
+        ProductionBOMList: TestPage "Production BOM List";
+        ProductionBOMNo: Code[20];
+    begin
+        // [SCENARIO 335050] Verify that "Prod. BOM Version Comparison" page has "Previous Set" and "Next Set" action must be visible When executing the "Prod. BOM Version Comparison" from "Production BOM List" page.
+        Initialize();
+
+        // [GIVEN] Create a Unit of Measure.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [GIVEN] Create five Items.
+        CreateSetofItems(Item, 5);
+
+        // [GIVEN] Create a Production BOM with five Items.
+        ProductionBOMNo := CreateProductionBOMForSetOfItems(Item, UnitOfMeasure.Code);
+
+        // [GIVEN] Get the Production BOM.
+        ProdBOMHeader.Get(ProductionBOMNo);
+
+        // [GIVEN] Create a Production BOM Version.  
+        LibraryManufacturing.CreateProductionBOMVersion(ProdBomVersion, ProductionBOMNo, LibraryUtility.GenerateGUID(), UnitOfMeasure.Code);
+
+        // [GIVEN] Copy BOM for Production BOM Version.
+        ProductionBOMCopy.CopyBOM(ProdBomVersion."Production BOM No.", '', ProdBOMHeader, ProdBomVersion."Version Code");
+
+        // [GIVEN] Open Production BOM page.
+        ProductionBOMList.OpenEdit();
+        ProductionBOMList.GoToRecord(ProdBOMHeader);
+
+        // [WHEN] Executing the "Prod. BOM Version Comparison" action in Production BOM List page.
+        ProductionBOMList."Prod. BOM Version Comparison".Invoke();
+
+        // [THEN] Verify that "Prod. BOM Version Comparison" page has "Previous Set" and "Next Set" action must be visible through "ProdBOMVersionComparisonListHandlerForActionSet" handler.
+        ProductionBOMList.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ProdBOMVersionComparisonListHandlerForBOMVersion')]
+    [Scope('OnPrem')]
+    procedure VerifyProdBOMVersionDetailMustBeShownOnProdBOMMatPerVerMatrPageFromProductionBOMListPage()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ProdBOMHeader: Record "Production BOM Header";
+        ProdBOMVersion: Record "Production BOM Version";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionBOMList: TestPage "Production BOM List";
+        ProductionBOMNo: Code[20];
+    begin
+        // [SCENARIO 335050] Verify that Production BOM and each Production BOM version must be shown on "Prod. BOM Matr. per Version Matr." page When executing the "Prod. BOM Version Comparison" action from "Production BOM List" page.
+        Initialize();
+
+        // [GIVEN] Create a Unit of Measure.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [GIVEN] Create five Items.
+        CreateSetofItems(Item, 5);
+
+        // [GIVEN] Create a Production BOM with five Items.
+        ProductionBOMNo := CreateProductionBOMForSetOfItems(Item, UnitOfMeasure.Code);
+
+        // [GIVEN] Get the Production BOM Header.
+        ProdBOMHeader.Get(ProductionBOMNo);
+
+        // [GIVEN] Create a Production BOM Version.  
+        LibraryManufacturing.CreateProductionBOMVersion(ProdBomVersion, ProductionBOMNo, LibraryUtility.GenerateGUID(), UnitOfMeasure.Code);
+
+        // [GIVEN] Copy BOM for Production BOM Version.
+        ProductionBOMCopy.CopyBOM(ProdBomVersion."Production BOM No.", '', ProdBOMHeader, ProdBomVersion."Version Code");
+
+        // [GIVEN] Find the Production BOM Version Line.
+        FindProductionBOMVersionLine(ProductionBOMLine, ProductionBOMNo, ProdBOMVersion."Version Code");
+
+        // [GIVEN] Enqueue Quantity of Production BOM Line.
+        LibraryVariableStorage.Enqueue(ProductionBOMLine.Quantity);
+
+        // [GIVEN] Modify the Quantity of Production BOM Version Line.
+        ProductionBOMLine.Validate(Quantity, LibraryRandom.RandInt(1000));
+        ProductionBOMLine.Modify(true);
+
+        // [GIVEN] Enqueue Quantity, "Version Code" and "Production BOM No." of Production BOM Version Line.
+        LibraryVariableStorage.Enqueue(ProductionBOMLine.Quantity);
+        LibraryVariableStorage.Enqueue(ProductionBOMLine."Version Code");
+        LibraryVariableStorage.Enqueue(ProductionBOMLine."Production BOM No.");
+
+        // [GIVEN] Open Production BOM page.
+        ProductionBOMList.OpenEdit();
+        ProductionBOMList.GoToRecord(ProdBOMHeader);
+
+        // [WHEN] Executing the "Prod. BOM Version Comparison" action in Production BOM List page.
+        ProductionBOMList."Prod. BOM Version Comparison".Invoke();
+
+        // [THEN] Verify that Production BOM and each Production BOM version must be shown on "Prod. BOM Matr. per Version Matr." page through ProdBOMVersionComparisonListHandlerForBOMVersion handler.
+        ProductionBOMList.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6652,6 +6866,21 @@ codeunit 137404 "SCM Manufacturing"
         ModifyStatusInProductionBOM(ProdBOMHeader, ProdBOMHeader.Status);
     end;
 
+    local procedure CreateSetofItems(var Item: Record Item; ItemsCount: Integer)
+    var
+        i: Integer;
+    begin
+        for i := 1 to ItemsCount do
+            LibraryInventory.CreateItem(Item);
+    end;
+
+    local procedure FindProductionBOMVersionLine(var ProductionBOMLine: Record "Production BOM Line"; ProdBOMHeaderNo: Code[20]; ProdBOMVersion: Code[20])
+    begin
+        ProductionBOMLine.SetRange("Production BOM No.", ProdBOMHeaderNo);
+        ProductionBOMLine.SetRange("Version Code", ProdBOMVersion);
+        ProductionBOMLine.FindFirst();
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CopyProductionOrderDocumentHandler(var CopyProductionOrderDocument: TestRequestPage "Copy Production Order Document")
@@ -7138,6 +7367,66 @@ codeunit 137404 "SCM Manufacturing"
         ProductionOrder.Modify(true);
 
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProdBOMVersionComparisonHandlerForActionSet(var ProdBOMVersionComparison: TestPage "Prod. BOM Version Comparison")
+    begin
+        Assert.IsTrue(ProdBOMVersionComparison."Previous Set".Visible(), StrSubstNo(ActionMustBeVisibleErr, PreviousSetLbl, ProdBOMVersionComparison.Caption()));
+        Assert.IsTrue(ProdBOMVersionComparison."Next Set".Visible(), StrSubstNo(ActionMustBeVisibleErr, NextSetLbl, ProdBOMVersionComparison.Caption()));
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProdBOMVersionComparisonHandlerForBOMVersion(var ProdBOMVersionComparison: TestPage "Prod. BOM Version Comparison")
+    var
+        ExpectedValueForField1: Integer;
+        ExpectedCaptionForField1: Code[20];
+        ExpectedCaptionForBOMField1: Code[20];
+        ExpectedValueForBOMField1: Integer;
+    begin
+        ProdBOMVersionComparison.First();
+
+        ExpectedValueForBOMField1 := LibraryVariableStorage.DequeueInteger();
+        ExpectedValueForField1 := LibraryVariableStorage.DequeueInteger();
+        ExpectedCaptionForField1 := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(ExpectedCaptionForField1));
+        ExpectedCaptionForBOMField1 := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(ExpectedCaptionForBOMField1));
+
+        Assert.AreEqual(ExpectedValueForField1, ProdBOMVersionComparison.Field1.AsInteger(), StrSubstNo(ValueMustBeEqualErr, ProdBOMVersionComparison.Field1.Caption(), ExpectedValueForField1, ProdBOMVersionComparison.Caption()));
+        Assert.AreEqual(ExpectedCaptionForField1, ProdBOMVersionComparison.Field1.Caption(), StrSubstNo(CaptionMustBeEqualErr, ProdBOMVersionComparison.Field1.Caption(), ExpectedCaptionForField1, ProdBOMVersionComparison.Caption()));
+        Assert.AreEqual(ExpectedCaptionForBOMField1, ProdBOMVersionComparison.BOMField1.Caption(), StrSubstNo(CaptionMustBeEqualErr, ProdBOMVersionComparison.BOMField1.Caption(), ExpectedCaptionForBOMField1, ProdBOMVersionComparison.BOMField1.Caption()));
+        Assert.AreEqual(ExpectedValueForBOMField1, ProdBOMVersionComparison.BOMField1.AsInteger(), StrSubstNo(ValueMustBeEqualErr, ProdBOMVersionComparison.BOMField1.Caption(), ExpectedValueForBOMField1, ProdBOMVersionComparison.Caption()));
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ProdBOMVersionComparisonListHandlerForActionSet(var ProdBOMVersionComparison: TestPage "Prod. BOM Version Comparison")
+    begin
+        Assert.IsTrue(ProdBOMVersionComparison."Previous Set".Visible(), StrSubstNo(ActionMustBeVisibleErr, PreviousSetLbl, ProdBOMVersionComparison.Caption()));
+        Assert.IsTrue(ProdBOMVersionComparison."Next Set".Visible(), StrSubstNo(ActionMustBeVisibleErr, NextSetLbl, ProdBOMVersionComparison.Caption()));
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ProdBOMVersionComparisonListHandlerForBOMVersion(var ProdBOMVersionComparison: TestPage "Prod. BOM Version Comparison")
+    var
+        ExpectedValueForField1: Integer;
+        ExpectedCaptionForField1: Code[20];
+        ExpectedCaptionForBOMField1: Code[20];
+        ExpectedValueForBOMField1: Integer;
+    begin
+        ProdBOMVersionComparison.First();
+
+        ExpectedValueForBOMField1 := LibraryVariableStorage.DequeueInteger();
+        ExpectedValueForField1 := LibraryVariableStorage.DequeueInteger();
+        ExpectedCaptionForField1 := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(ExpectedCaptionForField1));
+        ExpectedCaptionForBOMField1 := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(ExpectedCaptionForBOMField1));
+
+        Assert.AreEqual(ExpectedValueForField1, ProdBOMVersionComparison.Field1.AsInteger(), StrSubstNo(ValueMustBeEqualErr, ProdBOMVersionComparison.Field1.Caption(), ExpectedValueForField1, ProdBOMVersionComparison.Caption()));
+        Assert.AreEqual(ExpectedCaptionForField1, ProdBOMVersionComparison.Field1.Caption(), StrSubstNo(CaptionMustBeEqualErr, ProdBOMVersionComparison.Field1.Caption(), ExpectedCaptionForField1, ProdBOMVersionComparison.Caption()));
+        Assert.AreEqual(ExpectedCaptionForBOMField1, ProdBOMVersionComparison.BOMField1.Caption(), StrSubstNo(CaptionMustBeEqualErr, ProdBOMVersionComparison.BOMField1.Caption(), ExpectedCaptionForBOMField1, ProdBOMVersionComparison.BOMField1.Caption()));
+        Assert.AreEqual(ExpectedValueForBOMField1, ProdBOMVersionComparison.BOMField1.AsInteger(), StrSubstNo(ValueMustBeEqualErr, ProdBOMVersionComparison.BOMField1.Caption(), ExpectedValueForBOMField1, ProdBOMVersionComparison.Caption()));
     end;
 }
 
