@@ -4,9 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Sales.Document;
 
@@ -33,10 +31,6 @@ report 300 "Carry Out Reservation"
                         SetRange("Source Type", Database::"Transfer Line");
                     DemandType::"Job Usage":
                         SetRange("Source Type", Database::"Job Planning Line");
-                    DemandType::"Assembly Components":
-                        SetRange("Source Type", Database::"Assembly Line");
-                    DemandType::"Production Components":
-                        SetRange("Source Type", Database::"Prod. Order Component");
                     else
                         OnCarryOutReservationOtherDemandType(ReservationWkshLine, DemandType);
                 end;
