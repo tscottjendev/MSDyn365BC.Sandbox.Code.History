@@ -15,6 +15,8 @@ table 189 "VAT Setup"
 {
     Caption = 'VAT Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "VAT Setup";
+    LookupPageID = "VAT Setup";
 
     fields
     {

@@ -4307,7 +4307,6 @@
     [Test]
     procedure PostingDateModifiesDocumentDate()
     var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesOrder: Record "Sales Header";
         SalesReturnOrder: Record "Sales Header";
         SalesInvoice: Record "Sales Header";
@@ -4317,9 +4316,7 @@
         // [SCENARIO] Checks that the SalesReceivablesSetup."Link Doc. Date To Posting Date" setting has the correct effect on sales documents when set to true
 
         // [GIVEN] Change the setting to true
-        SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
-        SalesReceivablesSetup.Modify(true);
+        SetLinkDocDateToPostingDate(true);
 
         // [GIVEN] Create sales documents and set the document date
         DocDate := 20000101D;
@@ -4347,9 +4344,58 @@
     end;
 
     [Test]
+    procedure PostingDateModifiesDocumentDateOnInsert()
+    var
+        SalesHeader: Record "Sales Header";
+        PostingDate: Date;
+    begin
+        // [SCENARIO] Checks that the SalesReceivablesSetup."Link Doc. Date To Posting Date" setting has the correct effect on sales documents when set to true when the document is created
+
+        // [GIVEN] Link Doc. Date To Posting Date is true
+        SetLinkDocDateToPostingDate(true);
+
+        // [WHEN] Sales Header is created with posting date
+        PostingDate := 30000101D;
+        SalesHeader.Init();
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Insert(true);
+
+        // [THEN] The document date is equal to posting date
+        Assert.AreEqual(SalesHeader."Document Date", PostingDate, SalesHeader.FieldCaption("Document Date"));
+    end;
+
+    [Test]
+    procedure PostingDateModifiesDocumentDateOnCustomerSelection()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        PostingDate : Date;
+    begin
+        // [SCENARIO] Checks that the SalesReceivablesSetup."Link Doc. Date To Posting Date" setting has the correct effect on sales documents when set to true when the customer is populated
+
+        // [GIVEN] Link Doc. Date To Posting Date is true
+        SetLinkDocDateToPostingDate(true);
+
+        // [GIVEN] Customer C exists
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Sales Header is created with posting date 
+        PostingDate := 30000101D;
+        SalesHeader.Init();
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Insert(true);
+
+        // [WHEN] Sales Header sell-to customer is updated
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Modify(true);
+
+        // [THEN] The document date is equal to posting date
+        Assert.AreEqual(SalesHeader."Document Date", PostingDate, SalesHeader.FieldCaption("Document Date"));
+    end;
+
+    [Test]
     procedure PostingDateDoesNotModifiesDocumentDate()
     var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesOrder: Record "Sales Header";
         SalesReturnOrder: Record "Sales Header";
         SalesInvoice: Record "Sales Header";
@@ -4359,9 +4405,7 @@
         // [SCENARIO] Checks that the SalesReceivablesSetup."Link Doc. Date To Posting Date" setting has the correct effect on sales documents when set to false
 
         // [GIVEN] Change the setting to false
-        SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", false);
-        SalesReceivablesSetup.Modify(true);
+        SetLinkDocDateToPostingDate(false);
 
         // [GIVEN] Create sales documents and set the document date
         DocDate := 20000101D;
@@ -4386,6 +4430,27 @@
         SalesReturnOrder.TestField("Document Date", DocDate);
         SalesInvoice.TestField("Document Date", DocDate);
         SalesCreditMemo.TestField("Document Date", DocDate);
+    end;
+
+    [Test]
+    procedure PostingDateDoesNotModifiesDocumentDateOnInsert()
+    var
+        SalesHeader: Record "Sales Header";
+        PostingDate: Date;
+    begin
+        // [SCENARIO] Checks that the SalesReceivablesSetup."Link Doc. Date To Posting Date" setting has the correct effect on sales documents when set to false when the document is created
+
+        // [GIVEN] Link Doc. Date To Posting Date is false
+        SetLinkDocDateToPostingDate(false);
+
+        // [WHEN] Sales Header is created with posting date
+        PostingDate := 30000101D;
+        SalesHeader.Init();
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Insert(true);
+
+        // [THEN] The document date is equal to WorkDate() not to the posting date
+        Assert.AreEqual(SalesHeader."Document Date", WorkDate(), SalesHeader.FieldCaption("Document Date"));
     end;
 
     [Test]
@@ -6168,6 +6233,15 @@
         AllocAccountDistribution."Destination Account Number" := GLAccount."No.";
         AllocAccountDistribution.Validate(Share, Shape);
         AllocAccountDistribution.Insert();
+    end;
+
+    local procedure SetLinkDocDateToPostingDate(NewValue: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", NewValue);
+        SalesReceivablesSetup.Modify(true);
     end;
 
     [ConfirmHandler]
