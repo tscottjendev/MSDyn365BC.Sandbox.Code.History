@@ -172,9 +172,9 @@ codeunit 1814 "Assisted Setup Subscribers"
         SetupTimeSheetsShortTitleTxt: Label 'Set up Time Sheets', MaxLength = 50;
         SetupTimeSheetsHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2166666';
         SetupTimeSheetsDescriptionTxt: Label 'Track the time used on projects, register absences, or create simple time registrations for team members on any device.';
-        SetupCopilotAICapabilitiesTitleTxt: Label 'Set up Copilot & AI capabilities';
-        SetupCopilotAICapabilitiesShortTitleTxt: Label 'Set up Copilot & AI capabilities', MaxLength = 50;
-        SetupCopilotAICapabilitiesDescriptionTxt: Label 'Set up Copilot & AI capabilities to unlock AI-powered experiences.';
+        SetupCopilotAICapabilitiesTitleTxt: Label 'Set up Copilot & agent capabilities';
+        SetupCopilotAICapabilitiesShortTitleTxt: Label 'Set up Copilot & agent capabilities', MaxLength = 50;
+        SetupCopilotAICapabilitiesDescriptionTxt: Label 'Set up Copilot & agent capabilities to unlock AI-powered experiences.';
         SetupCopilotAICapabilitiesHelpTxt: Label 'https://aka.ms/bcai', Locked = true;
         SetupJobQueueNotificationTitleTxt: Label 'Set up Job Queue Notifications';
         SetupJobQueueNotificationShortTitleTxt: Label 'Set up Job Queue Notifications', MaxLength = 50;

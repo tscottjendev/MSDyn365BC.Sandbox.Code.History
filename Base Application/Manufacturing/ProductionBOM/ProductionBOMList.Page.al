@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.ProductionBOM;
 
+using Microsoft.Foundation.Attachment;
 using Microsoft.Manufacturing.Comment;
 using Microsoft.Manufacturing.Reports;
 
@@ -74,6 +75,14 @@ page 99000787 "Production BOM List"
         }
         area(factboxes)
         {
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Attachments';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::"Production BOM Header"),
+                              "No." = field("No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -116,11 +125,16 @@ page 99000787 "Production BOM List"
                     RunPageLink = "Production BOM No." = field("No.");
                     ToolTip = 'View any alternate versions of the production BOM.';
                 }
+#if not CLEAN26
                 action("Ma&trix per Version")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Ma&trix per Version';
                     Image = ProdBOMMatrixPerVersion;
+                    ObsoleteReason = 'Replaced by "Prod. BOM Version Comparison"';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+                    Visible = false;
                     ToolTip = 'View a list of all versions and items and the used quantity per item of a production BOM. You can use the matrix to compare different production BOM versions concerning the used items per version.';
 
                     trigger OnAction()
@@ -130,6 +144,23 @@ page 99000787 "Production BOM List"
                         BOMMatrixForm.Set(Rec);
 
                         BOMMatrixForm.Run();
+                    end;
+                }
+#endif
+                action("Prod. BOM Version Comparison")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Production BOM Version Comparison';
+                    Image = ProdBOMMatrixPerVersion;
+                    ToolTip = 'View a list of all versions and items and the used quantity per item of a production BOM. You can use the matrix to compare different production BOM versions concerning the used items per version.';
+
+                    trigger OnAction()
+                    var
+                        ProdBOMVersionComparison: Page "Prod. BOM Version Comparison";
+                    begin
+                        ProdBOMVersionComparison.Set(Rec);
+
+                        ProdBOMVersionComparison.Run();
                     end;
                 }
                 action("Where-used")
@@ -144,6 +175,23 @@ page 99000787 "Production BOM List"
                         ProdBOMWhereUsed.SetProdBOM(Rec, WorkDate());
 
                         ProdBOMWhereUsed.Run();
+                    end;
+                }
+                action(DocAttach)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -213,7 +261,16 @@ page 99000787 "Production BOM List"
             {
                 Caption = 'Prod. BOM';
 
+#if not CLEAN26
                 actionref("Ma&trix per Version_Promoted"; "Ma&trix per Version")
+                {
+                    ObsoleteReason = 'Replaced by "Prod. BOM Version Comparison"';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+                    Visible = false;
+                }
+#endif
+                actionref("Prod. BOM Version Comparison_Promoted"; "Prod. BOM Version Comparison")
                 {
                 }
                 actionref("Co&mments_Promoted"; "Co&mments")
@@ -223,6 +280,9 @@ page 99000787 "Production BOM List"
                 {
                 }
                 actionref("Where-used_Promoted"; "Where-used")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
             }
