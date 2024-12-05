@@ -12,6 +12,8 @@ table 1108 "Cost Accounting Setup"
 {
     Caption = 'Cost Accounting Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Cost Accounting Setup";
+    LookupPageID = "Cost Accounting Setup";
 
     fields
     {

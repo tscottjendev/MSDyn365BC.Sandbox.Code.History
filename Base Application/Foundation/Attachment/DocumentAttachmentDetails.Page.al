@@ -5,6 +5,7 @@
 namespace Microsoft.Foundation.Attachment;
 
 using Microsoft.CRM.Outlook;
+using Microsoft.Manufacturing.Document;
 using System.Integration;
 using System.IO;
 using System.Utilities;
@@ -97,6 +98,14 @@ page 1173 "Document Attachment Details"
                     Editable = FlowFieldsEditable;
                     ToolTip = 'Specifies if the attachment must flow to transactions.';
                     Visible = ServiceDocumentFlow;
+                }
+                field("Document Flow Production"; Rec."Document Flow Production")
+                {
+                    ApplicationArea = All;
+                    CaptionClass = GetCaptionClass(21);
+                    Editable = FlowFieldsEditable;
+                    ToolTip = 'Specifies if the attachment must flow to transactions.';
+                    Visible = ProductionDocumentFlow;
                 }
             }
         }
@@ -286,7 +295,7 @@ page 1173 "Document Attachment Details"
         FilterTxt: Label '*.jpg;*.jpeg;*.bmp;*.png;*.gif;*.tiff;*.tif;*.pdf;*.docx;*.doc;*.xlsx;*.xls;*.pptx;*.ppt;*.msg;*.xml;*.*', Locked = true;
         ImportTxt: Label 'Attach a document.';
         SelectFileTxt: Label 'Attach a file';
-        PurchaseDocumentFlow: Boolean;
+        PurchaseDocumentFlow, ProductionDocumentFlow : Boolean;
         ShareOptionsVisible: Boolean;
         ShareEditOptionVisible: Boolean;
         DownloadEnabled: Boolean;
@@ -297,6 +306,7 @@ page 1173 "Document Attachment Details"
         FlowToPurchTxt: Label 'Flow to Purch. Trx';
         FlowToSalesTxt: Label 'Flow to Sales Trx';
         FlowToServiceTxt: Label 'Flow to Service Trx';
+        FlowToProductionTxt: Label 'Flow to Production Trx';
         MenuOptionsTxt: Label 'Attach from email,Upload file', Comment = 'Comma seperated phrases must be translated seperately.';
         SelectInstructionTxt: Label 'Choose the files to attach.';
 
@@ -323,20 +333,20 @@ page 1173 "Document Attachment Details"
 
     local procedure GetCaptionClass(FieldNo: Integer): Text
     begin
-        if SalesDocumentFlow and PurchaseDocumentFlow and ServiceDocumentFlow then
-            case FieldNo of
-                9:
-                    exit(FlowToPurchTxt);
-                11:
-                    exit(FlowToSalesTxt);
-                13:
-                    exit(FlowToServiceTxt);
-            end;
+        if SalesDocumentFlow and (FieldNo = 11) then
+            exit(FlowToSalesTxt);
+        if PurchaseDocumentFlow and (FieldNo = 9) then
+            exit(FlowToPurchTxt);
+        if ServiceDocumentFlow and (FieldNo = 13) then
+            exit(FlowToServiceTxt);
+        if ProductionDocumentFlow and (FieldNo = 21) then
+            exit(FlowToProductionTxt);
     end;
 
     procedure OpenForRecRef(RecRef: RecordRef)
     var
         DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
+        ProdDocumentAttachmentMgmt: Codeunit "Prod. Document Attachment Mgt.";
     begin
         Rec.Reset();
 
@@ -345,6 +355,7 @@ page 1173 "Document Attachment Details"
         SalesDocumentFlow := DocumentAttachmentMgmt.IsSalesDocumentFlow(RecRef.Number);
         PurchaseDocumentFlow := DocumentAttachmentMgmt.IsPurchaseDocumentFlow(RecRef.Number);
         ServiceDocumentFlow := DocumentAttachmentMgmt.IsServiceDocumentFlow(RecRef.Number);
+        ProductionDocumentFlow := ProdDocumentAttachmentMgmt.IsProductionDocumentFlow(RecRef.Number);
         FlowFieldsEditable := DocumentAttachmentMgmt.IsFlowFieldsEditable(RecRef.Number);
 
         DocumentAttachmentMgmt.SetDocumentAttachmentFiltersForRecRefInternal(Rec, RecRef, false);
