@@ -5,6 +5,7 @@
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
@@ -501,6 +502,23 @@ page 99000832 "Released Prod. Order Lines"
                     trigger OnAction()
                     begin
                         ShowComponents();
+                    end;
+                }
+                action(DocAttach)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 action(ItemTrackingLines)
