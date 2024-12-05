@@ -15,6 +15,8 @@ table 5605 "FA Journal Setup"
 {
     Caption = 'FA Journal Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "FA Journal Setup";
+    LookupPageID = "FA Journal Setup";
 
     fields
     {

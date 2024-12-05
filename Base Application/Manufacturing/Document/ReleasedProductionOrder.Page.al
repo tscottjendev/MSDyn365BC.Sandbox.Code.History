@@ -5,6 +5,7 @@
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Requisition;
@@ -233,6 +234,15 @@ page 99000831 "Released Production Order"
                 ApplicationArea = Notes;
                 Visible = true;
             }
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Attachments';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::"Production Order"),
+                              "Document Type" = const("Released Production Order"),
+                              "No." = field("No.");
+            }
         }
     }
 
@@ -356,6 +366,23 @@ page 99000831 "Released Production Order"
                     RunPageLink = Status = field(Status),
                                   "Prod. Order No." = field("No.");
                     ToolTip = 'View or add comments for the record.';
+                }
+                action(DocAttach)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
                 }
                 action("Put-away/Pick Lines/Movement Lines")
                 {
@@ -669,6 +696,9 @@ page 99000831 "Released Production Order"
                 {
                 }
                 actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
             }

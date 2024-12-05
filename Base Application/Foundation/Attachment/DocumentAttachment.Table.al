@@ -174,6 +174,17 @@ table 1173 "Document Attachment"
                     Error(NoDocumentAttachedErr);
             end;
         }
+        field(21; "Document Flow Production"; Boolean)
+        {
+            Caption = 'Flow to Production Trx';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if not HasContent() then
+                    Error(NoDocumentAttachedErr);
+            end;
+        }
     }
 
     keys
