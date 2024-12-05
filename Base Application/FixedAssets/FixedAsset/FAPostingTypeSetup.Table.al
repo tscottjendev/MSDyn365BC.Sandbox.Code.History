@@ -10,6 +10,8 @@ table 5604 "FA Posting Type Setup"
 {
     Caption = 'FA Posting Type Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "FA Posting Type Setup";
+    LookupPageID = "FA Posting Type Setup";
 
     fields
     {
