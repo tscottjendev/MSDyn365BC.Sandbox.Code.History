@@ -133,7 +133,7 @@ report 7304 "Get Outbound Source Documents"
                         if ("Flushing Method" = "Flushing Method"::"Pick + Forward") and ("Routing Link Code" = '') then
                             CurrReport.Skip();
 
-                        GetLocation("Location Code");
+                        this.GetLocation("Location Code");
                         ToBinCode := "Bin Code";
 
                         CalcFields("Pick Qty.");
