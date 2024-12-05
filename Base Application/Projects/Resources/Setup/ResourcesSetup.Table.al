@@ -7,6 +7,8 @@ table 314 "Resources Setup"
 {
     Caption = 'Resources Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Resources Setup";
+    LookupPageID = "Resources Setup";
 
     fields
     {

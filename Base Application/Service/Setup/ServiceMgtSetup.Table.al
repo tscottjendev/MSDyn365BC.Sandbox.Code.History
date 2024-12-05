@@ -18,8 +18,9 @@ using Microsoft.Utilities;
 table 5911 "Service Mgt. Setup"
 {
     Caption = 'Service Mgt. Setup';
-    DrillDownPageID = "Service Mgt. Setup";
     DataClassification = CustomerContent;
+    DrillDownPageID = "Service Mgt. Setup";
+    LookupPageID = "Service Mgt. Setup";
 
     fields
     {
