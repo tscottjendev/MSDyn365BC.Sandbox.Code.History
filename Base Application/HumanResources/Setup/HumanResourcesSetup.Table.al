@@ -7,6 +7,8 @@ table 5218 "Human Resources Setup"
 {
     Caption = 'Human Resources Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Human Resources Setup";
+    LookupPageID = "Human Resources Setup";
 
     fields
     {
