@@ -86,3 +86,4 @@ table 905 "Assembly Setup"
     {
     }
 }
+

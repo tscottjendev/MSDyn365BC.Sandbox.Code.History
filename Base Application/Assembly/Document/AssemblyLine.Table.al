@@ -2268,3 +2268,4 @@ table 901 "Assembly Line"
     begin
     end;
 }
+
