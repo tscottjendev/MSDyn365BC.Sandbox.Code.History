@@ -23,6 +23,8 @@ using System.Globalization;
 table 313 "Inventory Setup"
 {
     Caption = 'Inventory Setup';
+    DrillDownPageID = "Inventory Setup";
+    LookupPageID = "Inventory Setup";
     Permissions = TableData "Inventory Adjmt. Entry (Order)" = m;
     DataClassification = CustomerContent;
 

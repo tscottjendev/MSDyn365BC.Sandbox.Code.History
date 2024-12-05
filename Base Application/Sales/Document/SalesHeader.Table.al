@@ -583,7 +583,6 @@ table 36 "Sales Header"
 
             trigger OnValidate()
             var
-                SalesReceivablesSetup: Record "Sales & Receivables Setup";
                 IsHandled: Boolean;
                 NeedUpdateCurrencyFactor: Boolean;
             begin
@@ -604,16 +603,7 @@ table 36 "Sales Header"
                   FieldCaption("Prepmt. Cr. Memo No."), FieldCaption("Prepmt. Cr. Memo No. Series"));
 
                 UpdateVATReportingDate(FieldNo("Posting Date"));
-
-                IsHandled := false;
-                OnValidatePostingDateOnBeforeAssignDocumentDate(Rec, IsHandled);
-
-                SalesReceivablesSetup.SetLoadFields("Link Doc. Date To Posting Date");
-                SalesReceivablesSetup.GetRecordOnce();
-
-                if not IsHandled then
-                    if ("Incoming Document Entry No." = 0) and SalesReceivablesSetup."Link Doc. Date To Posting Date" then
-                        Validate("Document Date", "Posting Date");
+                UpdateDocumentDateFromLinkedPostingDate(true);
 
                 if ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) and
                    not ("Posting Date" = xRec."Posting Date")
@@ -3469,7 +3459,9 @@ table 36 "Sales Header"
         NewOrderDate := WorkDate();
         OnInitRecordOnBeforeAssignOrderDate(Rec, NewOrderDate);
         "Order Date" := NewOrderDate;
-        "Document Date" := WorkDate();
+        UpdateDocumentDateFromLinkedPostingDate(false);
+        if Rec."Document Date" = 0D then
+            "Document Date" := WorkDate();
         if "Document Type" = "Document Type"::Quote then
             CalcQuoteValidUntilDate();
 
@@ -9335,6 +9327,23 @@ table 36 "Sales Header"
         ContactBusinessRelation.SetRange("Contact No.", ContactNo);
         ContactBusinessRelation.SetRange(ContactBusinessRelation."Link to Table", ContactBusinessRelationLinkType);
         exit(ContactBusinessRelation.IsEmpty());
+    end;
+
+    local procedure UpdateDocumentDateFromLinkedPostingDate(WithValidate: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        OnValidatePostingDateOnBeforeAssignDocumentDate(Rec, IsHandled);
+        if IsHandled then
+            exit;
+        if Rec."Incoming Document Entry No." <> 0 then
+            exit;
+        GetSalesSetup();
+        if SalesSetup."Link Doc. Date To Posting Date" then
+            if WithValidate then
+                Rec.Validate("Document Date", Rec."Posting Date")
+            else
+                Rec."Document Date" := Rec."Posting Date";
     end;
 
     [IntegrationEvent(false, false)]
