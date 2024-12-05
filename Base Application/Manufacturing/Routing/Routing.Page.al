@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Routing;
 
+using Microsoft.Foundation.Attachment;
 using Microsoft.Manufacturing.Comment;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Reports;
@@ -104,6 +105,14 @@ page 99000766 Routing
                 ApplicationArea = Notes;
                 Visible = true;
             }
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Attachments';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::"Routing Header"),
+                              "No." = field("No.");
+            }
         }
     }
 
@@ -143,6 +152,23 @@ page 99000766 Routing
                     RunPageLink = "Routing No." = field("No.");
                     RunPageView = sorting("Routing No.");
                     ToolTip = 'View a list of BOMs in which the item is used.';
+                }
+                action(DocAttach)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
                 }
             }
         }
@@ -197,6 +223,9 @@ page 99000766 Routing
                 {
                 }
                 actionref("Where-used_Promoted"; "Where-used")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
             }

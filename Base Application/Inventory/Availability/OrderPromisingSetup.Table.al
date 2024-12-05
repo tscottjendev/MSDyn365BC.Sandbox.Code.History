@@ -11,6 +11,8 @@ table 99000875 "Order Promising Setup"
 {
     Caption = 'Order Promising Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Order Promising Setup";
+    LookupPageID = "Order Promising Setup";
 
     fields
     {
