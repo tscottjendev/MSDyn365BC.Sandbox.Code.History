@@ -30,7 +30,10 @@ codeunit 148195 "M365 Int. Test Impl." implements IDocumentReceiver, IDocumentSe
     end;
 
     procedure MarkFetched(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; var DocumentBlob: Codeunit "Temp Blob"; ReceiveContext: Codeunit ReceiveContext)
+    var
+        Assert: Codeunit Assert;
     begin
+        Assert.AreNotEqual(EDocument."Document Id", '', 'Document Id must have a value when MarkFetched is called');
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"E-Document Service", OnBeforeOpenServiceIntegrationSetupPage, '', false, false)]

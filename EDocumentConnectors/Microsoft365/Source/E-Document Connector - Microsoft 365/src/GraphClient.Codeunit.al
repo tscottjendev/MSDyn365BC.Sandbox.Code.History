@@ -103,13 +103,15 @@ codeunit 6384 "Graph Client"
         ErrorMessage: Text;
         ErrorDetails: Text;
         ItemUrl: Text;
+        BodyTxt: Text;
         HttpStatusCode: DotNet HttpStatusCode;
         ResponseHeaders: DotNet NameValueCollection;
     begin
         ItemUrl := GetGraphItemByIdUrl(SiteId, ItemId);
-
+        BodyTxt := '{ "parentReference": { "id": "' + NewFolderId + '" } }';
         InitializeWebRequest(ItemUrl, 'PATCH', '', HttpWebRequestMgt);
-        HttpWebRequestMgt.AddBodyAsText('{ "parentReference": { "id": "' + NewFolderId + '" } }');
+        HttpWebRequestMgt.SetContentType('application/json');
+        HttpWebRequestMgt.AddBodyAsText(BodyTxt);
         if not HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseBody, ErrorMessage, ErrorDetails, HttpStatusCode, ResponseHeaders) then begin
             Session.LogMessage('0000N7U', StrSubstNo(GraphStatusCodeTelemetryMsg, HttpStatusCode), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryLbl);
 
