@@ -1885,7 +1885,9 @@ codeunit 137065 "SCM Reservation II"
         VerifyItemLedgerEntriesForCostAmountActual(Item."No.");
     end;
 
+#if not CLEAN26
     [Test]
+    [Obsolete('Matrix per Version is removed', '26.0')]
     [HandlerFunctions('ProdBOMMatrixPerVersionHandler,ShowMatrixHandler')]
     [Scope('OnPrem')]
     procedure ShowMatrixWithMaxLengthOfDescription()
@@ -1907,6 +1909,7 @@ codeunit 137065 "SCM Reservation II"
 
         // Verify: Verify the Item No. through ShowMatrixHandler.
     end;
+#endif
 
     [Test]
     [HandlerFunctions('WhereUsedHandler')]

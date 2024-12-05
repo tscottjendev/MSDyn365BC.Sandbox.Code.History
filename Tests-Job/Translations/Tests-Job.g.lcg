@@ -2066,6 +2066,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Ship-to City field caption, %2 = Expected city value]D;]A;(LookupHint=Codeunit UT T Job - NamedType ShipToCityNotMatchedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3438364934 - NamedType 3152294443" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Status, %2 = Completed, %3 = Job]D;]A;(LookupHint=Codeunit UT T Job - NamedType StatusErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3438364934 - NamedType 893890369" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You have changed %1 on the project, but it has not been changed on the existing project tasks.]]></Val>

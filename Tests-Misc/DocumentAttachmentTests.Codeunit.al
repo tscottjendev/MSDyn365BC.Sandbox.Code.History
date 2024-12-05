@@ -26,6 +26,7 @@ codeunit 134776 "Document Attachment Tests"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         ReportSelectionUsage: Enum "Report Selection Usage";
         RecallNotifications: Boolean;
         NoContentErr: Label 'The selected file ''%1'' has no content. Please choose another file.', Comment = '%1=FileName';
@@ -37,6 +38,12 @@ codeunit 134776 "Document Attachment Tests"
         DeleteAttachmentsConfirmQst: Label 'Do you want to delete the attachments for this document?';
         ConfirmOpeningNewOrderAfterQuoteToOrderQst: Label 'Do you want to open the new order?';
         AttachedDateInvalidErr: Label 'Attached date is invalid';
+        AttachmentNotdeletedErr: Label 'Attachment is not deleted';
+        OpenInDetailNotEnabledErr: Label 'OpenInDetail button must be enabled in FactBox %1 of page %2', Comment = '%1=FactBox PageName, %2= PageName';
+        ExpectedFieldNotVisibleErr: Label 'Expected field %1 is not visible in %2', Comment = '%1=FieldName, %2=PageName';
+        ExpectedFieldNotEditableErr: Label 'Expected field %1 is not editable in %2', Comment = '%1=FieldName, %2=PageName';
+        UnexpectedFieldVisibleErr: Label 'Unexpected field visible! %1', Comment = '%1=FieldName';
+        AttachmentFileNameLbl: Label '%1.jpeg', Comment = '%1=File Name';
         FirstAttachmentFileNameMismatchErr: Label 'First file name not equal to saved attachment.';
         FlowPurchaseValueForFirstAttachmentMismatchErr: Label 'Flow purchase value not equal for first attachment.';
         FlowPurchaseValueForSecondAttachmentMismatchErr: Label 'Flow purchase value not equal for second attachment.';
@@ -3639,7 +3646,7 @@ codeunit 134776 "Document Attachment Tests"
         Assert.AreEqual('Cust2', CustomerTestPage."Attached Documents List".Name.Value, 'Unexpected file name');
         Assert.AreEqual('jpeg', CustomerTestPage."Attached Documents List"."File Extension".Value, 'Unexpected file extension');
     end;
-    
+
     [Test]
     procedure EnsureUploadMultipleFileBasicFunctionInServiceItem()
     var
@@ -3701,6 +3708,425 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] No content error is thrown.       
         asserterror DocAttachment.ImportFromStream(InStr, 'Test.txt');
         Assert.ExpectedError(StrSubstNo(NoContentErr, 'Test.txt'));
+    end;
+
+    [Test]
+    [HandlerFunctions('ListProductionFlow')]
+    [Scope('OnPrem')]
+    procedure TestDocAttachPageInRoutingHeader()
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingPage: TestPage Routing;
+    begin
+        // [SENARIO 321915] Verify that only the "Flow to Production Trx" toggle field should be visible on the document attachment page in Routing. i.e., "Flow to Sales," "Flow to Purchase," and "Flow to service" should be hidden.
+        Initialize();
+
+        // [GIVEN] Create a Routing Header.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        // [GIVEN] Open the Routing Page and get the Routing Header.
+        RoutingPage.OpenView();
+        RoutingPage.GoToRecord(RoutingHeader);
+
+        // [WHEN] Execute the Attachment action of routing page.
+        RoutingPage.DocAttach.Invoke();
+
+        // [THEN] Verify that only the "Flow to Production Trx" toggle field is visible on the attachment page using the handler "ListProductionFlow".
+
+        // [WHEN] Execute the OpenIndetail action in the factbox.
+        Assert.IsTrue(RoutingPage."Attached Documents List".OpenInDetail.Enabled(), StrSubstNo(OpenInDetailNotEnabledErr, RoutingPage."Attached Documents List".Caption, RoutingPage.Caption));
+        RoutingPage."Attached Documents List".OpenInDetail.Invoke();
+
+        // [THEN] Verify that only the "Flow to Production Trx" toggle field is visible on the attachment page using the handler "ListProductionFlow".
+        RoutingPage.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ListProductionFlow')]
+    [Scope('OnPrem')]
+    procedure TestDocAttachPageInProductionBOMHeader()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMPage: TestPage "Production BOM";
+    begin
+        // [SENARIO 321915] Verify that only the "Flow to Production Trx" toggle field should be visible on the document attachment page in Production BOM.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and certify a Production BOM.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+
+        // [GIVEN] Open Production BOM Page.
+        ProductionBOMPage.OpenView();
+
+        // [WHEN] Execute the Attachment action in the Production BOM page.
+        ProductionBOMPage.DocAttach.Invoke();
+
+        // [THEN] Verify that only the "Flow to Production Trx" toggle field is visible on the attachment page using the handler "ListProductionFlow".
+
+        // [WHEN] Execute the OpenIndetail action in the factbox.
+        Assert.IsTrue(ProductionBOMPage."Attached Documents List".OpenInDetail.Enabled(), StrSubstNo(OpenInDetailNotEnabledErr, ProductionBOMPage."Attached Documents List".Caption, ProductionBOMPage.Caption));
+        ProductionBOMPage."Attached Documents List".OpenInDetail.Invoke();
+
+        // [THEN] Verify that only the "Flow to Production Trx" toggle field is visible on the attachment page using the handler "ListProductionFlow".
+        ProductionBOMPage.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ListProductionFlow,ProductionConfirmHandlerReplyTRUE')]
+    [Scope('OnPrem')]
+    procedure TestDocAttachPageInProductionOrders()
+    var
+        Item: Record Item;
+        ProductionOrder: array[4] of Record "Production Order";
+        ProdOrderLine: array[4] of Record "Prod. Order Line";
+    begin
+        // [SENARIO 321915] Verify that only the "Flow to Production Trx" toggle field should be visible while accessing document attachment page from the action, subform's action and factbox of Production Orders (Planned, Firm-planned, Released and Finished).
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Create Planned, Firm-planned, Released and Finished Production Order.
+        CreateArrayOfProductionorders(ProductionOrder, ProdOrderLine, Item."No.");
+
+        // [THEN] Verify that only the "Flow to Production Trx" toggle field is visible on the attachment page using the handler "ListProductionFlow".
+        TestAttachmentPageOfProductionOrder(ProductionOrder);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyAttachmentFlowToProdOrderLineFromItem()
+    var
+        Item: array[2] of Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        RecRef: RecordRef;
+    begin
+        // [SENARIO 321915] Verify that all the attachments of Item with "Flow to Production Trx" enabled will flow to Prod. Order Line when selecting that item in the Prod. Order Line.
+        Initialize();
+
+        // [GIVEN] Create an Item with three attachments. Among three two has "Flow to Production Trx" enabled.
+        LibraryInventory.CreateItem(Item[1]);
+        RecRef.GetTable(Item[1]);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), false);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+
+        // [GIVEN] Create another Item with three attachments while only one has "Flow to Production Trx" enabled.
+        LibraryInventory.CreateItem(Item[2]);
+        RecRef.GetTable(Item[2]);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), false);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), false);
+
+        // [WHEN] Create a Planned Production Order using first Item.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Planned, Item[1]."No.", LibraryRandom.RandInt(10));
+
+        // [THEN] Verify that the Prod. Order Line has two attachments with "Flow to Production Trx" enabled from first item.
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+        VerifyDocumentAttachmentCounts(ProdOrderLine, 2, true);
+
+        // [WHEN] Changing "Item No." in Prod. Order Line with the second item.
+        ProdOrderLine.Validate("Item No.", Item[2]."No.");
+        ProdOrderLine.Modify(true);
+
+        // [THEN] Verify that the Prod. Order Line has one attachment from second item.
+        VerifyDocumentAttachmentCounts(ProdOrderLine, 1, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyAttachmentFlowToProdOrderLineFromRoutingHeader()
+    var
+        Item: Record Item;
+        RoutingHeader: array[2] of Record "Routing Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        RecRef: RecordRef;
+    begin
+        // [SENARIO 321915] Verify that attachments with "Flow to Production Trx" enabled will flow from Routing to Prod. Order Line on selecting "Routing No." in the Prod. Order Line.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Routing Header.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader[1], RoutingHeader[1].Type::Serial);
+
+        // [GIVEN] Change status of Routing Header to certified.
+        ChangeStatusOfProductionRoutingHeader(RoutingHeader[1], RoutingHeader[1].Status::Certified);
+
+        // [GIVEN] Create three attachments for Routing Header. Among three attachments, two has "Flow to Production Trx" enabled.
+        RecRef.GetTable(RoutingHeader[1]);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), false);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+
+        // [GIVEN] Create another Routing Header.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader[2], RoutingHeader[2].Type::Serial);
+
+        // [GIVEN] Change status of second Routing Header to certified.
+        ChangeStatusOfProductionRoutingHeader(RoutingHeader[2], RoutingHeader[2].Status::Certified);
+
+        // [GIVEN] Create three attachments for second Routing Header. Among three only one has "Flow to Production Trx" enabled.
+        RecRef.GetTable(RoutingHeader[2]);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), false);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), false);
+
+        // [GIVEN] Create and refresh planned Production order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Planned, Item."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Get the Prod. order line.
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+
+        // [WHEN] Assigning "Routing No." in Prod. Order Line.
+        ProdOrderLine.Validate("Routing No.", RoutingHeader[1]."No.");
+        ProdOrderLine.Modify(true);
+
+        // [THEN] Verify that the Prod. Order Line has two attachments with "Flow to Production Trx" enabled from the first Routing Header.
+        VerifyDocumentAttachmentCounts(ProdOrderLine, 2, true);
+
+        // [WHEN] Changing "Routing No." Field value with the secound Routing Header's "No.".
+        ProdOrderLine.Validate("Routing No.", RoutingHeader[2]."No.");
+        ProdOrderLine.Modify(true);
+
+        // [THEN] Verify that the Prod Order Line has only one attachment from second Routing Header. All the attachment related to previous "Routing No." must be deleted.
+        VerifyDocumentAttachmentCounts(ProdOrderLine, 1, true);
+
+        // [WHEN] Clearing "Routing No." Field value.
+        ProdOrderLine.Validate("Routing No.", '');
+        ProdOrderLine.Modify(true);
+
+        // [THEN] Verify that the Prod. Order line has no attachments.
+        VerifyDocumentAttachmentCounts(ProdOrderLine, 0, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyAttachmentFlowToProdOrderLineFromProdBOMHeader()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdBOMHeader: array[2] of Record "Production BOM Header";
+        RecRef: RecordRef;
+    begin
+        // [SENARIO 321915] Attachments with "Flow to Production Trx" enabled in Production BOM Header should flow to Prod. Order Line on assigning "Production BOM No."
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and certify a Production BOM.
+        CreateAndCertifyProductionBOM(ProdBOMHeader[1], Item."No.", Item."Base Unit of Measure");
+
+        // [GIVEN] Create three Document Attachments for Production BOM. Among three two attachments has "Flow to Production Trx" enabled.
+        RecRef.GetTable(ProdBOMHeader[1]);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), false);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+
+        // [GIVEN] Create and certify another Production BOM.
+        CreateAndCertifyProductionBOM(ProdBOMHeader[2], Item."No.", Item."Base Unit of Measure");
+
+        // [GIVEN] Create three Document Attachments for Production BOM. Among three only one attachment has "Flow to Production Trx" enabled.
+        RecRef.GetTable(ProdBOMHeader[2]);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), false);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), false);
+
+        // [GIVEN] Create and refresh the planned Production order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Planned, Item."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Get the Prod. order line.
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+
+        // [WHEN] Assigning "Production BOM No." in Prod. Order Line.
+        ProdOrderLine.Validate("Production BOM No.", ProdBOMHeader[1]."No.");
+        ProdOrderLine.Modify(true);
+
+        // [THEN] Verify that the Prod. Order Line has two attachments with "Flow to Production Trx" enabled from the first Production BOM Header.
+        VerifyDocumentAttachmentCounts(ProdOrderLine, 2, true);
+
+        // [WHEN] Changing "Production BOM No." Field value with secound Production BOM Header's "No.".
+        ProdOrderLine.Validate("Production BOM No.", ProdBOMHeader[2]."No.");
+        ProdOrderLine.Modify(true);
+
+        // [THEN] Verify that the Prod Order Line has only one attachment from the second Production BOM Header. And all the attachments related to previous "Production BOM No." are deleted.
+        VerifyDocumentAttachmentCounts(ProdOrderLine, 1, true);
+
+        // [WHEN] Clearing "Production BOM No." Field value.
+        ProdOrderLine.Validate("Production BOM No.", '');
+        ProdOrderLine.Modify(true);
+
+        // [THEN] Verify that the Prod. Order line has no attachments.
+        VerifyDocumentAttachmentCounts(ProdOrderLine, 0, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ProductionConfirmHandlerReplyTRUE')]
+    procedure VerifyAttachmentWillFlowOnProductionOrderWhenStatusIsChanged()
+    var
+        Item: Record Item;
+        ProductionOrder: array[4] of Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        RecRef: RecordRef;
+        AttachmentCounts: array[2] of Integer;
+    begin
+        // [SENARIO 321915] Verify attachment flow on Production Order Status update. Planned to Firm-planned, Firm-planned to Released and Released to Finished.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create another item.
+        RecRef.GetTable(Item);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+
+        // [GIVEN] Create and refresh planned Production order.
+        CreateAndRefreshProductionOrder(ProductionOrder[1], ProductionOrder[1].Status::Planned, Item."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create an attachments for Production Order.
+        RecRef.GetTable(ProductionOrder[1]);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+
+        // [GIVEN] Get the Prod. order line.
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder[1].Status, ProductionOrder[1]."No.");
+
+        // [GIVEN] Create an attachments for Prod. Order Line.
+        RecRef.GetTable(ProdOrderLine);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+
+        // [GIVEN] Production Order has one attachment and "Prod. Order Line" has two attachments.
+        AttachmentCounts[1] := 1;
+        AttachmentCounts[2] := 2;
+
+        // [WHEN] Change the status of the order from "Planned" to "Firm Planned".
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder[1], ProductionOrder[1].Status::"Firm Planned", WorkDate(), false);
+
+        // [THEN] Verify that the Firm planned Production Order should have a total three attachments. Header will have one and line will have two.
+        FindAndVerifyDocAttachOnAfterProductionStatusChange(ProductionOrder[1].Status::"Firm Planned", Item."No.", AttachmentCounts);
+
+        // [GIVEN] Get the newly updated Firm Planned Production Order.
+        FindProductionOrder(ProductionOrder[2], ProductionOrder[2].Status::"Firm Planned", Item."No.");
+
+        // [WHEN] Change the status of Firm-Planned Production Order to Released.
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder[2], ProductionOrder[2].Status::Released, WorkDate(), false);
+
+        // [THEN] Verify that the Released Production Order should have a total three attachments. Header will have one and line will have two.
+        FindAndVerifyDocAttachOnAfterProductionStatusChange(ProductionOrder[2].Status::Released, Item."No.", AttachmentCounts);
+
+        // [GIVEN] Get the newly updated Released Production Order.
+        FindProductionOrder(ProductionOrder[3], ProductionOrder[3].Status::Released, Item."No.");
+
+        // [WHEN] Change the status of the Production Order from Released to Finished.
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder[3], ProductionOrder[3].Status::Finished, WorkDate(), false);
+
+        // [THEN] Verify that the Finished Production Order should have a total three attachments. Header will have one and line will have two.
+        FindAndVerifyDocAttachOnAfterProductionStatusChange(ProductionOrder[3].Status::Finished, Item."No.", AttachmentCounts);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyAttachmentGetsDeletedWhenProductionOrderIsDeleted()
+    var
+        Item: Record Item;
+        RoutingHeader: Record "Routing Header";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionOrder: Record "Production Order";
+        ProdBOMHeader: Record "Production BOM Header";
+        RecRef: RecordRef;
+        DocNo: array[5] of Code[20];
+        LineNo: Integer;
+    begin
+        // [SENARIO 321915] Attachment should be deleted on deleting the "Production Order", "Prod. Order Line", "Production BOM Header", Item and "Routing Header".
+        Initialize();
+
+        // [GIVEN] Create an Item with three attachments. Among three two has "Flow to Production Trx" enabled.
+        LibraryInventory.CreateItem(Item);
+        RecRef.GetTable(Item);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), false);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+
+        // [GIVEN] Create and certify a Routing Header.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        ChangeStatusOfProductionRoutingHeader(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Create three attachments for Routing Header. Among three attachments, two has "Flow to Production Trx" enabled.
+        RecRef.GetTable(RoutingHeader);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), false);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+
+        // [GIVEN] Create and certify a Production BOM.
+        CreateAndCertifyProductionBOM(ProdBOMHeader, Item."No.", Item."Base Unit of Measure");
+
+        // [GIVEN] Create three Document Attachments for Production BOM. Among three two attachments has "Flow to Production Trx" enabled.
+        RecRef.GetTable(ProdBOMHeader);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), false);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+
+        // [GIVEN] Create and refresh planned Production order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Planned, Item."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create a Document Attachments for Production Order.
+        RecRef.GetTable(ProductionOrder);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+
+        // [GIVEN] Get the Prod. order line.
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+
+        // [GIVEN] Create a Document Attachments for Prod. Order Line.
+        RecRef.GetTable(ProdOrderLine);
+        CreateDocAttachProductionImageType(RecRef, StrSubstNo(AttachmentFileNameLbl, LibraryRandom.RandText(5)), true);
+
+        // [GIVEN] Get the key value of records before deletion.
+        DocNo[1] := item."No.";
+        DocNo[2] := RoutingHeader."No.";
+        DocNo[3] := ProdBOMHeader."No.";
+        DocNo[4] := ProdBOMHeader."No.";
+        LineNo := ProdOrderLine."Line No.";
+
+        // [WHEN] Deleting the Production Order.
+        ProductionOrder.Delete(true);
+
+        // [THEN] Verify that there should be no attachments for the Production Order.
+        Assert.AreEqual(false, CheckIfDocAttachExist(Database::"Production Order", DocNo[4], 0), AttachmentNotdeletedErr);
+        Assert.AreEqual(false, CheckIfDocAttachExist(Database::"Prod. Order Line", DocNo[4], LineNo), AttachmentNotdeletedErr);
+
+        // [GIVEN] Uncertify Production BOM.
+        ProdBOMHeader.Status := ProdBOMHeader.Status::New;
+        ProdBOMHeader.Modify(true);
+
+        // [GIVEN] Uncertify Routing Header.
+        RoutingHeader.Status := RoutingHeader.Status::New;
+        RoutingHeader.Modify(true);
+
+        // [WHEN] Deleting the item.
+        Item.Delete(true);
+
+        // [THEN] Verify that there should be no attachments for the Item.
+        Assert.AreEqual(false, CheckIfDocAttachExist(Database::Item, DocNo[1], 0), AttachmentNotdeletedErr);
+
+        // [WHEN] Deleting Production BOM Header.
+        ProdBOMHeader.Delete(true);
+
+        // [THEN] VVerify that there are no attachments for the Production BOM Header.
+        Assert.AreEqual(false, CheckIfDocAttachExist(Database::"Production BOM Header", DocNo[3], 0), AttachmentNotdeletedErr);
+
+        // [WHEN] Deleting the Routing Header.
+        RoutingHeader.Delete(true);
+
+        // [THEN] Verify that there are no attachments for the Routing Header.
+        Assert.AreEqual(false, CheckIfDocAttachExist(Database::"Routing Header", DocNo[2], 0), AttachmentNotdeletedErr);
     end;
 
     local procedure Initialize()
@@ -4058,6 +4484,246 @@ codeunit 134776 "Document Attachment Tests"
         ServiceContractTemplate.Insert(true);
     end;
 
+    local procedure CreateArrayOfProductionorders(var ProductionOrder: array[4] of Record "Production Order"; var ProdOrderLine: array[4] of record "Prod. Order Line"; ItemNo: Code[20])
+    var
+        Status: enum "Production Order Status";
+        i: Integer;
+    begin
+        for i := 1 to 4 do begin
+            case i of
+                1:
+                    Status := Status::Planned;
+                2:
+                    Status := Status::"Firm Planned";
+                3:
+                    Status := Status::Released;
+                4:
+                    Status := Status::Finished;
+            end;
+            if Status <> Status::Finished then begin
+                CreateAndRefreshProductionOrder(ProductionOrder[i], Status, ItemNo, LibraryRandom.RandInt(10));
+                FindProductionOrderLine(ProdOrderLine[i], Status, ProductionOrder[i]."No.");
+            end else begin
+                CreateAndFindFinishedProdOrder(ProductionOrder[i], ItemNo);
+                FindProductionOrderLine(ProdOrderLine[i], Status, ProductionOrder[i]."No.");
+            end;
+        end;
+    end;
+
+    local procedure TestAttachmentPageOfProductionOrder(ProdOrder: array[4] of Record "Production Order")
+    var
+        PlannedProductionOrderPage: TestPage "Planned Production Order";
+        FirmPlannedProductionOrderPage: TestPage "Firm Planned Prod. Order";
+        ReleasedProductionOrderPage: TestPage "Released Production Order";
+        FinishedProductionOrderPage: TestPage "Finished Production Order";
+        i: Integer;
+    begin
+        for i := 1 to 4 do
+            case ProdOrder[i].Status of
+                ProdOrder[i].Status::Planned:
+                    begin
+                        PlannedProductionOrderPage.OpenView();
+                        PlannedProductionOrderPage.GoToRecord(ProdOrder[i]);
+                        PlannedProductionOrderPage.DocAttach.Invoke();
+
+                        Assert.IsTrue(PlannedProductionOrderPage."Attached Documents List".OpenInDetail.Enabled(), StrSubstNo(OpenInDetailNotEnabledErr, PlannedProductionOrderPage."Attached Documents List".Caption, PlannedProductionOrderPage.Caption));
+                        PlannedProductionOrderPage."Attached Documents List".OpenInDetail.Invoke();
+
+                        PlannedProductionOrderPage.ProdOrderLines.DocAttach.Invoke();
+                        PlannedProductionOrderPage.Close();
+                    end;
+                ProdOrder[i].Status::"Firm Planned":
+                    begin
+                        FirmPlannedProductionOrderPage.OpenView();
+                        FirmPlannedProductionOrderPage.GoToRecord(ProdOrder[i]);
+                        FirmPlannedProductionOrderPage.DocAttach.Invoke();
+
+                        Assert.IsTrue(FirmPlannedProductionOrderPage."Attached Documents List".OpenInDetail.Enabled(), StrSubstNo(OpenInDetailNotEnabledErr, FirmPlannedProductionOrderPage."Attached Documents List".Caption, FirmPlannedProductionOrderPage.Caption));
+                        FirmPlannedProductionOrderPage."Attached Documents List".OpenInDetail.Invoke();
+
+                        FirmPlannedProductionOrderPage.ProdOrderLines.DocAttach.Invoke();
+                        FirmPlannedProductionOrderPage.Close();
+                    end;
+                ProdOrder[i].Status::Released:
+                    begin
+                        ReleasedProductionOrderPage.OpenView();
+                        ReleasedProductionOrderPage.GoToRecord(ProdOrder[i]);
+                        ReleasedProductionOrderPage.DocAttach.Invoke();
+
+                        Assert.IsTrue(ReleasedProductionOrderPage."Attached Documents List".OpenInDetail.Enabled(), StrSubstNo(OpenInDetailNotEnabledErr, ReleasedProductionOrderPage."Attached Documents List".Caption, ReleasedProductionOrderPage.Caption));
+                        ReleasedProductionOrderPage."Attached Documents List".OpenInDetail.Invoke();
+
+                        ReleasedProductionOrderPage.ProdOrderLines.DocAttach.Invoke();
+                        ReleasedProductionOrderPage.Close();
+                    end;
+                ProdOrder[i].Status::Finished:
+                    begin
+                        FinishedProductionOrderPage.OpenView();
+                        FinishedProductionOrderPage.GoToRecord(ProdOrder[i]);
+                        FinishedProductionOrderPage.DocAttach.Invoke();
+
+                        Assert.IsTrue(FinishedProductionOrderPage."Attached Documents List".OpenInDetail.Enabled(), StrSubstNo(OpenInDetailNotEnabledErr, FinishedProductionOrderPage."Attached Documents List".Caption, FinishedProductionOrderPage.Caption));
+                        FinishedProductionOrderPage."Attached Documents List".OpenInDetail.Invoke();
+
+                        FinishedProductionOrderPage.ProdOrderLines.DocAttach.Invoke();
+                        FinishedProductionOrderPage.Close();
+                    end;
+            end;
+    end;
+
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal)
+    begin
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, SourceNo, Quantity);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure FindProductionOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20])
+    begin
+        ProdOrderLine.SetRange(Status, Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderLine.FindFirst();
+    end;
+
+    local procedure CreateDocAttachProductionImageType(RecRef: RecordRef; FileName: Text[250]; FlowProduction: Boolean)
+    var
+        DocumentAttachment: Record "Document Attachment";
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        CreateTempBLOBWithImageOfType(TempBlob, 'jpeg');
+        DocumentAttachment.Init();
+        DocumentAttachment.SaveAttachment(RecRef, FileName, TempBlob);
+        DocumentAttachment."Document Flow Production" := FlowProduction;
+        DocumentAttachment.Modify();
+    end;
+
+    local procedure VerifyDocumentAttachmentCounts(RecVariant: Variant; DocAttachCounts: Integer; VerifyDirection: Boolean)
+    var
+        DocumentAttachment: Record "Document Attachment";
+        RecRef: RecordRef;
+        FieldRef_No: FieldRef;
+        FieldRef_LineNo: FieldRef;
+        FieldRef_DocType: FieldRef;
+    begin
+        RecRef.GetTable(RecVariant);
+        DocumentAttachment.SetLoadFields("Document Flow Production");
+        case RecRef.Number of
+            Database::"Prod. Order Line":
+                begin
+                    DocumentAttachment.SetRange("Table ID", Database::"Prod. Order Line");
+
+                    FieldRef_DocType := RecRef.Field(1);
+                    DocumentAttachment.SetRange("Document Type", GetAttachDocTypeForProdOrderStatus(FieldRef_DocType.Value));
+
+                    FieldRef_No := RecRef.Field(2);
+                    DocumentAttachment.SetRange("No.", FieldRef_No.Value());
+
+                    FieldRef_LineNo := RecRef.Field(3);
+                    DocumentAttachment.SetRange("Line No.", FieldRef_LineNo.Value());
+                end;
+            Database::"Production Order":
+                begin
+                    DocumentAttachment.SetRange("Table ID", Database::"Production Order");
+
+                    FieldRef_DocType := RecRef.Field(1);
+                    DocumentAttachment.SetRange("Document Type", GetAttachDocTypeForProdOrderStatus(FieldRef_DocType.Value));
+
+                    FieldRef_No := RecRef.Field(2);
+                    DocumentAttachment.SetRange("No.", FieldRef_No.Value());
+                end;
+        end;
+
+        Assert.RecordCount(DocumentAttachment, DocAttachCounts);
+        if DocumentAttachment.FindSet() then
+            repeat
+                DocumentAttachment.TestField("Document Flow Production", VerifyDirection);
+            until DocumentAttachment.Next() = 0;
+    end;
+
+    local procedure FindAndVerifyDocAttachOnAfterProductionStatusChange(ProdOrderStatus: Enum "Production Order Status"; ItemNo: Code[20]; DocAttachCounts: array[2] of Integer)
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        FindProductionOrder(ProductionOrder, ProdOrderStatus, ItemNo);
+        VerifyDocumentAttachmentCounts(ProductionOrder, DocAttachCounts[1], true);
+
+        FindProductionOrderLine(ProdOrderLine, ProdOrderStatus, ProductionOrder."No.");
+        VerifyDocumentAttachmentCounts(ProdOrderLine, DocAttachCounts[2], true);
+    end;
+
+    Local procedure CheckIfDocAttachExist(TableNo: Integer; DocNo: Code[20]; LineNo: Integer): Boolean;
+    var
+        DocumentAttachment: Record "Document Attachment";
+    begin
+        DocumentAttachment.SetRange("Table ID", TableNo);
+        DocumentAttachment.SetRange("No.", DocNo);
+        if LineNo <> 0 then
+            DocumentAttachment.SetRange("Line No.", LineNo);
+
+        exit(not DocumentAttachment.IsEmpty())
+    end;
+
+    local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo: Code[20]; BaseUnitOfMeasure: Code[10])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        CreateProductionBOM(ProductionBOMHeader, ProductionBOMLine, BaseUnitOfMeasure, ProductionBOMLine.Type::Item, ItemNo);
+        ChangeStatusOfProductionBOM(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMLine: Record "Production BOM Line"; BaseUnitOfMeasure: Code[10]; Type: Enum "Production BOM Line Type"; No: Code[20])
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, BaseUnitOfMeasure);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', Type, No, LibraryRandom.RandInt(5));
+    end;
+
+    local procedure ChangeStatusOfProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; Status: Enum "BOM Status")
+    begin
+        ProductionBOMHeader.Validate(Status, Status);
+        ProductionBOMHeader.Modify(true);
+    end;
+
+    local procedure FindProductionOrder(var ProductionOrder: Record "Production Order"; OrderStatus: Enum "Production Order Status"; ItemNo: Code[20])
+    begin
+        ProductionOrder.SetRange(Status, OrderStatus);
+        ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
+        ProductionOrder.SetRange("Source No.", ItemNo);
+        ProductionOrder.FindFirst();
+    end;
+
+    local procedure ChangeStatusOfProductionRoutingHeader(var RoutingHeader: Record "Routing Header"; Status: Enum "Routing Status")
+    begin
+        RoutingHeader.Validate(Status, Status);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure CreateAndFindFinishedProdOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20])
+    begin
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ItemNo, LibraryRandom.RandInt(10));
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), false);
+
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::Finished);
+        ProductionOrder.FindFirst();
+    end;
+
+    local procedure GetAttachDocTypeForProdOrderStatus(ProdOrderStatus: Enum "Production Order Status"): Enum "Attachment Document Type"
+    var
+        AttachmentDocumentType: Enum "Attachment Document Type";
+    begin
+        case ProdOrderStatus of
+            ProdOrderStatus::Simulated:
+                exit(AttachmentDocumentType::"Simulated Production Order");
+            ProdOrderStatus::Planned:
+                exit(AttachmentDocumentType::"Planned Production Order");
+            ProdOrderStatus::"Firm Planned":
+                exit(AttachmentDocumentType::"Firm Planned Production Order");
+            ProdOrderStatus::Released:
+                exit(AttachmentDocumentType::"Released Production Order");
+            ProdOrderStatus::Finished:
+                exit(AttachmentDocumentType::"Finished Production Order");
+        end;
+    end;
+
     [ModalPageHandler]
     procedure RelatedAttachmentsHandler(var RelatedAttachmentsPage: TestPage "Email Related Attachments")
     begin
@@ -4280,5 +4946,22 @@ codeunit 134776 "Document Attachment Tests"
     begin
         Result := false; // Do not use Template
     end;
-}
 
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ProductionConfirmHandlerReplyTRUE(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ListProductionFlow(var DocumentAttachmentDetails: TestPage "Document Attachment Details")
+    begin
+        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Production".Visible(), StrSubstNo(ExpectedFieldNotVisibleErr, DocumentAttachmentDetails."Document Flow Production".Caption, DocumentAttachmentDetails.Caption));
+        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Production".Editable(), StrSubstNo(ExpectedFieldNotEditableErr, DocumentAttachmentDetails."Document Flow Production".Caption, DocumentAttachmentDetails.Caption));
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Sales".Visible(), StrSubstNo(UnexpectedFieldVisibleErr, DocumentAttachmentDetails."Document Flow Sales".Caption));
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Purchase".Visible(), StrSubstNo(UnexpectedFieldVisibleErr, DocumentAttachmentDetails."Document Flow Purchase".Caption));
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Service".Visible(), StrSubstNo(UnexpectedFieldVisibleErr, DocumentAttachmentDetails."Document Flow Service".Caption));
+    end;
+}
