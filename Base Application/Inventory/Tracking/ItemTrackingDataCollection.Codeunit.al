@@ -7,7 +7,6 @@ namespace Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
@@ -1095,7 +1094,7 @@ codeunit 6501 "Item Tracking Data Collection"
 
         TempGlobalReservEntry.Reset();
         TempGlobalReservEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name");
-        TempGlobalReservEntry.SetRange("Source Type", Database::"Prod. Order Line");
+        TempGlobalReservEntry.SetRange("Source Type", 5406); // Database::"Prod. Order Line"
         TempGlobalReservEntry.SetRange("Source Subtype", 3); // Released order
         if TempGlobalReservEntry.FindSet() then
             repeat
@@ -1105,7 +1104,7 @@ codeunit 6501 "Item Tracking Data Collection"
 
         TempGlobalReservEntry.Reset();
         TempGlobalReservEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name");
-        TempGlobalReservEntry.SetRange("Source Type", Database::"Prod. Order Component");
+        TempGlobalReservEntry.SetRange("Source Type", 5407); // Database::"Prod. Order Component"
         TempGlobalReservEntry.SetRange("Source Subtype", 3); // Released order
         if TempGlobalReservEntry.FindSet() then
             repeat
@@ -1247,13 +1246,12 @@ codeunit 6501 "Item Tracking Data Collection"
                 begin
                     if ItemJnlLine."Prod. Order Comp. Line No." = 0 then
                         exit;
-                    TempTrackingSpecification.SetSourceFilter(
-                      Database::"Prod. Order Component", 3, ItemJnlLine."Order No.", ItemJnlLine."Prod. Order Comp. Line No.", false);
+                    TempTrackingSpecification.SetSourceFilter(5407, 3, ItemJnlLine."Order No.", ItemJnlLine."Prod. Order Comp. Line No.", false); // Database::"Prod. Order Component"
                     TempTrackingSpecification.SetSourceFilter('', ItemJnlLine."Order Line No.");
                 end;
             ItemJnlLine."Entry Type"::Output:
                 begin
-                    TempTrackingSpecification.SetSourceFilter(Database::"Prod. Order Line", 3, ItemJnlLine."Order No.", -1, false);
+                    TempTrackingSpecification.SetSourceFilter(5406, 3, ItemJnlLine."Order No.", -1, false); // Database::"Prod. Order Line"
                     TempTrackingSpecification.SetSourceFilter('', ItemJnlLine."Order Line No.");
                 end;
         end;
