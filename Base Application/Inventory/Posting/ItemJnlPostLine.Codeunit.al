@@ -410,6 +410,7 @@ codeunit 22 "Item Jnl.-Post Line"
     var
         ProdOrderComp: Record "Prod. Order Component";
         TempHandlingSpecification: Record "Tracking Specification" temporary;
+        MfgItemTrackingMgt: Codeunit "Mfg. Item Tracking Mgt.";
         RemQtyToPost: Decimal;
         RemQtyToPostThisLine: Decimal;
         QtyToPost: Decimal;
@@ -443,7 +444,7 @@ codeunit 22 "Item Jnl.-Post Line"
             OnPostConsumptionOnAfterFindProdOrderComp(ProdOrderComp);
             if ItemJnlLine.TrackingExists() and not BlockRetrieveIT then
                 UseItemTrackingApplication :=
-                  ItemTrackingMgt.RetrieveConsumpItemTracking(ItemJnlLine, TempHandlingSpecification);
+                  MfgItemTrackingMgt.RetrieveConsumpItemTracking(ItemJnlLine, TempHandlingSpecification);
 
             if UseItemTrackingApplication then begin
                 TempHandlingSpecification.SetTrackingFilterFromItemJnlLine(ItemJnlLine);
@@ -3565,9 +3566,9 @@ codeunit 22 "Item Jnl.-Post Line"
         IsHandled: Boolean;
     begin
         if not (ValueEntry."Entry Type" in
-                [ValueEntry."Entry Type"::Variance,
-                    ValueEntry."Entry Type"::"Indirect Cost",
-                    ValueEntry."Entry Type"::Rounding])
+                    [ValueEntry."Entry Type"::Variance,
+                     ValueEntry."Entry Type"::"Indirect Cost",
+                     ValueEntry."Entry Type"::Rounding])
         then begin
             if ValueEntry.Inventoriable and (not ItemJnlLine.Adjustment or (ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::"Assembly Output")) then
                 UpdateAvgCostAdjmtBuffer(ItemLedgEntry, ValueEntry."Valuation Date");
@@ -3711,7 +3712,7 @@ codeunit 22 "Item Jnl.-Post Line"
     local procedure ValuateAppliedAvgEntry(var ValueEntry: Record "Value Entry"; Item: Record Item)
     begin
         if (ItemJnlLine."Applies-to Entry" = 0) and
-           (ValueEntry."Item Ledger Entry Type" <> ValueEntry."Item Ledger Entry Type"::Output)
+            (ValueEntry."Item Ledger Entry Type" <> ValueEntry."Item Ledger Entry Type"::Output)
         then begin
             if (ItemJnlLine.Quantity = 0) and (ItemJnlLine."Invoiced Quantity" <> 0) then begin
                 GetLastDirectCostValEntry(ValueEntry."Item Ledger Entry No.");
@@ -4031,7 +4032,7 @@ codeunit 22 "Item Jnl.-Post Line"
         PostingDate: Date;
     begin
         if ItemJnlLine.Adjustment or (ItemJnlLine."Source Currency Code" = GLSetup."Additional Reporting Currency") and
-            ((Item."Costing Method" <> Item."Costing Method"::Standard) or
+           ((Item."Costing Method" <> Item."Costing Method"::Standard) or
             ((ItemJnlLine."Discount Amount" = 0) and (ItemJnlLine."Indirect Cost %" = 0) and (ItemJnlLine."Overhead Rate" = 0)))
         then
             exit(ItemJnlLine."Unit Cost (ACY)");
