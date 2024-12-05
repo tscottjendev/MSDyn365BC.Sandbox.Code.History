@@ -6,6 +6,8 @@ table 326 "Tax Setup"
 {
     Caption = 'Tax Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Tax Setup";
+    LookupPageID = "Tax Setup";
 
     fields
     {

@@ -23,6 +23,8 @@ table 843 "Cash Flow Setup"
 {
     Caption = 'Cash Flow Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Cash Flow Setup";
+    LookupPageID = "Cash Flow Setup";
 
     fields
     {
