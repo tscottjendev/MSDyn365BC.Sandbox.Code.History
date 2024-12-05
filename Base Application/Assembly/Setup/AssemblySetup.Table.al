@@ -13,6 +13,8 @@ table 905 "Assembly Setup"
 {
     Caption = 'Assembly Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Assembly Setup";
+    LookupPageID = "Assembly Setup";
 
     fields
     {

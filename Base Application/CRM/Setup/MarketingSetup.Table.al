@@ -23,6 +23,8 @@ table 5079 "Marketing Setup"
 {
     Caption = 'Marketing Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Marketing Setup";
+    LookupPageID = "Marketing Setup";
 
     fields
     {

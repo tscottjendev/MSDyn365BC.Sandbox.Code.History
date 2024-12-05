@@ -17,8 +17,9 @@ using Microsoft.Manufacturing.ProductionBOM;
 table 99000765 "Manufacturing Setup"
 {
     Caption = 'Manufacturing Setup';
-    LookupPageID = "Manufacturing Setup";
     DataClassification = CustomerContent;
+    DrillDownPageID = "Manufacturing Setup";
+    LookupPageID = "Manufacturing Setup";
 
     fields
     {

@@ -13,6 +13,8 @@ table 5813 "Inventory Posting Setup"
 {
     Caption = 'Inventory Posting Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Inventory Posting Setup";
+    LookupPageID = "Inventory Posting Setup";
 
     fields
     {

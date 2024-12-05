@@ -8,6 +8,8 @@ table 5122 "Interaction Template Setup"
 {
     Caption = 'Interaction Template Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Interaction Template Setup";
+    LookupPageID = "Interaction Template Setup";    
     ReplicateData = true;
 
     fields
