@@ -410,6 +410,7 @@ codeunit 22 "Item Jnl.-Post Line"
     var
         ProdOrderComp: Record "Prod. Order Component";
         TempHandlingSpecification: Record "Tracking Specification" temporary;
+        MfgItemTrackingMgt: Codeunit "Mfg. Item Tracking Mgt.";
         RemQtyToPost: Decimal;
         RemQtyToPostThisLine: Decimal;
         QtyToPost: Decimal;
@@ -443,7 +444,7 @@ codeunit 22 "Item Jnl.-Post Line"
             OnPostConsumptionOnAfterFindProdOrderComp(ProdOrderComp);
             if ItemJnlLine.TrackingExists() and not BlockRetrieveIT then
                 UseItemTrackingApplication :=
-                  ItemTrackingMgt.RetrieveConsumpItemTracking(ItemJnlLine, TempHandlingSpecification);
+                  MfgItemTrackingMgt.RetrieveConsumpItemTracking(ItemJnlLine, TempHandlingSpecification);
 
             if UseItemTrackingApplication then begin
                 TempHandlingSpecification.SetTrackingFilterFromItemJnlLine(ItemJnlLine);
@@ -1322,7 +1323,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
         if ((ItemJnlLine.Quantity <> 0) or (ItemJnlLine."Invoiced Quantity" <> 0)) and
                 not (ItemJnlLine.Adjustment and (ItemJnlLine.Amount = 0) and (ItemJnlLine."Amount (ACY)" = 0))
-            then
+        then
             ItemValuePosting();
     end;
 
@@ -5480,6 +5481,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
         if GlobalItemLedgEntry.Quantity - (GlobalItemLedgEntry."Invoiced Quantity" - ValueEntry."Invoiced Quantity") = 0 then
             exit;
+
         ValueEntry2.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         ValueEntry2.SetRange("Item Ledger Entry No.", ValueEntry."Item Ledger Entry No.");
         ValueEntry2.SetRange("Entry Type", ValueEntry2."Entry Type"::Revaluation);
