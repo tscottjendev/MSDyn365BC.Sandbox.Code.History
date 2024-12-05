@@ -18,6 +18,8 @@ table 315 "Jobs Setup"
 {
     Caption = 'Projects Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Jobs Setup";
+    LookupPageID = "Jobs Setup";
 
     fields
     {

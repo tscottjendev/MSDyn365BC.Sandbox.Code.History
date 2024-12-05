@@ -11,6 +11,8 @@ table 5769 "Warehouse Setup"
 {
     Caption = 'Warehouse Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Warehouse Setup";
+    LookupPageID = "Warehouse Setup";
 
     fields
     {
