@@ -16,7 +16,7 @@ codeunit 30335 "Shpfy Metafield Owner Variant" implements "Shpfy IMetafield Owne
         JResponse: JsonToken;
         JMetafields: JsonArray;
         JNode: JsonObject;
-        JProduct: JsonObject;
+        JProductVariant: JsonObject;
         JItem: JsonToken;
         Id: BigInteger;
         UpdatedAt: DateTime;
@@ -24,8 +24,8 @@ codeunit 30335 "Shpfy Metafield Owner Variant" implements "Shpfy IMetafield Owne
         Parameters.Add('VariantId', Format(OwnerId));
         GraphQLType := GraphQLType::VariantMetafieldIds;
         JResponse := CommunicationMgt.ExecuteGraphQL(GraphQLType, Parameters);
-        if JsonHelper.GetJsonObject(JResponse, JProduct, 'data.product') then
-            if JsonHelper.GetJsonArray(JResponse, JMetafields, 'data.product.metafields.edges') then
+        if JsonHelper.GetJsonObject(JResponse, JProductVariant, 'data.productVariant') then
+            if JsonHelper.GetJsonArray(JResponse, JMetafields, 'data.productVariant.metafields.edges') then
                 foreach JItem in JMetafields do
                     if JsonHelper.GetJsonObject(JItem.AsObject(), JNode, 'node') then begin
                         Id := CommunicationMgt.GetIdOfGId(JsonHelper.GetValueAsText(JNode, 'legacyResourceId'));
