@@ -70,7 +70,7 @@ page 99000846 "Consumption Journal"
 
                     trigger OnValidate()
                     begin
-                        ItemJnlMgt.GetConsump(Rec, ProdOrderDescription);
+                        MfgItemJournalMgt.GetConsump(Rec, ProdOrderDescription);
                     end;
                 }
                 field("Order Line No."; Rec."Order Line No.")
@@ -668,7 +668,7 @@ page 99000846 "Consumption Journal"
 
     trigger OnAfterGetCurrRecord()
     begin
-        ItemJnlMgt.GetConsump(Rec, ProdOrderDescription);
+        MfgItemJournalMgt.GetConsump(Rec, ProdOrderDescription);
     end;
 
     trigger OnAfterGetRecord()
@@ -719,6 +719,7 @@ page 99000846 "Consumption Journal"
 
     var
         ItemJnlMgt: Codeunit ItemJnlManagement;
+        MfgItemJournalMgt: Codeunit "Mfg. Item Journal Mgt.";
         ReportPrint: Codeunit "Test Report-Print";
         ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
         ProdOrderDescription: Text[100];
