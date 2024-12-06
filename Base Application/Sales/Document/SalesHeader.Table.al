@@ -344,9 +344,6 @@ table 36 "Sales Header"
 
                 if xRec."Bill-to Customer No." <> "Bill-to Customer No." then
                     SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
-
-                if Rec."Sell-to Customer No." <> Rec."Bill-to Customer No." then
-                    UpdateShipToSalespersonCode();
             end;
         }
         field(5; "Bill-to Name"; Text[100])
@@ -514,7 +511,7 @@ table 36 "Sales Header"
                             AltCustVATRegFacade.CopyFromCustomer(Rec, xRec);
                         end;
 
-                UpdateShipToSalespersonCode();
+                UpdateShipToSalespersonCode(FieldNo("Ship-to Code"));
                 GetShipmentMethodCode();
                 GetShippingTime(FieldNo("Ship-to Code"));
 
@@ -3485,9 +3482,6 @@ table 36 "Sales Header"
 
         if GetFilterContNo() <> '' then
             Validate("Sell-to Contact No.", GetFilterContNo());
-
-        if "Salesperson Code" = '' then
-            SetDefaultSalesperson();
 
         if "Sell-to Customer No." <> '' then
             StandardCodesMgtGlobal.CheckCreateSalesRecurringLines(Rec);
@@ -7967,6 +7961,7 @@ table 36 "Sales Header"
             "VAT Country/Region Code" := SellToCustomer."Country/Region Code";
             "VAT Registration No." := SellToCustomer.GetVATRegistrationNo();
             "Shipping Advice" := SellToCustomer."Shipping Advice";
+            "Salesperson Code" := SellToCustomer."Salesperson Code";
             IsHandled := false;
             OnCopySelltoCustomerAddressFieldsFromCustomerOnBeforeAssignRespCenter(Rec, SellToCustomer, IsHandled);
             if not IsHandled then begin
@@ -8080,7 +8075,7 @@ table 36 "Sales Header"
         "Ship-to Phone No." := ShipToAddr."Phone No.";
         "Ship-to Contact" := ShipToAddr.Contact;
         ShouldCopyLocationCode := ShipToAddr."Location Code" <> '';
-        ShouldCopySalespersonCode := ShipToAddr."Salesperson Code" <> '';
+        ShouldCopySalespersonCode := (ShipToAddr."Salesperson Code" <> '') and (ShipToAddr."Salesperson Code" <> "Salesperson Code");
         OnSetShipToCustomerAddressFieldsFromShipToAddrOnAfterCalcShouldCopyLocationCode(Rec, xRec, ShipToAddr, ShouldCopyLocationCode, ShouldCopySalespersonCode);
         if ShouldCopyLocationCode then
             Validate("Location Code", ShipToAddr."Location Code");
@@ -8162,8 +8157,8 @@ table 36 "Sales Header"
         "Customer Disc. Group" := BillToCustomer."Customer Disc. Group";
         "Language Code" := BillToCustomer."Language Code";
         "Format Region" := BillToCustomer."Format Region";
-        if (BilltoCustomer."No." <> "Sell-to Customer No.") or BillToCustomerIsReplaced() or ("Salesperson Code" = '') then
-            SetSalespersonCode(BillToCustomer."Salesperson Code", "Salesperson Code");
+        if (BilltoCustomer."No." <> "Sell-to Customer No.") or BillToCustomerIsReplaced() then
+            UpdateShipToSalespersonCode(FieldNo("Bill-to Customer No."));
         "Combine Shipments" := BillToCustomer."Combine Shipments";
         Reserve := BillToCustomer.Reserve;
         if "Document Type" in ["Document Type"::Order, "Document Type"::Quote] then
@@ -9051,6 +9046,7 @@ table 36 "Sales Header"
         exit("Currency Code");
     end;
 
+#if not CLEAN26
     /// <summary>
     /// Updates the salesperson code from either the ship-to addresses or bill-to customer's salesperson.
     /// </summary>
@@ -9058,6 +9054,7 @@ table 36 "Sales Header"
     /// If neither are set, it uses the default salesperson from the user setup.
     /// If salesperson is blocked, it doesn't get assigned.
     /// </remarks>
+    [Obsolete('Use UpdateShipToSalespersonCode(FieldNo: Integer) instead.', '26.0')]
     procedure UpdateShipToSalespersonCode()
     var
         ShipToAddress: Record "Ship-to Address";
@@ -9093,6 +9090,53 @@ table 36 "Sales Header"
                 end else
                     SetDefaultSalesperson();
         end;
+    end;
+#endif
+    /// <summary>
+    /// Updates the salesperson code from either the ship-to addresses or bill-to customer's salesperson.
+    /// </summary>
+    /// <remarks>
+    /// If neither are set, it uses the default salesperson from the user setup.
+    /// If salesperson is blocked, it doesn't get assigned.
+    /// </remarks>
+    procedure UpdateShipToSalespersonCode(FieldNo: Integer)
+    var
+        ShipToAddress: Record "Ship-to Address";
+        SalespersonCode: Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateShipToSalespersonCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalespersonCode := "Salesperson Code";
+
+        // three-step logic - Bill-to, Ship-to, Default
+        if FieldNo = FieldNo("Bill-to Customer No.") then
+            if ("Bill-to Customer No." <> '') then begin
+                GetCust("Bill-to Customer No.");
+                if Customer."Salesperson Code" = '' then
+                    SalespersonCode := ''
+                else
+                    SetSalespersonCode(Customer."Salesperson Code", SalespersonCode);
+            end;
+
+        // two-step logic - Ship-to, Default
+        if FieldNo in [FieldNo("Bill-to Customer No."), FieldNo("Ship-to Code")] then
+            if "Ship-to Code" <> '' then begin
+                ShipToAddress.SetLoadFields("Salesperson Code");
+                ShipToAddress.Get("Sell-to Customer No.", "Ship-to Code");
+                if ShipToAddress."Salesperson Code" <> '' then
+                    SetSalespersonCode(ShipToAddress."Salesperson Code", SalespersonCode);
+            end;
+
+        // one-step logic - Default
+        if SalespersonCode = '' then
+            SetSalespersonCode('', SalespersonCode);
+
+        if SalespersonCode <> "Salesperson Code" then
+            Validate("Salesperson Code", SalespersonCode);
     end;
 
     /// <summary>
@@ -11399,11 +11443,13 @@ table 36 "Sales Header"
     begin
     end;
 
+#if not CLEAN26
     [IntegrationEvent(false, false)]
+    [Obsolete('This event is obsolete. Use OnBeforeUpdateShipToSalespersonCode instead.', '26.0')]
     local procedure OnUpdateShiptoSalespersonCodeNotAssigned(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateShipToAddressFromSellToAddress(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNumber: Integer)
     begin
