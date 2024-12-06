@@ -14,7 +14,6 @@ using Microsoft.Sales.Setup;
 
 codeunit 57 "Document Totals"
 {
-
     trigger OnRun()
     begin
     end;
@@ -337,6 +336,7 @@ codeunit 57 "Document Totals"
             end;
             PreviousTotalSalesHeader.CalcFields(Amount, "Amount Including VAT");
             PreviousTotalSalesVATDifference := CalcTotalSalesVATDifference(PreviousTotalSalesHeader);
+            OnAfterSalesCalculateTotalsWithInvoiceRounding(PreviousTotalSalesHeader);
         end;
     end;
 
@@ -1226,6 +1226,11 @@ codeunit 57 "Document Totals"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculatePurchasePageTotalsOnAfterCalculateVATAmount(var TotalPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var PurchaseLine: Record "Purchase Line"; var TotalPurchaseLine2: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSalesCalculateTotalsWithInvoiceRounding(var SalesHeader: Record "Sales Header")
     begin
     end;
 }
