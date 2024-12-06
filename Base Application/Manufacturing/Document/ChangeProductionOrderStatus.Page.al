@@ -7,7 +7,6 @@ namespace Microsoft.Manufacturing.Document;
 using Microsoft.Finance.Dimension;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Manufacturing.Capacity;
-using System.Utilities;
 
 page 99000914 "Change Production Order Status"
 {
@@ -263,7 +262,7 @@ page 99000914 "Change Production Order Status"
                     Caption = 'Change &Status';
                     Ellipsis = true;
                     Image = ChangeStatus;
-                    ToolTip = 'Change the status of the selected production orders to a new one.';
+                    ToolTip = 'Change the selected production orders to another status, such as Released.';
 
                     trigger OnAction()
                     begin
@@ -343,15 +342,12 @@ page 99000914 "Change Production Order Status"
         CurrPage.Update(false);
     end;
 
-    [ErrorBehavior(ErrorBehavior::Collect)]
     local procedure ChangeStatusWithSelectionFilter()
     var
         ProductionOrder: Record "Production Order";
-        TempErrors: Record "Error Message" temporary;
-        ProdOrderChangeStatusBulk: Codeunit ProdOrderChangeStatusBulk;
+        ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
         ChangeStatusOnProdOrder: Page "Change Status on Prod. Order";
         NewProductionOrderStatus: Enum "Production Order Status";
-        Error: ErrorInfo;
         NewPostingDate: Date;
         NewUpdateUnitCost: Boolean;
         ProgressDialog: Dialog;
@@ -374,29 +370,12 @@ page 99000914 "Change Production Order Status"
                 ProcessedProductionOrdersCounter += 1;
                 ProgressDialog.Update(1, ProductionOrder."No.");
                 ProgressDialog.Update(2, Round(ProcessedProductionOrdersCounter / NoOfProductionOrdersToProcess * 10000, 1));
-
                 IsHandled := false;
                 OnBeforeChangeProdOrderStatus(ProductionOrder, NewProductionOrderStatus, NewPostingDate, NewUpdateUnitCost, IsHandled);
-                if not IsHandled then begin
-                    ProdOrderChangeStatusBulk.SetParameters(NewProductionOrderStatus, NewPostingDate, NewUpdateUnitCost);
-                    if not ProdOrderChangeStatusBulk.Run(ProductionOrder) then begin
-                        TempErrors.ID := TempErrors.ID + 1;
-                        TempErrors.Message := GetLastErrorText();
-                        TempErrors.Insert();
-                    end;
-                end;
-                if System.HasCollectedErrors() then
-                    foreach Error in System.GetCollectedErrors() do begin
-                        TempErrors.ID := TempErrors.ID + 1;
-                        TempErrors.Message := Error.Message;
-                        TempErrors.Validate("Record ID", Error.RecordId);
-                        TempErrors.Insert();
-                    end;
-
+                if not IsHandled then
+                    ProdOrderStatusManagement.ChangeProdOrderStatus(ProductionOrder, NewProductionOrderStatus, NewPostingDate, NewUpdateUnitCost);
+                Commit();
             until ProductionOrder.Next() = 0;
-            ClearCollectedErrors();
-            if TempErrors.Count > 0 then
-                Page.Run(Page::"Error Messages", TempErrors);
         end;
     end;
 
