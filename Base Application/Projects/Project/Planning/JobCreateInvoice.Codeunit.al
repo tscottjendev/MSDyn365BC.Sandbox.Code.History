@@ -497,6 +497,8 @@ codeunit 1002 "Job Create-Invoice"
         SelectionFilterMgt: Codeunit SelectionFilterManagement;
         RecRef: RecordRef;
         JobTaskFilter: Text;
+        ExitValue: Boolean;
+        IsHandled: Boolean;
     begin
         if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
             exit;
@@ -519,6 +521,9 @@ codeunit 1002 "Job Create-Invoice"
                 JobPlanningLineInvoice.SetRange("Job No.", Job."No.");
                 JobPlanningLineInvoice.SetRange("Job Task No.", JobTask2."Job Task No.");
                 JobPlanningLineInvoice.SetRange("Document Type", JobPlanningLineInvoice."Document Type"::Invoice);
+                OnBeforeFindJobPlanningLineInvoice(JobTask, JobPlanningLineInvoice, SalesHeader, ExitValue, Ishandled);
+                if IsHandled then
+                    exit(ExitValue);
                 if JobPlanningLineInvoice.FindFirst() then begin
                     SalesHeader.Get(SalesHeader."Document Type"::Invoice, JobPlanningLineInvoice."Document No.");
                     exit(true);
@@ -1505,6 +1510,11 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetCustomerNo(var Job: Record Job; var JobPlanningLine: Record "Job Planning Line"; SellToCustomerNo: Boolean; var CustomerNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindJobPlanningLineInvoice(JobTask: Record "Job Task"; var JobPlanningLineInvoice: Record "Job Planning Line Invoice"; var SalesHeader: Record "Sales Header"; var ExitValue: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
