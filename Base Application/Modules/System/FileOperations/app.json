@@ -1,8 +1,8 @@
 {
-    "id":  "36560748-e620-4577-b8d9-3fd62a1a84f9",
-    "name":  "System Media",
+    "id":  "59997dbf-584a-4f17-9c2a-9a7704e66422",
+    "name":  "File Operations",
     "publisher":  "Microsoft",
-    "description":  "This module provides capabilities for interacting with Media in Business Central.",
+    "description":  "This module provides file operation capabilities such as Uploading and Downloading files or retrieving file extension names.",
     "version":  "26.0.0.0",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
@@ -16,8 +16,20 @@
                              "version":  "26.0.0.0"
                          },
                          {
-                             "id":  "59997dbf-584a-4f17-9c2a-9a7704e66422",
-                             "name":  "File Operations",
+                             "id":  "95d2dd38-b5bf-4698-bb90-cb86b67ca3b0",
+                             "name":  "Memory Storage",
+                             "publisher":  "Microsoft",
+                             "version":  "26.0.0.0"
+                         },
+                         {
+                             "id":  "163f82f9-7b3a-4e7d-85cc-11dd9adf75ad",
+                             "name":  "System DotNet Aliases",
+                             "publisher":  "Microsoft",
+                             "version":  "26.0.0.0"
+                         },
+                         {
+                             "id":  "6c65bd2d-884c-4f88-9bd4-5acdefc7b3bb",
+                             "name":  "Web Request",
                              "publisher":  "Microsoft",
                              "version":  "26.0.0.0"
                          }
