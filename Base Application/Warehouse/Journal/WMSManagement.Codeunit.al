@@ -1369,7 +1369,7 @@ codeunit 7302 "WMS Management"
             else
                 WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Positive Adjmt.";
             IsDirectedPutAwayAndPick := Location."Directed Put-away and Pick";
-            OnSetZoneAndBinsOnAfterCalcIsDirectedPutAwayAndPick(ItemJournalLine, Location, IsDirectedPutAwayAndPick);
+            OnSetZoneAndBinsOnAfterCalcIsDirectedPutAwayAndPick(ItemJournalLine, Location, IsDirectedPutAwayAndPick, true);
             if IsDirectedPutAwayAndPick then
                 if CheckItemJournalLineBinCodeForDirectedPutAwayAndPickLocation(ItemJournalLine) then
                     WarehouseJournalLine."To Bin Code" := ItemJournalLine."Bin Code"
@@ -1396,7 +1396,7 @@ codeunit 7302 "WMS Management"
                 else
                     WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Negative Adjmt.";
                 IsDirectedPutAwayAndPick := Location."Directed Put-away and Pick";
-                OnSetZoneAndBinsOnAfterCalcIsDirectedPutAwayAndPick(ItemJournalLine, Location, IsDirectedPutAwayAndPick);
+                OnSetZoneAndBinsOnAfterCalcIsDirectedPutAwayAndPick(ItemJournalLine, Location, IsDirectedPutAwayAndPick, false);
                 if IsDirectedPutAwayAndPick then
                     if CheckItemJournalLineBinCodeForDirectedPutAwayAndPickLocation(ItemJournalLine) then
                         WarehouseJournalLine."From Bin Code" := ItemJournalLine."Bin Code"
@@ -1427,11 +1427,13 @@ codeunit 7302 "WMS Management"
         OnAfterSetZoneAndBins(WarehouseJournalLine, ItemJournalLine, Location, Bin);
     end;
 
-    local procedure CheckItemJournalLineBinCodeForDirectedPutAwayAndPickLocation(ItemJournalLine: Record "Item Journal Line"): Boolean
+    local procedure CheckItemJournalLineBinCodeForDirectedPutAwayAndPickLocation(ItemJournalLine: Record "Item Journal Line") Result: Boolean
     begin
-        exit(
-            (ItemJournalLine."Entry Type" in [ItemJournalLine."Entry Type"::"Assembly Output", ItemJournalLine."Entry Type"::"Assembly Consumption"]) or
-            ((ItemJournalLine."Entry Type" in [ItemJournalLine."Entry Type"::"Negative Adjmt."]) and (ItemJournalLine."Job No." <> '')));
+        Result :=
+            ((ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::"Negative Adjmt.") and (ItemJournalLine."Job No." <> '')) or
+            (ItemJournalLine."Entry Type" in [ItemJournalLine."Entry Type"::"Assembly Output", ItemJournalLine."Entry Type"::"Assembly Consumption"]);
+
+        OnAfterCheckItemJournalLineBinCodeForDirectedPutAwayAndPickLocation(ItemJournalLine, Result);
     end;
 
     procedure SerialNoOnInventory(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; SerialNo: Code[50]): Boolean
@@ -2101,7 +2103,7 @@ codeunit 7302 "WMS Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetZoneAndBinsOnAfterCalcIsDirectedPutAwayAndPick(ItemJnlLine: Record "Item Journal Line"; Location: Record Location; var IsDirectedPutAwayAndPick: Boolean)
+    local procedure OnSetZoneAndBinsOnAfterCalcIsDirectedPutAwayAndPick(ItemJnlLine: Record "Item Journal Line"; Location: Record Location; var IsDirectedPutAwayAndPick: Boolean; IsQtyIncrease: Boolean)
     begin
     end;
 
@@ -2157,6 +2159,11 @@ codeunit 7302 "WMS Management"
 
     [IntegrationEvent(true, false)]
     local procedure OnCheckItemJnlLineFieldChangeOnAfterAssignShowError(var ItemJournalLine: Record "Item Journal Line"; var xItemJournalLine: Record "Item Journal Line"; CurrFieldCaption: Text[30]; var ShowError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckItemJournalLineBinCodeForDirectedPutAwayAndPickLocation(ItemJournalLine: Record "Item Journal Line"; var CheckResult: Boolean)
     begin
     end;
 }
