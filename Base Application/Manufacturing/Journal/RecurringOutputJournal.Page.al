@@ -75,7 +75,7 @@ page 99000827 "Recurring Output Journal"
 
                     trigger OnValidate()
                     begin
-                        ItemJnlMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
+                        MfgItemJournalMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
                     end;
                 }
                 field("Order Line No."; Rec."Order Line No.")
@@ -134,7 +134,7 @@ page 99000827 "Recurring Output Journal"
 
                     trigger OnValidate()
                     begin
-                        ItemJnlMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
+                        MfgItemJournalMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
                     end;
                 }
                 field(Type; Rec.Type)
@@ -646,7 +646,7 @@ page 99000827 "Recurring Output Journal"
 
     trigger OnAfterGetCurrRecord()
     begin
-        ItemJnlMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
+        MfgItemJournalMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
     end;
 
     trigger OnAfterGetRecord()
@@ -690,6 +690,7 @@ page 99000827 "Recurring Output Journal"
 
     var
         ItemJnlMgt: Codeunit ItemJnlManagement;
+        MfgItemJournalMgt: Codeunit "Mfg. Item Journal Mgt.";
         ReportPrint: Codeunit "Test Report-Print";
         ProdOrderDescription: Text[50];
         OperationName: Text[50];
