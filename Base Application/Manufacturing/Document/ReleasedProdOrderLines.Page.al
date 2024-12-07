@@ -227,6 +227,12 @@ page 99000832 "Released Prod. Order Lines"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the difference between the finished and planned quantities, or zero if the finished quantity is greater than the remaining quantity.';
                 }
+                field("Qty. Put Away"; Rec."Qty. Put Away")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the quantity that is put away.';
+                    Visible = false;
+                }
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Manufacturing;
