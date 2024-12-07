@@ -5102,6 +5102,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     /// <param name="Unapply">Flag if the posting is for unapplication.</param>
     procedure PostDtldCVLedgEntry(GenJournalLine: Record "Gen. Journal Line"; DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; AccNo: Code[20]; var AdjAmount: array[4] of Decimal; Unapply: Boolean)
     var
+        VendorPostingGroup: Record "Vendor Posting Group";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -5124,6 +5125,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     OnPostDtldCVLedgEntryOnBeforeCreateGLEntryGainLoss(GenJournalLine, DetailedCVLedgEntryBuffer, Unapply, AccNo, IsHandled, AdjAmount, AddCurrencyCode, MultiplePostingGroups);
                     if not IsHandled then
                         CreateGLEntryGainLoss(GenJournalLine, AccNo, -DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
+
+                    if MultiplePostingGroups and (DetailedCVLedgEntryBuffer."Entry Type" in [DetailedCVLedgEntryBuffer."Entry Type"::"Unrealized Loss", DetailedCVLedgEntryBuffer."Entry Type"::"Unrealized Gain"]) then begin
+                        CreateGLEntryGainLoss(GenJournalLine, GetVendDtldCVLedgEntryBufferAccNo(GenJournalLine, DetailedCVLedgEntryBuffer), DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
+                        GetVendorPostingGroup(GenJournalLine, VendorPostingGroup);
+                        CreateGLEntryGainLoss(GenJournalLine, GetVendorPayablesAccount(GenJournalLine, VendorPostingGroup), -DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
+                    end;
+
                     if not Unapply then
                         CollectAdjustment(AdjAmount, -DetailedCVLedgEntryBuffer."Amount (LCY)", 0);
                 end;
