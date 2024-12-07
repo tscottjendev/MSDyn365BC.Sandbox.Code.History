@@ -19,7 +19,7 @@ using System.Utilities;
 report 11301 "Purchase Ledger"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './Local/Purchases/Purchases/PurchaseLedger.rdlc';
+    RDLCLayout = './Local/Purchases/Reports/PurchaseLedger.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Purchase Ledger';
     UsageCategory = ReportsAndAnalysis;
