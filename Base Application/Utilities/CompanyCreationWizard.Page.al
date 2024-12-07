@@ -392,7 +392,7 @@ page 9192 "Company Creation Wizard"
         AssistedCompanySetup.CreateNewCompany(NewCompanyName);
         OnAfterCreateNewCompany(NewCompanyData, NewCompanyName);
 
-        AssistedCompanySetup.SetupCompanyWithoutDemodata(NewCompanyName, NewCompanyData);
+        AssistedCompanySetup.SetUpNewCompany(NewCompanyName, NewCompanyData);
 
         if Rec.FindSet() then
             repeat
