@@ -6,6 +6,7 @@ namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Warehouse.Activity;
 using Microsoft.Foundation.UOM;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Item;
@@ -728,6 +729,52 @@ table 5406 "Prod. Order Line"
             Caption = 'Unit Cost (ACY)';
             Editable = false;
         }
+        field(5850; "Qty. Put Away"; Decimal)
+        {
+            Caption = 'Qty. Put Away';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+        }
+        field(5851; "Qty. Put Away (Base)"; Decimal)
+        {
+            Caption = 'Qty. Put Away (Base)';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+        }
+        field(5852; "Put-away Qty."; Decimal)
+        {
+            CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding" where("Activity Type" = const("Put-away"),
+                                                                                  "Whse. Document Type" = const(Production),
+                                                                                  "Whse. Document No." = field("Prod. Order No."),
+                                                                                  "Whse. Document Line No." = field("Line No."),
+                                                                                  "Unit of Measure Code" = field("Unit of Measure Code"),
+                                                                                  "Action Type" = filter(" " | Take),
+                                                                                  "Original Breakbulk" = const(false)));
+            Caption = 'Put-away Qty.';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(5853; "Put-away Qty. (Base)"; Decimal)
+        {
+            CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding (Base)" where("Activity Type" = const("Put-away"),
+                                                                                         "Whse. Document Type" = const(Production),
+                                                                                         "Whse. Document No." = field("Prod. Order No."),
+                                                                                         "Whse. Document Line No." = field("Line No."),
+                                                                                         "Action Type" = filter(" " | Take),
+                                                                                         "Original Breakbulk" = const(false)));
+            Caption = 'Put-away Qty. (Base)';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(66; "Put-away Status"; Option)
+        {
+            Caption = 'Status';
+            Editable = false;
+            OptionCaption = ' ,Partially Put Away,Completely Put Away';
+            OptionMembers = " ","Partially Put Away","Completely Put Away";
+        }
         field(99000750; "Production BOM Version Code"; Code[20])
         {
             Caption = 'Production BOM Version Code';
@@ -1134,6 +1181,17 @@ table 5406 "Prod. Order Line"
 
         Item.Get("Item No.");
         OnAfterGetItem(Item, Rec);
+    end;
+
+    procedure GetLineStatus(): Integer
+    begin
+        if "Qty. Put Away" > 0 then
+            if "Qty. Put Away" < "Finished Quantity" then
+                "Put-away Status" := "Put-away Status"::"Partially Put Away"
+            else
+                "Put-away Status" := "Put-away Status"::"Completely Put Away";
+
+        exit("Put-away Status");
     end;
 
     local procedure GetSKU() Result: Boolean
