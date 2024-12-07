@@ -756,13 +756,7 @@ table 81 "Gen. Journal Line"
             Caption = 'Applies-to Doc. Type';
 
             trigger OnValidate()
-            var
-                IsHandled: Boolean;
             begin
-                IsHandled := false;
-                OnBeforeValidateAppliesToDocType(Rec, xRec, CurrFieldNo, IsHandled);
-                if IsHandled then
-                    exit;
                 if "Applies-to Doc. Type" <> xRec."Applies-to Doc. Type" then
                     Validate("Applies-to Doc. No.", '');
             end;
@@ -816,12 +810,7 @@ table 81 "Gen. Journal Line"
                 CustLedgEntry: Record "Cust. Ledger Entry";
                 VendLedgEntry: Record "Vendor Ledger Entry";
                 TempGenJnlLine: Record "Gen. Journal Line" temporary;
-                IsHandled: Boolean;
             begin
-                IsHandled := false;
-                OnBeforeValidateAppliesToDocNo(Rec, xRec, CurrFieldNo, SuppressCommit, IsHandled);
-                if IsHandled then
-                    exit;
                 if SuppressCommit then
                     PaymentToleranceMgt.SetSuppressCommit(true);
 
@@ -925,7 +914,6 @@ table 81 "Gen. Journal Line"
 
                 if "Applies-to Doc. Type" = "Applies-to Doc. Type"::Invoice then
                     UpdateAppliesToInvoiceID();
-                OnAfterValidateAppliesToDocNo(Rec, xRec, CurrFieldNo, SuppressCommit);
             end;
         }
         field(38; "Due Date"; Date)
@@ -9843,21 +9831,6 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetCustLedgerEntryOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateAppliesToDocType(var GenJnlLine: Record "Gen. Journal Line"; xGenJnlLine: Record "Gen. Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateAppliesToDocNo(var GenJnlLine: Record "Gen. Journal Line"; xGenJnlLine: Record "Gen. Journal Line"; CurrentFieldNo: Integer; var SuppressCommit: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterValidateAppliesToDocNo(var GenJnlLine: Record "Gen. Journal Line"; xGenJnlLine: Record "Gen. Journal Line"; CurrentFieldNo: Integer; var SuppressCommit: Boolean)
     begin
     end;
 }
