@@ -1,4 +1,4 @@
-codeunit 134157 "ERM Posting Rounding"
+﻿codeunit 134157 "ERM Posting Rounding"
 {
     Subtype = Test;
     TestPermissions = Disabled;
