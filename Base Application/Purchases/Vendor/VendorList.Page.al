@@ -1303,6 +1303,7 @@ page 27 "Vendor List"
                     end;
                 }
 #endif
+#if not CLEAN25
                 action("Vendor - Top 10 List")
                 {
                     ApplicationArea = Suite;
@@ -1314,6 +1315,7 @@ page 27 "Vendor List"
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
                 }
+#endif
             }
             group(Action5)
             {
