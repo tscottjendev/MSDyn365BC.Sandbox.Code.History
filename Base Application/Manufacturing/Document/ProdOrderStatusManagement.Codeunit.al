@@ -83,6 +83,7 @@ codeunit 5407 "Prod. Order Status Management"
         WhseProdRelease: Codeunit "Whse.-Production Release";
         WhseOutputProdRelease: Codeunit "Whse.-Output Prod. Release";
         UOMMgt: Codeunit "Unit of Measure Management";
+        CreatePutaway: Codeunit "Create Put-away";
         NewStatus: Enum "Production Order Status";
         NewPostingDate: Date;
         NewUpdateUnitCost: Boolean;
@@ -209,6 +210,8 @@ codeunit 5407 "Prod. Order Status Management"
         TransProdOrderBOMCmtLine(FromProdOrder);
         TransProdOrderCapNeed(FromProdOrder);
         OnAfterTransProdOrder(FromProdOrder, ToProdOrder);
+
+        FromProdOrder.Get(FromProdOrder.Status, FromProdOrder."No.");
         FromProdOrder.Delete();
         FromProdOrder := ToProdOrder;
     end;
@@ -254,6 +257,7 @@ codeunit 5407 "Prod. Order Status Management"
                           ACYMgt.CalcACYAmt(ToProdOrderLine."Cost Amount", NewPostingDate, false);
                         ReservMgt.SetReservSource(FromProdOrderLine);
                         ReservMgt.DeleteReservEntries(true, 0);
+                        UpdateWhseActivityLineToFinishedForProdOutput(FromProdOrderLine);
                         OnTransProdOrderLineOnAfterDeleteReservEntries(FromProdOrderLine, ToProdOrderLine, NewStatus);
                     end else begin
                         if Item.Get(FromProdOrderLine."Item No.") then
@@ -275,6 +279,23 @@ codeunit 5407 "Prod. Order Status Management"
             OnAfterTransProdOrderLines(FromProdOrder, ToProdOrder);
             FromProdOrderLine.DeleteAll();
         end;
+    end;
+
+    local procedure UpdateWhseActivityLineToFinishedForProdOutput(ProdOrderLine: Record "Prod. Order Line")
+    var
+        WhseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WhseActivityLine.SetLoadFields("Source Subtype");
+        WhseActivityLine.SetRange("Action Type", WhseActivityLine."Activity Type"::"Put-away");
+        WhseActivityLine.SetRange("Source Type", Database::"Prod. Order Line");
+        WhseActivityLine.SetRange("Source Subtype", ProdOrderLine.Status.AsInteger());
+        WhseActivityLine.SetRange("Source No.", ProdOrderLine."Prod. Order No.");
+        WhseActivityLine.SetRange("Source Line No.", ProdOrderLine."Line No.");
+        WhseActivityLine.SetRange("Whse. Document Type", WhseActivityLine."Whse. Document Type"::Production);
+        WhseActivityLine.SetRange("Whse. Document No.", ProdOrderLine."Prod. Order No.");
+        WhseActivityLine.SetRange("Whse. Document Line No.", ProdOrderLine."Line No.");
+        if not WhseActivityLine.IsEmpty() then
+            WhseActivityLine.ModifyAll("Source Subtype", ProdOrderLine.Status::Finished.AsInteger());
     end;
 
     local procedure InsertProdOrderLine(var ToProdOrderLine: Record "Prod. Order Line"; FromProdOrderLine: Record "Prod. Order Line")
@@ -736,6 +757,22 @@ codeunit 5407 "Prod. Order Status Management"
             exit;
 
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
+        HandleProdOutputPutAway(ItemJnlLine);
+    end;
+
+    local procedure HandleProdOutputPutAway(ItemJnlLine: Record "Item Journal Line")
+    begin
+        if ItemJnlLine.OutputValuePosting() then
+            exit;
+
+        if ItemJnlLine."Entry Type" <> ItemJnlLine."Entry Type"::Output then
+            exit;
+
+        if (ItemJnlLine."Order No." = '') or (ItemJnlLine."Order Line No." = 0) then
+            exit;
+
+        CreatePutaway.ParkProdOrderForPutaway(ItemJnlLine);
+        CreatePutaway.CreateProdWhsePutAway();
     end;
 
     local procedure InitItemJnlLineFromProdOrderLine(var ItemJnlLine: Record "Item Journal Line"; ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; PostingDate: Date)
