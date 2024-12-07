@@ -14,6 +14,7 @@ using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Availability;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
+using Microsoft.Manufacturing.Document;
 using Microsoft.Warehouse.InternalDocument;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
@@ -189,7 +190,10 @@ table 7326 "Whse. Worksheet Line"
                 if Quantity < "Qty. Handled" then
                     FieldError(Quantity, StrSubstNo(Text010, "Qty. Handled"));
 
-                Validate("Qty. Outstanding", (Quantity - "Qty. Handled"));
+                if Rec."Source Type" <> Database::"Prod. Order Line" then
+                    Validate("Qty. Outstanding", (Quantity - "Qty. Handled"))
+                else
+                    UpdateQtyHandledForProdOrderOutput();
 
                 "Qty. (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Qty. (Base)"));
             end;
@@ -300,7 +304,11 @@ table 7326 "Whse. Worksheet Line"
             trigger OnValidate()
             begin
                 "Qty. Handled (Base)" := CalcBaseQty("Qty. Handled", FieldCaption("Qty. Handled"), FieldCaption("Qty. Handled (Base)"));
-                Validate("Qty. Outstanding", Quantity - "Qty. Handled");
+
+                if Rec."Source Type" <> Database::"Prod. Order Line" then
+                    Validate("Qty. Outstanding", Quantity - "Qty. Handled")
+                else
+                    UpdateQtyHandledForProdOrderOutput();
             end;
         }
         field(24; "Qty. Handled (Base)"; Decimal)
@@ -312,7 +320,11 @@ table 7326 "Whse. Worksheet Line"
             trigger OnValidate()
             begin
                 "Qty. Handled" := CalcQty("Qty. Handled (Base)");
-                Validate("Qty. Outstanding", Quantity - "Qty. Handled");
+
+                if Rec."Source Type" <> Database::"Prod. Order Line" then
+                    Validate("Qty. Outstanding", Quantity - "Qty. Handled")
+                else
+                    UpdateQtyHandledForProdOrderOutput();
             end;
         }
         field(27; "From Unit of Measure Code"; Code[10])
@@ -786,6 +798,25 @@ table 7326 "Whse. Worksheet Line"
                 QtyAvailToMoveBase := QtyAvailToMoveBase - WhseWkshLine."Qty. to Handle (Base)";
             end;
         end;
+    end;
+
+    local procedure UpdateQtyHandledForProdOrderOutput()
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ProdOrderLine.Get(ProdOrderLine.Status::Released, Rec."Source No.", Rec."Source Line No.");
+        ProdOrderLine.CalcFields("Put-away Qty. (Base)");
+
+        if ProdOrderLine.Quantity >= ProdOrderLine."Finished Quantity" then
+            Rec.Validate("Qty. Outstanding", (Quantity - "Qty. Handled"))
+        else
+            if Quantity >= "Qty. Handled" then
+                Rec.Validate("Qty. Outstanding", (Quantity - "Qty. Handled"))
+            else
+                if ProdOrderLine."Finished Quantity" = "Qty. Handled" then
+                    Rec.Validate("Qty. Outstanding", 0)
+                else
+                    Rec.Validate("Qty. Outstanding", ProdOrderLine."Finished Qty. (Base)" - (ProdOrderLine."Qty. Put Away (Base)" + ProdOrderLine."Put-away Qty. (Base)"));
     end;
 
     procedure SortWhseWkshLines(WhseWkshTemplate: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; SortingMethod: Enum "Whse. Activity Sorting Method")

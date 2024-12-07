@@ -367,7 +367,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end else begin
             Currency.Get(GenJnlLine."Currency Code");
             Currency.TestField("Amount Rounding Precision");
-            if not GenJnlLine."System-Created Entry" then begin
+            if (not GenJnlLine."System-Created Entry") or (GenJnlLine."Financial Void") then begin
                 GenJnlLine."Source Currency Code" := GenJnlLine."Currency Code";
                 GenJnlLine."Source Currency Amount" := GenJnlLine.Amount;
                 GenJnlLine."Source Curr. VAT Base Amount" := GenJnlLine."VAT Base Amount";
