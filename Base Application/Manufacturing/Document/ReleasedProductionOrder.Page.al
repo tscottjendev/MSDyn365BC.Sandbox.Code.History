@@ -304,6 +304,19 @@ page 99000831 "Released Production Order"
                         RunPageView = sorting("Source Type", "Source Subtype", "Source No.");
                         ToolTip = 'View the history of quantities that are registered for the item in warehouse activities. ';
                     }
+                    action("Registered Put-away Lines")
+                    {
+                        ApplicationArea = Warehouse;
+                        Caption = 'Registered Put-away Lines';
+                        Image = RegisteredDocs;
+                        RunObject = Page "Registered Whse. Act.-Lines";
+                        RunPageLink = "Whse. Document Type" = const(Production),
+                                  "Source Document" = const("Prod. Output"),
+                                  "Whse. Document No." = field("No.");
+                        RunPageView = sorting("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.")
+                                  where("Activity Type" = const("Put-away"));
+                        ToolTip = 'View the list of completed put-away activities.';
+                    }
                 }
                 action(Dimensions)
                 {
