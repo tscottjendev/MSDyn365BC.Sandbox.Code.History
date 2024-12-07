@@ -26,13 +26,15 @@ codeunit 9192 "Company Creation Demo Data"
         if AreAppsInstalled(DemoDataAppIDs) then
             exit(true);
 
-        if Confirm(ContosoNotInstalledMsg, true) then begin
-            InstallApps(DemoDataAppIDs);
+        if GuiAllowed then
+            if not Confirm(ContosoNotInstalledMsg, true) then
+                exit(false);
 
-            // If the code reaches here, most likely the apps are not installed, because session fresh will be triggered after extension installation
-            // Check again if demo data apps are installed
-            exit(AreAppsInstalled(DemoDataAppIDs));
-        end;
+        InstallApps(DemoDataAppIDs);
+
+        // If the code reaches here, most likely the apps are not installed, because session fresh will be triggered after extension installation
+        // Check again if demo data apps are installed
+        exit(AreAppsInstalled(DemoDataAppIDs));
     end;
 
     local procedure InstallApps(DemoDataAppIDs: List of [Guid])
