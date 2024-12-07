@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Account;
+namespace Microsoft.Finance.GeneralLedger.Account;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Analysis;

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Setup;
+namespace Microsoft.Purchases.Setup;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Setup;

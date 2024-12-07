@@ -127,7 +127,7 @@ page 99000778 "Recurring Capacity Journal"
 
                     trigger OnValidate()
                     begin
-                        MfgItemJournalMgt.GetCapacity(Rec.Type, Rec."No.", CapDescription);
+                        ItemJnlMgt.GetCapacity(Rec.Type, Rec."No.", CapDescription);
                     end;
                 }
                 field("No."; Rec."No.")
@@ -137,7 +137,7 @@ page 99000778 "Recurring Capacity Journal"
 
                     trigger OnValidate()
                     begin
-                        MfgItemJournalMgt.GetCapacity(Rec.Type, Rec."No.", CapDescription);
+                        ItemJnlMgt.GetCapacity(Rec.Type, Rec."No.", CapDescription);
                     end;
                 }
                 field(Description; Rec.Description)
@@ -532,7 +532,7 @@ page 99000778 "Recurring Capacity Journal"
 
     trigger OnAfterGetCurrRecord()
     begin
-        MfgItemJournalMgt.GetCapacity(Rec.Type, Rec."No.", CapDescription);
+        ItemJnlMgt.GetCapacity(Rec.Type, Rec."No.", CapDescription);
     end;
 
     trigger OnAfterGetRecord()
@@ -566,7 +566,6 @@ page 99000778 "Recurring Capacity Journal"
 
     var
         ItemJnlMgt: Codeunit ItemJnlManagement;
-        MfgItemJournalMgt: Codeunit "Mfg. Item Journal Mgt.";
         ReportPrint: Codeunit "Test Report-Print";
         CapDescription: Text[100];
         CurrentJnlBatchName: Code[10];
