@@ -2900,7 +2900,7 @@ codeunit 5330 "CRM Integration Management"
 
         SolutionInstalled := CRMHelper.CheckSolutionPresence(MicrosoftDynamicsNavIntegrationTxt);
         if SolutionInstalled then
-            SolutionOutdated := IsSolutionOutdated(TempConnectionStringWithPlaceholders);
+            SolutionOutdated := IsSolutionOutdated(TempConnectionString);
 
         if ForceRedeploy then
             ImportSolution := (not SolutionInstalled) or SolutionOutdated
@@ -3037,7 +3037,7 @@ codeunit 5330 "CRM Integration Management"
 
         SolutionInstalled := CRMHelper.CheckSolutionPresence(MicrosoftDynamicsFSIntegrationTxt);
         if SolutionInstalled then
-            SolutionOutdated := IsSolutionOutdated(TempConnectionStringWithPlaceholders, MicrosoftDynamicsFSIntegrationTxt);
+            SolutionOutdated := IsSolutionOutdated(TempConnectionString, MicrosoftDynamicsFSIntegrationTxt);
 
         if ForceRedeploy then
             ImportSolution := (not SolutionInstalled) or SolutionOutdated
@@ -3101,14 +3101,14 @@ codeunit 5330 "CRM Integration Management"
 #endif
 
     [NonDebuggable]
-    local procedure IsSolutionOutdated(TempConnectionString: Text): Boolean
+    local procedure IsSolutionOutdated(TempConnectionString: SecretText): Boolean
     begin
         exit(IsSolutionOutdated(TempConnectionString, MicrosoftDynamicsNavIntegrationTxt));
     end;
 
     [NonDebuggable]
     [Scope('OnPrem')]
-    procedure IsSolutionOutdated(TempConnectionString: Text; SolutionUniqueName: Text[65]): Boolean
+    procedure IsSolutionOutdated(TempConnectionString: SecretText; SolutionUniqueName: Text[65]): Boolean
     var
         CDSSolution: Record "CDS Solution";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
@@ -3120,7 +3120,7 @@ codeunit 5330 "CRM Integration Management"
         TempConnectionName := CDSIntegrationImpl.GetTempConnectionName();
         if HasTableConnection(TableConnectionType::CRM, TempConnectionName) then
             UnregisterTableConnection(TableConnectionType::CRM, TempConnectionName);
-        RegisterTableConnection(TableConnectionType::CRM, TempConnectionName, TempConnectionString);
+        RegisterTableConnection(TableConnectionType::CRM, TempConnectionName, TempConnectionString.Unwrap());
         SetDefaultTableConnection(TableConnectionType::CRM, TempConnectionName, true);
         SolutionOutdated := true;
         CDSSolution.SetRange(UniqueName, SolutionUniqueName);
