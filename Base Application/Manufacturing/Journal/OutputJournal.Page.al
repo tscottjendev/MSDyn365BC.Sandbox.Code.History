@@ -70,7 +70,7 @@ page 99000823 "Output Journal"
 
                     trigger OnValidate()
                     begin
-                        MfgItemJournalMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
+                        ItemJnlMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
                     end;
                 }
                 field("Document No."; Rec."Document No.")
@@ -124,7 +124,7 @@ page 99000823 "Output Journal"
 
                     trigger OnValidate()
                     begin
-                        MfgItemJournalMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
+                        ItemJnlMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
                     end;
                 }
                 field("Order Line No."; Rec."Order Line No.")
@@ -742,7 +742,7 @@ page 99000823 "Output Journal"
 
     trigger OnAfterGetCurrRecord()
     begin
-        MfgItemJournalMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
+        ItemJnlMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
     end;
 
     trigger OnAfterGetRecord()
@@ -793,7 +793,6 @@ page 99000823 "Output Journal"
 
     var
         ItemJnlMgt: Codeunit ItemJnlManagement;
-        MfgItemJournalMgt: Codeunit "Mfg. Item Journal Mgt.";
         ReportPrint: Codeunit "Test Report-Print";
         ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
         ProdOrderDescription: Text[100];
