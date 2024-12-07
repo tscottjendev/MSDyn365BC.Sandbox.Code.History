@@ -75,10 +75,13 @@ page 6301 "Azure AD App Setup Part"
 
     [NonDebuggable]
     procedure Save()
+    var
+        SecretKeyText: SecretText;
     begin
+        SecretKeyText := SecretKey;
         Rec."Redirect URL" := RedirectUrl;
         Rec."App ID" := AppId;
-        Rec.SetSecretKeyToIsolatedStorage(SecretKey);
+        Rec.SetSecretKeyToIsolatedStorage(SecretKeyText);
 
         if not Rec.Modify(true) then
             Rec.Insert(true);
