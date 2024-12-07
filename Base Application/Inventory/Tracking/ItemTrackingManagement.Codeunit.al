@@ -10,6 +10,7 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Planning;
@@ -1104,6 +1105,20 @@ codeunit 6500 "Item Tracking Management"
                 TempPostedWhseRcptLine.Insert();
             end;
         end
+    end;
+
+    procedure SplitInternalPutAwayLine(ProdOrderLine: Record "Prod. Order Line"; var TempProdOrderLine: Record "Prod. Order Line" temporary)
+    begin
+        TempProdOrderLine.DeleteAll();
+
+        if not GetWhseItemTrkgSetup(ProdOrderLine."Item No.") then begin
+            TempProdOrderLine := ProdOrderLine;
+            TempProdOrderLine.Insert();
+            exit;
+        end;
+
+        TempProdOrderLine := ProdOrderLine;
+        TempProdOrderLine.Insert();
     end;
 
     procedure DeleteWhseItemTrkgLines(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; LocationCode: Code[10]; RelatedToLine: Boolean)
