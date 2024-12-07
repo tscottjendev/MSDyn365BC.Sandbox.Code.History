@@ -1,8 +1,8 @@
 {
-    "id":  "36560748-e620-4577-b8d9-3fd62a1a84f9",
-    "name":  "System Media",
+    "id":  "1add9470-572a-4b64-be68-c38ab9b33a50",
+    "name":  "Logging",
     "publisher":  "Microsoft",
-    "description":  "This module provides capabilities for interacting with Media in Business Central.",
+    "description":  "This module provides capabilities for both logging and viewing activities in Business Central.",
     "version":  "26.0.0.0",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
@@ -18,6 +18,12 @@
                          {
                              "id":  "59997dbf-584a-4f17-9c2a-9a7704e66422",
                              "name":  "File Operations",
+                             "publisher":  "Microsoft",
+                             "version":  "26.0.0.0"
+                         },
+                         {
+                             "id":  "89ed8e15-0ff8-4c30-8e28-fc6670eaeed1",
+                             "name":  "Record Conversion",
                              "publisher":  "Microsoft",
                              "version":  "26.0.0.0"
                          }
