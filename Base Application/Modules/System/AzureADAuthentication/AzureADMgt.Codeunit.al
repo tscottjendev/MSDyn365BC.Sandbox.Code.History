@@ -286,7 +286,7 @@ codeunit 6300 "Azure AD Mgt."
         TokenAsSecretText: SecretText;
     begin
         TokenAsSecretText := Token;
-        CreateExchangeServiceWrapperWithToken(Token, Service);
+        CreateExchangeServiceWrapperWithToken(TokenAsSecretText, Service);
     end;
 #endif
 

@@ -4,8 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Utilities;
 
-using System.Security.User;
-
 page 710 "Activity Log"
 {
     Caption = 'Activity Log';
@@ -29,18 +27,6 @@ page 710 "Activity Log"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the data of the activity.';
-                }
-                field("User ID"; Rec."User ID")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
-
-                    trigger OnDrillDown()
-                    var
-                        UserMgt: Codeunit "User Management";
-                    begin
-                        UserMgt.DisplayUserInformation(Rec."User ID");
-                    end;
                 }
                 field(Context; Rec.Context)
                 {
@@ -81,21 +67,6 @@ page 710 "Activity Log"
     {
         area(processing)
         {
-            action(OpenRelatedRecord)
-            {
-                ApplicationArea = Invoicing, Suite;
-                Caption = 'Open Related Record';
-                Image = View;
-                ToolTip = 'Open the record that is associated with this activity.';
-
-                trigger OnAction()
-                var
-                    PageManagement: Codeunit "Page Management";
-                begin
-                    if not PageManagement.PageRun(Rec."Record ID") then
-                        Message(NoRelatedRecordMsg);
-                end;
-            }
             action(ViewDetails)
             {
                 ApplicationArea = Invoicing, Suite;
@@ -140,9 +111,6 @@ page 710 "Activity Log"
             {
                 Caption = 'Process';
 
-                actionref(OpenRelatedRecord_Promoted; OpenRelatedRecord)
-                {
-                }
                 actionref(ViewDetails_Promoted; ViewDetails)
                 {
                 }
@@ -163,6 +131,5 @@ page 710 "Activity Log"
 
     var
         HasDetailedInfo: Boolean;
-        NoRelatedRecordMsg: Label 'There are no related records to display.';
 }
 
