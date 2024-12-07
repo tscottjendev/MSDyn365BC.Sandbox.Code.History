@@ -177,6 +177,7 @@ report 7305 "Whse.-Source - Create Document"
             trigger OnAfterGetRecord()
             var
                 PostedWhseRcptLine: Record "Posted Whse. Receipt Line";
+                ProdOrderLine: Record "Prod. Order Line";
                 TempWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary;
                 QtyHandledBase: Decimal;
                 SourceType: Integer;
@@ -184,11 +185,18 @@ report 7305 "Whse.-Source - Create Document"
                 LockTable();
 
                 CheckBin("Location Code", "From Bin Code", false);
+                if "Whse. Document Type" <> "Whse. Document Type"::Production then
+                    InitPostedWhseReceiptLineFromPutAway(PostedWhseRcptLine, "Whse. Put-away Worksheet Line", SourceType)
+                else
+                    CheckAndUpdateFinishedQtyOnProdOrderLineFromPutAway(ProdOrderLine, "Whse. Put-away Worksheet Line", SourceType);
 
-                InitPostedWhseReceiptLineFromPutAway(PostedWhseRcptLine, "Whse. Put-away Worksheet Line", SourceType);
+                if "Whse. Document Type" <> "Whse. Document Type"::Production then
+                    CreatePutAway.SetCrossDockValues(PostedWhseRcptLine."Qty. Cross-Docked" <> 0);
 
-                CreatePutAway.SetCrossDockValues(PostedWhseRcptLine."Qty. Cross-Docked" <> 0);
-                CreatePutAwayFromDiffSource(PostedWhseRcptLine, SourceType);
+                if "Whse. Document Type" <> "Whse. Document Type"::Production then
+                    CreatePutAwayFromDiffSource(PostedWhseRcptLine, SourceType)
+                else
+                    CreatePutAwayFromDiffSource(ProdOrderLine, SourceType);
 
                 if "Qty. to Handle" <> "Qty. Outstanding" then
                     EverythingHandled := false;
@@ -196,7 +204,10 @@ report 7305 "Whse.-Source - Create Document"
                 if EverythingHandled then
                     EverythingHandled := CreatePutAway.EverythingIsHandled();
 
-                QtyHandledBase := CreatePutAway.GetQtyHandledBase(TempWhseItemTrkgLine);
+                if "Whse. Document Type" <> "Whse. Document Type"::Production then
+                    QtyHandledBase := CreatePutAway.GetQtyHandledBase(TempWhseItemTrkgLine)
+                else
+                    QtyHandledBase := ProdOrderLine."Finished Qty. (Base)";
 
                 if QtyHandledBase > 0 then begin
                     // update/delete line
@@ -883,7 +894,8 @@ report 7305 "Whse.-Source - Create Document"
         WhseWkshLine.Copy(WhseWkshLine2);
         case WhseWkshLine."Whse. Document Type" of
             WhseWkshLine."Whse. Document Type"::Receipt,
-          WhseWkshLine."Whse. Document Type"::"Internal Put-away":
+          WhseWkshLine."Whse. Document Type"::"Internal Put-away",
+          WhseWkshLine."Whse. Document Type"::Production:
                 WhseDoc := WhseDoc::"Put-away Worksheet";
             WhseWkshLine."Whse. Document Type"::" ":
                 WhseDoc := WhseDoc::"Whse. Mov.-Worksheet";
@@ -1054,6 +1066,18 @@ report 7305 "Whse.-Source - Create Document"
         PostedWhseReceiptLine."Qty. (Base)" := WhseWorksheetLine."Qty. to Handle (Base)";
 
         OnAfterInitPostedWhseReceiptLineFromPutAway(PostedWhseReceiptLine, WhseWorksheetLine);
+    end;
+
+    local procedure CheckAndUpdateFinishedQtyOnProdOrderLineFromPutAway(var ProdOrderLine: Record "Prod. Order Line"; WhseWorksheetLine: Record "Whse. Worksheet Line"; var SourceType: Integer)
+    begin
+        ProdOrderLine.Get(ProdOrderLine.Status::Released, WhseWorksheetLine."Whse. Document No.", WhseWorksheetLine."Whse. Document Line No.");
+
+        SourceType := Database::"Posted Whse. Receipt Line";
+
+        ProdOrderLine.TestField(ProdOrderLine."Qty. per Unit of Measure");
+        ProdOrderLine."Finished Quantity" := WhseWorksheetLine."Qty. to Handle";
+        ProdOrderLine."Finished Qty. (Base)" := WhseWorksheetLine."Qty. to Handle (Base)";
+        SourceType := Database::"Prod. Order Line";
     end;
 
     local procedure InitPostedWhseReceiptLineFromInternalPutAway(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line"; QtyToPutAway: Decimal)
@@ -1329,9 +1353,40 @@ report 7305 "Whse.-Source - Create Document"
                 SetQuantity(TempPostedWhseRcptLine2, SourceType, RemQtyToHandleBase);
                 if TempPostedWhseRcptLine2."Qty. (Base)" > 0 then begin
                     CreatePutAway.Run(TempPostedWhseRcptLine2);
+                    CreatePutAway.CreateProdWhsePutAway();
                     CreatePutAway.UpdateTempWhseItemTrkgLines(TempPostedWhseRcptLine2, SourceType);
                 end;
             until TempPostedWhseRcptLine.Next() = 0;
+    end;
+
+    procedure CreatePutAwayFromDiffSource(ProdOrderLine: Record "Prod. Order Line"; SourceType: Integer)
+    var
+        TempProdOrderLine: Record "Prod. Order Line" temporary;
+        TempProdOrderLine2: Record "Prod. Order Line" temporary;
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        CreateHeader: Boolean;
+        Counter: Integer;
+        LineNo: Integer;
+    begin
+        case SourceType of
+            Database::"Prod. Order Line":
+                ItemTrackingMgt.SplitInternalPutAwayLine(ProdOrderLine, TempProdOrderLine);
+        end;
+
+        TempProdOrderLine.Reset();
+        if TempProdOrderLine.FindSet() then
+            repeat
+                TempProdOrderLine2 := TempProdOrderLine;
+                TempProdOrderLine2."Line No." := ProdOrderLine."Line No.";
+                if TempProdOrderLine2."Finished Qty. (Base)" > 0 then begin
+                    CreateHeader := Counter = 0;
+                    LineNo += 10000;
+                    CreatePutAway.CreateProdPutawayActivity(TempProdOrderLine2, CreateHeader, LineNo, TempProdOrderLine2."Finished Qty. (Base)", Enum::"Warehouse Action Type"::Take);
+                    LineNo += 10000;
+                    CreatePutAway.CreateProdPutawayActivity(TempProdOrderLine2, CreateHeader, LineNo, TempProdOrderLine2."Finished Qty. (Base)", Enum::"Warehouse Action Type"::Place);
+                end;
+                Counter += 1;
+            until TempProdOrderLine.Next() = 0;
     end;
 
     procedure FEFOLocation(LocCode: Code[10]): Boolean
