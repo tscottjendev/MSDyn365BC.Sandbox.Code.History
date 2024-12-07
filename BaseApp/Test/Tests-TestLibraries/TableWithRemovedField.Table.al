@@ -21,9 +21,14 @@ table 136603 "Table With Removed Field"
         {
             DataClassification = SystemMetadata;
             TableRelation = "Cust. Ledger Entry";
-            ObsoleteState = Pending;
             ObsoleteReason = 'Test field.';
+#if CLEAN25
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Pending;
             ObsoleteTag = '25.0';
+#endif
         }
         field(4; "Normal Field"; Integer)
         {
@@ -38,6 +43,7 @@ table 136603 "Table With Removed Field"
         {
             Clustered = true;
         }
+#if not CLEAN25
         key(Key2; "Obsolete Field Pending", "Key")
         {
             ObsoleteReason = 'Test key.';
@@ -53,6 +59,7 @@ table 136603 "Table With Removed Field"
         key(Key4; "Obsolete Field Pending", "Normal Field")
         {
         }
+#endif
     }
 
     fieldgroups
