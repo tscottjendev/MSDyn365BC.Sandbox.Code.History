@@ -2,10 +2,13 @@
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
+using Microsoft.Manufacturing.Document;
 using Microsoft.Warehouse.CrossDock;
 using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Tracking;
@@ -49,6 +52,8 @@ codeunit 7313 "Create Put-away"
         TempWarehouseActivityHeader: Record "Warehouse Activity Header" temporary;
         TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary;
         TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary;
+        TempOutputPutAwayItemJnlLine: Record "Item Journal Line" temporary;
+        TempProductionOrder: Record "Production Order" temporary;
         WMSManagement: Codeunit "WMS Management";
         UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
         FeatureTelemetry: Codeunit "Feature Telemetry";
@@ -419,6 +424,64 @@ codeunit 7313 "Create Put-away"
         OnAfterWhseActivLineInsert(WhseActivLine);
     end;
 
+    local procedure CreateNewWhseActivityForProdOrderLine(
+        ProdOrderLine: Record "Prod. Order Line";
+        var WhseActivLine: Record "Warehouse Activity Line";
+        ActionType: Enum "Warehouse Action Type";
+        QtyToHandleBase: Decimal;
+        InsertHeader: Boolean;
+        LineNo: Integer)
+    var
+        ProdOrderWhseMgmt: Codeunit "Prod. Order Warehouse Mgt.";
+    begin
+        if (CurrWarehouseActivityHeader."No." = '') and InsertHeader then
+            InsertWhseActivHeader(ProdOrderLine);
+
+        ProdOrderWhseMgmt.TransferFromOutputLine(WhseActivLine, ProdOrderLine);
+        WhseActivLine."No." := CurrWarehouseActivityHeader."No.";
+        WhseActivLine."Line No." := LineNo;
+        WhseActivLine."Location Code" := ProdOrderLine."Location Code";
+        WhseActivLine."Action Type" := ActionType;
+        WhseActivLine."Source Document" := WhseActivLine."Source Document"::"Prod. Output";
+        case ActionType of
+            ActionType::Take:
+                WhseActivLine."Bin Code" := ProdOrderLine."Bin Code";
+            ActionType::Place:
+                AssignPlaceBinZone(WhseActivLine, ProdOrderLine, CurrLocation, CurrBin);
+        end;
+
+        if WhseActivLine."Bin Code" <> '' then begin
+            GetBin(WhseActivLine."Location Code", WhseActivLine."Bin Code");
+            WhseActivLine.Dedicated := CurrBin.Dedicated;
+            WhseActivLine."Bin Ranking" := CurrBin."Bin Ranking";
+            WhseActivLine."Bin Type Code" := CurrBin."Bin Type Code";
+            GetItemAndSKU(WhseActivLine."Item No.", WhseActivLine."Location Code", WhseActivLine."Variant Code");
+            WhseActivLine."Special Equipment Code" := GetSpecEquipmentCode(WhseActivLine."Bin Code");
+        end;
+
+        WhseActivLine."Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
+        WhseActivLine."Qty. per Unit of Measure" := ProdOrderLine."Qty. per Unit of Measure";
+        WhseActivLine."Qty. Rounding Precision" := ProdOrderLine."Qty. Rounding Precision";
+        WhseActivLine."Qty. Rounding Precision (Base)" := ProdOrderLine."Qty. Rounding Precision (Base)";
+
+        WhseActivLine.Validate(
+          Quantity, UnitOfMeasureManagement.RoundQty(QtyToHandleBase / WhseActivLine."Qty. per Unit of Measure", WhseActivLine."Qty. Rounding Precision"));
+        if QtyToHandleBase <> 0 then begin
+            WhseActivLine."Qty. (Base)" := QtyToHandleBase;
+            WhseActivLine."Qty. to Handle (Base)" := QtyToHandleBase;
+            WhseActivLine."Qty. Outstanding (Base)" := QtyToHandleBase;
+        end;
+        if DoNotFillQtytoHandle then begin
+            WhseActivLine."Qty. to Handle" := 0;
+            WhseActivLine."Qty. to Handle (Base)" := 0;
+            WhseActivLine.Cubage := 0;
+            WhseActivLine.Weight := 0;
+        end;
+
+        WhseActivLine.Insert();
+        OnAfterWhseActivLineInsert(WhseActivLine);
+    end;
+
     procedure AssignPlaceBinZone(var WhseActivLine: Record "Warehouse Activity Line"; PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; Location: Record Location; Bin: Record Bin)
     var
         Bin2: Record Bin;
@@ -446,6 +509,32 @@ codeunit 7313 "Create Put-away"
         OnAfterAssignPlaceBinZone(WhseActivLine);
     end;
 
+    procedure AssignPlaceBinZone(var WhseActivLine: Record "Warehouse Activity Line"; ProdOrderLine: Record "Prod. Order Line"; Location: Record Location; Bin: Record Bin)
+    var
+        Bin2: Record Bin;
+    begin
+        WhseActivLine."Bin Code" := Bin.Code;
+        WhseActivLine."Zone Code" := Bin."Zone Code";
+        if Location.IsBWReceive() and
+           (CrossDockInfo <> WhseActivLine."Cross-Dock Information"::"Cross-Dock Items") and
+           ((Bin.Code = ProdOrderLine."Bin Code") or Location.IsBinBWReceiveOrShip(Bin.Code))
+        then begin
+            Bin2.SetRange("Location Code", Location.Code);
+            Bin2.SetFilter(Code, '<>%1&<>%2&<>%3', Location."Receipt Bin Code", Location."Shipment Bin Code",
+              ProdOrderLine."Bin Code");
+            Bin2.SetLoadFields(Code, "Zone Code");
+            if Bin2.FindFirst() then begin
+                WhseActivLine."Bin Code" := Bin2.Code;
+                WhseActivLine."Zone Code" := Bin2."Zone Code";
+            end else begin
+                WhseActivLine."Bin Code" := '';
+                WhseActivLine."Zone Code" := '';
+            end;
+        end;
+
+        OnAfterAssignPlaceBinZone(WhseActivLine);
+    end;
+
     local procedure InsertWhseActivHeader(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
     begin
         OnBeforeInsertWhseActivHeader(PostedWhseRcptLine);
@@ -458,6 +547,22 @@ codeunit 7313 "Create Put-away"
         CurrWarehouseActivityHeader."Sorting Method" := SortActivity;
         CurrWarehouseActivityHeader."Breakbulk Filter" := BreakbulkFilter;
         OnBeforeWhseActivHeaderInsert(CurrWarehouseActivityHeader, PostedWhseRcptLine);
+        CurrWarehouseActivityHeader.Insert(true);
+        OnAfterWhseActivHeaderInsert(CurrWarehouseActivityHeader);
+        InsertTempWhseActivHeader(CurrWarehouseActivityHeader);
+        CurrWarehouseActivityLine.LockTable();
+    end;
+
+    local procedure InsertWhseActivHeader(var ProdOrderLine: Record "Prod. Order Line")
+    begin
+        CurrWarehouseActivityHeader.LockTable();
+        CurrWarehouseActivityHeader.Init();
+        CurrWarehouseActivityHeader.Type := CurrWarehouseActivityHeader.Type::"Put-away";
+        CurrWarehouseActivityHeader."Location Code" := ProdOrderLine."Location Code";
+        CurrWarehouseActivityHeader.Validate("Assigned User ID", AssignedID);
+        CurrWarehouseActivityHeader."Sorting Method" := SortActivity;
+        CurrWarehouseActivityHeader."Breakbulk Filter" := BreakbulkFilter;
+        CurrWarehouseActivityHeader."Source Document" := CurrWarehouseActivityHeader."Source Document"::"Prod. Output";
         CurrWarehouseActivityHeader.Insert(true);
         OnAfterWhseActivHeaderInsert(CurrWarehouseActivityHeader);
         InsertTempWhseActivHeader(CurrWarehouseActivityHeader);
@@ -561,6 +666,112 @@ codeunit 7313 "Create Put-away"
               PostedWhseReceiptLine, CurrWarehouseActivityLine, ActionType, LineNo,
               0, QtyToPutAwayBase, true, false, EmptyZoneBin, false)
         end
+    end;
+
+    procedure ParkProdOrderForPutaway(ItemJnlLine: Record "Item Journal Line")
+    var
+        ProdOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ShouldCreatePutAway: Boolean;
+        PutAwayRequired: Boolean;
+    begin
+        if ItemJnlLine.OutputValuePosting() then
+            exit;
+
+        if ItemJnlLine."Entry Type" <> ItemJnlLine."Entry Type"::Output then
+            exit;
+
+        if ItemJnlLine."Location Code" = '' then
+            exit;
+
+        GetLocation(ItemJnlLine."Location Code");
+        PutAwayRequired := CurrLocation.RequirePutawayForProdOutput(ItemJnlLine."Location Code");
+        ShouldCreatePutAway := PutAwayRequired and not CurrLocation."Use Put-away Worksheet";
+        ProdOrderLine.Get(ProdOrderLine.Status::Released, ItemJnlLine."Order No.", ItemJnlLine."Order Line No.");
+        ProdOrder.Get(ProdOrder.Status::Released, ItemJnlLine."Order No.");
+
+        if not PutAwayRequired then begin
+            ProdOrderLine."Put-away Status" := ProdOrderLine."Put-away Status"::"Completely Put Away";
+            ProdOrderLine.Modify();
+
+            ProdOrder."Document Put-away Status" := ProdOrder.GetHeaderStatus(0);
+            ProdOrder.Modify();
+        end;
+
+        if PutAwayRequired then
+            CreateWhsePutAwayRequestForProdOutput(ProdOrder, ProdOrderLine);
+
+        if ShouldCreatePutAway then begin
+            UpdateTempProductionOrder(ItemJnlLine);
+            UpdateTempItemJnl(ItemJnlLine);
+        end;
+    end;
+
+    local procedure CreateWhsePutAwayRequestForProdOutput(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line")
+    var
+        WhsePutAwayRequest: Record "Whse. Put-away Request";
+    begin
+        WhsePutAwayRequest."Document Type" := WhsePutAwayRequest."Document Type"::Production;
+        WhsePutAwayRequest."Document No." := ProdOrder."No.";
+        WhsePutAwayRequest."Location Code" := ProdOrder."Location Code";
+        WhsePutAwayRequest."Bin Code" := ProdOrderLine."Bin Code";
+        if WhsePutAwayRequest.Insert() then;
+    end;
+
+    procedure CreateProdWhsePutAway()
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        LineNo: Integer;
+    begin
+        if TempProductionOrder.FindSet() then
+            repeat
+                LineNo := 0;
+                TempOutputPutAwayItemJnlLine.Reset();
+                TempOutputPutAwayItemJnlLine.SetRange("Order No.", TempProductionOrder."No.");
+                if TempOutputPutAwayItemJnlLine.FindSet() then
+                    repeat
+                        LineNo += 10000;
+                        ProdOrderLine.Get(TempProductionOrder.Status, TempProductionOrder."No.", TempOutputPutAwayItemJnlLine."Order Line No.");
+                        CreateProdPutawayActivity(ProdOrderLine, true, LineNo, TempOutputPutAwayItemJnlLine."Quantity (Base)", Enum::"Warehouse Action Type"::Take);
+                        LineNo += 10000;
+                        CreateProdPutawayActivity(ProdOrderLine, false, LineNo, TempOutputPutAwayItemJnlLine."Quantity (Base)", Enum::"Warehouse Action Type"::Place);
+                    until TempOutputPutAwayItemJnlLine.Next() = 0;
+            until TempProductionOrder.Next() = 0;
+    end;
+
+    procedure CreateProdPutawayActivity(ProdOrderLine: Record "Prod. Order Line"; InsertHeader: Boolean; LineNo: Integer; QuantityBase: Decimal; ActionType: Enum "Warehouse Action Type")
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        CreateNewWhseActivityForProdOrderLine(
+            ProdOrderLine, WarehouseActivityLine, ActionType,
+            QuantityBase, InsertHeader, LineNo);
+    end;
+
+    local procedure UpdateTempProductionOrder(ItemJnlLine: Record "Item Journal Line")
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        if TempProductionOrder.Get(TempProductionOrder.Status::Released, ItemJnlLine."Order No.") then
+            exit;
+
+        ProductionOrder.Get(TempProductionOrder.Status::Released, ItemJnlLine."Order No.");
+        TempProductionOrder.Init();
+        TempProductionOrder := ProductionOrder;
+        TempProductionOrder.Insert();
+    end;
+
+    local procedure UpdateTempItemJnl(ItemJnlLine: Record "Item Journal Line")
+    begin
+        TempOutputPutAwayItemJnlLine.Reset();
+        TempOutputPutAwayItemJnlLine.SetRange("Order No.", ItemJnlLine."Order No.");
+        TempOutputPutAwayItemJnlLine.SetRange("Order Line No.", ItemJnlLine."Order Line No.");
+        if not TempOutputPutAwayItemJnlLine.IsEmpty() then
+            exit;
+
+        TempOutputPutAwayItemJnlLine.Init();
+        TempOutputPutAwayItemJnlLine := ItemJnlLine;
+        TempOutputPutAwayItemJnlLine.Insert();
     end;
 
     local procedure AssignQtyToPutAwayForBinMandatory()
