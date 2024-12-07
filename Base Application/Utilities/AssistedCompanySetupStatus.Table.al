@@ -63,11 +63,6 @@ table 1802 "Assisted Company Setup Status"
             Caption = 'Server Instance ID';
             DataClassification = SystemMetadata;
         }
-        field(8; "Company Demo Data"; Text[50])
-        {
-            Caption = 'Company Demo Data';
-            DataClassification = SystemMetadata;
-        }
     }
     keys
     {
