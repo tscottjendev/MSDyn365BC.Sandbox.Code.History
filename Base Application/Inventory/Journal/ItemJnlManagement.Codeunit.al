@@ -5,6 +5,10 @@
 namespace Microsoft.Inventory.Journal;
 
 using Microsoft.Inventory.Item;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Manufacturing.WorkCenter;
 
 codeunit 240 ItemJnlManagement
 {
@@ -16,21 +20,24 @@ codeunit 240 ItemJnlManagement
     end;
 
     var
-#if not CLEAN26
-        MfgItemJournalMgt: Codeunit "Mfg. Item Journal Mgt.";
-#endif
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label '%1 journal';
+#pragma warning restore AA0470
         Text001: Label 'RECURRING';
         Text002: Label 'Recurring Item Journal';
         Text003: Label 'DEFAULT';
         Text004: Label 'Default Journal';
+#pragma warning restore AA0074
         OldItemNo: Code[20];
+        OldCapNo: Code[20];
+        OldCapType: Enum "Capacity Type";
+        OldProdOrderNo: Code[20];
+        OldOperationNo: Code[20];
+#pragma warning disable AA0074
         Text005: Label 'REC-';
         Text006: Label 'Recurring ';
 #pragma warning restore AA0074
-#pragma warning restore AA0470
         OpenFromBatch: Boolean;
 
     procedure TemplateSelection(PageID: Integer; PageTemplate: Option Item,Transfer,"Phys. Inventory",Revaluation,Consumption,Output,Capacity,"Prod. Order"; RecurringJnl: Boolean; var ItemJnlLine: Record "Item Journal Line"; var JnlSelected: Boolean)
@@ -249,29 +256,66 @@ codeunit 240 ItemJnlManagement
         OnAfterGetItem(Item, ItemDescription);
     end;
 
-#if not CLEAN26
-    [Obsolete('Moved to codeunit Mfg. Item Journal Management', '26.0')]
     procedure GetConsump(var ItemJnlLine: Record "Item Journal Line"; var ProdOrderDescription: Text[100])
+    var
+        ProdOrder: Record "Production Order";
     begin
-        MfgItemJournalMgt.GetConsump(ItemJnlLine, ProdOrderDescription);
+        if (ItemJnlLine."Order Type" = ItemJnlLine."Order Type"::Production) and (ItemJnlLine."Order No." <> OldProdOrderNo) then begin
+            ProdOrderDescription := '';
+            if ProdOrder.Get(ProdOrder.Status::Released, ItemJnlLine."Order No.") then
+                ProdOrderDescription := ProdOrder.Description;
+            OldProdOrderNo := ProdOrder."No.";
+        end;
     end;
-#endif
 
-#if not CLEAN26
-    [Obsolete('Moved to codeunit Mfg. Item Journal Management', '26.0')]
     procedure GetOutput(var ItemJnlLine: Record "Item Journal Line"; var ProdOrderDescription: Text[100]; var OperationDescription: Text[100])
+    var
+        ProdOrder: Record "Production Order";
+        ProdOrderRtngLine: Record "Prod. Order Routing Line";
     begin
-        MfgItemJournalMgt.GetOutput(ItemJnlLine, ProdOrderDescription, OperationDescription);
-    end;
-#endif
+        if (ItemJnlLine."Operation No." <> OldOperationNo) or
+           ((ItemJnlLine."Order Type" = ItemJnlLine."Order Type"::Production) and (ItemJnlLine."Order No." <> OldProdOrderNo))
+        then begin
+            OperationDescription := '';
+            if ProdOrderRtngLine.Get(
+                 ProdOrder.Status::Released,
+                 ItemJnlLine."Order No.",
+                 ItemJnlLine."Routing Reference No.",
+                 ItemJnlLine."Routing No.",
+                 ItemJnlLine."Operation No.")
+            then
+                OperationDescription := ProdOrderRtngLine.Description;
+            OldOperationNo := ProdOrderRtngLine."Operation No.";
+        end;
 
-#if not CLEAN26
-    [Obsolete('Moved to codeunit Mfg. Item Journal Management', '26.0')]
-    procedure GetCapacity(CapType: Enum Microsoft.Manufacturing.Capacity."Capacity Type"; CapNo: Code[20]; var CapDescription: Text[100])
-    begin
-        MfgItemJournalMgt.GetCapacity(CapType, CapNo, CapDescription);
+        if (ItemJnlLine."Order Type" = ItemJnlLine."Order Type"::Production) and (ItemJnlLine."Order No." <> OldProdOrderNo) then begin
+            ProdOrderDescription := '';
+            if ProdOrder.Get(ProdOrder.Status::Released, ItemJnlLine."Order No.") then
+                ProdOrderDescription := ProdOrder.Description;
+            OldProdOrderNo := ProdOrder."No.";
+        end;
     end;
-#endif
+
+    procedure GetCapacity(CapType: Enum "Capacity Type"; CapNo: Code[20]; var CapDescription: Text[100])
+    var
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
+    begin
+        if (CapNo <> OldCapNo) or (CapType <> OldCapType) then begin
+            CapDescription := '';
+            if CapNo <> '' then
+                case CapType of
+                    CapType::"Work Center":
+                        if WorkCenter.Get(CapNo) then
+                            CapDescription := WorkCenter.Name;
+                    CapType::"Machine Center":
+                        if MachineCenter.Get(CapNo) then
+                            CapDescription := MachineCenter.Name;
+                end;
+            OldCapNo := CapNo;
+            OldCapType := CapType;
+        end;
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckName(CurrentJnlBatchName: Code[10]; var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
