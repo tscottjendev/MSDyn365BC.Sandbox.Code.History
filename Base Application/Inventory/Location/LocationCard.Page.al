@@ -788,7 +788,7 @@ page 5703 "Location Card"
         SpecialEquipmentEnable := Rec."Bin Mandatory";
         PickBinPolicyEnable := Rec."Bin Mandatory" and not Rec."Directed Put-away and Pick";
         PutawayBinPolicyEnable := Rec."Bin Mandatory" and not Rec."Directed Put-away and Pick";
-        ProdPutawayWhseHandlingEnable := not Rec."Use As In-Transit" and not Rec."Directed Put-away and Pick";
+        ProdPutawayWhseHandlingEnable := not Rec."Use As In-Transit";
         ProdPickWhseHandlingEnable := not Rec."Use As In-Transit" and not Rec."Directed Put-away and Pick";
         JobPickWhseHandlingEnable := not Rec."Use As In-Transit" and not Rec."Directed Put-away and Pick";
         AssemblyPickWhseHandlingEnable := not Rec."Use As In-Transit" and not Rec."Directed Put-away and Pick";
