@@ -75,7 +75,7 @@ page 99000850 "Recurring Consumption Journal"
 
                     trigger OnValidate()
                     begin
-                        MfgItemJournalMgt.GetConsump(Rec, ProdOrderDescription);
+                        ItemJnlMgt.GetConsump(Rec, ProdOrderDescription);
                     end;
                 }
                 field("Order Line No."; Rec."Order Line No.")
@@ -579,7 +579,7 @@ page 99000850 "Recurring Consumption Journal"
 
     trigger OnAfterGetCurrRecord()
     begin
-        MfgItemJournalMgt.GetConsump(Rec, ProdOrderDescription);
+        ItemJnlMgt.GetConsump(Rec, ProdOrderDescription);
     end;
 
     trigger OnAfterGetRecord()
@@ -623,7 +623,6 @@ page 99000850 "Recurring Consumption Journal"
 
     var
         ItemJnlMgt: Codeunit ItemJnlManagement;
-        MfgItemJournalMgt: Codeunit "Mfg. Item Journal Mgt.";
         ReportPrint: Codeunit "Test Report-Print";
         ProdOrderDescription: Text[100];
         CurrentJnlBatchName: Code[10];

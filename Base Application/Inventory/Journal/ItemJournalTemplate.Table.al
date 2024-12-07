@@ -9,6 +9,8 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Journal;
 using Microsoft.Warehouse.Reports;
 using Microsoft.Warehouse.Structure;
 using System.Reflection;
@@ -89,11 +91,37 @@ table 82 "Item Journal Template"
                             "Test Report ID" := REPORT::"Revaluation Posting - Test";
                             "Posting Report ID" := REPORT::"Item Register - Value";
                         end;
+                    Type::Consumption:
+                        begin
+                            "Source Code" := SourceCodeSetup."Consumption Journal";
+                            "Page ID" := Page::"Consumption Journal";
+                        end;
+                    Type::Output:
+                        begin
+                            "Source Code" := SourceCodeSetup."Output Journal";
+                            "Page ID" := Page::"Output Journal";
+                        end;
+                    Type::Capacity:
+                        begin
+                            "Source Code" := SourceCodeSetup."Capacity Journal";
+                            "Page ID" := Page::"Capacity Journal";
+                        end;
+                    Type::"Prod. Order":
+                        begin
+                            "Source Code" := SourceCodeSetup."Production Journal";
+                            "Page ID" := Page::"Production Journal";
+                        end;
                 end;
                 if Recurring then
                     case Type of
                         Type::Item:
                             "Page ID" := Page::"Recurring Item Jnl.";
+                        Type::Consumption:
+                            "Page ID" := Page::"Recurring Consumption Journal";
+                        Type::Output:
+                            "Page ID" := Page::"Recurring Output Journal";
+                        Type::Capacity:
+                            "Page ID" := Page::"Recurring Capacity Journal";
                     end;
 
                 OnAfterValidateType(Rec, SourceCodeSetup);
@@ -252,7 +280,7 @@ table 82 "Item Journal Template"
 #pragma warning restore AA0074
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterValidateType(var ItemJournalTemplate: Record "Item Journal Template"; SourceCodeSetup: Record "Source Code Setup")
+    local procedure OnAfterValidateType(ItemJournalTemplate: Record "Item Journal Template"; SourceCodeSetup: Record "Source Code Setup")
     begin
     end;
 }
