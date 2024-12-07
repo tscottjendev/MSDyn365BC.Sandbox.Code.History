@@ -587,7 +587,6 @@ codeunit 134325 "ERM Purchase Quote"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase Quote");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Quote");
