@@ -576,6 +576,13 @@ table 5405 "Production Order"
                 Validate("Ending Time");
             end;
         }
+        field(110; "Document Put-away Status"; Option)
+        {
+            Caption = 'Document Put-away Status';
+            Editable = false;
+            OptionCaption = ' ,Partially Put Away,Completely Put Away';
+            OptionMembers = " ","Partially Put Away","Completely Put Away";
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -1108,6 +1115,31 @@ table 5405 "Production Order"
         NavigatePage.SetDoc("Due Date", "No.");
         NavigatePage.SetRec(Rec);
         NavigatePage.Run();
+    end;
+
+    procedure GetHeaderStatus(SkipLineNo: Integer): Integer
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ProdOrderLine.SetLoadFields("Put-away Status");
+        ProdOrderLine.SetRange("Prod. Order No.", "No.");
+        if SkipLineNo <> 0 then
+            ProdOrderLine.SetFilter("Line No.", '<>%1', SkipLineNo);
+
+        ProdOrderLine.SetRange("Put-away Status", ProdOrderLine."Put-away Status"::"Completely Put Away");
+        if not ProdOrderLine.IsEmpty() then begin
+            ProdOrderLine.SetFilter("Put-away Status", '<>%1', ProdOrderLine."Put-away Status"::"Completely Put Away");
+            if not ProdOrderLine.IsEmpty() then
+                exit(ProdOrderLine."Put-away Status"::"Partially Put Away");
+
+            exit(ProdOrderLine."Put-away Status"::"Completely Put Away");
+        end else begin
+            ProdOrderLine.SetRange("Put-away Status", ProdOrderLine."Put-away Status"::"Partially Put Away");
+            if not ProdOrderLine.IsEmpty() then
+                exit(ProdOrderLine."Put-away Status"::"Partially Put Away");
+        end;
+
+        exit(ProdOrderLine."Put-away Status"::" ");
     end;
 
     procedure CreatePick(AssignedUserID: Code[50]; SortingMethod: Option; SetBreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean; PrintDocument: Boolean)

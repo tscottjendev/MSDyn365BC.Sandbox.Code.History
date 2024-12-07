@@ -608,9 +608,17 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetSourceDocumentType', '', false, false)]
     local procedure WhseManagementGetSourceDocumentType(SourceType: Integer; SourceSubType: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
     begin
-        if SourceType = Database::"Prod. Order Component" then begin
-            SourceDocument := "Warehouse Journal Source Document"::"Prod. Consumption";
-            IsHandled := true;
+        case SourceType of
+            Database::"Prod. Order Component":
+                begin
+                    SourceDocument := "Warehouse Journal Source Document"::"Prod. Consumption";
+                    IsHandled := true;
+                end;
+            Database::"Prod. Order Line":
+                begin
+                    SourceDocument := "Warehouse Journal Source Document"::"Prod. Output";
+                    IsHandled := true;
+                end;
         end;
     end;
 
@@ -866,6 +874,22 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         WarehouseActivityLine."Whse. Document Line No." := ProdOrderCompLine."Prod. Order Line No.";
 
         OnAfterTransferFromCompLine(WarehouseActivityLine, ProdOrderCompLine);
+    end;
+
+    procedure TransferFromOutputLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+        WarehouseActivityLine."Activity Type" := WarehouseActivityLine."Activity Type"::"Put-away";
+        WarehouseActivityLine."Source Type" := Database::"Prod. Order Line";
+        WarehouseActivityLine."Source Subtype" := ProdOrderLine.Status.AsInteger();
+        WarehouseActivityLine."Source No." := ProdOrderLine."Prod. Order No.";
+        WarehouseActivityLine."Source Line No." := ProdOrderLine."Line No.";
+        WarehouseActivityLine."Item No." := ProdOrderLine."Item No.";
+        WarehouseActivityLine."Variant Code" := ProdOrderLine."Variant Code";
+        WarehouseActivityLine.Description := ProdOrderLine.Description;
+        WarehouseActivityLine."Due Date" := ProdOrderLine."Due Date";
+        WarehouseActivityLine."Whse. Document Type" := WarehouseActivityLine."Whse. Document Type"::Production;
+        WarehouseActivityLine."Whse. Document No." := ProdOrderLine."Prod. Order No.";
+        WarehouseActivityLine."Whse. Document Line No." := ProdOrderLine."Line No.";
     end;
 
     [IntegrationEvent(false, false)]
@@ -1243,6 +1267,54 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         OnAfterFromProdOrderCompLineCreateWhseWkshLine(WhseWkshLine, ProdOrderCompLine, LocationCode, ToBinCode);
 #endif
         if WhseWorksheetCreate.CreateWhseWkshLine(WhseWkshLine, ProdOrderCompLine) then
+            exit(true);
+    end;
+
+    procedure FromProdOrderLine(WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; ToBinCode: Code[20]; ProdOrderLine: Record "Prod. Order Line"): Boolean
+    var
+        Bin: Record Bin;
+        WhseWkshLine: Record "Whse. Worksheet Line";
+        WhseManagement: Codeunit "Whse. Management";
+        WhseWorksheetCreate: Codeunit "Whse. Worksheet-Create";
+    begin
+        WhseWkshLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
+        WhseWkshLine.SetRange("Source Type", Database::"Prod. Order Component");
+        WhseWkshLine.SetRange("Source Subtype", ProdOrderLine.Status);
+        WhseWkshLine.SetRange("Source No.", ProdOrderLine."Prod. Order No.");
+        WhseWkshLine.SetRange("Source Line No.", ProdOrderLine."Line No.");
+        if not WhseWkshLine.IsEmpty() then
+            exit;
+
+        WhseWorksheetCreate.FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
+
+        WhseWkshLine.Init();
+        WhseWkshLine.SetHideValidationDialog(true);
+        WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
+        WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Production;
+        WhseWkshLine."Whse. Document No." := ProdOrderLine."Prod. Order No.";
+        WhseWkshLine."Whse. Document Line No." := ProdOrderLine."Line No.";
+        WhseWkshLine."Source Type" := Database::"Prod. Order Line";
+        WhseWkshLine."Source Subtype" := ProdOrderLine.Status.AsInteger();
+        WhseWkshLine."Source Subtype" := 5;
+        WhseWkshLine."Source No." := ProdOrderLine."Prod. Order No.";
+        WhseWkshLine."Source Line No." := ProdOrderLine."Line No.";
+        WhseWkshLine."Source Subline No." := ProdOrderLine."Line No.";
+        WhseWkshLine."Source Document" := WhseManagement.GetWhseActivSourceDocument(WhseWkshLine."Source Type", WhseWkshLine."Source Subtype");
+        WhseWkshLine."Location Code" := ProdOrderLine."Location Code";
+        WhseWkshLine."Item No." := ProdOrderLine."Item No.";
+        WhseWkshLine."Variant Code" := ProdOrderLine."Variant Code";
+        WhseWkshLine."Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
+        WhseWkshLine."Qty. per Unit of Measure" := ProdOrderLine."Qty. per Unit of Measure";
+        WhseWkshLine.Description := ProdOrderLine.Description;
+        WhseWkshLine."Due Date" := ProdOrderLine."Due Date";
+        WhseWkshLine.Validate(Quantity, (ProdOrderLine."Finished Quantity" - (ProdOrderLine."Qty. Put Away" + ProdOrderLine."Put-away Qty.")));
+        WhseWkshLine.Validate("Qty. Handled", ProdOrderLine."Qty. Put Away" + ProdOrderLine."Put-away Qty.");
+        WhseWkshLine."To Bin Code" := ToBinCode;
+        if (ProdOrderLine."Location Code" <> '') and (ToBinCode <> '') then begin
+            Bin.Get(LocationCode, ToBinCode);
+            WhseWkshLine."To Zone Code" := Bin."Zone Code";
+        end;
+        if WhseWorksheetCreate.CreateWhseWkshLine(WhseWkshLine, ProdOrderLine) then
             exit(true);
     end;
 
