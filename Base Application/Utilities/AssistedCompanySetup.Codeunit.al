@@ -192,7 +192,7 @@ codeunit 1800 "Assisted Company Setup"
         ApplicationAreaMgmt.SetExperienceTierOtherCompany(ExperienceTierSetup, NewCompanyName);
     end;
 
-    procedure SetupCompanyWithoutDemodata(NewCompanyName: Text[30]; NewCompanyData: Enum "Company Demo Data Type")
+    procedure SetUpNewCompany(NewCompanyName: Text[30]; NewCompanyData: Enum "Company Demo Data Type")
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
         DataClassificationEvalData: Codeunit "Data Classification Eval. Data";
@@ -205,19 +205,6 @@ codeunit 1800 "Assisted Company Setup"
 
         if NewCompanyData in [NewCompanyData::"Evaluation - Contoso Sample Data"] then
             DataClassificationEvalData.CreateEvaluationData();
-    end;
-
-    procedure SetUpNewCompany(NewCompanyName: Text[30]; NewCompanyData: Enum "Company Demo Data Type")
-    var
-        CompanyCreationDemoData: codeunit "Company Creation Demo Data";
-    begin
-        SetupCompanyWithoutDemodata(NewCompanyName, NewCompanyData);
-
-        if NewCompanyData in [NewCompanyData::"Production - Setup Data Only", NewCompanyData::"Evaluation - Contoso Sample Data"] then
-            if CompanyCreationDemoData.CheckAndPromptUserToInstallContosoRequiredApps() then
-                OnSetupNewCompanyWithDemoData(NewCompanyName, NewCompanyData)
-            else
-                error('Could not run demo data setup');
     end;
 
     procedure CreateNewCompany(NewCompanyName: Text[30])
@@ -367,11 +354,6 @@ codeunit 1800 "Assisted Company Setup"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateAccountingPeriod(StartDate: Date; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnSetupNewCompanyWithDemoData(NewCompanyName: Text[30]; NewCompanyData: Enum "Company Demo Data Type")
     begin
     end;
 }
