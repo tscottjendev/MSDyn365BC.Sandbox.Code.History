@@ -110,7 +110,7 @@ codeunit 7203 "CDS Environment"
         ConsumerKey: Text;
         ConsumerSecret: SecretText;
         FirstPartyAppId: Text;
-        FirstPartyAppCertificate: Text;
+        FirstPartyAppCertificate: SecretText;
         RedirectUrl: Text;
         Token: SecretText;
         Err: Text;
@@ -125,7 +125,7 @@ codeunit 7203 "CDS Environment"
         FirstPartyAppId := CDSIntegrationImpl.GetCDSConnectionFirstPartyAppId();
         FirstPartyAppCertificate := CDSIntegrationImpl.GetCDSConnectionFirstPartyAppCertificate();
         RedirectUrl := CDSIntegrationImpl.GetRedirectURL();
-        if (FirstPartyappId <> '') and (FirstPartyAppCertificate <> '') then begin
+        if (FirstPartyappId <> '') and (not (FirstPartyAppCertificate.IsEmpty())) then begin
             Session.LogMessage('0000EI6', AcquiringAuthCodeTokenWithCertificateTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
             OAuth2.AcquireAuthorizationCodeTokenFromCacheWithCertificate(FirstPartyappId, FirstPartyAppCertificate, RedirectUrl, OAuthAuthorityUrlAuthCodeTxt, Scopes, Token);
             if Token.IsEmpty() then
