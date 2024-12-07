@@ -18,6 +18,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Document;
+using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
 using System.Utilities;
@@ -57,6 +58,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         WMSMgmt: Codeunit "WMS Management";
         WhseJnlPostLine: Codeunit "Whse. Jnl.-Register Line";
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+        CreatePutaway: Codeunit "Create Put-away";
         Window: Dialog;
         ItemRegNo: Integer;
         WhseRegNo: Integer;
@@ -147,7 +149,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         if not ItemReg.FindLast() or (ItemReg."No." <> ItemRegNo) then
             ItemRegNo := 0;
 
-        UnBindSubscription(this); 
+        UnBindSubscription(this);
 
         OnAfterCopyRegNos(ItemJnlLine, ItemRegNo, WhseRegNo);
 
@@ -317,6 +319,9 @@ codeunit 23 "Item Jnl.-Post Batch"
                         OriginalQuantityBase := ItemJnlLine."Quantity (Base)";
                         if not ItemJnlPostLine.RunWithCheck(ItemJnlLine) then
                             ItemJnlPostLine.CheckItemTracking();
+
+                        HandleProdOutputPutAway(ItemJnlLine);
+
                         if ItemJnlLine."Value Entry Type" <> ItemJnlLine."Value Entry Type"::Revaluation then begin
                             ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification);
                             OnPostLinesBeforePostWhseJnlLine(ItemJnlLine, SuppressCommit);
@@ -338,7 +343,22 @@ codeunit 23 "Item Jnl.-Post Batch"
             end;
         until ItemJnlLine.Next() = 0;
 
+        CreatePutaway.CreateProdWhsePutAway();
         OnAfterPostLines(ItemJnlLine, ItemRegNo, WhseRegNo);
+    end;
+
+    local procedure HandleProdOutputPutAway(ItemJnlLine: Record "Item Journal Line")
+    begin
+        if ItemJnlLine.OutputValuePosting() then
+            exit;
+
+        if ItemJnlLine."Entry Type" <> ItemJnlLine."Entry Type"::Output then
+            exit;
+
+        if (ItemJnlLine."Order No." = '') or (ItemJnlLine."Order Line No." = 0) then
+            exit;
+
+        CreatePutaway.ParkProdOrderForPutaway(ItemJnlLine);
     end;
 
     local procedure HandleRecurringLine(var ItemJnlLine: Record "Item Journal Line")

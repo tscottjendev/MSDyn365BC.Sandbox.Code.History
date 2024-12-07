@@ -11336,6 +11336,15 @@
       <Cmt Name="Dev"><![CDATA[%1: Table name, %2: Field name.]D;]A;(LookupHint=Codeunit SCM Production Orders II - NamedType IncorrectValueErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3590079757 - NamedType 10646375" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot select %1 on %2 %3 when %4 is enabled.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Inventory Put-away, %2 = Location Table Caption, %3 = Location Code, %4 = Directed Put-away Field Caption]D;]A;(LookupHint=Codeunit SCM Production Orders II - NamedType InvalidProdOutputHandlingErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3590079757 - NamedType 2478110737" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Item Ledger Entry must be found.]]></Val>
@@ -11433,6 +11442,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders II - NamedType TimeShiftedOnParentLineMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3590079757 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(LookupHint=Codeunit SCM Production Orders II - NamedType ValueMustBeEqualErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3792612980 - NamedType 1884474113" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
