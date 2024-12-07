@@ -660,11 +660,13 @@ codeunit 925 "Assembly Header-Reserve"
     begin
     end;
 
+#if not CLEAN25
     [IntegrationEvent(false, false)]
     [Obsolete('Replaced by same event in codeunit AssemblyLineReserve', '25.0')]
     local procedure OnSetAssemblyHeaderOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; AssemblyHeader: Record "Assembly Header")
     begin
     end;
+#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnAutoReserveOnBeforeStopReservation', '', false, false)]
     local procedure OnAutoReserveOnBeforeStopReservation(var CalcReservEntry: Record "Reservation Entry"; var StopReservation: Boolean; SourceRecRef: RecordRef);
