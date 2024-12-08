@@ -31,7 +31,10 @@ page 1178 "Doc. Attachment List Factbox"
 
                     trigger OnDrillDown()
                     begin
-                        Rec.Export(true);
+                        if Rec.SupportedByFileViewer() then
+                            Rec.ViewFile()
+                        else
+                            Rec.Export(true);
                     end;
                 }
                 field("File Extension"; Rec."File Extension")
@@ -149,6 +152,23 @@ page 1178 "Doc. Attachment List Factbox"
                     Rec.OpenInOneDrive("Document Sharing Intent"::Share);
                 end;
             }
+            action(OpenInFileViewer)
+            {
+                ApplicationArea = All;
+                Caption = 'View';
+                Image = View;
+                Enabled = ViewEnabled;
+                Scope = Repeater;
+                ToolTip = 'View the file. You will be able to download the file from the viewer control. Works only on limited number of file types.';
+
+                trigger OnAction()
+                begin
+                    if Rec."File Name" <> '' then
+                        Rec.ViewFile()
+                    else
+                        Error(CannotDownloadOrViewFileWithEmptyNameErr);
+                end;
+            }
             action(DownloadInRepeater)
             {
                 ApplicationArea = All;
@@ -163,7 +183,7 @@ page 1178 "Doc. Attachment List Factbox"
                     if Rec."File Name" <> '' then
                         Rec.Export(true)
                     else
-                        Error(CannotDownloadFileWithEmptyNameErr);
+                        Error(CannotDownloadOrViewFileWithEmptyNameErr);
                 end;
             }
         }
@@ -235,6 +255,7 @@ page 1178 "Doc. Attachment List Factbox"
         CurrPage.SetSelectionFilter(SelectedDocumentAttachment);
         IsMultiSelect := SelectedDocumentAttachment.Count() > 1;
         DownloadEnabled := Rec.HasContent() and (not IsMultiSelect);
+        ViewEnabled := DownloadEnabled and Rec.SupportedByFileViewer();
 
         if OfficeMgmt.IsAvailable() or OfficeMgmt.IsPopOut() then begin
             ShareOptionsVisible := false;
@@ -267,10 +288,11 @@ page 1178 "Doc. Attachment List Factbox"
         ShareOptionsVisible: Boolean;
         ShareEditOptionVisible: Boolean;
         DownloadEnabled: Boolean;
+        ViewEnabled: Boolean;
         IsMultiSelect: Boolean;
         IsOfficeAddIn: Boolean;
         EmailHasAttachments: Boolean;
-        CannotDownloadFileWithEmptyNameErr: Label 'Cannot download a file with empty name!';
+        CannotDownloadOrViewFileWithEmptyNameErr: Label 'The file must have a name.';
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecRefFail(DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef)
