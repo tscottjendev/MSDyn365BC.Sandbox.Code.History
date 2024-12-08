@@ -36,7 +36,10 @@ page 1173 "Document Attachment Details"
                         Selection: Integer;
                     begin
                         if Rec.HasContent() then
-                            Rec.Export(true)
+                            if Rec.SupportedByFileViewer() then
+                                Rec.ViewFile()
+                            else
+                                Rec.Export(true)
                         else
                             if not IsOfficeAddin or not EmailHasAttachments then
                                 InitiateUploadFile()
@@ -158,6 +161,20 @@ page 1173 "Document Attachment Details"
                     Rec.OpenInOneDrive("Document Sharing Intent"::Share);
                 end;
             }
+            action(OpenInFileViewer)
+            {
+                ApplicationArea = All;
+                Caption = 'View';
+                Image = View;
+                Enabled = ViewEnabled;
+                Scope = Repeater;
+                ToolTip = 'View the file. You will be able to download the file from the viewer control. Works only on limited number of file types.';
+
+                trigger OnAction()
+                begin
+                    Rec.ViewFile();
+                end;
+            }
             action(Preview)
             {
                 ApplicationArea = All;
@@ -224,6 +241,9 @@ page 1173 "Document Attachment Details"
         }
         area(Promoted)
         {
+            actionref(OpenInFileViewer_Promoted; OpenInFileViewer)
+            {
+            }
             actionref(Preview_Promoted; Preview)
             {
             }
@@ -280,6 +300,7 @@ page 1173 "Document Attachment Details"
             ShareEditOptionVisible := DocumentSharing.EditEnabledForFile('.' + Rec."File Extension");
         end;
         DownloadEnabled := Rec.HasContent() and (not IsMultiSelect);
+        ViewEnabled := DownloadEnabled and Rec.SupportedByFileViewer();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -299,6 +320,7 @@ page 1173 "Document Attachment Details"
         ShareOptionsVisible: Boolean;
         ShareEditOptionVisible: Boolean;
         DownloadEnabled: Boolean;
+        ViewEnabled: Boolean;
         FlowFieldsEditable: Boolean;
         EmailHasAttachments: Boolean;
         IsOfficeAddin: Boolean;

@@ -290,6 +290,23 @@ table 1173 "Document Attachment"
         exit(false);
     end;
 
+    internal procedure SupportedByFileViewer(): Boolean
+    begin
+        case Rec."File Type" of
+            Rec."File Type"::PDF:
+                exit(true);
+            Rec."File Type"::" ":
+                begin
+                    if Rec."File Extension" <> '' then
+                        exit(LowerCase(Rec."File Extension") = 'pdf');
+
+                    exit(Lowercase(Rec."File Name").EndsWith('pdf'))
+                end;
+            else
+                exit(false);
+        end;
+    end;
+
     local procedure IsPostedDocument(TableID: Integer) Posted: Boolean
     begin
         if TableID in [Database::"Sales Invoice Header", Database::"Sales Cr.Memo Header"] then
@@ -584,6 +601,16 @@ table 1173 "Document Attachment"
 
         TenantMedia.Get(Rec."Document Reference ID".MediaId());
         exit(TenantMedia."Mime Type");
+    end;
+
+    internal procedure ViewFile()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        FileInStream: InStream;
+    begin
+        GetAsTempBlob(TempBlob);
+        TempBlob.CreateInStream(FileInStream);
+        File.ViewFromStream(FileInStream, Rec."File Name" + '.' + Rec."File Extension", true);
     end;
 
     procedure OpenInOneDrive(DocumentSharingIntent: Enum "Document Sharing Intent")
