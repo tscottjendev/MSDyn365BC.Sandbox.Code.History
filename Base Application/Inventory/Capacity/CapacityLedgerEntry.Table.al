@@ -243,10 +243,10 @@ table 5832 "Capacity Ledger Entry"
         key(Key2; "Document No.", "Posting Date")
         {
         }
-        key(Key5; Type, "No.", "Item No.", "Posting Date")
+        key(Key3; "Order Type", "Order No.", "Order Line No.")
         {
         }
-        key(Key6; "Order Type", "Order No.")
+        key(Key5; Type, "No.", "Item No.", "Posting Date")
         {
         }
     }
