@@ -70,6 +70,7 @@ tableextension 10015 "Location NA" extends Location
                     Rec."SAT Address ID" := SATAddress.Id;
             end;
         }
+#if not CLEANSCHEMA26
         field(27026; "SAT State Code"; Code[10])
         {
             Caption = 'SAT State Code';
@@ -106,11 +107,12 @@ tableextension 10015 "Location NA" extends Location
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
         }
+#endif
         field(27030; "ID Ubicacion"; Integer)
         {
             Caption = 'ID Ubicacion';
-             DataClassification = CustomerContent;
-       }
+            DataClassification = CustomerContent;
+        }
     }
 
     procedure GetSATAddress(): Text

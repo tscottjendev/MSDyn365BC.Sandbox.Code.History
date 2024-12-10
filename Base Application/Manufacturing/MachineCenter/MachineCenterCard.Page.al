@@ -243,7 +243,7 @@ page 99000760 "Machine Center Card"
                     RunPageLink = Type = const("Machine Center"),
                                   "No." = field("No."),
                                   "Posting Date" = field("Date Filter");
-                    RunPageView = sorting(Type, "No.", "Work Shift Code", "Item No.", "Posting Date");
+                    RunPageView = sorting(Type, "No.", "Item No.", "Posting Date");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the capacity ledger entries of the involved production order. Capacity is recorded either as time (run time, stop time, or setup time) or as quantity (scrap quantity or output quantity).';
                 }
