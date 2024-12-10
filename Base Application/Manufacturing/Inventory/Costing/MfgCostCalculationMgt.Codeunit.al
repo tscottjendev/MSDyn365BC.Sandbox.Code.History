@@ -346,7 +346,6 @@ codeunit 99000800 "Mfg. Cost Calculation Mgt."
         if ProdOrder.IsStatusLessThanReleased() then
             exit(0);
 
-        CapLedgEntry.SetCurrentKey("Order Type", "Order No.");
         CapLedgEntry.SetRange("Order Type", CapLedgEntry."Order Type"::Production);
         CapLedgEntry.SetRange("Order No.", ProdOrder."No.");
         OnCalcProdOrderActTimeUsedOnAfterCapacityLedgerEntrySetFilters(CapLedgEntry, ProdOrder);
@@ -446,10 +445,9 @@ codeunit 99000800 "Mfg. Cost Calculation Mgt."
         if ProdOrderLine.IsStatusLessThanReleased() then
             exit(0);
 
-        CapLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.");
         CapLedgEntry.SetFilterByProdOrderRoutingLine(
-          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-          ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
+            ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
+            ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
         CapLedgEntry.SetRange("Operation No.", ProdOrderRtngLine."Operation No.");
         OnCalcActOutputQtyBaseOnAfterSetFilters(CapLedgEntry, ProdOrderLine, ProdOrderRtngLine);
 #if not CLEAN26
@@ -466,11 +464,9 @@ codeunit 99000800 "Mfg. Cost Calculation Mgt."
         if ProdOrderLine.Status.AsInteger() < ProdOrderLine.Status::Released.AsInteger() then
             exit(0);
 
-        CapLedgEntry.SetCurrentKey(
-          "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
         CapLedgEntry.SetFilterByProdOrderRoutingLine(
-          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-          ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
+            ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
+            ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
         CapLedgEntry.SetRange("Last Output Line", true);
         CapLedgEntry.SetRange(Quantity, 0);
         CapLedgEntry.CalcSums("Output Quantity", "Scrap Quantity");
@@ -484,11 +480,9 @@ codeunit 99000800 "Mfg. Cost Calculation Mgt."
         if ProdOrderLine.IsStatusLessThanReleased() then
             exit(0);
 
-        CapLedgEntry.SetCurrentKey(
-          CapLedgEntry."Order Type", CapLedgEntry."Order No.", CapLedgEntry."Order Line No.", CapLedgEntry."Routing No.", CapLedgEntry."Routing Reference No.", CapLedgEntry."Operation No.", CapLedgEntry."Last Output Line");
         CapLedgEntry.SetFilterByProdOrderRoutingLine(
-          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-          ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
+            ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
+            ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
         CapLedgEntry.SetRange("Last Output Line", true);
         CapLedgEntry.CalcSums(CapLedgEntry.Quantity);
         exit(CapLedgEntry.Quantity / ProdOrderLine."Qty. per Unit of Measure");
@@ -501,11 +495,9 @@ codeunit 99000800 "Mfg. Cost Calculation Mgt."
         if ProdOrderLine.IsStatusLessThanReleased() then
             exit(0);
 
-        CapLedgEntry.SetCurrentKey(
-          "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
         CapLedgEntry.SetFilterByProdOrderRoutingLine(
-          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-          ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
+            ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
+            ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
         CapLedgEntry.SetRange("Last Output Line", true);
         OnCalcActOperOutputAndScrapOnAfterFilterCapLedgEntry(CapLedgEntry);
 #if not CLEAN26
@@ -546,11 +538,9 @@ codeunit 99000800 "Mfg. Cost Calculation Mgt."
     var
         CapLedgEntry: Record "Capacity Ledger Entry";
     begin
-        CapLedgEntry.SetCurrentKey(
-            "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
         CapLedgEntry.SetFilterByProdOrderRoutingLine(
-          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-          ProdOrderLine."Routing No.", ProdOrderLine."Routing Reference No.");
+            ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
+            ProdOrderLine."Routing No.", ProdOrderLine."Routing Reference No.");
         CapLedgEntry.SetRange("Operation No.", OperationNo);
         OnCalcActTimeAndQtyBaseOnAfterFilterCapLedgEntry(CapLedgEntry);
         if CapLedgEntry.Find('-') then

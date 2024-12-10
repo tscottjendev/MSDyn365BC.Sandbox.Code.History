@@ -3767,7 +3767,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(4308); // "SOA Instruction Task/Policy"
         SetTableFieldsToNormal(4309); // "SOA Instruction Prompt"
         SetFieldToCompanyConfidential(4309, 2); // Prompt
-        SetTableFieldsToNormal(4592); // SOT Agent - KPI Entry
+        SetTableFieldsToNormal(4592); // SOA Agent - KPI Entry
         SetFieldToPersonal(4592, 5); // Created by User ID
     end;
 
