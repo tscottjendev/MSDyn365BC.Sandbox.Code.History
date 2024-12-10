@@ -2036,18 +2036,21 @@ codeunit 99000774 "Calculate Routing Line"
     var
         CapacityLedgerEntry: Record "Capacity Ledger Entry";
     begin
-        CapacityLedgerEntry.SetCurrentKey(
-            "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
-        CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
-        CapacityLedgerEntry.SetRange("Order No.", ProdOrderRoutingLine."Prod. Order No.");
-        CapacityLedgerEntry.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
-        CapacityLedgerEntry.SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
-        CapacityLedgerEntry.SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
-        CapacityLedgerEntry.CalcSums("Setup Time", CapacityLedgerEntry."Run Time");
-        if TimeType = TimeType::"Setup Time" then
-            exit(CapacityLedgerEntry."Setup Time");
-        if TimeType = TimeType::"Run Time" then
-            exit(CapacityLedgerEntry."Run Time");
+        if TimeType in [TimeType::"Setup Time", TimeType::"Run Time"] then begin
+            CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
+            CapacityLedgerEntry.SetRange("Order No.", ProdOrderRoutingLine."Prod. Order No.");
+            CapacityLedgerEntry.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
+            CapacityLedgerEntry.SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
+            CapacityLedgerEntry.SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
+            if TimeType = TimeType::"Setup Time" then begin
+                CapacityLedgerEntry.CalcSums("Setup Time");
+                exit(CapacityLedgerEntry."Setup Time");
+            end;
+            if TimeType = TimeType::"Run Time" then begin
+                CapacityLedgerEntry.CalcSums("Run Time");
+                exit(CapacityLedgerEntry."Run Time");
+            end;
+        end;
         exit(0);
     end;
 
