@@ -162,9 +162,6 @@ tableextension 99000801 "Mfg. Capacity Ledger Entry" extends "Capacity Ledger En
 
     keys
     {
-        key(Key3; "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line")
-        {
-        }
         key(Key4; "Work Center No.", "Work Shift Code")
         {
         }
