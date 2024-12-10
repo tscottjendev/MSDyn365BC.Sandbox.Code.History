@@ -72,6 +72,7 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Transport Method';
             TableRelation = "Transport Method";
         }
+#if not CLEANSCHEMA29
 #pragma warning disable AS0105
         field(11; "Source Type"; Enum "Intrastat Source Type")
         {
@@ -87,6 +88,7 @@ table 263 "Intrastat Jnl. Line"
             ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
         }
 #pragma warning restore AS0105
+#endif
         field(12; "Source Entry No."; Integer)
         {
             Caption = 'Source Entry No.';
