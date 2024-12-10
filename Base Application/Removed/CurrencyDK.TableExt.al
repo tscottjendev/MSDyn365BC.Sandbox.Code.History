@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15
 tableextension 13668 "Currency DK" extends Currency
 {
     fields
@@ -12,3 +13,4 @@ tableextension 13668 "Currency DK" extends Currency
         }
     }
 }
+#endif

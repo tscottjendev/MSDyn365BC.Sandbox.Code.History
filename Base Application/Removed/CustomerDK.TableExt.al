@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15
 tableextension 13669 "Customer DK" extends Customer
 {
     fields
@@ -36,3 +37,4 @@ tableextension 13669 "Customer DK" extends Customer
         }
     }
 }
+#endif

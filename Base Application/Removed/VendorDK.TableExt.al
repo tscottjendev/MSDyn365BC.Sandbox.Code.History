@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA15
 tableextension 13699 "Vendor DK" extends Vendor
 {
     fields
@@ -12,3 +13,4 @@ tableextension 13699 "Vendor DK" extends Vendor
         }
     }
 }
+#endif
