@@ -163,6 +163,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetUpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocationUpgradeTag());
         PerCompanyUpgradeTags.Add(GetIntegrationTableMappingTemplatesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPopulateUserSetupEmailUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetPurchaseCreditMemoVendorCrMemoNoUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -1162,5 +1163,10 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetPopulateUserSetupEmailUpgradeTag(): Code[250]
     begin
         exit('MS-GIT-736-PopulateUserSetupEmailUpgradeTag-20241117');
+    end;
+
+    internal procedure GetPurchaseCreditMemoVendorCrMemoNoUpgradeTag(): Code[250]
+    begin
+        exit('MS-559602-PurchaseCreditMemoVendorCrMemoNoUpgradeTag-20241206');
     end;
 }
