@@ -162,8 +162,8 @@ report 99001015 "Calculate Subcontracts"
         Text001: Label 'Processing Orders         #2########## ';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
-        ProductionBlockedOutputItemQst: Label 'Item %1 is blocked for production output and cannot be calculated. Do you want to continue?.', Comment = '%1 Item No.';
-        ProductionBlockedOutputItemVariantQst: Label 'Variant %1 for item %2 is blocked for production output and cannot be calculated. Do you want to continue?.', Comment = '%1 - Item Variant Code, %2 - Item No.';
+        ProductionBlockedOutputItemQst: Label 'Item %1 is blocked for production output and cannot be calculated. Do you want to continue?', Comment = '%1 Item No.';
+        ProductionBlockedOutputItemVariantQst: Label 'Variant %1 for item %2 is blocked for production output and cannot be calculated. Do you want to continue?', Comment = '%1 - Item Variant Code, %2 - Item No.';
 
     procedure SetWkShLine(NewReqLine: Record "Requisition Line")
     begin
