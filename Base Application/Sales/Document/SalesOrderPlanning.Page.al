@@ -9,7 +9,6 @@ using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Document;
@@ -481,9 +480,8 @@ page 99000883 "Sales Order Planning"
     local procedure CreateOrders() OrdersCreated: Boolean
     var
         xSalesPlanLine: Record "Sales Planning Line";
-        Item: Record Item;
         SalesLine: Record "Sales Line";
-        SKU: Record "Stockkeeping Unit";
+        CreateProdOrderLines: Codeunit "Create Prod. Order Lines";
         DoCreateProdOrder: Boolean;
         EndLoop: Boolean;
         IsHandled: Boolean;
@@ -512,12 +510,7 @@ page 99000883 "Sales Order Planning"
 
             if ProcessOrder then
                 if SalesLine."Outstanding Qty. (Base)" > SalesLine."Reserved Qty. (Base)" then begin
-                    if SKU.Get(SalesLine."Location Code", SalesLine."No.", SalesLine."Variant Code") then
-                        DoCreateProdOrder := SKU."Replenishment System" = SKU."Replenishment System"::"Prod. Order"
-                    else begin
-                        Item.Get(SalesLine."No.");
-                        DoCreateProdOrder := Item."Replenishment System" = Item."Replenishment System"::"Prod. Order";
-                    end;
+                    DoCreateProdOrder := CreateProdOrderLines.CheckReplenishmentSystemProdOrderAndNotProductionBlocked(SalesLine."No.", SalesLine."Variant Code", SalesLine."Location Code");
 
                     CreateOrder(DoCreateProdOrder, SalesLine, EndLoop, OrdersCreated);
                 end;

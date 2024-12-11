@@ -4667,6 +4667,66 @@ codeunit 137069 "SCM Production Orders"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('SalesOrderPlanningModalPageHandler,CreateOrderFromSalesModalPageHandler,MessageHandlerSimple')]
+    [Scope('OnPrem')]
+    procedure CreatingProductionOrderfromSalesOrder_SkipItemThatIsBlockedOrProductionBlockedOutput()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[4] of Record "Sales Line";
+        ItemBlocked, ItemProductionBlockedOutput, ItemWithVariant : Record Item;
+        ItemVariantBlocked, ItemVariantProductionBlockedOutput : Record "Item Variant";
+        ProductionOrder: Record "Production Order";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [Production Order] [Sales Order Planning ]
+        // [SCENARIO 559297] Creating Orders from Sales with Order Type = "Project Order" skips items with Replenishment System = "Prod. Order" if Item / Item Variant is Blocked or Production Blocked = Output.
+        Initialize();
+
+        // [GIVEN] Create Items with Replenishment System = "Prod. Order".
+        CreateItem(ItemBlocked, ItemBlocked."Replenishment System"::"Prod. Order");
+        CreateItem(ItemProductionBlockedOutput, ItemProductionBlockedOutput."Replenishment System"::"Prod. Order");
+        CreateItem(ItemWithVariant, ItemWithVariant."Replenishment System"::"Prod. Order");
+
+        // [GIVEN] Create Item Variants.
+        LibraryInventory.CreateVariant(ItemVariantBlocked, ItemWithVariant);
+        LibraryInventory.CreateVariant(ItemVariantProductionBlockedOutput, ItemWithVariant);
+
+        // [GIVEN] Create Sales Order with Items and Item Variants.
+        CreateSalesOrder(SalesHeader, SalesLine[1], ItemBlocked."No.", LibraryRandom.RandDec(10, 2));
+
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader, SalesLine[2].Type::Item, ItemProductionBlockedOutput."No.", LibraryRandom.RandDec(10, 2));
+        LibrarySales.CreateSalesLine(SalesLine[3], SalesHeader, SalesLine[3].Type::Item, ItemWithVariant."No.", LibraryRandom.RandDec(10, 2));
+        SalesLine[3].Validate("Variant Code", ItemVariantBlocked.Code);
+        SalesLine[3].Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine[4], SalesHeader, SalesLine[4].Type::Item, ItemWithVariant."No.", LibraryRandom.RandDec(10, 2));
+        SalesLine[4].Validate("Variant Code", ItemVariantProductionBlockedOutput.Code);
+        SalesLine[4].Modify(true);
+
+        // [GIVEN] Set Item / Item Variant as Blocked or Production Blocked = Output.
+        ItemBlocked.Validate(Blocked, true);
+        ItemBlocked.Modify(true);
+
+        ItemProductionBlockedOutput.Validate("Production Blocked", ItemProductionBlockedOutput."Production Blocked"::Output);
+        ItemProductionBlockedOutput.Modify(true);
+
+        ItemVariantBlocked.Validate(Blocked, true);
+        ItemVariantBlocked.Modify(true);
+
+        ItemVariantProductionBlockedOutput.Validate("Production Blocked", ItemVariantProductionBlockedOutput."Production Blocked"::Output);
+        ItemVariantProductionBlockedOutput.Modify(true);
+
+        // [WHEN] Create Prod. Order from Sales Order Planning with Order Type = Project Order.
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+        SalesOrder."Pla&nning".Invoke(); // Handled in SalesOrderPlanningModalPageHandler.
+
+        // [THEN] Verify Prod. Order Line does not exists.
+        ProductionOrder.SetCurrentKey("Source No.");
+        ProductionOrder.SetRange("Source No.", SalesHeader."No.");
+        Assert.RecordIsEmpty(ProductionOrder);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6776,6 +6836,12 @@ codeunit 137069 "SCM Production Orders"
     begin
         EnterQuantityToCreate.QtyToCreate.SetValue(1);
         EnterQuantityToCreate.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SalesOrderPlanningModalPageHandler(var SalesOrderPlanning: TestPage "Sales Order Planning")
+    begin
+        SalesOrderPlanning."&Create Prod. Order".Invoke();
     end;
 }
 
