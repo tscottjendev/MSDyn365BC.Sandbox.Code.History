@@ -16,7 +16,7 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 
-codeunit 99000800 "Mfg. Cost Calculation Mgt."
+codeunit 99000758 "Mfg. Cost Calculation Mgt."
 {
     Permissions = TableData "Item Ledger Entry" = r,
                   TableData "Prod. Order Capacity Need" = r,
