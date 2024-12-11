@@ -7,6 +7,7 @@ namespace Microsoft.Manufacturing.Capacity;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Manufacturing.Journal;
 
 page 5832 "Capacity Ledger Entries"
 {
@@ -267,6 +268,23 @@ page 5832 "Capacity Ledger Entries"
                     else
                         Navigate.SetDoc(Rec."Posting Date", '');
                     Navigate.Run();
+                end;
+            }
+            action("Reverse")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Reverse Production Order Transaction';
+                Image = ReverseLines;
+                ToolTip = 'Reverse a production capacity ledger entry.';
+                Ellipsis = true;
+
+                trigger OnAction()
+                var
+                    CapacityLedgEntry: Record "Capacity Ledger Entry";
+                    UndoProdPostingMgmt: Codeunit "Undo Prod. Posting Mgmt.";
+                begin
+                    CurrPage.SetSelectionFilter(CapacityLedgEntry);
+                    UndoProdPostingMgmt.ReverseCapacityLedgerEntry(CapacityLedgEntry);
                 end;
             }
         }

@@ -72,6 +72,9 @@
         RtngLineBinCodeErr: Label 'Wrong %1 in %2.', Comment = '%1: Field(To-Production Bin Code), %2: TableCaption(Prod. Order Routing Line)';
         QuantityImbalanceErr: Label 'out of balance';
         InvalidPrecisionErr: Label 'field to be incorrect';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
+        ProductionOrderNotExistErr: Label 'The Production Order does not exist. Identification fields and values: Status=''%1'',No.=''%2''', Comment = '%1 = Production Order Status , %2 = Production Order No.';
+        CannotHandleEntryTypeErr: Label 'Cannot handle entry type %1 for correction posting of production.', Comment = '%1 - Entry Type';
 
     [Test]
     [Scope('OnPrem')]
@@ -93,7 +96,7 @@
         PostJournalsForReleasedProductionOrderWithLocationAndBin(true);  // Post Output TRUE.
     end;
 
-    local procedure PostJournalsForReleasedProductionOrderWithLocationAndBin(PostOutput: Boolean)
+    local procedure PostJournalsForReleasedProductionOrderWithLocationAndBin(PostOutput: Boolean): Record "Production Order"
     var
         Item: Record Item;
         ChildItem: Record Item;
@@ -133,6 +136,8 @@
 
         // Tear Down.
         UpdateManufacturingSetupComponentsAtLocation(ComponentsAtLocation);
+
+        exit(ProductionOrder);
     end;
 
     [Test]
@@ -5279,6 +5284,194 @@
         ProductionOrder.Get(ProductionOrder.Status::Finished, ProdOrderNo2);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure VerifyReverseItemLedgerEntryShouldBeCreatedForConsumptionWhenReverseIsExecuted()
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+    begin
+        // [SCENARIO 327365] Verify Reverse Entry should be created of Item Ledger Entry for Entry Type "Consumption" when Reverse action is executed.
+        Initialize();
+
+        // [GIVEN] Create Production Order With Component.
+        CreateProdOrderAddNewComponentAndCreateConsumptionLine(ProdOrderComponent, 0);
+
+        // [GIVEN] Post Consumption Journal Line for this Component.
+        LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+
+        // [GIVEN] OpenEdit Item Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+        ItemLedgerEntries.Filter.SetFilter("Document No.", ProdOrderComponent."Prod. Order No.");
+        ItemLedgerEntries.Filter.SetFilter("Entry Type", Format(ItemLedgerEntry."Entry Type"::Consumption));
+
+        // [WHEN] Invoke "Reverse" action.
+        ItemLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify Reverse Entry should be created of Item Ledger Entry.
+        FindLastItemLedgerEntry(ItemLedgerEntry, "Inventory Order Type"::Production, ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", "Item Ledger Entry Type"::Consumption);
+        Assert.AreEqual(
+            -ItemLedgerEntries.Quantity.AsInteger(),
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), -ItemLedgerEntries.Quantity.AsInteger(), ItemLedgerEntry.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure VerifyReverseItemLedgerEntryShouldBeCreatedForOutputWhenReverseIsExecuted()
+    var
+        ProdOrder: Record "Production Order";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+    begin
+        // [SCENARIO 327365] Verify Reverse Entry should be created of Item Ledger Entry for Entry Type "Output" when Reverse action is executed.
+        Initialize();
+
+        // [GIVEN] Create Production Order With Component.
+        ProdOrder := PostJournalsForReleasedProductionOrderWithLocationAndBin(true);
+
+        // [GIVEN] OpenEdit Item Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+        ItemLedgerEntries.Filter.SetFilter("Document No.", ProdOrder."No.");
+        ItemLedgerEntries.Filter.SetFilter("Entry Type", Format(ItemLedgerEntry."Entry Type"::Output));
+
+        // [WHEN] Invoke "Reverse" action.
+        ItemLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify Reverse Entry should be created of Item Ledger Entry for Entry Type "Output".
+        ItemLedgerEntry.Get(ItemLedgerEntries."Entry No.".AsInteger());
+        FindLastItemLedgerEntry(ItemLedgerEntry, "Inventory Order Type"::Production, ProdOrder."No.", ItemLedgerEntry."Order Line No.", "Item Ledger Entry Type"::Output);
+        Assert.AreEqual(
+            -ItemLedgerEntries.Quantity.AsInteger(),
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), -ItemLedgerEntries.Quantity.AsInteger(), ItemLedgerEntry.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure VerifyReverseCapacityLedgerEntryShouldBeCreatedWhenReverseIsExecuted()
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        ProductionOrder: Record "Production Order";
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+        CapacityLedgerEntry1: Record "Capacity Ledger Entry";
+        CapacityLedgerEntries: TestPage "Capacity Ledger Entries";
+        RunTime: Decimal;
+        UnitCost: Decimal;
+    begin
+        // [SCENARIO 327365] Verify Reverse Entry should be created of Capacity Ledger Entry when Reverse action is executed.
+        Initialize();
+
+        // [GIVEN] Create Production item with routing.
+        CreateProductionItem(Item, '');
+        CreateRoutingAndUpdateItem(Item, WorkCenter);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '', '');
+
+        // [GIVEN] Generate Random Run Time and Unit Cost.
+        RunTime := LibraryRandom.RandDec(10, 2);
+        UnitCost := LibraryRandom.RandDec(10, 2);
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", 0, RunTime, UnitCost);
+
+        // [GIVEN] OpenEdit Capacity Ledger Entries.
+        CapacityLedgerEntries.OpenEdit();
+        CapacityLedgerEntries.Filter.SetFilter("Order No.", ProductionOrder."No.");
+
+        // [WHEN] Invoke "Reverse" action.
+        CapacityLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify Reverse Entry should be created of Capacity Ledger Entry.
+        CapacityLedgerEntry1.Get(CapacityLedgerEntries."Entry No.".AsInteger());
+        FindLastCapacityLedgerEntry(CapacityLedgerEntry, "Inventory Order Type"::Production, CapacityLedgerEntry1."Order No.", CapacityLedgerEntry1."Order Line No.");
+        Assert.AreEqual(
+            -CapacityLedgerEntry1.Quantity,
+            CapacityLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption(Quantity), -CapacityLedgerEntry1.Quantity, CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry1."Setup Time",
+            CapacityLedgerEntry."Setup Time",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Setup Time"), -CapacityLedgerEntry1."Setup Time", CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry1."Run Time",
+            CapacityLedgerEntry."Run Time",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Run Time"), -CapacityLedgerEntry1."Run Time", CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry1."Output Quantity",
+            CapacityLedgerEntry."Output Quantity",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Output Quantity"), -CapacityLedgerEntry1."Output Quantity", CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry1."Scrap Quantity",
+            CapacityLedgerEntry."Scrap Quantity",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Scrap Quantity"), -CapacityLedgerEntry1."Scrap Quantity", CapacityLedgerEntry.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure VerifyReverseItemLedgerEntryShouldNotBeCreatedForFinishedProductionOrder()
+    var
+        ProductionOrder: Record "Production Order";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+    begin
+        // [SCENARIO 327365] Verify Reverse Item Ledger Entry should not be created When Status is changed from Released to Finished.
+        Initialize();
+
+        // [GIVEN] Create Production Order With Component.
+        ProductionOrder := PostJournalsForReleasedProductionOrderWithLocationAndBin(true);
+
+        // [GIVEN] Change Status From Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [GIVEN] OpenEdit Item Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+        ItemLedgerEntries.Filter.SetFilter("Document No.", ProductionOrder."No.");
+        ItemLedgerEntries.Filter.SetFilter("Entry Type", Format(ItemLedgerEntry."Entry Type"::Output));
+
+        // [WHEN] Invoke "Reverse" action.
+        asserterror ItemLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify Reverse Item Ledger Entry should not be created When Status is changed from Released to Finished.
+        Assert.ExpectedError(StrSubstNo(ProductionOrderNotExistErr, ProductionOrder.Status::Released, ProductionOrder."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure VerifyReverseItemLedgerEntryShouldNotBeCreatedForPositiveAdjmt()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+    begin
+        // [SCENARIO 327365] Verify Reverse Item Ledger Entry should not be created for Entry Type "Positive Adjmt.".
+        Initialize();
+
+        // [GIVEN] Create Item Setup.
+        CreateItemsSetup(Item, ChildItem, LibraryRandom.RandInt(5));
+
+        // [GIVEN] Update Flushing Method.
+        UpdateFlushingMethodOnItem(ChildItem, ChildItem."Flushing Method"::Backward);
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(ChildItem."No.", LibraryRandom.RandDec(10, 2) + 100, '', '');
+
+        // [GIVEN] OpenEdit Item Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+        ItemLedgerEntries.Filter.SetFilter("Item No.", ChildItem."No.");
+        ItemLedgerEntries.Filter.SetFilter("Entry Type", Format(ItemLedgerEntry."Entry Type"::"Positive Adjmt."));
+
+        // [WHEN] Invoke "Reverse" action.
+        asserterror ItemLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify Verify Reverse Item Ledger Entry should not be created for Entry Type "Positive Adjmt.".
+        Assert.ExpectedError(StrSubstNo(CannotHandleEntryTypeErr, ItemLedgerEntry."Entry Type"::"Positive Adjmt."));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -7516,6 +7709,23 @@
         ProdOrderCapacityNeed.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderCapacityNeed.SetRange("Work Center No.", WorkCenter."No.");
         Assert.RecordCount(ProdOrderCapacityNeed, NoOfRecords);
+    end;
+
+    local procedure FindLastItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; InventoryOrderType: Enum "Inventory Order Type"; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ItemLedgerEntryType: Enum "Item Ledger Entry Type")
+    begin
+        ItemLedgerEntry.SetRange("Order Type", InventoryOrderType);
+        ItemLedgerEntry.SetRange("Order No.", ProdOrderNo);
+        ItemLedgerEntry.SetRange("Order Line No.", ProdOrderLineNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntryType);
+        ItemLedgerEntry.FindLast();
+    end;
+
+    local procedure FindLastCapacityLedgerEntry(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; InventoryOrderType: Enum "Inventory Order Type"; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer)
+    begin
+        CapacityLedgerEntry.SetRange("Order Type", InventoryOrderType);
+        CapacityLedgerEntry.SetRange("Order No.", ProdOrderNo);
+        CapacityLedgerEntry.SetRange("Order Line No.", ProdOrderLineNo);
+        CapacityLedgerEntry.FindLast();
     end;
 
     [MessageHandler]
