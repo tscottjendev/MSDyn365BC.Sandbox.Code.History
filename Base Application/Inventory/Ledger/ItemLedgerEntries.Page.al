@@ -11,6 +11,7 @@ using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Journal;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using System.Globalization;
@@ -521,6 +522,23 @@ page 38 "Item Ledger Entries"
                     begin
                         OrderTracking.SetItemLedgEntry(Rec);
                         OrderTracking.RunModal();
+                    end;
+                }
+                action("Reverse")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Reverse Production Order Transaction';
+                    Image = ReverseLines;
+                    ToolTip = 'Reverse a production ledger entry.';
+                    Ellipsis = true;
+
+                    trigger OnAction()
+                    var
+                        ItemLedgerEntry: Record "Item Ledger Entry";
+                        UndoProdPostingMgmt: Codeunit "Undo Prod. Posting Mgmt.";
+                    begin
+                        CurrPage.SetSelectionFilter(ItemLedgerEntry);
+                        UndoProdPostingMgmt.ReverseProdItemLedgerEntry(ItemLedgerEntry);
                     end;
                 }
             }
