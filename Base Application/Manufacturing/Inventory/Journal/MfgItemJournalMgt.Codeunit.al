@@ -5,19 +5,21 @@
 namespace Microsoft.Inventory.Journal;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Journal;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Purchases.Setup;
 
-codeunit 99000801 "Mfg. Item Journal Mgt."
+codeunit 99000762 "Mfg. Item Journal Mgt."
 {
     var
 #pragma warning disable AA0470
@@ -273,7 +275,6 @@ codeunit 99000801 "Mfg. Item Journal Mgt."
         end;
     end;
 
-
     [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnValidateEntryTypeOnUpdateByEntryType', '', false, false)]
     local procedure OnValidateEntryTypeOnUpdateByEntryType(var ItemJournalLine: Record "Item Journal Line")
     begin
@@ -446,6 +447,119 @@ codeunit 99000801 "Mfg. Item Journal Mgt."
             ItemJournalLine.Validate("Output Quantity");
             ItemJournalLine.Validate("Scrap Quantity");
             IsHandled := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Standard Item Journal Line", 'OnAfterInitDefaultDimensionSources', '', false, false)]
+    local procedure StandardItemJournalLineOnAfterInitDefaultDimensionSources(var StandardItemJournalLine: Record "Standard Item Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", StandardItemJournalLine."Work Center No.", FieldNo = StandardItemJournalLine.FieldNo("Work Center No."));
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Template", 'OnAfterValidateType', '', false, false)]
+    local procedure OnAfterValidateType(var ItemJournalTemplate: Record "Item Journal Template"; SourceCodeSetup: Record "Source Code Setup")
+    begin
+        case ItemJournalTemplate.Type of
+            ItemJournalTemplate.Type::Consumption:
+                begin
+                    ItemJournalTemplate."Source Code" := SourceCodeSetup."Consumption Journal";
+                    ItemJournalTemplate."Page ID" := Page::"Consumption Journal";
+                end;
+            ItemJournalTemplate.Type::Output:
+                begin
+                    ItemJournalTemplate."Source Code" := SourceCodeSetup."Output Journal";
+                    ItemJournalTemplate."Page ID" := Page::"Output Journal";
+                end;
+            ItemJournalTemplate.Type::Capacity:
+                begin
+                    ItemJournalTemplate."Source Code" := SourceCodeSetup."Capacity Journal";
+                    ItemJournalTemplate."Page ID" := Page::"Capacity Journal";
+                end;
+            ItemJournalTemplate.Type::"Prod. Order":
+                begin
+                    ItemJournalTemplate."Source Code" := SourceCodeSetup."Production Journal";
+                    ItemJournalTemplate."Page ID" := Page::"Production Journal";
+                end;
+        end;
+        if ItemJournalTemplate.Recurring then
+            case ItemJournalTemplate.Type of
+                ItemJournalTemplate.Type::Consumption:
+                    ItemJournalTemplate."Page ID" := Page::"Recurring Consumption Journal";
+                ItemJournalTemplate.Type::Output:
+                    ItemJournalTemplate."Page ID" := Page::"Recurring Output Journal";
+                ItemJournalTemplate.Type::Capacity:
+                    ItemJournalTemplate."Page ID" := Page::"Recurring Capacity Journal";
+            end;
+    end;
+
+    // Item Journal Management
+
+    var
+        OldCapNo: Code[20];
+        OldCapType: Enum "Capacity Type";
+        OldProdOrderNo: Code[20];
+        OldOperationNo: Code[20];
+
+    procedure GetConsump(var ItemJnlLine: Record "Item Journal Line"; var ProdOrderDescription: Text[100])
+    var
+        ProdOrder: Record "Production Order";
+    begin
+        if (ItemJnlLine."Order Type" = ItemJnlLine."Order Type"::Production) and (ItemJnlLine."Order No." <> OldProdOrderNo) then begin
+            ProdOrderDescription := '';
+            if ProdOrder.Get(ProdOrder.Status::Released, ItemJnlLine."Order No.") then
+                ProdOrderDescription := ProdOrder.Description;
+            OldProdOrderNo := ProdOrder."No.";
+        end;
+    end;
+
+    procedure GetOutput(var ItemJnlLine: Record "Item Journal Line"; var ProdOrderDescription: Text[100]; var OperationDescription: Text[100])
+    var
+        ProdOrder: Record "Production Order";
+        ProdOrderRtngLine: Record "Prod. Order Routing Line";
+    begin
+        if (ItemJnlLine."Operation No." <> OldOperationNo) or
+           ((ItemJnlLine."Order Type" = ItemJnlLine."Order Type"::Production) and (ItemJnlLine."Order No." <> OldProdOrderNo))
+        then begin
+            OperationDescription := '';
+            if ProdOrderRtngLine.Get(
+                 ProdOrder.Status::Released,
+                 ItemJnlLine."Order No.",
+                 ItemJnlLine."Routing Reference No.",
+                 ItemJnlLine."Routing No.",
+                 ItemJnlLine."Operation No.")
+            then
+                OperationDescription := ProdOrderRtngLine.Description;
+            OldOperationNo := ProdOrderRtngLine."Operation No.";
+        end;
+
+        if (ItemJnlLine."Order Type" = ItemJnlLine."Order Type"::Production) and (ItemJnlLine."Order No." <> OldProdOrderNo) then begin
+            ProdOrderDescription := '';
+            if ProdOrder.Get(ProdOrder.Status::Released, ItemJnlLine."Order No.") then
+                ProdOrderDescription := ProdOrder.Description;
+            OldProdOrderNo := ProdOrder."No.";
+        end;
+    end;
+
+    procedure GetCapacity(CapType: Enum "Capacity Type"; CapNo: Code[20]; var CapDescription: Text[100])
+    var
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
+    begin
+        if (CapNo <> OldCapNo) or (CapType <> OldCapType) then begin
+            CapDescription := '';
+            if CapNo <> '' then
+                case CapType of
+                    CapType::"Work Center":
+                        if WorkCenter.Get(CapNo) then
+                            CapDescription := WorkCenter.Name;
+                    CapType::"Machine Center":
+                        if MachineCenter.Get(CapNo) then
+                            CapDescription := MachineCenter.Name;
+                end;
+            OldCapNo := CapNo;
+            OldCapType := CapType;
         end;
     end;
 }
