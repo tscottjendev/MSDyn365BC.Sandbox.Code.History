@@ -665,6 +665,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeSalesShipmentCustomerId();
         UpgradeFixedAssetLocationId();
         UpgradeFixedAssetResponsibleEmployeeId();
+        UpgradePurchaseCreditMemoVendorCrMemoNo();
     end;
 
     procedure UpgradeItemPostingGroups()
@@ -796,6 +797,38 @@ codeunit 104000 "Upgrade - BaseApp"
         end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetFixedAssetResponsibleEmployeeIdUpgradeTag());
+    end;
+
+    internal procedure UpgradePurchaseCreditMemoVendorCrMemoNo()
+    var
+        PurchCrMemoEntityBuffer: Record "Purch. Cr. Memo Entity Buffer";
+        PurchaseHeader: Record "Purchase Header";
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        PurchCrMemoDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaseCreditMemoVendorCrMemoNoUpgradeTag()) then
+            exit;
+
+        PurchCrMemoEntityBuffer.SetFilter("Vendor Cr. Memo No.", '<>%1', '');
+        if PurchCrMemoEntityBuffer.IsEmpty() then begin
+            PurchCrMemoDataTransfer.SetTables(Database::"Purch. Cr. Memo Hdr.", Database::"Purch. Cr. Memo Entity Buffer");
+            PurchCrMemoDataTransfer.AddFieldValue(PurchCrMemoHeader.FieldNo("Vendor Cr. Memo No."), PurchCrMemoEntityBuffer.FieldNo("Vendor Cr. Memo No."));
+            PurchCrMemoDataTransfer.AddJoin(PurchCrMemoHeader.FieldNo("No."), PurchCrMemoEntityBuffer.FieldNo("No."));
+            PurchCrMemoDataTransfer.UpdateAuditFields := false;
+            PurchCrMemoDataTransfer.CopyFields();
+            Clear(PurchCrMemoDataTransfer);
+
+            PurchCrMemoDataTransfer.SetTables(Database::"Purchase Header", Database::"Purch. Cr. Memo Entity Buffer");
+            PurchCrMemoDataTransfer.AddSourceFilter(PurchaseHeader.FieldNo("Document Type"), '%1', PurchaseHeader."Document Type"::"Credit Memo");
+            PurchCrMemoDataTransfer.AddFieldValue(PurchaseHeader.FieldNo("Vendor Cr. Memo No."), PurchCrMemoEntityBuffer.FieldNo("Vendor Cr. Memo No."));
+            PurchCrMemoDataTransfer.AddJoin(PurchaseHeader.FieldNo("No."), PurchCrMemoEntityBuffer.FieldNo("No."));
+            PurchCrMemoDataTransfer.UpdateAuditFields := false;
+            PurchCrMemoDataTransfer.CopyFields();
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaseCreditMemoVendorCrMemoNoUpgradeTag());
     end;
 
     local procedure UpgradeSalesInvoiceEntityAggregate()
