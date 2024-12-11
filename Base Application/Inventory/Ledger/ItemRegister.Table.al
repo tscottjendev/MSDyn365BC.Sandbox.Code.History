@@ -7,7 +7,6 @@ namespace Microsoft.Inventory.Ledger;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Journal;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Utilities;
 using System.Security.AccessControl;
 
@@ -80,12 +79,12 @@ table 46 "Item Register"
         field(5831; "From Capacity Entry No."; Integer)
         {
             Caption = 'From Capacity Entry No.';
-            TableRelation = "Capacity Ledger Entry";
+            TableRelation = Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
         }
         field(5832; "To Capacity Entry No."; Integer)
         {
             Caption = 'To Capacity Entry No.';
-            TableRelation = "Capacity Ledger Entry";
+            TableRelation = Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
         }
         field(5895; "Cost Adjustment Run Guid"; Guid)
         {
