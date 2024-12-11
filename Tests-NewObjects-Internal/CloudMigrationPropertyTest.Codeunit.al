@@ -71,6 +71,7 @@
         ListOfTablesToMigrate.Add(Database::"Alloc. Account Distribution");
         ListOfTablesToMigrate.Add(Database::"Allocation Account");
         ListOfTablesToMigrate.Add(Database::"Allocation Line");
+        ListOfTablesToMigrate.Add(Database::"Allowed Language");
         ListOfTablesToMigrate.Add(Database::"Dispute Status");
         ListOfTablesToMigrate.Add(Database::"Job Journal Template");
         ListOfTablesToMigrate.Add(Database::"Job Ledger Entry");
