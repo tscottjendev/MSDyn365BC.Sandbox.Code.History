@@ -1,7 +1,5 @@
 namespace System.Utilities;
 
-using Microsoft.Utilities;
-
 page 700 "Error Messages"
 {
     Caption = 'Error Messages';
@@ -35,33 +33,12 @@ page 700 "Error Messages"
                     StyleExpr = StyleText;
                     ToolTip = 'Specifies the message.';
                 }
-                field(Context; Format(Rec."Context Record ID"))
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Context';
-                    ToolTip = 'Specifies the context record.';
-                    trigger OnDrillDown()
-                    begin
-                        Rec.HandleDrillDown(Rec.FieldNo("Context Record ID"));
-                    end;
-                }
                 field("Context Field Name"; Rec."Context Field Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Context Field Name';
                     DrillDown = false;
                     ToolTip = 'Specifies the field where the error occurred.';
-                }
-                field(Source; Format(Rec."Record ID"))
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Source';
-                    ToolTip = 'Specifies the record source of the error.';
-
-                    trigger OnDrillDown()
-                    begin
-                        Rec.HandleDrillDown(Rec.FieldNo("Record ID"));
-                    end;
                 }
                 field("Field Name"; Rec."Field Name")
                 {
@@ -103,41 +80,6 @@ page 700 "Error Messages"
         }
     }
 
-    actions
-    {
-        area(processing)
-        {
-            action(OpenRelatedRecord)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Open related record';
-                Enabled = EnableOpenRelatedEntity;
-                Image = View;
-                ToolTip = 'Open the record that is associated with this error message.';
-
-                trigger OnAction()
-                var
-                    IsHandled: Boolean;
-                begin
-                    OnOpenRelatedRecord(Rec, IsHandled);
-                    if not IsHandled then
-                        PageManagement.PageRun(Rec."Record ID");
-                end;
-            }
-        }
-        area(Promoted)
-        {
-            group(Category_Process)
-            {
-                Caption = 'Process';
-
-                actionref(OpenRelatedRecord_Promoted; OpenRelatedRecord)
-                {
-                }
-            }
-        }
-    }
-
     trigger OnAfterGetCurrRecord()
     begin
         EnableActions();
@@ -150,7 +92,6 @@ page 700 "Error Messages"
     end;
 
     var
-        PageManagement: Codeunit "Page Management";
         StyleText: Text[20];
         CallStack: Text;
         EnableOpenRelatedEntity: Boolean;
@@ -181,11 +122,6 @@ page 700 "Error Messages"
     begin
         RecID := Rec."Record ID";
         EnableOpenRelatedEntity := RecID.TableNo <> 0;
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnOpenRelatedRecord(ErrorMessage: Record "Error Message"; var IsHandled: Boolean)
-    begin
     end;
 }
 
