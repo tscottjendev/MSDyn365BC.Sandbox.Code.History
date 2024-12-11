@@ -20,7 +20,6 @@ using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
@@ -455,7 +454,6 @@ table 32 "Item Ledger Entry"
         }
         field(5833; "Prod. Order Comp. Line No."; Integer)
         {
-            AccessByPermission = TableData "Production Order" = R;
             Caption = 'Prod. Order Comp. Line No.';
         }
         field(6500; "Serial No."; Code[50])
