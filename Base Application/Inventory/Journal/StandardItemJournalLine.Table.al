@@ -17,7 +17,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Purchases.Setup;
@@ -682,12 +681,6 @@ table 753 "Standard Item Journal Line"
         {
             Caption = 'Correction';
         }
-        field(5839; "Work Center No."; Code[20])
-        {
-            Caption = 'Work Center No.';
-            Editable = false;
-            TableRelation = "Work Center";
-        }
         field(6600; "Return Reason Code"; Code[10])
         {
             Caption = 'Return Reason Code';
@@ -976,7 +969,6 @@ table 753 "Standard Item Journal Line"
     begin
         DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.", FieldNo = Rec.FieldNo("Item No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code", FieldNo = Rec.FieldNo("Salespers./Purch. Code"));
-        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", Rec."Work Center No.", FieldNo = Rec.FieldNo("Work Center No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
