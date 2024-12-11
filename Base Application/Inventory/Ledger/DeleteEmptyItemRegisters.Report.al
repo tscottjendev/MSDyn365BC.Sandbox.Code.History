@@ -5,7 +5,6 @@
 namespace Microsoft.Inventory.Ledger;
 
 using Microsoft.Inventory.Counting.Journal;
-using Microsoft.Manufacturing.Capacity;
 using System.Utilities;
 
 report 799 "Delete Empty Item Registers"
@@ -78,7 +77,7 @@ report 799 "Delete Empty Item Registers"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         PhysInvtLedgEntry: Record "Phys. Inventory Ledger Entry";
-        CapLedgEntry: Record "Capacity Ledger Entry";
+        CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
         Window: Dialog;
         NoOfDeleted: Integer;
         NoOfDeleted2: Integer;

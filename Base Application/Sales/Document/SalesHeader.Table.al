@@ -3026,6 +3026,11 @@ table 36 "Sales Header"
             Caption = 'Enterprise No.';
             OptimizeForTextSearch = true;
         }
+        field(11311; "Alt. Enterprise No."; Boolean)
+        {
+            Caption = 'Alternative Enterprise No.';
+            Editable = false;
+        }
     }
 
     keys
@@ -7438,7 +7443,6 @@ table 36 "Sales Header"
         "Tax Area Code" := BillToCustomer."Tax Area Code";
         if ("Ship-to Code" = '') or ("Sell-to Customer No." <> BillToCustomer."No.") then
             "Tax Liable" := BillToCustomer."Tax Liable";
-        "Enterprise No." := BillToCustomer."Enterprise No.";
 
         OnAfterSetFieldsBilltoCustomer(Rec, BillToCustomer, xRec, SkipBillToContact, CurrFieldNo);
     end;

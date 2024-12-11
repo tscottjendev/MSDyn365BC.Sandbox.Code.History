@@ -1,7 +1,5 @@
 namespace System.Utilities;
 
-using Microsoft.Utilities;
-
 page 701 "Error Messages Part"
 {
     Caption = 'Error Messages';
@@ -47,11 +45,6 @@ page 701 "Error Messages Part"
                     StyleExpr = StyleText;
                     ToolTip = 'Specifies the message.';
 
-                    trigger OnDrillDown()
-                    begin
-                        if not DisableOpenRelatedEntity then
-                            PageManagement.PageRun(Rec."Record ID");
-                    end;
                 }
             }
         }
@@ -61,19 +54,6 @@ page 701 "Error Messages Part"
     {
         area(processing)
         {
-            action(OpenRelatedRecord)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Open Related Record';
-                Enabled = EnableOpenRelatedEntity;
-                Image = View;
-                ToolTip = 'Open the record that is associated with this error message.';
-
-                trigger OnAction()
-                begin
-                    PageManagement.PageRun(Rec."Record ID");
-                end;
-            }
             action(ViewDetails)
             {
                 ApplicationArea = Basic, Suite;
@@ -100,9 +80,10 @@ page 701 "Error Messages Part"
     end;
 
     var
-        PageManagement: Codeunit "Page Management";
         RecordIDToHighlight: RecordID;
         StyleText: Text[20];
+
+    protected var
         EnableOpenRelatedEntity: Boolean;
         DisableOpenRelatedEntity: Boolean;
 

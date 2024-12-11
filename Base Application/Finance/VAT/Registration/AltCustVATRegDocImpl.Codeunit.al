@@ -44,6 +44,7 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
         SalesHeader.Validate("Alt. VAT Registration No.", false);
         SalesHeader.Validate("Alt. Gen. Bus Posting Group", false);
         SalesHeader.Validate("Alt. VAT Bus Posting Group", false);
+        SalesHeader.Validate("Alt. Enterprise No.", false);
     end;
 
     procedure CopyFromCustomer(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
@@ -53,7 +54,7 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
         if not IsAltVATRegUsed(SalesHeader) then
             exit;
         RunChecks(SalesHeader);
-        Customer.SetLoadFields("Country/Region Code", "VAT Registration No.", "Gen. Bus. Posting Group", "VAT Bus. Posting Group");
+        Customer.SetLoadFields("Country/Region Code", "VAT Registration No.", "Enterprise No.", "Gen. Bus. Posting Group", "VAT Bus. Posting Group");
         if not GetCustVATCalc(Customer, SalesHeader) then
             exit;
         CopyFromCustomer(SalesHeader, xSalesHeader, Customer);
@@ -84,6 +85,11 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
             SalesHeader.Validate("Alt. VAT Bus Posting Group", false);
             SalesHeader.Validate("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
             AddStringToCommaSeparatedList(ChangedFieldsList, SalesHeader.FieldCaption("VAT Bus. Posting Group"));
+        end;
+        if SalesHeader."Alt. Enterprise No." then begin
+            SalesHeader.Validate("Alt. Enterprise No.", false);
+            SalesHeader.Validate("Enterprise No.", Customer."Enterprise No.");
+            AddStringToCommaSeparatedList(ChangedFieldsList, SalesHeader.FieldCaption("Enterprise No."));
         end;
         if GuiAllowed() then
             Message(VATDataTakenFromCustomerMsg, ChangedFieldsList);
@@ -141,13 +147,15 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
             SalesHeader."VAT Bus. Posting Group" := BillToCustomer."VAT Bus. Posting Group";
         SalesHeader."VAT Country/Region Code" := BillToCustomer."Country/Region Code";
         SalesHeader."VAT Registration No." := BillToCustomer."VAT Registration No.";
+        SalesHeader."Enterprise No." := BillToCustomer."Enterprise No.";
         SalesHeader."Registration Number" := BillToCustomer."Registration Number";
         SalesHeader."Gen. Bus. Posting Group" := BillToCustomer."Gen. Bus. Posting Group";
+        SalesHeader."Enterprise No." := BillToCustomer."Enterprise No.";
     end;
 
     local procedure IsAltVATRegUsed(SalesHeader: Record "Sales Header"): Boolean
     begin
-        exit(SalesHeader."Alt. VAT Registration No." or SalesHeader."Alt. Gen. Bus Posting Group" or SalesHeader."Alt. VAT Bus Posting Group");
+        exit(SalesHeader."Alt. VAT Registration No." or SalesHeader."Alt. Gen. Bus Posting Group" or SalesHeader."Alt. VAT Bus Posting Group" or SalesHeader."Alt. Enterprise No.");
     end;
 
     local procedure AlternativeCustVATRegIsBlank(SalesHeader: Record "Sales Header"): Boolean
@@ -219,6 +227,10 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
             SalesHeader.Validate("Alt. VAT Bus Posting Group", true);
             SalesHeader.Validate("VAT Bus. Posting Group", AltCustVATReg."VAT Bus. Posting Group");
         end;
+        if AltCustVATReg."Enterprise No." <> '' then begin
+            SalesHeader.Validate("Alt. Enterprise No.", true);
+            SalesHeader.Validate("Enterprise No.", AltCustVATReg."Enterprise No.");
+        end;
         UnbindSubscription(this);
         FeatureTelemetry.LogUptake('0000NHG', FeatureNameTxt, Enum::"Feature Uptake Status"::Used);
     end;
@@ -230,6 +242,8 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
         GetAlternativeCustVATReg(AltCustVATReg, SalesHeader);
         if (AltCustVATReg."VAT Registration No." <> '') and (SalesHeader."VAT Registration No." <> AltCustVATReg."VAT Registration No.") then
             AddFieldChangeBuffer(TempChangeLogEntry, SalesHeader.FieldNo("VAT Registration No."), SalesHeader."VAT Registration No.", AltCustVATReg."VAT Registration No.");
+        if (AltCustVATReg."Enterprise No." <> '') and (SalesHeader."Enterprise No." <> AltCustVATReg."Enterprise No.") then
+            AddFieldChangeBuffer(TempChangeLogEntry, SalesHeader.FieldNo("Enterprise No."), SalesHeader."Enterprise No.", AltCustVATReg."Enterprise No.");
         if (AltCustVATReg."Gen. Bus. Posting Group" <> '') and (SalesHeader."Gen. Bus. Posting Group" <> AltCustVATReg."Gen. Bus. Posting Group") then
             AddFieldChangeBuffer(TempChangeLogEntry, SalesHeader.FieldNo("Gen. Bus. Posting Group"), SalesHeader."Gen. Bus. Posting Group", AltCustVATReg."Gen. Bus. Posting Group");
         if (AltCustVATReg."VAT Bus. Posting Group" <> '') and (SalesHeader."VAT Bus. Posting Group" <> AltCustVATReg."VAT Bus. Posting Group") then
