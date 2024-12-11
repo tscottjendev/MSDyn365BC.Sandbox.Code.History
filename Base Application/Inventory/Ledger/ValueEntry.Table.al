@@ -16,9 +16,6 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Resources.Resource;
@@ -437,20 +434,16 @@ table 5802 "Value Entry"
         field(5831; "Capacity Ledger Entry No."; Integer)
         {
             Caption = 'Capacity Ledger Entry No.';
-            TableRelation = "Capacity Ledger Entry";
+            TableRelation = Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
         }
-        field(5832; Type; Enum "Capacity Type Journal")
+        field(5832; Type; Enum Microsoft.Manufacturing.Capacity."Capacity Type Journal")
         {
             Caption = 'Type';
         }
         field(5834; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = if (Type = const("Machine Center")) "Machine Center"
-            else
-            if (Type = const("Work Center")) "Work Center"
-            else
-            if (Type = const(Resource)) Resource;
+            TableRelation = if (Type = const(Resource)) Resource;
         }
         field(6602; "Return Reason Code"; Code[10])
         {
@@ -764,7 +757,7 @@ table 5802 "Value Entry"
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", CopyStr(StrSubstNo('%1 %2', TableCaption(), "Entry No."), 1, 250));
     end;
 
     procedure GetAvgToDate(ToDate: Date): Date

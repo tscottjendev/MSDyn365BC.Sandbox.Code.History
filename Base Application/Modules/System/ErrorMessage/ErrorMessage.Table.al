@@ -1,7 +1,5 @@
 ﻿namespace System.Utilities;
 
-using Microsoft.Finance.Dimension;
-using Microsoft.Utilities;
 using System.Reflection;
 
 table 700 "Error Message"
@@ -200,7 +198,6 @@ table 700 "Error Message"
         IfEqualToErr: Label '''%1'' in ''%2'' must not be equal to %3.', Comment = '%1=caption of a field, %2=key of record, %3=integer';
         IfNotEqualToErr: Label '''%1'' in ''%2'' must be equal to %3.', Comment = '%1=caption of a field, %2=key of record, %3=integer';
         HasErrorsMsg: Label 'One or more errors were found. You must resolve all the errors before you can proceed.';
-        ErrorContextNotFoundErr: Label 'Error context not found: %1', Comment = '%1 - Record Id';
 
     trigger OnInsert()
     begin
@@ -209,49 +206,6 @@ table 700 "Error Message"
             CachedLastID := Rec.ID;
             CachedRegisterID := Rec."Register ID";
         end;
-    end;
-
-    procedure HandleDrillDown(SourceFieldNo: Integer)
-    var
-        PageManagement: Codeunit "Page Management";
-        RecRef: RecordRef;
-        IsHandled: Boolean;
-    begin
-        OnDrillDownSource(Rec, SourceFieldNo, IsHandled);
-        if not IsHandled then
-            case SourceFieldNo of
-                FieldNo(Rec."Context Record ID"):
-                    begin
-                        if not RecRef.Get(Rec."Context Record ID") then
-                            error(ErrorContextNotFoundErr, Format(Rec."Context Record ID"));
-                        PageManagement.PageRunAtField(Rec."Context Record ID", Rec."Context Field Number", false);
-                    end;
-                FieldNo(Rec."Record ID"):
-                    if IsDimSetEntryInconsistency() then
-                        RunDimSetEntriesPage()
-                    else
-                        PageManagement.PageRunAtField(Rec."Record ID", Rec."Field Number", false);
-            end
-    end;
-
-    local procedure IsDimSetEntryInconsistency(): Boolean
-    var
-        DimensionSetEntry: Record "Dimension Set Entry";
-        RecId: RecordId;
-    begin
-        RecId := "Record ID";
-        exit((RecId.TableNo() = Database::"Dimension Set Entry") and (Rec."Field Number" = DimensionSetEntry.FieldNo("Global Dimension No.")));
-    end;
-
-    local procedure RunDimSetEntriesPage()
-    var
-        DimensionSetEntry: Record "Dimension Set Entry";
-        DimensionSetEntries: Page "Dimension Set Entries";
-    begin
-        DimensionSetEntry.Get(Rec."Record ID");
-        DimensionSetEntries.SetRecord(DimensionSetEntry);
-        DimensionSetEntries.SetUpdDimSetGlblDimNoVisible();
-        DimensionSetEntries.Run();
     end;
 
     procedure LogIfEmpty(RecRelatedVariant: Variant; FieldNumber: Integer; MessageType: Option): Integer
@@ -899,14 +853,16 @@ table 700 "Error Message"
 
     procedure GetErrorCallStack(): Text
     var
-        TypeHelper: Codeunit "Type Helper";
         InStream: InStream;
+        LF: Text[1];
     begin
         if not Rec."Error Call Stack".HasValue() then
             exit('');
         Rec.CalcFields("Error Call Stack");
         Rec."Error Call Stack".CreateInStream(InStream, TextEncoding::Windows);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
+
+        LF[1] := 10; // Line feed, '\n'
+        exit(ReadAsTextWithSeparator(InStream, LF));
     end;
 
     procedure SetErrorCallStack(NewCallStack: Text)
@@ -926,6 +882,22 @@ table 700 "Error Message"
             Message(CallStack);
     end;
 
+    local procedure ReadAsTextWithSeparator(InStream: InStream; LineSeparator: Text): Text
+    var
+        Tb: TextBuilder;
+        ContentLine: Text;
+    begin
+        InStream.ReadText(ContentLine);
+        Tb.Append(ContentLine);
+        while not InStream.EOS do begin
+            InStream.ReadText(ContentLine);
+            Tb.Append(LineSeparator);
+            Tb.Append(ContentLine);
+        end;
+
+        exit(Tb.ToText());
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLogMessage(RecRelatedVariant: Variant; FieldNumber: Integer; MessageType: Option; NewDescription: Text; var IsHandled: Boolean)
     begin
@@ -943,11 +915,6 @@ table 700 "Error Message"
 
     [IntegrationEvent(false, false)]
     local procedure OnLogIfNotEmptyOnAfterCheckEmptyValue(FieldRef: FieldRef; EmptyFieldRef: FieldRef; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnDrillDownSource(ErrorMessage: Record "Error Message"; SourceFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
