@@ -781,7 +781,6 @@ table 273 "Bank Acc. Reconciliation"
         PAGE.Run(PAGE::"Bank Account Ledger Entries", BankAccountLedgerEntry);
     end;
 
-    [Scope('OnPrem')]
     procedure MatchCandidateFilterDate(): Date
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
