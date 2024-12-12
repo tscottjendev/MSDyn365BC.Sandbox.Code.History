@@ -1142,5 +1142,27 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
             ShipmentDate := ProdOrderComponent."Due Date";
         end;
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnSetSourceForProdOrderComp', '', false, false)]
+    local procedure OnSetSourceForProdOrderComp(SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var EntryIsPositive: Boolean)
+    var
+        ProdOrderComp: Record "Prod. Order Component";
+    begin
+        if not MatchThisTable(SourceRecRef.Number) then
+            exit;
+
+        SourceRecRef.SetTable(ProdOrderComp);
+        ProdOrderComp.SetReservationEntry(CalcReservEntry);
+        OnSetProdOrderCompOnBeforeUpdateReservation(CalcReservEntry, ProdOrderComp);
+#if not CLEAN26
+        ReservationManagement.RunOnSetProdOrderCompOnBeforeUpdateReservation(CalcReservEntry, ProdOrderComp);
+#endif
+        EntryIsPositive := ProdOrderComp."Remaining Qty. (Base)" > 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetProdOrderCompOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ProdOrderComp: Record "Prod. Order Component")
+    begin
+    end;
 }
 
