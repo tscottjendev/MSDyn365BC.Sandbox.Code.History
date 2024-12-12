@@ -178,7 +178,7 @@ codeunit 134769 "Test User Tasks"
         TempTablesAlreadyInserted: Record Integer temporary;
         RecRef: RecordRef;
         FldRef: FieldRef;
-        UserMgt: Codeunit "User Management";
+        UserCodeunit: Codeunit User;
     begin
         // [GIVEN] Create data for tables with fields having relation with User table
         Company.FindFirst();
@@ -212,7 +212,7 @@ codeunit 134769 "Test User Tasks"
             until FieldRec.Next() = 0;
 
         // [WHEN] RenameUser is invoked
-        UserMgt.RenameUser('OLD', 'NEW');
+        UserCodeunit.RenameUser('OLD', 'NEW');
 
         // [THEN] The data in the table fields has been updated
         if FieldRec.FindSet() then
