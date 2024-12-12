@@ -1199,4 +1199,26 @@ codeunit 99000842 "Service Line-Reserve"
         ArrayCounter += 1;
         ValueArray[ArrayCounter] := Enum::"Reservation Summary Type"::"Service Order".AsInteger();
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnSetSourceForServiceLine', '', false, false)]
+    local procedure OnSetSourceForServiceLine(SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var EntryIsPositive: Boolean)
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        if not MatchThisTable(SourceRecRef.Number) then
+            exit;
+
+        SourceRecRef.SetTable(ServiceLine);
+        ServiceLine.SetReservationEntry(CalcReservEntry);
+        OnSetServLineOnBeforeUpdateReservation(CalcReservEntry, ServiceLine);
+#if not CLEAN26
+        ReservationManagement.RunOnSetServLineOnBeforeUpdateReservation(CalcReservEntry, ServiceLine);
+#endif
+        EntryIsPositive := (CreateReservEntry.SignFactor(CalcReservEntry) * ServiceLine."Outstanding Qty. (Base)") <= 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetServLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ServiceLine: Record Microsoft.Service.Document."Service Line")
+    begin
+    end;
 }
