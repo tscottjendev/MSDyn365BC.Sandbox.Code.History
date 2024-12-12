@@ -10,12 +10,14 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Inventory.Requisition;
 
 codeunit 99000837 "Prod. Order Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Prod. Order Line" = rimd,
+                  TableData "Prod. Order Component" = rimd,
                   TableData "Action Message Entry" = rm;
 
     trigger OnRun()
@@ -44,6 +46,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
         Text011: Label 'Released %1';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
+        DeleteProdOrderLineWithItemReservQst: Label '%1 production order %2 has item reservation. Do you want to delete it anyway?', Comment = '%1 = Status, %2 = Prod. Order No.';
         SourceDoc3Txt: Label '%1 %2 %3', Locked = true;
 
     procedure CreateReservation(var ProdOrderLine: Record "Prod. Order Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservationEntry: Record "Reservation Entry")
@@ -1099,5 +1102,49 @@ codeunit 99000837 "Prod. Order Line-Reserve"
             // Planned
             end;
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnSetSourceForProdOrderLine', '', false, false)]
+    local procedure OnSetSourceForProdOrderLine(SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var EntryIsPositive: Boolean)
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        if not MatchThisTable(SourceRecRef.Number) then
+            exit;
+
+        SourceRecRef.SetTable(ProdOrderLine);
+        ProdOrderLine.SetReservationEntry(CalcReservEntry);
+        OnSetProdOrderLineOnBeforeUpdateReservation(CalcReservEntry, ProdOrderLine);
+#if not CLEAN26
+        ReservationManagement.RunOnSetProdOrderLineOnBeforeUpdateReservation(CalcReservEntry, ProdOrderLine);
+#endif
+        EntryIsPositive := (ProdOrderLine."Remaining Qty. (Base)" < 0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetProdOrderLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnGetDocumentReservationDeleteQstOnElseCase', '', false, false)]
+    local procedure OnGetDocumentReservationDeleteQstOnElseCase(RecRef: RecordRef; FldRef: FieldRef; DocType: Integer; var Question: Text; DocNo: Code[20]; var IsHandled: Boolean)
+    begin
+        case RecRef.Number of
+            Database::"Prod. Order Line":
+                begin
+                    Question := StrSubstNo(DeleteProdOrderLineWithItemReservQst, SelectStr(DocType + 1, FldRef.OptionCaption), DocNo);
+                    IsHandled := true;
+                end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnGetDefaultDampenerPeriod', '', false, false)]
+    local procedure OnGetDefaultDampenerPeriod(var DampenerPeriod: DateFormula)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get();
+        DampenerPeriod := ManufacturingSetup."Default Dampener Period";
+    end;
+
 }
 
