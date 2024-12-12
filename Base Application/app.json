@@ -4,7 +4,7 @@
   "publisher": "Microsoft",
   "description": "Provides business processes that are typical for small and mid-sized companies, such as sales and purchasing, and customer and vendor management, plus complex processes, such as assembly, manufacturing, service, and directed warehouse management. https://go.microsoft.com/fwlink/?LinkId=2205496",
   "brief": "Base Application (MX)",
-  "version": "26.0.27918.0",
+  "version": "26.0.27924.0",
   "logo": "ExtensionLogo.png",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
@@ -129,6 +129,11 @@
     {
       "id": "6555cb10-63ea-4ec0-99aa-8e6a4db67c87",
       "name": "Core Localization Pack for Czech Tests",
+      "publisher": "Microsoft"
+    },
+    {
+      "id": "0243a4ea-21b3-4fa8-ad70-9915a4400be0",
+      "name": "Tests-Resource",
       "publisher": "Microsoft"
     }
   ],
