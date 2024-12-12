@@ -660,14 +660,6 @@ codeunit 925 "Assembly Header-Reserve"
     begin
     end;
 
-#if not CLEAN25
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit AssemblyLineReserve', '25.0')]
-    local procedure OnSetAssemblyHeaderOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; AssemblyHeader: Record "Assembly Header")
-    begin
-    end;
-#endif
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnAutoReserveOnBeforeStopReservation', '', false, false)]
     local procedure OnAutoReserveOnBeforeStopReservation(var CalcReservEntry: Record "Reservation Entry"; var StopReservation: Boolean; SourceRecRef: RecordRef);
     begin
@@ -786,5 +778,27 @@ codeunit 925 "Assembly Header-Reserve"
                 OrderTrackingEntry."Starting Date" := AssemblyHeader."Due Date";
                 OrderTrackingEntry."Ending Date" := AssemblyHeader."Due Date";
             end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnSetSourceForAssemblyHeader', '', false, false)]
+    local procedure OnSetSourceForAssemblyHeader(SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var EntryIsPositive: Boolean)
+    var
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        if not MatchThisTable(SourceRecRef.Number) then
+            exit;
+
+        SourceRecRef.SetTable(AssemblyHeader);
+        AssemblyHeader.SetReservationEntry(CalcReservEntry);
+        OnSetAssemblyHeaderOnBeforeUpdateReservation(CalcReservEntry, AssemblyHeader);
+#if not CLEAN26
+        ReservationManagement.RunOnSetAssemblyHeaderOnBeforeUpdateReservation(CalcReservEntry, AssemblyHeader);
+#endif
+        EntryIsPositive := ((CreateReservEntry.SignFactor(CalcReservEntry) * AssemblyHeader."Remaining Quantity (Base)") < 0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetAssemblyHeaderOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; AssemblyHeader: Record "Assembly Header")
+    begin
     end;
 }
