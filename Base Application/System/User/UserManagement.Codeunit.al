@@ -57,7 +57,9 @@ using System.Diagnostics;
 using System.Environment;
 using System.Environment.Configuration;
 using System.IO;
+#if not CLEAN26
 using System.Reflection;
+#endif
 using System.Security.AccessControl;
 using System.Security.Encryption;
 using System.Threading;
@@ -165,14 +167,13 @@ codeunit 418 "User Management"
     end;
 
     var
-        Text001Qst: Label 'You are renaming an existing user. This will also update all related records. Are you sure that you want to rename the user?';
-        Text002Err: Label 'The account %1 already exists.', Comment = '%1 username';
+#if not CLEAN26
         Text003Err: Label 'You do not have permissions for this action on the table %1.', Comment = '%1 table name';
 #pragma warning disable AA0470
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';
 #pragma warning restore AA0470
+#endif
         UnsupportedLicenseTypeOnSaasErr: Label 'Only users of type %1, %2, %3, %4 and %5 are supported in the online environment.', Comment = '%1,%2,%3,%4,%5 = license type';
-        DisableUserMsg: Label 'To permanently disable a user, go to your Microsoft 365 admin center. Disabling the user in Business Central will only be effective until the next user synchonization with Microsoft 365.';
         WindowsSecurityIdNotEditableOnSaaSErr: Label 'Windows security identifier is not supported in online environments.';
 
     procedure DisplayUserInformation(Username: Text)
@@ -208,41 +209,23 @@ codeunit 418 "User Management"
         UserLookup.RunModal();
     end;
 
+#if not CLEAN26
+    [Obsolete('ValidateUserName has been moved to the User Codeunit', '26.0')]
     procedure ValidateUserName(NewUser: Record User; OldUser: Record User; WindowsUserName: Text)
     var
-        User: Record User;
-        ConfirmManagement: Codeunit "Confirm Management";
-        CheckForWindowsUserName: Boolean;
+        User: Codeunit User;
     begin
-        if NewUser."User Name" <> OldUser."User Name" then begin
-            User.SetRange("User Name", NewUser."User Name");
-            User.SetFilter("User Security ID", '<>%1', OldUser."User Security ID");
-            if User.FindFirst() then
-                Error(Text002Err, NewUser."User Name");
-
-            CheckForWindowsUserName := NewUser."Windows Security ID" <> '';
-            OnValidateUserNameOnAfterCalcCheckForWindowsUserName(NewUser, WindowsUserName, CheckForWindowsUserName);
-            if CheckForWindowsUserName then
-                NewUser.TestField("User Name", WindowsUserName);
-
-            if OldUser."User Name" <> '' then
-                if ConfirmManagement.GetResponseOrDefault(Text001Qst, false) then
-                    RenameUser(OldUser."User Name", NewUser."User Name")
-                else
-                    Error('');
-        end;
+        User.ValidateUserName(NewUser, OldUser, WindowsUserName);
     end;
 
+    [Obsolete('ValidateState has been moved to the User Codeunit', '26.0')]
     procedure ValidateState(var Rec: Record User; var xRec: Record User);
     var
-        EnvironmentInformation: Codeunit "Environment Information";
+        User: Codeunit User;
     begin
-        if not EnvironmentInformation.IsSaaS() then
-            exit;
-
-        if (xRec.State <> Rec.State) and (Rec.State = Rec.State::Disabled) then
-            Message(DisableUserMsg);
+        User.ValidateState(Rec, xRec);
     end;
+#endif
 
     local procedure IsPrimaryKeyField(TableID: Integer; FieldID: Integer; var NumberOfPrimaryKeyFields: Integer): Boolean
     var
@@ -257,6 +240,15 @@ codeunit 418 "User Management"
     end;
 
     local procedure RenameRecord(var RecRef: RecordRef; TableNo: Integer; NumberOfPrimaryKeyFields: Integer; UserName: Code[50]; Company: Text[30])
+    begin
+        if NumberOfPrimaryKeyFields = 1 then
+            RecRef.Rename(UserName)
+        else
+            RenameRecordWithMultipleKeys(RecRef, TableNo, UserName, Company);
+        OnAfterRenameRecord(RecRef, TableNo, NumberOfPrimaryKeyFields, UserName, Company);
+    end;
+
+    local procedure RenameRecordWithMultipleKeys(var RecRef: RecordRef; TableNo: Integer; UserName: Code[50]; Company: Text[30])
     var
         UserTimeRegister: Record "User Time Register";
         PrinterSelection: Record "Printer Selection";
@@ -274,100 +266,98 @@ codeunit 418 "User Management"
         CuesAndKpis: Codeunit "Cues and KPIs";
         Checklist: Codeunit Checklist;
     begin
-        if NumberOfPrimaryKeyFields = 1 then
-            RecRef.Rename(UserName)
-        else
-            case TableNo of
-                DATABASE::"User Time Register":
-                    begin
-                        UserTimeRegister.ChangeCompany(Company);
-                        RecRef.SetTable(UserTimeRegister);
-                        UserTimeRegister.Rename(UserName, UserTimeRegister.Date);
-                    end;
-                DATABASE::"Printer Selection":
-                    begin
-                        RecRef.SetTable(PrinterSelection);
-                        PrinterSelection.Rename(UserName, PrinterSelection."Report ID");
-                    end;
-                DATABASE::"Selected Dimension":
-                    begin
-                        SelectedDimension.ChangeCompany(Company);
-                        RecRef.SetTable(SelectedDimension);
-                        SelectedDimension.Rename(UserName, SelectedDimension."Object Type", SelectedDimension."Object ID",
-                          SelectedDimension."Analysis View Code", SelectedDimension."Dimension Code");
-                    end;
-                DATABASE::"FA Journal Setup":
-                    begin
-                        FAJournalSetup.ChangeCompany(Company);
-                        RecRef.SetTable(FAJournalSetup);
-                        FAJournalSetup.Rename(FAJournalSetup."Depreciation Book Code", UserName);
-                    end;
-                DATABASE::"Analysis Selected Dimension":
-                    begin
-                        AnalysisSelectedDimension.ChangeCompany(Company);
-                        RecRef.SetTable(AnalysisSelectedDimension);
-                        AnalysisSelectedDimension.Rename(UserName, AnalysisSelectedDimension."Object Type", AnalysisSelectedDimension."Object ID",
-                          AnalysisSelectedDimension."Analysis Area", AnalysisSelectedDimension."Analysis View Code",
-                          AnalysisSelectedDimension."Dimension Code");
-                    end;
-                9701: // Cue Setup
-                    CuesAndKpis.ChangeUserForSetupEntry(RecRef, Company, UserName);
-                DATABASE::"Warehouse Employee":
-                    begin
-                        WarehouseEmployee.ChangeCompany(Company);
-                        RecRef.SetTable(WarehouseEmployee);
-                        WarehouseEmployee.Rename(UserName, WarehouseEmployee."Location Code");
-                    end;
-                DATABASE::"My Customer":
-                    begin
-                        MyCustomer.ChangeCompany(Company);
-                        RecRef.SetTable(MyCustomer);
-                        MyCustomer.Rename(UserName, MyCustomer."Customer No.");
-                    end;
-                DATABASE::"My Vendor":
-                    begin
-                        MyVendor.ChangeCompany(Company);
-                        RecRef.SetTable(MyVendor);
-                        MyVendor.Rename(UserName, MyVendor."Vendor No.");
-                    end;
-                DATABASE::"My Item":
-                    begin
-                        MyItem.ChangeCompany(Company);
-                        RecRef.SetTable(MyItem);
-                        MyItem.Rename(UserName, MyItem."Item No.");
-                    end;
-                DATABASE::"My Account":
-                    begin
-                        MyAccount.ChangeCompany(Company);
-                        RecRef.SetTable(MyAccount);
-                        MyAccount.Rename(UserName, MyAccount."Account No.");
-                    end;
-                DATABASE::"Application Area Setup":
-                    begin
-                        ApplicationAreaSetup.ChangeCompany(Company);
-                        RecRef.SetTable(ApplicationAreaSetup);
-                        ApplicationAreaSetup.Rename('', '', UserName);
-                    end;
-                DATABASE::"My Job":
-                    begin
-                        MyJob.ChangeCompany(Company);
-                        RecRef.SetTable(MyJob);
-                        MyJob.Rename(UserName, MyJob."Job No.");
-                    end;
-                DATABASE::"My Time Sheets":
-                    begin
-                        MyTimeSheets.ChangeCompany(Company);
-                        RecRef.SetTable(MyTimeSheets);
-                        MyTimeSheets.Rename(UserName, MyTimeSheets."Time Sheet No.");
-                    end;
-                1993: //Checklist Item User
-                    Checklist.UpdateUserName(RecRef, Company, UserName, 1993);
-                1994: //User Checklist Status
-                    Checklist.UpdateUserName(RecRef, Company, UserName, 1994);
-            end;
-        OnAfterRenameRecord(RecRef, TableNo, NumberOfPrimaryKeyFields, UserName, Company);
+        case TableNo of
+            DATABASE::"User Time Register":
+                begin
+                    UserTimeRegister.ChangeCompany(Company);
+                    RecRef.SetTable(UserTimeRegister);
+                    UserTimeRegister.Rename(UserName, UserTimeRegister.Date);
+                end;
+            DATABASE::"Printer Selection":
+                begin
+                    RecRef.SetTable(PrinterSelection);
+                    PrinterSelection.Rename(UserName, PrinterSelection."Report ID");
+                end;
+            DATABASE::"Selected Dimension":
+                begin
+                    SelectedDimension.ChangeCompany(Company);
+                    RecRef.SetTable(SelectedDimension);
+                    SelectedDimension.Rename(UserName, SelectedDimension."Object Type", SelectedDimension."Object ID",
+                      SelectedDimension."Analysis View Code", SelectedDimension."Dimension Code");
+                end;
+            DATABASE::"FA Journal Setup":
+                begin
+                    FAJournalSetup.ChangeCompany(Company);
+                    RecRef.SetTable(FAJournalSetup);
+                    FAJournalSetup.Rename(FAJournalSetup."Depreciation Book Code", UserName);
+                end;
+            DATABASE::"Analysis Selected Dimension":
+                begin
+                    AnalysisSelectedDimension.ChangeCompany(Company);
+                    RecRef.SetTable(AnalysisSelectedDimension);
+                    AnalysisSelectedDimension.Rename(UserName, AnalysisSelectedDimension."Object Type", AnalysisSelectedDimension."Object ID",
+                      AnalysisSelectedDimension."Analysis Area", AnalysisSelectedDimension."Analysis View Code",
+                      AnalysisSelectedDimension."Dimension Code");
+                end;
+            9701: // Cue Setup
+                CuesAndKpis.ChangeUserForSetupEntry(RecRef, Company, UserName);
+            DATABASE::"Warehouse Employee":
+                begin
+                    WarehouseEmployee.ChangeCompany(Company);
+                    RecRef.SetTable(WarehouseEmployee);
+                    WarehouseEmployee.Rename(UserName, WarehouseEmployee."Location Code");
+                end;
+            DATABASE::"My Customer":
+                begin
+                    MyCustomer.ChangeCompany(Company);
+                    RecRef.SetTable(MyCustomer);
+                    MyCustomer.Rename(UserName, MyCustomer."Customer No.");
+                end;
+            DATABASE::"My Vendor":
+                begin
+                    MyVendor.ChangeCompany(Company);
+                    RecRef.SetTable(MyVendor);
+                    MyVendor.Rename(UserName, MyVendor."Vendor No.");
+                end;
+            DATABASE::"My Item":
+                begin
+                    MyItem.ChangeCompany(Company);
+                    RecRef.SetTable(MyItem);
+                    MyItem.Rename(UserName, MyItem."Item No.");
+                end;
+            DATABASE::"My Account":
+                begin
+                    MyAccount.ChangeCompany(Company);
+                    RecRef.SetTable(MyAccount);
+                    MyAccount.Rename(UserName, MyAccount."Account No.");
+                end;
+            DATABASE::"Application Area Setup":
+                begin
+                    ApplicationAreaSetup.ChangeCompany(Company);
+                    RecRef.SetTable(ApplicationAreaSetup);
+                    ApplicationAreaSetup.Rename('', '', UserName);
+                end;
+            DATABASE::"My Job":
+                begin
+                    MyJob.ChangeCompany(Company);
+                    RecRef.SetTable(MyJob);
+                    MyJob.Rename(UserName, MyJob."Job No.");
+                end;
+            DATABASE::"My Time Sheets":
+                begin
+                    MyTimeSheets.ChangeCompany(Company);
+                    RecRef.SetTable(MyTimeSheets);
+                    MyTimeSheets.Rename(UserName, MyTimeSheets."Time Sheet No.");
+                end;
+            1993: //Checklist Item User
+                Checklist.UpdateUserName(RecRef, Company, UserName, 1993);
+            1994: //User Checklist Status
+                Checklist.UpdateUserName(RecRef, Company, UserName, 1994);
+        end;
     end;
 
+#if not CLEAN26
+    [Obsolete('RenameUser has been moved to the User Codeunit', '26.0')]
     procedure RenameUser(OldUserName: Code[50]; NewUserName: Code[50])
     var
         User: Record User;
@@ -431,6 +421,41 @@ codeunit 418 "User Management"
 
         OnAfterRenameUser(OldUserName, NewUserName);
     end;
+#endif
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::User, OnAfterRenameRecord, '', false, false)]
+    local procedure RenameRecordWithUser(var RecRef: RecordRef; TableNo: Integer; NumberOfPrimaryKeyFields: Integer; UserName: Code[50]; Company: Text[30])
+    begin
+        if NumberOfPrimaryKeyFields > 1 then
+            RenameRecordWithMultipleKeys(RecRef, TableNo, UserName, Company);
+        OnAfterRenameRecord(RecRef, TableNo, NumberOfPrimaryKeyFields, UserName, Company);
+    end;
+
+#if not CLEAN26
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::User, OnValidateUserNameOnAfterCalcCheckForWindowsUserName, '', false, false)]
+    local procedure ReRaiseOnValidateUserNameOnAfterCalcCheckForWindowsUserName(NewUser: Record User; WindowsUserName: Text; var CheckForWindowsUserName: Boolean)
+    begin
+        OnValidateUserNameOnAfterCalcCheckForWindowsUserName(NewUser, WindowsUserName, CheckForWindowsUserName);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::User, OnAfterRenameUser, '', false, false)]
+    local procedure ReRaiseOnAfterRenameUser(OldUserName: Code[50]; NewUserName: Code[50])
+    begin
+        OnAfterRenameUser(OldUserName, NewUserName);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::User, OnBeforeRenameUser, '', false, false)]
+    local procedure ReRaiseOnBeforeRenameUser(OldUserName: Code[50]; NewUserName: Code[50])
+    begin
+        OnBeforeRenameUser(OldUserName, NewUserName);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::User, OnRenameUserOnBeforeProcessField, '', false, false)]
+    local procedure ReRaiseOnRenameUserOnBeforeProcessField(TableID: Integer; FieldID: Integer; OldUserName: Code[50]; NewUserName: Code[50]; var IsHandled: Boolean)
+    begin
+        OnRenameUserOnBeforeProcessField(TableID, FieldID, OldUserName, NewUserName, IsHandled);
+    end;
+#endif
 
     [EventSubscriber(ObjectType::Table, Database::User, 'OnBeforeModifyEvent', '', false, false)]
     local procedure OnBeforeModifyUserValidateWindowsSecurityIdOnSaaS(RunTrigger: Boolean; var Rec: Record User; var xRec: Record User)
@@ -483,24 +508,30 @@ codeunit 418 "User Management"
     begin
     end;
 
+#if not CLEAN26
     [IntegrationEvent(false, false)]
+    [Obsolete('RenameUser has been moved to the User Codeunit', '26.0')]
     local procedure OnAfterRenameUser(OldUserName: Code[50]; NewUserName: Code[50])
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('RenameUser has been moved to the User Codeunit', '26.0')]
     local procedure OnBeforeRenameUser(OldUserName: Code[50]; NewUserName: Code[50])
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('RenameUser has been moved to the User Codeunit', '26.0')]
     local procedure OnRenameUserOnBeforeProcessField(TableID: Integer; FieldID: Integer; OldUserName: Code[50]; NewUserName: Code[50]; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('ValidateUserName has been moved to the User Codeunit', '26.0')]
     local procedure OnValidateUserNameOnAfterCalcCheckForWindowsUserName(NewUser: Record User; WindowsUserName: Text; var CheckForWindowsUserName: Boolean)
     begin
     end;
+#endif
 }
 
