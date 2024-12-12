@@ -401,41 +401,6 @@ page 9807 "User Card"
                     end;
                 }
             }
-            group(Action39)
-            {
-                Caption = 'Permissions';
-                action("Effective Permissions")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Effective Permissions';
-                    Image = Permission;
-                    ToolTip = 'View this user''s actual permissions for all objects per assigned permission set, and edit the user''s permissions in permission sets of type User-Defined.';
-
-                    trigger OnAction()
-                    var
-                        EffectivePermissionsMgt: Codeunit "Effective Permissions Mgt.";
-                    begin
-                        EffectivePermissionsMgt.OpenPageForUser(Rec."User Security ID");
-                    end;
-                }
-            }
-            action(Email)
-            {
-                ApplicationArea = All;
-                Caption = 'Send Email';
-                Image = Email;
-                ToolTip = 'Send an email to this user.';
-
-                trigger OnAction()
-                var
-                    TempEmailItem: Record "Email Item" temporary;
-                    EmailScenario: Enum "Email Scenario";
-                begin
-                    TempEmailItem.AddSourceDocument(Database::User, Rec.SystemId);
-                    TempEmailitem."Send to" := Rec."Contact Email";
-                    TempEmailItem.Send(false, EmailScenario::Default);
-                end;
-            }
         }
         area(navigation)
         {
@@ -465,16 +430,10 @@ page 9807 "User Card"
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
-                actionref("Effective Permissions_Promoted"; "Effective Permissions")
-                {
-                }
                 actionref(AcsSetup_Promoted; AcsSetup)
                 {
                 }
                 actionref(ChangePassword_Promoted; ChangePassword)
-                {
-                }
-                actionref(Email_Promoted; Email)
                 {
                 }
                 actionref("Sent Emails_Promoted"; "Sent Emails")
@@ -711,17 +670,17 @@ page 9807 "User Card"
 
     local procedure ValidateUserName()
     var
-        UserMgt: Codeunit "User Management";
+        UserCodeunit: Codeunit User;
     begin
-        UserMgt.ValidateUserName(Rec, xRec, WindowsUserName);
+        UserCodeunit.ValidateUserName(Rec, xRec, WindowsUserName);
         CurrPage.Update();
     end;
 
     local procedure ValidateState()
     var
-        UserManagement: Codeunit "User Management";
+        UserCodeunit: Codeunit User;
     begin
-        UserManagement.ValidateState(Rec, xRec);
+        UserCodeunit.ValidateState(Rec, xRec);
     end;
 
     local procedure EditWebServiceID()
@@ -901,4 +860,3 @@ page 9807 "User Card"
     begin
     end;
 }
-
