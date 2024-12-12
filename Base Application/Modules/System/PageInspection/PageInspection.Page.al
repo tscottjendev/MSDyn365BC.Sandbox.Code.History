@@ -250,7 +250,6 @@ page 9631 "Page Inspection"
                 AccessByPermission = System "Tools, Zoom" = X;
                 ApplicationArea = All;
                 Editable = false;
-                Enabled = false;
                 Visible = ShowExtensions and not ShowNoPermissionForExtensions;
             }
             part(Filters; "Page Inspection Filters")
