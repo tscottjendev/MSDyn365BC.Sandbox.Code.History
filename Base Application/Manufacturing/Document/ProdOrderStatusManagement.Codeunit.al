@@ -1119,10 +1119,14 @@ codeunit 5407 "Prod. Order Status Management"
         NewProdOrder := ToProdOrder;
     end;
 
+    [ErrorBehavior(ErrorBehavior::Collect)]
     internal procedure ChangeStatusWithSelectionFilter(var ProductionOrder: Record "Production Order")
     var
+        TempErrors: Record "Error Message" temporary;
+        ProdOrderChangeStatusBulk: Codeunit ProdOrderChangeStatusBulk;
         ChangeStatusOnProdOrder: Page "Change Status on Prod. Order";
         NewProductionOrderStatusLocal: Enum "Production Order Status";
+        Error: ErrorInfo;
         NewPostingDateLocal: Date;
         NewUpdateUnitCostLocal: Boolean;
         ProgressDialog: Dialog;
@@ -1145,9 +1149,25 @@ codeunit 5407 "Prod. Order Status Management"
                 ProcessedProductionOrdersCounter += 1;
                 ProgressDialog.Update(1, ProductionOrder."No.");
                 ProgressDialog.Update(2, Round(ProcessedProductionOrdersCounter / NoOfProductionOrdersToProcess * 10000, 1));
-                ChangeProdOrderStatus(ProductionOrder, NewProductionOrderStatusLocal, NewPostingDateLocal, NewUpdateUnitCostLocal);
-                Commit();
+
+                ProdOrderChangeStatusBulk.SetParameters(NewProductionOrderStatusLocal, NewPostingDateLocal, NewUpdateUnitCostLocal);
+                if not ProdOrderChangeStatusBulk.Run(ProductionOrder) then begin
+                    TempErrors.ID := TempErrors.ID + 1;
+                    TempErrors.Message := GetLastErrorText();
+                    TempErrors.Insert();
+                end;
+                if System.HasCollectedErrors() then
+                    foreach Error in System.GetCollectedErrors() do begin
+                        TempErrors.ID := TempErrors.ID + 1;
+                        TempErrors.Message := Error.Message;
+                        TempErrors.Validate("Record ID", Error.RecordId);
+                        TempErrors.Insert();
+                    end;
+
             until ProductionOrder.Next() = 0;
+            ClearCollectedErrors();
+            if TempErrors.Count > 0 then
+                Page.RunModal(Page::"Error Messages", TempErrors);
         end;
     end;
 
