@@ -5271,10 +5271,13 @@
         ProdOrderNo1 := ProductionOrder."No.";
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandDec(100, 2));
         ProdOrderNo2 := ProductionOrder."No.";
-        ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
-        ProductionOrder.SetFilter("No.", '%1|%2', ProdOrderNo1, ProdOrderNo2);
 
         // [WHEN] Using the new action
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::Released); // Simulating the user selection
+        ProductionOrder.SetFilter("No.", '%1|%2', ProdOrderNo1, ProdOrderNo2);
+        Commit();
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(Enum::"Production Order Status"::Finished);
         ProdOrderStatusMgt.ChangeStatusWithSelectionFilter(ProductionOrder);
 
         // [THEN] The statuses have changed only for the selected production orders
@@ -5470,6 +5473,59 @@
 
         // [THEN] Verify Verify Reverse Item Ledger Entry should not be created for Entry Type "Positive Adjmt.".
         Assert.ExpectedError(StrSubstNo(CannotHandleEntryTypeErr, ItemLedgerEntry."Entry Type"::"Positive Adjmt."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,ChangeStatusOnProdOrderPageHandler,ErrorMessagesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ProdOrderChangeStatusBulkErrorHandling()
+    var
+        ProductionOrder: Record "Production Order";
+        Item: Record Item;
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProdOrderLine: Record "Prod. Order Line";
+        WorkCenter: Record "Work Center";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        ProdOrderNo1, ProdOrderNo2 : Code[20];
+        ItemQty: Decimal;
+    begin
+        // [SCENARIO 557246] Change status bulk action for production orders does not stop execution on error but collects errors and shows them all in the end 
+        Initialize();
+
+        // [GIVEN] One production order with status firm planned
+        CreateItem(Item);
+        CreateRoutingAndUpdateItem(Item, WorkCenter);
+        ItemQty := LibraryRandom.RandIntInRange(1, 100);
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ProductionOrder."Source Type"::Item, Item."No.", ItemQty);
+        ProdOrderNo1 := ProductionOrder."No.";
+
+        // [GIVEN] Production order component with large quantity and flushing method set to forward
+        LibraryManufacturing.CreateProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", Item."No.", '', '', ItemQty);
+        LibraryManufacturing.CreateProductionOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Line No.");
+        ProdOrderComponent."Item No." := Item."No.";
+        ProdOrderComponent."Quantity per" := LibraryRandom.RandIntInRange(1000, 10000);
+        ProdOrderComponent."Flushing Method" := Enum::"Flushing Method"::Forward;
+        ProdOrderComponent.Modify();
+
+        // [GIVEN] Second production order with status firm planned, no component
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandIntInRange(1, 100));
+        ProdOrderNo2 := ProductionOrder."No.";
+
+        // [WHEN] Using the new action
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned"); // Simulating the user selection
+        ProductionOrder.SetFilter("No.", '%1|%2', ProdOrderNo1, ProdOrderNo2);
+        Commit();
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(Enum::"Production Order Status"::Released);
+        ProdOrderStatusMgt.ChangeStatusWithSelectionFilter(ProductionOrder);
+
+        // [THEN] The status of the first order has not changed
+        asserterror ProductionOrder.Get(ProductionOrder.Status::Released, ProdOrderNo1);
+        ProductionOrder.Get(ProductionOrder.Status::"Firm Planned", ProdOrderNo1);
+        // [THEN] The status of the second order has changed
+        asserterror ProductionOrder.Get(ProductionOrder.Status::"Firm Planned", ProdOrderNo2);
+        // [THEN] There is one error in the error messages page (checked in the page handler)
+
     end;
 
     local procedure Initialize()
@@ -7942,10 +7998,20 @@
     [Scope('OnPrem')]
     procedure ChangeStatusOnProdOrderPageHandler(var ChangeStatusOnProdOrder: TestPage "Change Status on Prod. Order")
     var
-        ProductionOrder: Record "Production Order";
+        NewStatus: Variant;
     begin
-        ChangeStatusOnProdOrder.FirmPlannedStatus.SetValue(ProductionOrder.Status::Finished);
+        LibraryVariableStorage.Dequeue(NewStatus);
+        ChangeStatusOnProdOrder.FirmPlannedStatus.SetValue(NewStatus);
         ChangeStatusOnProdOrder.Yes().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ErrorMessagesPageHandler(var ErrorMessages: TestPage "Error Messages")
+    var
+        ErrorMessage: Record "Error Message";
+    begin
+        Assert.AreEqual(ErrorMessages."Message Type".AsInteger(), ErrorMessage."Message Type"::Error, '');
     end;
 }
 
