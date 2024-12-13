@@ -490,8 +490,15 @@ codeunit 57 "Document Totals"
             ClearPurchaseAmounts(TotalsPurchaseLine, VATAmount);
     end;
 
-    local procedure PurchaseUpdateTotals(var PurchaseHeader: Record "Purchase Header"; CurrentPurchaseLine: Record "Purchase Line"; var TotalsPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; Force: Boolean): Boolean
+    local procedure PurchaseUpdateTotals(var PurchaseHeader: Record "Purchase Header"; CurrentPurchaseLine: Record "Purchase Line"; var TotalsPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; Force: Boolean) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchaseUpdateTotals(PurchaseHeader, PreviousTotalPurchaseHeader, CurrentPurchaseLine, TotalsPurchaseLine, VATAmount, Force, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         PurchaseHeader.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
 
         if (PreviousTotalPurchaseHeader.Amount = PurchaseHeader.Amount) and
@@ -1231,6 +1238,11 @@ codeunit 57 "Document Totals"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesCalculateTotalsWithInvoiceRounding(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseUpdateTotals(var PurchaseHeader: Record "Purchase Header"; var PreviousTotalPurchaseHeader: Record "Purchase Header"; CurrentPurchaseLine: Record "Purchase Line"; var TotalsPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; Force: Boolean; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 }
