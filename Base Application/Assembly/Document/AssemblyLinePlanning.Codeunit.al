@@ -10,6 +10,9 @@ using Microsoft.Inventory.Tracking;
 
 codeunit 99000851 "Assembly Line-Planning"
 {
+    Permissions = TableData "Assembly Header" = r,
+                  TableData "Assembly Line" = r;
+
     var
         AssemblyHeader: Record "Assembly Header";
         AssemblyTxt: Label 'Assembly';
