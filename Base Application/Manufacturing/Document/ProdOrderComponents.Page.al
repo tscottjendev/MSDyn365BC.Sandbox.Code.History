@@ -289,7 +289,6 @@ page 99000818 "Prod. Order Components"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the routing link code when you calculate the production order.';
-                    Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
