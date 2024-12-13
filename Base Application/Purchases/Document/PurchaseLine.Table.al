@@ -342,11 +342,15 @@ table 39 "Purchase Line"
             trigger OnValidate()
             var
                 ConfirmManagement: Codeunit "Confirm Management";
-                IsHandled: Boolean;
+                IsHandled, ShouldExit : Boolean;
             begin
                 TestStatusOpen();
                 IsHandled := false;
-                OnValidateLocationCodeOnAfterTestStatusOpen(Rec, xRec, IsHandled);
+                ShouldExit := false;
+                OnValidateLocationCodeOnAfterTestStatusOpen(Rec, xRec, IsHandled, ShouldExit);
+                if ShouldExit then
+                    exit;
+
                 if xRec."Location Code" <> "Location Code" then begin
                     if ("Prepmt. Amt. Inv." <> 0) and (not IsHandled) then
                         if not ConfirmManagement.GetResponseOrDefault(
@@ -11293,7 +11297,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLocationCodeOnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnValidateLocationCodeOnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; var ShouldExit: Boolean)
     begin
     end;
 
