@@ -3,6 +3,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Planning;
 
 table 99000854 "Inventory Profile Track Buffer"
 {
@@ -47,12 +48,10 @@ table 99000854 "Inventory Profile Track Buffer"
             Caption = 'Quantity Tracked';
             DataClassification = SystemMetadata;
         }
-        field(73; "Surplus Type"; Option)
+        field(73; "Surplus Type"; Enum "Planning Surplus Type")
         {
             Caption = 'Surplus Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'None,Forecast,BlanketOrder,SafetyStock,ReorderPoint,MaxInventory,FixedOrderQty,MaxOrder,MinOrder,OrderMultiple,DampenerQty,PlanningFlexibility,Undefined,EmergencyOrder';
-            OptionMembers = "None",Forecast,BlanketOrder,SafetyStock,ReorderPoint,MaxInventory,FixedOrderQty,MaxOrder,MinOrder,OrderMultiple,DampenerQty,PlanningFlexibility,Undefined,EmergencyOrder;
         }
         field(75; "Warning Level"; Option)
         {
