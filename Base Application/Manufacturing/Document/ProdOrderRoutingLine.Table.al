@@ -310,7 +310,17 @@ table 5409 "Prod. Order Routing Line"
             TableRelation = "Routing Link";
 
             trigger OnValidate()
+            var
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode: Record "Prod. Order Routing Line";
             begin
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode := Rec;
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode.SetRecFilter();
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode.SetRange("Operation No.");
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode.SetRange("Routing Link Code", "Routing Link Code");
+                if not ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode.IsEmpty() then
+                    if not Confirm(DuplicateRoutingLinkCodeLbl, false, FieldCaption("Routing Link Code"), "Routing Link Code") then
+                        Error(CancelledUpdateLbl);
+
                 AdjustProdOrderComponentForRoutingLinkCode(Rec, xRec);
             end;
         }
@@ -841,6 +851,8 @@ table 5409 "Prod. Order Routing Line"
         ProdOrderLineRead: Boolean;
         TimeShiftedOnParentLineMsg: Label 'The production starting date-time of the end item has been moved forward because a subassembly is taking longer than planned.';
         NoTerminationProcessesErr: Label 'On the last operation, the Next Operation No. field must be empty.';
+        DuplicateRoutingLinkCodeLbl: Label '%1 %2 is used more than once on this Routing. Do you want to update it anyway?', Comment = '%1 = Field Caption; %2 = Field Value';
+        CancelledUpdateLbl: Label 'Update cancelled.';
 
     protected var
         Direction: Option Forward,Backward;
