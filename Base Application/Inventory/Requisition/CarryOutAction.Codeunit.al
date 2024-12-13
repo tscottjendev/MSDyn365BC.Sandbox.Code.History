@@ -299,6 +299,7 @@ codeunit 99000813 "Carry Out Action"
         ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
         ProdOrderComponent: Record "Prod. Order Component";
         ProductionOrder: Record "Production Order";
+        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
     begin
         RequisitionLine.TestField(RequisitionLine."Ref. Order Type", RequisitionLine."Ref. Order Type"::"Prod. Order");
         ProdOrderLine.LockTable();
@@ -330,7 +331,7 @@ codeunit 99000813 "Carry Out Action"
                     if ProdOrderComponent.Get(
                             ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", PlanningComponent."Line No.")
                     then begin
-                        PlngComponentReserve.TransferPlanningCompToPOComp(PlanningComponent, ProdOrderComponent, 0, true);
+                        ProdOrderCompReserve.TransferPlanningCompToPOComp(PlanningComponent, ProdOrderComponent, 0, true);
                         PlngComponentReserve.UpdateDerivedTracking(PlanningComponent);
                         ReservationManagement.SetReservSource(ProdOrderComponent);
                         ReservationManagement.DeleteReservEntries(false, ProdOrderComponent."Remaining Qty. (Base)");
@@ -425,6 +426,7 @@ codeunit 99000813 "Carry Out Action"
         AssemblyHeader: Record "Assembly Header";
         PlanningComponent: Record "Planning Component";
         AssemblyLine: Record "Assembly Line";
+        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
     begin
         RequisitionLine.TestField("Ref. Order Type", RequisitionLine."Ref. Order Type"::Assembly);
         AssemblyHeader.LockTable();
@@ -448,7 +450,7 @@ codeunit 99000813 "Carry Out Action"
             if PlanningComponent.Find('-') then
                 repeat
                     if AssemblyLine.Get(AssemblyHeader."Document Type", AssemblyHeader."No.", PlanningComponent."Line No.") then begin
-                        PlngComponentReserve.TransferPlanningCompToAsmLine(PlanningComponent, AssemblyLine, 0, true);
+                        AssemblyLineReserve.TransferPlanningCompToAsmLine(PlanningComponent, AssemblyLine, 0, true);
                         PlngComponentReserve.UpdateDerivedTracking(PlanningComponent);
                         ReservationManagement.SetReservSource(AssemblyLine);
                         ReservationManagement.DeleteReservEntries(false, AssemblyLine."Remaining Quantity (Base)");
@@ -861,6 +863,7 @@ codeunit 99000813 "Carry Out Action"
     var
         AssemblyLine: Record "Assembly Line";
         PlanningComponent: Record "Planning Component";
+        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
     begin
         PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
@@ -908,7 +911,7 @@ codeunit 99000813 "Carry Out Action"
 
                 AssemblyLine.Insert();
 
-                PlngComponentReserve.TransferPlanningCompToAsmLine(PlanningComponent, AssemblyLine, 0, true);
+                AssemblyLineReserve.TransferPlanningCompToAsmLine(PlanningComponent, AssemblyLine, 0, true);
                 AssemblyLine.AutoReserve();
                 ReservationManagement.SetReservSource(AssemblyLine);
                 ReservationManagement.AutoTrack(AssemblyLine."Remaining Quantity (Base)");
@@ -1265,6 +1268,7 @@ codeunit 99000813 "Carry Out Action"
     var
         PlanningComponent: Record "Planning Component";
         ProdOrderComponent2: Record "Prod. Order Component";
+        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1288,7 +1292,7 @@ codeunit 99000813 "Carry Out Action"
                 ProdOrderComponent2.Insert();
                 CopyProdBOMComments(ProdOrderComponent2);
                 OnTransferBOMOnAfterCopyProdBOMComments(PlanningComponent, ProdOrderComponent2);
-                PlngComponentReserve.TransferPlanningCompToPOComp(PlanningComponent, ProdOrderComponent2, 0, true);
+                ProdOrderCompReserve.TransferPlanningCompToPOComp(PlanningComponent, ProdOrderComponent2, 0, true);
                 if ProdOrderComponent2.Status in [ProdOrderComponent2.Status::"Firm Planned", ProdOrderComponent2.Status::Released] then
                     ProdOrderComponent2.AutoReserve();
 
