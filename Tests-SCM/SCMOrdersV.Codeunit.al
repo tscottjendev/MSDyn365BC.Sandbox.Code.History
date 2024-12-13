@@ -1435,7 +1435,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Sales & Receivable Setup with "Default G/L Account Quantity" = FALSE
         UpdateDefaultGLAccountQuantityOnSalesSetup(false);
-	
+
         // [GIVEN] G/L Account "A"
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
 

@@ -321,16 +321,17 @@ table 5409 "Prod. Order Routing Line"
 
             trigger OnValidate()
             var
-                ProdOrdRtngLine2: Record "Prod. Order Routing Line";
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode: Record "Prod. Order Routing Line";
                 SubcontractingManagement: Codeunit SubcontractingManagement;
             begin
-                ProdOrdRtngLine2 := Rec;
-                ProdOrdRtngLine2.SetRecFilter();
-                ProdOrdRtngLine2.SetRange("Operation No.");
-                ProdOrdRtngLine2.SetRange("Routing Link Code", "Routing Link Code");
-                if ProdOrdRtngLine2.Find('-') then
-                    if not Confirm(Text1130003, false, FieldCaption("Routing Link Code"), "Routing Link Code") then
-                        Error(Text1130004);
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode := Rec;
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode.SetRecFilter();
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode.SetRange("Operation No.");
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode.SetRange("Routing Link Code", "Routing Link Code");
+                if not ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode.IsEmpty() then
+                    if not Confirm(DuplicateRoutingLinkCodeLbl, false, FieldCaption("Routing Link Code"), "Routing Link Code") then
+                        Error(CancelledUpdateLbl);
+
                 if "Routing Link Code" <> xRec."Routing Link Code" then
                     if xRec."Routing Link Code" <> '' then begin
                         SubcontractingManagement.DelLocationLinkedComponents(xRec, true);
@@ -931,14 +932,14 @@ table 5409 "Prod. Order Routing Line"
         Text009: Label 'If you change the %1 to %2, then all related allocated capacity will be deleted, and you will not be able to change the %1 of the operation again.\\Are you sure that you want to continue?';
         Text1130001: Label 'You can not modify %1 %2 %3 because exists Sucontractor Purchase Order %4 associated with it.';
         Text1130002: Label 'You can not delete %1 %2 %3 because exists Sucontractor Purchase Order %4 associated with it.';
-        Text1130003: Label '%1 used more than once on this Routing. Do you want to update it anyway ?';
-        Text1130004: Label 'Update cancelled.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         SkipUpdateOfCompBinCodes: Boolean;
         ProdOrderLineRead: Boolean;
         TimeShiftedOnParentLineMsg: Label 'The production starting date-time of the end item has been moved forward because a subassembly is taking longer than planned.';
         NoTerminationProcessesErr: Label 'On the last operation, the Next Operation No. field must be empty.';
+        DuplicateRoutingLinkCodeLbl: Label '%1 %2 is used more than once on this Routing. Do you want to update it anyway?', Comment = '%1 = Field Caption; %2 = Field Value';
+        CancelledUpdateLbl: Label 'Update cancelled.';
 
     protected var
         Direction: Option Forward,Backward;
