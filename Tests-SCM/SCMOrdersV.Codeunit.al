@@ -1434,7 +1434,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Sales & Receivable Setup with "Default G/L Account Quantity" = FALSE
         UpdateDefaultGLAccountQuantityOnSalesSetup(false);
-	
+
         // [GIVEN] G/L Account "A"
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
 
@@ -3855,6 +3855,7 @@ codeunit 137158 "SCM Orders V"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTRUE')]
     [Scope('OnPrem')]
     procedure VerifyDueDateTimeShouldBeUpdatedInProdOrderComponentWhenRoutingLinkCodeIsUpdatedInRoutingLine()
     var
@@ -5897,7 +5898,7 @@ codeunit 137158 "SCM Orders V"
             ProdOrderRoutingLine.Validate("Routing Reference No.", ProdOrderLine."Routing Reference No.");
             ProdOrderRoutingLine.Validate("Operation No.", Format(LibraryRandom.RandInt(100)));
             ProdOrderRoutingLine.Insert(true);
-            
+
             ProdOrderRoutingLine.Validate(Type, CapacityType);
             ProdOrderRoutingLine.Validate("Work Center No.", WorkCenter."No.");
             ProdOrderRoutingLine.Validate("No.", WorkCenter."No.");
@@ -6147,6 +6148,13 @@ codeunit 137158 "SCM Orders V"
     [Scope('OnPrem')]
     procedure SendNotificationHandler(var Notification: Notification): Boolean
     begin
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTRUE(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 
