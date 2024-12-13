@@ -56,7 +56,6 @@ page 99000767 "Routing Version Lines"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the routing link code.';
-                    Visible = false;
                 }
                 field(Description; Rec.Description)
                 {
