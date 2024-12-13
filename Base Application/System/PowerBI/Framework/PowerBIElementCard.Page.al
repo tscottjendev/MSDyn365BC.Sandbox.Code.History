@@ -1,7 +1,7 @@
 namespace System.Integration.PowerBI;
 using System.Telemetry;
 using System.Environment.Configuration;
-using System.Reflection;
+using System.Globalization;
 
 page 6323 "Power BI Element Card"
 {
@@ -243,7 +243,7 @@ page 6323 "Power BI Element Card"
 
     local procedure InitializeAddIn()
     var
-        TypeHelper: Codeunit "Type Helper";
+        Language: Codeunit Language;
         DashboardId: Guid;
         ReportId: Guid;
         TileId: Guid;
@@ -256,7 +256,7 @@ page 6323 "Power BI Element Card"
         end;
 
         CurrPage.PowerBIManagement.AddBottomPadding(true);
-        CurrPage.PowerBIManagement.SetLocale(TypeHelper.GetCultureName());
+        CurrPage.PowerBIManagement.SetLocale(Language.GetCurrentCultureName());
         PowerBiServiceMgt.InitializeAddinToken(CurrPage.PowerBIManagement);
 
         if PowerBIDisplayedElement.ElementEmbedUrl <> '' then
