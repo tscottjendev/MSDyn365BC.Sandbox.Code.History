@@ -461,6 +461,8 @@ report 99001043 "Exchange Production BOM Item"
 
         if (FromBOMType = ToBOMType) and (FromBOMNo = ToBOMNo) then
             Error(ItemBOMExchangeErr, FromBOMType, FromBOMNo, ToBOMType, ToBOMNo);
+
+        OnAfterCheckParameters(StartingDate, FromBOMType, FromBOMNo, ToBOMType, ToBOMNo);
     end;
 
     local procedure CreateNewVersionOnAfterValidat()
@@ -555,6 +557,11 @@ report 99001043 "Exchange Production BOM Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnRecertifyLoopOnBeforeLoopProdBOMVersionList(var ProductionBOMVersion: Record "Production BOM Version"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckParameters(var StartingDate: Date; var FromBOMType: Enum "Production BOM Line Type"; var FromBOMNo: Code[20]; var ToBOMType: Enum "Production BOM Line Type"; var ToBOMNo: Code[20])
     begin
     end;
 }
