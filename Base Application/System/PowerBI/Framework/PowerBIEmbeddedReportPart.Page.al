@@ -5,7 +5,7 @@ using System.Telemetry;
 using System.Utilities;
 using System.Environment.Configuration;
 using System.Integration;
-using System.Reflection;
+using System.Globalization;
 
 page 6325 "Power BI Embedded Report Part"
 {
@@ -582,7 +582,7 @@ page 6325 "Power BI Embedded Report Part"
     local procedure SetReport()
     var
         PowerBIContextSettings: Record "Power BI Context Settings";
-        TypeHelper: Codeunit "Type Helper";
+        Language: Codeunit Language;
         DashboardId: Guid;
         ReportId: Guid;
         TileId: Guid;
@@ -600,7 +600,7 @@ page 6325 "Power BI Embedded Report Part"
         end;
 
         CurrPage.PowerBIAddin.SetTransparentBackground(true);
-        CurrPage.PowerBIAddin.SetLocale(TypeHelper.GetCultureName());
+        CurrPage.PowerBIAddin.SetLocale(Language.GetCurrentCultureName());
         PowerBiServiceMgt.InitializeAddinToken(CurrPage.PowerBIAddin);
 
         case Rec.ElementType of
