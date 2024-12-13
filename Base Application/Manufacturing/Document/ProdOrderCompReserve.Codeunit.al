@@ -1143,6 +1143,34 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         end;
     end;
 
+    procedure TransferPlanningCompToPOComp(var OldPlanningComponent: Record "Planning Component"; var NewProdOrderComponent: Record "Prod. Order Component"; TransferQty: Decimal; TransferAll: Boolean)
+    var
+        OldReservationEntry: Record "Reservation Entry";
+        PlngComponentReserve: Codeunit "Plng. Component-Reserve";
+    begin
+        if not PlngComponentReserve.FindReservEntry(OldPlanningComponent, OldReservationEntry) then
+            exit;
+
+        NewProdOrderComponent.TestItemFields(
+          OldPlanningComponent."Item No.", OldPlanningComponent."Variant Code", OldPlanningComponent."Location Code");
+
+        PlngComponentReserve.TransferReservations(
+          OldPlanningComponent, OldReservationEntry, TransferAll, TransferQty, NewProdOrderComponent."Qty. per Unit of Measure",
+          DATABASE::"Prod. Order Component", NewProdOrderComponent.Status.AsInteger(), NewProdOrderComponent."Prod. Order No.",
+          '', NewProdOrderComponent."Prod. Order Line No.", NewProdOrderComponent."Line No.");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Plng. Component-Reserve", 'OnUpdateDerivedTrackingOnAfterSetReservationEntryFilters', '', false, false)]
+    local procedure OnUpdateDerivedTrackingOnAfterSetReservationEntryFilters(var ReservationEntry: Record "Reservation Entry"; PlanningComponent: Record "Planning Component")
+    begin
+        case PlanningComponent."Ref. Order Type" of
+            PlanningComponent."Ref. Order Type"::"Prod. Order":
+                ReservationEntry.SetSourceFilter(
+                    DATABASE::"Prod. Order Component", PlanningComponent."Ref. Order Status".AsInteger(),
+                    PlanningComponent."Ref. Order No.", PlanningComponent."Line No.", false);
+        end;
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnSetSourceForProdOrderComp', '', false, false)]
     local procedure OnSetSourceForProdOrderComp(SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var EntryIsPositive: Boolean)
     var
