@@ -696,6 +696,7 @@ codeunit 90 "Purch.-Post"
         RefreshTempLinesNeeded: Boolean;
         IsHandled: Boolean;
     begin
+        OnBeforeCheckAndUpdate(PurchHeader, ModifyHeader);
         DocumentIsReadyToBeChecked := true;
         CheckPurchDocument(PurchHeader);
 
@@ -11165,6 +11166,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAfterPosting(var PurchaseHeader: Record "Purchase Header"; SuppressCommit: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAndUpdate(var PurchaseHeader: Record "Purchase Header"; var ModifyHeader: Boolean)
     begin
     end;
 

@@ -673,6 +673,8 @@ codeunit 5920 ServItemManagement
         if IsHandled then
             exit;
 
+        Clear(TempReservEntry);
+
         ReservEntry.Reset();
         ReservEntry.SetRange("Source Subtype", SalesLine."Document Type");
         ReservEntry.SetRange("Source ID", SalesLine."Document No.");
