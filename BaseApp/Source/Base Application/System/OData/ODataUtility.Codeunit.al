@@ -6,6 +6,7 @@ using System.Azure.Identity;
 using System.Environment;
 using System.Integration.Excel;
 using System.IO;
+using System.Globalization;
 using System.Reflection;
 using System.Utilities;
 
@@ -22,7 +23,7 @@ codeunit 6710 ODataUtility
 
     var
         EnvironmentInfo: Codeunit "Environment Information";
-        TypeHelper: Codeunit "Type Helper";
+        Language: Codeunit Language;
         WorksheetWriter: DotNet WorksheetWriter;
         WorkbookWriter: DotNet WorkbookWriter;
         ODataProtocolVersion: Option V3,V4;
@@ -410,7 +411,7 @@ codeunit 6710 ODataUtility
         WorkbookSettingsManager.SetAppInfo(OfficeAppInfo);
         WorkbookSettingsManager.SetHostName(HostName);
         WorkbookSettingsManager.SetAuthenticationTenant(AzureADTenant.GetAadTenantId());
-        WorkbookSettingsManager.SetLanguage(TypeHelper.LanguageIDToCultureName(WindowsLanguage));
+        WorkbookSettingsManager.SetLanguage(Language.GetCultureName(WindowsLanguage));
         WorkbookWriter.Close();
 
         FileName := TenantWebService."Service Name" + '.xltm';

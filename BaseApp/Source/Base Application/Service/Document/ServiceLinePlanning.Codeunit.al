@@ -10,6 +10,8 @@ using Microsoft.Inventory.Tracking;
 
 codeunit 99000853 "Service Line-Planning"
 {
+    Permissions = tabledata "Service Header" = r;
+
     var
         ServiceTxt: Label 'Service';
 
