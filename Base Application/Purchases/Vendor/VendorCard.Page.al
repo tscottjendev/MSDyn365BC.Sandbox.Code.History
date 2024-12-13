@@ -1742,7 +1742,6 @@ page 26 "Vendor Card"
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
-
                 separator(Navigate_Separator)
                 {
                 }

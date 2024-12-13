@@ -92,7 +92,7 @@ page 30 "Item Card"
                     ApplicationArea = All;
                     Importance = Additional;
                     ToolTip = 'Specifies information in addition to the description.';
-                    Visible = Description2FieldVisible;
+                    Visible = false;
                 }
                 field(Blocked; Rec.Blocked)
                 {
@@ -2621,7 +2621,6 @@ page 30 "Item Card"
         SetNoFieldVisible();
         IsSaaS := EnvironmentInfo.IsSaaS();
         DescriptionFieldVisible := true;
-        Description2FieldVisible := true;
         SetOverReceiptControlsVisibility();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         if CRMIntegrationEnabled then
@@ -2675,7 +2674,6 @@ page 30 "Item Card"
         EventFilter: Text;
         NoFieldVisible: Boolean;
         DescriptionFieldVisible: Boolean;
-        Description2FieldVisible: Boolean;
         NewMode: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;

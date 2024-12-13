@@ -198,8 +198,6 @@ page 5414 "Item Availability by Variant"
 
     trigger OnOpenPage()
     begin
-        Rec.SetRange("No.");
-        Rec.SetRange("Drop Shipment Filter", false);
         FindPeriod('');
     end;
 

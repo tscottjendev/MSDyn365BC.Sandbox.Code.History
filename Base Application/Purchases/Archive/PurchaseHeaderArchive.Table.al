@@ -910,3 +910,4 @@ table 5109 "Purchase Header Archive"
     begin
     end;
 }
+

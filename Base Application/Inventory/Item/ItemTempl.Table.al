@@ -1172,3 +1172,4 @@ table 1382 "Item Templ."
     begin
     end;
 }
+

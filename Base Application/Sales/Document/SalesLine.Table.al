@@ -1568,14 +1568,15 @@ table 37 "Sales Line"
                                 TestField("No.", VATPostingSetup.GetSalesAccount(false));
                             end;
                     end;
+                GetSalesSetup();
+                if ("VAT Bus. Posting Group" = SalesSetup."Reverse Charge VAT Posting Gr.") and not "Reverse Charge Item" then
+                    FieldError("VAT Bus. Posting Group", StrSubstNo(Text1041001, "VAT Bus. Posting Group", Type, "No."));
+
                 if "Document Type" = "Document Type"::"Credit Memo" then begin
-                    GetSalesSetup();
                     "Reverse Charge" := 0;
-                    if ("VAT Bus. Posting Group" = SalesSetup."Reverse Charge VAT Posting Gr.") and not "Reverse Charge Item" then
-                        FieldError("VAT Bus. Posting Group", StrSubstNo(Text1041001, "VAT Bus. Posting Group", Type, "No."));
                     if ("VAT Bus. Posting Group" = SalesSetup."Reverse Charge VAT Posting Gr.") and
-                       (SalesHeader."VAT Bus. Posting Group" = SalesSetup."Domestic Customers")
-                    then
+                     (SalesHeader."VAT Bus. Posting Group" = SalesSetup."Domestic Customers")
+                  then
                         "Reverse Charge" :=
                           Round(Amount * (1 - SalesHeader."VAT Base Discount %" / 100) * xRec."VAT %" / 100,
                             Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
@@ -6684,7 +6685,7 @@ table 37 "Sales Line"
             repeat
                 if not SalesLine.ZeroAmountLine(QtyType) then begin
                     OnCalcVATAmountLinesOnBeforeProcessSalesLine(SalesLine);
-		    if ReverseChargeApplies and SalesLine."Reverse Charge Item" then begin
+                    if ReverseChargeApplies and SalesLine."Reverse Charge Item" then begin
                         SalesLine."Reverse Charge" := SalesLine."Amount Including VAT" - SalesLine.Amount;
                         SalesLine.SuspendStatusCheck(true);
                         GetSalesSetup();

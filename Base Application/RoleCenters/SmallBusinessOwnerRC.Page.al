@@ -297,7 +297,7 @@ page 9020 "Small Business Owner RC"
             }
             action("VAT Registration No. Chec&k")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'VAT Registration No. Chec&k';
                 Image = "Report";
                 RunObject = Report "VAT Registration No. Check";
@@ -305,7 +305,7 @@ page 9020 "Small Business Owner RC"
             }
             action("VAT E&xceptions")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'VAT E&xceptions';
                 Image = "Report";
                 RunObject = Report "VAT Exceptions";
@@ -313,7 +313,7 @@ page 9020 "Small Business Owner RC"
             }
             action("V&AT Statement")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'V&AT Statement';
                 Image = "Report";
                 RunObject = Report "VAT Statement";
@@ -321,7 +321,7 @@ page 9020 "Small Business Owner RC"
             }
             action("G/L - VAT Reconciliation")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'G/L - VAT Reconciliation';
                 Image = "Report";
                 RunObject = Report "G/L - VAT Reconciliation";

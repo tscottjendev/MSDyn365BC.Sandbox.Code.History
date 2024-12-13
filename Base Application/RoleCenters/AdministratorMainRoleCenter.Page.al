@@ -587,7 +587,7 @@ page 8900 "Administrator Main Role Center"
                 // {
                 //     ApplicationArea = Basic, Suite;
                 //     Caption = 'Change Password';
-                //     RunObject = page 9809;
+                //     RunObject = page ;
                 // }
                 action("User Security Status")
                 {

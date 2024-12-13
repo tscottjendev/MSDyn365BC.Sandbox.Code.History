@@ -103,13 +103,13 @@ page 315 "VAT Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased.';
-                    Visible = false;
+                    Visible = NonDeductibleVATVisible;
                 }
                 field(NonDeductibleVATAmount; Rec."Non-Deductible VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
-                    Visible = false;
+                    Visible = NonDeductibleVATVisible;
                 }
                 field("Unrealized Amount"; Rec."Unrealized Amount")
                 {
@@ -157,13 +157,19 @@ page 315 "VAT Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased. The amount is in the additional reporting currency.';
-                    Visible = false;
+                    Visible = NonDeductibleVATVisible;
                 }
                 field(NonDeductibleVATAmountACY; Rec."Non-Deductible VAT Amount ACY")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased. The amount is in the additional reporting currency.';
-                    Visible = false;
+                    Visible = NonDeductibleVATVisible;
+                }
+                field(NonDedVATDiff; Rec."Non-Deductible VAT Diff.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the difference between the calculated Non-Deductible VAT amount and a Non-Deductible VAT amount that you have entered manually.';
+                    Visible = NonDeductibleVATVisible;
                 }
                 field("Add.-Curr. VAT Difference"; Rec."Add.-Curr. VAT Difference")
                 {
@@ -421,11 +427,13 @@ page 315 "VAT Entries"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
     begin
         if GeneralLedgerSetup.Get() then
             IsUnrealizedVATEnabled := GeneralLedgerSetup."Unrealized VAT" or GeneralLedgerSetup."Prepayment Unrealized VAT";
         IsVATDateEditable := VATReportingDateMgt.IsVATDateModifiable();
         IsVATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+        NonDeductibleVATVisible := NonDeductibleVAT.IsNonDeductibleVATEnabled();
     end;
 
     var
@@ -434,6 +442,7 @@ page 315 "VAT Entries"
         IsUnrealizedVATEnabled: Boolean;
         IsVATDateEditable: Boolean;
         IsVATDateEnabled: Boolean;
+        NonDeductibleVATVisible: Boolean;
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
         ProgressMsg: Label 'Processed: @2@@@@@@@@@@@@@@@@@\';
 

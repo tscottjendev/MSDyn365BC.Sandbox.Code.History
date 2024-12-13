@@ -123,8 +123,10 @@ table 50 "Accounting Period"
         MonthTxt: Label '<Month Text>', Locked = true;
 
     procedure UpdateAvgItems()
+    var
+        ChangeAvgCostSetting: Codeunit "Change Average Cost Setting";
     begin
-        // ChangeAvgCostSetting.UpdateAvgCostFromAccPeriodChg(Rec);
+        ChangeAvgCostSetting.UpdateAvgCostFromAccPeriodChg(Rec);
     end;
 
     procedure GetFiscalYearEndDate(ReferenceDate: Date): Date

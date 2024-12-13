@@ -1322,8 +1322,6 @@ table 38 "Purchase Header"
                         Validate("Buy-from Vendor No.", Vendor."No.");
                         if "No." <> '' then
                             StandardCodesMgt.CheckCreatePurchRecurringLines(Rec);
-                        if "No." <> '' then
-                            StandardCodesMgt.CheckCreatePurchRecurringLines(Rec);
                         OnLookupBuyfromVendorNameOnAfterSuccessfulLookup(Rec);
                         exit;
                     end;

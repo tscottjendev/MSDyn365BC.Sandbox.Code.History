@@ -357,7 +357,6 @@ page 54 "Purchase Order Subform"
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
-                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -369,7 +368,6 @@ page 54 "Purchase Order Subform"
                     ApplicationArea = SalesTax;
                     ShowMandatory = Rec."Tax Area Code" <> '';
                     ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
-                    Visible = false;
 
                     trigger OnValidate()
                     begin
