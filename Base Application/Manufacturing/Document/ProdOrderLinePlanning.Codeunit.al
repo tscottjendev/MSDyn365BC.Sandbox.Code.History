@@ -10,6 +10,8 @@ using Microsoft.Inventory.Tracking;
 
 codeunit 99000857 "Prod. Order Line-Planning"
 {
+    Permissions = tabledata "Production Order" = r;
+
     var
         ProductionOrder: Record "Production Order";
         ProductionTxt: Label 'Production';
