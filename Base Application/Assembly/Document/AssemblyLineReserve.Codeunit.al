@@ -990,6 +990,23 @@ codeunit 926 "Assembly Line-Reserve"
         end;
     end;
 
+    procedure TransferPlanningCompToAsmLine(var OldPlanningComponent: Record "Planning Component"; var NewAssemblyLine: Record "Assembly Line"; TransferQty: Decimal; TransferAll: Boolean)
+    var
+        OldReservationEntry: Record "Reservation Entry";
+        PlngComponentReserve: Codeunit "Plng. Component-Reserve";
+    begin
+        if not PlngComponentReserve.FindReservEntry(OldPlanningComponent, OldReservationEntry) then
+            exit;
+
+        NewAssemblyLine.TestItemFields(
+          OldPlanningComponent."Item No.", OldPlanningComponent."Variant Code", OldPlanningComponent."Location Code");
+
+        PlngComponentReserve.TransferReservations(
+          OldPlanningComponent, OldReservationEntry, TransferAll, TransferQty, NewAssemblyLine."Qty. per Unit of Measure",
+          DATABASE::"Assembly Line", NewAssemblyLine."Document Type".AsInteger(), NewAssemblyLine."Document No.",
+          '', 0, NewAssemblyLine."Line No.");
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnSetSourceForAssemblyLine', '', false, false)]
     local procedure OnSetSourceForAssemblyLine(SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var EntryIsPositive: Boolean)
     var
@@ -1026,6 +1043,5 @@ codeunit 926 "Assembly Line-Reserve"
                 end;
         end;
     end;
-
 }
 
