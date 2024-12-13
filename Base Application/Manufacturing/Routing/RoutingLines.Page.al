@@ -63,7 +63,6 @@ page 99000765 "Routing Lines"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the routing link code.';
-                    Visible = false;
                 }
                 field(Description; Rec.Description)
                 {
