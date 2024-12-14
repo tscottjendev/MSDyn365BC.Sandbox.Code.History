@@ -329,7 +329,7 @@ table 7312 "Warehouse Entry"
     begin
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
-    
+
     procedure ClearTrackingFilter()
     begin
         SetRange("Serial No.");
