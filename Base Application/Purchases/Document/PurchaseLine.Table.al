@@ -5635,7 +5635,6 @@ table 39 "Purchase Line"
                 "FA Posting Type"::Maintenance:
                     LocalGLAcc.Get(FAPostingGr.GetMaintenanceExpenseAccount());
             end;
-
         IsHandled := false;
         OnGetFAPostingGroupOnBeforeCheckGLAcc(Rec, LocalGLAcc, FADeprBook, IsHandled);
         if not IsHandled then begin

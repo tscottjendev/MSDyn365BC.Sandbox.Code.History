@@ -366,3 +366,4 @@ table 5611 "Depreciation Book"
         GLIntegration[9] := false; // Salvage Value
     end;
 }
+

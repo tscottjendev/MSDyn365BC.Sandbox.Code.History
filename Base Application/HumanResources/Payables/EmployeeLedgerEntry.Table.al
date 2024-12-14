@@ -595,3 +595,4 @@ table 5222 "Employee Ledger Entry"
     begin
     end;
 }
+

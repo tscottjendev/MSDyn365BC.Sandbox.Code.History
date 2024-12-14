@@ -296,3 +296,4 @@ table 1248 "Ledger Entry Matching Buffer"
     begin
     end;
 }
+

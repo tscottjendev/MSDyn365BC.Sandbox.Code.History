@@ -310,3 +310,4 @@ table 5742 "Transfer Route"
     begin
     end;
 }
+

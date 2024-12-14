@@ -277,3 +277,4 @@ table 298 "Issued Reminder Line"
     begin
     end;
 }
+

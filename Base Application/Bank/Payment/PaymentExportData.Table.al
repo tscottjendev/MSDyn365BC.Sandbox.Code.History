@@ -757,3 +757,4 @@ table 1226 "Payment Export Data"
     begin
     end;
 }
+

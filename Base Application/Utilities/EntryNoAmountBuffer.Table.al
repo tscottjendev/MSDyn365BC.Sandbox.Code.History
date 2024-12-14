@@ -58,3 +58,4 @@ table 386 "Entry No. Amount Buffer"
     {
     }
 }
+

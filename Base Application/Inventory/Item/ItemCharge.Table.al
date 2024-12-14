@@ -162,3 +162,4 @@ table 5800 "Item Charge"
     begin
     end;
 }
+

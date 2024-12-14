@@ -366,3 +366,4 @@ table 380 "Detailed Vendor Ledg. Entry"
     begin
     end;
 }
+

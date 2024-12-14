@@ -537,3 +537,4 @@ table 5404 "Item Unit of Measure"
     begin
     end;
 }
+

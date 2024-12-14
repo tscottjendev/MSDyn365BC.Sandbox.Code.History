@@ -837,3 +837,4 @@ table 17 "G/L Entry"
     begin
     end;
 }
+

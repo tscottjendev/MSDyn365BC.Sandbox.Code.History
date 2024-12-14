@@ -1,4 +1,4 @@
-namespace System.Security.User;
+﻿namespace System.Security.User;
 
 using Microsoft.CRM.Team;
 using Microsoft.Inventory.Location;
@@ -317,7 +317,7 @@ table 91 "User Setup"
         field(5980; "Service Invoice Posting Policy"; Enum "Invoice Posting Policy")
         {
             Caption = 'Service Invoice Posting Policy';
-        }	
+        }
     }
 
     keys
@@ -536,3 +536,4 @@ table 91 "User Setup"
     begin
     end;
 }
+

@@ -572,3 +572,4 @@ table 169 "Job Ledger Entry"
     begin
     end;
 }
+

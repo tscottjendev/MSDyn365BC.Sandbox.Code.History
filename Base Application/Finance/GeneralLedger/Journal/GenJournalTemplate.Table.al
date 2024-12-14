@@ -395,3 +395,4 @@ table 80 "Gen. Journal Template"
     begin
     end;
 }
+

@@ -70,3 +70,4 @@ table 1249 "Bank Stmt Multiple Match Line"
     begin
     end;
 }
+

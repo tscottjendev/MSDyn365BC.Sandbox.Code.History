@@ -136,3 +136,4 @@ table 48 "Invt. Posting Buffer"
     begin
     end;
 }
+

@@ -1,4 +1,4 @@
-namespace Microsoft.Purchases.Vendor;
+﻿namespace Microsoft.Purchases.Vendor;
 
 using Microsoft.Bank.Setup;
 using Microsoft.Finance.Currency;
@@ -330,3 +330,4 @@ table 288 "Vendor Bank Account"
     begin
     end;
 }
+

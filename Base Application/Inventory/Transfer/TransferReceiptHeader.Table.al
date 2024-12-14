@@ -371,3 +371,4 @@ table 5746 "Transfer Receipt Header"
     begin
     end;
 }
+

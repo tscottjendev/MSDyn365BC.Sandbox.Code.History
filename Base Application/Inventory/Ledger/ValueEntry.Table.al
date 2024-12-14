@@ -868,3 +868,4 @@ table 5802 "Value Entry"
     begin
     end;
 }
+

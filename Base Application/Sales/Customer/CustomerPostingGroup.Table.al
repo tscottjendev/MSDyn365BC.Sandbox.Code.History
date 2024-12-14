@@ -542,3 +542,4 @@ table 92 "Customer Posting Group"
     begin
     end;
 }
+

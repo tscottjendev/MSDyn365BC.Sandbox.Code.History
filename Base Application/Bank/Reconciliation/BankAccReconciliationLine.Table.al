@@ -602,7 +602,6 @@ table 274 "Bank Acc. Reconciliation Line"
             end;
         end;
 
-
         BankAccRecMatchBuffer.Reset();
         BankAccRecMatchBuffer.SetRange("Ledger Entry No.", BankAccLedgEntry."Entry No.");
         BankAccRecMatchBuffer.SetRange("Statement No.", Rec."Statement No.");

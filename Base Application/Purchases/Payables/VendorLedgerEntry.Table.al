@@ -1174,3 +1174,4 @@ table 25 "Vendor Ledger Entry"
     begin
     end;
 }
+

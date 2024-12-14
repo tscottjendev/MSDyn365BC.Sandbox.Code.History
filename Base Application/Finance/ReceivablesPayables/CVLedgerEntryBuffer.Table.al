@@ -1,4 +1,4 @@
-namespace Microsoft.Finance.ReceivablesPayables;
+﻿namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Team;
@@ -667,3 +667,4 @@ table 382 "CV Ledger Entry Buffer"
     begin
     end;
 }
+

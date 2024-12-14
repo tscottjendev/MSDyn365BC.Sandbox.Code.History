@@ -56,5 +56,5 @@ table 261 "Intrastat Jnl. Template"
     }
 }
 
-
+ 
 #endif

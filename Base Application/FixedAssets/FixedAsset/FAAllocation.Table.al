@@ -189,3 +189,4 @@ table 5615 "FA Allocation"
     begin
     end;
 }
+

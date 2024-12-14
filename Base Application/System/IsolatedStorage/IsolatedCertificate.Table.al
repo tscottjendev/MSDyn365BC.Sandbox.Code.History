@@ -161,6 +161,6 @@ table 1262 "Isolated Certificate"
 
     local procedure ExistsInIsolatedStorage(): Boolean
     begin
-        exit(ISOLATEDSTORAGE.Contains(Code, CertificateManagement.GetCertDataScope(Rec)));
+        exit(IsolatedStorage.Contains(Code, CertificateManagement.GetCertDataScope(Rec)));
     end;
 }

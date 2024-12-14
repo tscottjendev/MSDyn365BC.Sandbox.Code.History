@@ -51,3 +51,4 @@ table 5719 "Nonstock Item Setup"
     {
     }
 }
+

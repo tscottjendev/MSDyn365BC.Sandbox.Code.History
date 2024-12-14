@@ -981,3 +981,4 @@ table 5700 "Stockkeeping Unit"
     begin
     end;
 }
+

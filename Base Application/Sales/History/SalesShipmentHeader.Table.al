@@ -980,3 +980,4 @@ table 110 "Sales Shipment Header"
     begin
     end;
 }
+

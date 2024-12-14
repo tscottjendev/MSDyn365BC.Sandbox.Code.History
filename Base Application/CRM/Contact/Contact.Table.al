@@ -2986,6 +2986,7 @@ table 5050 Contact
         OnBeforeTouchContact(ContactNo, IsHandled);
         if IsHandled then
             exit;
+
         Cont.LockTable();
         if Cont.Get(ContactNo) then begin
             Cont.SetLastDateTimeModified();

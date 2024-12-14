@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.Reminder;
+﻿namespace Microsoft.Sales.Reminder;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Contact;
@@ -1544,3 +1544,4 @@ table 295 "Reminder Header"
     begin
     end;
 }
+

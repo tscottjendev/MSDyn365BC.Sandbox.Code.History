@@ -2843,14 +2843,14 @@ table 38 "Purchase Header"
                 NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(NoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
                 if not IsHandled then begin
 #endif
-                "No. Series" := NoSeriesCode;
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
-                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-                PurchaseHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
-                PurchaseHeader2.SetLoadFields("No.");
-                while PurchaseHeader2.Get("Document Type", "No.") do
+                    "No. Series" := NoSeriesCode;
+                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                        "No. Series" := xRec."No. Series";
                     "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+                    PurchaseHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
+                    PurchaseHeader2.SetLoadFields("No.");
+                    while PurchaseHeader2.Get("Document Type", "No.") do
+                        "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
 #if not CLEAN24
                     NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", NoSeriesCode, "Posting Date", "No.");
                 end;

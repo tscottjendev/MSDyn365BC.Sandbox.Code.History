@@ -1,4 +1,4 @@
-namespace Microsoft.Finance.ReceivablesPayables;
+﻿namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -476,3 +476,4 @@ table 461 "Prepayment Inv. Line Buffer"
     begin
     end;
 }
+

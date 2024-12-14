@@ -319,4 +319,5 @@ table 49 "Invoice Post. Buffer"
     {
     }
 }
+ 
 #endif

@@ -625,3 +625,4 @@ table 5621 "FA Journal Line"
     begin
     end;
 }
+

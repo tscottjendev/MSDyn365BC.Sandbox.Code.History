@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.Customer;
+﻿namespace Microsoft.Sales.Customer;
 
 using Microsoft.Bank.Setup;
 using Microsoft.Finance.Currency;
@@ -331,3 +331,4 @@ table 287 "Customer Bank Account"
     begin
     end;
 }
+

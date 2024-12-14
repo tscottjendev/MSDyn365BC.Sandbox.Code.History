@@ -238,3 +238,4 @@ table 5805 "Item Charge Assignment (Purch)"
     begin
     end;
 }
+

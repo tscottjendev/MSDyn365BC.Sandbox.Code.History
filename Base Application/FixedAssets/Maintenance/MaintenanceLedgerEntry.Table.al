@@ -404,3 +404,4 @@ table 5625 "Maintenance Ledger Entry"
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 }
+

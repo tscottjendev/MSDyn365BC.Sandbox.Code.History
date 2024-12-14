@@ -260,3 +260,4 @@ table 5223 "Detailed Employee Ledger Entry"
     begin
     end;
 }
+

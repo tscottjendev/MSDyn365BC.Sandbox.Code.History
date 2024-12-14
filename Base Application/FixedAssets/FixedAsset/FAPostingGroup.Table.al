@@ -755,3 +755,4 @@ table 5606 "FA Posting Group"
     begin
     end;
 }
+

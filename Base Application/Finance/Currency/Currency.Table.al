@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.Currency;
+namespace Microsoft.Finance.Currency;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;

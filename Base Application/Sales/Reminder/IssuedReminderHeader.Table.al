@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.Reminder;
+﻿namespace Microsoft.Sales.Reminder;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
@@ -528,3 +528,4 @@ table 297 "Issued Reminder Header"
     begin
     end;
 }
+

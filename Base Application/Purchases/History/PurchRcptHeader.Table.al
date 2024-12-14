@@ -665,3 +665,4 @@ table 120 "Purch. Rcpt. Header"
     begin
     end;
 }
+

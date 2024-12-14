@@ -370,3 +370,4 @@ table 5744 "Transfer Shipment Header"
     begin
     end;
 }
+

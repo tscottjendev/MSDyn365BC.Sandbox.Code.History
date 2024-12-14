@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.FinanceCharge;
+﻿namespace Microsoft.Sales.FinanceCharge;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
@@ -397,3 +397,4 @@ table 304 "Issued Fin. Charge Memo Header"
     begin
     end;
 }
+

@@ -125,3 +125,4 @@ table 5 "Finance Charge Terms"
 
         InterestRateNotificationMsg: Label 'This interest rate will only be used if no relevant interest rate per date has been entered.';
 }
+

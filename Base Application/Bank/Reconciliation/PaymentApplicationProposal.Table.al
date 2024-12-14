@@ -851,3 +851,4 @@ table 1293 "Payment Application Proposal"
     begin
     end;
 }
+

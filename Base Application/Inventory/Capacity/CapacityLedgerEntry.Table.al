@@ -285,3 +285,4 @@ table 5832 "Capacity Ledger Entry"
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 }
+

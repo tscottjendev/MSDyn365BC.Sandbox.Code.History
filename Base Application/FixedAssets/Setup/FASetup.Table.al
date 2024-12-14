@@ -93,3 +93,4 @@ table 5603 "FA Setup"
     {
     }
 }
+

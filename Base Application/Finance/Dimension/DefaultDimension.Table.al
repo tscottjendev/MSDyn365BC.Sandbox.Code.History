@@ -1,4 +1,4 @@
-namespace Microsoft.Finance.Dimension;
+﻿namespace Microsoft.Finance.Dimension;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CashFlow.Setup;
@@ -1483,3 +1483,4 @@ table 352 "Default Dimension"
     begin
     end;
 }
+

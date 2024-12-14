@@ -41,3 +41,4 @@ table 269 "G/L Account Net Change"
     {
     }
 }
+

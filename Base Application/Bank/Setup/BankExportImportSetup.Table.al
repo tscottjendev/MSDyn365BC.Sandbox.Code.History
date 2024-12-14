@@ -122,3 +122,4 @@ table 1200 "Bank Export/Import Setup"
     {
     }
 }
+

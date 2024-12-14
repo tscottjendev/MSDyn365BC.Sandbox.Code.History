@@ -1,4 +1,4 @@
-namespace Microsoft.Purchases.History;
+﻿namespace Microsoft.Purchases.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -618,3 +618,4 @@ table 6650 "Return Shipment Header"
     begin
     end;
 }
+

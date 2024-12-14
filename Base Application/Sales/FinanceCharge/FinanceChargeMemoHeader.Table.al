@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.FinanceCharge;
+﻿namespace Microsoft.Sales.FinanceCharge;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
@@ -490,9 +490,9 @@ table 302 "Finance Charge Memo Header"
 
     trigger OnInsert()
     var
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;        
-#endif    
+#if not CLEAN24    
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         SalesSetup.GetRecordOnce();
@@ -1228,3 +1228,4 @@ table 302 "Finance Charge Memo Header"
     begin
     end;
 }
+

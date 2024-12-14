@@ -372,3 +372,4 @@ table 379 "Detailed Cust. Ledg. Entry"
     begin
     end;
 }
+
