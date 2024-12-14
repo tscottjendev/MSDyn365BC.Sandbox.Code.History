@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.FinanceCharge;
+﻿namespace Microsoft.Sales.FinanceCharge;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -1017,7 +1017,7 @@ table 303 "Finance Charge Memo Line"
     local procedure OnCreateMulitplyInterestRateEntriesOnBeforeBuildDescription(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; UseCalcDate: Date; UseDueDate: Date)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCumulateDetailedEntries(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; ClosedAtDate: Date; var CumAmount: Decimal)
     begin
@@ -1033,3 +1033,4 @@ table 303 "Finance Charge Memo Line"
     begin
     end;
 }
+
