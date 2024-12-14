@@ -534,3 +534,4 @@ table 271 "Bank Account Ledger Entry"
     begin
     end;
 }
+

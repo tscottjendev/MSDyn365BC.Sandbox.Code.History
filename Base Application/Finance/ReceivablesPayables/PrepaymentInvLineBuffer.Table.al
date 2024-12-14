@@ -476,3 +476,4 @@ table 461 "Prepayment Inv. Line Buffer"
     begin
     end;
 }
+
