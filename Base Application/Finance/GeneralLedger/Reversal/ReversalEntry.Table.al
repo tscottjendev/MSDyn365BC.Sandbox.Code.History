@@ -315,7 +315,6 @@ table 179 "Reversal Entry"
             exit;
 
         InsertReversalEntry(Number, RevType);
-
         OnReverseEntriesOnAfterInsertReversalEntry(TempReversalEntry, Number, RevType);
         TempReversalEntry.SetCurrentKey("Document No.", "Posting Date", "Entry Type", "Entry No.");
         if not HideDialog then begin
