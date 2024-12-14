@@ -1,4 +1,4 @@
-﻿namespace System.Telemetry;
+namespace System.Telemetry;
 
 using System.Security.AccessControl;
 using System.Reflection;
@@ -453,7 +453,7 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('000027G', StrSubstNo(TenantPermissionsChangedFromEffectivePermissionsPageTxt, PermissionSetId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PermissionSetCategoryTxt);
     end;
 
-    local procedure IsSaas(): Boolean
+    local procedure IsSaaS(): Boolean
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
