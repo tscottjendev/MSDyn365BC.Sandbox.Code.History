@@ -379,8 +379,8 @@ codeunit 134237 "Alt. Cust. VAT. Doc. Tests"
         LibraryVariableStorage.Enqueue(VATDataTakenFromCustomerExceptVATCountryMsg);
         // [WHEN] Clear Ship-To Address
         SalesHeader.Validate("Ship-to Code", '');
-        // [THEN] Sales order has "VAT Registration No." = "X1234567890", "Gen. Bus. Posting Group" = "CUSTBUS", "VAT Bus. Posting Group" = "CUSTVAT", "Country/Region Code" = "Z"
-        VerifyVATRegDataInSalesHeader(SalesHeader, Customer."VAT Bus. Posting Group", Customer."Gen. Bus. Posting Group", Customer."VAT Registration No.", BillToCustomer."Country/Region Code");
+        // [THEN] Sales order has "VAT Registration No." = "X1234567890", "Gen. Bus. Posting Group" = "CUSTBUS", "VAT Bus. Posting Group" = "CUSTVAT", "Country/Region Code" = "X"
+        VerifyVATRegDataInSalesHeader(SalesHeader, Customer."VAT Bus. Posting Group", Customer."Gen. Bus. Posting Group", Customer."VAT Registration No.", Customer."Country/Region Code");
         // [THEN] Sales order do not have "Alt. VAT Registration No.", "Alt. Gen. Bus Posting Group", "Alt. VAT Bus Posting Group" options
         LibraryAltCustVATReg.VerifySalesDocAltVATReg(SalesHeader, false);
         LibraryVariableStorage.AssertEmpty();

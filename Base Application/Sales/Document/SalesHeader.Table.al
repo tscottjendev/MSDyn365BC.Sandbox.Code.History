@@ -1669,7 +1669,10 @@ table 36 "Sales Header"
 
             trigger OnValidate()
             begin
-                if ("Bill-to Country/Region Code" <> '') and ("Sell-to Customer No." <> "Bill-to Customer No.") then
+                GLSetup.GetRecordOnce();
+                if ("Bill-to Country/Region Code" <> '') and ("Sell-to Customer No." <> "Bill-to Customer No.") and
+                   (GLSetup."Bill-to/Sell-to VAT Calc." = "G/L Setup VAT Calculation"::"Bill-to/Pay-to No.")
+                then
                     "VAT Country/Region Code" := "Bill-to Country/Region Code"
                 else
                     if "Ship-to Country/Region Code" <> '' then

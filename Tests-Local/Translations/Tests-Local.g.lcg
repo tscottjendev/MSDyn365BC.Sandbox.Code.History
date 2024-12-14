@@ -2984,6 +2984,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales VAT EC Calculate - NamedType BillToCustomerNoCap)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 607156453 - NamedType 156853089" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 Field ,%2 = Expected Value]D;]A;(LookupHint=Codeunit ERM Sales VAT EC Calculate - NamedType CountryCodeLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 607156453 - NamedType 2105556322" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[G/L Entry with Sales Line Disc. Account should not be created.]]></Val>
