@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Setup;
+namespace Microsoft.Sales.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;

@@ -445,3 +445,4 @@ table 93 "Vendor Posting Group"
         GLAccountCategoryMgt.LookupGLAccount(Database::"Vendor Posting Group", CurrFieldNo, AccountNo, AccountCategory, AccountSubcategoryFilter);
     end;
 }
+

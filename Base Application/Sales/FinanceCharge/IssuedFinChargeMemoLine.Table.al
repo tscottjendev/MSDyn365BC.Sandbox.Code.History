@@ -231,3 +231,4 @@ table 305 "Issued Fin. Charge Memo Line"
     begin
     end;
 }
+

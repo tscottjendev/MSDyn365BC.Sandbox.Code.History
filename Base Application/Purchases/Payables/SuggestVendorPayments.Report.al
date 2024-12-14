@@ -842,6 +842,7 @@ report 393 "Suggest Vendor Payments"
         TempVendorPaymentBuffer.SetFilter(
           "Vendor Ledg. Entry Doc. Type", '<>%1&<>%2', TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Refund,
           TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Payment);
+
         if TempVendorPaymentBuffer.Find('-') then
             repeat
                 InsertGenJournalLine();

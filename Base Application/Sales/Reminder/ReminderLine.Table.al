@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.Reminder;
+﻿namespace Microsoft.Sales.Reminder;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -1110,3 +1110,4 @@ table 296 "Reminder Line"
     begin
     end;    
 }
+

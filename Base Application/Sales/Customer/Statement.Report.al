@@ -433,7 +433,6 @@ report 116 Statement
 
                         trigger OnPreDataItem()
                         begin
-
                             if not IncludeAgingBand then
                                 SetRange("Due Date", 0D, EndDate - 1);
                             SetRange("Currency Code", TempCurrency2.Code);
@@ -551,7 +550,6 @@ report 116 Statement
 
                     trigger OnPreDataItem()
                     begin
-
                         if not IncludeAgingBand then
                             CurrReport.Break();
                     end;

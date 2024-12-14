@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -226,7 +226,6 @@ page 317 "VAT Statement"
             VATStmtManagement.OpenStmt(CurrentStmtName, Rec);
             exit;
         end;
-
         VATStmtManagement.TemplateSelection(PAGE::"VAT Statement", Rec, StmtSelected);
         if not StmtSelected then
             Error('');
