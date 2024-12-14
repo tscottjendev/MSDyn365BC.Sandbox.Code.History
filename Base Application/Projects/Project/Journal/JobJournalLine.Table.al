@@ -1,4 +1,4 @@
-namespace Microsoft.Projects.Project.Journal;
+﻿namespace Microsoft.Projects.Project.Journal;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -2815,3 +2815,4 @@ table 210 "Job Journal Line"
     begin
     end;
 }
+
