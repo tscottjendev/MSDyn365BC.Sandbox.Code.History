@@ -95,6 +95,10 @@ page 108 "Financial Reports"
                         ColumnLayoutName.Modify();
                     end;
                 }
+                field("Internal Description"; Rec."Internal Description")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
             }
         }
 
