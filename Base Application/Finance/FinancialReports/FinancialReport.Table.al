@@ -107,7 +107,22 @@ table 88 "Financial Report"
             begin
                 AccSchedManagement.CheckAnalysisView(Rec."Financial Report Row Group", Rec."Financial Report Column Group", true);
             end;
-
+        }
+        field(53; "Internal Description"; Text[250])
+        {
+            Caption = 'Internal Description';
+            ToolTip = 'Specifies the internal description of this financial report.';
+            DataClassification = CustomerContent;
+        }
+        field(54; "Introductory Paragraph"; Blob)
+        {
+            Caption = 'Introductory Paragraph';
+            DataClassification = CustomerContent;
+        }
+        field(55; "Closing Paragraph"; Blob)
+        {
+            Caption = 'Closing Paragraph';
+            DataClassification = CustomerContent;
         }
     }
     keys
@@ -126,4 +141,41 @@ table 88 "Financial Report"
         AccSchedManagement.CheckAnalysisView(Rec."Financial Report Row Group", Rec."Financial Report Column Group", true);
     end;
 
+    procedure GetIntroductoryParagraph(): Text
+    var
+        InStream: InStream;
+        TextValue: Text;
+    begin
+        Rec.CalcFields(Rec."Introductory Paragraph");
+        Rec."Introductory Paragraph".CreateInStream(InStream);
+        InStream.Read(TextValue);
+        exit(TextValue);
+    end;
+
+    procedure SetIntroductionParagraph(TextValue: Text)
+    var
+        OutStream: OutStream;
+    begin
+        Rec."Introductory Paragraph".CreateOutStream(OutStream);
+        OutStream.Write(TextValue);
+    end;
+
+    procedure GetClosingParagraph(): Text
+    var
+        InStream: InStream;
+        TextValue: Text;
+    begin
+        Rec.CalcFields(Rec."Closing Paragraph");
+        Rec."Closing Paragraph".CreateInStream(InStream);
+        InStream.Read(TextValue);
+        exit(TextValue);
+    end;
+
+    procedure SetClosingParagraph(TextValue: Text)
+    var
+        OutStream: OutStream;
+    begin
+        Rec."Closing Paragraph".CreateOutStream(OutStream);
+        OutStream.Write(TextValue);
+    end;
 }
