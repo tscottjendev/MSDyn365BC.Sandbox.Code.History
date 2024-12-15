@@ -364,10 +364,10 @@ codeunit 134994 "ERM Account Schedule II"
         RunAccountScheduleReportSaveAsExcel(AccScheduleName, ColumnLayoutName);
 
         // [THEN] There are four lines (all) have been printed
-        LibraryReportValidation.VerifyCellValue(20, 1, LineDescription[1]);
-        LibraryReportValidation.VerifyCellValue(22, 1, LineDescription[2]);
-        LibraryReportValidation.VerifyCellValue(24, 1, LineDescription[3]);
-        LibraryReportValidation.VerifyCellValue(26, 1, LineDescription[4]);
+        LibraryReportValidation.VerifyCellValue(23, 1, LineDescription[1]);
+        LibraryReportValidation.VerifyCellValue(25, 1, LineDescription[2]);
+        LibraryReportValidation.VerifyCellValue(27, 1, LineDescription[3]);
+        LibraryReportValidation.VerifyCellValue(29, 1, LineDescription[4]);
     end;
 
     [Test]
@@ -432,10 +432,10 @@ codeunit 134994 "ERM Account Schedule II"
         RunAccountScheduleReportSaveAsExcel(AccScheduleName, ColumnLayoutName);
 
         // [THEN] There are only two lines (3rd, 4th) have been printed
-        LibraryReportValidation.VerifyCellValue(20, 1, LineDescription[3]);
-        LibraryReportValidation.VerifyCellValue(22, 1, LineDescription[4]);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 24, 1);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 26, 1);
+        LibraryReportValidation.VerifyCellValue(23, 1, LineDescription[3]);
+        LibraryReportValidation.VerifyCellValue(25, 1, LineDescription[4]);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 27, 1);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 29, 1);
     end;
 
     [Test]
@@ -466,10 +466,10 @@ codeunit 134994 "ERM Account Schedule II"
         RunAccountScheduleReportSaveAsExcel(AccScheduleName, ColumnLayoutName);
 
         // [THEN] There is only one line (4th) has been printed
-        LibraryReportValidation.VerifyCellValue(20, 1, LineDescription[4]);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 22, 1);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 24, 1);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 26, 1);
+        LibraryReportValidation.VerifyCellValue(23, 1, LineDescription[4]);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 25, 1);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 27, 1);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 29, 1);
     end;
 
     [Test]
@@ -500,10 +500,10 @@ codeunit 134994 "ERM Account Schedule II"
         RunAccountScheduleReportSaveAsExcel(AccScheduleName, ColumnLayoutName);
 
         // [THEN] There is only one line (3rd) has been printed
-        LibraryReportValidation.VerifyCellValue(20, 1, LineDescription[3]);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 22, 1);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 24, 1);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 26, 1);
+        LibraryReportValidation.VerifyCellValue(23, 1, LineDescription[3]);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 25, 1);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 27, 1);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 29, 1);
     end;
 
     local procedure VerifyAccSchedColumnIndentationCalc(Indentation: Integer; ShowIndentation: Option; ExpectZero: Boolean)
@@ -705,6 +705,74 @@ codeunit 134994 "ERM Account Schedule II"
         LibraryReportValidation.VerifyCellValue(3, 2, CostObject.Code);
         LibraryReportValidation.VerifyCellValue(4, 1, AccScheduleLine.FieldCaption("Cash Flow Forecast Filter"));
         LibraryReportValidation.VerifyCellValue(4, 2, CashFlowForecast."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportAccScheduleWithIntroClosingParagraph()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinancialReport: Record "Financial Report";
+        ColumnLayoutName: Code[10];
+        IntroductoryParagraph, ClosingParagraph : Text[100];
+    begin
+        // [FEATURE] [Excel]
+        // [SCENARIO] Financial Report must print introductory and closing paragraphs when defined
+        Initialize();
+
+        // [GIVEN] Financial Report with introductory and closing paragraphs
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        FinancialReport.Get(AccScheduleName.Name);
+        IntroductoryParagraph := LibraryRandom.RandText(100);
+        ClosingParagraph := LibraryRandom.RandText(100);
+        FinancialReport.SetIntroductionParagraph(IntroductoryParagraph);
+        FinancialReport.SetClosingParagraph(ClosingParagraph);
+        FinancialReport.Modify();
+
+        // [WHEN] Print Account Schedule (Report 25)
+        LibraryReportValidation.SetFileName(AccScheduleName.Name);
+        RunAccountScheduleReportSaveAsExcel(AccScheduleName.Name, ColumnLayoutName);
+
+        // [THEN] Introductory and closing paragraphs are printed
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(16, 1, IntroductoryParagraph);
+        LibraryReportValidation.VerifyCellValue(25, 1, ClosingParagraph);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ExportAccScheduleToExcelWithIntroClosingParagraph()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinancialReport: Record "Financial Report";
+        IntroductoryParagraph, ClosingParagraph : Text[100];
+    begin
+        // [FEATURE] [Excel]
+        // [SCENARIO] Financial Report export to excel must contain introductory and closing paragraphs when defined
+        Initialize();
+
+        // [GIVEN] Financial Report with introductory and closing paragraphs
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        FinancialReport.Get(AccScheduleName.Name);
+        IntroductoryParagraph := LibraryRandom.RandText(100);
+        ClosingParagraph := LibraryRandom.RandText(100);
+        FinancialReport.SetIntroductionParagraph(IntroductoryParagraph);
+        FinancialReport.SetClosingParagraph(ClosingParagraph);
+        FinancialReport.Modify();
+
+        // [WHEN] Print Account Schedule (Report 25)
+        LibraryReportValidation.SetFileName(AccScheduleName.Name);
+        AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
+        AccScheduleLine.SetRange("Date Filter", CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+        RunExportAccSchedule(AccScheduleLine, AccScheduleName);
+
+        // [THEN] Introductory and closing paragraphs are printed
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(3, 1, IntroductoryParagraph);
+        LibraryReportValidation.VerifyCellValue(9, 1, ClosingParagraph);
     end;
 
     [Test]
@@ -2189,7 +2257,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         FinancialReport.Get(AccScheduleName.Name);
         ExportAccSchedToExcel.SetFileNameSilent(LibraryReportValidation.GetFileName());
-        ExportAccSchedToExcel.SetOptions(AccScheduleLine, FinancialReport."Financial Report Column Group", false);
+        ExportAccSchedToExcel.SetOptions(AccScheduleLine, FinancialReport."Financial Report Column Group", false, AccScheduleName.Name);
         ExportAccSchedToExcel.SetTestMode(true);
         ExportAccSchedToExcel.UseRequestPage(false);
         ExportAccSchedToExcel.Run();
