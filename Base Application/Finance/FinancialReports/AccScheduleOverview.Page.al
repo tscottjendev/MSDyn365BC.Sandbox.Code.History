@@ -189,6 +189,28 @@ page 490 "Acc. Schedule Overview"
                         CurrPage.Update();
                     end;
                 }
+                field(InternalDescription; TempFinancialReport."Internal Description")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Internal Description';
+                    ToolTip = 'Specifies the internal description of this financial report.';
+                    MultiLine = true;
+                    Editable = not ViewOnlyMode;
+                }
+            }
+            group(IntroductoryParagraphGroup)
+            {
+                Caption = 'Introductory paragraph';
+                Visible = ViewOnlyMode and (IntroductoryParagraph <> '');
+
+                field(IntroductoryParagraph; IntroductoryParagraph)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ShowCaption = false;
+                    ToolTip = 'Specifies the Introductory paragraph displayed on the Financial Report, when it is printed to PDF or exported to Excel.';
+                    MultiLine = true;
+                    Editable = false;
+                }
             }
             group("Dimension Filters")
             {
@@ -658,6 +680,20 @@ page 490 "Acc. Schedule Overview"
                     end;
                 }
             }
+            group(ClosingParagraphGroup)
+            {
+                Caption = 'Closing paragraph';
+                Visible = ViewOnlyMode and (ClosingParagraph <> '');
+
+                field(ClosingParagraph; ClosingParagraph)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ShowCaption = false;
+                    ToolTip = 'Specifies the closing paragraph displayed on the Financial Report, when it is printed to PDF or exported to Excel.';
+                    MultiLine = true;
+                    Editable = false;
+                }
+            }
         }
     }
 
@@ -813,7 +849,6 @@ page 490 "Acc. Schedule Overview"
                     AccSchedule.Run();
                 end;
             }
-
             action(EditColumnDefinition)
             {
                 ApplicationArea = Basic, Suite;
@@ -827,6 +862,24 @@ page 490 "Acc. Schedule Overview"
                 begin
                     ColumnLayout.SetColumnLayoutName(TempFinancialReport."Financial Report Column Group");
                     ColumnLayout.Run();
+                end;
+            }
+            action(EditIntroductoryClosingParagraph)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Edit introductory/closing paragraphs';
+                Image = Edit;
+                ToolTip = 'Edit the introductory and closing paragraphs of this financial report.';
+
+                trigger OnAction()
+                var
+                    EditFinancialReportText: Page "Edit Financial Report Text";
+                begin
+                    EditFinancialReportText.SetText(IntroductoryParagraph, ClosingParagraph);
+                    if EditFinancialReportText.RunModal() = Action::Ok then begin
+                        EditFinancialReportText.GetText(IntroductoryParagraph, ClosingParagraph);
+                        SaveStateToFinancialReport();
+                    end;
                 end;
             }
 
@@ -895,7 +948,7 @@ page 490 "Acc. Schedule Overview"
                         var
                             ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
                         begin
-                            ExportAccSchedToExcel.SetOptions(Rec, TempFinancialReport."Financial Report Column Group", TempFinancialReport.UseAmountsInAddCurrency);
+                            ExportAccSchedToExcel.SetOptions(Rec, TempFinancialReport."Financial Report Column Group", TempFinancialReport.UseAmountsInAddCurrency, TempFinancialReport.Name);
                             ExportAccSchedToExcel.Run();
                         end;
                     }
@@ -909,7 +962,7 @@ page 490 "Acc. Schedule Overview"
                         var
                             ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
                         begin
-                            ExportAccSchedToExcel.SetOptions(Rec, TempFinancialReport."Financial Report Column Group", TempFinancialReport.UseAmountsInAddCurrency);
+                            ExportAccSchedToExcel.SetOptions(Rec, TempFinancialReport."Financial Report Column Group", TempFinancialReport.UseAmountsInAddCurrency, TempFinancialReport.Name);
                             ExportAccSchedToExcel.SetUpdateExistingWorksheet(true);
                             ExportAccSchedToExcel.Run();
                         end;
@@ -992,6 +1045,9 @@ page 490 "Acc. Schedule Overview"
                 {
                 }
                 actionref(EditColumnDefinition_Promoted; EditColumnDefinition)
+                {
+                }
+                actionref(EditIntroductoryClosingParagraph_Promoted; EditIntroductoryClosingParagraph)
                 {
                 }
             }
@@ -1109,6 +1165,7 @@ page 490 "Acc. Schedule Overview"
         ColumnStyle13: Text;
         ColumnStyle14: Text;
         ColumnStyle15: Text;
+        IntroductoryParagraph, ClosingParagraph : Text;
 
     protected var
         AnalysisView: Record "Analysis View";
@@ -1239,6 +1296,8 @@ page 490 "Acc. Schedule Overview"
         // Transfer filters from FinancialReport
         FinancialReportToLoadTemp.Init();
         FinancialReportToLoadTemp.TransferFields(FinancialReport);
+        IntroductoryParagraph := FinancialReport.GetIntroductoryParagraph();
+        ClosingParagraph := FinancialReport.GetClosingParagraph();
         if not ViewOnlyMode then
             exit(true);
         UserIDCode := CopyStr(UserId(), 1, MaxStrLen(UserIDCode));
@@ -1583,6 +1642,8 @@ page 490 "Acc. Schedule Overview"
         if not FinancialReport.Get(TempFinancialReport.Name) then
             exit;
         FinancialReport.TransferFields(TempFinancialReport, false);
+        FinancialReport.SetIntroductionParagraph(IntroductoryParagraph);
+        FinancialReport.SetClosingParagraph(ClosingParagraph);
         FinancialReport.Modify();
     end;
 
