@@ -275,9 +275,10 @@ codeunit 7308 Replenishment
 
     local procedure GetBinType(BinTypeCode: Code[10])
     begin
-        if BinTypeCode = '' then
-            BinType.Init()
-        else
+        if BinTypeCode = '' then begin
+            Clear(BinType);
+            BinType.Init();
+        end else
             if BinType.Code <> BinTypeCode then
                 BinType.Get(BinTypeCode);
     end;
