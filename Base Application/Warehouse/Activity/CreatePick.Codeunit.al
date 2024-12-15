@@ -2107,9 +2107,10 @@ codeunit 7312 "Create Pick"
 
     local procedure GetBinType(BinTypeCode: Code[10])
     begin
-        if BinTypeCode = '' then
-            CurrBinType.Init()
-        else
+        if BinTypeCode = '' then begin
+            Clear(CurrBinType);
+            CurrBinType.Init();
+        end else
             if CurrBinType.Code <> BinTypeCode then
                 CurrBinType.Get(BinTypeCode);
     end;
