@@ -447,9 +447,11 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         ApprovalEntry.SetRange("Approver ID", UserId);
-        ApprovalEntry.SetRange("Related to Change", false);
-        OnFindOpenApprovalEntryForCurrUserOnAfterApprovalEntrySetFilters(ApprovalEntry);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if not ApprovalEntry.IsEmpty() then
+            ApprovalEntry.SetRange("Related to Change", false);
 
+        OnFindOpenApprovalEntryForCurrUserOnAfterApprovalEntrySetFilters(ApprovalEntry);
         exit(ApprovalEntry.FindFirst());
     end;
 
@@ -1998,7 +2000,9 @@ codeunit 1535 "Approvals Mgmt."
     begin
         ApprovalEntry.SetRange("Table ID", DATABASE::"Gen. Journal Line");
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
-        ApprovalEntry.SetRange("Related to Change", false);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if not ApprovalEntry.IsEmpty() then
+            ApprovalEntry.SetRange("Related to Change", false);
         OnHasAnyOpenJournalLineApprovalEntriesOnAfterApprovalEntrySetFilters(ApprovalEntry);
         if ApprovalEntry.IsEmpty() then
             exit(false);
@@ -2276,10 +2280,13 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Table ID", RecID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecID);
         ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Created, ApprovalEntry.Status::Open);
-        ApprovalEntry.SetRange("Related to Change", false);
 
         if not UserSetup."Approval Administrator" then
             ApprovalEntry.SetRange("Sender ID", UserId);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if not ApprovalEntry.IsEmpty() then
+            ApprovalEntry.SetRange("Related to Change", false);
+
         Result := ApprovalEntry.FindFirst();
         OnAfterCanCancelApprovalForRecord(RecID, Result, ApprovalEntry, UserSetup);
     end;
