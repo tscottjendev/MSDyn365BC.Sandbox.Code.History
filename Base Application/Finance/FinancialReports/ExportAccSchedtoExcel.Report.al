@@ -29,6 +29,7 @@ report 29 "Export Acc. Sched. to Excel"
                 RowNo: Integer;
                 ColumnNo: Integer;
                 CompanyDisplayName, ClientFileName : Text;
+                IntroductionParagraph, ClosingParagraph : Text;
             begin
                 if DoUpdateExistingWorksheet then
                     if not UploadClientFile(ClientFileName, ServerFileName) then
@@ -72,6 +73,12 @@ report 29 "Export Acc. Sched. to Excel"
                 EnterFilterInCell(
                   RowNo, AccSchedLine.GetFilter("Cash Flow Forecast Filter"), AccSchedLine.FieldCaption("Cash Flow Forecast Filter"),
                   '', TempExcelBuffer."Cell Type"::Text);
+
+                IntroductionParagraph := FinancialReport.GetIntroductoryParagraph();
+                if IntroductionParagraph <> '' then begin
+                    RowNo += 1;
+                    EnterCellBlobValue(RowNo, 1, IntroductionParagraph, TempExcelBuffer."Cell Type"::Text);
+                end;
 
                 if ((AccSchedName."Analysis View Name" = '') and (GLSetup."Global Dimension 1 Code" <> '')) or
                    ((AccSchedName."Analysis View Name" <> '') and (AnalysisView."Dimension 1 Code" <> ''))
@@ -141,6 +148,12 @@ report 29 "Export Acc. Sched. to Excel"
                     until AccSchedLine.Next() = 0;
                 end;
 
+                ClosingParagraph := FinancialReport.GetClosingParagraph();
+                if ClosingParagraph <> '' then begin
+                    RowNo += 1;
+                    EnterCellBlobValue(RowNo, 1, ClosingParagraph, TempExcelBuffer."Cell Type"::Text);
+                end;
+
                 Window.Close();
 
                 Company.Get(CompanyName());
@@ -189,6 +202,7 @@ report 29 "Export Acc. Sched. to Excel"
         GLSetup: Record "General Ledger Setup";
         AnalysisView: Record "Analysis View";
         Currency: Record Currency;
+        FinancialReport: Record "Financial Report";
         AccSchedManagement: Codeunit AccSchedManagement;
         MatrixMgt: Codeunit "Matrix Management";
         FileMgt: Codeunit "File Management";
@@ -208,9 +222,16 @@ report 29 "Export Acc. Sched. to Excel"
 
     procedure SetOptions(var AccSchedLine2: Record "Acc. Schedule Line"; ColumnLayoutName2: Code[10]; UseAmtsInAddCurr2: Boolean)
     begin
+        SetOptions(AccSchedLine2, ColumnLayoutName2, UseAmtsInAddCurr2, '');
+    end;
+
+    procedure SetOptions(var AccSchedLine2: Record "Acc. Schedule Line"; ColumnLayoutName2: Code[10]; UseAmtsInAddCurr2: Boolean; FinancialReportName: Code[10])
+    begin
         AccSchedLine.CopyFilters(AccSchedLine2);
         ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName2);
         UseAmtsInAddCurr := UseAmtsInAddCurr2;
+        if FinancialReportName <> '' then
+            FinancialReport.Get(FinancialReportName);
     end;
 
     local procedure CalcColumnValue()
@@ -267,6 +288,19 @@ report 29 "Export Acc. Sched. to Excel"
            [AccSchedLine."Totaling Type"::Underline,
             AccSchedLine."Totaling Type"::"Double Underline",
             AccSchedLine."Totaling Type"::"Set Base For Percent"]));
+    end;
+
+    local procedure EnterCellBlobValue(RowNo: Integer; ColumnNo: Integer; CellValue: Text; CellType: Option)
+    var
+        OutStream: OutStream;
+    begin
+        TempExcelBuffer.Init();
+        TempExcelBuffer.Validate("Row No.", RowNo);
+        TempExcelBuffer.Validate("Column No.", ColumnNo);
+        TempExcelBuffer."Cell Value as Blob".CreateOutStream(OutStream);
+        OutStream.WriteText(CellValue);
+        TempExcelBuffer."Cell Type" := CellType;
+        TempExcelBuffer.Insert();
     end;
 
     local procedure GetDimFilterCaption(DimFilterNo: Integer): Text[80]
