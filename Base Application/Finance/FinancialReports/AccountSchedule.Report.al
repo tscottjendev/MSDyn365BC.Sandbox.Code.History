@@ -114,6 +114,12 @@ report 25 "Account Schedule"
                 column(ColumnHeader5; ColumnHeaderArrayText[5])
                 {
                 }
+                column(IntroductionParagraph; IntroductionParagraph)
+                {
+                }
+                column(ClosingParagraph; ClosingParagraph)
+                {
+                }
                 dataitem("Acc. Schedule Line"; "Acc. Schedule Line")
                 {
                     DataItemLink = "Schedule Name" = field(Name);
@@ -853,6 +859,7 @@ report 25 "Account Schedule"
         Account_ScheduleCaptionLbl: Label 'Financial Report';
         AnalysisView_CodeCaptionLbl: Label 'Analysis View';
         ContextInitialized: Boolean;
+        IntroductionParagraph, ClosingParagraph : Text;
 
     protected var
         AccSchedManagement: Codeunit AccSchedManagement;
@@ -1176,7 +1183,10 @@ report 25 "Account Schedule"
         end;
 
         if FinancialReportName <> '' then
-            if not FinancialReportLocal.Get(FinancialReportName) then
+            if FinancialReportLocal.Get(FinancialReportName) then begin
+                IntroductionParagraph := FinancialReportLocal.GetIntroductoryParagraph();
+                ClosingParagraph := FinancialReportLocal.GetClosingParagraph();
+            end else
                 FinancialReportName := '';
 
         if AccSchedName = '' then
