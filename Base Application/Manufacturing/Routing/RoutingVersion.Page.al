@@ -3,6 +3,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Routing;
+using System.Utilities;
 
 page 99000810 "Routing Version"
 {
@@ -127,12 +128,22 @@ page 99000810 "Routing Version"
         }
     }
 
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    begin
+        if not (Rec.Status in [Rec.Status::Certified, Rec.Status::Closed]) then
+            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
+                exit(false);
+
+        exit(true);
+    end;
+
     var
         RtngHeader: Record "Routing Header";
         CopyRouting: Codeunit "Routing Line-Copy Lines";
-
+        ConfirmManagement: Codeunit "Confirm Management";
 #pragma warning disable AA0074
         Text000: Label 'Copy from routing header?';
 #pragma warning restore AA0074
+        CertifyQst: Label 'The %1 has not been certified. Are you sure you want to exit?', Comment = '%1 = page caption (Production BOM)';
 }
 

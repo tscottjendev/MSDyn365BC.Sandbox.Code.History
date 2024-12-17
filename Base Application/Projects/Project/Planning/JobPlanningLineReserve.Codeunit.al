@@ -844,11 +844,11 @@ codeunit 1032 "Job Planning Line-Reserve"
         if IsReserved then
             exit;
 
+        JobPlanningLine.SetAutoCalcFields("Reserved Qty. (Base)");
         JobPlanningLine.FilterLinesForReservation(
           CalcReservEntry, ReservSummEntryNo - 131, sender.GetAvailabilityFilter(AvailabilityDate), Positive);
         if JobPlanningLine.Find(Search) then
             repeat
-                JobPlanningLine.CalcFields("Reserved Qty. (Base)");
                 QtyThisLine := JobPlanningLine."Remaining Qty.";
                 QtyThisLineBase := JobPlanningLine."Remaining Qty. (Base)";
                 ReservQty := JobPlanningLine."Reserved Qty. (Base)";
