@@ -751,11 +751,11 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         if not ProdOrderComponent.ReadPermission then
             exit;
 
+        ProdOrderComponent.SetAutoCalcFields("Reserved Qty. (Base)");
         AvailabilityFilter := ReservationEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         ProdOrderComponent.FilterLinesForReservation(ReservationEntry, Status.AsInteger(), AvailabilityFilter, Positive);
         if ProdOrderComponent.FindSet() then
             repeat
-                ProdOrderComponent.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= ProdOrderComponent."Reserved Qty. (Base)";
                 TotalQuantity += ProdOrderComponent."Remaining Qty. (Base)";
             until ProdOrderComponent.Next() = 0;
@@ -838,12 +838,12 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         if IsReserved then
             exit;
 
+        ProdOrderComp.SetAutoCalcFields("Reserved Qty. (Base)");
         ProdOrderComp.FilterLinesForReservation(
             CalcReservEntry, ReservSummEntryNo - Enum::"Reservation Summary Type"::"Simulated Prod. Order Comp.".AsInteger(),
             sender.GetAvailabilityFilter(AvailabilityDate), Positive);
         if ProdOrderComp.Find(Search) then
             repeat
-                ProdOrderComp.CalcFields("Reserved Qty. (Base)");
                 QtyThisLine := ProdOrderComp."Remaining Quantity";
                 QtyThisLineBase := ProdOrderComp."Remaining Qty. (Base)";
                 ReservQty := ProdOrderComp."Reserved Qty. (Base)";
