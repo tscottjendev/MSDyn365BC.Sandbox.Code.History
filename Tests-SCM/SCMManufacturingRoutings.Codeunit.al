@@ -1505,6 +1505,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure UnitCostPerNotEditableForMachineCenterWithSpecificUnitCostWorkCenter()
     var
         WorkCenter: array[2] of Record "Work Center";
