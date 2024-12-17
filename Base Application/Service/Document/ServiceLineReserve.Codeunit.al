@@ -752,11 +752,11 @@ codeunit 99000842 "Service Line-Reserve"
         if not ServiceLine.ReadPermission then
             exit;
 
+        ServiceLine.SetAutoCalcFields("Reserved Qty. (Base)");
         AvailabilityFilter := CalcReservationEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         ServiceLine.FindLinesForReservation(CalcReservationEntry, AvailabilityFilter, Positive);
         if ServiceLine.FindSet() then
             repeat
-                ServiceLine.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= ServiceLine."Reserved Qty. (Base)";
                 TotalQuantity += ServiceLine."Outstanding Qty. (Base)";
             until ServiceLine.Next() = 0;
@@ -830,10 +830,10 @@ codeunit 99000842 "Service Line-Reserve"
         if IsReserved then
             exit;
 
+        ServiceLine.SetAutoCalcFields("Reserved Qty. (Base)");
         ServiceLine.FindLinesForReservation(CalcReservEntry, sender.GetAvailabilityFilter(AvailabilityDate), Positive);
         if ServiceLine.Find(Search) then
             repeat
-                ServiceLine.CalcFields("Reserved Qty. (Base)");
                 QtyThisLine := ServiceLine."Outstanding Quantity";
                 QtyThisLineBase := ServiceLine."Outstanding Qty. (Base)";
                 ReservQty := ServiceLine."Reserved Qty. (Base)";
