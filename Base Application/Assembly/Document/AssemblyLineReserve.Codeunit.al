@@ -692,11 +692,11 @@ codeunit 926 "Assembly Line-Reserve"
         if not AssemblyLine.ReadPermission then
             exit;
 
+        AssemblyLine.SetAutoCalcFields("Reserved Qty. (Base)");
         AvailabilityFilter := CalcReservationEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         AssemblyLine.FilterLinesForReservation(CalcReservationEntry, DocumentType, AvailabilityFilter, Positive);
         if AssemblyLine.FindSet() then
             repeat
-                AssemblyLine.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= AssemblyLine."Reserved Qty. (Base)";
                 TotalQuantity += AssemblyLine."Remaining Quantity (Base)";
             until AssemblyLine.Next() = 0;
@@ -772,12 +772,12 @@ codeunit 926 "Assembly Line-Reserve"
         if IsReserved then
             exit;
 
+        AssemblyLine.SetAutoCalcFields("Reserved Qty. (Base)");
         AssemblyLine.FilterLinesForReservation(
             CalcReservEntry, ReservSummEntryNo - Enum::"Reservation Summary Type"::"Assembly Quote Line".AsInteger(),
             sender.GetAvailabilityFilter(AvailabilityDate), Positive);
         if AssemblyLine.Find(Search) then
             repeat
-                AssemblyLine.CalcFields("Reserved Qty. (Base)");
                 QtyThisLine := AssemblyLine."Remaining Quantity";
                 QtyThisLineBase := AssemblyLine."Remaining Quantity (Base)";
                 ReservQty := AssemblyLine."Reserved Qty. (Base)";
