@@ -53,7 +53,8 @@ codeunit 6300 "Azure AD Mgt."
         if IsSaaS() then
             AccessToken := AzureADAuthFlow.AcquireTokenByAuthorizationCodeAsSecretText(AuthorizationCode, ResourceUrl)
         else begin
-            AzureADAppSetup.FindFirst();
+            if not AzureADAppSetup.FindFirst() then
+                exit;
             AccessToken := AzureADAuthFlow.AcquireTokenByAuthorizationCodeWithCredentialsAsSecretText(
                 AuthorizationCode,
                 GetClientId(),
