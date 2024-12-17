@@ -352,8 +352,15 @@ page 9325 "Firm Planned Prod. Orders"
                 ApplicationArea = Manufacturing;
                 Caption = 'Production Order - Comp. and Routing';
                 Image = "Report";
-                RunObject = Report "Prod. Order Comp. and Routing";
                 ToolTip = 'View information about components and operations in production orders. For released production orders, the report shows the remaining quantity if parts of the quantity have been posted as output.';
+
+                trigger OnAction()
+                var
+                    ProductionOrder: Record "Production Order";
+                begin
+                    CurrPage.SetSelectionFilter(ProductionOrder);
+                    Report.RunModal(Report::"Prod. Order Comp. and Routing", true, false, ProductionOrder);
+                end;
             }
             action(ProdOrderJobCard)
             {
