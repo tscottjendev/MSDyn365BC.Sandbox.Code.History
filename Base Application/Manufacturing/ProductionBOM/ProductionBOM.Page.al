@@ -6,6 +6,7 @@ namespace Microsoft.Manufacturing.ProductionBOM;
 
 using Microsoft.Foundation.Attachment;
 using Microsoft.Manufacturing.Comment;
+using System.Utilities;
 
 page 99000786 "Production BOM"
 {
@@ -303,8 +304,19 @@ page 99000786 "Production BOM"
         ActiveVersionCode := VersionManagement.GetBOMVersion(Rec."No.", WorkDate(), true);
     end;
 
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    begin
+        if not (Rec.Status in [Rec.Status::Certified, Rec.Status::Closed]) then
+            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
+                exit(false);
+
+        exit(true);
+    end;
+
     var
+        ConfirmManagement: Codeunit "Confirm Management";
         ActiveVersionCode: Code[20];
+        CertifyQst: Label 'The %1 has not been certified. Are you sure you want to exit?', Comment = '%1 = page caption (Production BOM)';
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyBOMOnBeforeLookup(var ToProductionBOMHeader: Record "Production BOM Header"; var FromProductionBOMHeader: Record "Production BOM Header")

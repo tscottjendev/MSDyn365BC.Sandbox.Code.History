@@ -3,6 +3,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.ProductionBOM;
+using System.Utilities;
 
 page 99000809 "Production BOM Version"
 {
@@ -159,11 +160,22 @@ page 99000809 "Production BOM Version"
         }
     }
 
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    begin
+        if not (Rec.Status in [Rec.Status::Certified, Rec.Status::Closed]) then
+            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
+                exit(false);
+
+        exit(true);
+    end;
+
     var
 #pragma warning disable AA0074
         Text000: Label 'Copy from Production BOM?';
 #pragma warning restore AA0074
         ProdBOMHeader: Record "Production BOM Header";
         ProductionBOMCopy: Codeunit "Production BOM-Copy";
+        ConfirmManagement: Codeunit "Confirm Management";
+        CertifyQst: Label 'The %1 has not been certified. Are you sure you want to exit?', Comment = '%1 = page caption (Production BOM)';
 }
 
