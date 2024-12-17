@@ -12,6 +12,7 @@ page 145 "Posted Purchase Receipts"
     Editable = false;
     PageType = List;
     QueryCategory = 'Posted Purchase Receipts';
+    RefreshOnActivate = true;
     SourceTable = "Purch. Rcpt. Header";
     SourceTableView = sorting("Posting Date")
                       order(descending);
