@@ -344,8 +344,7 @@ page 9326 "Released Production Orders"
                 var
                     ProductionOrder: Record "Production Order";
                 begin
-                    ProductionOrder := Rec;
-                    ProductionOrder.SetRecFilter();
+                    CurrPage.SetSelectionFilter(ProductionOrder);
                     Report.RunModal(Report::"Prod. Order Comp. and Routing", true, false, ProductionOrder);
                 end;
             }
