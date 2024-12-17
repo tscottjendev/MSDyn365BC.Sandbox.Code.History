@@ -519,11 +519,11 @@ codeunit 925 "Assembly Header-Reserve"
         if not AssemblyHeader.ReadPermission then
             exit;
 
+        AssemblyHeader.SetAutoCalcFields("Reserved Qty. (Base)");
         AvailabilityFilter := CalcReservationEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         AssemblyHeader.FilterLinesForReservation(CalcReservationEntry, DocumentType, AvailabilityFilter, Positive);
         if AssemblyHeader.FindSet() then
             repeat
-                AssemblyHeader.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" += AssemblyHeader."Reserved Qty. (Base)";
                 TotalQuantity += AssemblyHeader."Remaining Quantity (Base)";
             until AssemblyHeader.Next() = 0;
@@ -598,12 +598,12 @@ codeunit 925 "Assembly Header-Reserve"
         if IsReserved then
             exit;
 
+        AssemblyHeader.SetAutoCalcFields("Reserved Qty. (Base)");
         AssemblyHeader.FilterLinesForReservation(
             CalcReservEntry, ReservSummEntryNo - Enum::"Reservation Summary Type"::"Assembly Quote Header".AsInteger(),
             sender.GetAvailabilityFilter(AvailabilityDate), Positive);
         if AssemblyHeader.Find(Search) then
             repeat
-                AssemblyHeader.CalcFields("Reserved Qty. (Base)");
                 QtyThisLine := AssemblyHeader."Remaining Quantity";
                 QtyThisLineBase := AssemblyHeader."Remaining Quantity (Base)";
                 ReservQty := AssemblyHeader."Reserved Qty. (Base)";
