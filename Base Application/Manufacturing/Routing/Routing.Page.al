@@ -8,6 +8,7 @@ using Microsoft.Foundation.Attachment;
 using Microsoft.Manufacturing.Comment;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Reports;
+using System.Utilities;
 
 page 99000766 Routing
 {
@@ -238,14 +239,26 @@ page 99000766 Routing
           VersionMgt.GetRtngVersion(Rec."No.", WorkDate(), true);
     end;
 
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    begin
+        if not (Rec.Status in [Rec.Status::Certified, Rec.Status::Closed]) then
+            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
+                exit(false);
+
+        exit(true);
+    end;
+
     var
         VersionMgt: Codeunit VersionManagement;
         CopyRouting: Codeunit "Routing Line-Copy Lines";
+        ConfirmManagement: Codeunit "Confirm Management";
         ActiveVersionCode: Code[20];
+        CertifyQst: Label 'The %1 has not been certified. Are you sure you want to exit?', Comment = '%1 = page caption (Production BOM)';
 
     local procedure LastDateModifiedOnAfterValidat()
     begin
         CurrPage.Update();
     end;
+
 }
 
