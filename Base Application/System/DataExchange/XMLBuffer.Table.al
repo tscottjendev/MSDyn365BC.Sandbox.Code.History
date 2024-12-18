@@ -199,7 +199,7 @@ table 1235 "XML Buffer"
         GetParent();
     end;
 
-    procedure AddAttribute(AttributeName: Text[250]; AttributeValue: Text[250])
+    procedure AddAttribute(AttributeName: Text[250]; AttributeValue: Text)
     var
         XMLBufferWriter: Codeunit "XML Buffer Writer";
     begin
@@ -207,7 +207,7 @@ table 1235 "XML Buffer"
         GetParent();
     end;
 
-    procedure AddAttributeWithNamespace(AttributeNameWithNamespace: Text[250]; AttributeValue: Text[250])
+    procedure AddAttributeWithNamespace(AttributeNameWithNamespace: Text[250]; AttributeValue: Text)
     var
         XMLBufferWriter: Codeunit "XML Buffer Writer";
     begin
@@ -351,14 +351,26 @@ table 1235 "XML Buffer"
         exit(TempResultElementXMLBuffer.FindSet());
     end;
 
+#if not CLEAN26
+    [Obsolete('Replaced by GetAttributeValueAsText with unlimited text length on return type.', '26.0')]
     procedure GetAttributeValue(AttributeName: Text): Text[250]
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
         if FindChildNodes(TempXMLBuffer, Type::Attribute, AttributeName) then
-            exit(TempXMLBuffer.Value);
+            exit(CopyStr(TempXMLBuffer.GetValue(), 1, 250));
+    end;
+#endif
+    procedure GetAttributeValueAsText(AttributeName: Text): Text
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        if FindChildNodes(TempXMLBuffer, Type::Attribute, AttributeName) then
+            exit(TempXMLBuffer.GetValue());
     end;
 
+#if not CLEAN26
+    [Obsolete('Replaced by GetNamespaceUriByPrefixAsText with increased text length on return type.', '26.0')]
     procedure GetNamespaceUriByPrefix(NamespacePrefix: Text): Text[250]
     var
         TempResultXMLBuffer: Record "XML Buffer" temporary;
@@ -369,7 +381,21 @@ table 1235 "XML Buffer"
         TempResultXMLBuffer.SetRange(Type, TempResultXMLBuffer.Type::Attribute);
         TempResultXMLBuffer.SetRange(Name, 'xmlns:' + NamespacePrefix);
         if TempResultXMLBuffer.FindFirst() then
-            exit(TempResultXMLBuffer.Value);
+            exit(CopyStr(TempResultXMLBuffer.GetValue(), 1, 250));
+    end;
+#endif
+
+    procedure GetNamespaceUriByPrefixAsText(NamespacePrefix: Text): Text
+    var
+        TempResultXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        TempResultXMLBuffer.CopyImportFrom(Rec);
+
+        TempResultXMLBuffer.SetRange("Parent Entry No.");
+        TempResultXMLBuffer.SetRange(Type, TempResultXMLBuffer.Type::Attribute);
+        TempResultXMLBuffer.SetRange(Name, 'xmlns:' + NamespacePrefix);
+        if TempResultXMLBuffer.FindFirst() then
+            exit(TempResultXMLBuffer.GetValue());
     end;
 
     procedure GetElementName(): Text
