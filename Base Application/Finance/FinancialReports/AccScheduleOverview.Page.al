@@ -144,6 +144,17 @@ page 490 "Acc. Schedule Overview"
                         CurrPage.Update();
                     end;
                 }
+                field(NegativeAmountFormat; TempFinancialReport.NegativeAmountFormat)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Negative Amount Format';
+                    ToolTip = 'Specifies how negative amounts are displayed on the financial report.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
+                }
                 field(PeriodType; TempFinancialReport.PeriodType)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1858,10 +1869,10 @@ page 490 "Acc. Schedule Overview"
     begin
         GLSetup.Get();
         AddCurrency := TempFinancialReport.UseAmountsInAddCurrency and (GLSetup."Additional Reporting Currency" <> '');
-        OnAfterFormatStr(ColumnLayoutArr, UseAmtsInAddCurr, ColumnNo, Result, IsHandled);
+        OnAfterFormatStr(ColumnLayoutArr, UseAmtsInAddCurr, ColumnNo, TempFinancialReport.NegativeAmountFormat, Result, IsHandled);
         if IsHandled then
             exit(Result);
-        exit(MatrixMgt.FormatRoundingFactor(ColumnLayoutArr[ColumnNo]."Rounding Factor", UseAmtsInAddCurr));
+        exit(MatrixMgt.FormatRoundingFactor(ColumnLayoutArr[ColumnNo]."Rounding Factor", UseAmtsInAddCurr, TempFinancialReport.NegativeAmountFormat));
     end;
 
     procedure RoundIfNotNone(Value: Decimal; RoundingFactor: Enum "Analysis Rounding Factor"): Decimal
@@ -1982,7 +1993,7 @@ page 490 "Acc. Schedule Overview"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFormatStr(ColumnLayoutArr: array[15] of Record "Column Layout"; UseAmtsInAddCurr: Boolean; ColumnNo: Integer; var Result: Text; var IsHandled: Boolean)
+    local procedure OnAfterFormatStr(ColumnLayoutArr: array[15] of Record "Column Layout"; UseAmtsInAddCurr: Boolean; ColumnNo: Integer; NegativeAmountFormatting: Enum "Analysis Negative Format"; var Result: Text; var IsHandled: Boolean)
     begin
     end;
 

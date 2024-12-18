@@ -509,11 +509,11 @@ codeunit 90 "Purch.-Post"
         if IsHandled then
             exit;
 
-        if not (InvtPickPutaway or SuppressCommit or PreviewMode) then begin
+        if not (InvtPickPutaway or SuppressCommit or PreviewMode or DateOrderSeriesUsed) then
             Commit();
-            UpdateAnalysisView.UpdateAll(0, true);
-            UpdateItemAnalysisView.UpdateAll(0, true);
-        end;
+
+        UpdateAnalysisView.UpdateAll(0, true);
+        UpdateItemAnalysisView.UpdateAll(0, true);
     end;
 
     /// <summary>
@@ -700,7 +700,7 @@ codeunit 90 "Purch.-Post"
         ModifyHeader := UpdatePostingNos(PurchHeader, ReverseChargeVAT);
         if DateOrderSeriesUsed then
             SuppressCommit := true;
-	  
+
         if PurchHeader.Invoice and (PurchHeader."Operation Occurred Date" < GLSetup."Last Gen. Jour. Printing Date") then
             PurchHeader.FieldError("Operation Occurred Date", StrSubstNo(Text1130008, GLSetup."Last Gen. Jour. Printing Date"));
 

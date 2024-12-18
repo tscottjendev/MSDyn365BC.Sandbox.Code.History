@@ -85,6 +85,11 @@ table 89 "Financial Report User Filters"
             Caption = 'Date Filter';
             DataClassification = SystemMetadata;
         }
+        field(17; NegativeAmountFormat; Enum "Analysis Negative Format")
+        {
+            Caption = 'Negative Amount Format';
+            DataClassification = SystemMetadata;
+        }
         field(51; "Row Definition"; Code[10])
         {
             Caption = 'Row Definition';

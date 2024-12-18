@@ -365,11 +365,11 @@ codeunit 80 "Sales-Post"
 
         OnRunWithCheckOnAfterFinalize(SalesHeader);
 
-        if not (InvtPickPutaway or SuppressCommit or PreviewMode) then begin
+        if not (InvtPickPutaway or SuppressCommit or PreviewMode or DateOrderSeriesUsed) then
             Commit();
-            UpdateAnalysisView.UpdateAll(0, true);
-            UpdateItemAnalysisView.UpdateAll(0, true);
-        end;
+
+        UpdateAnalysisView.UpdateAll(0, true);
+        UpdateItemAnalysisView.UpdateAll(0, true);
 
         OnAfterPostSalesDoc(
           SalesHeader2, GenJnlPostLine, SalesShptHeader."No.", ReturnRcptHeader."No.",
