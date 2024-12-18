@@ -514,7 +514,7 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Date';
             ToolTip = 'Specifies the VAT date on the VAT entry. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
-            
+
             trigger OnValidate()
             var
                 VATDateReportingMgt: Codeunit "VAT Reporting Date Mgt";
