@@ -119,7 +119,7 @@ table 254 "VAT Entry"
             else
             if (Type = const(Sale)) Customer;
             ToolTip = 'Specifies the number of the bill-to customer or pay-to vendor that the entry is linked to.';
-            
+
             trigger OnValidate()
             begin
                 Validate(Type);
@@ -147,7 +147,7 @@ table 254 "VAT Entry"
         {
             Caption = 'EU 3-Party Trade';
             ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
-            
+
             trigger OnValidate()
             begin
                 Validate(Type);
@@ -190,7 +190,7 @@ table 254 "VAT Entry"
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
             ToolTip = 'Specifies the country/region of the address.';
-            
+
             trigger OnValidate()
             begin
                 Validate(Type);
@@ -406,7 +406,7 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Registration No.';
             ToolTip = 'Specifies the VAT registration number of the customer or vendor that the entry is linked to.';
-            
+
             trigger OnValidate()
             var
                 VATRegNoFormat: Record "VAT Registration No. Format";
@@ -513,7 +513,7 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Date';
             ToolTip = 'Specifies the VAT date on the VAT entry. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
-            
+
             trigger OnValidate()
             var
                 VATDateReportingMgt: Codeunit "VAT Reporting Date Mgt";
