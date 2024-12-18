@@ -235,6 +235,21 @@ page 489 "Column Layout"
                     Report.RunModal(Report::"Copy Column Layout", true, true, ColLayoutName);
                 end;
             }
+            action(WhereUsed)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Where-Used';
+                ToolTip = 'View or edit financial reports in which the column definition is used.';
+                Image = Track;
+
+                trigger OnAction()
+                var
+                    FinancialReport: Record "Financial Report";
+                begin
+                    FinancialReport.SetRange("Financial Report Column Group", CurrentColumnName);
+                    Page.Run(0, FinancialReport);
+                end;
+            }
         }
         area(Promoted)
         {
@@ -243,6 +258,9 @@ page 489 "Column Layout"
                 Caption = 'Process';
 
                 actionref(CopyColumnLayout_Promoted; CopyColumnLayout)
+                {
+                }
+                actionref(WhereUsed_Promoted; WhereUsed)
                 {
                 }
             }
