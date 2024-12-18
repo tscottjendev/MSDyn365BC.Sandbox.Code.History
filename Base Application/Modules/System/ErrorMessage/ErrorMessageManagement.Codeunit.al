@@ -61,7 +61,7 @@ codeunit 28 "Error Message Management"
 
     local procedure StopTransaction()
     begin
-        Error('')
+        Error('');
     end;
 
     procedure IsTransactionStopped(): Boolean
@@ -555,6 +555,7 @@ codeunit 28 "Error Message Management"
         SupportURL: Text;
         DuplicateText: Text;
         CallStack: Text;
+        MessageTypeText: Text;
         NextID: Integer;
         JObject: JsonObject;
     begin
@@ -571,6 +572,7 @@ codeunit 28 "Error Message Management"
             AdditionalInfo := GetJsonKeyValue(JObject, 'AdditionalInfo');
             SupportURL := GetJsonKeyValue(JObject, 'SupportURL');
             CallStack := GetJsonKeyValue(JObject, 'CallStack');
+            MessageTypeText := GetJsonKeyValue(JObject, 'MessageType');
 
             NextID := TempErrorMessage.FindLastID() + 1;
             TempErrorMessage.Init();
@@ -586,6 +588,7 @@ codeunit 28 "Error Message Management"
             TempErrorMessage."Additional Information" := CopyStr(AdditionalInfo, 1, MaxStrLen(TempErrorMessage."Additional Information"));
             TempErrorMessage."Support Url" := CopyStr(SupportURL, 1, MaxStrLen(TempErrorMessage."Support Url"));
             TempErrorMessage.SetErrorCallStack(CallStack);
+            Evaluate(TempErrorMessage."Message Type", MessageTypeText);
             OnAddToErrorMessageFromJSON(TempErrorMessage, JObject);
             TempErrorMessage.Insert();
         end;
@@ -614,6 +617,7 @@ codeunit 28 "Error Message Management"
         JObject.Add('SupportURL', ErrorMessage."Support Url");
         JObject.Add('CallStack', ErrorMessage.GetErrorCallStack());
         JObject.Add('Duplicate', ErrorMessage.Duplicate);
+        JObject.Add('MessageType', ErrorMessage."Message Type");
         OnAddToJsonFromErrorMessage(JObject, ErrorMessage);
         JObject.WriteTo(JSON);
     end;
