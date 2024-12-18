@@ -443,6 +443,9 @@ codeunit 6620 "Copy Document Mgt."
             ErrorMessageHandler.NotifyAboutErrors();
             ErrorMessageMgt.PopContext(ErrorContextElement);
         end;
+
+        ToSalesLine.GetCaptionClass(ToSalesHeader.FieldNo("Prices Including VAT"));
+
         OnAfterCopySalesDocument(
           FromDocType.AsInteger(), FromDocNo, ToSalesHeader, FromDocOccurrenceNo, FromDocVersionNo, IncludeHeader, RecalculateLines, MoveNegLines);
     end;
@@ -1062,6 +1065,8 @@ codeunit 6620 "Copy Document Mgt."
             ErrorMessageHandler.NotifyAboutErrors();
             ErrorMessageMgt.PopContext(ErrorContextElement);
         end;
+
+        ToPurchLine.GetCaptionClass(ToPurchHeader.FieldNo("Prices Including VAT"));
 
         OnAfterCopyPurchaseDocument(
           FromDocType.AsInteger(), FromDocNo, ToPurchHeader, FromDocOccurrenceNo, FromDocVersionNo, IncludeHeader, RecalculateLines, MoveNegLines);

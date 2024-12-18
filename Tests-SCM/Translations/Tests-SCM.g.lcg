@@ -1517,6 +1517,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM CETAF Inventory Valuation - NamedType OpenOutboudEntryErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3520103777 - NamedType 435233247" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect caption]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Copy Document Mgt. - NamedType CaptionNotMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3520103777 - NamedType 2496471266" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[have a Corrected Invoice No. Do you want to continue?]]></Val>
