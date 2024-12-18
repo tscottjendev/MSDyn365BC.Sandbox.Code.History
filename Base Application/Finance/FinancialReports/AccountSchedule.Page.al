@@ -242,6 +242,21 @@ page 104 "Account Schedule"
                     CurrPage.Update(false);
                 end;
             }
+            action(WhereUsed)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Where-Used';
+                ToolTip = 'View or edit financial reports in which the row definition is used.';
+                Image = Track;
+
+                trigger OnAction()
+                var
+                    FinancialReport: Record "Financial Report";
+                begin
+                    FinancialReport.SetRange("Financial Report Row Group", CurrentSchedName);
+                    Page.Run(0, FinancialReport);
+                end;
+            }
             group("F&unctions")
             {
                 Caption = 'F&unctions';
@@ -309,6 +324,9 @@ page 104 "Account Schedule"
                 {
                 }
                 actionref(Indent_Promoted; Indent)
+                {
+                }
+                actionref(WhereUsed_Promoted; WhereUsed)
                 {
                 }
             }
