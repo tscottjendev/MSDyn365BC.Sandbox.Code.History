@@ -580,6 +580,13 @@ report 25 "Account Schedule"
                             Importance = Additional;
                             ToolTip = 'Specifies how to show amounts for empty accounts.';
                         }
+                        field(NegativeAmountFormat; NegativeAmountFormat)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Negative Amount Format';
+                            Importance = Additional;
+                            ToolTip = 'Specifies how negative amounts are displayed in the report.';
+                        }
                     }
                     group("Dimension Filters")
                     {
@@ -868,6 +875,7 @@ report 25 "Account Schedule"
         FinancialReportName: Code[10];
         LineSkipped: Boolean;
         UseAmtsInAddCurr: Boolean;
+        NegativeAmountFormat: Enum "Analysis Negative Format";
 
     local procedure CalcColumnValueAsText(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var ValueIsEmpty: Boolean): Text[30]
     var
@@ -911,6 +919,13 @@ report 25 "Account Schedule"
                         AccSchedManagement.FormatCellAsText(ColumnLayout, ColumnValuesDisplayed, UseAmtsInAddCurr);
 
                 FormatCurrencySymbol(AccScheduleLine, ColumnLayout, ColumnValuesAsText2);
+
+                if (NegativeAmountFormat = NegativeAmountFormat::Parentheses) and
+                    (ColumnValuesAsText2 <> '') and
+                    (not ColumnValuesAsText2.EndsWith('%')) and
+                    (ColumnValuesDisplayed < 0)
+                then
+                    ColumnValuesAsText2 := StrSubstNo('(%1)', ColumnValuesAsText2.TrimStart('-'));
             end;
         exit(ColumnValuesAsText2);
     end;
