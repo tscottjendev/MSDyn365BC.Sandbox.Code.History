@@ -57,6 +57,7 @@ table 405 "Change Log Entry"
                                                               "No." = field("Field No.")));
             Caption = 'Field Caption';
             FieldClass = FlowField;
+            ToolTip = 'Specifies the field caption of the changed field.';
         }
         field(9; "Type of Change"; Enum "Change Log Entry Type")
         {
@@ -65,10 +66,12 @@ table 405 "Change Log Entry"
         field(10; "Old Value"; Text[2048])
         {
             Caption = 'Old Value';
+            ToolTip = 'Specifies the value that the field had before a user made changes to the field.';
         }
         field(11; "New Value"; Text[2048])
         {
             Caption = 'New Value';
+            ToolTip = 'Specifies the value that the field had after a user made changes to the field.';
         }
         field(12; "Primary Key"; Text[250])
         {
