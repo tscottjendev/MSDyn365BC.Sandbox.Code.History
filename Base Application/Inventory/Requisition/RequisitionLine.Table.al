@@ -1339,6 +1339,10 @@ table 246 "Requisition Line"
                     SetDueDate();
 
                 SetActionMessage();
+                if "Starting Time" = 0T then begin
+                    ManufacturingSetup.Get();
+                    "Starting Time" := ManufacturingSetup."Normal Starting Time";
+                end;
                 UpdateDatetime();
             end;
         }
