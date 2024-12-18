@@ -40,7 +40,6 @@ page 123 "VAT Entries Preview"
                 field("VAT Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
-                    ToolTip = 'Specifies the entry''s VAT date.';
                 }
                 field("Document Date"; Rec."Document Date")
                 {
