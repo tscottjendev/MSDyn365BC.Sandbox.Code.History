@@ -96,16 +96,16 @@ page 9150 "My Customers"
         Customer: Record Customer;
 
     local procedure SyncFieldsWithCustomer()
-    var
-        MyCustomer: Record "My Customer";
     begin
         Clear(Customer);
 
+        Customer.ReadIsolation(IsolationLevel::ReadCommitted);
+        Customer.SetLoadFields(Name, "Phone No.");
         if Customer.Get(Rec."Customer No.") then
             if (Rec.Name <> Customer.Name) or (Rec."Phone No." <> Customer."Phone No.") then begin
                 Rec.Name := Customer.Name;
                 Rec."Phone No." := Customer."Phone No.";
-                if MyCustomer.Get(Rec."User ID", Rec."Customer No.") then
+                if not IsNullGuid(Rec.SystemId) then
                     Rec.Modify();
             end;
     end;
