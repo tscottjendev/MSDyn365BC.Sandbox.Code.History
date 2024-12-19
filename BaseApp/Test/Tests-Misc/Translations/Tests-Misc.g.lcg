@@ -4910,6 +4910,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Hybrid Deployment Test - NamedType InstanceIdTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3733281102 - NamedType 1456683102" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incoming Document Type does not match.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Imp. Inc.Doc. Attachment Tests - NamedType IncomingRelatedDocTypeNotMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1115262795 - NamedType 1336244853" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[ZIP archive file cannot be created.]]></Val>
