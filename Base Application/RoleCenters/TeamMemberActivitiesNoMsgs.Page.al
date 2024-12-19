@@ -29,6 +29,7 @@ page 9043 "Team Member Activities No Msgs"
                         Caption = 'Open My Current Time Sheet';
                         Image = TileBrickCalendar;
                         ToolTip = 'Open the time sheet for the current period. Current period is based on work date set in my settings.';
+
                         trigger OnAction()
                         var
                             TimeSheetHeader: Record "Time Sheet Header";

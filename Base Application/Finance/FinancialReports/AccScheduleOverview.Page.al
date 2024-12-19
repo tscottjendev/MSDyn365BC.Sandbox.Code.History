@@ -200,6 +200,35 @@ page 490 "Acc. Schedule Overview"
                         CurrPage.Update();
                     end;
                 }
+                field(ExcelTemplateCode; TempFinancialReport."Excel Template Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Excel Template Code';
+                    ToolTip = 'Specifies the Excel template that will be used when exporting to Excel.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        FinReportExcelTemplate: Record "Fin. Report Excel Template";
+                        FinReportExcelTemplates: Page "Fin. Report Excel Templates";
+                    begin
+                        FinReportExcelTemplates.SetSource(TempFinancialReport, Rec);
+                        FinReportExcelTemplates.LookupMode(true);
+                        if FinReportExcelTemplates.RunModal() = Action::LookupOK then begin
+                            FinReportExcelTemplates.GetRecord(FinReportExcelTemplate);
+                            TempFinancialReport."Excel Template Code" := FinReportExcelTemplate.Code;
+                            Text := FinReportExcelTemplate.Code;
+                            exit(true);
+                        end;
+                    end;
+
+                    trigger OnValidate()
+                    var
+                        FinReportExcelTemplate: Record "Fin. Report Excel Template";
+                    begin
+                        if TempFinancialReport."Excel Template Code" <> '' then
+                            FinReportExcelTemplate.Get(TempFinancialReport.Name, TempFinancialReport."Excel Template Code");
+                    end;
+                }
                 field(InternalDescription; TempFinancialReport."Internal Description")
                 {
                     ApplicationArea = Basic, Suite;
@@ -949,12 +978,53 @@ page 490 "Acc. Schedule Overview"
                 {
                     Caption = 'Export to Excel';
                     Image = ExportToExcel;
+                    action(ExportToExcel)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Export to Excel';
+                        ToolTip = 'Open the financial report in a new Excel workbook. This will use the Excel template specified on the financial report.';
+                        Image = ExportToExcel;
+
+                        trigger OnAction()
+                        var
+                            FinReportExcelTemplate: Record "Fin. Report Excel Template";
+                            ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
+                        begin
+                            ExportAccSchedToExcel.SetOptions(Rec, TempFinancialReport."Financial Report Column Group", TempFinancialReport.UseAmountsInAddCurrency, TempFinancialReport.Name);
+                            if TempFinancialReport."Excel Template Code" <> '' then begin
+                                FinReportExcelTemplate.Get(TempFinancialReport.Name, TempFinancialReport."Excel Template Code");
+                                ExportAccSchedToExcel.SetUseExistingTemplate(FinReportExcelTemplate);
+                            end;
+                            ExportAccSchedToExcel.Run();
+                        end;
+                    }
+                    action(ExcelTemplates)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Excel Templates';
+                        ToolTip = 'View or edit Excel templates for this financial report.';
+                        Image = Report;
+
+                        trigger OnAction()
+                        var
+                            FinReportExcelTemplates: Page "Fin. Report Excel Templates";
+                        begin
+                            FinReportExcelTemplates.SetSource(TempFinancialReport, Rec);
+                            FinReportExcelTemplates.Run();
+                        end;
+                    }
+#if not CLEAN26
                     action("Create New Document")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create New Excel template';
                         Image = ExportToExcel;
                         ToolTip = 'Open the financial report in a new Excel workbook. This creates an Excel workbook on your device that you can use as a template for an Excel version of the report.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by Export to Excel and the Financial Report Excel Template feature.';
+                        ObsoleteTag = '26.0';
+
                         trigger OnAction()
                         var
                             ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
@@ -969,6 +1039,11 @@ page 490 "Acc. Schedule Overview"
                         Caption = 'Update Excel template with data';
                         Image = ExportToExcel;
                         ToolTip = 'Upload an Excel template workbook and get an updated Excel workbook downloaded it to your device. You must specify the template workbook that you want to update.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by Excel Templates and the Financial Report Excel Template feature.';
+                        ObsoleteTag = '26.0';
+
                         trigger OnAction()
                         var
                             ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
@@ -978,6 +1053,7 @@ page 490 "Acc. Schedule Overview"
                             ExportAccSchedToExcel.Run();
                         end;
                     }
+#endif
                 }
             }
         }
@@ -1035,16 +1111,28 @@ page 490 "Acc. Schedule Overview"
             {
                 Caption = 'Export to Excel/Print';
 
+                actionref(ExcelTemplates_Promoted; ExcelTemplates)
+                {
+                }
+#if not CLEAN26
+#pragma warning disable AL0432
                 actionref("Create New Document_Promoted"; "Create New Document")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Export to Excel and the Financial Report Excel Template feature.';
+                    ObsoleteTag = '26.0';
                 }
                 actionref("Update Existing Document_Promoted"; "Update Existing Document")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Export to Excel and the Financial Report Excel Template feature.';
+                    ObsoleteTag = '26.0';
                 }
+#pragma warning restore AL0432
+#endif
                 actionref(Print_Promoted; Print)
                 {
                 }
-
             }
             group(Category_Definitions)
             {

@@ -122,6 +122,8 @@ table 27 Item
                             NonstockItem.Modify();
                         end;
                 end;
+
+                UpdateMyItem(FieldNo(Description));
             end;
         }
         field(4; "Search Description"; Code[100])
@@ -269,6 +271,8 @@ table 27 Item
             trigger OnValidate()
             begin
                 Validate("Price/Profit Calculation");
+
+                UpdateMyItem(FieldNo("Unit Price"));
             end;
         }
         field(19; "Price/Profit Calculation"; Enum "Item Price Profit Calculation")
@@ -297,6 +301,7 @@ table 27 Item
                                 ("Unit Cost" / (1 - "Profit %" / 100)) *
                                 (1 + CalcVAT()),
                                 GLSetup."Unit-Amount Rounding Precision");
+                            UpdateMyItem(FieldNo("Unit Price"));
                         end;
                 end;
             end;
@@ -3736,6 +3741,27 @@ table 27 Item
         ItemTrackingCode.Get("Item Tracking Code");
         ItemTrackingCode.SetLoadFields();
         exit(ItemTrackingCode."Use Expiration Dates");
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"My Item", 'rm')]
+    local procedure UpdateMyItem(CallingFieldNo: Integer)
+    var
+        MyItem: Record "My Item";
+    begin
+        case CallingFieldNo of
+            FieldNo(Description):
+                begin
+                    MyItem.SetRange("Item No.", "No.");
+                    if not MyItem.IsEmpty() then
+                        MyItem.ModifyAll(Description, Description);
+                end;
+            FieldNo("Unit Price"):
+                begin
+                    MyItem.SetRange("Item No.", "No.");
+                    if not MyItem.IsEmpty() then
+                        MyItem.ModifyAll("Unit Price", "Unit Price");
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

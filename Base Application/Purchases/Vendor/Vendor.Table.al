@@ -102,6 +102,8 @@ table 23 Vendor
                 if ("Search Name" = UpperCase(xRec.Name)) or ("Search Name" = '') then
                     "Search Name" := Name;
                 UpdateVendorBankAccounts(FieldCaption(Name));
+
+                UpdateMyVendor(FieldNo(Name));
             end;
         }
         field(3; "Search Name"; Code[100])
@@ -213,6 +215,8 @@ table 23 Vendor
                 for i := 1 to StrLen("Phone No.") do
                     if Char.IsLetter("Phone No."[i]) then
                         FieldError("Phone No.", PhoneNoCannotContainLettersErr);
+
+                UpdateMyVendor(FieldNo("Phone No."));
             end;
         }
         field(10; "Telex No."; Text[20])
@@ -1295,8 +1299,10 @@ table 23 Vendor
                         exit;
                     end;
 
-                    if Cont."Phone No." <> '' then
+                    if Cont."Phone No." <> '' then begin
                         "Phone No." := Cont."Phone No.";
+                        UpdateMyVendor(FieldNo("Phone No."));
+                    end;
                     if Cont."E-Mail" <> '' then
                         "E-Mail" := Cont."E-Mail";
                 end;
@@ -1660,6 +1666,7 @@ table 23 Vendor
         PurchPrepmtPct: Record "Purchase Prepayment %";
         CustomReportSelection: Record "Custom Report Selection";
         ItemReference: Record "Item Reference";
+        MyVendor: Record "My Vendor";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
     begin
         ApprovalsMgmt.OnCancelVendorApprovalRequest(Rec);
@@ -1706,6 +1713,9 @@ table 23 Vendor
 
         VATRegistrationLogMgt.DeleteVendorLog(Rec);
         CalendarManagement.DeleteCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::Vendor, "No.");
+
+        MyVendor.SetRange("Vendor No.", "No.");
+        MyVendor.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -2708,6 +2718,27 @@ table 23 Vendor
         LanguageSelection.SetRange("Language ID", Language."Windows Language ID");
         if LanguageSelection.FindFirst() then
             Rec.Validate("Format Region", LanguageSelection."Language Tag");
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"My Vendor", 'rm')]
+    local procedure UpdateMyVendor(CallingFieldNo: Integer)
+    var
+        MyVendor: Record "My Vendor";
+    begin
+        case CallingFieldNo of
+            FieldNo(Name):
+                begin
+                    MyVendor.SetRange("Vendor No.", "No.");
+                    if not MyVendor.IsEmpty() then
+                        MyVendor.ModifyAll(Name, Name);
+                end;
+            FieldNo("Phone No."):
+                begin
+                    MyVendor.SetRange("Vendor No.", "No.");
+                    if not MyVendor.IsEmpty() then
+                        MyVendor.ModifyAll("Phone No.", "Phone No.");
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
