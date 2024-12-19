@@ -107,6 +107,8 @@ table 18 Customer
             begin
                 if ("Search Name" = UpperCase(xRec.Name)) or ("Search Name" = '') then
                     "Search Name" := Name;
+
+                UpdateMyCustomer(FieldNo(Name));
             end;
         }
         field(3; "Search Name"; Code[100])
@@ -206,6 +208,8 @@ table 18 Customer
 
                 if (Rec."Phone No." <> xRec."Phone No.") then
                     SetForceUpdateContact(true);
+
+                UpdateMyCustomer(FieldNo("Phone No."));
             end;
         }
         field(10; "Telex No."; Text[20])
@@ -1368,8 +1372,10 @@ table 18 Customer
                     if Cont.Image.HasValue() then
                         CopyContactPicture(Cont);
 
-                    if Cont."Phone No." <> '' then
+                    if Cont."Phone No." <> '' then begin
                         "Phone No." := Cont."Phone No.";
+                        UpdateMyCustomer(FieldNo("Phone No."));
+                    end;
                     if Cont."E-Mail" <> '' then
                         "E-Mail" := Cont."E-Mail";
                     if Cont."Mobile Phone No." <> '' then
@@ -3427,6 +3433,27 @@ table 18 Customer
         VATRegNo := "VAT Registration No.";
 
         OnAfterGetVATRegistrationNo(Rec, VATRegNo);
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"My Customer", 'rm')]
+    local procedure UpdateMyCustomer(CallingFieldNo: Integer)
+    var
+        MyCustomer: Record "My Customer";
+    begin
+        case CallingFieldNo of
+            FieldNo(Name):
+                begin
+                    MyCustomer.SetRange("Customer No.", "No.");
+                    if not MyCustomer.IsEmpty() then
+                        MyCustomer.ModifyAll(Name, Name);
+                end;
+            FieldNo("Phone No."):
+                begin
+                    MyCustomer.SetRange("Customer No.", "No.");
+                    if not MyCustomer.IsEmpty() then
+                        MyCustomer.ModifyAll("Phone No.", "Phone No.");
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
