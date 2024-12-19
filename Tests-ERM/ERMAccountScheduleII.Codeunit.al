@@ -538,6 +538,143 @@ codeunit 134994 "ERM Account Schedule II"
         LibraryReportValidation.VerifyEmptyCellByRef('A', 29, 1);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('NewFinReportExcelTemplHandler')]
+    procedure CreateNewExcelTemplate()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinReportExcelTemplate: Record "Fin. Report Excel Template";
+        ExcelBufferExpected: Record "Excel Buffer" temporary;
+        ExcelBufferActual: Record "Excel Buffer" temporary;
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        FinReportExcelTemplates: TestPage "Fin. Report Excel Templates";
+        TempBlob: Codeunit "Temp Blob";
+        OutStream: OutStream;
+        InStream: InStream;
+        TemplateCode: Code[20];
+        TemplateDesc: Text[100];
+    begin
+        // [SCENARIO] Creating a new financial report with the default template
+        Initialize();
+
+        // [GIVEN] A financial report
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        // [GIVEN] The default exported excel file
+        AccScheduleOverview.Trap();
+        OpenAccountScheduleOverviewPage(AccScheduleName.Name);
+        TempBlob.CreateOutStream(OutStream);
+        RunExportAccScheduleToExcelToStream(AccScheduleOverview, OutStream);
+        TempBlob.CreateInStream(InStream);
+        ExcelBufferExpected.OpenBookStream(InStream, AccScheduleName.Name);
+        ExcelBufferExpected.ReadSheet();
+
+        // [WHEN] User selects new on the excel templates page and specifies a code and description
+        FinReportExcelTemplates.Trap();
+        AccScheduleOverview.ExcelTemplates.Invoke();
+        TemplateCode := LibraryUtility.GenerateGUID();
+        TemplateDesc := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(TemplateCode);
+        LibraryVariableStorage.Enqueue(TemplateDesc);
+        FinReportExcelTemplates.New.Invoke();
+
+        // [THEN] A new financial report excel template should be created with the specified values
+        // Handled by NewFinReportExcelTemplHandler
+        Assert.IsTrue(FinReportExcelTemplate.Get(AccScheduleName.Name, TemplateCode), 'Financial report excel template should be created');
+        Assert.AreEqual(TemplateDesc, FinReportExcelTemplate.Description, 'Financial report excel template description should be set');
+
+        // [THEN] The new template should also match the default exported file
+        FinReportExcelTemplate.CalcFields(Template);
+        FinReportExcelTemplate.Template.CreateInStream(InStream);
+        ExcelBufferActual.OpenBookStream(InStream, AccScheduleName.Name);
+        ExcelBufferActual.ReadSheet();
+        if ExcelBufferExpected.FindSet() then
+            repeat
+                Assert.IsTrue(ExcelBufferActual.Get(ExcelBufferExpected."Row No.", ExcelBufferExpected."Column No."), 'New template should have the same cells as the default');
+                Assert.AreEqual(ExcelBufferExpected."Cell Value as Text", ExcelBufferActual."Cell Value as Text", 'New template cell value should match the default');
+            until ExcelBufferExpected.Next() = 0;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportToExcelWithCustomTemplate()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinReportExcelTemplate: Record "Fin. Report Excel Template";
+        ExcelBufferExpected: Record "Excel Buffer" temporary;
+        ExcelBufferActual: Record "Excel Buffer" temporary;
+        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        FileMgt: Codeunit "File Management";
+        TempBlobExpected: Codeunit "Temp Blob";
+        TempBlobActual: Codeunit "Temp Blob";
+        OutStream: OutStream;
+        InStreamExpected: InStream;
+        InStreamActual: InStream;
+        CustomTemplateFileName: Text;
+        CustomSheetName: Text;
+    begin
+        // [SCENARIO] An custom template is imported and set as the default
+        Initialize();
+
+        // [GIVEN] A financial report
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        // [GIVEN] A custom template file
+        AccScheduleOverview.Trap();
+        OpenAccountScheduleOverviewPage(AccScheduleName.Name);
+        TempBlobExpected.CreateOutStream(OutStream);
+        RunExportAccScheduleToExcelToStream(AccScheduleOverview, OutStream);
+        TempBlobExpected.CreateInStream(InStreamExpected);
+        CustomTemplateFileName := FileMgt.InStreamExportToServerFile(InStreamExpected, '');
+        // [GIVEN] A new sheet and cell value on the custom template
+        ExcelBufferExpected.OpenBookForUpdate(CustomTemplateFileName);
+        ExcelBufferExpected.SelectOrAddSheet(LibraryUtility.GenerateRandomText(10));
+        ExcelBufferExpected.EnterCell(ExcelBufferExpected, 1, 1, LibraryUtility.GenerateRandomText(100), true, true, true);
+        ExcelBufferExpected.WriteAllToCurrentSheet(ExcelBufferExpected);
+        ExcelBufferExpected.CloseBook();
+        // [GIVEN] The custom template is imported and set as the default
+        FinReportExcelTemplate.Init();
+        FinReportExcelTemplate."Financial Report Name" := AccScheduleName.Name;
+        FinReportExcelTemplate.Code := LibraryUtility.GenerateGUID();
+        FinReportExcelTemplate.Description := LibraryUtility.GenerateGUID();
+        Clear(TempBlobExpected);
+        FileMgt.BLOBImportFromServerFile(TempBlobExpected, CustomTemplateFileName);
+        TempBlobExpected.CreateInStream(InStreamExpected);
+        FinReportExcelTemplate.Template.CreateOutStream(OutStream);
+        CopyStream(OutStream, InStreamExpected);
+        FinReportExcelTemplate.Insert();
+
+        // [WHEN] The custom template is set as the default
+        AccScheduleOverview.ExcelTemplateCode.SetValue(FinReportExcelTemplate.Code);
+        if AccScheduleOverview.First() then;
+        // [WHEN] Export to Excel
+        TempBlobActual.CreateOutStream(OutStream);
+        RunExportAccScheduleToExcelToStream(AccScheduleOverview, OutStream);
+        TempBlobActual.CreateInStream(InStreamActual);
+        ExcelBufferActual.OpenBookStream(InStreamActual, CustomSheetName);
+
+        // [THEN] The exported file should match the custom template
+        FileMgt.BLOBImportFromServerFile(TempBlobExpected, CustomTemplateFileName);
+        TempBlobExpected.CreateInStream(InStreamExpected);
+        ExcelBufferExpected.GetSheetsNameListFromStream(InStreamExpected, TempNameValueBuffer);
+        ExcelBufferExpected.OpenBookStream(InStreamExpected, CustomSheetName);
+
+        TempNameValueBuffer.FindSet();
+        repeat
+            ExcelBufferExpected.OpenBookStream(InStreamExpected, TempNameValueBuffer.Value);
+            ExcelBufferExpected.ReadSheet();
+
+            ExcelBufferActual.OpenBookStream(InStreamActual, TempNameValueBuffer.Value);
+            ExcelBufferActual.ReadSheet();
+
+            if ExcelBufferExpected.FindSet() then
+                repeat
+                    Assert.IsTrue(ExcelBufferActual.Get(ExcelBufferExpected."Row No.", ExcelBufferExpected."Column No."), 'New template should have the same cells as the default');
+                    Assert.AreEqual(ExcelBufferExpected."Cell Value as Text", ExcelBufferActual."Cell Value as Text", 'New template cell value should match the default');
+                until ExcelBufferExpected.Next() = 0;
+        until TempNameValueBuffer.Next() = 0;
+    end;
+
     local procedure VerifyAccSchedColumnIndentationCalc(Indentation: Integer; ShowIndentation: Option; ExpectZero: Boolean)
     var
         AccScheduleLine: Record "Acc. Schedule Line";
@@ -2254,6 +2391,27 @@ codeunit 134994 "ERM Account Schedule II"
         LibraryReportDataset.RunReportAndLoad(REPORT::"Account Schedule", AccScheduleName, RequestPageXML);
     end;
 
+    local procedure RunExportAccScheduleToExcelToStream(AccScheduleOverview: TestPage "Acc. Schedule Overview"; var OutStream: OutStream)
+    var
+        FinancialReport: Record "Financial Report";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        FinReportExcelTemplate: Record "Fin. Report Excel Template";
+        ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
+    begin
+        FinancialReport.Get(AccScheduleOverview.FinancialReportName.Value);
+        AccScheduleLine.SetRange("Schedule Name", AccScheduleOverview.CurrentSchedName.Value);
+        AccScheduleLine.SetFilter("Date Filter", AccScheduleOverview.DateFilter.Value); // Mirror the filter from the overview page
+        ExportAccSchedToExcel.SetOptions(AccScheduleLine, FinancialReport."Financial Report Column Group", FinancialReport.UseAmountsInAddCurrency, FinancialReport.Name);
+        if AccScheduleOverview.ExcelTemplateCode.Value <> '' then begin
+            FinReportExcelTemplate.Get(FinancialReport.Name, AccScheduleOverview.ExcelTemplateCode.Value);
+            ExportAccSchedToExcel.SetUseExistingTemplate(FinReportExcelTemplate);
+        end;
+        ExportAccSchedToExcel.SetSaveToStream(true);
+        ExportAccSchedToExcel.UseRequestPage(false);
+        ExportAccSchedToExcel.RunModal();
+        ExportAccSchedToExcel.GetSavedStream(OutStream);
+    end;
+
     local procedure UpdateGLSetupAddReportingCurrency(CurrencyCode: Code[10])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -2444,6 +2602,19 @@ codeunit 134994 "ERM Account Schedule II"
         DimensionValue.SetRange("Dimension Code", DimensionFilter);
         DimensionValue.FindFirst();
         Assert.IsTrue(DimensionValueList.GotoRecord(DimensionValue), DimensionValueErr);
+    end;
+
+    [ModalPageHandler]
+    procedure NewFinReportExcelTemplHandler(var NewFinReportExcelTempl: TestPage "New Fin. Report Excel Templ.")
+    var
+        TemplateCode: Variant;
+        TemplateDesc: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TemplateCode);
+        NewFinReportExcelTempl.NewCode.Value(TemplateCode);
+        LibraryVariableStorage.Dequeue(TemplateDesc);
+        NewFinReportExcelTempl.Description.Value(TemplateDesc);
+        NewFinReportExcelTempl.OK().Invoke();
     end;
 
     [RequestPageHandler]
