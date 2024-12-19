@@ -778,6 +778,7 @@ report 12 "VAT Statement"
             else
                 VATEntry.SetRange(Closed);
         end;
+        OnCalcLineFromVATEntry1COnAfterVATEntrySetFilters(VATStatementLine, VATEntry);
         if VATEntry.FindFirst() then;
         case VATStatementLine."Amount Type" of
             VATStatementLine."Amount Type"::Amount:
@@ -903,6 +904,11 @@ report 12 "VAT Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAmtRoundingDirection(var Direction: Text[1]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineFromVATEntry1COnAfterVATEntrySetFilters(VATStatementLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry")
     begin
     end;
 }
