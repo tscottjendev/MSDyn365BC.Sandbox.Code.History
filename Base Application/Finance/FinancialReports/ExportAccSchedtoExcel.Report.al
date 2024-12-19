@@ -4,6 +4,7 @@ using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Utilities;
 using System.Environment;
 using System.IO;
 using System.Utilities;
@@ -31,7 +32,9 @@ report 29 "Export Acc. Sched. to Excel"
                 CompanyDisplayName, ClientFileName : Text;
                 IntroductionParagraph, ClosingParagraph : Text;
             begin
-                if DoUpdateExistingWorksheet then
+                if DoUseExistingTemplate then
+                    UploadExistingTemplate(ClientFileName);
+                if (not DoUseExistingTemplate) and DoUpdateExistingWorksheet then
                     if not UploadClientFile(ClientFileName, ServerFileName) then
                         exit;
 
@@ -159,18 +162,18 @@ report 29 "Export Acc. Sched. to Excel"
                 if CompanyDisplayName = '' then
                     CompanyDisplayName := Company.Name;
 
-                if DoUpdateExistingWorksheet then begin
+                if DoUpdateExistingWorksheet or DoUseExistingTemplate then begin
                     TempExcelBuffer.UpdateBookExcel(ServerFileName, SheetName, false);
                     TempExcelBuffer.WriteSheet('', CompanyDisplayName, UserId);
                     TempExcelBuffer.CloseBook();
-                    if not TestMode then
+                    if not TestMode and not SaveToStream then
                         TempExcelBuffer.OpenExcelWithName(ClientFileName);
                 end else begin
                     TempExcelBuffer.CreateBook(ServerFileName, AccSchedName.Name);
                     TempExcelBuffer.WriteSheet(AccSchedName.Description, CompanyDisplayName, UserId);
                     TempExcelBuffer.CloseBook();
-                    if not TestMode then
-                        TempExcelBuffer.OpenExcel();
+                    if not TestMode and not SaveToStream then
+                        TempExcelBuffer.OpenExcelWithName(FileMgt.CreateFileNameWithExtension(AccSchedName.Name, ExcelFileExtensionTok));
                 end;
             end;
         }
@@ -206,9 +209,12 @@ report 29 "Export Acc. Sched. to Excel"
         FileMgt: Codeunit "File Management";
         UseAmtsInAddCurr: Boolean;
         ColumnValue: Decimal;
+        ExistingTemplateName: Text;
         ServerFileName: Text;
         SheetName: Text[250];
         DoUpdateExistingWorksheet: Boolean;
+        DoUseExistingTemplate: Boolean;
+        SaveToStream: Boolean;
         TestMode: Boolean;
 
 #pragma warning disable AA0074
@@ -326,6 +332,52 @@ report 29 "Export Acc. Sched. to Excel"
     procedure SetTestMode(NewTestMode: Boolean)
     begin
         TestMode := NewTestMode;
+    end;
+
+    procedure SetUseExistingTemplate(var FinReportExcelTemplate: Record "Fin. Report Excel Template")
+    var
+        InStream: InStream;
+    begin
+        FinReportExcelTemplate.CalcFields(Template);
+        if not FinReportExcelTemplate.Template.HasValue() then
+            exit;
+
+        FinReportExcelTemplate.Template.CreateInStream(InStream);
+        ServerFileName := FileMgt.InStreamExportToServerFile(InStream, ExcelFileExtensionTok);
+        DoUseExistingTemplate := ServerFileName <> '';
+        ExistingTemplateName := FileMgt.CreateFileNameWithExtension(FinReportExcelTemplate."Financial Report Name", ExcelFileExtensionTok);
+    end;
+
+    procedure SetSaveToStream(NewSaveToStream: Boolean)
+    begin
+        SaveToStream := NewSaveToStream;
+    end;
+
+    procedure GetSavedStream(var OutStream: OutStream)
+    begin
+        TempExcelBuffer.SaveToStream(OutStream, true);
+    end;
+
+    local procedure UploadExistingTemplate(var ClientFileName: Text)
+    var
+        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+    begin
+        ClientFileName := ExistingTemplateName;
+
+        FileMgt.IsAllowedPath(ServerFileName, false);
+        FileMgt.BLOBImportFromServerFile(TempBlob, ServerFileName);
+        TempBlob.CreateInStream(InStream);
+        TempExcelBuffer.GetSheetsNameListFromStream(InStream, TempNameValueBuffer);
+
+        DoUseExistingTemplate := false;
+        TempNameValueBuffer.SetRange(Value, FinancialReport."Financial Report Row Group");
+        if not TempNameValueBuffer.FindFirst() then
+            exit;
+
+        SheetName := TempNameValueBuffer.Value;
+        DoUseExistingTemplate := SheetName <> '';
     end;
 
     local procedure UploadClientFile(var ClientFileName: Text; var ServerFileName: Text): Boolean
