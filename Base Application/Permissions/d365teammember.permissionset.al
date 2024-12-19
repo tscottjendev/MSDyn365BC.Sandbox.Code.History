@@ -359,6 +359,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Acc. Schedule Name" = RM,
                   tabledata "Financial Report" = RM,
                   tabledata "Financial Report User Filters" = RIMD,
+                  tabledata "Fin. Report Excel Template" = RM,
                   tabledata "Account Schedules Chart Setup" = RM,
                   tabledata "Account Use Buffer" = RM,
                   tabledata "Accounting Period" = RM,
