@@ -1160,6 +1160,7 @@
         ListOfTablesToMigrate.Add(Database::"Finance Cue");
         ListOfTablesToMigrate.Add(Database::"Financial Report");
         ListOfTablesToMigrate.Add(Database::"Financial Report User Filters");
+        ListOfTablesToMigrate.Add(Database::"Fin. Report Excel Template");
         ListOfTablesToMigrate.Add(Database::"Fixed Asset");
 #if not CLEAN25
         ListOfTablesToMigrate.Add(Database::"FS Connection Setup");

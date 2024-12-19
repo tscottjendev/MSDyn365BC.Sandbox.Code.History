@@ -33,6 +33,7 @@ page 9042 "Team Member Activities"
                         Caption = 'Open My Current Time Sheet';
                         Image = TileBrickCalendar;
                         ToolTip = 'Open the time sheet for the current period. Current period is based on work date set in my settings.';
+
                         trigger OnAction()
                         var
                             TimeSheetHeader: Record "Time Sheet Header";
@@ -201,6 +202,7 @@ page 9042 "Team Member Activities"
             exit;
         if not SatisfactionSurveyMgt.TryGetCheckUrl(CheckUrl) then
             exit;
+
         CurrPage.SATAsyncLoader.SendRequest(CheckUrl, SatisfactionSurveyMgt.GetRequestTimeoutAsync());
     end;
 }
