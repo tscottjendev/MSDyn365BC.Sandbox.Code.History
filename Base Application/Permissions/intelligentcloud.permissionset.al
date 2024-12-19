@@ -355,6 +355,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Acc. Schedule Name" = R,
                   tabledata "Financial Report" = R,
                   tabledata "Financial Report User Filters" = RIMD,
+                  tabledata "Fin. Report Excel Template" = R,
                   tabledata "Account Schedules Chart Setup" = RIMD,
                   tabledata "Account Use Buffer" = R,
                   tabledata "Accounting Period" = R,
