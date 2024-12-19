@@ -234,6 +234,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Acc. Schedule Name" = RIMD,
                   tabledata "Financial Report" = RIMD,
                   tabledata "Financial Report User Filters" = RIMD,
+                  tabledata "Fin. Report Excel Template" = RIMD,
                   tabledata "Account Schedules Chart Setup" = RIMD,
                   tabledata "Account Use Buffer" = RIMD,
                   tabledata "Accounting Period" = RIMD,
