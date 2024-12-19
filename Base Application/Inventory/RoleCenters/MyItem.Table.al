@@ -73,6 +73,7 @@ table 9152 "My Item"
     var
         Item: Record Item;
     begin
+        Item.SetLoadFields(Description, "Unit Price");
         if Item.Get("Item No.") then begin
             Description := Item.Description;
             "Unit Price" := Item."Unit Price";

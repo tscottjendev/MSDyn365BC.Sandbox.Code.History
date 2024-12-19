@@ -70,6 +70,7 @@ table 9150 "My Customer"
     var
         Customer: Record Customer;
     begin
+        Customer.SetLoadFields("Name", "Phone No.");
         if Customer.Get("Customer No.") then begin
             Name := Customer.Name;
             "Phone No." := Customer."Phone No.";
