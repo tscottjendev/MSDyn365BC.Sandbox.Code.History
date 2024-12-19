@@ -65,6 +65,8 @@ table 15 "G/L Account"
             begin
                 if ("Search Name" = UpperCase(xRec.Name)) or ("Search Name" = '') then
                     "Search Name" := Name;
+
+                UpdateMyAccount(FieldNo(Name));
             end;
         }
         field(3; "Search Name"; Code[100])
@@ -108,6 +110,7 @@ table 15 "G/L Account"
                           FieldCaption("Account Type"));
                 end;
                 Totaling := '';
+                UpdateMyAccount(FieldNo(Totaling));
                 if "Account Type" = "Account Type"::Posting then begin
                     if "Account Type" <> xRec."Account Type" then
                         "Direct Posting" := true;
@@ -352,6 +355,8 @@ table 15 "G/L Account"
                 if not IsTotaling() then
                     FieldError("Account Type");
                 CalcFields(Balance);
+
+                UpdateMyAccount(FieldNo(Totaling));
             end;
         }
         field(35; "Budget Filter"; Code[10])
@@ -1165,6 +1170,27 @@ table 15 "G/L Account"
     procedure IsTotaling(): Boolean
     begin
         exit("Account Type" in ["Account Type"::Total, "Account Type"::"End-Total"]);
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"My Account", 'rm')]
+    local procedure UpdateMyAccount(CallingFieldNo: Integer)
+    var
+        MyAccount: Record "My Account";
+    begin
+        case CallingFieldNo of
+            FieldNo(Name):
+                begin
+                    MyAccount.SetRange("Account No.", "No.");
+                    if not MyAccount.IsEmpty() then
+                        MyAccount.ModifyAll(Name, Name);
+                end;
+            FieldNo(Totaling):
+                begin
+                    MyAccount.SetRange("Account No.", "No.");
+                    if not MyAccount.IsEmpty() then
+                        MyAccount.ModifyAll(Totaling, Totaling);
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
