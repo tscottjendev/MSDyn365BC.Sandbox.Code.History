@@ -2,6 +2,7 @@ namespace Microsoft.Sales.Archive;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Sales.Customer;
 using Microsoft.Utilities;
@@ -59,11 +60,16 @@ page 6627 "Sales Return Order Archive"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the shipping address.';
                     }
-                    field("Sell-to County"; Rec."Sell-to County")
+                    group(SellToCounty)
                     {
-                        ApplicationArea = Advanced;
-                        Caption = 'County';
-                        Importance = Additional;
+                        ShowCaption = false;
+                        Visible = IsSellToCountyVisible;
+                        field("Sell-to County"; Rec."Sell-to County")
+                        {
+                            ApplicationArea = Advanced;
+                            Caption = 'County';
+                            Importance = Additional;
+                        }
                     }
                     field("Sell-to Post Code"; Rec."Sell-to Post Code")
                     {
@@ -269,10 +275,15 @@ page 6627 "Sales Return Order Archive"
                         Caption = 'Address 2';
                         ToolTip = 'Specifies an additional part of the shipping address.';
                     }
-                    field("Ship-to County"; Rec."Ship-to County")
+                    group(ShipToCounty)
                     {
-                        ApplicationArea = Advanced;
-                        Caption = 'County';
+                        ShowCaption = false;
+                        Visible = IsShipToCountyVisible;
+                        field("Ship-to County"; Rec."Ship-to County")
+                        {
+                            ApplicationArea = Advanced;
+                            Caption = 'County';
+                        }
                     }
                     field("Ship-to Post Code"; Rec."Ship-to Post Code")
                     {
@@ -328,12 +339,17 @@ page 6627 "Sales Return Order Archive"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the shipping address.';
                     }
-                    field("Bill-to County"; Rec."Bill-to County")
+                    group(BillToCounty)
                     {
-                        ApplicationArea = Suite;
-                        Caption = 'County';
-                        Importance = Additional;
-                        ToolTip = 'Specifies the postal code.';
+                        ShowCaption = false;
+                        Visible = IsBillToCountyVisible;
+                        field("Bill-to County"; Rec."Bill-to County")
+                        {
+                            ApplicationArea = Suite;
+                            Caption = 'County';
+                            Importance = Additional;
+                            ToolTip = 'Specifies the postal code.';
+                        }
                     }
                     field("Bill-to City"; Rec."Bill-to City")
                     {
@@ -578,6 +594,16 @@ page 6627 "Sales Return Order Archive"
         }
     }
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        ActivateFields();
+    end;
+
+    trigger OnOpenPage()
+    begin
+        ActivateFields();
+    end;
+
     trigger OnAfterGetRecord()
     begin
         SellToContact.GetOrClear(Rec."Sell-to Contact No.");
@@ -588,10 +614,19 @@ page 6627 "Sales Return Order Archive"
         SellToContact: Record Contact;
         BillToContact: Record Contact;
         DocPrint: Codeunit "Document-Print";
+        FormatAddress: Codeunit "Format Address";
+        IsSellToCountyVisible, IsShipToCountyVisible, IsBillToCountyVisible : Boolean;
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
         CurrPage.Update();
+    end;
+
+    local procedure ActivateFields()
+    begin
+        IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
+        IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Sell-to Country/Region Code");
+        IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
     end;
 }
 
