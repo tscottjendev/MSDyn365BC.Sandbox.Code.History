@@ -2,7 +2,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-#pragma warning disable AS0002
 namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.BankAccount;
@@ -79,12 +78,10 @@ table 1251 "Text-to-Account Mapping"
 
     keys
     {
-#pragma warning disable AS0009
         key(Key1; "Line No.")
         {
             Clustered = true;
         }
-#pragma warning restore AS0009
         key(Key2; "Mapping Text", "Vendor No.")
         {
             Enabled = false;
@@ -353,4 +350,3 @@ table 1251 "Text-to-Account Mapping"
     end;
 }
 
-#pragma warning restore AS0002, AS0009

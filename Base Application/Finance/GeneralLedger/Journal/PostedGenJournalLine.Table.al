@@ -1,4 +1,4 @@
-namespace Microsoft.Finance.GeneralLedger.Journal;
+﻿namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -1054,7 +1054,7 @@ table 181 "Posted Gen. Journal Line"
         }
         field(6200; "Non-Deductible VAT %"; Decimal)
         {
-            Caption = 'Non-Deductible VAT %"';
+            Caption = 'Non-Deductible VAT %';
             DecimalPlaces = 0 : 5;
         }
         field(6201; "Non-Deductible VAT Base"; Decimal)
@@ -1178,7 +1178,6 @@ table 181 "Posted Gen. Journal Line"
         if not FirstLine then
             Indentation := 1;
         Insert();
-
         Rec.CopyLinks(GenJournalLine);
 
         OnAfterInsertFromGenJournalLine(GenJournalLine);
@@ -1194,3 +1193,4 @@ table 181 "Posted Gen. Journal Line"
     begin
     end;
 }
+

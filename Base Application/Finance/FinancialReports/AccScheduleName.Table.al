@@ -1,4 +1,4 @@
-namespace Microsoft.Finance.FinancialReports;
+﻿namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -18,19 +18,16 @@ table 84 "Acc. Schedule Name"
         {
             Caption = 'Name';
             NotBlank = true;
-            DataClassification = CustomerContent;
         }
         field(2; Description; Text[80])
         {
             Caption = 'Description';
-            DataClassification = CustomerContent;
         }
 #if not CLEANSCHEMA25
         field(3; "Default Column Layout"; Code[10])
         {
             Caption = 'Default Column Layout';
             TableRelation = "Column Layout Name";
-            DataClassification = CustomerContent;
             ObsoleteReason = 'Use now the Column Group property in the table Financial Report';
             ObsoleteTag = '25.0';
             ObsoleteState = Removed;
@@ -40,7 +37,6 @@ table 84 "Acc. Schedule Name"
         {
             Caption = 'Analysis View Name';
             TableRelation = "Analysis View";
-            DataClassification = CustomerContent;
 
             trigger OnValidate()
             var
@@ -309,3 +305,4 @@ table 84 "Acc. Schedule Name"
         end;
     end;
 }
+

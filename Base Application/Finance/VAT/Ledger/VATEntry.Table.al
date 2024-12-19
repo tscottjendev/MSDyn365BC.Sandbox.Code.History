@@ -119,7 +119,7 @@ table 254 "VAT Entry"
             else
             if (Type = const(Sale)) Customer;
             ToolTip = 'Specifies the number of the bill-to customer or pay-to vendor that the entry is linked to.';
-
+            
             trigger OnValidate()
             begin
                 Validate(Type);
@@ -147,7 +147,7 @@ table 254 "VAT Entry"
         {
             Caption = 'EU 3-Party Trade';
             ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
-
+            
             trigger OnValidate()
             begin
                 Validate(Type);
@@ -190,7 +190,7 @@ table 254 "VAT Entry"
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
             ToolTip = 'Specifies the country/region of the address.';
-
+            
             trigger OnValidate()
             begin
                 Validate(Type);
@@ -406,7 +406,7 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Registration No.';
             ToolTip = 'Specifies the VAT registration number of the customer or vendor that the entry is linked to.';
-
+            
             trigger OnValidate()
             var
                 VATRegNoFormat: Record "VAT Registration No. Format";
@@ -532,7 +532,7 @@ table 254 "VAT Entry"
         }
         field(6200; "Non-Deductible VAT %"; Decimal)
         {
-            Caption = 'Non-Deductible VAT %"';
+            Caption = 'Non-Deductible VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
@@ -970,3 +970,4 @@ table 254 "VAT Entry"
     begin
     end;
 }
+

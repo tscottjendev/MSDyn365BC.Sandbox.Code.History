@@ -2,7 +2,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-#pragma warning disable AS0002
 namespace Microsoft.Bank.Reconciliation;
 
 using System.Text;
@@ -73,12 +72,10 @@ table 1252 "Bank Pmt. Appl. Rule"
 
     keys
     {
-#pragma warning disable AS0009
         key(Key1; "Match Confidence", Priority)
         {
             Clustered = true;
         }
-#pragma warning restore AS0009
         key(Key2; Score)
         {
         }
@@ -472,4 +469,3 @@ table 1252 "Bank Pmt. Appl. Rule"
     end;
 }
 
-#pragma warning restore AS0002, AS0009

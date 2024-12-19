@@ -43,6 +43,8 @@ table 85 "Acc. Schedule Line"
             else
             if ("Totaling Type" = const("Total Accounts")) "G/L Account"
             else
+            if ("Totaling Type" = const("Account Category")) "G/L Account Category"
+            else
             if ("Totaling Type" = const("Cash Flow Entry Accounts")) "Cash Flow Account"
             else
             if ("Totaling Type" = const("Cash Flow Total Accounts")) "Cash Flow Account"
@@ -611,3 +613,4 @@ table 85 "Acc. Schedule Line"
     begin
     end;
 }
+
