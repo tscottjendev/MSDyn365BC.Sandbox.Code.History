@@ -1974,7 +1974,14 @@ table 38 "Purchase Header"
             TableRelation = "No. Series";
 
             trigger OnLookup()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupPrepmtCrMemoNoSeries(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 PurchHeader := Rec;
                 GetPurchSetup();
                 PurchSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
@@ -1984,7 +1991,14 @@ table 38 "Purchase Header"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePrepmtCrMemoNoSeries(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Prepmt. Cr. Memo No. Series" <> '' then begin
                     GetPurchSetup();
                     PurchSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
@@ -8769,6 +8783,16 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnAfterConfirmKeepExisting(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; OldDimSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPrepmtCrMemoNoSeries(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePrepmtCrMemoNoSeries(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }
