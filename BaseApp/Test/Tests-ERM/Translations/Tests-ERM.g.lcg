@@ -3515,6 +3515,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Incoming Documents - NamedType ReplaceMainAttachmentQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3882817668 - NamedType 4117545204" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The invoice cannot be posted because the total is different from the total on the related incoming document.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Incoming Documents - NamedType TotalsMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3882817668 - Method 190045432 - NamedType 2273565973" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Document attachment factbox must be empty.]]></Val>
