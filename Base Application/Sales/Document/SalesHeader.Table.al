@@ -2119,7 +2119,13 @@ table 36 "Sales Header"
             trigger OnLookup()
             var
                 NoSeries: Codeunit "No. Series";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupPrepmtCrMemoNoSeries(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 SalesHeader := Rec;
                 GetSalesSetup();
                 SalesSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
@@ -2131,7 +2137,13 @@ table 36 "Sales Header"
             trigger OnValidate()
             var
                 NoSeries: Codeunit "No. Series";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePrepmtCrMemoNoSeries(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Prepmt. Cr. Memo No." <> '' then begin
                     GetSalesSetup();
                     SalesSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
@@ -11350,6 +11362,16 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetWorkDescription(var SalesHeader: Record "Sales Header"; var NewWorkDescription: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPrepmtCrMemoNoSeries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePrepmtCrMemoNoSeries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }
