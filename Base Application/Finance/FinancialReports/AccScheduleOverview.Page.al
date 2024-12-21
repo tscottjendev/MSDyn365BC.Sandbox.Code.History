@@ -51,10 +51,9 @@ page 490 "Acc. Schedule Overview"
                     Editable = false;
                     Caption = 'Name';
                     Tooltip = 'Specifies the name (code) of the financial report.';
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnAssistEdit()
                     begin
                         Page.RunModal(Page::"Financial Reports");
-                        exit(true);
                     end;
                 }
 
