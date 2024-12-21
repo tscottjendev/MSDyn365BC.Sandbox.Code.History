@@ -5,6 +5,9 @@
 namespace Microsoft.Manufacturing.StandardCost;
 
 using Microsoft.Inventory.Item;
+using System.Environment.Configuration;
+using System.Integration;
+using System.Integration.Excel;
 
 page 5841 "Standard Cost Worksheet"
 {
@@ -340,6 +343,30 @@ page 5841 "Standard Cost Worksheet"
                     end;
                 }
             }
+
+            group("Page")
+            {
+                Caption = 'Page';
+                action(EditInExcel)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Edit in Excel';
+                    Image = Excel;
+                    ToolTip = 'Send the data in the page to an Excel file for analysis or editing.';
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
+
+                    trigger OnAction()
+                    var
+                        EditinExcel: Codeunit "Edit in Excel";
+                        EditinExcelFilters: Codeunit "Edit in Excel Filters";
+                        ODataUtility: Codeunit "ODataUtility";
+                    begin
+                        EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Standard Cost Worksheet Name")), Enum::"Edit in Excel Filter Type"::Equal, CurrWkshName, Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcel.EditPageInExcel(CopyStr(CurrPage.Caption, 1, 240), Page::"Standard Cost Worksheet");
+                    end;
+                }
+            }
         }
         area(Promoted)
         {
@@ -371,7 +398,11 @@ page 5841 "Standard Cost Worksheet"
     end;
 
     trigger OnOpenPage()
+    var
+        ServerSetting: Codeunit "Server Setting";
     begin
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+
         if Rec."Standard Cost Worksheet Name" <> '' then // called from batch
             CurrWkshName := Rec."Standard Cost Worksheet Name";
 
@@ -392,6 +423,7 @@ page 5841 "Standard Cost Worksheet"
         StdCostWkshName: Record "Standard Cost Worksheet Name";
         CurrWkshName: Code[10];
         DefaultNameTxt: Label 'Default';
+        IsSaaSExcelAddinEnabled: Boolean;
 
     local procedure CurrWkshNameOnAfterValidate()
     begin
