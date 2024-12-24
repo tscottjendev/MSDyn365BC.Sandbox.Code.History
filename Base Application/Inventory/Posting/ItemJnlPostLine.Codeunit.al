@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -44,7 +44,9 @@ codeunit 22 "Item Jnl.-Post Line"
                   TableData "Avg. Cost Adjmt. Entry Point" = rim,
                   TableData "Post Value Entry to G/L" = ri,
                   TableData "Capacity Ledger Entry" = rimd,
-                  TableData "Inventory Adjmt. Entry (Order)" = rim;
+                  TableData "Inventory Adjmt. Entry (Order)" = rim,
+                  TableData "Job Planning Line" = r;
+
     TableNo = "Item Journal Line";
 
     trigger OnRun()
@@ -802,10 +804,11 @@ codeunit 22 "Item Jnl.-Post Line"
         IsHandled := false;
         OnPostItemOnAfterGetSKU(ItemJnlLine, SKUExists, IsHandled);
         if not IsHandled then
-            if ItemJnlLine."Item Shpt. Entry No." <> 0 then begin
-                ItemJnlLine."Location Code" := '';
-                ItemJnlLine."Variant Code" := '';
-            end;
+            if ItemJnlLine."Item Shpt. Entry No." <> 0 then
+                if not CheckIfReservationEntryForJobExist() then begin
+                    ItemJnlLine."Location Code" := '';
+                    ItemJnlLine."Variant Code" := '';
+                end;
 
         if GetItem(ItemJnlLine."Item No.", false) then
             CheckIfItemIsBlocked();
@@ -6355,6 +6358,19 @@ codeunit 22 "Item Jnl.-Post Line"
     procedure RunOnPublishPostingInventoryToGL()
     begin
         OnPublishPostingInventoryToGL(ItemJnlLine, InventoryPostingToGL);
+    end;
+
+    local procedure CheckIfReservationEntryForJobExist(): Boolean
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
+        JobPlanningLine.SetRange("Job Contract Entry No.", ItemJnlLine."Job Contract Entry No.");
+        if not JobPlanningLine.FindFirst() then
+            exit(false);
+
+        exit(JobPlanningLineReserve.FindReservEntry(JobPlanningLine, ReservationEntry));
     end;
 
     [IntegrationEvent(false, false)]
