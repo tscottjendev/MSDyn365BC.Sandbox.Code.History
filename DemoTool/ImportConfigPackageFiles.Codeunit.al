@@ -1,4 +1,3 @@
-#if not CLEAN26
 #pragma warning disable AS0018, AS0049, AS0072
 namespace System.IO;
 
@@ -6,22 +5,17 @@ using Microsoft.Foundation.Company;
 using Microsoft.Utilities;
 using System.Environment.Configuration;
 using System.Threading;
+using Microsoft.Finance.GeneralLedger.Setup;
 
-codeunit 1805 "Import Config. Package Files"
+codeunit 101950 "Import Config Package Files"
 {
-    // // This code unit is executed in a separate session. Messages and errors will be output to the event log.
-
     TableNo = "Configuration Package File";
-    ObsoleteTag = '25.2';
-    ObsoleteReason = 'Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084';
-    ObsoleteState = Pending;
-    Access = Internal;
 
     trigger OnRun()
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
         UserPersonalization: Record "User Personalization";
-        CompanyInitialize: Codeunit "Company-Initialize";
+        GLSetup: Record "General Ledger Setup";
         CurrentLanguageID: Integer;
     begin
         AssistedCompanySetupStatus.Get(CompanyName);
@@ -36,7 +30,8 @@ codeunit 1805 "Import Config. Package Files"
             if not TrySetGlobalLanguage(Rec."Language ID") then
                 Error(InvalidLanguageIDErr, Rec."Language ID");
 
-        CompanyInitialize.InitializeCompany();
+        if not GLSetup.Get() then
+            CODEUNIT.Run(CODEUNIT::"Company-Initialize");
         ImportConfigurationPackageFiles(Rec);
 
         OnAfterImportConfigurationPackage();
@@ -154,7 +149,7 @@ codeunit 1805 "Import Config. Package Files"
         JobQueueEntry.ID := TaskID;
         JobQueueEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(JobQueueEntry."User ID"));
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
-        JobQueueEntry."Object ID to Run" := CODEUNIT::"Import Config. Package Files";
+        JobQueueEntry."Object ID to Run" := CODEUNIT::"Import Config Package Files";
     end;
 
     local procedure UpdateVirtualJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; TaskDescription: Text)
@@ -170,7 +165,7 @@ codeunit 1805 "Import Config. Package Files"
         ApplCompanyName: Text;
         PackageCode: Text;
     begin
-        if (JobQueueLogEntry."Object ID to Run" = CODEUNIT::"Import Config. Package Files") and
+        if (JobQueueLogEntry."Object ID to Run" = CODEUNIT::"Import Config Package Files") and
            (JobQueueLogEntry.Status = JobQueueLogEntry.Status::Error) and
            ParseApplicationErrorText(ApplCompanyName, PackageCode, JobQueueLogEntry."Error Message")
         then begin
@@ -234,4 +229,3 @@ codeunit 1805 "Import Config. Package Files"
     end;
 }
 #pragma warning restore AS0018, AS0049, AS0072
-#endif
