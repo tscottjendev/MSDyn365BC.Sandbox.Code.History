@@ -4603,6 +4603,7 @@ table 38 "Purchase Header"
     /// <param name="OldParentDimSetID">Previous dimension set ID.</param>
     procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
     var
+        xPurchaseLine: Record "Purchase Line";
         ConfirmManagement: Codeunit "Confirm Management";
         NewDimSetID: Integer;
         ReceivedShippedItemLineDimChangeConfirmed: Boolean;
@@ -4634,6 +4635,7 @@ table 38 "Purchase Header"
                 NewDimSetID := DimMgt.GetDeltaDimSetID(PurchLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
                 OnUpdateAllLineDimOnAfterGetPurchLineNewDimsetID(Rec, xRec, PurchLine, NewDimSetID, NewParentDimSetID, OldParentDimSetID);
                 if PurchLine."Dimension Set ID" <> NewDimSetID then begin
+                    xPurchaseLine := PurchLine;
                     PurchLine."Dimension Set ID" := NewDimSetID;
 
                     if not GetHideValidationDialog() and GuiAllowed then
@@ -4642,7 +4644,7 @@ table 38 "Purchase Header"
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       PurchLine."Dimension Set ID", PurchLine."Shortcut Dimension 1 Code", PurchLine."Shortcut Dimension 2 Code");
 
-                    OnUpdateAllLineDimOnBeforePurchLineModify(PurchLine);
+                    OnUpdateAllLineDimOnBeforePurchLineModify(PurchLine, xPurchaseLine);
                     PurchLine.Modify();
                 end;
             until PurchLine.Next() = 0;
@@ -8306,7 +8308,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateAllLineDimOnBeforePurchLineModify(var PurchaseLine: Record "Purchase Line")
+    local procedure OnUpdateAllLineDimOnBeforePurchLineModify(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
