@@ -393,7 +393,7 @@ codeunit 1002 "Job Create-Invoice"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateNewInvoice(JobTask, InvoicePerTask, OldJobNo, OldJobTaskNo, LastJobTask, NewInvoice, IsHandled);
+        OnBeforeCreateNewInvoice(JobTask, InvoicePerTask, OldJobNo, OldJobTaskNo, LastJobTask, NewInvoice, IsHandled, TempJobPlanningLine);
         if IsHandled then
             exit(NewInvoice);
 
@@ -1064,6 +1064,7 @@ codeunit 1002 "Job Create-Invoice"
     procedure TestExchangeRate(var JobPlanningLine: Record "Job Planning Line"; PostingDate: Date)
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
+        ShouldValidateCurrencyCode: Boolean;
     begin
         OnBeforeTestExchangeRate(JobPlanningLine, PostingDate, UpdateExchangeRates, CurrencyExchangeRate);
 
@@ -1076,7 +1077,11 @@ codeunit 1002 "Job Create-Invoice"
                 if UpdateExchangeRates then begin
                     JobPlanningLine."Currency Date" := PostingDate;
                     JobPlanningLine."Document Date" := PostingDate;
-                    JobPlanningLine.Validate("Currency Date");
+
+                    ShouldValidateCurrencyCode := true;
+                    OnTestExchangeRateOnBeforeValidateCurrencyDate(JobPlanningLine, PostingDate, CurrencyExchangeRate, ShouldValidateCurrencyCode);
+                    if ShouldValidateCurrencyCode then
+                        JobPlanningLine.Validate("Currency Date");
                     JobPlanningLine."Last Date Modified" := Today;
                     JobPlanningLine."User ID" := CopyStr(UserId(), 1, MaxStrLen(JobPlanningLine."User ID"));
                     JobPlanningLine.Modify(true);
@@ -1253,7 +1258,7 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateNewInvoice(var JobTask: Record "Job Task"; InvoicePerTask: Boolean; var OldJobNo: Code[20]; var OldJobTaskNo: Code[20]; LastJobTask: Boolean; var NewInvoice: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCreateNewInvoice(var JobTask: Record "Job Task"; InvoicePerTask: Boolean; var OldJobNo: Code[20]; var OldJobTaskNo: Code[20]; LastJobTask: Boolean; var NewInvoice: Boolean; var IsHandled: Boolean; var TempJobPlanningLine: Record "Job Planning Line" temporary)
     begin
     end;
 
@@ -1517,6 +1522,11 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindJobPlanningLineInvoice(JobTask: Record "Job Task"; var JobPlanningLineInvoice: Record "Job Planning Line Invoice"; var SalesHeader: Record "Sales Header"; var ExitValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestExchangeRateOnBeforeValidateCurrencyDate(var JobPlanningLine: Record "Job Planning Line"; PostingDate: Date; var CurrencyExchangeRate: Record "Currency Exchange Rate"; var ShouldValidateCurrencyCode: Boolean)
     begin
     end;
 }
