@@ -1010,7 +1010,6 @@ table 110 "Sales Shipment Header"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetTDDAddr(var ShippingAgentAddr: array[8] of Text[100]; var LoaderAddr: array[8] of Text[100])
     var
         CompanyInfo: Record "Company Information";

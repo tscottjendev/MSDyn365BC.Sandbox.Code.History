@@ -8601,7 +8601,6 @@ table 39 "Purchase Line"
         exit(Round(Quantity * ItemUOM."Qty. per Unit of Measure", 0.00001));
     end;
 
-    [Scope('OnPrem')]
     procedure ValidateIncludeInDT(): Boolean
     begin
         GetPurchHeader();
@@ -9556,7 +9555,7 @@ table 39 "Purchase Line"
         end;
     end;
 
-    local procedure CheckDropShipment()
+    procedure CheckDropShipment()
     var
         IsHandled: Boolean;
     begin

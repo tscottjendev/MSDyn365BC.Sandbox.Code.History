@@ -560,7 +560,6 @@ table 5093 "Opportunity Entry"
                 Error(Text012);
     end;
 
-    [Scope('OnPrem')]
     procedure FinishWizard()
     var
         OpportunityEntryToInsert: Record "Opportunity Entry";
@@ -637,7 +636,6 @@ table 5093 "Opportunity Entry"
         CheckEstimatedValues();
     end;
 
-    [Scope('OnPrem')]
     procedure FinishWizard2()
     var
         CreateNewTask: Boolean;
