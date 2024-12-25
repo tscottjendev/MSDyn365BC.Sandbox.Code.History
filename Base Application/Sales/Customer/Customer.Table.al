@@ -2119,11 +2119,11 @@ table 18 Customer
         end;
     end;
 
-    local procedure LookupContactList()
+    procedure LookupContactList()
     var
         ContactBusinessRelation: Record "Contact Business Relation";
-        Cont: Record Contact;
-        TempCust: Record Customer temporary;
+        ContactForLookup: Record Contact;
+        TempCustomer: Record Customer temporary;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2131,19 +2131,19 @@ table 18 Customer
         if IsHandled then
             exit;
 
-        Cont.FilterGroup(2);
+        ContactForLookup.FilterGroup(2);
         if ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, "No.") then
-            Cont.SetRange("Company No.", ContactBusinessRelation."Contact No.")
+            ContactForLookup.SetRange("Company No.", ContactBusinessRelation."Contact No.")
         else
-            Cont.SetRange("Company No.", '');
+            ContactForLookup.SetRange("Company No.", '');
 
         if "Primary Contact No." <> '' then
-            if Cont.Get("Primary Contact No.") then;
-        if PAGE.RunModal(0, Cont) = ACTION::LookupOK then begin
-            TempCust.Copy(Rec);
+            if ContactForLookup.Get("Primary Contact No.") then;
+        if Page.RunModal(0, ContactForLookup) = Action::LookupOK then begin
+            TempCustomer.Copy(Rec);
             Find();
-            TransferFields(TempCust, false);
-            Validate("Primary Contact No.", Cont."No.");
+            TransferFields(TempCustomer, false);
+            Validate("Primary Contact No.", ContactForLookup."No.");
         end;
     end;
 
