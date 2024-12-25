@@ -5850,12 +5850,21 @@ table 5902 "Service Line"
         StatusCheckSuspended := bSuspend;
     end;
 
-    local procedure LineRequiresShipmentOrReceipt(): Boolean
+    procedure LineRequiresShipmentOrReceipt(): Boolean
     var
-        Location: Record Location;
+        LocationToCheck: Record Location;
     begin
-        if ("Document Type" = "Document Type"::Order) and IsInventoriableItem() then
-            exit(Location.RequireReceive("Location Code") or Location.RequireShipment("Location Code"));
+        if "Document Type" <> "Document Type"::Order then
+            exit(false);
+
+        if not IsInventoriableItem() then
+            exit(false);
+
+        if LocationToCheck.RequireShipment("Location Code") then
+            exit(true);
+        if LocationToCheck.RequireReceive("Location Code") then
+            exit(true);
+
         exit(false);
     end;
 
