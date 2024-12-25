@@ -1147,6 +1147,7 @@ table 5092 Opportunity
             TestField("Sales Cycle Code");
             TestField(Status, Status::"Not Started");
             SalesCycleStage.SetRange("Sales Cycle Code", "Sales Cycle Code");
+            OnStartActivateFirstStageOnBeforeSalesCycleStageFind(Rec, SalesCycleStage);
             if SalesCycleStage.FindFirst() then begin
                 OpportunityEntry.Init();
                 OpportunityEntry."Sales Cycle Stage" := SalesCycleStage.Stage;
@@ -1392,6 +1393,11 @@ table 5092 Opportunity
 
     [IntegrationEvent(false, false)]
     local procedure OnStartWizardBeforeInsert(var Opportunity: Record Opportunity)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStartActivateFirstStageOnBeforeSalesCycleStageFind(var Opportunity: Record Opportunity; var SalesCycleStage: Record "Sales Cycle Stage")
     begin
     end;
 }
