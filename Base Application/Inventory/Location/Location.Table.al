@@ -742,8 +742,8 @@ table 14 Location
     var
         Bin: Record Bin;
         PostCode: Record "Post Code";
-        WhseSetup: Record "Warehouse Setup";
-        InvtSetup: Record "Inventory Setup";
+        WarehouseSetup: Record "Warehouse Setup";
+        InventorySetup: Record "Inventory Setup";
         Location: Record Location;
         CustomizedCalendarChange: Record "Customized Calendar Change";
         CalendarManagement: Codeunit "Calendar Management";
@@ -781,32 +781,32 @@ table 14 Location
     begin
         if Location.Get(LocationCode) then
             exit(Location."Require Shipment");
-        WhseSetup.Get();
-        exit(WhseSetup."Require Shipment");
+        WarehouseSetup.GetRecordOnce();
+        exit(WarehouseSetup."Require Shipment");
     end;
 
     procedure RequirePicking(LocationCode: Code[10]): Boolean
     begin
         if Location.Get(LocationCode) then
             exit(Location."Require Pick");
-        WhseSetup.Get();
-        exit(WhseSetup."Require Pick");
+        WarehouseSetup.GetRecordOnce();
+        exit(WarehouseSetup."Require Pick");
     end;
 
     procedure RequireReceive(LocationCode: Code[10]): Boolean
     begin
         if Location.Get(LocationCode) then
             exit(Location."Require Receive");
-        WhseSetup.Get();
-        exit(WhseSetup."Require Receive");
+        WarehouseSetup.GetRecordOnce();
+        exit(WarehouseSetup."Require Receive");
     end;
 
     procedure RequirePutaway(LocationCode: Code[10]): Boolean
     begin
         if Location.Get(LocationCode) then
             exit(Location."Require Put-away");
-        WhseSetup.Get();
-        exit(WhseSetup."Require Put-away");
+        WarehouseSetup.GetRecordOnce();
+        exit(WarehouseSetup."Require Put-away");
     end;
 
     procedure BinMandatory(LocationCode: Code[10]): Boolean
@@ -819,16 +819,16 @@ table 14 Location
     begin
         if not Get(LocationCode) then begin
             Location2.Init();
-            WhseSetup.Get();
-            InvtSetup.Get();
+            WarehouseSetup.GetRecordOnce();
+            InventorySetup.GetRecordOnce();
             Location2.Code := LocationCode;
             Location2."Use As In-Transit" := false;
-            Location2."Require Put-away" := WhseSetup."Require Put-away";
-            Location2."Require Pick" := WhseSetup."Require Pick";
-            Location2."Outbound Whse. Handling Time" := InvtSetup."Outbound Whse. Handling Time";
-            Location2."Inbound Whse. Handling Time" := InvtSetup."Inbound Whse. Handling Time";
-            Location2."Require Receive" := WhseSetup."Require Receive";
-            Location2."Require Shipment" := WhseSetup."Require Shipment";
+            Location2."Require Put-away" := WarehouseSetup."Require Put-away";
+            Location2."Require Pick" := WarehouseSetup."Require Pick";
+            Location2."Outbound Whse. Handling Time" := InventorySetup."Outbound Whse. Handling Time";
+            Location2."Inbound Whse. Handling Time" := InventorySetup."Inbound Whse. Handling Time";
+            Location2."Require Receive" := WarehouseSetup."Require Receive";
+            Location2."Require Shipment" := WarehouseSetup."Require Shipment";
             // Initialize new settings based on upgrade
             case true of
                 not Location2."Require Pick" and not Location2."Require Shipment",
