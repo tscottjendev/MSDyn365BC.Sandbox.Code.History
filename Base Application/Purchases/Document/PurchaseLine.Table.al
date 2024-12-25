@@ -9324,7 +9324,7 @@ table 39 "Purchase Line"
         end;
     end;
 
-    local procedure CheckDropShipment()
+    procedure CheckDropShipment()
     var
         IsHandled: Boolean;
     begin
