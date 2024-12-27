@@ -242,6 +242,7 @@ page 9060 "SO Processor Activities"
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
         ShowDocumentsPendingDodExchService := false;
+        DocExchServiceSetup.SetLoadFields("Enabled");
         if DocExchServiceSetup.Get() then
             ShowDocumentsPendingDodExchService := DocExchServiceSetup.Enabled;
     end;
@@ -301,7 +302,7 @@ page 9060 "SO Processor Activities"
         UIHelperTriggers.GetCueStyle(Database::"Sales Cue", Rec.FieldNo(Delayed), DelayedOrders, DelayedOrdersStyle);
         UIHelperTriggers.GetCueStyle(Database::"Sales Cue", Rec.FieldNo("Partially Shipped"), PartiallyShipped, PartiallyShippedStyle);
 
-        if Rec.WritePermission and (Rec."Avg. Days Delayed Updated On" > PrevUpdatedOn) then begin
+        if Rec.WritePermission() and (Rec."Avg. Days Delayed Updated On" > PrevUpdatedOn) then begin
             PrevUpdatedOn := Rec."Avg. Days Delayed Updated On";
             Rec.LockTable();
             Rec.Get();
