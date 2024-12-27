@@ -1,5 +1,6 @@
 namespace Microsoft.Sales.RoleCenters;
 
+using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
@@ -309,15 +310,36 @@ table 9053 "Sales Cue"
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReservationEntry: Record "Reservation Entry";
+        SalesReservFromItemLedger: Query "Sales Reserv. From Item Ledger";
     begin
         Number := 0;
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-        SalesHeader.SetLoadFields("Document Type", "No.");
-        if SalesHeader.FindSet() then
-            repeat
-                if SalesHeader.GetQtyReservedFromStockState() = Enum::"Reservation From Stock"::Full then
-                    Number += 1;
-            until SalesHeader.Next() = 0;
+
+        if not ReservationEntry.ReadPermission() then
+            exit;
+
+        ReservationEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
+        ReservationEntry.SetRange(Positive, true);
+        ReservationEntry.SetRange("Source Type", Database::"Item Ledger Entry");
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        if ReservationEntry.IsEmpty() then
+            exit;
+
+        SalesReservFromItemLedger.Open();
+        while SalesReservFromItemLedger.Read() do
+            if SalesReservFromItemLedger.Reserved_Quantity__Base_ <> 0 then begin
+                SalesHeader.SetLoadFields("Document Type", "No.");
+                if SalesHeader.Get(SalesHeader."Document Type"::Order, SalesReservFromItemLedger.SalesHeaderNo) then begin
+                    SalesLine.SetLoadFields("Document Type", "Document No.", Type, "Outstanding Qty. (Base)");
+                    SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
+                    SalesLine.SetRange("Document No.", SalesHeader."No.");
+                    SalesLine.SetRange(Type, SalesLine.Type::Item);
+                    SalesLine.CalcSums("Outstanding Qty. (Base)");
+                    if SalesReservFromItemLedger.Reserved_Quantity__Base_ = SalesLine."Outstanding Qty. (Base)" then
+                        Number += 1;
+                end;
+            end;
     end;
 
     procedure DrillDownNoOfReservedFromStockSalesOrders()
