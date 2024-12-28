@@ -931,7 +931,6 @@ report 1308 "Standard Sales - Shipment"
         LogInteractionEnable: Boolean;
         DisplayAssemblyInformation: Boolean;
         ShowCorrectionLines: Boolean;
-        ShowLotSN: Boolean;
         CompanyLogoPosition: Integer;
         TrackingSpecCount: Integer;
         NoFilterSetErr: Label 'You must specify one or more filters to avoid accidently printing all documents.';
@@ -998,6 +997,7 @@ report 1308 "Standard Sales - Shipment"
         SalesPersonText: Text[50];
         ShowCustAddr: Boolean;
         HideLinesWithZeroQuantity: Boolean;
+        ShowLotSN: Boolean;
 
     local procedure InitLogInteraction()
     begin
