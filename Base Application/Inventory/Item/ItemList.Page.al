@@ -2399,8 +2399,6 @@ page 31 "Item List"
     end;
 
     var
-        TempFilterItemAttributesBuffer: Record "Filter Item Attributes Buffer" temporary;
-        TempItemFilteredFromAttributes: Record Item temporary;
         TempItemFilteredFromPickItem: Record Item temporary;
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
@@ -2410,6 +2408,8 @@ page 31 "Item List"
         IsInventoryAdjmtAllowed: Boolean;
 
     protected var
+        TempFilterItemAttributesBuffer: Record "Filter Item Attributes Buffer" temporary;
+        TempItemFilteredFromAttributes: Record Item temporary;
         IsFoundationEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
