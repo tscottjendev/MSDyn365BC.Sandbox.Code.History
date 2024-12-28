@@ -1751,6 +1751,15 @@
       <Cmt Name="Dev"><![CDATA[%1: Purchase Order No., %2: Sales Order No.]D;]A;(LookupHint=Codeunit ERM Copy Purch/Sales Doc - NamedType AddrChangedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 556740976 - NamedType 2396695766" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[G/L Entry with zero amount is posted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Copy Purch/Sales Doc - NamedType GLEntryExistLabel)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 556740976 - NamedType 3226948044" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Invoice No. %1:]]></Val>
@@ -4917,6 +4926,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=Field;%2=Value;%3=Table]D;]A;(LookupHint=Codeunit ERM Purchase Payables - NamedType AmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 966482892 - NamedType 2625341778" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amount not matched.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Payables - NamedType AmountNotMatchedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 966482892 - NamedType 2144275507" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
