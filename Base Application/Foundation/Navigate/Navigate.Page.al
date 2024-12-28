@@ -520,14 +520,6 @@ page 344 Navigate
         [SecurityFiltering(SecurityFilter::Filtered)]
         IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
-        PurchRcptHeader: Record "Purch. Rcpt. Header";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        PurchInvHeader: Record "Purch. Inv. Header";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        ReturnShptHeader: Record "Return Shipment Header";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
-        [SecurityFiltering(SecurityFilter::Filtered)]
         TransShptHeader: Record "Transfer Shipment Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         TransRcptHeader: Record "Transfer Receipt Header";
@@ -671,6 +663,14 @@ page 344 Navigate
         POPurchaseHeader: Record "Purchase Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         PIPurchaseHeader: Record "Purchase Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        PurchInvHeader: Record "Purch. Inv. Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        ReturnShptHeader: Record "Return Shipment Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlLine: Record "Gen. Journal Line";
 #if not CLEAN25
