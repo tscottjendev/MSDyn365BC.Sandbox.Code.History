@@ -1203,9 +1203,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
             OnPostGLAccOnBeforeInsertGLEntry(GenJnlLine, GLEntry, IsHandled, Balancing);
             if not IsHandled then
                 if (GLEntry.Amount <> 0) or (GLEntry."Additional-Currency Amount" <> 0) or
-                   (GenJnlLine."VAT Calculation Type" <> GenJnlLine."VAT Calculation Type"::"Sales Tax")
-                then
-                    InsertGLEntry(GenJnlLine, GLEntry, true);
+                   (GenJnlLine."VAT Calculation Type" <> GenJnlLine."VAT Calculation Type"::"Sales Tax") then
+                    if not ((GenJnlLine."Deferral Code" <> '') and (GenJnlLine.Amount = 0)) then
+                        InsertGLEntry(GenJnlLine, GLEntry, true);
             IsHandled := false;
             OnPostGLAccOnBeforePostJob(GenJnlLine, GLEntry, IsHandled, Balancing);
             if not IsHandled then
