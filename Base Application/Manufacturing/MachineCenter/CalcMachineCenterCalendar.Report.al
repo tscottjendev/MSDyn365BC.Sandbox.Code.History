@@ -92,8 +92,6 @@ report 99001045 "Calc. Machine Center Calendar"
     var
         ShopCalendarManagement: Codeunit "Shop Calendar Management";
         Window: Dialog;
-        StartingDate: Date;
-        EndingDate: Date;
 
 #pragma warning disable AA0074
         Text000: Label 'Calculating Machine Center...\\';
@@ -103,6 +101,10 @@ report 99001045 "Calc. Machine Center Calendar"
         Text004: Label 'You must enter the Starting Date.';
         Text005: Label 'You must enter the Ending Date.';
 #pragma warning restore AA0074
+
+    protected var
+        StartingDate: Date;
+        EndingDate: Date;
 
     procedure InitializeRequest(NewStartingDate: Date; NewEndingDate: Date)
     begin

@@ -5778,7 +5778,7 @@ codeunit 90 "Purch.-Post"
     /// When archiving purchase line associated with deferrals, deferral amounts are rounded 
     /// </remarks>
     /// <param name="PurchHeader">The purchase header of the document that is being posted.</param>
-    procedure ArchiveUnpostedOrder(PurchHeader: Record "Purchase Header")
+    procedure ArchiveUnpostedOrder(var PurchHeader: Record "Purchase Header")
     var
         PurchLine: Record "Purchase Line";
         ArchiveManagement: Codeunit ArchiveManagement;
