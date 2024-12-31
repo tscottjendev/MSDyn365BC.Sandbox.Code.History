@@ -94,10 +94,17 @@ page 5510 "Production Journal"
                     Editable = false;
                     ToolTip = 'Specifies the number of the item on the journal line.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnAssistEdit()
+                    var
+                        ItemCard: Page "Item Card";
                     begin
-                        if Item.Get(Rec."Item No.") then
-                            PAGE.RunModal(PAGE::"Item List", Item);
+                        if Rec."Item No." = '' then
+                            exit;
+
+                        if Item.Get(Rec."Item No.") then begin
+                            ItemCard.SetRecord(Item);
+                            ItemCard.RunModal();
+                        end;
                     end;
                 }
                 field("Operation No."; Rec."Operation No.")
