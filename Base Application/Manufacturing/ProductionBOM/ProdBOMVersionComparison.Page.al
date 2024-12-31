@@ -397,29 +397,27 @@ page 9288 "Prod. BOM Version Comparison"
                     RunPageLink = "No." = field("Item No.");
                     RunPageView = sorting("No.");
                     ShortCutKey = 'Shift+F7';
-                    ToolTip = 'View or edit detailed information for the production BOM.';
+                    ToolTip = 'View or edit detailed information for the item.';
                 }
                 action("Matrix per Version")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Matrix per Version';
                     Image = ProdBOMMatrixPerVersion;
-                    ToolTip = 'View a list of all versions and items and the used quantity per item of a production BOM. You can use the matrix to compare different production BOM versions concerning the used items per version.';
+                    ToolTip = 'For a production BOM set for the item, view a list of all versions and items and the used quantity per item. You can use the matrix to compare different production BOM versions concerning the used items per version.';
 
                     trigger OnAction()
                     var
                         Item: Record Item;
-                        ProdBOMHeader: Record "Production BOM Header";
+                        ProductionBOMHeader: Record "Production BOM Header";
                         ProdBOMVersionComparison: Page "Prod. BOM Version Comparison";
                     begin
                         Item.Get(Rec."Item No.");
-                        if Item."Production BOM No." = '' then
-                            exit;
+                        Item.TestField("Production BOM No.");
 
-                        ProdBOMHeader.Get(Item."Production BOM No.");
-                        ProdBOMVersionComparison.Set(ProdBOMHeader);
-
-                        ProdBOMVersionComparison.Run();
+                        ProductionBOMHeader.Get(Item."Production BOM No.");
+                        ProdBOMVersionComparison.Set(ProductionBOMHeader);
+                        ProdBOMVersionComparison.RunModal();
                     end;
                 }
                 action("Where-Used")
@@ -457,7 +455,7 @@ page 9288 "Prod. BOM Version Comparison"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(BOMMatrixMgt.FindRecord(Which, Rec));
+        exit(BOMMatrixManagement.FindRecord(Which, Rec));
     end;
 
     trigger OnInit()
@@ -498,7 +496,7 @@ page 9288 "Prod. BOM Version Comparison"
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(BOMMatrixMgt.NextRecord(Steps, Rec));
+        exit(BOMMatrixManagement.NextRecord(Steps, Rec));
     end;
 
     trigger OnOpenPage()
@@ -512,10 +510,10 @@ page 9288 "Prod. BOM Version Comparison"
     end;
 
     var
+        CurrentProductionBOMHeader: Record "Production BOM Header";
         MatrixRecords: array[32] of Record "Production BOM Version";
-        ProdBOM: Record "Production BOM Header";
         Matrix_MatrixRecord: Record "Production BOM Version";
-        BOMMatrixMgt: Codeunit "BOM Matrix Management";
+        BOMMatrixManagement: Codeunit "BOM Matrix Management";
         ShowLevel: Option Single,Multi;
         ComponentNeed: Decimal;
         Matrix_CellData: array[32] of Decimal;
@@ -560,10 +558,10 @@ page 9288 "Prod. BOM Version Comparison"
 
     local procedure Matrix_OnAfterGetRecord(Matrix_ColumnOrdinal: Integer)
     begin
-        ComponentNeed := BOMMatrixMgt.GetComponentNeed(Rec."Item No.", Rec."Variant Code", '');
+        ComponentNeed := BOMMatrixManagement.GetComponentNeed(Rec."Item No.", Rec."Variant Code", '');
         BOMMatrix_CellData := ComponentNeed;
 
-        ComponentNeed := BOMMatrixMgt.GetComponentNeed(Rec."Item No.", Rec."Variant Code", MatrixRecords[Matrix_ColumnOrdinal]."Version Code");
+        ComponentNeed := BOMMatrixManagement.GetComponentNeed(Rec."Item No.", Rec."Variant Code", MatrixRecords[Matrix_ColumnOrdinal]."Version Code");
         Matrix_CellData[Matrix_ColumnOrdinal] := ComponentNeed;
     end;
 
@@ -605,7 +603,7 @@ page 9288 "Prod. BOM Version Comparison"
 
     procedure SetCaption(): Text
     begin
-        exit(ProdBOM."No." + ' ' + ProdBOM.Description);
+        exit(CurrentProductionBOMHeader."No." + ' ' + CurrentProductionBOMHeader.Description);
     end;
 
     local procedure ShowLevelOnAfterValidate()
@@ -616,16 +614,16 @@ page 9288 "Prod. BOM Version Comparison"
 
     local procedure BuildMatrix()
     begin
-        Clear(BOMMatrixMgt);
-        BOMMatrixMgt.BOMMatrixFromBOM(ProdBOM, ShowLevel = ShowLevel::Multi);
-        Matrix_MatrixRecord.SetRange("Production BOM No.", ProdBOM."No.");
+        Clear(BOMMatrixManagement);
+        BOMMatrixManagement.BOMMatrixFromBOM(CurrentProductionBOMHeader, ShowLevel = ShowLevel::Multi);
+        Matrix_MatrixRecord.SetRange("Production BOM No.", CurrentProductionBOMHeader."No.");
         GenerateMatrixColumns(Enum::"Matrix Page Step Type"::Initial);
     end;
 
     local procedure GenerateMatrixColumns(StepType: Enum "Matrix Page Step Type")
     var
         ProductionBOMHeaderMatrix: Record "Production BOM Header";
-        MatrixMgt: Codeunit "Matrix Management";
+        MatrixManagement: Codeunit "Matrix Management";
         RecRef: RecordRef;
         CurrentMatrixRecordOrdinal: Integer;
     begin
@@ -633,7 +631,7 @@ page 9288 "Prod. BOM Version Comparison"
         Clear(MatrixRecords);
         CurrentMatrixRecordOrdinal := 0;
 
-        ProductionBOMHeaderMatrix.Get(ProdBOM."No.");
+        ProductionBOMHeaderMatrix.Get(CurrentProductionBOMHeader."No.");
         RecRef.GetTable(ProductionBOMHeaderMatrix);
         RecRef.SetTable(ProductionBOMHeaderMatrix);
         BOMMatrix_CaptionSet := Format(RecRef.Field(1).Value());
@@ -641,7 +639,7 @@ page 9288 "Prod. BOM Version Comparison"
         Clear(RecRef);
         RecRef.GetTable(Matrix_MatrixRecord);
         RecRef.SetTable(Matrix_MatrixRecord);
-        MatrixMgt.GenerateMatrixData(
+        MatrixManagement.GenerateMatrixData(
             RecRef, StepType.AsInteger(), ArrayLen(MatrixRecords), 2, PKFirstMatrixRecInSet, Matrix_CaptionSet,
             Matrix_CaptionRange, Matrix_CurrSetLength);
 
@@ -656,9 +654,9 @@ page 9288 "Prod. BOM Version Comparison"
         end;
     end;
 
-    procedure Set(var NewProdBOM: Record "Production BOM Header")
+    procedure Set(var NewProductionBOMHeader: Record "Production BOM Header")
     begin
-        ProdBOM.Copy(NewProdBOM);
+        CurrentProductionBOMHeader.Copy(NewProductionBOMHeader);
     end;
 }
 
