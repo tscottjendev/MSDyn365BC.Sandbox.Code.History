@@ -97,11 +97,11 @@ page 99000809 "Production BOM Version"
 
                     trigger OnAction()
                     var
-                        ProdBOMHeader: Record "Production BOM Header";
+                        ProductionBOMHeader: Record "Production BOM Header";
                         ProdBOMWhereUsed: Page "Prod. BOM Where-Used";
                     begin
-                        ProdBOMHeader.Get(Rec."Production BOM No.");
-                        ProdBOMWhereUsed.SetProdBOM(ProdBOMHeader, Rec."Starting Date");
+                        ProductionBOMHeader.Get(Rec."Production BOM No.");
+                        ProdBOMWhereUsed.SetProdBOM(ProductionBOMHeader, Rec."Starting Date");
                         ProdBOMWhereUsed.Run();
                     end;
                 }
@@ -121,12 +121,15 @@ page 99000809 "Production BOM Version"
                     ToolTip = 'Copy an existing production BOM to quickly create a similar BOM.';
 
                     trigger OnAction()
+                    var
+                        ProductionBOMHeader: Record "Production BOM Header";
+                        ProductionBOMCopy: Codeunit "Production BOM-Copy";
                     begin
-                        if not Confirm(Text000, false) then
+                        if not Confirm(CopyFromProductionBOMQst, false) then
                             exit;
 
-                        ProdBOMHeader.Get(Rec."Production BOM No.");
-                        ProductionBOMCopy.CopyBOM(Rec."Production BOM No.", '', ProdBOMHeader, Rec."Version Code");
+                        ProductionBOMHeader.Get(Rec."Production BOM No.");
+                        ProductionBOMCopy.CopyBOM(Rec."Production BOM No.", '', ProductionBOMHeader, Rec."Version Code");
                     end;
                 }
                 action("Copy BOM &Version")
@@ -138,6 +141,8 @@ page 99000809 "Production BOM Version"
                     ToolTip = 'Copy an existing production BOM version to quickly create a similar BOM.';
 
                     trigger OnAction()
+                    var
+                        ProductionBOMCopy: Codeunit "Production BOM-Copy";
                     begin
                         ProductionBOMCopy.CopyFromVersion(Rec);
                     end;
@@ -161,6 +166,8 @@ page 99000809 "Production BOM Version"
     }
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
     begin
         if not (Rec.Status in [Rec.Status::Certified, Rec.Status::Closed]) then
             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
@@ -170,12 +177,7 @@ page 99000809 "Production BOM Version"
     end;
 
     var
-#pragma warning disable AA0074
-        Text000: Label 'Copy from Production BOM?';
-#pragma warning restore AA0074
-        ProdBOMHeader: Record "Production BOM Header";
-        ProductionBOMCopy: Codeunit "Production BOM-Copy";
-        ConfirmManagement: Codeunit "Confirm Management";
+        CopyFromProductionBOMQst: Label 'Copy from Production BOM?';
         CertifyQst: Label 'The %1 has not been certified. Are you sure you want to exit?', Comment = '%1 = page caption (Production BOM)';
 }
 

@@ -45,7 +45,6 @@ page 99000808 "Routing Version List"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the status of this routing version.';
-                    Visible = false;
                 }
             }
         }
