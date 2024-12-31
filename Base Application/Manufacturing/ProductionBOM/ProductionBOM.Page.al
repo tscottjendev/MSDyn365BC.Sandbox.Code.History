@@ -76,7 +76,6 @@ page 99000786 "Production BOM"
                     trigger OnAssistEdit()
                     var
                         ProductionBOMVersion: Record "Production BOM Version";
-                        VersionManagement: Codeunit VersionManagement;
                     begin
                         if ActiveVersionCode = '' then
                             exit;
@@ -84,7 +83,7 @@ page 99000786 "Production BOM"
                         ProductionBOMVersion.SetRange("Production BOM No.", Rec."No.");
                         ProductionBOMVersion.SetRange("Version Code", ActiveVersionCode);
                         Page.RunModal(Page::"Production BOM Version", ProductionBOMVersion);
-                        ActiveVersionCode := VersionManagement.GetBOMVersion(Rec."No.", WorkDate(), true);
+                        RefreshActiveVersionCode();
                     end;
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
@@ -147,9 +146,16 @@ page 99000786 "Production BOM"
                     ApplicationArea = Manufacturing;
                     Caption = 'Versions';
                     Image = BOMVersions;
-                    RunObject = Page "Prod. BOM Version List";
-                    RunPageLink = "Production BOM No." = field("No.");
                     ToolTip = 'View any alternate versions of the production BOM.';
+
+                    trigger OnAction()
+                    var
+                        ProductionBOMVersion: Record "Production BOM Version";
+                    begin
+                        ProductionBOMVersion.SetRange("Production BOM No.", Rec."No.");
+                        Page.RunModal(0, ProductionBOMVersion);
+                        RefreshActiveVersionCode();
+                    end;
                 }
 #if not CLEAN26
                 action("Ma&trix per Version")
@@ -298,10 +304,8 @@ page 99000786 "Production BOM"
     }
 
     trigger OnAfterGetRecord()
-    var
-        VersionManagement: Codeunit VersionManagement;
     begin
-        ActiveVersionCode := VersionManagement.GetBOMVersion(Rec."No.", WorkDate(), true);
+        RefreshActiveVersionCode();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -317,6 +321,13 @@ page 99000786 "Production BOM"
         ConfirmManagement: Codeunit "Confirm Management";
         ActiveVersionCode: Code[20];
         CertifyQst: Label 'The %1 has not been certified. Are you sure you want to exit?', Comment = '%1 = page caption (Production BOM)';
+
+    local procedure RefreshActiveVersionCode()
+    var
+        VersionManagement: Codeunit VersionManagement;
+    begin
+        ActiveVersionCode := VersionManagement.GetBOMVersion(Rec."No.", WorkDate(), true);
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyBOMOnBeforeLookup(var ToProductionBOMHeader: Record "Production BOM Header"; var FromProductionBOMHeader: Record "Production BOM Header")

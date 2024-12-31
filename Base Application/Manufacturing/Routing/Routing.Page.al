@@ -64,16 +64,21 @@ page 99000766 Routing
                     ApplicationArea = Manufacturing;
                     Caption = 'Active Version';
                     Editable = false;
+                    Style = Strong;
+                    Enabled = ActiveVersionCode <> '';
                     ToolTip = 'Specifies if the routing version is currently being used.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnAssistEdit()
                     var
-                        RtngVersion: Record "Routing Version";
+                        RoutingVersion: Record "Routing Version";
                     begin
-                        RtngVersion.SetRange("Routing No.", Rec."No.");
-                        RtngVersion.SetRange("Version Code", ActiveVersionCode);
-                        PAGE.RunModal(PAGE::"Routing Version", RtngVersion);
-                        ActiveVersionCode := VersionMgt.GetRtngVersion(Rec."No.", WorkDate(), true);
+                        if ActiveVersionCode = '' then
+                            exit;
+
+                        RoutingVersion.SetRange("Routing No.", Rec."No.");
+                        RoutingVersion.SetRange("Version Code", ActiveVersionCode);
+                        Page.RunModal(Page::"Routing Version", RoutingVersion);
+                        RefreshActiveVersionCode();
                     end;
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
@@ -83,7 +88,7 @@ page 99000766 Routing
 
                     trigger OnValidate()
                     begin
-                        LastDateModifiedOnAfterValidat();
+                        LastDateModifiedOnAfterValidate();
                     end;
                 }
             }
@@ -140,9 +145,16 @@ page 99000766 Routing
                     ApplicationArea = Manufacturing;
                     Caption = '&Versions';
                     Image = RoutingVersions;
-                    RunObject = Page "Routing Version List";
-                    RunPageLink = "Routing No." = field("No.");
-                    ToolTip = 'View or edit other versions of the routing, typically with other operations data. ';
+                    ToolTip = 'View or edit other versions of the routing, typically with other operations data.';
+
+                    trigger OnAction()
+                    var
+                        RoutingVersion: Record "Routing Version";
+                    begin
+                        RoutingVersion.SetRange("Routing No.", Rec."No.");
+                        Page.RunModal(0, RoutingVersion);
+                        RefreshActiveVersionCode();
+                    end;
                 }
                 action("Where-used")
                 {
@@ -189,11 +201,12 @@ page 99000766 Routing
 
                     trigger OnAction()
                     var
-                        FromRtngHeader: Record "Routing Header";
+                        FromRoutingHeader: Record "Routing Header";
+                        RoutingLineCopyLines: Codeunit "Routing Line-Copy Lines";
                     begin
                         Rec.TestField("No.");
-                        if PAGE.RunModal(0, FromRtngHeader) = ACTION::LookupOK then
-                            CopyRouting.CopyRouting(FromRtngHeader."No.", '', Rec, '');
+                        if Page.RunModal(0, FromRoutingHeader) = Action::LookupOK then
+                            RoutingLineCopyLines.CopyRouting(FromRoutingHeader."No.", '', Rec, '');
                     end;
                 }
             }
@@ -235,11 +248,12 @@ page 99000766 Routing
 
     trigger OnAfterGetRecord()
     begin
-        ActiveVersionCode :=
-          VersionMgt.GetRtngVersion(Rec."No.", WorkDate(), true);
+        RefreshActiveVersionCode();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
     begin
         if not (Rec.Status in [Rec.Status::Certified, Rec.Status::Closed]) then
             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
@@ -249,16 +263,19 @@ page 99000766 Routing
     end;
 
     var
-        VersionMgt: Codeunit VersionManagement;
-        CopyRouting: Codeunit "Routing Line-Copy Lines";
-        ConfirmManagement: Codeunit "Confirm Management";
         ActiveVersionCode: Code[20];
         CertifyQst: Label 'The %1 has not been certified. Are you sure you want to exit?', Comment = '%1 = page caption (Production BOM)';
 
-    local procedure LastDateModifiedOnAfterValidat()
+    local procedure LastDateModifiedOnAfterValidate()
     begin
         CurrPage.Update();
     end;
 
+    local procedure RefreshActiveVersionCode()
+    var
+        VersionManagement: Codeunit VersionManagement;
+    begin
+        ActiveVersionCode := VersionManagement.GetRtngVersion(Rec."No.", WorkDate(), true);
+    end;
 }
 
