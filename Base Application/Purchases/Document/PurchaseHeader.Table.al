@@ -4728,7 +4728,13 @@ table 38 "Purchase Header"
     procedure GetPstdDocLinesToReverse()
     var
         PurchPostedDocLines: Page "Posted Purchase Document Lines";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetPstdDocLinesToReverse(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetVend("Buy-from Vendor No.");
         PurchPostedDocLines.SetToPurchHeader(Rec);
         PurchPostedDocLines.SetRecord(Vend);
@@ -4737,6 +4743,8 @@ table 38 "Purchase Header"
             PurchPostedDocLines.CopyLineToDoc();
 
         Clear(PurchPostedDocLines);
+
+        OnAfterGetPstdDocLinesToReverse(Rec);
     end;
 
     /// <summary>
@@ -8790,6 +8798,16 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePrepmtCrMemoNoSeries(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPstdDocLinesToReverse(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPstdDocLinesToReverse(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }
