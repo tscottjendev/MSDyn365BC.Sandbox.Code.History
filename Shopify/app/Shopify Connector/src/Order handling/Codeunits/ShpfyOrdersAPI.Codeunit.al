@@ -98,7 +98,9 @@ codeunit 30165 "Shpfy Orders API"
             else
 #endif
                 OrderAttribute."Attribute Value" := CopyStr(JsonHelper.GetValueAsText(JItem, 'value').Replace('\\', '\').Replace('\"', '"'), 1, MaxStrLen(OrderAttribute."Attribute Value"));
-            OrderAttribute.Insert();
+
+            if not OrderAttribute.Insert() then
+                OrderAttribute.Modify();
         end;
     end;
 
