@@ -252,6 +252,7 @@ page 1238 "Transformation Rule Card"
     begin
         IsDataFormatVisible := Rec.IsDataFormatUpdateAllowed();
 
+        Clear(VisibleTransformationRuleGroups);
         TransformationRule := Rec."Transformation Type";
         TransformationRule.GetVisibleGroups(Rec, VisibleTransformationRuleGroups);
         IsFindValueVisible := VisibleTransformationRuleGroups.Contains(Enum::"Transformation Rule Group"::"Find Value");
