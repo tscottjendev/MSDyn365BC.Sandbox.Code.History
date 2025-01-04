@@ -16,7 +16,6 @@ page 9150 "My Customers"
                 field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer numbers that are displayed in the My Customer Cue on the Role Center.';
                     Width = 4;
 
                     trigger OnValidate()
@@ -27,27 +26,21 @@ page 9150 "My Customers"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Name';
                     DrillDown = false;
                     Lookup = false;
-                    ToolTip = 'Specifies the name of the customer.';
                     Width = 20;
                 }
                 field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Phone No.';
                     DrillDown = false;
                     ExtendedDatatype = PhoneNo;
                     Lookup = false;
-                    ToolTip = 'Specifies the customer''s phone number.';
                     Width = 8;
                 }
                 field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the payment amount that the customer owes for completed sales.';
-
                     trigger OnDrillDown()
                     begin
                         Customer.OpenCustomerLedgerEntries(false);

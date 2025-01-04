@@ -1312,7 +1312,7 @@ table 5767 "Warehouse Activity Line"
 
     procedure CheckIncreaseCapacity(DeductLineCapacity: Boolean)
     begin
-        CheckIncreaseCapacity(DeductLineCapacity, false);
+        CheckIncreaseCapacity(DeductLineCapacity, true);
     end;
 
     internal procedure CheckIncreaseCapacity(DeductLineCapacity: Boolean; CalledByPosting: Boolean)
