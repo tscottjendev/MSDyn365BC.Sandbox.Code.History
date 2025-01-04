@@ -108,6 +108,7 @@ codeunit 10637 "Import CAMT054"
         OriginalPmtInfId: Text;
         OriginalEndToEndId: Text;
         TransactionStatus: Text;
+        IsHandled: Boolean;
     begin
         GetTransactionInfo(
           XmlNodeTransactionEntry, OriginalMsgId, OriginalPmtInfId, OriginalEndToEndId, TransactionStatus);
@@ -115,6 +116,11 @@ codeunit 10637 "Import CAMT054"
         WaitingJournal.SetFilter("SEPA Msg. ID", OriginalMsgId);
         WaitingJournal.SetFilter("SEPA Payment Inf ID", OriginalPmtInfId);
         WaitingJournal.SetFilter("SEPA End To End ID", OriginalEndToEndId);
+
+        IsHandled := false;
+        OnHandleTransactionOnBeforeWaitingJournalFindFirst(WaitingJournal, XmlNodeTransactionEntry, OriginalMsgId, OriginalPmtInfId, OriginalEndToEndId, TransactionStatus, IsHandled);
+        if IsHandled then
+            exit;
         if not WaitingJournal.FindFirst() then
             Error(WaitingJournal.GetWaitingJournalNotFoundForRemittanceImport());
 
@@ -276,6 +282,11 @@ codeunit 10637 "Import CAMT054"
             exit(GLSetup."LCY Code");
 
         exit(CurrencyCode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleTransactionOnBeforeWaitingJournalFindFirst(var WaitingJournal: Record "Waiting Journal"; var XmlNodeTransactionEntry: DotNet XmlNode; var OriginalMsgId: Text; var OriginalPmtInfId: Text; var OriginalEndToEndId: Text; var TransactionStatus: Text; var IsHandled: Boolean)
+    begin
     end;
 }
 
