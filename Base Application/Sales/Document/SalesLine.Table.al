@@ -8894,6 +8894,8 @@ table 37 "Sales Line"
             exit;
         if SalesHeader."Invoice Discount Value" = 0 then
             exit;
+        if SalesHeader."Invoice Discount Calculation" = SalesHeader."Invoice Discount Calculation"::"%" then
+            exit;
         SalesHeader."Invoice Discount Value" -= InvDiscountAmount;
         SalesHeader.Modify(true);
     end;

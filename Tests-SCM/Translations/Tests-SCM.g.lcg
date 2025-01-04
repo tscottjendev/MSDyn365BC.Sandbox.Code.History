@@ -14612,6 +14612,15 @@
       <Cmt Name="Dev"><![CDATA[%1= Field Caption,%2= Current capacity value,%3= Available Capacity,%4= Table Caption, %5= Field value.]D;]A;(LookupHint=Codeunit SCM Warehouse - Receiving - NamedType ExceedsAvailableCapacity)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3546302981 - NamedType 2088130664" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[exceeds the available capacity]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse - Receiving - NamedType ExceedsErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3546302981 - NamedType 4282316410" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The total cubage %1 of the %2 for the %5 exceeds the %3 %4 of the %5.\Do you still want enter this %2?]]></Val>
