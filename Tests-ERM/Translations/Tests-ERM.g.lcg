@@ -11336,6 +11336,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - document number]D;]A;(LookupHint=Codeunit Sales Stockout - NamedType ValidateQuantityDocumentErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 760279439 - NamedType 2931128825" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong value of Invoice Discount %.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales-Calc. Discount Test - NamedType InvDscPctErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 760279439 - NamedType 3201150890" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You have set the line amount to a value that results in a discount that is not valid. Consider increasing the unit price instead.]]></Val>
