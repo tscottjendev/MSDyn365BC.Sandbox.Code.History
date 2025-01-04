@@ -37,19 +37,16 @@ page 99000917 "Report Selection - Prod. Order"
                 field(Sequence; Rec.Sequence)
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies a number that indicates where this report is in the printing order.';
                 }
                 field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Manufacturing;
                     LookupPageID = Objects;
-                    ToolTip = 'Specifies the object ID of the report.';
                 }
                 field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDown = false;
-                    ToolTip = 'Specifies the display name of the report.';
                 }
             }
         }
