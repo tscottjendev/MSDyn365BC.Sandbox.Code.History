@@ -1550,7 +1550,7 @@ codeunit 5763 "Whse.-Post Shipment"
 #endif
 
 #if not CLEAN25
-    internal procedure RunOnPostSourceDocumentOnBeforePostSalesHeader(var SalesPost: Codeunit Microsoft.Sales.Posting."Sales-Post"; var SalesHeader: Record Microsoft.Sales.Document."Sales Header"; WhseShptHeader: Record "Warehouse Shipment Header"; var CounterSourceDocOK: Integer; WhsePostParameters: Record "Whse. Post Parameters"; var IsHandled: Boolean)
+    internal procedure RunOnPostSourceDocumentOnBeforePostSalesHeader(var SalesPost: Codeunit Microsoft.Sales.Posting."Sales-Post"; var SalesHeader: Record Microsoft.Sales.Document."Sales Header"; WhseShptHeader: Record "Warehouse Shipment Header"; var CounterSourceDocOK: Integer; var WhsePostParameters: Record "Whse. Post Parameters"; var IsHandled: Boolean)
     begin
         OnPostSourceDocumentOnBeforePostSalesHeader(SalesPost, SalesHeader, WhseShptHeader, CounterSourceDocOK, WhsePostParameters."Suppress Commit", IsHandled, WhsePostParameters."Post Invoice");
     end;
@@ -1734,7 +1734,7 @@ codeunit 5763 "Whse.-Post Shipment"
 #endif
 
 #if not CLEAN25
-    internal procedure RunOnBeforeServiceLineModify(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ModifyLine: Boolean; WhsePostParameters: Record "Whse. Post Parameters")
+    internal procedure RunOnBeforeServiceLineModify(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ModifyLine: Boolean; var WhsePostParameters: Record "Whse. Post Parameters")
     begin
         OnBeforeServiceLineModify(ServiceLine, WarehouseShipmentLine, ModifyLine, WhsePostParameters."Post Invoice", WhsePostParameters."Post Invoice");
     end;
