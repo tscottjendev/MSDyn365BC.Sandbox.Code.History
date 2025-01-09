@@ -58,7 +58,6 @@ using System.Security.User;
 using System.Threading;
 using System.Utilities;
 using Microsoft.Projects.Project.Job;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Finance.WithholdingTax;
 
 table 38 "Purchase Header"
@@ -204,7 +203,7 @@ table 38 "Purchase Header"
 
                 if (xRec."Buy-from Vendor No." <> '') and (xRec."Buy-from Vendor No." <> "Buy-from Vendor No.") then begin
                     Rec.RecallModifyAddressNotification(GetModifyVendorAddressNotificationId());
-		    if Rec."Remit-to Code" <> '' then
+                    if Rec."Remit-to Code" <> '' then
                         Rec.Validate("Remit-to Code", '');
                 end;
 
@@ -5789,7 +5788,8 @@ table 38 "Purchase Header"
         DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", SourcePurchaseLine."No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Job, SourcePurchaseLine."Job No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", SourcePurchaseLine."Responsibility Center");
-        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", SourcePurchaseLine."Work Center No.");
+
+        OnAfterInitPurchaseLineDefaultDimSource(Rec, DefaultDimSource, SourcePurchaseLine);
     end;
 
     local procedure CollectParamsInBufferForCreateDimSet(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
@@ -8944,6 +8944,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidatePaymentTermsCodeOnBeforeValidatePmtDiscountWhenBlank(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidatePaymentTermsCodeOnBeforeValidateDueDate(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -9287,6 +9292,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreatePurchLinesOnBeforePurchLinesExists(var PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; ChangedFieldName: Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitPurchaseLineDefaultDimSource(var PurchaseHeader: Record "Purchase Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SourcePurchaseLine: Record "Purchase Line")
     begin
     end;
 
