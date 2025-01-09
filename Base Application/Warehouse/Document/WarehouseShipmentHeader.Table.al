@@ -164,12 +164,10 @@ table 7320 "Warehouse Shipment Header"
                 end;
             end;
         }
-        field(34; "Document Status"; Option)
+        field(34; "Document Status"; Enum "Warehouse Shipment Status")
         {
             Caption = 'Document Status';
             Editable = false;
-            OptionCaption = ' ,Partially Picked,Partially Shipped,Completely Picked,Completely Shipped';
-            OptionMembers = " ","Partially Picked","Partially Shipped","Completely Picked","Completely Shipped";
 
             trigger OnValidate()
             var
@@ -469,7 +467,15 @@ table 7320 "Warehouse Shipment Header"
         end;
     end;
 
+#if not CLEAN26
+    [Obsolete('Replaced by procedure GetShipmentStatus()', '26.0')]
     procedure GetDocumentStatus(SkipLineNo: Integer): Integer
+    begin
+        exit(GetShipmentStatus(SkipLineNo).AsInteger());
+    end;
+#endif
+
+    procedure GetShipmentStatus(SkipLineNo: Integer): Enum "Warehouse Shipment Status"
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
