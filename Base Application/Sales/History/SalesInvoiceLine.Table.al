@@ -751,29 +751,28 @@ table 113 "Sales Invoice Line"
             0, "Document No.", '', 0, "Line No."));
     end;
 
-    procedure GetSalesShptLines(var TempSalesShptLine: Record "Sales Shipment Line" temporary)
+    procedure GetSalesShptLines(var TempSalesShipmentLine: Record "Sales Shipment Line" temporary)
     var
-        SalesShptLine: Record "Sales Shipment Line";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        ValueItemLedgerEntries: Query "Value Item Ledger Entries";
     begin
-        TempSalesShptLine.Reset();
-        TempSalesShptLine.DeleteAll();
+        TempSalesShipmentLine.Reset();
+        TempSalesShipmentLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
 
-        FilterPstdDocLineValueEntries(ValueEntry);
-        if ValueEntry.FindSet() then
-            repeat
-                ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
-                if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Sales Shipment" then
-                    if SalesShptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
-                        TempSalesShptLine.Init();
-                        TempSalesShptLine := SalesShptLine;
-                        if TempSalesShptLine.Insert() then;
-                    end;
-            until ValueEntry.Next() = 0;
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_No, "Document No.");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Type, Enum::"Item Ledger Document Type"::"Sales Invoice");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Line_No, "Line No.");
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Type, Enum::"Item Ledger Document Type"::"Sales Shipment");
+        ValueItemLedgerEntries.Open();
+        while ValueItemLedgerEntries.Read() do
+            if SalesShipmentLine.Get(ValueItemLedgerEntries.Item_Ledg_Document_No, ValueItemLedgerEntries.Item_Ledg_Document_Line_No) then begin
+                TempSalesShipmentLine.Init();
+                TempSalesShipmentLine := SalesShipmentLine;
+                if TempSalesShipmentLine.Insert() then;
+            end;
     end;
 
     procedure CalcShippedSaleNotReturned(var ShippedQtyNotReturned: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean)
