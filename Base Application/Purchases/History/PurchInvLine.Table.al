@@ -22,9 +22,6 @@ using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
@@ -505,12 +502,6 @@ table 123 "Purch. Inv. Line"
             Caption = 'Allocation Account No.';
             DataClassification = CustomerContent;
         }
-        field(5401; "Prod. Order No."; Code[20])
-        {
-            Caption = 'Prod. Order No.';
-            TableRelation = "Production Order"."No." where(Status = filter(Released | Finished));
-            ValidateTableRelation = false;
-        }
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
@@ -669,37 +660,10 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Special Scheme Code';
         }
-        field(99000750; "Routing No."; Code[20])
-        {
-            Caption = 'Routing No.';
-            TableRelation = "Routing Header";
-        }
-        field(99000751; "Operation No."; Code[10])
-        {
-            Caption = 'Operation No.';
-            TableRelation = "Prod. Order Routing Line"."Operation No." where(Status = filter(Released ..),
-                                                                              "Prod. Order No." = field("Prod. Order No."),
-                                                                              "Routing No." = field("Routing No."));
-        }
-        field(99000752; "Work Center No."; Code[20])
-        {
-            Caption = 'Work Center No.';
-            TableRelation = "Work Center";
-        }
-        field(99000754; "Prod. Order Line No."; Integer)
-        {
-            Caption = 'Prod. Order Line No.';
-            TableRelation = "Prod. Order Line"."Line No." where(Status = filter(Released ..),
-                                                                 "Prod. Order No." = field("Prod. Order No."));
-        }
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
             DecimalPlaces = 0 : 5;
-        }
-        field(99000759; "Routing Reference No."; Integer)
-        {
-            Caption = 'Routing Reference No.';
         }
     }
 
@@ -894,6 +858,7 @@ table 123 "Purch. Inv. Line"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
+        ShouldExit: Boolean;
     begin
         if SetQuantity then begin
             TempItemLedgEntry.Reset();
@@ -901,7 +866,10 @@ table 123 "Purch. Inv. Line"
 
             if Type <> Type::Item then
                 exit;
-            if "Work Center No." <> '' then
+
+            ShouldExit := false;
+            OnGetItemLedgEntryOnShouldExit(Rec, ShouldExit);
+            if ShouldExit then
                 exit;
         end;
 
@@ -1052,6 +1020,11 @@ table 123 "Purch. Inv. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var PurchInvLine: Record "Purch. Inv. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetItemLedgEntryOnShouldExit(var PurchInvLine: Record "Purch. Inv. Line"; var ShouldExit: Boolean);
     begin
     end;
 
