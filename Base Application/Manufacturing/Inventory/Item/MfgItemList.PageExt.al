@@ -117,4 +117,12 @@ pageextension 99000751 "Mfg. Item List" extends "Item List"
             }
         }
     }
+
+    procedure SelectActiveItemsForProductionBOM(): Text
+    var
+        Item: Record Item;
+    begin
+        Item.SetFilter(Type, '<>%1', Item.Type::Service);
+        exit(SelectInItemList(Item));
+    end;
 }
