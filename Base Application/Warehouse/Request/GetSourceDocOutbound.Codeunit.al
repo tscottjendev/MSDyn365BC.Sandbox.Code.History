@@ -559,7 +559,7 @@ codeunit 5752 "Get Source Doc. Outbound"
     local procedure UpdateShipmentHeaderStatus(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
         WarehouseShipmentHeader.Find();
-        WarehouseShipmentHeader."Document Status" := WarehouseShipmentHeader.GetDocumentStatus(0);
+        WarehouseShipmentHeader."Document Status" := WarehouseShipmentHeader.GetShipmentStatus(0);
         WarehouseShipmentHeader.Modify();
     end;
 
