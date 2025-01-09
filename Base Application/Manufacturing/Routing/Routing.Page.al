@@ -255,9 +255,17 @@ page 99000766 Routing
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        if not (Rec.Status in [Rec.Status::Certified, Rec.Status::Closed]) then
-            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
-                exit(false);
+        if IsNullGuid(Rec.SystemId) then
+            exit(false);
+
+        if Rec.Status in [Rec.Status::Certified, Rec.Status::Closed] then
+            exit(false);
+
+        if not Rec.RoutingLinesExist() then
+            exit(false);
+	    
+        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
+            exit(false);
 
         exit(true);
     end;
