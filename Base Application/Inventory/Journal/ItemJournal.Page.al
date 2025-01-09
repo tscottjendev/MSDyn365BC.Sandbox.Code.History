@@ -1071,12 +1071,13 @@ page 40 "Item Journal"
     begin
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
-            exit;
 
         SetDimensionsVisibility();
 
         OpenJournal();
+
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
+            ItemTrackingEditable := CanSelectItemTrackingOnLines;
     end;
 
     var

@@ -741,30 +741,29 @@ table 115 "Sales Cr.Memo Line"
             0, "Document No.", '', 0, "Line No."));
     end;
 
-    procedure GetReturnRcptLines(var TempReturnRcptLine: Record "Return Receipt Line" temporary)
+    procedure GetReturnRcptLines(var TempReturnReceiptLine: Record "Return Receipt Line" temporary)
     var
-        ReturnRcptLine: Record "Return Receipt Line";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
+        ReturnReceiptLine: Record "Return Receipt Line";
+        ValueItemLedgerEntries: Query "Value Item Ledger Entries";
     begin
-        TempReturnRcptLine.Reset();
-        TempReturnRcptLine.DeleteAll();
+        TempReturnReceiptLine.Reset();
+        TempReturnReceiptLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
 
-        FilterPstdDocLineValueEntries(ValueEntry);
-        ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ValueEntry.FindSet() then
-            repeat
-                ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
-                if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Sales Return Receipt" then
-                    if ReturnRcptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
-                        TempReturnRcptLine.Init();
-                        TempReturnRcptLine := ReturnRcptLine;
-                        if TempReturnRcptLine.Insert() then;
-                    end;
-            until ValueEntry.Next() = 0;
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_No, "Document No.");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Type, Enum::"Item Ledger Document Type"::"Sales Credit Memo");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Line_No, "Line No.");
+        ValueItemLedgerEntries.SetFilter(Value_Entry_Invoiced_Qty, '<>0');
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Type, Enum::"Item Ledger Document Type"::"Sales Return Receipt");
+        ValueItemLedgerEntries.Open();
+        while ValueItemLedgerEntries.Read() do
+            if ReturnReceiptLine.Get(ValueItemLedgerEntries.Item_Ledg_Document_No, ValueItemLedgerEntries.Item_Ledg_Document_Line_No) then begin
+                TempReturnReceiptLine.Init();
+                TempReturnReceiptLine := ReturnReceiptLine;
+                if TempReturnReceiptLine.Insert() then;
+            end;
     end;
 
     procedure GetItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SetQuantity: Boolean)

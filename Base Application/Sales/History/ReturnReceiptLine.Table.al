@@ -12,6 +12,7 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
@@ -766,8 +767,7 @@ table 6661 "Return Receipt Line"
     procedure GetSalesCrMemoLines(var TempSalesCrMemoLine: Record "Sales Cr.Memo Line" temporary)
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
+        ValueItemLedgerEntries: Query "Value Item Ledger Entries";
     begin
         TempSalesCrMemoLine.Reset();
         TempSalesCrMemoLine.DeleteAll();
@@ -775,25 +775,20 @@ table 6661 "Return Receipt Line"
         if Type <> Type::Item then
             exit;
 
-        FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-        ItemLedgEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ItemLedgEntry.FindSet() then begin
-            ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
-            ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
-            ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-            repeat
-                ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-                if ValueEntry.FindSet() then
-                    repeat
-                        if ValueEntry."Document Type" = ValueEntry."Document Type"::"Sales Credit Memo" then
-                            if SalesCrMemoLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.") then begin
-                                TempSalesCrMemoLine.Init();
-                                TempSalesCrMemoLine := SalesCrMemoLine;
-                                if TempSalesCrMemoLine.Insert() then;
-                            end;
-                    until ValueEntry.Next() = 0;
-            until ItemLedgEntry.Next() = 0;
-        end;
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_No, "Document No.");
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Type, Enum::"Item Ledger Document Type"::"Sales Return Receipt");
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Line_No, "Line No.");
+        ValueItemLedgerEntries.SetFilter(Item_Ledg_Invoice_Quantity, '<>0');
+        ValueItemLedgerEntries.SetRange(Value_Entry_Type, Enum::"Cost Entry Type"::"Direct Cost");
+        ValueItemLedgerEntries.SetFilter(Value_Entry_Invoiced_Qty, '<>0');
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Type, Enum::"Item Ledger Document Type"::"Sales Credit Memo");
+        ValueItemLedgerEntries.Open();
+        while ValueItemLedgerEntries.Read() do
+            if SalesCrMemoLine.Get(ValueItemLedgerEntries.Value_Entry_Doc_No, ValueItemLedgerEntries.Value_Entry_Doc_Line_No) then begin
+                TempSalesCrMemoLine.Init();
+                TempSalesCrMemoLine := SalesCrMemoLine;
+                if TempSalesCrMemoLine.Insert() then;
+            end;
     end;
 
     procedure FilterPstdDocLnItemLedgEntries(var ItemLedgEntry: Record "Item Ledger Entry")

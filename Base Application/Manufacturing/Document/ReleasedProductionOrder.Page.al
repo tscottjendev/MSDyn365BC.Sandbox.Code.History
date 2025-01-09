@@ -237,7 +237,7 @@ page 99000831 "Released Production Order"
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = Manufacturing;
-                Caption = 'Attachments';
+                Caption = 'Documents';
                 UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Production Order"),
                               "Document Type" = const("Released Production Order"),

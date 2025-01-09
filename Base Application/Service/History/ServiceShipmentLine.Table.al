@@ -15,6 +15,7 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
@@ -785,37 +786,31 @@ table 5991 "Service Shipment Line"
         OnAfterValidateServiceLineAmounts(ServiceLine, ServiceOrderLine, ServiceInvHeader);
     end;
 
-    local procedure GetServInvLines(var TempServInvLine: Record "Service Invoice Line" temporary)
+    local procedure GetServInvLines(var TempServiceInvoiceLine: Record "Service Invoice Line" temporary)
     var
-        ServInvLine: Record "Service Invoice Line";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
+        ServiceInvoiceLine: Record "Service Invoice Line";
+        ValueItemLedgerEntries: Query "Value Item Ledger Entries";
     begin
-        TempServInvLine.Reset();
-        TempServInvLine.DeleteAll();
+        TempServiceInvoiceLine.Reset();
+        TempServiceInvoiceLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
 
-        FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-        ItemLedgEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ItemLedgEntry.FindFirst() then begin
-            ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
-            ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
-            ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-            repeat
-                ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-                if ValueEntry.Find('-') then
-                    repeat
-                        if ValueEntry."Document Type" = ValueEntry."Document Type"::"Service Invoice" then
-                            if ServInvLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.") then begin
-                                TempServInvLine.Init();
-                                TempServInvLine := ServInvLine;
-                                if TempServInvLine.Insert() then;
-                            end;
-                    until ValueEntry.Next() = 0;
-            until ItemLedgEntry.Next() = 0;
-        end;
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_No, "Document No.");
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Type, Enum::"Item Ledger Document Type"::"Service Shipment");
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Line_No, "Line No.");
+        ValueItemLedgerEntries.SetFilter(Item_Ledg_Invoice_Quantity, '<>0');
+        ValueItemLedgerEntries.SetRange(Value_Entry_Type, Enum::"Cost Entry Type"::"Direct Cost");
+        ValueItemLedgerEntries.SetFilter(Value_Entry_Invoiced_Qty, '<>0');
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Type, Enum::"Item Ledger Document Type"::"Service Invoice");
+        ValueItemLedgerEntries.Open();
+        while ValueItemLedgerEntries.Read() do
+            if ServiceInvoiceLine.Get(ValueItemLedgerEntries.Value_Entry_Doc_No, ValueItemLedgerEntries.Value_Entry_Doc_Line_No) then begin
+                TempServiceInvoiceLine.Init();
+                TempServiceInvoiceLine := ServiceInvoiceLine;
+                if TempServiceInvoiceLine.Insert() then;
+            end;
     end;
 
     procedure FilterPstdDocLnItemLedgEntries(var ItemLedgEntry: Record "Item Ledger Entry")
