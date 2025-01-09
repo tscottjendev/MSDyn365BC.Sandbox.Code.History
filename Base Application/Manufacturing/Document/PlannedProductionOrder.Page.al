@@ -210,7 +210,7 @@ page 99000813 "Planned Production Order"
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = Manufacturing;
-                Caption = 'Attachments';
+                Caption = 'Documents';
                 UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Production Order"),
                               "Document Type" = const("Planned Production Order"),
