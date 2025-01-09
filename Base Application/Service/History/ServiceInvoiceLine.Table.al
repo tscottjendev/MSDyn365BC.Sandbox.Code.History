@@ -766,29 +766,28 @@ table 5993 "Service Invoice Line"
         exit('');
     end;
 
-    local procedure GetServShptLines(var TempServShptLine: Record "Service Shipment Line" temporary)
+    local procedure GetServShptLines(var TempServiceShipmentLine: Record "Service Shipment Line" temporary)
     var
-        ServShptLine: Record "Service Shipment Line";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
+        ServiceShipmentLine: Record "Service Shipment Line";
+        ValueItemLedgerEntries: Query "Value Item Ledger Entries";
     begin
-        TempServShptLine.Reset();
-        TempServShptLine.DeleteAll();
+        TempServiceShipmentLine.Reset();
+        TempServiceShipmentLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
 
-        FilterPstdDocLineValueEntries(ValueEntry);
-        if ValueEntry.FindSet() then
-            repeat
-                ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
-                if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Service Shipment" then
-                    if ServShptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
-                        TempServShptLine.Init();
-                        TempServShptLine := ServShptLine;
-                        if TempServShptLine.Insert() then;
-                    end;
-            until ValueEntry.Next() = 0;
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_No, "Document No.");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Type, Enum::"Item Ledger Document Type"::"Service Invoice");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Line_No, "Line No.");
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Type, Enum::"Item Ledger Document Type"::"Service Shipment");
+        ValueItemLedgerEntries.Open();
+        while ValueItemLedgerEntries.Read() do
+            if ServiceShipmentLine.Get(ValueItemLedgerEntries.Item_Ledg_Document_No, ValueItemLedgerEntries.Item_Ledg_Document_Line_No) then begin
+                TempServiceShipmentLine.Init();
+                TempServiceShipmentLine := ServiceShipmentLine;
+                if TempServiceShipmentLine.Insert() then;
+            end;
     end;
 
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
