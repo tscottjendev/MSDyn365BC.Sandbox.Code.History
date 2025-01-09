@@ -28,6 +28,15 @@ codeunit 99000783 "Prod. Document Attachment Mgt."
             Database::"Prod. Order Line"]);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Attachment Mgmt", 'OnAfterTableIsDocument', '', false, false)]
+    local procedure OnAfterIsTableDocument(TableNo: Integer; var IsDocument: Boolean)
+    begin
+        if IsDocument then
+            exit;
+
+        IsDocument := TableNo in [Database::"Production Order", Database::"Prod. Order Line"];
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Attachment Mgmt", 'OnAfterGetRefTable', '', false, false)]
     local procedure OnAfterGetRefTable(var RecRef: RecordRef; DocumentAttachment: Record "Document Attachment")
     var
@@ -251,6 +260,7 @@ codeunit 99000783 "Prod. Document Attachment Mgt."
     local procedure DocumentAttachmentFlow_ForProdOrderLineInsert(var Rec: Record "Prod. Order Line"; RunTrigger: Boolean)
     var
         Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
         RoutingHeader: Record "Routing Header";
         FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
@@ -269,10 +279,17 @@ codeunit 99000783 "Prod. Document Attachment Mgt."
         DocumentAttachmentMgmt.CopyAttachments(Item, Rec);
         FeatureTelemetry.LogUptake('0000OC5', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000OCF', GetFeatureTelemetryName(), StrSubstNo(CopyAttachmentLbl, Item.TableCaption(), Rec.TableCaption()));
-        if (Item."Routing No." <> '') then
-            if RoutingHeader.Get(Item."Routing No.") then begin
+
+        if Rec."Routing No." <> '' then
+            if RoutingHeader.Get(Rec."Routing No.") then begin
                 DocumentAttachmentMgmt.CopyAttachments(RoutingHeader, Rec);
-                FeatureTelemetry.LogUsage('0000OCG', GetFeatureTelemetryName(), StrSubstNo(CopyAttachmentLbl, RoutingHeader.TableCaption(), Rec.TableCaption()));
+                FeatureTelemetry.LogUsage('0000OF7', GetFeatureTelemetryName(), StrSubstNo(CopyAttachmentLbl, RoutingHeader.TableCaption(), Rec.TableCaption()));
+            end;
+
+        if Rec."Production BOM No." <> '' then
+            if ProductionBOMHeader.Get(Rec."Production BOM No.") then begin
+                DocumentAttachmentMgmt.CopyAttachments(ProductionBOMHeader, Rec);
+                FeatureTelemetry.LogUsage('0000OF8', GetFeatureTelemetryName(), StrSubstNo(CopyAttachmentLbl, ProductionBOMHeader.TableCaption(), Rec.TableCaption()));
             end;
     end;
 
@@ -287,11 +304,12 @@ codeunit 99000783 "Prod. Document Attachment Mgt."
         if Rec.IsTemporary() then
             exit;
 
-        if (Rec."Item No." <> xRec."Item No.") and (xRec."Item No." <> '') then begin
-            DocumentAttachmentMgmt.DeleteAttachedDocuments(xRec, false);
-            FeatureTelemetry.LogUptake('0000OC6', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
-            FeatureTelemetry.LogUsage('0000OCH', GetFeatureTelemetryName(), StrSubstNo(DeleteAttachmentLbl, xRec.TableCaption()));
-        end;
+        if (Rec."Item No." = xRec."Item No.") then
+            exit;
+
+        DocumentAttachmentMgmt.DeleteAttachedDocuments(xRec, false);
+        FeatureTelemetry.LogUptake('0000OC6', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000OCH', GetFeatureTelemetryName(), StrSubstNo(DeleteAttachmentLbl, xRec.TableCaption()));
 
         DocumentAttachmentFlow_ForProdOrderLineInsert(Rec, true);
     end;
@@ -299,7 +317,6 @@ codeunit 99000783 "Prod. Document Attachment Mgt."
     [EventSubscriber(ObjectType::Table, Database::"Prod. Order Line", OnAfterValidateEvent, "Production BOM No.", false, false)]
     local procedure DocumentAttachmentFlow_ForProdOrderBomInsert(var Rec: Record "Prod. Order Line"; var xRec: Record "Prod. Order Line")
     var
-        ProdBOMHeader: Record "Production BOM Header";
         FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
         if (Rec."Line No." = 0) or IsNullGuid(Rec.SystemId) then
@@ -308,26 +325,19 @@ codeunit 99000783 "Prod. Document Attachment Mgt."
         if Rec.IsTemporary() then
             exit;
 
-        if (Rec."Production BOM No." <> xRec."Production BOM No.") and (xRec."Production BOM No." <> '') then begin
-            DocumentAttachmentMgmt.DeleteAttachedDocuments(xRec, false);
-            FeatureTelemetry.LogUptake('0000OC7', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
-            FeatureTelemetry.LogUsage('0000OCI', GetFeatureTelemetryName(), StrSubstNo(DeleteAttachmentLbl, xRec.TableCaption()));
-        end;
-
-        if Rec."Production BOM No." = '' then
+        if (Rec."Production BOM No." = xRec."Production BOM No.") then
             exit;
 
-        if ProdBOMHeader.Get(Rec."Production BOM No.") then begin
-            DocumentAttachmentMgmt.CopyAttachments(ProdBOMHeader, Rec);
-            FeatureTelemetry.LogUptake('0000OC8', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
-            FeatureTelemetry.LogUsage('0000OCJ', GetFeatureTelemetryName(), StrSubstNo(CopyAttachmentLbl, ProdBOMHeader.TableCaption(), Rec.TableCaption()));
-        end;
+        DocumentAttachmentMgmt.DeleteAttachedDocuments(xRec, false);
+        FeatureTelemetry.LogUptake('0000OC7', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000OCI', GetFeatureTelemetryName(), StrSubstNo(DeleteAttachmentLbl, xRec.TableCaption()));
+
+        DocumentAttachmentFlow_ForProdOrderLineInsert(Rec, true);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Prod. Order Line", OnAfterValidateEvent, "Routing No.", false, false)]
     local procedure DocumentAttachmentFlow_ForRoutingNoInsert(var Rec: Record "Prod. Order Line"; var xRec: Record "Prod. Order Line")
     var
-        RoutingHeader: Record "Routing Header";
         FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
         if (Rec."Line No." = 0) or IsNullGuid(Rec.SystemId) then
@@ -336,20 +346,14 @@ codeunit 99000783 "Prod. Document Attachment Mgt."
         if Rec.IsTemporary() then
             exit;
 
-        if (Rec."Routing No." <> xRec."Routing No.") and (xRec."Routing No." <> '') then begin
-            DocumentAttachmentMgmt.DeleteAttachedDocuments(xRec, false);
-            FeatureTelemetry.LogUptake('0000OC9', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
-            FeatureTelemetry.LogUsage('0000OCK', GetFeatureTelemetryName(), StrSubstNo(DeleteAttachmentLbl, xRec.TableCaption()));
-        end;
-
-        if Rec."Routing No." = '' then
+        if (Rec."Routing No." = xRec."Routing No.") then
             exit;
 
-        if RoutingHeader.Get(Rec."Routing No.") then begin
-            DocumentAttachmentMgmt.CopyAttachments(RoutingHeader, Rec);
-            FeatureTelemetry.LogUptake('0000OCA', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
-            FeatureTelemetry.LogUsage('0000OCL', GetFeatureTelemetryName(), StrSubstNo(CopyAttachmentLbl, RoutingHeader.TableCaption(), Rec.TableCaption()));
-        end;
+        DocumentAttachmentMgmt.DeleteAttachedDocuments(xRec, false);
+        FeatureTelemetry.LogUptake('0000OC9', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000OCK', GetFeatureTelemetryName(), StrSubstNo(DeleteAttachmentLbl, xRec.TableCaption()));
+
+        DocumentAttachmentFlow_ForProdOrderLineInsert(Rec, true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Order Status Management", OnAfterTransProdOrder, '', false, false)]
@@ -371,11 +375,12 @@ codeunit 99000783 "Prod. Document Attachment Mgt."
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Order Status Management", 'OnAfterToProdOrderLineModify', '', false, false)]
-    local procedure DocumentAttachmentFlow_FromprodOrderLineToProdOrderLine(var FromProdOrderLine: Record "Prod. Order Line"; var ToProdOrderLine: Record "Prod. Order Line")
+    local procedure DocumentAttachmentFlow_FromProdOrderLineToProdOrderLine(var FromProdOrderLine: Record "Prod. Order Line"; var ToProdOrderLine: Record "Prod. Order Line")
     begin
         if ToProdOrderLine.IsTemporary() then
             exit;
 
+        DocumentAttachmentMgmt.DeleteAttachedDocuments(ToProdOrderLine, false);
         DocumentAttachmentMgmt.CopyAttachments(FromProdOrderLine, ToProdOrderLine);
     end;
 

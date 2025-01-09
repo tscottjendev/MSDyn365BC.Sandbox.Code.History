@@ -16,6 +16,7 @@ page 9288 "Prod. BOM Version Comparison"
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
+    ModifyAllowed = false;
     PageType = Worksheet;
     SourceTable = "Production Matrix BOM Line";
 
@@ -622,7 +623,6 @@ page 9288 "Prod. BOM Version Comparison"
 
     local procedure GenerateMatrixColumns(StepType: Enum "Matrix Page Step Type")
     var
-        ProductionBOMHeaderMatrix: Record "Production BOM Header";
         MatrixManagement: Codeunit "Matrix Management";
         RecRef: RecordRef;
         CurrentMatrixRecordOrdinal: Integer;
@@ -631,10 +631,7 @@ page 9288 "Prod. BOM Version Comparison"
         Clear(MatrixRecords);
         CurrentMatrixRecordOrdinal := 0;
 
-        ProductionBOMHeaderMatrix.Get(CurrentProductionBOMHeader."No.");
-        RecRef.GetTable(ProductionBOMHeaderMatrix);
-        RecRef.SetTable(ProductionBOMHeaderMatrix);
-        BOMMatrix_CaptionSet := Format(RecRef.Field(1).Value());
+        BOMMatrix_CaptionSet := Format(CurrentProductionBOMHeader."No.");
 
         Clear(RecRef);
         RecRef.GetTable(Matrix_MatrixRecord);

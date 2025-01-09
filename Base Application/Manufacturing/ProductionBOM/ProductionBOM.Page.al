@@ -115,7 +115,7 @@ page 99000786 "Production BOM"
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = Manufacturing;
-                Caption = 'Attachments';
+                Caption = 'Documents';
                 UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Production BOM Header"),
                               "No." = field("No.");
