@@ -547,8 +547,7 @@ codeunit 7307 "Whse.-Activity-Register"
             WhseActivLine."Whse. Document Type"::Shipment:
                 if WhseActivLine."Action Type" <> WhseActivLine."Action Type"::Take then begin
                     WhseShptHeader.Get(WhseActivLine."Whse. Document No.");
-                    WhseShptHeader.Validate(
-                      "Document Status", WhseShptHeader.GetDocumentStatus(0));
+                    WhseShptHeader.Validate("Document Status", WhseShptHeader.GetShipmentStatus(0));
                     WhseShptHeader.Modify();
                 end;
             WhseActivLine."Whse. Document Type"::Receipt:
@@ -702,7 +701,7 @@ codeunit 7307 "Whse.-Activity-Register"
 
         WhseShptLine.Validate("Qty. to Ship", WhseShptLine."Qty. Picked" - WhseShptLine."Qty. Shipped");
         WhseShptLine."Qty. to Ship (Base)" := WhseShptLine."Qty. Picked (Base)" - WhseShptLine."Qty. Shipped (Base)";
-        WhseShptLine.Status := WhseShptLine.CalcStatusShptLine();
+        WhseShptLine.Status := WhseShptLine.GetShipmentLineStatus();
         OnBeforeWhseShptLineModify(WhseShptLine, GlobalWhseActivLine, WhseActivityLineGrouped);
         WhseShptLine.Modify();
         OnAfterWhseShptLineModify(WhseShptLine);
