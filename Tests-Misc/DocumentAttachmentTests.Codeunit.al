@@ -3711,7 +3711,7 @@ codeunit 134776 "Document Attachment Tests"
     end;
 
     [Test]
-    [HandlerFunctions('ListProductionFlow,ProductionConfirmHandlerReplyTRUE')]
+    [HandlerFunctions('ListProductionFlow')]
     [Scope('OnPrem')]
     procedure TestDocAttachPageInRoutingHeader()
     var
