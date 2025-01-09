@@ -207,5 +207,14 @@ table 99000763 "Routing Header"
             exit(true);
         end;
     end;
+
+    procedure RoutingLinesExist(): Boolean
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        RoutingLine.SetRange("Routing No.", Rec."No.");
+        RoutingLine.SetRange("Version Code", '');
+        exit(not RoutingLine.IsEmpty());
+    end;
 }
 
