@@ -281,6 +281,15 @@ table 99000771 "Production BOM Header"
             ProductionBOMLine.TestField("Variant Code");
     end;
 
+    procedure ProductionBOMLinesExist(): Boolean
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        ProductionBOMLine.SetRange("Production BOM No.", Rec."No.");
+        ProductionBOMLine.SetRange("Version Code", '');
+        exit(not ProductionBOMLine.IsEmpty());
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAsistEdit(var ProductionBOMHeader: Record "Production BOM Header"; OldProductionBOMHeader: Record "Production BOM Header"; var SeriesSelected: Boolean; var IsHandled: Boolean)
     begin
