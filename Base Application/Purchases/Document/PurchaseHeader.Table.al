@@ -58,7 +58,6 @@ using System.Security.User;
 using System.Threading;
 using System.Utilities;
 using Microsoft.Projects.Project.Job;
-using Microsoft.Manufacturing.WorkCenter;
 
 table 38 "Purchase Header"
 {
@@ -5248,7 +5247,8 @@ table 38 "Purchase Header"
         DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", SourcePurchaseLine."No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Job, SourcePurchaseLine."Job No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", SourcePurchaseLine."Responsibility Center");
-        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", SourcePurchaseLine."Work Center No.");
+
+        OnAfterInitPurchaseLineDefaultDimSource(Rec, DefaultDimSource, SourcePurchaseLine);
     end;
 
     local procedure CollectParamsInBufferForCreateDimSet(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
@@ -8729,6 +8729,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreatePurchLinesOnBeforePurchLinesExists(var PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; ChangedFieldName: Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitPurchaseLineDefaultDimSource(var PurchaseHeader: Record "Purchase Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SourcePurchaseLine: Record "Purchase Line")
     begin
     end;
 
