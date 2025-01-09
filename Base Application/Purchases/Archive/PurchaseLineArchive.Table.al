@@ -21,9 +21,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.Document;
@@ -685,12 +682,6 @@ table 5110 "Purchase Line Archive"
         {
             Caption = 'Doc. No. Occurrence';
         }
-        field(5401; "Prod. Order No."; Code[20])
-        {
-            Caption = 'Prod. Order No.';
-            TableRelation = "Production Order"."No." where(Status = filter(Released | Finished));
-            ValidateTableRelation = false;
-        }
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
@@ -974,33 +965,6 @@ table 5110 "Purchase Line Archive"
         {
             Caption = 'IRS 1099 Liable';
         }
-        field(99000750; "Routing No."; Code[20])
-        {
-            Caption = 'Routing No.';
-            TableRelation = "Routing Header";
-        }
-        field(99000751; "Operation No."; Code[10])
-        {
-            Caption = 'Operation No.';
-            TableRelation = "Prod. Order Routing Line"."Operation No." where(Status = const(Released),
-                                                                              "Prod. Order No." = field("Prod. Order No."),
-                                                                              "Routing No." = field("Routing No."));
-        }
-        field(99000752; "Work Center No."; Code[20])
-        {
-            Caption = 'Work Center No.';
-            TableRelation = "Work Center";
-        }
-        field(99000753; Finished; Boolean)
-        {
-            Caption = 'Finished';
-        }
-        field(99000754; "Prod. Order Line No."; Integer)
-        {
-            Caption = 'Prod. Order Line No.';
-            TableRelation = "Prod. Order Line"."Line No." where(Status = filter(Released ..),
-                                                                 "Prod. Order No." = field("Prod. Order No."));
-        }
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
@@ -1017,10 +981,6 @@ table 5110 "Purchase Line Archive"
         field(99000758; "Safety Lead Time"; DateFormula)
         {
             Caption = 'Safety Lead Time';
-        }
-        field(99000759; "Routing Reference No."; Integer)
-        {
-            Caption = 'Routing Reference No.';
         }
     }
 
