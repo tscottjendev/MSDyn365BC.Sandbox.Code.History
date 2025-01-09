@@ -207,6 +207,15 @@ table 99000786 "Routing Version"
             '%1 %2 %3', RtngHeader."No.", RtngHeader.Description, "Version Code"));
     end;
 
+    procedure RoutingLinesExist(): Boolean
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        RoutingLine.SetRange("Routing No.", Rec."Routing No.");
+        RoutingLine.SetRange("Version Code", Rec."Version Code");
+        exit(not RoutingLine.IsEmpty());
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnValidateStatusBeforeCommit(var RoutingVersion: Record "Routing Version"; var SkipCommit: Boolean)
     begin
