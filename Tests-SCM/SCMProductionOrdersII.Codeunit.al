@@ -4578,7 +4578,7 @@
             Bin.Code);
 
         // [GIVEN] Generate and save Serial No and Quantity in two different Variables.
-        SerialNo := Format(LibraryRandom.RandText(3));
+        SerialNo := LibraryUtility.GenerateRandomCode(ProdItem.FieldNo("No."), DATABASE::Item);
         Quantity := LibraryRandom.RandIntInRange(-1, -1);
 
         // [GIVEN] Open Released Production Order page and run Production Journal action.
@@ -4588,7 +4588,7 @@
         LibraryVariableStorage.Enqueue(ItemTrackingMode::" ");
         LibraryVariableStorage.Enqueue(SerialNo);
         LibraryVariableStorage.Enqueue(LibraryRandom.RandInt(0));
-        LibraryVariableStorage.Enqueue(LibraryRandom.RandText(3));
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin));
         LibraryVariableStorage.Enqueue(LibraryRandom.RandInt(0));
         ReleasedProdOrder.ProdOrderLines.ProductionJournal.Invoke();
         ReleasedProdOrder.Close();
