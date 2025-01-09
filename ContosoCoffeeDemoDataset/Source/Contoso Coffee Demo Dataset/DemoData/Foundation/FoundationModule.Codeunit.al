@@ -35,7 +35,6 @@ codeunit 5203 "Foundation Module" implements "Contoso Demo Data Module"
         Codeunit.Run(Codeunit::"Create Data Exchange");
         Codeunit.Run(Codeunit::"Create Data Exchange Type");
         Codeunit.Run(Codeunit::"Create Custom Report Layout");
-        Codeunit.Run(Codeunit::"Create O365 Template");
     end;
 
     procedure CreateMasterData()
