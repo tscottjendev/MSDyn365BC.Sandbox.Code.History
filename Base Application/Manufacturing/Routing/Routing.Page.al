@@ -114,7 +114,7 @@ page 99000766 Routing
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = Manufacturing;
-                Caption = 'Attachments';
+                Caption = 'Documents';
                 UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Routing Header"),
                               "No." = field("No.");
