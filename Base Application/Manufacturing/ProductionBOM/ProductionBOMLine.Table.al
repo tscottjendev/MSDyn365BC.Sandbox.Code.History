@@ -463,7 +463,7 @@ table 99000772 "Production BOM Line"
         ItemListPage: Page "Item List";
         SelectionFilter: Text;
     begin
-        SelectionFilter := ItemListPage.SelectActiveItems();
+        SelectionFilter := ItemListPage.SelectActiveItemsForProductionBOM();
 
         if SelectionFilter <> '' then
             AddItems(SelectionFilter);

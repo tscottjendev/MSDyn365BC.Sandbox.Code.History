@@ -759,30 +759,29 @@ table 125 "Purch. Cr. Memo Line"
             0, "Document No.", '', 0, "Line No."));
     end;
 
-    procedure GetReturnShptLines(var TempReturnShptLine: Record "Return Shipment Line" temporary)
+    procedure GetReturnShptLines(var TempReturnShipmentLine: Record "Return Shipment Line" temporary)
     var
-        ReturnShptLine: Record "Return Shipment Line";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
+        ReturnShipmentLine: Record "Return Shipment Line";
+        ValueItemLedgerEntries: Query "Value Item Ledger Entries";
     begin
-        TempReturnShptLine.Reset();
-        TempReturnShptLine.DeleteAll();
+        TempReturnShipmentLine.Reset();
+        TempReturnShipmentLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
 
-        FilterPstdDocLineValueEntries(ValueEntry);
-        ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ValueEntry.FindSet() then
-            repeat
-                ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
-                if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Purchase Return Shipment" then
-                    if ReturnShptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
-                        TempReturnShptLine.Init();
-                        TempReturnShptLine := ReturnShptLine;
-                        if TempReturnShptLine.Insert() then;
-                    end;
-            until ValueEntry.Next() = 0;
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_No, "Document No.");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Type, Enum::"Item Ledger Document Type"::"Purchase Credit Memo");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Line_No, "Line No.");
+        ValueItemLedgerEntries.SetFilter(Value_Entry_Invoiced_Qty, '<>0');
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Type, Enum::"Item Ledger Document Type"::"Purchase Return Shipment");
+        ValueItemLedgerEntries.Open();
+        while ValueItemLedgerEntries.Read() do
+            if ReturnShipmentLine.Get(ValueItemLedgerEntries.Item_Ledg_Document_No, ValueItemLedgerEntries.Item_Ledg_Document_Line_No) then begin
+                TempReturnShipmentLine.Init();
+                TempReturnShipmentLine := ReturnShipmentLine;
+                if TempReturnShipmentLine.Insert() then;
+            end;
     end;
 
     procedure GetItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SetQuantity: Boolean)
