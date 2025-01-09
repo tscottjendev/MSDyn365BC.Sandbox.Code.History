@@ -816,8 +816,7 @@ table 123 "Purch. Inv. Line"
     procedure GetPurchRcptLines(var TempPurchRcptLine: Record "Purch. Rcpt. Line" temporary)
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
+        ValueItemLedgerEntries: Query "Value Item Ledger Entries";
     begin
         TempPurchRcptLine.Reset();
         TempPurchRcptLine.DeleteAll();
@@ -825,18 +824,18 @@ table 123 "Purch. Inv. Line"
         if Type <> Type::Item then
             exit;
 
-        FilterPstdDocLineValueEntries(ValueEntry);
-        ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ValueEntry.FindSet() then
-            repeat
-                ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
-                if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Purchase Receipt" then
-                    if PurchRcptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
-                        TempPurchRcptLine.Init();
-                        TempPurchRcptLine := PurchRcptLine;
-                        if TempPurchRcptLine.Insert() then;
-                    end;
-            until ValueEntry.Next() = 0;
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_No, "Document No.");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Type, Enum::"Item Ledger Document Type"::"Purchase Invoice");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Line_No, "Line No.");
+        ValueItemLedgerEntries.SetFilter(Value_Entry_Invoiced_Qty, '<>0');
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Type, Enum::"Item Ledger Document Type"::"Purchase Receipt");
+        ValueItemLedgerEntries.Open();
+        while ValueItemLedgerEntries.Read() do
+            if PurchRcptLine.Get(ValueItemLedgerEntries.Item_Ledg_Document_No, ValueItemLedgerEntries.Item_Ledg_Document_Line_No) then begin
+                TempPurchRcptLine.Init();
+                TempPurchRcptLine := PurchRcptLine;
+                if TempPurchRcptLine.Insert() then;
+            end;
     end;
 
     procedure CalcReceivedPurchNotReturned(var RemainingQty: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean)
