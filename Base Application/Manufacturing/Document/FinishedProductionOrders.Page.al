@@ -5,6 +5,7 @@
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Reports;
@@ -130,6 +131,15 @@ page 9327 "Finished Production Orders"
         }
         area(factboxes)
         {
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::"Production Order"),
+                              "Document Type" = const("Finished Production Order"),
+                              "No." = field("No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;

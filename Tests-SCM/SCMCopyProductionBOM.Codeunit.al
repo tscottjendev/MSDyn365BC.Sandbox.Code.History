@@ -453,6 +453,39 @@ codeunit 137210 "SCM Copy Production BOM"
         Assert.RecordCount(ProductionBOMLine, 0);
     end;
 
+    [Test]
+    [HandlerFunctions('SelectMultiItemsModalPageHandlerForService')]
+    procedure VerifyProdBOMVersionLinesCannotShowServiceItemOnSelectMultipleItems()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMVersion: Record "Production BOM Version";
+        ProductionBOMVersionTestPage: TestPage "Production BOM Version";
+    begin
+        // [SCENARIO 560153] Verify Service items are not shown When Run Action "Select items" on Prod. BOM Version Lines Page.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Update Type in Item.
+        Item.Validate(Type, Item.Type::Service);
+        Item.Modify();
+
+        // [GIVEN] Create a Production BOM with BOM Versions.
+        SetupCopyBOM(ProductionBOMHeader, ProductionBOMVersion, ProductionBOMHeader.Status::New);
+
+        // [GIVEN] Enqueue Item No. 
+        LibraryVariableStorage.Enqueue(Item."No.");
+
+        // [WHEN] Run action "Select items" on Production BOM Version Lines Page.
+        ProductionBOMVersionTestPage.OpenEdit();
+        ProductionBOMVersionTestPage.GoToRecord(ProductionBOMVersion);
+        ProductionBOMVersionTestPage.ProdBOMLine.SelectMultiItems.Invoke();
+
+        // [THEN] Verify Service items are not shown When Run Action "Select items" on Prod. BOM Version Lines Page through SelectMultiItemsModalPageHandlerForService Handler.
+    end;
+
     [Normal]
     local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header")
     var
@@ -611,6 +644,14 @@ codeunit 137210 "SCM Copy Production BOM"
     begin
         ItemList.Next();
         ItemList.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectMultiItemsModalPageHandlerForService(var ItemList: TestPage "Item List")
+    begin
+        ItemList.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ItemList."No.".AssertEquals('');
     end;
 }
 
