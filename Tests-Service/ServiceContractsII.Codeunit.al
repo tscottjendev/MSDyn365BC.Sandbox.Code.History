@@ -2081,9 +2081,13 @@ codeunit 136145 "Service Contracts II"
         ContractExpirationDate: Date;
         DefaultContractValue: Decimal;
         MonthWiseExpectedAmount: Decimal;
+        CurrentWorkDate: Date;
     begin
         // [SCENARIO 500869] Service Invoice for Contracts starting in February, Leap Year incorrect calculation breakdown of monthly alloactions
         Initialize();
+
+        CurrentWorkDate := WorkDate();
+        WorkDate(20240201D); // Set leap year work date
 
         // [GIVEN] Generate and Save Contract Starting date in a Variable.
         ContractStartingDate := LibraryRandom.RandDateFromInRange(CalcDate('<CM>', WorkDate()), 10, 20);
@@ -2158,6 +2162,8 @@ codeunit 136145 "Service Contracts II"
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
         ServiceContract.CreateServiceInvoice.Invoke();
+
+        WorkDate(CurrentWorkDate);
 
         // [GIVEN] Generate different months line amount in the Variable.
         MonthWiseExpectedAmount := CalcContractLineAmount(DefaultContractValue, ContractStartingDate, ContractExpirationDate);
