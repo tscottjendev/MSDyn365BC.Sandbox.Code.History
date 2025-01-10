@@ -349,22 +349,22 @@ page 460 "Purchases & Payables Setup"
                 field("Archive Quotes"; Rec."Archive Quotes")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you want to automatically archive purchase quotes when: deleted, processed or printed.';
+                    ToolTip = 'Specifies if you want to archive purchase quotes when they are deleted.';
                 }
                 field("Archive Orders"; Rec."Archive Orders")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you want to automatically archive purchase orders when: deleted, posted or printed.';
+                    ToolTip = 'Specifies if you want to archive purchase orders when they are deleted.';
                 }
                 field("Archive Blanket Orders"; Rec."Archive Blanket Orders")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you want to automatically archive purchase blanket orders when: deleted, processed or printed.';
+                    ToolTip = 'Specifies if you want to archive purchase blanket orders when they are deleted.';
                 }
                 field("Archive Return Orders"; Rec."Archive Return Orders")
                 {
                     ApplicationArea = PurchReturnOrder;
-                    ToolTip = 'Specifies if you want to automatically archive purchase return orders when deleted or posted.';
+                    ToolTip = 'Specifies if you want to archive purchase return orders when they are deleted.';
                 }
             }
             group("Journal Templates")
