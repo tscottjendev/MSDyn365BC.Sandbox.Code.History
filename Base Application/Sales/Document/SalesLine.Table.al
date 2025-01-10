@@ -1572,14 +1572,15 @@ table 37 "Sales Line"
                                 TestField("No.", VATPostingSetup.GetSalesAccount(false));
                             end;
                     end;
+                GetSalesSetup();
+                if ("VAT Bus. Posting Group" = SalesSetup."Reverse Charge VAT Posting Gr.") and not "Reverse Charge Item" then
+                    FieldError("VAT Bus. Posting Group", StrSubstNo(Text1041001, "VAT Bus. Posting Group", Type, "No."));
+
                 if "Document Type" = "Document Type"::"Credit Memo" then begin
-                    GetSalesSetup();
                     "Reverse Charge" := 0;
-                    if ("VAT Bus. Posting Group" = SalesSetup."Reverse Charge VAT Posting Gr.") and not "Reverse Charge Item" then
-                        FieldError("VAT Bus. Posting Group", StrSubstNo(Text1041001, "VAT Bus. Posting Group", Type, "No."));
                     if ("VAT Bus. Posting Group" = SalesSetup."Reverse Charge VAT Posting Gr.") and
-                       (SalesHeader."VAT Bus. Posting Group" = SalesSetup."Domestic Customers")
-                    then
+                     (SalesHeader."VAT Bus. Posting Group" = SalesSetup."Domestic Customers")
+                  then
                         "Reverse Charge" :=
                           Round(Amount * (1 - SalesHeader."VAT Base Discount %" / 100) * xRec."VAT %" / 100,
                             Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
@@ -2407,6 +2408,8 @@ table 37 "Sales Line"
 
                 if Type = Type::Item then begin
                     GetUnitCost();
+                    if "Document Type" = "Document Type"::"Return Order" then
+                        ValidateReturnReasonCode(FieldNo("Variant Code"));
                     if "Variant Code" <> xRec."Variant Code" then
                         PlanPriceCalcByField(FieldNo("Variant Code"));
                 end;
@@ -5312,7 +5315,7 @@ table 37 "Sales Line"
         if CurrFieldNo = FieldNo("Requested Delivery Date") then
             exit("Requested Delivery Date");
 
-        if "Shipment Date" = 0D then
+        if ("Shipment Date" = 0D) and (CurrFieldNo <> FieldNo("Planned Delivery Date")) then
             exit("Planned Delivery Date");
 
         CustomCalendarChange[1].SetSource(CalChange."Source Type"::"Shipping Agent", "Shipping Agent Code", "Shipping Agent Service Code", '');
@@ -5630,10 +5633,11 @@ table 37 "Sales Line"
 
         Clear(SalesHeader);
         TestStatusOpen();
-        if ItemSubstitutionMgt.ItemSubstGet(Rec) then
+        if ItemSubstitutionMgt.ItemSubstGet(Rec) then begin
+            Rec.Validate("Location Code");
             if TransferExtendedText.SalesCheckIfAnyExtText(Rec, false) then
                 TransferExtendedText.InsertSalesExtText(Rec);
-
+        end;
         OnAfterShowItemSub(Rec);
     end;
 
@@ -7808,7 +7812,7 @@ table 37 "Sales Line"
 
     local procedure CheckWMS()
     begin
-        if CurrFieldNo <> 0 then
+        if (CurrFieldNo <> 0) or (SalesHeader."VAT Bus. Posting Group" <> Rec."VAT Bus. Posting Group") then
             CheckLocationOnWMS();
     end;
 
