@@ -1708,7 +1708,7 @@ codeunit 7307 "Whse.-Activity-Register"
 
             LineReservedQtyBase :=
                 WhseAvailMgt.CalcLineReservedQtyOnInvt(
-                    WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.", WhseActivLine."Source Line No.", WhseActivLine."Source Subline No.", false, TempWhseActivLine2);
+                    WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.", WhseActivLine."Source Line No.", WhseActivLine."Source Subline No.", false, WhseItemTrackingSetup, WhseActivLine);
 
             TotalAvailQtyBase :=
               QtyInWhseBase -
