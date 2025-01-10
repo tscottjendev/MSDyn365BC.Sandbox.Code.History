@@ -742,12 +742,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
         Item.CopyFilter("Location Filter", ForecastEntry2."Location Code");
 
         for ComponentForecast := ComponentForecastFrom to true do begin
-            if ComponentForecast then begin
-                if not FindReplishmentLocation(ReplenishmentLocation, Item) then
-                    ReplenishmentLocation := ManufacturingSetup."Components at Location";
-                if InvtSetup."Location Mandatory" and (ReplenishmentLocation = '') then
-                    exit;
-            end;
+            if not ManufacturingSetup."Use Forecast on Locations" then
+                if ComponentForecast then begin
+                    if not FindReplishmentLocation(ReplenishmentLocation, Item) then
+                        ReplenishmentLocation := ManufacturingSetup."Components at Location";
+                    if InvtSetup."Location Mandatory" and (ReplenishmentLocation = '') then
+                        exit;
+                end;
             ForecastEntry.SetRange("Component Forecast", ComponentForecast);
             ForecastEntry2.SetRange("Component Forecast", ComponentForecast);
             if ForecastEntry2.Find('-') then
@@ -2337,8 +2338,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                               TempSKU."Reorder Quantity";
                 end;
 
-            if ((TempSKU."Replenishment System" = TempSKU."Replenishment System"::"Prod. Order") and (TempSKU."Manufacturing Policy" = TempSKU."Manufacturing Policy"::"Make-to-Stock"))
-                or (TempSKU."Replenishment System" = TempSKU."Replenishment System"::Purchase) then
+            if IsReorderQtyToAdjust(TempSKU) then
                 ReorderQty += AdjustReorderQty(ReorderQty, TempSKU, SupplyInvtProfile."Line No.", SupplyInvtProfile."Min. Quantity");
             SupplyInvtProfile."Max. Quantity" := TempSKU."Maximum Order Quantity";
         end;
@@ -5249,6 +5249,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 if CheckItemInventoryExists(SupplyInvtProfile) then
                     exit(true);
         end;
+    end;
+
+    local procedure IsReorderQtyToAdjust(StockkeepingUnit: Record "Stockkeeping Unit"): Boolean
+    begin
+        exit(not ((StockkeepingUnit."Reordering Policy" = StockkeepingUnit."Reordering Policy"::"Lot-for-Lot") and (StockkeepingUnit."Manufacturing Policy" = StockkeepingUnit."Manufacturing Policy"::"Make-to-Order")) or
+            ((StockkeepingUnit."Replenishment System" = StockkeepingUnit."Replenishment System"::"Prod. Order") and (StockkeepingUnit."Manufacturing Policy" = StockkeepingUnit."Manufacturing Policy"::"Make-to-Stock")) or
+            (StockkeepingUnit."Replenishment System" in [StockkeepingUnit."Replenishment System"::Purchase, StockkeepingUnit."Replenishment System"::Assembly]))
     end;
 
     [IntegrationEvent(false, false)]
