@@ -19,6 +19,7 @@ using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.Setup;
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Sales.History;
@@ -38,7 +39,9 @@ codeunit 22 "Item Jnl.-Post Line"
                   TableData "Avg. Cost Adjmt. Entry Point" = rim,
                   TableData "Post Value Entry to G/L" = ri,
                   TableData "Capacity Ledger Entry" = rimd,
-                  TableData "Inventory Adjmt. Entry (Order)" = rim;
+                  TableData "Inventory Adjmt. Entry (Order)" = rim,
+                  TableData "Job Planning Line" = r;
+
     TableNo = "Item Journal Line";
 
     trigger OnRun()
@@ -744,10 +747,11 @@ codeunit 22 "Item Jnl.-Post Line"
         IsHandled := false;
         OnPostItemOnAfterGetSKU(ItemJnlLine, SKUExists, IsHandled);
         if not IsHandled then
-            if ItemJnlLine."Item Shpt. Entry No." <> 0 then begin
-                ItemJnlLine."Location Code" := '';
-                ItemJnlLine."Variant Code" := '';
-            end;
+            if ItemJnlLine."Item Shpt. Entry No." <> 0 then
+                if not CheckIfReservationEntryForJobExist() then begin
+                    ItemJnlLine."Location Code" := '';
+                    ItemJnlLine."Variant Code" := '';
+                end;
 
         if GetItem(ItemJnlLine."Item No.", false) then
             CheckIfItemIsBlocked();
@@ -1890,6 +1894,13 @@ codeunit 22 "Item Jnl.-Post Line"
                         ItemJnlLine.SetReservationFilters(ReservEntry);
                         ReservEntry.SetRange("Item No.", ItemJnlLine."Item No.");
                     end;
+
+                if TempTrackingSpecification.IsEmpty() then
+                    if ItemJnlLine."Document Type" = ItemJnlLine."Document Type"::"Direct Transfer" then
+                        if ItemLedgEntry.Quantity < 0 then
+                            ReservEntry.SetRange("Source Subtype", 0)
+                        else
+                            ReservEntry.SetRange("Source Subtype", 1);
 
                 UseReservationApplication := ReservEntry.FindFirst();
 
@@ -3102,11 +3113,13 @@ codeunit 22 "Item Jnl.-Post Line"
             if GLSetup."Additional Reporting Currency" <> '' then
                 CostAmtACY := ACYMgt.CalcACYAmt(CostAmt, ValueEntry."Posting Date", false);
         end else begin
-            CostAmt :=
-              ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity";
-            CostAmtACY :=
-              ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity";
-
+            if IsNondeductibleAndUseItemCost() then begin
+                CostAmt := ItemJnlLine.Amount;
+                CostAmtACY := ACYMgt.CalcACYAmt(CostAmt, ValueEntry."Posting Date", false);
+            end else begin
+                CostAmt := ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity";
+                CostAmtACY := ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity";
+            end;
             if MustConsiderUnitCostRoundingOnRevaluation(ItemJnlLine) then begin
                 CostAmt += RoundingResidualAmount;
                 CostAmtACY += RoundingResidualAmountACY;
@@ -5714,8 +5727,9 @@ codeunit 22 "Item Jnl.-Post Line"
         if IsHandled then
             exit(Result);
 
-        if ItemJnlLine."Invoice-to Source No." <> '' then
-            exit(ItemJnlLine."Invoice-to Source No.");
+        if ItemJnlLine."Job No." = '' then
+            if ItemJnlLine."Invoice-to Source No." <> '' then
+                exit(ItemJnlLine."Invoice-to Source No.");
         exit(ItemJnlLine."Source No.");
     end;
 
@@ -5987,6 +6001,19 @@ codeunit 22 "Item Jnl.-Post Line"
             exit(0);
 
         exit(-Abs(OldItemLedgerEntry."Reserved Quantity"));
+    end;
+
+    local procedure CheckIfReservationEntryForJobExist(): Boolean
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
+        JobPlanningLine.SetRange("Job Contract Entry No.", ItemJnlLine."Job Contract Entry No.");
+        if not JobPlanningLine.FindFirst() then
+            exit(false);
+
+        exit(JobPlanningLineReserve.FindReservEntry(JobPlanningLine, ReservationEntry));
     end;
 
     [IntegrationEvent(false, false)]
@@ -7261,6 +7288,22 @@ codeunit 22 "Item Jnl.-Post Line"
             exit;
 
         Error(Text027);
+    end;
+
+    local procedure IsNondeductibleAndUseItemCost(): Boolean
+    var
+        VATSetup: Record "VAT Setup";
+    begin
+        if (VATSetup.Get()) and (VATSetup."Enable Non-Deductible VAT") and
+           (VATSetup."Use For Item Cost") and
+           (Item."Costing Method" <> Item."Costing Method"::Standard) and
+           (ItemJnlLine."Value Entry Type" = ItemJnlLine."Value Entry Type"::"Direct Cost") and
+           (ItemJnlLine."Item Charge No." = '') and
+           (ItemJnlLine."Applies-from Entry" = 0) and
+           not ItemJnlLine.Adjustment then
+            exit(true);
+
+        exit(false);
     end;
 
     procedure MarkAppliedInboundItemEntriesForAdjustment(OutboundItemLedgerEntryNo: Integer)
