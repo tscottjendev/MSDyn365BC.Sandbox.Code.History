@@ -372,12 +372,12 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Archive Quotes';
             OptionCaption = 'Never,Question,Always';
             OptionMembers = Never,Question,Always;
-            ToolTip = 'Specifies if you want to archive sales quotes when they are deleted.';
+            ToolTip = 'Specifies if you want to automatically archive sales quotes when: deleted, processed or printed.';
         }
         field(53; "Archive Orders"; Boolean)
         {
             Caption = 'Archive Orders';
-            ToolTip = 'Specifies if you want to archive sales orders when they are deleted.';
+            ToolTip = 'Specifies if you want to automatically archive sales orders when: deleted, posted or printed.';
 
             trigger OnValidate()
             var
@@ -390,12 +390,12 @@ table 311 "Sales & Receivables Setup"
         field(54; "Archive Blanket Orders"; Boolean)
         {
             Caption = 'Archive Blanket Orders';
-            ToolTip = 'Specifies if you want to archive sales blanket orders when they are deleted.';
+            ToolTip = 'Specifies if you want to automatically archive sales blanket orders when: deleted, processed or printed.';
         }
         field(55; "Archive Return Orders"; Boolean)
         {
             Caption = 'Archive Return Orders';
-            ToolTip = 'Specifies if you want to archive sales return orders when they are deleted.';
+            ToolTip = 'Specifies if you want to automatically archive sales return orders when deleted or posted.';
         }
         field(56; "Default G/L Account Quantity"; Boolean)
         {
