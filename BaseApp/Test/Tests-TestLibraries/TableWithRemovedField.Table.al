@@ -9,6 +9,7 @@ table 136603 "Table With Removed Field"
         {
             DataClassification = SystemMetadata;
         }
+#pragma warning disable AS0105
         field(2; "Obsolete Field Removed"; Integer)
         {
             DataClassification = SystemMetadata;
@@ -22,14 +23,10 @@ table 136603 "Table With Removed Field"
             DataClassification = SystemMetadata;
             TableRelation = "Cust. Ledger Entry";
             ObsoleteReason = 'Test field.';
-#if CLEAN25
-            ObsoleteState = Removed;
-            ObsoleteTag = '28.0';
-#else
             ObsoleteState = Pending;
             ObsoleteTag = '25.0';
-#endif
         }
+#pragma warning restore AS0105
         field(4; "Normal Field"; Integer)
         {
             DataClassification = SystemMetadata;
@@ -43,7 +40,7 @@ table 136603 "Table With Removed Field"
         {
             Clustered = true;
         }
-#if not CLEAN25
+#pragma warning disable AS0105
         key(Key2; "Obsolete Field Pending", "Key")
         {
             ObsoleteReason = 'Test key.';
@@ -59,7 +56,7 @@ table 136603 "Table With Removed Field"
         key(Key4; "Obsolete Field Pending", "Normal Field")
         {
         }
-#endif
+#pragma warning restore AS0105
     }
 
     fieldgroups
