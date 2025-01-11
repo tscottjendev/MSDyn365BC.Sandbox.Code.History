@@ -834,6 +834,19 @@ page 30101 "Shpfy Shop Card"
                 RunPageLink = "Shop Code" = field(Code);
                 ToolTip = 'View a list of Shopify Sales Channels for the shop and choose ones used for new product publishing.';
             }
+            action(BulkOperations)
+            {
+                ApplicationArea = All;
+                Caption = 'Bulk Operations';
+                Image = Administration;
+                Promoted = true;
+                PromotedCategory = Category4;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                RunObject = Page "Shpfy Bulk Operations";
+                RunPageLink = "Shop Code" = field(Code);
+                ToolTip = 'View a list of Shopify Bulk Operations for the shop.';
+            }
         }
         area(Processing)
         {
