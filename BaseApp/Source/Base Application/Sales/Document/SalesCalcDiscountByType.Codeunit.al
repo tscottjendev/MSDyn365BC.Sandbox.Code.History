@@ -181,7 +181,7 @@ codeunit 56 "Sales - Calc Discount By Type"
             SalesHeader."Invoice Discount Calculation"::"%":
                 begin
                     if not InvoiceDiscServiceChargeIsAllowed(SalesHeader."Invoice Disc. Code") then
-                        exit(false);                        
+                        exit(false);
                     exit(true);
                 end;
             SalesHeader."Invoice Discount Calculation"::None:
@@ -249,8 +249,8 @@ codeunit 56 "Sales - Calc Discount By Type"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        if CustInvDiscServiceChargeExists(InvDiscCode) then
-            if not SalesReceivablesSetup."Calc. Inv. Discount" then
+        if not SalesReceivablesSetup."Calc. Inv. Discount" then
+            if CustInvDiscServiceChargeExists(InvDiscCode) then
                 exit(false);
         exit(true);
     end;
