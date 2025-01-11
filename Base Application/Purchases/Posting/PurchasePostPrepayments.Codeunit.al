@@ -16,7 +16,6 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.Comment;
 using Microsoft.Purchases.Document;
@@ -1425,10 +1424,11 @@ codeunit 444 "Purchase-Post Prepayments"
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         SourceCodeSetup.Get();
-        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", PurchLine."Work Center No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", PurchLine."No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Job, PurchLine."Job No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", PurchLine."Responsibility Center");
+        OnCreateDimensionsOnAfterAddDimSources(PurchLine, DefaultDimSource);
+
         PurchLine."Shortcut Dimension 1 Code" := '';
         PurchLine."Shortcut Dimension 2 Code" := '';
         PurchLine."Dimension Set ID" :=
@@ -2012,6 +2012,11 @@ codeunit 444 "Purchase-Post Prepayments"
 
     [IntegrationEvent(false, false)]
     local procedure OnBuildInvLineBufferOnPrepmtAmountZero(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var PrepaymentInvLineBuffer2: Record "Prepayment Inv. Line Buffer"; var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var TempPurchaseLineSource: Record "Purchase Line" temporary);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDimensionsOnAfterAddDimSources(var PurchaseLine: Record "Purchase Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 }
