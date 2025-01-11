@@ -6131,6 +6131,132 @@ codeunit 144117 "ERM Make 349 Declaration"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYesNo,MessageHandler,Make349DeclarationRequestPageHandler2')]
+    procedure Make349DeclarationRepWithNonDeductibleVATInPurchaseDocument()
+    var
+        Item: Record Item;
+        VATEntry: Record "VAT Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Vendor: Record Vendor;
+        Make349Declaration: Report "Make 349 Declaration";
+        DocumentNo: Code[20];
+        EULocationList: List of [Code[20]];
+        EUCountryRegionList: List of [Code[10]];
+        FileName: Text;
+    begin
+        // [SCENARIO 560210] Verify Amount With non-deductible VAT in case not all locations are within the EU.
+        Initialize();
+
+        // [GIVEN] Enable Non-Deductible VAT
+        ModifyVATSetup();
+
+        // [GIVEN] Create VAT Posting Setup With Non-Deductible VAT & EU Service.
+        CreateVATPostingSetup(VATPostingSetup, true);
+        ModifyVATPostingSetupWithNonDeductibleVAT(VATPostingSetup);
+
+        // [GIVEN] Set All Locations are EU.
+        SetAllLocationAreEU(EULocationList);
+        
+        // [GIVEN] Set All Country Regions are EU.
+        SetAllCountryRegionAreEU(EUCountryRegionList);
+
+        // [GIVEN] Create EU Vendor.
+        CreateEUVendorWithPostingGroups(Vendor, VATPostingSetup);
+
+        // [GIVEN] Create New Item.
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
+            Item,
+            LibraryRandom.RandDec(1000, 2),
+            LibraryRandom.RandDec(2000, 2));
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // [GIVEN] Post Purchase Invoice
+        DocumentNo := CreateAndPostNonDeductibleVATPurchaseDocument(Vendor, Item);
+
+        // [GIVEN] Find VAT Entry.
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+
+        // [WHEN] Run Make 349 Declaration Report
+        FileName := RunMake349DeclarationWithDate(WorkDate());
+
+        // [THEN] Verify the amount.
+        VerifyValuesOnGeneratedTextFile(FileName, 134,
+            CopyStr(Make349Declaration.FormatTextAmt(VATEntry.Base + VATEntry."Non-Deductible VAT Base"), 3, 13));
+
+        // Restore the Location in Original State.
+        RestoreLocations(EULocationList);
+
+        // Restore the Country Region in Original State.
+        RestoreEUCountryRegions(EUCountryRegionList);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYesNo,MessageHandler,Make349DeclarationRequestPageHandler2')]
+    procedure Make349DeclarationRepWithNonDeductibleVATInSalesDocument()
+    var
+        Item: Record Item;
+        VATEntry: Record "VAT Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Customer: Record Customer;
+        Make349Declaration: Report "Make 349 Declaration";
+        DocumentNo: Code[20];
+        EULocationList: List of [Code[20]];
+        EUCountryRegionList: List of [Code[10]];
+        FileName: Text;
+    begin
+        // [SCENARIO 560210] Verify Amount With non-deductible VAT in case not all locations are within the EU.
+        Initialize();
+
+        // [GIVEN] Enable Non-Deductible VAT
+        ModifyVATSetup();
+
+        // [GIVEN] Create VAT Posting Setup With Non-Deductible VAT & EU Service.
+        CreateVATPostingSetup(VATPostingSetup, true);
+        ModifyVATPostingSetupWithNonDeductibleVAT(VATPostingSetup);
+
+        // [GIVEN] Set All Locations are EU.
+        SetAllLocationAreEU(EULocationList);
+
+        // [GIVEN] Set All Country Regions are EU.
+        SetAllCountryRegionAreEU(EUCountryRegionList);
+
+        // [GIVEN] Create EU Customer.
+        CreateEUCustomerWithPostingGroups(Customer, VATPostingSetup);
+
+        // [GIVEN] Create New Item.
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
+            Item,
+            LibraryRandom.RandDec(1000, 2),
+            LibraryRandom.RandDec(2000, 2));
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // [GIVEN] Post Sales Invoice
+        DocumentNo := CreateAndPostNonDeductibleVATSalesDocument(Customer, Item);
+
+        // [GIVEN] Find VAT Entry.
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+
+        // [WHEN] Run Make 349 Declaration Report
+        FileName := RunMake349DeclarationWithDate(WorkDate());
+
+        // [THEN] Verify the amount.
+        VerifyValuesOnGeneratedTextFile(FileName, 134,
+            CopyStr(Make349Declaration.FormatTextAmt(VATEntry.Base + VATEntry."Non-Deductible VAT Base"), 3, 13));
+
+        // Restore the Location in Original State.
+        RestoreLocations(EULocationList);
+
+        // Restore the Country Region in Original State.
+        RestoreEUCountryRegions(EUCountryRegionList);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -6143,6 +6269,7 @@ codeunit 144117 "ERM Make 349 Declaration"
             exit;
 
         LibrarySetupStorage.SaveCompanyInformation();
+        LibrarySetupStorage.SaveVATSetup();
         InventorySetup.Get();
 
         Make349DeclarationReportId := Report::"Make 349 Declaration";
@@ -7775,6 +7902,19 @@ codeunit 144117 "ERM Make 349 Declaration"
         Make349Declaration.OK().Invoke();
     end;
 
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Make349DeclarationRequestPageHandler2(var Make349Declaration: TestRequestPage "Make 349 Declaration")
+    var
+        PostingDate: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(PostingDate);
+        Make349Declaration.FiscalYear.SetValue(Date2DMY(PostingDate, 3));
+        Make349Declaration.Period.SetValue(Date2DMY(PostingDate, 2));
+        LibraryVariableStorage.Enqueue(false);
+        Make349DeclarationFillMandatoryFieldsOnReqPage(Make349Declaration);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -7949,6 +8089,133 @@ codeunit 144117 "ERM Make 349 Declaration"
         CompanyInformation.Get();
         CompanyInformation.Name := LibraryUtility.GenerateGUID();
         CompanyInformation.Modify();
+    end;
+
+    local procedure ModifyVATSetup()
+    var
+        VATSetup: Record "VAT Setup";
+    begin
+        VATSetup.Get();
+        if VATSetup."Non-Deductible VAT Is Enabled" then
+            exit;
+
+        LibraryVariableStorage.Enqueue(true); // To confirm Enable Non Deductible VAT.
+        VATSetup.Validate("Enable Non-Deductible VAT", true);
+        VATSetup.Validate("Show Non-Ded. VAT In Lines", true);
+        VATSetup.Modify(true);
+    end;
+
+    local procedure ModifyVATPostingSetupWithNonDeductibleVAT(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandInt(30));
+        VATPostingSetup.Validate("VAT Identifier", LibraryRandom.RandText(20));
+        VATPostingSetup.Validate("Allow Non-Deductible VAT", VATPostingSetup."Allow Non-Deductible VAT"::Allow);
+        VATPostingSetup.Validate("Non-Deductible VAT %", LibraryRandom.RandInt(100));
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateEUVendorWithPostingGroups(var Vendor: Record Vendor; VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Validate("Country/Region Code", EUCountryCodeTxt);
+        Vendor.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(EUCountryCodeTxt));
+        Vendor.Modify(true);
+    end;
+
+    local procedure SetAllLocationAreEU(var EULocationList: List of [Code[20]])
+    var
+        Location: Record Location;
+    begin
+        Location.SetRange("Country/Region Code", '');
+        if Location.FindSet() then
+            repeat
+                Location.Validate("Country/Region Code", EUCountryCodeTxt);
+                Location.Modify(true);
+                EULocationList.Add(Location.Code);
+            Until Location.Next() = 0;
+    end;
+
+    local procedure SetAllCountryRegionAreEU(var EUCountryRegionList: List of [Code[10]])
+    var
+        CountryRegion: Record "Country/Region";
+        Location: Record Location;
+    begin
+        if Location.FindSet() then
+            repeat
+                CountryRegion.Get(Location."Country/Region Code");
+                if CountryRegion."EU Country/Region Code" = '' then begin
+                    CountryRegion.Validate("EU Country/Region Code", CountryRegion.Code);
+                    CountryRegion.Modify(true);
+                    EUCountryRegionList.Add(CountryRegion.Code);
+                end;
+            until Location.Next() = 0;
+    end;
+
+    local procedure CreateAndPostNonDeductibleVATPurchaseDocument(Vendor: Record Vendor; Item: Record Item): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DocumentNo: Code[20];
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
+        PurchaseLine.Modify(true);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        exit(DocumentNo);
+    end;
+
+    local procedure CreateEUCustomerWithPostingGroups(var Customer: Record Customer; VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        LibrarySales.CreateCustomer(Customer);
+
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Validate("Country/Region Code", EUCountryCodeTxt);
+        Customer.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(EUCountryCodeTxt));
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateAndPostNonDeductibleVATSalesDocument(Customer: Record Customer; Item: Record Item): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(1000));
+        SalesLine.Validate("Unit Cost", LibraryRandom.RandInt(1000));
+        SalesLine.Modify(true);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        exit(DocumentNo);
+    end;
+
+    local procedure RestoreLocations(EULocationList: List of [Code[20]])
+    var
+        Location: Record Location;
+        LocationCode: Code[20];
+    begin
+        foreach LocationCode in EULocationList do begin
+            Location.Get(LocationCode);
+            Location.Validate("Country/Region Code", '');
+            Location.Modify(true);
+        end;
+    end;
+
+    local procedure RestoreEUCountryRegions(EUCountryRegionList: List of [Code[10]])
+    var
+        CountryRegion: Record "Country/Region";
+        CountryRegionCode: Code[10];
+    begin
+        foreach CountryRegionCode in EUCountryRegionList do begin
+            CountryRegion.Get(CountryRegionCode);
+            CountryRegion.Validate("EU Country/Region Code", '');
+            CountryRegion.Modify(true);
+        end;
     end;
 }
 
