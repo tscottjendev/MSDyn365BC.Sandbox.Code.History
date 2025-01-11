@@ -29,6 +29,9 @@ codeunit 30343 "Shpfy Create Item As Variant"
     var
         TempShopifyVariant: Record "Shpfy Variant" temporary;
     begin
+        if Item.SystemId = ShopifyProduct."Item SystemId" then
+            exit;
+
         CreateProduct.CreateTempShopifyVariantFromItem(Item, TempShopifyVariant);
         TempShopifyVariant."Product Id" := ShopifyProduct."Id";
         TempShopifyVariant.Title := Item."No.";

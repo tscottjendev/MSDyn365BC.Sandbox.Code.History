@@ -11453,6 +11453,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Journal - Method CheckValues - NamedType ProdOrderCapacityNeedTimeCalcError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 191131963 - NamedType 1460374629" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reverse Production Order Transaction should be visible in Page %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Page Caption]D;]A;(LookupHint=Codeunit SCM Production Order III - NamedType ActionShouldBeVisibleErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 191131963 - NamedType 333674898" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reverse Production Order Transaction should not be visible in Page %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Page Caption]D;]A;(LookupHint=Codeunit SCM Production Order III - NamedType ActionShouldNotBeVisibleErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 191131963 - NamedType 1581022862" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Cannot handle entry type %1 for correction posting of production.]]></Val>
@@ -11579,6 +11597,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Order III - NamedType LeaveProductionJournalQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 191131963 - NamedType 3713952921" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Production Order %1 is already Finished, you cannot reverse this entry.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Production Order No.]D;]A;(LookupHint=Codeunit SCM Production Order III - NamedType MissingReleasedProductionErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 191131963 - NamedType 644876557" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Number of Invt. Pick activities created]]></Val>
@@ -11613,15 +11640,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Order III - NamedType ProdOrderLineBinCodeErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 191131963 - NamedType 3808252306" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Production Order does not exist. Identification fields and values: Status='%1',No.='%2']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Production Order Status , %2 = Production Order No.]D;]A;(LookupHint=Codeunit SCM Production Order III - NamedType ProductionOrderNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 191131963 - NamedType 2624207095" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
