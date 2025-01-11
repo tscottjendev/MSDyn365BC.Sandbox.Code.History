@@ -7,6 +7,8 @@ codeunit 5691 "Create Contoso Tenant Data"
 
     trigger OnRun()
     begin
+        CreateProfiles();
+        Codeunit.Run(Codeunit::"Create Contoso Permissions");
         Codeunit.Run(Codeunit::"Create Media Repository");
         Codeunit.Run(Codeunit::"Create Web Services");
         SetupAPIs();
@@ -17,6 +19,25 @@ codeunit 5691 "Create Contoso Tenant Data"
         SetExperienceTierToEssential();
 
         OnAfterCreateTenantData();
+    end;
+
+    local procedure CreateProfiles()
+    var
+        AllProfile: Record "All Profile";
+    begin
+        // Set Default Profile
+        AllProfile.SetRange("Default Role Center", true);
+
+        // Do not overwrite the default role center ID if one already exists
+        // (Since these tables are not company specific)
+        if AllProfile.IsEmpty() then begin
+            Clear(AllProfile);
+            AllProfile.SetRange("Role Center ID", 0);
+            if AllProfile.FindFirst() then begin
+                AllProfile."Default Role Center" := true;
+                AllProfile.Modify();
+            end;
+        end;
     end;
 
     local procedure SetupApplicationArea()

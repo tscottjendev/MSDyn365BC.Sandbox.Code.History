@@ -13,6 +13,7 @@ codeunit 5685 "Create Media Repository"
         InsertWalkMeTour();
         ImportInvoicingEmailMedia();
         CreateO3565Template();
+        CreateLatePaymentModel();
     end;
 
     local procedure InsertMediaResources()
@@ -113,6 +114,13 @@ codeunit 5685 "Create Media Repository"
         O365HTMLTemplate.Validate(Description, SalesMailDescLbl);
         O365HTMLTemplate.Validate("Media Resources Ref", MediaResourcesCode);
         O365HTMLTemplate.Insert(true);
+    end;
+
+    local procedure CreateLatePaymentModel()
+    var
+        ContosoUtilities: Codeunit "Contoso Utilities";
+    begin
+        ContosoUtilities.InsertBLOBFromFile(MachineLearningFolderLbl, 'LatePaymentStandardModel.txt');
     end;
 
     procedure InsertExcelTemplate(FileName: Text; PathToFile: Text)
@@ -255,6 +263,7 @@ codeunit 5685 "Create Media Repository"
         WalkMeTourFolderLbl: Label 'WalkMeTour/', Locked = true;
         PaymentServiceFolderLbl: Label 'PaymentService/', Locked = true;
         SocialFolderLbl: Label 'Social/', Locked = true;
+        MachineLearningFolderLbl: Label 'MachineLearning/', Locked = true;
         HTMLTemplatesFolderLbl: Label 'HTMLTemplates/', Locked = true;
         SalesMailTok: Label 'SALESEMAIL', Locked = true;
         SalesMailDescLbl: Label 'Invoicing sales mail', MaxLength = 100;

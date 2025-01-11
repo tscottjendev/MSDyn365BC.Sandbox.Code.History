@@ -13,6 +13,7 @@ codeunit 30343 "Shpfy Create Item As Variant"
         CreateProduct: Codeunit "Shpfy Create Product";
         VariantApi: Codeunit "Shpfy Variant API";
         ProductApi: Codeunit "Shpfy Product API";
+        Events: Codeunit "Shpfy Product Events";
         Options: Dictionary of [Text, Text];
 
     trigger OnRun()
@@ -36,6 +37,8 @@ codeunit 30343 "Shpfy Create Item As Variant"
         else
             TempShopifyVariant."Option 1 Name" := 'Variant';
         TempShopifyVariant."Option 1 Value" := Item."No.";
+
+        Events.OnAfterCreateTempShopifyVariant(Item, TempShopifyVariant);
 
         if VariantApi.AddProductVariant(TempShopifyVariant) then begin
             ShopifyProduct."Has Variants" := true;
