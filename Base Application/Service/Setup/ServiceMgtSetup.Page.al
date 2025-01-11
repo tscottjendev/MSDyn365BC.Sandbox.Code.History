@@ -371,12 +371,12 @@ page 5919 "Service Mgt. Setup"
                 field("Archive Quotes"; Rec."Archive Quotes")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies if you want to automatically archive service quotes when: deleted, processed or printed.';
+                    ToolTip = 'Specifies if you want to archive service quotes when they are deleted.';
                 }
                 field("Archive Orders"; Rec."Archive Orders")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies if you want to automatically archive service orders when: deleted, posted or printed.';
+                    ToolTip = 'Specifies if you want to archive service orders when they are deleted.';
                 }
             }
             group("Journal Templates")
