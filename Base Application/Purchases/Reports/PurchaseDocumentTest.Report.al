@@ -13,7 +13,6 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
@@ -1007,8 +1006,6 @@ report 402 "Purchase Document - Test"
                                 No[1] := "Purchase Line"."No.";
                                 TableID[2] := Database::Job;
                                 No[2] := "Purchase Line"."Job No.";
-                                TableID[3] := Database::"Work Center";
-                                No[3] := "Purchase Line"."Work Center No.";
                                 OnBeforeCheckDimValuePostingLine("Purchase Line", TableID, No);
                                 if not DimMgt.CheckDimValuePosting(TableID, No, "Purchase Line"."Dimension Set ID") then
                                     AddError(DimMgt.GetDimValuePostingErr());
