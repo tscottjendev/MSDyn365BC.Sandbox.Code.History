@@ -4244,6 +4244,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Journals - NamedType ValueNotMatchedError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 901483511 - Method 1284192105 - NamedType 2613835858" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[can only be Item, Output, or Consumption]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Journals - Method ItemTrackingOnLinesRestrictedToTemplateTypeItemOutputConsumption - NamedType ItemJournalTemplateTypeErrorLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 210072710 - NamedType 3420941840" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amount must be equal.]]></Val>
