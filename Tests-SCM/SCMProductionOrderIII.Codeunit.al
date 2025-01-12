@@ -73,8 +73,10 @@
         QuantityImbalanceErr: Label 'out of balance';
         InvalidPrecisionErr: Label 'field to be incorrect';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
-        ProductionOrderNotExistErr: Label 'The Production Order does not exist. Identification fields and values: Status=''%1'',No.=''%2''', Comment = '%1 = Production Order Status , %2 = Production Order No.';
+        MissingReleasedProductionErr: Label 'Production Order %1 is already Finished, you cannot reverse this entry.', Comment = '%1 = Production Order No.';
         CannotHandleEntryTypeErr: Label 'Cannot handle entry type %1 for correction posting of production.', Comment = '%1 - Entry Type';
+        ActionShouldNotBeVisibleErr: Label 'Reverse Production Order Transaction should not be visible in Page %1', Comment = '%1 = Page Caption';
+        ActionShouldBeVisibleErr: Label 'Reverse Production Order Transaction should be visible in Page %1', Comment = '%1 = Page Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -5439,7 +5441,7 @@
         asserterror ItemLedgerEntries.Reverse.Invoke();
 
         // [THEN] Verify Reverse Item Ledger Entry should not be created When Status is changed from Released to Finished.
-        Assert.ExpectedError(StrSubstNo(ProductionOrderNotExistErr, ProductionOrder.Status::Released, ProductionOrder."No."));
+        Assert.ExpectedError(StrSubstNo(MissingReleasedProductionErr, ProductionOrder."No."));
     end;
 
     [Test]
@@ -5576,6 +5578,95 @@
 
         // [THEN] Check Reservation Entry Status.
         VerifyReservationEntry(Item."No.", ProductionOrder.Quantity, ReservationEntry."Reservation Status"::Surplus, LocationBlue.Code);
+    end;
+
+    [Test]
+    procedure VerifyReverseProductionOrderActionShouldNotBeVisibleOnItemLedgerEntries()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+    begin
+        // [SCENARIO 560194] Verify "Reverse Production Order" action should not be visible on "Item Ledger Entries" Page from general overview.
+        Initialize();
+
+        // [GIVEN] Create Item Setup.
+        CreateItemsSetup(Item, ChildItem, LibraryRandom.RandInt(5));
+
+        // [GIVEN] Update Flushing Method.
+        UpdateFlushingMethodOnItem(ChildItem, ChildItem."Flushing Method"::Backward);
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(ChildItem."No.", LibraryRandom.RandDec(10, 2) + 100, '', '');
+
+        // [WHEN] OpenEdit Item Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+
+        // [THEN] Verify "Reverse Production Order" action should not be visible on Item Ledger Entries from general overview.
+        Assert.AreEqual(
+            false,
+            ItemLedgerEntries.Reverse.Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, ItemLedgerEntries.Caption()));
+    end;
+
+    [Test]
+    procedure VerifyReverseProductionOrderActionShouldBeVisibleOnReleasedProductionOrders()
+    var
+        ProductionOrder: Record "Production Order";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+        ReleasedProductionOrders: TestPage "Released Production Orders";
+    begin
+        // [SCENARIO 560194] Verify "Reverse Production Order" action should be visible on "Item Ledger Entries" Page When "Item Ledger E&ntries" action is executed from "Released Production Orders".
+        Initialize();
+
+        // [GIVEN] Create Production Order With Component.
+        ProductionOrder := PostJournalsForReleasedProductionOrderWithLocationAndBin(true);
+
+        // [GIVEN] Trap "Item Ledger Entries" page.
+        ItemLedgerEntries.Trap();
+
+        // [GIVEN] Open "Released Production Orders" page.
+        ReleasedProductionOrders.OpenEdit();
+        ReleasedProductionOrders.GoToRecord(ProductionOrder);
+
+        // [WHEN] Invoke "Item Ledger E&ntries" action.
+        ReleasedProductionOrders."Item Ledger E&ntries".Invoke();
+
+        // [THEN] Verify "Reverse Production Order" action should be visible on "Item Ledger Entries" Page When "Item Ledger E&ntries" action is executed from "Released Production Orders".
+        Assert.AreEqual(
+            true,
+            ItemLedgerEntries.Reverse.Visible(),
+            StrSubstNo(ActionShouldBeVisibleErr, ItemLedgerEntries.Caption()));
+    end;
+
+    [Test]
+    procedure VerifyReverseProductionOrderActionShouldBeVisibleOnReleasedProductionOrder()
+    var
+        ProductionOrder: Record "Production Order";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+    begin
+        // [SCENARIO 560194] Verify "Reverse Production Order" action should be visible on "Item Ledger Entries" Page When "Item Ledger E&ntries" action is executed from "Released Production Order".
+        Initialize();
+
+        // [GIVEN] Create Production Order With Component.
+        ProductionOrder := PostJournalsForReleasedProductionOrderWithLocationAndBin(true);
+
+        // [GIVEN] Trap "Item Ledger Entries" page.
+        ItemLedgerEntries.Trap();
+
+        // [GIVEN] Open "Released Production Order" page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [WHEN] Invoke "Item Ledger E&ntries" action.
+        ReleasedProductionOrder."Item Ledger E&ntries".Invoke();
+
+        // [THEN] Verify "Reverse Production Order" action should be visible on "Item Ledger Entries" Page When "Item Ledger E&ntries" action is executed from "Released Production Order".
+        Assert.AreEqual(
+            true,
+            ItemLedgerEntries.Reverse.Visible(),
+            StrSubstNo(ActionShouldBeVisibleErr, ItemLedgerEntries.Caption()));
     end;
 
     local procedure Initialize()
