@@ -1,6 +1,8 @@
 namespace Microsoft.Manufacturing.Integration;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Purchases.Posting;
+using Microsoft.Purchases.Reports;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -8,21 +10,18 @@ using Microsoft.Purchases.History;
 codeunit 99000789 "Mfg. Purchase Document Mgt."
 {
     var
+        DimMgt: Codeunit DimensionManagement;
         CannotDefineItemTrackingErr: Label 'You cannot define item tracking on this line because it is linked to production order %1.', Comment = '%1 - production order number';
         CannotChangePurchaseOrderErr: Label 'You cannot change %1 because this purchase order is associated with %2 %3.', Comment = '%1 - type, %2 - production order, %3 - number';
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterInitPurchaseLineDefaultDimSource', '', false, false)]
     local procedure OnAfterInitPurchaseLineDefaultDimSource(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SourcePurchaseLine: Record "Purchase Line")
-    var
-        DimMgt: Codeunit DimensionManagement;
     begin
         DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", SourcePurchaseLine."Work Center No.");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterInitDefaultDimensionSources', '', false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var PurchaseLine: Record "Purchase Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
-    var
-        DimMgt: Codeunit DimensionManagement;
     begin
         DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", PurchaseLine."Work Center No.", FieldNo = PurchaseLine.FieldNo("Work Center No."));
     end;
@@ -69,4 +68,18 @@ codeunit 99000789 "Mfg. Purchase Document Mgt."
         if PurchInvLine."Work Center No." <> '' then
             ShouldExit := true;
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purchase-Post Prepayments", 'OnCreateDimensionsOnAfterAddDimSources', '', false, false)]
+    local procedure OnCreateDimensionsOnAfterAddDimSources(var PurchaseLine: Record "Purchase Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", PurchaseLine."Work Center No.");
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Purchase Document - Test", 'OnBeforeCheckDimValuePostingLine', '', false, false)]
+    local procedure OnBeforeCheckDimValuePostingLine(var PurchaseLine: Record "Purchase Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20]);
+    begin
+        TableID[3] := Database::"Work Center";
+        No[3] := PurchaseLine."Work Center No.";
+    end;
+
 }
