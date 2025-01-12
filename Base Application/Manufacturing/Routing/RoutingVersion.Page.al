@@ -137,14 +137,17 @@ page 99000810 "Routing Version"
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
+        if not CurrPage.Editable() then
+            exit(true);
+
         if IsNullGuid(Rec.SystemId) then
-            exit(false);
+            exit(true);
 
         if Rec.Status in [Rec.Status::Certified, Rec.Status::Closed] then
-            exit(false);
+            exit(true);
 
         if not Rec.RoutingLinesExist() then
-            exit(false);
+            exit(true);
 
         if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
             exit(false);
