@@ -23,8 +23,9 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         CannotHandleEntryTypeErr: Label 'Cannot handle entry type %1 for correction posting of production.', Comment = '%1 - Entry Type';
         InvalidEntryTypeErr: Label 'Entry Type must be either Consumption or Output.';
         SubContractingErr: Label 'Entry cannot be reversed as it is linked to the subcontracting work center.';
-        QuantityMustBeGreaterThanZeroErr: Label 'Quantity must be greater than 0 on %1 No. %2', Comment = '%1 = Table Caption , %2 = Entry No.';
-        QuantityMustBeLessThanZeroErr: Label 'Quantity must be less than 0 on %1 No. %2', Comment = '%1 = Table Caption , %2 = Entry No.';
+        QuantityMustBeGreaterThanZeroErr: Label 'Quantity must be greater than 0 on %1 No. %2 to reverse the entry.', Comment = '%1 = Table Caption , %2 = Entry No.';
+        QuantityMustBeLessThanZeroErr: Label 'Quantity must be less than 0 on %1 No. %2 to reverse the entry. ', Comment = '%1 = Table Caption , %2 = Entry No.';
+        MissingReleasedProductionErr: Label 'Production Order %1 is already Finished, you cannot reverse this entry.', Comment = '%1 = Production Order No.';
 
     procedure ReverseProdItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry")
     var
@@ -79,8 +80,13 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
     local procedure ReverseOutputItemLedgerEntry(ItemLedgerEntry: Record "Item Ledger Entry")
     var
         ItemJnlLine: Record "Item Journal Line";
+        ProductionOrder: Record "Production Order";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
     begin
+        ProductionOrder.SetLoadFields(Status, "No.");
+        if not ProductionOrder.Get(ProductionOrder.Status::Released, ItemLedgerEntry."Order No.") then
+            Error(MissingReleasedProductionErr, ItemLedgerEntry."Order No.");
+
         ValidateProdOrder(ItemLedgerEntry);
 
         ItemJnlLine.Init();
@@ -201,8 +207,13 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
     local procedure ReverseConsumptionItemLedgerEntry(ItemLedgerEntry: Record "Item Ledger Entry")
     var
         ItemJnlLine: Record "Item Journal Line";
+        ProductionOrder: Record "Production Order";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
     begin
+        ProductionOrder.SetLoadFields(Status, "No.");
+        if not ProductionOrder.Get(ProductionOrder.Status::Released, ItemLedgerEntry."Order No.") then
+            Error(MissingReleasedProductionErr, ItemLedgerEntry."Order No.");
+
         ValidateProdOrder(ItemLedgerEntry);
 
         ItemJnlLine.Init();
@@ -245,11 +256,10 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
 
     local procedure ValidateProdOrder(ItemLedgEntry: Record "Item Ledger Entry")
     var
-        ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        ProductionOrder.SetLoadFields(Status, "No.");
-        ProductionOrder.Get(ProductionOrder.Status::Released, ItemLedgEntry."Order No.");
+        if not (ItemLedgEntry."Entry Type" in [ItemLedgEntry."Entry Type"::Output, ItemLedgEntry."Entry Type"::Consumption]) then
+            Error(InvalidEntryTypeErr);
 
         ProdOrderLine.SetBaseLoadFields();
         ProdOrderLine.Get(ProdOrderLine.Status::Released, ItemLedgEntry."Order No.", ItemLedgEntry."Order Line No.");
@@ -260,9 +270,6 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ItemLedgEntry.CalcFields("Reserved Quantity");
         ItemLedgEntry.TestField("Reserved Quantity", 0);
         ItemLedgEntry.TestField(Correction, false);
-
-        if not (ItemLedgEntry."Entry Type" in [ItemLedgEntry."Entry Type"::Output, ItemLedgEntry."Entry Type"::Consumption]) then
-            Error(InvalidEntryTypeErr);
 
         case ItemLedgEntry."Entry Type" of
             Enum::"Item Ledger Entry Type"::Consumption:
@@ -303,20 +310,20 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
             Error(SubContractingErr);
     end;
 
-    local procedure ValidateProdOrder(CapcaityLedgerEntry: Record "Capacity Ledger Entry")
+    local procedure ValidateProdOrder(CapacityLedgerEntry: Record "Capacity Ledger Entry")
     var
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        CapcaityLedgerEntry.TestField("Order Type", CapcaityLedgerEntry."Order Type"::Production);
-        if CapcaityLedgerEntry.Quantity < 0 then
-            Error(QuantityMustBeGreaterThanZeroErr, CapcaityLedgerEntry.TableCaption, CapcaityLedgerEntry."Entry No.");
+        CapacityLedgerEntry.TestField("Order Type", CapacityLedgerEntry."Order Type"::Production);
+        if CapacityLedgerEntry.Quantity < 0 then
+            Error(QuantityMustBeGreaterThanZeroErr, CapacityLedgerEntry.TableCaption, CapacityLedgerEntry."Entry No.");
 
         ProductionOrder.SetLoadFields(Status, "No.");
-        ProductionOrder.Get(ProductionOrder.Status::Released, CapcaityLedgerEntry."Order No.");
+        ProductionOrder.Get(ProductionOrder.Status::Released, CapacityLedgerEntry."Order No.");
 
         ProdOrderLine.SetLoadFields(Status, "Prod. Order No.", "Line No.");
-        ProdOrderLine.Get(ProdOrderLine.Status::Released, CapcaityLedgerEntry."Order No.", CapcaityLedgerEntry."Order Line No.");
+        ProdOrderLine.Get(ProdOrderLine.Status::Released, CapacityLedgerEntry."Order No.", CapacityLedgerEntry."Order Line No.");
 
         ValidateSubcontracting(ProdOrderLine);
     end;

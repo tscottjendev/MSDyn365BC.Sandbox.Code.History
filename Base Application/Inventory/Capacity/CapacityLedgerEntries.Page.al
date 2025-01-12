@@ -275,7 +275,7 @@ page 5832 "Capacity Ledger Entries"
                 ApplicationArea = Manufacturing;
                 Caption = 'Reverse Production Order Transaction';
                 Image = ReverseLines;
-                ToolTip = 'Reverse a production capacity ledger entry.';
+                ToolTip = 'Reverse a production capacity ledger entry for the selected lines.';
                 Ellipsis = true;
 
                 trigger OnAction()
