@@ -318,8 +318,6 @@ codeunit 80 "Sales-Post"
         CustLedgEntry: Record "Cust. Ledger Entry";
         TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary;
         DisableAggregateTableUpdate: Codeunit "Disable Aggregate Table Update";
-        UpdateAnalysisView: Codeunit "Update Analysis View";
-        UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         EverythingInvoiced: Boolean;
         SavedPreviewMode: Boolean;
         SavedSuppressCommit: Boolean;
@@ -388,9 +386,10 @@ codeunit 80 "Sales-Post"
 
         if not (InvtPickPutaway or SuppressCommit or PreviewMode) then begin
             Commit();
-            UpdateAnalysisView.UpdateAll(0, true);
-            UpdateItemAnalysisView.UpdateAll(0, true);
-        end;
+            UpdateAnalysisViewAfterPosting();
+        end else
+            if DateOrderSeriesUsed then
+                UpdateAnalysisViewAfterPosting();
 
         OnAfterPostSalesDoc(
           SalesHeader2, GenJnlPostLine, SalesShptHeader."No.", ReturnRcptHeader."No.",
@@ -6549,13 +6548,13 @@ codeunit 80 "Sales-Post"
         end else begin
             GenJnlLine.Amount := TotalSalesLine2."Amount Including VAT" + TotalRemainPmtDiscPossible;
             GenJnlLine."Payment Terms Code" := SalesHeader."Payment Terms Code";
-        CustLedgEntry.CalcFields(Amount);
-        if CustLedgEntry.Amount = 0 then
-            GenJnlLine."Amount (LCY)" := TotalSalesLineLCY2."Amount Including VAT"
-        else
-            GenJnlLine."Amount (LCY)" :=
-              TotalSalesLineLCY2."Amount Including VAT" +
-              Round(CustLedgEntry."Remaining Pmt. Disc. Possible" / CustLedgEntry."Adjusted Currency Factor");
+            CustLedgEntry.CalcFields(Amount);
+            if CustLedgEntry.Amount = 0 then
+                GenJnlLine."Amount (LCY)" := TotalSalesLineLCY2."Amount Including VAT"
+            else
+                GenJnlLine."Amount (LCY)" :=
+                  TotalSalesLineLCY2."Amount Including VAT" +
+                  Round(CustLedgEntry."Remaining Pmt. Disc. Possible" / CustLedgEntry."Adjusted Currency Factor");
         end;
 
         GenJnlLine."Source Currency Amount" := GenJnlLine.Amount;
@@ -9562,6 +9561,15 @@ codeunit 80 "Sales-Post"
 
         if Job.Get(SalesLine."Job No.") then
             JobArchiveManagement.AutoArchiveJob(Job);
+    end;
+
+    local procedure UpdateAnalysisViewAfterPosting()
+    var
+        UpdateAnalysisView: Codeunit "Update Analysis View";
+        UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
+    begin
+        UpdateAnalysisView.UpdateAll(0, true);
+        UpdateItemAnalysisView.UpdateAll(0, true);
     end;
 
 #if not CLEAN23
