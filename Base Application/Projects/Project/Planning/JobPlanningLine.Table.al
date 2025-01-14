@@ -2038,7 +2038,8 @@ table 1003 "Job Planning Line"
                         "Unit Cost (LCY)" := Round(SKU."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision)
                     else
                         "Unit Cost (LCY)" := Round(Item."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision);
-                    "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
+                    if not (CurrFieldNo = FieldNo("Unit Price")) then
+                        "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
                 end else
                     RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)")
             else
