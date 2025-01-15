@@ -5669,6 +5669,254 @@
             StrSubstNo(ActionShouldBeVisibleErr, ItemLedgerEntries.Caption()));
     end;
 
+    [Test]
+    [HandlerFunctions('PostProductionJournalHandler,ConfirmHandler,MessageHandlerWithoutValidation,ReleasedProdOrderPageHandler')]
+    procedure VerifyProductionOrderMovedFromFinishedToReleasedUsingReopenFinishProdOrder()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        FinishedProductionorder: TestPage "Finished Production Order";
+    begin
+        // [SCENARIO 358674] Verify Production Order is moved from Finished to Released using "ReopenFinishProdOrder" action on "Finished Production Order" page.
+        Initialize();
+
+        // [GIVEN] Set location code in Manufacturing Setup.
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", '');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create an Item with BOM and Routing.
+        CreateItemWithBOMAndRouting(Item, ChildItem, LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(ChildItem."No.", LibraryRandom.RandDec(10, 2) + 100, '', '');
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '', '');
+
+        // [GIVEN] Find Released Production Order Line.
+        FindReleasedProdOrderLine(ProdOrderLine, Item."No.");
+
+        // [GIVEN] Open and Post Production Journal.
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Change Status From Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [GIVEN] Get Finished Production Order.
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+
+        // [WHEN] Execute "ReopenFinishProdOrder" action.
+        FinishedProductionorder.OpenEdit();
+        FinishedProductionorder.GoToRecord(ProductionOrder);
+        FinishedProductionorder.ReopenFinishedProdOrder.Invoke();
+
+        // [THEN] Verify Production Order is moved from Finished to Released and Finished Production Order gets deleted.
+        ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrder."No.");
+        asserterror ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('PostProductionJournalHandler,ConfirmHandler,MessageHandlerWithoutValidation,ReleasedProdOrderPageHandler')]
+    procedure VerifyFinishedProductionOrderCannotBeReopenedMoreThanOnce()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        FinishedProductionorder: TestPage "Finished Production Order";
+    begin
+        // [SCENARIO 358674] Verify Finished Production Order cannot be Reopened more than once using "ReopenFinishProdOrder" action on "Finished Production Order" page.
+        Initialize();
+
+        // [GIVEN] Create an Item with BOM and Routing.
+        CreateItemWithBOMAndRouting(Item, ChildItem, LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(ChildItem."No.", LibraryRandom.RandDec(10, 2) + 100, '', '');
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '', '');
+
+        // [GIVEN] Find Released Production Order Line.
+        FindReleasedProdOrderLine(ProdOrderLine, Item."No.");
+
+        // [GIVEN] Open and Post Production Journal.
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Change Status From Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [GIVEN] Get Finished Production Order.
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+
+        // [GIVEN] Execute "ReopenFinishProdOrder" action.
+        FinishedProductionorder.OpenEdit();
+        FinishedProductionorder.GoToRecord(ProductionOrder);
+        FinishedProductionorder.ReopenFinishedProdOrder.Invoke();
+
+        // [GIVEN] Change Status From Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [GIVEN] Get Finished Production Order.
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+
+        // [WHEN] Execute "ReopenFinishProdOrder" action.
+        FinishedProductionorder.OpenEdit();
+        FinishedProductionorder.GoToRecord(ProductionOrder);
+        asserterror FinishedProductionorder.ReopenFinishedProdOrder.Invoke();
+
+        // [THEN] Verify Finished Production Order cannot be Reopened more than once.
+        Assert.ExpectedTestFieldError(ProductionOrder.FieldCaption("Reopened"), Format(false));
+    end;
+
+    [Test]
+    [HandlerFunctions('PostProductionJournalHandler,ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure VerifyOnlyFinishedProductionOrderCanBeReopened()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+    begin
+        // [SCENARIO 358674] Verify only Finished Production Order can be reopened.
+        Initialize();
+
+        // [GIVEN] Create an Item with BOM and Routing.
+        CreateItemWithBOMAndRouting(Item, ChildItem, LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(ChildItem."No.", LibraryRandom.RandDec(10, 2) + 100, '', '');
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '', '');
+
+        // [GIVEN] Find Released Production Order Line.
+        FindReleasedProdOrderLine(ProdOrderLine, Item."No.");
+
+        // [GIVEN] Open and Post Production Journal.
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [WHEN] Reopen Finished Production Order.
+        asserterror ProdOrderStatusMgt.ReopenFinishedProdOrder(ProductionOrder);
+
+        // [THEN] Verify only Finished Production Order can be reopened.
+        Assert.ExpectedTestFieldError(ProductionOrder.FieldCaption(Status), Format(ProductionOrder.Status::Finished));
+    end;
+
+    [Test]
+    [HandlerFunctions('PostProductionJournalHandler,ConfirmHandler,MessageHandlerWithoutValidation,ReleasedProdOrderPageHandler')]
+    procedure VerifyProductionOrderMovedFromFinishedToReleasedUsingReopenFinishProdOrderWithRelatedRecords()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderRtngLine: Record "Prod. Order Routing Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        FinishedProductionorder: TestPage "Finished Production Order";
+    begin
+        // [SCENARIO 358674] Verify Production Order is moved from Finished to Released using "ReopenFinishProdOrder" action on "Finished Production Order" page with Related records.
+        Initialize();
+
+        // [GIVEN] Create an Item with BOM and Routing.
+        CreateItemWithBOMAndRouting(Item, ChildItem, LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(ChildItem."No.", LibraryRandom.RandDec(10, 2) + 100, '', '');
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '', '');
+
+        // [GIVEN] Find Released Production Order Line.
+        FindReleasedProdOrderLine(ProdOrderLine, Item."No.");
+
+        // [GIVEN] Open and Post Production Journal.
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Change Status From Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [GIVEN] Get Finished Production Order.
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+
+        // [WHEN] Execute "ReopenFinishProdOrder" action.
+        FinishedProductionorder.OpenEdit();
+        FinishedProductionorder.GoToRecord(ProductionOrder);
+        FinishedProductionorder.ReopenFinishedProdOrder.Invoke();
+
+        // [THEN] Verify Production Order is moved from Finished to Released with related records and Finished Production Order gets deleted.
+        ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrder."No.");
+        Assert.AreEqual(
+            true,
+            ProductionOrder."Reopened",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrder.FieldCaption("Reopened"), true, ProductionOrder.TableCaption()));
+
+        ProdOrderRtngLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderRtngLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        Assert.RecordCount(ProdOrderRtngLine, 1);
+
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        Assert.RecordCount(ProdOrderComponent, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('PostProductionJournalHandler,ConfirmHandler,MessageHandlerWithoutValidation,ReleasedProdOrderPageHandler')]
+    procedure VerifyCostIsAdjustedAndIsFinishedChangedToFalseInInventoryAdjustmentUsingReopenFinishProdOrder()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        FinishedProductionorder: TestPage "Finished Production Order";
+    begin
+        // [SCENARIO 358674] Verify "Is Finished" changed to false in Inventory Adjmt. Entry (Order) using "ReopenFinishProdOrder" action.
+        Initialize();
+
+        // [GIVEN] Create an Item with BOM and Routing.
+        CreateItemWithBOMAndRouting(Item, ChildItem, LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(ChildItem."No.", LibraryRandom.RandDec(10, 2) + 100, '', '');
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '', '');
+
+        // [GIVEN] Find Released Production Order Line.
+        FindReleasedProdOrderLine(ProdOrderLine, Item."No.");
+
+        // [GIVEN] Open and Post Production Journal.
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Change Status From Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [GIVEN] Get Finished Production Order.
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+
+        // [WHEN] Execute "ReopenFinishProdOrder" action.
+        FinishedProductionorder.OpenEdit();
+        FinishedProductionorder.GoToRecord(ProductionOrder);
+        FinishedProductionorder.ReopenFinishedProdOrder.Invoke();
+
+        // [THEN] Verify "Is Finished" and "Cost is Adjusted" is changed to false in Inventory Adjmt. Entry (Order).
+        InvtAdjmtEntryOrder.Get(InvtAdjmtEntryOrder."Order Type"::Production, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+        Assert.AreEqual(
+            false,
+            InvtAdjmtEntryOrder."Is Finished",
+            StrSubstNo(ValueMustBeEqualErr, InvtAdjmtEntryOrder.FieldCaption("Is Finished"), false, InvtAdjmtEntryOrder.TableCaption()));
+        Assert.AreEqual(
+            false,
+            InvtAdjmtEntryOrder."Cost is Adjusted",
+            StrSubstNo(ValueMustBeEqualErr, InvtAdjmtEntryOrder.FieldCaption("Cost is Adjusted"), false, InvtAdjmtEntryOrder.TableCaption()));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -8211,6 +8459,11 @@
         ErrorMessage: Record "Error Message";
     begin
         Assert.AreEqual(ErrorMessages."Message Type".AsInteger(), ErrorMessage."Message Type"::Error, '');
+    end;
+
+    [PageHandler]
+    procedure ReleasedProdOrderPageHandler(var ReleasedProductionOrder: TestPage "Released Production Order")
+    begin
     end;
 }
 
