@@ -136,6 +136,12 @@ page 99000831 "Released Production Order"
                     QuickEntry = false;
                     ToolTip = 'Specifies when the production order card was last modified.';
                 }
+                field(Reopened; Rec."Reopened")
+                {
+                    ApplicationArea = Manufacturing;
+                    Editable = false;
+                    ToolTip = 'Specifies if the production order is reopened.';
+                }
             }
             part(ProdOrderLines; "Released Prod. Order Lines")
             {
