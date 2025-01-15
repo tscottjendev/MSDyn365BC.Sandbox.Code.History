@@ -92,6 +92,7 @@ codeunit 9660 "Report Layouts Impl."
                     ReportLayoutNewDialog.SelectedLayoutDescription(), SelectedReportLayoutList."Layout Format"::Custom,
                     ReportLayoutNewDialog.SelectedLayoutIsGlobal(),
                     ReportLayoutNewDialog.SelectedCreateEmptyLayout(),
+                    ReportLayoutNewDialog.SelectedExcelMultipleDataSheets(),
                     ReturnReportID, ReturnLayoutName);
 
                 ReportLayoutNewDialog.SelectedAddWordLayout():
@@ -100,6 +101,7 @@ codeunit 9660 "Report Layouts Impl."
                     ReportLayoutNewDialog.SelectedLayoutDescription(), SelectedReportLayoutList."Layout Format"::Word,
                     ReportLayoutNewDialog.SelectedLayoutIsGlobal(),
                     ReportLayoutNewDialog.SelectedCreateEmptyLayout(),
+                    ReportLayoutNewDialog.SelectedExcelMultipleDataSheets(),
                     ReturnReportID, ReturnLayoutName);
 
                 ReportLayoutNewDialog.SelectedAddRDLCLayout():
@@ -108,6 +110,7 @@ codeunit 9660 "Report Layouts Impl."
                     ReportLayoutNewDialog.SelectedLayoutDescription(), SelectedReportLayoutList."Layout Format"::RDLC,
                     ReportLayoutNewDialog.SelectedLayoutIsGlobal(),
                     ReportLayoutNewDialog.SelectedCreateEmptyLayout(),
+                    ReportLayoutNewDialog.SelectedExcelMultipleDataSheets(),
                     ReturnReportID, ReturnLayoutName);
 
                 ReportLayoutNewDialog.SelectedAddExcelLayout():
@@ -116,6 +119,7 @@ codeunit 9660 "Report Layouts Impl."
                     ReportLayoutNewDialog.SelectedLayoutDescription(), SelectedReportLayoutList."Layout Format"::Excel,
                     ReportLayoutNewDialog.SelectedLayoutIsGlobal(),
                     ReportLayoutNewDialog.SelectedCreateEmptyLayout(),
+                    ReportLayoutNewDialog.SelectedExcelMultipleDataSheets(),
                     ReturnReportID, ReturnLayoutName);
             end;
     end;
@@ -218,7 +222,7 @@ codeunit 9660 "Report Layouts Impl."
         end
     end;
 
-    internal procedure InsertNewLayout(ReportID: Integer; LayoutName: Text[250]; LayoutDescription: Text[250]; LayoutFormat: Option; LayoutIsGlobal: Boolean; CreateEmptyLayout: Boolean; var ReturnReportID: Integer; var ReturnLayoutName: Text)
+    internal procedure InsertNewLayout(ReportID: Integer; LayoutName: Text[250]; LayoutDescription: Text[250]; LayoutFormat: Option; LayoutIsGlobal: Boolean; CreateEmptyLayout: Boolean; ExcelSheetConfiguration: enum "Excel Sheet Configuration"; var ReturnReportID: Integer; var ReturnLayoutName: Text)
     var
         TenantReportLayout: Record "Tenant Report Layout";
         FileManagement: Codeunit "File Management";
@@ -253,6 +257,7 @@ codeunit 9660 "Report Layouts Impl."
 
         TenantReportLayout."Layout Format" := LayoutFormat;
         TenantReportLayout."Description" := LayoutDescription;
+        TenantReportLayout.ExcelLayoutMultipleDataSheets := ExcelSheetConfiguration;
 
         if CreateEmptyLayout then begin
             EmptyLayoutCreated := false;
@@ -282,7 +287,7 @@ codeunit 9660 "Report Layouts Impl."
                 TenantReportLayout."Layout Format"::Excel:
                     begin
                         EmptyLayoutCreated := false;
-                        DocumentReportManagement.NewExcelLayout(ReportID, EmptyLayoutStream);
+                        DocumentReportManagement.NewExcelLayout(ReportID, ExcelSheetConfiguration, EmptyLayoutStream);
                         EmptyLayoutCreated := true;
                         UploadFileName := 'EmptyLayout.xlsx';
                     end;
@@ -347,6 +352,8 @@ codeunit 9660 "Report Layouts Impl."
         AddReportLayoutDimensionsDescription(LayoutDescription, CustomDimensions);
         AddReportLayoutDimensionsFormat(LayoutFormat, CustomDimensions);
         AddReportLayoutDimensionsAction('New', CustomDimensions);
+        AddReportLayoutDimensionsExcelConfiguration(ExcelSheetConfiguration, CustomDimensions);
+
         Log('0000N0E', 'Report layout added by user', CustomDimensions);
 
         ReturnReportID := TenantReportLayout."Report ID";
@@ -373,7 +380,7 @@ codeunit 9660 "Report Layouts Impl."
         TenantReportLayout."Name" := LayoutName;
 
         if TenantReportLayout.Get(ReportID, LayoutName, TenantReportLayout."App ID") then begin
-            InsertNewLayout(ReportID, LayoutName, LayoutDescription, LayoutFormat, TenantReportLayout."Company Name" = '', false, ReturnReportID, ReturnLayoutName);
+            InsertNewLayout(ReportID, LayoutName, LayoutDescription, LayoutFormat, TenantReportLayout."Company Name" = '', false, TenantReportLayout.ExcelLayoutMultipleDataSheets, ReturnReportID, ReturnLayoutName);
 
             InitReportLayoutDimensions(TenantReportLayout, CustomDimensions);
             AddReportLayoutDimensionsDescription(LayoutDescription, CustomDimensions);
@@ -684,6 +691,11 @@ codeunit 9660 "Report Layouts Impl."
     local procedure AddReportLayoutDimensionsAction(Action: Text; var CustomDimensions: Dictionary of [Text, Text])
     begin
         CustomDimensions.Add('Action', Action);
+    end;
+
+    local procedure AddReportLayoutDimensionsExcelConfiguration(Configuration: enum "Excel Sheet Configuration"; var CustomDimensions: Dictionary of [Text, Text])
+    begin
+        CustomDimensions.Add('ExcelConfiguration', format(Configuration));
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Report Layout Selection", 'OnSelectReportLayout', '', false, false)]
