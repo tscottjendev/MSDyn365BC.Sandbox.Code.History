@@ -3,6 +3,7 @@ namespace Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -704,6 +705,13 @@ page 17 "G/L Account Card"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec.SetupNewGLAcc(xRec, BelowxRec);
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
+    begin
+        FinancialReportMgt.NotifyUpdateFinancialReport(Rec);
     end;
 
     var
