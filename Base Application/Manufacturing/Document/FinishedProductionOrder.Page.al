@@ -94,6 +94,12 @@ page 99000867 "Finished Production Order"
                     Editable = false;
                     ToolTip = 'Specifies when the production order card was last modified.';
                 }
+                field(Reopened; Rec."Reopened")
+                {
+                    ApplicationArea = Manufacturing;
+                    Editable = false;
+                    ToolTip = 'Specifies if the production order is reopened.';
+                }
             }
             part(ProdOrderLines; "Finished Prod. Order Lines")
             {
@@ -341,6 +347,20 @@ page 99000867 "Finished Production Order"
                     ItemLedgerEntry.SetRange("Order No.", Rec."No.");
                     OutputItemLabel.SetTableView(ItemLedgerEntry);
                     OutputItemLabel.RunModal();
+                end;
+            }
+            action(ReopenFinishedProdOrder)
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Reopen';
+                Image = ReOpen;
+                ToolTip = 'Reopen the production order to change it after it has been finished.';
+
+                trigger OnAction()
+                var
+                    ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
+                begin
+                    ProdOrderStatusManagement.ReopenFinishedProdOrder(Rec);
                 end;
             }
         }
