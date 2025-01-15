@@ -5,9 +5,11 @@
 
 namespace Microsoft.Shared.Report;
 
-using System.Reflection;
 using System.Environment.Configuration;
 using System.Integration;
+using System.Reflection;
+using System.Security.AccessControl;
+
 /// <summary>
 /// The report layouts page, used for adding/deleting/editing user and extension defined report layouts.
 /// </summary>
@@ -60,7 +62,6 @@ page 9660 "Report Layouts"
                     Caption = 'Description';
                     ToolTip = 'Specifies a description of the report layout.';
                 }
-
                 field(IsDefaultLayout; IsDefaultLayout)
                 {
                     ApplicationArea = Basic, Suite;
@@ -102,7 +103,64 @@ page 9660 "Report Layouts"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Visible = false;
+                    Caption = 'User Defined';
                     ToolTip = 'Specifies whether the layout was created by a user.';
+                }
+                field("Obsolete"; Rec.IsObsolete)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = Rec."User Defined" = true;
+                    Visible = true;
+                    Caption = 'Obsolete';
+                    ToolTip = 'Specifies whether the layout is obsolete.';
+                }
+                field("Excel data sheet configuration"; Rec.ExcelLayoutMultipleDataSheets)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Visible = true;
+                    Caption = 'Excel Sheets';
+                    ToolTip = 'Specifies the Microsoft Excel sheet configuration override with respect to multiple data sheets (Default is defined by the report object).';
+                }
+                field("Last modified date"; Rec.SystemModifiedAt)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Visible = true;
+                    Caption = 'Last Modified Date';
+                    ToolTip = 'Specifies the date and time when the layout was last modified.';
+                }
+                field("Last modified by"; SystemModifiedByDisplayName)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Visible = true;
+                    Caption = 'Last Modified By';
+                    ToolTip = 'Specifies the user who last modified the layout.';
+                }
+                field("Created date"; Rec.SystemCreatedAt)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Visible = false;
+                    Caption = 'Created Date';
+                    ToolTip = 'Specifies the date and time when the layout was created.';
+                }
+                field("Created by"; SystemCreatedByDisplayName)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Visible = false;
+                    Caption = 'Created By';
+                    ToolTip = 'Specifies the user who created the layout.';
+                }
+                field("Layout ID"; Rec."Layout".MediaId)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Visible = false;
+                    Caption = 'Layout ID';
+                    ToolTip = 'Specifies the unique ID of the layout.';
                 }
             }
         }
@@ -384,6 +442,7 @@ page 9660 "Report Layouts"
         IsMultiSelect := SelectedReportLayoutList.Count() > 1;
         ShareOptionsVisible := DocumentSharing.ShareEnabled(Enum::"Document Sharing Source"::System);
         ShareOptionsEnabled := LayoutIsSelected and (not IsMultiSelect) and Rec."User Defined" and (Rec."Layout Format" <> Rec."Layout Format"::RDLC);
+        UpdateUserDisplayName();
     end;
 
     trigger OnAfterGetRecord()
@@ -392,6 +451,23 @@ page 9660 "Report Layouts"
             ReportLayoutsImpl.GetDefaultReportLayoutSelection(Rec."Report ID", DefaultReportLayoutList);
 
         IsDefaultLayout := (DefaultReportLayoutList."Report ID" = Rec."Report ID") and (DefaultReportLayoutList.Name = Rec.Name) and (DefaultReportLayoutList."Application ID" = Rec."Application ID");
+    end;
+
+    local procedure UpdateUserDisplayName()
+    var
+        User: Record "User";
+    begin
+        Clear(SystemCreatedByDisplayName);
+        Clear(SystemModifiedByDisplayName);
+
+        if not User.ReadPermission() then
+            exit;
+
+        if (Rec.SystemCreatedBy <> EmptyGuid) and User.Get(Rec.SystemCreatedBy) then
+            SystemCreatedByDisplayName := User."User Name";
+
+        if (Rec.SystemModifiedBy <> EmptyGuid) and User.Get(Rec.SystemModifiedBy) then
+            SystemModifiedByDisplayName := User."User Name";
     end;
 
     var
@@ -407,6 +483,8 @@ page 9660 "Report Layouts"
         ModifyNonUserLayoutErr: Label 'Only user-defined layouts can be modified or removed.';
         EditInfoExtensionLayoutTxt: Label 'It is not possible to modify the layout info for this layout because it is provided by an extension. Do you want to edit a copy of the layout instead ?';
         ReplaceConfirmationTxt: Label 'This action will replace the layout file of the currently selected layout "%1". Do you want to continue ?', Comment = '%1 = LayoutName';
+        SystemModifiedByDisplayName: Text;
+        SystemCreatedByDisplayName: Text;
 
     local procedure SetFocusedRecord(ReportID: Integer; LayoutName: Text)
     var
