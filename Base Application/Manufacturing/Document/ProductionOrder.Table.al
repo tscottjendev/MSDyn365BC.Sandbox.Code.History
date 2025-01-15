@@ -583,6 +583,11 @@ table 5405 "Production Order"
             OptionCaption = ' ,Partially Put Away,Completely Put Away';
             OptionMembers = " ","Partially Put Away","Completely Put Away";
         }
+        field(200; "Reopened"; Boolean)
+        {
+            Caption = 'Reopened';
+            Editable = false;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
