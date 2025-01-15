@@ -522,6 +522,7 @@ page 30101 "Shpfy Shop Card"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies if Business Central document no. is synchronized to Shopify as order attribute.';
+                    Enabled = Rec."Allow Outgoing Requests" or Rec."Order Attributes To Shopify";
                 }
 #if not CLEAN24
                 field(ReplaceOrderAttributeValue; Rec."Replace Order Attribute Value")

@@ -275,6 +275,24 @@ codeunit 139607 "Shpfy Order Handling Helper"
         JLines.Add(JLine);
     end;
 
+    internal procedure CreatePaymentTermsAsJson(DueDate: DateTime) JPaymentTerms: JsonObject
+    var
+        JPaymentSchedules: JsonObject;
+        JNode: JsonObject;
+        JNodes: JsonArray;
+        JNull: JsonValue;
+    begin
+        JPaymentTerms.Add('id', 'gid://shopify/PaymentTerms/123');
+        JPaymentTerms.Add('dueInDays', JNull);
+        JPaymentTerms.Add('paymentTermsName', 'Fixed');
+        JPaymentTerms.Add('paymentTermsType', 'FIXED');
+        JPaymentTerms.Add('translatedName', 'Fixed');
+        JNode.Add('dueAt', Format(DueDate, 0, 9));
+        JNodes.Add(JNode);
+        JPaymentSchedules.Add('nodes', JNodes);
+        JPaymentTerms.Add('paymentSchedules', JPaymentSchedules);
+    end;
+
     local procedure CreateTaxLines(TaxPrice: Decimal; TaxRate: Decimal) JTaxLines: JsonArray;
     var
         JTaxLine: JsonObject;

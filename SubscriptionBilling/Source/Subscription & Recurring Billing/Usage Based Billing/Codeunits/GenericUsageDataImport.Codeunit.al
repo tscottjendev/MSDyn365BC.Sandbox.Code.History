@@ -9,6 +9,16 @@ codeunit 8025 "Generic Usage Data Import"
     TableNo = "Usage Data Import";
     SingleInstance = true;
 
+    var
+        ProcessingSetupErr: Label 'You must specify either a reading/writing XMLport or a reading/writing codeunit.';
+        ReferenceNotFoundErr: Label 'For %1 ''%2'' no linked %3 was found.';
+        NoServiceObjectErr: Label 'The %1 ''%2'' is not linked to an %3.';
+        ServiceObjectProvisionEndDateErr: Label 'The %1 ''%2'' is deinstalled.';
+        UsageDataLinesProcessingErr: Label 'Errors were found while processing the Usage Data Lines.';
+        NoDataFoundErr: Label 'No data found for processing step %1.', Comment = '%1=Name of the processing step';
+        NotValidServiceCommitmentErr: Label 'Service Commitment %2 found for Service Object %1 is not valid. Please check the Service Commitment and adjust the validity of the Service if necessary.';
+        UsageDataWithZeroQuantityCannotBeProcessedErr: Label 'Usage data with Quantity 0 cannot be processed.';
+
     trigger OnRun()
     begin
         case Rec."Processing Step" of
@@ -129,7 +139,7 @@ codeunit 8025 "Generic Usage Data Import"
         end;
     end;
 
-    local procedure CreateUsageDataSubscription(UsageDataGenericImport: Record "Usage Data Generic Import"; UsageDataSupplierReference: Record "Usage Data Supplier Reference"; SupplierNo: Code[20])
+    procedure CreateUsageDataSubscription(UsageDataGenericImport: Record "Usage Data Generic Import"; UsageDataSupplierReference: Record "Usage Data Supplier Reference"; SupplierNo: Code[20])
     var
         UsageDataSubscription: Record "Usage Data Subscription";
     begin
@@ -149,7 +159,9 @@ codeunit 8025 "Generic Usage Data Import"
             UsageDataSubscription."Supplier Reference Entry No." := UsageDataSupplierReference."Entry No.";
             if UsageDataSubscription."Product ID" <> '' then
                 UsageDataSupplierReference.CreateSupplierReference(SupplierNo, UsageDataSubscription."Product ID", Enum::"Usage Data Reference Type"::Product);
+            OnCreateUsageDataSubscriptionOnBeforeInsertUsageDataSubscription(UsageDataGenericImport, UsageDataSubscription);
             UsageDataSubscription.Insert(true);
+            OnCreateUsageDataSubscriptionOnAfterInsertUsageDataSubscription(UsageDataGenericImport, UsageDataSubscription);
         end;
     end;
 
@@ -274,13 +286,13 @@ codeunit 8025 "Generic Usage Data Import"
     begin
     end;
 
-    var
-        ProcessingSetupErr: Label 'You must specify either a reading/writing XMLport or a reading/writing codeunit.';
-        ReferenceNotFoundErr: Label 'For %1 ''%2'' no linked %3 was found.';
-        NoServiceObjectErr: Label 'The %1 ''%2'' is not linked to an %3.';
-        ServiceObjectProvisionEndDateErr: Label 'The %1 ''%2'' is deinstalled.';
-        UsageDataLinesProcessingErr: Label 'Errors were found while processing the Usage Data Lines.';
-        NoDataFoundErr: Label 'No data found for processing step %1.', Comment = '%1=Name of the processing step';
-        NotValidServiceCommitmentErr: Label 'Service Commitment %2 found for Service Object %1 is not valid. Please check the Service Commitment and adjust the validity of the Service if necessary.';
-        UsageDataWithZeroQuantityCannotBeProcessedErr: Label 'Usage data with Quantity 0 cannot be processed.';
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateUsageDataSubscriptionOnBeforeInsertUsageDataSubscription(UsageDataGenericImport: Record "Usage Data Generic Import"; var UsageDataSubscription: Record "Usage Data Subscription")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateUsageDataSubscriptionOnAfterInsertUsageDataSubscription(UsageDataGenericImport: Record "Usage Data Generic Import"; var UsageDataSubscription: Record "Usage Data Subscription")
+    begin
+    end;
 }

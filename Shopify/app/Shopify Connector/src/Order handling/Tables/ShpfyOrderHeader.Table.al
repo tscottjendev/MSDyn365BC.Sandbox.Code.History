@@ -611,6 +611,11 @@ table 30118 "Shpfy Order Header"
             FieldClass = FlowField;
             CalcFormula = exist("Shpfy Order Risk" where("Order Id" = field("Shopify Order Id"), Level = const(High)));
         }
+        field(129; "Due Date"; Date)
+        {
+            Caption = 'Due Date';
+            DataClassification = CustomerContent;
+        }
         field(500; "Shop Code"; Code[20])
         {
             Caption = 'Shop Code';
