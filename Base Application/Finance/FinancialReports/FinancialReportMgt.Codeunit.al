@@ -1,5 +1,6 @@
 namespace Microsoft.Finance.FinancialReports;
 
+using Microsoft.Finance.GeneralLedger.Account;
 using System.Environment.Configuration;
 using System.IO;
 
@@ -18,6 +19,11 @@ codeunit 18 "Financial Report Mgt."
         ColumnsEditWarningNotificationMsg: Label 'Changes to this column definition will affect all financial reports using it.';
         ColumnsNotificationIdTok: Label '883e213e-08bd-4154-b929-87f689848f10', Locked = true;
         DontShowAgainMsg: Label 'Don''t show again';
+        OpenFinancialReportsLbl: Label 'Open Financial Reports';
+        NotifyUpdateFinancialReportNameTxt: Label 'Notify about updating financial reports.';
+        NotifyUpdateFinancialReportDescTxt: Label 'Notify that financial reports should be updated after someone creates a new G/L account.';
+        UpdateFinancialReportMsg: Label 'You have created one or more G/L accounts and might need to update your financial reports. We recommend that you review your financial reports by choosing the Open Financial Reports action.';
+        UpdateFinancialReportNotificationIdTok: Label 'cc02b894-bef8-4945-8042-f177422f8906', Locked = true;
 
     internal procedure LaunchEditRowsWarningNotification()
     var
@@ -350,6 +356,47 @@ codeunit 18 "Financial Report Mgt."
         FinancialReport.Description := AccScheduleName.Description;
         FinancialReport."Financial Report Row Group" := AccScheduleName.Name;
         FinancialReport.Insert();
+    end;
+
+    internal procedure NotifyUpdateFinancialReport(var GLAccount: Record "G/L Account")
+    var
+        MyNotification: Record "My Notifications";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        UpdateFinancialReportNotification: Notification;
+    begin
+        if not GuiAllowed() then
+            exit;
+        if GLAccount.IsTemporary() then
+            exit;
+        if not MyNotification.IsEnabled(GetUpdateFinancialReportNotificationId()) then
+            exit;
+
+        UpdateFinancialReportNotification.Id := GetUpdateFinancialReportNotificationId();
+        UpdateFinancialReportNotification.Message := UpdateFinancialReportMsg;
+        UpdateFinancialReportNotification.AddAction(
+            OpenFinancialReportsLbl, Codeunit::"Financial Report Mgt.", 'OpenFinancialReports');
+        UpdateFinancialReportNotification.AddAction(
+            DontShowAgainMsg, Codeunit::"Financial Report Mgt.", 'HideUpdateFinancialReportNotification');
+        NotificationLifecycleMgt.SendNotification(UpdateFinancialReportNotification, GLAccount.RecordId);
+    end;
+
+    procedure OpenFinancialReports(UpdateFinancialReportNotification: Notification)
+    begin
+        Page.Run(Page::"Financial Reports");
+    end;
+
+    procedure HideUpdateFinancialReportNotification(UpdateFinancialReportNotification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        if not MyNotifications.Disable(UpdateFinancialReportNotification.Id) then
+            MyNotifications.InsertDefault(UpdateFinancialReportNotification.Id,
+                NotifyUpdateFinancialReportNameTxt, NotifyUpdateFinancialReportDescTxt, false);
+    end;
+
+    procedure GetUpdateFinancialReportNotificationId(): Guid
+    begin
+        exit(UpdateFinancialReportNotificationIdTok);
     end;
 
     [IntegrationEvent(false, false)]
