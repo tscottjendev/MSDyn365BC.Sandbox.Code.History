@@ -23,6 +23,7 @@ using Microsoft.Purchases.Document;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
 using System.Environment.Configuration;
+using System.Telemetry;
 using System.Utilities;
 
 codeunit 5407 "Prod. Order Status Management"
@@ -99,6 +100,10 @@ codeunit 5407 "Prod. Order Status Management"
         ChangingStatusInfoLbl: Label 'Changing status to %1...\\', Comment = '%1 - New Status';
         ProcessingProgressTxt: Label 'Prod. Order #1###### @2@@@@@@@@@@@@@', Comment = '%1 - Production Order No.; %2 - Progress Percentage';
         ConfirmationLbl: Label '%1 production orders will have their status changed from %2 to %3.', Comment = '%1 - Number of Prod. Orders selected; %2 - Current status; %3 - New status';
+        CanReOpenFinishedProdOrderQst: Label 'Do you want to reopen the production order %1 ?', Comment = '%1 - Production Order No.';
+        OpenReleasedProdOrderQst: Label 'The production order is reopened and moved to the %1 Production Order.\\Do you want to open the production order?', Comment = '%1 = Production Order No.';
+        ReopenFinishedProductionOrderFeatureTelemetryNameLbl: Label 'Reopen Finished Production Order', Locked = true;
+        ReopenedProductionOrderLbl: Label 'The production order is reopened and moved to the %1 Production Order with status Released.', Comment = '%1 = Production Order No.';
 
     procedure ChangeProdOrderStatus(ProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
     var
@@ -135,6 +140,265 @@ codeunit 5407 "Prod. Order Status Management"
 
         if not SuppressCommit then
             Commit();
+    end;
+
+    internal procedure ReopenFinishedProdOrder(var ProdOrder: Record "Production Order")
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+    begin
+        FeatureTelemetry.LogUptake('0000OHX', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        if not CanReopenFinishedProdOrder(ProdOrder) then
+            Error('');
+
+        ProcessProdOrderForReopen(ProdOrder);
+        ShowReleasedProdOrderDocument(ProdOrder);
+        FeatureTelemetry.LogUsage('0000OHY', GetFeatureTelemetryName(), StrSubstNo(ReopenedProductionOrderLbl, ProdOrder."No."));
+    end;
+
+    local procedure CanReopenFinishedProdOrder(ProdOrder: Record "Production Order"): Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(CanReOpenFinishedProdOrderQst, ProdOrder."No."), true));
+    end;
+
+    local procedure ProcessProdOrderForReopen(var ProdOrder: Record "Production Order")
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ValidateProdOrderHeaderForReopen(ProdOrder);
+        TransferReopenProdOrder(ProdOrder);
+
+        ProdOrderLine.SetRange(Status, ProdOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
+        if ProdOrderLine.FindSet() then
+            repeat
+                ProcessProdOrderLineForReopen(ProdOrderLine);
+            until ProdOrderLine.Next() = 0;
+
+        TransferRelatedTablesToReleasedProdOrder(ProdOrder);
+        ProdOrder.Delete();
+    end;
+
+    local procedure TransferRelatedTablesToReleasedProdOrder(ProdOrder: Record "Production Order")
+    begin
+        TransferReopenProdOrderRtngLine(ProdOrder);
+        TransReopenProdOrderRtngTool(ProdOrder);
+        TransReopenProdOrderRtngPersnl(ProdOrder);
+        TransReopenProdOrdRtngQltyMeas(ProdOrder);
+        TransReopenProdOrderCmtLine(ProdOrder);
+        TransReopenProdOrderRtngCmtLn(ProdOrder);
+        TransReopenProdOrderBOMCmtLine(ProdOrder);
+    end;
+
+    local procedure ShowReleasedProdOrderDocument(var ProdOrder: Record "Production Order")
+    var
+        NewProductionOrder: Record "Production Order";
+    begin
+        if not Confirm(StrSubstNo(OpenReleasedProdOrderQst, ProdOrder."No.")) then
+            exit;
+
+        NewProductionOrder.Get(NewProductionOrder.Status::Released, ProdOrder."No.");
+        Page.Run(Page::"Released Production Order", NewProductionOrder);
+    end;
+
+    local procedure ValidateProdOrderHeaderForReopen(ProdOrder: Record "Production Order")
+    begin
+        ProdOrder.TestField(Status, ProdOrder.Status::Finished);
+        ProdOrder.TestField("Reopened", false);
+    end;
+
+    local procedure ProcessProdOrderLineForReopen(ProdOrderLine: Record "Prod. Order Line")
+    var
+        UpdateProdOrderLine: Record "Prod. Order Line";
+    begin
+        ValidateProdOrderLineForReopen(ProdOrderLine);
+        TransferReopenProdOrderLine(ProdOrderLine);
+        TransReopenProdOrderComp(ProdOrderLine);
+
+        UpdateProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+        UpdateProdOrderLine.Delete();
+    end;
+
+    local procedure TransferReopenProdOrder(FromProdOrder: Record "Production Order")
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        ProductionOrder.Init();
+        ProductionOrder := FromProdOrder;
+        ProductionOrder.Status := ProductionOrder.Status::Released;
+        ProductionOrder."Reopened" := true;
+        ProductionOrder.Insert();
+    end;
+
+    local procedure TransferReopenProdOrderLine(FromProdOrderLine: Record "Prod. Order Line")
+    var
+        ProductionOrderLine: Record "Prod. Order Line";
+        InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+    begin
+        ProductionOrderLine.Init();
+        ProductionOrderLine := FromProdOrderLine;
+        ProductionOrderLine.Status := ProductionOrderLine.Status::Released;
+        ProductionOrderLine.Insert();
+
+        InvtAdjmtEntryOrder.Get(InvtAdjmtEntryOrder."Order Type"::Production, FromProdOrderLine."Prod. Order No.", FromProdOrderLine."Line No.");
+        InvtAdjmtEntryOrder."Routing No." := ProductionOrderLine."Routing No.";
+        InvtAdjmtEntryOrder."Cost is Adjusted" := false;
+        InvtAdjmtEntryOrder."Is Finished" := false;
+        InvtAdjmtEntryOrder.Modify();
+    end;
+
+    local procedure TransReopenProdOrderComp(FromProdOrderLine: Record "Prod. Order Line")
+    var
+        FromProdOrderComponent: Record "Prod. Order Component";
+        NewProdOrderComponent: Record "Prod. Order Component";
+    begin
+        FromProdOrderComponent.SetRange(Status, FromProdOrderLine.Status);
+        FromProdOrderComponent.SetRange("Prod. Order No.", FromProdOrderLine."Prod. Order No.");
+        FromProdOrderComponent.SetRange("Prod. Order Line No.", FromProdOrderLine."Line No.");
+        if FromProdOrderComponent.FindSet() then begin
+            repeat
+                NewProdOrderComponent.Init();
+                NewProdOrderComponent := FromProdOrderComponent;
+                NewProdOrderComponent.Status := NewProdOrderComponent.Status::Released;
+                NewProdOrderComponent.Insert();
+            until FromProdOrderComponent.Next() = 0;
+            FromProdOrderComponent.DeleteAll();
+        end;
+    end;
+
+    local procedure TransferReopenProdOrderRtngLine(FromProdOrder: Record "Production Order")
+    var
+        FromProdOrderRtngLine: Record "Prod. Order Routing Line";
+        ToProdOrderRtngLine: Record "Prod. Order Routing Line";
+    begin
+        FromProdOrderRtngLine.SetRange(Status, FromProdOrder.Status);
+        FromProdOrderRtngLine.SetRange("Prod. Order No.", FromProdOrder."No.");
+        if FromProdOrderRtngLine.FindSet() then begin
+            repeat
+                ToProdOrderRtngLine.Init();
+                ToProdOrderRtngLine := FromProdOrderRtngLine;
+                ToProdOrderRtngLine.Status := ToProdOrderRtngLine.Status::Released;
+                ToProdOrderRtngLine."Routing Status" := ToProdOrderRtngLine."Routing Status"::"In Progress";
+                ToProdOrderRtngLine.Insert();
+            until FromProdOrderRtngLine.Next() = 0;
+            FromProdOrderRtngLine.DeleteAll();
+        end;
+    end;
+
+    local procedure TransReopenProdOrderRtngPersnl(FromProdOrder: Record "Production Order")
+    var
+        FromProdOrderRtngPersonnel: Record "Prod. Order Routing Personnel";
+        ToProdOrderRtngPersonnel: Record "Prod. Order Routing Personnel";
+    begin
+        FromProdOrderRtngPersonnel.SetRange(Status, FromProdOrder.Status);
+        FromProdOrderRtngPersonnel.SetRange("Prod. Order No.", FromProdOrder."No.");
+        if FromProdOrderRtngPersonnel.FindSet() then begin
+            repeat
+                ToProdOrderRtngPersonnel.Init();
+                ToProdOrderRtngPersonnel := FromProdOrderRtngPersonnel;
+                ToProdOrderRtngPersonnel.Status := ToProdOrderRtngPersonnel.Status::Released;
+                ToProdOrderRtngPersonnel.Insert();
+            until FromProdOrderRtngPersonnel.Next() = 0;
+            FromProdOrderRtngPersonnel.DeleteAll();
+        end;
+    end;
+
+    local procedure TransReopenProdOrdRtngQltyMeas(FromProdOrder: Record "Production Order")
+    var
+        FromProdOrderRtngQltyMeas: Record "Prod. Order Rtng Qlty Meas.";
+        ToProdOrderRtngQltyMeas: Record "Prod. Order Rtng Qlty Meas.";
+    begin
+        FromProdOrderRtngQltyMeas.SetRange(Status, FromProdOrder.Status);
+        FromProdOrderRtngQltyMeas.SetRange("Prod. Order No.", FromProdOrder."No.");
+        if FromProdOrderRtngQltyMeas.FindSet() then begin
+            repeat
+                ToProdOrderRtngQltyMeas := FromProdOrderRtngQltyMeas;
+                ToProdOrderRtngQltyMeas.Status := ToProdOrderRtngQltyMeas.Status::Released;
+                ToProdOrderRtngQltyMeas.Insert();
+            until FromProdOrderRtngQltyMeas.Next() = 0;
+            FromProdOrderRtngQltyMeas.DeleteAll();
+        end;
+    end;
+
+    local procedure TransReopenProdOrderCmtLine(FromProdOrder: Record "Production Order")
+    var
+        FromProdOrderCommentLine: Record "Prod. Order Comment Line";
+        ToProdOrderCommentLine: Record "Prod. Order Comment Line";
+    begin
+        FromProdOrderCommentLine.SetRange(Status, FromProdOrder.Status);
+        FromProdOrderCommentLine.SetRange("Prod. Order No.", FromProdOrder."No.");
+        if FromProdOrderCommentLine.FindSet() then begin
+            repeat
+                ToProdOrderCommentLine := FromProdOrderCommentLine;
+                ToProdOrderCommentLine.Status := ToProdOrderCommentLine.Status::Released;
+                ToProdOrderCommentLine.Insert();
+            until FromProdOrderCommentLine.Next() = 0;
+            FromProdOrderCommentLine.DeleteAll();
+        end;
+        TransferLinks(FromProdOrder, ToProdOrder);
+    end;
+
+    local procedure TransReopenProdOrderRtngCmtLn(FromProdOrder: Record "Production Order")
+    var
+        FromProdOrderRtngComment: Record "Prod. Order Rtng Comment Line";
+        ToProdOrderRtngComment: Record "Prod. Order Rtng Comment Line";
+    begin
+        FromProdOrderRtngComment.SetRange(Status, FromProdOrder.Status);
+        FromProdOrderRtngComment.SetRange("Prod. Order No.", FromProdOrder."No.");
+        if FromProdOrderRtngComment.FindSet() then begin
+            repeat
+                ToProdOrderRtngComment := FromProdOrderRtngComment;
+                ToProdOrderRtngComment.Status := ToProdOrderRtngComment.Status::Released;
+                ToProdOrderRtngComment.Insert();
+            until FromProdOrderRtngComment.Next() = 0;
+            FromProdOrderRtngComment.DeleteAll();
+        end;
+    end;
+
+    local procedure TransReopenProdOrderBOMCmtLine(FromProdOrder: Record "Production Order")
+    var
+        FromProdOrderBOMComment: Record "Prod. Order Comp. Cmt Line";
+        ToProdOrderBOMComment: Record "Prod. Order Comp. Cmt Line";
+    begin
+        FromProdOrderBOMComment.SetRange(Status, FromProdOrder.Status);
+        FromProdOrderBOMComment.SetRange("Prod. Order No.", FromProdOrder."No.");
+        if FromProdOrderBOMComment.FindSet() then begin
+            repeat
+                ToProdOrderBOMComment := FromProdOrderBOMComment;
+                ToProdOrderBOMComment.Status := ToProdOrderBOMComment.Status::Released;
+                ToProdOrderBOMComment.Insert();
+            until FromProdOrderBOMComment.Next() = 0;
+            FromProdOrderBOMComment.DeleteAll();
+        end;
+    end;
+
+    local procedure TransReopenProdOrderRtngTool(FromProdOrder: Record "Production Order")
+    var
+        FromProdOrderRtngTool: Record "Prod. Order Routing Tool";
+        ToProdOrderRoutTool: Record "Prod. Order Routing Tool";
+    begin
+        FromProdOrderRtngTool.SetRange(Status, FromProdOrder.Status);
+        FromProdOrderRtngTool.SetRange("Prod. Order No.", FromProdOrder."No.");
+        FromProdOrderRtngTool.LockTable();
+        if FromProdOrderRtngTool.FindSet() then begin
+            repeat
+                ToProdOrderRoutTool := FromProdOrderRtngTool;
+                ToProdOrderRoutTool.Status := ToProdOrderRoutTool.Status::Released;
+                ToProdOrderRoutTool.Insert();
+            until FromProdOrderRtngTool.Next() = 0;
+            FromProdOrderRtngTool.DeleteAll();
+        end;
+    end;
+
+    local procedure ValidateProdOrderLineForReopen(ProdOrderLine: Record "Prod. Order Line")
+    begin
+        ProdOrderLine.TestField(Status, ProdOrderLine.Status::Finished);
+    end;
+
+    local procedure GetFeatureTelemetryName(): Text
+    begin
+        exit(ReopenFinishedProductionOrderFeatureTelemetryNameLbl);
     end;
 
     local procedure MakeMultiLevelAdjmt(ProdOrder: Record "Production Order")
