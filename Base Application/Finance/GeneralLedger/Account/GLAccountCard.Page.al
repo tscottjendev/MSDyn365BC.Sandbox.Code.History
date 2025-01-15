@@ -769,6 +769,13 @@ page 17 "G/L Account Card"
         Rec.SetupNewGLAcc(xRec, BelowxRec);
     end;
 
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
+    begin
+        FinancialReportMgt.NotifyUpdateFinancialReport(Rec);
+    end;
+
     var
         ExtendedPriceEnabled: Boolean;
 #if not CLEAN24
