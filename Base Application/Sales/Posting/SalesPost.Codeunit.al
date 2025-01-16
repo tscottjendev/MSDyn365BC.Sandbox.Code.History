@@ -8785,6 +8785,14 @@ codeunit 80 "Sales-Post"
     begin
     end;
 
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnAfterCreatePostedDeferralSchedule in codeunit 825 "Sales Post Invoice Events".', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreatePostedDeferralScheduleFromSalesDoc(var SalesLine: Record "Sales Line"; var PostedDeferralHeader: Record "Posted Deferral Header")
+    begin
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateWhseJnlLine(var SalesLine: Record "Sales Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
     begin
@@ -8815,6 +8823,20 @@ codeunit 80 "Sales-Post"
     begin
     end;
 
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnAfterGetSalesAccount in codeunit 825 "Sales Post Invoice Events".', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSalesAccount(SalesLine: Record "Sales Line"; GenPostingSetup: Record "General Posting Setup"; var SalesAccountNo: Code[20])
+    begin
+    end;
+
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSalesAccount(SalesLine: Record "Sales Line"; GenPostingSetup: Record "General Posting Setup"; var SalesAccountNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSalesSetup(var SalesSetup: Record "Sales & Receivables Setup")
     begin
@@ -8829,6 +8851,32 @@ codeunit 80 "Sales-Post"
     local procedure OnBeforeGetSalesLinesTemp(var SalesHeader: Record "Sales Header"; var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; QtyType: Option)
     begin
     end;
+
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnAfterFillInvoicePostingBuffer in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillInvoicePostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer"; SalesLine: Record "Sales Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnAfterPrepareDeferralLine in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillDeferralPostingBuffer(var SalesLine: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; UseDate: Date; InvDefLineNo: Integer; DeferralLineNo: Integer; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnAfterInitTotalAmounts in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInvoicePostingBufferAssignAmounts(SalesLine: Record "Sales Line"; var TotalAmount: Decimal; var TotalAmountLCY: Decimal; SalesLineACY: Record "Sales Line"; var TotalVAT: Decimal; var TotalVATACY: Decimal; var TotalVATBase: Decimal; var TotalVATBaseACY: Decimal; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnAfterSetAmounts in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInvoicePostingBufferSetAmounts(var InvoicePostBuffer: Record "Invoice Post. Buffer"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIncrAmount(var TotalSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
@@ -8904,6 +8952,26 @@ codeunit 80 "Sales-Post"
     local procedure OnAfterPostSalesDocDropShipment(PurchRcptNo: Code[20]; CommitIsSuppressed: Boolean)
     begin
     end;
+
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPostLedgerEntryOnAfterGenJnlPostLine in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostCustomerEntry(var GenJnlLine: Record "Gen. Journal Line"; var SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; CommitIsSuppressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPostBalancingEntryOnAfterGenJnlPostLine in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostBalancingEntry(var GenJnlLine: Record "Gen. Journal Line"; var SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; CommitIsSuppressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPostLinesOnAfterGenJnlLinePost in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostInvPostBuffer(var GenJnlLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var SalesHeader: Record "Sales Header"; GLEntryNo: Integer; CommitIsSuppressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; xSalesLine: Record "Sales Line"; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; var GenJnlLineDocType: Enum "Gen. Journal Document Type")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlPostLine: Codeunit "Whse. Jnl.-Register Line"; OriginalItemJnlLine: Record "Item Journal Line"; var ItemShptEntryNo: Integer; IsATO: Boolean; var TempHandlingSpecification: Record "Tracking Specification"; var TempATOTrackingSpecification: Record "Tracking Specification"; TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; ShouldPostItemJnlLine: Boolean)
@@ -9126,6 +9194,14 @@ codeunit 80 "Sales-Post"
     begin
     end;
 
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnBeforeInitGenJnlLine in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitNewLineFromInvoicePostBuffer(var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertICGenJnlLine(var ICGenJournalLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; CommitIsSuppressed: Boolean)
     begin
@@ -9266,6 +9342,44 @@ codeunit 80 "Sales-Post"
     begin
     end;
 
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPostLedgerEntryOnBeforeGenJnlPostLine in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostCustomerEntry(var GenJnlLine: Record "Gen. Journal Line"; var SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnBeforePostLedgerEntry in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunPostCustomerEntry(var SalesHeader: Record "Sales Header"; var TotalSalesLine2: Record "Sales Line"; var TotalSalesLineLCY2: Record "Sales Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Code[35]; SourceCode: Code[10]; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnBeforeRunGenJnlPostLine in codeunit 825 "Sales Post Invoice Events".', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line"; SalesInvHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPostBalancingEntryOnBeforeGenJnlPostLine in codeunit 825 "Sales Post Invoice Events".', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostBalancingEntry(var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPostLinesOnBeforeGenJnlLinePost in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostInvPostBuffer(var GenJnlLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean)
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnBeforePostLines in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostInvoicePostBuffer(SalesHeader: Record "Sales Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line")
+    begin
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostJobContractLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean; var JobContractLine: Boolean; var InvoicePostingInterface: Interface "Invoice Posting"; SalesLineACY: Record "Sales Line"; SalesInvHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
@@ -9361,6 +9475,14 @@ codeunit 80 "Sales-Post"
     begin
     end;
 
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnAfterSetApplyToDocNo in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetApplyToDocNo(var GenJournalLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterDivideAmount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
     begin
@@ -9401,6 +9523,26 @@ codeunit 80 "Sales-Post"
     begin
     end;
 
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnBeforeCalcInvoiceDiscountPosting in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcInvoiceDiscountPosting(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; TotalVAT: Decimal; TotalVATACY: Decimal; TotalAmount: Decimal; TotalAmountACY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnBeforeCalcInvoiceDiscountPosting in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcInvoiceDiscountPostingProcedure(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnBeforeCalcLineDiscountPosting in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineDiscountPostingProcedure(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcInvoice(SalesHeader: Record "Sales Header"; var TempSalesLineGlobal: Record "Sales Line" temporary; var NewInvoice: Boolean; var IsHandled: Boolean)
     begin
@@ -9410,6 +9552,14 @@ codeunit 80 "Sales-Post"
     local procedure OnBeforeCalcItemJnlAmountsFromQtyToBeShipped(var ItemJnlLine: Record "Item Journal Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; QtyToBeShipped: Decimal; var IsHandled: Boolean; var InvDiscAmountPerShippedQty: Decimal; RemAmt: Decimal)
     begin
     end;
+
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnBeforeCalcLineDiscountPosting in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcLineDiscountPosting(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; TotalVAT: Decimal; TotalVATACY: Decimal; TotalAmount: Decimal; TotalAmountACY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAssosOrderLines(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
@@ -9516,6 +9666,14 @@ codeunit 80 "Sales-Post"
     begin
     end;
 
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnBeforeSetAmounts in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInvoicePostingBufferSetAmounts(SalesLine: Record "Sales Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TotalVAT: Decimal; var TotalVATACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal; var TotalVATBase: Decimal; var TotalVATBaseACY: Decimal)
+    begin
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRoundAmount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesLineQty: Decimal; var CurrExchRate: Record "Currency Exchange Rate")
     begin
@@ -9606,6 +9764,14 @@ codeunit 80 "Sales-Post"
     begin
     end;
 
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnBeforeSetAmountsForBalancingEntry in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetAmountsForBalancingEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var TotalSalesLineLCY2: Record "Sales Line")
+    begin
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetPostingFlags(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
@@ -9650,6 +9816,14 @@ codeunit 80 "Sales-Post"
     local procedure OnBeforeTestStatusRelease(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
+
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnBeforeTempDeferralLineInsert in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTempDeferralLineInsert(var TempDeferralLine: Record "Deferral Line" temporary; DeferralLine: Record "Deferral Line"; SalesLine: Record "Sales Line"; var DeferralCount: Integer; var TotalDeferralCount: Integer)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempPrepmtSalesLineInsert(var TempPrepmtSalesLine: Record "Sales Line" temporary; var TempSalesLine: Record "Sales Line" temporary; SalesHeader: Record "Sales Header"; CompleteFunctionality: Boolean)
@@ -10155,6 +10329,26 @@ codeunit 80 "Sales-Post"
     begin
     end;
 
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnFillInvoicePostingBufferOnBeforeDeferrals in codeunit 825 "Sales Post Invoice Events".', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnFillInvoicePostingBufferOnBeforeDeferrals(var SalesLine: Record "Sales Line"; var TotalAmount: Decimal; var TotalAmountACY: Decimal; UseDate: Date)
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnBeforePrepareDeferralLine in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillDeferralPostingBuffer(var SalesLine: Record "Sales Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer"; UseDate: Date; InvDefLineNo: Integer; DeferralLineNo: Integer; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnBeforePrepareLine in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillInvoicePostingBuffer(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetCountryCode(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var CountryRegionCode: Code[10]; var IsHandled: Boolean)
     begin
@@ -10540,6 +10734,58 @@ codeunit 80 "Sales-Post"
     begin
     end;
 
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnBeforeSetAccount in codeunit 825 "Sales Post Invoice Events".', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnFillInvoicePostingBufferOnBeforeSetAccount(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var SalesAccount: Code[20])
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnAfterSetLineDiscAccount in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnFillInvoicePostingBufferOnAfterSetLineDiscAccount(var SalesLine: Record "Sales Line"; var GenPostingSetup: Record "General Posting Setup"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnAfterSetInvoiceDiscAccount in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnFillInvoicePostingBufferOnAfterSetInvDiscAccount(var SalesLine: Record "Sales Line"; var GenPostingSetup: Record "General Posting Setup"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+#pragma warning disable AS0072
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnAfterUpdateInvoicePostingBuffer in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var GenJnlLineDocNo: Code[20]; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+#pragma warning restore AS0072
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnAfterSetInvoiceDiscountPosting in codeunit 825 "Sales Post Invoice Events".', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnFillInvoicePostingBufferOnAfterCalcInvoiceDiscountPosting(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var InvoiceDiscountPosting: Boolean)
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnAfterSetLineDiscountPosting in codeunit 825 "Sales Post Invoice Events".', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnFillInvoicePostingBufferOnAfterCalcLineDiscountPosting(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var LineDiscountPosting: Boolean)
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnBeforeSetInvoiceDiscAccount in codeunit 825 "Sales Post Invoice Events".', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnFillInvoicePostingBufferOnBeforeSetInvDiscAccount(SalesLine: Record "Sales Line"; GenPostingSetup: Record "General Posting Setup"; var InvDiscAccount: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnBeforeSetLineDiscAccount in codeunit 825 "Sales Post Invoice Events".', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnFillInvoicePostingBufferOnBeforeSetLineDiscAccount(SalesLine: Record "Sales Line"; GenPostingSetup: Record "General Posting Setup"; var LineDiscAccount: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnFinalizePostingOnAfterUpdateItemChargeAssgnt(var SalesHeader: Record "Sales Header"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
@@ -10574,6 +10820,26 @@ codeunit 80 "Sales-Post"
     local procedure OnPostATOAssocItemJnlLineOnBeforeRemainingPost(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var PostedATOLink: Record "Posted Assemble-to-Order Link"; var RemQtyToBeInvoiced: Decimal; var RemQtyToBeInvoicedBase: Decimal; var ItemLedgShptEntryNo: Integer)
     begin
     end;
+
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Event is currently missing. Check out GitHub Issue: https://github.com/microsoft/ALAppExtensions/issues/21198.', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnPostBalancingEntryOnAfterInitNewLine(SalesHeader: Record "Sales Header"; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPostBalancingEntryOnAfterFindCustLedgEntry in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnPostBalancingEntryOnAfterFindCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPostBalancingEntryOnBeforeFindCustLedgEntry in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnPostBalancingEntryOnBeforeFindCustLedgEntry(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; DocType: Option; DocNo: Code[20]; ExtDocNo: Code[35]; var CustLedgerEntry: Record "Cust. Ledger Entry"; var EntryFound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDropOrderShipmentOnAfterUpdateBlanketOrderLine(PurchOrderHeader: Record "Purchase Header"; PurchOrderLine: Record "Purchase Line"; TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; SalesShptHeader: Record "Sales Shipment Header"; SalesHeader: Record "Sales Header"; PurchRcptHeader: Record "Purch. Rcpt. Header"; var TempTrackingSpecification: Record "Tracking Specification" temporary; SrcCode: Code[10])
@@ -10724,6 +10990,26 @@ codeunit 80 "Sales-Post"
     local procedure OnPostItemTrackingForReceiptOnAfterSetFilters(var ReturnReceiptLine: Record "Return Receipt Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
     end;
+
+#if not CLEAN24
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Event is currently missing. Please request it for the new Sales Invoice Posting.', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnPostInvoicePostBufferOnAfterPostSalesGLAccounts(var SalesHeader: Record "Sales Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; DocumentNo: Code[20]; var GLEntryNo: Integer; SourceCode: Code[10])
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPostLinesOnBeforeTempInvoicePostingBufferDeleteAll in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnPostInvoicePostBufferOnBeforeTempInvoicePostBufferDeleteAll(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; GenJnlLineDocType: Enum "Gen. Journal Document Type"; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; SrcCode: Code[10])
+    begin
+    end;
+
+    [Obsolete('This integration event is no longer invoked. Moved to Sales Invoice Posting implementation. Use the new event OnPrepareGenJnlLineOnAfterCopyToGenJnlLine in codeunit 825 "Sales Post Invoice Events".', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnPostInvoicePostBufferLineOnAfterCopyFromInvoicePostBuffer(var SalesHeader: Record "Sales Header"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSalesLineOnBeforeInsertCrMemoLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean; xSalesLine: Record "Sales Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
