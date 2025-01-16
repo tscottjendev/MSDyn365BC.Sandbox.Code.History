@@ -358,6 +358,7 @@ page 99000914 "Change Production Order Status"
         NoOfProductionOrdersToProcess: Integer;
         ProcessedProductionOrdersCounter: Integer;
         IsHandled: Boolean;
+        FinishOrderWithoutOutput: Boolean;
     begin
         CurrPage.SetSelectionFilter(ProductionOrder);
 
@@ -365,7 +366,7 @@ page 99000914 "Change Production Order Status"
             ChangeStatusOnProdOrder.Set(ProductionOrder);
             if ChangeStatusOnProdOrder.RunModal() <> Action::Yes then
                 exit;
-            ChangeStatusOnProdOrder.ReturnPostingInfo(NewProductionOrderStatus, NewPostingDate, NewUpdateUnitCost);
+            ChangeStatusOnProdOrder.ReturnPostingInfo(NewProductionOrderStatus, NewPostingDate, NewUpdateUnitCost, FinishOrderWithoutOutput);
 
             NoOfProductionOrdersToProcess := ProductionOrder.Count();
             ProcessedProductionOrdersCounter := 0;
@@ -378,7 +379,7 @@ page 99000914 "Change Production Order Status"
                 IsHandled := false;
                 OnBeforeChangeProdOrderStatus(ProductionOrder, NewProductionOrderStatus, NewPostingDate, NewUpdateUnitCost, IsHandled);
                 if not IsHandled then begin
-                    ProdOrderChangeStatusBulk.SetParameters(NewProductionOrderStatus, NewPostingDate, NewUpdateUnitCost);
+                    ProdOrderChangeStatusBulk.SetParameters(NewProductionOrderStatus, NewPostingDate, NewUpdateUnitCost, FinishOrderWithoutOutput);
                     if not ProdOrderChangeStatusBulk.Run(ProductionOrder) then begin
                         TempErrors.ID := TempErrors.ID + 1;
                         TempErrors.Message := GetLastErrorText();
