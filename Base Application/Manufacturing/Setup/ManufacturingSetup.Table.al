@@ -13,6 +13,7 @@ using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Forecast;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.ProductionBOM;
+using System.Utilities;
 
 table 99000765 "Manufacturing Setup"
 {
@@ -162,6 +163,15 @@ table 99000765 "Manufacturing Setup"
             Caption = 'Show Capacity In';
             TableRelation = "Capacity Unit of Measure".Code;
         }
+        field(210; "Finish Order without Output"; Boolean)
+        {
+            Caption = 'Finish Order without Output';
+
+            trigger OnValidate()
+            begin
+                CheckAndConfirmFinishOrderWithoutOutput();
+            end;
+        }
         field(5500; "Preset Output Quantity"; Option)
         {
             Caption = 'Preset Output Quantity';
@@ -181,4 +191,31 @@ table 99000765 "Manufacturing Setup"
     fieldgroups
     {
     }
+
+    var
+        RecordHasBeenRead: Boolean;
+        FinishOrderWithoutOutputQst: Label 'You will not be able to disable %1 once you have enabled it.\\Do you want to continue?', Comment = '%1 = Field Caption';
+        NotAllowedDisableFinishOrderWithoutOutputErr: Label 'You are not allowed to disable %1 once you have enabled it.', Comment = '%1 = Field Caption';
+
+    procedure GetRecordOnce()
+    begin
+        if RecordHasBeenRead then
+            exit;
+        Get();
+        RecordHasBeenRead := true;
+    end;
+
+    local procedure CheckAndConfirmFinishOrderWithoutOutput()
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        if (xRec."Finish Order without Output") and (not Rec."Finish Order without Output") then
+            Error(NotAllowedDisableFinishOrderWithoutOutputErr, Rec.FieldCaption("Finish Order without Output"));
+
+        if not ConfirmManagement.GetResponseOrDefault(
+            StrSubstNo(FinishOrderWithoutOutputQst, Rec.FieldCaption("Finish Order without Output")),
+            false)
+        then
+            Error('');
+    end;
 }
