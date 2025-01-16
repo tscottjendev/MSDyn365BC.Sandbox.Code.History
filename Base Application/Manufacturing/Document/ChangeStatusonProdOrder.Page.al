@@ -4,6 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
+using Microsoft.Manufacturing.Setup;
+
 page 99000882 "Change Status on Prod. Order"
 {
     Caption = 'Change Status on Prod. Order';
@@ -34,6 +36,11 @@ page 99000882 "Change Status on Prod. Order"
                         ProdOrderStatus.Status::"Firm Planned":
                             CheckStatus(FirmPlannedStatusEditable);
                     end;
+
+                    if ProdOrderStatus.Status <> ProdOrderStatus.Status::Finished then
+                        FinishOrderWithoutOutput := false;
+
+                    CurrPage.Update(true);
                 end;
             }
             field(PostingDate; PostingDate)
@@ -45,6 +52,12 @@ page 99000882 "Change Status on Prod. Order"
             {
                 ApplicationArea = Manufacturing;
                 Caption = 'Update Unit Cost';
+            }
+            field("Finish Order without Output"; FinishOrderWithoutOutput)
+            {
+                Caption = 'Allow Finishing Prod. Order with no Output';
+                ApplicationArea = Manufacturing;
+                Editable = FinishOrderWithoutOutputEditable;
             }
         }
     }
@@ -60,12 +73,25 @@ page 99000882 "Change Status on Prod. Order"
         FirmPlannedStatusEditable := true;
     end;
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        SetFinishOrderWithoutOutputEditable();
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        SetFinishOrderWithoutOutputEditable();
+    end;
+
     var
+        ManufacturingSetup: Record "Manufacturing Setup";
         ProdOrderStatus: Record "Production Order";
         PostingDate: Date;
         FirmPlannedStatusEditable: Boolean;
         ReleasedStatusEditable: Boolean;
         FinishedStatusEditable: Boolean;
+        FinishOrderWithoutOutput: Boolean;
+        FinishOrderWithoutOutputEditable: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text666: Label '%1 is not a valid selection.';
@@ -110,10 +136,25 @@ page 99000882 "Change Status on Prod. Order"
         UpdUnitCost := ReqUpdUnitCost;
     end;
 
+    procedure ReturnPostingInfo(var Status: Enum "Production Order Status"; var PostingDate2: Date; var UpdUnitCost: Boolean; var NewFinishOrderWithoutOutput: Boolean)
+    begin
+        Status := ProdOrderStatus.Status;
+        PostingDate2 := PostingDate;
+        UpdUnitCost := ReqUpdUnitCost;
+        NewFinishOrderWithoutOutput := FinishOrderWithoutOutput;
+    end;
+
     local procedure CheckStatus(StatusEditable: Boolean)
     begin
         if not StatusEditable then
             Error(Text666, ProdOrderStatus.Status);
+    end;
+
+    local procedure SetFinishOrderWithoutOutputEditable()
+    begin
+        ManufacturingSetup.GetRecordOnce();
+
+        FinishOrderWithoutOutputEditable := (ProdOrderStatus.Status = ProdOrderStatus.Status::Finished) and (ManufacturingSetup."Finish Order without Output");
     end;
 
     [IntegrationEvent(true, false)]
