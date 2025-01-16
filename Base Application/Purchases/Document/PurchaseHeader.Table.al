@@ -1641,6 +1641,7 @@ table 38 "Purchase Header"
                 Validate("Payment Terms Code");
                 Validate("Prepmt. Payment Terms Code");
                 ValidateDocumentDate();
+                UpdateDocumentDate := false;
             end;
         }
         field(101; "Area"; Code[10])
