@@ -1680,8 +1680,9 @@ table 38 "Purchase Header"
                     UpdateDocumentDate := true;
                 Validate("Payment Terms Code");
                 Validate("Prepmt. Payment Terms Code");
-
+                
                 PurchWithhSoc.UpdateDateRelatedWithPurchHeaderDocDate(Rec);
+                UpdateDocumentDate := false;
             end;
         }
         field(101; "Area"; Code[10])
