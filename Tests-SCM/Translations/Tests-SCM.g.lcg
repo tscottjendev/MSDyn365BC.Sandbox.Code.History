@@ -1337,6 +1337,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Table Caption.]D;]A;(LookupHint=Codeunit SCM Capacity Requirements - NamedType Description2Err)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4202532295 - NamedType 2126269337" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Ending Time must be equal to %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Ending Time]D;]A;(LookupHint=Codeunit SCM Capacity Requirements - NamedType EndingTimeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4202532295 - NamedType 3301997387" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Firm Planned Prod. Order]]></Val>
