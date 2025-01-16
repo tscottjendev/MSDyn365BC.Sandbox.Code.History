@@ -978,6 +978,20 @@ table 472 "Job Queue Entry"
         exit(false);
     end;
 
+    internal procedure ReuseExistingJobFromUserCategoryCodeunitAndParamString(UserId: Text; JobQueueCategoryCode: Code[10]; Codeunit: Integer; ParamString: Text[250]; ExecutionDateTime: DateTime): Boolean
+    begin
+        Rec.SetRange("User ID", CopyStr(UserId, 1, MaxStrLen(Rec."User ID")));
+        Rec.SetRange("Job Queue Category Code", JobQueueCategoryCode);
+        Rec.SetRange("Object ID to Run", Codeunit);
+        Rec.SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
+        if ParamString <> '' then
+            Rec.SetRange("Parameter String", ParamString);
+        if Rec.FindFirst() then
+            exit(ReuseExistingJobFromID(Rec.ID, ExecutionDateTime));
+
+        exit(false);
+    end;
+
     local procedure AreRunParametersChanged(): Boolean
     begin
         exit(
