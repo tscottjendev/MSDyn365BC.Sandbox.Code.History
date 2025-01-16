@@ -475,6 +475,7 @@ table 5802 "Value Entry"
         }
         key(Key7; "Item No.", "Valuation Date", "Location Code", "Variant Code")
         {
+            IncludedFields = "Item Ledger Entry Type";
             SumIndexFields = "Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Expected) (ACY)", "Cost Amount (Actual) (ACY)", "Item Ledger Entry Quantity", "Invoiced Quantity";
         }
         key(Key8; "Source Type", "Source No.", "Item No.", "Posting Date", "Entry Type", Adjustment, "Item Ledger Entry Type")
@@ -490,6 +491,7 @@ table 5802 "Value Entry"
         }
         key(Key11; "Order Type", "Order No.", "Order Line No.")
         {
+            IncludedFields = "Item No.", "Valuation Date", "Item Ledger Entry Type", "Variant Code", "Location Code";
         }
         key(Key13; "Job No.", "Job Task No.", "Document No.")
         {
