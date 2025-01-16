@@ -238,6 +238,11 @@ codeunit 30165 "Shpfy Orders API"
                     JsonHelper.GetValueIntoField(JNode, 'totalPriceSet.shopMoney.amount', RecordRef, OrdersToImport.FieldNo("Order Amount"));
                     JsonHelper.GetValueIntoField(JNode, 'totalPriceSet.shopMoney.currencyCode', RecordRef, OrdersToImport.FieldNo("Currency Code"));
                     JsonHelper.GetValueIntoField(JNode, 'channel.name', RecordRef, OrdersToImport.FieldNo("Channel Name"));
+                    JsonHelper.GetValueIntoField(JNode, 'displayAddress.countryCode', RecordRef, OrdersToImport.FieldNo("Sell-to Country/Region Code"));
+                    JsonHelper.GetValueIntoField(JNode, 'shippingAddress.countryCode', RecordRef, OrdersToImport.FieldNo("Ship-to Country/Region Code"));
+                    JsonHelper.GetValueIntoField(JNode, 'billingAddress.countryCode', RecordRef, OrdersToImport.FieldNo("Bill-to Country/Region Code"));
+                    JsonHelper.GetValueIntoField(JNode, 'totalTaxSet.shopMoney.amount', RecordRef, OrdersToImport.FieldNo("VAT Amount"));
+                    JsonHelper.GetValueIntoField(JNode, 'totalTaxSet.presentmentMoney.amount', RecordRef, OrdersToImport.FieldNo("Presentment VAT Amount"));
                     RecordRef.SetTable(OrdersToImport);
                     OrdersToImport."Financial Status" := ConvertToFinancialStatus(JsonHelper.GetValueAsText(JNode, 'displayFinancialStatus'));
                     OrdersToImport."Fulfillment Status" := ConvertToFulfillmentStatus(JsonHelper.GetValueAsText(JNode, 'displayFulfillmentStatus'));

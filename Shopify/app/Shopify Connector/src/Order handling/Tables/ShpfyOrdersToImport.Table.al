@@ -179,6 +179,31 @@ table 30121 "Shpfy Orders to Import"
             DataClassification = SystemMetadata;
             Editable = false;
         }
+        field(25; "Sell-to Country/Region Code"; Code[20])
+        {
+            Caption = 'Sell-to Country/Region Code';
+            DataClassification = CustomerContent;
+        }
+        field(26; "Ship-to Country/Region Code"; Code[20])
+        {
+            Caption = 'Ship-to Country/Region Code';
+            DataClassification = CustomerContent;
+        }
+        field(27; "Bill-to Country/Region Code"; Code[20])
+        {
+            Caption = 'Bill-to Country/Region Code';
+            DataClassification = CustomerContent;
+        }
+        field(28; "VAT Amount"; Decimal)
+        {
+            Caption = 'VAT Amount';
+            DataClassification = SystemMetadata;
+        }
+        field(29; "Presentment VAT Amount"; Decimal)
+        {
+            Caption = 'Presentment VAT Amount';
+            DataClassification = SystemMetadata;
+        }
         field(100; "Import Action"; enum "Shpfy Import Action")
         {
             Caption = 'Import Action';
