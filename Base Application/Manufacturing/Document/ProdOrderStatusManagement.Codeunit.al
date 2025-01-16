@@ -6,6 +6,7 @@ namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Costing;
@@ -47,7 +48,7 @@ codeunit 5407 "Prod. Order Status Management"
         ChangeStatusForm.Set(Rec);
         if ChangeStatusForm.RunModal() = ACTION::Yes then begin
             OnRunOnAfterChangeStatusFormRun(Rec);
-            ChangeStatusForm.ReturnPostingInfo(NewStatus, NewPostingDate, NewUpdateUnitCost);
+            ChangeStatusForm.ReturnPostingInfo(NewStatus, NewPostingDate, NewUpdateUnitCost, FinishOrderWithoutOutput);
             ChangeProdOrderStatus(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
             Commit();
             ShowStatusMessage(Rec);
@@ -72,7 +73,8 @@ codeunit 5407 "Prod. Order Status Management"
         ToProdOrder: Record "Production Order";
         SourceCodeSetup: Record "Source Code Setup";
         Item: Record Item;
-        InvtSetup: Record "Inventory Setup";
+        InventorySetup: Record "Inventory Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         DimMgt: Codeunit DimensionManagement;
         MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         ProdOrderLineReserve: Codeunit "Prod. Order Line-Reserve";
@@ -89,6 +91,7 @@ codeunit 5407 "Prod. Order Status Management"
         NewPostingDate: Date;
         NewUpdateUnitCost: Boolean;
         SourceCodeSetupRead: Boolean;
+        FinishOrderWithoutOutput: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text008: Label '%1 %2 cannot be finished as the associated subcontract order %3 has not been fully delivered.';
@@ -126,6 +129,7 @@ codeunit 5407 "Prod. Order Status Management"
             TransProdOrder(ProdOrder);
 
             MakeMultiLevelAdjmt(ProdOrder);
+            AdjustWIPForProduction(ProdOrder);
 
             WhseProdRelease.FinishedDelete(ProdOrder);
             WhseOutputProdRelease.FinishedDelete(ProdOrder);
@@ -401,6 +405,42 @@ codeunit 5407 "Prod. Order Status Management"
         exit(ReopenFinishedProductionOrderFeatureTelemetryNameLbl);
     end;
 
+    procedure SetFinishOrderWithoutOutput(NewFinishOrderWithoutOutput: Boolean)
+    begin
+        FinishOrderWithoutOutput := NewFinishOrderWithoutOutput;
+    end;
+
+    local procedure AdjustWIPForProduction(ProductionOrder: Record "Production Order")
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        ValueEntry.SetLoadFields("Order Type", "Order No.", "Order Line No.", "Cost Posted to G/L", "Cost Posted to G/L (ACY)", "Expected Cost");
+        ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
+        ValueEntry.SetRange("Order No.", ProductionOrder."No.");
+        ValueEntry.SetFilter("Cost Posted to G/L", '<>%1', 0);
+        ValueEntry.SetRange("Expected Cost", false);
+        if ValueEntry.FindSet() then
+            repeat
+                PostInvtBuffer(ValueEntry);
+            until ValueEntry.Next() = 0;
+    end;
+
+    local procedure PostInvtBuffer(var ValueEntry: Record "Value Entry")
+    var
+        InventoryPostingToGL: Codeunit "Inventory Posting To G/L";
+    begin
+        InventoryPostingToGL.SetRunOnlyCheck(true, false, false);
+        if not InventoryPostingToGL.AdjustPostedWIPForProduction(ValueEntry) then
+            exit;
+
+        InventorySetup.GetRecordOnce();
+        GeneralLedgerSetup.GetRecordOnce();
+        if GeneralLedgerSetup."Journal Templ. Name Mandatory" then
+            InventoryPostingToGL.SetGenJnlBatch(InventorySetup."Invt. Cost Jnl. Template Name", InventorySetup."Invt. Cost Jnl. Batch Name");
+
+        InventoryPostingToGL.PostInvtPostBufPerEntry(ValueEntry);
+    end;
+
     local procedure MakeMultiLevelAdjmt(ProdOrder: Record "Production Order")
     var
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
@@ -411,9 +451,9 @@ codeunit 5407 "Prod. Order Status Management"
         if IsHandled then
             exit;
 
-        InvtSetup.Get();
-        if InvtSetup.AutomaticCostAdjmtRequired() then
-            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+        InventorySetup.Get();
+        if InventorySetup.AutomaticCostAdjmtRequired() then
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InventorySetup."Automatic Cost Posting");
     end;
 
     procedure TransProdOrder(var FromProdOrder: Record "Production Order")
@@ -1225,7 +1265,8 @@ codeunit 5407 "Prod. Order Status Management"
                 if not IsHandled then
                     if not OutputExists(ProdOrderLine) then
                         if MatrOrCapConsumpExists(ProdOrderLine) then
-                            Error(Text009, ProdOrderLine."Line No.", ToProdOrder.TableCaption(), ProdOrderLine."Prod. Order No.");
+                            if not FinishOrderWithoutOutput then
+                                Error(Text009, ProdOrderLine."Line No.", ToProdOrder.TableCaption(), ProdOrderLine."Prod. Order No.");
             until ProdOrderLine.Next() = 0;
     end;
 
@@ -1401,7 +1442,7 @@ codeunit 5407 "Prod. Order Status Management"
             ChangeStatusOnProdOrder.Set(ProductionOrder);
             if ChangeStatusOnProdOrder.RunModal() <> Action::Yes then
                 exit;
-            ChangeStatusOnProdOrder.ReturnPostingInfo(NewProductionOrderStatusLocal, NewPostingDateLocal, NewUpdateUnitCostLocal);
+            ChangeStatusOnProdOrder.ReturnPostingInfo(NewProductionOrderStatusLocal, NewPostingDateLocal, NewUpdateUnitCostLocal, FinishOrderWithoutOutput);
 
             NoOfProductionOrdersToProcess := ProductionOrder.Count();
             if NoOfProductionOrdersToProcess > 1 then
@@ -1414,7 +1455,7 @@ codeunit 5407 "Prod. Order Status Management"
                 ProgressDialog.Update(1, ProductionOrder."No.");
                 ProgressDialog.Update(2, Round(ProcessedProductionOrdersCounter / NoOfProductionOrdersToProcess * 10000, 1));
 
-                ProdOrderChangeStatusBulk.SetParameters(NewProductionOrderStatusLocal, NewPostingDateLocal, NewUpdateUnitCostLocal);
+                ProdOrderChangeStatusBulk.SetParameters(NewProductionOrderStatusLocal, NewPostingDateLocal, NewUpdateUnitCostLocal, FinishOrderWithoutOutput);
                 if not ProdOrderChangeStatusBulk.Run(ProductionOrder) then begin
                     TempErrors.ID := TempErrors.ID + 1;
                     TempErrors.Message := GetLastErrorText();
