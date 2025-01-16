@@ -268,6 +268,10 @@ page 6133 "E-Document Service"
         if not PageOpened then begin
             EDocumentIntegration := Rec."Service Integration";
             EDocumentIntegration.GetIntegrationSetup(SetupPage, SetupTable);
+            if SetupPage <> 0 then begin
+                PageOpened := true;
+                Page.Run(SetupPage);
+            end;
         end;
 
         if not PageOpened then
