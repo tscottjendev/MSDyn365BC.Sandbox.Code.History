@@ -97,28 +97,31 @@ table 339 "Item Application Entry"
         }
         key(Key2; "Posting Date", "Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.", "Cost Application")
         {
-            IncludedFields = Quantity;
+            IncludedFields = Quantity, "Transferred-from Entry No.", "Output Completely Invd. Date", "Outbound Entry is Updated";
         }
         key(Key3; "Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application", "Transferred-from Entry No.")
         {
-            IncludedFields = "Inbound Item Entry No.", "Outbound Entry is Updated";
+            IncludedFields = "Posting Date", Quantity, "Inbound Item Entry No.", "Output Completely Invd. Date", "Outbound Entry is Updated";
         }
         key(Key4; "Transferred-from Entry No.", "Cost Application")
         {
+            IncludedFields = "Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.", Quantity, "Posting Date", "Output Completely Invd. Date", "Outbound Entry is Updated";
         }
         key(Key5; "Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application")
         {
+            IncludedFields = "Item Ledger Entry No.", Quantity, "Posting Date", "Transferred-from Entry No.", "Output Completely Invd. Date", "Outbound Entry is Updated";
         }
         key(Key6; "Item Ledger Entry No.", "Output Completely Invd. Date")
         {
+            IncludedFields = "Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application", Quantity, "Posting Date", "Transferred-from Entry No.", "Outbound Entry is Updated";
         }
         key(Key9; "Inbound Item Entry No.", "Transferred-from Entry No.", "Item Ledger Entry No.")
         {
-            IncludedFields = "Outbound Item Entry No.", "Posting Date", Quantity;
+            IncludedFields = "Outbound Item Entry No.", "Cost Application", Quantity, "Posting Date", "Output Completely Invd. Date", "Outbound Entry is Updated";
         }
         key(Key10; "Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.", "Cost Application")
         {
-            IncludedFields = "Outbound Entry is Updated";
+            IncludedFields = Quantity, "Posting Date", "Transferred-from Entry No.", "Output Completely Invd. Date", "Outbound Entry is Updated";
         }
     }
 
@@ -327,7 +330,7 @@ table 339 "Item Application Entry"
         if IsHandled then
             exit(Result);
 
-        if not IsItemEverOutput(ItemLedgerEntry."Item No.") then
+        if not IsItemEverOutput(ItemLedgerEntry."Item No.", "Item Ledger Entry Type"::Output) then
             exit(false);
 
         if ItemLedgerEntry."Order Type" <> ItemLedgerEntry."Order Type"::Production then
@@ -352,7 +355,19 @@ table 339 "Item Application Entry"
     end;
 
     local procedure CheckCyclicAsmCyclicalLoop(CheckItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
+    var
+        Result: Boolean;
+        IsHandled: Boolean;
     begin
+        Result := false;
+        IsHandled := false;
+        OnBeforeCheckCyclicAsmCyclicalLoop(Rec, CheckItemLedgerEntry, ItemLedgerEntry, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if not IsItemEverOutput(ItemLedgerEntry."Item No.", "Item Ledger Entry Type"::"Assembly Output") then
+            exit(false);
+
         if ItemLedgerEntry."Order Type" <> ItemLedgerEntry."Order Type"::Assembly then
             exit(false);
         if ItemLedgerEntry."Entry Type" = ItemLedgerEntry."Entry Type"::"Assembly Output" then
@@ -629,13 +644,13 @@ table 339 "Item Application Entry"
         exit(not ItemApplicationEntry.IsEmpty());
     end;
 
-    local procedure IsItemEverOutput(ItemNo: Code[20]): Boolean
+    local procedure IsItemEverOutput(ItemNo: Code[20]; OutputEntryType: Enum "Item Ledger Entry Type"): Boolean
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetCurrentKey("Item No.", "Entry Type");
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        ItemLedgerEntry.SetRange("Entry Type", OutputEntryType);
         exit(not ItemLedgerEntry.IsEmpty());
     end;
 
@@ -736,6 +751,11 @@ table 339 "Item Application Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCyclicProdCyclicalLoop(var ItemApplicationEntry: Record "Item Application Entry"; CheckItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCyclicAsmCyclicalLoop(var ItemApplicationEntry: Record "Item Application Entry"; CheckItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
