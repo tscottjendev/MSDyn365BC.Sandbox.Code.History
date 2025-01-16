@@ -989,6 +989,23 @@ codeunit 132202 "Library - Manufacturing"
         exit(CreateShopCalendarCustomTime(ShopCalendarWorkingDays.Day::Monday, ShopCalendarWorkingDays.Day::Friday, FromTime, ToTime));
     end;
 
+    procedure UpdateFinishOrderWithoutOutputInManufacturingSetup(FinishOrderWithoutOutput: Boolean)
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Finish Order without Output", FinishOrderWithoutOutput);
+        ManufacturingSetup.Modify(true);
+    end;
+
+    procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        RoutingLine.SetLoadFields("Routing No.", "Operation No.");
+        RoutingLine.SetRange("Routing No.", RoutingNo);
+        if RoutingLine.FindLast() then
+            exit(RoutingLine."Operation No.");
+    end;
+
     [Normal]
     procedure UpdateProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; FieldNo: Integer; Value: Variant)
     var
