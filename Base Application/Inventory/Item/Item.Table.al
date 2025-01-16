@@ -2205,6 +2205,7 @@ table 27 Item
         }
         key(Key7; "Low-Level Code")
         {
+            IncludedFields = "Cost is Adjusted", "Allow Online Adjustment", "Excluded from Cost Adjustment";
         }
         key(Key10; "Vendor Item No.", "Vendor No.")
         {
