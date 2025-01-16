@@ -147,6 +147,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         }
         key(Key2; "Cost is Adjusted", "Allow Online Adjustment")
         {
+            IncludedFields = "Is Finished";
         }
     }
 
