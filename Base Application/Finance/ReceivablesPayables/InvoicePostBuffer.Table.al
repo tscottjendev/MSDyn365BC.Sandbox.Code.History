@@ -22,8 +22,13 @@ table 49 "Invoice Post. Buffer"
 #pragma warning disable AS0074
     TableType = Temporary;
     ObsoleteReason = 'This table will be replaced by table Invoice Posting Buffer in new Invoice Posting implementation.';
+#if CLEAN24
     ObsoleteState = Removed;
-    ObsoleteTag = '26.0';
+    ObsoleteTag = '27.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#endif
 #pragma warning restore AS0074
     DataClassification = CustomerContent;
 
@@ -318,6 +323,215 @@ table 49 "Invoice Post. Buffer"
     fieldgroups
     {
     }
+
+#if not CLEAN24
+    var
+        InvoicePostBufferErrorTxt: Label 'This procedure is no longer invoked. Replaced by procedure in table Invoice Posting Buffer', Locked = true;
+        PurchPostInvoiceErrorTxt: Label 'This procedure is no longer invoked. Replaced by procedure in codeunit Purch. Post Invoice', Locked = true;
+        SalesPostInvoiceErrorTxt: Label 'This procedure is no longer invoked. Replaced by procedure in codeunit Sales Post Invoice', Locked = true;
+        ServicePostInvoiceErrorTxt: Label 'This procedure is no longer invoked. Replaced by procedure in codeunit Service Post Invoice', Locked = true;
+
+#pragma warning disable AS0072
+    [Obsolete('Replaced by procedure in codeunit Sales Post Invoice', '20.0')]
+    procedure PrepareSales(var SalesLine: Record Microsoft.Sales.Document."Sales Line")
+    begin
+        error(SalesPostInvoiceErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
+    procedure CalcDiscount(PricesInclVAT: Boolean; DiscountAmount: Decimal; DiscountAmountACY: Decimal)
+    begin
+        error(InvoicePostBufferErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
+    procedure SetAccount(AccountNo: Code[20]; var TotalVAT: Decimal; var TotalVATACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal)
+    begin
+        error(InvoicePostBufferErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
+    procedure SetAmounts(TotalVAT: Decimal; TotalVATACY: Decimal; TotalAmount: Decimal; TotalAmountACY: Decimal; VATDifference: Decimal; TotalVATBase: Decimal; TotalVATBaseACY: Decimal)
+    begin
+        error(InvoicePostBufferErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
+    procedure PreparePurchase(var PurchLine: Record Microsoft.Purchases.Document."Purchase Line")
+    begin
+        error(PurchPostInvoiceErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
+    procedure CalcDiscountNoVAT(DiscountAmount: Decimal; DiscountAmountACY: Decimal)
+    begin
+        error(InvoicePostBufferErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in codeunit Purch Post Invoice', '20.0')]
+    procedure SetSalesTaxForPurchLine(PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line")
+    begin
+        error(PurchPostInvoiceErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in codeunity Sales Post Invoice', '20.0')]
+    procedure SetSalesTaxForSalesLine(SalesLine: Record Microsoft.Sales.Document."Sales Line")
+    begin
+        error(SalesPostInvoiceErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
+    procedure ReverseAmounts()
+    begin
+        error(InvoicePostBufferErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
+    procedure SetAmountsNoVAT(TotalAmount: Decimal; TotalAmountACY: Decimal; VATDifference: Decimal)
+    begin
+        error(InvoicePostBufferErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in codeunit Service Post Invoice', '20.0')]
+    procedure PrepareService(var ServiceLine: Record Microsoft.Service.Document."Service Line")
+    begin
+        error(ServicePostInvoiceErrorTxt);
+    end;
+#endif
+
+#if not CLEAN24
+    [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
+    procedure PreparePrepmtAdjBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer"; GLAccountNo: Code[20]; AdjAmount: Decimal; RoundingEntry: Boolean)
+    begin
+        error(InvoicePostBufferErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
+    procedure Update(InvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+        error(InvoicePostBufferErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
+    procedure Update(InvoicePostBuffer: Record "Invoice Post. Buffer"; var InvDefLineNo: Integer; var DeferralLineNo: Integer)
+    begin
+        error(InvoicePostBufferErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
+    procedure UpdateVATBase(var TotalVATBase: Decimal; var TotalVATBaseACY: Decimal)
+    begin
+        error(InvoicePostBufferErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
+    procedure CopyToGenJnlLine(var GenJnlLine: Record Microsoft.Finance.GeneralLedger.Journal."Gen. Journal Line")
+    begin
+        error(InvoicePostBufferErrorTxt);
+    end;
+
+    [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
+    procedure CopyToGenJnlLineFA(var GenJnlLine: Record Microsoft.Finance.GeneralLedger.Journal."Gen. Journal Line")
+    begin
+        error(InvoicePostBufferErrorTxt);
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInvPostBufferPrepareSales(var SalesLine: Record Microsoft.Sales.Document."Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInvPostBufferPreparePurchase(var PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInvPostBufferPrepareService(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInvPostBufferModify(var InvoicePostBuffer: Record "Invoice Post. Buffer"; FromInvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInvPostBufferUpdate(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var FromInvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetAmountsNoVAT(var InvoicePostBuffer: Record "Invoice Post. Buffer"; TotalAmount: Decimal; TotalAmountACY: Decimal; VATDifference: Decimal)
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcDiscount(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcDiscountNoVAT(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInvPostBufferUpdate(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var FromInvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInvPostBufferModify(var InvoicePostBuffer: Record "Invoice Post. Buffer"; FromInvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrepareSales(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var SalesLine: Record Microsoft.Sales.Document."Sales Line")
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnFillPrepmtAdjBufferOnBeforeAssignInvoicePostBuffer(var PrepmtAdjInvPostBuffer: Record "Invoice Post. Buffer"; InvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToGenJnlLine(var GenJnlLine: Record Microsoft.Finance.GeneralLedger.Journal."Gen. Journal Line"; InvoicePostBuffer: Record "Invoice Post. Buffer");
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToGenJnlLineFA(var GenJnlLine: Record Microsoft.Finance.GeneralLedger.Journal."Gen. Journal Line"; InvoicePostBuffer: Record "Invoice Post. Buffer");
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAdjustRoundingForUpdate(var InvoicePostBuffer: Record "Invoice Post. Buffer"; TempInvoicePostBufferRounding: Record "Invoice Post. Buffer" temporary)
+    begin
+    end;
+
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterApplyRoundingForFinalPosting(var InvoicePostBuffer: Record "Invoice Post. Buffer"; TempInvoicePostBufferRounding: Record "Invoice Post. Buffer" temporary)
+    begin
+    end;
+#endif
+#pragma warning restore AS0072
 }
- 
 #endif
