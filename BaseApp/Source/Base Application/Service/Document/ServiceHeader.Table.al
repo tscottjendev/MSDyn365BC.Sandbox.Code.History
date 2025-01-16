@@ -5261,10 +5261,15 @@ table 5900 "Service Header"
         ServiceContractHeader."Next Invoice Date" := ServDocReg."Next Invoice Date";
         ServiceContractHeader."Next Invoice Period Start" := ServDocReg."Next Invoice Period Start";
         ServiceContractHeader."Next Invoice Period End" := ServDocReg."Next Invoice Period End";
+        if ServiceContractHeader.Prepaid then
+            ServiceContractHeader."Last Invoice Period End" := ServiceContractHeader."Next Invoice Date" - 1;
 
         ServiceContractHeader.CalcFields("No. of Posted Invoices", "No. of Unposted Invoices");
         if (ServiceContractHeader."No. of Posted Invoices" = 0) and (ServiceContractHeader."No. of Unposted Invoices" = 1) then
             ServiceContractHeader."Last Invoice Date" := 0D;
+
+        if ServiceContractHeader."Last Invoice Date" = 0D then
+            ServiceContractHeader."Last Invoice Period End" := 0D;
 
         exit(true);
     end;
