@@ -2,7 +2,7 @@
   "id": "e737590a-fede-4692-ac4e-d1d4849dd043",
   "name": "Tests-Service",
   "publisher": "Microsoft",
-  "version": "26.0.29023.0",
+  "version": "26.0.29027.0",
   "platform": "26.0.0.0",
   "dependencies": [
     {
