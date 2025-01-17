@@ -6,6 +6,7 @@ using System.Environment.Configuration;
 using System.IO;
 using System.Reflection;
 using System.Security.User;
+using System;
 
 codeunit 9852 "Effective Permissions Mgt."
 {
