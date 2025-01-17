@@ -3,6 +3,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.EServices.EDocumentConnector;
+
 using Microsoft.eServices.EDocument;
 
 table 6361 "E-Doc. Ext. Connection Setup"

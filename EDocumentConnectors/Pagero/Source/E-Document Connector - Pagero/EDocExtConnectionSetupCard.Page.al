@@ -13,7 +13,7 @@ page 6361 "EDoc Ext Connection Setup Card"
     SourceTable = "E-Doc. Ext. Connection Setup";
     ApplicationArea = Basic, Suite;
     UsageCategory = None;
-    Caption = 'E-Document External Connection Setup';
+    Caption = 'Pagero Connection Setup';
 
     layout
     {
@@ -143,5 +143,5 @@ page 6361 "EDoc Ext Connection Setup Card"
         [NonDebuggable]
         ClientID, ClientSecret : Text;
         IsSaaSInfrastructure: Boolean;
-        ExternalServiceTok: Label 'ExternalServiceConnector', Locked = true;
+        ExternalServiceTok: Label 'PageroServiceConnector', Locked = true;
 }
