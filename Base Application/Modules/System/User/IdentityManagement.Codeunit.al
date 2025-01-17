@@ -1,5 +1,7 @@
 namespace System.Security.AccessControl;
 
+using System;
+
 codeunit 9801 "Identity Management"
 {
     InherentEntitlements = X;
