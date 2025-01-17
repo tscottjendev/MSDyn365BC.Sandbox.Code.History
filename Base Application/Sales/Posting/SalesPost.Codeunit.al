@@ -297,8 +297,6 @@ codeunit 80 "Sales-Post"
         CustLedgEntry: Record "Cust. Ledger Entry";
         TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary;
         DisableAggregateTableUpdate: Codeunit "Disable Aggregate Table Update";
-        UpdateAnalysisView: Codeunit "Update Analysis View";
-        UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         EverythingInvoiced: Boolean;
         SavedPreviewMode: Boolean;
         SavedSuppressCommit: Boolean;
@@ -365,11 +363,12 @@ codeunit 80 "Sales-Post"
 
         OnRunWithCheckOnAfterFinalize(SalesHeader);
 
-        if not (InvtPickPutaway or SuppressCommit or PreviewMode or DateOrderSeriesUsed) then
+        if not (InvtPickPutaway or SuppressCommit or PreviewMode) then begin
             Commit();
-
-        UpdateAnalysisView.UpdateAll(0, true);
-        UpdateItemAnalysisView.UpdateAll(0, true);
+            UpdateAnalysisViewAfterPosting();
+        end else
+            if DateOrderSeriesUsed then
+                UpdateAnalysisViewAfterPosting();
 
         OnAfterPostSalesDoc(
           SalesHeader2, GenJnlPostLine, SalesShptHeader."No.", ReturnRcptHeader."No.",
@@ -10504,6 +10503,15 @@ codeunit 80 "Sales-Post"
            (SalesHeader."Applies-to Doc. No." <> '')
         then
             exit(true);
+    end;
+
+    local procedure UpdateAnalysisViewAfterPosting()
+    var
+        UpdateAnalysisView: Codeunit "Update Analysis View";
+        UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
+    begin
+        UpdateAnalysisView.UpdateAll(0, true);
+        UpdateItemAnalysisView.UpdateAll(0, true);
     end;
 
     [IntegrationEvent(false, false)]
