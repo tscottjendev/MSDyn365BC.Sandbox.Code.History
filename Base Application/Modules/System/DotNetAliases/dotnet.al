@@ -13,13 +13,6 @@ dotnet
         {
         }
     }
-    assembly("Microsoft.Dynamics.Nav.NavUserAccount")
-    {
-
-        type("Microsoft.Dynamics.Nav.NavUserAccount.NavUserAccountHelper"; "NavUserAccountHelper")
-        {
-        }
-    }
     assembly(Microsoft.Dynamics.Nav.MX)
     {
         type(Microsoft.Dynamics.QRCode.ErrorCorrectionLevel; "QRCode Error Correction Level") { }
