@@ -11,7 +11,11 @@ using Microsoft.eServices.EDocument.Integration;
 using Microsoft.eServices.EDocument;
 #endif
 
+#pragma warning disable AS0130
+#pragma warning disable PTE0025
 codeunit 6370 Upgrade
+#pragma warning restore AS0130
+#pragma warning restore PTE0025
 {
     Access = Internal;
     Subtype = Upgrade;

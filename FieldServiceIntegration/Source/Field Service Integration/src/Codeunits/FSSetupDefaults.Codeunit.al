@@ -17,7 +17,11 @@ using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Project.Journal;
 using System.Environment.Configuration;
 
+#pragma warning disable AS0130
+#pragma warning disable PTE0025
 codeunit 6611 "FS Setup Defaults"
+#pragma warning restore AS0130
+#pragma warning restore PTE0025
 {
     var
         CRMProductName: Codeunit "CRM Product Name";
