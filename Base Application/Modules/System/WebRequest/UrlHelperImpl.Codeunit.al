@@ -1,6 +1,7 @@
 namespace System.Utilities;
 
 using System.Azure.Identity;
+using System;
 
 codeunit 3704 "Url Helper Impl."
 {
