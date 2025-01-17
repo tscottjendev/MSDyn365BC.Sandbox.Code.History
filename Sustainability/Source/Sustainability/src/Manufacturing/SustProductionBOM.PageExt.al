@@ -33,12 +33,10 @@ pageextension 6273 "Sust. Production BOM" extends "Production BOM"
     end;
 
     local procedure VisibleSustainabilityControls()
-    var
-        SustainabilitySetup: Record "Sustainability Setup";
     begin
-        SustainabilitySetup.Get();
+        SustainabilitySetup.GetRecordOnce();
 
-        SustainabilityVisible := SustainabilitySetup."Item Emissions";
+        SustainabilityVisible := SustainabilitySetup."Item Emissions" and SustainabilitySetup."Enable Value Chain Tracking";
     end;
 
     local procedure RunCalculateCO2e()
@@ -54,5 +52,6 @@ pageextension 6273 "Sust. Production BOM" extends "Production BOM"
     end;
 
     var
+        SustainabilitySetup: Record "Sustainability Setup";
         SustainabilityVisible: Boolean;
 }

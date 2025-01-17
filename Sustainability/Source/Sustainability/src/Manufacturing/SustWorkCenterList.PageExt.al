@@ -36,14 +36,13 @@ pageextension 6256 "Sust. Work Center List" extends "Work Center List"
     end;
 
     local procedure VisibleSustainabilityControls()
-    var
-        SustainabilitySetup: Record "Sustainability Setup";
     begin
-        SustainabilitySetup.Get();
+        SustainabilitySetup.GetRecordOnce();
 
-        SustainabilityVisible := SustainabilitySetup."Work/Machine Center Emissions";
+        SustainabilityVisible := SustainabilitySetup."Work/Machine Center Emissions" and SustainabilitySetup."Enable Value Chain Tracking";
     end;
 
     var
+        SustainabilitySetup: Record "Sustainability Setup";
         SustainabilityVisible: Boolean;
 }

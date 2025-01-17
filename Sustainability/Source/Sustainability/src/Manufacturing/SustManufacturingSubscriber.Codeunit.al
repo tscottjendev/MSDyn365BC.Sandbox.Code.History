@@ -12,8 +12,9 @@ using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Sustainability.Account;
-using Microsoft.Sustainability.Posting;
 using Microsoft.Sustainability.Journal;
+using Microsoft.Sustainability.Posting;
+using Microsoft.Sustainability.Setup;
 
 codeunit 6254 "Sust. Manufacturing Subscriber"
 {
@@ -39,25 +40,29 @@ codeunit 6254 "Sust. Manufacturing Subscriber"
     [EventSubscriber(ObjectType::Table, Database::"Prod. Order Line", 'OnValidateItemNoOnAfterAssignItemValues', '', false, false)]
     local procedure OnValidateItemNoOnAfterAssignItemValues(Item: Record Item; var ProdOrderLine: Record "Prod. Order Line")
     begin
-        ProdOrderLine.Validate("Sust. Account No.", Item."Default Sust. Account");
+        if SustainabilitySetup.IsValueChainTrackingEnabled() then
+            ProdOrderLine.Validate("Sust. Account No.", Item."Default Sust. Account");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Prod. Order Component", 'OnValidateItemNoOnAfterUpdateUOMFromItem', '', false, false)]
     local procedure OnValidateItemNoOnAfterUpdateUOMFromItem(var ProdOrderComponent: Record "Prod. Order Component"; Item: Record Item)
     begin
-        ProdOrderComponent.Validate("Sust. Account No.", Item."Default Sust. Account");
+        if SustainabilitySetup.IsValueChainTrackingEnabled() then
+            ProdOrderComponent.Validate("Sust. Account No.", Item."Default Sust. Account");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Prod. Order Routing Line", 'OnAfterWorkCenterTransferFields', '', false, false)]
     local procedure OnAfterWorkCenterTransferProdOrderRoutingLineFields(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center")
     begin
-        ProdOrderRoutingLine.Validate("Sust. Account No.", WorkCenter."Default Sust. Account");
+        if SustainabilitySetup.IsValueChainTrackingEnabled() then
+            ProdOrderRoutingLine.Validate("Sust. Account No.", WorkCenter."Default Sust. Account");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Prod. Order Routing Line", 'OnAfterMachineCtrTransferFields', '', false, false)]
     local procedure OnAfterMachineCtrTransferProdOrderRoutingLineFields(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; MachineCenter: Record "Machine Center")
     begin
-        ProdOrderRoutingLine.Validate("Sust. Account No.", MachineCenter."Default Sust. Account");
+        if SustainabilitySetup.IsValueChainTrackingEnabled() then
+            ProdOrderRoutingLine.Validate("Sust. Account No.", MachineCenter."Default Sust. Account");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Prod. Order Routing Line", 'OnAfterValidateEvent', "No.", false, false)]
@@ -121,6 +126,9 @@ codeunit 6254 "Sust. Manufacturing Subscriber"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Production Journal Mgt", 'OnBeforeInsertOutputJnlLine', '', false, false)]
     local procedure OnBeforeInsertOutputJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line")
     begin
+        if not SustainabilitySetup.IsValueChainTrackingEnabled() then
+            exit;
+
         ItemJournalLine.Validate("Sust. Account No.", ProdOrderRtngLine."Sust. Account No.");
         ItemJournalLine.Validate("Sust. Account Name", ProdOrderRtngLine."Sust. Account Name");
         ItemJournalLine.Validate("Sust. Account Category", ProdOrderRtngLine."Sust. Account Category");
@@ -131,12 +139,16 @@ codeunit 6254 "Sust. Manufacturing Subscriber"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calculate Prod. Order", 'OnAfterTransferRoutingLine', '', false, false)]
     local procedure OnAfterTransferRoutingLine(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var RoutingLine: Record "Routing Line")
     begin
-        UpdateEmissionOnProdOrderRoutingLineFromRoutingLine(ProdOrderRoutingLine, RoutingLine);
+        if SustainabilitySetup.IsValueChainTrackingEnabled() then
+            UpdateEmissionOnProdOrderRoutingLineFromRoutingLine(ProdOrderRoutingLine, RoutingLine);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Production Journal Mgt", 'OnBeforeInsertConsumptionJnlLine', '', false, false)]
     local procedure OnBeforeInsertConsumptionJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderComp: Record "Prod. Order Component")
     begin
+        if not SustainabilitySetup.IsValueChainTrackingEnabled() then
+            exit;
+
         ItemJournalLine.Validate("Sust. Account No.", ProdOrderComp."Sust. Account No.");
         ItemJournalLine.Validate("Sust. Account Name", ProdOrderComp."Sust. Account Name");
         ItemJournalLine.Validate("Sust. Account Category", ProdOrderComp."Sust. Account Category");
@@ -208,6 +220,9 @@ codeunit 6254 "Sust. Manufacturing Subscriber"
     [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnValidateCapUnitofMeasureCodeOnBeforeRoutingCostPerUnit', '', false, false)]
     local procedure OnValidateCapUnitofMeasureCodeOnBeforeRoutingCostPerUnit(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
+        if not SustainabilitySetup.IsValueChainTrackingEnabled() then
+            exit;
+
         ItemJournalLine.Validate("Sust. Account No.", ProdOrderRoutingLine."Sust. Account No.");
         ItemJournalLine.Validate("Sust. Account Name", ProdOrderRoutingLine."Sust. Account Name");
         ItemJournalLine.Validate("Sust. Account Category", ProdOrderRoutingLine."Sust. Account Category");
@@ -254,6 +269,9 @@ codeunit 6254 "Sust. Manufacturing Subscriber"
         if (ItemJournalLine."Order Type" <> ItemJournalLine."Order Type"::Production) then
             exit;
 
+        if not SustainabilitySetup.IsValueChainTrackingEnabled() then
+            exit;
+
         ItemJournalLine.Validate("Sust. Account No.", '');
         if ProdOrderLine."Sust. Account No." <> '' then begin
             ItemJournalLine.Validate("Sust. Account No.", ProdOrderLine."Sust. Account No.");
@@ -273,6 +291,9 @@ codeunit 6254 "Sust. Manufacturing Subscriber"
             exit;
 
         if not (ItemJournalLine."Entry Type" in [ItemJournalLine."Entry Type"::Consumption]) then
+            exit;
+
+        if not SustainabilitySetup.IsValueChainTrackingEnabled() then
             exit;
 
         if ProdOrderComponent.Get(ProdOrderComponent.Status::Released, ItemJournalLine."Order No.", ItemJournalLine."Order Line No.", ItemJournalLine."Prod. Order Comp. Line No.") then
@@ -357,6 +378,9 @@ codeunit 6254 "Sust. Manufacturing Subscriber"
         if AccountNo = '' then
             exit(false);
 
+        if not SustainabilitySetup.IsValueChainTrackingEnabled() then
+            exit(false);
+
         if SustAccountCategory.Get(AccountCategory) then
             if SustAccountCategory."Water Intensity" or SustAccountCategory."Waste Intensity" or SustAccountCategory."Discharged Into Water" then
                 Error(NotAllowedToPostSustLedEntryForWaterOrWasteErr, AccountNo);
@@ -371,6 +395,7 @@ codeunit 6254 "Sust. Manufacturing Subscriber"
     end;
 
     var
+        SustainabilitySetup: Record "Sustainability Setup";
         EmissionMustNotBeZeroErr: Label 'The Emission fields must have a value that is not 0.';
         NotAllowedToPostSustLedEntryForWaterOrWasteErr: Label 'It is not allowed to post Sustainability Ledger Entry for water or waste in Production document for Account No. %1', Comment = '%1 = Sustainability Account No.';
 }

@@ -24,14 +24,13 @@ pageextension 6245 "Sust. Routing Lines" extends "Routing Lines"
     end;
 
     local procedure VisibleSustainabilityControls()
-    var
-        SustainabilitySetup: Record "Sustainability Setup";
     begin
-        SustainabilitySetup.Get();
+        SustainabilitySetup.GetRecordOnce();
 
-        SustainabilityVisible := SustainabilitySetup."Work/Machine Center Emissions";
+        SustainabilityVisible := SustainabilitySetup."Work/Machine Center Emissions" and SustainabilitySetup."Enable Value Chain Tracking";
     end;
 
     var
+        SustainabilitySetup: Record "Sustainability Setup";
         SustainabilityVisible: Boolean;
 }

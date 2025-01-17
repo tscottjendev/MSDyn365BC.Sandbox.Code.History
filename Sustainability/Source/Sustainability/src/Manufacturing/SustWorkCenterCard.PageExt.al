@@ -71,12 +71,10 @@ pageextension 6231 "Sust. Work Center Card" extends "Work Center Card"
     end;
 
     local procedure VisibleSustainabilityControls()
-    var
-        SustainabilitySetup: Record "Sustainability Setup";
     begin
-        SustainabilitySetup.Get();
+        SustainabilitySetup.GetRecordOnce();
 
-        SustainabilityVisible := SustainabilitySetup."Work/Machine Center Emissions";
+        SustainabilityVisible := SustainabilitySetup."Work/Machine Center Emissions" and SustainabilitySetup."Enable Value Chain Tracking";
     end;
 
     local procedure RunCalculateCO2e()
@@ -91,5 +89,6 @@ pageextension 6231 "Sust. Work Center Card" extends "Work Center Card"
     end;
 
     var
+        SustainabilitySetup: Record "Sustainability Setup";
         SustainabilityVisible: Boolean;
 }

@@ -7,8 +7,6 @@ using Microsoft.Sustainability.Posting;
 report 6215 "Sust. Item Calculate CO2e"
 {
     Caption = 'Calculate CO2e';
-    UsageCategory = Tasks;
-    ApplicationArea = Basic, Suite;
     ProcessingOnly = true;
     Permissions = tabledata Item = rm;
 

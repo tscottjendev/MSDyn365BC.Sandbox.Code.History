@@ -42,6 +42,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 541865] Verify Sustainability Value entry should be created when the purchase document is posted.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
         SustainabilityAccount.Get(AccountCode);
@@ -145,6 +148,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 541865] Verify Sustainability Value entry should be created when the purchase document is partially posted.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
@@ -254,6 +260,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 541865] Verify Sustainability Value entry should be Kocked Off when the Cancel Credit Memo is posted.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
         SustainabilityAccount.Get(AccountCode);
@@ -354,6 +363,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 541865] Verify Sustainability related entries When Purchase Document Is Partially Posted.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
@@ -492,6 +504,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 541865] Verify Posted Emission fields in Purchase Line.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
         SustainabilityAccount.Get(AccountCode);
@@ -607,6 +622,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 541865] Verify Sustainability Fields in Purchase Order Statistics.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
         SustainabilityAccount.Get(AccountCode);
@@ -720,6 +738,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 541865] Verify Sustainability Fields in Posted Purchase Invoice Statistics When Purchase Document is partially posted.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
         SustainabilityAccount.Get(AccountCode);
@@ -800,6 +821,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 541865] Verify Sustainability Value Entry and Sustainability Ledger Entry should be created during Preview Posting of purchase order.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
         SustainabilityAccount.Get(AccountCode);
@@ -854,6 +878,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 541865] Verify Sustainability Value Entry should be created during Preview Posting of purchase order When Document is received.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
@@ -914,6 +941,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 541865] Verify Sustainability Value Entry and Sustainability Ledger Entry should be shown when navigating Posted Purchase Invoice through NavigateFindEntriesHandler handler.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
         SustainabilityAccount.Get(AccountCode);
@@ -969,6 +999,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 541865] Verify Sustainability Value Entry should be shown when navigating Posted Purchase Receipt through NavigateFindEntriesHandler handler.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
         SustainabilityAccount.Get(AccountCode);
@@ -1023,6 +1056,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 537481] Verify Sustainability Value entry should be created when the Sales document is posted.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
@@ -1115,6 +1151,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 537481] Verify Sustainability Value entry should be created when the Sales document is partially posted.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
@@ -1212,6 +1251,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 537481] Verify Sustainability Value entry should be Kocked Off when the Cancel Sales Credit Memo is posted.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
         SustainabilityAccount.Get(AccountCode);
@@ -1304,6 +1346,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 537481] Verify Sustainability related entries When Purchase Document is partially posted.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
@@ -1420,6 +1465,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 537481] Verify Posted Emission fields in Sales Line.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
         SustainabilityAccount.Get(AccountCode);
@@ -1502,6 +1550,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 537481] Verify Sustainability Fields in Sales Order Statistics.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
@@ -1594,6 +1645,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 537481] Verify Sustainability Fields in Posted Sales Invoice Statistics When Sales Document is partially posted.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
         SustainabilityAccount.Get(AccountCode);
@@ -1664,6 +1718,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 537481] Verify Sustainability Value Entry and Sustainability Ledger Entry should be created during Preview Posting of Sales order.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
         SustainabilityAccount.Get(AccountCode);
@@ -1712,6 +1769,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 537481] Verify Sustainability Value Entry should be created during Preview Posting of Sales order When Document is shipped.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
@@ -1766,6 +1826,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 537481] Verify Sustainability Value Entry and Sustainability Ledger Entry should be shown when navigating Posted Sales Invoice through NavigateFindEntriesHandler handler.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
         SustainabilityAccount.Get(AccountCode);
@@ -1814,6 +1877,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 537481] Verify Sustainability Value Entry should be shown when navigating Posted Sales Shipment through NavigateFindEntriesHandler handler.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
@@ -1866,6 +1932,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 537481] Verify "CO2e per Unit" must be updated in Item When Purchase Document is posted.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create Item No.
         LibraryInventory.CreateItem(Item);
@@ -1922,6 +1991,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 537481] Verify "CO2e per Unit" must be updated from Item in Sales line.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create Item No.
         LibraryInventory.CreateItem(Item);
@@ -1993,6 +2065,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 537481] Verify "CO2e per Unit" must be updated based on Average Costing Method in Item.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Get Sustainability Setup.
         SustainabilitySetup.Get();
 
@@ -2048,6 +2123,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 537479] Verify "CO2e per Unit" should be updated in Routing Line from Work Center.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Work Center.
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
         WorkCenter.Validate("CO2e per Unit", LibraryRandom.RandInt(10));
@@ -2078,6 +2156,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 537479] Verify "CO2e per Unit" should be updated in Routing Line from Machine Center.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Work Center.
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
@@ -2112,6 +2193,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 537479] Verify "CO2e per Unit" should be updated in Production BOM Line from Item.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create Items.
         CreateItems(ProdItem, CompItem);
@@ -2152,6 +2236,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 537479] Verify "Default Sust. Account","CO2e per Unit","Total CO2e" should be updated after refresh Production Order.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
@@ -2235,6 +2322,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 560223] Verify "Default Sust. Account","CO2e per Unit","Total CO2e" should be updated after refresh Production Order using "Unit Cost Calculation" as Units.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
@@ -2320,6 +2410,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 537479] Verify "Default Sust. Account","CO2e per Unit","Total CO2e" should be updated after refresh Production Order from Routing Line and Production BOM.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
@@ -2410,6 +2503,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 537479] Verify "Default Sust. Account","CO2e per Unit","Total CO2e" should be updated from Item and Work Center.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account.
         CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
         SustainabilityAccount.Get(AccountCode);
@@ -2499,6 +2595,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 537479] Verify Sustainability Ledger Entry should be created When Production Journal is posted.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account for Work Center.
         CreateSustainabilityAccount(AccountCode[1], CategoryCode, SubcategoryCode, LibraryRandom.RandIntInRange(1, 1));
@@ -2594,6 +2693,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 560223] Verify Sustainability Ledger Entry should be created When Production Journal is posted using Unit Cost Calculation as Units.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account for Work Center.
         CreateSustainabilityAccount(AccountCode[1], CategoryCode, SubcategoryCode, LibraryRandom.RandIntInRange(1, 1));
@@ -2695,6 +2797,9 @@ codeunit 148190 "Sust. Value Entry Test"
         // [SCENARIO 560223] Verify Sustainability Ledger Entry should be created When Production Journal is posted using Unit Cost Calculation as Time.
         LibrarySustainability.CleanUpBeforeTesting();
 
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
         // [GIVEN] Create a Sustainability Account for Work Center.
         CreateSustainabilityAccount(AccountCode[1], CategoryCode, SubcategoryCode, LibraryRandom.RandIntInRange(1, 1));
 
@@ -2793,6 +2898,9 @@ codeunit 148190 "Sust. Value Entry Test"
     begin
         // [SCENARIO 537479] Verify Sustainability Ledger Entry should be created When Production Journal is partially posted.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
 
         // [GIVEN] Create a Sustainability Account for Work Center.
         CreateSustainabilityAccount(AccountCode[1], CategoryCode, SubcategoryCode, LibraryRandom.RandIntInRange(1, 1));

@@ -6,8 +6,6 @@ using Microsoft.Manufacturing.ProductionBOM;
 report 6216 "Sust. Prod. BOM Calculate CO2e"
 {
     Caption = 'Calculate CO2e';
-    UsageCategory = Tasks;
-    ApplicationArea = Basic, Suite;
     ProcessingOnly = true;
     Permissions = tabledata Item = rm;
 
@@ -42,7 +40,7 @@ report 6216 "Sust. Prod. BOM Calculate CO2e"
             end;
         }
     }
-    
+
     procedure SetHideValidation(NewHideValidation: Boolean)
     begin
         HideValidation := NewHideValidation;
