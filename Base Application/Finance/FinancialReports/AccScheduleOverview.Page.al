@@ -1,6 +1,7 @@
 namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.CashFlow.Forecast;
+using System.Telemetry;
 using Microsoft.CostAccounting.Account;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Dimension;
@@ -60,9 +61,9 @@ page 490 "Acc. Schedule Overview"
                 field(FinancialReportDesc; TempFinancialReport.Description)
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Display Title';
                     Editable = not ViewOnlyMode;
-                    Caption = 'Description';
-                    Tooltip = 'Specifies a description for the financial report.';
+                    ToolTip = 'Specifies a title of the financial report. The text is shown as a title on the final report when you run it to get a PDF or to print it.';
                 }
 
                 field(CurrentSchedName; TempFinancialReport."Financial Report Row Group")
@@ -776,7 +777,7 @@ page 490 "Acc. Schedule Overview"
                     GLBudgetFilter2 := Rec.GetFilter("G/L Budget Filter");
                     CostBudgetFilter2 := Rec.GetFilter("Cost Budget Filter");
                     BusUnitFilter := Rec.GetFilter("Business Unit Filter");
-                    AccSched.SetFilters(DateFilter2, GLBudgetFilter2, CostBudgetFilter2, BusUnitFilter, TempFinancialReport.Dim1Filter, TempFinancialReport.Dim2Filter, TempFinancialReport.Dim3Filter, TempFinancialReport.Dim4Filter, TempFinancialReport.CashFlowFilter);
+                    AccSched.SetFilters(DateFilter2, GLBudgetFilter2, CostBudgetFilter2, BusUnitFilter, TempFinancialReport.Dim1Filter, TempFinancialReport.Dim2Filter, TempFinancialReport.Dim3Filter, TempFinancialReport.Dim4Filter, TempFinancialReport.CashFlowFilter, TempFinancialReport.NegativeAmountFormat);
                     AccSched.Run();
                 end;
             }
@@ -1212,6 +1213,7 @@ page 490 "Acc. Schedule Overview"
     begin
         ViewLayout := ViewLayout::"Show All";
         ReloadPage();
+        LogUsageTelemetry();
     end;
 
     var
@@ -1243,6 +1245,7 @@ page 490 "Acc. Schedule Overview"
 #pragma warning disable AA0074
         EditModeMessage: Label 'All changes made to this page are persistent and visible to all users immediately';
 #pragma warning restore AA0074
+        PageRunEventTxt: Label 'Financial Report run on-screen: %1', Comment = '%1 = financial report name', Locked = true;
         // Other page state
         Dim1FilterEnable: Boolean;
         Dim2FilterEnable: Boolean;
@@ -2012,6 +2015,25 @@ page 490 "Acc. Schedule Overview"
             12:
                 ColumnStyle12 := ColumnStyle;
         end;
+    end;
+
+    local procedure LogUsageTelemetry()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        TelemetryDimensions.Add('ReportDefinitionCode', TempFinancialReport.Name);
+        TelemetryDimensions.Add('RowDefinitionCode', TempFinancialReport."Financial Report Row Group");
+        TelemetryDimensions.Add('ColumnDefinitionCode', TempFinancialReport."Financial Report Column Group");
+        TelemetryDimensions.Add('DateFilter', DateFilter);
+        TelemetryDimensions.Add('GLBudgetFilter', TempFinancialReport.GLBudgetFilter);
+        TelemetryDimensions.Add('CostBudgetFilter', TempFinancialReport.CostBudgetFilter);
+        TelemetryDimensions.Add('Dim1Filter', TempFinancialReport.Dim1Filter);
+        TelemetryDimensions.Add('Dim2Filter', TempFinancialReport.Dim2Filter);
+        TelemetryDimensions.Add('Dim3Filter', TempFinancialReport.Dim3Filter);
+        TelemetryDimensions.Add('Dim4Filter', TempFinancialReport.Dim4Filter);
+
+        FeatureTelemetry.LogUsage('0000OKU', 'Financial Report', StrSubstNo(PageRunEventTxt, TempFinancialReport.Name), TelemetryDimensions);
     end;
 
     [IntegrationEvent(false, false)]
