@@ -841,6 +841,7 @@ report 25 "Account Schedule"
         SkipEmptyLines: Boolean;
         ShowCurrencySymbol: Boolean;
         ShowEmptyAmountType: Enum "Show Empty Amount Type";
+        NegativeAmountFormatHidden: Enum "Analysis Negative Format";
         PadChar: Char;
         PadString: Text;
 
@@ -865,6 +866,7 @@ report 25 "Account Schedule"
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Account_ScheduleCaptionLbl: Label 'Financial Report';
         AnalysisView_CodeCaptionLbl: Label 'Analysis View';
+        ReportRunEventTxt: Label 'Financial Report run from request page: %1', Comment = '%1 = financial report name', Locked = true;
         ContextInitialized: Boolean;
         IntroductionParagraph, ClosingParagraph : Text;
 
@@ -1078,6 +1080,11 @@ report 25 "Account Schedule"
 
     procedure SetFilters(NewDateFilter: Text; NewBudgetFilter: Text; NewCostBudgetFilter: Text; NewBusUnitFilter: Text; NewDim1Filter: Text; NewDim2Filter: Text; NewDim3Filter: Text; NewDim4Filter: Text; CashFlowFilter: Text)
     begin
+        SetFilters(NewDateFilter, NewBudgetFilter, NewCostBudgetFilter, NewBusUnitFilter, NewDim1Filter, NewDim2Filter, NewDim3Filter, NewDim4Filter, CashFlowFilter, NegativeAmountFormat);
+    end;
+
+    procedure SetFilters(NewDateFilter: Text; NewBudgetFilter: Text; NewCostBudgetFilter: Text; NewBusUnitFilter: Text; NewDim1Filter: Text; NewDim2Filter: Text; NewDim3Filter: Text; NewDim4Filter: Text; CashFlowFilter: Text; NewNegativeAmountFormat: Enum "Analysis Negative Format")
+    begin
         DateFilterHidden := NewDateFilter;
         if DateFilterHidden <> '' then begin
             "Acc. Schedule Line".SetFilter("Date Filter", DateFilterHidden);
@@ -1092,6 +1099,7 @@ report 25 "Account Schedule"
         Dim3FilterHidden := NewDim3Filter;
         Dim4FilterHidden := NewDim4Filter;
         CashFlowFilterHidden := CashFlowFilter;
+        NegativeAmountFormatHidden := NewNegativeAmountFormat;
         UseHiddenFilters := true;
         OnAfterSetFilters(AccScheduleName, CostCenterFilter, CostObjectFilter, CashFlowFilter, CurrReport.UseRequestPage());
     end;
@@ -1195,6 +1203,8 @@ report 25 "Account Schedule"
                 Dim4Filter := Dim4FilterHidden;
             if CashFlowFilterHidden <> '' then
                 CashFlowFilter := CashFlowFilterHidden;
+            if UseHiddenFilters then
+                NegativeAmountFormat := NegativeAmountFormatHidden;
         end;
 
         if FinancialReportName <> '' then
@@ -1349,7 +1359,7 @@ report 25 "Account Schedule"
         TelemetryDimensions.Add('Dim3Filter', Dim3Filter);
         TelemetryDimensions.Add('Dim4Filter', Dim4Filter);
 
-        FeatureTelemetry.LogUsage('0000O76', 'Financial Report', 'Financial Report run report', TelemetryDimensions);
+        FeatureTelemetry.LogUsage('0000O76', 'Financial Report', StrSubstNo(ReportRunEventTxt, FinancialReportName), TelemetryDimensions);
     end;
 
     [IntegrationEvent(false, false)]
