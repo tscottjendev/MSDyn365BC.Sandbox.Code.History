@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.CRM.RoleCenters;
 
-using Microsoft.Assembly.Reports;
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Analysis;
 using Microsoft.CRM.BusinessRelation;
@@ -35,7 +34,6 @@ using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Forecast;
 #if CLEAN25
 using Microsoft.Pricing.Reports;
 using Microsoft.Pricing.Worksheet;
@@ -122,12 +120,6 @@ page 8907 "Sales & Marketing Manager RC"
                         ApplicationArea = Dimensions, SalesAnalysis;
                         Caption = 'Sales Analysis by Dimensions';
                         RunObject = page "Analysis View List Sales";
-                    }
-                    action("Forecast")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Production Forecast';
-                        RunObject = page "Demand Forecast Names";
                     }
                     action("Item Dimensions - Detail")
                     {
@@ -709,12 +701,6 @@ page 8907 "Sales & Marketing Manager RC"
                         ApplicationArea = Suite;
                         Caption = 'Item Substitutions';
                         RunObject = report "Item Substitutions";
-                    }
-                    action("Assemble to Order - Sales")
-                    {
-                        ApplicationArea = Assembly;
-                        Caption = 'Assemble to Order - Sales';
-                        RunObject = report "Assemble to Order - Sales";
                     }
                 }
             }

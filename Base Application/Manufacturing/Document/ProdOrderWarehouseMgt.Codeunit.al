@@ -227,6 +227,8 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
                 GetBin(ItemJournalLine."Location Code", WarehouseJournalLine."From Bin Code");
                 WarehouseJournalLine."From Zone Code" := Bin."Zone Code";
             end;
+            if WarehouseJournalLine."From Zone Code" = '' then
+                WarehouseJournalLine."From Zone Code" := GetZoneCode(ItemJournalLine."Location Code", WarehouseJournalLine."From Bin Code");
         end;
     end;
 
