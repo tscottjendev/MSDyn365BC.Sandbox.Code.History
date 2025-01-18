@@ -29,6 +29,7 @@
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryPlanning: Codeunit "Library - Planning";
+        LibraryPatterns: Codeunit "Library - Patterns";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
@@ -525,7 +526,41 @@
         PostPurchaseOrderAsShip(Item."No.");
 
         // Verify: Verify that Finished Quantity on Prod. Order Line exist after Purchase Order posting.
-        VerifyReleasedProdOrderLine(Item."No.", ProductionOrder.Quantity);
+        VerifyReleasedProdOrderLine(Item."No.", ProductionOrder.Quantity, ProductionOrder.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure UndoPurchReceiptWithProductionSubcontracting_NoTracking()
+    begin
+        UndoPurchReceiptWithProductionSubcontracting(false, false, false)
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,ItemTrackingPageHandler')]
+    procedure UndoPurchReceiptWithProductionSubcontracting_LotTracking()
+    begin
+        UndoPurchReceiptWithProductionSubcontracting(true, false, false)
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure UndoPurchReceiptWithProductionSubcontracting_ErrorOutputUsed()
+    var
+        OutputUsedErr: Label 'Remaining Quantity must be equal to';
+    begin
+        asserterror UndoPurchReceiptWithProductionSubcontracting(false, false, true);
+        Assert.ExpectedError(OutputUsedErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure UndoPurchReceiptWithProductionSubcontracting_ErrorInvoiced()
+    var
+        AlreadyInvoicedErr: Label 'This receipt has already been invoiced. Undo Receipt can be applied only to posted, but not invoiced receipts.';
+    begin
+        asserterror UndoPurchReceiptWithProductionSubcontracting(false, true, false);
+        Assert.ExpectedError(AlreadyInvoicedErr);
     end;
 
     [Test]
@@ -6285,6 +6320,51 @@
         SelectItemJournalLine(ItemJournalLine, OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
     end;
 
+    local procedure UndoPurchReceiptWithProductionSubcontracting(ItemWithTracking: Boolean; DoInvoiceSubcontracting: Boolean; DoConsumeOutputBeforeUndo: Boolean)
+    var
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+        DocumentNo: Code[20];
+    begin
+        // [GIVEN] Setup: Create Item with Routing. Create and refresh Released Production Order.
+        Initialize();
+        if ItemWithTracking then
+            CreateItemWithItemTrackingCode(Item)
+        else
+            CreateItem(Item);
+        CreateRoutingAndUpdateItemSubc(Item, WorkCenter, true);
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(100, 2), '', '');
+
+        if ItemWithTracking then
+            AssignTrackingOnProdOrderLine(ProductionOrder."No.");  // Assign Lot Tracking on Prod. Order Line.
+
+        // [GIVEN] Calculate Subcontracting
+        CalculateSubcontractOrder(WorkCenter);  // Calculate Subcontracts from Subcontracting worksheet.        
+        AcceptActionMessage(RequisitionLine, Item."No."); // Accept and Carry Out Action Message on Subcontracting Worksheet.
+        LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
+
+        // [GIVEN] Post Purchase Order
+        PostPurchaseOrder(Item."No.", true, DoInvoiceSubcontracting);
+        VerifyReleasedProdOrderLine(Item."No.", ProductionOrder.Quantity, ProductionOrder.Quantity); // Verify that Finished Quantity on Prod. Order Line exist after Purchase Order posting.
+
+        if DoConsumeOutputBeforeUndo then
+            LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', ProductionOrder.Quantity / 2, WorkDate(), LibraryRandom.RandDec(100, 2));
+
+        // [WHEN] Undo Purchase Receipt.
+        DocumentNo := FindAndUndoPurcReceiptLine(Item."No.");
+
+        // [THEN] Verify that Finished Quantity on Prod. Order Line is 0 after Undo Purchase Receipt.
+        VerifyReleasedProdOrderLine(Item."No.", ProductionOrder.Quantity, 0);
+
+        // [THEN] Verify that ILE Output Qty. is 0 after Undo Purchase Receipt.
+        VerifyOutputItemLedgerEntryAfterUndo(Item."No.", 0);
+
+        // [THEN] Verify that CapacityLE are reversed after Undo Purchase Receipt.
+        VerifyCapacityLedgerEntryAfterUndo(DocumentNo, Item."No.");
+    end;
+
     local procedure CreateOutputCorrectionWithLocationAndItemTracking(var Item: Record Item; var ProductionOrder: Record "Production Order"; LocationCode: Code[10]; ApplyToItemEntry: Boolean)
     var
         RoutingLine: Record "Routing Line";
@@ -7043,6 +7123,30 @@
         FindPurchaseOrderLine(PurchaseLine, ItemNo);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Post as Ship only.
+    end;
+
+    local procedure PostPurchaseOrder(ItemNo: Code[20]; ShipReceive: Boolean; Invoice: Boolean)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        FindPurchaseOrderLine(PurchaseLine, ItemNo);
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        if Invoice and (PurchaseHeader."Vendor Invoice No." = '') then
+            PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, ShipReceive, Invoice);
+    end;
+
+    local procedure FindAndUndoPurcReceiptLine(ItemNo: Code[20]): Code[20]
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
+        PurchRcptLine.SetRange("No.", ItemNo);
+        PurchRcptLine.FindFirst();
+
+        LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
+        exit(PurchRcptLine."Document No.");
     end;
 
     local procedure FindProductionOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProductionOrderNo: Code[20])
@@ -7882,13 +7986,38 @@
         RequisitionLine.TestField("Vendor No.", WorkCenter."Subcontractor No.");
     end;
 
-    local procedure VerifyReleasedProdOrderLine(ItemNo: Code[20]; Quantity: Decimal)
+    local procedure VerifyReleasedProdOrderLine(ItemNo: Code[20]; Quantity: Decimal; FinishedQuantity: Decimal)
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
         FindReleasedProdOrderLine(ProdOrderLine, ItemNo);
         ProdOrderLine.TestField(Quantity, Quantity);
-        ProdOrderLine.TestField("Finished Quantity", Quantity);
+        ProdOrderLine.TestField("Finished Quantity", FinishedQuantity);
+    end;
+
+    local procedure VerifyOutputItemLedgerEntryAfterUndo(ItemNo: Code[20]; ExpectedQty: Decimal)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetCurrentKey("Entry Type", "Item No.");
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        ItemLedgerEntry.CalcSums(Quantity);
+        ItemLedgerEntry.TestField(Quantity, ExpectedQty);
+    end;
+
+    local procedure VerifyCapacityLedgerEntryAfterUndo(DocumentNo: Code[20]; ItemNo: Code[20])
+    var
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+    begin
+        CapacityLedgerEntry.SetCurrentKey("Document No.", "Posting Date");
+        CapacityLedgerEntry.SetRange("Document No.", DocumentNo);
+        CapacityLedgerEntry.SetRange("Item No.", ItemNo);
+        CapacityLedgerEntry.CalcSums(Quantity, "Output Quantity", "Invoiced Quantity");
+
+        CapacityLedgerEntry.TestField(Quantity, 0);
+        CapacityLedgerEntry.TestField("Output Quantity", 0);
+        CapacityLedgerEntry.TestField("Invoiced Quantity", 0);
     end;
 
     local procedure VerifyRegisteredWhseActivityLine(RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; UnitOfMeasureCode: Code[10]; QtyPerUnitOfMeasure: Integer; Quantity: Decimal)
