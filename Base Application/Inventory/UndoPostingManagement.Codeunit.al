@@ -664,6 +664,8 @@ codeunit 5817 "Undo Posting Management"
             ItemJnlLine."Item Shpt. Entry No." := 0;
             ItemJnlLine."Quantity (Base)" := -TempApplyToItemLedgEntry.Quantity;
             ItemJnlLine."Invoiced Qty. (Base)" := -TempApplyToItemLedgEntry."Invoiced Quantity";
+            if ItemJnlLine.Correction and ItemJnlLine.Subcontracting then
+                ItemJnlLine."Output Quantity (Base)" := -TempApplyToItemLedgEntry.Quantity;
             ItemJnlLine.CopyTrackingFromItemLedgEntry(TempApplyToItemLedgEntry);
             if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then
                 ItemJnlLine.CopyNewTrackingFromOldItemLedgerEntry(TempApplyToItemLedgEntry);
@@ -733,6 +735,39 @@ codeunit 5817 "Undo Posting Management"
                 BaseQty := BaseQty * -1;
             CheckMissingItemLedgers(TempItemLedgEntry, SourceType, DocumentNo, LineNo, BaseQty);
         end;
+    end;
+
+    internal procedure CollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; PurchRcptLine: Record "Purch. Rcpt. Line"): Boolean
+    var
+        ItemLedgEntry: Record "Item Ledger Entry";
+        OutputEntriesExist: Boolean;
+    begin
+        TempItemLedgEntry.Reset();
+        if not TempItemLedgEntry.IsEmpty() then
+            TempItemLedgEntry.DeleteAll();
+
+        ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
+        ItemLedgEntry.SetBaseLoadFields();
+        ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
+        ItemLedgEntry.SetRange("Order No.", PurchRcptLine."Prod. Order No.");
+        ItemLedgEntry.SetRange("Order Line No.", PurchRcptLine."Prod. Order Line No.");
+        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
+        ItemLedgEntry.SetRange("Item No.", PurchRcptLine."No.");
+        ItemLedgEntry.SetRange(Open, true);
+
+        if ItemLedgEntry.FindSet() then
+            repeat
+                TempItemLedgEntry := ItemLedgEntry;
+                TempItemLedgEntry.Insert();
+            until ItemLedgEntry.Next() = 0;
+
+        OutputEntriesExist := not TempItemLedgEntry.IsEmpty();
+        if not OutputEntriesExist then begin
+            ItemLedgEntry.SetRange(Open);
+            OutputEntriesExist := not ItemLedgEntry.IsEmpty();
+        end;
+
+        exit(OutputEntriesExist);
     end;
 
     local procedure ShouldRevertBaseQtySign(SourceType: Integer) RevertSign: Boolean
@@ -829,7 +864,8 @@ codeunit 5817 "Undo Posting Management"
         end;
         OnUpdatePurchLineOnBeforePurchLineModify(PurchLine);
         PurchLine.Modify();
-        RevertPostedItemTrackingFromPurchLine(PurchLine, TempUndoneItemLedgEntry);
+        if PurchLine."Prod. Order No." = '' then
+            RevertPostedItemTrackingFromPurchLine(PurchLine, TempUndoneItemLedgEntry);
         xPurchLine."Quantity (Base)" := 0;
         PurchLineReserveVerifyQuantity(PurchLine, xPurchLine);
 
