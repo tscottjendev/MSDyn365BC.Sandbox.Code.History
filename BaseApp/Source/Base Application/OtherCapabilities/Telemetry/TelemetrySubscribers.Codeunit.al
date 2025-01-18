@@ -55,6 +55,13 @@ codeunit 1351 "Telemetry Subscribers"
         BankAccountRecTextToAccountCountLbl: Label 'Number of lines where Text-To-Applied was used: %1', Locked = true;
         BankAccountRecTransferToGJMsg: Label 'Lines of Bank Statement to transfer to GJ: %1', Locked = true;
         FinancialReportFeatureTok: Label 'Financial Report', Locked = true;
+        FinancialReportEventTxt: Label 'Financial Report %1: %2', Comment = '%1 = event type, %2 = report', Locked = true;
+        FinancialReportRowEventTxt: Label 'Financial Report Row Definition %1: %2', Comment = '%1 = event type, %2 = row definition', Locked = true;
+        FinancialReportColumnEventTxt: Label 'Financial Report Column Definition %1: %2', Comment = '%1 = event type, %2 = column definition', Locked = true;
+        CreatedTok: Label 'created', Locked = true;
+        ModifiedTok: Label 'modified', Locked = true;
+        RenameTok: Label 'renamed', Locked = true;
+        DeletedTok: Label 'deleted', Locked = true;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Conf./Personalization Mgt.", 'OnProfileChanged', '', true, true)]
     local procedure SendTraceOnProfileChanged(PrevAllProfile: Record "All Profile"; CurrentAllProfile: Record "All Profile")
@@ -560,25 +567,25 @@ codeunit 1351 "Telemetry Subscribers"
     [EventSubscriber(ObjectType::Table, Database::"Financial Report", OnAfterInsertEvent, '', true, true)]
     local procedure LogFinancialReportLifecycleInsert(var Rec: Record "Financial Report")
     begin
-        LogFinancialReportTelemetry(Rec, '0000O77', 'Financial Report created');
+        LogFinancialReportTelemetry(Rec, '0000O77', StrSubstNo(FinancialReportEventTxt, CreatedTok, Rec.Name));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Financial Report", OnAfterModifyEvent, '', true, true)]
     local procedure LogFinancialReportLifecycleModify(var Rec: Record "Financial Report")
     begin
-        LogFinancialReportTelemetry(Rec, '0000O78', 'Financial Report modified');
+        LogFinancialReportTelemetry(Rec, '0000O78', StrSubstNo(FinancialReportEventTxt, ModifiedTok, Rec.Name));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Financial Report", OnAfterRenameEvent, '', true, true)]
     local procedure LogFinancialReportLifecycleRename(var Rec: Record "Financial Report")
     begin
-        LogFinancialReportTelemetry(Rec, '0000O79', 'Financial Report renamed');
+        LogFinancialReportTelemetry(Rec, '0000O79', StrSubstNo(FinancialReportEventTxt, RenameTok, Rec.Name));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Financial Report", OnAfterDeleteEvent, '', true, true)]
     local procedure LogFinancialReportLifecycleDelete(var Rec: Record "Financial Report")
     begin
-        LogFinancialReportTelemetry(Rec, '0000O80', 'Financial Report deleted');
+        LogFinancialReportTelemetry(Rec, '0000O80', StrSubstNo(FinancialReportEventTxt, DeletedTok, Rec.Name));
     end;
 
     local procedure LogFinancialReportTelemetry(FinancialReport: Record "Financial Report"; EventId: Text; EventName: Text)
@@ -599,25 +606,25 @@ codeunit 1351 "Telemetry Subscribers"
     [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Name", OnAfterInsertEvent, '', true, true)]
     local procedure LogAccScheduleNameLifecycleInsert(var Rec: Record "Acc. Schedule Name")
     begin
-        LogAccScheduleNameTelemetry(Rec, '0000O81', 'Financial Report Row Definition created');
+        LogAccScheduleNameTelemetry(Rec, '0000O81', StrSubstNo(FinancialReportRowEventTxt, CreatedTok, Rec.Name));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Name", OnAfterModifyEvent, '', true, true)]
     local procedure LogAccScheduleNameLifecycleModify(var Rec: Record "Acc. Schedule Name")
     begin
-        LogAccScheduleNameTelemetry(Rec, '0000O82', 'Financial Report Row Definition modified');
+        LogAccScheduleNameTelemetry(Rec, '0000O82', StrSubstNo(FinancialReportRowEventTxt, ModifiedTok, Rec.Name));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Name", OnAfterRenameEvent, '', true, true)]
     local procedure LogAccScheduleNameLifecycleRename(var Rec: Record "Acc. Schedule Name")
     begin
-        LogAccScheduleNameTelemetry(Rec, '0000O83', 'Financial Report Row Definition renamed');
+        LogAccScheduleNameTelemetry(Rec, '0000O83', StrSubstNo(FinancialReportRowEventTxt, RenameTok, Rec.Name));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Name", OnAfterDeleteEvent, '', true, true)]
     local procedure LogAccScheduleNameLifecycleDelete(var Rec: Record "Acc. Schedule Name")
     begin
-        LogAccScheduleNameTelemetry(Rec, '0000O84', 'Financial Report Row Definition deleted');
+        LogAccScheduleNameTelemetry(Rec, '0000O84', StrSubstNo(FinancialReportRowEventTxt, DeletedTok, Rec.Name));
     end;
 
     local procedure LogAccScheduleNameTelemetry(AccScheduleName: Record "Acc. Schedule Name"; EventId: Text; EventName: Text)
@@ -638,25 +645,25 @@ codeunit 1351 "Telemetry Subscribers"
     [EventSubscriber(ObjectType::Table, Database::"Column Layout Name", OnAfterInsertEvent, '', true, true)]
     local procedure LogColumnLayoutNameLifecycleInsert(var Rec: Record "Column Layout Name")
     begin
-        LogColumnLayoutNameTelemetry(Rec, '0000O85', 'Financial Report Column Definition created');
+        LogColumnLayoutNameTelemetry(Rec, '0000O85', StrSubstNo(FinancialReportColumnEventTxt, CreatedTok, Rec.Name));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Column Layout Name", OnAfterModifyEvent, '', true, true)]
     local procedure LogColumnLayoutNameLifecycleModify(var Rec: Record "Column Layout Name")
     begin
-        LogColumnLayoutNameTelemetry(Rec, '0000O86', 'Financial Report Column Definition modified');
+        LogColumnLayoutNameTelemetry(Rec, '0000O86', StrSubstNo(FinancialReportColumnEventTxt, ModifiedTok, Rec.Name));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Column Layout Name", OnAfterRenameEvent, '', true, true)]
     local procedure LogColumnLayoutNameLifecycleRename(var Rec: Record "Column Layout Name")
     begin
-        LogColumnLayoutNameTelemetry(Rec, '0000O87', 'Financial Report Column Definition renamed');
+        LogColumnLayoutNameTelemetry(Rec, '0000O87', StrSubstNo(FinancialReportColumnEventTxt, RenameTok, Rec.Name));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Column Layout Name", OnAfterDeleteEvent, '', true, true)]
     local procedure LogColumnLayoutNameLifecycleDelete(var Rec: Record "Column Layout Name")
     begin
-        LogColumnLayoutNameTelemetry(Rec, '0000O88', 'Financial Report Column Definition deleted');
+        LogColumnLayoutNameTelemetry(Rec, '0000O88', StrSubstNo(FinancialReportColumnEventTxt, DeletedTok, Rec.Name));
     end;
 
     local procedure LogColumnLayoutNameTelemetry(ColumnLayoutName: Record "Column Layout Name"; EventId: Text; EventName: Text)

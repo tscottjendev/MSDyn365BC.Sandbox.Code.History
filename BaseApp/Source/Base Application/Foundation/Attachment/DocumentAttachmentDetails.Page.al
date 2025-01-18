@@ -5,7 +5,6 @@
 namespace Microsoft.Foundation.Attachment;
 
 using Microsoft.CRM.Outlook;
-using Microsoft.Manufacturing.Document;
 using System.Integration;
 using System.IO;
 using System.Utilities;
@@ -368,7 +367,6 @@ page 1173 "Document Attachment Details"
     procedure OpenForRecRef(RecRef: RecordRef)
     var
         DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
-        ProdDocumentAttachmentMgmt: Codeunit "Prod. Document Attachment Mgt.";
     begin
         Rec.Reset();
 
@@ -377,7 +375,7 @@ page 1173 "Document Attachment Details"
         SalesDocumentFlow := DocumentAttachmentMgmt.IsSalesDocumentFlow(RecRef.Number);
         PurchaseDocumentFlow := DocumentAttachmentMgmt.IsPurchaseDocumentFlow(RecRef.Number);
         ServiceDocumentFlow := DocumentAttachmentMgmt.IsServiceDocumentFlow(RecRef.Number);
-        ProductionDocumentFlow := ProdDocumentAttachmentMgmt.IsProductionDocumentFlow(RecRef.Number);
+        ProductionDocumentFlow := DocumentAttachmentMgmt.IsProductionDocumentFlow(RecRef.Number);
         FlowFieldsEditable := DocumentAttachmentMgmt.IsFlowFieldsEditable(RecRef.Number);
 
         DocumentAttachmentMgmt.SetDocumentAttachmentFiltersForRecRefInternal(Rec, RecRef, false);
