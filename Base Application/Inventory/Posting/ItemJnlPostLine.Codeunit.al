@@ -7,6 +7,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
+using Microsoft.Sales.Document;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Item;
@@ -5967,7 +5968,7 @@ codeunit 22 "Item Jnl.-Post Line"
         if (ItemLedgerEntry."Remaining Quantity" + OldItemLedgerEntry."Remaining Quantity") > 0 then
             exit(0);
 
-        exit(-Abs(OldItemLedgerEntry."Reserved Quantity"));
+        exit(GetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry));
     end;
 
     local procedure CheckIfReservationEntryForJobExist(): Boolean
@@ -5981,6 +5982,30 @@ codeunit 22 "Item Jnl.-Post Line"
             exit(false);
 
         exit(JobPlanningLineReserve.FindReservEntry(JobPlanningLine, ReservationEntry));
+    end;
+    
+    local procedure GetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry: Record "Item Ledger Entry"): Integer
+    var
+        ReservationEntry: Record "Reservation Entry";
+        ReservationEntry2: Record "Reservation Entry";
+        SourceType: Integer;
+    begin
+        if OldItemLedgerEntry."Reserved Quantity" = 0 then
+            exit(0);
+
+        ReservationEntry.SetLoadFields("Entry No.", Positive, "Source Type", "Source Ref. No.");
+        ReservationEntry.SetRange("Source Type", Database::"Item Ledger Entry");
+        ReservationEntry.SetRange("Source Ref. No.", OldItemLedgerEntry."Entry No.");
+        if ReservationEntry.FindFirst() then
+            if ReservationEntry2.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive) then
+                SourceType := ReservationEntry2."Source Type";
+
+        case SourceType of
+            Database::"Sales Line":
+                exit(-Abs(OldItemLedgerEntry."Remaining Quantity" - OldItemLedgerEntry."Reserved Quantity"));
+            else
+                exit(-Abs(OldItemLedgerEntry."Reserved Quantity"));
+        end;
     end;
 
     [IntegrationEvent(false, false)]
