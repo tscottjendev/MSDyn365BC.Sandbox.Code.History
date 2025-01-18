@@ -41,7 +41,6 @@ using Microsoft.Inventory.Intrastat;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Projects.Resources.Setup;
 using Microsoft.Purchases.Analysis;
@@ -649,14 +648,6 @@ page 9018 "Administrator Role Center"
                     RunObject = Page Miniforms;
                     ToolTip = 'View or edit special pages for users of hand-held devices. ';
                 }
-                action("Man&ufacturing Setup")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Man&ufacturing Setup';
-                    Image = ProductionSetup;
-                    RunObject = Page "Manufacturing Setup";
-                    ToolTip = 'Define company policies for manufacturing, such as the default safety lead time and whether warnings are displayed in the planning worksheet.';
-                }
                 action("Res&ources Setup")
                 {
                     ApplicationArea = Basic, Suite;
@@ -764,14 +755,6 @@ page 9018 "Administrator Role Center"
                     Caption = 'Report Selection - VAT';
                     RunObject = Page "Report Selection - VAT Stmt.";
                     ToolTip = 'View the list of reports that are used to print VAT documents.';
-                }
-                action("Report Selection - Prod. &Order")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Report Selection - Prod. &Order';
-                    Image = SelectReport;
-                    RunObject = Page "Report Selection - Prod. Order";
-                    ToolTip = 'View or edit the list of reports that can be printed when you work with manufacturing.';
                 }
                 action("Report Selection - Cash Flow")
                 {
