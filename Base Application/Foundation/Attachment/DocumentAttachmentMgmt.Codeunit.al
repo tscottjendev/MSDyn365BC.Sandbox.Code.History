@@ -322,6 +322,11 @@ codeunit 1173 "Document Attachment Mgmt"
         OnAfterIsServiceDocumentFlow(TableNo, IsDocumentFlow);
     end;
 
+    internal procedure IsProductionDocumentFlow(TableNo: Integer) IsDocumentFlow: Boolean
+    begin
+        OnAfterIsProductionDocumentFlow(TableNo, IsDocumentFlow);
+    end;
+
     internal procedure IsFlowFieldsEditable(TableNo: Integer) Editable: Boolean
     begin
         Editable := not TableIsDocument(TableNo);
@@ -1851,6 +1856,11 @@ codeunit 1173 "Document Attachment Mgmt"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsServiceDocumentFlow(TableNo: Integer; var IsDocumentFlow: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsProductionDocumentFlow(TableNo: Integer; var IsDocumentFlow: Boolean)
     begin
     end;
 }
