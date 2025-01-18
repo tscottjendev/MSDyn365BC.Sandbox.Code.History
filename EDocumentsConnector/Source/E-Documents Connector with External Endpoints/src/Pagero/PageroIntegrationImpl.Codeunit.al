@@ -6,85 +6,54 @@ namespace Microsoft.EServices.EDocumentConnector;
 
 using System.Utilities;
 using Microsoft.EServices.EDocument;
-using Microsoft.eServices.EDocument.Integration.Interfaces;
-using Microsoft.eServices.EDocument.Integration.Send;
-using Microsoft.eServices.EDocument.Integration.Receive;
 
-codeunit 6362 "Pagero Integration Impl." implements IDocumentSender, IDocumentResponseHandler, IDocumentReceiver, ISentDocumentActions
+codeunit 6362 "Pagero Integration Impl." implements "E-Document Integration"
 {
     Access = Internal;
 
-    procedure Send(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; SendContext: Codeunit SendContext)
+    procedure Send(var EDocument: Record "E-Document"; var TempBlob: Codeunit "Temp Blob"; var IsAsync: Boolean; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
     var
-        TempBlob: Codeunit "Temp Blob";
-        HttpRequest: HttpRequestMessage;
-        HttpResponse: HttpResponseMessage;
     begin
-        TempBlob := SendContext.GetTempBlob();
-        PageroProcessing.SendEDocument(EDocument, EDocumentService, TempBlob, HttpRequest, HttpResponse);
-        SendContext.Http().SetHttpRequestMessage(HttpRequest);
-        SendContext.Http().SetHttpResponseMessage(HttpResponse);
+        PageroProcessing.SendEDocument(EDocument, TempBlob, IsAsync, HttpRequest, HttpResponse);
     end;
 
-    procedure GetResponse(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; SendContext: Codeunit SendContext): Boolean
-    var
-        HttpRequest: HttpRequestMessage;
-        HttpResponse: HttpResponseMessage;
-        Success: Boolean;
+    procedure SendBatch(var EDocuments: Record "E-Document"; var TempBlob: Codeunit "Temp Blob"; var IsAsync: Boolean; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
     begin
-        Success := PageroProcessing.GetDocumentResponse(EDocument, EDocumentService, HttpRequest, HttpResponse);
-        SendContext.Http().SetHttpRequestMessage(HttpRequest);
-        SendContext.Http().SetHttpResponseMessage(HttpResponse);
-        exit(Success);
+        IsAsync := false;
+        Error('Batch sending is not supported in this version');
     end;
 
-    procedure ReceiveDocuments(var EDocumentService: Record "E-Document Service"; DocumentsMetadata: Codeunit "Temp Blob List"; ReceiveContext: Codeunit ReceiveContext)
+    procedure GetResponse(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage): Boolean
     begin
-        PageroProcessing.ReceiveDocument(EDocumentService, DocumentsMetadata, ReceiveContext);
+        exit(PageroProcessing.GetDocumentResponse(EDocument, HttpRequest, HttpResponse));
     end;
 
-    procedure DownloadDocument(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; DocumentMetadata: Codeunit "Temp Blob"; ReceiveContext: Codeunit ReceiveContext)
+    procedure GetApproval(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage): Boolean
     begin
-        PageroProcessing.DownloadDocument(EDocument, EDocumentService, DocumentMetadata, ReceiveContext);
+        exit(PageroProcessing.GetDocumentApproval(EDocument, HttpRequest, HttpResponse));
     end;
 
-    procedure GetApprovalStatus(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; ActionContext: Codeunit ActionContext) Success: Boolean
-    var
-        Status: Enum "E-Document Service Status";
-        HttpRequest: HttpRequestMessage;
-        HttpResponse: HttpResponseMessage;
+    procedure Cancel(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage): Boolean
     begin
-        Success := PageroProcessing.GetDocumentApproval(EDocument, EDocumentService, HttpRequest, HttpResponse, Status);
-        ActionContext.Status().SetStatus(Status);
-        ActionContext.Http().SetHttpRequestMessage(HttpRequest);
-        ActionContext.Http().SetHttpResponseMessage(HttpResponse);
+        exit(PageroProcessing.CancelEDocument(EDocument, HttpRequest, HttpResponse));
     end;
 
-    procedure GetCancellationStatus(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; ActionContext: Codeunit ActionContext) Success: Boolean
-    var
-        Status: Enum "E-Document Service Status";
-        HttpRequest: HttpRequestMessage;
-        HttpResponse: HttpResponseMessage;
+    procedure ReceiveDocument(var TempBlob: Codeunit "Temp Blob"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
     begin
-        Success := PageroProcessing.CancelEDocument(EDocument, EDocumentService, HttpRequest, HttpResponse, Status);
-        ActionContext.Status().SetStatus(Status);
-        ActionContext.Http().SetHttpRequestMessage(HttpRequest);
-        ActionContext.Http().SetHttpResponseMessage(HttpResponse);
+        PageroProcessing.ReceiveDocument(TempBlob, HttpRequest, HttpResponse);
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"E-Document Service", OnBeforeOpenServiceIntegrationSetupPage, '', false, false)]
-    local procedure OnBeforeOpenServiceIntegrationSetupPage(EDocumentService: Record "E-Document Service"; var IsServiceIntegrationSetupRun: Boolean)
-    var
-        EDocExtConnectionSetupCard: Page "EDoc Ext Connection Setup Card";
+    procedure GetDocumentCountInBatch(var TempBlob: Codeunit "Temp Blob"): Integer
     begin
-        if EDocumentService."Service Integration V2" <> EDocumentService."Service Integration V2"::Pagero then
-            exit;
+        exit(PageroProcessing.GetDocumentCountInBatch(TempBlob));
+    end;
 
-        EDocExtConnectionSetupCard.RunModal();
-        IsServiceIntegrationSetupRun := true;
+    procedure GetIntegrationSetup(var SetupPage: Integer; var SetupTable: Integer)
+    begin
+        SetupPage := page::"EDoc Ext Connection Setup Card";
+        SetupTable := Database::"E-Doc. Ext. Connection Setup";
     end;
 
     var
         PageroProcessing: Codeunit "Pagero Processing";
-
 }

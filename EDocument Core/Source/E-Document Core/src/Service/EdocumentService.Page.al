@@ -4,9 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
 
-using System.Telemetry;
 using Microsoft.eServices.EDocument.IO.Peppol;
-using Microsoft.eServices.EDocument.Integration.Receive;
+using System.Telemetry;
+
 page 6133 "E-Document Service"
 {
     ApplicationArea = Basic, Suite;
@@ -34,22 +34,9 @@ page 6133 "E-Document Service"
                 {
                     ToolTip = 'Specifies the export format of the electronic export setup.';
                 }
-#if not CLEAN26
                 field("Service Integration"; Rec."Service Integration")
                 {
                     ToolTip = 'Specifies integration code for the electronic export setup.';
-                    ObsoleteTag = '26.0';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with field "Service Integration V2"';
-                }
-#endif
-                field("Service Integration V2"; Rec."Service Integration V2")
-                {
-                    ToolTip = 'Specifies integration code for the electronic export setup.';
-                }
-                field("Sent Actions"; Rec."Sent Actions Integration")
-                {
-                    ToolTip = 'Specifies integration code for sent e-document actions.';
                 }
                 field("Use Batch Processing"; Rec."Use Batch Processing")
                 {
@@ -211,8 +198,16 @@ page 6133 "E-Document Service"
                 Image = Setup;
 
                 trigger OnAction()
+                var
+                    EDocumentIntegration: Interface "E-Document Integration";
+                    SetupPage, SetupTable : integer;
                 begin
-                    RunSetupServiceIntegration();
+                    EDocumentIntegration := Rec."Service Integration";
+                    EDocumentIntegration.GetIntegrationSetup(SetupPage, SetupTable);
+                    if SetupPage = 0 then
+                        Message(ServiceIntegrationSetupMsg)
+                    else
+                        Page.Run(SetupPage);
                 end;
             }
             action(SupportedDocTypes)
@@ -226,12 +221,14 @@ page 6133 "E-Document Service"
             action(Receive)
             {
                 Caption = 'Receive';
-                ToolTip = 'Manually trigger receive';
+                ToolTip = 'Manually Trigger Receive';
                 Image = Import;
 
                 trigger OnAction()
+                var
+                    EDocImport: Codeunit "E-Doc. Import";
                 begin
-                    ReceiveDocs();
+                    EDocImport.ReceiveDocument(Rec);
                 end;
             }
         }
@@ -245,7 +242,6 @@ page 6133 "E-Document Service"
 
     var
         ServiceIntegrationSetupMsg: Label 'There is no configuration setup for this service integration.';
-        DocNotCreatedQst: Label 'Failed to create new Purchase %1 from E-Document. Do you want to open E-Document to see reported errors?', Comment = '%1 - Purchase Document Type';
 
     trigger OnOpenPage()
     var
@@ -257,81 +253,11 @@ page 6133 "E-Document Service"
         CurrPage.EDocumentImportFormatMapping.Page.SaveAsImport(true);
     end;
 
-#if not CLEAN26
-    local procedure RunSetupServiceIntegration()
+    trigger OnClosePage()
     var
-        EDocumentIntegration: Interface "E-Document Integration";
-        SetupPage, SetupTable : Integer;
-        PageOpened: Boolean;
+        EDocumentBackgroundJobs: Codeunit "E-Document Background Jobs";
     begin
-        OnBeforeOpenServiceIntegrationSetupPage(Rec, PageOpened);
-        if not PageOpened then begin
-            EDocumentIntegration := Rec."Service Integration";
-            EDocumentIntegration.GetIntegrationSetup(SetupPage, SetupTable);
-            if SetupPage <> 0 then begin
-                PageOpened := true;
-                Page.Run(SetupPage);
-            end;
-        end;
-
-        if not PageOpened then
-            Message(ServiceIntegrationSetupMsg);
+        EDocumentBackgroundJobs.HandleRecurrentBatchJob(Rec);
+        EDocumentBackgroundJobs.HandleRecurrentImportJob(Rec);
     end;
-#else
-    local procedure RunSetupServiceIntegration()
-    var
-        PageOpened: Boolean;
-    begin
-        OnBeforeOpenServiceIntegrationSetupPage(Rec, PageOpened);
-        if not PageOpened then
-            Message(ServiceIntegrationSetupMsg);
-    end;
-#endif
-
-#if not CLEAN26
-    local procedure ReceiveDocs()
-    var
-        FailedEDocument: Record "E-Document";
-        EDocIntegrationMgt: Codeunit "E-Doc. Integration Management";
-        EDocImport: Codeunit "E-Doc. Import";
-        ReceiveContext: Codeunit ReceiveContext;
-        EDocIntegration: Interface "E-Document Integration";
-    begin
-        if Rec."Service Integration V2" <> Rec."Service Integration V2"::"No Integration" then begin
-            EDocIntegrationMgt.ReceiveDocuments(Rec, ReceiveContext);
-            EDocImport.ProcessReceivedDocuments(Rec, FailedEDocument);
-
-            if FailedEDocument."Entry No" <> 0 then
-                if Confirm(DocNotCreatedQst, true, FailedEDocument."Document Type") then
-                    Page.Run(Page::"E-Document", FailedEDocument);
-            exit;
-        end;
-
-        EDocIntegration := Rec."Service Integration";
-        EDocIntegrationMgt.ReceiveDocument(Rec, EDocIntegration);
-    end;
-#else
-    local procedure ReceiveDocs()
-    var
-        FailedEDocument: Record "E-Document";
-        EDocIntegrationMgt: Codeunit "E-Doc. Integration Management";
-        EDocImport: Codeunit "E-Doc. Import";
-        ReceiveContext: Codeunit ReceiveContext;
-    begin
-        EDocIntegrationMgt.ReceiveDocuments(Rec, ReceiveContext);
-        EDocImport.ProcessReceivedDocuments(Rec, FailedEDocument);
-
-        if FailedEDocument."Entry No" <> 0 then
-            if Confirm(DocNotCreatedQst, true, FailedEDocument."Document Type") then
-                Page.Run(Page::"E-Document", FailedEDocument);
-
-    end;
-#endif
-
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenServiceIntegrationSetupPage(EDocumentService: Record "E-Document Service"; var IsServiceIntegrationSetupRun: Boolean)
-    begin
-    end;
-
 }

@@ -34,7 +34,7 @@ codeunit 139616 "E-Doc Log Test"
         // [SCENARIO] EDocument Log on EDocument creation - No run of job queue to trigger export and send
 
         // [GIVEN] Creating a EDocument from Sales Invoice 
-        Initialize(Enum::"Service Integration"::"Mock Sync");
+        Init();
 
         // [Given] Team member that post invoice and EDocument is created
         LibraryPermission.SetTeamMember();
@@ -53,6 +53,7 @@ codeunit 139616 "E-Doc Log Test"
         Assert.AreEqual(0, EDocLog."E-Doc. Data Storage Entry No.", IncorrectValueErr);
         Assert.AreEqual(0, EDocLog."E-Doc. Data Storage Size", IncorrectValueErr);
         Assert.AreEqual('', EDocLog."Service Code", IncorrectValueErr);
+        Assert.AreEqual(EDocLog."Service Integration"::"No Integration", EDocLog."Service Integration", IncorrectValueErr);
         Assert.AreEqual(EDocLog.Status::Created, EDocLog.Status, IncorrectValueErr);
         Assert.AreEqual(EDocument.Status::"In Progress", EDocument.Status, IncorrectValueErr);
 
@@ -81,7 +82,7 @@ codeunit 139616 "E-Doc Log Test"
         // 4. No mapping logs are created in this scenario.
 
         // [GIVEN] Creating a EDocument from Sales Invoice is exported
-        Initialize(Enum::"Service Integration"::"Mock Sync");
+        Init();
 
         // [Given] Team member that post invoice and EDocument is created
         LibraryPermission.SetTeamMember();
@@ -104,6 +105,7 @@ codeunit 139616 "E-Doc Log Test"
         Assert.AreNotEqual(0, EDocLog."E-Doc. Data Storage Entry No.", IncorrectValueErr);
         Assert.AreEqual(0, EDocLog."E-Doc. Data Storage Size", IncorrectValueErr);
         Assert.AreEqual(EDocumentService.Code, EDocLog."Service Code", IncorrectValueErr);
+        Assert.AreEqual(EDocLog."Service Integration"::Mock, EDocLog."Service Integration", IncorrectValueErr);
         Assert.AreEqual(EDocLog.Status::Exported, EDocLog.Status, IncorrectValueErr);
 
         // [THEN] EDoc Service Status is updated
@@ -138,7 +140,7 @@ codeunit 139616 "E-Doc Log Test"
         // [4] A mapping log is correctly created.
 
         // [GIVEN] Exporting E-Document for service with mapping
-        Initialize(Enum::"Service Integration"::"Mock Sync");
+        Init();
         LibraryEDoc.CreateServiceMapping(EDocumentService);
 
         // [Given] Team member that post invoice and EDocument is created
@@ -161,6 +163,7 @@ codeunit 139616 "E-Doc Log Test"
         Assert.AreNotEqual(0, EDocLog."E-Doc. Data Storage Entry No.", IncorrectValueErr);
         Assert.AreEqual(0, EDocLog."E-Doc. Data Storage Size", IncorrectValueErr);
         Assert.AreEqual(EDocumentService.Code, EDocLog."Service Code", IncorrectValueErr);
+        Assert.AreEqual(EDocLog."Service Integration"::Mock, EDocLog."Service Integration", IncorrectValueErr);
         Assert.AreEqual(EDocLog.Status::Exported, EDocLog.Status, IncorrectValueErr);
 
         // [THEN] EDoc Service Status is updated
@@ -218,7 +221,7 @@ codeunit 139616 "E-Doc Log Test"
         // [5] Mapping logs should be generated as part of this scenario.
 
         // [GIVEN] Exporting E-Document with errors on edocument
-        Initialize(Enum::"Service Integration"::"Mock Sync");
+        Init();
         LibraryEDoc.CreateServiceMapping(EDocumentService);
         BindSubscription(EDocLogTest);
         EDocLogTest.SetExportError();
@@ -244,6 +247,7 @@ codeunit 139616 "E-Doc Log Test"
         Assert.AreNotEqual(0, EDocLog."E-Doc. Data Storage Entry No.", IncorrectValueErr);
         Assert.AreNotEqual(0, EDocLog."E-Doc. Data Storage Size", IncorrectValueErr);
         Assert.AreEqual(EDocumentService.Code, EDocLog."Service Code", IncorrectValueErr);
+        Assert.AreEqual(EDocLog."Service Integration"::Mock, EDocLog."Service Integration", IncorrectValueErr);
         Assert.AreEqual(EDocLog.Status::"Export Error", EDocLog.Status, IncorrectValueErr);
 
         // [THEN] EDoc Service Status is updated
@@ -301,11 +305,11 @@ codeunit 139616 "E-Doc Log Test"
         // [5] Mapping logs are correctly created, capturing mapping details.
 
         // [GIVEN] Exporting E-Documents for service with mapping
-        Initialize(Enum::"Service Integration"::"Mock Sync");
+        Init();
         LibraryEDoc.CreateServiceMapping(EDocumentService);
+        EDocumentService."Use Batch Processing" := true;
         EDocumentService."Batch Mode" := enum::"E-Document Batch Mode"::Threshold;
         EDocumentService."Batch Threshold" := 2;
-        EDocumentService.Validate("Use Batch Processing", true);
         EDocumentService.Modify();
         BindSubscription(EDocLogTest);
         EDocLog.SetAutoCalcFields("E-Doc. Data Storage Size");
@@ -350,6 +354,7 @@ codeunit 139616 "E-Doc Log Test"
             Assert.AreNotEqual(0, EDocLog."E-Doc. Data Storage Entry No.", IncorrectValueErr);
             Assert.AreEqual(4, EDocLog."E-Doc. Data Storage Size", IncorrectValueErr);
             Assert.AreEqual(EDocumentService.Code, EDocLog."Service Code", IncorrectValueErr);
+            Assert.AreEqual(EDocLog."Service Integration"::Mock, EDocLog."Service Integration", IncorrectValueErr);
             Assert.AreEqual(EDocLog.Status::Exported, EDocLog.Status, IncorrectValueErr);
 
             // [THEN] EDoc Service Status is updated
@@ -407,11 +412,11 @@ codeunit 139616 "E-Doc Log Test"
         // [6] Ensure no mapping logs or data storage is created for either document.
 
         // [GIVEN] A flow to send to service with threshold batch 
-        Initialize(Enum::"Service Integration"::"Mock Sync");
+        Init();
         LibraryEDoc.CreateServiceMapping(EDocumentService);
+        EDocumentService."Use Batch Processing" := true;
         EDocumentService."Batch Mode" := enum::"E-Document Batch Mode"::Threshold;
         EDocumentService."Batch Threshold" := 2;
-        EDocumentService.Validate("Use Batch Processing", true);
         EDocumentService.Modify();
         BindSubscription(EDocLogTest); // Bind subscription to get events to insert into blobs
         EDocLogTest.SetLastEntryInBatchToError(); // Make sure last entry in create batch fails
@@ -511,12 +516,12 @@ codeunit 139616 "E-Doc Log Test"
         // [8] Ensure mapping logs are created.
 
         // [GIVEN] A flow to send to service with recurrent batch 
-        Initialize(Enum::"Service Integration"::"Mock Sync");
+        Init();
         LibraryEDoc.CreateServiceMapping(EDocumentService);
+        EDocumentService."Use Batch Processing" := true;
         EDocumentService."Batch Mode" := EDocumentService."Batch Mode"::Recurrent;
         EDocumentService."Batch Minutes between runs" := 1;
         EDocumentService."Batch Start Time" := Time();
-        EDocumentService.Validate("Use Batch Processing", true);
         EDocumentService.Modify();
         BindSubscription(EDocLogTest); // Bind subscription to get events to insert into blobs
 
@@ -637,13 +642,13 @@ codeunit 139616 "E-Doc Log Test"
         // [9] Ensure no mapping logs are created.
 
         // [GIVEN] A flow to send to service with recurrent batch 
-        Initialize(Enum::"Service Integration"::"Mock Sync");
+        Init();
         LibraryEDoc.CreateServiceMapping(EDocumentService);
         EDocumentService.Get(EDocumentService.Code);
+        EDocumentService."Use Batch Processing" := true;
         EDocumentService."Batch Mode" := EDocumentService."Batch Mode"::Recurrent;
         EDocumentService."Batch Minutes between runs" := 1;
         EDocumentService."Batch Start Time" := Time();
-        EDocumentService.Validate("Use Batch Processing", true);
         EDocumentService.Modify();
 
         BindSubscription(EDocLogTest); // Bind subscription to get events to insert into blobs
@@ -786,7 +791,7 @@ codeunit 139616 "E-Doc Log Test"
 
         EDocument.Insert();
         EDocumentService2.Code := 'Test Service 1';
-        EDocumentService2."Service Integration V2" := EDocumentService2."Service Integration V2"::"Mock";
+        EDocumentService2."Service Integration" := EDocumentService2."Service Integration"::Mock;
         EDocumentService2.Insert();
 
         EDocumentServiceStatus."E-Document Entry No" := EDocument."Entry No";
@@ -807,13 +812,11 @@ codeunit 139616 "E-Doc Log Test"
         Assert.AreEqual(EDocument."Entry No", EDocLog."E-Doc. Entry No", IncorrectValueErr);
         Assert.AreEqual(EDocLog."Document Type"::"Sales Invoice", EDocLog."Document Type", IncorrectValueErr);
         Assert.AreEqual(EDocumentService2.Code, EDocLog."Service Code", IncorrectValueErr);
-#if not CLEAN26
         Assert.AreEqual(EDocumentService2."Service Integration", EDocLog."Service Integration", IncorrectValueErr);
-#endif
         Assert.AreEqual(Status, EDocLog.Status, IncorrectValueErr);
     end;
 
-    local procedure Initialize(Integration: Enum "Service Integration")
+    local procedure Init()
     var
         TransformationRule: Record "Transformation Rule";
     begin
@@ -822,7 +825,7 @@ codeunit 139616 "E-Doc Log Test"
             exit;
 
         LibraryEDoc.SetupStandardVAT();
-        LibraryEDoc.SetupStandardSalesScenario(Customer, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
+        LibraryEDoc.SetupStandardSalesScenario(Customer, EDocumentService, Enum::"E-Document Format"::Mock, Enum::"E-Document Integration"::Mock);
         ErrorInExport := false;
         FailLastEntryInBatch := false;
 
@@ -902,5 +905,4 @@ codeunit 139616 "E-Doc Log Test"
             EDocErrorHelper.LogSimpleErrorMessage(EDocuments, 'ERROR');
         end;
     end;
-
 }
