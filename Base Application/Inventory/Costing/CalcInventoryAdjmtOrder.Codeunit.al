@@ -6,11 +6,10 @@ namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Manufacturing.Capacity;
 
 codeunit 5896 "Calc. Inventory Adjmt. - Order"
 {
-    Permissions = TableData "Capacity Ledger Entry" = r,
+    Permissions = TableData Microsoft.Manufacturing.Capacity."Capacity Ledger Entry" = r,
                   TableData "Inventory Adjmt. Entry (Order)" = rimd;
 
     trigger OnRun()
@@ -293,7 +292,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
 
     local procedure CalcActualCapacityCosts(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
     var
-        CapLedgEntry: Record "Capacity Ledger Entry";
+        CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
         ShareOfTotalCapCost: Decimal;
         IsHandled: Boolean;
     begin
@@ -348,7 +347,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
 
     local procedure CalcShareOfCapCost(InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)") ShareOfCapCost: Decimal
     var
-        CapLedgEntry: Record "Capacity Ledger Entry";
+        CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
     begin
         if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Assembly then
             exit(1);
@@ -455,7 +454,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcActualCapacityCostsOnAfterSetFilters(var CapLedgEntry: Record "Capacity Ledger Entry"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var IsHandled: Boolean; ShareOfTotalCapCost: Decimal)
+    local procedure OnCalcActualCapacityCostsOnAfterSetFilters(var CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var IsHandled: Boolean; ShareOfTotalCapCost: Decimal)
     begin
     end;
 

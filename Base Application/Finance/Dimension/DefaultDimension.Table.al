@@ -11,7 +11,6 @@ using Microsoft.FixedAssets.Insurance;
 using Microsoft.HumanResources.Employee;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Vendor;
@@ -429,8 +428,6 @@ table 352 "Default Dimension"
                 UpdateInsuranceGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
             Database::"Responsibility Center":
                 UpdateRespCenterGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
-            Database::"Work Center":
-                UpdateWorkCenterGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
             Database::"Salesperson/Purchaser":
                 UpdateSalesPurchGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
             Database::Campaign:
@@ -665,23 +662,6 @@ table 352 "Default Dimension"
             end;
             OnUpdateRespCenterGlobalDimCodeOnBeforeRespCenterModify(ResponsibilityCenter, NewDimValue, GlobalDimCodeNo);
             ResponsibilityCenter.Modify(true);
-        end;
-    end;
-
-    local procedure UpdateWorkCenterGlobalDimCode(GlobalDimCodeNo: Integer; WorkCenterNo: Code[20]; NewDimValue: Code[20])
-    var
-        WorkCenter: Record "Work Center";
-    begin
-        if WorkCenter.Get(WorkCenterNo) then begin
-            case GlobalDimCodeNo of
-                1:
-                    WorkCenter."Global Dimension 1 Code" := NewDimValue;
-                2:
-                    WorkCenter."Global Dimension 2 Code" := NewDimValue;
-                else
-                    OnUpdateWorkCenterGlobalDimCodeCaseElse(GlobalDimCodeNo, WorkCenterNo, NewDimValue);
-            end;
-            WorkCenter.Modify(true);
         end;
     end;
 
@@ -1463,10 +1443,18 @@ table 352 "Default Dimension"
     begin
     end;
 
+#if not CLEAN26
+    internal procedure RunOnUpdateWorkCenterGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; WorkCenterNo: Code[20]; NewDimValue: Code[20])
+    begin
+        OnUpdateWorkCenterGlobalDimCodeCaseElse(GlobalDimCodeNo, WorkCenterNo, NewDimValue);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Dimension Management', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnUpdateWorkCenterGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; WorkCenterNo: Code[20]; NewDimValue: Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetRangeToLastFieldInPrimaryKey(RecRef: RecordRef; Value: Code[20]; var IsHandled: Boolean)
