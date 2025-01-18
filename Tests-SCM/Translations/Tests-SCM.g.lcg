@@ -3139,7 +3139,7 @@
   </Item>
   <Item ItemId=";Codeunit 3458441551 - NamedType 2005526673" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This shipment has already been reversed.]]></Val>
+      <Val><![CDATA[There are no lines with quantity to reverse.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

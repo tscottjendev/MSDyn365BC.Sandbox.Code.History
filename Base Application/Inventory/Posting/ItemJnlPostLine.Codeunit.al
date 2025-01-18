@@ -275,7 +275,7 @@ codeunit 22 "Item Jnl.-Post Line"
             then
                 CheckItemTracking();
 
-        if ItemJnlLine.Correction then
+        if ItemJnlLine.Correction and not ItemJnlLine.Subcontracting then
             UndoQuantityPosting();
 
         if (ItemJnlLine."Entry Type" in
@@ -552,6 +552,7 @@ codeunit 22 "Item Jnl.-Post Line"
         ItemLedgerEntry: Record "Item Ledger Entry";
         ProdOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
+        ItemJnlLineSubContracting: Record "Item Journal Line";
         DirCostAmt: Decimal;
         IndirCostAmt: Decimal;
         ValuedQty: Decimal;
@@ -651,6 +652,9 @@ codeunit 22 "Item Jnl.-Post Line"
             end;
             OnPostOutputOnAfterCreateWhseJnlLine(ItemJnlLine);
 
+            if ItemJnlLine.Subcontracting and ItemJnlLine.Correction then
+                ItemJnlLineSubContracting := ItemJnlLine;
+
             ItemJnlLine.Description := ProdOrderLine.Description;
             if ItemJnlLine.Subcontracting then begin
                 ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::" ";
@@ -674,6 +678,13 @@ codeunit 22 "Item Jnl.-Post Line"
             if PostWhseJnlLine then
                 if Location."Bin Mandatory" and (not CalledFromInvtPutawayPick) then
                     WhseJnlRegisterLine.RegisterWhseJnlLine(WhseJnlLine);
+
+            if ItemJnlLine.Subcontracting and ItemJnlLine.Correction then begin
+                ItemJnlLine."Document Type" := ItemJnlLineSubContracting."Document Type";
+                ItemJnlLine."Document No." := ItemJnlLineSubContracting."Document No.";
+                ItemJnlLine."Document Line No." := ItemJnlLineSubContracting."Document Line No.";
+                ItemJnlLine.Description := ItemJnlLineSubContracting.Description;
+            end;
         end;
 
         OnAfterPostOutput(GlobalItemLedgEntry, ProdOrderLine, ItemJnlLine);
@@ -6373,7 +6384,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
         exit(JobPlanningLineReserve.FindReservEntry(JobPlanningLine, ReservationEntry));
     end;
-    
+
     local procedure GetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry: Record "Item Ledger Entry"): Integer
     var
         ReservationEntry: Record "Reservation Entry";

@@ -72,8 +72,6 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Reconciliation;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -2244,13 +2242,6 @@ page 8901 "Finance Manager Role Center"
                         RunObject = report "Adjust Cost - Item Entries";
                         Tooltip = 'Run the Adjust Cost - Item Entries report.';
                     }
-                    action("Update Unit Cost...")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Update Unit Costs...';
-                        RunObject = report "Update Unit Cost";
-                        Tooltip = 'Run the Update Unit Costs report.';
-                    }
                     action("Post Inventory Cost to G/L")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2349,13 +2340,6 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Status';
                         RunObject = report "Status";
                         Tooltip = 'Run the Status report.';
-                    }
-                    action("Cost Shares Breakdown")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Cost Shares Breakdown';
-                        RunObject = report "Cost Shares Breakdown";
-                        Tooltip = 'Run the Cost Shares Breakdown report.';
                     }
                     action("Item Register - Quantity")
                     {
