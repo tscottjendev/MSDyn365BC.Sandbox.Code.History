@@ -5698,6 +5698,44 @@ codeunit 134902 "ERM Account Schedule"
         LibraryReportDataset.AssertElementWithValueExists('ColumnValuesAsText', Format(Amount));
     end;
 
+    [Test]
+    [HandlerFunctions('AccountScheduleRequestPageNegativeFormatHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleInheritNegativeFormat()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        ColumnLayoutName: Record "Column Layout Name";
+        FinancialReports: TestPage "Financial Reports";
+        AccountScheduleOverview: TestPage "Acc. Schedule Overview";
+    begin
+        // [SCENARIO] Account Schedule report inherits negative format option from Account Schedule Overview
+        Initialize();
+
+        // [GIVEN] An financial report with negative amount format as minus sign
+        CreateAccountScheduleNameAndColumn(AccScheduleName, ColumnLayoutName);
+        Commit();
+        FinancialReports.OpenEdit();
+        FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
+        AccountScheduleOverview.Trap();
+        FinancialReports.Overview.Invoke();
+        AccountScheduleOverview.NegativeAmountFormat.SetValue(Enum::"Analysis Negative Format"::"Minus Sign");
+        Commit();
+
+        // [WHEN] Running account schedule report from account schedule overview
+        LibraryVariableStorage.Enqueue(Enum::"Analysis Negative Format"::"Minus Sign");
+        AccountScheduleOverview.Print.Invoke();
+        // Handled by AccountScheduleRequestPageNegativeFormatHandler
+        // [THEN] Account schedule report inherits negative amount format as minus sign
+
+        // [WHEN] Negative amount format is changed to parentheses and account schedule report is ran again
+        AccountScheduleOverview.NegativeAmountFormat.SetValue(Enum::"Analysis Negative Format"::Parentheses);
+        Commit();
+        LibraryVariableStorage.Enqueue(Enum::"Analysis Negative Format"::Parentheses);
+        AccountScheduleOverview.Print.Invoke();
+        // Handled by AccountScheduleRequestPageNegativeFormatHandler
+        // [THEN] Account schedule report inherits negative amount format as parentheses
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AccountScheduleSetNegativeFormatRequestHandler(var AccountSchedule: TestRequestPage "Account Schedule")
@@ -5710,6 +5748,17 @@ codeunit 134902 "ERM Account Schedule"
         AccountSchedule.NegativeAmountFormat.SetValue(LibraryVariableStorage.DequeueInteger());
         LibraryVariableStorage.AssertEmpty();
         AccountSchedule.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AccountScheduleRequestPageNegativeFormatHandler(var AccountSchedule: TestRequestPage "Account Schedule")
+    var
+        NegativeAmountFormat: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(NegativeAmountFormat);
+        AccountSchedule.NegativeAmountFormat.AssertEquals(NegativeAmountFormat);
+        AccountSchedule.Cancel().Invoke();
     end;
 
     local procedure Initialize()
