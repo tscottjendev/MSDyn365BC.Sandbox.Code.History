@@ -18,6 +18,13 @@ codeunit 99000783 "Prod. Document Attachment Mgt."
         CopyAttachmentLbl: Label 'Copy Attachment From %1 to %2.', Comment = '%1 = From Table Caption, %2 = To Table Caption ';
         DeleteAttachmentLbl: Label 'Delete Attachment From %1.', Comment = '%1 = From Table Caption';
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Attachment Mgmt", 'OnAfterIsProductionDocumentFlow', '', false, false)]
+    local procedure OnAfterIsProductionDocumentFlow(TableNo: Integer; var IsDocumentFlow: Boolean)
+    begin
+        if IsProductionDocumentFlow(TableNo) then
+            IsDocumentFlow := true;
+    end;
+
     internal procedure IsProductionDocumentFlow(TableNo: Integer) IsDocumentFlow: Boolean
     begin
         exit(TableNo in

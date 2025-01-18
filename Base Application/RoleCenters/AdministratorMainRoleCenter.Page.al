@@ -27,7 +27,6 @@ using Microsoft.Inventory.Intrastat;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Reminder;
@@ -302,12 +301,6 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections Inventory';
                         RunObject = page "Report Selection - Inventory";
-                    }
-                    action("Report Selections Prod. Order")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Report Selections Prod. Order';
-                        RunObject = page "Report Selection - Prod. Order";
                     }
 #if not CLEAN25
                     action("Report Selection - Comf. Purch")

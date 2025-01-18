@@ -3247,7 +3247,7 @@
   </Item>
   <Item ItemId=";Codeunit 3458441551 - NamedType 2005526673" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This shipment has already been reversed.]]></Val>
+      <Val><![CDATA[There are no lines with quantity to reverse.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -11757,6 +11757,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Order III - NamedType WHHandlingIsRequiredErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 191131963 - Method 1838912143 - NamedType 645313898" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This receipt has already been invoiced. Undo Receipt can be applied only to posted, but not invoiced receipts.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Order III - Method UndoPurchReceiptWithProductionSubcontracting_ErrorInvoiced - NamedType AlreadyInvoicedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 191131963 - Method 4237213932 - NamedType 3507528647" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Remaining Quantity must be equal to]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Order III - Method UndoPurchReceiptWithProductionSubcontracting_ErrorOutputUsed - NamedType OutputUsedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1635960933 - NamedType 3980652915" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
