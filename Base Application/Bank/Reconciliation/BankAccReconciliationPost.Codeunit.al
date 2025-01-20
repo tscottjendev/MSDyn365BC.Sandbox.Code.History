@@ -269,8 +269,6 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
     local procedure FinalizePost(BankAccRecon: Record "Bank Acc. Reconciliation")
     var
-        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
-        AppliedPmtEntry: Record "Applied Payment Entry";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         CreationDateTime: DateTime;
         MatchedWithAI: Boolean;
@@ -283,19 +281,9 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         OnBeforeFinalizePost(BankAccRecon);
         CreationDateTime := BankAccRecon.SystemCreatedAt;
         MatchedWithAI := AIMatchProposalsExist(BankAccRecon);
-        if BankAccReconLine.LinesExist(BankAccRecon) then
-            repeat
-                AppliedPmtEntry.FilterAppliedPmtEntry(BankAccReconLine);
-                AppliedPmtEntry.DeleteAll();
 
-                BankAccReconLine.Delete();
-                BankAccReconLine.ClearDataExchEntries();
-                LineCount += 1;
+        DeleteRelatedRecords(BankAccRecon, LineCount);
 
-            until BankAccReconLine.Next() = 0;
-
-        BankAccRecon.Find();
-        BankAccRecon.Delete();
         UpdateAnalysisView.UpdateAll(0, true);
         TelemetryCategories.Add('Category', BankAccountRecCategoryLbl);
         TelemetryCategories.Add('MatchedWithAI', Format(MatchedWithAI, 0, 9));
@@ -303,6 +291,32 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         if TryCalculateDurationToPost(DurationUntilPosting, CreationDateTime) then
             Session.LogMessage('0000LHY', Format(DurationUntilPosting), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryCategories);
         OnAfterFinalizePost(BankAccRecon);
+    end;
+
+    local procedure DeleteRelatedRecords(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var LineCount: Integer)
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        AppliedPaymentEntry: Record "Applied Payment Entry";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteRelatedRecords(BankAccReconciliation, IsHandled);
+        if IsHandled then
+            exit;
+
+        if BankAccReconciliationLine.LinesExist(BankAccReconciliation) then
+            repeat
+                AppliedPaymentEntry.FilterAppliedPmtEntry(BankAccReconciliationLine);
+                AppliedPaymentEntry.DeleteAll();
+
+                BankAccReconciliationLine.Delete();
+                BankAccReconciliationLine.ClearDataExchEntries();
+                LineCount += 1;
+
+            until BankAccReconciliationLine.Next() = 0;
+
+        BankAccReconciliation.Find();
+        BankAccReconciliation.Delete();
     end;
 
     [TryFunction]
@@ -622,7 +636,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeTransferToBankStmt(BankAccRecon, IsHandled);
+        OnBeforeTransferToBankStmt(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference, IsHandled);
         if IsHandled then
             exit;
 
@@ -911,6 +925,11 @@ codeunit 370 "Bank Acc. Reconciliation Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteRelatedRecords(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostPaymentApplications(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var AppliedAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -941,7 +960,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransferToBankStmt(var BankAccRecon: Record "Bank Acc. Reconciliation"; var IsHandled: Boolean)
+    local procedure OnBeforeTransferToBankStmt(var BankAccRecon: Record "Bank Acc. Reconciliation"; PrePostingOutstdPayments: Decimal; PrePostingOutstdBankTransactions: Decimal; PrePostingGLBalance: Decimal; PrePostingTotalPositiveDifference: Decimal; PrePostingTotalNegativeDifference: Decimal; var IsHandled: Boolean)
     begin
     end;
 
