@@ -701,7 +701,7 @@ codeunit 6201 "Non-Ded. VAT Impl."
 
         if PurchaseLine."Non-Deductible VAT %" = 100 then begin
             PurchaseLine."Non-Deductible VAT Base" := PurchaseLine."VAT Base Amount";
-            PurchaseLine."Non-Deductible VAT Amount" := PurchaseLine."Amount Including VAT" - PurchaseLine."VAT Base Amount" - PurchaseLine."VAT Difference";
+            PurchaseLine."Non-Deductible VAT Amount" := PurchaseLine."Amount Including VAT" - PurchaseLine."VAT Base Amount";
             exit;
         end;
         PurchaseLine."Non-Deductible VAT Base" :=
