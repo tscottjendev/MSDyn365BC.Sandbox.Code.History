@@ -34,6 +34,13 @@ page 140 "Posted Purchase Credit Memo"
                     Importance = Promoted;
                     ToolTip = 'Specifies the posted credit memo number.';
                 }
+                field("Buy-from Vendor No."; Rec."Buy-from Vendor No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor No.';
+                    Editable = false;
+                    Visible = false;
+                }
                 field("Buy-from Vendor Name"; Rec."Buy-from Vendor Name")
                 {
                     ApplicationArea = All;

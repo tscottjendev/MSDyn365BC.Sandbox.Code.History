@@ -33,7 +33,6 @@ page 6660 "Posted Return Receipt"
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the number of the customer.';
                 }
                 field("VAT Registration No."; Rec."VAT Registration No.")
                 {
@@ -198,7 +197,6 @@ page 6660 "Posted Return Receipt"
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                 }
                 field("Bill-to Contact No."; Rec."Bill-to Contact No.")
                 {

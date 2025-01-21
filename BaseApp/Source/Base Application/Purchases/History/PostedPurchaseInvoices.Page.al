@@ -49,7 +49,6 @@ page 146 "Posted Purchase Invoices"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Vendor No.';
-                    ToolTip = 'Specifies the identifier of the vendor that you bought the items from.';
                 }
                 field("Order Address Code"; Rec."Order Address Code")
                 {
@@ -109,7 +108,6 @@ page 146 "Posted Purchase Invoices"
                 field("Pay-to Vendor No."; Rec."Pay-to Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the vendor that you received the invoice from.';
                     Visible = false;
                 }
                 field("Pay-to Name"; Rec."Pay-to Name")

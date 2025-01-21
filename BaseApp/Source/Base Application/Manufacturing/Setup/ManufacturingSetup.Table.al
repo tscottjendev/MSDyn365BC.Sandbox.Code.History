@@ -172,6 +172,11 @@ table 99000765 "Manufacturing Setup"
                 CheckAndConfirmFinishOrderWithoutOutput();
             end;
         }
+        field(250; "Inc. Non. Inv. Cost To Prod"; Boolean)
+        {
+            Caption = 'Include Non-Inventory Items to Produced Items';
+            ToolTip = 'Specifies whether to include the non-inventory items cost to produce items.';
+        }
         field(5500; "Preset Output Quantity"; Option)
         {
             Caption = 'Preset Output Quantity';

@@ -52,6 +52,7 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Sell-to Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+            ToolTip = 'Specifies the number of the customer that you shipped the items on the credit memo to.';
         }
         field(3; "No."; Code[20])
         {
@@ -63,6 +64,7 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Bill-to Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+            ToolTip = 'Specifies the number of the customer that you send or sent the credit memo to.';
         }
         field(5; "Bill-to Name"; Text[100])
         {
