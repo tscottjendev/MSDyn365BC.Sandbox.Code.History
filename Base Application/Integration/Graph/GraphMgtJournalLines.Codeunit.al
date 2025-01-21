@@ -119,11 +119,11 @@ codeunit 5478 "Graph Mgt - Journal Lines"
             GenJournalLine."Gen. Posting Type" := TempGenJournalLine."Gen. Posting Type";
         if TempGenJournalLine."Gen. Bus. Posting Group" <> GenJournalLine."Gen. Bus. Posting Group" then
             GenJournalLine."Gen. Bus. Posting Group" := TempGenJournalLine."Gen. Bus. Posting Group";
-        if TempGenJournalLine."Gen. Bus. Posting Group" <> GenJournalLine."Gen. Bus. Posting Group" then
+        if TempGenJournalLine."Gen. Prod. Posting Group" <> GenJournalLine."Gen. Prod. Posting Group" then
             GenJournalLine."Gen. Prod. Posting Group" := TempGenJournalLine."Gen. Prod. Posting Group";
-        if TempGenJournalLine."Gen. Bus. Posting Group" <> GenJournalLine."Gen. Bus. Posting Group" then
+        if TempGenJournalLine."VAT Bus. Posting Group" <> GenJournalLine."VAT Bus. Posting Group" then
             GenJournalLine."VAT Bus. Posting Group" := TempGenJournalLine."VAT Bus. Posting Group";
-        if TempGenJournalLine."Gen. Bus. Posting Group" <> GenJournalLine."Gen. Bus. Posting Group" then
+        if TempGenJournalLine."VAT Prod. Posting Group" <> GenJournalLine."VAT Prod. Posting Group" then
             GenJournalLine."VAT Prod. Posting Group" := TempGenJournalLine."VAT Prod. Posting Group";
     end;
 

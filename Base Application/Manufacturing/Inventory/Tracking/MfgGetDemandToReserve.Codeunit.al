@@ -207,7 +207,7 @@ codeunit 99000858 "Mfg. Get Demand To Reserve"
         until TempProdOrderComponent.Next() = 0;
     end;
 
-    local procedure GetDemand(TempProdOrderComponent: Record "Prod. Order Component" temporary; var FilterItem: Record Item; var ReservationWkshBatch: Record "Reservation Wksh. Batch"; DemandType: Enum "Reservation Demand Type"; DateFilter: Text; VariantFilterFromBatch: Text; LocationFilterFromBatch: Text; ItemFilterFromBatch: Text; ReservedFromStock: Enum "Reservation From Stock")
+    local procedure GetDemand(var TempProdOrderComponent: Record "Prod. Order Component" temporary; var FilterItem: Record Item; var ReservationWkshBatch: Record "Reservation Wksh. Batch"; DemandType: Enum "Reservation Demand Type"; DateFilter: Text; VariantFilterFromBatch: Text; LocationFilterFromBatch: Text; ItemFilterFromBatch: Text; ReservedFromStock: Enum "Reservation From Stock")
     var
         Item: Record Item;
         ProdOrderComponent: Record "Prod. Order Component";
@@ -217,7 +217,7 @@ codeunit 99000858 "Mfg. Get Demand To Reserve"
         SkipItem: Boolean;
         IsHandled: Boolean;
     begin
-        if not (DemandType in [Enum::"Reservation Demand Type"::All, Enum::"Reservation Demand Type"::"Service Orders"]) then
+        if not (DemandType in [Enum::"Reservation Demand Type"::All, Enum::"Reservation Demand Type"::"Production Components"]) then
             exit;
 
         ProdOrderComponent.Reset();
