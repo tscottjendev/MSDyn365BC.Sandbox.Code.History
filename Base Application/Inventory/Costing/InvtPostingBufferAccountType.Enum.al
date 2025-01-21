@@ -71,4 +71,12 @@ enum 48 "Invt. Posting Buffer Account Type"
     {
         Caption = 'Mfg. Overhead Variance';
     }
+    value(15; "Direct Cost Non-Inventory Applied")
+    {
+        Caption = 'Direct Cost Non-Inventory Applied';
+    }
+    value(16; "Material - Non Inventory Variance")
+    {
+        Caption = 'Material - Non Inventory Variance';
+    }
 }
