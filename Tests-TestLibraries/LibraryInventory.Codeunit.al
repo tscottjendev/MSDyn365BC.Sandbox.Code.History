@@ -1564,6 +1564,12 @@ codeunit 132201 "Library - Inventory"
         ReservationEntry.TestField("Lot No.");
     end;
 
+    procedure UpdateMaterialNonInvVarianceAccountInInventoryPostingSetup(var InventoryPostingSetup: Record "Inventory Posting Setup")
+    begin
+        InventoryPostingSetup.Validate("Mat. Non-Inv. Variance Acc.", LibraryERM.CreateGLAccountNo());
+        InventoryPostingSetup.Modify();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateItem(var Item: Record Item)
     begin

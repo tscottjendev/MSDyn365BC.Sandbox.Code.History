@@ -47,6 +47,10 @@ page 99000768 "Manufacturing Setup"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies whether to run the MRP engine to detect if planned shipment dates cannot be met.';
                 }
+                field("Inc. Non. Inv. Cost To Prod"; Rec."Inc. Non. Inv. Cost To Prod")
+                {
+                    ApplicationArea = Manufacturing;
+                }
                 field("Doc. No. Is Prod. Order No."; Rec."Doc. No. Is Prod. Order No.")
                 {
                     ApplicationArea = Manufacturing;

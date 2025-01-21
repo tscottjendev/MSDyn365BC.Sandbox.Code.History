@@ -29,6 +29,13 @@ page 130 "Posted Sales Shipment"
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the record.';
                 }
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer No.';
+                    Editable = false;
+                    Visible = false;
+                }
                 field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
@@ -380,7 +387,6 @@ page 130 "Posted Sales Shipment"
                     Caption = 'Customer No.';
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies the number of the customer at the billing address.';
                 }
                 field("Bill-to Name"; Rec."Bill-to Name")
                 {
