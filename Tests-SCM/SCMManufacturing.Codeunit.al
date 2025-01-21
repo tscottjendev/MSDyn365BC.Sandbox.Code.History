@@ -3478,8 +3478,71 @@ codeunit 137404 "SCM Manufacturing"
         RunExchangeProdBOMItemReportWithParameters(Components[1], Components[3], true, false);
 
         // [THEN] Position fields are transferred to the new Producion BOM Line
-        VerifyProducionBOMLinePositionFields(
+        VerifyProductionBOMLinePositionFields(
           ProductionBOMLine, ProdBOMHeader."No.", FindLastBOMVersionCode(ProdBomVersion."Production BOM No."), Components[3]);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    [Scope('OnPrem')]
+    procedure ExchangeBOMItemWithEmptyItemNoRemovesBOMLines()
+    var
+        Item: Record Item;
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        // [FEATURE] [Production BOM] [Exchange Production BOM Item]
+        // [SCENARIO 320350] When Exchange Production BOM item with empty Item No. without creating new version, it removes Production BOM Line with that Item
+        Initialize();
+
+        // [GIVEN] Create Item with Routing and Production BOM
+        Item.Get(CreateItemWithRoutingAndProductionBOM());
+        ExchangeNo := FindProductionBOMComponent(Item."Production BOM No.");
+
+        // [GIVEN] Set Position fields on the initial Producion BOM Line
+        FindProductionBOMLineByNo(ProductionBOMLine, Item."Production BOM No.", '', ExchangeNo);
+        SetProducionBOMLinePositionFields(ProductionBOMLine);
+
+        // [WHEN] Run "Exchange Production BOM Item" to replace item "I1" with empty Item No. and without "Create New Version"
+        RunExchangeProdBOMItemReportWithParameters(ExchangeNo, '', false, true);
+
+        // [THEN] Verify that Producion BOM Line is not existing anymore
+        asserterror VerifyProductionBOMLinePositionFields(ProductionBOMLine, Item."Production BOM No.", '', ExchangeNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    [Scope('OnPrem')]
+    procedure ExchangeBOMItemWithEmptyItemNoRemovesBOMLines2()
+    var
+        Item: Record Item;
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        // [FEATURE] [Production BOM] [Exchange Production BOM Item]
+        // [SCENARIO 320350] When Exchange Production BOM item with empty Item No. without creating new version, it removes Production BOM Line with that Item
+        Initialize();
+
+        // [GIVEN] Create Item with Routing and Production BOM
+        Item.Get(CreateItemWithRoutingAndProductionBOM());
+        ExchangeNo := FindProductionBOMComponent(Item."Production BOM No.");
+
+        // [GIVEN] Set Position fields on the initial Producion BOM Line
+        FindProductionBOMLineByNo(ProductionBOMLine, Item."Production BOM No.", '', ExchangeNo);
+        SetProducionBOMLinePositionFields(ProductionBOMLine);
+
+        // Check number of lines before replacing "I1" with empty Item No. and without "Create New Version"
+        ProductionBOMLine.Reset();
+        ProductionBOMLine.SetRange("Production BOM No.", Item."Production BOM No.");
+        ProductionBOMLine.SetRange("Version Code", '');
+        Assert.AreEqual(1, ProductionBOMLine.Count(), 'Unexpected number of Production BOM Lines, must be 1.');
+
+        // [WHEN] Run "Exchange Production BOM Item" to replace item "I1" with empty Item No. and without "Create New Version"
+        RunExchangeProdBOMItemReportWithParameters(ExchangeNo, '', false, true);
+
+        // [THEN] Verify that Producion BOM Line is not existing anymore
+        ProductionBOMLine.Reset();
+        ProductionBOMLine.SetRange("Production BOM No.", Item."Production BOM No.");
+        ProductionBOMLine.SetRange("Version Code", '');
+        Assert.AreEqual(0, ProductionBOMLine.Count(), 'Unexpected number of Production BOM Lines, must be 0.');
     end;
 
     [Test]
@@ -3511,7 +3574,7 @@ codeunit 137404 "SCM Manufacturing"
         RunExchangeProductionBOMItemReport();
 
         // [THEN] Position fields are transferred to the new Producion BOM Line
-        VerifyProducionBOMLinePositionFields(ProductionBOMLine, Item."Production BOM No.", '', WithNo);
+        VerifyProductionBOMLinePositionFields(ProductionBOMLine, Item."Production BOM No.", '', WithNo);
     end;
 
     [Test]
@@ -6817,7 +6880,7 @@ codeunit 137404 "SCM Manufacturing"
           SalesLine[SalesLineAndTopLevelItemIndex]."Quantity (Base)" * LevelOneMultiplicator * LevelTwoMultiplicator);
     end;
 
-    local procedure VerifyProducionBOMLinePositionFields(ProductionBOMLine1: Record "Production BOM Line"; ProdBOMHeaderNo: Code[20]; ProdBomVersion: Code[20]; Component: Code[20])
+    local procedure VerifyProductionBOMLinePositionFields(ProductionBOMLine1: Record "Production BOM Line"; ProdBOMHeaderNo: Code[20]; ProdBomVersion: Code[20]; Component: Code[20])
     var
         ProductionBOMLine2: Record "Production BOM Line";
     begin

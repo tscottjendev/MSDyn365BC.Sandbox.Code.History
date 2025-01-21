@@ -49,6 +49,13 @@ tableextension 99000760 "Mfg. Inventory Posting Setup" extends "Inventory Postin
             DataClassification = CustomerContent;
             TableRelation = "G/L Account";
         }
+        field(99000758; "Mat. Non-Inv. Variance Acc."; Code[20])
+        {
+            Caption = 'Material Non-Inventory Variance Account';
+            ToolTip = 'Specifies the general ledger account number to which to post material non-inventory variance transactions for items in this combination.';
+            DataClassification = CustomerContent;
+            TableRelation = "G/L Account";
+        }
     }
 
     procedure GetCapacityVarianceAccount(): Code[20]
@@ -73,6 +80,14 @@ tableextension 99000760 "Mfg. Inventory Posting Setup" extends "Inventory Postin
             PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Material Variance Account"));
 
         exit("Material Variance Account");
+    end;
+
+    procedure GetMaterialNonInventoryVarianceAccount(): Code[20]
+    begin
+        if "Mat. Non-Inv. Variance Acc." = '' then
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Mat. Non-Inv. Variance Acc."));
+
+        exit("Mat. Non-Inv. Variance Acc.");
     end;
 
     procedure GetMfgOverheadVarianceAccount(): Code[20]
