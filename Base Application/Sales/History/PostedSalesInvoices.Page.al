@@ -53,7 +53,6 @@ page 143 "Posted Sales Invoices"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer No.';
-                    ToolTip = 'Specifies the number of the customer the invoice concerns.';
                 }
                 field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
@@ -119,7 +118,6 @@ page 143 "Posted Sales Invoices"
                 field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
                 field("Bill-to Name"; Rec."Bill-to Name")

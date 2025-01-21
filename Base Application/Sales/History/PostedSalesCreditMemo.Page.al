@@ -34,6 +34,13 @@ page 134 "Posted Sales Credit Memo"
                     Importance = Promoted;
                     ToolTip = 'Specifies the posted credit memo number.';
                 }
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer No.';
+                    Editable = false;
+                    Visible = false;
+                }
                 field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
