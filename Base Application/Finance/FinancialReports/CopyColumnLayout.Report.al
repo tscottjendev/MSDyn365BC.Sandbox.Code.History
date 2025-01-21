@@ -170,6 +170,9 @@ report 960 "Copy Column Layout"
         FeatureTelemetry: Codeunit "Feature Telemetry";
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
         TelemetryDimensions.Add('SourceColDefinitionCode', SourceCode);
         TelemetryDimensions.Add('NewColDefinitionCode', NewCode);
         FeatureTelemetry.LogUsage('0000OKW', 'Financial Report', StrSubstNo(CopyEventTxt, SourceCode), TelemetryDimensions);
