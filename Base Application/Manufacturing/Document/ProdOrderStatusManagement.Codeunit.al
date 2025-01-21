@@ -548,6 +548,8 @@ codeunit 5407 "Prod. Order Status Management"
                             InvtAdjmtEntryOrder.Modify();
                         end else
                             InvtAdjmtEntryOrder.SetProdOrderLine(FromProdOrderLine);
+                        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                            GetNonInvtDirectCost(InvtAdjmtEntryOrder, InvtAdjmtEntryOrder."Direct Cost Non-Inventory", InvtAdjmtEntryOrder."Direct Cost Non-Inv. (ACY)");
                         InvtAdjmtEntryOrder."Cost is Adjusted" := false;
                         InvtAdjmtEntryOrder."Is Finished" := true;
                         OnTransProdOrderLineOnBeforeFinishedInvtAdjmtEntryOrderModify(InvtAdjmtEntryOrder, FromProdOrderLine, ToProdOrderLine, ToProdOrder);
@@ -582,6 +584,25 @@ codeunit 5407 "Prod. Order Status Management"
             until FromProdOrderLine.Next() = 0;
             OnAfterTransProdOrderLines(FromProdOrder, ToProdOrder);
             FromProdOrderLine.DeleteAll();
+        end;
+    end;
+
+    local procedure GetNonInvtDirectCost(InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CostAmount: Decimal; var CostAmountACY: Decimal)
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        if InvtAdjmtEntryOrder."Order Type" <> InvtAdjmtEntryOrder."Order Type"::Production then
+            exit;
+
+        ValueEntry.SetLoadFields("Order Type", "Order No.", "Order Line No.", Inventoriable, "Cost Amount (Non-Invtbl.)", "Cost Amount (Non-Invtbl.)(ACY)");
+        ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
+        ValueEntry.SetRange("Order No.", InvtAdjmtEntryOrder."Order No.");
+        ValueEntry.SetRange("Order Line No.", InvtAdjmtEntryOrder."Order Line No.");
+        ValueEntry.SetRange(Inventoriable, false);
+        if not ValueEntry.IsEmpty() then begin
+            ValueEntry.CalcSums("Cost Amount (Non-Invtbl.)", "Cost Amount (Non-Invtbl.)(ACY)");
+            CostAmount := -ValueEntry."Cost Amount (Non-Invtbl.)";
+            CostAmountACY := -ValueEntry."Cost Amount (Non-Invtbl.)(ACY)";
         end;
     end;
 
