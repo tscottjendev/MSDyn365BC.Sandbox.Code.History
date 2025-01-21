@@ -49,6 +49,7 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'Buy-from Vendor No.';
             NotBlank = true;
+            ToolTip = 'Specifies the identifier of the vendor that you bought the items from.';
             TableRelation = Vendor;
         }
         field(3; "No."; Code[20])
@@ -61,6 +62,7 @@ table 122 "Purch. Inv. Header"
             Caption = 'Pay-to Vendor No.';
             NotBlank = true;
             TableRelation = Vendor;
+            ToolTip = 'Specifies the number of the vendor that you received the invoice from.';
         }
         field(5; "Pay-to Name"; Text[100])
         {

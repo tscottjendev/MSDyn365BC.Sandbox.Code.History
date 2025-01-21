@@ -58,6 +58,7 @@ table 112 "Sales Invoice Header"
             Caption = 'Sell-to Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+            ToolTip = 'Specifies the number of the customer that you shipped the items on the invoice to.';
         }
         field(3; "No."; Code[20])
         {
@@ -67,6 +68,7 @@ table 112 "Sales Invoice Header"
         field(4; "Bill-to Customer No."; Code[20])
         {
             Caption = 'Bill-to Customer No.';
+            ToolTip = 'Specifies the number of the customer that you send or sent the invoice to.';
             NotBlank = true;
             TableRelation = Customer;
         }
