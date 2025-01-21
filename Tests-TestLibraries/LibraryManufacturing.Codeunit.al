@@ -1006,6 +1006,13 @@ codeunit 132202 "Library - Manufacturing"
             exit(RoutingLine."Operation No.");
     end;
 
+    procedure UpdateNonInventoryCostToProductionInManufacturingSetup(IncludeNonInventoryCostToProduction: Boolean)
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Inc. Non. Inv. Cost To Prod", IncludeNonInventoryCostToProduction);
+        ManufacturingSetup.Modify(true);
+    end;
+
     [Normal]
     procedure UpdateProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; FieldNo: Integer; Value: Variant)
     var
