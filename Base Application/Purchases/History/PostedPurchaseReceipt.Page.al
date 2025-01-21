@@ -32,7 +32,6 @@ page 136 "Posted Purchase Receipt"
                     ApplicationArea = Suite;
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the name of the vendor who delivered the items.';
                 }
                 field("Buy-from Contact No."; Rec."Buy-from Contact No.")
                 {
@@ -217,7 +216,6 @@ page 136 "Posted Purchase Receipt"
                     ApplicationArea = Suite;
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the number of the vendor that you received the invoice from.';
                 }
                 field("Pay-to Contact no."; Rec."Pay-to Contact no.")
                 {

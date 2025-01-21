@@ -336,6 +336,13 @@ tableextension 99000750 "Mfg. Item" extends Item
             Editable = false;
             FieldClass = FlowField;
         }
+        field(99000779; "Material Cost - Non Inventory"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Material Cost - Non Inventory';
+            DataClassification = CustomerContent;
+            Editable = false;
+        }
     }
 
     keys
@@ -349,6 +356,7 @@ tableextension 99000750 "Mfg. Item" extends Item
     }
 
     var
+        HideNonInventoryValidateOnStdCost: Boolean;
         NoActiveBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1.', Comment = '%1 - Item No.';
         ProductionBlockedOutputItemErr: Label 'You cannot produce %1 %2 because the %3 is %4 on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value';
         ProductionBlockedOutputItemVariantErr: Label 'You cannot produce variant %1 for %2 %3 because it is blocked for production output.', Comment = '%1 - Item Variant Code, %2 - Table Caption (Item), %3 - Item No.';
@@ -396,6 +404,16 @@ tableextension 99000750 "Mfg. Item" extends Item
     [IntegrationEvent(false, false)]
     local procedure OnValidateProductionBOMNoOnAfterProcessStatusCertified(ProductionBOMHeader: Record "Production BOM Header"; var Item: Record Item)
     begin
+    end;
+
+    procedure SetHideNonInventoryValidateOnStdCost(NewHideNonInventoryValidateOnStdCost: Boolean)
+    begin
+        HideNonInventoryValidateOnStdCost := NewHideNonInventoryValidateOnStdCost;
+    end;
+
+    procedure CanHideNonInventoryValidateOnStdCost(): Boolean
+    begin
+        exit(HideNonInventoryValidateOnStdCost);
     end;
 
     internal procedure OpenActiveProdBOMForItem(ProdBOMNo: Code[20]; ItemNo: Code[20])

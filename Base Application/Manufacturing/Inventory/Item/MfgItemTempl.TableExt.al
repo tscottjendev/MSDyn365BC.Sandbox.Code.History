@@ -68,6 +68,17 @@ tableextension 99000757 "Mfg. Item Templ." extends "Item Templ."
                 ValidateItemField(FieldNo("Order Tracking Policy"));
             end;
         }
+        field(99000779; "Material Cost - Non Inventory"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Material Cost - Non Inventory';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Material Cost - Non Inventory"));
+            end;
+        }
         field(99000875; Critical; Boolean)
         {
             Caption = 'Critical';
