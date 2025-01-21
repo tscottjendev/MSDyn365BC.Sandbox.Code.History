@@ -153,6 +153,9 @@ report 39 "Copy Financial Report"
         FeatureTelemetry: Codeunit "Feature Telemetry";
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
         TelemetryDimensions.Add('SourceReportDefinitionCode', SourceCode);
         TelemetryDimensions.Add('NewReportDefinitionCode', NewCode);
         FeatureTelemetry.LogUsage('0000OKX', 'Financial Report', StrSubstNo(CopyEventTxt, SourceCode), TelemetryDimensions);

@@ -41,6 +41,13 @@ page 132 "Posted Sales Invoice"
                     Importance = Promoted;
                     ToolTip = 'Specifies the posted invoice number.';
                 }
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer No.';
+                    Editable = false;
+                    Visible = false;
+                }
                 field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
