@@ -178,6 +178,9 @@ report 26 "Copy Account Schedule"
         FeatureTelemetry: Codeunit "Feature Telemetry";
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
         TelemetryDimensions.Add('SourceRowDefinitionCode', SourceCode);
         TelemetryDimensions.Add('NewRowDefinitionCode', NewCode);
         FeatureTelemetry.LogUsage('0000OKV', 'Financial Report', StrSubstNo(CopyEventTxt, SourceCode), TelemetryDimensions);

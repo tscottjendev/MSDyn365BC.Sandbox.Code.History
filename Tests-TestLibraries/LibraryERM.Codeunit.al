@@ -3116,6 +3116,12 @@
         exit(DeletionBlockedAfterDate);
     end;
 
+    procedure UpdateDirectCostNonInventoryAppliedAccountInGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
+    begin
+        GeneralPostingSetup.Validate("Direct Cost Non-Inv. App. Acc.", CreateGLAccountNo());
+        GeneralPostingSetup.Modify();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePaymentTerms(var PaymentTerms: Record "Payment Terms")
     begin
