@@ -4,17 +4,19 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
+using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Inventory.Ledger;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Foundation.Enums;
-using Microsoft.Inventory.Item;
-using Microsoft.Purchases.Document;
-using Microsoft.Foundation.UOM;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Manufacturing.StandardCost;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Purchases.Document;
 
 codeunit 99000758 "Mfg. Cost Calculation Mgt."
 {
@@ -23,7 +25,22 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
                   TableData "Value Entry" = r;
 
     var
+        ManufacturingSetup: Record "Manufacturing Setup";
         CostCalculationMgt: Codeunit "Cost Calculation Management";
+
+    [EventSubscriber(ObjectType::Table, Database::Item, OnBeforeValidateStandardCost, '', false, false)]
+    local procedure OnBeforeValidateStandardCost(var Item: Record Item; xItem: Record Item)
+    var
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        if CanIncNonInvCostIntoProductionItem() then begin
+            if Item."Costing Method" = Item."Costing Method"::Standard then
+                Item."Material Cost - Non Inventory" := 0;
+
+            if Item."Standard Cost" <> xItem."Standard Cost" then
+                CalculateStandardCost.CalcItemForNonInventoryValue(Item);
+        end;
+    end;
 
     procedure CalcRoutingCostPerUnit(Type: Enum "Capacity Type"; No: Code[20]; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type")
     var
@@ -112,6 +129,8 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
            InvtAdjmtEntryOrder."Completely Invoiced"
         then begin
             Item."Single-Level Material Cost" := InvtAdjmtEntryOrder."Single-Level Material Cost";
+            if CanIncNonInvCostIntoProductionItem() then
+                Item."Material Cost - Non Inventory" := InvtAdjmtEntryOrder."Material Cost - Non Inventory";
             Item."Single-Level Capacity Cost" := InvtAdjmtEntryOrder."Single-Level Capacity Cost";
             Item."Single-Level Subcontrd. Cost" := InvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
             Item."Single-Level Cap. Ovhd Cost" := InvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
@@ -138,8 +157,12 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
         if IsHandled then
             exit;
 
-        StdMatCost := StdMatCost +
-          Round(QtyBase * Item."Single-Level Material Cost" * CurrencyFactor, RndgPrec);
+        if CanIncNonInvCostIntoProductionItem() then
+            StdMatCost := StdMatCost +
+              Round(QtyBase * (Item."Single-Level Material Cost" + Item."Material Cost - Non Inventory") * CurrencyFactor, RndgPrec)
+        else
+            StdMatCost := StdMatCost +
+              Round(QtyBase * Item."Single-Level Material Cost" * CurrencyFactor, RndgPrec);
         StdCapDirCost := StdCapDirCost +
           Round(QtyBase * Item."Single-Level Capacity Cost" * CurrencyFactor, RndgPrec);
         StdSubDirCost := StdSubDirCost +
@@ -247,12 +270,18 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
         OutputQty := CalcInvtAdjmtOrder.CalcOutputQty(TempSourceInvtAdjmtEntryOrder, false);
         CalcInvtAdjmtOrder.CalcActualUsageCosts(TempSourceInvtAdjmtEntryOrder, OutputQty, TempSourceInvtAdjmtEntryOrder);
 
-        ActMatCost += TempSourceInvtAdjmtEntryOrder."Single-Level Material Cost";
+        if not CanIncNonInvCostIntoProductionItem() then
+            ActMatCost += TempSourceInvtAdjmtEntryOrder."Single-Level Material Cost"
+        else
+            ActMatCost += TempSourceInvtAdjmtEntryOrder."Single-Level Material Cost" + TempSourceInvtAdjmtEntryOrder."Material Cost - Non Inventory";
         ActCapDirCost += TempSourceInvtAdjmtEntryOrder."Single-Level Capacity Cost";
         ActSubDirCost += TempSourceInvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
         ActCapOvhdCost += TempSourceInvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
         ActMfgOvhdCost += TempSourceInvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
-        ActMatCostCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Material Cost (ACY)";
+        if not CanIncNonInvCostIntoProductionItem() then
+            ActMatCostCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Material Cost (ACY)"
+        else
+            ActMatCostCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Material Cost (ACY)" + TempSourceInvtAdjmtEntryOrder."Material Cost - Non Inv. (ACY)";
         ActCapDirCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Capacity Cost (ACY)";
         ActCapOvhdCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Cap. Ovhd Cost(ACY)";
         ActSubDirCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Subcontrd Cost(ACY)";
@@ -661,6 +690,12 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
 #endif
         if not IsHandled then
             exit(Qty * (1 + ScrapFactorPctAccum) + FixedScrapQtyAccum);
+    end;
+
+    procedure CanIncNonInvCostIntoProductionItem(): Boolean
+    begin
+        ManufacturingSetup.GetRecordOnce();
+        exit(ManufacturingSetup."Inc. Non. Inv. Cost To Prod");
     end;
 
     [IntegrationEvent(false, false)]
