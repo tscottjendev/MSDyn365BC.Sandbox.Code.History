@@ -61,6 +61,7 @@ codeunit 5802 "Inventory Posting To G/L"
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         DimMgt: Codeunit DimensionManagement;
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         COGSAmt: Decimal;
         InvtAdjmtAmt: Decimal;
         DirCostAmt: Decimal;
@@ -355,6 +356,14 @@ codeunit 5802 "Inventory Posting To G/L"
                           TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
                           CostToPost, CostToPostACY, false);
                 end;
+            ValueEntry."Entry Type"::"Direct Cost - Non Inventory":
+                if (CostToPost <> 0) or (CostToPostACY <> 0) then
+                    if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Non-Inventory Applied",
+                          CostToPost, CostToPostACY, false);
             ValueEntry."Entry Type"::"Indirect Cost":
                 InitInvtPostBuf(
                   ValueEntry,
@@ -369,6 +378,13 @@ codeunit 5802 "Inventory Posting To G/L"
                           TempGlobalInvtPostingBuffer."Account Type"::Inventory,
                           TempGlobalInvtPostingBuffer."Account Type"::"Material Variance",
                           CostToPost, CostToPostACY, false);
+                    ValueEntry."Variance Type"::"Material - Non Inventory":
+                        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                            InitInvtPostBuf(
+                              ValueEntry,
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Material - Non Inventory Variance",
+                              CostToPost, CostToPostACY, false);
                     ValueEntry."Variance Type"::Capacity:
                         InitInvtPostBuf(
                           ValueEntry,
@@ -818,6 +834,11 @@ codeunit 5802 "Inventory Posting To G/L"
                         InvtPostBuf."Account No." := InvtPostingSetup.GetMaterialVarianceAccount()
                     else
                         InvtPostBuf."Account No." := InvtPostingSetup."Material Variance Account";
+                InvtPostBuf."Account Type"::"Material - Non Inventory Variance":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := InvtPostingSetup.GetMaterialNonInventoryVarianceAccount()
+                    else
+                        InvtPostBuf."Account No." := InvtPostingSetup."Mat. Non-Inv. Variance Acc.";
                 InvtPostBuf."Account Type"::"Capacity Variance":
                     if CalledFromItemPosting then
                         InvtPostBuf."Account No." := InvtPostingSetup.GetCapacityVarianceAccount()
@@ -848,6 +869,11 @@ codeunit 5802 "Inventory Posting To G/L"
                         InvtPostBuf."Account No." := GenPostingSetup.GetDirectCostAppliedAccount()
                     else
                         InvtPostBuf."Account No." := GenPostingSetup."Direct Cost Applied Account";
+                InvtPostBuf."Account Type"::"Direct Cost Non-Inventory Applied":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := GenPostingSetup.GetDirectCostNonInvtAppliedAccount()
+                    else
+                        InvtPostBuf."Account No." := GenPostingSetup."Direct Cost Non-Inv. App. Acc.";
                 InvtPostBuf."Account Type"::"Overhead Applied":
                     if CalledFromItemPosting then
                         InvtPostBuf."Account No." := GenPostingSetup.GetOverheadAppliedAccount()

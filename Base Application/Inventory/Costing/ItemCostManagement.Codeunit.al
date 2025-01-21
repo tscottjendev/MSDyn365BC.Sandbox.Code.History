@@ -26,6 +26,7 @@ codeunit 5804 ItemCostManagement
         Currency: Record Currency;
         InvtSetup: Record "Inventory Setup";
         CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         InvoicedQty: Decimal;
         RndgSetupRead: Boolean;
         CalledFromAdjustment: Boolean;
@@ -154,6 +155,8 @@ codeunit 5804 ItemCostManagement
             exit;
 
         Item.Get(FromItem."No.");
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            Item.SetHideNonInventoryValidateOnStdCost(true);
         Item.Validate("Standard Cost", FromItem."Standard Cost");
         Item."Single-Level Material Cost" := FromItem."Single-Level Material Cost";
         Item."Single-Level Capacity Cost" := FromItem."Single-Level Capacity Cost";
@@ -166,6 +169,8 @@ codeunit 5804 ItemCostManagement
         Item."Rolled-up Mfg. Ovhd Cost" := FromItem."Rolled-up Mfg. Ovhd Cost";
         Item."Rolled-up Cap. Overhead Cost" := FromItem."Rolled-up Cap. Overhead Cost";
         Item."Last Unit Cost Calc. Date" := FromItem."Last Unit Cost Calc. Date";
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            Item."Material Cost - Non Inventory" := FromItem."Material Cost - Non Inventory";
         OnUpdateStdCostSharesOnAfterCopyCosts(Item, FromItem);
         Item.Modify();
     end;

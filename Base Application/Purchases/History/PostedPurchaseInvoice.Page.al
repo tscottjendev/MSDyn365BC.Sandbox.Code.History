@@ -37,6 +37,13 @@ page 138 "Posted Purchase Invoice"
                     Importance = Additional;
                     ToolTip = 'Specifies the posted invoice number.';
                 }
+                field("Buy-from Vendor No."; Rec."Buy-from Vendor No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor No.';
+                    Editable = false;
+                    Visible = false;
+                }
                 field("Buy-from Vendor Name"; Rec."Buy-from Vendor Name")
                 {
                     ApplicationArea = Basic, Suite;

@@ -137,6 +137,30 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         {
             Caption = 'Is Finished';
         }
+        field(70; "Direct Cost Non-Inventory"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Direct Cost Non-Inventory';
+        }
+        field(71; "Direct Cost Non-Inv. (ACY)"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Direct Cost Non-Inventory (ACY)';
+        }
+        field(72; "Material Cost - Non Inventory"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Material Cost - Non Inventory';
+            DataClassification = CustomerContent;
+            Editable = false;
+        }
+        field(73; "Material Cost - Non Inv. (ACY)"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Material Cost - Non Inventory (ACY)';
+            DataClassification = CustomerContent;
+            Editable = false;
+        }
     }
 
     keys
@@ -157,6 +181,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
 
     var
         GLSetup: Record "General Ledger Setup";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         GLSetupRead: Boolean;
         AmtRndgPrec: Decimal;
         AmtRndgPrecACY: Decimal;
@@ -181,16 +206,24 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         RndResACY: Decimal;
     begin
         "Direct Cost" := RoundCost("Direct Cost", ShareOfTotalCost, RndResLCY, RndPrecLCY);
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            "Direct Cost Non-Inventory" := RoundCost("Direct Cost Non-Inventory", ShareOfTotalCost, RndResLCY, RndPrecLCY);
         "Indirect Cost" := RoundCost("Indirect Cost", ShareOfTotalCost, RndResLCY, RndPrecLCY);
         "Single-Level Material Cost" := RoundCost("Single-Level Material Cost", ShareOfTotalCost, RndResLCY, RndPrecLCY);
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            "Material Cost - Non Inventory" := RoundCost("Material Cost - Non Inventory", ShareOfTotalCost, RndResLCY, RndPrecLCY);
         "Single-Level Capacity Cost" := RoundCost("Single-Level Capacity Cost", ShareOfTotalCost, RndResLCY, RndPrecLCY);
         "Single-Level Subcontrd. Cost" := RoundCost("Single-Level Subcontrd. Cost", ShareOfTotalCost, RndResLCY, RndPrecLCY);
         "Single-Level Cap. Ovhd Cost" := RoundCost("Single-Level Cap. Ovhd Cost", ShareOfTotalCost, RndResLCY, RndPrecLCY);
         "Single-Level Mfg. Ovhd Cost" := RoundCost("Single-Level Mfg. Ovhd Cost", ShareOfTotalCost, RndResLCY, RndPrecLCY);
 
         "Direct Cost (ACY)" := RoundCost("Direct Cost (ACY)", ShareOfTotalCost, RndResACY, RndPrecACY);
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            "Direct Cost Non-Inv. (ACY)" := RoundCost("Direct Cost Non-Inv. (ACY)", ShareOfTotalCost, RndResACY, RndPrecACY);
         "Indirect Cost (ACY)" := RoundCost("Indirect Cost (ACY)", ShareOfTotalCost, RndResACY, RndPrecACY);
         "Single-Lvl Material Cost (ACY)" := RoundCost("Single-Lvl Material Cost (ACY)", ShareOfTotalCost, RndResACY, RndPrecACY);
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            "Material Cost - Non Inv. (ACY)" := RoundCost("Material Cost - Non Inv. (ACY)", ShareOfTotalCost, RndResACY, RndPrecACY);
         "Single-Lvl Capacity Cost (ACY)" := RoundCost("Single-Lvl Capacity Cost (ACY)", ShareOfTotalCost, RndResACY, RndPrecACY);
         "Single-Lvl Subcontrd Cost(ACY)" := RoundCost("Single-Lvl Subcontrd Cost(ACY)", ShareOfTotalCost, RndResACY, RndPrecACY);
         "Single-Lvl Cap. Ovhd Cost(ACY)" := RoundCost("Single-Lvl Cap. Ovhd Cost(ACY)", ShareOfTotalCost, RndResACY, RndPrecACY);
@@ -205,14 +238,16 @@ table 5896 "Inventory Adjmt. Entry (Order)"
 
         "Single-Level Mfg. Ovhd Cost" :=
           (("Single-Level Material Cost" + "Single-Level Capacity Cost" +
-            "Single-Level Subcontrd. Cost" + "Single-Level Cap. Ovhd Cost") *
+            "Single-Level Subcontrd. Cost" + "Single-Level Cap. Ovhd Cost" +
+            "Direct Cost Non-Inventory") *
            "Indirect Cost %" / 100) +
           ("Overhead Rate" * OutputQty);
         "Single-Level Mfg. Ovhd Cost" := Round("Single-Level Mfg. Ovhd Cost", AmtRndgPrec);
 
         "Single-Lvl Mfg. Ovhd Cost(ACY)" :=
           (("Single-Lvl Material Cost (ACY)" + "Single-Lvl Capacity Cost (ACY)" +
-            "Single-Lvl Subcontrd Cost(ACY)" + "Single-Lvl Cap. Ovhd Cost(ACY)") *
+            "Single-Lvl Subcontrd Cost(ACY)" + "Single-Lvl Cap. Ovhd Cost(ACY)" +
+            "Direct Cost Non-Inv. (ACY)") *
            "Indirect Cost %" / 100) +
           ("Overhead Rate" * OutputQty * CalcCurrencyFactor());
         "Single-Lvl Mfg. Ovhd Cost(ACY)" := Round("Single-Lvl Mfg. Ovhd Cost(ACY)", AmtRndgPrecACY);
@@ -266,6 +301,8 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         "Single-Level Subcontrd. Cost" := Item."Single-Level Subcontrd. Cost";
         "Single-Level Cap. Ovhd Cost" := Item."Single-Level Cap. Ovhd Cost";
         "Single-Level Mfg. Ovhd Cost" := Item."Single-Level Mfg. Ovhd Cost";
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            "Material Cost - Non Inventory" := Item."Material Cost - Non Inventory";
 
         CurrExchRate := CalcCurrencyFactor();
         "Direct Cost (ACY)" := "Direct Cost" * CurrExchRate;
@@ -275,6 +312,8 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         "Single-Lvl Subcontrd Cost(ACY)" := "Single-Level Subcontrd. Cost" * CurrExchRate;
         "Single-Lvl Cap. Ovhd Cost(ACY)" := "Single-Level Cap. Ovhd Cost" * CurrExchRate;
         "Single-Lvl Mfg. Ovhd Cost(ACY)" := "Single-Level Mfg. Ovhd Cost" * CurrExchRate;
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            "Material Cost - Non Inv. (ACY)" := "Material Cost - Non Inventory" * CurrExchRate;
 
         OnAfterGetSingleLevelCosts(Rec, Item);
     end;
@@ -333,7 +372,10 @@ table 5896 "Inventory Adjmt. Entry (Order)"
 
     procedure CalcUnitCost()
     begin
-        "Unit Cost" := "Direct Cost" + "Indirect Cost";
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            "Unit Cost" := "Direct Cost" + "Indirect Cost" + "Direct Cost Non-Inventory"
+        else
+            "Unit Cost" := "Direct Cost" + "Indirect Cost";
     end;
 
     procedure CalcDiff(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; OnlyCostShares: Boolean)
@@ -341,22 +383,30 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         if not OnlyCostShares then begin
             "Direct Cost" := InvtAdjmtEntryOrder."Direct Cost" - "Direct Cost";
             "Indirect Cost" := InvtAdjmtEntryOrder."Indirect Cost" - "Indirect Cost";
+            if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                "Direct Cost Non-Inventory" := InvtAdjmtEntryOrder."Direct Cost Non-Inventory" - "Direct Cost Non-Inventory";
         end;
         "Single-Level Material Cost" := InvtAdjmtEntryOrder."Single-Level Material Cost" - "Single-Level Material Cost";
         "Single-Level Capacity Cost" := InvtAdjmtEntryOrder."Single-Level Capacity Cost" - "Single-Level Capacity Cost";
         "Single-Level Subcontrd. Cost" := InvtAdjmtEntryOrder."Single-Level Subcontrd. Cost" - "Single-Level Subcontrd. Cost";
         "Single-Level Cap. Ovhd Cost" := InvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost" - "Single-Level Cap. Ovhd Cost";
         "Single-Level Mfg. Ovhd Cost" := InvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost" - "Single-Level Mfg. Ovhd Cost";
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            "Material Cost - Non Inventory" := InvtAdjmtEntryOrder."Material Cost - Non Inventory" - "Material Cost - Non Inventory";
 
         if not OnlyCostShares then begin
             "Direct Cost (ACY)" := InvtAdjmtEntryOrder."Direct Cost (ACY)" - "Direct Cost (ACY)";
             "Indirect Cost (ACY)" := InvtAdjmtEntryOrder."Indirect Cost (ACY)" - "Indirect Cost (ACY)";
+            if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                "Direct Cost Non-Inv. (ACY)" := InvtAdjmtEntryOrder."Direct Cost Non-Inv. (ACY)" - "Direct Cost (ACY)";
         end;
         "Single-Lvl Material Cost (ACY)" := InvtAdjmtEntryOrder."Single-Lvl Material Cost (ACY)" - "Single-Lvl Material Cost (ACY)";
         "Single-Lvl Capacity Cost (ACY)" := InvtAdjmtEntryOrder."Single-Lvl Capacity Cost (ACY)" - "Single-Lvl Capacity Cost (ACY)";
         "Single-Lvl Subcontrd Cost(ACY)" := InvtAdjmtEntryOrder."Single-Lvl Subcontrd Cost(ACY)" - "Single-Lvl Subcontrd Cost(ACY)";
         "Single-Lvl Cap. Ovhd Cost(ACY)" := InvtAdjmtEntryOrder."Single-Lvl Cap. Ovhd Cost(ACY)" - "Single-Lvl Cap. Ovhd Cost(ACY)";
         "Single-Lvl Mfg. Ovhd Cost(ACY)" := InvtAdjmtEntryOrder."Single-Lvl Mfg. Ovhd Cost(ACY)" - "Single-Lvl Mfg. Ovhd Cost(ACY)";
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            "Material Cost - Non Inv. (ACY)" := InvtAdjmtEntryOrder."Material Cost - Non Inv. (ACY)" - "Material Cost - Non Inv. (ACY)";
 
         OnAfterCalcDiff(Rec, InvtAdjmtEntryOrder, OnlyCostShares);
     end;
@@ -373,6 +423,15 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         "Indirect Cost (ACY)" += CostAmtACY;
     end;
 
+    procedure AddDirectCostNonInv(CostAmtLCY: Decimal; CostAmtACY: Decimal)
+    begin
+        if not MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            exit;
+
+        "Direct Cost Non-Inventory" += CostAmtLCY;
+        "Direct Cost Non-Inv. (ACY)" += CostAmtACY;
+    end;
+
     procedure AddSingleLvlMaterialCost(CostAmtLCY: Decimal; CostAmtACY: Decimal)
     begin
         OnBeforeAddSingleLvlMaterialCost(Rec, CostAmtLCY, CostAmtACY);
@@ -381,6 +440,15 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         "Single-Lvl Material Cost (ACY)" += CostAmtACY;
 
         OnAfterAddSingleLvlMaterialCost(Rec, CostAmtLCY, CostAmtACY);
+    end;
+
+    procedure AddSingleLvlNonInvMaterialCost(CostAmtLCY: Decimal; CostAmtACY: Decimal)
+    begin
+        if not MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            exit;
+
+        "Material Cost - Non Inventory" += CostAmtLCY;
+        "Material Cost - Non Inv. (ACY)" += CostAmtACY;
     end;
 
     procedure AddSingleLvlCapacityCost(CostAmtLCY: Decimal; CostAmtACY: Decimal)
