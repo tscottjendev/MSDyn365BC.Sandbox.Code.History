@@ -78,6 +78,9 @@
         CannotHandleEntryTypeErr: Label 'Cannot handle entry type %1 for correction posting of production.', Comment = '%1 - Entry Type';
         ActionShouldNotBeVisibleErr: Label 'Reverse Production Order Transaction should not be visible in Page %1', Comment = '%1 = Page Caption';
         ActionShouldBeVisibleErr: Label 'Reverse Production Order Transaction should be visible in Page %1', Comment = '%1 = Page Caption';
+        EntryMustBeEqualErr: Label '%1 must be equal to %2 for Entry No. %3 in the %4.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Entry No., %4 = Table Caption';
+        MissingAccountTxt: Label '%1 is missing in %2.', Comment = '%1 = Field Caption, %2 = Table Caption';
+        NonInventoryItemInStandardCostCalcErr: Label 'You cannot modify %1 on Item %2 as Production BOM %3 has a non-inventory Item %4.', Comment = '%1 = Field Caption , %2 = Production Item No. , %3 = Production BOM No. , %4 = Non-Inventory Item';
 
     [Test]
     [Scope('OnPrem')]
@@ -5952,6 +5955,987 @@
             StrSubstNo(ValueMustBeEqualErr, InvtAdjmtEntryOrder.FieldCaption("Cost is Adjusted"), false, InvtAdjmtEntryOrder.TableCaption()));
     end;
 
+    [Test]
+    procedure VerifyValueEntryShouldBeCreatedWithCostEntryTypeDirectCostNonInventoryWhenStatusIsChangedFromReleasedToFinished()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        Quantity: Decimal;
+        NonInvUnitCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify Value Entry should be created with "Cost Entry Type" - "Direct Cost - Non Inventory" for Output item When Production Order status is changed from Released to Finished.
+        // Cost of Non-Inventory item must be updated in "Cost Amount(Actual)" in Item Ledger Entry for "Entry Type" Output.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Set Automatic Cost Adjustment Always.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+
+        // [GIVEN] Update "Automatic Cost Posting" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostPosting(false);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOM(OutputItem, NonInvItem, ProductionBOMHeader);
+
+        // [GIVEN] Save Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, Quantity, NonInvUnitCost);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", Quantity, '', '');
+
+        // [GIVEN] Find Production Order Component.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", NonInvItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Create and Post Consumption Journal.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, Quantity);
+
+        // [WHEN] Create and Post Output Journal with output quantity.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity, 0, 0);
+
+        // [THEN] Verify "Cost Amount (Non-Invtbl.)" must be updated for "Entry Type" Consumption and "Cost Amount (Expected)" ,"Cost Amount (Actual)" must be zero for "Entry Type" Output in Value Entry.
+        VerifyCostAmountNonInventoryForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Consumption, "Cost Entry Type"::"Direct Cost", NonInvItem, -Quantity, -Quantity * NonInvUnitCost);
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost", OutputItem, Quantity, 0, 0);
+
+        // [WHEN] Change Prod Order Status from Released to Finished.
+        ProdOrderStatusMgt.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
+
+        // [THEN] Verify Value Entry should be created with "Cost Entry Type" - "Direct Cost - Non Inventory" for Output item and "Cost Amount (Actual)" must be updated for "Entry Type" Output in Value Entry.
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost", OutputItem, 0, 0, 0);
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost - Non Inventory", OutputItem, 0, 0, NonInvUnitCost * Quantity);
+        VerifyCostAmountExpectedAndActualForItemLedgerEntry(ProductionOrder, "Item Ledger Entry Type"::Output, OutputItem, 0, NonInvUnitCost * Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure VerifyValueEntryShouldBeCreatedWithCostEntryTypeDirectCostNonInventoryWithPartialConsumption()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        Quantity: Decimal;
+        ConsumptionQuantity: Decimal;
+        NonInvUnitCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify Value Entry should be created with "Cost Entry Type" - "Direct Cost - Non Inventory" for Output item When Production Order status is changed from Released to Finished with partial Consumption.
+        // Cost of Non-Inventory item must be updated in "Cost Amount(Actual)" in Item Ledger Entry for "Entry Type" Output.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Set Automatic Cost Adjustment Always.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+
+        // [GIVEN] Update "Automatic Cost Posting" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostPosting(false);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOM(OutputItem, NonInvItem, ProductionBOMHeader);
+
+        // [GIVEN] Save Quantity,ConsumptionQuantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        ConsumptionQuantity := LibraryRandom.RandIntInRange(5, 5);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, ConsumptionQuantity, NonInvUnitCost);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", Quantity, '', '');
+
+        // [GIVEN] Find Production Order Component.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", NonInvItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Create and Post Consumption Journal.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, ConsumptionQuantity);
+
+        // [WHEN] Create and Post Output Journal with output quantity.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity, 0, 0);
+
+        // [THEN] Verify "Cost Amount (Non-Invtbl.)" must be updated for "Entry Type" Consumption and "Cost Amount (Expected)" ,"Cost Amount (Actual)" must be zero for "Entry Type" Output in Value Entry.
+        VerifyCostAmountNonInventoryForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Consumption, "Cost Entry Type"::"Direct Cost", NonInvItem, -ConsumptionQuantity, -ConsumptionQuantity * NonInvUnitCost);
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost", OutputItem, Quantity, 0, 0);
+
+        // [WHEN] Change Prod Order Status from Released to Finished.
+        ProdOrderStatusMgt.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
+
+        // [THEN] Verify Value Entry should be created with "Cost Entry Type" - "Direct Cost - Non Inventory" for Output item and "Cost Amount (Actual)" must be updated for "Entry Type" Output in Value Entry with partial consumption.
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost", OutputItem, 0, 0, 0);
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost - Non Inventory", OutputItem, 0, 0, NonInvUnitCost * ConsumptionQuantity);
+        VerifyCostAmountExpectedAndActualForItemLedgerEntry(ProductionOrder, "Item Ledger Entry Type"::Output, OutputItem, 0, NonInvUnitCost * ConsumptionQuantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerWithoutValidation')]
+    procedure VerifyCostMustBeUpdatedInNonInvAppliedAccountWhenPostInvtCostToGLIsExecutedForFinishedProductionOrder()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        ValueEntry: Record "Value Entry";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        GeneralPostingSetup: Record "General Posting Setup";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        Quantity: Decimal;
+        NonInvUnitCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify "Direct Cost Non-Inv. App. Acc." must be updated for "Direct Cost - Non Inventory" Value Entry with Automatic Cost Posting is not enabled.
+        // PostInvtCostToGL is executed for Finished Production Order.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Set Automatic Cost Adjustment Always.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+
+        // [GIVEN] Update "Automatic Cost Posting" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostPosting(false);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOM(OutputItem, NonInvItem, ProductionBOMHeader);
+
+        // [GIVEN] Update "Direct Cost Non-Inv. App. Acc." in General Posting Setup.
+        GeneralPostingSetup.Get('', OutputItem."Gen. Prod. Posting Group");
+        LibraryERM.UpdateDirectCostNonInventoryAppliedAccountInGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Save Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, Quantity, NonInvUnitCost);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", Quantity, '', '');
+
+        // [GIVEN] Find Production Order Component.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", NonInvItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Create and Post Consumption Journal.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, Quantity);
+
+        // [GIVEN] Create and Post Output Journal with output quantity.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity, 0, 0);
+
+        // [WHEN] Change Prod Order Status from Released to Finished.
+        ProdOrderStatusMgt.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
+
+        // [THEN] Verify "Cost Posted to G/L" must be zero for "Direct Cost - Non Inventory" in Value Entry.
+        FilterValueEntryWithItemLedgerEntryType(ValueEntry, ProductionOrder."No.", "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost - Non Inventory", OutputItem."No.", 0);
+        Assert.AreEqual(
+            0,
+            ValueEntry."Cost Posted to G/L",
+            StrSubstNo(EntryMustBeEqualErr, ValueEntry.FieldCaption("Cost Posted to G/L"), 0, ValueEntry."Entry No.", ValueEntry.TableCaption()));
+
+        // [WHEN] Run "Post Inventory Cost to G/L".
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+
+        // [THEN] Verify "Direct Cost Non-Inv. App. Acc." must be updated for "Direct Cost - Non Inventory" and "Cost Posted to G/L" must be updated in Value Entry.
+        VerifyGLEntriesForNonInventoryAppliedAccount(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost - Non Inventory", OutputItem, NonInvUnitCost * Quantity);
+        FilterValueEntryWithItemLedgerEntryType(ValueEntry, ProductionOrder."No.", "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost - Non Inventory", OutputItem."No.", 0);
+        Assert.AreEqual(
+            NonInvUnitCost * Quantity,
+            ValueEntry."Cost Posted to G/L",
+            StrSubstNo(EntryMustBeEqualErr, ValueEntry.FieldCaption("Cost Posted to G/L"), NonInvUnitCost * Quantity, ValueEntry."Entry No.", ValueEntry.TableCaption()));
+    end;
+
+    [Test]
+    procedure VerifyCostMustBeUpdatedInNonInventoryAppliedAccountWithAutomaticCostPostingForFinishedProductionOrder()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        ValueEntry: Record "Value Entry";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        GeneralPostingSetup: Record "General Posting Setup";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        Quantity: Decimal;
+        NonInvUnitCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify "Direct Cost Non-Inv. App. Acc." must be updated for "Direct Cost - Non Inventory" Value Entry with Automatic Cost Posting is enabled.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Set Automatic Cost Adjustment Always.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+
+        // [GIVEN] Update "Automatic Cost Posting" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostPosting(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOM(OutputItem, NonInvItem, ProductionBOMHeader);
+
+        // [GIVEN] Update "Direct Cost Non-Inv. App. Acc." in General Posting Setup.
+        GeneralPostingSetup.Get('', OutputItem."Gen. Prod. Posting Group");
+        LibraryERM.UpdateDirectCostNonInventoryAppliedAccountInGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Save Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, Quantity, NonInvUnitCost);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", Quantity, '', '');
+
+        // [GIVEN] Find Production Order Component.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", NonInvItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Create and Post Consumption Journal.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, Quantity);
+
+        // [GIVEN] Create and Post Output Journal with output quantity.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity, 0, 0);
+
+        // [WHEN] Change Prod Order Status from Released to Finished.
+        ProdOrderStatusMgt.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
+
+        // [THEN] Verify "Direct Cost Non-Inv. App. Acc." must be updated for "Direct Cost - Non Inventory" and "Cost Posted to G/L" must be updated in Value Entry With Automatic Cost Posting.
+        VerifyGLEntriesForNonInventoryAppliedAccount(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost - Non Inventory", OutputItem, NonInvUnitCost * Quantity);
+        FilterValueEntryWithItemLedgerEntryType(ValueEntry, ProductionOrder."No.", "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost - Non Inventory", OutputItem."No.", 0);
+        Assert.AreEqual(
+            NonInvUnitCost * Quantity,
+            ValueEntry."Cost Posted to G/L",
+            StrSubstNo(EntryMustBeEqualErr, ValueEntry.FieldCaption("Cost Posted to G/L"), NonInvUnitCost * Quantity, ValueEntry."Entry No.", ValueEntry.TableCaption()));
+    end;
+
+    [Test]
+    procedure VerifyDirectCostNonInventoryAppliedAccountIsMissingWhenStatusIsChanged()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        GeneralPostingSetup: Record "General Posting Setup";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        Quantity: Decimal;
+        NonInvUnitCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify user should not be able to change the status When "Direct Cost Non-Inv. App. Acc." is missing in General Posting Setup.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Set Automatic Cost Adjustment Always.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+
+        // [GIVEN] Update "Automatic Cost Posting" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostPosting(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOM(OutputItem, NonInvItem, ProductionBOMHeader);
+
+        // [GIVEN] Update "Direct Cost Non-Inv. App. Acc." in General Posting Setup.
+        GeneralPostingSetup.Get('', OutputItem."Gen. Prod. Posting Group");
+        GeneralPostingSetup.Validate("Direct Cost Non-Inv. App. Acc.", '');
+        GeneralPostingSetup.Modify();
+
+        // [GIVEN] Save Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, Quantity, NonInvUnitCost);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", Quantity, '', '');
+
+        // [GIVEN] Find Production Order Component.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", NonInvItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Create and Post Consumption Journal.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, Quantity);
+
+        // [GIVEN] Create and Post Output Journal with output quantity.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity, 0, 0);
+
+        // [WHEN] Change Prod Order Status from Released to Finished.
+        asserterror ProdOrderStatusMgt.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
+
+        // [THEN] Verify user should not be able to change the status When "Direct Cost Non-Inv. App. Acc." is missing in General Posting Setup.
+        GeneralPostingSetup.SetRange("Gen. Bus. Posting Group", '');
+        GeneralPostingSetup.SetRange("Gen. Prod. Posting Group", OutputItem."Gen. Prod. Posting Group");
+        GeneralPostingSetup.FindFirst();
+        Assert.ExpectedError(
+            StrSubstNo(MissingAccountTxt, GeneralPostingSetup.FieldCaption("Direct Cost Non-Inv. App. Acc."), GeneralPostingSetup.TableCaption() + ' ' + GeneralPostingSetup.GetFilters()));
+    end;
+
+    [Test]
+    procedure VerifyCostAmountActualShouldBeUpdatedBasedOnComponentAndNonInventoryItemInProductionItem()
+    var
+        OutputItem: Record Item;
+        CompItem: Record Item;
+        NonInvItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        Quantity: Decimal;
+        CompUnitCost: Decimal;
+        NonInvUnitCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify Value Entry should be created with "Cost Entry Type" - "Direct Cost - Non Inventory" for Output item When Production Order status is changed from Released to Finished.
+        // Cost of Non-Inventory and Inventory item must be updated in "Cost Amount(Actual)" in Item Ledger Entry for "Entry Type" Output.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Set Automatic Cost Adjustment Always.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+
+        // [GIVEN] Update "Automatic Cost Posting" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostPosting(false);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item , Component Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOM(OutputItem, NonInvItem, CompItem, ProductionBOMHeader);
+
+        // [GIVEN] Save Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+        CompUnitCost := LibraryRandom.RandIntInRange(20, 20);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, Quantity, NonInvUnitCost);
+
+        // [GIVEN] Create and Post Purchase Document for Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem, Quantity, CompUnitCost);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", Quantity, '', '');
+
+        // [GIVEN] Find Production Order Component.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", NonInvItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Create and Post Consumption Journal.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, Quantity);
+
+        // [GIVEN] Find Production Order Component.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", CompItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Create and Post Consumption Journal.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, Quantity);
+
+        // [WHEN] Create and Post Output Journal with output quantity.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity, 0, 0);
+
+        // [THEN] Verify "Cost Amount (Non-Invtbl.)" must be updated for "Entry Type" Consumption and "Cost Amount (Actual)" ,"Cost Amount (Expected)" must be zero for "Entry Type" Output in Value Entry.
+        VerifyCostAmountNonInventoryForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Consumption, "Cost Entry Type"::"Direct Cost", NonInvItem, -Quantity, -Quantity * NonInvUnitCost);
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost", OutputItem, Quantity, 0, 0);
+
+        // [WHEN] Change Prod Order Status from Released to Finished.
+        ProdOrderStatusMgt.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
+
+        // [THEN] Verify Value Entry should be created with "Cost Entry Type" - "Direct Cost - Non Inventory" for Output item and "Cost Amount (Actual)" must be updated for "Entry Type" Output in Value Entry.
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost", OutputItem, 0, 0, Quantity * CompUnitCost);
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost - Non Inventory", OutputItem, 0, 0, NonInvUnitCost * Quantity);
+        VerifyCostAmountExpectedAndActualForItemLedgerEntry(ProductionOrder, "Item Ledger Entry Type"::Output, OutputItem, 0, (NonInvUnitCost * Quantity) + (Quantity * CompUnitCost));
+    end;
+
+    [Test]
+    procedure VerifyStandardCostMustNotBeUpdatedInProductionItem()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        Quantity: Decimal;
+        NonInvUnitCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify Standard Cost must not be updated in production item When Non-Inventory item exist in Production BOM.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOM(OutputItem, NonInvItem, ProductionBOMHeader);
+
+        // [GIVEN] Save Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, Quantity, NonInvUnitCost);
+
+        // [GIVEN] Update "Costing Method" Standard in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Modify();
+
+        // [WHEN] Update "Standard Cost" in Item.
+        asserterror OutputItem.Validate("Standard Cost", LibraryRandom.RandIntInRange(10, 10));
+
+        // [THEN] Verify Standard Cost must not be updated in production item.
+        Assert.ExpectedError(StrSubstNo(NonInventoryItemInStandardCostCalcErr, OutputItem.FieldCaption("Standard Cost"), OutputItem."No.", OutputItem."Production BOM No.", NonInvItem."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure VerifyMaterialCostNonInventoryMustBeUpdatedInProductionItem()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        Quantity: Decimal;
+        NonInvUnitCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify "Material Cost - Non Inventory" must be updated in production item When Non-Inventory item exist in Production BOM.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOM(OutputItem, NonInvItem, ProductionBOMHeader);
+
+        // [GIVEN] Save Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, Quantity, NonInvUnitCost);
+
+        // [GIVEN] Update "Costing Method" Standard in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Modify();
+
+        // [WHEN] Calculate Material Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [THEN] Verify "Material Cost - Non Inventory" must be updated in production item.
+        OutputItem.Get(OutputItem."No.");
+        Assert.AreEqual(
+            NonInvUnitCost,
+            OutputItem."Material Cost - Non Inventory",
+            StrSubstNo(ValueMustBeEqualErr, OutputItem.FieldCaption("Material Cost - Non Inventory"), NonInvUnitCost, OutputItem.TableCaption()));
+    end;
+
+    [Test]
+    procedure VerifyValueEntryShouldBeCreatedWithVarianceTypeMaterialNonInventoryWhenStatusIsChangedFromReleasedToFinished()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        Quantity: Decimal;
+        NonInvUnitCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify Value Entry should be created with "Variance Type" - "Material - Non Inventory" for Output item When Production Order status is changed from Released to Finished.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Set Automatic Cost Adjustment Always.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+
+        // [GIVEN] Update "Automatic Cost Posting" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostPosting(false);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Save Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create Item with Costing Method Standard and Standard Cost.
+        LibraryInventory.CreateItem(OutputItem);
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Validate("Standard Cost", LibraryRandom.RandIntInRange(30, 30));
+        OutputItem.Modify();
+
+        // [GIVEN] Create Non-Inventory Item.
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvItem);
+
+        // [GIVEN] Create Certified Production BOM with Non-Inventory item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, NonInvItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        OutputItem.Validate("Replenishment System", OutputItem."Replenishment System"::"Prod. Order");
+        OutputItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        OutputItem.Modify();
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory Item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, Quantity, NonInvUnitCost);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", Quantity, '', '');
+
+        // [GIVEN] Find Production Order Component.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", NonInvItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Create and Post Consumption Journal.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, Quantity);
+
+        // [WHEN] Create and Post Output Journal with output quantity.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity, 0, 0);
+
+        // [THEN] Verify "Cost Amount (Non-Invtbl.)" must be updated for "Entry Type" Consumption and "Cost Amount (Expected)" must be updated for "Entry Type" Output in Value Entry.
+        VerifyCostAmountNonInventoryForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Consumption, "Cost Entry Type"::"Direct Cost", NonInvItem, -Quantity, -Quantity * NonInvUnitCost);
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost", OutputItem, Quantity, Quantity * OutputItem."Standard Cost", 0);
+
+        // [WHEN] Change Prod Order Status from Released to Finished.
+        ProdOrderStatusMgt.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
+
+        // [THEN] Verify Value Entry should be created with "Variance Type" - "Material - Non Inventory" for Output item.
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost", OutputItem, 0, -OutputItem."Standard Cost" * Quantity, 0);
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost - Non Inventory", OutputItem, 0, 0, NonInvUnitCost * Quantity);
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::Variance, OutputItem, 0, 0, -(NonInvUnitCost * Quantity));
+        VerifyCostAmountExpectedAndActualForItemLedgerEntry(ProductionOrder, "Item Ledger Entry Type"::Output, OutputItem, 0, OutputItem."Standard Cost" * Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler,ConfirmHandler')]
+    procedure VerifyValueEntryShouldBeCreatedWithVarianceTypeMaterialNonInventoryWhenStatusIsChangedForPartialConsumptionQuantity()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        Quantity: Decimal;
+        ConsumptionQuantity: Decimal;
+        NonInvUnitCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify Value Entry should be created with "Variance Type" - "Material - Non Inventory" for Output item When Production Order is posted with partial consumption quantity.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Set Automatic Cost Adjustment Always.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+
+        // [GIVEN] Update "Automatic Cost Posting" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostPosting(false);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Save Quantity, Consumption Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        ConsumptionQuantity := LibraryRandom.RandIntInRange(5, 5);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create Item with Costing Method Standard and Standard Cost.
+        LibraryInventory.CreateItem(OutputItem);
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Validate("Standard Cost", LibraryRandom.RandIntInRange(30, 30));
+        OutputItem.Modify();
+
+        // [GIVEN] Update "Mat. Non-Inv. Variance Acc." in Inventory Posting Setup.
+        InventoryPostingSetup.Get('', OutputItem."Inventory Posting Group");
+        LibraryInventory.UpdateMaterialNonInvVarianceAccountInInventoryPostingSetup(InventoryPostingSetup);
+
+        // [GIVEN] Create Non-Inventory Item.
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvItem);
+
+        // [GIVEN] Create Certified Production BOM with Non-Inventory item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, NonInvItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        OutputItem.Validate("Replenishment System", OutputItem."Replenishment System"::"Prod. Order");
+        OutputItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        OutputItem.Modify();
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory Item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, ConsumptionQuantity, NonInvUnitCost);
+
+        // [GIVEN] Calculate Material Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", Quantity, '', '');
+
+        // [GIVEN] Find Production Order Component.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", NonInvItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Create and Post Consumption Journal with partial quantity.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, ConsumptionQuantity);
+
+        // [WHEN] Create and Post Output Journal with output quantity.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity, 0, 0);
+
+        // [THEN] Verify "Cost Amount (Non-Invtbl.)" must be updated for "Entry Type" Consumption and "Cost Amount (Expected)" must be updated for "Entry Type" Output in Value Entry.
+        VerifyCostAmountNonInventoryForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Consumption, "Cost Entry Type"::"Direct Cost", NonInvItem, -ConsumptionQuantity, -ConsumptionQuantity * NonInvUnitCost);
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost", OutputItem, Quantity, Quantity * NonInvUnitCost, 0);
+
+        // [WHEN] Change Prod Order Status from Released to Finished.
+        ProdOrderStatusMgt.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
+
+        // [THEN] Verify Value Entry should be created with "Variance Type" - "Material - Non Inventory" for Output item When Production Order is posted with partial consumption quantity.
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost", OutputItem, 0, -NonInvUnitCost * Quantity, 0);
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost - Non Inventory", OutputItem, 0, 0, NonInvUnitCost * ConsumptionQuantity);
+        VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::Variance, OutputItem, 0, 0, (NonInvUnitCost * ConsumptionQuantity));
+        VerifyCostAmountExpectedAndActualForItemLedgerEntry(ProductionOrder, "Item Ledger Entry Type"::Output, OutputItem, 0, NonInvUnitCost * Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler,ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure VerifyValueEntryShouldBeCreatedWithVarianceTypeMaterialNonInventoryWhenPostInvtCostToGLIsExecutedForFinishedProdOrder()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        ValueEntry: Record "Value Entry";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        GeneralPostingSetup: Record "General Posting Setup";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        Quantity: Decimal;
+        ConsumptionQuantity: Decimal;
+        NonInvUnitCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify Value Entry should be created with "Variance Type" - "Material - Non Inventory" for Output item.
+        // PostInvtCostToGL is executed for Finished Production Order.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Automatic Cost Posting" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostPosting(false);
+
+        // [GIVEN] Set Automatic Cost Adjustment Always.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Save Quantity, Consumption Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        ConsumptionQuantity := LibraryRandom.RandIntInRange(5, 5);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create Item with Costing Method Standard and Standard Cost.
+        LibraryInventory.CreateItem(OutputItem);
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Validate("Standard Cost", LibraryRandom.RandIntInRange(30, 30));
+        OutputItem.Modify();
+
+        // [GIVEN] Update "Mat. Non-Inv. Variance Acc." in Inventory Posting Setup.
+        InventoryPostingSetup.Get('', OutputItem."Inventory Posting Group");
+        LibraryInventory.UpdateMaterialNonInvVarianceAccountInInventoryPostingSetup(InventoryPostingSetup);
+
+        // [GIVEN] Update "Direct Cost Non-Inv. App. Acc." in General Posting Setup.
+        GeneralPostingSetup.Get('', OutputItem."Gen. Prod. Posting Group");
+        LibraryERM.UpdateDirectCostNonInventoryAppliedAccountInGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Create Non-Inventory Item.
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvItem);
+
+        // [GIVEN] Create Certified Production BOM with Non-Inventory item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, NonInvItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        OutputItem.Validate("Replenishment System", OutputItem."Replenishment System"::"Prod. Order");
+        OutputItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        OutputItem.Modify();
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory Item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, ConsumptionQuantity, NonInvUnitCost);
+
+        // [GIVEN] Calculate Material Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", Quantity, '', '');
+
+        // [GIVEN] Find Production Order Component.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", NonInvItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Create and Post Consumption Journal with partial quantity.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, ConsumptionQuantity);
+
+        // [GIVEN] Create and Post Output Journal with output quantity.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity, 0, 0);
+
+        // [WHEN] Change Prod Order Status from Released to Finished.
+        ProdOrderStatusMgt.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
+
+        // [THEN] Verify "Cost Posted to G/L" must be zero for "Variance Type"-"Material - Non Inventory" in Value Entry.
+        FilterValueEntryWithItemLedgerEntryType(ValueEntry, ProductionOrder."No.", "Item Ledger Entry Type"::Output, "Cost Entry Type"::Variance, OutputItem."No.", 0);
+        Assert.AreEqual(
+            0,
+            ValueEntry."Cost Posted to G/L",
+            StrSubstNo(EntryMustBeEqualErr, ValueEntry.FieldCaption("Cost Posted to G/L"), 0, ValueEntry."Entry No.", ValueEntry.TableCaption()));
+
+        // [WHEN] Run "Post Inventory Cost to G/L".
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+
+        // [THEN] Verify "Mat. Non-Inv. Variance Acc." must be updated for "Variance Type"-"Material - Non Inventory" and "Cost Posted to G/L" must be updated in Value Entry.
+        VerifyGLEntriesForNonInventoryVarianceAccount(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::Variance, OutputItem, NonInvUnitCost * ConsumptionQuantity);
+        FilterValueEntryWithItemLedgerEntryType(ValueEntry, ProductionOrder."No.", "Item Ledger Entry Type"::Output, "Cost Entry Type"::Variance, OutputItem."No.", 0);
+        Assert.AreEqual(
+            NonInvUnitCost * ConsumptionQuantity,
+            ValueEntry."Cost Posted to G/L",
+            StrSubstNo(EntryMustBeEqualErr, ValueEntry.FieldCaption("Cost Posted to G/L"), NonInvUnitCost * ConsumptionQuantity, ValueEntry."Entry No.", ValueEntry.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler,ConfirmHandler')]
+    procedure VerifyValueEntryShouldBeCreatedWithVarianceTypeMaterialNonInventoryWithAutomaticCostPostingIsEnabled()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        ValueEntry: Record "Value Entry";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        GeneralPostingSetup: Record "General Posting Setup";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        Quantity: Decimal;
+        ConsumptionQuantity: Decimal;
+        NonInvUnitCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify Value Entry should be created with "Variance Type" - "Material - Non Inventory" for Output item with Automatic Cost Posting is enabled.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Set Automatic Cost Adjustment Always.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+
+        // [GIVEN] Update "Automatic Cost Posting" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostPosting(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Save Quantity, Consumption Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        ConsumptionQuantity := LibraryRandom.RandIntInRange(5, 5);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create Item with Costing Method Standard and Standard Cost.
+        LibraryInventory.CreateItem(OutputItem);
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Validate("Standard Cost", LibraryRandom.RandIntInRange(30, 30));
+        OutputItem.Modify();
+
+        // [GIVEN] Update "Mat. Non-Inv. Variance Acc." in Inventory Posting Setup.
+        InventoryPostingSetup.Get('', OutputItem."Inventory Posting Group");
+        LibraryInventory.UpdateMaterialNonInvVarianceAccountInInventoryPostingSetup(InventoryPostingSetup);
+
+        // [GIVEN] Update "Direct Cost Non-Inv. App. Acc." in General Posting Setup.
+        GeneralPostingSetup.Get('', OutputItem."Gen. Prod. Posting Group");
+        LibraryERM.UpdateDirectCostNonInventoryAppliedAccountInGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Create Non-Inventory Item.
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvItem);
+
+        // [GIVEN] Create Certified Production BOM with Non-Inventory item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, NonInvItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        OutputItem.Validate("Replenishment System", OutputItem."Replenishment System"::"Prod. Order");
+        OutputItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        OutputItem.Modify();
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory Item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, ConsumptionQuantity, NonInvUnitCost);
+
+        // [GIVEN] Calculate Material Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", Quantity, '', '');
+
+        // [GIVEN] Find Production Order Component.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", NonInvItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Create and Post Consumption Journal with partial quantity.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, ConsumptionQuantity);
+
+        // [GIVEN] Create and Post Output Journal with output quantity.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity, 0, 0);
+
+        // [WHEN] Change Prod Order Status from Released to Finished.
+        ProdOrderStatusMgt.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
+
+        // [THEN] Verify "Mat. Non-Inv. Variance Acc." must be updated for "Variance Type"-"Material - Non Inventory" and "Cost Posted to G/L" must be updated in Value Entry.
+        VerifyGLEntriesForNonInventoryVarianceAccount(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::Variance, OutputItem, NonInvUnitCost * ConsumptionQuantity);
+        FilterValueEntryWithItemLedgerEntryType(ValueEntry, ProductionOrder."No.", "Item Ledger Entry Type"::Output, "Cost Entry Type"::Variance, OutputItem."No.", 0);
+        Assert.AreEqual(
+            NonInvUnitCost * ConsumptionQuantity,
+            ValueEntry."Cost Posted to G/L",
+            StrSubstNo(EntryMustBeEqualErr, ValueEntry.FieldCaption("Cost Posted to G/L"), NonInvUnitCost * ConsumptionQuantity, ValueEntry."Entry No.", ValueEntry.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler,ConfirmHandler')]
+    procedure VerifyMaterialNonInventoryVarianceAccountIsMissingWhenStatusIsChanged()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        GeneralPostingSetup: Record "General Posting Setup";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        Quantity: Decimal;
+        ConsumptionQuantity: Decimal;
+        NonInvUnitCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify user should not be able to change the status When "Mat. Non-Inv. Variance Acc." is missing in Inventory Posting Setup.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Set Automatic Cost Adjustment Always.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+
+        // [GIVEN] Update "Automatic Cost Posting" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostPosting(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Save Quantity, Consumption Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        ConsumptionQuantity := LibraryRandom.RandIntInRange(5, 5);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create Item with Costing Method Standard and Standard Cost.
+        LibraryInventory.CreateItem(OutputItem);
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Validate("Standard Cost", LibraryRandom.RandIntInRange(30, 30));
+        OutputItem.Modify();
+
+        // [GIVEN] Update "Direct Cost Non-Inv. App. Acc." in General Posting Setup.
+        GeneralPostingSetup.Get('', OutputItem."Gen. Prod. Posting Group");
+        LibraryERM.UpdateDirectCostNonInventoryAppliedAccountInGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Update "Mat. Non-Inv. Variance Acc." in Inventory Posting Setup.
+        InventoryPostingSetup.Get('', OutputItem."Inventory Posting Group");
+        InventoryPostingSetup.Validate("Mat. Non-Inv. Variance Acc.", '');
+        InventoryPostingSetup.Modify();
+
+        // [GIVEN] Create Non-Inventory Item.
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvItem);
+
+        // [GIVEN] Create Certified Production BOM with Non-Inventory item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, NonInvItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        OutputItem.Validate("Replenishment System", OutputItem."Replenishment System"::"Prod. Order");
+        OutputItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        OutputItem.Modify();
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory Item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, ConsumptionQuantity, NonInvUnitCost);
+
+        // [GIVEN] Calculate Material Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", Quantity, '', '');
+
+        // [GIVEN] Find Production Order Component.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", NonInvItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Create and Post Consumption Journal with partial quantity.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, ConsumptionQuantity);
+
+        // [GIVEN] Create and Post Output Journal with output quantity.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity, 0, 0);
+
+        // [WHEN] Change Prod Order Status from Released to Finished.
+        asserterror ProdOrderStatusMgt.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
+
+        // [THEN] Verify user should not be able to change the status when "Mat. Non-Inv. Variance Acc." is missing in Inventory Posting Setup.
+        InventoryPostingSetup.SetRange("Location Code", '');
+        InventoryPostingSetup.SetRange("Invt. Posting Group Code", OutputItem."Inventory Posting Group");
+        InventoryPostingSetup.FindFirst();
+        Assert.ExpectedError(
+            StrSubstNo(MissingAccountTxt, InventoryPostingSetup.FieldCaption("Mat. Non-Inv. Variance Acc."), InventoryPostingSetup.TableCaption() + ' ' + InventoryPostingSetup.GetFilters()));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -8360,6 +9344,175 @@
         LibraryVariableStorage.Enqueue(Quantity);
     end;
 
+    local procedure CreateProductionItemWithNonInvItemAndProductionBOM(var ProdItem: Record Item; var NonInvItem: Record Item; var ProductionBOMHeader: Record "Production BOM Header")
+    begin
+        LibraryInventory.CreateItem(ProdItem);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvItem);
+
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, NonInvItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify();
+    end;
+
+    local procedure CreateProductionItemWithNonInvItemAndProductionBOM(var ProdItem: Record Item; var NonInvItem: Record Item; var CompItem: Record Item; var ProductionBOMHeader: Record "Production BOM Header")
+    begin
+        LibraryInventory.CreateItem(ProdItem);
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvItem);
+
+        LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, NonInvItem."No.", CompItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify();
+    end;
+
+    local procedure CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem: Record Item; Quantity: Decimal; UnitCost: Decimal): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+            PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
+            LibraryPurchase.CreateVendorNo(), NonInvItem."No.", Quantity, '', WorkDate());
+
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost);
+        PurchaseLine.Modify();
+
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure FilterValueEntryWithItemLedgerEntryType(var ValueEntry: Record "Value Entry"; ProdOrderNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; EntryType: Enum "Cost Entry Type"; ItemNo: Code[20]; ItemLedgerEntryQuantity: Decimal)
+    begin
+        ValueEntry.SetRange("Document No.", ProdOrderNo);
+        ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
+        ValueEntry.SetRange("Entry Type", EntryType);
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Item Ledger Entry Quantity", ItemLedgerEntryQuantity);
+        ValueEntry.FindFirst();
+    end;
+
+    local procedure FilterItemLedgerEntryWithItemLedgerEntryType(var ItemLedgerEntry: Record "Item Ledger Entry"; ProdOrderNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20])
+    begin
+        ItemLedgerEntry.SetRange("Document No.", ProdOrderNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntryType);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindFirst();
+    end;
+
+    local procedure VerifyCostAmountNonInventoryForValueEntry(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type"; Item: Record Item; Quantity: Decimal; CostAmountNonInv: Decimal)
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        FilterValueEntryWithItemLedgerEntryType(ValueEntry, ProductionOrder."No.", ItemLedgerEntryType, CostEntryType, Item."No.", Quantity);
+        Assert.AreEqual(
+            CostAmountNonInv,
+            ValueEntry."Cost Amount (Non-Invtbl.)",
+            StrSubstNo(EntryMustBeEqualErr, ValueEntry.FieldCaption("Cost Amount (Non-Invtbl.)"), CostAmountNonInv, ValueEntry."Entry No.", ValueEntry.TableCaption()));
+    end;
+
+    local procedure VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type"; Item: Record Item; Quantity: Decimal; CostAmountExpected: Decimal; CostAmountActual: Decimal)
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        if CostEntryType = CostEntryType::Variance then
+            ValueEntry.SetRange("Variance Type", ValueEntry."Variance Type"::"Material - Non Inventory");
+
+        FilterValueEntryWithItemLedgerEntryType(ValueEntry, ProductionOrder."No.", ItemLedgerEntryType, CostEntryType, Item."No.", Quantity);
+        Assert.AreEqual(
+            CostAmountExpected,
+            ValueEntry."Cost Amount (Expected)",
+            StrSubstNo(EntryMustBeEqualErr, ValueEntry.FieldCaption("Cost Amount (Expected)"), CostAmountExpected, ValueEntry."Entry No.", ValueEntry.TableCaption()));
+        Assert.AreEqual(
+            CostAmountActual,
+            ValueEntry."Cost Amount (Actual)",
+            StrSubstNo(EntryMustBeEqualErr, ValueEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual, ValueEntry."Entry No.", ValueEntry.TableCaption()));
+    end;
+
+    local procedure VerifyCostAmountExpectedAndActualForItemLedgerEntry(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; Item: Record Item; CostAmountExpected: Decimal; CostAmountActual: Decimal)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        FilterItemLedgerEntryWithItemLedgerEntryType(ItemLedgerEntry, ProductionOrder."No.", ItemLedgerEntryType, Item."No.");
+        ItemLedgerEntry.CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
+        Assert.AreEqual(
+            CostAmountExpected,
+            ItemLedgerEntry."Cost Amount (Expected)",
+            StrSubstNo(EntryMustBeEqualErr, ItemLedgerEntry.FieldCaption("Cost Amount (Expected)"), CostAmountExpected, ItemLedgerEntry."Entry No.", ItemLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            CostAmountActual,
+            ItemLedgerEntry."Cost Amount (Actual)",
+            StrSubstNo(EntryMustBeEqualErr, ItemLedgerEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual, ItemLedgerEntry."Entry No.", ItemLedgerEntry.TableCaption()));
+    end;
+
+    local procedure VerifyGLEntriesForNonInventoryAppliedAccount(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type"; Item: Record Item; ExpectedValue: Decimal)
+    var
+        TempGLEntry: Record "G/L Entry" temporary;
+        GenPostingSetup: Record "General Posting Setup";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        ValueEntry: Record "Value Entry";
+    begin
+        FilterValueEntryWithItemLedgerEntryType(ValueEntry, ProductionOrder."No.", ItemLedgerEntryType, CostEntryType, Item."No.", 0);
+        GetRelatedGLEntriesFromValueEntry(TempGLEntry, ValueEntry);
+        Assert.RecordCount(TempGLEntry, 2);
+
+        GenPostingSetup.Get(ValueEntry."Gen. Bus. Posting Group", ValueEntry."Gen. Prod. Posting Group");
+        InventoryPostingSetup.Get(ValueEntry."Location Code", ValueEntry."Inventory Posting Group");
+        VerifyGLEntriesWithAccountNoAndExpectedAmount(TempGLEntry, GenPostingSetup."Direct Cost Non-Inv. App. Acc.", -ExpectedValue);
+        VerifyGLEntriesWithAccountNoAndExpectedAmount(TempGLEntry, InventoryPostingSetup."Inventory Account", ExpectedValue);
+    end;
+
+    local procedure VerifyGLEntriesForNonInventoryVarianceAccount(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type"; Item: Record Item; ExpectedValue: Decimal)
+    var
+        TempGLEntry: Record "G/L Entry" temporary;
+        GenPostingSetup: Record "General Posting Setup";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        ValueEntry: Record "Value Entry";
+    begin
+        FilterValueEntryWithItemLedgerEntryType(ValueEntry, ProductionOrder."No.", ItemLedgerEntryType, CostEntryType, Item."No.", 0);
+        GetRelatedGLEntriesFromValueEntry(TempGLEntry, ValueEntry);
+        Assert.RecordCount(TempGLEntry, 2);
+
+        GenPostingSetup.Get(ValueEntry."Gen. Bus. Posting Group", ValueEntry."Gen. Prod. Posting Group");
+        InventoryPostingSetup.Get(ValueEntry."Location Code", ValueEntry."Inventory Posting Group");
+        VerifyGLEntriesWithAccountNoAndExpectedAmount(TempGLEntry, InventoryPostingSetup."Mat. Non-Inv. Variance Acc.", -ExpectedValue);
+        VerifyGLEntriesWithAccountNoAndExpectedAmount(TempGLEntry, InventoryPostingSetup."Inventory Account", ExpectedValue);
+    end;
+
+    local procedure GetRelatedGLEntriesFromValueEntry(var TempGLEntry: Record "G/L Entry" temporary; ValueEntry: Record "Value Entry")
+    var
+        GLEntry: Record "G/L Entry";
+        GLItemLedgRelation: Record "G/L - Item Ledger Relation";
+    begin
+        GLItemLedgRelation.SetCurrentKey("Value Entry No.");
+        GLItemLedgRelation.SetRange("Value Entry No.", ValueEntry."Entry No.");
+        if GLItemLedgRelation.FindSet() then
+            repeat
+                GLEntry.Get(GLItemLedgRelation."G/L Entry No.");
+                TempGLEntry.Init();
+                TempGLEntry := GLEntry;
+                TempGLEntry.Insert();
+            until GLItemLedgRelation.Next() = 0;
+    end;
+
+    local procedure VerifyGLEntriesWithAccountNoAndExpectedAmount(var TempGLEntry: Record "G/L Entry" temporary; AccountNo: Code[20]; ExpectedAmount: Decimal)
+    begin
+        TempGLEntry.Reset();
+        TempGLEntry.SetLoadFields("G/L Account No.", Amount);
+        TempGLEntry.SetRange("G/L Account No.", AccountNo);
+        TempGLEntry.FindFirst();
+        TempGLEntry.CalcSums(Amount);
+
+        Assert.AreEqual(
+            AccountNo,
+            TempGLEntry."G/L Account No.",
+            StrSubstNo(ValueMustBeEqualErr, TempGLEntry.FieldCaption("G/L Account No."), AccountNo, TempGLEntry.TableCaption()));
+        Assert.AreEqual(
+            ExpectedAmount,
+            TempGLEntry.Amount,
+            StrSubstNo(EntryMustBeEqualErr, TempGLEntry.FieldCaption(Amount), ExpectedAmount, TempGLEntry."Entry No.", TempGLEntry.TableCaption()));
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -8593,6 +9746,13 @@
     [PageHandler]
     procedure ReleasedProdOrderPageHandler(var ReleasedProductionOrder: TestPage "Released Production Order")
     begin
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure StrMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
+    begin
+        Choice := 1;
     end;
 }
 
