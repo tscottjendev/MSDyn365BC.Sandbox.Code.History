@@ -8,6 +8,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Manufacturing.Capacity;
+using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.InventoryDocument;
 using Microsoft.Warehouse.Ledger;
@@ -310,6 +311,20 @@ page 99000867 "Finished Production Order"
                                   "Source No." = field("No.");
                     RunPageView = sorting("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
                     ToolTip = 'View the list of inventory movements that have been made for the order.';
+                }
+                action("Create Warehouse Put-Away")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Create Warehouse Put-Away';
+                    Image = CreatePutAway;
+                    ToolTip = 'Create warehouse put-away documents for the production order lines.';
+
+                    trigger OnAction()
+                    var
+                        CreatePutAway: Codeunit "Create Put-away";
+                    begin
+                        CreatePutAway.CreateProdPutAwayFromProdOrder(Rec);
+                    end;
                 }
                 action(DocAttach)
                 {
