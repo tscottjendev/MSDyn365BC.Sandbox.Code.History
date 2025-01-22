@@ -9,6 +9,8 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Manufacturing.Document;
 
 table 5896 "Inventory Adjmt. Entry (Order)"
 {
@@ -296,13 +298,16 @@ table 5896 "Inventory Adjmt. Entry (Order)"
     begin
         Item.Get("Item No.");
 
-        "Single-Level Material Cost" := Item."Single-Level Material Cost";
-        "Single-Level Capacity Cost" := Item."Single-Level Capacity Cost";
-        "Single-Level Subcontrd. Cost" := Item."Single-Level Subcontrd. Cost";
-        "Single-Level Cap. Ovhd Cost" := Item."Single-Level Cap. Ovhd Cost";
-        "Single-Level Mfg. Ovhd Cost" := Item."Single-Level Mfg. Ovhd Cost";
-        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
-            "Material Cost - Non Inventory" := Item."Material Cost - Non Inventory";
+        if not UpdatedFromSKU(Item) then begin
+            "Single-Level Material Cost" := Item."Single-Level Material Cost";
+            "Single-Level Capacity Cost" := Item."Single-Level Capacity Cost";
+            "Single-Level Subcontrd. Cost" := Item."Single-Level Subcontrd. Cost";
+            "Single-Level Cap. Ovhd Cost" := Item."Single-Level Cap. Ovhd Cost";
+            "Single-Level Mfg. Ovhd Cost" := Item."Single-Level Mfg. Ovhd Cost";
+
+            if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                "Material Cost - Non Inventory" := Item."Material Cost - Non Inventory";
+        end;
 
         CurrExchRate := CalcCurrencyFactor();
         "Direct Cost (ACY)" := "Direct Cost" * CurrExchRate;
@@ -316,6 +321,35 @@ table 5896 "Inventory Adjmt. Entry (Order)"
             "Material Cost - Non Inv. (ACY)" := "Material Cost - Non Inventory" * CurrExchRate;
 
         OnAfterGetSingleLevelCosts(Rec, Item);
+    end;
+
+    local procedure UpdatedFromSKU(Item: Record Item): Boolean
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        SKU: Record "Stockkeeping Unit";
+    begin
+        if "Order Type" <> "Order Type"::Production then
+            exit;
+
+        if not Item.ShouldTryCostFromSKU() then
+            exit;
+
+        ProdOrderLine.SetLoadFields("Prod. Order No.", "Line No.", "Location Code", "Item No.", "Variant Code");
+        ProdOrderLine.SetRange("Prod. Order No.", "Order No.");
+        ProdOrderLine.SetRange("Line No.", "Order Line No.");
+        if not ProdOrderLine.FindFirst() then
+            exit;
+
+        if not SKU.Get(ProdOrderLine."Location Code", Item."No.", ProdOrderLine."Variant Code") then
+            exit;
+
+        "Single-Level Material Cost" := SKU."Single-Level Material Cost";
+        "Single-Level Capacity Cost" := SKU."Single-Level Capacity Cost";
+        "Single-Level Subcontrd. Cost" := SKU."Single-Level Subcontrd. Cost";
+        "Single-Level Cap. Ovhd Cost" := SKU."Single-Level Cap. Ovhd Cost";
+        "Single-Level Mfg. Ovhd Cost" := SKU."Single-Level Mfg. Ovhd Cost";
+
+        exit(true);
     end;
 
     local procedure CalcCostFromCostShares()
