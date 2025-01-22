@@ -6,6 +6,7 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Vendor;
@@ -14,7 +15,6 @@ using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Availability;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Warehouse.InternalDocument;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
@@ -804,19 +804,13 @@ table 7326 "Whse. Worksheet Line"
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        ProdOrderLine.Get(ProdOrderLine.Status::Released, Rec."Source No.", Rec."Source Line No.");
+        ProdOrderLine.Get(Rec."Source Subtype", Rec."Source No.", Rec."Source Line No.");
         ProdOrderLine.CalcFields("Put-away Qty. (Base)");
 
-        if ProdOrderLine.Quantity >= ProdOrderLine."Finished Quantity" then
-            Rec.Validate("Qty. Outstanding", (Quantity - "Qty. Handled"))
+        if ProdOrderLine."Finished Quantity" = "Qty. Handled" then
+            Rec.Validate("Qty. Outstanding", 0)
         else
-            if Quantity >= "Qty. Handled" then
-                Rec.Validate("Qty. Outstanding", (Quantity - "Qty. Handled"))
-            else
-                if ProdOrderLine."Finished Quantity" = "Qty. Handled" then
-                    Rec.Validate("Qty. Outstanding", 0)
-                else
-                    Rec.Validate("Qty. Outstanding", ProdOrderLine."Finished Qty. (Base)" - (ProdOrderLine."Qty. Put Away (Base)" + ProdOrderLine."Put-away Qty. (Base)"));
+            Rec.Validate("Qty. Outstanding", ProdOrderLine."Finished Qty. (Base)" - (ProdOrderLine."Qty. Put Away (Base)" + ProdOrderLine."Put-away Qty. (Base)"));
     end;
 
     procedure SortWhseWkshLines(WhseWkshTemplate: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; SortingMethod: Enum "Whse. Activity Sorting Method")
