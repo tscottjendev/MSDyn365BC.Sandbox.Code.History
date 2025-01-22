@@ -548,6 +548,42 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         OnAfterProdOrderLineDelete(ProdOrderLine);
     end;
 
+    procedure ValidateWarehousePutAwayLocation(ProdOrderLine: Record "Prod. Order Line")
+    var
+        PutAwayProdOrderLine: Record "Prod. Order Line";
+        LocationCode: Code[10];
+    begin
+        if Location.RequirePutAwayForProdOutput(ProdOrderLine."Location Code") then
+            LocationCode := ProdOrderLine."Location Code";
+
+        PutAwayProdOrderLine.SetLoadFields(Status, "Prod. Order No.", "Location Code", "Line No.");
+        PutAwayProdOrderLine.SetRange(Status, ProdOrderLine.Status);
+        PutAwayProdOrderLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+
+        if LocationCode <> '' then begin
+            CompareProdOrderLinesForWarehouse(PutAwayProdOrderLine, ProdOrderLine);
+            exit;
+        end;
+
+        if PutAwayProdOrderLine.FindSet() then
+            repeat
+                if Location.RequirePutAwayForProdOutput(PutAwayProdOrderLine."Location Code") then begin
+                    LocationCode := PutAwayProdOrderLine."Location Code";
+
+                    if LocationCode <> ProdOrderLine."Location Code" then
+                        ProdOrderLine.TestField("Location Code", LocationCode);
+                end;
+            until PutAwayProdOrderLine.Next() = 0;
+    end;
+
+    local procedure CompareProdOrderLinesForWarehouse(var PutAwayProdOrderLine: Record "Prod. Order Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+        PutAwayProdOrderLine.SetFilter("Line No.", '<>%1', ProdOrderLine."Line No.");
+        PutAwayProdOrderLine.SetFilter("Location Code", '<>%1', ProdOrderLine."Location Code");
+        if PutAwayProdOrderLine.FindFirst() then
+            PutAwayProdOrderLine.TestField("Location Code", ProdOrderLine."Location Code");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterProdOrderLineDelete(var ProdOrderLine: Record "Prod. Order Line")
     begin
@@ -1056,6 +1092,7 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
                     LinesExist :=
                       WhseValidateSourceLine.WhseLinesExist(
                         Database::"Prod. Order Line", 3, NewItemJnlLine."Order No.", NewItemJnlLine."Order Line No.", 0, NewItemJnlLine.Quantity);
+                    QtyChecked := LinesExist;
                 end;
         end;
     end;
@@ -1272,7 +1309,7 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
             exit(true);
     end;
 
-    procedure FromProdOrderLine(WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; ToBinCode: Code[20]; ProdOrderLine: Record "Prod. Order Line"): Boolean
+    procedure FromProdOrderLine(WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; FromBinCode: Code[20]; ProdOrderLine: Record "Prod. Order Line"): Boolean
     var
         Bin: Record Bin;
         WhseWkshLine: Record "Whse. Worksheet Line";
@@ -1297,7 +1334,6 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         WhseWkshLine."Whse. Document Line No." := ProdOrderLine."Line No.";
         WhseWkshLine."Source Type" := Database::"Prod. Order Line";
         WhseWkshLine."Source Subtype" := ProdOrderLine.Status.AsInteger();
-        WhseWkshLine."Source Subtype" := 5;
         WhseWkshLine."Source No." := ProdOrderLine."Prod. Order No.";
         WhseWkshLine."Source Line No." := ProdOrderLine."Line No.";
         WhseWkshLine."Source Subline No." := ProdOrderLine."Line No.";
@@ -1306,15 +1342,16 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         WhseWkshLine."Item No." := ProdOrderLine."Item No.";
         WhseWkshLine."Variant Code" := ProdOrderLine."Variant Code";
         WhseWkshLine."Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
+        WhseWkshLine."From Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
         WhseWkshLine."Qty. per Unit of Measure" := ProdOrderLine."Qty. per Unit of Measure";
         WhseWkshLine.Description := ProdOrderLine.Description;
         WhseWkshLine."Due Date" := ProdOrderLine."Due Date";
         WhseWkshLine.Validate(Quantity, (ProdOrderLine."Finished Quantity" - (ProdOrderLine."Qty. Put Away" + ProdOrderLine."Put-away Qty.")));
         WhseWkshLine.Validate("Qty. Handled", ProdOrderLine."Qty. Put Away" + ProdOrderLine."Put-away Qty.");
-        WhseWkshLine."To Bin Code" := ToBinCode;
-        if (ProdOrderLine."Location Code" <> '') and (ToBinCode <> '') then begin
-            Bin.Get(LocationCode, ToBinCode);
-            WhseWkshLine."To Zone Code" := Bin."Zone Code";
+        WhseWkshLine."From Bin Code" := FromBinCode;
+        if (ProdOrderLine."Location Code" <> '') and (FromBinCode <> '') then begin
+            Bin.Get(LocationCode, FromBinCode);
+            WhseWkshLine."From Zone Code" := Bin."Zone Code";
         end;
         if WhseWorksheetCreate.CreateWhseWkshLine(WhseWkshLine, ProdOrderLine) then
             exit(true);
