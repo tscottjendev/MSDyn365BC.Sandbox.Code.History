@@ -1005,6 +1005,11 @@ table 14 Location
           ("Shipment Bin Code" <> '') and (BinCode = "Shipment Bin Code"));
     end;
 
+    procedure IsBinBWProdOutput(BinCode: Code[20]): Boolean
+    begin
+        exit(("To-Production Bin Code" <> '') and (BinCode = "To-Production Bin Code"));
+    end;
+
     procedure IsInTransit(LocationCode: Code[10]): Boolean
     begin
         if Location.Get(LocationCode) then
