@@ -1127,6 +1127,7 @@ table 5405 "Production Order"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         ProdOrderLine.SetLoadFields("Put-away Status");
+        ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", "No.");
         if SkipLineNo <> 0 then
             ProdOrderLine.SetFilter("Line No.", '<>%1', SkipLineNo);
