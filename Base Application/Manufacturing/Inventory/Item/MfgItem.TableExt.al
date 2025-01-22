@@ -6,6 +6,7 @@ namespace Microsoft.Inventory.Item;
 
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Forecast;
@@ -386,6 +387,7 @@ tableextension 99000750 "Mfg. Item" extends Item
     }
 
     var
+        InventorySetup: Record "Inventory Setup";
         HideNonInventoryValidateOnStdCost: Boolean;
         NoActiveBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1.', Comment = '%1 - Item No.';
         ProductionBlockedOutputItemErr: Label 'You cannot produce %1 %2 because the %3 is %4 on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value';
@@ -499,5 +501,14 @@ tableextension 99000750 "Mfg. Item" extends Item
                         Error(ProductionBlockedOutputItemVariantErr, VariantCode, Item.TableCaption(), ItemNo);
             end;
         end;
+    end;
+
+    procedure ShouldTryCostFromSKU(): Boolean
+    begin
+        if Rec."Costing Method" <> Rec."Costing Method"::Standard then
+            exit(false);
+
+        InventorySetup.GetRecordOnce();
+        exit(InventorySetup."Average Cost Calc. Type" = InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
     end;
 }
