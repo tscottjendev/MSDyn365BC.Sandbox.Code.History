@@ -8,6 +8,7 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.MachineCenter;
@@ -142,6 +143,7 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
             QtyBase := ProdOrderLine."Finished Qty. (Base)";
         end else begin
             Item.Get(ProdOrderLine."Item No.");
+            UpdateCostFromSKU(Item, ProdOrderLine);
             QtyBase := ProdOrderLine."Quantity (Base)";
         end;
 
@@ -171,6 +173,34 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
           Round(QtyBase * Item."Single-Level Cap. Ovhd Cost" * CurrencyFactor, RndgPrec);
         StdMfgOvhdCost := StdMfgOvhdCost +
           Round(QtyBase * Item."Single-Level Mfg. Ovhd Cost" * CurrencyFactor, RndgPrec);
+    end;
+
+    local procedure UpdateCostFromSKU(var Item: Record Item; ProdOrderLine: Record "Prod. Order Line")
+    var
+        SKU: Record "Stockkeeping Unit";
+    begin
+        if not Item.ShouldTryCostFromSKU() then
+            exit;
+
+        SKU.SetLoadFields(
+            "Location Code",
+            "Item No.",
+            "Location Code",
+            "Standard Cost",
+            "Single-Level Material Cost",
+            "Single-Level Capacity Cost",
+            "Single-Level Subcontrd. Cost",
+            "Single-Level Cap. Ovhd Cost",
+            "Single-Level Mfg. Ovhd Cost");
+
+        if not SKU.Get(ProdOrderLine."Location Code", ProdOrderLine."Item No.", ProdOrderLine."Variant Code") then
+            exit;
+
+        Item."Single-Level Material Cost" := SKU."Single-Level Material Cost";
+        Item."Single-Level Capacity Cost" := SKU."Single-Level Capacity Cost";
+        Item."Single-Level Subcontrd. Cost" := SKU."Single-Level Subcontrd. Cost";
+        Item."Single-Level Cap. Ovhd Cost" := SKU."Single-Level Cap. Ovhd Cost";
+        Item."Single-Level Mfg. Ovhd Cost" := SKU."Single-Level Mfg. Ovhd Cost";
     end;
 
     procedure CalcProdOrderLineExpCost(ProdOrderLine: Record "Prod. Order Line"; ShareOfTotalCapCost: Decimal; var ExpMatCost: Decimal; var ExpCapDirCost: Decimal; var ExpSubDirCost: Decimal; var ExpCapOvhdCost: Decimal; var ExpMfgOvhdCost: Decimal)
