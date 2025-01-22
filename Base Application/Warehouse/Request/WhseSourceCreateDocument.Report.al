@@ -867,6 +867,7 @@ report 7305 "Whse.-Source - Create Document"
         TotalPendingMovQtyExceedsBinAvailErr: Label 'Item tracking defined for line %1, lot number %2, serial number %3, package number %4 cannot be applied.', Comment = '%1=Line No.,%2=Lot No.,%3=Serial No.,%4=Package No.';
         ProdAsmJobWhseHandlingTelemetryCategoryTok: Label 'Prod/Asm/Project Whse. Handling', Locked = true;
         ProdAsmJobWhseHandlingTelemetryTok: Label 'Prod/Asm/Project Whse. Handling in used for warehouse pick.', Locked = true;
+        CannotHandleMoreThanProdOrderLineQtyErr: Label 'You cannot handle more than %1 quantity in Production Order No. %2, Line No. %3', Comment = '%1 = Quantity, %2 - Production Order No., %3 - Production Order Line No.';
 
     protected var
         DoNotFillQtytoHandleReq: Boolean;
@@ -1070,9 +1071,9 @@ report 7305 "Whse.-Source - Create Document"
 
     local procedure CheckAndUpdateFinishedQtyOnProdOrderLineFromPutAway(var ProdOrderLine: Record "Prod. Order Line"; WhseWorksheetLine: Record "Whse. Worksheet Line"; var SourceType: Integer)
     begin
-        ProdOrderLine.Get(ProdOrderLine.Status::Released, WhseWorksheetLine."Whse. Document No.", WhseWorksheetLine."Whse. Document Line No.");
-
-        SourceType := Database::"Posted Whse. Receipt Line";
+        ProdOrderLine.Get(WhseWorksheetLine."Source Subtype", WhseWorksheetLine."Whse. Document No.", WhseWorksheetLine."Whse. Document Line No.");
+        if ProdOrderLine.GetRemainingPutAwayQty() < WhseWorksheetLine."Qty. to Handle" then
+            Error(CannotHandleMoreThanProdOrderLineQtyErr, ProdOrderLine.GetRemainingPutAwayQty(), ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
 
         ProdOrderLine.TestField(ProdOrderLine."Qty. per Unit of Measure");
         ProdOrderLine."Finished Quantity" := WhseWorksheetLine."Qty. to Handle";
@@ -1353,7 +1354,6 @@ report 7305 "Whse.-Source - Create Document"
                 SetQuantity(TempPostedWhseRcptLine2, SourceType, RemQtyToHandleBase);
                 if TempPostedWhseRcptLine2."Qty. (Base)" > 0 then begin
                     CreatePutAway.Run(TempPostedWhseRcptLine2);
-                    CreatePutAway.CreateProdWhsePutAway();
                     CreatePutAway.UpdateTempWhseItemTrkgLines(TempPostedWhseRcptLine2, SourceType);
                 end;
             until TempPostedWhseRcptLine.Next() = 0;
@@ -1364,29 +1364,23 @@ report 7305 "Whse.-Source - Create Document"
         TempProdOrderLine: Record "Prod. Order Line" temporary;
         TempProdOrderLine2: Record "Prod. Order Line" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        CreateHeader: Boolean;
-        Counter: Integer;
-        LineNo: Integer;
     begin
         case SourceType of
             Database::"Prod. Order Line":
                 ItemTrackingMgt.SplitInternalPutAwayLine(ProdOrderLine, TempProdOrderLine);
         end;
 
+        CreatePutAway.SetCalledFromPutAwayWorksheet(true);
         TempProdOrderLine.Reset();
         if TempProdOrderLine.FindSet() then
             repeat
                 TempProdOrderLine2 := TempProdOrderLine;
                 TempProdOrderLine2."Line No." := ProdOrderLine."Line No.";
-                if TempProdOrderLine2."Finished Qty. (Base)" > 0 then begin
-                    CreateHeader := Counter = 0;
-                    LineNo += 10000;
-                    CreatePutAway.CreateProdPutawayActivity(TempProdOrderLine2, CreateHeader, LineNo, TempProdOrderLine2."Finished Qty. (Base)", Enum::"Warehouse Action Type"::Take);
-                    LineNo += 10000;
-                    CreatePutAway.CreateProdPutawayActivity(TempProdOrderLine2, CreateHeader, LineNo, TempProdOrderLine2."Finished Qty. (Base)", Enum::"Warehouse Action Type"::Place);
-                end;
-                Counter += 1;
+                if TempProdOrderLine2."Finished Qty. (Base)" > 0 then
+                    CreatePutAway.CreateWhsePutAwayForProdOrderLine(TempProdOrderLine2);
             until TempProdOrderLine.Next() = 0;
+
+        CreatePutAway.SetCalledFromPutAwayWorksheet(false);
     end;
 
     procedure FEFOLocation(LocCode: Code[10]): Boolean
