@@ -608,7 +608,9 @@ codeunit 8 AccSchedManagement
                                             GLAccCategoriesToVisit."Entry No." := GLAccCatCode;
                                             GLAccCategoriesToVisit.Delete();
                                         end;
-                                    end;
+                                    end
+                                else
+                                    OnCalcCellValueOnElseTotalingType(AccSchedLine, AccountScheduleLine, ColumnLayout, Result);
                             end;
 
                 OnAfterCalcCellValue(AccSchedLine, ColumnLayout, Result, AccountScheduleLine, GLAcc);
@@ -2654,6 +2656,11 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcCellValueOnBeforeExit(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; StartDate: Date; EndDate: Date; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCalcCellValueOnElseTotalingType(AccSchedLine: Record "Acc. Schedule Line"; AccountScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var Result: Decimal)
     begin
     end;
 
