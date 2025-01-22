@@ -17,6 +17,8 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Warehouse.Structure;
 
 page 5700 "Stockkeeping Unit Card"
@@ -861,6 +863,21 @@ page 5700 "Stockkeeping Unit Card"
                         PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management";
                     begin
                         PhysInvtCountMgt.UpdateSKUPhysInvtCount(Rec);
+                    end;
+                }
+                action("Calc. Production Std. Cost")
+                {
+                    AccessByPermission = TableData "Production BOM Header" = R;
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Calc. Production Std. Cost';
+                    Image = CalculateCost;
+                    ToolTip = 'Calculate the unit cost of the SKUs by rolling up the unit cost of each component and resource in the item''s production BOM. The unit cost of a parent item must equal the total of the unit costs of its components, subassemblies, and any resources.';
+
+                    trigger OnAction()
+                    var
+                        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+                    begin
+                        CalculateStandardCost.CalcItemSKU(Rec."Item No.", Rec."Location Code", Rec."Variant Code");
                     end;
                 }
             }
