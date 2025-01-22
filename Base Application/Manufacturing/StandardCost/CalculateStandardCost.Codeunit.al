@@ -12,7 +12,9 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
 using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
@@ -21,7 +23,6 @@ using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Resources.Resource;
-using Microsoft.Manufacturing.Document;
 
 codeunit 5812 "Calculate Standard Cost"
 {
@@ -34,6 +35,7 @@ codeunit 5812 "Calculate Standard Cost"
         MfgSetup: Record "Manufacturing Setup";
         GLSetup: Record "General Ledger Setup";
         TempItem: Record Item temporary;
+        TempSKU: Record "Stockkeeping Unit" temporary;
         TempWorkCenter: Record "Work Center" temporary;
         TempMachineCenter: Record "Machine Center" temporary;
         TempPriceListLine: Record "Price List Line" temporary;
@@ -282,6 +284,45 @@ codeunit 5812 "Calculate Standard Cost"
                 exit;
 
         CheckForNonInventoryItemInProdBOM(Item, ActiveVersionNo);
+    end;
+
+    procedure CalcItemSKU(ItemNo: Code[20]; LocationCode: Code[20]; VariantCode: Code[20])
+    var
+        SKU: Record "Stockkeeping Unit";
+        ItemCostMgt: Codeunit ItemCostManagement;
+        Instruction: Text[1024];
+        NewCalcMultiLevel: Boolean;
+        Depth: Integer;
+        ShowStrMenu: Boolean;
+    begin
+        SKU.Get(LocationCode, ItemNo, VariantCode);
+
+        if not SKU.IsMfgSKU() then
+            exit;
+
+        ShowStrMenu := (Depth > 1);
+        if ShowStrMenu then
+            case StrMenu(Text001, 1, Instruction) of
+                0:
+                    exit;
+                1:
+                    NewCalcMultiLevel := false;
+                2:
+                    NewCalcMultiLevel := true;
+            end;
+
+        SetProperties(WorkDate(), NewCalcMultiLevel, false, false, '', false);
+        CalcMfgSKU(LocationCode, ItemNo, VariantCode, SKU, 0);
+
+        if TempSKU.Find('-') then
+            repeat
+                ItemCostMgt.UpdateStdCostSharesForSKU(TempSKU);
+            until TempSKU.Next() = 0;
+
+        if TempItem.Find('-') then
+            repeat
+                ItemCostMgt.UpdateStdCostShares(TempItem);
+            until TempItem.Next() = 0;
     end;
 
     procedure CalcItems(var Item: Record Item; var NewTempItem: Record Item)
@@ -656,6 +697,84 @@ codeunit 5812 "Calculate Standard Cost"
         TempItem.Insert();
     end;
 
+    local procedure CalcMfgSKU(ItemNo: Code[20]; LocationCode: Code[20]; VariantCode: Code[20]; var SKU: Record "Stockkeeping Unit"; Level: Integer)
+    var
+        MainItem: Record Item;
+        BOMNo: Code[20];
+        RoutingNo: Code[20];
+        LotSize: Decimal;
+        MfgItemQtyBase: Decimal;
+        SLMat: Decimal;
+        SLCap: Decimal;
+        SLSub: Decimal;
+        SLCapOvhd: Decimal;
+        SLMfgOvhd: Decimal;
+        RUMat: Decimal;
+        RUCap: Decimal;
+        RUSub: Decimal;
+        RUCapOvhd: Decimal;
+        RUMfgOvhd: Decimal;
+    begin
+        if not MainItem.Get(SKU."Item No.") then
+            exit;
+
+        if Level > MaxLevel then
+            Error(Text000, MaxLevel);
+
+        if GetSKU(ItemNo, LocationCode, VariantCode, SKU) then
+            exit;
+
+        if not CalcMultiLevel and (Level <> 0) then
+            exit;
+
+        LotSize := 1;
+
+        if not SKU.IsMfgSKU() then
+            exit;
+
+        if SKU."Production BOM No." = '' then
+            BOMNo := MainItem."Production BOM No."
+        else
+            BOMNo := SKU."Production BOM No.";
+
+        if SKU."Routing No." = '' then
+            RoutingNo := MainItem."Routing No."
+        else
+            RoutingNo := SKU."Routing No.";
+
+        if SKU."Lot Size" <> 0 then
+            LotSize := SKU."Lot Size";
+        MfgItemQtyBase := MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(LotSize, MainItem."Scrap %");
+        CalcRtngCostSKU(MainItem, RoutingNo, MfgItemQtyBase, SLCap, SLSub, SLCapOvhd);
+        CalcProdBOMCost(
+          MainItem, BOMNo, RoutingNo,
+          MfgItemQtyBase, true, Level, SLMat, RUMat, RUCap, RUSub, RUCapOvhd, RUMfgOvhd, SKU);
+        SLMfgOvhd :=
+          CostCalcMgt.CalcOvhdCost(
+            SLMat + SLCap + SLSub + SLCapOvhd,
+            MainItem."Indirect Cost %", MainItem."Overhead Rate", LotSize);
+
+        SKU."Single-Level Material Cost" := CalcCostPerUnit(SLMat, LotSize);
+        SKU."Single-Level Capacity Cost" := CalcCostPerUnit(SLCap, LotSize);
+        SKU."Single-Level Subcontrd. Cost" := CalcCostPerUnit(SLSub, LotSize);
+        SKU."Single-Level Cap. Ovhd Cost" := CalcCostPerUnit(SLCapOvhd, LotSize);
+        SKU."Single-Level Mfg. Ovhd Cost" := CalcCostPerUnit(SLMfgOvhd, LotSize);
+        SKU."Rolled-up Material Cost" := CalcCostPerUnit(RUMat, LotSize);
+        SKU."Rolled-up Capacity Cost" := CalcCostPerUnit(RUCap + SLCap, LotSize);
+        SKU."Rolled-up Subcontracted Cost" := CalcCostPerUnit(RUSub + SLSub, LotSize);
+        SKU."Rolled-up Cap. Overhead Cost" := CalcCostPerUnit(RUCapOvhd + SLCapOvhd, LotSize);
+        SKU."Rolled-up Mfg. Ovhd Cost" := CalcCostPerUnit(RUMfgOvhd + SLMfgOvhd, LotSize);
+        SKU."Standard Cost" :=
+          SKU."Single-Level Material Cost" +
+          SKU."Single-Level Capacity Cost" +
+          SKU."Single-Level Subcontrd. Cost" +
+          SKU."Single-Level Cap. Ovhd Cost" +
+          SKU."Single-Level Mfg. Ovhd Cost";
+
+        TempSKU := SKU;
+        TempSKU.Insert();
+    end;
+
     local procedure SetProdBOMFilters(var ProdBOMLine: Record "Production BOM Line"; var PBOMVersionCode: Code[20]; ProdBOMNo: Code[20])
     var
         ProdBOMHeader: Record "Production BOM Header";
@@ -744,6 +863,59 @@ codeunit 5812 "Calculate Standard Cost"
             until ProdBOMLine.Next() = 0;
     end;
 
+    local procedure CalcProdBOMCost(MfgItem: Record Item; ProdBOMNo: Code[20]; RtngNo: Code[20]; MfgItemQtyBase: Decimal; IsTypeItem: Boolean; Level: Integer; var SLMat: Decimal; var RUMat: Decimal; var RUCap: Decimal; var RUSub: Decimal; var RUCapOvhd: Decimal; var RUMfgOvhd: Decimal; var SKU: Record "Stockkeeping Unit")
+    var
+        CompItem: Record Item;
+        ProdBOMLine: Record "Production BOM Line";
+        CompItemQtyBase: Decimal;
+        UOMFactor: Decimal;
+        PBOMVersionCode: Code[20];
+    begin
+        if ProdBOMNo = '' then
+            exit;
+
+        SetProdBOMFilters(ProdBOMLine, PBOMVersionCode, ProdBOMNo);
+
+        if IsTypeItem then
+            UOMFactor := UOMMgt.GetQtyPerUnitOfMeasure(MfgItem, VersionMgt.GetBOMUnitOfMeasure(ProdBOMNo, PBOMVersionCode))
+        else
+            UOMFactor := 1;
+
+        if ProdBOMLine.Find('-') then
+            repeat
+                CompItemQtyBase :=
+                  UOMMgt.RoundQty(
+                    MfgCostCalcMgt.CalcCompItemQtyBase(ProdBOMLine, CalculationDate, MfgItemQtyBase, RtngNo, IsTypeItem) / UOMFactor);
+
+                OnCalcProdBOMCostOnAfterCalcCompItemQtyBase(
+                  CalculationDate, MfgItem, MfgItemQtyBase, IsTypeItem, ProdBOMLine, CompItemQtyBase, RtngNo, UOMFactor);
+                case ProdBOMLine.Type of
+                    ProdBOMLine.Type::Item:
+                        begin
+                            GetItem(ProdBOMLine."No.", CompItem);
+                            if CompItem.IsInventoriableType() then
+                                if CompItem.IsMfgItem() or CompItem.IsAssemblyItem() then begin
+                                    CalcMfgItem(ProdBOMLine."No.", CompItem, Level + 1);
+                                    IncrCost(SLMat, CompItem."Standard Cost", CompItemQtyBase);
+                                    IncrCost(RUMat, CompItem."Rolled-up Material Cost", CompItemQtyBase);
+                                    IncrCost(RUCap, CompItem."Rolled-up Capacity Cost", CompItemQtyBase);
+                                    IncrCost(RUSub, CompItem."Rolled-up Subcontracted Cost", CompItemQtyBase);
+                                    IncrCost(RUCapOvhd, CompItem."Rolled-up Cap. Overhead Cost", CompItemQtyBase);
+                                    IncrCost(RUMfgOvhd, CompItem."Rolled-up Mfg. Ovhd Cost", CompItemQtyBase);
+                                end else begin
+                                    IncrCost(SLMat, CompItem."Unit Cost", CompItemQtyBase);
+                                    IncrCost(RUMat, CompItem."Unit Cost", CompItemQtyBase);
+                                end;
+                            OnCalcProdBOMCostOnAfterCalcAnyItem(ProdBOMLine, MfgItem, MfgItemQtyBase, CompItem, CompItemQtyBase, Level, IsTypeItem, UOMFactor,
+                                                                SLMat, RUMat, RUCap, RUSub, RUCapOvhd, RUMfgOvhd);
+                        end;
+                    ProdBOMLine.Type::"Production BOM":
+                        CalcProdBOMCost(
+                          MfgItem, ProdBOMLine."No.", RtngNo, CompItemQtyBase, false, Level, SLMat, RUMat, RUCap, RUSub, RUCapOvhd, RUMfgOvhd, SKU);
+                end;
+            until ProdBOMLine.Next() = 0;
+    end;
+
     local procedure CalcRtngCost(RtngHeaderNo: Code[20]; MfgItemQtyBase: Decimal; var SLCap: Decimal; var SLSub: Decimal; var SLCapOvhd: Decimal; var ParentItem: Record Item)
     var
         RtngLine: Record "Routing Line";
@@ -761,6 +933,23 @@ codeunit 5812 "Calculate Standard Cost"
                 OnCalcRtngCostOnBeforeCalcRtngLineCost(RtngLine, ParentItem, LogErrors, IsHandled);
                 if not IsHandled then
                     CalcRtngLineCost(RtngLine, MfgItemQtyBase, SLCap, SLSub, SLCapOvhd, ParentItem);
+            until RtngLine.Next() = 0;
+        end;
+    end;
+
+    local procedure CalcRtngCostSKU(MainItem: Record Item; RtngHeaderNo: Code[20]; MfgItemQtyBase: Decimal; var SLCap: Decimal; var SLSub: Decimal; var SLCapOvhd: Decimal)
+    var
+        RtngLine: Record "Routing Line";
+        RtngHeader: Record "Routing Header";
+    begin
+        if RtngLine.CertifiedRoutingVersionExists(RtngHeaderNo, CalculationDate) then begin
+            if RtngLine."Version Code" = '' then begin
+                RtngHeader.Get(RtngHeaderNo);
+                TestRtngVersionIsCertified(RtngLine."Version Code", RtngHeader);
+            end;
+
+            repeat
+                CalcRtngLineCostSKU(RtngLine, MainItem, MfgItemQtyBase, SLCap, SLSub, SLCapOvhd);
             until RtngLine.Next() = 0;
         end;
     end;
@@ -863,6 +1052,15 @@ codeunit 5812 "Calculate Standard Cost"
         end;
 
         OnAfterGetItem(Item, StdCostWkshName, IsInBuffer);
+    end;
+
+    local procedure GetSKU(ItemNo: Code[20]; LocationCode: Code[20]; VariantCode: Code[20]; var SKU: Record "Stockkeeping Unit") IsInSKUBuffer: Boolean
+    begin
+        if TempSKU.Get(LocationCode, ItemNo, VariantCode) then begin
+            SKU := TempSKU;
+            IsInSKUBuffer := true;
+        end else
+            IsInSKUBuffer := false;
     end;
 
     local procedure GetWorkCenter(No: Code[20]; var WorkCenter: Record "Work Center")
@@ -1123,6 +1321,39 @@ codeunit 5812 "Calculate Standard Cost"
         IncrCost(SLCapOvhd, CostCalcMgt.CalcOvhdCost(DirUnitCost, IndirCostPct, OvhdRate, 1), CostTime);
 
         OnAfterCalcRtngLineCost(RoutingLine, MfgItemQtyBase, SLCap, SLSub, SLCapOvhd, StdCostWkshName, ParentItem, CostTime);
+    end;
+
+    internal procedure CalcRtngLineCostSKU(RoutingLine: Record "Routing Line"; MainItem: Record Item; MfgItemQtyBase: Decimal; var SLCap: Decimal; var SLSub: Decimal; var SLCapOvhd: Decimal)
+    var
+        WorkCenter: Record "Work Center";
+        UnitCost: Decimal;
+        DirUnitCost: Decimal;
+        IndirCostPct: Decimal;
+        OvhdRate: Decimal;
+        CostTime: Decimal;
+        UnitCostCalculation: Enum "Unit Cost Calculation Type";
+    begin
+        OnBeforeCalcRtngLineCost(RoutingLine, MfgItemQtyBase);
+        if (RoutingLine.Type = RoutingLine.Type::"Work Center") and (RoutingLine."No." <> '') then
+            WorkCenter.Get(RoutingLine."No.");
+
+        UnitCost := RoutingLine."Unit Cost per";
+        CalcRoutingCostPerUnit(RoutingLine.Type, RoutingLine."No.", DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, MainItem, RoutingLine."Standard Task Code");
+        OnCalcRtngLineCostOnAfterCalcRoutingCostPerUnit(RoutingLine, WorkCenter, MfgItemQtyBase, UnitCostCalculation);
+        CostTime :=
+          MfgCostCalcMgt.CalculateCostTime(
+            MfgItemQtyBase,
+            RoutingLine."Setup Time", RoutingLine."Setup Time Unit of Meas. Code",
+            RoutingLine."Run Time", RoutingLine."Run Time Unit of Meas. Code", RoutingLine."Lot Size",
+            RoutingLine."Scrap Factor % (Accumulated)", RoutingLine."Fixed Scrap Qty. (Accum.)",
+            RoutingLine."Work Center No.", UnitCostCalculation, MfgSetup."Cost Incl. Setup",
+            RoutingLine."Concurrent Capacities");
+
+        if (RoutingLine.Type = RoutingLine.Type::"Work Center") and (WorkCenter."Subcontractor No." <> '') then
+            IncrCost(SLSub, DirUnitCost, CostTime)
+        else
+            IncrCost(SLCap, DirUnitCost, CostTime);
+        IncrCost(SLCapOvhd, CostCalcMgt.CalcOvhdCost(DirUnitCost, IndirCostPct, OvhdRate, 1), CostTime);
     end;
 
     local procedure TestRtngVersionIsCertified(RtngVersionCode: Code[20]; RtngHeader: Record "Routing Header")
