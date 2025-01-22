@@ -694,6 +694,27 @@ table 5700 "Stockkeeping Unit"
             DecimalPlaces = 0 : 5;
             FieldClass = FlowField;
         }
+        field(5404; "Rolled-up Material Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Rolled-up Material Cost';
+            DecimalPlaces = 2 : 5;
+            Editable = false;
+        }
+        field(5405; "Rolled-up Capacity Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Rolled-up Capacity Cost';
+            DecimalPlaces = 2 : 5;
+            Editable = false;
+        }
+        field(5407; "Scrap %"; Decimal)
+        {
+            Caption = 'Scrap %';
+            DecimalPlaces = 0 : 2;
+            MaxValue = 100;
+            MinValue = 0;
+        }
     }
 
     keys
@@ -830,6 +851,16 @@ table 5700 "Stockkeeping Unit"
     local procedure ShowLoopError()
     begin
         Error(Text006, FieldCaption("Transfer-from Code"), ErrorString, "Location Code", "Transfer-from Code");
+    end;
+
+    procedure IsMfgSKU() Result: Boolean
+    begin
+        Result := "Replenishment System" = "Replenishment System"::"Prod. Order";
+    end;
+
+    procedure IsAssemblySKU() Result: Boolean
+    begin
+        Result := Rec."Replenishment System" = Rec."Replenishment System"::Assembly;
     end;
 
     protected procedure TestNoEntriesExist(CurrentFieldName: Text[100])
