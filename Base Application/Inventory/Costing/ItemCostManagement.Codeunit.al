@@ -249,6 +249,25 @@ codeunit 5804 ItemCostManagement
         Item.Modify();
     end;
 
+    procedure UpdateStdCostSharesForSKU(FromSKU: Record "Stockkeeping Unit")
+    var
+        SKU: Record "Stockkeeping Unit";
+    begin
+        SKU.Get(FromSKU."Location Code", FromSKU."Item No.", FromSKU."Variant Code");
+        SKU.Validate("Standard Cost", FromSKU."Standard Cost");
+        SKU."Single-Level Material Cost" := FromSKU."Single-Level Material Cost";
+        SKU."Single-Level Capacity Cost" := FromSKU."Single-Level Capacity Cost";
+        SKU."Single-Level Subcontrd. Cost" := FromSKU."Single-Level Subcontrd. Cost";
+        SKU."Single-Level Cap. Ovhd Cost" := FromSKU."Single-Level Cap. Ovhd Cost";
+        SKU."Single-Level Mfg. Ovhd Cost" := FromSKU."Single-Level Mfg. Ovhd Cost";
+        SKU."Rolled-up Material Cost" := FromSKU."Rolled-up Material Cost";
+        SKU."Rolled-up Capacity Cost" := FromSKU."Rolled-up Capacity Cost";
+        SKU."Rolled-up Subcontracted Cost" := FromSKU."Rolled-up Subcontracted Cost";
+        SKU."Rolled-up Mfg. Ovhd Cost" := FromSKU."Rolled-up Mfg. Ovhd Cost";
+        SKU."Rolled-up Cap. Overhead Cost" := FromSKU."Rolled-up Cap. Overhead Cost";
+        SKU.Modify();
+    end;
+
     procedure UpdateUnitCostSKU(Item: Record Item; var SKU: Record "Stockkeeping Unit"; LastDirectCost: Decimal; NewStdCost: Decimal; MatchSKU: Boolean; CalledByFieldNo: Integer)
     var
         ValueEntry: Record "Value Entry";
