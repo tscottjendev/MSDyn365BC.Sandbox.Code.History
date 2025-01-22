@@ -606,6 +606,20 @@ page 99000831 "Released Production Order"
                         Rec.CreatePick(CopyStr(UserId, 1, 50), 0, false, false, false);
                     end;
                 }
+                action("Create Warehouse Put-Away")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Create Warehouse Put-Away';
+                    Image = CreatePutAway;
+                    ToolTip = 'Create warehouse put-away documents for the production order lines.';
+
+                    trigger OnAction()
+                    var
+                        CreatePutAway: Codeunit "Create Put-away";
+                    begin
+                        CreatePutAway.CreateProdPutAwayFromProdOrder(Rec);
+                    end;
+                }
             }
             group("&Print")
             {
