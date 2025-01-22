@@ -21,6 +21,7 @@ codeunit 137402 "SCM Costing Batch"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         RoundingMethodCode: Code[10];
         isInitialized: Boolean;
         BlankDocumentNoError: Label 'You must specify a %1';
@@ -43,6 +44,13 @@ codeunit 137402 "SCM Costing Batch"
         AdjustmentFactor: Integer;
         InvalidColumnCaptionError: Label 'Period in columns caption were not updated according to the view by filter.';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
+        AmountErr: Label '%1 must be %2 in %3', Comment = '%1 = Amount of GL Entry, %2 = Standard Cost of SKU, %3 = GL Entry';
+        StandardCostMustMatchErr: Label 'Standard Cost of Item and SKU must match for Item No. %1', Comment = '%1 = Item No.';
+        StandardCostMustNotMatchErr: Label 'Standard Cost of Item and SKU must not match for Item No. %1', Comment = '%1 = Item No.';
+        SingleLevelCapacityCostMustMatchErr: Label 'Single-Level Capacity Cost of Item and SKU must match for Item No. %1', Comment = '%1 = Item No.';
+        SingleLevelCapacityCostMustNotMatchErr: Label 'Single-Level Capacity Cost of Item and SKU must not match for Item No. %1', Comment = '%1 = Item No.';
+        SingleLevelMaterialCostMustMatchErr: Label 'Single-Level Material Cost of Item and SKU must match for Item No. %1', Comment = '%1 = Item No.';
+        SingleLevelMaterialCostMustNotMatchErr: Label 'Single-Level Material Cost of Item and SKU must not match for Item No. %1', Comment = '%1 = Item No.';
         CurrentSaveValuesId: Integer;
 
     [Test]
@@ -1020,6 +1028,385 @@ codeunit 137402 "SCM Costing Batch"
         Assert.RecordCount(StandardCostWorksheet, 1);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,AdjustCostItemEntriesHandler')]
+    procedure StdCostOfSKUAndAmtOfGLEntryAreSameWhenFinishProOrderAndRunAdjustCostItemEntries()
+    var
+        GLEntry: Record "G/L Entry";
+        Item: Record Item;
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        ProductionBOMLine: Record "Production BOM Line";
+        RoutingHeader: Record "Routing Header";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        WorkCenter: Record "Work Center";
+    begin
+        // [SCENARIO 295780] Standard Cost of Stockkeeping Unit is equal to Amount of GL Entry
+        // which is created when Production Order is Finished and Stan runs Adjust Cost Item Entries.
+
+        // [GIVEN] Update Automatic Cost Posting, Expected Cost posting to G/L 
+        // and Average Cost Calc. Type in Inventory Setup. 
+        LibraryInventory.SetAutomaticCostPosting(true);
+        LibraryInventory.SetExpectedCostPosting(true);
+        LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::"Item & Location & Variant", "Average Cost Period Type"::Day);
+
+        // [GIVEN] Create a WorkCenter with Calendar.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Create a Routing.
+        CreateRouting(RoutingHeader, WorkCenter."No.");
+
+        // [GIVEN] Create an Item with Routing and Production BOM.
+        CreateItemWithRoutingAndProdBOM(Item, RoutingHeader, ProductionBOMLine);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Stockkeeping Unit.
+        LibraryInventory.CreateStockKeepingUnit(Item, Enum::"SKU Creation Method"::"Location & Variant", false, false);
+
+        // [GIVEN] Find Stockkeeping Unit.
+        StockkeepingUnit.SetRange("Item No.", Item."No.");
+        StockkeepingUnit.FindFirst();
+
+        // [GIVEN] Validate Location Code and Standard Cost in Stockkeeping Unit.
+        StockkeepingUnit.Validate("Location Code", Location.Code);
+        StockkeepingUnit.Validate("Standard Cost", LibraryRandom.RandIntInRange(10, 10));
+        StockkeepingUnit.Modify(true);
+
+        // [GIVEN] Create a Production Order.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProductionOrder."Source Type"::Item,
+            Item."No.",
+            LibraryRandom.RandInt(0));
+
+        // [GIVEN] Validate Location Code.
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+
+        // [GIVEN] Refresh Prod. Order.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournal(ProductionOrder, Item);
+
+        // [GIVEN] Change Prod. Order Status.
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), false);
+
+        // [GIVEN] Find Production Order.
+        ProductionOrder.SetRange("Source No.", Item."No.");
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::Finished);
+        ProductionOrder.FindFirst();
+
+        // [GIVEN] Run Adjust Cost Item Entries.
+        RunAdjustCostItemEntries(Item."No.");
+
+        // [WHEN] Find GL Entry.
+        GLEntry.SetLoadFields("Document No.", Amount);
+        GLEntry.SetRange("Document No.", ProductionOrder."No.");
+        GLEntry.FindFirst();
+
+        // [THEN] Amount of GL Entry is equal to Standard Cost of Stockkeeping Unit.
+        Assert.AreEqual(
+            StockkeepingUnit."Standard Cost",
+            Abs(GLEntry.Amount),
+            StrSubstNo(
+                AmountErr,
+                Abs(GLEntry.Amount),
+                StockkeepingUnit."Standard Cost",
+                GLEntry.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure StdCostOfSKUIsCalculatedBasedOnRoutingAndProdBOMOfItemIfBothBlankOnSKUWhenCalcStdCostForSKU()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ProductionBOMLine: Record "Production BOM Line";
+        RoutingHeader: Record "Routing Header";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        WorkCenter: Record "Work Center";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        // [SCENARIO 295780] Standard Cost of Stockkeeping Unit is calculated based on Routing and 
+        // Production BOM of Item if both are blank on it when Calculate Standard Cost.
+
+        // [GIVEN] Create a Work Center with Calendar.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Create a Routing.
+        CreateRouting(RoutingHeader, WorkCenter."No.");
+
+        // [GIVEN] Create an Item with Routing and Production BOM.
+        CreateItemWithRoutingAndProdBOM(Item, RoutingHeader, ProductionBOMLine);
+
+        // [GIVEN] Calculate Standard Cost for Item.
+        Clear(CalculateStandardCost);
+        CalculateStandardCost.CalcItem(Item."No.", false);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Stockkeeping Unit.
+        LibraryInventory.CreateStockKeepingUnit(Item, Enum::"SKU Creation Method"::"Location & Variant", false, false);
+
+        // [GIVEN] Find Stockkeeping Unit.
+        StockkeepingUnit.SetRange("Item No.", Item."No.");
+        StockkeepingUnit.FindFirst();
+
+        // [GIVEN] Validate Location Code, Routing No. and Production BOM No. in Stockkeeping Unit.
+        StockkeepingUnit.Validate("Location Code", Location.Code);
+        StockkeepingUnit.Validate("Routing No.", '');
+        StockkeepingUnit.Validate("Production BOM No.", '');
+        StockkeepingUnit.Modify(true);
+
+        // [GIVEN] Calculate Standard Cost for Stockkeeping Unit.
+        CalculateStandardCost.CalcItemSKU(StockkeepingUnit."Item No.", StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code");
+
+        // [GIVEN] Find Item.
+        Item.Get(Item."No.");
+
+        // [WHEN] Find Stockkeeping Unit.
+        StockkeepingUnit.Get(StockkeepingUnit."Location Code", StockkeepingUnit."Item No.", StockkeepingUnit."Variant Code");
+
+        // [THEN] Standard Cost of Stockkeeping Unit is equal to Standard Cost of Item.
+        Assert.AreEqual(Item."Standard Cost", StockkeepingUnit."Standard Cost", StrSubstNo(StandardCostMustMatchErr, Item."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure StdCostOfSKUIsCalculatedBasedOnItsRoutingAndProdBOMOfItemIfBlankProdBOMOnSKUWhenCalcStdCostForSKU()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ProductionBOMLine: Record "Production BOM Line";
+        RoutingHeader: array[2] of Record "Routing Header";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        WorkCenter: array[2] of Record "Work Center";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        // [SCENARIO 295780] Standard Cost of Stockkeeping Unit is calculated based on its Routing and 
+        // Production BOM of Item if Production BOM No. is blank on it when Calculate Standard Cost.
+
+        // [GIVEN] Create two Work Centers with Calendar.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter[1]);
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter[2]);
+
+        // [GIVEN] Validate Unit Cost in Work Center [1].
+        WorkCenter[1].Validate("Unit Cost", LibraryRandom.RandIntInRange(10, 10));
+        WorkCenter[1].Modify(true);
+
+        // [GIVEN] Create two Routings.
+        CreateRouting(RoutingHeader[1], WorkCenter[1]."No.");
+        CreateRouting(RoutingHeader[2], WorkCenter[2]."No.");
+
+        // [GIVEN] Create an Item with Routing and Production BOM.
+        CreateItemWithRoutingAndProdBOM(Item, RoutingHeader[1], ProductionBOMLine);
+
+        // [GIVEN] Calculate Standard Cost for Item.
+        Clear(CalculateStandardCost);
+        CalculateStandardCost.CalcItem(Item."No.", false);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Stockkeeping Unit.
+        LibraryInventory.CreateStockKeepingUnit(Item, Enum::"SKU Creation Method"::"Location & Variant", false, false);
+
+        // [GIVEN] Find Stockkeeping Unit.
+        StockkeepingUnit.SetRange("Item No.", Item."No.");
+        StockkeepingUnit.FindFirst();
+
+        // [GIVEN] Validate Location Code, Routing No. and Production BOM No. in Stockkeeping Unit.
+        StockkeepingUnit.Validate("Location Code", Location.Code);
+        StockkeepingUnit.Validate("Routing No.", RoutingHeader[2]."No.");
+        StockkeepingUnit.Validate("Production BOM No.", '');
+        StockkeepingUnit.Modify(true);
+
+        // [GIVEN] Calculate Standard Cost for Stockkeeping Unit.
+        CalculateStandardCost.CalcItemSKU(StockkeepingUnit."Item No.", StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code");
+
+        // [GIVEN] Find Item.
+        Item.Get(Item."No.");
+
+        // [WHEN] Find Stockkeeping Unit.
+        StockkeepingUnit.Get(StockkeepingUnit."Location Code", StockkeepingUnit."Item No.", StockkeepingUnit."Variant Code");
+
+        // [THEN] Standard Cost of Stockkeeping Unit is not equal to Standard Cost of Item.
+        Assert.AreNotEqual(Item."Standard Cost", StockkeepingUnit."Standard Cost", StrSubstNo(StandardCostMustNotMatchErr, Item."No."));
+
+        // [THEN] Single-Level Material Cost of Stockkeeping Unit is equal to Single-Level Material Cost of Item.
+        Assert.AreEqual(
+            Item."Single-Level Material Cost",
+            StockkeepingUnit."Single-Level Material Cost",
+            StrSubstNo(
+                SingleLevelMaterialCostMustMatchErr,
+                Item."No."));
+
+        // [THEN] Single-Level Capacity Cost of Stockkeeping Unit is not equal to Single-Level Capacity Cost of Item.
+        Assert.AreNotEqual(
+            Item."Single-Level Capacity Cost",
+            StockkeepingUnit."Single-Level Capacity Cost",
+            StrSubstNo(
+                SingleLevelCapacityCostMustNotMatchErr,
+                Item."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure StdCostOfSKUIsCalculatedBasedOnItsProdBOMAndRoutingOfItemIfBlankRoutingOnSKUWhenCalcStdCostForSKU()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ProductionBOMLine: array[2] of Record "Production BOM Line";
+        RoutingHeader: Record "Routing Header";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        WorkCenter: Record "Work Center";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        // [SCENARIO 295780] Standard Cost of Stockkeeping Unit is calculated based on its Production BOM and 
+        // Routing of Item if Routing No. is blank on it when Calculate Standard Cost.
+
+        // [GIVEN] Create a Work Center with Calendar.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Create a Routing.
+        CreateRouting(RoutingHeader, WorkCenter."No.");
+
+        // [GIVEN] Create an Item with Routing and Production BOM.
+        CreateItemWithRoutingAndProdBOM(Item, RoutingHeader, ProductionBOMLine[1]);
+
+        // [GIVEN] Calculate Standard Cost for Item.
+        Clear(CalculateStandardCost);
+        CalculateStandardCost.CalcItem(Item."No.", false);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Stockkeeping Unit.
+        LibraryInventory.CreateStockKeepingUnit(Item, Enum::"SKU Creation Method"::"Location & Variant", false, false);
+
+        // [GIVEN] Find Stockkeeping Unit.
+        StockkeepingUnit.SetRange("Item No.", Item."No.");
+        StockkeepingUnit.FindFirst();
+
+        // [GIVEN] Validate Location Code, Routing No. and Production BOM No. in Stockkeeping Unit.
+        StockkeepingUnit.Validate("Location Code", Location.Code);
+        StockkeepingUnit.Validate("Routing No.", '');
+        StockkeepingUnit.Validate("Production BOM No.", CreateAndCertifyProductionBOM(ProductionBOMLine[2], Item."Base Unit of Measure"));
+        StockkeepingUnit.Modify(true);
+
+        // [GIVEN] Calculate Standard Cost for Stockkeeping Unit.
+        CalculateStandardCost.CalcItemSKU(StockkeepingUnit."Item No.", StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code");
+
+        // [GIVEN] Find Item.
+        Item.Get(Item."No.");
+
+        // [WHEN] Find Stockkeeping Unit.
+        StockkeepingUnit.Get(StockkeepingUnit."Location Code", StockkeepingUnit."Item No.", StockkeepingUnit."Variant Code");
+
+        // [THEN] Standard Cost of Stockkeeping Unit is not equal to Standard Cost of Item.
+        Assert.AreNotEqual(Item."Standard Cost", StockkeepingUnit."Standard Cost", StrSubstNo(StandardCostMustNotMatchErr, Item."No."));
+
+        // [THEN] Single-Level Material Cost of Stockkeeping Unit is not equal to Single-Level Material Cost of Item.
+        Assert.AreNotEqual(
+            Item."Single-Level Material Cost",
+            StockkeepingUnit."Single-Level Material Cost",
+            StrSubstNo(
+                SingleLevelMaterialCostMustNotMatchErr,
+                Item."No."));
+
+        // [THEN] Single-Level Capacity Cost of Stockkeeping Unit is equal to Single-Level Capacity Cost of Item.
+        Assert.AreEqual(
+            Item."Single-Level Capacity Cost",
+            StockkeepingUnit."Single-Level Capacity Cost",
+            StrSubstNo(
+                SingleLevelCapacityCostMustMatchErr,
+                Item."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure StdCostOfSKUIsCalculatedBasedOnItsRoutingAndProdBOMIfBothNotBlankOnSKUWhenCalcStdCostForSKU()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ProductionBOMLine: array[2] of Record "Production BOM Line";
+        RoutingHeader: array[2] of Record "Routing Header";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        WorkCenter: array[2] of Record "Work Center";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        // [SCENARIO 295780] Standard Cost of Stockkeeping Unit is calculated based on its Production BOM and 
+        // Routing if both are not blank on it when Calculate Standard Cost.
+
+        // [GIVEN] Create two Work Centers with Calendar.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter[1]);
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter[2]);
+
+        // [GIVEN] Validate Unit Cost in Work Center [1].
+        WorkCenter[1].Validate("Unit Cost", LibraryRandom.RandIntInRange(10, 10));
+        WorkCenter[1].Modify(true);
+
+        // [GIVEN] Create two Routings.
+        CreateRouting(RoutingHeader[1], WorkCenter[1]."No.");
+        CreateRouting(RoutingHeader[2], WorkCenter[2]."No.");
+
+        // [GIVEN] Create an Item with Routing and Production BOM.
+        CreateItemWithRoutingAndProdBOM(Item, RoutingHeader[1], ProductionBOMLine[1]);
+
+        // [GIVEN] Calculate Standard Cost for Item.
+        Clear(CalculateStandardCost);
+        CalculateStandardCost.CalcItem(Item."No.", false);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Stockkeeping Unit.
+        LibraryInventory.CreateStockKeepingUnit(Item, Enum::"SKU Creation Method"::"Location & Variant", false, false);
+
+        // [GIVEN] Find Stockkeeping Unit.
+        StockkeepingUnit.SetRange("Item No.", Item."No.");
+        StockkeepingUnit.FindFirst();
+
+        // [GIVEN] Validate Location Code, Routing No. and Production BOM No. in Stockkeeping Unit.
+        StockkeepingUnit.Validate("Location Code", Location.Code);
+        StockkeepingUnit.Validate("Routing No.", RoutingHeader[2]."No.");
+        StockkeepingUnit.Validate("Production BOM No.", CreateAndCertifyProductionBOM(ProductionBOMLine[2], Item."Base Unit of Measure"));
+        StockkeepingUnit.Modify(true);
+
+        // [GIVEN] Calculate Standard Cost for Stockkeeping Unit.
+        CalculateStandardCost.CalcItemSKU(StockkeepingUnit."Item No.", StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code");
+
+        // [GIVEN] Find Item.
+        Item.Get(Item."No.");
+
+        // [WHEN] Find Stockkeeping Unit.
+        StockkeepingUnit.Get(StockkeepingUnit."Location Code", StockkeepingUnit."Item No.", StockkeepingUnit."Variant Code");
+
+        // [THEN] Standard Cost of Stockkeeping Unit is not equal to Standard Cost of Item.
+        Assert.AreNotEqual(Item."Standard Cost", StockkeepingUnit."Standard Cost", StrSubstNo(StandardCostMustNotMatchErr, Item."No."));
+
+        // [THEN] Single-Level Material Cost of Stockkeeping Unit is not equal to Single-Level Material Cost of Item.
+        Assert.AreNotEqual(
+            Item."Single-Level Material Cost",
+            StockkeepingUnit."Single-Level Material Cost",
+            StrSubstNo(
+                SingleLevelMaterialCostMustNotMatchErr,
+                Item."No."));
+
+        // [THEN] Single-Level Capacity Cost of Stockkeeping Unit is not equal to Single-Level Capacity Cost of Item.
+        Assert.AreNotEqual(
+            Item."Single-Level Capacity Cost",
+            StockkeepingUnit."Single-Level Capacity Cost",
+            StrSubstNo(
+                SingleLevelCapacityCostMustNotMatchErr,
+                Item."No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1816,6 +2203,19 @@ codeunit 137402 "SCM Costing Batch"
         Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
     end;
 
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [StrMenuHandler]
+    procedure StrMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
+    begin
+        Choice := 1;
+    end;
+
     local procedure DeleteObjectOptionsIfNeeded()
     var
         LibraryReportValidation: Codeunit "Library - Report Validation";
@@ -1853,6 +2253,31 @@ codeunit 137402 "SCM Costing Batch"
         Commit();
         LibraryVariableStorage.Enqueue(WorkSheetSource::"Work Center");
         SuggestCapacityStandardCostReport.Run();
+    end;
+
+    local procedure CreateAndPostOutputJournal(ProductionOrder: Record "Production Order"; Item: Record Item)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Output);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+
+        CreateOutputJournalLine(ItemJournalTemplate, ItemJournalBatch, Item."No.", ProductionOrder."No.");
+
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateItemWithRoutingAndProdBOM(var Item: Record Item; RoutingHeader: Record "Routing Header"; ProductionBOMLine: Record "Production BOM Line")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::Standard);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Production BOM No.", CreateAndCertifyProductionBOM(ProductionBOMLine, Item."Base Unit of Measure"));
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
     end;
 }
 
