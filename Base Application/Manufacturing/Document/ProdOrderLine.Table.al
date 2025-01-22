@@ -174,6 +174,7 @@ table 5406 "Prod. Order Line"
             begin
                 ProdOrderLineReserve.VerifyChange(Rec, xRec);
                 ProdOrderWarehouseMgt.ProdOrderLineVerifyChange(Rec, xRec);
+                ProdOrderWarehouseMgt.ValidateWarehousePutAwayLocation(Rec);
                 GetUpdateFromSKU();
                 GetDefaultBin();
                 OnValidateLocationCodeOnBeforeCreateDim(Rec);
@@ -1656,6 +1657,12 @@ table 5406 "Prod. Order Line"
     procedure SuspendDeletionCheck(Suspend: Boolean)
     begin
         CalledFromHeader := Suspend;
+    end;
+
+    procedure GetRemainingPutAwayQty(): Decimal
+    begin
+        Rec.CalcFields("Put-away Qty. (Base)");
+        exit(Rec."Finished Qty. (Base)" - (Rec."Put-away Qty. (Base)" + Rec."Qty. Put Away (Base)"));
     end;
 
     [IntegrationEvent(false, false)]
