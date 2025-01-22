@@ -31,12 +31,12 @@ tableextension 99000761 "Mfg. Location" extends Location
             begin
                 if Rec."Directed Put-away and Pick" then
                     if Rec."Prod. Output Whse. Handling" = Rec."Prod. Output Whse. Handling"::"Inventory Put-away" then
-                        Error(StrSubstNo(InvalidrodOutputHandlingErr, Rec."Prod. Output Whse. Handling", Rec.TableCaption, Rec.Code, Rec.FieldCaption("Directed Put-away and Pick")));
+                        Error(InvalidProdOutputHandlingErr, Rec."Prod. Output Whse. Handling", Rec.TableCaption, Rec.Code, Rec.FieldCaption("Directed Put-away and Pick"));
             end;
         }
     }
 
-    procedure RequirePutawayForProdOutput(LocationCode: Code[10]): Boolean
+    procedure RequirePutAwayForProdOutput(LocationCode: Code[10]): Boolean
     var
         Location: Record Location;
     begin
@@ -46,5 +46,5 @@ tableextension 99000761 "Mfg. Location" extends Location
     end;
 
     var
-        InvalidrodOutputHandlingErr: Label 'You cannot select %1 on %2 %3 when %4 is enabled.', Comment = '%1 = Inventory Put-away, %2 = Location Table Caption, %3 = Location Code, %4 =  Directed Put-away Field Caption';
+        InvalidProdOutputHandlingErr: Label 'You cannot select %1 on %2 %3 when %4 is enabled.', Comment = '%1 = Inventory Put-away, %2 = Location Table Caption, %3 = Location Code, %4 =  Directed Put-away Field Caption';
 }
