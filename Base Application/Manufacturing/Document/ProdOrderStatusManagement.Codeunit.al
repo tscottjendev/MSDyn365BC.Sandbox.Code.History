@@ -979,7 +979,7 @@ codeunit 5407 "Prod. Order Status Management"
                     OnFlushProdOrderOnBeforeCopyItemTracking(ItemJnlLine, ProdOrderComp, Item);
                     if Item."Item Tracking Code" <> '' then
                         ItemTrackingMgt.CopyItemTracking(ProdOrderComp.RowID1(), ItemJnlLine.RowID1(), false);
-                    PostFlushItemJnlLine(ItemJnlLine);
+                    PostFlushItemJnlLine(ProdOrderLine, ItemJnlLine);
                     OnFlushProdOrderOnAfterPostFlushItemJnlLine(ItemJnlLine);
                 end;
             until ProdOrderComp.Next() = 0;
@@ -1057,7 +1057,7 @@ codeunit 5407 "Prod. Order Status Management"
                     OnAfterUpdateGlobalDim(ItemJnlLine, ProdOrderRtngLine, ProdOrderLine);
                     if IsLastOperation then
                         ProdOrderLineReserve.TransferPOLineToItemJnlLine(ProdOrderLine, ItemJnlLine, ItemJnlLine."Output Quantity (Base)");
-                    PostFlushItemJnlLine(ItemJnlLine);
+                    PostFlushItemJnlLine(ProdOrderLine, ItemJnlLine);
                 end;
 
                 if (ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Backward) and IsLastOperation then begin
@@ -1071,8 +1071,9 @@ codeunit 5407 "Prod. Order Status Management"
         OnAfterFlushProdOrderProcessProdOrderRtngLine(ProdOrder, ProdOrderLine, ProdOrderRtngLine, NewStatus.AsInteger(), PostingDate);
     end;
 
-    local procedure PostFlushItemJnlLine(var ItemJnlLine: Record "Item Journal Line")
+    local procedure PostFlushItemJnlLine(ProdOrderLine: Record "Prod. Order Line"; var ItemJnlLine: Record "Item Journal Line")
     var
+        LatestProdOrderLine: Record "Prod. Order Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         IsHandled: Boolean;
     begin
@@ -1082,10 +1083,11 @@ codeunit 5407 "Prod. Order Status Management"
             exit;
 
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
-        HandleProdOutputPutAway(ItemJnlLine);
+        LatestProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+        HandleProdOutputPutAway(LatestProdOrderLine, ItemJnlLine);
     end;
 
-    local procedure HandleProdOutputPutAway(ItemJnlLine: Record "Item Journal Line")
+    local procedure HandleProdOutputPutAway(ProdOrderLine: Record "Prod. Order Line"; ItemJnlLine: Record "Item Journal Line")
     begin
         if ItemJnlLine.OutputValuePosting() then
             exit;
@@ -1096,8 +1098,10 @@ codeunit 5407 "Prod. Order Status Management"
         if (ItemJnlLine."Order No." = '') or (ItemJnlLine."Order Line No." = 0) then
             exit;
 
-        CreatePutaway.ParkProdOrderForPutaway(ItemJnlLine);
-        CreatePutaway.CreateProdWhsePutAway();
+        if not CreatePutaway.ShouldCreateProdPutAway(ItemJnlLine) then
+            exit;
+
+        CreatePutaway.CreateWhsePutAwayForProdOrderLine(ProdOrderLine);
     end;
 
     local procedure InitItemJnlLineFromProdOrderLine(var ItemJnlLine: Record "Item Journal Line"; ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; PostingDate: Date)
