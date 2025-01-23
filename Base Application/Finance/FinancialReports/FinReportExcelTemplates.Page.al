@@ -3,17 +3,18 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.FinancialReports;
+using System.IO;
 
 page 773 "Fin. Report Excel Templates"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Financial Report Excel Templates';
+    Caption = 'Financial Report Excel Layouts';
     PageType = List;
     SourceTable = "Fin. Report Excel Template";
     DataCaptionExpression = GetCaption();
-    InsertAllowed = false;
-    AboutTitle = 'About financial report Excel templates';
-    AboutText = 'On this page, you can create and import Excel workbooks as a template for an Excel version of the financial report. This allows you to format and visualize the financial report data directly in Excel and have it reused in the future.';
+    AnalysisModeEnabled = false;
+    AboutTitle = 'About financial report Excel layouts';
+    AboutText = 'On this page, you can create and import Excel workbooks to be used as layouts for the Excel version of the financial report. This allows you to format and visualize the financial report data directly in Excel without the need of a developer.';
 
     layout
     {
@@ -23,16 +24,20 @@ page 773 "Fin. Report Excel Templates"
             {
                 field("Financial Report Name"; Rec."Financial Report Name")
                 {
-                    ApplicationArea = All;
+                    ApplicationArea = Basic, Suite;
                     Visible = false;
                 }
                 field(Code; Rec.Code)
                 {
-                    ApplicationArea = All;
+                    ApplicationArea = Basic, Suite;
                 }
                 field(Description; Rec.Description)
                 {
-                    ApplicationArea = All;
+                    ApplicationArea = Basic, Suite;
+                }
+                field("File Name"; Rec."File Name")
+                {
+                    ApplicationArea = Basic, Suite;
                 }
             }
         }
@@ -42,41 +47,11 @@ page 773 "Fin. Report Excel Templates"
     {
         area(Creation)
         {
-            action(New)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'New';
-                ToolTip = 'Create a new template.';
-                AboutTitle = 'About creating new templates.';
-                AboutText = 'Use this action to create a new template. Newly created templates comes with the default Excel workbook as a starting point.';
-                Image = NewDocument;
-                Scope = Repeater;
-
-                trigger OnAction()
-                var
-                    FinReportExcelTemplate: Record "Fin. Report Excel Template";
-                    ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
-                    NewFinReportExcelTempl: Page "New Fin. Report Excel Templ.";
-                    OutStream: OutStream;
-                begin
-                    NewFinReportExcelTempl.SetSource(TempFinancialReport.Name, '');
-                    if NewFinReportExcelTempl.RunModal() = Action::Ok then begin
-                        NewFinReportExcelTempl.GetRecord(FinReportExcelTemplate);
-                        ExportAccSchedToExcel.SetOptions(this.AccScheduleLine, this.TempFinancialReport."Financial Report Column Group", this.TempFinancialReport.UseAmountsInAddCurrency, this.TempFinancialReport.Name);
-                        ExportAccSchedToExcel.SetSaveToStream(true);
-                        ExportAccSchedToExcel.RunModal();
-                        FinReportExcelTemplate.Template.CreateOutStream(OutStream);
-                        ExportAccSchedToExcel.GetSavedStream(OutStream);
-                        FinReportExcelTemplate.Insert();
-                    end;
-                end;
-
-            }
             action(Copy)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Copy';
-                ToolTip = 'Make a copy of the selected template.';
+                ToolTip = 'Make a copy of the selected layout.';
                 Image = CopyDocument;
                 Scope = Repeater;
                 Enabled = Rec.Code <> '';
@@ -88,7 +63,7 @@ page 773 "Fin. Report Excel Templates"
                     InStream: InStream;
                     OutStream: OutStream;
                 begin
-                    NewFinReportExcelTempl.SetSource(TempFinancialReport.Name, Rec.Code);
+                    NewFinReportExcelTempl.SetSource(Rec);
                     if NewFinReportExcelTempl.RunModal() = Action::Ok then begin
                         NewFinReportExcelTempl.GetRecord(FinReportExcelTemplate);
                         Rec.CalcFields(Template);
@@ -105,10 +80,10 @@ page 773 "Fin. Report Excel Templates"
             action(Export)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Export';
-                ToolTip = 'Export the selected template.';
-                AboutTitle = 'About exporting templates';
-                AboutText = 'Use this action to export the selected template, which will create an Excel workbook on your device with data from the financial report. You can then create a new sheet and apply your own formatting and visualization with the data.';
+                Caption = 'Export/Run';
+                ToolTip = 'Export the selected layout with the latest data from the financial report.';
+                AboutTitle = 'About exporting layouts';
+                AboutText = 'Use this action to export the selected layout, which will create an Excel workbook on your device with the latest data from the financial report. You can then create a new sheet and apply your own formatting and visualization with the data.';
                 Image = Export;
                 Scope = Repeater;
                 Enabled = Rec.Code <> '';
@@ -126,9 +101,9 @@ page 773 "Fin. Report Excel Templates"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Import';
-                ToolTip = 'Import and replace the template file for the selected template.';
-                AboutTitle = 'About importing templates';
-                AboutText = 'Use this action to import the customized Excel workbook. You can then specify this template code on the financial report, and it will be used in future exports of the report.';
+                ToolTip = 'Import and replace the Excel workbook for the selected layout.';
+                AboutTitle = 'About importing layouts';
+                AboutText = 'Use this action to import the customized Excel workbook. You can then specify this layout code on the financial report, and it will be used in future exports of the report.';
                 Image = Import;
                 Scope = Repeater;
                 Enabled = Rec.Code <> '';
@@ -137,12 +112,14 @@ page 773 "Fin. Report Excel Templates"
 
                 trigger OnAction(Files: List of [FileUpload])
                 var
+                    FileMgt: Codeunit "File Management";
                     InStream: InStream;
                     OutStream: OutStream;
                 begin
                     Files.Get(1).CreateInStream(InStream);
                     Rec.Template.CreateOutStream(OutStream);
                     CopyStream(OutStream, InStream);
+                    Rec."File Name" := CopyStr(FileMgt.GetFileNameWithoutExtension(Files.Get(1).FileName), 1, MaxStrLen(Rec."File Name"));
                     Rec.Modify();
                 end;
             }
@@ -152,7 +129,6 @@ page 773 "Fin. Report Excel Templates"
         {
             group(Category_Process)
             {
-                actionref(New_Promoted; New) { }
                 actionref(Copy_Promoted; Copy) { }
                 actionref(Export_Promoted; Export) { }
                 actionref(Import_Promoted; Import) { }
@@ -160,17 +136,29 @@ page 773 "Fin. Report Excel Templates"
         }
     }
 
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     var
-        TempFinancialReport: Record "Financial Report";
+        ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
+        OutStream: OutStream;
+    begin
+        ExportAccSchedToExcel.SetOptions(this.AccScheduleLine, this.TempFinancialReport."Financial Report Column Group", this.TempFinancialReport.UseAmountsInAddCurrency, this.TempFinancialReport.Name);
+        ExportAccSchedToExcel.SetSaveToStream(true);
+        ExportAccSchedToExcel.RunModal();
+        Rec.Template.CreateOutStream(OutStream);
+        ExportAccSchedToExcel.GetSavedStream(OutStream);
+    end;
+
+    var
+        TempFinancialReport: Record "Financial Report" temporary;
         AccScheduleLine: Record "Acc. Schedule Line";
 
-    internal procedure SetSource(var TempFinancialReport: Record "Financial Report"; var AccScheduleLine: Record "Acc. Schedule Line")
+    internal procedure SetSource(var NewTempFinancialReport: Record "Financial Report"; var NewAccScheduleLine: Record "Acc. Schedule Line")
     begin
-        this.TempFinancialReport.Copy(TempFinancialReport);
-        this.AccScheduleLine.Copy(AccScheduleLine);
+        this.TempFinancialReport.Copy(NewTempFinancialReport);
+        this.AccScheduleLine.Copy(NewAccScheduleLine);
 
         Rec.FilterGroup(2);
-        Rec.SetRange("Financial Report Name", TempFinancialReport.Name);
+        Rec.SetRange("Financial Report Name", NewTempFinancialReport.Name);
         Rec.FilterGroup(0);
     end;
 
