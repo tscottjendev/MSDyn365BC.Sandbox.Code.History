@@ -85,7 +85,7 @@ table 89 "Financial Report User Filters"
             Caption = 'Date Filter';
             DataClassification = SystemMetadata;
         }
-        field(16; "Excel Template Code"; Code[20])
+        field(16; "Excel Template Code"; Code[50])
         {
             Caption = 'Excel Template Code';
             DataClassification = SystemMetadata;
