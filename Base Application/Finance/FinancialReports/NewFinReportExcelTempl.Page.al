@@ -6,7 +6,7 @@ namespace Microsoft.Finance.FinancialReports;
 
 page 787 "New Fin. Report Excel Templ."
 {
-    Caption = 'Add New Financial Report Excel Template';
+    Caption = 'Copy Financial Report Excel Layout';
     PageType = StandardDialog;
     Extensible = false;
     SourceTable = "Fin. Report Excel Template";
@@ -25,21 +25,17 @@ page 787 "New Fin. Report Excel Templ."
             field(CodeToCopy; CodeToCopy)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Copy From Code';
-                ToolTip = 'Specifies the code of the existing template to copy from.';
+                Caption = 'Source Layout Code';
+                ToolTip = 'Specifies the code of the existing layout to copy from.';
                 Visible = CodeToCopy <> '';
                 Editable = false;
             }
             field(NewCode; NewCode)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Code';
-                ToolTip = 'Specifies the code of the new template.';
+                Caption = 'New Layout Code';
+                ToolTip = 'Specifies the code of the new layout.';
                 ShowMandatory = true;
-            }
-            field(Description; Rec.Description)
-            {
-                ApplicationArea = Basic, Suite;
             }
         }
     }
@@ -54,17 +50,16 @@ page 787 "New Fin. Report Excel Templ."
     end;
 
     var
-        NewCode: Code[20];
-        CodeToCopy: Code[20];
-        CopyModePageCaptionLbl: Label 'Copy Financial Report Excel Template';
-        MissingNewCodeErr: Label 'You must specify a code for the new template.';
+        NewCode: Code[50];
+        CodeToCopy: Code[50];
+        MissingNewCodeErr: Label 'You must specify a code for the new layout.';
+        CopyOfTxt: Label 'Copy of %1', Comment = '%1 = Original layout description';
 
-    internal procedure SetSource(FinancialReportName: Code[10]; CodeToCopy: Code[20])
+    internal procedure SetSource(SourceExcelTemplate: Record "Fin. Report Excel Template")
     begin
-        Rec."Financial Report Name" := FinancialReportName;
+        Rec."Financial Report Name" := SourceExcelTemplate."Financial Report Name";
+        Rec.Description := CopyStr(StrSubstNo(CopyOfTxt, SourceExcelTemplate.Description), 1, MaxStrLen(Rec.Description));
         Rec.Insert();
-        this.CodeToCopy := CodeToCopy;
-        if CodeToCopy <> '' then
-            CurrPage.Caption(CopyModePageCaptionLbl);
+        CodeToCopy := SourceExcelTemplate.Code;
     end;
 }

@@ -18,10 +18,12 @@ table 84 "Acc. Schedule Name"
         {
             Caption = 'Name';
             NotBlank = true;
+            ToolTip = 'Specifies the unique name (code) of the financial report row definition. You can use up to 10 characters.';
         }
         field(2; Description; Text[80])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the financial report row definition. The description is not shown on the final report but is used to provide more context when using the definition.';
         }
 #if not CLEANSCHEMA25
         field(3; "Default Column Layout"; Code[10])
@@ -37,6 +39,7 @@ table 84 "Acc. Schedule Name"
         {
             Caption = 'Analysis View Name';
             TableRelation = "Analysis View";
+            ToolTip = 'Specifies the name of the analysis view you want the row definition to use. This field is optional.';
 
             trigger OnValidate()
             var
@@ -68,6 +71,11 @@ table 84 "Acc. Schedule Name"
                         "Analysis View Name" := xRec."Analysis View Name";
                 end;
             end;
+        }
+        field(5; "Internal Description"; Text[250])
+        {
+            Caption = 'Internal Description';
+            ToolTip = 'Specifies the internal description of row definition. The internal description is not shown on the final report but is used to provide more context when using the definition.';
         }
         field(10000; "Financial Period Description"; Text[80])
         {
