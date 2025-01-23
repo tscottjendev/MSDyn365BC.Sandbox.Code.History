@@ -540,16 +540,15 @@ codeunit 134994 "ERM Account Schedule II"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('NewFinReportExcelTemplHandler')]
     procedure CreateNewExcelTemplate()
     var
         AccScheduleName: Record "Acc. Schedule Name";
         FinReportExcelTemplate: Record "Fin. Report Excel Template";
-        ExcelBufferExpected: Record "Excel Buffer" temporary;
-        ExcelBufferActual: Record "Excel Buffer" temporary;
+        TempExcelBufferExpected: Record "Excel Buffer" temporary;
+        TempExcelBufferActual: Record "Excel Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
         AccScheduleOverview: TestPage "Acc. Schedule Overview";
         FinReportExcelTemplates: TestPage "Fin. Report Excel Templates";
-        TempBlob: Codeunit "Temp Blob";
         OutStream: OutStream;
         InStream: InStream;
         TemplateCode: Code[20];
@@ -566,33 +565,34 @@ codeunit 134994 "ERM Account Schedule II"
         TempBlob.CreateOutStream(OutStream);
         RunExportAccScheduleToExcelToStream(AccScheduleOverview, OutStream);
         TempBlob.CreateInStream(InStream);
-        ExcelBufferExpected.OpenBookStream(InStream, AccScheduleName.Name);
-        ExcelBufferExpected.ReadSheet();
+        TempExcelBufferExpected.OpenBookStream(InStream, AccScheduleName.Name);
+        TempExcelBufferExpected.ReadSheet();
 
         // [WHEN] User selects new on the excel templates page and specifies a code and description
-        FinReportExcelTemplates.Trap();
-        AccScheduleOverview.ExcelTemplates.Invoke();
         TemplateCode := LibraryUtility.GenerateGUID();
         TemplateDesc := LibraryUtility.GenerateGUID();
-        LibraryVariableStorage.Enqueue(TemplateCode);
-        LibraryVariableStorage.Enqueue(TemplateDesc);
-        FinReportExcelTemplates.New.Invoke();
+        FinReportExcelTemplates.Trap();
+        AccScheduleOverview.ExcelTemplates.Invoke();
+        FinReportExcelTemplates.New();
+        FinReportExcelTemplates.Code.SetValue(TemplateCode);
+        FinReportExcelTemplates.Description.SetValue(TemplateDesc);
+        FinReportExcelTemplates.New();
+        FinReportExcelTemplates.Close();
 
         // [THEN] A new financial report excel template should be created with the specified values
-        // Handled by NewFinReportExcelTemplHandler
         Assert.IsTrue(FinReportExcelTemplate.Get(AccScheduleName.Name, TemplateCode), 'Financial report excel template should be created');
         Assert.AreEqual(TemplateDesc, FinReportExcelTemplate.Description, 'Financial report excel template description should be set');
 
         // [THEN] The new template should also match the default exported file
         FinReportExcelTemplate.CalcFields(Template);
         FinReportExcelTemplate.Template.CreateInStream(InStream);
-        ExcelBufferActual.OpenBookStream(InStream, AccScheduleName.Name);
-        ExcelBufferActual.ReadSheet();
-        if ExcelBufferExpected.FindSet() then
+        TempExcelBufferActual.OpenBookStream(InStream, AccScheduleName.Name);
+        TempExcelBufferActual.ReadSheet();
+        if TempExcelBufferExpected.FindSet() then
             repeat
-                Assert.IsTrue(ExcelBufferActual.Get(ExcelBufferExpected."Row No.", ExcelBufferExpected."Column No."), 'New template should have the same cells as the default');
-                Assert.AreEqual(ExcelBufferExpected."Cell Value as Text", ExcelBufferActual."Cell Value as Text", 'New template cell value should match the default');
-            until ExcelBufferExpected.Next() = 0;
+                Assert.IsTrue(TempExcelBufferActual.Get(TempExcelBufferExpected."Row No.", TempExcelBufferExpected."Column No."), 'New template should have the same cells as the default');
+                Assert.AreEqual(TempExcelBufferExpected."Cell Value as Text", TempExcelBufferActual."Cell Value as Text", 'New template cell value should match the default');
+            until TempExcelBufferExpected.Next() = 0;
     end;
 
     [Test]
@@ -2602,19 +2602,6 @@ codeunit 134994 "ERM Account Schedule II"
         DimensionValue.SetRange("Dimension Code", DimensionFilter);
         DimensionValue.FindFirst();
         Assert.IsTrue(DimensionValueList.GotoRecord(DimensionValue), DimensionValueErr);
-    end;
-
-    [ModalPageHandler]
-    procedure NewFinReportExcelTemplHandler(var NewFinReportExcelTempl: TestPage "New Fin. Report Excel Templ.")
-    var
-        TemplateCode: Variant;
-        TemplateDesc: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(TemplateCode);
-        NewFinReportExcelTempl.NewCode.Value(TemplateCode);
-        LibraryVariableStorage.Dequeue(TemplateDesc);
-        NewFinReportExcelTempl.Description.Value(TemplateDesc);
-        NewFinReportExcelTempl.OK().Invoke();
     end;
 
     [RequestPageHandler]
