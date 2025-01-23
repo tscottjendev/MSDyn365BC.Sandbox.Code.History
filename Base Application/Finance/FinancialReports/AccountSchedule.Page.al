@@ -36,6 +36,23 @@ page 104 "Account Schedule"
                 begin
                     AccSchedManagement.CheckName(CurrentSchedName);
                     CurrentSchedNameOnAfterValidate();
+                    GetInternalDescription();
+                end;
+            }
+            field(InternalDescription; InternalDescription)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Internal Description';
+                MultiLine = true;
+                ToolTip = 'Specifies the internal description of row definition. The internal description is not shown on the final report but is used to provide more context when using the definition.';
+
+                trigger OnValidate()
+                var
+                    AccScheduleName: Record "Acc. Schedule Name";
+                begin
+                    AccScheduleName.Get(CurrentSchedName);
+                    AccScheduleName."Internal Description" := InternalDescription;
+                    AccScheduleName.Modify();
                 end;
             }
             repeater(Control1)
@@ -437,6 +454,7 @@ page 104 "Account Schedule"
         AccSchedManagement.OpenAndCheckSchedule(CurrentSchedName, Rec);
         if CurrentSchedName <> OriginalSchedName then
             CurrentSchedNameOnAfterValidate();
+        GetInternalDescription();
     end;
 
     var
@@ -445,6 +463,7 @@ page 104 "Account Schedule"
         DimCaptionsInitialized: Boolean;
         CostObjectTotallingEnabled: Boolean;
         CostCenterTotallingEnabled: Boolean;
+        InternalDescription: Text[250];
         TotalingDisplayed: Text[250];
 
     procedure SetAccSchedName(NewAccSchedName: Code[10])
@@ -457,6 +476,15 @@ page 104 "Account Schedule"
         CurrPage.SaveRecord();
         AccSchedManagement.SetName(CurrentSchedName, Rec);
         CurrPage.Update(false);
+    end;
+
+    local procedure GetInternalDescription()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+    begin
+        InternalDescription := '';
+        if AccScheduleName.Get(CurrentSchedName) then
+            InternalDescription := AccScheduleName."Internal Description";
     end;
 
     local procedure FormatLines()

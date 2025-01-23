@@ -203,8 +203,8 @@ page 490 "Acc. Schedule Overview"
                 field(ExcelTemplateCode; TempFinancialReport."Excel Template Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Excel Template Code';
-                    ToolTip = 'Specifies the Excel template that will be used when exporting to Excel.';
+                    Caption = 'Default Excel Layout';
+                    ToolTip = 'Specifies the Excel layout that will be used when exporting to Excel.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -981,8 +981,8 @@ page 490 "Acc. Schedule Overview"
                     action(ExportToExcel)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Export to Excel';
-                        ToolTip = 'Open the financial report in a new Excel workbook. This will use the Excel template specified on the financial report.';
+                        Caption = 'Open in Excel (using layout)';
+                        ToolTip = 'Open the financial report in a new Excel workbook. This will use the default Excel layout specified on the financial report.';
                         Image = ExportToExcel;
 
                         trigger OnAction()
@@ -1001,8 +1001,8 @@ page 490 "Acc. Schedule Overview"
                     action(ExcelTemplates)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Excel Templates';
-                        ToolTip = 'View or edit Excel templates for this financial report.';
+                        Caption = 'Excel Layouts';
+                        ToolTip = 'View or edit Excel layout for this financial report.';
                         Image = Report;
 
                         trigger OnAction()
@@ -1019,10 +1019,9 @@ page 490 "Acc. Schedule Overview"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create New Excel template';
                         Image = ExportToExcel;
-                        ToolTip = 'Open the financial report in a new Excel workbook. This creates an Excel workbook on your device that you can use as a template for an Excel version of the report.';
-                        Visible = false;
+                        ToolTip = 'Open the financial report in a new Excel workbook. This creates an Excel workbook on your device that you can use as a template for an Excel version of the report. This feature has been replaced by Excel Layouts and will be removed in a future release.';
                         ObsoleteState = Pending;
-                        ObsoleteReason = 'Replaced by Export to Excel and the Financial Report Excel Template feature.';
+                        ObsoleteReason = 'Replaced by Export to Excel and the Financial Report Excel Layout feature.';
                         ObsoleteTag = '26.0';
 
                         trigger OnAction()
@@ -1038,10 +1037,9 @@ page 490 "Acc. Schedule Overview"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Update Excel template with data';
                         Image = ExportToExcel;
-                        ToolTip = 'Upload an Excel template workbook and get an updated Excel workbook downloaded it to your device. You must specify the template workbook that you want to update.';
-                        Visible = false;
+                        ToolTip = 'Upload an Excel template workbook and get an updated Excel workbook downloaded it to your device. You must specify the template workbook that you want to update. This feature has been replaced by Excel Layouts and will be removed in a future release.';
                         ObsoleteState = Pending;
-                        ObsoleteReason = 'Replaced by Excel Templates and the Financial Report Excel Template feature.';
+                        ObsoleteReason = 'Replaced by Excel Templates and the Financial Report Excel Layout feature.';
                         ObsoleteTag = '26.0';
 
                         trigger OnAction()
@@ -1111,7 +1109,7 @@ page 490 "Acc. Schedule Overview"
             {
                 Caption = 'Export to Excel/Print';
 
-                actionref(ExcelTemplates_Promoted; ExcelTemplates)
+                actionref(ExportToExcel_Promoted; ExportToExcel)
                 {
                 }
 #if not CLEAN26
@@ -1119,13 +1117,13 @@ page 490 "Acc. Schedule Overview"
                 actionref("Create New Document_Promoted"; "Create New Document")
                 {
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Export to Excel and the Financial Report Excel Template feature.';
+                    ObsoleteReason = 'Replaced by Export to Excel and the Financial Report Excel Layout feature.';
                     ObsoleteTag = '26.0';
                 }
                 actionref("Update Existing Document_Promoted"; "Update Existing Document")
                 {
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Export to Excel and the Financial Report Excel Template feature.';
+                    ObsoleteReason = 'Replaced by Export to Excel and the Financial Report Excel Layout feature.';
                     ObsoleteTag = '26.0';
                 }
 #pragma warning restore AL0432
@@ -1147,6 +1145,9 @@ page 490 "Acc. Schedule Overview"
                 {
                 }
                 actionref(EditIntroductoryClosingParagraph_Promoted; EditIntroductoryClosingParagraph)
+                {
+                }
+                actionref(ExcelTemplates_Promoted; ExcelTemplates)
                 {
                 }
             }
