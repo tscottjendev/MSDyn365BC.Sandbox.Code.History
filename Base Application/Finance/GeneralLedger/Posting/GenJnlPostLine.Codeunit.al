@@ -1987,7 +1987,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if not FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then begin
             if not (GLAcc."Currency Code" in ['', GLSetup."LCY Code"]) and
                 not (GenJnlLine."Currency Code" in ['', GLSetup."LCY Code"]) and
-                not (GenJnlLine."Additional-Currency Posting" = GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only")
+                not (GenJnlLine."Additional-Currency Posting" = GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only") and
+                not IsVendorPayableAccount(GLAcc."No.")
             then
                 GLEntry."Amount (FCY)" := GenJnlLine.Amount / (1 + GenJnlLine."VAT %" / 100);
         end else
@@ -1999,7 +2000,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
 #else
         if not (GLAcc."Source Currency Code" in ['', GLSetup."LCY Code"]) and
             not (GenJnlLine."Currency Code" in ['', GLSetup."LCY Code"]) and
-            not (GenJnlLine."Additional-Currency Posting" = GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only")
+            not (GenJnlLine."Additional-Currency Posting" = GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only") and
+            not IsVendorPayableAccount(GLAcc."No.")
         then
             GLEntry."Source Currency Amount" := GenJnlLine.Amount / (1 + GenJnlLine."VAT %" / 100);
 #endif
@@ -7560,6 +7562,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
     procedure SetTempGLEntryBufEntryNo(NewTempGLEntryBufEntryNo: Integer)
     begin
         TempGLEntryBuf."Entry No." := NewTempGLEntryBufEntryNo;
+    end;
+
+    local procedure IsVendorPayableAccount(GLAccNo: Code[20]): Boolean
+    var
+        VendorPostingGroup: Record "Vendor Posting Group";
+    begin
+        VendorPostingGroup.SetRange("Payables Account", GLAccNo);
+        exit(VendorPostingGroup.Count() > 0);
     end;
 
     [IntegrationEvent(true, false)]
