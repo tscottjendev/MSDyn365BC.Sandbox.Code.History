@@ -16,15 +16,23 @@ table 333 "Column Layout Name"
         {
             Caption = 'Name';
             NotBlank = true;
+            ToolTip = 'Specifies the unique name (code) of the financial report column definition. You can use up to 10 characters.';
         }
         field(2; Description; Text[80])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the financial report columns definition. The description is not shown on the final report but is used to provide more context when using the definition.';
         }
         field(4; "Analysis View Name"; Code[10])
         {
             Caption = 'Analysis View Name';
             TableRelation = "Analysis View";
+            ToolTip = 'Specifies the name of the analysis view you want the column definition to use. This field is optional.';
+        }
+        field(5; "Internal Description"; Text[250])
+        {
+            Caption = 'Internal Description';
+            ToolTip = 'Specifies the internal description of the column definition. The internal description is not shown on the final report but is used to provide more context when using the definition.';
         }
     }
 
