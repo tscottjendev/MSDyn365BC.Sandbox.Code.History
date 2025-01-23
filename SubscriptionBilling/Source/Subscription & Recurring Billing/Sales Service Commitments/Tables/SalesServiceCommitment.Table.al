@@ -436,9 +436,11 @@ table 8068 "Sales Service Commitment"
     begin
         SalesLine.Get("Document Type", "Document No.", "Document Line No.");
         OnBeforeCalculateCalculationBaseAmount(SalesLine, Rec, IsHandled);
-        if not IsHandled then
-            if SalesLine.Type <> Enum::"Sales Line Type"::Item then
-                exit;
+        if IsHandled then
+            exit;
+
+        if SalesLine.Type <> Enum::"Sales Line Type"::Item then
+            exit;
         case Partner of
             Partner::Customer:
                 CalculateCalculationBaseAmountCustomer();

@@ -447,16 +447,6 @@ codeunit 8069 "Sales Service Commitment Mgmt."
         end;
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeAddSalesServiceCommitmentsForSalesLine(SalesLine: Record "Sales Line"; SkipAddAdditionalSalesServComm: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterShowAssignServiceCommitmentsDetermined(SalesLine: Record "Sales Line"; var ServiceCommitmentPackage: Record "Service Commitment Package"; var ShowAssignServiceCommitments: Boolean)
-    begin
-    end;
-
     internal procedure NotifyIfDiscountIsNotTransferredFromSalesLine(var SalesLine: Record "Sales Line")
     var
         SalesServiceCommitment: Record "Sales Service Commitment";
@@ -492,6 +482,16 @@ codeunit 8069 "Sales Service Commitment Mgmt."
         CustomerContract: Record "Customer Contract";
     begin
         CustomerContract.DontNotifyCurrentUserAgain(CustomerContract.GetNotificationIdDiscountIsNotTransferredFromSalesLine());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddSalesServiceCommitmentsForSalesLine(SalesLine: Record "Sales Line"; SkipAddAdditionalSalesServComm: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowAssignServiceCommitmentsDetermined(SalesLine: Record "Sales Line"; var ServiceCommitmentPackage: Record "Service Commitment Package"; var ShowAssignServiceCommitments: Boolean)
+    begin
     end;
 
     var

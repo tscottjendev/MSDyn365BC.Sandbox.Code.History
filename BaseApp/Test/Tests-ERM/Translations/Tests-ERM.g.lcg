@@ -716,6 +716,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule II - NamedType DimFilterStrTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 583230938 - NamedType 3419509450" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Row %1 with is visible with the value %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule II - NamedType InvalidRowErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 583230938 - NamedType 3453919253" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You can only copy one rows definition at a time.]]></Val>
@@ -723,6 +732,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule II - NamedType MultipleSourcesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 583230938 - NamedType 2895079328" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Row %1 is not visible.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule II - NamedType RowNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 583230938 - NamedType 2006647528" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
