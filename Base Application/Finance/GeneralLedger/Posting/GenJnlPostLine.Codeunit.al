@@ -8114,7 +8114,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
         PostingGLAccountNo: Code[20];
         DeferralGLAccountNo: Code[20];
         Sign: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertDeferralNonDeductibleVATGLEntries(NonDeductibleVATPct, DeferralPostingBuffer, VATPostingSetup, GenJournalLine, DeferralTemplate, VATAmountRounding, PositiveNDVATAmountRounding, NegativeNDVATAmountRounding, IsHandled);
+        if IsHandled then
+            exit;
+
         if NonDeductibleVATPct = 0 then
             exit;
 
@@ -10628,6 +10634,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDeferralPostBufferOnAfterFindDeferalPostingBuffer(var GenJournalLine: Record "Gen. Journal Line"; var DeferralPostingBuffer: Record "Deferral Posting Buffer"; var NonDeductibleVATPct: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertDeferralNonDeductibleVATGLEntries(var NonDeductibleVATPct: Decimal; DeferralPostingBuffer: Record "Deferral Posting Buffer"; VATPostingSetup: Record "VAT Posting Setup"; GenJournalLine: Record "Gen. Journal Line"; DeferralTemplate: Record "Deferral Template"; var VATAmountRounding: Decimal; var PositiveNDVATAmountRounding: Decimal; var NegativeNDVATAmountRounding: Decimal; IsHandled: Boolean)
     begin
     end;
 
