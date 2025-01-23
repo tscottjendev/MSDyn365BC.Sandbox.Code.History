@@ -33,6 +33,8 @@ codeunit 134994 "ERM Account Schedule II"
         TargetNameMissingErr: Label 'You must specify a name for the new rows definition.';
         LibraryCostAccounting: Codeunit "Library - Cost Accounting";
         LibraryCashFlow: Codeunit "Library - Cash Flow";
+        InvalidRowErr: Label 'Row %1 with is visible with the value %2.';
+        RowNotFoundErr: Label 'Row %1 is not visible.';
         IsInitialized: Boolean;
 
     [Test]
@@ -2132,6 +2134,132 @@ codeunit 134994 "ERM Account Schedule II"
         AccountSchedule.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('AccScheduleOverviewWithDisabledLinePageHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewExcludeLinesWithShowAllLinesDisabledPositiveBalance()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Code[10];
+        ColumnLayoutName: Code[10];
+        LineDescription: array[4] of Text;
+    begin
+        // [SCENARIO] Acc. Schedule Overview only shows lines with the value range specified by the row definition, when show all lines is disabled
+        Initialize();
+
+        // [GIVEN] 4 GL accounts with balances
+        // [GIVEN] 4 account schedule lines with "Show" = "When Positive Balance", assigned one GL account each
+        // [GIVEN] Only line 3 has a positive balance
+        CreateAccScheduleWithFourLines(AccScheduleName, ColumnLayoutName, LineDescription, AccScheduleLine.Show::"When Positive Balance");
+        LibraryVariableStorage.Enqueue(LineDescription[1]);
+        LibraryVariableStorage.Enqueue(LineDescription[2]);
+        LibraryVariableStorage.Enqueue(LineDescription[4]);
+
+        // [WHEN] Acc. Schedule Overview page is opened
+        OpenAccountScheduleOverviewPage(AccScheduleName);
+
+        // [THEN] Lines 1, 2, 4 are hidden
+        // Handled in AccScheduleOverviewWithDisabledLinePageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('AccScheduleOverviewWithDisabledLinePageHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewExcludeLinesWithShowAllLinesDisabledNegativeBalance()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Code[10];
+        ColumnLayoutName: Code[10];
+        LineDescription: array[4] of Text;
+    begin
+        // [SCENARIO] Acc. Schedule Overview only shows lines with the value range specified by the row definition, when show all lines is disabled
+        Initialize();
+
+        // [GIVEN] 4 GL accounts with balances
+        // [GIVEN] 4 account schedule lines with "Show" = "When Negative Balance", assigned one GL account each
+        // [GIVEN] Only line 4 has a negative balance
+        CreateAccScheduleWithFourLines(AccScheduleName, ColumnLayoutName, LineDescription, AccScheduleLine.Show::"When Negative Balance");
+        LibraryVariableStorage.Enqueue(LineDescription[1]);
+        LibraryVariableStorage.Enqueue(LineDescription[2]);
+        LibraryVariableStorage.Enqueue(LineDescription[3]);
+
+        // [WHEN] Acc. Schedule Overview page is opened
+        OpenAccountScheduleOverviewPage(AccScheduleName);
+
+        // [THEN] Lines 1, 2, 3 are hidden
+        // Handled in AccScheduleOverviewWithDisabledLinePageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('AccScheduleOverviewWithDisabledLinePageHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewExcludeLinesWithShowAllLinesDisabledNotZero()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Code[10];
+        ColumnLayoutName: Code[10];
+        LineDescription: array[4] of Text;
+    begin
+        // [SCENARIO] Acc. Schedule Overview only shows lines with the value range specified by the row definition, when show all lines is disabled
+        Initialize();
+
+        // [GIVEN] 4 GL accounts with balances
+        // [GIVEN] 4 account schedule lines with "Show" = "If Any Column Not Zero", assigned one GL account each
+        // [GIVEN] Only line 3 and 4 has a non-zero balance
+        CreateAccScheduleWithFourLines(AccScheduleName, ColumnLayoutName, LineDescription, AccScheduleLine.Show::"If Any Column Not Zero");
+        LibraryVariableStorage.Enqueue(LineDescription[1]);
+        LibraryVariableStorage.Enqueue(LineDescription[2]);
+
+        // [WHEN] Acc. Schedule Overview page is opened
+        OpenAccountScheduleOverviewPage(AccScheduleName);
+
+        // [THEN] Lines 1, 2 are hidden
+        // Handled in AccScheduleOverviewWithDisabledLinePageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('AccScheduleOverviewWithShowAllEnabledPageHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewIncludeLinesWithShowAllLinesEnabled()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        // [SCENARIO] Acc. Schedule Overview shows all lines when Show All Lines is enabled
+        Initialize();
+
+        // [GIVEN] Account Schedule was created
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+
+        // [GIVEN] Account Schedule Lines for each show option value, but no balance
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Row No.", LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate(Show, AccScheduleLine.Show::Yes);
+        AccScheduleLine.Modify(true);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Row No.", LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate(Show, AccScheduleLine.Show::No);
+        AccScheduleLine.Modify(true);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Row No.", LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate(Show, AccScheduleLine.Show::"If Any Column Not Zero");
+        AccScheduleLine.Modify(true);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Row No.", LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate(Show, AccScheduleLine.Show::"When Positive Balance");
+        AccScheduleLine.Modify(true);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Row No.", LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate(Show, AccScheduleLine.Show::"When Negative Balance");
+        AccScheduleLine.Modify(true);
+
+        // [WHEN] Acc. Schedule Overview page is opened with Show All Lines enabled
+        OpenAccountScheduleOverviewPage(AccScheduleName.Name);
+
+        // [THEN] All lines are visible
+        // Handled in AccScheduleOverviewWithShowAllEnabledPageHandler
+    end;
+
     local procedure Initialize()
     var
         FinancialReportMgt: Codeunit "Financial Report Mgt.";
@@ -2679,6 +2807,36 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         AccountSchedule.CurrentSchedName.AssertEquals(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(AccScheduleName.Name)));
         AccountSchedule.Show.SetValue(AccScheduleLine.Show::No);
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewWithDisabledLinePageHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
+    var
+        UnexpectedLineDescription: Variant;
+    begin
+        while LibraryVariableStorage.Length() > 0 do begin
+            LibraryVariableStorage.Dequeue(UnexpectedLineDescription);
+            AccScheduleOverview.First();
+            repeat
+                Assert.AreNotEqual(UnexpectedLineDescription, AccScheduleOverview.Description.Value, StrSubstNo(InvalidRowErr, AccScheduleOverview.Description.Value, AccScheduleOverview.ColumnValues1.Value));
+            until not AccScheduleOverview.Next();
+        end;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewWithShowAllEnabledPageHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        AccScheduleOverview.ShowLinesWithShowNo.SetValue(true);
+        AccScheduleOverview.First();
+        AccScheduleLine.SetRange("Schedule Name", AccScheduleOverview.CurrentSchedName.Value);
+        AccScheduleLine.FindSet();
+        repeat
+            Assert.IsTrue(AccScheduleOverview.GoToRecord(AccScheduleLine), RowNotFoundErr);
+        until AccScheduleLine.Next() = 0;
     end;
 
     [RequestPageHandler]
