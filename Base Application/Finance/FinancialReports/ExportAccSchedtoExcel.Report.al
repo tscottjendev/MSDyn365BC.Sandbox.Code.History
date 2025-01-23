@@ -360,7 +360,11 @@ report 29 "Export Acc. Sched. to Excel"
         FinReportExcelTemplate.Template.CreateInStream(InStream);
         ServerFileName := FileMgt.InStreamExportToServerFile(InStream, ExcelFileExtensionTok);
         DoUseExistingTemplate := ServerFileName <> '';
-        ExistingTemplateName := FileMgt.CreateFileNameWithExtension(FinReportExcelTemplate."Financial Report Name", ExcelFileExtensionTok);
+        if FinReportExcelTemplate."File Name" <> '' then
+            ExistingTemplateName := FinReportExcelTemplate."File Name"
+        else
+            ExistingTemplateName := FinancialReport.Description;
+        ExistingTemplateName := FileMgt.CreateFileNameWithExtension(ExistingTemplateName, ExcelFileExtensionTok);
     end;
 
     procedure SetSaveToStream(NewSaveToStream: Boolean)
