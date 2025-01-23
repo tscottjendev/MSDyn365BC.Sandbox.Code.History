@@ -39,6 +39,22 @@ page 489 "Column Layout"
                     CurrentColumnNameOnAfterValida();
                 end;
             }
+            field(InternalDescription; InternalDescription)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Internal Description';
+                MultiLine = true;
+                ToolTip = 'Specifies the internal description of the column definition. The internal description is not shown on the final report but is used to provide more context when using the definition.';
+
+                trigger OnValidate()
+                var
+                    ColumnLayoutName: Record "Column Layout Name";
+                begin
+                    ColumnLayoutName.Get(CurrentColumnName);
+                    ColumnLayoutName."Internal Description" := InternalDescription;
+                    ColumnLayoutName.Modify();
+                end;
+            }
             repeater(Control1)
             {
                 ShowCaption = false;
@@ -279,18 +295,29 @@ page 489 "Column Layout"
     begin
         FinancialReportMgt.LaunchEditColumnsWarningNotification();
         AccSchedManagement.OpenColumns(CurrentColumnName, Rec);
+        GetInternalDescription();
     end;
 
     var
         AccSchedManagement: Codeunit AccSchedManagement;
         CurrentColumnName: Code[10];
         DimCaptionsInitialized: Boolean;
+        InternalDescription: Text[250];
 
     local procedure CurrentColumnNameOnAfterValida()
     begin
         CurrPage.SaveRecord();
         AccSchedManagement.SetColumnName(CurrentColumnName, Rec);
         CurrPage.Update(false);
+    end;
+
+    local procedure GetInternalDescription()
+    var
+        ColumnLayoutName: Record "Column Layout Name";
+    begin
+        InternalDescription := '';
+        if ColumnLayoutName.Get(CurrentColumnName) then
+            InternalDescription := ColumnLayoutName."Internal Description";
     end;
 
     procedure SetColumnLayoutName(NewColumnName: Code[10])

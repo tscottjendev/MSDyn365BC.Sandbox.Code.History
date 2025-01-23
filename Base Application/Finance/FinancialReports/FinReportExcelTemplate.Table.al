@@ -6,7 +6,7 @@ namespace Microsoft.Finance.FinancialReports;
 
 table 764 "Fin. Report Excel Template"
 {
-    Caption = 'Financial Report Excel Template';
+    Caption = 'Financial Report Excel Layout';
     DataClassification = CustomerContent;
     LookupPageId = "Fin. Report Excel Templates";
 
@@ -15,29 +15,36 @@ table 764 "Fin. Report Excel Template"
         field(1; "Financial Report Name"; Code[10])
         {
             Caption = 'Financial Report Name';
-            ToolTip = 'Specifies the name of the financial report.';
             DataClassification = CustomerContent;
-            TableRelation = "Financial Report";
             NotBlank = true;
+            TableRelation = "Financial Report";
+            ToolTip = 'Specifies the name of the financial report.';
         }
-        field(2; Code; Code[20])
+        field(2; Code; Code[50])
         {
             Caption = 'Code';
-            ToolTip = 'Specifies the code of the template.';
             DataClassification = CustomerContent;
             NotBlank = true;
+            ToolTip = 'Specifies the code of the layout.';
         }
         field(3; Description; Text[100])
         {
             Caption = 'Description';
-            ToolTip = 'Specifies the description.';
             DataClassification = CustomerContent;
+            ToolTip = 'Specifies a description of the Excel Layout to help users understand what the layout does.';
+
         }
         field(4; Template; Blob)
         {
-            Caption = 'Template';
-            ToolTip = 'Specifies the Excel template file.';
+            Caption = 'Layout';
             DataClassification = CustomerContent;
+            ToolTip = 'Specifies the Excel layout file.';
+        }
+        field(5; "File Name"; Text[250])
+        {
+            Caption = 'File Name';
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies the file name of the layout when exported. If not specified the financial report name will be used instead.';
         }
     }
 
