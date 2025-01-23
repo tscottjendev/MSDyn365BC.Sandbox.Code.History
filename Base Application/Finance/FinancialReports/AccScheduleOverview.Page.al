@@ -192,7 +192,7 @@ page 490 "Acc. Schedule Overview"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show All Lines';
                     Importance = Promoted;
-                    ToolTip = 'Specifies whether the page should display all lines, including lines where No is chosen in the Show field. Those lines are still not included in the printed report.';
+                    ToolTip = 'Specifies whether the page should display all lines, including lines where No is chosen in the Show field, as well as lines with values outside the range to be displayed. Those lines are still not included in the printed report.';
 
                     trigger OnValidate()
                     begin
@@ -1176,30 +1176,14 @@ page 490 "Acc. Schedule Overview"
             SaveStateToUserFilters();
     end;
 
-    trigger OnAfterGetRecord()
-    var
-        ColumnNo: Integer;
+    trigger OnFindRecord(Which: Text): Boolean
     begin
-        Clear(ColumnValues);
+        exit(MarkAndFilterRowsOnFind(Which));
+    end;
 
-        if (Rec.Totaling = '') or (not TempColumnLayout.FindSet()) or (Rec."Schedule Name" <> TempFinancialReport."Financial Report Row Group") then
-            exit;
-
-        repeat
-            ColumnNo := ColumnNo + 1;
-            if (ColumnNo > ColumnOffset) and (ColumnNo - ColumnOffset <= ArrayLen(ColumnValues)) then begin
-                ColumnValues[ColumnNo - ColumnOffset] :=
-                  RoundIfNotNone(
-                    MatrixMgt.RoundAmount(
-                      AccSchedManagement.CalcCell(Rec, TempColumnLayout, TempFinancialReport.UseAmountsInAddCurrency),
-                      TempColumnLayout."Rounding Factor"),
-                    TempColumnLayout."Rounding Factor");
-                OnOnAfterGetRecordOnAfterAssignColumnValue(ColumnValues, ColumnNo, ColumnOffset, TempColumnLayout, TempFinancialReport.UseAmountsInAddCurrency);
-                ColumnLayoutArr[ColumnNo - ColumnOffset] := TempColumnLayout;
-                GetStyle(ColumnNo - ColumnOffset, Rec."Line No.", TempColumnLayout."Line No.");
-            end;
-        until TempColumnLayout.Next() = 0;
-        AccSchedManagement.ForceRecalculate(false);
+    trigger OnAfterGetRecord()
+    begin
+        LoadColumns();
     end;
 
     trigger OnInit()
@@ -1310,6 +1294,54 @@ page 490 "Acc. Schedule Overview"
         ViewOnlyModeSet := true;
     end;
 
+    local procedure MarkAndFilterRowsOnFind(Which: Text): Boolean
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        SelectedRecordMarked: Boolean;
+        ColumnNo: Integer;
+    begin
+        Rec.MarkedOnly(false);
+        AccScheduleLine := Rec;
+        if not TempFinancialReport.ShowLinesWithShowNo then begin
+            if Rec.FindSet() then
+                repeat
+                    if Rec.Show = Rec.Show::Yes then
+                        Rec.Mark(true)
+                    else begin
+                        Rec.Mark(false);
+                        LoadColumns();
+                        ColumnNo := 1;
+                        while ColumnNo <= ArrayLen(ColumnValues) do begin
+                            ColumnValues[ColumnNo] *= Rec."Show Opposite Sign" ? -1 : 1;
+                            case Rec.Show of
+                                Rec.Show::"If Any Column Not Zero":
+                                    if ColumnValues[ColumnNo] <> 0 then
+                                        Rec.Mark(true);
+                                Rec.Show::"When Positive Balance":
+                                    if ColumnValues[ColumnNo] > 0 then
+                                        Rec.Mark(true);
+                                Rec.Show::"When Negative Balance":
+                                    if ColumnValues[ColumnNo] < 0 then
+                                        Rec.Mark(true);
+                            end;
+                            if Rec.Mark() then
+                                ColumnNo := ArrayLen(ColumnValues);
+                            ColumnNo += 1;
+                        end;
+                    end;
+                    if Rec.Mark() and (AccScheduleLine.SystemId = Rec.SystemId) then
+                        SelectedRecordMarked := true;
+                until Rec.Next() = 0
+            else
+                exit(false);
+
+            Rec.MarkedOnly(true);
+            if SelectedRecordMarked then
+                Rec := AccScheduleLine;
+        end;
+        exit(Rec.Find(Which));
+    end;
+
     local procedure ReloadPage()
     var
         EditModeNotification: Notification;
@@ -1365,6 +1397,32 @@ page 490 "Acc. Schedule Overview"
         DateFilter := Rec.GetFilter("Date Filter");
         OnBeforeCurrentColumnNameOnAfterValidate(TempFinancialReport."Financial Report Column Group");
         OnAfterOnOpenPage(Rec, TempFinancialReport."Financial Report Column Group");
+    end;
+
+    local procedure LoadColumns()
+    var
+        ColumnNo: Integer;
+    begin
+        Clear(ColumnValues);
+
+        if (Rec.Totaling = '') or (not TempColumnLayout.FindSet()) or (Rec."Schedule Name" <> TempFinancialReport."Financial Report Row Group") then
+            exit;
+
+        repeat
+            ColumnNo := ColumnNo + 1;
+            if (ColumnNo > ColumnOffset) and (ColumnNo - ColumnOffset <= ArrayLen(ColumnValues)) then begin
+                ColumnValues[ColumnNo - ColumnOffset] :=
+                  RoundIfNotNone(
+                    MatrixMgt.RoundAmount(
+                      AccSchedManagement.CalcCell(Rec, TempColumnLayout, TempFinancialReport.UseAmountsInAddCurrency),
+                      TempColumnLayout."Rounding Factor"),
+                    TempColumnLayout."Rounding Factor");
+                OnOnAfterGetRecordOnAfterAssignColumnValue(ColumnValues, ColumnNo, ColumnOffset, TempColumnLayout, TempFinancialReport.UseAmountsInAddCurrency);
+                ColumnLayoutArr[ColumnNo - ColumnOffset] := TempColumnLayout;
+                GetStyle(ColumnNo - ColumnOffset, Rec."Line No.", TempColumnLayout."Line No.");
+            end;
+        until TempColumnLayout.Next() = 0;
+        AccSchedManagement.ForceRecalculate(false);
     end;
 
     local procedure SetFinancialReportDateFilter()
@@ -1727,8 +1785,8 @@ page 490 "Acc. Schedule Overview"
     begin
         OldColumnOffset := ColumnOffset;
         ColumnOffset := ColumnOffset + Delta;
-        if ColumnOffset + 12 > TempColumnLayout.Count then
-            ColumnOffset := TempColumnLayout.Count - 12;
+        if ColumnOffset + ArrayLen(ColumnLayoutArr) > TempColumnLayout.Count then
+            ColumnOffset := TempColumnLayout.Count - ArrayLen(ColumnLayoutArr);
         if ColumnOffset < 0 then
             ColumnOffset := 0;
         if ColumnOffset <> OldColumnOffset then begin
@@ -2015,6 +2073,12 @@ page 490 "Acc. Schedule Overview"
                 ColumnStyle11 := ColumnStyle;
             12:
                 ColumnStyle12 := ColumnStyle;
+            13:
+                ColumnStyle13 := ColumnStyle;
+            14:
+                ColumnStyle14 := ColumnStyle;
+            15:
+                ColumnStyle15 := ColumnStyle;
         end;
     end;
 
@@ -2112,4 +2176,3 @@ page 490 "Acc. Schedule Overview"
     begin
     end;
 }
-

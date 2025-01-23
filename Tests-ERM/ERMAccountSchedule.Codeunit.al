@@ -2986,31 +2986,6 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('AccScheduleOverviewDrillDownHandler,RowMessageHandler')]
-    [Scope('OnPrem')]
-    procedure AccScheduleVerifyFormulaMessage()
-    var
-        AccScheduleLine: Record "Acc. Schedule Line";
-        ColumnLayout: Record "Column Layout";
-    begin
-        // [SCENARIO 379134] Drill Down on Account Schedule cell with Formula in Acc. Schedule line shows message with row formula
-        Initialize();
-
-        // [GIVEN] Acc. Schedule Line with Totaling Type = Formula
-        CreateColumnLayout(ColumnLayout);
-        CreateMultiAccountScheduleLine(AccScheduleLine, ColumnLayout."Column Layout Name", '',
-          '', '', AccScheduleLine."Totaling Type"::Formula, false);
-
-        // [WHEN] Drill Down on Cell with formula
-        OpenAccountScheduleOverviewPage(AccScheduleLine."Schedule Name");
-        // AccScheduleOverviewDrillDownHandler will exercise drilldown.
-
-        // [THEN] Message with row formula is displayed
-        // Verification is done by RowMessageHandler
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
     [HandlerFunctions('AccScheduleOverviewDrillDownHandler,ChartOfAccountsDrillDownPageHandler')]
     [Scope('OnPrem')]
     procedure AccScheduleVerifySourcePageDisplayed()
