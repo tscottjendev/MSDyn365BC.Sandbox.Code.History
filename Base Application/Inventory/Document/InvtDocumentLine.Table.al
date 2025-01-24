@@ -793,7 +793,7 @@ table 5851 "Invt. Document Line"
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemDocLine2: Record "Invt. Document Line";
     begin
-        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
+        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Entry No.");
         ItemLedgEntry.SetRange("Item No.", "Item No.");
         ItemLedgEntry.SetRange(Correction, false);
         if "Location Code" <> '' then
