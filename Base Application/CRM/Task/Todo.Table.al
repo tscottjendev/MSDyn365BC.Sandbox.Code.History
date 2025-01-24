@@ -2969,10 +2969,10 @@ table 5080 "To-do"
             Error('');
     end;
 
-    local procedure MakeAppointmentBody(Task: Record "To-do"; SalespersonsList: Text; SalespersonName: Text[50]): Text
+    local procedure MakeAppointmentBody(Task: Record "To-do"; SalespeopleList: Text; SalespersonName: Text[50]): Text
     begin
         exit(
-          StrSubstNo(Text015, SalespersonsList) + '<br/><br/>' +
+          StrSubstNo(Text015, SalespeopleList) + '<br/><br/>' +
           StrSubstNo(Text016, Format(Task.Date), Format(Task."Start Time"), Format(Task.Location)) + '<br/><br/>' +
           Text017 + '<br/>' +
           SalespersonName + '<br/>' +

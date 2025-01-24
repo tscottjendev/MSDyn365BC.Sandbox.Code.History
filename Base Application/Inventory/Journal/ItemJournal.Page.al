@@ -273,10 +273,13 @@ page 40 "Item Journal"
                     Visible = CanSelectItemTrackingOnLines;
                     ExtendedDatatype = Barcode;
 
+                    trigger OnValidate()
+                    begin
+                        CheckItemTrackingCode();
+                    end;
+
                     trigger OnAssistEdit()
                     begin
-                        if not CanSelectItemTrackingOnLines then
-                            exit;
                         Rec.LookUpTrackingSummary("Item Tracking Type"::"Serial No.");
                     end;
                 }
@@ -288,10 +291,13 @@ page 40 "Item Journal"
                     Visible = CanSelectItemTrackingOnLines;
                     ExtendedDatatype = Barcode;
 
+                    trigger OnValidate()
+                    begin
+                        CheckItemTrackingCode();
+                    end;
+
                     trigger OnAssistEdit()
                     begin
-                        if not CanSelectItemTrackingOnLines then
-                            exit;
                         Rec.LookUpTrackingSummary("Item Tracking Type"::"Lot No.");
                     end;
                 }
@@ -303,10 +309,13 @@ page 40 "Item Journal"
                     Visible = PackageNoVisible;
                     ExtendedDatatype = Barcode;
 
+                    trigger OnValidate()
+                    begin
+                        CheckItemTrackingCode();
+                    end;
+
                     trigger OnAssistEdit()
                     begin
-                        if not CanSelectItemTrackingOnLines then
-                            exit;
                         Rec.LookUpTrackingSummary("Item Tracking Type"::"Package No.");
                     end;
                 }
@@ -1219,6 +1228,16 @@ page 40 "Item Journal"
         ItemTrackingCode.SetLoadFields("Use Expiration Dates");
         ItemTrackingCode.Get(Item."Item Tracking Code");
         exit(ItemTrackingCode."Use Expiration Dates");
+    end;
+
+    local procedure CheckItemTrackingCode()
+    var
+        Item: Record Item;
+    begin
+        Rec.TestField(Rec."Item No.");
+        Item.SetLoadFields("Item Tracking Code");
+        Item.Get(Rec."Item No.");
+        Item.TestField("Item Tracking Code");
     end;
 
     [IntegrationEvent(false, false)]

@@ -22,6 +22,9 @@ codeunit 265 "Feature Key Management"
         ConcurrentWarehousingPostingLbl: Label 'ConcurrentWarehousingPosting', Locked = true;
         ConcurrentWarehousingPosting: Boolean;
         ConcurrentWarehousingPostingRead: Boolean;
+        ConcurrentInventoryPostingLbl: Label 'ConcurrentInventoryPosting', Locked = true;
+        ConcurrentInventoryPosting: Boolean;
+        ConcurrentInventoryPostingRead: Boolean;
 
 #if not CLEAN24
     procedure IsPhysInvtOrderPackageTrackingEnabled(): Boolean
@@ -55,6 +58,13 @@ codeunit 265 "Feature Key Management"
         exit(ConcurrentWarehousingPosting);
     end;
 
+    procedure IsConcurrentInventoryPostingEnabled(): Boolean
+    begin
+        if not ConcurrentInventoryPostingRead then
+            ConcurrentInventoryPosting := FeatureManagementFacade.IsEnabled(ConcurrentInventoryPostingLbl);
+        ConcurrentInventoryPostingRead := true;
+        exit(ConcurrentInventoryPosting);
+    end;
 #if not CLEAN24
     local procedure GetPhysInvtOrderPackageTrackingFeatureKey(): Text[50]
     begin
