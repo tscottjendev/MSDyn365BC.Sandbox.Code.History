@@ -13,6 +13,7 @@ codeunit 390 "Item Reg.-Show Inventory Ledg."
     trigger OnRun()
     begin
         PhysInvtLedgEntry.SetRange("Entry No.", Rec."From Phys. Inventory Entry No.", Rec."To Phys. Inventory Entry No.");
+        PhysInvtLedgEntry.SetFilter("Item Register No.", '0|%1', Rec."No.");
         PAGE.Run(PAGE::"Phys. Inventory Ledger Entries", PhysInvtLedgEntry);
     end;
 
