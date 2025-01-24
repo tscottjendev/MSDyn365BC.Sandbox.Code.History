@@ -361,7 +361,6 @@ table 313 "Inventory Setup"
         Item: Record Item;
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         ObjTransl: Record "Object Translation";
-        RecordHasBeenRead: Boolean;
 
 #pragma warning disable AA0074
         Text000: Label 'Some unadjusted value entries will not be covered with the new setting. You must run the Adjust Cost - Item Entries batch job once to adjust these.';
@@ -373,11 +372,10 @@ table 313 "Inventory Setup"
         ItemEntriesAdjustQst: Label 'If you change the %1, the program must adjust all item entries.The adjustment of all entries can take several hours.\Do you really want to change the %1?', Comment = '%1 - field caption';
 
     procedure GetRecordOnce()
+    var
+        InventorySetupCodeunit: Codeunit "Inventory Setup";
     begin
-        if RecordHasBeenRead then
-            exit;
-        Get();
-        RecordHasBeenRead := true;
+        InventorySetupCodeunit.GetSetup(Rec);
     end;
 
     local procedure UpdateInvtAdjmtEntryOrder()
@@ -430,5 +428,12 @@ table 313 "Inventory Setup"
     procedure AutomaticCostAdjmtRequired(): Boolean
     begin
         exit("Automatic Cost Adjustment" <> "Automatic Cost Adjustment"::Never);
+    end;
+
+    procedure UseLegacyPosting(): Boolean
+    var
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+    begin
+        exit(not FeatureKeyManagement.IsConcurrentInventoryPostingEnabled());
     end;
 }

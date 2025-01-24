@@ -31,7 +31,6 @@ using Microsoft.Service.Pricing;
 using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Email;
-using System.Environment.Configuration;
 using System.TestLibraries.Email;
 using System.TestLibraries.Reflection;
 using System.TestLibraries.Utilities;
@@ -2899,9 +2898,6 @@ codeunit 136108 "Service Posting - Invoice"
         // [SCENARIO 561229] GL Discount Entry is created on Post Service Invoice with enabled Invoice Posting Engine
         Initialize();
 
-        // [GIVEN] Enable Extensible Invoice Posting Engine Feature
-        EnableExtensibleInvoicePostingEngineFeature();
-
         // [GIVEN] Set Calc. Invoice Discount to false
         ModifyInvoiceDiscount();
 
@@ -3748,18 +3744,6 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-    end;
-
-    local procedure EnableExtensibleInvoicePostingEngineFeature()
-    var
-        FeatureKey: Record "Feature Key";
-    begin
-        FeatureKey.Get('ExtensibleInvoicePostingEngine');
-        if FeatureKey.Enabled = FeatureKey.Enabled::"All Users" then
-            exit;
-
-        FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
-        FeatureKey.Modify();
     end;
 
     [ConfirmHandler]
