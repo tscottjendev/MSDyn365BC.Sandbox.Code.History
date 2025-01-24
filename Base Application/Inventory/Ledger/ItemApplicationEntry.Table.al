@@ -82,6 +82,34 @@ table 339 "Item Application Entry"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
         }
+        field(101; "Item No."; Code[20])
+        {
+            CalcFormula = lookup("Item Ledger Entry"."Item No." where("Entry No." = field("Item Ledger Entry No.")));
+            Caption = 'Item No.';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(102; "Location Code"; Code[10])
+        {
+            CalcFormula = lookup("Item Ledger Entry"."Location Code" where("Entry No." = field("Item Ledger Entry No.")));
+            Caption = 'Location Code';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(103; "Variant Code"; Code[10])
+        {
+            CalcFormula = lookup("Item Ledger Entry"."Variant Code" where("Entry No." = field("Item Ledger Entry No.")));
+            Caption = 'Variant Code';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(111; "Latest Valuation Date"; Date)
+        {
+            CalcFormula = max("Value Entry"."Valuation Date" where("Item Ledger Entry No." = field("Item Ledger Entry No.")));
+            Caption = 'Latest Valuation Date';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(5800; "Cost Application"; Boolean)
         {
             Caption = 'Cost Application';
