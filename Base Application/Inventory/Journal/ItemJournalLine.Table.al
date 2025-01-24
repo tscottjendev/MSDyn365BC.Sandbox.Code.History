@@ -973,6 +973,13 @@ table 83 "Item Journal Line"
                 OnValidateOrderLineNoOnCaseOrderTypeElse(Rec, xRec);
             end;
         }
+        field(101; "Applies-to Rem. Quantity"; Decimal)
+        {
+            Caption = 'Applies-to Remaining Quantity';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = sum("Item Application Entry".Quantity where("Inbound Item Entry No." = field("Applies-to Entry"), "Posting Date" = field(upperlimit("Posting Date"))));
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -1811,14 +1818,17 @@ table 83 "Item Journal Line"
 
     trigger OnInsert()
     begin
-        LockTable();
         ItemJnlTemplate.Get("Journal Template Name");
         ItemJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+        if Rec."Posting No. Series" = '' then
+            Rec."Posting No. Series" := ItemJnlBatch."Posting No. Series";
+        if Rec."Posting No. Series" = '' then
+            Rec."Posting No. Series" := ItemJnlTemplate."Posting No. Series";
 
         Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
-        ValidateNewShortcutDimCode(1, "New Shortcut Dimension 1 Code");
-        ValidateNewShortcutDimCode(2, "New Shortcut Dimension 2 Code");
+        Rec.ValidateNewShortcutDimCode(1, "New Shortcut Dimension 1 Code");
+        Rec.ValidateNewShortcutDimCode(2, "New Shortcut Dimension 2 Code");
 
         CheckPlanningAssignment();
     end;
@@ -3782,7 +3792,6 @@ table 83 "Item Journal Line"
         LastItemJnlLine: Record "Item Journal Line";
         ItemJnlLine3: Record "Item Journal Line";
         NoSeries: Codeunit "No. Series";
-        PrevDocNo: Code[20];
         FirstDocNo: Code[20];
         TempFirstDocNo: Code[20];
         First: Boolean;
@@ -3820,7 +3829,6 @@ table 83 "Item Journal Line"
                     not LastItemJnlLine.EmptyLine()
                 then
                     DocNo := IncStr(DocNo);
-                PrevDocNo := ItemJnlLine2."Document No.";
                 PrevPostingDate := ItemJnlLine2."Posting Date";
                 ItemJnlLine3.Get(ItemJnlLine2."Journal Template Name", ItemJnlLine2."Journal Batch Name", ItemJnlLine2."Line No.");
                 ItemJnlLine3."Document No." := DocNo;
