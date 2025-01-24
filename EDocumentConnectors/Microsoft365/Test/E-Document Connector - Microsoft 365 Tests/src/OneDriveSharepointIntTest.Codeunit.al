@@ -5,14 +5,14 @@ using Microsoft.eServices.EDocument.Integration.Receive;
 using System.Utilities;
 using Microsoft.eServices.EDocument.Integration;
 
-codeunit 148196 "OneDrive Sharepoint Int."
+codeunit 148196 "OneDrive Sharepoint Int. Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
 
     trigger OnRun()
     begin
-        // [FEATURE] [Bookkeeping Assistance] E-Document connector for OneDrive and Sharepoint
+        // [FEATURE] [Payables Bookkeeper Agent] E-Document connector for OneDrive and Sharepoint
     end;
 
     [Test]
@@ -497,7 +497,6 @@ codeunit 148196 "OneDrive Sharepoint Int."
     var
         DriveProcessing: Codeunit "Drive Processing";
         Mock: JSonObject;
-
     begin
         case EDocumentService.Description of
             TestImportOneDocumentTxt:

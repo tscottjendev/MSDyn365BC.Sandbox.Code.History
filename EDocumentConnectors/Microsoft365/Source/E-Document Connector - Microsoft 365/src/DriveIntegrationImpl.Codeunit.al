@@ -11,7 +11,7 @@ using Microsoft.eServices.EDocument.Integration.Interfaces;
 using Microsoft.eServices.EDocument.Integration.Receive;
 using Microsoft.eServices.EDocument.Integration.Send;
 
-codeunit 6382 "Integration Impl." implements IDocumentReceiver, IDocumentSender, IReceivedDocumentMarker, IConsentManager
+codeunit 6382 "Drive Integration Impl." implements IDocumentReceiver, IDocumentSender, IReceivedDocumentMarker, IConsentManager
 {
     Permissions = tabledata "E-Document" = r,
                   tabledata "E-Document Log" = r,
@@ -78,6 +78,7 @@ codeunit 6382 "Integration Impl." implements IDocumentReceiver, IDocumentSender,
     var
         OneDriveSetup: Record "OneDrive Setup";
         SharepointSetup: Record "Sharepoint Setup";
+        OutlookIntegrationImpl: Codeunit "Outlook Integration Impl.";
     begin
         if SharepointSetup.Get() then
             if SharepointSetup.Enabled then
@@ -87,6 +88,9 @@ codeunit 6382 "Integration Impl." implements IDocumentReceiver, IDocumentSender,
             if OneDriveSetup.Get() then
                 if OneDriveSetup.Enabled then
                     VisibilityFlag := true;
+
+        if not VisibilityFlag then
+            OutlookIntegrationImpl.SetConditionalVisibilityFlag(VisibilityFlag);
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"E-Document Service", OnBeforeOpenServiceIntegrationSetupPage, '', false, false)]

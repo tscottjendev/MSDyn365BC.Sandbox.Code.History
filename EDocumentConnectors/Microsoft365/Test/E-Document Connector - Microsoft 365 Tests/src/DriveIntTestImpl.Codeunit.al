@@ -10,7 +10,7 @@ using Microsoft.eServices.EDocument.Integration.Interfaces;
 using Microsoft.eServices.EDocument.Integration.Receive;
 using Microsoft.eServices.EDocument.Integration.Send;
 
-codeunit 148195 "M365 Int. Test Impl." implements IDocumentReceiver, IDocumentSender, IReceivedDocumentMarker, IConsentManager
+codeunit 148195 "Drive Int. Test Impl." implements IDocumentReceiver, IDocumentSender, IReceivedDocumentMarker
 {
     Access = Internal;
 
@@ -21,12 +21,12 @@ codeunit 148195 "M365 Int. Test Impl." implements IDocumentReceiver, IDocumentSe
 
     procedure ReceiveDocuments(var EDocumentService: Record "E-Document Service"; Documents: Codeunit "Temp Blob List"; ReceiveContext: Codeunit ReceiveContext)
     begin
-        OneDriveSharepointInt.ReceiveDocuments(EDocumentService, Documents, ReceiveContext);
+        OneDriveSharepointIntTest.ReceiveDocuments(EDocumentService, Documents, ReceiveContext);
     end;
 
     procedure DownloadDocument(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; DocumentMetadataBlob: Codeunit "Temp Blob"; ReceiveContext: Codeunit ReceiveContext)
     begin
-        OneDriveSharepointInt.DownloadDocument(EDocument, EDocumentService, DocumentMetadataBlob, ReceiveContext);
+        OneDriveSharepointIntTest.DownloadDocument(EDocument, EDocumentService, DocumentMetadataBlob, ReceiveContext);
     end;
 
     procedure MarkFetched(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; var DocumentBlob: Codeunit "Temp Blob"; ReceiveContext: Codeunit ReceiveContext)
@@ -34,11 +34,6 @@ codeunit 148195 "M365 Int. Test Impl." implements IDocumentReceiver, IDocumentSe
         Assert: Codeunit Assert;
     begin
         Assert.AreNotEqual(EDocument."Document Id", '', 'Document Id must have a value when MarkFetched is called');
-    end;
-
-    procedure ObtainPrivacyConsent(): Boolean
-    begin
-        exit(true);
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"E-Document Service", OnBeforeOpenServiceIntegrationSetupPage, '', false, false)]
@@ -59,6 +54,6 @@ codeunit 148195 "M365 Int. Test Impl." implements IDocumentReceiver, IDocumentSe
     end;
 
     var
-        OneDriveSharepointInt: Codeunit "OneDrive Sharepoint Int.";
+        OneDriveSharepointIntTest: Codeunit "OneDrive Sharepoint Int. Test";
         SendNotSupportedErr: label 'Sending document is not supported in this context.';
 }
