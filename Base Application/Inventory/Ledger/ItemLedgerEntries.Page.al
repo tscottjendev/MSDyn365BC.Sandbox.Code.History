@@ -487,6 +487,29 @@ page 38 "Item Ledger Entries"
                         ApplicationWorksheet.Run();
                     end;
                 }
+                action("Item Application Entries")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Item Application Entries';
+                    Image = EntriesList;
+                    Visible = AdjustCostActionsVisible;
+                    ToolTip = 'View the item application entries that are created when you post item transactions.';
+
+                    trigger OnAction()
+                    var
+                        ItemApplicationEntry: Record "Item Application Entry";
+                    begin
+                        if Rec.Positive then begin
+                            ItemApplicationEntry.SetCurrentKey("Inbound Item Entry No.");
+                            ItemApplicationEntry.SetRange("Inbound Item Entry No.", Rec."Entry No.");
+                        end else begin
+                            ItemApplicationEntry.SetCurrentKey("Outbound Item Entry No.");
+                            ItemApplicationEntry.SetRange("Outbound Item Entry No.", Rec."Entry No.");
+                        end;
+
+                        Page.Run(0, ItemApplicationEntry);
+                    end;
+                }
                 action("Mark For Adjustment")
                 {
                     Caption = 'Mark for adjustment';
@@ -571,6 +594,9 @@ page 38 "Item Ledger Entries"
                 {
                 }
                 actionref("Application Worksheet_Promoted"; "Application Worksheet")
+                {
+                }
+                actionref("Item Application Entries_Promoted"; "Item Application Entries")
                 {
                 }
                 actionref("Mark For Adjustment_Promoted"; "Mark For Adjustment")
