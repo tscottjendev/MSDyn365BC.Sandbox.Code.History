@@ -75,7 +75,7 @@ report 704 "Inventory - Transaction Detail"
                 {
                     DataItemLink = "Item No." = field("No."), "Variant Code" = field("Variant Filter"), "Posting Date" = field("Date Filter"), "Location Code" = field("Location Filter"), "Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Global Dimension 2 Code" = field("Global Dimension 2 Filter");
                     DataItemLinkReference = Item;
-                    DataItemTableView = sorting("Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
+                    DataItemTableView = sorting("Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date", "Entry No.");
                     column(StartOnHandQuantity; StartOnHand + Quantity)
                     {
                         DecimalPlaces = 0 : 5;

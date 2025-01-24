@@ -136,7 +136,12 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
 
     procedure UpdateValuationDate(ValueEntry: Record "Value Entry")
     begin
+        Rec.ReadIsolation(IsolationLevel::ReadUnCommitted);
         if ValuationExists(ValueEntry) then begin
+            if not "Cost Is Adjusted" then
+                exit;
+            Rec.ReadIsolation(IsolationLevel::UpdLock);
+            Rec.Find();
             if not "Cost Is Adjusted" then
                 exit;
             "Cost Is Adjusted" := false;
@@ -257,6 +262,7 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
 
     local procedure GetItem(ItemNo: Code[20])
     begin
+        Item.ReadIsolation(IsolationLevel::ReadUncommitted);
         if ItemNo <> Item."No." then
             Item.Get(ItemNo);
     end;

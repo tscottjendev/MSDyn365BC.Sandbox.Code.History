@@ -338,7 +338,7 @@ page 9005 "Sales Manager Role Center"
                     ApplicationArea = Suite;
                     Caption = 'Salespeople/Purchasers';
                     RunObject = Page "Salespersons/Purchasers";
-                    ToolTip = 'View a list of your sales people and your purchasers.';
+                    ToolTip = 'View a list of salespeople and purchasers.';
                 }
                 action("Cust. Invoice Discounts")
                 {
