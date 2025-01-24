@@ -11,6 +11,7 @@ codeunit 5800 "Item Reg.- Show Value Entries"
     trigger OnRun()
     begin
         ValueEntry.SetRange("Entry No.", Rec."From Value Entry No.", Rec."To Value Entry No.");
+        ValueEntry.SetFilter("Item Register No.", '0|%1', Rec."No.");
         PAGE.Run(PAGE::"Value Entries", ValueEntry);
     end;
 
