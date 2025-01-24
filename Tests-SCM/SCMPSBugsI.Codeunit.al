@@ -20,6 +20,7 @@ codeunit 137035 "SCM PS Bugs-I"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
@@ -96,6 +97,55 @@ codeunit 137035 "SCM PS Bugs-I"
 
         // Verify Planned Production Order Created.
         FindProdOrder(ProductionOrder, ProductionOrder.Status::Planned, ItemNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ProductionOrderSaveAsXML')]
+    procedure PrintMultipleProductionOrdersWhenUsingCarryOutActionMessage()
+    var
+        Item: Record Item;
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        ProductionOrder: Record "Production Order";
+        ItemNo: Code[20];
+    begin
+        // Setup : Update and Initialize Setup.
+        Initialize();
+
+        // Create Item "A" with Replenishment System as Production Order
+        CreateItem(
+              Item, Item."Costing Method"::FIFO, '', '', Item."Manufacturing Policy"::"Make-to-Order", Item."Reordering Policy",
+                Item."Replenishment System"::"Prod. Order");
+        UpdateItem(Item, Item."Flushing Method", Item."Reordering Policy"::"Fixed Reorder Qty.", LibraryRandom.RandInt(10));
+        ItemNo := Item."No.";
+
+        // Create Item "B" with Replenishment System as Production Order
+        CreateItem(
+              Item, Item."Costing Method"::FIFO, '', '', Item."Manufacturing Policy"::"Make-to-Order", Item."Reordering Policy",
+                Item."Replenishment System"::"Prod. Order");
+        UpdateItem(Item, Item."Flushing Method", Item."Reordering Policy"::"Fixed Reorder Qty.", LibraryRandom.RandInt(10));
+
+        // Execute : Calculate regenerative Plan and Carry Out Action Message Plan for Production Order, for both Items.
+        CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Template Type"::Planning);
+        CalculateRegenerativePlan(ItemNo, Item."No.");
+
+        // Verify : Verify two Requisition Lines created for both Items.
+        RequisitionLine.SetFilter("No.", '%1|%2', ItemNo, Item."No.");
+        Assert.AreEqual(2, RequisitionLine.Count, ErrNoOfLinesMustBeEqual);
+
+        // Set Prod. Order report selection
+        SetupReportSelections("Report Selection Usage"::"Prod.Order", Report::"Prod. Order - List");
+
+        // Execute : Carry Out Action Message for Reference Order Type Production Order.
+        CarryOutActMsgPlanFirmPlanAndPrint(RequisitionLine);
+
+        // Verify Firm Planned Production Orders are printed.
+        FindProdOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ItemNo);
+        VerifyPrintedProdOrders(ProductionOrder);
+
+        FindProdOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", Item."No.");
+        VerifyPrintedProdOrders(ProductionOrder);
     end;
 
     [Test]
@@ -1154,6 +1204,23 @@ codeunit 137035 "SCM PS Bugs-I"
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-1M>', WorkDate()), CalcDate('<-1M>', WorkDate()));
     end;
 
+    local procedure CarryOutActMsgPlanFirmPlanAndPrint(var RequisitionLine: Record "Requisition Line")
+    var
+        NewProdOrderChoice: Option " ",Planned,"Firm Planned","Firm Planned & Print","Copy to Req. Wksh";
+        NewPurchOrderChoice: Option " ","Make Purch. Orders","Make Purch. Orders & Print","Copy to Req. Wksh";
+        NewTransOrderChoice: Option " ","Make Trans. Orders","Make Trans. Orders & Print","Copy to Req. Wksh";
+        NewAsmOrderChoice: Option " ","Make Assembly Orders","Make Assembly Orders & Print";
+    begin
+        RequisitionLine.FindSet();
+        repeat
+            RequisitionLine.Validate("Accept Action Message", true);
+            RequisitionLine.Modify(true);
+        until RequisitionLine.Next() = 0;
+        LibraryPlanning.CarryOutPlanWksh(
+          RequisitionLine, NewProdOrderChoice::"Firm Planned & Print", NewPurchOrderChoice::" ", NewTransOrderChoice::" ", NewAsmOrderChoice::" ", '', '',
+          '', '');
+    end;
+
     local procedure CarryOutActMsgPlan(var RequisitionLine: Record "Requisition Line"; No: Code[20])
     var
         NewProdOrderChoice: Option " ",Planned,"Firm Planned","Firm Planned & Print","Copy to Req. Wksh";
@@ -1610,6 +1677,26 @@ codeunit 137035 "SCM PS Bugs-I"
         GetSalesOrders.Run();
     end;
 
+    local procedure VerifyPrintedProdOrders(var ProductionOrder: Record "Production Order")
+    begin
+        LibraryReportDataset.AssertElementWithValueExists('Production_Order__No__', ProductionOrder."No.");
+        LibraryReportDataset.GetNextRow();
+    end;
+
+    local procedure SetupReportSelections(ReportSelectionUsage: Enum "Report Selection Usage"; ReportId: Integer)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        ReportSelections.SetRange(Usage, ReportSelectionUsage);
+        ReportSelections.DeleteAll();
+
+        ReportSelections.Init();
+        ReportSelections.Validate(Usage, ReportSelectionUsage);
+        ReportSelections.Validate(Sequence, LibraryRandom.RandText(2));
+        ReportSelections.Validate("Report ID", ReportId);
+        ReportSelections.Insert(true);
+    end;
+
     local procedure ItemReferenceSetup(var PurchaseLine: Record "Purchase Line"; var ItemReference: Record "Item Reference"; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[10]; VariantExist: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1947,6 +2034,14 @@ codeunit 137035 "SCM PS Bugs-I"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
+    end;
+
+    [ReportHandler]
+    procedure ProductionOrderSaveAsXML(var AsmOrder: Report "Prod. Order - List")
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        LibraryReportDataset.RunReportAndLoad(Report::"Prod. Order - List", ProductionOrder, '');
     end;
 }
 
