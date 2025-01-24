@@ -11,7 +11,6 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
-using Microsoft.Sales.Document;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Item;
@@ -30,6 +29,8 @@ using Microsoft.Projects.Project.Planning;
 using Microsoft.Sales.History;
 using Microsoft.Warehouse.Journal;
 using System.Reflection;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Sales.Document;
 
 codeunit 22 "Item Jnl.-Post Line"
 {
@@ -188,20 +189,19 @@ codeunit 22 "Item Jnl.-Post Line"
     /// <returns>True if item journal line was posted, otherwise false.</returns>
     procedure RunWithCheck(var ItemJnlLine2: Record "Item Journal Line"): Boolean
     var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         TrackingSpecExists: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeRunWithCheck(
-          ItemJnlLine2, CalledFromAdjustment, CalledFromInvtPutawayPick, CalledFromApplicationWorksheet,
-          PostponeReservationHandling, IsHandled);
+        OnBeforeRunWithCheck(ItemJnlLine2, CalledFromAdjustment, CalledFromInvtPutawayPick, CalledFromApplicationWorksheet, PostponeReservationHandling, IsHandled);
         if IsHandled then
             exit;
 
         PrepareItem(ItemJnlLine2);
         TrackingSpecExists := ItemTrackingMgt.RetrieveItemTracking(ItemJnlLine2, TempTrackingSpecification);
-        OnRunWithCheckOnAfterRetrieveItemTracking(
-            ItemJnlLine2, TempTrackingSpecification, TrackingSpecExists, PostponeReservationHandling);
+        OnRunWithCheckOnAfterRetrieveItemTracking(ItemJnlLine2, TempTrackingSpecification, TrackingSpecExists, PostponeReservationHandling);
+        SequenceNoMgt.ClearSequenceNoCheck();
         exit(PostSplitJnlLine(ItemJnlLine2, TrackingSpecExists));
     end;
 
@@ -232,9 +232,18 @@ codeunit 22 "Item Jnl.-Post Line"
 
     local procedure "Code"()
     var
+        xItemLedgEntryNo: Integer;
+        xItemApplnEntryNo: Integer;
+        xValueEntryNo: Integer;
         IsHandled: Boolean;
     begin
+        xItemLedgEntryNo := ItemLedgEntryNo;
+        xItemApplnEntryNo := ItemApplnEntryNo;
+        xValueEntryNo := ValueEntryNo;
         OnBeforePostItemJnlLine(ItemJnlLine, CalledFromAdjustment, CalledFromInvtPutawayPick, ItemReg, ItemLedgEntryNo, ValueEntryNo, ItemApplnEntryNo);
+        ValidateSequenceNo(ItemLedgEntryNo, xItemLedgEntryNo, Database::"Item Ledger Entry");
+        ValidateSequenceNo(ItemApplnEntryNo, xItemApplnEntryNo, Database::"Item Application Entry");
+        ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
 
         if ItemJnlLine.EmptyLine() and not ItemJnlLine.Correction and not ItemJnlLine.Adjustment then
             if not ItemJnlLine.IsValueEntryForDeletedItem() then
@@ -252,7 +261,7 @@ codeunit 22 "Item Jnl.-Post Line"
         if ItemJnlLine."VAT Reporting Date" = 0D then
             ItemJnlLine."VAT Reporting Date" := GLSetup.GetVATDate(ItemJnlLine."Posting Date", ItemJnlLine."Document Date");
 
-        if ItemLedgEntryNo = 0 then begin
+        if (ItemLedgEntryNo = 0) and InvtSetup.UseLegacyPosting() then begin
             GlobalItemLedgEntry.LockTable();
             ItemLedgEntryNo := GlobalItemLedgEntry.GetLastEntryNo();
             GlobalItemLedgEntry."Entry No." := ItemLedgEntryNo;
@@ -371,7 +380,13 @@ codeunit 22 "Item Jnl.-Post Line"
         else
             ItemJnlLine."Item Shpt. Entry No." := GlobalItemLedgEntry."Entry No.";
 
+        xItemLedgEntryNo := ItemLedgEntryNo;
+        xItemApplnEntryNo := ItemApplnEntryNo;
+        xValueEntryNo := ValueEntryNo;
         OnAfterPostItemJnlLine(ItemJnlLine, GlobalItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment, CalledFromInvtPutawayPick, ItemReg, ItemLedgEntryNo, ItemApplnEntryNo, WhseJnlRegisterLine);
+        ValidateSequenceNo(ItemLedgEntryNo, xItemLedgEntryNo, Database::"Item Ledger Entry");
+        ValidateSequenceNo(ItemApplnEntryNo, xItemApplnEntryNo, Database::"Item Application Entry");
+        ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
     end;
 
     /// <summary>
@@ -1079,12 +1094,14 @@ codeunit 22 "Item Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        if CapLedgEntryNo = 0 then begin
-            CapLedgEntry.LockTable();
-            CapLedgEntryNo := CapLedgEntry.GetLastEntryNo();
-        end;
-
-        CapLedgEntryNo := CapLedgEntryNo + 1;
+        if InvtSetup.UseLegacyPosting() then begin
+            if CapLedgEntryNo = 0 then begin
+                CapLedgEntry.LockTable();
+                CapLedgEntryNo := CapLedgEntry.GetLastEntryNo();
+            end;
+            CapLedgEntryNo += 1;
+        end else
+            CapLedgEntryNo := CapLedgEntry.GetNextEntryNo();
 
         CapLedgEntry.Init();
         CapLedgEntry."Entry No." := CapLedgEntryNo;
@@ -1144,11 +1161,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
         OnBeforeInsertCapLedgEntry(CapLedgEntry, ItemJnlLine);
 
-        CapLedgEntry.Insert();
+        InsertItemReg(0, 0, 0, CapLedgEntry."Entry No.");
+        CapLedgEntry."Item Register No." := ItemReg."No.";
+        CapLedgEntry.Insert(true);
 
         OnAfterInsertCapLedgEntry(CapLedgEntry, ItemJnlLine);
-
-        InsertItemReg(0, 0, 0, CapLedgEntry."Entry No.");
     end;
 
     procedure InsertCapValueEntry(var ItemJournalLine: Record "Item Journal Line"; var CapLedgEntry: Record "Capacity Ledger Entry"; ValueEntryType: Enum "Cost Entry Type"; ValuedQty: Decimal; InvdQty: Decimal; AdjdCost: Decimal)
@@ -1161,7 +1178,7 @@ codeunit 22 "Item Jnl.-Post Line"
         if (InvdQty = 0) and (AdjdCost = 0) then
             exit;
 
-        ValueEntryNo := ValueEntryNo + 1;
+        ValueEntryNo := GetNextValueEntryNo(ValueEntryNo);
 
         ValueEntry.Init();
         ValueEntry."Entry No." := ValueEntryNo;
@@ -1234,12 +1251,14 @@ codeunit 22 "Item Jnl.-Post Line"
             PostInvtBuffer(ValueEntry);
         end;
 
+        InsertItemReg(0, 0, ValueEntry."Entry No.", 0);
+        ValueEntry."Item Register No." := ItemReg."No.";
         ValueEntry.Insert(true);
+
         OnAfterInsertCapValueEntry(ValueEntry, ItemJournalLine);
 
         UpdateAdjmtProperties(ValueEntry, CapLedgEntry."Posting Date");
 
-        InsertItemReg(0, 0, ValueEntry."Entry No.", 0);
         InsertPostValueEntryToGL(ValueEntry);
         if Item."Item Tracking Code" <> '' then begin
             TempValueEntryRelation.Init();
@@ -1308,7 +1327,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
         OnItemQtyPostingOnAfterInsertTransferEntry(
             ItemJnlLine, AverageTransfer, GlobalItemLedgEntry, OldItemLedgEntry, TotalAppliedQty, TempItemEntryRelation, GlobalValueEntry);
-        // <-- NEW EVENT
+
         if ItemJnlLine."Entry Type" in [ItemJnlLine."Entry Type"::"Assembly Output", ItemJnlLine."Entry Type"::"Assembly Consumption"] then
             InsertAsmItemEntryRelation(GlobalItemLedgEntry);
 
@@ -1371,6 +1390,7 @@ codeunit 22 "Item Jnl.-Post Line"
     /// </remarks>
     procedure ItemValuePosting()
     var
+        xValueEntryNo: Integer;
         IsCostNotTracedDirectly: Boolean;
         IsHandled: Boolean;
     begin
@@ -1398,7 +1418,9 @@ codeunit 22 "Item Jnl.-Post Line"
         if not IsHandled then
             InsertValueEntry(GlobalValueEntry, GlobalItemLedgEntry, false);
 
+        xValueEntryNo := ValueEntryNo;
         OnItemValuePostingOnAfterInsertValueEntry(GlobalValueEntry, GlobalItemLedgEntry, ValueEntryNo);
+        ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
 
         IsCostNotTracedDirectly := (ItemJnlLine."Value Entry Type" <> ItemJnlLine."Value Entry Type"::"Direct Cost") or (ItemJnlLine."Item Charge No." <> '');
         OnItemValuePostingOnAfterCalcIsCostNotTracedDirectly(ItemJnlLine, IsCostNotTracedDirectly);
@@ -1407,7 +1429,9 @@ codeunit 22 "Item Jnl.-Post Line"
                 if GlobalItemLedgEntry.Positive then
                     GlobalItemLedgEntry.Modify();
                 IsHandled := false;
+                xValueEntryNo := ValueEntryNo;
                 OnItemValuePostingOnBeforeInsertOHValueEntry(ItemJnlLine, GlobalValueEntry, GlobalItemLedgEntry, ValueEntryNo, IsHandled, VarianceAmount, VarianceAmountACY, OverheadAmount, OverheadAmountACY);
+                ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
                 if not IsHandled then
                     if ((GlobalValueEntry."Valued Quantity" > 0) or
                         ((ItemJnlLine."Applies-to Entry" <> 0) and (ItemJnlLine."Entry Type" in [ItemJnlLine."Entry Type"::Purchase, ItemJnlLine."Entry Type"::"Assembly Output"]))) and
@@ -1428,7 +1452,9 @@ codeunit 22 "Item Jnl.-Post Line"
                 InsertBalanceExpCostRevEntry(GlobalValueEntry);
 
             IsHandled := false;
+            xValueEntryNo := ValueEntryNo;
             OnItemValuePostingOnBeforeInsertOHValueEntry(ItemJnlLine, GlobalValueEntry, GlobalItemLedgEntry, ValueEntryNo, IsHandled, VarianceAmount, VarianceAmountACY, OverheadAmount, OverheadAmountACY);
+            ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
             if not IsHandled then
                 if ((GlobalValueEntry."Valued Quantity" > 0) or
                     ((ItemJnlLine."Applies-to Entry" <> 0) and (ItemJnlLine."Entry Type" in [ItemJnlLine."Entry Type"::Purchase, ItemJnlLine."Entry Type"::"Assembly Output"]))) and
@@ -1690,7 +1716,7 @@ codeunit 22 "Item Jnl.-Post Line"
             exit;
 
         if (ValueEntry."Valued Quantity" > 0) and not (ValueEntry."Expected Cost" or ItemJnlLine.Adjustment) then begin
-            Item.LockTable();
+            Item.ReadIsolation(IsolationLevel::UpdLock);
             if not Item.Find() then
                 exit;
 
@@ -1997,6 +2023,7 @@ codeunit 22 "Item Jnl.-Post Line"
             exit;
 
         Clear(OldItemLedgEntry);
+        ItemLedgEntry2.ReadIsolation(IsolationLevel::ReadUnCommitted);
         FirstReservation := true;
         FirstApplication := true;
         StartApplication := false;
@@ -2111,7 +2138,7 @@ codeunit 22 "Item Jnl.-Post Line"
                 OnApplyItemLedgEntryOnAfterCalcAppliedQty(OldItemLedgEntry, ItemLedgEntry, AppliedQty);
 
                 if ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Transfer then
-                    if (OldItemLedgEntry."Entry No." > ItemLedgEntry."Entry No.") and not ItemLedgEntry.Positive then
+                    if (OldItemLedgEntry."Entry No." > ItemLedgEntry."Entry No.") and (ItemLedgEntry."Entry No." >= 0) and not ItemLedgEntry.Positive then
                         AppliedQty := 0;
                 if (OldItemLedgEntry."Order Type" = OldItemLedgEntry."Order Type"::Production) and
                    (OldItemLedgEntry."Order No." <> '')
@@ -2294,9 +2321,9 @@ codeunit 22 "Item Jnl.-Post Line"
         ItemTrackingSetup2.CopyTrackingFromItemLedgerEntry(FromItemLedgEntry);
 
         if (FromItemLedgEntry."Serial No." <> '') and (ItemTrackingSetup2."Serial No. Required") then
-            ToItemLedgEntry.SetCurrentKey("Serial No.", "Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date")
+            ToItemLedgEntry.SetCurrentKey("Serial No.", "Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Entry No.")
         else
-            ToItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
+            ToItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Entry No.");
         ToItemLedgEntry.SetRange("Item No.", FromItemLedgEntry."Item No.");
         ToItemLedgEntry.SetRange(Open, true);
         ToItemLedgEntry.SetRange("Variant Code", FromItemLedgEntry."Variant Code");
@@ -2437,7 +2464,8 @@ codeunit 22 "Item Jnl.-Post Line"
     begin
         if ValueEntryNo > 0 then
             exit;
-
+        if not InvtSetup.UseLegacyPosting() then
+            exit;
         GlobalValueEntry.LockTable();
         ValueEntryNo := GlobalValueEntry.GetLastEntryNo();
     end;
@@ -2447,6 +2475,7 @@ codeunit 22 "Item Jnl.-Post Line"
         NewItemLedgEntry: Record "Item Ledger Entry";
         NewValueEntry: Record "Value Entry";
         ItemLedgEntry2: Record "Item Ledger Entry";
+        xValueEntryNo: Integer;
         IsReserved: Boolean;
         IsHandled: Boolean;
     begin
@@ -2506,7 +2535,9 @@ codeunit 22 "Item Jnl.-Post Line"
 
         UpdateUnitCost(NewValueEntry);
 
+        xValueEntryNo := ValueEntryNo;
         OnAfterInsertTransferEntry(ItemJnlLine, NewItemLedgEntry, OldItemLedgEntry, NewValueEntry, ValueEntryNo);
+        ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
     end;
 
     /// <summary>
@@ -2514,8 +2545,10 @@ codeunit 22 "Item Jnl.-Post Line"
     /// </summary>
     /// <param name="ItemLedgEntry">Return value: Initialized item ledger entry.</param>
     procedure InitItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry")
+    var
+        xItemLedgEntryNo: Integer;
     begin
-        ItemLedgEntryNo := ItemLedgEntryNo + 1;
+        ItemLedgEntryNo := GetNextItemLedgerEntryNo(ItemLedgEntryNo);
 
         ItemLedgEntry.Init();
         ItemLedgEntry."Entry No." := ItemLedgEntryNo;
@@ -2595,7 +2628,9 @@ codeunit 22 "Item Jnl.-Post Line"
         if (ItemLedgEntry.Quantity < 0) and (ItemJnlLine."Entry Type" <> ItemJnlLine."Entry Type"::Transfer) then
             ItemLedgEntry."Shipped Qty. Not Returned" := ItemLedgEntry.Quantity;
 
+        xItemLedgEntryNo := ItemLedgEntryNo;
         OnAfterInitItemLedgEntry(ItemLedgEntry, ItemJnlLine, ItemLedgEntryNo);
+        ValidateSequenceNo(ItemLedgEntryNo, xItemLedgEntryNo, Database::"Item Ledger Entry");
     end;
 
     /// <summary>
@@ -2609,6 +2644,9 @@ codeunit 22 "Item Jnl.-Post Line"
     /// <param name="TransferItem">If true, new dimension information will be set.</param>
     procedure InsertItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry"; TransferItem: Boolean)
     var
+        xItemLedgEntryNo: Integer;
+        xItemApplnEntryNo: Integer;
+        xValueEntryNo: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2688,17 +2726,24 @@ codeunit 22 "Item Jnl.-Post Line"
         ItemLedgEntry.UpdateItemTracking();
 
         OnBeforeInsertItemLedgEntry(ItemLedgEntry, ItemJnlLine, TransferItem, OldItemLedgEntry, ItemJnlLineOrigin);
-        ItemLedgEntry.Insert(true);
-        OnAfterInsertItemLedgEntry(ItemLedgEntry, ItemJnlLine, ItemLedgEntryNo, ValueEntryNo, ItemApplnEntryNo, GlobalValueEntry, TransferItem, InventoryPostingToGL, OldItemLedgEntry);
 
         InsertItemReg(ItemLedgEntry."Entry No.", 0, 0, 0);
+        ItemLedgEntry."Item Register No." := ItemReg."No.";
+        ItemLedgEntry.Insert(true);
+
+        xItemLedgEntryNo := ItemLedgEntryNo;
+        xItemApplnEntryNo := ItemApplnEntryNo;
+        xValueEntryNo := ValueEntryNo;
+        OnAfterInsertItemLedgEntry(ItemLedgEntry, ItemJnlLine, ItemLedgEntryNo, ValueEntryNo, ItemApplnEntryNo, GlobalValueEntry, TransferItem, InventoryPostingToGL, OldItemLedgEntry);
+        ValidateSequenceNo(ItemLedgEntryNo, xItemLedgEntryNo, Database::"Item Ledger Entry");
+        ValidateSequenceNo(ItemApplnEntryNo, xItemApplnEntryNo, Database::"Item Application Entry");
+        ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
     end;
 
     local procedure InsertItemReg(ItemLedgEntryNo: Integer; PhysInvtEntryNo: Integer; ValueEntryNo: Integer; CapLedgEntryNo: Integer)
     begin
         if ItemReg."No." = 0 then begin
-            ItemReg.LockTable();
-            ItemReg."No." := ItemReg.GetLastEntryNo() + 1;
+            ItemReg."No." := ItemReg.GetNextEntryNo(InvtSetup.UseLegacyPosting());
             ItemReg.Init();
             ItemReg."From Entry No." := ItemLedgEntryNo;
             ItemReg."To Entry No." := ItemLedgEntryNo;
@@ -2747,6 +2792,20 @@ codeunit 22 "Item Jnl.-Post Line"
         end;
     end;
 
+    local procedure GetNextValueEntryNo(CurrValueEntryNo: Integer): Integer
+    begin
+        if InvtSetup.UseLegacyPosting() then
+            exit(CurrValueEntryNo + 1);
+        exit(GlobalValueEntry.GetNextEntryNo());
+    end;
+
+    local procedure GetNextItemLedgerEntryNo(CurrEntryNo: Integer): Integer
+    begin
+        if InvtSetup.UseLegacyPosting() then
+            exit(CurrEntryNo + 1);
+        exit(GlobalItemLedgEntry.GetNextEntryNo());
+    end;
+
     /// <summary>
     /// Inserts a physical inventory ledger entry based on a given item journal line.
     /// </summary>
@@ -2761,12 +2820,14 @@ codeunit 22 "Item Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        if PhysInvtEntryNo = 0 then begin
-            PhysInvtLedgEntry.LockTable();
-            PhysInvtEntryNo := PhysInvtLedgEntry.GetLastEntryNo();
-        end;
-
-        PhysInvtEntryNo := PhysInvtEntryNo + 1;
+        if InvtSetup.UseLegacyPosting() then begin
+            if PhysInvtEntryNo = 0 then begin
+                PhysInvtLedgEntry.LockTable();
+                PhysInvtEntryNo := PhysInvtLedgEntry.GetLastEntryNo();
+            end;
+            PhysInvtEntryNo := PhysInvtEntryNo + 1;
+        end else
+            PhysInvtEntryNo := PhysInvtLedgEntry.GetNextEntryNo();
 
         PhysInvtLedgEntry.Init();
         PhysInvtLedgEntry."Entry No." := PhysInvtEntryNo;
@@ -2808,9 +2869,10 @@ codeunit 22 "Item Jnl.-Post Line"
           ItemJournalLine."Phys Invt Counting Period Type";
 
         OnBeforeInsertPhysInvtLedgEntry(PhysInvtLedgEntry, ItemJournalLine, ItemJnlLine);
-        PhysInvtLedgEntry.Insert();
 
         InsertItemReg(0, PhysInvtLedgEntry."Entry No.", 0, 0);
+        PhysInvtLedgEntry."Item Register No." := ItemReg."No.";
+        PhysInvtLedgEntry.Insert(true);
 
         OnAfterInsertPhysInventoryEntry(PhysInvtLedgEntry, ItemJnlLineOrigin);
     end;
@@ -2824,7 +2886,7 @@ codeunit 22 "Item Jnl.-Post Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostInventoryToGL(ValueEntry, IsHandled, ItemJnlLine, PostToGL, CalledFromAdjustment);
+        OnBeforePostInventoryToGL(ValueEntry, IsHandled, ItemJnlLine, PostToGL, CalledFromAdjustment, Item."Inventory Value Zero");
         if IsHandled then
             exit;
 
@@ -2895,7 +2957,7 @@ codeunit 22 "Item Jnl.-Post Line"
         if Item.IsNonInventoriableType() then
             exit;
 
-        if ItemApplnEntryNo = 0 then begin
+        if (ItemApplnEntryNo = 0) and InvtSetup.UseLegacyPosting() then begin
             ItemApplnEntry.Reset();
             ItemApplnEntry.LockTable();
             ItemApplnEntryNo := ItemApplnEntry.GetLastEntryNo();
@@ -2906,8 +2968,7 @@ codeunit 22 "Item Jnl.-Post Line"
                 if ItemApplHistoryEntry.FindLast() then
                     if ItemApplHistoryEntry."Entry No." > ItemApplnEntryNo then
                         ItemApplnEntryNo := ItemApplHistoryEntry."Entry No.";
-            end
-            else
+            end else
                 ItemApplnEntryNo := 0;
         end;
 
@@ -2930,7 +2991,10 @@ codeunit 22 "Item Jnl.-Post Line"
         end;
 
         if not ItemApplnEntryExists then begin
-            ItemApplnEntryNo := ItemApplnEntryNo + 1;
+            if InvtSetup.UseLegacyPosting() then
+                ItemApplnEntryNo := ItemApplnEntryNo + 1
+            else
+                ItemApplnEntryNo := ItemApplnEntry.GetNextEntryNo();
             ItemApplnEntry.Init();
             ItemApplnEntry."Entry No." := ItemApplnEntryNo;
             ItemApplnEntry."Item Ledger Entry No." := ItemLedgEntryNo;
@@ -2999,11 +3063,13 @@ codeunit 22 "Item Jnl.-Post Line"
         InvoicedQuantityNotEmpty: Boolean;
         CostAmt: Decimal;
         CostAmtACY: Decimal;
+        xValueEntryNo: Integer;
     begin
+        xValueEntryNo := ValueEntryNo;
         OnBeforeInitValueEntry(ValueEntry, ValueEntryNo, ItemJnlLine);
+        ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
 
-        ValueEntryNo := ValueEntryNo + 1;
-
+        ValueEntryNo := GetNextValueEntryNo(ValueEntryNo);
         ValueEntry.Init();
         ValueEntry."Entry No." := ValueEntryNo;
         if ItemJnlLine."Value Entry Type" = ItemJnlLine."Value Entry Type"::Variance then
@@ -3277,7 +3343,9 @@ codeunit 22 "Item Jnl.-Post Line"
 
         RoundAmtValueEntry(ValueEntry);
 
+        xValueEntryNo := ValueEntryNo;
         OnAfterInitValueEntry(ValueEntry, ItemJnlLine, ValueEntryNo, ItemLedgerEntry);
+        ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
     end;
 
     local procedure SetValueEntrySourceFieldsFromItemJnlLine(var ValueEntry: Record "Value Entry"; var ItemJournalLine: Record "Item Journal Line")
@@ -3333,6 +3401,7 @@ codeunit 22 "Item Jnl.-Post Line"
     var
         InvdValueEntry: Record "Value Entry";
         InvoicedQty: Decimal;
+        xValueEntryNo: Integer;
         ShouldCalcExpectedCost: Boolean;
     begin
         OnBeforeInsertValueEntryProcedure(ItemLedgEntry, ItemJnlLine);
@@ -3406,20 +3475,23 @@ codeunit 22 "Item Jnl.-Post Line"
               ItemLedgEntry.Quantity = ItemLedgEntry."Invoiced Quantity");
         end;
 
-        OnBeforeInsertValueEntry(ValueEntry, ItemJnlLine, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment,
-            OldItemLedgEntry, Item, TransferItem, GlobalValueEntry);
+        xValueEntryNo := ValueEntryNo;
+        OnBeforeInsertValueEntry(ValueEntry, ItemJnlLine, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment, OldItemLedgEntry, Item, TransferItem, GlobalValueEntry);
+        ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
 
         PostInventoryToGL(ValueEntry);
 
-        ValueEntry.Insert();
+        InsertItemReg(0, 0, ValueEntry."Entry No.", 0);
+        ValueEntry."Item Register No." := ItemReg."No.";
+        ValueEntry.Insert(true);
 
+        xValueEntryNo := ValueEntryNo;
         OnAfterInsertValueEntry(ValueEntry, ItemJnlLine, ItemLedgEntry, ValueEntryNo);
+        ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
 
         ItemApplnEntry.SetOutboundsNotUpdated(ItemLedgEntry);
 
         UpdateAdjmtProperties(ValueEntry, ItemLedgEntry."Posting Date");
-
-        InsertItemReg(0, 0, ValueEntry."Entry No.", 0);
 
         OnInsertValueEntryOnBeforeInsertPostValueEntryToGL(ValueEntry);
         InsertPostValueEntryToGL(ValueEntry);
@@ -3473,6 +3545,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
     local procedure InsertOHValueEntry(ValueEntry: Record "Value Entry"; OverheadAmount: Decimal; OverheadAmountACY: Decimal)
     var
+        xValueEntryNo: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3483,7 +3556,7 @@ codeunit 22 "Item Jnl.-Post Line"
         if Item."Inventory Value Zero" or not ValueEntry.Inventoriable then
             exit;
 
-        ValueEntryNo := ValueEntryNo + 1;
+        ValueEntryNo := GetNextValueEntryNo(ValueEntryNo);
 
         ValueEntry."Entry No." := ValueEntryNo;
         ValueEntry."Item Charge No." := '';
@@ -3508,7 +3581,9 @@ codeunit 22 "Item Jnl.-Post Line"
               Round(OverheadAmountACY, Currency."Amount Rounding Precision");
 
         IsHandled := false;
+        xValueEntryNo := ValueEntryNo;
         OnInsertOHValueEntryOnBeforeInsertValueEntry(ValueEntry, ItemJnlLine, IsHandled, GlobalItemLedgEntry, ValueEntryNo);
+        ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
         if not IsHandled then
             InsertValueEntry(ValueEntry, GlobalItemLedgEntry, false);
 
@@ -3529,7 +3604,7 @@ codeunit 22 "Item Jnl.-Post Line"
         if (VarianceAmount = 0) and (VarianceAmountACY = 0) then
             exit;
 
-        ValueEntryNo := ValueEntryNo + 1;
+        ValueEntryNo := GetNextValueEntryNo(ValueEntryNo);
 
         ValueEntry."Entry No." := ValueEntryNo;
         ValueEntry."Item Charge No." := '';
@@ -3801,7 +3876,7 @@ codeunit 22 "Item Jnl.-Post Line"
     var
         ValueEntry: Record "Value Entry";
     begin
-        ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type", "Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
         if not ValueEntry.FindLast() then begin
@@ -3816,7 +3891,7 @@ codeunit 22 "Item Jnl.-Post Line"
         OldValueEntry: Record "Value Entry";
         IsHandled: Boolean;
     begin
-        OldValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
+        OldValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type", "Entry No.");
         OldValueEntry.SetRange("Item Ledger Entry No.", OldItemLedgEntry."Entry No.");
         OldValueEntry.SetRange("Entry Type", OldValueEntry."Entry Type"::Revaluation);
         OnGetValuationDateOnAfterOldValueEntrySetFilters(OldValueEntry, ValueEntry, OldItemLedgEntry);
@@ -3874,18 +3949,18 @@ codeunit 22 "Item Jnl.-Post Line"
             ToItemApplnEntry.SetRange("Outbound Item Entry No.", FromItemledgEntryNo);
         end;
         ToItemApplnEntry.SetFilter("Item Ledger Entry No.", '<>%1', FromItemledgEntryNo);
+        if not FromInbound then
+            ToItemApplnEntry.SetFilter("Inbound Item Entry No.", '<>%1', 0);
         if ToItemApplnEntry.FindSet() then
             repeat
-                if FromInbound or (ToItemApplnEntry."Inbound Item Entry No." <> 0) then begin
-                    if not ValuationDateFound then begin
-                        GetLastDirectCostValEntry(ToItemApplnEntry."Inbound Item Entry No.");
-                        ValuationDate := DirCostValueEntry."Valuation Date";
-                        ValuationDateFound := true;
-                    end;
-                    if ValuationDate < FromValuationDate then begin
-                        UpdateValuationDate(FromValuationDate, ToItemApplnEntry."Item Ledger Entry No.", FromInbound);
-                        UpdateLinkedValuationDate(FromValuationDate, ToItemApplnEntry."Item Ledger Entry No.", not FromInbound);
-                    end;
+                if not ValuationDateFound then begin
+                    GetLastDirectCostValEntry(ToItemApplnEntry."Inbound Item Entry No.");
+                    ValuationDate := DirCostValueEntry."Valuation Date";
+                    ValuationDateFound := true;
+                end;
+                if ValuationDate < FromValuationDate then begin
+                    UpdateValuationDate(FromValuationDate, ToItemApplnEntry."Item Ledger Entry No.", FromInbound);
+                    UpdateLinkedValuationDate(FromValuationDate, ToItemApplnEntry."Item Ledger Entry No.", not FromInbound);
                 end;
             until ToItemApplnEntry.Next() = 0;
     end;
@@ -3969,7 +4044,7 @@ codeunit 22 "Item Jnl.-Post Line"
     var
         NegValueEntry: Record "Value Entry";
     begin
-        NegValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
+        NegValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type", "Entry No.");
         NegValueEntry.SetRange("Item Ledger Entry No.", ItemJnlLine."Applies-from Entry");
         NegValueEntry.SetRange("Entry Type", NegValueEntry."Entry Type"::Revaluation);
         OnBeforeFindNegValueEntry(NegValueEntry);
@@ -4120,13 +4195,10 @@ codeunit 22 "Item Jnl.-Post Line"
         OldValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         OldValueEntry.SetRange("Item Ledger Entry No.", ItemJnlLine."Applies-to Entry");
         OldValueEntry.SetRange("Entry Type", OldValueEntry."Entry Type"::"Indirect Cost");
-        if OldValueEntry.FindSet() then
-            repeat
-                if not OldValueEntry."Partial Revaluation" then begin
-                    CostAmt := CostAmt + OldValueEntry."Cost Amount (Actual)";
-                    CostAmtACY := CostAmtACY + OldValueEntry."Cost Amount (Actual) (ACY)";
-                end;
-            until OldValueEntry.Next() = 0;
+        OldValueEntry.SetRange("Partial Revaluation", false);
+        OldValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
+        CostAmt := OldValueEntry."Cost Amount (Actual)";
+        CostAmtACY := OldValueEntry."Cost Amount (Actual) (ACY)";
         if (CostAmt <> 0) or (CostAmtACY <> 0) then begin
             OldItemLedgEntry.Get(ItemJnlLine."Applies-to Entry");
             OverheadAmount := Round(
@@ -4144,19 +4216,20 @@ codeunit 22 "Item Jnl.-Post Line"
             end;
         end else
             if Item."Costing Method" = Item."Costing Method"::Standard then begin
+                OldValueEntry.SetRange("Partial Revaluation");
                 OldValueEntry.SetRange("Entry Type", OldValueEntry."Entry Type"::Variance);
-                VarianceRequired := OldValueEntry.FindFirst();
+                VarianceRequired := not OldValueEntry.IsEmpty();
             end;
     end;
 
-    local procedure GetLastDirectCostValEntry(ItemLedgEntryNo: Decimal)
+    local procedure GetLastDirectCostValEntry(ItemLedgEntryNo: Integer)
     var
         Found: Boolean;
     begin
         if ItemLedgEntryNo = DirCostValueEntry."Item Ledger Entry No." then
             exit;
         DirCostValueEntry.Reset();
-        DirCostValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
+        DirCostValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type", "Entry No.");
         DirCostValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
         DirCostValueEntry.SetRange("Entry Type", DirCostValueEntry."Entry Type"::"Direct Cost");
         DirCostValueEntry.SetFilter("Item Charge No.", '%1', '');
@@ -4811,7 +4884,7 @@ codeunit 22 "Item Jnl.-Post Line"
         ItemJnlLine."Item No." := OldItemLedgEntry."Item No.";
 
         OnUndoQuantityPostingOnBeforeInitCorrItemLedgEntry(ItemJnlLine, OldItemLedgEntry);
-        InitCorrItemLedgEntry(OldItemLedgEntry, NewItemLedgEntry);
+        InitCorrItemLedgEntry(OldItemLedgEntry, NewItemLedgEntry);   // also inserts
         OnUndoQuantityPostingOnAfterInitCorrItemLedgEntry(OldItemLedgEntry, NewItemLedgEntry);
 
         if Item.IsNonInventoriableType() then begin
@@ -4819,7 +4892,6 @@ codeunit 22 "Item Jnl.-Post Line"
             NewItemLedgEntry.Open := false;
         end;
 
-        InsertItemReg(NewItemLedgEntry."Entry No.", 0, 0, 0);
         OnUndoQuantityPostingOnAfterInsertItemReg(ItemJnlLine, OldItemLedgEntry, NewItemLedgEntry);
         GlobalItemLedgEntry := NewItemLedgEntry;
 
@@ -4930,10 +5002,7 @@ codeunit 22 "Item Jnl.-Post Line"
     var
         EntriesExist: Boolean;
     begin
-        if ItemLedgEntryNo = 0 then
-            ItemLedgEntryNo := GlobalItemLedgEntry."Entry No.";
-
-        ItemLedgEntryNo := ItemLedgEntryNo + 1;
+        ItemLedgEntryNo := GetNextItemLedgerEntryNo(ItemLedgEntryNo);
         NewItemLedgEntry := OldItemLedgEntry;
         ItemTrackingMgt.RetrieveAppliedExpirationDate(NewItemLedgEntry);
         OnInitCorrItemLedgEntryOnAfterRetrieveAppliedExpirationDate(NewItemLedgEntry);
@@ -4957,8 +5026,11 @@ codeunit 22 "Item Jnl.-Post Line"
         else
             NewItemLedgEntry."Applies-to Entry" := 0;
 
+        InsertItemReg(NewItemLedgEntry."Entry No.", 0, 0, 0);
+        NewItemLedgEntry."Item Register No." := ItemReg."No.";
+
         OnBeforeInsertCorrItemLedgEntry(NewItemLedgEntry, OldItemLedgEntry, ItemJnlLine);
-        NewItemLedgEntry.Insert();
+        NewItemLedgEntry.Insert(true);
         OnAfterInsertCorrItemLedgEntry(NewItemLedgEntry, ItemJnlLine, OldItemLedgEntry);
 
         if NewItemLedgEntry."Item Tracking" <> NewItemLedgEntry."Item Tracking"::None then
@@ -4978,11 +5050,18 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     local procedure InsertCorrValueEntry(OldValueEntry: Record "Value Entry"; var NewValueEntry: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry"; DocumentLineNo: Integer; Sign: Integer; QtyToShip: Decimal; QtyToInvoice: Decimal)
+    var
+        xValueEntryNo: Integer;
     begin
-        ValueEntryNo := ValueEntryNo + 1;
+        ValueEntryNo := GetNextValueEntryNo(ValueEntryNo);
 
         NewValueEntry := OldValueEntry;
+        xValueEntryNo := ValueEntryNo;
         OnInsertCorrValueEntryOnAfterAssignNewValueEntry(GlobalItemLedgEntry, OldValueEntry, NewValueEntry, ItemJnlLine, ItemLedgEntry, ValueEntryNo);
+        if (ValueEntryNo <> xValueEntryNo) and not InvtSetup.UseLegacyPosting() then begin
+            ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
+            ValueEntryNo := GetNextValueEntryNo(ValueEntryNo);
+        end;
         NewValueEntry."Entry No." := ValueEntryNo;
         NewValueEntry."Item Ledger Entry No." := ItemLedgEntry."Entry No.";
         NewValueEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(NewValueEntry."User ID"));
@@ -5021,20 +5100,24 @@ codeunit 22 "Item Jnl.-Post Line"
         NewValueEntry."Expected Cost Posted to G/L" := 0;
         NewValueEntry."Exp. Cost Posted to G/L (ACY)" := 0;
 
-        OnBeforeInsertCorrValueEntry(
-          NewValueEntry, OldValueEntry, ItemJnlLine, Sign, CalledFromAdjustment, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL);
+        xValueEntryNo := ValueEntryNo;
+        OnBeforeInsertCorrValueEntry(NewValueEntry, OldValueEntry, ItemJnlLine, Sign, CalledFromAdjustment, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL);
+        ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
 
         PostInventoryToGL(NewValueEntry);
 
-        NewValueEntry.Insert();
+        InsertItemReg(0, 0, NewValueEntry."Entry No.", 0);
+        NewValueEntry."Item Register No." := ItemReg."No.";
+        NewValueEntry.Insert(true);
 
+        xValueEntryNo := ValueEntryNo;
         OnAfterInsertCorrValueEntry(NewValueEntry, ItemJnlLine, ItemLedgEntry, ValueEntryNo);
+        ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
 
         ItemApplnEntry.SetOutboundsNotUpdated(ItemLedgEntry);
 
         UpdateAdjmtProperties(NewValueEntry, ItemLedgEntry."Posting Date");
 
-        InsertItemReg(0, 0, NewValueEntry."Entry No.", 0);
         InsertPostValueEntryToGL(NewValueEntry);
     end;
 
@@ -5077,6 +5160,7 @@ codeunit 22 "Item Jnl.-Post Line"
         if IsHandled then
             exit(HasGotItem);
 
+        Item.ReadIsolation(IsolationLevel::ReadUncommitted);
         if not Unconditionally then
             exit(Item.Get(ItemNo))
         else
@@ -5491,10 +5575,13 @@ codeunit 22 "Item Jnl.-Post Line"
         ValueEntry3: Record "Value Entry";
         RevExpCostToBalance: Decimal;
         RevExpCostToBalanceACY: Decimal;
+        xValueEntryNo: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
+        xValueEntryNo := ValueEntryNo;
         OnBeforeInsertBalanceExpCostRevEntry(GlobalItemLedgEntry, ValueEntry, ValueEntryNo, GLSetup, Currency, GLSetupRead, IsHandled);
+        ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
         if IsHandled then
             exit;
 
@@ -5509,7 +5596,7 @@ codeunit 22 "Item Jnl.-Post Line"
             repeat
                 CalcRevExpCostToBalance(ValueEntry2, ValueEntry."Invoiced Quantity", RevExpCostToBalance, RevExpCostToBalanceACY);
                 if (RevExpCostToBalance <> 0) or (RevExpCostToBalanceACY <> 0) then begin
-                    ValueEntryNo := ValueEntryNo + 1;
+                    ValueEntryNo := GetNextValueEntryNo(ValueEntryNo);
                     ValueEntry3 := ValueEntry;
                     ValueEntry3."Entry No." := ValueEntryNo;
                     ValueEntry3."Item Charge No." := '';
@@ -5740,7 +5827,7 @@ codeunit 22 "Item Jnl.-Post Line"
         "Count": Integer;
         t: Integer;
     begin
-        TempTouchedItemLedgerEntries.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
+        TempTouchedItemLedgerEntries.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Entry No.");
         if TempTouchedItemLedgerEntries.Find('-') then begin
             DialogWindow.Open(Text01 +
               '@1@@@@@@@@@@@@@@@@@@@@@@@');
@@ -5985,6 +6072,7 @@ codeunit 22 "Item Jnl.-Post Line"
     var
         ValueEntry: Record "Value Entry";
     begin
+        ValueEntry.ReadIsolation(IsolationLevel::ReadCommitted);
         ValueEntry.SetCurrentKey("Item Ledger Entry Type", "Order No.", "Valuation Date");
         ValueEntry.SetLoadFields("Valuation Date");
         ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
@@ -7366,7 +7454,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostInventoryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line"; PostToGL: Boolean; CalledFromAdjustment: Boolean)
+    local procedure OnBeforePostInventoryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line"; PostToGL: Boolean; CalledFromAdjustment: Boolean; ItemInventoryValueZero: Boolean)
     begin
     end;
 
@@ -7554,7 +7642,7 @@ codeunit 22 "Item Jnl.-Post Line"
         if not CalledFromApplicationWorksheet then
             exit;
 
-        NextEntryNo := ItemApplicationEntryHistory.GetLastEntryNo() + 1;
+        NextEntryNo := ItemApplicationEntryHistory.GetNextEntryNo();
 
         ItemApplicationEntryHistory.Init();
         ItemApplicationEntryHistory."Primary Entry No." := NextEntryNo;
@@ -7566,7 +7654,7 @@ codeunit 22 "Item Jnl.-Post Line"
             ItemApplicationEntryHistory."Outbound Item Entry No." := ItemLedgerEntryNo;
         ItemApplicationEntryHistory."Creation Date" := CurrentDateTime;
         ItemApplicationEntryHistory."Created By User" := UserId;
-        ItemApplicationEntryHistory.Insert();
+        ItemApplicationEntryHistory.Insert(true);
     end;
 
     /// <summary>
@@ -7760,6 +7848,20 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(false);
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Item Ledger Entry", 'r')]
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Item Ledger Entry", 'r')]
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Value Entry", 'r')]
+    local procedure ValidateSequenceNo(LedgEntryNo: Integer; xLedgEntryNo: Integer; TableNo: Integer)
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        if LedgEntryNo = xLedgEntryNo then
+            exit;
+        if InvtSetup.UseLegacyPosting() then
+            exit;
+        SequenceNoMgt.ValidateSeqNo(TableNo);
+    end;
+
     /// <summary>
     /// Marks the inbound item ledger entries that are applied to a specific outbound item ledger entry for adjustment.
     /// </summary>
@@ -7775,6 +7877,16 @@ codeunit 22 "Item Jnl.-Post Line"
                 InboundItemLedgerEntry.Get(ItemApplicationEntry."Inbound Item Entry No.");
                 InboundItemLedgerEntry.SetAppliedEntryToAdjust(true);
             until ItemApplicationEntry.Next() = 0;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sequence No. Mgt.", 'OnPreviewableLedgerEntry', '', false, false)]
+    local procedure OnPreviewableLedgerEntry(TableNo: Integer; var IsPreviewable: Boolean)
+    begin
+        if TableNo in [Database::"Item Ledger Entry", Database::"Item Register", Database::"Value Entry",
+                       Database::"Capacity Ledger Entry", Database::"Phys. Inventory Ledger Entry",
+                       Database::"Item Application Entry", Database::"Item Application Entry History"]
+        then
+            IsPreviewable := true;
     end;
 
     [IntegrationEvent(false, false)]

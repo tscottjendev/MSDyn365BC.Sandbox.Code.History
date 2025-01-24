@@ -4,21 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.NoSeries;
 
-using Microsoft.CRM.Interaction;
-using Microsoft.Warehouse.Ledger;
-
 codeunit 9500 "Sequence No. Mgt."
 {
     SingleInstance = true;
     InherentPermissions = X;
-    Permissions = TableData "Interaction Log Entry" = r,
-                  Tabledata Attachment = r,
-                  Tabledata "Warehouse Register" = r,
-                  Tabledata "Warehouse Entry" = r;
 
     var
         GlobalPreviewMode: Boolean;
         GlobalPreviewModeTag: Text;
+        LastSeqNoChecked: List of [Integer];
         SeqNameLbl: Label 'TableSeq%1', Comment = '%1 - Table No.', Locked = true;
         PreviewSeqNameLbl: Label 'PreviewTableSeq%1', Comment = '%1 - Table No.', Locked = true;
 
@@ -27,6 +21,7 @@ codeunit 9500 "Sequence No. Mgt."
         NewSeqNo: Integer;
         PreviewMode: Boolean;
     begin
+        ValidateSeqNo(TableNo);
         PreviewMode := IsPreviewMode();  // Only call once to minimize sql calls during preview.
         if TryGetNextNo(PreviewMode, TableNo, NewSeqNo) then
             exit(NewSeqNo);
@@ -36,10 +31,55 @@ codeunit 9500 "Sequence No. Mgt."
         exit(NewSeqNo);
     end;
 
+    procedure GetCurrentSeqNo(TableNo: Integer): Integer
+    var
+        CurrSeqNo: Integer;
+        PreviewMode: Boolean;
+    begin
+        PreviewMode := IsPreviewMode();  // Only call once to minimize sql calls during preview.
+        if TryGetCurrentNo(PreviewMode, TableNo, CurrSeqNo) then
+            exit(CurrSeqNo);
+        ClearLastError();
+        CreateNewTableSequence(PreviewMode, TableNo);
+        TryGetCurrentNo(PreviewMode, TableNo, CurrSeqNo);
+        exit(CurrSeqNo);
+    end;
+
+    /// <summary>
+    /// Ensures that the NumberSequence is not behind the last entry in the table.
+    /// </summary>
+    /// <param name="TableNo">The ID of the table being checked</param>
+    procedure ValidateSeqNo(TableNo: Integer)
+    var
+        LastEntryNo: Integer;
+    begin
+        if IsPreviewMode() then
+            exit;
+        if LastSeqNoChecked.Contains(TableNo) then
+            exit;
+
+        LastEntryNo := GetLastEntryNoFromTable(TableNo);  // convert from bigint
+        if GetCurrentSeqNo(TableNo) < LastEntryNo then
+            RebaseSeqNo(TableNo);
+
+        LastSeqNoChecked.Add(TableNo);
+    end;
+
+    procedure ClearSequenceNoCheck()
+    begin
+        Clear(LastSeqNoChecked);
+    end;
+
     [TryFunction]
     local procedure TryGetNextNo(PreviewMode: Boolean; TableNo: Integer; var NewSeqNo: Integer)
     begin
         NewSeqNo := NumberSequence.Next(GetTableSequenceName(PreviewMode, TableNo));
+    end;
+
+    [TryFunction]
+    local procedure TryGetCurrentNo(PreviewMode: Boolean; TableNo: Integer; var CurrSeqNo: Integer)
+    begin
+        CurrSeqNo := NumberSequence.Current(GetTableSequenceName(PreviewMode, TableNo));
     end;
 
     procedure RebaseSeqNo(TableNo: Integer)

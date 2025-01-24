@@ -5,6 +5,7 @@
 namespace Microsoft.Inventory.Ledger;
 
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Journal;
 using Microsoft.Utilities;
@@ -15,6 +16,7 @@ table 46 "Item Register"
     Caption = 'Item Register';
     LookupPageID = "Item Registers";
     DataClassification = CustomerContent;
+    Permissions = TableData "Item Register" = ri;
 
     fields
     {
@@ -118,6 +120,23 @@ table 46 "Item Register"
         }
     }
 
+    procedure GetNextEntryNo(UseLegacyPosting: Boolean): Integer
+    begin
+        if not UseLegacyPosting then
+            exit(GetNextEntryNo());
+        Rec.LockTable();
+        exit(GetLastEntryNo() + 1);
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Item Register", 'r')]
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Item Register"));
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Item Register", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";
