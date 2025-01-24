@@ -361,6 +361,7 @@ table 5065 "Interaction Log Entry"
         TitleByLbl: Label '%1 - by %2', Comment = '%1 - document description, %2 - name';
         OpenMessageQst: Label 'You are about to open an email message in Outlook Online. Email messages might contain harmful content. Use caution when interacting with the message. Do you want to continue?';
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Interaction Log Entry", 'r')]
     procedure InsertRecord()
     var
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";

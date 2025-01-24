@@ -327,7 +327,7 @@ codeunit 5530 "Calc. Item Availability"
               "Production Forecast Name", "Item No.", "Location Code", "Forecast Date", "Component Forecast");
 
         ItemLedgEntry.Reset();
-        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
+        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Entry No.");
 
         ProdForecastEntry.SetRange("Production Forecast Name", ForecastName);
         ProdForecastEntry.SetRange("Forecast Date", ExcludeForecastBefore, ToDate);
