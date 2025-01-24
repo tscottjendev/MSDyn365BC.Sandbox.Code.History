@@ -181,6 +181,7 @@ table 5062 Attachment
             ProcessWebAttachment(WordCaption + '.' + "File Extension");
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::Attachment, 'r')]
     procedure InsertRecord()
     var
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";

@@ -1693,8 +1693,6 @@ codeunit 7307 "Whse.-Activity-Register"
             end else
                 TotalAvailQtyBase := QtyOnPickBinsBase;
         end else begin
-            ItemLedgEntry.SetCurrentKey(
-              "Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Expiration Date", "Lot No.", "Serial No.");
             ItemLedgEntry.SetRange("Item No.", WhseActivLine."Item No.");
             ItemLedgEntry.SetRange("Variant Code", WhseActivLine."Variant Code");
             ItemLedgEntry.SetRange(Open, true);
