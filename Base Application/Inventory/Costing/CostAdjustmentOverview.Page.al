@@ -398,6 +398,13 @@ page 5801 "Cost Adjustment Overview"
                     RunPageView = sorting("Item No.");
                     ToolTip = 'View the history of posted amounts that affect the value of the item. Value entries are created for every transaction with the item.';
                 }
+                action("Item Application Entries")
+                {
+                    Caption = 'Item Application Entries';
+                    Image = EntriesList;
+                    RunObject = Page "Item Application Entries";
+                    ToolTip = 'View the history of item application entries that are created when you post inventory transactions.';
+                }
                 action("Cost Adjmt. Entry Points")
                 {
                     Caption = 'Cost Adjmt. Entry Points';
@@ -539,6 +546,7 @@ page 5801 "Cost Adjustment Overview"
 
                 actionref("Item Ledger Entries_Promoted"; "Item Ledger Entries") { }
                 actionref("Value Entries_Promoted"; "Value Entries") { }
+                actionref("Item Application Entries_Promoted"; "Item Application Entries") { }
                 actionref("Cost Adjmt. Entry Points_Promoted"; "Cost Adjmt. Entry Points") { }
                 actionref("Cost Adjmt. Orders_Promoted"; "Cost Adjmt. Orders") { }
             }
@@ -680,7 +688,6 @@ page 5801 "Cost Adjustment Overview"
         ReportItemFilter := CopyStr(SelectedItemFilter, 1, MaxStrLen(ReportItemFilter));
         AdjustCostItemEntries.InitializeRequest(ReportItemFilter, '');
         AdjustCostItemEntries.SetPostToGL(InventorySetup."Automatic Cost Posting");
-        AdjustCostItemEntries.UseRequestPage(false);
         AdjustCostItemEntries.Run();
     end;
 
