@@ -344,6 +344,24 @@ page 9660 "Report Layouts"
                 end;
             }
 
+            action(ShowInfoDialog)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Show Layout Info';
+                Image = Info;
+                PromotedOnly = true;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedCategory = Process;
+                Enabled = LayoutIsSelected;
+                ToolTip = 'Show the report layout information.';
+
+                trigger OnAction()
+                begin
+                    ReportLayoutsImpl.ShowInfoDialog(Rec);
+                end;
+            }
+
             action(OpenInOneDrive)
             {
                 ApplicationArea = Basic, Suite;
