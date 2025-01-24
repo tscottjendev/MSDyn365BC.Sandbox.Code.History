@@ -716,7 +716,6 @@
         InventorySetup: Record "Inventory Setup";
         ItemJournalLine: Record "Item Journal Line";
         ProductionOrder: Record "Production Order";
-        LibraryCosting: Codeunit "Library - Costing";
     begin
         // Run the Inventory Valuation - WIP report. Verify Cost Posted To GL After Posting Revalution Journal.
 
@@ -1741,6 +1740,7 @@
         FieldRef: FieldRef;
     begin
         // Update Item based on Field and its corresponding value.
+        Item.Find();
         RecRef.GetTable(Item);
         FieldRef := RecRef.Field(FieldNo);
         FieldRef.Validate(Value);
