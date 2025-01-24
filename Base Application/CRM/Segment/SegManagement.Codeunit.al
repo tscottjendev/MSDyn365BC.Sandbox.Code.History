@@ -37,6 +37,7 @@ codeunit 5051 SegManagement
         InteractionTemplateAssignedLanguageErr: Label 'Interaction Template %1 has assigned Interaction Template Language %2.\It is not allowed to have languages assigned to templates used for system document logging.', Comment = '%1 - Interaction Template Code, %2 - Interaction Template Language Code';
         InteractionsLbl: Label 'Interactions';
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Interaction Log Entry", 'r')]
     procedure LogSegment(SegmentHeader: Record "Segment Header"; Deliver: Boolean; Followup: Boolean)
     var
         SegmentLine: Record "Segment Line";
@@ -178,6 +179,7 @@ codeunit 5051 SegManagement
         OnAfterLogSegment(TempDeliverySorter, LoggedSegment, SegmentHeader, SegmentNo, InteractionLogEntry."Entry No.");
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Interaction Log Entry", 'r')]
     procedure LogInteraction(SegmentLine: Record "Segment Line"; var AttachmentTemp: Record Attachment; var TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line"; Deliver: Boolean; Postponed: Boolean) NextInteractLogEntryNo: Integer
     var
         InteractionTemplate: Record "Interaction Template";
