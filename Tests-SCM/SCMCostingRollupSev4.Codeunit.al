@@ -763,6 +763,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         CODEUNIT.Run(CODEUNIT::"Fiscal Year-Close", AccountingPeriod);
 
         // Exercise: Delete item
+        Item.Find();
         Item.Delete(true);
 
         // Verify: Item is deleted and no error occurs
