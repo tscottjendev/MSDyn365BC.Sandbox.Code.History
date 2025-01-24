@@ -748,7 +748,7 @@ page 9020 "Small Business Owner RC"
                     ApplicationArea = Suite;
                     Caption = 'Salespeople/Purchasers';
                     RunObject = Page "Salespersons/Purchasers";
-                    ToolTip = 'View a list of your sales people and your purchasers.';
+                    ToolTip = 'View a list of salespeople and purchasers.';
                 }
                 action("Customer Invoice Discount")
                 {

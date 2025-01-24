@@ -154,7 +154,7 @@ table 336 "Tracking Specification"
             var
                 ItemLedgEntry: Record "Item Ledger Entry";
             begin
-                ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
+                ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Entry No.");
                 ItemLedgEntry.SetRange("Item No.", "Item No.");
                 ItemLedgEntry.SetRange(Positive, true);
                 ItemLedgEntry.SetRange("Location Code", "Location Code");
