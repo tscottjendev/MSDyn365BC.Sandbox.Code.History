@@ -7,6 +7,7 @@ namespace Microsoft.Manufacturing.Capacity;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Projects.Resources.Resource;
@@ -17,6 +18,7 @@ table 5832 "Capacity Ledger Entry"
     Caption = 'Capacity Ledger Entry';
     DrillDownPageID = "Capacity Ledger Entries";
     LookupPageID = "Capacity Ledger Entries";
+    Permissions = TableData "Capacity Ledger Entry" = ri;
     DataClassification = CustomerContent;
 
     fields
@@ -55,6 +57,18 @@ table 5832 "Capacity Ledger Entry"
         {
             Caption = 'Invoiced Quantity';
             DecimalPlaces = 0 : 5;
+        }
+        field(20; "Item Register No."; Integer)
+        {
+            Caption = 'Item Register No.';
+            Editable = false;
+            TableRelation = "Item Register";
+        }
+        field(21; "SIFT Bucket No."; Integer)
+        {
+            Caption = 'SIFT Bucket No.';
+            ToolTip = 'Specifies an automatically generated number that is used by the system to enable better concurrency.';
+            Editable = false;
         }
         field(28; "Cap. Unit of Measure Code"; Code[10])
         {
@@ -262,6 +276,27 @@ table 5832 "Capacity Ledger Entry"
         GLSetup: Record "General Ledger Setup";
         GLSetupRead: Boolean;
 
+    trigger OnInsert()
+    begin
+        Rec."SIFT Bucket No." := Rec."Item Register No." mod 5;
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Capacity Ledger Entry", 'r')]
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Capacity Ledger Entry"));
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Capacity Ledger Entry", 'r')]
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     local procedure GetCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
@@ -269,13 +304,6 @@ table 5832 "Capacity Ledger Entry"
             GLSetupRead := true;
         end;
         exit(GLSetup."Additional Reporting Currency");
-    end;
-
-    procedure GetLastEntryNo(): Integer;
-    var
-        FindRecordManagement: Codeunit "Find Record Management";
-    begin
-        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
     procedure ShowDimensions()
