@@ -19,7 +19,7 @@ using Microsoft.Purchases.History;
 using System.Telemetry;
 using System.Utilities;
 
-codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
+codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Adjustment With Params"
 {
     Permissions = TableData Item = rm,
                   TableData "Item Ledger Entry" = rm,
@@ -50,6 +50,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         CostCalcMgt: Codeunit "Cost Calculation Management";
         ItemCostMgt: Codeunit ItemCostManagement;
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        CurrentCostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.";
         Window: Dialog;
         ItemApplicationChain: Dictionary of [Integer, List of [Integer]];
         ItemLedgerEntryTypesUsed: Dictionary of [Enum "Item Ledger Entry Type", Boolean];
@@ -57,6 +58,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         OpenOutboundEntryNos: List of [Integer];
         FixedAppliedItemEntryNos: List of [Integer];
         JobsToAdjust: List of [Code[20]];
+        ItemsBeingAdjusted: List of [Code[20]];
         WindowUpdateDateTime: DateTime;
         PostingDateForClosedPeriod: Date;
         LevelNo: array[3] of Integer;
@@ -65,6 +67,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         LevelExceeded: Boolean;
         IsOnlineAdjmt: Boolean;
         PostToGL: Boolean;
+        CommitAdjustedItems: Boolean;
         SkipUpdateJobItemCost: Boolean;
         WindowIsOpen: Boolean;
         WindowAdjmtLevel: Integer;
@@ -103,6 +106,21 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     procedure SetFilterItem(var NewItem: Record Item)
     begin
         FilterItem.CopyFilters(NewItem);
+    end;
+
+    procedure MakeMultiLevelAdjmt(var CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.")
+    var
+        CostAdjustmentParameter: Record "Cost Adjustment Parameter";
+    begin
+        CurrentCostAdjustmentParamsMgt := CostAdjustmentParamsMgt;
+        CurrentCostAdjustmentParamsMgt.GetParameters(CostAdjustmentParameter);
+        IsOnlineAdjmt := CostAdjustmentParameter."Online Adjustment";
+        PostToGL := CostAdjustmentParameter."Post to G/L";
+        CommitAdjustedItems := CostAdjustmentParameter."Item-By-Item Commit";
+        SkipUpdateJobItemCost := CostAdjustmentParameter."Skip Job Item Cost Update";
+        OnBeforeMakeMultiLevejAdjmtOnAfterGetParameters(CurrentCostAdjustmentParamsMgt);
+
+        MakeMultiLevelAdjmt();
     end;
 
     procedure MakeMultiLevelAdjmt()
@@ -149,6 +167,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
     local procedure InitializeAdjmt()
     begin
+        Clear(ItemsBeingAdjusted);
         Clear(LevelNo);
         MaxLevels := 100;
         MaxRoundings := 20;
@@ -163,6 +182,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         InvtSetup.Get();
         if InvtSetup.AutomaticCostAdjmtRequired() then
             FeatureTelemetry.LogUsage('0000MEM', AutomaticCostAdjustmentTok, AutomaticCostAdjustmentEnabledTok);
+        CommitAdjustedItems := CommitAdjustedItems and not IsOnlineAdjmt;
 
         GLSetup.Get();
         PostingDateForClosedPeriod := GLSetup.FirstAllowedPostingDate();
@@ -246,6 +266,8 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
                 xUnitCost := Item."Unit Cost";
                 UpDateWindow(WindowAdjmtLevel, Item."No.", WindowAdjust, WindowFWLevel, WindowEntry, 0);
 
+                PushCurrentItem(Item);
+
                 IsHandled := false;
                 OnBeforeCollectItemLedgerEntryTypesUsed(Item, IsHandled);
                 if IsHandled then
@@ -276,6 +298,9 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
                 if xUnitCost <> Item."Unit Cost" then
                     ItemCostMgt.UpdateCostPlusPrices(Item."No.");
                 OnMakeSingleLevelAdjmtOnAfterUpdateItemUnitCost(TheItem, TempAvgCostAdjmtEntryPoint, LevelExceeded, IsOnlineAdjmt, ItemJnlPostLine);
+
+                PopCurrentItem(Item);
+                CheckAndCommit();
 
                 OnAfterAdjustItem(TheItem);
             until (TheItem.Next() = 0) or LevelExceeded;
@@ -2857,6 +2882,28 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         exit(ItemLedgerEntryTypesUsed.Get(ItemLedgerEntryType));
     end;
 
+    local procedure PushCurrentItem(var CurrentItem: Record Item)
+    begin
+        if not ItemsBeingAdjusted.Contains(CurrentItem."No.") then
+            ItemsBeingAdjusted.Add(CurrentItem."No.");
+    end;
+
+    local procedure PopCurrentItem(var CurrentItem: Record Item)
+    begin
+        if not CurrentItem."Cost is Adjusted" then
+            exit;
+
+        if ItemsBeingAdjusted.Contains(CurrentItem."No.") then
+            ItemsBeingAdjusted.Remove(CurrentItem."No.");
+    end;
+
+    local procedure CheckAndCommit()
+    begin
+        if CommitAdjustedItems then
+            if ItemsBeingAdjusted.Count() = 0 then
+                Commit();
+    end;
+
     local procedure FindLastDate(DateFilter: Text): Date
     var
         Calendar: Record Date;
@@ -3053,6 +3100,11 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMakeMultiLevelAdjmt(var Item: Record Item; IsOnlineAdjmt: Boolean; var PostToGL: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeMultiLevejAdjmtOnAfterGetParameters(var CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.")
     begin
     end;
 
@@ -3402,6 +3454,11 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeAssemblyAdjmt(var SourceInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetParameters(var CostAdjustmentParameter: Record "Cost Adjustment Parameter")
     begin
     end;
 }
