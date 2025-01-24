@@ -13,6 +13,7 @@ codeunit 5835 "Item Reg.-Show Cap. Ledger"
     trigger OnRun()
     begin
         CapLedgEntry.SetRange("Entry No.", Rec."From Capacity Entry No.", Rec."To Capacity Entry No.");
+        CapLedgEntry.SetFilter("Item Register No.", '0|%1', Rec."No.");
         PAGE.Run(PAGE::"Capacity Ledger Entries", CapLedgEntry);
     end;
 
