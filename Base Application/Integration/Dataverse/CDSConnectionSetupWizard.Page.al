@@ -385,7 +385,7 @@ page 7201 "CDS Connection Setup Wizard"
                 group("Salesperson Ownership Model")
                 {
                     Caption = '';
-                    InstructionalText = 'Couple salespersons in Business Central with users in Dataverse. All synchronized data will be automatically owned by salesperson coupled to users. Owner (person) will be able to assign synchronized records to other users or teams in business unit.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+                    InstructionalText = 'Couple salespeople in Business Central with users in Dataverse. The salespeople will automatically own all synchronized data. Owners (people) can assign synchronized records to other users or teams in the business unit.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                     Visible = IsPersonOwnershipModelSelected;
                 }
 
@@ -431,10 +431,10 @@ page 7201 "CDS Connection Setup Wizard"
             {
                 Visible = CoupleSalespersonsStepVisible;
                 Caption = '';
-                InstructionalText = 'The Person ownership model requires that you couple salespersons in Business Central with users in Dataverse before you synchronize data. Otherwise, synchronization will not be successful.';
+                InstructionalText = 'The Person ownership model requires that you couple salespeople in Business Central with users in Dataverse before you synchronize data. Otherwise, synchronization will not be successful.';
                 group(Control41)
                 {
-                    InstructionalText = 'The salespersons will own the synchronized data and can assign records to other users or teams in the business unit.';
+                    InstructionalText = 'The salespeople will own the synchronized data and can assign records to other users or teams in the business unit.';
                     ShowCaption = false;
                 }
                 field(CoupleSalesPeople; CoupleSalesPeopleTxt)
@@ -956,7 +956,7 @@ page 7201 "CDS Connection Setup Wizard"
         ShowDifferentTenantWarning: Boolean;
         InitialSynchRecommendations: Dictionary of [Code[20], Integer];
         ScopesLbl: Label 'https://globaldisco.crm.dynamics.com/user_impersonation', Locked = true;
-        OpenCoupleSalespeoplePageQst: Label 'The Person ownership model requires that you couple salespersons in Business Central with users in Dataverse before you synchronize data. Otherwise, synchronization will not be successful.\\ Do you want to want to couple salespersons and users now?';
+        OpenCoupleSalespeoplePageQst: Label 'The Person ownership model requires that you couple salespeople in Business Central with users in Dataverse before you synchronize data. Otherwise, synchronization will not be successful.\\ Do you want to want to couple salespeople and users now?';
         SynchronizationRecommendationsLbl: Label 'Show synchronization recommendations';
         ConsentLbl: Label 'By enabling this feature, you consent to your data being shared with a Microsoft service that might be outside of your organization''s selected geographic boundaries and might have different compliance and security standards than Microsoft Dynamics Business Central. Your privacy is important to us, and you can choose whether to share data with the service. To learn more, follow the link below.';
         PrivacyLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=521839';

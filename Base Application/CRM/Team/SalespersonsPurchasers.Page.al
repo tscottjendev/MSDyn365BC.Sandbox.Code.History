@@ -17,7 +17,7 @@ using System.Text;
 
 page 14 "Salespersons/Purchasers"
 {
-    AdditionalSearchTerms = 'sales representative';
+    AdditionalSearchTerms = 'sales representative,salesperson';
     ApplicationArea = Basic, Suite;
     Caption = 'Salespeople/Purchasers';
     CardPageID = "Salesperson/Purchaser Card";
@@ -291,7 +291,7 @@ page 14 "Salespersons/Purchasers"
                         ApplicationArea = Suite;
                         Caption = 'Match-Based Coupling';
                         Image = CoupledContactPerson;
-                        ToolTip = 'Couple salespersons to users in Dataverse based on criteria.';
+                        ToolTip = 'Couple salespeople to users in Dataverse based on criteria.';
 
                         trigger OnAction()
                         var

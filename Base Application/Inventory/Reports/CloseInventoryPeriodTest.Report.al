@@ -110,7 +110,7 @@ report 1004 "Close Inventory Period - Test"
                 }
                 dataitem("Item Ledger Entry"; "Item Ledger Entry")
                 {
-                    DataItemTableView = sorting("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
+                    DataItemTableView = sorting("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Entry No.");
 
                     trigger OnAfterGetRecord()
                     begin
