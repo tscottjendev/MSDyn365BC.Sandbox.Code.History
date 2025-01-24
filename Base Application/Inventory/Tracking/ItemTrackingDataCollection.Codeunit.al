@@ -407,7 +407,7 @@ codeunit 6501 "Item Tracking Data Collection"
             until ReservEntry.Next() = 0;
 
         ItemLedgEntry.Reset();
-        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
+        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Entry No.");
         ItemLedgEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
         ItemLedgEntry.SetRange("Variant Code", TempTrackingSpecification."Variant Code");
         ItemLedgEntry.SetRange(Open, true);
