@@ -72,7 +72,7 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     var
-        TempProductionOrder: Record "Production Order" temporary;
+        TempProductionOrder, TempProductionOrderToPrint : Record "Production Order" temporary;
         LastTransferHeader: Record "Transfer Header";
         TempTransferHeaderToPrint: Record "Transfer Header" temporary;
         ReservationEntry: Record "Reservation Entry";
@@ -735,8 +735,6 @@ codeunit 99000813 "Carry Out Action"
             UpdateComponentLink(ProdOrderLine);
 
         OnAfterInsertProdOrderLine(RequisitionLine, ProductionOrder, ProdOrderLine, Item);
-
-        FinalizeOrderHeader(ProductionOrder);
     end;
 
     local procedure SetProdOrderLineBinCodeFromPlanningRtngLines(ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; RequisitionLine: Record "Requisition Line"; Item: Record Item)
@@ -1179,6 +1177,37 @@ codeunit 99000813 "Carry Out Action"
             end;
     end;
 
+    internal procedure PrintProductionOrders()
+    var
+        ProductionOrder: Record "Production Order";
+        ReportSelections: Record "Report Selections";
+        TempProductionOrderToPrint2: Record "Production Order" temporary;
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        RecordRefToPrint: RecordRef;
+        RecordRefToHeader: RecordRef;
+    begin
+        CarryOutAction.GetAllProductionOrdersForPrinting(TempProductionOrderToPrint2);
+        if not TempProductionOrderToPrint2.IsEmpty() then begin
+            RecordRefToPrint.GetTable(TempProductionOrderToPrint2);
+            RecordRefToHeader.GetTable(ProductionOrder);
+            ProductionOrder.SetFilter("No.", SelectionFilterManagement.CreateFilterFromTempTable(RecordRefToPrint, RecordRefToHeader, ProductionOrder.FieldNo("No.")));
+            ProductionOrder.SetFilter(Status, '%1|%2', ProductionOrder.Status::Planned, ProductionOrder.Status::"Firm Planned");
+            ReportSelections.PrintWithDialogWithCheckForCust(ReportSelections.Usage::"Prod.Order", ProductionOrder, false, 0);
+            TempProductionOrderToPrint2.DeleteAll();
+        end;
+    end;
+
+    internal procedure GetAllProductionOrdersForPrinting(var TempProductionOrder: Record "Production Order" temporary)
+    begin
+        if TempProductionOrderToPrint.FindSet() then begin
+            repeat
+                TempProductionOrder := TempProductionOrderToPrint;
+                if TempProductionOrder.Insert(false) then;
+            until TempProductionOrderToPrint.Next() = 0;
+            TempProductionOrderToPrint.DeleteAll();
+        end;
+    end;
+
     local procedure FinalizeOrderHeader(ProductionOrder: Record "Production Order")
     var
         ReportSelections: Record "Report Selections";
@@ -1368,6 +1397,13 @@ codeunit 99000813 "Carry Out Action"
             TempProductionOrder."Planned Order No." := RequisitionLine."Ref. Order No.";
             TempProductionOrder.Insert();
         end;
+
+        if PrintOrder then
+            if RequisitionLine."Ref. Order Status" in [RequisitionLine."Ref. Order Status"::Planned, RequisitionLine."Ref. Order Status"::"Firm Planned"] then begin
+                TempProductionOrderToPrint.Status := NewProductionOrder.Status;
+                TempProductionOrderToPrint."No." := NewProductionOrder."No.";
+                TempProductionOrderToPrint.Insert();
+            end;
     end;
 
     local procedure FindTempProdOrder(var RequisitionLine: Record "Requisition Line"): Boolean
