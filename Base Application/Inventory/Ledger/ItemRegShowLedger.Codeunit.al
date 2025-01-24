@@ -11,6 +11,7 @@ codeunit 245 "Item Reg.-Show Ledger"
     trigger OnRun()
     begin
         ItemLedgEntry.SetRange("Entry No.", Rec."From Entry No.", Rec."To Entry No.");
+        ItemLedgEntry.SetFilter("Item Register No.", '0|%1', Rec."No.");
         PAGE.Run(PAGE::"Item Ledger Entries", ItemLedgEntry);
     end;
 

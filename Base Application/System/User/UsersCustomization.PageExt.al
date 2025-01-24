@@ -183,10 +183,10 @@ pageextension 9801 "Users Customization" extends Users
             action("Salespersons/Purchasers")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Salespersons/Purchasers';
+                Caption = 'Salespeople/Purchasers';
                 Image = Users;
                 RunObject = Page "Salespersons/Purchasers";
-                ToolTip = 'View the salespersons/purchasers that exist in the system.';
+                ToolTip = 'View the salespeople/purchasers that exist in the system.';
             }
             action("FA Journal Setup")
             {

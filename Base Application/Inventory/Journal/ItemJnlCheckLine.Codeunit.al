@@ -69,6 +69,7 @@ codeunit 21 "Item Jnl.-Check Line"
             if not ItemJournalLine.OnlyStopTime() then
                 ItemJournalLine.TestField("Item No.", ErrorInfo.Create());
 
+        Item.ReadIsolation(IsolationLevel::ReadUncommitted);
         IsHandled := false;
         OnBeforeGetItem(Item, IsHandled);
         if not IsHandled then
@@ -80,7 +81,8 @@ codeunit 21 "Item Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        ItemJournalLine.TestField("Document No.", ErrorInfo.Create());
+        if ItemJournalLine."Posting No. Series" = '' then
+            ItemJournalLine.TestField("Document No.", ErrorInfo.Create());
         ItemJournalLine.TestField("Gen. Prod. Posting Group", ErrorInfo.Create());
 
         CheckDates(ItemJournalLine);

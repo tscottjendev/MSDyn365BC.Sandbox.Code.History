@@ -253,9 +253,9 @@ page 9026 "Sales & Relationship Mgr. RC"
             action(Salespersons)
             {
                 ApplicationArea = Suite, RelationshipMgmt;
-                Caption = 'Salespersons';
+                Caption = 'Salespeople';
                 RunObject = Page "Salespersons/Purchasers";
-                ToolTip = 'View or edit information about the sales people that work for you and which customers they are assigned to.';
+                ToolTip = 'View or edit information about the salespeople.';
             }
         }
         area(sections)
@@ -371,9 +371,9 @@ page 9026 "Sales & Relationship Mgr. RC"
                 action(Action58)
                 {
                     ApplicationArea = Suite, RelationshipMgmt;
-                    Caption = 'Salespersons';
+                    Caption = 'Salespeople';
                     RunObject = Page "Salespersons/Purchasers";
-                    ToolTip = 'View or edit information about the sales people that work for you and which customers they are assigned to.';
+                    ToolTip = 'View or edit information about the salespeople that work for you.';
                 }
             }
             group("Posted Documents")
@@ -461,7 +461,7 @@ page 9026 "Sales & Relationship Mgr. RC"
                     ApplicationArea = Suite, RelationshipMgmt;
                     Caption = 'Salespeople/Purchasers';
                     RunObject = Page "Salespersons/Purchasers";
-                    ToolTip = 'View or edit information about the sales people and purchasers that work for you and which customers and vendors they are assigned to.';
+                    ToolTip = 'View or edit information about the salespeople and purchasers that work for you and which customers and vendors they are assigned to.';
                 }
                 action("Customer Price Groups")
                 {
