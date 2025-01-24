@@ -201,6 +201,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         NonAdjustedItem: Record Item;
     begin
         NonAdjustedItem.Reset();
+        NonAdjustedItem.ReadIsolation(IsolationLevel::ReadUncommitted);
         NonAdjustedItem.CopyFilters(FilterItem);
         NonAdjustedItem.SetRange("Cost is Adjusted", false);
         if IsOnlineAdjmt then
@@ -286,6 +287,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         TempValueEntryCalcdOutbndCostBuf.Reset();
         TempValueEntryCalcdOutbndCostBuf.DeleteAll();
 
+        ItemLedgEntry.ReadIsolation(IsolationLevel::ReadUnCommitted);
         ItemLedgEntry.SetCurrentKey("Item No.", "Applied Entry to Adjust");
         ItemLedgEntry.SetRange("Item No.", Item."No.");
         ItemLedgEntry.SetRange("Applied Entry to Adjust", true);
@@ -599,6 +601,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     var
         AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
     begin
+        AvgCostAdjmtEntryPoint.ReadIsolation(IsolationLevel::ReadUncommitted);
         AvgCostAdjmtEntryPoint.SetRange("Item No.", ItemNo);
         AvgCostAdjmtEntryPoint.SetRange("Cost Is Adjusted", false);
         if AvgCostAdjmtEntryPoint.FindSet() then
@@ -1228,7 +1231,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         AvgCostAdjmtEntryPoint.GetValuationPeriod(CalendarPeriod);
         OnAfterGetValuationPeriod(CalendarPeriod, Item);
 
-        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
+        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code", "Entry No.");
         ValueEntry.SetRange("Item No.", AvgCostAdjmtEntryPoint."Item No.");
         if AvgCostAdjmtEntryPoint.AvgCostCalcTypeIsChanged(CalendarPeriod."Period Start") then begin
             AvgCostAdjmtEntryPoint.GetAvgCostCalcTypeIsChgPeriod(NextFiscalYearAccPeriod, CalendarPeriod."Period Start");
@@ -1621,7 +1624,6 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         ConsumpItemLedgEntry.SetLoadFields("Completely Invoiced", "Applied Entry to Adjust");
         ConsumpItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
         if not ConsumpItemLedgEntry."Completely Invoiced" then begin
-            ItemLedgEntry.SetCurrentKey("Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
             ItemLedgEntry.SetRange("Item No.", ValueEntry."Item No.");
             if not AvgCostAdjmtPoint.IsAvgCostCalcTypeItem(ValueEntry."Valuation Date") then begin
                 ItemLedgEntry.SetRange("Variant Code", ValueEntry."Variant Code");
@@ -2124,7 +2126,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         if IsHandled then
             exit;
 
-        Item.ReadIsolation := IsolationLevel::UpdLock;
+        Item.ReadIsolation(IsolationLevel::UpdLock);
         Item.Get(Item."No.");
         OnUpdateItemUnitCostOnAfterItemGet(Item);
         if not LevelExceeded then begin
@@ -2496,7 +2498,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
     local procedure OpenOutbndItemLedgEntriesExist(var OpenItemLedgEntry: Record "Item Ledger Entry"; AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point"; CalendarPeriod: Record Date): Boolean
     begin
-        OpenItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
+        OpenItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Entry No.");
         OpenItemLedgEntry.SetRange("Item No.", AvgCostAdjmtEntryPoint."Item No.");
         OpenItemLedgEntry.SetRange(Open, true);
         OpenItemLedgEntry.SetRange(Positive, false);

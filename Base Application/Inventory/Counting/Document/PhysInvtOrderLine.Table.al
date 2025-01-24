@@ -584,7 +584,7 @@ table 5876 "Phys. Invt. Order Line"
     begin
         ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey(
-            "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
+            "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date", "Entry No.");
         ItemLedgEntry.SetRange("Item No.", "Item No.");
         ItemLedgEntry.SetRange("Variant Code", "Variant Code");
         ItemLedgEntry.SetRange("Location Code", "Location Code");
@@ -702,7 +702,7 @@ table 5876 "Phys. Invt. Order Line"
         TestStatusOpen();
 
         ItemLedgEntry.Reset();
-        ItemLedgEntry.SetCurrentKey("Item No.");
+        ItemLedgEntry.SetCurrentKey("Item No.", "Entry No.");
         ItemLedgEntry.SetRange("Item No.", "Item No.");
         if ItemLedgEntry.FindLast() then
             LastItemLedgEntryNo := ItemLedgEntry."Entry No."
@@ -725,8 +725,6 @@ table 5876 "Phys. Invt. Order Line"
         end else begin
             TestField("Bin Code", '');
             ItemLedgEntry.Reset();
-            ItemLedgEntry.SetCurrentKey(
-              "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
             ItemLedgEntry.SetRange("Item No.", "Item No.");
             ItemLedgEntry.SetRange("Variant Code", "Variant Code");
             ItemLedgEntry.SetRange("Location Code", "Location Code");
