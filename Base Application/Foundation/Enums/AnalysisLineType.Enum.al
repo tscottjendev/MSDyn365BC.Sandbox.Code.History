@@ -31,7 +31,7 @@ enum 7114 "Analysis Line Type"
     }
     value(5; "Sales/Purchase Person")
     {
-        Caption = 'Sales/Purchase Person';
+        Caption = 'Salesperson/Purchaser';
     }
     value(6; Formula)
     {

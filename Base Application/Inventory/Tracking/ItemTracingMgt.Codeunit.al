@@ -57,7 +57,7 @@ codeunit 6520 "Item Tracing Mgt."
             SearchCriteria::Serial:
                 if not ItemLedgEntry.SetCurrentKey("Serial No.") then
                     if ItemNoFilter <> '' then
-                        ItemLedgEntry.SetCurrentKey("Item No.")
+                        ItemLedgEntry.SetCurrentKey("Item No.", "Entry No.")
                     else
                         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive,
                           "Location Code", "Posting Date", "Expiration Date", "Lot No.", "Serial No.");
@@ -66,12 +66,12 @@ codeunit 6520 "Item Tracing Mgt."
             SearchCriteria::Both:
                 if not ItemLedgEntry.SetCurrentKey("Lot No.") then
                     if ItemNoFilter <> '' then
-                        ItemLedgEntry.SetCurrentKey("Item No.")
+                        ItemLedgEntry.SetCurrentKey("Item No.", "Entry No.")
                     else
                         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive,
                           "Location Code", "Posting Date", "Expiration Date", "Lot No.", "Serial No.");
             SearchCriteria::Item:
-                ItemLedgEntry.SetCurrentKey("Item No.");
+                ItemLedgEntry.SetCurrentKey("Item No.", "Entry No.");
         end;
         OnFirstLevelOnAfterItemLedgEntrySetCurrentKey(ItemLedgEntry);
         ItemLedgEntry.SetFilter("Lot No.", LotNoFilter);

@@ -123,7 +123,7 @@ codeunit 5804 ItemCostManagement
             exit;
 
         if (Item."Unit Cost" = 0) or ((InvoicedQty > 0) and (LastDirectCost <> 0)) then begin
-            Item.CalcFields(Item."Net Invoiced Qty.");
+            Item.CalcFields("Net Invoiced Qty.");
             IsHandled := false;
             OnUpdateUnitCostOnBeforeNetInvoiceQtyCheck(Item, IsHandled);
             if (Item."Net Invoiced Qty." > 0) and (Item."Net Invoiced Qty." <= InvoicedQty) and not IsHandled then
@@ -393,7 +393,7 @@ codeunit 5804 ItemCostManagement
     procedure SetFilters(var ValueEntry: Record "Value Entry"; var Item: Record Item)
     begin
         ValueEntry.Reset();
-        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
+        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code", "Entry No.");
         ValueEntry.SetRange("Item No.", Item."No.");
         ValueEntry.SetFilter("Valuation Date", Item.GetFilter("Date Filter"));
         ValueEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
@@ -504,25 +504,22 @@ codeunit 5804 ItemCostManagement
     local procedure ExcludeOpenOutbndCosts(var Item: Record Item; var CostAmt: Decimal; var CostAmtACY: Decimal; var Quantity: Decimal)
     var
         OpenItemLedgEntry: Record "Item Ledger Entry";
-        OpenValueEntry: Record "Value Entry";
     begin
+        OpenItemLedgEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
+        OpenItemLedgEntry.SetLoadFields("Entry No.", "Cost Amount (Actual)", "Cost Amount (Expected)", "Cost Amount (Actual) (ACY)", "Cost Amount (Expected) (ACY)", "Item Ledger Entry Quantity");
         OpenItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive);
         OpenItemLedgEntry.SetRange("Item No.", Item."No.");
         OpenItemLedgEntry.SetRange(Open, true);
         OpenItemLedgEntry.SetRange(Positive, false);
         OpenItemLedgEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
         OpenItemLedgEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-        OpenValueEntry.SetCurrentKey("Item Ledger Entry No.");
+        OpenItemLedgEntry.SetAutoCalcFields("Cost Amount (Actual)", "Cost Amount (Expected)", "Cost Amount (Actual) (ACY)", "Cost Amount (Expected) (ACY)", "Item Ledger Entry Quantity");
         OnExcludeOpenOutbndCostsOnAfterOpenItemLedgEntrySetFilters(OpenItemLedgEntry, Item);
-        if OpenItemLedgEntry.Find('-') then
+        if OpenItemLedgEntry.FindSet() then
             repeat
-                OpenValueEntry.SetRange("Item Ledger Entry No.", OpenItemLedgEntry."Entry No.");
-                if OpenValueEntry.Find('-') then
-                    repeat
-                        CostAmt := CostAmt - OpenValueEntry."Cost Amount (Actual)" - OpenValueEntry."Cost Amount (Expected)";
-                        CostAmtACY := CostAmtACY - OpenValueEntry."Cost Amount (Actual) (ACY)" - OpenValueEntry."Cost Amount (Expected) (ACY)";
-                        Quantity := Quantity - OpenValueEntry."Item Ledger Entry Quantity";
-                    until OpenValueEntry.Next() = 0;
+                CostAmt := CostAmt - OpenItemLedgEntry."Cost Amount (Actual)" - OpenItemLedgEntry."Cost Amount (Expected)";
+                CostAmtACY := CostAmtACY - OpenItemLedgEntry."Cost Amount (Actual) (ACY)" - OpenItemLedgEntry."Cost Amount (Expected) (ACY)";
+                Quantity := Quantity - OpenItemLedgEntry."Item Ledger Entry Quantity";
             until OpenItemLedgEntry.Next() = 0;
 
         OnAfterExcludeOpenOutbndCosts(Item, CostAmt, CostAmtACY, Quantity);
@@ -533,6 +530,7 @@ codeunit 5804 ItemCostManagement
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
         ItemLedgEntry.Reset();
+        ItemLedgEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
         ItemLedgEntry.SetCurrentKey(ItemLedgEntry."Item No.", ItemLedgEntry.Open);
         ItemLedgEntry.SetRange(ItemLedgEntry."Item No.", Item."No.");
         ItemLedgEntry.SetRange(ItemLedgEntry.Open, true);
