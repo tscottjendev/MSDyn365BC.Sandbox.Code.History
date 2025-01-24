@@ -9,13 +9,15 @@ using Microsoft.Utilities;
 using System.Security.AccessControl;
 using System.Utilities;
 using System.Globalization;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Setup;
 
 table 339 "Item Application Entry"
 {
     Caption = 'Item Application Entry';
     DrillDownPageID = "Item Application Entries";
     LookupPageID = "Item Application Entries";
-    Permissions = TableData "Item Application Entry" = rm,
+    Permissions = TableData "Item Application Entry" = rim,
                   TableData "Item Application Entry History" = ri;
     DataClassification = CustomerContent;
 
@@ -44,6 +46,12 @@ table 339 "Item Application Entry"
         {
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
+        }
+        field(20; "Item Register No."; Integer)
+        {
+            Caption = 'Item Register No.';
+            Editable = false;
+            TableRelation = "Item Register";
         }
         field(21; "Posting Date"; Date)
         {
@@ -136,6 +144,22 @@ table 339 "Item Application Entry"
         TrackChain: Boolean;
         MaxValuationDate: Date;
         AppliedFromEntryToAdjustErr: Label 'You have to run the %1 batch job, before you can revalue %2 %3.', Comment = '%1 = Report::"Adjust Cost - Item Entries", %2 = Item Ledger Entry table caption, %3 = Inbound Item Ledger Entry No.';
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Item Application Entry", 'r')]
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Item Application Entry"));
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Item Application Entry", 'r')]
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 
     procedure AppliedOutbndEntryExists(InbndItemLedgEntryNo: Integer; IsCostApplication: Boolean; FilterOnOnlyCostNotAdjusted: Boolean): Boolean
     begin
@@ -271,17 +295,21 @@ table 339 "Item Application Entry"
     procedure InsertHistory(): Integer
     var
         ItemApplicationEntryHistory: Record "Item Application Entry History";
+        InventorySetup: Record "Inventory Setup";
         EntryNo: Integer;
     begin
-        ItemApplicationEntryHistory.SetCurrentKey("Primary Entry No.");
-        if not ItemApplicationEntryHistory.FindLast() then
-            EntryNo := 1;
-        EntryNo := ItemApplicationEntryHistory."Primary Entry No.";
+        if InventorySetup.UseLegacyPosting() then begin
+            ItemApplicationEntryHistory.SetCurrentKey("Primary Entry No.");
+            if ItemApplicationEntryHistory.FindLast() then
+                EntryNo := ItemApplicationEntryHistory."Primary Entry No.";
+            EntryNo += 1;
+        end else
+            EntryNo := ItemApplicationEntryHistory.GetNextEntryNo();
         ItemApplicationEntryHistory.TransferFields(Rec, true);
         ItemApplicationEntryHistory."Deleted Date" := CurrentDateTime();
         ItemApplicationEntryHistory."Deleted By User" := CopyStr(UserId(), 1, MaxStrLen(ItemApplicationEntryHistory."Deleted By User"));
-        ItemApplicationEntryHistory."Primary Entry No." := EntryNo + 1;
-        ItemApplicationEntryHistory.Insert();
+        ItemApplicationEntryHistory."Primary Entry No." := EntryNo;
+        ItemApplicationEntryHistory.Insert(true);
         exit(ItemApplicationEntryHistory."Primary Entry No.");
     end;
 
@@ -521,13 +549,6 @@ table 339 "Item Application Entry"
         exit(false);
     end;
 
-    procedure GetLastEntryNo(): Integer;
-    var
-        FindRecordManagement: Codeunit "Find Record Management";
-    begin
-        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
-    end;
-
     procedure GetVisitedEntries(FromItemLedgEntry: Record "Item Ledger Entry"; var ItemLedgEntryInChain: Record "Item Ledger Entry"; WithinValuationDate: Boolean)
     var
         ToItemLedgerEntry: Record "Item Ledger Entry";
@@ -664,10 +685,13 @@ table 339 "Item Application Entry"
         if ItemLedgEntry.Quantity < 0 then
             exit;
 
+        ItemApplicationEntry.ReadIsolation(IsolationLevel::ReadCommitted);
         ItemApplicationEntry.SetCurrentKey("Inbound Item Entry No.");
         ItemApplicationEntry.SetRange("Inbound Item Entry No.", ItemLedgEntry."Entry No.");
         OnSetOutboundsNotUpdatedOnAfterSetFilters(ItemApplicationEntry);
-        ItemApplicationEntry.ModifyAll("Outbound Entry is Updated", false);
+        ItemApplicationEntry.SetRange("Outbound Entry is Updated", true);
+        if not ItemApplicationEntry.IsEmpty() then
+            ItemApplicationEntry.ModifyAll("Outbound Entry is Updated", false);
     end;
 
     procedure SetInboundToUpdated(ItemLedgEntry: Record "Item Ledger Entry")

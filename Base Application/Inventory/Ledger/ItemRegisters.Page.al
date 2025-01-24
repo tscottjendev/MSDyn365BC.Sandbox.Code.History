@@ -14,6 +14,7 @@ page 117 "Item Registers"
     Editable = false;
     PageType = List;
     SourceTable = "Item Register";
+    SourceTableView = sorting("No.") order(descending);
     UsageCategory = History;
 
     layout

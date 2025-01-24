@@ -2615,7 +2615,6 @@ table 27 Item
         IsHandled := false;
         OnBeforeTestNoItemLedgEntiesExist(Rec, CurrentFieldName, IsHandled);
         if not IsHandled then begin
-            ItemLedgEntry.SetCurrentKey("Item No.");
             ItemLedgEntry.SetRange("Item No.", "No.");
             if not ItemLedgEntry.IsEmpty() then
                 Error(Text007, CurrentFieldName);
@@ -2799,8 +2798,6 @@ table 27 Item
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        Clear(ItemLedgEntry);
-        ItemLedgEntry.SetCurrentKey("Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
         ItemLedgEntry.SetRange("Item No.", ItemNo);
         ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
         if not ItemLedgEntry.IsEmpty() then
@@ -3726,9 +3723,6 @@ table 27 Item
         if "No." = '' then
             exit;
 
-        ItemLedgEntry.Reset();
-        ItemLedgEntry.SetLoadFields("Item No.");
-        ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", "No.");
         exit(not ItemLedgEntry.IsEmpty);
     end;

@@ -461,10 +461,10 @@ page 7200 "CDS Connection Setup"
             action(CoupleUsers)
             {
                 ApplicationArea = Suite;
-                Caption = 'Couple Salespersons';
+                Caption = 'Couple Salespeople';
                 Enabled = Rec."Is Enabled" and (Rec."Ownership Model" = Rec."Ownership Model"::Person);
                 Image = CoupledUsers;
-                ToolTip = 'Open the list of users in Dataverse to manually couple them with salespersons in Business Central.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+                ToolTip = 'Open the list of users in Dataverse to manually couple them with salespeople in Business Central.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
                 var
