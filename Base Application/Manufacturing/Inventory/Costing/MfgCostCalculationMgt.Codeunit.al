@@ -262,7 +262,7 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
         ExpSubDirCost := ExpSubDirCost + Round(ExpSubDirCostRtng * ShareOfTotalCapCost);
         ExpCapOvhdCost := ExpCapOvhdCost + Round(ExpCapOvhdCostRtng * ShareOfTotalCapCost);
         ExpMfgDirCost := ExpMatCost + ExpCapDirCost + ExpSubDirCost + ExpCapOvhdCost;
-        ExpOvhdCost := ExpOvhdCost + ProdOrderLine."Overhead Rate" * ProdOrderLine."Quantity (Base)";
+        ExpOvhdCost := ExpMfgOvhdCost + ProdOrderLine."Overhead Rate" * ProdOrderLine."Quantity (Base)";
         ExpMfgOvhdCost := ExpOvhdCost +
           Round(CostCalculationMgt.CalcOvhdCost(ExpMfgDirCost, ProdOrderLine."Indirect Cost %", 0, 0));
 
