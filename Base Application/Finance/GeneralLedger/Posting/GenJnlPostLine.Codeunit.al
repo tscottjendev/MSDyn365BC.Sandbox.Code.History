@@ -11980,7 +11980,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertDeferralNonDeductibleVATGLEntries(var NonDeductibleVATPct: Decimal; DeferralPostingBuffer: Record "Deferral Posting Buffer"; VATPostingSetup: Record "VAT Posting Setup"; GenJournalLine: Record "Gen. Journal Line"; DeferralTemplate: Record "Deferral Template"; var VATAmountRounding: Decimal; var PositiveNDVATAmountRounding: Decimal; var NegativeNDVATAmountRounding: Decimal; IsHandled: Boolean)
+    local procedure OnBeforeInsertDeferralNonDeductibleVATGLEntries(var NonDeductibleVATPct: Decimal; DeferralPostingBuffer: Record "Deferral Posting Buffer"; VATPostingSetup: Record "VAT Posting Setup"; GenJournalLine: Record "Gen. Journal Line"; DeferralTemplate: Record "Deferral Template"; var VATAmountRounding: Decimal; var PositiveNDVATAmountRounding: Decimal; var NegativeNDVATAmountRounding: Decimal; var IsHandled: Boolean)
     begin
     end;
 
