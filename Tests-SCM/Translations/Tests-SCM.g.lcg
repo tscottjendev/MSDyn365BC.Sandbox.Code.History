@@ -1589,6 +1589,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Copy Production BOM - NamedType ErrBomVersionIsCertified)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4197415477 - NamedType 1020197956" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Overhead Cost must be %1 in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Value, %2= FieldCaption.]D;]A;(LookupHint=Codeunit SCM Copy Production BOM - NamedType OverHeadCostErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1549229238 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3]]></Val>
