@@ -4,13 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
 
-using System.Telemetry;
-using System.Utilities;
-using Microsoft.eServices.EDocument.Integration.Send;
-using Microsoft.eServices.EDocument.Integration.Receive;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.eServices.EDocument.OrderMatch;
 using Microsoft.eServices.EDocument.OrderMatch.Copilot;
+using System.Telemetry;
+using System.Utilities;
 
 page 6121 "E-Document"
 {
@@ -237,14 +235,13 @@ page 6121 "E-Document"
                     trigger OnAction()
                     var
                         EDocService: Record "E-Document Service";
-                        ActionContext: Codeunit ActionContext;
                         EDocServices: Page "E-Document Services";
                     begin
                         EDocServices.LookupMode := true;
                         if EDocServices.RunModal() = Action::LookupOK then begin
                             EDocServices.GetRecord(EDocService);
                             EDocumentErrorHelper.ClearErrorMessages(Rec);
-                            EDocIntegrationManagement.GetApprovalStatus(Rec, EDocService, ActionContext);
+                            EDocIntegrationManagement.GetApproval(Rec, EDocService);
                         end
                     end;
                 }
@@ -258,14 +255,13 @@ page 6121 "E-Document"
                     trigger OnAction()
                     var
                         EDocService: Record "E-Document Service";
-                        ActionContext: Codeunit ActionContext;
                         EDocServices: Page "E-Document Services";
                     begin
                         EDocServices.LookupMode := true;
                         if EDocServices.RunModal() = Action::LookupOK then begin
                             EDocServices.GetRecord(EDocService);
                             EDocumentErrorHelper.ClearErrorMessages(Rec);
-                            EDocIntegrationManagement.GetCancellationStatus(Rec, EDocService, ActionContext);
+                            EDocIntegrationManagement.Cancel(Rec, EDocService);
                         end
                     end;
                 }
@@ -498,9 +494,7 @@ page 6121 "E-Document"
         HasErrorsOrWarnings := (EDocumentErrorHelper.ErrorMessageCount(Rec) + EDocumentErrorHelper.WarningMessageCount(Rec)) > 0;
         HasErrors := EDocumentErrorHelper.ErrorMessageCount(Rec) > 0;
         if HasErrorsOrWarnings then
-            ShowErrorsAndWarnings()
-        else
-            ClearErrorsAndWarnings();
+            ShowErrorsAndWarnings();
 
         SetStyle();
         ResetActionVisiability();
@@ -535,30 +529,19 @@ page 6121 "E-Document"
         ErrorsAndWarningsNotification.Send();
     end;
 
-    local procedure ClearErrorsAndWarnings()
-    var
-        TempErrorMessage: Record "Error Message" temporary;
-    begin
-        CurrPage.ErrorMessagesPart.Page.SetRecords(TempErrorMessage);
-        CurrPage.ErrorMessagesPart.Page.Update(false);
-    end;
-
     local procedure SendEDocument()
     var
         EDocService: Record "E-Document Service";
-        SendContext: Codeunit SendContext;
         EDocServices: Page "E-Document Services";
         IsAsync: Boolean;
     begin
         EDocServices.LookupMode(true);
         if EDocServices.RunModal() <> Action::LookupOK then
             exit;
-
         EDocServices.GetRecord(EDocService);
         EDocumentErrorHelper.ClearErrorMessages(Rec);
-        if not EDocIntegrationManagement.Send(Rec, EDocService, SendContext, IsAsync) then
+        if not EDocIntegrationManagement.Send(Rec, EDocService, IsAsync) then
             exit;
-
         if IsAsync then
             EDocumentBackgroundjobs.ScheduleGetResponseJob();
     end;

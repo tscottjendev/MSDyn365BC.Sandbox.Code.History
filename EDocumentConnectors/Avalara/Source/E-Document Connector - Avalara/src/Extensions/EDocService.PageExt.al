@@ -15,7 +15,7 @@ pageextension 6371 "E-Doc. Service" extends "E-Document Service"
             group(Avalara)
             {
                 Caption = 'Avalara';
-                Visible = Rec."Service Integration V2" = Rec."Service Integration V2"::Avalara;
+                Visible = Rec."Service Integration" = Rec."Service Integration"::Avalara;
 
                 field("Avalara Mandate"; Rec."Avalara Mandate")
                 {
@@ -24,5 +24,6 @@ pageextension 6371 "E-Doc. Service" extends "E-Document Service"
                 }
             }
         }
+
     }
 }

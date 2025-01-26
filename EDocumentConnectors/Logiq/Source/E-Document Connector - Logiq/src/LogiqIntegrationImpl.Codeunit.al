@@ -5,46 +5,52 @@
 namespace Microsoft.EServices.EDocumentConnector.Logiq;
 
 using Microsoft.eServices.EDocument;
-using Microsoft.eServices.EDocument.Integration.Interfaces;
-using Microsoft.eServices.EDocument.Integration.Send;
-using Microsoft.eServices.EDocument.Integration.Receive;
 using System.Utilities;
 
-codeunit 6431 "Logiq Integration Impl." implements IDocumentSender, IDocumentReceiver, IDocumentResponseHandler
+codeunit 6431 "Logiq Integration Impl." implements "E-Document Integration"
 {
     Access = Internal;
 
-    procedure Send(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; SendContext: Codeunit SendContext);
+    procedure Send(var EDocument: Record "E-Document"; var TempBlob: Codeunit "Temp Blob"; var IsAsync: Boolean; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
     begin
-        this.LogiqEDocumentManagement.Send(EDocument, EDocumentService, SendContext);
+        this.LogiqEDocumentManagement.Send(EDocument, TempBlob, IsAsync, HttpRequest, HttpResponse);
     end;
 
-    procedure GetResponse(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; SendContext: Codeunit SendContext): Boolean
+    procedure SendBatch(var EDocuments: Record "E-Document"; var TempBlob: Codeunit "Temp Blob"; var IsAsync: Boolean; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
     begin
-        exit(this.LogiqEDocumentManagement.GetResponse(EDocument, EDocumentService, SendContext));
+        IsAsync := false;
+        Error('Batch sending is not supported');
     end;
 
-    procedure ReceiveDocuments(var EDocumentService: Record "E-Document Service"; DocumentsMetadata: Codeunit "Temp Blob List"; ReceiveContext: Codeunit ReceiveContext)
+    procedure GetResponse(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage): Boolean
     begin
-        this.LogiqEDocumentManagement.ReceiveDocuments(EDocumentService, DocumentsMetadata, ReceiveContext);
+        exit(this.LogiqEDocumentManagement.GetResponse(EDocument, HttpRequest, HttpResponse));
     end;
 
-    procedure DownloadDocument(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; DocumentMetadata: Codeunit "Temp Blob"; ReceiveContext: Codeunit ReceiveContext)
+    procedure GetApproval(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage): Boolean
     begin
-        this.LogiqEDocumentManagement.DownloadDocument(EDocument, EDocumentService, DocumentMetadata, ReceiveContext);
+        Error('Approval is not supported');
     end;
 
-
-    [EventSubscriber(ObjectType::Page, Page::"E-Document Service", OnBeforeOpenServiceIntegrationSetupPage, '', false, false)]
-    local procedure OpenLogiqConnectionSetup(EDocumentService: Record "E-Document Service"; var IsServiceIntegrationSetupRun: Boolean)
-    var
-        ConnectionSetup: Page "Logiq Connection Setup";
+    procedure Cancel(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage): Boolean
     begin
-        if EDocumentService."Service Integration V2" <> EDocumentService."Service Integration V2"::Logiq then
-            exit;
+        Error('Cancelling sent document is not supported');
+    end;
 
-        IsServiceIntegrationSetupRun := true;
-        ConnectionSetup.RunModal();
+    procedure ReceiveDocument(var TempBlob: Codeunit "Temp Blob"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
+    begin
+        this.LogiqEDocumentManagement.DownloadDocuments(TempBlob, HttpRequest, HttpResponse);
+    end;
+
+    procedure GetDocumentCountInBatch(var TempBlob: Codeunit "Temp Blob"): Integer
+    begin
+        exit(this.LogiqEDocumentManagement.GetDocumentCountInBatch(TempBlob));
+    end;
+
+    procedure GetIntegrationSetup(var SetupPage: Integer; var SetupTable: Integer)
+    begin
+        SetupPage := Page::"Logiq Connection Setup";
+        SetupTable := Database::"Logiq Connection Setup";
     end;
 
     var

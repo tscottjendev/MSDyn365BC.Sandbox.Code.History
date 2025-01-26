@@ -5,7 +5,6 @@
 namespace Microsoft.EServices.EDocumentConnector.Logiq;
 
 using Microsoft.eServices.EDocument;
-using Microsoft.eServices.EDocument.Integration;
 using Microsoft.Foundation.Company;
 using Microsoft.Sales.Customer;
 using Microsoft.Purchases.Vendor;
@@ -378,8 +377,8 @@ codeunit 139780 "Integration Tests"
             exit;
 
         this.LibraryEDocument.SetupStandardVAT();
-        this.LibraryEDocument.SetupStandardSalesScenario(this.Customer, this.EDocumentService, Enum::"E-Document Format"::"PEPPOL BIS 3.0", Enum::"Service Integration"::Logiq);
-        this.LibraryEDocument.SetupStandardPurchaseScenario(this.Vendor, this.EDocumentService, Enum::"E-Document Format"::"PEPPOL BIS 3.0", Enum::"Service Integration"::Logiq);
+        this.LibraryEDocument.SetupStandardSalesScenario(this.Customer, this.EDocumentService, Enum::"E-Document Format"::"PEPPOL BIS 3.0", Enum::"E-Document Integration"::Logiq);
+        this.LibraryEDocument.SetupStandardPurchaseScenario(this.Vendor, this.EDocumentService, Enum::"E-Document Format"::"PEPPOL BIS 3.0", Enum::"E-Document Integration"::Logiq);
 
         this.Vendor."VAT Registration No." := 'NO 777 777 777';
         this.Vendor."Receive E-Document To" := Enum::"E-Document Type"::"Purchase Invoice";
