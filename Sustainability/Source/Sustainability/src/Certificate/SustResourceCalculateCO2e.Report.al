@@ -1,43 +1,42 @@
 namespace Microsoft.Sustainability.Certificate;
 
-using Microsoft.Inventory.Item;
+using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sustainability.Account;
-using Microsoft.Sustainability.Ledger;
 using Microsoft.Sustainability.Posting;
 
-report 6215 "Sust. Item Calculate CO2e"
+report 6217 "Sust. Resource Calculate CO2e"
 {
     Caption = 'Calculate CO2e';
     ProcessingOnly = true;
-    Permissions = tabledata Item = rm;
+    Permissions = tabledata Resource = rm;
 
     dataset
     {
-        dataitem(Item; Item)
+        dataitem(Resource; Resource)
         {
             RequestFilterFields = "No.";
 
             trigger OnAfterGetRecord()
             var
-                Item1: Record Item;
+                Resource1: Record Resource;
                 Counter: Integer;
                 CommitCounter: Integer;
             begin
-                Item1.CopyFilters(Item);
-                if Item1.FindSet() then begin
-                    OpenDialog(Item1, RecordCount);
+                Resource1.CopyFilters(Resource);
+                if Resource1.FindSet() then begin
+                    OpenDialog(Resource1, RecordCount);
 
                     repeat
-                        UpdateCO2ePerUnit(Item1);
+                        UpdateCO2ePerUnit(Resource1);
                         UpdateDialog(CommitCounter, Counter);
 
                         CommitRecord(CommitCounter);
-                    until Item1.Next() = 0;
+                    until Resource1.Next() = 0;
 
                     CloseDialog();
                 end;
 
-                ShowCompletionMsg(RecordCount, Counter, Item.TableCaption());
+                ShowCompletionMsg(RecordCount, Counter, Resource.TableCaption());
                 CurrReport.Break();
             end;
         }
@@ -63,12 +62,12 @@ report 6215 "Sust. Item Calculate CO2e"
         Window.Update(1, Round(Counter / RecordCount * 10000, 1));
     end;
 
-    local procedure OpenDialog(var Item: Record Item; var RecordCount: Integer)
+    local procedure OpenDialog(var Resource: Record Resource; var RecordCount: Integer)
     begin
         if not GuiAllowed() then
             exit;
 
-        RecordCount := Item.Count();
+        RecordCount := Resource.Count();
         Window.Open(ProcessBarMsg);
     end;
 
@@ -88,38 +87,24 @@ report 6215 "Sust. Item Calculate CO2e"
         Message(StrSubstNo(UpdateCompleteMsg, Counter, RecordCount, TableCaption));
     end;
 
-    local procedure UpdateCO2ePerUnit(var NewItem: Record Item)
+    local procedure UpdateCO2ePerUnit(var NewResource: Record Resource)
     var
-        SustCostManagement: Codeunit SustCostManagement;
         CO2eEmission: Decimal;
         CarbonFee: Decimal;
     begin
-        if ExistSustainabilityValueEntry(NewItem) then begin
-            if not SustCostManagement.CalculateAverageCost(NewItem, CO2eEmission) then
-                exit;
-        end else
-            SustainabilityPostMgt.UpdateCarbonFeeEmissionValues(
-                "Emission Scope"::" ",
-                WorkDate(),
-                '',
-                NewItem."Default CO2 Emission",
-                NewItem."Default N2O Emission",
-                NewItem."Default CH4 Emission",
-                CO2eEmission,
-                CarbonFee);
+        SustainabilityPostMgt.UpdateCarbonFeeEmissionValues(
+            "Emission Scope"::" ",
+            WorkDate(),
+            '',
+            NewResource."Default CO2 Emission",
+            NewResource."Default N2O Emission",
+            NewResource."Default CH4 Emission",
+            CO2eEmission,
+            CarbonFee);
 
-        NewItem.Validate("CO2e per Unit", CO2eEmission);
-        NewItem.Validate("CO2e Last Date Modified", Today());
-        NewItem.Modify(true);
-    end;
-
-    local procedure ExistSustainabilityValueEntry(Item: Record Item): Boolean
-    var
-        SustainabilityValueEntry: Record "Sustainability Value Entry";
-    begin
-        SustainabilityValueEntry.SetRange("Item No.", Item."No.");
-        if not SustainabilityValueEntry.IsEmpty() then
-            exit(true);
+        NewResource.Validate("CO2e per Unit", CO2eEmission);
+        NewResource.Validate("CO2e Last Date Modified", Today());
+        NewResource.Modify(true);
     end;
 
     var
