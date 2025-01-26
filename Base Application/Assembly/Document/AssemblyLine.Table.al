@@ -2059,6 +2059,11 @@ table 901 "Assembly Line"
         CalledFromHeader := Suspend;
     end;
 
+    procedure GetSuspendDeletionCheck(): Boolean
+    begin
+        exit(CalledFromHeader);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var AssemblyLine: Record "Assembly Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
