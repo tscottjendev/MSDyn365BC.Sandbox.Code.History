@@ -89,8 +89,7 @@ codeunit 28 "Error Message Management"
         Pos: Integer;
         SubString: Text;
     begin
-        if ThrowError() then;
-        CallStack := GetLastErrorCallStack();
+        CallStack := SessionInformation.Callstack;
         SubString := '"Error Message Management"(CodeUnit 28)';
         Len := StrLen(SubString);
         repeat
@@ -98,13 +97,6 @@ codeunit 28 "Error Message Management"
             CallStack := CopyStr(CallStack, Pos + Len);
         until Pos = 0;
         CallStack := CopyStr(CallStack, StrPos(CallStack, '\') + 1);
-    end;
-
-    [TryFunction]
-    local procedure ThrowError()
-    begin
-        // Throw an error to get the call stack by GetLastErrorCallstack
-        Error('');
     end;
 
     local procedure GetContextRecID(ContextVariant: Variant; var ContextRecID: RecordID)
