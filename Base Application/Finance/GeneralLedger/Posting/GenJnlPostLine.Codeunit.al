@@ -9344,6 +9344,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 exit(false);
         end else begin
             DtldCustLedgEntry.SetRange(DtldCustLedgEntry."Transaction No.", InitDtldCustLedgEntry."Transaction No.");
+            DtldCustLedgEntry.SetRange("Document No.", InitDtldCustLedgEntry."Document No.");
             DtldCustLedgEntry.SetRange(DtldCustLedgEntry."Entry Type", DtldCustLedgEntry."Entry Type"::Application);
             DtldCustLedgEntry.SetRange(DtldCustLedgEntry."Initial Document Type", DtldCustLedgEntry."Initial Document Type"::Bill);
             if not DtldCustLedgEntry.FindFirst() then
