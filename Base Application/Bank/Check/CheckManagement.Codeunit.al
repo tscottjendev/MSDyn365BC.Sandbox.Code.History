@@ -673,7 +673,14 @@ codeunit 367 CheckManagement
     end;
 
     local procedure SetGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; OriginalAmount: Decimal; CurrencyCode: Code[10]; DocumentNo: Code[20]; Dim1Code: Code[20]; Dim2Code: Code[20]; DimSetID: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetGenJnlLine(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         GenJnlLine.Validate(Amount, OriginalAmount);
         GenJnlLine.Validate("Currency Code", CurrencyCode);
         MakeAppliesID(GenJnlLine."Applies-to ID", DocumentNo);
@@ -681,6 +688,8 @@ codeunit 367 CheckManagement
         GenJnlLine."Shortcut Dimension 2 Code" := Dim2Code;
         GenJnlLine."Dimension Set ID" := DimSetID;
         GenJnlLine."Source Currency Code" := CurrencyCode;
+
+        OnAfterSetGenJnlLine(GenJnlLine);
     end;
 
     local procedure IsElectronicBankPaymentType(BankPaymentType: Enum "Bank Payment Type") IsElectronicPaymentType: Boolean
@@ -1054,6 +1063,16 @@ codeunit 367 CheckManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnUnApplyVendInvoicesOnBeforeErrorNoAppliedEntry(var BankAccLedgEntry: Record "Bank Account Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetGenJnlLine(var GenJnlLine: Record "Gen. Journal Line");
     begin
     end;
 }
