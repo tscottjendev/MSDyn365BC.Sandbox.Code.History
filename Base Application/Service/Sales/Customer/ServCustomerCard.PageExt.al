@@ -22,6 +22,14 @@ pageextension 6450 "Serv. Customer Card" extends "Customer Card"
                 ToolTip = 'Specifies the code for the service zone that is assigned to the customer.';
             }
         }
+        addafter("Combine Shipments")
+        {
+            field("Combine Service Shipments"; Rec."Combine Service Shipments")
+            {
+                ApplicationArea = Service;
+                ToolTip = 'Specifies if several orders delivered to the customer can appear on the same service invoice.';
+            }
+        }
 
         addafter(Control1905532107)
         {
