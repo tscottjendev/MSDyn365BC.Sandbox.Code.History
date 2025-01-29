@@ -993,6 +993,32 @@ codeunit 131902 "Library - Service"
         CustomizedCalendarChange.Insert(true);
     end;
 
+    procedure CombineShipments(var ServiceHeader: Record "Service Header"; var ServiceShipmentHeader: Record "Service Shipment Header"; PostingDate: Date; DocumentDate: Date; CalcInvDisc: Boolean; PostInvoices: Boolean; OnlyStdPmtTerms: Boolean; CopyTextLines: Boolean)
+    var
+        TmpServiceHeader: Record "Service Header";
+        TmpServiceShipmentHeader: Record "Service Shipment Header";
+        CombineShipmentsReport: Report "Combine Service Shipments";
+    begin
+        CombineShipmentsReport.InitializeRequest(PostingDate, DocumentDate, CalcInvDisc, PostInvoices, OnlyStdPmtTerms, CopyTextLines);
+        if ServiceHeader.HasFilter then
+            TmpServiceHeader.CopyFilters(ServiceHeader)
+        else begin
+            ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
+            TmpServiceHeader.SetRange("Document Type", ServiceHeader."Document Type");
+            TmpServiceHeader.SetRange("No.", ServiceHeader."No.");
+        end;
+        CombineShipmentsReport.SetTableView(TmpServiceHeader);
+        if ServiceShipmentHeader.HasFilter then
+            TmpServiceShipmentHeader.CopyFilters(ServiceShipmentHeader)
+        else begin
+            ServiceShipmentHeader.Get(ServiceShipmentHeader."No.");
+            TmpServiceShipmentHeader.SetRange("No.", ServiceShipmentHeader."No.");
+        end;
+        CombineShipmentsReport.SetTableView(TmpServiceShipmentHeader);
+        CombineShipmentsReport.UseRequestPage(false);
+        CombineShipmentsReport.RunModal();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCustomerModifyCreateServiceLine(var Customer: Record Customer)
     begin

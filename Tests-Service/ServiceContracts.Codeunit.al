@@ -5159,8 +5159,7 @@ codeunit 136102 "Service Contracts"
         InvoiceServiceLedgerEntry: Record "Service Ledger Entry";
         CrMemoServiceLedgerEntry: Record "Service Ledger Entry";
     begin
-        FindServiceLedgerEntry(
-          CrMemoServiceLedgerEntry, ContractNo, CrMemoServiceLedgerEntry."Document Type"::"Credit Memo", CrMemoServiceLedgerEntry."Entry Type"::Sale);
+        FindServiceLedgerEntry(CrMemoServiceLedgerEntry, ContractNo, CrMemoServiceLedgerEntry."Document Type"::"Credit Memo", CrMemoServiceLedgerEntry."Entry Type"::Sale);
         CrMemoServiceLedgerEntry.SetFilter("Applies-to Entry No.", '>0');
         repeat
             InvoiceServiceLedgerEntry.Get(CrMemoServiceLedgerEntry."Applies-to Entry No.");
@@ -5471,9 +5470,9 @@ codeunit 136102 "Service Contracts"
         ServiceHeader: Record "Service Header";
         ServiceShipmentLine: Record "Service Shipment Line";
         OrderNo: Variant;
-        InvoiceNo: Variant;
+        InvoiceNo: Code[20];
     begin
-        LibraryVariableStorage.Dequeue(InvoiceNo);
+        InvoiceNo := LibraryVariableStorage.DequeueText();
         ServiceHeader.Get(ServiceHeader."Document Type"::Invoice, InvoiceNo);
         ServiceGetShipment.SetServiceHeader(ServiceHeader);
 

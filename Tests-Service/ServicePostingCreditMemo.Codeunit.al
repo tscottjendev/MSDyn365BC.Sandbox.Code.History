@@ -1324,7 +1324,11 @@ codeunit 136104 "Service Posting - Credit Memo"
         SalesCreditMemo.OpenNew();
 
         // [THEN] All controls related to customer (and on SaaS) are disabled
+#if not CLEAN26
         Assert.IsFalse(SalesCreditMemo.Statistics.Enabled(), ControlShouldBeDisabledErr);
+#endif
+        Assert.IsFalse(SalesCreditMemo.SalesStatistics.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesCreditMemo.SalesOrderStats.Enabled(), ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesCreditMemo.ApplyEntries.Enabled(), ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesCreditMemo.TestReport.Enabled(), ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesCreditMemo.GetStdCustSalesCodes.Enabled(), ControlShouldBeDisabledErr);
@@ -1361,7 +1365,11 @@ codeunit 136104 "Service Posting - Credit Memo"
         SalesCreditMemo.GotoRecord(SalesHeader);
 
         // [THEN] All controls related to customer (and on SaaS) are enabled
+#if not CLEAN26
         Assert.IsTrue(SalesCreditMemo.Statistics.Enabled(), ControlShouldBeEnabledErr);
+#endif
+        Assert.IsTrue(SalesCreditMemo.SalesStatistics.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesCreditMemo.SalesOrderStats.Enabled(), ControlShouldBeEnabledErr);
         Assert.IsTrue(SalesCreditMemo.ApplyEntries.Enabled(), ControlShouldBeEnabledErr);
         Assert.IsTrue(SalesCreditMemo.TestReport.Enabled(), ControlShouldBeEnabledErr);
         Assert.IsTrue(SalesCreditMemo.GetStdCustSalesCodes.Enabled(), ControlShouldBeEnabledErr);
