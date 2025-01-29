@@ -264,6 +264,10 @@ page 160 "Sales Statistics"
 
     trigger OnOpenPage()
     begin
+        if not Rec.SkipStatisticsPreparation() then
+            Rec.PrepareOpeningDocumentStatistics();
+        Rec.ResetSkipStatisticsPreparationFlag();
+
         SalesSetup.Get();
         AllowInvDisc :=
           not (SalesSetup."Calc. Inv. Discount" and CustInvDiscRecExists(Rec."Invoice Disc. Code"));
@@ -273,6 +277,13 @@ page 160 "Sales Statistics"
         OnOpenPageOnBeforeSetEditable(AllowInvDisc, AllowVATDifference, Rec, SalesSetup);
         CurrPage.Editable := AllowVATDifference or AllowInvDisc;
         SetVATSpecification();
+    end;
+
+    trigger OnClosePage()
+    var
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+    begin
+        SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
