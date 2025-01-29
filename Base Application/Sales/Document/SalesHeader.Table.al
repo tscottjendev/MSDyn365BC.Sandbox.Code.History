@@ -3377,6 +3377,7 @@ table 36 "Sales Header"
         CompressPrepaymentCannotBeUsedWithApplyInvRoundAmtToVATErr: Label 'You cannot use %1 for %2 %3 when %4 is enabled in %5.', Comment = '%1 - Compress Prepayment field caption, %2 - Document Type field value, %3 - No. field value, %4 - Apply Inv. Round. Amt. To VAT field caption, %5 - Sales & Receivables Setup table caption.';
         CalledFromWhseDoc: Boolean;
         DocumentNotOpenErr: Label 'The document''s status must be Open. To change the status, use the Reopen action.';
+        SkipStatsPrep: Boolean;
 
     protected var
         Customer: Record Customer;
@@ -6597,9 +6598,21 @@ table 36 "Sales Header"
 
         OnGetStatisticsPageID(StatisticsPageId, Rec);
 
+        SkipStatsPrep := true;
         PAGE.RunModal(StatisticsPageId, Rec);
+        ResetSkipStatisticsPreparationFlag();
 
         SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
+    end;
+
+    procedure SkipStatisticsPreparation(): Boolean
+    begin
+        exit(SkipStatsPrep)
+    end;
+
+    procedure ResetSkipStatisticsPreparationFlag()
+    begin
+        SkipStatsPrep := false;
     end;
 
     local procedure OpenDocumentStatisticsInternal()
@@ -6617,14 +6630,7 @@ table 36 "Sales Header"
 
     local procedure IsOrderDocument(): Boolean
     begin
-        case "Document Type" of
-            "Document Type"::Order,
-            "Document Type"::"Blanket Order",
-            "Document Type"::"Return Order":
-                exit(true);
-        end;
-
-        exit(false);
+        exit("Document Type" in ["Document Type"::Order, "Document Type"::"Blanket Order", "Document Type"::"Return Order"])
     end;
 
     local procedure GetStatisticsPageID(): Integer
