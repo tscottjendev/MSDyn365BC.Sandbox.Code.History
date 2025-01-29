@@ -63,7 +63,10 @@ codeunit 136135 "Service Order Management"
         Comment: Text[80];
         CopyComponentsFrom: Option "None","Item BOM","Old Service Item","Old Service Item w/o Serial No.";
         Replacement: Option "Temporary",Permanent;
+        CombineShipmentMsg: Label 'The shipments are now combined';
+        CombineShipmentErr: Label 'Incorrect Service Invoice Line Type';
         PostedServiceShipmentCaption: Label 'Posted Service Shipment';
+        NothingToCombineShipmentMsg: Label 'There is nothing to combine.';
         NoOfLinesError: Label 'Total No. of lines must be %1 in %2.';
         ExtendedTextError: Label 'Extended Text must be %1.';
         ExistanceError: Label '%1 for %2 %3: %4 must not exist.';
@@ -1076,6 +1079,177 @@ codeunit 136135 "Service Order Management"
         UpdateServiceOrderStartingFee(ServiceOrderStartingFee);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandlerCombineShipment')]
+    [Scope('OnPrem')]
+    procedure CombineSingleServiceShipmentWithCustomerCombineShipment()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        Quantities: List of [Decimal];
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Combine Shipments] [Description Service Line]
+        // [SCENARIO 363166] Creating single Service Shipments with Customer which has set Combine Shipments to "true"
+        Initialize();
+
+        // [GIVEN] Create new Customer with Combine Shipments = true
+        CreateCustomerWithCombineShipments(Customer);
+
+        // [GIVEN] Create new Item
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Create single Service Order
+        CreateServiceOrderForCustomerAndDoShipment(ServiceHeader, Customer, Quantities, ItemNo);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // [WHEN] Combine Shipment with "Post Invoices" and "Copy Text Lines" = true
+        LibraryVariableStorage.Enqueue(CombineShipmentMsg);  // Enqueue for MessageHandler.
+        RunCombineShipments(Customer."No.", false, true, false, true);
+
+        // [THEN] Verify Posted Service Invoice contains single lines with correct data
+        VerifyPostedServiceInvoice(Quantities, ItemNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerCombineShipment')]
+    [Scope('OnPrem')]
+    procedure CombineMultipleServiceShipmentsWithCustomerCombineShipment()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        Quantities: List of [Decimal];
+        ItemNo: Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Combine Shipments] [Description Service Line]
+        // [SCENARIO 363166] Creating multiple Service Shipments with Customer which has set Combine Shipments to "true"
+        Initialize();
+
+        // [GIVEN] Create new Customer with Combine Shipments = true
+        CreateCustomerWithCombineShipments(Customer);
+
+        // [GIVEN] Create new Item
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Create multiple Service Orders
+        for i := 1 to LibraryRandom.RandIntInRange(3, 8) do begin
+            CreateServiceOrderForCustomerAndDoShipment(ServiceHeader, Customer, Quantities, ItemNo);
+            LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+        end;
+
+        // [WHEN] Combine Shipment with "Post Invoices" and "Copy Text Lines" = true
+        LibraryVariableStorage.Enqueue(CombineShipmentMsg);  // Enqueue for MessageHandler.
+        RunCombineShipments(Customer."No.", false, true, false, true);
+
+        // [THEN] Verify Posted Service Invoice contains three to eight lines with correct data
+        VerifyPostedServiceInvoice(Quantities, ItemNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerCombineShipment')]
+    [Scope('OnPrem')]
+    procedure CombineSingleServiceShipment()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        Quantities: List of [Decimal];
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Combine Shipments] [Description Service Line]
+        // [SCENARIO 363166] Creating single Service Shipments with Customer which has set Combine Shipments to "false" and on Service Order Combine Shipments to "true"
+        Initialize();
+
+        // [GIVEN] Create new Customer with Combine Shipments = false
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create new Item
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Create single Service Order
+        CreateServiceOrderForCustomerAndDoShipment(ServiceHeader, Customer, Quantities, ItemNo);
+        ServiceHeader.Validate("Combine Shipments", true);
+        ServiceHeader.Modify(true);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // [WHEN] Combine Shipment with "Post Invoices" and "Copy Text Lines" = true
+        LibraryVariableStorage.Enqueue(CombineShipmentMsg);  // Enqueue for MessageHandler.
+        RunCombineShipments(Customer."No.", false, true, false, true);
+
+        // [THEN] Verify Posted Service Invoice contains single lines with correct data
+        VerifyPostedServiceInvoice(Quantities, ItemNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerCombineShipment')]
+    [Scope('OnPrem')]
+    procedure CombineMultipleServiceShipments()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        Quantities: List of [Decimal];
+        ItemNo: Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Combine Shipments] [Description Service Line]
+        // [SCENARIO 363166] Creating multiple Service Shipments with Customer which has set Combine Shipments to "false" and on Service Order Combine Shipments to "true"
+        Initialize();
+
+        // [GIVEN] Create new Customer with Combine Shipments = false
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create new Item
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Create multiple Service Orders
+        for i := 1 to LibraryRandom.RandIntInRange(3, 8) do begin
+            CreateServiceOrderForCustomerAndDoShipment(ServiceHeader, Customer, Quantities, ItemNo);
+            ServiceHeader.Validate("Combine Shipments", true);
+            ServiceHeader.Modify(true);
+            LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+        end;
+
+        // [WHEN] Combine Shipment with "Post Invoices" and "Copy Text Lines" = true
+        LibraryVariableStorage.Enqueue(CombineShipmentMsg);  // Enqueue for MessageHandler.
+        RunCombineShipments(Customer."No.", false, true, false, true);
+
+        // [THEN] Verify Posted Service Invoice contains three to eight lines with correct data
+        VerifyPostedServiceInvoice(Quantities, ItemNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerCombineShipment')]
+    [Scope('OnPrem')]
+    procedure CombineMultipleServiceShipmentWithoutSetCombineShipment()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        Quantities: List of [Decimal];
+        ItemNo: Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Combine Shipments] [Description Service Line]
+        // [SCENARIO 363166] Creating single Service Shipment with Customer which has set Combine Shipments to "false" and on Service Order Combine Shipments to "false"
+        Initialize();
+
+        // [GIVEN] Create new Customer with Combine Shipments = false
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create new Item
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Create multiple Service Orders
+        for i := 1 to LibraryRandom.RandIntInRange(2, 4) do begin
+            CreateServiceOrderForCustomerAndDoShipment(ServiceHeader, Customer, Quantities, ItemNo);
+            LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+        end;
+
+        // [WHEN] Combine Shipment with "Post Invoices" and "Copy Text Lines" = true
+        // [THEN] Verify Combine Shipments finished with message "There is nothing to combine."
+        LibraryVariableStorage.Enqueue(NothingToCombineShipmentMsg);  // Enqueue for MessageHandler.
+        RunCombineShipments(Customer."No.", false, true, false, true);
+    end;
+
     local procedure CreateBOMComponent(ItemNo: Code[20]): Integer
     var
         BOMComponent: Record "BOM Component";
@@ -1550,6 +1724,66 @@ codeunit 136135 "Service Order Management"
         exit(ShipmentMethod.Code);
     end;
 
+    local procedure RunCombineShipments(CustomerNoFilter: Text; CalcInvDisc: Boolean; PostInvoices: Boolean; OnlyStdPmtTerms: Boolean; CopyTextLines: Boolean)
+    var
+        ServiceShipmentHeader: Record "Service Shipment Header";
+        ServiceHeader: Record "Service Header";
+    begin
+        ServiceHeader.SetFilter("Customer No.", CustomerNoFilter);
+        ServiceShipmentHeader.SetFilter("Customer No.", CustomerNoFilter);
+        LibraryService.CombineShipments(
+          ServiceHeader, ServiceShipmentHeader, WorkDate(), WorkDate(), CalcInvDisc, PostInvoices, OnlyStdPmtTerms, CopyTextLines);
+    end;
+
+    local procedure UpdateServiceLineWithRandomQtyAndPrice(var ServiceLine: Record "Service Line"; ServiceItemLineNo: Integer)
+    begin
+        UpdateServiceLine(
+          ServiceLine, ServiceItemLineNo,
+          LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandDecInRange(1000, 2000, 2));
+    end;
+
+    local procedure UpdateServiceLine(var ServiceLine: Record "Service Line"; ServiceItemLineNo: Integer; Quantity: Decimal; UnitPrice: Decimal)
+    begin
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLineNo);
+        ServiceLine.Validate(Quantity, Quantity);
+        ServiceLine.Validate("Unit Price", UnitPrice);
+        ServiceLine.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithCombineShipments(var Customer: Record Customer)
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Combine Service Shipments", true);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateServiceOrderForCustomerAndDoShipment(var ServiceHeader: Record "Service Header"; var Customer: Record Customer; var Quantities: List of [Decimal]; var ItemNo: Code[20])
+    var
+
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+    begin
+        Clear(ServiceHeader);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
+        UpdateServiceLineWithRandomQtyAndPrice(ServiceLine, ServiceItemLine."Line No.");
+        Quantities.Add(ServiceLine.Quantity);
+    end;
+
+    local procedure VerifyPostedServiceInvoice(var Quantities: List of [Decimal]; var ItemNo: Code[20])
+    var
+        ServiceInvoiceLine: Record "Service Invoice Line";
+        i: Integer;
+    begin
+        ServiceInvoiceLine.SetRange("No.", ItemNo);
+        for i := 1 to Quantities.Count() do begin
+            ServiceInvoiceLine.SetRange(Quantity, Quantities.Get(i));
+            ServiceInvoiceLine.FindFirst();
+            Assert.AreEqual(ServiceInvoiceLine.Type::Item, ServiceInvoiceLine.Type, CombineShipmentErr);
+        end;
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure CommentSheetPageHandler(var ServiceCommentSheet: TestPage "Service Comment Sheet")
@@ -1604,6 +1838,18 @@ codeunit 136135 "Service Order Management"
     procedure MessageVerificationHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandlerCombineShipment(Message: Text[1024])
+    var
+        DequeueVariable: Variant;
+        LocalMessage: Text[1024];
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        LocalMessage := DequeueVariable;
+        Assert.IsTrue(StrPos(Message, LocalMessage) > 0, Message);
     end;
 
     [ModalPageHandler]

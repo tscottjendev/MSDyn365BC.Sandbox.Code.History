@@ -1038,6 +1038,10 @@ table 5900 "Service Header"
             Caption = 'VAT Registration No.';
             OptimizeForTextSearch = true;
         }
+        field(71; "Combine Shipments"; Boolean)
+        {
+            Caption = 'Combine Shipments';
+        }
         field(73; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
@@ -4966,6 +4970,7 @@ table 5900 "Service Header"
         "Format Region" := Cust."Format Region";
         SetSalespersonCode(Cust."Salesperson Code", "Salesperson Code");
         Reserve := Cust.Reserve;
+        "Combine Shipments" := Cust."Combine Service Shipments";
 
         OnAfterCopyBillToCustomerFields(Rec, Cust, SkipBillToContact);
     end;
