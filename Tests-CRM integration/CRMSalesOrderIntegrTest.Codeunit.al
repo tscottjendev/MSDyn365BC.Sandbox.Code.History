@@ -1180,6 +1180,40 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     end;
 
     [Test]
+    procedure SynchHTMLCRMSalesOrderNoteToSalesOrderNote()
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+        CRMAnnotation: Record "CRM Annotation";
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        SalesHeader: Record "Sales Header";
+        AnnotationText: Text;
+        RandomText: Text;
+        RandomText2: Text;
+        LF: Char;
+    begin
+        // CRM Sales Order note is used as Business Central Sales Order note
+        Initialize(false);
+
+        // [GIVEN] CRM Salesorder in local currency with item
+        CreateCRMSalesorderInLCY(CRMSalesorder);
+        LibraryCRMIntegration.CreateCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail);
+
+        // [GIVEN] A CRM note bound to the sales order with HTML content
+        RandomText := LibraryRandom.RandText(25);
+        RandomText2 := LibraryRandom.RandText(25);
+        LF := 10;
+        AnnotationText := '<div class="ck-content" data-wrapper="true" dir="ltr" style="--ck-image-style-spacing: 1.5em; --ck-inline-image-style-spacing: calc(var(--ck-image-style-spacing) / 2); --ck-color-selector-caption-background: hsl(0, 0%, 97%); --ck-color-selector-caption-text: hsl(0, 0%, 20%); font-family: Segoe UI; font-size: 11pt;"><p style="margin: 0;">'
+        + RandomText + '</p><p style="margin: 0;">' + RandomText2 + '</p></div>';
+        MockCRMSalesOrderNote(CRMAnnotation, CRMSalesorder, AnnotationText);
+
+        // [WHEN] NAV Order is being created from CRM Order
+        CreateSalesOrderInNAV(CRMSalesorder, SalesHeader);
+
+        // [THEN] Created NAV Sales Order has a note with the mocked note text without HTML tags
+        VerifySalesOrderNote(SalesHeader, RandomText + Format(LF) + RandomText2);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure SynchModifiedCRMSalesOrderNoteToSalesOrderNote()
     var
