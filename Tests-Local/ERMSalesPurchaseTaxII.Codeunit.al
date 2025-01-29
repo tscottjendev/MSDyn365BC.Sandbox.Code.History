@@ -210,6 +210,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
           'VATAmountLine__VAT_Amount_', Round(SalesLine."Line Amount" * SalesLine."VAT %" / 100));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatsTestPageHandler')]
     [Scope('OnPrem')]
@@ -235,6 +237,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // SalesStatsTestPageHandler.
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatsTestPageHandler')]
     [Scope('OnPrem')]
@@ -255,6 +258,56 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
         // [WHEN] Open Sales Quote Statistics
         SalesQuote.Statistics.Invoke();
+
+        // [THEN] Tax Amount on Sales Quote Statistics is correct
+        // SalesStatsTestPageHandler.
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesStatsTestNonModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure StatisticsSalesQuotesTaxAmount_RoundingByJurisdictionNonModal()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+        TaxAmount: Decimal;
+    begin
+        // [FEATURE] [Rounding] [Sales] [Quote]
+        // [SCENARIO] Tax Amount rounding on Sales Quote Statistics with two jurisdiction codes and TaxArea."Country/Region" = CA
+        Initialize();
+
+        // [GIVEN] Sales Quote with Item, Currency, two jurisdiction codes and TaxArea."Country/Region" = CA
+        TaxAmount := CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Quote, DummyTaxCountry::CA);
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        OpenSalesQuotePage(SalesQuote, SalesHeader);
+
+        // [WHEN] Open Sales Quote Statistics
+        SalesQuote.SalesStats.Invoke();
+
+        // [THEN] Tax Amount on Sales Quote Statistics is correct
+        // SalesStatsTestPageHandler.
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatsTestNonModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure StatisticsSalesQuotesTaxAmount_RoundingNonModal()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+        TaxAmount: Decimal;
+    begin
+        // [FEATURE] [Rounding] [Sales] [Quote]
+        // [SCENARIO] Tax Amount rounding on Sales Quote Statistics with two jurisdiction codes and TaxArea."Country/Region" = US
+        Initialize();
+
+        // [GIVEN] Sales Quote with Item, Currency, two jurisdiction codes and TaxArea."Country/Region" = US
+        TaxAmount := CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Quote, DummyTaxCountry::US);
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        OpenSalesQuotePage(SalesQuote, SalesHeader);
+
+        // [WHEN] Open Sales Quote Statistics
+        SalesQuote.SalesStats.Invoke();
 
         // [THEN] Tax Amount on Sales Quote Statistics is correct
         // SalesStatsTestPageHandler.
@@ -4850,8 +4903,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
           LibraryRandom.RandInt(10));
         CreateItemCharge(ItemCharge, VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader,
-          PurchaseLine.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
+            PurchaseLine, PurchaseHeader,
+            PurchaseLine.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
         PurchaseLine.Modify(true);
         PurchaseLine.ShowItemChargeAssgnt();
@@ -5278,7 +5331,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', TaxAreaCode);
 
         LibraryPurchase.CreatePurchaseLine(
-  PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
         PurchaseLine.Modify(true);
         // Excise tax amount = "Tax Detail"."Tax Below Maximum"
@@ -5306,6 +5359,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Credit Memo" then
             PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
+
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
@@ -6511,9 +6565,21 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesOrderStats.TaxAmount.AssertEquals(TaxAmount);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesStatsTestPageHandler(var SalesStats: TestPage "Sales Stats.")
+    var
+        TaxAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TaxAmount);
+        SalesStats.TaxAmount.AssertEquals(TaxAmount);
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatsTestNonModalPageHandler(var SalesStats: TestPage "Sales Stats.")
     var
         TaxAmount: Variant;
     begin

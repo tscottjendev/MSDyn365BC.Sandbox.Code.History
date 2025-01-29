@@ -131,8 +131,10 @@
             Error(ErrorEventSuscriptionErr, ErrorEventsCounter, SubscribersWithError);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
-    [HandlerFunctions('SalesStatsPageHandler')]
+    [HandlerFunctions('SalesStatsModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestSalesQuoteOnBeforeCalculateSalesTaxStatistics()
     var
@@ -159,9 +161,9 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
         VerifyDataTypeBuffer(SalesStatsTxt);
     end;
-
+#endif
     [Test]
-    [HandlerFunctions('SalesStatsPageHandler')]
+    [HandlerFunctions('SalesStatsModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestSalesQuotesOnBeforeCalculateSalesTaxStatistics()
     var
@@ -320,6 +322,8 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -347,7 +351,7 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
         VerifyDataTypeBuffer(SalesStatsTxt);
     end;
-
+#endif
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -427,6 +431,8 @@
         VerifyDataTypeBuffer(OnBeforePostUpdateOrderLineTxt);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -454,7 +460,7 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
         VerifyDataTypeBuffer(SalesStatsTxt);
     end;
-
+#endif
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -1330,12 +1336,13 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+#if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Sales Quote", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesQuote(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
-
+#endif
     [EventSubscriber(ObjectType::Page, Page::"Sales Quotes", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesQuotes(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
@@ -1378,12 +1385,13 @@
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+#if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Sales Invoice", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesInvoice(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
-
+#endif
     [EventSubscriber(ObjectType::Page, Page::"Sales Invoice List", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesInvoices(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
@@ -1396,12 +1404,13 @@
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+#if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Sales Credit Memo", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesCreditMemo(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
-
+#endif
     [EventSubscriber(ObjectType::Page, Page::"Sales Return Order", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesReturnOrder(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
@@ -1462,57 +1471,43 @@
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
-#endif
 
-#if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Service Quotes", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceQuotes(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
-#endif
 
-#if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Service Order", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceOrder(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
-#endif
 
-#if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Service Orders", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceOrders(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
-#endif
 
-#if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Service Invoice", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceInvoice(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
-#endif
 
-#if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Service Invoices", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceInvoices(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
-#endif
 
-#if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Service Credit Memo", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceCreditMemo(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
-#endif
 
-#if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Service Credit Memos", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceCreditMemos(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
@@ -1817,7 +1812,7 @@
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure SalesStatsPageHandler(var SalesStatistics: TestPage "Sales Stats.")
+    procedure SalesStatsModalPageHandler(var SalesStatistics: TestPage "Sales Stats.")
     begin
         SalesStatistics.OK().Invoke();
     end;

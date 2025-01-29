@@ -378,6 +378,8 @@ codeunit 134386 "ERM Sales Documents II"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+#if not CLEAN26
+    [Obsolete('The sales statisticsss action opens the page non-modally.', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsHandler')]
     [Scope('OnPrem')]
@@ -405,6 +407,35 @@ codeunit 134386 "ERM Sales Documents II"
         SalesInvoice.Statistics.Invoke();
 
         // Verify: Verification is done in SalesStatisticsHandler method.
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure NotEditableFieldsOnSalesInvoiceStatisticsPage()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // Verify that some fields on Sales Statistics page are uneditable after calculating Invoice Discount on Sales Invoice.
+
+        // Setup: Create Sales Invoice taking random values for Amount and Unit Price and calculate Invoice Discount.
+        Initialize();
+        CreateSaleHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
+        SalesHeader.Validate("Prices Including VAT", false);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+        SalesHeader.CalcInvDiscForHeader();
+
+        // Exercise: Open Sales Statistics page from Sales Invoice page.
+        SalesInvoice.OpenEdit();
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesInvoice.SalesStatistics.Invoke();
+
+        // Verify: Verification is done in SalesStatisticsPageHandler method.
     end;
 
     [Test]
@@ -6220,9 +6251,21 @@ codeunit 134386 "ERM Sales Documents II"
         StandardVendorPurchaseCode.Insert(true);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
+    begin
+        // Verify that fields 'VAT Amount', 'Amount Excl. VAT' and 'Total Incl. VAT' are uneditable on Sales Statistics page.
+        Assert.IsFalse(SalesStatistics.VATAmount.Editable(), StrSubstNo(EditableErr, SalesStatistics.VATAmount.Caption));
+        Assert.IsFalse(SalesStatistics.Amount.Editable(), StrSubstNo(EditableErr, SalesStatistics.Amount.Caption));
+        Assert.IsFalse(SalesStatistics.TotalAmount2.Editable(), StrSubstNo(EditableErr, SalesStatistics.TotalAmount2.Caption));
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatisticsPageHandler(var SalesStatistics: TestPage "Sales Statistics")
     begin
         // Verify that fields 'VAT Amount', 'Amount Excl. VAT' and 'Total Incl. VAT' are uneditable on Sales Statistics page.
         Assert.IsFalse(SalesStatistics.VATAmount.Editable(), StrSubstNo(EditableErr, SalesStatistics.VATAmount.Caption));
