@@ -13,7 +13,7 @@ codeunit 9015 "Application System Constants"
     procedure OriginalApplicationVersion() ApplicationVersion: Text[248]
     begin
         // Should be 'Build Version' with ! on both sides.
-        ApplicationVersion := 'W1 24.9';
+        ApplicationVersion := 'W1 24.10';
     end;
 
     procedure ApplicationVersion() ApplicationVersion: Text[248]
