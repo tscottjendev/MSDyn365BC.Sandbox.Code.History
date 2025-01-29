@@ -2665,6 +2665,9 @@ table 5900 "Service Header"
         key(Key9; "Incoming Document Entry No.")
         {
         }
+        key(Key10; "Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name")
+        {
+        }
     }
 
     fieldgroups
