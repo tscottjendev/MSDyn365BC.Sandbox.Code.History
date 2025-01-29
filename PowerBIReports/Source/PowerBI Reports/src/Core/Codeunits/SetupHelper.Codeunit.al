@@ -106,7 +106,6 @@ codeunit 36961 "Setup Helper"
         PowerBiServiceMgt.InitializeAddinToken(PowerBIManagement);
         PowerBIManagement.SetLocale(Language.GetCurrentCultureName());
         PowerBIManagement.SetFiltersVisible(true);
-        PowerBIManagement.AddBottomPadding(true);
         PowerBIManagement.SetPageSelectionVisible(ReportPageTok = '');
 
         PowerBIManagement.EmbedPowerBIReport(
