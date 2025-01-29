@@ -82,7 +82,8 @@ codeunit 23 "Item Jnl.-Post Batch"
         Text002: Label 'Checking lines        #2######\';
         Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
         Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
-        Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
+        Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
+        PostToGlLbl: Label 'Posting to G/L        #7######';
         Text008: Label 'There are new postings made in the period you want to revalue item no. %1.\';
 #pragma warning restore AA0470
         Text009: Label 'You must calculate the inventory value again.';
@@ -100,6 +101,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         OldEntryType: Enum "Item Ledger Entry Type";
         EntryNo: Integer;
         RaiseError: Boolean;
+        i: Integer;
     begin
         OnBeforeCode(ItemJnlLine);
 
@@ -170,6 +172,9 @@ codeunit 23 "Item Jnl.-Post Batch"
 
         ValueEntry.ReadIsolation(IsolationLevel::UpdLock);
         foreach EntryNo in PostponedValueEntries do begin
+            i += 1;
+            if GuiAllowed() and WindowIsOpen then
+                Window.Update(7, i);
             ValueEntry.Get(EntryNo);
             ItemJnlPostLine.PostInventoryToGL(ValueEntry);
             ValueEntry.Modify();
@@ -232,12 +237,14 @@ codeunit 23 "Item Jnl.-Post Batch"
               Text001 +
               Text002 +
               Text003 +
-              Text004)
+              Text004 +
+              PostToGlLbl)
         else
             Window.Open(
               Text001 +
               Text002 +
-              Text005);
+              Text005 +
+              PostToGlLbl);
 
         Window.Update(1, ItemJnlLine."Journal Batch Name");
         WindowIsOpen := true;
@@ -978,7 +985,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             exit;
         if InvtSetup.UseLegacyPosting() then
             exit;
-	    
+
         PostponedValueEntries.Add(ValueEntry."Entry No.");
         IsHandled := true;
     end;
