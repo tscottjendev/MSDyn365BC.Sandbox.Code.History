@@ -33,4 +33,8 @@ enum 331 "Column Layout Type"
     {
         Caption = 'Entire Fiscal Year';
     }
+    value(7; "Month to Date")
+    {
+        Caption = 'Month to Date';
+    }
 }

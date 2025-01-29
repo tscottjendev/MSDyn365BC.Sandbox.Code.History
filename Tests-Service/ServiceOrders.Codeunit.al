@@ -1258,7 +1258,7 @@ codeunit 136101 "Service Orders"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler,ContractTemplateHandler')]
+    [HandlerFunctions('ConfirmMessageHandler,ContractTemplateHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure ShipOrderServiceContract()
     var
@@ -1289,7 +1289,7 @@ codeunit 136101 "Service Orders"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler,ContractTemplateHandler')]
+    [HandlerFunctions('ConfirmMessageHandler,ContractTemplateHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure ConsumeServiceOrderContract()
     var
@@ -5397,7 +5397,6 @@ codeunit 136101 "Service Orders"
 
     [Test]
     [HandlerFunctions('ConfirmMessageHandler')]
-    [Scope('OnPrem')]
     procedure VATCountryRegionCodeHasValueWhenBilltoSelltoVATCalcIsSelltoBuyfromNo()
     var
         CountryRegion: array[2] of Record "Country/Region";
@@ -5416,10 +5415,10 @@ codeunit 136101 "Service Orders"
         CreateCustomerWithCountryRegion(CountryRegion[1], Customer[1]);
         CreateCustomerWithCountryRegion(CountryRegion[2], Customer[2]);
 
-        // [WHEN] Create a Service Order for the first Customer.
+        // [GIVEN] Create a Service Order for the first Customer.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer[1]."No.");
 
-        // [THEN] "VAT Country/Region Code" on a Service Header is equals to first Customer Country/Region code.
+        // [GIVEN] "VAT Country/Region Code" on a Service Header is equals to first Customer Country/Region code.
         Assert.AreEqual(Customer[1]."Country/Region Code", ServiceHeader."VAT Country/Region Code", VATCountryRegionLbl);
 
         // [WHEN] Change to second Customer No.
