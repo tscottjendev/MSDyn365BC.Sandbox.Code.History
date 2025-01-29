@@ -58,10 +58,14 @@ codeunit 1351 "Telemetry Subscribers"
         FinancialReportEventTxt: Label 'Financial Report %1: %2', Comment = '%1 = event type, %2 = report', Locked = true;
         FinancialReportRowEventTxt: Label 'Financial Report Row Definition %1: %2', Comment = '%1 = event type, %2 = row definition', Locked = true;
         FinancialReportColumnEventTxt: Label 'Financial Report Column Definition %1: %2', Comment = '%1 = event type, %2 = column definition', Locked = true;
+        FinancialReportOperationLbl: Label '%1 by UserSecurityId %2.', Comment = '%1 event description, %2 = user security id', Locked = true;
         CreatedTok: Label 'created', Locked = true;
         ModifiedTok: Label 'modified', Locked = true;
         RenameTok: Label 'renamed', Locked = true;
         DeletedTok: Label 'deleted', Locked = true;
+        AuditNewTok: Label 'New', Locked = true;
+        AuditEditTok: Label 'Edit', Locked = true;
+        AuditDeleteTok: Label 'Delete', Locked = true;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Conf./Personalization Mgt.", 'OnProfileChanged', '', true, true)]
     local procedure SendTraceOnProfileChanged(PrevAllProfile: Record "All Profile"; CurrentAllProfile: Record "All Profile")
@@ -567,31 +571,32 @@ codeunit 1351 "Telemetry Subscribers"
     [EventSubscriber(ObjectType::Table, Database::"Financial Report", OnAfterInsertEvent, '', true, true)]
     local procedure LogFinancialReportLifecycleInsert(var Rec: Record "Financial Report")
     begin
-        LogFinancialReportTelemetry(Rec, '0000O77', StrSubstNo(FinancialReportEventTxt, CreatedTok, Rec.Name));
+        LogFinancialReportTelemetry(Rec, '0000O77', CreatedTok, AuditNewTok);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Financial Report", OnAfterModifyEvent, '', true, true)]
     local procedure LogFinancialReportLifecycleModify(var Rec: Record "Financial Report")
     begin
-        LogFinancialReportTelemetry(Rec, '0000O78', StrSubstNo(FinancialReportEventTxt, ModifiedTok, Rec.Name));
+        LogFinancialReportTelemetry(Rec, '0000O78', ModifiedTok, AuditEditTok);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Financial Report", OnAfterRenameEvent, '', true, true)]
     local procedure LogFinancialReportLifecycleRename(var Rec: Record "Financial Report")
     begin
-        LogFinancialReportTelemetry(Rec, '0000O79', StrSubstNo(FinancialReportEventTxt, RenameTok, Rec.Name));
+        LogFinancialReportTelemetry(Rec, '0000O79', RenameTok, AuditEditTok);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Financial Report", OnAfterDeleteEvent, '', true, true)]
     local procedure LogFinancialReportLifecycleDelete(var Rec: Record "Financial Report")
     begin
-        LogFinancialReportTelemetry(Rec, '0000O80', StrSubstNo(FinancialReportEventTxt, DeletedTok, Rec.Name));
+        LogFinancialReportTelemetry(Rec, '0000O80', DeletedTok, AuditDeleteTok);
     end;
 
-    local procedure LogFinancialReportTelemetry(FinancialReport: Record "Financial Report"; EventId: Text; EventName: Text)
+    local procedure LogFinancialReportTelemetry(FinancialReport: Record "Financial Report"; EventId: Text; EventType: Text; AuditAction: Text)
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         TelemetryDimensions: Dictionary of [Text, Text];
+        AuditDimensions: Dictionary of [Text, Text];
     begin
         if FinancialReport.IsTemporary() then
             exit;
@@ -600,37 +605,45 @@ codeunit 1351 "Telemetry Subscribers"
             exit;
 
         TelemetryDimensions.Add('ReportDefinitionCode', FinancialReport.Name);
-        FeatureTelemetry.LogUsage(EventId, FinancialReportFeatureTok, EventName, TelemetryDimensions);
+        FeatureTelemetry.LogUsage(EventId, FinancialReportFeatureTok, StrSubstNo(FinancialReportEventTxt, EventType, FinancialReport.Name), TelemetryDimensions);
+
+        AuditDimensions.Add('ReportDefinitionCode', FinancialReport.Name);
+        AuditDimensions.Add('ReportDefinitionDesc', FinancialReport.Description);
+        AuditDimensions.Add('Action', AuditAction);
+        Session.LogAuditMessage(
+            StrSubstNo(FinancialReportOperationLbl, StrSubstNo(FinancialReportEventTxt, AuditAction, FinancialReport.Name), UserSecurityId()),
+            SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0, AuditDimensions);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Name", OnAfterInsertEvent, '', true, true)]
     local procedure LogAccScheduleNameLifecycleInsert(var Rec: Record "Acc. Schedule Name")
     begin
-        LogAccScheduleNameTelemetry(Rec, '0000O81', StrSubstNo(FinancialReportRowEventTxt, CreatedTok, Rec.Name));
+        LogAccScheduleNameTelemetry(Rec, '0000O81', CreatedTok, AuditNewTok);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Name", OnAfterModifyEvent, '', true, true)]
     local procedure LogAccScheduleNameLifecycleModify(var Rec: Record "Acc. Schedule Name")
     begin
-        LogAccScheduleNameTelemetry(Rec, '0000O82', StrSubstNo(FinancialReportRowEventTxt, ModifiedTok, Rec.Name));
+        LogAccScheduleNameTelemetry(Rec, '0000O82', ModifiedTok, AuditEditTok);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Name", OnAfterRenameEvent, '', true, true)]
     local procedure LogAccScheduleNameLifecycleRename(var Rec: Record "Acc. Schedule Name")
     begin
-        LogAccScheduleNameTelemetry(Rec, '0000O83', StrSubstNo(FinancialReportRowEventTxt, RenameTok, Rec.Name));
+        LogAccScheduleNameTelemetry(Rec, '0000O83', RenameTok, AuditEditTok);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Name", OnAfterDeleteEvent, '', true, true)]
     local procedure LogAccScheduleNameLifecycleDelete(var Rec: Record "Acc. Schedule Name")
     begin
-        LogAccScheduleNameTelemetry(Rec, '0000O84', StrSubstNo(FinancialReportRowEventTxt, DeletedTok, Rec.Name));
+        LogAccScheduleNameTelemetry(Rec, '0000O84', DeletedTok, AuditDeleteTok);
     end;
 
-    local procedure LogAccScheduleNameTelemetry(AccScheduleName: Record "Acc. Schedule Name"; EventId: Text; EventName: Text)
+    local procedure LogAccScheduleNameTelemetry(AccScheduleName: Record "Acc. Schedule Name"; EventId: Text; EventType: Text; AuditAction: Text)
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         TelemetryDimensions: Dictionary of [Text, Text];
+        AuditDimensions: Dictionary of [Text, Text];
     begin
         if AccScheduleName.IsTemporary() then
             exit;
@@ -639,37 +652,45 @@ codeunit 1351 "Telemetry Subscribers"
             exit;
 
         TelemetryDimensions.Add('RowDefinitionCode', AccScheduleName.Name);
-        FeatureTelemetry.LogUsage(EventId, FinancialReportFeatureTok, EventName, TelemetryDimensions);
+        FeatureTelemetry.LogUsage(EventId, FinancialReportFeatureTok, StrSubstNo(FinancialReportRowEventTxt, EventType, AccScheduleName.Name), TelemetryDimensions);
+
+        AuditDimensions.Add('RowDefinitionCode', AccScheduleName.Name);
+        AuditDimensions.Add('RowDefinitionDesc', AccScheduleName.Description);
+        AuditDimensions.Add('Action', AuditAction);
+        Session.LogAuditMessage(
+            StrSubstNo(FinancialReportOperationLbl, StrSubstNo(FinancialReportRowEventTxt, AuditAction, AccScheduleName.Name), UserSecurityId()),
+            SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0, AuditDimensions);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Column Layout Name", OnAfterInsertEvent, '', true, true)]
     local procedure LogColumnLayoutNameLifecycleInsert(var Rec: Record "Column Layout Name")
     begin
-        LogColumnLayoutNameTelemetry(Rec, '0000O85', StrSubstNo(FinancialReportColumnEventTxt, CreatedTok, Rec.Name));
+        LogColumnLayoutNameTelemetry(Rec, '0000O85', CreatedTok, AuditNewTok);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Column Layout Name", OnAfterModifyEvent, '', true, true)]
     local procedure LogColumnLayoutNameLifecycleModify(var Rec: Record "Column Layout Name")
     begin
-        LogColumnLayoutNameTelemetry(Rec, '0000O86', StrSubstNo(FinancialReportColumnEventTxt, ModifiedTok, Rec.Name));
+        LogColumnLayoutNameTelemetry(Rec, '0000O86', ModifiedTok, AuditEditTok);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Column Layout Name", OnAfterRenameEvent, '', true, true)]
     local procedure LogColumnLayoutNameLifecycleRename(var Rec: Record "Column Layout Name")
     begin
-        LogColumnLayoutNameTelemetry(Rec, '0000O87', StrSubstNo(FinancialReportColumnEventTxt, RenameTok, Rec.Name));
+        LogColumnLayoutNameTelemetry(Rec, '0000O87', RenameTok, AuditEditTok);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Column Layout Name", OnAfterDeleteEvent, '', true, true)]
     local procedure LogColumnLayoutNameLifecycleDelete(var Rec: Record "Column Layout Name")
     begin
-        LogColumnLayoutNameTelemetry(Rec, '0000O88', StrSubstNo(FinancialReportColumnEventTxt, DeletedTok, Rec.Name));
+        LogColumnLayoutNameTelemetry(Rec, '0000O88', DeletedTok, AuditDeleteTok);
     end;
 
-    local procedure LogColumnLayoutNameTelemetry(ColumnLayoutName: Record "Column Layout Name"; EventId: Text; EventName: Text)
+    local procedure LogColumnLayoutNameTelemetry(ColumnLayoutName: Record "Column Layout Name"; EventId: Text; EventType: Text; AuditAction: Text)
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         TelemetryDimensions: Dictionary of [Text, Text];
+        AuditDimensions: Dictionary of [Text, Text];
     begin
         if ColumnLayoutName.IsTemporary() then
             exit;
@@ -678,6 +699,13 @@ codeunit 1351 "Telemetry Subscribers"
             exit;
 
         TelemetryDimensions.Add('ColumnDefinitionCode', ColumnLayoutName.Name);
-        FeatureTelemetry.LogUsage(EventId, FinancialReportFeatureTok, EventName, TelemetryDimensions);
+        FeatureTelemetry.LogUsage(EventId, FinancialReportFeatureTok, StrSubstNo(FinancialReportColumnEventTxt, EventType, ColumnLayoutName.Name), TelemetryDimensions);
+
+        AuditDimensions.Add('ColumnDefinitionCode', ColumnLayoutName.Name);
+        AuditDimensions.Add('ColumnDefinitionDesc', ColumnLayoutName.Description);
+        AuditDimensions.Add('Action', AuditAction);
+        Session.LogAuditMessage(
+            StrSubstNo(FinancialReportOperationLbl, StrSubstNo(FinancialReportColumnEventTxt, AuditAction, ColumnLayoutName.Name), UserSecurityId()),
+            SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0, AuditDimensions);
     end;
 }
