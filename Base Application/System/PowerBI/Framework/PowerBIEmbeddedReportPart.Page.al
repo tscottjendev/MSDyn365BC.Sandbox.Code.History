@@ -334,11 +334,11 @@ page 6325 "Power BI Embedded Report Part"
 
                 trigger OnAction()
                 var
-                    PowerBIElementCard: Page "Power BI Element Card";
+                    PowerBIElementAddinHost: Page "Power BI Element Addin Host";
                 begin
-                    PowerBIElementCard.SetDisplayedElement(Rec);
-                    PowerBIElementCard.SetPowerBIFilter(PowerBIFilter);
-                    PowerBIElementCard.Run();
+                    PowerBIElementAddinHost.SetDisplayedElement(Rec);
+                    PowerBIElementAddinHost.SetPowerBIFilter(PowerBIFilter);
+                    PowerBIElementAddinHost.Run();
 
                     ReloadPageState();
                     FeatureTelemetry.LogUsage('0000L09', PowerBIServiceMgt.GetPowerBiFeatureTelemetryName(), 'Power BI element expanded', GetTelemetryDimensions());
