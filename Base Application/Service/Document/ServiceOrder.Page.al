@@ -667,6 +667,12 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
                 }
+                field("Combine Shipments"; Rec."Combine Shipments")
+                {
+                    ApplicationArea = Service;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether the order will be included when you use the Combine Shipments function.';
+                }
             }
             group(Details)
             {
