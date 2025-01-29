@@ -870,7 +870,7 @@ table 18 Customer
         field(87; "Combine Shipments"; Boolean)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            Caption = 'Combine Shipments';
+            Caption = 'Combine Sales Shipments';
             ToolTip = 'Specifies if several orders delivered to the customer can appear on the same sales invoice.';
         }
         field(88; "Gen. Bus. Posting Group"; Code[20])
