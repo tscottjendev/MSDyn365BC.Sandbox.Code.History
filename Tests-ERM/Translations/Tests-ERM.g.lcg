@@ -5072,6 +5072,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Payables - NamedType NotificationBatchPurchHeaderMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 966482892 - NamedType 3755590854" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document No. must be equal to %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Document No.]D;]A;(LookupHint=Codeunit ERM Purchase Payables - NamedType PostedDocumentNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 966482892 - NamedType 2932411483" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Enter the posting date.]]></Val>
