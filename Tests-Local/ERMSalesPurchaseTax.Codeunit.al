@@ -551,6 +551,8 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         GLEntry.TestField(Amount, SalesLine."Line Amount");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatisticsHandler')]
     [Scope('OnPrem')]
@@ -571,6 +573,37 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         OpenSalesInvoicePage(SalesInvoice, SalesHeader);
         SalesInvoice.Statistics.Invoke();  // Invoke to open Sales Order Statistics page.
+
+        // Exercise: Post Sales Invoice.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // Verify: Verify that G/L Entry and VAT Entry after posting Sales Invoice with Tax Liable.
+        LibraryVariableStorage.Dequeue(VATAmount);
+        Amount := VATAmount;
+        VerifyGLEntry(DocumentNo, -SalesLine."Line Amount", -Amount);
+        VerifyVATEntry(DocumentNo, -SalesLine."Line Amount", -Amount);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrderStatsHandler')]
+    [Scope('OnPrem')]
+    procedure GLEntryAfterPostSalesInvoiceUsingTaxLiableNonModal()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoice: TestPage "Sales Invoice";
+        VATAmount: Variant;
+        DocumentNo: Code[20];
+        Amount: Decimal;
+    begin
+        // Verify that G/L Entry and VAT entry after posting Sales Invoice with Tax Liable.
+
+        // Setup: Create Sales Invoice.
+        Initialize();
+        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice);
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        OpenSalesInvoicePage(SalesInvoice, SalesHeader);
+        SalesInvoice.SalesOrderStats.Invoke();  // Invoke to open Sales Order Statistics page.
 
         // Exercise: Post Sales Invoice.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -766,7 +799,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     end;
 
     [Test]
-    [HandlerFunctions('SalesOrderStatisticsPageHandler')]
+    [HandlerFunctions('SalesOrderStatisticsModalPageHandler')]
     [Scope('OnPrem')]
     procedure StatisticsSalesOrderUsingTaxLiable()
     var
@@ -789,7 +822,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Exercise.
         SalesOrder.Statistics.Invoke();  // Invoke to open Sales Order Statistics page.
 
-        // Verify: Verify Tax Amount on Sales Order Statistics. Verification done in SalesOrderStatisticsPageHandler.
+        // Verify: Verify Tax Amount on Sales Order Statistics. Verification done in SalesOrderStatisticsModalPageHandler.
     end;
 
     [Test]
@@ -869,8 +902,10 @@ codeunit 142050 "ERM Sales/Purchase Tax"
           GenJournalLine."Document Type"::"Credit Memo", SalesLine."Line Amount", -SalesLine."Line Amount");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
-    [HandlerFunctions('SalesOrderStatisticsPageHandler')]
+    [HandlerFunctions('SalesOrderStatisticsModalPageHandler')]
     [Scope('OnPrem')]
     procedure StatisticsSalesCrMemoUsingTaxLiable()
     var
@@ -887,15 +922,16 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         Tax := CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         TaxAmount := SalesLine."Line Amount" * Tax / 100;
-        LibraryVariableStorage.Enqueue(TaxAmount);  // Enqueue value for PurchaseOrderStatisticsHandler.
+        LibraryVariableStorage.Enqueue(TaxAmount);  // Enqueue value for SalesOrderStatisticsModalPageHandler.
         OpenSalesCrMemoPage(SalesCreditMemo, SalesHeader);
 
         // Exercise.
         SalesCreditMemo.Statistics.Invoke();  // Invoke to open Sales Credit Memo Statistics page.
 
-        // Verify: Verify Tax Amount on Sales Credit Memo Statistics page. Verification done in SalesOrderStatisticsPageHandler.
+        // Verify: Verify Tax Amount on Sales Credit Memo Statistics page. Verification done in SalesOrderStatisticsModalPageHandler.
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler,SalesTaxLinesSubformDynPageHandler')]
     [Scope('OnPrem')]
@@ -922,6 +958,63 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Exercise.
         SalesCreditMemo.Statistics.Invoke();  // Invoke to open Sales Credit Memo Statistics page.
+
+        // Verify: Verify values on Sales Tax Lines Subform Dyn page. Verification done in SalesTaxLinesSubformDynPageHandler.
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrderStatsNonModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure StatisticsSalesCrMemoUsingTaxLiableNonModal()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        Tax: Decimal;
+        TaxAmount: Decimal;
+    begin
+        // Verify Tax Amount on Sales Credit Memo Statistics page.
+
+        // Setup: Create Sales Order and open Sales Credit Memo page.
+        Initialize();
+        Tax := CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Credit Memo");
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        TaxAmount := SalesLine."Line Amount" * Tax / 100;
+        LibraryVariableStorage.Enqueue(TaxAmount);  // Enqueue value for PurchaseOrderStatisticsHandler.
+        OpenSalesCrMemoPage(SalesCreditMemo, SalesHeader);
+
+        // Exercise.
+        SalesCreditMemo.SalesOrderStats.Invoke();  // Invoke to open Sales Credit Memo Statistics page.
+
+        // Verify: Verify Tax Amount on Sales Credit Memo Statistics page. Verification done in SalesOrderStatisticsModalPageHandler.
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatsDrillDownNonModalPageHandler,SalesTaxLinesSubformDynPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesTaxLinesUsingSalesCrMemoNonModal()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        Tax: Decimal;
+        TaxAmount: Decimal;
+    begin
+        // Verify values on Sales Tax Lines page using Sales Credit Memo Statistics page.
+
+        // Setup: Create Sales Order.
+        Initialize();
+        Tax := CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Credit Memo");
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        TaxAmount := SalesLine."Line Amount" * Tax / 100;
+        LibraryVariableStorage.Enqueue(TaxAmount);  // Enqueue value for SalesTaxLinesSubformDynPageHandler.
+        LibraryVariableStorage.Enqueue(SalesLine."Tax Group Code");  // Enqueue value for SalesTaxLinesSubformDynPageHandler.
+        LibraryVariableStorage.Enqueue(SalesLine."Line Amount");  // Enqueue value for SalesTaxLinesSubformDynPageHandler.
+        LibraryVariableStorage.Enqueue(SalesLine."Line Amount" + TaxAmount);  // Enqueue value for SalesTaxLinesSubformDynPageHandler.
+        OpenSalesCrMemoPage(SalesCreditMemo, SalesHeader);
+
+        // Exercise.
+        SalesCreditMemo.SalesOrderStats.Invoke();  // Invoke to open Sales Credit Memo Statistics page.
 
         // Verify: Verify values on Sales Tax Lines Subform Dyn page. Verification done in SalesTaxLinesSubformDynPageHandler.
     end;
@@ -1055,10 +1148,40 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
+    [Test]
+    [HandlerFunctions('SalesStatsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure StatisticsOnSalesQuoteUsingTaxLiable()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesQuote: TestPage "Sales Quote";
+        Tax: Decimal;
+        TaxAmount: Decimal;
+    begin
+        // Verify Tax Amount on Sales Quote Statistics page.
+
+        // Setup: Create Sales Quote and open Sales Quote page.
+        Initialize();
+        Tax := CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Quote);
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        TaxAmount := SalesLine."Line Amount" * Tax / 100;
+        LibraryVariableStorage.Enqueue(TaxAmount);  // Enqueue value for SalesStatsModalPageHandler.
+        LibraryVariableStorage.Enqueue(SalesLine."Line Amount" + TaxAmount);  // Enqueue value for SalesStatsModalPageHandler.
+        OpenSalesQuotePage(SalesQuote, SalesHeader);
+
+        // Exercise.
+        SalesQuote.Statistics.Invoke();
+
+        // Verify: Verify Tax Amount on Sales Quote Statistics page. Verification done in SalesStatsModalPageHandler.
+    end;
+#endif
     [Test]
     [HandlerFunctions('SalesStatsPageHandler')]
     [Scope('OnPrem')]
-    procedure StatisticsOnSalesQuoteUsingTaxLiable()
+    procedure StatisticsOnSalesQuoteUsingTaxLiableNonModal()
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1078,13 +1201,13 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenSalesQuotePage(SalesQuote, SalesHeader);
 
         // Exercise.
-        SalesQuote.Statistics.Invoke();
+        SalesQuote.SalesStats.Invoke();
 
         // Verify: Verify Tax Amount on Sales Quote Statistics page. Verification done in SalesStatsPageHandler.
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,SalesOrderPageHandler,SalesOrderStatisticsPageHandler,SendNotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('ConfirmHandler,SalesOrderPageHandler,SalesOrderStatisticsModalPageHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure StatisticsOnSalesOrderAfterMakeOrderFromSalesQuote()
     var
@@ -1111,7 +1234,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Exercise.
         SalesOrder.Statistics.Invoke();  // Invoke to open Sales Order Statistics page.
 
-        // Verify: Verify Tax Amount on Sales Order Statistics. Verification done in SalesOrderStatisticsPageHandler.
+        // Verify: Verify Tax Amount on Sales Order Statistics. Verification done in SalesOrderStatisticsModalPageHandler.
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -3939,9 +4062,26 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         LibraryVariableStorage.Enqueue(SalesOrderStatistics."VATAmount[2]".AsDecimal()); // Enqueue value for SalesOrderStatisticsHandler.
     end;
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatsHandler(var SalesOrderStatistics: TestPage "Sales Order Stats.")
+    begin
+        LibraryVariableStorage.Enqueue(SalesOrderStatistics."VATAmount[2]".AsDecimal()); // Enqueue value for SalesOrderStatisticsHandler.
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure SalesOrderStatisticsPageHandler(var SalesOrderStats: TestPage "Sales Order Stats.")
+    procedure SalesOrderStatisticsModalPageHandler(var SalesOrderStats: TestPage "Sales Order Stats.")
+    var
+        VATAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(VATAmount);
+        SalesOrderStats."VATAmount[2]".AssertEquals(VATAmount);
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatsNonModalPageHandler(var SalesOrderStats: TestPage "Sales Order Stats.")
     var
         VATAmount: Variant;
     begin
@@ -3956,7 +4096,22 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SalesOrderStats.NoOfVATLines_General.DrillDown();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatsModalPageHandler(var SalesStats: TestPage "Sales Stats.")
+    var
+        TAXAmount: Variant;
+        AmountIncludingTax: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TAXAmount);
+        LibraryVariableStorage.Dequeue(AmountIncludingTax);
+        SalesStats.TaxAmount.AssertEquals(TAXAmount);
+        SalesStats.TotalAmount2.AssertEquals(AmountIncludingTax);
+    end;
+#endif
+    [PageHandler]
     [Scope('OnPrem')]
     procedure SalesStatsPageHandler(var SalesStats: TestPage "Sales Stats.")
     var
@@ -3967,6 +4122,13 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         LibraryVariableStorage.Dequeue(AmountIncludingTax);
         SalesStats.TaxAmount.AssertEquals(TAXAmount);
         SalesStats.TotalAmount2.AssertEquals(AmountIncludingTax);
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatsDrillDownNonModalPageHandler(var SalesOrderStats: TestPage "Sales Order Stats.")
+    begin
+        SalesOrderStats.NoOfVATLines_General.DrillDown();
     end;
 
     [ModalPageHandler]

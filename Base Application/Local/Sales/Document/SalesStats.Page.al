@@ -304,6 +304,10 @@ page 10042 "Sales Stats."
 
     trigger OnOpenPage()
     begin
+        if not Rec.SkipStatisticsPreparation() then
+            Rec.PrepareOpeningDocumentStatistics();
+        Rec.ResetSkipStatisticsPreparationFlag();
+
         SalesSetup.Get();
         AllowInvDisc :=
           not (SalesSetup."Calc. Inv. Discount" and CustInvDiscRecExists(Rec."Invoice Disc. Code"));
@@ -314,6 +318,13 @@ page 10042 "Sales Stats."
           AllowVATDifference or AllowInvDisc;
         TaxArea.Get(Rec."Tax Area Code");
         SetVATSpecification();
+    end;
+
+    trigger OnClosePage()
+    var
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+    begin
+        SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

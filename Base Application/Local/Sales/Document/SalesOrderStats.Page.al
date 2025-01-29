@@ -934,6 +934,10 @@ page 10038 "Sales Order Stats."
 
     trigger OnOpenPage()
     begin
+        if not Rec.SkipStatisticsPreparation() then
+            Rec.PrepareOpeningDocumentStatistics();
+        Rec.ResetSkipStatisticsPreparationFlag();
+
         SalesSetup.Get();
         NullTab := -1;
         AllowInvDisc := not (SalesSetup."Calc. Inv. Discount" and CustInvDiscRecExists(Rec."Invoice Disc. Code"));
@@ -943,6 +947,13 @@ page 10038 "Sales Order Stats."
         VATLinesFormIsEditable := AllowVATDifference or AllowInvDisc or (Rec."Tax Area Code" <> '');
         CurrPage.Editable := VATLinesFormIsEditable;
         TaxArea.Get(Rec."Tax Area Code");
+    end;
+
+    trigger OnClosePage()
+    var
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+    begin
+        SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

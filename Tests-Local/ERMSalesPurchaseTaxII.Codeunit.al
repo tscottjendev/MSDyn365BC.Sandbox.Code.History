@@ -123,6 +123,8 @@
           'VATAmountLine__VAT_Amount_', Round(SalesLine."Line Amount" * SalesLine."VAT %" / 100));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatsTestPageHandler')]
     [Scope('OnPrem')]
@@ -148,6 +150,7 @@
         // SalesStatsTestPageHandler.
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatsTestPageHandler')]
     [Scope('OnPrem')]
@@ -168,6 +171,56 @@
 
         // [WHEN] Open Sales Quote Statistics
         SalesQuote.Statistics.Invoke();
+
+        // [THEN] Tax Amount on Sales Quote Statistics is correct
+        // SalesStatsTestPageHandler.
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesStatsTestNonModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure StatisticsSalesQuotesTaxAmount_RoundingByJurisdictionNonModal()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+        TaxAmount: Decimal;
+    begin
+        // [FEATURE] [Rounding] [Sales] [Quote]
+        // [SCENARIO] Tax Amount rounding on Sales Quote Statistics with two jurisdiction codes and TaxArea."Country/Region" = CA
+        Initialize();
+
+        // [GIVEN] Sales Quote with Item, Currency, two jurisdiction codes and TaxArea."Country/Region" = CA
+        TaxAmount := CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Quote, DummyTaxCountry::CA);
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        OpenSalesQuotePage(SalesQuote, SalesHeader);
+
+        // [WHEN] Open Sales Quote Statistics
+        SalesQuote.SalesStats.Invoke();
+
+        // [THEN] Tax Amount on Sales Quote Statistics is correct
+        // SalesStatsTestPageHandler.
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatsTestNonModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure StatisticsSalesQuotesTaxAmount_RoundingNonModal()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+        TaxAmount: Decimal;
+    begin
+        // [FEATURE] [Rounding] [Sales] [Quote]
+        // [SCENARIO] Tax Amount rounding on Sales Quote Statistics with two jurisdiction codes and TaxArea."Country/Region" = US
+        Initialize();
+
+        // [GIVEN] Sales Quote with Item, Currency, two jurisdiction codes and TaxArea."Country/Region" = US
+        TaxAmount := CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Quote, DummyTaxCountry::US);
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        OpenSalesQuotePage(SalesQuote, SalesHeader);
+
+        // [WHEN] Open Sales Quote Statistics
+        SalesQuote.SalesStats.Invoke();
 
         // [THEN] Tax Amount on Sales Quote Statistics is correct
         // SalesStatsTestPageHandler.
@@ -6474,9 +6527,21 @@
         SalesOrderStats.TaxAmount.AssertEquals(TaxAmount);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesStatsTestPageHandler(var SalesStats: TestPage "Sales Stats.")
+    var
+        TaxAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TaxAmount);
+        SalesStats.TaxAmount.AssertEquals(TaxAmount);
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatsTestNonModalPageHandler(var SalesStats: TestPage "Sales Stats.")
     var
         TaxAmount: Variant;
     begin
