@@ -1,4 +1,4 @@
-codeunit 134378 "ERM Sales Order"
+﻿codeunit 134378 "ERM Sales Order"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -2736,7 +2736,7 @@ codeunit 134378 "ERM Sales Order"
     end;
 
     [Test]
-    [HandlerFunctions('SalesStatisticsHandler')]
+    [HandlerFunctions('SalesStatisticsModalPageHandler')]
     [Scope('OnPrem')]
     procedure SalesInvoiceForItemChargeWithVATDifferencePostValuesPricesInclVAT()
     var
@@ -2772,7 +2772,7 @@ codeunit 134378 "ERM Sales Order"
     end;
 
     [Test]
-    [HandlerFunctions('SalesStatisticsHandler')]
+    [HandlerFunctions('SalesStatisticsModalPageHandler')]
     [Scope('OnPrem')]
     procedure SalesInvoiceForItemChargeWithVATDifferencePostValuesPricesWoVAT()
     var
@@ -3733,8 +3733,10 @@ codeunit 134378 "ERM Sales Order"
         CustLedgerEntry.TestField("Inv. Discount (LCY)", InvDiscAmount);
     end;
 
+#if not CLEAN26
+    [Obsolete('The sales statisticss action opens the page non-modally.', '26.0')]
     [Test]
-    [HandlerFunctions('SalesStatisticsHandler')]
+    [HandlerFunctions('SalesStatisticsModalPageHandler')]
     [Scope('OnPrem')]
     procedure TotalAmountIncVATOnSalesInvoiceSubformWithVATDifference()
     var
@@ -3757,6 +3759,41 @@ codeunit 134378 "ERM Sales Order"
         // [GIVEN] Sales Invoice with Amount = 4000, Amount Incl. VAT = 5000
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), LibraryInventory.CreateItemNo());
+        LibraryVariableStorage.Enqueue(SalesHeader."No.");
+        Amount := SalesLine.Amount;
+        VATAmount := SalesLine."Amount Including VAT" - SalesLine.Amount;
+
+        // [WHEN] Add "VAT Difference" = 1 in SalesStatisticHandler
+        // [THEN] Page total contains right values of "Total Amount Excl. VAT", "Total VAT", "Total Incl. VAT" on lines subpage before and after Release document
+        // [THEN] "Total Amount Excl. VAT" = 4000 in "Sales Line"
+        // [THEN] "Total VAT" = 1001 in "Sales Line"
+        // [THEN] "Total Incl. VAT" = 5001 in "Sales Line"
+        UpdateInvoiceDiscountAndVATAmountOnStatistics(SalesHeader, SalesLine, Amount, VATAmount + VATDifference, VATDifference);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure TotalAmountIncVATOnSalesInvoiceSubformWithVATDifferenceNonModal()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        MaxVATDifference: Decimal;
+        Amount: Decimal;
+        VATAmount: Decimal;
+        VATDifference: Decimal;
+    begin
+        // [FEATURE] [Statistics] [VAT Difference]
+        // [SCENARIO 224140] Totals on sales invoice page has correct values in invoice with VAT Difference
+        Initialize();
+
+        // [GIVEN] VAT Difference is allowed
+        MaxVATDifference := EnableVATDiffAmount();
+        VATDifference := LibraryRandom.RandDecInDecimalRange(0.01, MaxVATDifference, 2);
+        LibraryVariableStorage.Enqueue(VATDifference);
+
+        // [GIVEN] Sales Invoice with Amount = 4000, Amount Incl. VAT = 5000
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), LibraryInventory.CreateItemNo());
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
         Amount := SalesLine.Amount;
         VATAmount := SalesLine."Amount Including VAT" - SalesLine.Amount;
@@ -4744,7 +4781,6 @@ codeunit 134378 "ERM Sales Order"
         Assert.AreEqual(-1, ItemLedgerEntry.Quantity, 'Expected quantity to be -1.');
         Assert.AreEqual(Location.Code, ItemLedgerEntry."Location Code", 'Expected location to be set.');
     end;
-
 
     [Test]
     procedure BinCodeNotAllowedForNonInventoryItems()
@@ -6567,11 +6603,16 @@ codeunit 134378 "ERM Sales Order"
         SalesOrder.GotoRecord(SalesHeader);
     end;
 
-    local procedure UpdateInvoiceDiscountAndVATAmountOnSalesStatistics(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; AmountToPost: Decimal; VATAmount: Decimal; VATDiffAmount: Decimal)
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
+    local procedure UpdateInvoiceDiscountAndVATAmountOnStatistics(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; AmountToPost: Decimal; VATAmount: Decimal; VATDiffAmount: Decimal)
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        UpdateVATAmountOnSalesStatistics(SalesHeader, SalesInvoice);
+        SalesInvoice.OpenView();
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesInvoice.Statistics.Invoke();
+        SalesInvoice.GotoRecord(SalesHeader);
 
         SalesLine.Find();
         SalesLine.TestField("VAT Difference", VATDiffAmount);
@@ -6592,13 +6633,39 @@ codeunit 134378 "ERM Sales Order"
         SalesInvoice.SalesLines."Total VAT Amount".AssertEquals(VATAmount);
         SalesInvoice.SalesLines."Total Amount Incl. VAT".AssertEquals(AmountToPost + VATAmount);
     end;
-
-    local procedure UpdateVATAmountOnSalesStatistics(var SalesHeader: Record "Sales Header"; var SalesInvoice: TestPage "Sales Invoice")
+#endif
+    local procedure UpdateInvoiceDiscountAndVATAmountOnSalesStatistics(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; AmountToPost: Decimal; VATAmount: Decimal; VATDiffAmount: Decimal)
+    var
+        SalesInvoice: TestPage "Sales Invoice";
     begin
         SalesInvoice.OpenView();
-        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesInvoice.Statistics.Invoke();
         SalesInvoice.GotoRecord(SalesHeader);
+        SalesInvoice.SalesStatistics.Invoke();
+        //workaround for issue with non-modal statistics testpage not updating totals
+        SalesInvoice.Close();
+        SalesInvoice.OpenView();
+        SalesInvoice.GotoRecord(SalesHeader);
+
+        SalesLine.Find();
+        SalesLine.TestField("VAT Difference", VATDiffAmount);
+
+        SalesInvoice.SalesLines.Next();// GoToRecord(SalesLine);
+        SalesInvoice.SalesLines."Total Amount Excl. VAT".AssertEquals(AmountToPost);
+        SalesInvoice.SalesLines."Total VAT Amount".AssertEquals(VATAmount);
+        SalesInvoice.SalesLines."Total Amount Incl. VAT".AssertEquals(AmountToPost + VATAmount);
+        SalesInvoice.Close();
+
+        SalesHeader.Find();
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        SalesInvoice.OpenView();
+        SalesInvoice.GotoRecord(SalesHeader);
+
+        SalesLine.TestField("VAT Difference", VATDiffAmount);
+
+        SalesInvoice.SalesLines."Total Amount Excl. VAT".AssertEquals(AmountToPost);
+        SalesInvoice.SalesLines."Total VAT Amount".AssertEquals(VATAmount);
+        SalesInvoice.SalesLines."Total Amount Incl. VAT".AssertEquals(AmountToPost + VATAmount);
+        SalesInvoice.Close();
     end;
 
     local procedure EnableVATDiffAmount() Result: Decimal
@@ -7577,12 +7644,23 @@ codeunit 134378 "ERM Sales Order"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure SalesStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
+    procedure SalesStatisticsModalPageHandler(var SalesStatistics: TestPage "Sales Statistics")
     var
         SalesHeader: Record "Sales Header";
     begin
         SalesStatistics.SubForm."VAT Amount".SetValue(
           SalesStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal());
+        SalesHeader.Get(SalesHeader."Document Type"::Invoice, LibraryVariableStorage.DequeueText());
+        SalesStatistics.GotoRecord(SalesHeader); // Refresh
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatisticsPageHandler(var SalesStatistics: TestPage "Sales Statistics")
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesStatistics.SubForm."VAT Amount".SetValue(SalesStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal());
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, LibraryVariableStorage.DequeueText());
         SalesStatistics.GotoRecord(SalesHeader); // Refresh
     end;

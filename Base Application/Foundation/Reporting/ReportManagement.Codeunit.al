@@ -243,7 +243,7 @@ codeunit 44 ReportManagement
         end;
     end;
 
-#if not CLEAN25
+#if not CLEAN26
     [Obsolete('Replaced by platform Word merge', '26.0')]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'ApplicationReportMergeStrategy', '', false, false)]
     local procedure ApplicationReportMergeStrategy(ObjectId: Integer; LayoutCode: Text; var InApplication: boolean)
@@ -257,7 +257,7 @@ codeunit 44 ReportManagement
     end;
 #endif
 
-#if not CLEAN24
+#if not CLEAN26
     [Obsolete('Replaced by platform Word merge', '24.0')]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'WordDocumentMergerAppMode', '', false, false)]
     local procedure WordDocumentMergerAppMode(ObjectId: Integer; LayoutCode: Text; var InApplication: boolean)
