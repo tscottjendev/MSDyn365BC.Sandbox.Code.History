@@ -14,7 +14,7 @@ using Microsoft.Utilities;
 report 295 "Combine Shipments"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Combine Shipments';
+    Caption = 'Combine Sales Shipments';
     ProcessingOnly = true;
     UsageCategory = Tasks;
 
