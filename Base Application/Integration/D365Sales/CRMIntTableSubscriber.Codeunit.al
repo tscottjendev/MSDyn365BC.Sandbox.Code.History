@@ -1727,6 +1727,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CRMSalesorderdetail: Record "CRM Salesorderdetail";
         CRMSalesorderdetail2: Record "CRM Salesorderdetail";
         CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
         SalesLineRecordRef: RecordRef;
     begin
@@ -1748,7 +1749,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 end;
             until CRMSalesorderdetail.Next() = 0;
 
+        IntegrationTableMapping.FindMapping(Database::"Sales Line", Database::"CRM Salesorderdetail");
+
         SalesLine.Reset();
+        SalesLine.SetView(IntegrationTableMapping.GetTableFilter());
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         if not SalesLine.IsEmpty() then begin
@@ -1773,6 +1777,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CRMSalesorderdetail: Record "CRM Salesorderdetail";
         CRMSalesorderdetail2: Record "CRM Salesorderdetail";
         CRMProduct: Record "CRM Product";
+        IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
         CRMSalesorderdetailRecordRef: RecordRef;
         CRMSalesorderdetailId: Guid;
@@ -1798,7 +1803,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 end;
             until SalesLine.Next() = 0;
 
+        IntegrationTableMapping.FindMapping(Database::"Sales Line", Database::"CRM Salesorderdetail");
+
         CRMSalesorderdetail.Reset();
+        CRMSalesorderdetail.SetView(IntegrationTableMapping.GetIntegrationTableFilter());
         CRMSalesorderdetail.SetRange(SalesOrderId, CRMSalesorder.SalesOrderId);
         if CRMSalesorderdetail.FindSet() then begin
             repeat
