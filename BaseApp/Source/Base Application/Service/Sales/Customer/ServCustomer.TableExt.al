@@ -7,6 +7,7 @@ namespace Microsoft.Service.Customer;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Contract;
 using Microsoft.Service.Document;
+using Microsoft.Service.History;
 using Microsoft.Service.Setup;
 
 tableextension 6450 "Serv. Customer" extends Customer
@@ -70,6 +71,12 @@ tableextension 6450 "Serv. Customer" extends Customer
             Caption = 'Outstanding Serv.Invoices(LCY)';
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(5930; "Combine Service Shipments"; Boolean)
+        {
+            AccessByPermission = TableData "Service Shipment Header" = R;
+            Caption = 'Combine Service Shipments';
+            DataClassification = CustomerContent;
         }
     }
 }

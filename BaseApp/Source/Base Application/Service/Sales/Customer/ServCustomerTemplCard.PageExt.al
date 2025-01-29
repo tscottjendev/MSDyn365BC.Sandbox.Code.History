@@ -18,5 +18,14 @@ pageextension 6492 "Serv. Customer Templ. Card" extends "Customer Templ. Card"
                 Visible = false;
             }
         }
+        addafter("Combine Shipments")
+        {
+            field("Combine Service Shipments"; Rec."Combine Service Shipments")
+            {
+                ApplicationArea = Service;
+                ToolTip = 'Specifies if several orders delivered to the customer can appear on the same service invoice.';
+                Visible = false;
+            }
+        }
     }
 }

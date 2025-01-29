@@ -2491,6 +2491,8 @@ codeunit 148184 "Sustainability Posting Test"
         LibraryVariableStorage.Clear();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [Test]
     [HandlerFunctions('SalesInvoiceStatisticsPageHandler')]
     procedure VerifySustainabilityFieldsInSalesInvoiceStatistics()
@@ -2536,6 +2538,54 @@ codeunit 148184 "Sustainability Posting Test"
 
         // [VERIFY] Verify Sustainability fields in Page "Sales Invoice Statistics" before posting of Sales Invoice.
         OpenSalesInvoiceStatistics(SalesHeader."No.");
+        LibraryVariableStorage.Clear();
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesInvoiceSalesStatisticsPageHandler')]
+    procedure VerifySustainabilityFieldsInSalesInvoiceSalesStatistics()
+    var
+        SustainabilityAccount: Record "Sustainability Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TotalCO2e: Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+    begin
+        // [SCENARIO 537481] Verify Sustainability Fields in Sales Invoice Statistics.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+        SustainabilityAccount.Get(AccountCode);
+
+        // [GIVEN] Generate "Total CO2e".
+        TotalCO2e := LibraryRandom.RandInt(20);
+
+        // [GIVEN] Create a Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Create a Sales Line.
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            "Sales Line Type"::Item,
+            LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Update "Unit Price", "Sustainability Account No.", "Total CO2e" in the Sales line.
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 200));
+        SalesLine.Validate("Sust. Account No.", AccountCode);
+        SalesLine.Validate("Total CO2e", TotalCO2e);
+        SalesLine.Modify();
+
+        // [WHEN] Save Sustainability fields.
+        LibraryVariableStorage.Enqueue(TotalCO2e);
+        LibraryVariableStorage.Enqueue(0);
+
+        // [VERIFY] Verify Sustainability fields in Page "Sales Invoice Statistics" before posting of Sales Invoice.
+        OpenSalesInvoiceSalesStatistics(SalesHeader."No.");
         LibraryVariableStorage.Clear();
     end;
 
@@ -2592,6 +2642,8 @@ codeunit 148184 "Sustainability Posting Test"
         LibraryVariableStorage.Clear();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [Test]
     [HandlerFunctions('SalesInvoiceStatisticsPageHandler')]
     procedure VerifySustainabilityFieldsInSalesCrMemoStatistics()
@@ -2646,6 +2698,76 @@ codeunit 148184 "Sustainability Posting Test"
 
         // [VERIFY] Verify Sustainability fields in Page "Sales Cr Memo Statistics" before posting of Sales Cr Memo.
         CrMemoNo := CreateCorrectiveCreditMemoAndOpenSalesCrMemoStatistics(SalesHeader);
+
+        // [GIVEN] Post Corrective Credit Memo.
+        SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", CrMemoNo);
+        PostedCrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Clear Variable Storage.
+        LibraryVariableStorage.Clear();
+
+        // [WHEN] Save Sustainability fields.
+        LibraryVariableStorage.Enqueue(TotalCO2e);
+
+        // [VERIFY] Verify Sustainability fields in Page "Posted Sales Cr Memo Statistics" after posting of Sales Cr Memo.
+        VerifyPostedSalesCrMemoStatistics(PostedCrMemoNo);
+        LibraryVariableStorage.Clear();
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesInvoiceSalesStatisticsPageHandler')]
+    procedure VerifySustainabilityFieldsInSalesCrMemoSalesStatistics()
+    var
+        SustainabilityAccount: Record "Sustainability Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TotalCO2e: Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+        CrMemoNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [SCENARIO 537481] Verify Sustainability fields in Posted Sales Cr Memo Statistics.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+        SustainabilityAccount.Get(AccountCode);
+
+        // [GIVEN] Create a Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Create a Sales Line.
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            "Sales Line Type"::Item,
+            LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Update "Unit Price", "Qty. to Ship", "Sustainability Account No.", "Total CO2e" in the Sales line.
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 200));
+        SalesLine.Validate("Qty. to Ship", LibraryRandom.RandIntInRange(5, 5));
+        SalesLine.Validate("Sust. Account No.", AccountCode);
+        SalesLine.Validate("Total CO2e", LibraryRandom.RandInt(20));
+        SalesLine.Modify();
+
+        // [GIVEN] Save Expected "Total CO2e".
+        TotalCO2e := SalesLine."CO2e per Unit" * SalesLine."Qty. per Unit of Measure" * LibraryRandom.RandIntInRange(5, 5);
+
+        // [WHEN] Save Sustainability fields.
+        LibraryVariableStorage.Enqueue(TotalCO2e);
+        LibraryVariableStorage.Enqueue(0);
+
+        // [GIVEN] Update Reason Code in Sales Header.
+        UpdateReasonCodeinSalesHeader(SalesHeader);
+
+        // [VERIFY] Verify Sustainability fields in Page "Sales Cr Memo Statistics" before posting of Sales Cr Memo.
+        CrMemoNo := CreateCorrectiveCreditMemoAndOpenSalesCrMemoSalesStatistics(SalesHeader);
 
         // [GIVEN] Post Corrective Credit Memo.
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", CrMemoNo);
@@ -2766,6 +2888,8 @@ codeunit 148184 "Sustainability Posting Test"
         SalesInvoiceHeader.Navigate();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [Test]
     [HandlerFunctions('SalesInvoiceStatisticsPageHandler')]
     procedure VerifySustainabilityFieldsInSalesCrMemoSubFormPage()
@@ -2819,6 +2943,82 @@ codeunit 148184 "Sustainability Posting Test"
 
         // [WHEN] Create Corrective Credit Memo.
         CrMemoNo := CreateCorrectiveCreditMemoAndOpenSalesCrMemoStatistics(SalesHeader);
+
+        // [VERIFY] Verify Sustainability fields before posting of Corrective Credit Memo.
+        SalesCrMemoSubformPage.OpenEdit();
+        SalesCrMemoSubformPage.Filter.SetFilter("Document No.", CrMemoNo);
+        SalesCrMemoSubformPage.Filter.SetFilter("No.", SalesLine."No.");
+        SalesCrMemoSubformPage."Sust. Account No.".AssertEquals(AccountCode);
+        SalesCrMemoSubformPage."Total CO2e".AssertEquals(TotalCO2e);
+
+        // [GIVEN] Post Corrective Credit Memo.
+        SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", CrMemoNo);
+        PostedCrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Clear Variable Storage.
+        LibraryVariableStorage.Clear();
+
+        // [VERIFY] Verify Sustainability fields After posting of Corrective Credit Memo.
+        PostedSalesCrMemoSubformPage.OpenEdit();
+        PostedSalesCrMemoSubformPage.Filter.SetFilter("Document No.", PostedCrMemoNo);
+        PostedSalesCrMemoSubformPage.Filter.SetFilter("No.", SalesLine."No.");
+        PostedSalesCrMemoSubformPage."Sust. Account No.".AssertEquals(AccountCode);
+        PostedSalesCrMemoSubformPage."Total CO2e".AssertEquals(TotalCO2e);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesInvoiceSalesStatisticsPageHandler')]
+    procedure VerifySustainabilityFieldsInSalesCrMemoSubFormPageSalesStatistics()
+    var
+        SustainabilityAccount: Record "Sustainability Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCrMemoSubformPage: TestPage "Sales Cr. Memo Subform";
+        PostedSalesCrMemoSubformPage: TestPage "Posted Sales Cr. Memo Subform";
+        TotalCO2e: Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+        CrMemoNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [SCENARIO 537481] Verify Sustainability fields in Sales Cr Memo SubForm Page.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+        SustainabilityAccount.Get(AccountCode);
+
+        // [GIVEN] Create a Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Create a Sales Line.
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            "Sales Line Type"::Item,
+            LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Update "Unit Price", "Qty. to Ship", "Sustainability Account No.", "Total CO2e" in the Sales line.
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 200));
+        SalesLine.Validate("Qty. to Ship", LibraryRandom.RandIntInRange(5, 5));
+        SalesLine.Validate("Sust. Account No.", AccountCode);
+        SalesLine.Validate("Total CO2e", LibraryRandom.RandInt(20));
+        SalesLine.Modify();
+
+        // [GIVEN] Save Expected "Total CO2e".
+        TotalCO2e := SalesLine."CO2e per Unit" * SalesLine."Qty. per Unit of Measure" * LibraryRandom.RandIntInRange(5, 5);
+
+        // [WHEN] Save Sustainability fields.
+        LibraryVariableStorage.Enqueue(TotalCO2e);
+        LibraryVariableStorage.Enqueue(0);
+
+        // [GIVEN] Update Reason Code in Sales Header.
+        UpdateReasonCodeinSalesHeader(SalesHeader);
+
+        // [WHEN] Create Corrective Credit Memo.
+        CrMemoNo := CreateCorrectiveCreditMemoAndOpenSalesCrMemoSalesStatistics(SalesHeader);
 
         // [VERIFY] Verify Sustainability fields before posting of Corrective Credit Memo.
         SalesCrMemoSubformPage.OpenEdit();
@@ -4343,6 +4543,8 @@ codeunit 148184 "Sustainability Posting Test"
         SalesOrder.Statistics.Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     local procedure OpenSalesInvoiceStatistics(No: Code[20])
     var
         SalesInvoice: TestPage "Sales Invoice";
@@ -4351,7 +4553,18 @@ codeunit 148184 "Sustainability Posting Test"
         SalesInvoice.FILTER.SetFilter("No.", No);
         SalesInvoice.Statistics.Invoke();
     end;
+#endif
+    local procedure OpenSalesInvoiceSalesStatistics(No: Code[20])
+    var
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        SalesInvoice.OpenEdit();
+        SalesInvoice.FILTER.SetFilter("No.", No);
+        SalesInvoice.SalesStatistics.Invoke();
+    end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     local procedure OpenSalesCrMemoStatistics(No: Code[20])
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
@@ -4359,6 +4572,15 @@ codeunit 148184 "Sustainability Posting Test"
         SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", No);
         SalesCreditMemo.Statistics.Invoke();
+    end;
+#endif
+    local procedure OpenSalesCrMemoSalesStatistics(No: Code[20])
+    var
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        SalesCreditMemo.OpenEdit();
+        SalesCreditMemo.FILTER.SetFilter("No.", No);
+        SalesCreditMemo.SalesStatistics.Invoke();
     end;
 
     local procedure VerifyPostedSalesCrMemoStatistics(No: Code[20])
@@ -4385,6 +4607,8 @@ codeunit 148184 "Sustainability Posting Test"
         PostedSalesInvoiceStatisticsPage."Total CO2e".AssertEquals(PostedTotalCO2e);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     local procedure CreateCorrectiveCreditMemoAndOpenSalesCrMemoStatistics(SalesHeader: Record "Sales Header"): Code[20]
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -4399,6 +4623,24 @@ codeunit 148184 "Sustainability Posting Test"
 
         // Open Sales Cr Memo Statistics.
         OpenSalesCrMemoStatistics(SalesHeader."No.");
+
+        exit(SalesHeader."No.");
+    end;
+#endif
+    local procedure CreateCorrectiveCreditMemoAndOpenSalesCrMemoSalesStatistics(SalesHeader: Record "Sales Header"): Code[20]
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        PostedDocNumber: Code[20];
+    begin
+        PostedDocNumber := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.Get(PostedDocNumber);
+
+        // Create Corrective Credit Memo.
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
+
+        // Open Sales Cr Memo Statistics.
+        OpenSalesCrMemoSalesStatistics(SalesHeader."No.");
 
         exit(SalesHeader."No.");
     end;
@@ -4694,9 +4936,25 @@ codeunit 148184 "Sustainability Posting Test"
         PurchaseStatisticsPage."Posted Emission N2O".AssertEquals(PostedEmissionN2O);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesInvoiceStatisticsPageHandler(var SalesStatisticsPage: TestPage "Sales Statistics")
+    var
+        TotalCO2e: Variant;
+        PostedTotalCO2e: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TotalCO2e);
+        LibraryVariableStorage.Dequeue(PostedTotalCO2e);
+
+        SalesStatisticsPage."Total CO2e".AssertEquals(TotalCO2e);
+        SalesStatisticsPage."Posted Total CO2e".AssertEquals(PostedTotalCO2e);
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceSalesStatisticsPageHandler(var SalesStatisticsPage: TestPage "Sales Statistics")
     var
         TotalCO2e: Variant;
         PostedTotalCO2e: Variant;

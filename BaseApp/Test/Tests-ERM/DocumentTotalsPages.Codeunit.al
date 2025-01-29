@@ -1481,6 +1481,8 @@ codeunit 134344 "Document Totals Pages"
         Assert.IsTrue(SalesReturnOrder.SalesLines."Total Amount Incl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesInvoiceStatisticsUpdateVATAmountModalPageHandler')]
     [Scope('OnPrem')]
@@ -1531,6 +1533,94 @@ codeunit 134344 "Document Totals Pages"
         SalesInvoicePage.SalesLines."Total VAT Amount".AssertEquals(ExpectedVATAmount);
 
         SalesInvoicePage.Statistics.Invoke();
+
+        SalesLineItem.Find();
+        SalesLineItem.TestField("VAT Difference");
+
+        SalesLineGLAccount.Find();
+        SalesLineGLAccount.TestField("VAT Difference");
+
+        // [GIVEN] "Total VAT Amount" on the document card = 25 + 50 + 3 = 73
+        SalesInvoicePage.SalesLines.Last();
+        ExpectedVATAmount :=
+          Round((SalesLineItem.CalcLineAmount() + SalesLineGLAccount.CalcLineAmount()) * VATPostingSetup."VAT %" / 100) +
+          SalesLineItem."VAT Difference" + SalesLineGLAccount."VAT Difference";
+        SalesInvoicePage.SalesLines."Total VAT Amount".AssertEquals(ExpectedVATAmount);
+
+        // [WHEN] User updates "Unit Price" on the second line
+        SalesInvoicePage.SalesLines."Unit Price".SetValue(SalesLineGLAccount."Unit Price" + 1);
+        SalesInvoicePage.SalesLines.Previous();
+        SalesInvoicePage.SalesLines.Next();
+
+        // [THEN] "VAT Diferrence" and "Amount Including VAT" have been reset.
+        // [GIVEN] "Total VAT Amount" on the document card = 25 + 50 + 1 = 71
+        SalesLineItem.Find();
+        SalesLineItem.TestField("VAT Difference");
+
+        SalesLineGLAccount.Find();
+        SalesLineGLAccount.TestField(
+          "Amount Including VAT",
+          Round(SalesLineGLAccount.CalcLineAmount() * (1 + VATPostingSetup."VAT %" / 100)));
+        SalesLineGLAccount.TestField("VAT Difference", 0);
+
+        ExpectedVATAmount :=
+          Round((SalesLineItem.CalcLineAmount() + SalesLineGLAccount.CalcLineAmount()) * VATPostingSetup."VAT %" / 100) +
+          SalesLineItem."VAT Difference" + SalesLineGLAccount."VAT Difference";
+        SalesInvoicePage.SalesLines."Total VAT Amount".AssertEquals(ExpectedVATAmount);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesInvoiceStatisticsUpdateVATAmountPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesUpdateLineAmountAfterSettingVATDifferenceOnSalesStatisticsPage()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineGLAccount: Record "Sales Line";
+        SalesInvoicePage: TestPage "Sales Invoice";
+        MaxAllowedVATDifference: Decimal;
+        ExpectedVATAmount: Decimal;
+    begin
+        // [FEATURE] [UI] [VAT] [Sales] [VAT Difference]
+        // [SCENARIO 401242] "Amount Including VAT" of the sales line must consider "VAT Differrence" specified other document lines.
+
+        Initialize();
+
+        // [GIVEN] "VAT Difference" is allowed in setup
+        MaxAllowedVATDifference := LibraryRandom.RandIntInRange(5, 10);
+        LibraryERM.SetMaxVATDifferenceAllowed(MaxAllowedVATDifference);
+        LibrarySales.SetAllowVATDifference(true);
+
+        // [GIVEN] Invoice with two lines having the same VAT Posting Groups.
+        // [GIVEN] Line[1]. Amount = 100, "VAT %" = 25, "Amount Including VAT" = 125
+        // [GIVEN] Line[1]. Amount = 200, "VAT %" = 25, "Amount Including VAT" = 250
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 20));
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        CreateSalesLineWithVATPostingSetupAndAmount(
+          SalesLineItem, SalesHeader, VATPostingSetup, LibraryRandom.RandIntInRange(100, 200));
+        CreateSalesLineWithVATPostingSetupAndAmount(
+          SalesLineGLAccount, SalesHeader, VATPostingSetup, LibraryRandom.RandIntInRange(100, 200));
+
+        // [GIVEN] VAT Amount Increased by 3 on Statistics page
+        // [GIVEN] Line[1]."Amount Including VAT" = 151, "VAT Differene" = 1
+        // [GIVEN] Line[1]."Amount Including VAT" = 252, "VAT Differene" = 2
+        LibraryVariableStorage.Enqueue(Round(MaxAllowedVATDifference / 3));
+
+        SalesInvoicePage.OpenEdit();
+        SalesInvoicePage.Filter.SetFilter("No.", SalesHeader."No.");
+
+        ExpectedVATAmount :=
+          Round((SalesLineItem.CalcLineAmount() + SalesLineGLAccount.CalcLineAmount()) * VATPostingSetup."VAT %" / 100) +
+          SalesLineItem."VAT Difference" + SalesLineGLAccount."VAT Difference";
+        SalesInvoicePage.SalesLines."Total VAT Amount".AssertEquals(ExpectedVATAmount);
+
+        SalesInvoicePage.SalesStatistics.Invoke();
 
         SalesLineItem.Find();
         SalesLineItem.TestField("VAT Difference");
@@ -2281,6 +2371,8 @@ codeunit 134344 "Document Totals Pages"
         SalesOrderStatistics.OK().Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesInvoiceStatisticsUpdateVATAmountModalPageHandler(var SalesStatistics: TestPage "Sales Statistics")
@@ -2288,6 +2380,14 @@ codeunit 134344 "Document Totals Pages"
         SalesStatistics.SubForm.Last();
         SalesStatistics.SubForm."VAT Amount".SetValue(
           SalesStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal()); // increase VAT amount with the given value.
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceStatisticsUpdateVATAmountPageHandler(var SalesStatistics: TestPage "Sales Statistics")
+    begin
+        SalesStatistics.SubForm.Last();
+        SalesStatistics.SubForm."VAT Amount".SetValue(SalesStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal()); // increase VAT amount with the given value.
     end;
 
     [ModalPageHandler]
