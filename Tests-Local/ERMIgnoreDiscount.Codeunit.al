@@ -28,8 +28,57 @@ codeunit 144053 "ERM Ignore Discount"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceDiscOnStatisticsWithIgnoreDiscounts()
+    begin
+        // Test to verify values on Sales Statistics page with Ignore Discounts True on G/L Account.
+        Initialize();
+        InvoiceDiscountAmountOnStatisticsPage(true, LibraryRandom.RandDec(10, 2), 0);  // True used for Ignore Discounts, Random value used for Customer Invoice Discount Percent and 0 used for Discount Percent.
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatisticsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure InvDiscOnStatisticsWithoutIgnoreDiscounts()
+    var
+        DiscountPct: Decimal;
+    begin
+        // Test to verify values on Sales Statistics page with Ignore Discounts False on G/L Account.
+        Initialize();
+        DiscountPct := LibraryRandom.RandDec(10, 2);
+        InvoiceDiscountAmountOnStatisticsPage(false, DiscountPct, DiscountPct);  // False used for Ignore Discounts.
+    end;
+
+    local procedure InvoiceDiscountAmountOnStatisticsPage(IgnoreDiscounts: Boolean; CustInvDiscountPct: Decimal; DiscountPct: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+        SalesInvoice: TestPage "Sales Invoice";
+        OldCalcInvDiscount: Boolean;
+    begin
+        // Setup: Create Sales Invoice with Customer Invoice Discount. Open Sales Invoice page.
+        OldCalcInvDiscount := UpdateCalcInvDiscountOnSalesReceivablesSetup(true);  // True used for Calculate Invoice Discount.
+        CreateSalesInvoice(SalesLine, IgnoreDiscounts, CustInvDiscountPct);
+        SalesInvoice.OpenEdit();
+        SalesInvoice.FILTER.SetFilter("No.", SalesLine."Document No.");
+        EnqueueValuesForModalPageHandler(
+          SalesLine.Amount, SalesLine.Amount * DiscountPct / 100, SalesLine.Amount - SalesLine.Amount * DiscountPct / 100);  // Enqueue values for SalesStatisticsModalPageHandler.
+
+        // Exercise.
+        SalesInvoice.Statistics.Invoke();  // Opens SalesStatisticsModalPageHandler.
+
+        // Verify: Verification is done in SalesStatisticsModalPageHandler.
+
+        // Tear Down.
+        SalesInvoice.Close();
+        UpdateCalcInvDiscountOnSalesReceivablesSetup(OldCalcInvDiscount);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesStatisticsPageHandler')]
     [Scope('OnPrem')]
     procedure InvoiceDiscOnSalesStatisticsWithIgnoreDiscounts()
     begin
@@ -39,7 +88,7 @@ codeunit 144053 "ERM Ignore Discount"
     end;
 
     [Test]
-    [HandlerFunctions('SalesStatisticsModalPageHandler')]
+    [HandlerFunctions('SalesStatisticsPageHandler')]
     [Scope('OnPrem')]
     procedure InvDiscOnSalesStatisticsWithoutIgnoreDiscounts()
     var
@@ -62,11 +111,10 @@ codeunit 144053 "ERM Ignore Discount"
         CreateSalesInvoice(SalesLine, IgnoreDiscounts, CustInvDiscountPct);
         SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesLine."Document No.");
-        EnqueueValuesForModalPageHandler(
-          SalesLine.Amount, SalesLine.Amount * DiscountPct / 100, SalesLine.Amount - SalesLine.Amount * DiscountPct / 100);  // Enqueue values for SalesStatisticsModalPageHandler.
+        EnqueueValuesForModalPageHandler(SalesLine.Amount, SalesLine.Amount * DiscountPct / 100, SalesLine.Amount - SalesLine.Amount * DiscountPct / 100);  // Enqueue values for SalesStatisticsModalPageHandler.
 
         // Exercise.
-        SalesInvoice.Statistics.Invoke();  // Opens SalesStatisticsModalPageHandler.
+        SalesInvoice.SalesStatistics.Invoke();  // Opens SalesStatisticsModalPageHandler.
 
         // Verify: Verification is done in SalesStatisticsModalPageHandler.
 
@@ -232,9 +280,27 @@ codeunit 144053 "ERM Ignore Discount"
         PurchaseStatistics.TotalAmount1.AssertEquals(TotalAmountOne);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesStatisticsModalPageHandler(var SalesStatistics: TestPage "Sales Statistics")
+    var
+        Amount: Variant;
+        InvDiscountAmount: Variant;
+        TotalAmountOne: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(Amount);
+        LibraryVariableStorage.Dequeue(InvDiscountAmount);
+        LibraryVariableStorage.Dequeue(TotalAmountOne);
+        SalesStatistics.Amount.AssertEquals(Amount);
+        SalesStatistics.InvDiscountAmount.AssertEquals(InvDiscountAmount);
+        SalesStatistics.TotalAmount1.AssertEquals(TotalAmountOne);
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatisticsPageHandler(var SalesStatistics: TestPage "Sales Statistics")
     var
         Amount: Variant;
         InvDiscountAmount: Variant;

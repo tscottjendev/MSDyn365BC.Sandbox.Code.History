@@ -960,6 +960,15 @@ table 5990 "Service Shipment Header"
         end
     end;
 
+    procedure IsCompletelyInvoiced(): Boolean
+    var
+        ServiceShipmentLine: Record "Service Shipment Line";
+    begin
+        ServiceShipmentLine.SetRange("Document No.", "No.");
+        ServiceShipmentLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
+        exit(ServiceShipmentLine.IsEmpty());
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyToItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceShipmentHeader: Record "Service Shipment Header")
     begin

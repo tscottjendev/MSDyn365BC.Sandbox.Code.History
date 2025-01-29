@@ -40,6 +40,8 @@ codeunit 134393 "ERM Sales Subform"
         MustMatchErr: Label '%1 and %2 must match.';
         InvoiceDiscPct: Label 'Invoice Disc. Pct.';
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -63,6 +65,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckInvoiceStatistics(SalesInvoice);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -85,6 +88,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckInvoiceStatistics(SalesInvoice);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -143,6 +147,7 @@ codeunit 134393 "ERM Sales Subform"
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -178,6 +183,7 @@ codeunit 134393 "ERM Sales Subform"
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -201,6 +207,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckInvoiceStatistics(SalesInvoice);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -224,6 +231,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckInvoiceStatistics(SalesInvoice);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -256,6 +264,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckInvoiceStatistics(SalesInvoice);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -288,6 +297,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckInvoiceStatistics(SalesInvoice);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -315,6 +325,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckInvoiceStatistics(SalesInvoice);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -345,6 +356,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckInvoiceStatistics(SalesInvoice);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -373,6 +385,341 @@ codeunit 134393 "ERM Sales Subform"
         SalesInvoice."Bill-to Name".SetValue(NewCustomer.Name);
 
         CheckInvoiceStatistics(SalesInvoice);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceAddingLinesUpdatesTotalsNonModalStats()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+        ItemQuantity: Decimal;
+        ItemUnitPrice: Decimal;
+    begin
+        Initialize();
+        ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
+        ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
+
+        CreateCustomer(Customer);
+        CreateItem(Item, ItemUnitPrice);
+
+        CreateInvoiceWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesInvoice);
+
+        CheckInvoiceSalesStatistics(SalesInvoice);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceAddingLineUpdatesInvoiceDiscountWhenInvoiceDiscountTypeIsPercentageNonModalStats()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+
+        CreateInvoiceWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesInvoice);
+        // prepare dialog
+        LibraryVariableStorage.Enqueue('Do you');
+        LibraryVariableStorage.Enqueue(true);
+        SalesInvoice.CalculateInvoiceDiscount.Invoke();
+
+        CheckInvoiceSalesStatistics(SalesInvoice);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceModifyingLineUpdatesTotalsAndInvDiscTypePctNonModalStats()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        SalesInvoice: TestPage "Sales Invoice";
+        ItemQuantity: Decimal;
+        TotalAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+
+        CreateInvoiceWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesInvoice);
+
+        SalesInvoice.SalesLines.First();
+        ItemQuantity := ItemQuantity * 2;
+        SalesInvoice.SalesLines.Quantity.SetValue(ItemQuantity);
+        TotalAmount := ItemQuantity * Item."Unit Price";
+        SalesInvoice.SalesLines.Next();
+        SalesInvoice.SalesLines.First();
+
+        CheckInvoiceSalesStatistics(SalesInvoice);
+
+        SalesInvoice.SalesLines."Unit Price".SetValue(2 * Item."Unit Price");
+        TotalAmount := 2 * TotalAmount;
+        SalesInvoice.SalesLines.Next();
+        SalesInvoice.SalesLines.First();
+
+        CheckInvoiceSalesStatistics(SalesInvoice);
+
+        SalesInvoice.SalesLines."Line Amount".SetValue(
+          Round(SalesInvoice.SalesLines."Line Amount".AsDecimal() / 2, 1));
+        SalesInvoice.SalesLines.Next();
+        SalesInvoice.SalesLines.First();
+        CheckInvoiceSalesStatistics(SalesInvoice);
+
+        SalesInvoice.SalesLines."Line Discount %".SetValue('0');
+        SalesInvoice.SalesLines.Next();
+        SalesInvoice.SalesLines.First();
+        CheckInvoiceSalesStatistics(SalesInvoice);
+
+        SalesInvoice.SalesLines."No.".SetValue('');
+        TotalAmount := 0;
+        SalesInvoice.SalesLines.Next();
+        SalesInvoice.SalesLines.First();
+
+        ValidateInvoiceInvoiceDiscountAmountIsReadOnly(SalesInvoice);
+        CheckInvoiceSalesStatistics(SalesInvoice);
+
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.SetRange("Document No.", SalesInvoice."No.".Value);
+        SalesLine.FindFirst();
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceModifyingLineUpdatesTotalsAndSetsInvDiscTypeAmountToZeroNonModalStats()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        SalesInvoice: TestPage "Sales Invoice";
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
+
+        CreateInvoiceWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesInvoice);
+
+        SalesInvoice.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        ItemQuantity := ItemQuantity * 2;
+        SalesInvoice.SalesLines.Quantity.SetValue(ItemQuantity);
+        SalesInvoice.SalesLines.Next();
+        SalesInvoice.SalesLines.First();
+
+        CheckInvoiceSalesStatistics(SalesInvoice);
+
+        SalesInvoice.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+        CheckInvoiceSalesStatistics(SalesInvoice);
+
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.SetRange("Document No.", SalesInvoice."No.".Value);
+        SalesLine.FindFirst();
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure InvioceDiscountTypePercentageIsSetWhenInvoiceIsOpenedNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+
+        CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+
+        OpenSalesInvoice(SalesHeader, SalesInvoice);
+
+        ValidateInvoiceInvoiceDiscountAmountIsReadOnly(SalesInvoice);
+        CheckInvoiceSalesStatistics(SalesInvoice);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure InvioceDiscountTypeAmountIsSetWhenInvoiceIsOpenedNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
+
+        CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesInvoice(SalesHeader, SalesInvoice);
+        SalesInvoice.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        CheckInvoiceSalesStatistics(SalesInvoice);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceChangingSellToCustomerRecalculatesForInvoiceDiscountTypePercentageNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        NewCustomer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        NewCustDiscPct: Decimal;
+    begin
+        Initialize();
+
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+        NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
+        CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
+
+        CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesInvoice(SalesHeader, SalesInvoice);
+
+        AnswerYesToAllConfirmDialogs();
+
+        SalesInvoice."Sell-to Customer Name".SetValue(NewCustomer."No.");
+        SalesInvoice.SalesLines.Next();
+
+        ValidateInvoiceInvoiceDiscountAmountIsReadOnly(SalesInvoice);
+        CheckInvoiceSalesStatistics(SalesInvoice);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceChangingSellToCustomerSetsDiscountToZeroForInvoiceDiscountTypeAmountNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        NewCustomer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+        NewCustDiscPct: Decimal;
+    begin
+        Initialize();
+
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
+        NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
+
+        CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesInvoice(SalesHeader, SalesInvoice);
+        SalesInvoice.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        AnswerYesToAllConfirmDialogs();
+        SalesInvoice."Sell-to Customer Name".SetValue(NewCustomer."No.");
+        SalesInvoice.SalesLines.Next();
+
+        CheckInvoiceSalesStatistics(SalesInvoice);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceChangingSellToCustomerToCustomerWithoutDiscountsSetDiscountAndCustDiscPctToZeroNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        NewCustomer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+        CreateCustomer(NewCustomer);
+
+        CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesInvoice(SalesHeader, SalesInvoice);
+
+        AnswerYesToAllConfirmDialogs();
+        SalesInvoice."Sell-to Customer Name".SetValue(NewCustomer."No.");
+        SalesInvoice.SalesLines.Next();
+
+        CheckInvoiceSalesStatistics(SalesInvoice);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceModifyindFieldOnHeaderRecalculatesForInvoiceDiscountTypePercentageNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        NewCustomer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        NewCustomerDiscPct: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+        NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
+        CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
+
+        CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesInvoice(SalesHeader, SalesInvoice);
+
+        AnswerYesToAllConfirmDialogs();
+        SalesInvoice."Bill-to Name".SetValue(NewCustomer.Name);
+        SalesInvoice.SalesLines.Next();
+
+        ValidateInvoiceInvoiceDiscountAmountIsReadOnly(SalesInvoice);
+        CheckInvoiceSalesStatistics(SalesInvoice);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceModifyindFieldOnHeaderSetsDiscountToZeroForInvoiceDiscountTypeAmountNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        NewCustomer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+        NewCustomerDiscPct: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
+        NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
+        CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
+
+        CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesInvoice(SalesHeader, SalesInvoice);
+        SalesInvoice.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        AnswerYesToAllConfirmDialogs();
+        SalesInvoice."Bill-to Name".SetValue(NewCustomer.Name);
+
+        CheckInvoiceSalesStatistics(SalesInvoice);
     end;
 
     [Test]
@@ -456,6 +803,8 @@ codeunit 134393 "ERM Sales Subform"
         InvoiceCheckCurrencyOnTotals(SalesInvoice, GeneralLedgerSetup.GetCurrencyCode(''));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -479,6 +828,31 @@ codeunit 134393 "ERM Sales Subform"
         LibraryVariableStorage.Enqueue(true);
         SalesInvoice.CalculateInvoiceDiscount.Invoke();
         CheckInvoiceStatistics(SalesInvoice);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceApplyManualDiscountNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+        SetAllowManualDisc();
+
+        CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesInvoice(SalesHeader, SalesInvoice);
+
+        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
+        LibraryVariableStorage.Enqueue(true);
+        SalesInvoice.CalculateInvoiceDiscount.Invoke();
+        CheckInvoiceSalesStatistics(SalesInvoice);
     end;
 
     [Test]
@@ -992,6 +1366,8 @@ codeunit 134393 "ERM Sales Subform"
         Assert.IsTrue(SalesOrder.SalesLines."Unit of Measure Code".Editable(), UnitofMeasureCodeIsNotEditableMsg);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -1015,6 +1391,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckQuoteStatistics(SalesQuote);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -1034,6 +1411,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckQuoteStatistics(SalesQuote);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -1089,6 +1467,7 @@ codeunit 134393 "ERM Sales Subform"
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -1112,6 +1491,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckQuoteStatistics(SalesQuote);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -1135,6 +1515,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckQuoteStatistics(SalesQuote);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -1165,6 +1546,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckQuoteStatistics(SalesQuote);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -1195,6 +1577,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckQuoteStatistics(SalesQuote);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -1222,6 +1605,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckQuoteStatistics(SalesQuote);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -1253,6 +1637,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckQuoteStatistics(SalesQuote);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -1282,6 +1667,298 @@ codeunit 134393 "ERM Sales Subform"
         SalesLine.FindFirst();
 
         CheckQuoteStatistics(SalesQuote);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure QuoteAddingLinesUpdatesTotalsNonModalStats()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesQuote: TestPage "Sales Quote";
+        ItemQuantity: Decimal;
+        ItemUnitPrice: Decimal;
+    begin
+        Initialize();
+        ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
+        ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
+
+        CreateCustomer(Customer);
+        CreateItem(Item, ItemUnitPrice);
+
+        CreateQuoteWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesQuote);
+
+        CheckQuoteSalesStatistics(SalesQuote);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure QuoteAddingLineUpdatesInvoiceDiscountWhenInvoiceDiscountTypeIsPercentageNonModalStats()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesQuote: TestPage "Sales Quote";
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+
+        CreateQuoteWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesQuote);
+
+        ValidateQuoteInvoiceDiscountAmountIsReadOnly(SalesQuote);
+        CheckQuoteSalesStatistics(SalesQuote);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure QuoteModifyingLineUpdatesTotalsAndInvDiscTypePctNonModalStats()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        SalesQuote: TestPage "Sales Quote";
+        ItemQuantity: Decimal;
+        TotalAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+
+        CreateQuoteWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesQuote);
+
+        ItemQuantity := ItemQuantity * 2;
+        SalesQuote.SalesLines.Quantity.SetValue(ItemQuantity);
+        TotalAmount := ItemQuantity * Item."Unit Price";
+        SalesQuote.SalesLines.Next();
+        SalesQuote.SalesLines.First();
+        CheckQuoteSalesStatistics(SalesQuote);
+
+        SalesQuote.SalesLines."Unit Price".SetValue(2 * Item."Unit Price");
+        TotalAmount := 2 * TotalAmount;
+        SalesQuote.SalesLines.Next();
+        SalesQuote.SalesLines.First();
+        CheckQuoteSalesStatistics(SalesQuote);
+
+        SalesQuote.SalesLines."Line Amount".SetValue(
+          Round(SalesQuote.SalesLines."Line Amount".AsDecimal() / 2, 1));
+        SalesQuote.SalesLines.Next();
+        SalesQuote.SalesLines.First();
+        CheckQuoteSalesStatistics(SalesQuote);
+
+        SalesQuote.SalesLines."Line Discount %".SetValue('0');
+        SalesQuote.SalesLines.Next();
+        SalesQuote.SalesLines.First();
+        CheckQuoteSalesStatistics(SalesQuote);
+
+        SalesQuote.SalesLines."No.".SetValue('');
+        TotalAmount := 0;
+        SalesQuote.SalesLines.Next();
+        SalesQuote.SalesLines.First();
+
+        ValidateQuoteInvoiceDiscountAmountIsReadOnly(SalesQuote);
+        CheckQuoteSalesStatistics(SalesQuote);
+
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
+        SalesLine.SetRange("Document No.", SalesQuote."No.".Value);
+        SalesLine.FindFirst();
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure QuoteDiscountTypePercentageIsSetWhenInvoiceIsOpenedNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesQuote: TestPage "Sales Quote";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+
+        CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+
+        OpenSalesQuote(SalesHeader, SalesQuote);
+
+        ValidateQuoteInvoiceDiscountAmountIsReadOnly(SalesQuote);
+        CheckQuoteSalesStatistics(SalesQuote);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure QuoteDiscountTypeAmountIsSetWhenInvoiceIsOpenedNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesQuote: TestPage "Sales Quote";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
+
+        CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesQuote(SalesHeader, SalesQuote);
+        SalesQuote.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        CheckQuoteSalesStatistics(SalesQuote);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure QuoteChangingSellToCustomerRecalculatesForInvoiceDiscountTypePercentageNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        NewCustomer: Record Customer;
+        SalesQuote: TestPage "Sales Quote";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        NewCustDiscPct: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+        NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
+        CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
+
+        CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesQuote(SalesHeader, SalesQuote);
+
+        AnswerYesToAllConfirmDialogs();
+        SalesQuote."Sell-to Customer Name".SetValue(NewCustomer.Name);
+        SalesQuote.SalesLines.Next();
+
+        ValidateQuoteInvoiceDiscountAmountIsReadOnly(SalesQuote);
+        CheckQuoteSalesStatistics(SalesQuote);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure QuoteChangingSellToCustomerSetsDiscountToZeroForInvoiceDiscountTypeAmountNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        NewCustomer: Record Customer;
+        SalesQuote: TestPage "Sales Quote";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+        NewCustDiscPct: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
+        NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
+
+        CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesQuote(SalesHeader, SalesQuote);
+        SalesQuote.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        AnswerYesToAllConfirmDialogs();
+        SalesQuote."Sell-to Customer Name".SetValue(NewCustomer.Name);
+
+        CheckQuoteSalesStatistics(SalesQuote);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure QuoteChangingSellToCustomerToCustomerWithoutDiscountsSetDiscountAndCustDiscPctToZeroNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        NewCustomer: Record Customer;
+        SalesQuote: TestPage "Sales Quote";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+        CreateCustomer(NewCustomer);
+
+        CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesQuote(SalesHeader, SalesQuote);
+
+        AnswerYesToAllConfirmDialogs();
+        SalesQuote."Sell-to Customer Name".SetValue(NewCustomer.Name);
+        SalesQuote.SalesLines.Next();
+
+        CheckQuoteSalesStatistics(SalesQuote);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure QuoteModifyindFieldOnHeaderUpdatesTotalsAndDiscountsForInvoiceDiscountTypePercentageNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        SalesQuote: TestPage "Sales Quote";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+
+        CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+
+        OpenSalesQuote(SalesHeader, SalesQuote);
+
+        AnswerYesToConfirmDialog();
+        SalesQuote."Currency Code".SetValue(GetDifferentCurrencyCode());
+
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        Assert.IsFalse(SalesLine.IsEmpty(), 'Sales Line not found');
+
+        ValidateQuoteInvoiceDiscountAmountIsReadOnly(SalesQuote);
+        CheckQuoteSalesStatistics(SalesQuote);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure QuoteModifyindFieldOnHeaderSetsDiscountToZeroForInvoiceDiscountTypeAmountNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        SalesQuote: TestPage "Sales Quote";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
+
+        CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesQuote(SalesHeader, SalesQuote);
+        SalesQuote.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        AnswerYesToAllConfirmDialogs();
+        SalesQuote."Currency Code".SetValue(GetDifferentCurrencyCode());
+
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        Assert.IsFalse(SalesLine.IsEmpty(), 'Sales Line not found');
+
+        CheckQuoteSalesStatistics(SalesQuote);
     end;
 
     [Test]
@@ -1336,6 +2013,8 @@ codeunit 134393 "ERM Sales Subform"
         QuoteCheckCurrencyOnTotals(SalesQuote, GeneralLedgerSetup.GetCurrencyCode(''));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -1359,6 +2038,31 @@ codeunit 134393 "ERM Sales Subform"
         LibraryVariableStorage.Enqueue(true);
         SalesQuote.CalculateInvoiceDiscount.Invoke();
         CheckQuoteStatistics(SalesQuote);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure QuoteApplyManualDiscountNonModal()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesQuote: TestPage "Sales Quote";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+        SetAllowManualDisc();
+
+        CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesQuote(SalesHeader, SalesQuote);
+
+        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
+        LibraryVariableStorage.Enqueue(true);
+        SalesQuote.CalculateInvoiceDiscount.Invoke();
+        CheckQuoteSalesStatistics(SalesQuote);
     end;
 
     [Test]
@@ -2213,6 +2917,8 @@ codeunit 134393 "ERM Sales Subform"
         CheckReturnOrderStatistics(SalesReturnOrder);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2236,6 +2942,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckCreditMemoStatistics(SalesCreditMemo);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2255,6 +2962,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckCreditMemoStatistics(SalesCreditMemo);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2329,6 +3037,7 @@ codeunit 134393 "ERM Sales Subform"
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2352,6 +3061,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckCreditMemoStatistics(SalesCreditMemo);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2375,6 +3085,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckCreditMemoStatistics(SalesCreditMemo);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2406,6 +3117,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckCreditMemoStatistics(SalesCreditMemo);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2437,6 +3149,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckCreditMemoStatistics(SalesCreditMemo);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2464,6 +3177,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckCreditMemoStatistics(SalesCreditMemo);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2495,6 +3209,7 @@ codeunit 134393 "ERM Sales Subform"
         CheckCreditMemoStatistics(SalesCreditMemo);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2524,6 +3239,319 @@ codeunit 134393 "ERM Sales Subform"
         SalesLine.FindFirst();
 
         CheckCreditMemoStatistics(SalesCreditMemo);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure CreditMemoAddingLinesUpdatesTotalsNonModalStats()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        ItemQuantity: Decimal;
+        ItemUnitPrice: Decimal;
+    begin
+        Initialize();
+        ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
+        ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
+
+        CreateCustomer(Customer);
+        CreateItem(Item, ItemUnitPrice);
+
+        CreateCreditMemoWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesCreditMemo);
+
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure CreditMemoAddingLineUpdatesInvoiceDiscountWhenInvoiceDiscountTypeIsPercentageNonModalStats()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+
+        CreateCreditMemoWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesCreditMemo);
+
+        ValidateCreditMemoInvoiceDiscountAmountIsReadOnly(SalesCreditMemo);
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure CreditMemoModifyingLineUpdatesTotalsAndInvDiscTypePctNonModalStats()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUOM: Record "Item Unit of Measure";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        ItemQuantity: Decimal;
+        TotalAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+
+        CreateCreditMemoWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesCreditMemo);
+
+        ItemQuantity := ItemQuantity * 2;
+        SalesCreditMemo.SalesLines.Quantity.SetValue(ItemQuantity);
+        TotalAmount := ItemQuantity * Item."Unit Price";
+        SalesCreditMemo.SalesLines.Next();
+        SalesCreditMemo.SalesLines.First();
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+
+        SalesCreditMemo.SalesLines."Unit Price".SetValue(2 * Item."Unit Price");
+        TotalAmount := 2 * TotalAmount;
+        SalesCreditMemo.SalesLines.Next();
+        SalesCreditMemo.SalesLines.First();
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+
+        UnitOfMeasure.Init();
+        UnitOfMeasure.Validate(
+          Code,
+          LibraryUtility.GenerateRandomCode(UnitOfMeasure.FieldNo(Code), DATABASE::"Unit of Measure"));
+        UnitOfMeasure.Insert();
+
+        ItemUOM.Init();
+        ItemUOM.Validate("Item No.", Item."No.");
+        ItemUOM.Validate(Code, UnitOfMeasure.Code);
+        ItemUOM.Validate("Qty. per Unit of Measure", 5);
+        ItemUOM.Insert();
+        SalesCreditMemo.SalesLines."Unit of Measure Code".SetValue(ItemUOM.Code);
+        TotalAmount := ItemQuantity * Item."Unit Price" * 5;
+        SalesCreditMemo.SalesLines.Next();
+        SalesCreditMemo.SalesLines.First();
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+
+        SalesCreditMemo.SalesLines."Line Amount".SetValue(
+          Round(SalesCreditMemo.SalesLines."Line Amount".AsDecimal() / 2, 1));
+        SalesCreditMemo.SalesLines.Next();
+        SalesCreditMemo.SalesLines.First();
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+
+        SalesCreditMemo.SalesLines."Line Discount %".SetValue('0');
+        SalesCreditMemo.SalesLines.Next();
+        SalesCreditMemo.SalesLines.First();
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+
+        SalesCreditMemo.SalesLines."No.".SetValue('');
+        TotalAmount := 0;
+        SalesCreditMemo.SalesLines.Next();
+        SalesCreditMemo.SalesLines.First();
+
+        ValidateCreditMemoInvoiceDiscountAmountIsReadOnly(SalesCreditMemo);
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
+        SalesLine.SetRange("Document No.", SalesCreditMemo."No.".Value);
+        SalesLine.FindFirst();
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure CreditMemoInvioceDiscountTypePercentageIsSetWhenInvoiceIsOpenedNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+
+        CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+
+        OpenSalesCreditMemo(SalesHeader, SalesCreditMemo);
+
+        ValidateCreditMemoInvoiceDiscountAmountIsReadOnly(SalesCreditMemo);
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure CreditMemoInvioceDiscountTypeAmountIsSetWhenInvoiceIsOpenedNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
+
+        CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesCreditMemo(SalesHeader, SalesCreditMemo);
+        SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure CreditMemoChangingSellToCustomerRecalculatesForInvoiceDiscountTypePercentageNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        NewCustomer: Record Customer;
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        NewCustDiscPct: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+        NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
+        CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
+
+        CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesCreditMemo(SalesHeader, SalesCreditMemo);
+
+        AnswerYesToAllConfirmDialogs();
+
+        SalesCreditMemo."Sell-to Customer Name".SetValue(NewCustomer."No.");
+        SalesCreditMemo.SalesLines.Next();
+
+        ValidateCreditMemoInvoiceDiscountAmountIsReadOnly(SalesCreditMemo);
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure CreditMemoChangingSellToCustomerSetsDiscountToZeroForInvoiceDiscountTypeAmountNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        NewCustomer: Record Customer;
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+        NewCustDiscPct: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
+        NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
+
+        CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesCreditMemo(SalesHeader, SalesCreditMemo);
+        SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        AnswerYesToAllConfirmDialogs();
+        SalesCreditMemo."Sell-to Customer Name".SetValue(NewCustomer."No.");
+        SalesCreditMemo.SalesLines.Next();
+
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure CreditMemoChangeSellToCustomerToCustomerWithoutDiscountsSetDiscountAndCustDiscPctToZeroNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        NewCustomer: Record Customer;
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+        CreateCustomer(NewCustomer);
+
+        CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesCreditMemo(SalesHeader, SalesCreditMemo);
+
+        AnswerYesToAllConfirmDialogs();
+        SalesCreditMemo."Sell-to Customer Name".SetValue(NewCustomer."No.");
+        SalesCreditMemo.SalesLines.Next();
+
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure CreditMemoModifyindFieldOnHeaderUpdatesTotalsAndDiscountsForInvoiceDiscountTypePercentageNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+
+        CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+
+        OpenSalesCreditMemo(SalesHeader, SalesCreditMemo);
+
+        AnswerYesToConfirmDialog();
+        SalesCreditMemo."Currency Code".SetValue(GetDifferentCurrencyCode());
+
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        Assert.IsFalse(SalesLine.IsEmpty(), 'Sales Line not found');
+
+        ValidateCreditMemoInvoiceDiscountAmountIsReadOnly(SalesCreditMemo);
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure CreditMemoModifyindFieldOnHeaderSetsDiscountToZeroForInvoiceDiscountTypeAmountNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
+
+        CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesCreditMemo(SalesHeader, SalesCreditMemo);
+        SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        AnswerYesToConfirmDialog();
+        SalesCreditMemo."Currency Code".SetValue(GetDifferentCurrencyCode());
+
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        Assert.IsFalse(SalesLine.IsEmpty(), 'Sales Line not found');
+
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
     end;
 
     [Test]
@@ -2609,6 +3637,8 @@ codeunit 134393 "ERM Sales Subform"
         CreditMemoCheckCurrencyOnTotals(SalesCreditMemo, GeneralLedgerSetup.GetCurrencyCode(''));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2633,6 +3663,32 @@ codeunit 134393 "ERM Sales Subform"
         SalesCreditMemo.CalculateInvoiceDiscount.Invoke();
         CheckCreditMemoStatistics(SalesCreditMemo);
     end;
+#endif
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure CreditMemoApplyManualDiscountNonModalStats()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
+        SetAllowManualDisc();
+
+        CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
+        OpenSalesCreditMemo(SalesHeader, SalesCreditMemo);
+
+        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
+        LibraryVariableStorage.Enqueue(true);
+        SalesCreditMemo.CalculateInvoiceDiscount.Invoke();
+        CheckCreditMemoSalesStatistics(SalesCreditMemo);
+    end;
+
 
     [Test]
     [Scope('OnPrem')]
@@ -4535,6 +5591,8 @@ codeunit 134393 "ERM Sales Subform"
         exit(ItemUnitOfMeasure.Code);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure CheckInvoiceStatistics(SalesInvoice: TestPage "Sales Invoice")
     begin
         LibraryVariableStorage.Clear();
@@ -4542,6 +5600,15 @@ codeunit 134393 "ERM Sales Subform"
         LibraryVariableStorage.Enqueue(SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal());
         LibraryVariableStorage.Enqueue(SalesInvoice.SalesLines."Total VAT Amount".AsDecimal());
         SalesInvoice.Statistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
+    end;
+#endif
+    local procedure CheckInvoiceSalesStatistics(SalesInvoice: TestPage "Sales Invoice")
+    begin
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal());
+        LibraryVariableStorage.Enqueue(SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal());
+        LibraryVariableStorage.Enqueue(SalesInvoice.SalesLines."Total VAT Amount".AsDecimal());
+        SalesInvoice.SalesStatistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
 
     local procedure CheckOrderStatistics(SalesOrder: TestPage "Sales Order")
@@ -4554,6 +5621,8 @@ codeunit 134393 "ERM Sales Subform"
         SalesOrder.Statistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure CheckQuoteStatistics(SalesQuote: TestPage "Sales Quote")
     begin
         LibraryVariableStorage.Clear();
@@ -4561,6 +5630,15 @@ codeunit 134393 "ERM Sales Subform"
         LibraryVariableStorage.Enqueue(SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal());
         LibraryVariableStorage.Enqueue(SalesQuote.SalesLines."Total VAT Amount".AsDecimal());
         SalesQuote.Statistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
+    end;
+#endif
+    local procedure CheckQuoteSalesStatistics(SalesQuote: TestPage "Sales Quote")
+    begin
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal());
+        LibraryVariableStorage.Enqueue(SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal());
+        LibraryVariableStorage.Enqueue(SalesQuote.SalesLines."Total VAT Amount".AsDecimal());
+        SalesQuote.SalesStatistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
 
     local procedure CheckBlanketOrderStatistics(BlanketSalesOrder: TestPage "Blanket Sales Order")
@@ -4583,6 +5661,8 @@ codeunit 134393 "ERM Sales Subform"
         SalesReturnOrder.Statistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure CheckCreditMemoStatistics(SalesCreditMemo: TestPage "Sales Credit Memo")
     begin
         LibraryVariableStorage.Clear();
@@ -4590,6 +5670,15 @@ codeunit 134393 "ERM Sales Subform"
         LibraryVariableStorage.Enqueue(SalesCreditMemo.SalesLines."Total Amount Incl. VAT".AsDecimal());
         LibraryVariableStorage.Enqueue(SalesCreditMemo.SalesLines."Total VAT Amount".AsDecimal());
         SalesCreditMemo.Statistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
+    end;
+#endif
+    local procedure CheckCreditMemoSalesStatistics(SalesCreditMemo: TestPage "Sales Credit Memo")
+    begin
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(SalesCreditMemo.SalesLines."Invoice Discount Amount".AsDecimal());
+        LibraryVariableStorage.Enqueue(SalesCreditMemo.SalesLines."Total Amount Incl. VAT".AsDecimal());
+        LibraryVariableStorage.Enqueue(SalesCreditMemo.SalesLines."Total VAT Amount".AsDecimal());
+        SalesCreditMemo.SalesStatistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
 
     local procedure CheckPostedInvoiceStatistics(PostedSalesInvoice: TestPage "Posted Sales Invoice")
@@ -5344,9 +6433,31 @@ codeunit 134393 "ERM Sales Subform"
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Msg);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesStatisticsModalHandler(var SalesStatistics: TestPage "Sales Statistics")
+    var
+        VATApplied: Variant;
+        TotalAmountInclVAT: Variant;
+        InvDiscAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(InvDiscAmount);
+        LibraryVariableStorage.Dequeue(TotalAmountInclVAT);
+        LibraryVariableStorage.Dequeue(VATApplied);
+
+        Assert.AreNearlyEqual(InvDiscAmount, SalesStatistics.InvDiscountAmount.AsDecimal(),
+          0.2, 'Invoice Discount Amount is not correct');
+        Assert.AreNearlyEqual(TotalAmountInclVAT, SalesStatistics.TotalAmount2.AsDecimal(),
+          0.2, 'Total Amount Incl. VAT is not correct');
+        Assert.AreNearlyEqual(VATApplied, SalesStatistics.VATAmount.AsDecimal(),
+          0.2, 'VAT Amount is not correct');
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
     var
         VATApplied: Variant;
         TotalAmountInclVAT: Variant;
