@@ -63,7 +63,12 @@ table 846 "Cash Flow Worksheet Line"
             trigger OnValidate()
             var
                 CFAccount: Record "Cash Flow Account";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeOnValidateCashFlowAccountNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
                 if "Cash Flow Account No." <> '' then begin
                     CFAccount.Get("Cash Flow Account No.");
                     CFAccount.TestField("Account Type", CFAccount."Account Type"::Entry);
@@ -442,6 +447,11 @@ table 846 "Cash Flow Worksheet Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnCalculateCFAmountAndCFDateOnBeforeCalcPaymentDiscount(CFDiscountDate: Date; PaymentTerms: record "Payment Terms"; var IsHandled: boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnValidateCashFlowAccountNo(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var xCashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var IsHandled: Boolean)
     begin
     end;
 }
