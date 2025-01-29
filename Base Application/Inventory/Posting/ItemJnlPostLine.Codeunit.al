@@ -197,11 +197,12 @@ codeunit 22 "Item Jnl.-Post Line"
         OnBeforeRunWithCheck(ItemJnlLine2, CalledFromAdjustment, CalledFromInvtPutawayPick, CalledFromApplicationWorksheet, PostponeReservationHandling, IsHandled);
         if IsHandled then
             exit;
+        if ItemReg."No." = 0 then  // first time in this transaction?
+            SequenceNoMgt.ClearSequenceNoCheck();
 
         PrepareItem(ItemJnlLine2);
         TrackingSpecExists := ItemTrackingMgt.RetrieveItemTracking(ItemJnlLine2, TempTrackingSpecification);
         OnRunWithCheckOnAfterRetrieveItemTracking(ItemJnlLine2, TempTrackingSpecification, TrackingSpecExists, PostponeReservationHandling);
-        SequenceNoMgt.ClearSequenceNoCheck();
         exit(PostSplitJnlLine(ItemJnlLine2, TrackingSpecExists));
     end;
 
@@ -2881,6 +2882,9 @@ codeunit 22 "Item Jnl.-Post Line"
     var
         IsHandled: Boolean;
     begin
+        if Item."No." <> ValueEntry."Item No." then
+            Item.Get(ValueEntry."Item No.");
+
         IsHandled := false;
         OnBeforePostInventoryToGL(ValueEntry, IsHandled, ItemJnlLine, PostToGL, CalledFromAdjustment, Item."Inventory Value Zero");
         if IsHandled then
@@ -4253,6 +4257,7 @@ codeunit 22 "Item Jnl.-Post Line"
     var
         ValueEntry: Record "Value Entry";
     begin
+        ValueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
         exit(ValueEntry.IsEmpty);
