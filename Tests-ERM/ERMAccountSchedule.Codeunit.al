@@ -3692,6 +3692,84 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure GLAccNetChangeFilteredByMonthToDate()
+    var
+        GLAccount: Record "G/L Account";
+        ColumnLayout: Record "Column Layout";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Date Filter] [Month to Date] [Net Change]
+        // [SCENARIO] Month to date column should only include net change from the last month of the date filter
+
+        // [GIVEN] "G/L Account" = "A"
+        // [GIVEN] "G/L Entry" with Posting Date = "15022025" (today) and Amount = 100 for "A"
+        // [GIVEN] "G/L Entry" with Posting Date = "15012025" (1 month ago) and Amount = 200 for "A"
+        // [GIVEN] "G/L Entry" with Posting Date = "01032025" (start of next month) and Amount = 400 for "A"
+        Initialize();
+        LibraryERM.CreateGLAccount(GLAccount);
+        Amount := LibraryRandom.RandDec(100, 2);
+        MockGLEntry(Amount, WorkDate(), GLAccount."No.");
+        MockGLEntry(Amount * 2, CalcDate('<-1M>', WorkDate()), GLAccount."No.");
+        MockGLEntry(Amount * 4, CalcDate('<CM+1D>', WorkDate()), GLAccount."No.");
+
+        // [GIVEN] Account Schedule Line with Row Type = "Net Change" and Column Layout with type "Month to Date"
+        // [GIVEN] View = "Year", "Date Filter" = "15012025..28022025" (1 month ago to end of this month)
+        CreatePostingAccountsAccScheduleLine(
+          ColumnLayout, AccScheduleLine, GLAccount."No.", ColumnLayout."Column Type"::"Month to Date");
+        AccScheduleLine."Row Type" := AccScheduleLine."Row Type"::"Net Change";
+        AccScheduleLine.Modify();
+        ResetComparisonFormulasOnColumnLayout(ColumnLayout);
+
+        // [WHEN] Account Schedule Management (Codeunit 8) applies filter on given G/L Account
+        AccScheduleLine.SetRange("Date Filter", CalcDate('<-1M>', WorkDate()), CalcDate('<CM>', WorkDate()));
+        AccScheduleManagementApplyFiltersOnGLAccount(AccScheduleLine, ColumnLayout, GLAccount);
+
+        // [THEN] Calculated amount must be equal to 200 (only entries from with the current month)
+        GLAccount.CalcFields("Net Change");
+        Assert.AreEqual(Amount, GLAccount."Net Change", GLAccount.FieldCaption("Net Change"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLAccBeginningBalanceFilteredByMonthToDate()
+    var
+        GLAccount: Record "G/L Account";
+        ColumnLayout: Record "Column Layout";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Date Filter] [Month to Date] [Beginning Balance]
+        // [SCENARIO] Month to date column should only include beginning balance until the closing of last month
+
+        // [GIVEN] "G/L Account" = "A"
+        // [GIVEN] "G/L Entry" with Posting Date = "15022025" (today) and Amount = 100 for "A"
+        // [GIVEN] "G/L Entry" with Posting Date = "15012025" (1 month ago) and Amount = 200 for "A"
+        // [GIVEN] "G/L Entry" with Posting Date = "C31012025" (closing of last month) and Amount = 400 for "A"
+        Initialize();
+        LibraryERM.CreateGLAccount(GLAccount);
+        Amount := LibraryRandom.RandDec(100, 2);
+        MockGLEntry(Amount, WorkDate(), GLAccount."No.");
+        MockGLEntry(Amount * 2, CalcDate('<-1M>', WorkDate()), GLAccount."No.");
+        MockGLEntry(Amount * 4, ClosingDate(CalcDate('<-CM-1D>', WorkDate())), GLAccount."No.");
+
+        // [GIVEN] Account Schedule Line with Row Type = "Beginning Balance" and Column Layout with type "Month to Date"
+        // [GIVEN] View = "Year", "Date Filter" = "15012025..28022025" (1 month ago to end of this month)
+        CreatePostingAccountsAccScheduleLine(
+          ColumnLayout, AccScheduleLine, GLAccount."No.", ColumnLayout."Column Type"::"Month to Date");
+        ResetComparisonFormulasOnColumnLayout(ColumnLayout);
+
+        // [WHEN] Account Schedule Management (Codeunit 8) applies filter on given G/L Account
+        AccScheduleLine.SetRange("Date Filter", CalcDate('<-1M>', WorkDate()), CalcDate('<CM>', WorkDate()));
+        AccScheduleManagementApplyFiltersOnGLAccount(AccScheduleLine, ColumnLayout, GLAccount);
+
+        // [THEN] Calculated amount must be equal to 600 (only entries from last month until the closing date)
+        GLAccount.CalcFields("Net Change");
+        Assert.AreEqual(Amount * 2 + Amount * 4, GLAccount."Net Change", GLAccount.FieldCaption("Net Change"));
+    end;
+
+    [Test]
     [HandlerFunctions('AccountScheduleRequestPageVerifyValuesHandler')]
     [Scope('OnPrem')]
     procedure RunAccScheduleReqPageForNotDefaultColumnLayout()

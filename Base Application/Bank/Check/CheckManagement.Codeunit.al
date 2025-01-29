@@ -196,9 +196,14 @@ codeunit 367 CheckManagement
         FinancialVoidCheckPreValidation(CheckLedgEntry);
 
         Clear(ConfirmFinancialVoid);
-        ConfirmFinancialVoid.SetCheckLedgerEntry(CheckLedgEntry);
-        if ConfirmFinancialVoid.RunModal() <> ACTION::Yes then
-            exit;
+
+        IsHandled := false;
+        OnFinancialVoidCheckOnBeforeConfirmFinancialVoid(CheckLedgEntry, IsHandled);
+        if not IsHandled then begin
+            ConfirmFinancialVoid.SetCheckLedgerEntry(CheckLedgEntry);
+            if ConfirmFinancialVoid.RunModal() <> ACTION::Yes then
+                exit;
+        end;
 
         AmountToVoid := CalcAmountToVoid(CheckLedgEntry, WHTAmount);
 
@@ -478,7 +483,14 @@ codeunit 367 CheckManagement
         GenJnlPostReverse: Codeunit "Gen. Jnl.-Post Reverse";
         AppliesID: Code[50];
         IsHandled: Boolean;
+        Result: Boolean;
     begin
+
+        IsHandled := false;
+        OnBeforeUnApplyVendInvoices(CheckLedgEntry, VoidDate, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         // first, find first original payment line, if any
         BankAccountLedgerEntry.Get(CheckLedgEntry."Bank Account Ledger Entry No.");
         if CheckLedgEntry."Bal. Account Type" = CheckLedgEntry."Bal. Account Type"::Vendor then begin
@@ -1143,6 +1155,16 @@ codeunit 367 CheckManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetGenJnlLine(var GenJnlLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUnApplyVendInvoices(var CheckLedgEntry: Record "Check Ledger Entry"; var VoidDate: Date; var IsHandled: Boolean; var Result: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinancialVoidCheckOnBeforeConfirmFinancialVoid(var CheckLedgEntry: Record "Check Ledger Entry"; var IsHandled: Boolean);
     begin
     end;
 }

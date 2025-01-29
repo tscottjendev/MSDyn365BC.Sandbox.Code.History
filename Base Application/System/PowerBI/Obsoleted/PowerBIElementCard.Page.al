@@ -1,3 +1,4 @@
+#if not CLEAN26
 namespace System.Integration.PowerBI;
 using System.Telemetry;
 using System.Environment.Configuration;
@@ -13,6 +14,9 @@ page 6323 "Power BI Element Card"
     ModifyAllowed = false;
     RefreshOnActivate = false;
     PageType = Card;
+    ObsoleteReason = 'Use page 6324 "Power BI Element Addin Host" instead.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '26.0';
 
     layout
     {
@@ -302,3 +306,4 @@ page 6323 "Power BI Element Card"
         Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
     end;
 }
+#endif

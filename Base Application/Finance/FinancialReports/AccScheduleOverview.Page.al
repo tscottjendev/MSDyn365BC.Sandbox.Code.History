@@ -15,7 +15,6 @@ page 490 "Acc. Schedule Overview"
     AboutTitle = 'About financial report';
     AboutText = 'On this page, you can run a financial report and see data based on filter values. You can also export the data to Excel or get a PDF version (or print it). When the page is in "Edit mode", you can also change the report definition, such as the choice of column and row definitions used.';
     Caption = 'Financial Report';
-    DataCaptionExpression = CurrentFinancialReportNameTxt;
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -31,16 +30,21 @@ page 490 "Acc. Schedule Overview"
     {
         area(content)
         {
+#if not CLEAN26
             field(Title; FinancialReportSummaryTxt)
             {
                 ApplicationArea = Basic, Suite;
-                Visible = ViewOnlyMode;
+                Visible = false;
                 Caption = 'Financial Report';
                 Editable = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This field is no longer required and will be removed in a future release.';
+                ObsoleteTag = '26.0';
                 ShowCaption = false;
                 Style = Strong;
                 Tooltip = 'Financial report details.';
             }
+#endif
             group(General)
             {
                 Caption = 'Options';
@@ -101,6 +105,7 @@ page 490 "Acc. Schedule Overview"
                     ApplicationArea = Basic, Suite;
                     Editable = (not ViewOnlyMode or (ViewLayout = "Financial Report View Layout"::"Show All"));
                     Caption = 'Column Definition';
+                    Importance = Promoted;
                     Lookup = true;
                     LookupPageId = "Column Layout Names";
                     ToolTip = 'Specifies the name (code) of the column definition to be used for the report.';
@@ -1214,8 +1219,9 @@ page 490 "Acc. Schedule Overview"
         // Helper page state variables
         ViewLayout: Enum "Financial Report View Layout";
         ViewOnlyModeSet: Boolean;
+#if not CLEAN26
         FinancialReportSummaryTxt: Text;
-        CurrentFinancialReportNameTxt: Text;
+#endif
         ColumnLayoutArr: array[15] of Record "Column Layout";
         ColumnValues: array[15] of Decimal;
         ColumnCaptions: array[15] of Text[80];
@@ -1546,18 +1552,21 @@ page 490 "Acc. Schedule Overview"
     end;
 
     local procedure SetFinancialReportTxt()
+    var
+        CurrentPageCaption: Text;
     begin
+        if TempFinancialReport.Description <> '' then
+            CurrentPageCaption := StrSubstNo('%1 (%2)', TempFinancialReport.Description, TempFinancialReport.Name)
+        else
+            CurrentPageCaption := TempFinancialReport.Name;
+        CurrPage.Caption(CurrentPageCaption);
+#if not CLEAN26
         FinancialReportSummaryTxt := '';
-        CurrentFinancialReportNameTxt := '';
-        AddSummaryPart(CurrentFinancialReportNameTxt, TempFinancialReport.Name);
-        if CurrentFinancialReportNameTxt = '' then begin
-            AddSummaryPart(CurrentFinancialReportNameTxt, TempFinancialReport."Financial Report Row Group");
-            AddSummaryPart(CurrentFinancialReportNameTxt, TempFinancialReport."Financial Report Column Group");
-        end;
         AddSummaryPart(FinancialReportSummaryTxt, TempFinancialReport.Name);
         AddSummaryPart(FinancialReportSummaryTxt, TempFinancialReport.Description);
         AddSummaryPart(FinancialReportSummaryTxt, TempFinancialReport."Financial Report Row Group");
         AddSummaryPart(FinancialReportSummaryTxt, TempFinancialReport."Financial Report Column Group");
+#endif
     end;
 
     [TryFunction]

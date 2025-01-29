@@ -1185,7 +1185,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
           ItemJnlLine, ItemJnlBatch, Item, '', '', StartDate, ItemJnlLine."Entry Type"::"Positive Adjmt.", Qty1, Cost1);
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
 
-        ItemLedgerEntry.SetCurrentKey("Item No.");
+        ItemLedgerEntry.SetCurrentKey("Item No.", "Entry No.");
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.FindFirst();
 
@@ -1228,7 +1228,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         LibraryPatterns.MAKEItemJournalLine(ItemJnlLine, ItemJnlBatch, Item, '', '', StartDate, ItemJnlLine."Entry Type"::Purchase, Qty1, Cost1);
         LibraryPatterns.MAKEItemJournalLine(ItemJnlLine, ItemJnlBatch, Item, '', '', StartDate + 2, ItemJnlLine."Entry Type"::Sale, Qty2, 0);
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
-        ItemLedgerEntry.SetCurrentKey("Item No.");
+        ItemLedgerEntry.SetCurrentKey("Item No.", "Entry No.");
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.FindSet();
         repeat
