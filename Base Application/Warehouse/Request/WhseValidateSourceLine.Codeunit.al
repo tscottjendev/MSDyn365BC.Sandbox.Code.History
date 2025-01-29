@@ -374,6 +374,7 @@ codeunit 5777 "Whse. Validate Source Line"
     end;
 
 #if not CLEAN26
+    [Obsolete('Replaced by same event in codeunit Assembly Warehouse Mgt.', '26.0')]
     internal procedure RunOnBeforeCheckQtyRemainingToBePickedForAssemblyConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean; var QtyRemainingToBePicked: Decimal)
     begin
         OnBeforeCheckQtyRemainingToBePickedForAssemblyConsumption(NewItemJnlLine, OldItemJnlLine, IsHandled, QtyRemainingToBePicked);

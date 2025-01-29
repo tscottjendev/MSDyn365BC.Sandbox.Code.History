@@ -954,6 +954,8 @@
         // Verify: Verification is done for VAT Amount in 'VATAmountLineHandler' handler method.
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesQuoteStatisticsHandler')]
     [Scope('OnPrem')]
@@ -970,6 +972,26 @@
 
         // Exercise: Open Statistics page from Sales Quote.
         OpenSalesQuoteStatistics(SalesHeader."No.");
+
+        // Verify: Verification is done for VAT Amount in 'VATAmountLineHandler' handler method.
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesQuoteStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATAmtFromSalesQuoteSalesStatistics()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // Check that field VAT Amount must not be editable on VAT Amount Line Page of Sales Quotes Statistics page.
+
+        // Setup: Create Sales Quote and take 1 for No of Sales Lines.
+        Initialize();
+        CreateSalesDocWithPartQtyToShip(SalesHeader, SalesLine, 1, SalesHeader."Document Type"::Quote);
+
+        // Exercise: Open Statistics page from Sales Quote.
+        OpenSalesQuoteSalesStatistics(SalesHeader."No.");
 
         // Verify: Verification is done for VAT Amount in 'VATAmountLineHandler' handler method.
     end;
@@ -1017,6 +1039,8 @@
         // Verification done in PurchaseStatisticsHandler.
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('YesConfirmHandler,SalesStatisticsHandler')]
     [Scope('OnPrem')]
@@ -1039,6 +1063,30 @@
 
         // Verify: Verification for Total Incl. VAT on Sales Invoice Statistics page.
         // Verification done in SalesStatisticsHandler.
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('YesConfirmHandler,SalesStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceSalesStatistics()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // Check Total Incl. VAT field on Sales Invoice Statistics before posting Invoice.
+
+        // Setup: Create Sales Invoice and take 1 for No. of Sales Line.
+        Initialize();
+        CreateSalesDocWithPartQtyToShip(SalesHeader, SalesLine, 1, SalesHeader."Document Type"::Invoice);
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
+
+        // Exercise: Open Statistics page from Sales Invoice.
+        LibraryVariableStorage.Enqueue(SalesLine."Amount Including VAT");
+        OpenSalesInvoiceSalesStatistics(SalesHeader."No.");
+
+        // Verify: Verification for Total Incl. VAT on Sales Invoice Statistics page.
+        // Verification done in SalesStatisticsPageHandler.
     end;
 
     [Test]
@@ -5817,6 +5865,8 @@
         SalesOrder.Statistics.Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenSalesQuoteStatistics(DocumentNo: Code[20])
     var
         SalesQuote: TestPage "Sales Quote";
@@ -5824,6 +5874,15 @@
         SalesQuote.OpenEdit();
         SalesQuote.FILTER.SetFilter("No.", DocumentNo);
         SalesQuote.Statistics.Invoke();
+    end;
+#endif
+    local procedure OpenSalesQuoteSalesStatistics(DocumentNo: Code[20])
+    var
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        SalesQuote.OpenEdit();
+        SalesQuote.FILTER.SetFilter("No.", DocumentNo);
+        SalesQuote.SalesStatistics.Invoke();
     end;
 
     local procedure OpenBlanketSalesOrderStatistics(DocumentNo: Code[20])
@@ -5835,6 +5894,8 @@
         BlanketSalesOrder.Statistics.Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenSalesInvoiceStatistics(DocumentNo: Code[20])
     var
         SalesInvoice: TestPage "Sales Invoice";
@@ -5842,6 +5903,15 @@
         SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", DocumentNo);
         SalesInvoice.Statistics.Invoke();
+    end;
+#endif
+    local procedure OpenSalesInvoiceSalesStatistics(DocumentNo: Code[20])
+    var
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        SalesInvoice.OpenEdit();
+        SalesInvoice.FILTER.SetFilter("No.", DocumentNo);
+        SalesInvoice.SalesStatistics.Invoke();
     end;
 
     local procedure OpenPurchaseOrderStatistics(DocumentNo: Code[20])
@@ -6267,11 +6337,20 @@
         PurchaseStatistics.TotalAmount1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
     begin
         // Modal Page Handler.
+        SalesStatistics.TotalAmount1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatisticsPageHandler(var SalesStatistics: TestPage "Sales Statistics")
+    begin
         SalesStatistics.TotalAmount1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
@@ -6298,9 +6377,18 @@
         SalesOrderStatistics.NoOfVATLines_General.DrillDown();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesQuoteStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
+    begin
+        Assert.IsFalse(SalesStatistics.VATAmount.Editable(), StrSubstNo(VATAmountMsg, SalesStatistics.VATAmount.Caption));
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesQuoteStatisticsPageHandler(var SalesStatistics: TestPage "Sales Statistics")
     begin
         Assert.IsFalse(SalesStatistics.VATAmount.Editable(), StrSubstNo(VATAmountMsg, SalesStatistics.VATAmount.Caption));
     end;

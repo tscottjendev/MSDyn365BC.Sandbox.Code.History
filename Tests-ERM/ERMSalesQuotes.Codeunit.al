@@ -651,7 +651,10 @@ codeunit 134379 "ERM Sales Quotes"
         SalesQuote.OpenNew();
 
         // [THEN] All controls related to customer (and not on SaaS) are disabled
+#if not CLEAN26
         Assert.IsFalse(SalesQuote.Statistics.Enabled(), ControlShouldBeDisabledErr);
+#endif
+        Assert.IsFalse(SalesQuote.SalesStatistics.Enabled(), ControlShouldBeDisabledErr);
     end;
 
     [Test]
@@ -692,7 +695,11 @@ codeunit 134379 "ERM Sales Quotes"
         SalesQuote.GotoRecord(SalesHeader);
 
         // [THEN] All controls related to customer (and not on SaaS) are enabled
+#if not CLEAN26
         Assert.IsTrue(SalesQuote.Statistics.Enabled(), ControlShouldBeEnabledErr);
+#endif
+
+        Assert.IsTrue(SalesQuote.SalesStatistics.Enabled(), ControlShouldBeEnabledErr);
     end;
 
     [Test]
