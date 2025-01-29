@@ -24,6 +24,7 @@ page 99000882 "Change Status on Prod. Order"
             {
                 ApplicationArea = Manufacturing;
                 Caption = 'New Status';
+                ToolTip = 'Specifies the new status for the production order.';
                 ValuesAllowed = "Firm Planned", Released, Finished;
 
                 trigger OnValidate()
@@ -47,15 +48,18 @@ page 99000882 "Change Status on Prod. Order"
             {
                 ApplicationArea = Manufacturing;
                 Caption = 'Posting Date';
+                Tooltip = 'Specifies the posting date used for automatic posting of consumption, output, or capacity, based on the Flushing method defined for components and routing lines.';
             }
             field(ReqUpdUnitCost; ReqUpdUnitCost)
             {
                 ApplicationArea = Manufacturing;
                 Caption = 'Update Unit Cost';
+                Tooltip = 'Specifies whether to update the unit cost of the produced item and any related production or sales orders.';
             }
             field("Finish Order without Output"; FinishOrderWithoutOutput)
             {
                 Caption = 'Allow Finishing Prod. Order with no Output';
+                Tooltip = 'Specifies that the status of orders with no output can be changed to finished, and the WIP will be written off to the Inventory Adjustment Account.';
                 ApplicationArea = Manufacturing;
                 Editable = FinishOrderWithoutOutputEditable;
             }
