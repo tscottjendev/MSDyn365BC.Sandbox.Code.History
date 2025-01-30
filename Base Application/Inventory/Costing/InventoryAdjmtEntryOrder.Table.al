@@ -10,6 +10,7 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Setup;
 using Microsoft.Manufacturing.Document;
 
 table 5896 "Inventory Adjmt. Entry (Order)"
@@ -567,6 +568,31 @@ table 5896 "Inventory Adjmt. Entry (Order)"
             RndRes := UnRoundedCost - Cost;
             exit(Cost);
         end;
+    end;
+
+    procedure RunCostAdjustment(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    var
+        Item: Record Item;
+        InventorySetup: Record "Inventory Setup";
+        CostAdjustmentParameter: Record "Cost Adjustment Parameter";
+        CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.";
+        CostAdjustmentItemRunner: Codeunit "Cost Adjustment Item Runner";
+    begin
+        InventoryAdjmtEntryOrder.FindFirst();
+        InventorySetup.SetLoadFields("Automatic Cost Posting");
+        InventorySetup.Get();
+
+        Item.Get(InventoryAdjmtEntryOrder."Item No.");
+        Item.SetRecFilter();
+
+        CostAdjustmentParameter."Post to G/L" := InventorySetup."Automatic Cost Posting";
+        CostAdjustmentParamsMgt.SetParameters(CostAdjustmentParameter);
+        CostAdjustmentParamsMgt.SetInventoryAdjmtEntryOrder(InventoryAdjmtEntryOrder);
+        CostAdjustmentItemRunner.SetParameters(CostAdjustmentParamsMgt);
+        CostAdjustmentItemRunner.Run(Item);
+
+        Item.Find();
+        Item.UpdateCostIsAdjusted();
     end;
 
     [IntegrationEvent(false, false)]
