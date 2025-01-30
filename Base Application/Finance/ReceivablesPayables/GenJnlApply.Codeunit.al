@@ -353,7 +353,12 @@ codeunit 225 "Gen. Jnl.-Apply"
         CustLedgEntry.SetRange("Customer No.", AccNo);
         CustLedgEntry.SetRange(Open, true);
         CustLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
-        OnAfterCustLedgEntrySetFilters(CustLedgEntry, GenJnlLine, AccNo);
+
+        IsHandled := false;
+        OnAfterCustLedgEntrySetFilters(CustLedgEntry, GenJnlLine, AccNo, CustomAppliesToId, IsHandled);
+        if IsHandled then
+            exit;
+
         if CustLedgEntry.Find('-') then begin
             CurrencyCode2 := CustLedgEntry."Currency Code";
             if GenJnlLine.Amount = 0 then begin
@@ -762,7 +767,7 @@ codeunit 225 "Gen. Jnl.-Apply"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCustLedgEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20])
+    local procedure OnAfterCustLedgEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var CustomAppliesToId: Code[50]; var IsHandled: Boolean)
     begin
     end;
 
