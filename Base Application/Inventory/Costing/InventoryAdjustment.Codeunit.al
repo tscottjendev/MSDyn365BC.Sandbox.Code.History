@@ -39,6 +39,8 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         Currency: Record Currency;
         InvtSetup: Record "Inventory Setup";
         SourceCodeSetup: Record "Source Code Setup";
+        InventoryAdjmtEntryOrderToAdjust: Record "Inventory Adjmt. Entry (Order)";
+        AvgCostAdjmtEntryPointToAdjust: Record "Avg. Cost Adjmt. Entry Point";
         TempInvtAdjmtBuf: Record "Inventory Adjustment Buffer" temporary;
         TempRndgResidualBuf: Record "Rounding Residual Buffer" temporary;
         TempAvgCostExceptionBuf: Record "Integer" temporary;
@@ -118,6 +120,8 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         PostToGL := CostAdjustmentParameter."Post to G/L";
         CommitAdjustedItems := CostAdjustmentParameter."Item-By-Item Commit";
         SkipUpdateJobItemCost := CostAdjustmentParameter."Skip Job Item Cost Update";
+        CurrentCostAdjustmentParamsMgt.GetInventoryAdjmtEntryOrder(InventoryAdjmtEntryOrderToAdjust);
+        CurrentCostAdjustmentParamsMgt.GetAvgCostAdjmtEntryPoint(AvgCostAdjmtEntryPointToAdjust);
         OnBeforeMakeMultiLevejAdjmtOnAfterGetParameters(CurrentCostAdjustmentParamsMgt);
 
         MakeMultiLevelAdjmt();
@@ -2162,6 +2166,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
             Item."Allow Online Adjustment" := true;
             AvgCostAdjmtPoint.SetRange("Item No.", Item."No.");
             AvgCostAdjmtPoint.SetRange("Cost Is Adjusted", false);
+            AvgCostAdjmtPoint.SetRange("Valuation Date", 0D, AdjustTillDate);
             if not IsAvgCostItem() then
                 AvgCostAdjmtPoint.ModifyAll("Cost Is Adjusted", true);
             Item."Cost is Adjusted" := AvgCostAdjmtPoint.IsEmpty();
@@ -2311,13 +2316,28 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     end;
 
     local procedure CopyOrderAdmtEntryToOrderAdjmt(var FromInventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var ToInventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    var
+        TempInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)" temporary;
+        AdjustSpecificOrders: Boolean;
     begin
+        if InventoryAdjmtEntryOrderToAdjust.GetFilters() <> '' then
+            repeat
+                TempInvtAdjmtEntryOrder := InventoryAdjmtEntryOrderToAdjust;
+                TempInvtAdjmtEntryOrder.Insert();
+            until InventoryAdjmtEntryOrderToAdjust.Next() = 0;
+
+        AdjustSpecificOrders := not TempInvtAdjmtEntryOrder.IsEmpty();
+
         ToInventoryAdjmtEntryOrder.Reset();
         ToInventoryAdjmtEntryOrder.DeleteAll();
         if FromInventoryAdjmtEntryOrder.FindSet() then
             repeat
-                ToInventoryAdjmtEntryOrder := FromInventoryAdjmtEntryOrder;
-                ToInventoryAdjmtEntryOrder.Insert();
+                if not AdjustSpecificOrders or
+                   TempInvtAdjmtEntryOrder.Get(FromInventoryAdjmtEntryOrder."Order Type", FromInventoryAdjmtEntryOrder."Order No.", FromInventoryAdjmtEntryOrder."Order Line No.")
+                then begin
+                    ToInventoryAdjmtEntryOrder := FromInventoryAdjmtEntryOrder;
+                    ToInventoryAdjmtEntryOrder.Insert();
+                end;
             until FromInventoryAdjmtEntryOrder.Next() = 0;
     end;
 
