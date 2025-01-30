@@ -143,6 +143,7 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
         SalesHeader.AssignVATRegistrationNo(BillToCustomer."No.");
         SalesHeader."Registration Number" := BillToCustomer."Registration Number";
         SalesHeader."Gen. Bus. Posting Group" := BillToCustomer."Gen. Bus. Posting Group";
+        OnAfterUpdateSetupOnBillToCustomerChangeInSalesHeader(SalesHeader, BillToCustomer);
     end;
 
     local procedure IsAltVATRegUsed(SalesHeader: Record "Sales Header"): Boolean
@@ -367,5 +368,10 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
     local procedure SetSalesLineRecreatedOnAfterRecreateSalesLines()
     begin
         SalesLinesRecreated := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateSetupOnBillToCustomerChangeInSalesHeader(var SalesHeader: Record "Sales Header"; Customer: Record Customer)
+    begin
     end;
 }
