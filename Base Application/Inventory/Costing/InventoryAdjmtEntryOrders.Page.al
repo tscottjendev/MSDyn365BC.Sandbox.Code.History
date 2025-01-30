@@ -56,4 +56,29 @@ page 5816 "Inventory Adjmt. Entry Orders"
             }
         }
     }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(Run)
+            {
+                Caption = 'Adjust cost for selected orders';
+                Image = Start;
+                ToolTip = 'Run the cost adjustment for the selected production and assembly orders.';
+
+                trigger OnAction()
+                var
+                    InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+                begin
+                    CurrPage.SetSelectionFilter(InventoryAdjmtEntryOrder);
+                    Rec.RunCostAdjustment(InventoryAdjmtEntryOrder);
+                end;
+            }
+        }
+        area(Promoted)
+        {
+            actionref("Run_Promoted"; Run) { }
+        }
+    }
 }
