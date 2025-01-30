@@ -96,14 +96,10 @@ page 6384 "Outlook Setup"
         }
     }
 
-    trigger OnAfterGetRecord()
-    begin
-        UpdateBasedOnEnable();
-    end;
-
     trigger OnOpenPage()
     var
-        EmailAccount: Record "Email Account";
+        TempEmailAccountLocal: Record "Email Account" temporary;
+        EmailAccount: Codeunit "Email Account";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         DriveProcessing: Codeunit "Drive Processing";
     begin
@@ -115,11 +111,13 @@ page 6384 "Outlook Setup"
             FeatureTelemetry.LogUsage('0000OGY', DriveProcessing.FeatureName(), 'Outlook');
         end;
 
-        if not IsNullGuid(Rec."Email Account ID") then
-            if EmailAccount.Get(Rec."Email Account ID", Rec."Email Connector") then
-                MailboxName := EmailAccount."Email Address"
-            else
-                Error(MailboxMustBeSpecifiedErr);
+        if not IsNullGuid(Rec."Email Account ID") then begin
+            EmailAccount.GetAllAccounts(false, TempEmailAccountLocal);
+            TempEmailAccountLocal.SetRange("Account Id", Rec."Email Account ID");
+            TempEmailAccountLocal.SetRange(Connector, Rec."Email Connector");
+            if TempEmailAccountLocal.FindFirst() then
+                MailboxName := TempEmailAccountLocal."Email Address";
+        end;
 
         UpdateBasedOnEnable();
     end;
