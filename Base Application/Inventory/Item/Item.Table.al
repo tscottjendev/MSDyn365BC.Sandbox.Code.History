@@ -2258,6 +2258,9 @@ table 27 Item
         CheckJournalsAndWorksheets(0);
         CheckDocuments(0);
 
+        if not "Cost is Adjusted" then
+            RunCostAdjustment(Rec);
+
         MoveEntries.MoveItemEntries(Rec);
 
         DeleteRelatedData();
@@ -3266,6 +3269,36 @@ table 27 Item
         SetFilter("Last Date Modified", '>%1', DT2Date(SyncDateTimeUtc));
         SetFilter("Last Time Modified", '>%1', DT2Time(SyncDateTimeUtc));
         FilterGroup(CurrentFilterGroup);
+    end;
+
+    procedure UpdateCostIsAdjusted()
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        NonAdjustedItemLedgEntryExists: Boolean;
+        NonAdjustedAvgCostAdjmtEntryPointExists: Boolean;
+        NonAdjustedInventoryAdjmtEntryOrderExists: Boolean;
+    begin
+        ItemLedgerEntry.SetRange("Item No.", "No.");
+        ItemLedgerEntry.SetRange("Applied Entry to Adjust", true);
+        NonAdjustedItemLedgEntryExists := not ItemLedgerEntry.IsEmpty();
+
+        AvgCostAdjmtEntryPoint.SetRange("Item No.", "No.");
+        AvgCostAdjmtEntryPoint.SetRange("Cost Is Adjusted", false);
+        NonAdjustedAvgCostAdjmtEntryPointExists := not AvgCostAdjmtEntryPoint.IsEmpty();
+
+        InventoryAdjmtEntryOrder.SetRange("Item No.", "No.");
+        InventoryAdjmtEntryOrder.SetRange("Cost Is Adjusted", false);
+        InventoryAdjmtEntryOrder.SetRange("Order Type", InventoryAdjmtEntryOrder."Order Type"::Assembly);
+        NonAdjustedInventoryAdjmtEntryOrderExists := not InventoryAdjmtEntryOrder.IsEmpty();
+
+        InventoryAdjmtEntryOrder.SetRange("Order Type", InventoryAdjmtEntryOrder."Order Type"::Production);
+        InventoryAdjmtEntryOrder.SetRange("Is Finished", true);
+        NonAdjustedInventoryAdjmtEntryOrderExists := NonAdjustedInventoryAdjmtEntryOrderExists or not InventoryAdjmtEntryOrder.IsEmpty();
+
+        "Cost is Adjusted" := not (NonAdjustedItemLedgEntryExists or NonAdjustedAvgCostAdjmtEntryPointExists or NonAdjustedInventoryAdjmtEntryOrderExists);
+        Modify();
     end;
 
     procedure UpdateReplenishmentSystem() Result: Boolean
