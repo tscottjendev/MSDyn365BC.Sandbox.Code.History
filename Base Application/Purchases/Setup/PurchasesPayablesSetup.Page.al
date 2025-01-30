@@ -208,6 +208,10 @@ page 460 "Purchases & Payables Setup"
                     ToolTip = 'Specifies whether the document date changes when the posting date is modified.';
                     Importance = Additional;
                 }
+                field("Check Doc. Total Amounts"; Rec."Check Doc. Total Amounts")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
             }
             group(Prices)
             {
