@@ -24,7 +24,7 @@ report 9091 "Combine Service Shipments"
     {
         dataitem(ServiceOrderHeader; "Service Header")
         {
-            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Order), "Combine Shipments" = const(true));
+            DataItemTableView = sorting("Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name") where("Document Type" = const(Order), "Combine Shipments" = const(true));
             RequestFilterFields = "Customer No.", "Bill-to Customer No.";
             RequestFilterHeading = 'Service Order';
             dataitem("Service Shipment Header"; "Service Shipment Header")
@@ -152,8 +152,6 @@ report 9091 "Combine Service Shipments"
 
             trigger OnPreDataItem()
             begin
-                SetCurrentKey("Customer No.", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID");
-
                 if PostingDateReq = 0D then
                     Error(Text000);
                 if DocDateReq = 0D then
