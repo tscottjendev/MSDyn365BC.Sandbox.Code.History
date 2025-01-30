@@ -1297,8 +1297,18 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     local procedure CopyPurchHeaderFromPostedInvoice(FromPurchInvHeader: Record "Purch. Inv. Header"; var ToPurchHeader: Record "Purchase Header"; var OldPurchHeader: Record "Purchase Header")
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
+        PurchasesPayablesSetup.Get();
+
         ToPurchHeader.Validate("Buy-from Vendor No.", FromPurchInvHeader."Buy-from Vendor No.");
+
+        if PurchasesPayablesSetup."Check Doc. Total Amounts" then begin
+            FromPurchInvHeader.CalcFields("Amount Including VAT", Amount);
+            ToPurchHeader.Validate("Doc. Amount Incl. VAT", FromPurchInvHeader."Amount Including VAT");
+            ToPurchHeader.Validate("Doc. Amount VAT", FromPurchInvHeader."Amount Including VAT" - FromPurchInvHeader.Amount);
+        end;
         OnCopyPurchHeaderFromPostedInvoiceOnBeforeTransferFields(ToPurchHeader, OldPurchHeader, FromPurchInvHeader);
         ToPurchHeader.TransferFields(FromPurchInvHeader, false);
         OnAfterCopyPostedPurchInvoice(ToPurchHeader, OldPurchHeader, FromPurchInvHeader);
