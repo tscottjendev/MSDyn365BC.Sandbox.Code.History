@@ -34,6 +34,11 @@ codeunit 6132 "E-Document Log"
         exit(InsertLog(EDocument, EDocumentService, InsertDataStorage(TempBlob), EDocumentServiceStatus));
     end;
 
+    internal procedure InsertLog(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; EDocDataStorage: Record "E-Doc. Data Storage" temporary; EDocumentServiceStatus: Enum "E-Document Service Status"): Record "E-Document Log";
+    begin
+        exit(InsertLog(EDocument, EDocumentService, InsertDataStorage(EDocDataStorage), EDocumentServiceStatus));
+    end;
+
     internal procedure InsertLog(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; EDocDataStorageEntryNo: Integer; EDocumentServiceStatus: Enum "E-Document Service Status") EDocumentLog: Record "E-Document Log";
     begin
         EDocumentLog.Validate("Document Type", EDocument."Document Type");
@@ -115,10 +120,27 @@ codeunit 6132 "E-Document Log"
 
         EDocDataStorage.Init();
         EDocDataStorage.Insert();
+        EDocDataStorage."Data Type" := Enum::"E-Doc. Data Storage Blob Type"::Unspecified;
+        EDocDataStorage."Is Structured" := true;
+        EDocDataStorage.Name := '';
         EDocDataStorage."Data Storage Size" := TempBlob.Length();
         EDocRecRef.GetTable(EDocDataStorage);
         TempBlob.ToRecordRef(EDocRecRef, EDocDataStorage.FieldNo("Data Storage"));
         EDocRecRef.Modify();
+        exit(EDocDataStorage."Entry No.");
+    end;
+
+    internal procedure InsertDataStorage(TempEDocDataStorage: Record "E-Doc. Data Storage" temporary): Integer
+    var
+        EDocDataStorage: Record "E-Doc. Data Storage";
+    begin
+        if not TempEDocDataStorage."Data Storage".HasValue() then
+            exit(0);
+
+        EDocDataStorage.Copy(TempEDocDataStorage);
+        EDocDataStorage."Entry No." := 0;
+        EDocDataStorage."Data Storage Size" := TempEDocDataStorage."Data Storage".Length();
+        EDocDataStorage.Insert();
         exit(EDocDataStorage."Entry No.");
     end;
 

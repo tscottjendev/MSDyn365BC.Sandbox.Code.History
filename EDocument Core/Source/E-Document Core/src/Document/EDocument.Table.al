@@ -182,6 +182,18 @@ table 6121 "E-Document"
             Caption = 'Receiving Company Id';
             ToolTip = 'Specifies the receiving company id, such as PEPPOL id, or other identifiers used in the electronic document exchange.';
         }
+        field(32; "Unstructured Data Entry No."; Integer)
+        {
+            Caption = 'Unstructured Content';
+            ToolTip = 'Specifies the content that is not structured, such as PDF';
+            TableRelation = "E-Doc. Data Storage";
+        }
+        field(33; "Structured Data Entry No."; Integer)
+        {
+            Caption = 'Structured Content';
+            ToolTip = 'Specifies the content that is structured, such as XML';
+            TableRelation = "E-Doc. Data Storage";
+        }
 
     }
     keys

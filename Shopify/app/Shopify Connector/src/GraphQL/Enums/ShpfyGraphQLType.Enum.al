@@ -595,4 +595,14 @@ enum 30111 "Shpfy GraphQL Type" implements "Shpfy IGraphQL"
         Caption = 'Get Ship To Countries';
         Implementation = "Shpfy IGraphQL" = "Shpfy GQL ShipToCountries";
     }
+    value(123; GetRefundShippingLines)
+    {
+        Caption = 'Get Refund Shipping Lines';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL RefundShippingLines";
+    }
+    value(124; GetNextRefundShippingLines)
+    {
+        Caption = 'Get Next Refund Shipping Lines';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextRefundShipLines";
+    }
 }

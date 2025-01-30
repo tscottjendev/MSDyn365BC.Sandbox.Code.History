@@ -197,6 +197,8 @@ codeunit 6134 "E-Doc. Integration Management"
 
     local procedure ReceiveSingleDocument(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; DocumentMetadata: Codeunit "Temp Blob"; IDocumentReceiver: Interface IDocumentReceiver): Boolean
     var
+        EDocLog: Record "E-Document Log";
+        TempEDocDataStorage: Record "E-Doc. Data Storage" temporary;
         ReceiveContext, FetchContextImpl : Codeunit ReceiveContext;
         ErrorCount: Integer;
         Success, IsFetchableType : Boolean;
@@ -224,7 +226,10 @@ codeunit 6134 "E-Doc. Integration Management"
 
         // Only after sucecssfully downloading and (optionally) marking as fetched, the document is considered imported
         // Insert logs for downloading document
-        InsertLogAndEDocumentStatus(EDocument, EDocumentService, ReceiveContext.GetTempBlob(), ReceiveContext.Status().GetStatus());
+        ReceiveContext.GetDataStorage(TempEDocDataStorage);
+        EDocLog := EDocumentLog.InsertLog(EDocument, EDocumentService, TempEDocDataStorage, ReceiveContext.Status().GetStatus());
+        EDocumentProcessing.InsertServiceStatus(EDocument, EDocumentService, ReceiveContext.Status().GetStatus());
+        EDocumentProcessing.ModifyEDocumentStatus(EDocument, ReceiveContext.Status().GetStatus());
         EDocumentLog.InsertIntegrationLog(EDocument, EDocumentService, ReceiveContext.Http().GetHttpRequestMessage(), ReceiveContext.Http().GetHttpResponseMessage());
 
         // Insert logs for marking document as fetched
@@ -522,13 +527,6 @@ codeunit 6134 "E-Doc. Integration Management"
     begin
         EDocumentLog.InsertLog(EDocument, EDocumentService, EDocServiceStatus);
         EDocumentProcessing.ModifyServiceStatus(EDocument, EDocumentService, EDocServiceStatus);
-        EDocumentProcessing.ModifyEDocumentStatus(EDocument, EDocServiceStatus);
-    end;
-
-    local procedure InsertLogAndEDocumentStatus(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; DocumentBlob: Codeunit "Temp Blob"; EDocServiceStatus: Enum "E-Document Service Status")
-    begin
-        EDocumentLog.InsertLog(EDocument, EDocumentService, DocumentBlob, EDocServiceStatus);
-        EDocumentProcessing.InsertServiceStatus(EDocument, EDocumentService, EDocServiceStatus);
         EDocumentProcessing.ModifyEDocumentStatus(EDocument, EDocServiceStatus);
     end;
 
