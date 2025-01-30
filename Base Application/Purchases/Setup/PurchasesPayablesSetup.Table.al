@@ -455,6 +455,11 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
+        field(11320; "Check Doc. Total Amounts"; Boolean)
+        {
+            Caption = 'Check Doc. Total Amounts';
+            ToolTip = 'Specifies if you want the Doc. Amount Incl. VAT field in purchase documents to be compared to the sum of the VAT amounts fields in the purchase lines. If the amounts are not the same, you will be notified when posting the document.';
+        }
         field(10500; "Posting Date Check on Posting"; Boolean)
         {
             Caption = 'Posting Date Check on Posting';
