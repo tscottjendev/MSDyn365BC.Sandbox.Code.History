@@ -290,6 +290,8 @@ codeunit 90 "Purch.-Post"
         CannotAssignMoreErr: Label 'You cannot assign more than %1 units in %2 = %3,%4 = %5,%6 = %7.', Comment = '%1 = Quantity, %2/%3 = Document Type, %4/%5 - Document No.,%6/%7 = Line No.';
         MustAssignErr: Label 'You must assign all item charges, if you invoice everything.';
         CannotAssignInvoicedErr: Label 'You cannot assign item charges to the %1 %2 = %3,%4 = %5, %6 = %7, because it has been invoiced.', Comment = '%1 = Purchase Line, %2/%3 = Document Type, %4/%5 - Document No.,%6/%7 = Line No.';
+        CheckTotalAmountPurchLinesErr: Label '%1 (%2) is not equal to total of lines (%3)', Comment = '%1 = FieldCaption of Doc. Amount Incl. VAT; %2 - Doc. Amount Incl. VAT; %3 - Amount Including VAT ';
+        CheckTotalAmountVATPurchLinesErr: Label '%1 (%2) is not equal to total of VAT on lines (%3)', Comment = '%1 - Doc. Amount VAT; %2 - Doc. Amount VAT; %3 - Amount Including VAT - PurchHeader.Amount';
         PurchSetup: Record "Purchases & Payables Setup";
         GLSetup: Record "General Ledger Setup";
         [SecurityFiltering(SecurityFilter::Ignored)]
@@ -730,6 +732,9 @@ codeunit 90 "Purch.-Post"
         SendICDocument(PurchHeader, ModifyHeader);
         UpdateHandledICInboxTransaction(PurchHeader);
 
+        if PurchHeader.Invoice then
+            CheckDocumentTotalAmounts(PurchHeader);
+
         LockTables(PurchHeader);
 
         SourceCodeSetup.Get();
@@ -939,6 +944,44 @@ codeunit 90 "Purch.-Post"
                 TestPurchLine(PurchHeader, TempPurchLineGlobal);
             until TempPurchLineGlobal.Next() = 0;
         ErrorMessageMgt.PopContext(ErrorContextElement);
+    end;
+
+    /// <summary>
+    /// Function for checking the total amounts on the header is the same with the total amounts on the lines.
+    /// </summary>
+    /// <param name="PurchHeader">The purchase header of the document that is being posted.</param>
+    procedure CheckDocumentTotalAmounts(var PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckDocumentTotalAmounts(PurchHeader, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice) and
+           (PurchHeader."Document Type" <> PurchHeader."Document Type"::"Credit Memo") then
+            exit;
+
+        GetPurchSetup();
+        if not PurchSetup."Check Doc. Total Amounts" then
+            exit;
+        if PreviewMode then
+            exit;
+
+        PurchHeader.CalcFields(Amount, "Amount Including VAT");
+        if PurchHeader."Amount Including VAT" <> PurchHeader."Doc. Amount Incl. VAT" then
+            Error(
+                   ErrorInfo.Create(
+                       StrSubstNo(CheckTotalAmountPurchLinesErr, PurchHeader.FieldCaption("Doc. Amount Incl. VAT"), PurchHeader."Doc. Amount Incl. VAT", PurchHeader."Amount Including VAT"),
+                       true,
+                       PurchHeader));
+        if (PurchHeader."Amount Including VAT" - PurchHeader.Amount) <> PurchHeader."Doc. Amount VAT" then
+            Error(
+                        ErrorInfo.Create(
+                            StrSubstNo(CheckTotalAmountVATPurchLinesErr, PurchHeader.FieldCaption("Doc. Amount VAT"), PurchHeader."Doc. Amount VAT", PurchHeader."Amount Including VAT" - PurchHeader.Amount),
+                            true,
+                            PurchHeader));
     end;
 
     /// <summary>
@@ -9509,6 +9552,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckDropShipmentReceiveInvoice(PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckDocumentTotalAmounts(PurchHeader: Record "Purchase Header"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 

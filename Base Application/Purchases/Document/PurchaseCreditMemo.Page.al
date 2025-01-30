@@ -392,6 +392,20 @@ page 52 "Purchase Credit Memo"
                     ToolTip = 'Specifies the format to be used on printouts for this document.';
                     Visible = false;
                 }
+                field(DocAmount; Rec."Doc. Amount Incl. VAT")
+                {
+                    ApplicationArea = Basic, Suite;
+                    BlankZero = true;
+                    Enabled = DocAmountEnable;
+                    Visible = DocAmountEnable;
+                    ShowMandatory = true;
+                }
+                field(DocAmountVAT; Rec."Doc. Amount VAT")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Enabled = DocAmountEnable;
+                    Visible = DocAmountEnable;
+                }
             }
             part(PurchLines; "Purch. Cr. Memo Subform")
             {
@@ -1780,6 +1794,7 @@ page 52 "Purchase Credit Memo"
         SetIsActivityCodeMandatory();
 
         IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        DocAmountEnable := PurchSetup."Check Doc. Total Amounts";
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1869,6 +1884,7 @@ page 52 "Purchase Credit Memo"
         IsPostingGroupEditable: Boolean;
         IsPurchaseLinesEditable: Boolean;
         VATDateEnabled: Boolean;
+        DocAmountEnable: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
