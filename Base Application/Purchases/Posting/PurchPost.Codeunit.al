@@ -286,6 +286,8 @@ codeunit 90 "Purch.-Post"
         CannotAssignMoreErr: Label 'You cannot assign more than %1 units in %2 = %3,%4 = %5,%6 = %7.', Comment = '%1 = Quantity, %2/%3 = Document Type, %4/%5 - Document No.,%6/%7 = Line No.';
         MustAssignErr: Label 'You must assign all item charges, if you invoice everything.';
         CannotAssignInvoicedErr: Label 'You cannot assign item charges to the %1 %2 = %3,%4 = %5, %6 = %7, because it has been invoiced.', Comment = '%1 = Purchase Line, %2/%3 = Document Type, %4/%5 - Document No.,%6/%7 = Line No.';
+        CheckTotalAmountPurchLinesErr: Label '%1 (%2) is not equal to total of lines (%3)', Comment = '%1 = FieldCaption of Doc. Amount Incl. VAT; %2 - Doc. Amount Incl. VAT; %3 - Amount Including VAT ';
+        CheckTotalAmountVATPurchLinesErr: Label '%1 (%2) is not equal to total of VAT on lines (%3)', Comment = '%1 - Doc. Amount VAT; %2 - Doc. Amount VAT; %3 - Amount Including VAT - PurchHeader.Amount';
         PurchSetup: Record "Purchases & Payables Setup";
         GLSetup: Record "General Ledger Setup";
         [SecurityFiltering(SecurityFilter::Ignored)]
@@ -400,8 +402,6 @@ codeunit 90 "Purch.-Post"
         CannotInvoiceItemChargeErr: Label 'You can not invoice item charge %1 because there is no item ledger entry to assign it to.', Comment = '%1 = Item Charge No.';
         PurchaseLinesProcessed: Boolean;
 #pragma warning disable AA0470
-        Text11300: Label 'Total amount (%1) is not equal to total of lines (%2)';
-        Text11301: Label '%1 (%2) is not equal to total of VAT on lines (%3)';
         ReservationDisruptedQst: Label 'One or more reservation entries exist for the item with %1 = %2, %3 = %4, %5 = %6 which may be disrupted if you post this negative adjustment. Do you want to continue?', Comment = 'One or more reservation entries exist for the item with No. = 1000, Location Code = SILVER, Variant Code = NEW which may be disrupted if you post this negative adjustment. Do you want to continue?';
 #pragma warning restore AA0470
         ReassignItemChargeErr: Label 'The order line that the item charge was originally assigned to has been fully posted. You must reassign the item charge to the posted receipt or shipment.';
@@ -707,10 +707,7 @@ codeunit 90 "Purch.-Post"
         UpdateHandledICInboxTransaction(PurchHeader);
 
         if PurchHeader.Invoice then
-            if PurchHeader."Document Type" in [PurchHeader."Document Type"::Invoice, PurchHeader."Document Type"::"Credit Memo"] then begin
-                PurchHeader.CalcFields(Amount, "Amount Including VAT");
-                CheckDocumentTotalAmounts(PurchHeader);
-            end;
+            CheckDocumentTotalAmounts(PurchHeader);
 
         LockTables(PurchHeader);
 
@@ -855,7 +852,11 @@ codeunit 90 "Purch.-Post"
         ErrorMessageMgt.PopContext(ErrorContextElement);
     end;
 
-    local procedure CheckDocumentTotalAmounts(var PurchHeader: Record "Purchase Header")
+    /// <summary>
+    /// Function for checking the total amounts on the header is the same with the total amounts on the lines.
+    /// </summary>
+    /// <param name="PurchHeader">The purchase header of the document that is being posted.</param>
+    procedure CheckDocumentTotalAmounts(var PurchHeader: Record "Purchase Header")
     var
         IsHandled: Boolean;
     begin
@@ -864,13 +865,29 @@ codeunit 90 "Purch.-Post"
         if IsHandled then
             exit;
 
-        if PurchSetup."Check Doc. Total Amounts" and (not PreviewMode) then begin
-            if PurchHeader."Amount Including VAT" <> PurchHeader."Doc. Amount Incl. VAT" then
-                Error(Text11300, PurchHeader."Doc. Amount Incl. VAT", PurchHeader."Amount Including VAT");
-            if (PurchHeader."Amount Including VAT" - PurchHeader.Amount) <> PurchHeader."Doc. Amount VAT" then
-                Error(
-                  Text11301, PurchHeader.FieldCaption("Doc. Amount VAT"), PurchHeader."Doc. Amount VAT", PurchHeader."Amount Including VAT" - PurchHeader.Amount);
-        end;
+        if (PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice) and
+           (PurchHeader."Document Type" <> PurchHeader."Document Type"::"Credit Memo") then
+            exit;
+
+        GetPurchSetup();
+        if not PurchSetup."Check Doc. Total Amounts" then
+            exit;
+        if PreviewMode then
+            exit;
+
+        PurchHeader.CalcFields(Amount, "Amount Including VAT");
+        if PurchHeader."Amount Including VAT" <> PurchHeader."Doc. Amount Incl. VAT" then
+            Error(
+                   ErrorInfo.Create(
+                       StrSubstNo(CheckTotalAmountPurchLinesErr, PurchHeader.FieldCaption("Doc. Amount Incl. VAT"), PurchHeader."Doc. Amount Incl. VAT", PurchHeader."Amount Including VAT"),
+                       true,
+                       PurchHeader));
+        if (PurchHeader."Amount Including VAT" - PurchHeader.Amount) <> PurchHeader."Doc. Amount VAT" then
+            Error(
+                        ErrorInfo.Create(
+                            StrSubstNo(CheckTotalAmountVATPurchLinesErr, PurchHeader.FieldCaption("Doc. Amount VAT"), PurchHeader."Doc. Amount VAT", PurchHeader."Amount Including VAT" - PurchHeader.Amount),
+                            true,
+                            PurchHeader));
     end;
 
     /// <summary>

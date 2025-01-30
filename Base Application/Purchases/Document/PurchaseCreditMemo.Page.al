@@ -344,17 +344,15 @@ page 52 "Purchase Credit Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
-                    Caption = 'Doc. Amount Incl. VAT';
                     Enabled = DocAmountEnable;
+                    Visible = DocAmountEnable;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies the total amount (including VAT) of the purchase invoice or credit memo.';
                 }
                 field(DocAmountVAT; Rec."Doc. Amount VAT")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Doc. Amount VAT';
                     Enabled = DocAmountEnable;
-                    ToolTip = 'Specifies the VAT amount of the purchase invoice or credit memo.';
+                    Visible = DocAmountEnable;
                 }
             }
             part(PurchLines; "Purch. Cr. Memo Subform")
@@ -1642,9 +1640,9 @@ page 52 "Purchase Credit Memo"
         JobQueueUsed := PurchSetup.JobQueueActive();
         SetExtDocNoMandatoryCondition();
         PurchSetup.GetRecordOnce();
-        DocAmountEnable := PurchSetup."Check Doc. Total Amounts";
 
         IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        DocAmountEnable := PurchSetup."Check Doc. Total Amounts";
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1702,7 +1700,6 @@ page 52 "Purchase Credit Memo"
         ReportPrint: Codeunit "Test Report-Print";
         UserMgt: Codeunit "User Setup Management";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
-        DocAmountEnable: Boolean;
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         FormatAddress: Codeunit "Format Address";
         PrivacyNotice: Codeunit "Privacy Notice";
@@ -1734,6 +1731,7 @@ page 52 "Purchase Credit Memo"
         IsPostingGroupEditable: Boolean;
         IsPurchaseLinesEditable: Boolean;
         VATDateEnabled: Boolean;
+        DocAmountEnable: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";

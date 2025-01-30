@@ -2567,6 +2567,7 @@ table 38 "Purchase Header"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Doc. Amount Incl. VAT';
+            ToolTip = 'Specifies the total amount (including VAT) of the purchase invoice or credit memo.';
 
             trigger OnValidate()
             var
@@ -2585,8 +2586,7 @@ table 38 "Purchase Header"
                 Currency.Initialize("Currency Code");
                 Currency.TestField("Amount Rounding Precision");
                 DocumentTotals.CalculatePurchaseTotals(TotalPurchaseLine, VATAmount, PurchLine);
-                UpdateDocAmountVAT(
-                    "Doc. Amount Incl. VAT", VATAmount, TotalPurchaseLine."Amount Including VAT", Currency."Amount Rounding Precision");
+                UpdateDocAmountVAT("Doc. Amount Incl. VAT", VATAmount, TotalPurchaseLine."Amount Including VAT", Currency."Amount Rounding Precision");
             end;
         }
         field(11302; "Doc. Amount VAT"; Decimal)
@@ -2594,6 +2594,7 @@ table 38 "Purchase Header"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Doc. Amount VAT';
+            ToolTip = 'Specifies the VAT amount of the purchase invoice or credit memo.';
 
             trigger OnValidate()
             var
@@ -2606,19 +2607,26 @@ table 38 "Purchase Header"
                 if not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) then
                     exit;
 
-                if FindSuggestedPurchLine(PurchLine) and (PurchLine."VAT Calculation Type" = PurchLine."VAT Calculation Type"::"Normal VAT")
-                then begin
+                if FindSuggestedPurchLine(PurchLine) and (PurchLine."VAT Calculation Type" = PurchLine."VAT Calculation Type"::"Normal VAT") then begin
                     Currency.Initialize("Currency Code");
                     Currency.TestField("Amount Rounding Precision");
                     DocumentTotals.CalculatePurchaseTotals(TotalPurchaseLine, VATAmount, PurchLine);
                     DocAmountVAT := CalcDocAmountVAT(
                         "Doc. Amount Incl. VAT", VATAmount, TotalPurchaseLine."Amount Including VAT", Currency."Amount Rounding Precision");
 
-                    if "Doc. Amount VAT" > DocAmountVAT then
-                        Error(Text11300, FieldCaption("Doc. Amount VAT"), Format(DocAmountVAT));
+                    if CheckDifferenceInclVAT("Doc. Amount VAT", DocAmountVAT, Currency) then
+                        Error(
+                            ErrorInfo.Create(
+                                    StrSubstNo(WarnDocAmountVatTxt, FieldCaption("Doc. Amount VAT"), Format(DocAmountVAT)),
+                                    true,
+                                    Rec));
                 end else
                     if "Doc. Amount VAT" > "Doc. Amount Incl. VAT" then
-                        Error(Text11300, FieldCaption("Doc. Amount VAT"), Format(DocAmountVAT));
+                        Error(
+                            ErrorInfo.Create(
+                                StrSubstNo(WarnDocAmountVatTxt, FieldCaption("Doc. Amount VAT"), Format("Doc. Amount Incl. VAT")),
+                                true,
+                                Rec));
             end;
         }
         field(11000000; "Transaction Mode Code"; Code[20])
@@ -2881,7 +2889,6 @@ table 38 "Purchase Header"
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text054: Label 'There are unpaid prepayment invoices that are related to the document of type %1 with the number %2.';
-        Text11300: Label '%1 must not be more than %2.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         DeferralLineQst: Label 'You have changed the %1 on the purchase header, do you want to update the deferral schedules for the lines with this date?', Comment = '%1=The posting date on the document.';
@@ -2910,6 +2917,7 @@ table 38 "Purchase Header"
         RecreatePurchaseLinesCancelErr: Label 'Change in the existing purchase lines for the field %1 is cancelled by user.', Comment = '%1 - Field Name, Sample:You must delete the existing purchase lines before you can change Currency Code.';
         WarnZeroQuantityPostingTxt: Label 'Warn before posting Purchase lines with 0 quantity';
         WarnZeroQuantityPostingDescriptionTxt: Label 'Warn before posting lines on Purchase documents where quantity is 0.';
+        WarnDocAmountVatTxt: Label '%1 must not be more than %2.', comment = '%1 - Doc. Amount VAT; %2 - DocAmountVAT';
         CalledFromWhseDoc: Boolean;
 
     protected var
@@ -3820,19 +3828,6 @@ table 38 "Purchase Header"
             end else
                 Message(StrSubstNo(SplitMessageTxt, MessageText, ReviewLinesManuallyMsg));
         end;
-    end;
-
-    procedure CalcDocAmountVAT(DocAmountInclVAT: Decimal; VATAmount: Decimal; TotalPurchLineAmtInclVAT: Decimal; CurrencyAmtRoundingPrecision: Decimal): Decimal
-    begin
-        if TotalPurchLineAmtInclVAT <> 0 then
-            exit(Round(DocAmountInclVAT * VATAmount / TotalPurchLineAmtInclVAT, CurrencyAmtRoundingPrecision));
-
-        exit(0);
-    end;
-
-    local procedure UpdateDocAmountVAT(DocAmountInclVAT: Decimal; VATAmount: Decimal; TotalPurchLineAmtInclVAT: Decimal; CurrencyAmtRoundingPrecision: Decimal)
-    begin
-        "Doc. Amount VAT" := CalcDocAmountVAT(DocAmountInclVAT, VATAmount, TotalPurchLineAmtInclVAT, CurrencyAmtRoundingPrecision);
     end;
 
     /// <summary>
@@ -6694,20 +6689,6 @@ table 38 "Purchase Header"
         exit(VendorLedgerEntry.FindFirst())
     end;
 
-    local procedure FindSuggestedPurchLine(var PurchaseLine: Record "Purchase Line"): Boolean
-    begin
-        PurchaseLine.Reset();
-        PurchaseLine.SetRange("Document Type", "Document Type");
-        PurchaseLine.SetRange("Document No.", "No.");
-        PurchaseLine.SetRange("Suggested Line", true);
-        PurchaseLine.SetFilter("VAT %", '<>%1', 0);
-        if PurchaseLine.FindFirst() then
-            exit(true);
-        PurchaseLine.SetRange("Suggested Line");
-        PurchaseLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
-        exit(PurchaseLine.FindFirst())
-    end;
-
     /// <summary>
     /// Applies the filter for the headers that have received lines.
     /// </summary>
@@ -7547,6 +7528,56 @@ table 38 "Purchase Header"
     begin
         if PrepaymentMgt.TestPurchasePrepayment(Rec) then
             Error(PrepaymentInvoicesNotPaidErr, Rec."Document Type", Rec."No.");
+    end;
+
+    local procedure FindSuggestedPurchLine(var PurchaseLine: Record "Purchase Line"): Boolean
+    begin
+        PurchaseLine.Reset();
+        PurchaseLine.SetRange("Document Type", "Document Type");
+        PurchaseLine.SetRange("Document No.", "No.");
+        PurchaseLine.SetFilter("VAT %", '<>%1', 0);
+        if PurchaseLine.FindFirst() then
+            exit(true);
+        PurchaseLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
+        exit(PurchaseLine.FindFirst())
+    end;
+
+    /// <summary>
+    /// Calculates the VAT Amount of the Purchase Header that is entered.
+    /// </summary>
+    /// <param name="DocAmountInclVAT">The field "Doc. Amount Incl. VAT of the Purchase Header".</param>
+    /// <param name="TotalPurchLineAmtInclVAT">The total VAT amount of all the purchase lines</param>
+    /// <param name="CurrencyAmtRoundingPrecision">The rounding precision of the Currency of the Purchase Header"</param>
+    /// <returns>VAT Amount of the Purchase Header.</returns>
+    procedure CalcDocAmountVAT(DocAmountInclVAT: Decimal; VATAmount: Decimal; TotalPurchLineAmtInclVAT: Decimal; CurrencyAmtRoundingPrecision: Decimal): Decimal
+    begin
+        if TotalPurchLineAmtInclVAT <> 0 then
+            exit(Round(DocAmountInclVAT * VATAmount / TotalPurchLineAmtInclVAT, CurrencyAmtRoundingPrecision));
+
+        exit(0);
+    end;
+
+    local procedure CheckDifferenceInclVAT(HeaderDocAmountVAT: Decimal; LineDocAmountVAT: Decimal; Currency: Record Currency): Boolean
+    var
+        PurchasePayablesSetup: Record "Purchases & Payables Setup";
+        TotalVATDifference: Decimal;
+    begin
+        PurchasePayablesSetup.Get();
+
+        if HeaderDocAmountVAT = LineDocAmountVAT then
+            exit(false);
+
+        if PurchasePayablesSetup."Allow VAT Difference" then begin
+            TotalVATDifference := Abs(HeaderDocAmountVAT) - Abs(LineDocAmountVAT);
+            if Abs(TotalVATDifference) > Currency."Max. VAT Difference Allowed" then
+                exit(true)
+        end else
+            exit(true);
+    end;
+
+    local procedure UpdateDocAmountVAT(DocAmountInclVAT: Decimal; VATAmount: Decimal; TotalPurchLineAmtInclVAT: Decimal; CurrencyAmtRoundingPrecision: Decimal)
+    begin
+        "Doc. Amount VAT" := CalcDocAmountVAT(DocAmountInclVAT, VATAmount, TotalPurchLineAmtInclVAT, CurrencyAmtRoundingPrecision);
     end;
 
     [IntegrationEvent(false, false)]

@@ -331,17 +331,15 @@ page 51 "Purchase Invoice"
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
-                    Caption = 'Doc. Amount Incl. VAT';
                     Enabled = DocAmountEnable;
+                    Visible = DocAmountEnable;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies the total amount (including VAT) of the purchase invoice or credit memo.';
                 }
                 field(DocAmountVAT; Rec."Doc. Amount VAT")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Doc. Amount VAT';
                     Enabled = DocAmountEnable;
-                    ToolTip = 'Specifies the VAT amount of the purchase invoice or credit memo.';
+                    Visible = DocAmountEnable;
                 }
                 field("Job Queue Status"; Rec."Job Queue Status")
                 {
@@ -1810,9 +1808,9 @@ page 51 "Purchase Invoice"
         JobQueuesUsed := PurchSetup.JobQueueActive();
         SetExtDocNoMandatoryCondition();
         ShowShippingOptionsWithLocation := ApplicationAreaMgmtFacade.IsLocationEnabled() or ApplicationAreaMgmtFacade.IsAllDisabled();
-        DocAmountEnable := PurchSetup."Check Doc. Total Amounts";
 
         IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        DocAmountEnable := PurchSetup."Check Doc. Total Amounts";
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1900,7 +1898,6 @@ page 51 "Purchase Invoice"
         PrivacyNotice: Codeunit "Privacy Notice";
         PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        DocAmountEnable: Boolean;
         StatusStyleTxt: Text;
         HasIncomingDocument: Boolean;
         DocNoVisible: Boolean;
@@ -1935,6 +1932,7 @@ page 51 "Purchase Invoice"
         IsPurchaseLinesEditable: Boolean;
         RejectICPurchaseInvoiceEnabled: Boolean;
         VATDateEnabled: Boolean;
+        DocAmountEnable: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";

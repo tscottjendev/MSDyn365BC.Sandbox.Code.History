@@ -46,4 +46,26 @@ page 5815 "Avg. Cost Adjmt. Entry Points"
             }
         }
     }
+
+    actions
+    {
+        area(Processing)
+        {
+            action("Run Until Date")
+            {
+                Caption = 'Adjust cost until Valuation Date';
+                Image = Start;
+                ToolTip = 'Run the cost adjustment until the selected valuation date.';
+
+                trigger OnAction()
+                begin
+                    Rec.RunCostAdjustmentUntilValuationDate();
+                end;
+            }
+        }
+        area(Promoted)
+        {
+            actionref("Run Until Date_Promoted"; "Run Until Date") { }
+        }
+    }
 }
