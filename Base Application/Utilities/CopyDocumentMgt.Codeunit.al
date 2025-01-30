@@ -7341,7 +7341,7 @@ codeunit 6620 "Copy Document Mgt."
             end;
         end;
 
-        OnAfterUpdateVendLedgEntry(ToPurchHeader, FromDocNo);
+        OnAfterUpdateVendLedgEntry(ToPurchHeader, FromDocNo, FromDocType, VendLedgEntry);
     end;
 
     local procedure UpdatePurchCreditMemoHeader(var PurchaseHeader: Record "Purchase Header")
@@ -8960,7 +8960,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateVendLedgEntry(var PurchaseHeader: Record "Purchase Header"; FromDocumentNo: Code[20])
+    local procedure OnAfterUpdateVendLedgEntry(var PurchaseHeader: Record "Purchase Header"; FromDocumentNo: Code[20]; FromDocType: Enum "Gen. Journal Document Type"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
