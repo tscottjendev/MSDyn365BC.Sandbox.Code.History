@@ -326,6 +326,20 @@ page 51 "Purchase Invoice"
                     StyleExpr = StatusStyleTxt;
                     ToolTip = 'Specifies whether the record is open, waiting to be approved, invoiced for prepayment, or released to the next stage of processing.';
                 }
+                field(DocAmount; Rec."Doc. Amount Incl. VAT")
+                {
+                    ApplicationArea = Basic, Suite;
+                    BlankZero = true;
+                    Enabled = DocAmountEnable;
+                    Visible = DocAmountEnable;
+                    ShowMandatory = true;
+                }
+                field(DocAmountVAT; Rec."Doc. Amount VAT")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Enabled = DocAmountEnable;
+                    Visible = DocAmountEnable;
+                }
                 field("Job Queue Status"; Rec."Job Queue Status")
                 {
                     ApplicationArea = All;
@@ -1789,6 +1803,7 @@ page 51 "Purchase Invoice"
         SetExtDocNoMandatoryCondition();
         ShowShippingOptionsWithLocation := ApplicationAreaMgmtFacade.IsLocationEnabled() or ApplicationAreaMgmtFacade.IsAllDisabled();
         IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        DocAmountEnable := PurchSetup."Check Doc. Total Amounts";
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1910,6 +1925,7 @@ page 51 "Purchase Invoice"
         IsPurchaseLinesEditable: Boolean;
         RejectICPurchaseInvoiceEnabled: Boolean;
         VATDateEnabled: Boolean;
+        DocAmountEnable: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
