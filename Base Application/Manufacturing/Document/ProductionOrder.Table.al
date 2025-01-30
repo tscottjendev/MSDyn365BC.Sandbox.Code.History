@@ -1083,7 +1083,7 @@ table 5405 "Production Order"
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
 
         if OldDimSetID <> "Dimension Set ID" then begin
-            OnValidateShortcutDimCodeOnBeforeUpdateAllLineDim(Rec, xRec);
+            OnValidateShortcutDimCodeOnBeforeUpdateAllLineDim(Rec, xRec, FieldNumber);
             if Status = Status::Finished then
                 Error(Text011);
             Modify();
@@ -1677,7 +1677,7 @@ table 5405 "Production Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateShortcutDimCodeOnBeforeUpdateAllLineDim(var ProductionOrder: Record "Production Order"; var xProductionOrder: Record "Production Order")
+    local procedure OnValidateShortcutDimCodeOnBeforeUpdateAllLineDim(var ProductionOrder: Record "Production Order"; var xProductionOrder: Record "Production Order"; FieldNumber: Integer)
     begin
     end;
 
