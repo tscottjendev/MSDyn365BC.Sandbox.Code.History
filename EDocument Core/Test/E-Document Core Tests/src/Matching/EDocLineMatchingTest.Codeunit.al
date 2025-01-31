@@ -8,10 +8,11 @@ codeunit 139659 "E-Doc. Line Matching Test"
     var
 
         Vendor: Record Vendor;
+        MatchingItem: Record Item;
         EDocumentService: Record "E-Document Service";
         Assert: Codeunit Assert;
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryEdoc: Codeunit "Library - E-Document";
+        LibraryEDoc: Codeunit "Library - E-Document";
         LibraryPermission: Codeunit "Library - Lower Permissions";
         IsInitialized: Boolean;
 
@@ -21,8 +22,8 @@ codeunit 139659 "E-Doc. Line Matching Test"
         if IsInitialized then
             exit;
 
-        LibraryEdoc.SetupStandardVAT();
-        LibraryEdoc.SetupStandardPurchaseScenario(Vendor, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
+        LibraryEDoc.SetupStandardVAT();
+        LibraryEDoc.SetupStandardPurchaseScenario(Vendor, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
 
         IsInitialized := true;
     end;
@@ -80,6 +81,78 @@ codeunit 139659 "E-Doc. Line Matching Test"
 
         // [GIVEN] We click "Match Manually" action
         EDocOrderLineMatchingPage.MatchManual_Promoted.Invoke();
+
+        // [THEN] we have qty 5 and matched 5 
+        Assert.AreEqual('5', EDocOrderLineMatchingPage.ImportedLines.Quantity.Value(), '');
+        Assert.AreEqual('5', EDocOrderLineMatchingPage.ImportedLines."Matched Quantity".Value(), '');
+        // [THEN] we have qty 5 and qty to invoice 5 
+        Assert.AreEqual('5.00', EDocOrderLineMatchingPage.OrderLines."Available Quantity".Value(), '');
+        Assert.AreEqual('5', EDocOrderLineMatchingPage.OrderLines."Qty. to Invoice".Value(), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('EDocumentLineCreationHandler,MessageHandler,PurchaseOrderHandler')]
+    procedure MatchOneImportLineToOnePOLineThroughCreatePOLineSuccess()
+    var
+        EDocument: Record "E-Document";
+        EDocImportedLine: Record "E-Doc. Imported Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        EDocLineMatching: Codeunit "E-Doc. Line Matching";
+        EDocLog: Codeunit "E-Document Log";
+        EDocProcessing: Codeunit "E-Document Processing";
+        EDocOrderLineMatchingPage: TestPage "E-Doc. Order Line Matching";
+    begin
+        // [FEATURE] [E-Document] [Matching] 
+        // [SCENARIO] Match single imported line of type Item to single PO line of type Item
+
+        // Setup E-Document with link to purchase order
+        Initialize(Enum::"Service Integration"::"Mock");
+
+        EDocImportedLine.DeleteAll();
+
+        // [GIVEN] We create e-document and PO line with Qty 5
+        CreatePurchaseOrderWithLine(PurchaseHeader, PurchaseLine, 5);
+        CreateEDocumentWithPOReference(EDocument, PurchaseHeader);
+        LibraryEDoc.GetGenericItem(MatchingItem);
+
+        // Receive
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        EDocument.FindLast();
+        EDocLog.InsertLog(EDocument, EDocumentService, Enum::"E-Document Service Status"::"Order Linked");
+        EDocProcessing.InsertServiceStatus(EDocument, EDocumentService, Enum::"E-Document Service Status"::"Order Linked");
+
+        // [GIVEN] We imported a item with quantity 5
+        CreateImportedLine(EDocument, 10000, 5, MatchingItem);
+        Assert.RecordCount(EDocImportedLine, 1);
+        Assert.RecordCount(PurchaseLine, 1);
+
+        // [WHEN] Open Matching page and select first entry
+        Commit();
+        LibraryPermission.SetTeamMember();
+
+        EDocOrderLineMatchingPage.Trap();
+        EDocLineMatching.RunMatching(EDocument);
+
+        EDocOrderLineMatchingPage.ImportedLines.First();
+        EDocOrderLineMatchingPage.OrderLines.First();
+
+        // [THEN] we have qty 5 and matched 0 
+        Assert.AreEqual('5', EDocOrderLineMatchingPage.ImportedLines.Quantity.Value(), '');
+        Assert.AreEqual('0', EDocOrderLineMatchingPage.ImportedLines."Matched Quantity".Value(), '');
+        // [THEN] we have qty 5 and qty to invoice 0
+        Assert.AreEqual('5.00', EDocOrderLineMatchingPage.OrderLines."Available Quantity".Value(), '');
+        Assert.AreEqual('0', EDocOrderLineMatchingPage.OrderLines."Qty. to Invoice".Value(), '');
+
+        // [GIVEN] We click create the purchase order line and receive all items
+        LibraryPermission.SetO365BusFull();
+        EDocOrderLineMatchingPage.ImportedLines.CreatePurchaseOrderLine.Invoke();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+
+        // [WHEN] We click "Match Automatically" action
+        EDocOrderLineMatchingPage.MatchAuto_Promoted.Invoke();
 
         // [THEN] we have qty 5 and matched 5 
         Assert.AreEqual('5', EDocOrderLineMatchingPage.ImportedLines.Quantity.Value(), '');
@@ -203,13 +276,14 @@ codeunit 139659 "E-Doc. Line Matching Test"
         EDocument."Document Record ID" := PurchaseHeader.RecordId();
         EDocument."Document Type" := EDocument."Document Type"::"Purchase Order";
         EDocument.Direction := Enum::"E-Document Direction"::Incoming;
+        EDocument."Bill-to/Pay-to No." := PurchaseHeader."Buy-from Vendor No.";
         EDocument.Insert();
         EDocument.SetRecFilter();
     end;
 
     local procedure CreatePurchaseOrderWithLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Quantity: Decimal)
     begin
-        LibraryEdoc.CreatePurchaseOrderWithLine(Vendor, PurchaseHeader, PurchaseLine, Quantity);
+        LibraryEDoc.CreatePurchaseOrderWithLine(Vendor, PurchaseHeader, PurchaseLine, Quantity);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindLast();
         PurchaseLine.Validate(Quantity, Quantity);
@@ -247,6 +321,21 @@ codeunit 139659 "E-Doc. Line Matching Test"
         EDocImportedLine."Line No." := LineNo;
         EDocImportedLine.Quantity := Quantity;
         EDocImportedLine.Type := Type;
+        EDocImportedLine.Insert();
+    end;
+
+    local procedure CreateImportedLine(EDocument: Record "E-Document"; LineNo: Integer; Quantity: Decimal; Item: Record Item)
+    var
+        EDocImportedLine: Record "E-Doc. Imported Line";
+    begin
+        EDocImportedLine.Init();
+        EDocImportedLine."E-Document Entry No." := EDocument."Entry No";
+        EDocImportedLine."Line No." := LineNo;
+        EDocImportedLine.Quantity := Quantity;
+        EDocImportedLine.Type := Enum::"Purchase Line Type"::Item;
+        EDocImportedLine."Unit Of Measure Code" := Item."Base Unit of Measure";
+        EDocImportedLine.Description := Item."No.";
+        EDocImportedLine."Direct Unit Cost" := Item."Unit Cost";
         EDocImportedLine.Insert();
     end;
 
@@ -382,6 +471,25 @@ codeunit 139659 "E-Doc. Line Matching Test"
         Assert.AreEqual('5.5', EDocOrderLineMatchingPage.ImportedLines."Matched Quantity".Value(), 'Imported line should be fully matched.');
         Assert.AreEqual('5.50', EDocOrderLineMatchingPage.OrderLines."Available Quantity".Value(), 'Incorrect order line available quantity after matching.');
         Assert.AreEqual('5.5', EDocOrderLineMatchingPage.OrderLines."Qty. to Invoice".Value(), 'Order line should have quantity to invoice after matching.');
+    end;
+
+    [ModalPageHandler]
+    internal procedure EDocumentLineCreationHandler(var EDocCreatePurchOrderLine: TestPage "E-Doc. Create Purch Order Line")
+    begin
+        EDocCreatePurchOrderLine.Type.SetValue(Enum::"Purchase Line Type"::Item);
+        EDocCreatePurchOrderLine."No.".SetValue(MatchingItem."No.");
+        EDocCreatePurchOrderLine."Create matching rule".SetValue(true);
+        EDocCreatePurchOrderLine.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    internal procedure PurchaseOrderHandler(var PurchaseOrder: TestPage "Purchase Order")
+    begin
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 
 }
