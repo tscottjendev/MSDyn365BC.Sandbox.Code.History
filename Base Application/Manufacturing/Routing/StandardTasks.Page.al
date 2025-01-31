@@ -92,6 +92,26 @@ page 99000799 "Standard Tasks"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Task)
+            {
+                Caption = 'Task';
+
+                actionref(Tools_Promoted; Tools)
+                {
+                }
+                actionref(Personnel_Promoted; Personnel)
+                {
+                }
+                actionref(Description_Promoted; Description)
+                {
+                }
+                actionref("Quality Measures_Promoted"; "Quality Measures")
+                {
+                }
+            }
+        }
     }
 }
 
