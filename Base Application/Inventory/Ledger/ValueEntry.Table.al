@@ -717,7 +717,7 @@ table 5802 "Value Entry"
     var
         ValueEntry2: Record "Value Entry";
     begin
-        ValueEntry2.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
+        ValueEntry2.ReadIsolation(IsolationLevel::ReadUncommitted);
         ValueEntry2.SetRange("Item No.", "Item No.");
         ValueEntry2.SetRange("Valuation Date", FromDate, ToDate);
         ValueEntry2.SetRange("Location Code", "Location Code");
@@ -725,6 +725,9 @@ table 5802 "Value Entry"
         ValueEntry2.CalcSums("Item Ledger Entry Quantity");
         QtyFactor := ValueEntry2."Item Ledger Entry Quantity";
 
+        if QtyFactor = 0 then
+            exit(QtyFactor);
+            
         ValueEntry2.SetRange("Location Code");
         ValueEntry2.SetRange("Variant Code");
         ValueEntry2.CalcSums("Item Ledger Entry Quantity");
