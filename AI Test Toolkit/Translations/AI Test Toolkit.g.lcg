@@ -1409,6 +1409,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType CannotRunMultipleSuitesInParallelErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3825618008 - NamedType 731288182" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This action will mark the run as Cancelled. Are you sure you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType ConfirmCancelQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3825618008 - NamedType 763274072" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Please provide a dataset for the AI Test Suite %1.]]></Val>
@@ -1470,15 +1479,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = method name, %2 = codeunit name]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType ScenarioNotStartedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3825618008 - Method 1461570459 - NamedType 4106450447" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This action will mark the run as Completed. Are you sure you want to continue?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - Method ResetStatus - NamedType ConfirmResetStatusQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1843238723 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -3562,7 +3562,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Action 1461570459 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Reset the status.]]></Val>
+      <Val><![CDATA[Cancels the run and marks the run as Cancelled.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3571,7 +3571,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Action 1461570459 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Reset Status]]></Val>
+      <Val><![CDATA[Cancel]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
