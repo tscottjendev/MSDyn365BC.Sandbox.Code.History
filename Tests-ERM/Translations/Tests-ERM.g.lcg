@@ -3011,6 +3011,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Multiple Posting Groups - NamedType PostingGroupNonEditableErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2480070618 - NamedType 964133575" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[G/L Entry Bill Account Not Matching with Purchase Invoice Vendor Posting Group Bill Account]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Multiple Posting Groups - NamedType VendorPostingGroupMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2516795050 - NamedType 90657030" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[BING]]></Val>
