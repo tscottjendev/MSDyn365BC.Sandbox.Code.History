@@ -214,6 +214,14 @@ page 99000787 "Production BOM List"
                 RunObject = Report "Delete Expired Components";
                 ToolTip = 'Remove BOM lines that have expired ending dates. The BOM header will not be changed.';
             }
+            action("Calculate Low-Level Code")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Calculate Low-Level Code';
+                Image = CalculateHierarchy;
+                RunObject = Report "Calculate Low Level Code";
+                ToolTip = 'Calculate the low-level codes for items in production BOMs. Low-level codes determine the sequence in which materials are planned during MRP runs. Top level items have code 0.';
+            }
         }
         area(reporting)
         {
