@@ -25,6 +25,9 @@ codeunit 265 "Feature Key Management"
         ConcurrentInventoryPostingLbl: Label 'ConcurrentInventoryPosting', Locked = true;
         ConcurrentInventoryPosting: Boolean;
         ConcurrentInventoryPostingRead: Boolean;
+        ConcurrentResourcePostingLbl: Label 'ConcurrentResourcePosting', Locked = true;
+        ConcurrentResourcePosting: Boolean;
+        ConcurrentResourcePostingRead: Boolean;
 
 #if not CLEAN24
     procedure IsPhysInvtOrderPackageTrackingEnabled(): Boolean
@@ -65,6 +68,15 @@ codeunit 265 "Feature Key Management"
         ConcurrentInventoryPostingRead := true;
         exit(ConcurrentInventoryPosting);
     end;
+
+    procedure IsConcurrentResourcePostingEnabled(): Boolean
+    begin
+        if not ConcurrentResourcePostingRead then
+            ConcurrentResourcePosting := FeatureManagementFacade.IsEnabled(ConcurrentResourcePostingLbl);
+        ConcurrentResourcePostingRead := true;
+        exit(ConcurrentResourcePosting);
+    end;
+
 #if not CLEAN24
     local procedure GetPhysInvtOrderPackageTrackingFeatureKey(): Text[50]
     begin
