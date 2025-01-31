@@ -9,6 +9,7 @@ using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
@@ -215,6 +216,12 @@ page 8903 "Manufacturing Manager RC"
                     ApplicationArea = Manufacturing;
                     Caption = 'Items';
                     RunObject = page "Item List";
+                }
+                action("Stock keeping Units")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Stockkeeping Units';
+                    RunObject = page "Stockkeeping Unit List";
                 }
                 action("Production Forecasts")
                 {
@@ -513,6 +520,12 @@ page 8903 "Manufacturing Manager RC"
                     ApplicationArea = Manufacturing;
                     Caption = 'Items';
                     RunObject = page "Item List";
+                }
+                action("Stock keeping Units1")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Stockkeeping Units';
+                    RunObject = page "Stockkeeping Unit List";
                 }
                 action("Update Unit Cost...")
                 {
