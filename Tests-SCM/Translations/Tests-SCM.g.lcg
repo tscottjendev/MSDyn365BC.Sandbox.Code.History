@@ -1544,6 +1544,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Copy Document Mgt. - NamedType MsgCorrectedInvoiceNo)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3520103777 - NamedType 2212819999" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Type must be equal to 'Item'  in Purchase Line: Document Type=%1, Document No.=%2, Line No.=%3. Current value is '%4'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Document Type, %2 = Document No., %3 = Line No., %4 = Type]D;]A;(LookupHint=Codeunit SCM Copy Document Mgt. - NamedType OverReceiveError)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3520103777 - NamedType 121078139" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong dimensions in copied document]]></Val>
