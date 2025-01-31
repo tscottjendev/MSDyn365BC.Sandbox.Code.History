@@ -930,7 +930,7 @@ page 30 "Item Card"
                         {
                             ApplicationArea = Planning;
                             Enabled = OrderMultipleEnable;
-                            ToolTip = 'Specifies a parameter used by the planning system to modify the quantity of planned supply orders.';
+                            ToolTip = 'Specifies a parameter used by the planning system to round the quantity of planned supply orders to a multiple of this value.';
                         }
                     }
                 }
