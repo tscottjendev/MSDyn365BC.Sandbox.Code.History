@@ -567,6 +567,8 @@ page 344 Navigate
         MaintenanceLedgEntry: Record "Maintenance Ledger Entry";
         [SecurityFiltering(SecurityFilter::Filtered)]
         InsuranceCovLedgEntry: Record "Ins. Coverage Ledger Entry";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        CapacityLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
 #if not CLEAN25
         [SecurityFiltering(SecurityFilter::Filtered)]
         WarrantyLedgerEntry: Record Microsoft.Service.Ledger."Warranty Ledger Entry";
@@ -897,6 +899,7 @@ page 344 Navigate
         FindJobEntries();
         FindBankEntries();
         FindFAEntries();
+        FindCapEntries();
         FindCostEntries();
         FindPostedGenJournalLine();
 
@@ -1086,6 +1089,19 @@ page 344 Navigate
             ResLedgEntry.SetFilter("Document No.", DocNoFilter);
             ResLedgEntry.SetFilter("Posting Date", PostingDateFilter);
             Rec.InsertIntoDocEntry(Database::"Res. Ledger Entry", ResLedgEntry.TableCaption(), ResLedgEntry.Count);
+        end;
+    end;
+
+    local procedure FindCapEntries()
+    begin
+        if (DocNoFilter = '') and (PostingDateFilter = '') then
+            exit;
+        if CapacityLedgEntry.ReadPermission() then begin
+            CapacityLedgEntry.Reset();
+            CapacityLedgEntry.SetCurrentKey("Document No.", "Posting Date");
+            CapacityLedgEntry.SetFilter("Document No.", DocNoFilter);
+            CapacityLedgEntry.SetFilter("Posting Date", PostingDateFilter);
+            Rec.InsertIntoDocEntry(Database::Microsoft.Manufacturing.Capacity."Capacity Ledger Entry", CapacityLedgEntry.TableCaption(), CapacityLedgEntry.Count);
         end;
     end;
 
@@ -1713,6 +1729,8 @@ page 344 Navigate
                     PAGE.Run(0, MaintenanceLedgEntry);
                 Database::"Ins. Coverage Ledger Entry":
                     PAGE.Run(0, InsuranceCovLedgEntry);
+                Database::Microsoft.Manufacturing.Capacity."Capacity Ledger Entry":
+                    PAGE.Run(0, CapacityLedgEntry);
                 Database::"Cost Entry":
                     PAGE.Run(0, CostEntry);
                 Database::"Pstd. Phys. Invt. Order Hdr":
