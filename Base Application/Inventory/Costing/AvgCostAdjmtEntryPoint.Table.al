@@ -94,6 +94,7 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
         CalendarPeriod: Record Date;
     begin
         Reset();
+        ReadIsolation(IsolationLevel::ReadUncommitted);
         "Item No." := ValueEntry."Item No.";
         "Valuation Date" := ValueEntry."Valuation Date";
         GetItem(ValueEntry."Item No.");
