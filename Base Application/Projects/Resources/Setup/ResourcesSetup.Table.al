@@ -103,5 +103,12 @@ table 314 "Resources Setup"
         Text002: Label '%1 cannot be changed, because there is at least one time sheet.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
+
+    procedure UseLegacyPosting(): Boolean
+    var
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+    begin
+        exit(not FeatureKeyManagement.IsConcurrentResourcePostingEnabled());
+    end;
 }
 
