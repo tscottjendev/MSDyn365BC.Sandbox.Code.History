@@ -130,6 +130,7 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
     procedure UpdateSetupOnBillToCustomerChangeInSalesHeader(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; BillToCustomer: Record Customer)
     var
         GLSetup: Record "General Ledger Setup";
+        AltCustVATReg: Record "Alt. Cust. VAT Reg.";
     begin
         GLSetup.Get();
         if GLSetup."Bill-to/Sell-to VAT Calc." <> GLSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No." then
@@ -139,6 +140,10 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
             if SalesHeader."Bill-to Customer No." = SalesHeader."Sell-to Customer No." then
                 exit;
             CopyFromCustomer(SalesHeader, xSalesHeader, BillToCustomer);
+            exit;
+        end;
+        if AltCustVATRegFacade.GetAlternativeCustVATReg(AltCustVATReg, BillToCustomer."No.", SalesHeader."Ship-to Country/Region Code") then begin
+            SalesHeader.Validate("VAT Country/Region Code", AltCustVATReg."VAT Country/Region Code");
             exit;
         end;
         if (SalesHeader."VAT Bus. Posting Group" <> '') and (SalesHeader."VAT Bus. Posting Group" <> BillToCustomer."VAT Bus. Posting Group") then
