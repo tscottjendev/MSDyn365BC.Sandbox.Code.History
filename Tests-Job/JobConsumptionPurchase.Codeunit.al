@@ -4008,7 +4008,7 @@ codeunit 136302 "Job Consumption Purchase"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesModalPageHandler')]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler2')]
     procedure SupportWarehousePurchaseOrderForJob_DirectedPutAwayAndPick_MixtureOfLines_ReceiveAndInvoice()
     var
         Item: Record Item;
@@ -4021,12 +4021,13 @@ codeunit 136302 "Job Consumption Purchase"
         ItemLedgerEntry: Record "Item Ledger Entry";
         WarehouseEntry: Record "Warehouse Entry";
         JobLedgerEntry: Record "Job Ledger Entry";
-        LotNo: Code[50];
+        LotNo: array[2] of Code[50];
+        LotQuantity: array[2] of Decimal;
         DocumentNo: Code[20];
     begin
         // [FEATURE] [WMS] [Item Tracking] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
         // [SCENARIO 545709] Location with "Directed Put-away and Pick" = true.
-        // [SCENARIO 545709] Receive Purchase Order that has two lines: 1st with Job and Lot Item Tracking, 2nd without Job for another Item.
+        // [SCENARIO 545709] Receive Purchase Order that has two lines: 1st with Job and Lot Item Tracking (two lots), 2nd without Job for another Item.
         // [SCENARIO 545709] Ensure that Warehouse Put-away is created only for the line without Job.
         // [SCENARIO 545709] Ensure that "Create Put-away" action from Posted Warehouse Receipt still skips the line with Job.
         // [SCENARIO 545709] Then Invoice the Purchase Order for line with Job.
@@ -4055,10 +4056,16 @@ codeunit 136302 "Job Consumption Purchase"
         // [GIVEN] Create Warehouse Receipt from Purchase Order.
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
 
-        // [GIVEN] Set Lot No. for the Item with Job in Warehouse Receipt line.        
-        LotNo := LibraryUtility.GenerateGUID();
-        LibraryVariableStorage.Enqueue(LotNo);
-        LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);
+        // [GIVEN] Set Lot No. for the Item with Job in Warehouse Receipt line. Handled in ItemTrackingLinesModalPageHandler2.
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(LotNo[1]);
+        LotQuantity[1] := LibraryRandom.RandDecInDecimalRange(1, 3, 2);
+        LibraryVariableStorage.Enqueue(LotQuantity[1]);
+
+        LotNo[2] := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(LotNo[2]);
+        LotQuantity[2] := PurchaseLine.Quantity - LotQuantity[1];
+        LibraryVariableStorage.Enqueue(LotQuantity[2]);
 
         WarehouseReceiptLine.SetRange("Source Type", Database::"Purchase Line");
         WarehouseReceiptLine.SetRange("Source Subtype", PurchaseLine."Document Type");
@@ -4075,32 +4082,54 @@ codeunit 136302 "Job Consumption Purchase"
         FindItemLedgEntry(
           ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::"Negative Adjmt.",
           ItemLedgerEntry."Document Type"::"Purchase Receipt", FindPurchaseReceiptNo(PurchaseLine));
-        ItemLedgerEntry.TestField(Quantity, -PurchaseLine.Quantity);
+        ItemLedgerEntry.TestField(Quantity, -LotQuantity[1]);
         ItemLedgerEntry.TestField("Job No.", PurchaseLine."Job No.");
         ItemLedgerEntry.TestField("Job Task No.", PurchaseLine."Job Task No.");
-        ItemLedgerEntry.TestField("Lot No.", LotNo);
+        ItemLedgerEntry.TestField("Lot No.", LotNo[1]);
+
+        ItemLedgerEntry.Next();
+        ItemLedgerEntry.TestField(Quantity, -LotQuantity[2]);
+        ItemLedgerEntry.TestField("Job No.", PurchaseLine."Job No.");
+        ItemLedgerEntry.TestField("Job Task No.", PurchaseLine."Job Task No.");
+        ItemLedgerEntry.TestField("Lot No.", LotNo[2]);
 
         // [THEN] Warehouse Entries for Receipt and Job Consumption are posted.
         WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"P. Order");
         WarehouseEntry.SetRange("Source No.", PurchaseLine."Document No.");
         WarehouseEntry.SetRange("Source Line No.", PurchaseLine."Line No.");
-        Assert.RecordCount(WarehouseEntry, 2);
+        Assert.RecordCount(WarehouseEntry, 4);
 
         WarehouseEntry.FindFirst();
         WarehouseEntry.TestField("Item No.", PurchaseLine."No.");
         WarehouseEntry.TestField("Location Code", PurchaseLine."Location Code");
         WarehouseEntry.TestField("Bin Code", Bin.Code);
         WarehouseEntry.TestField("Entry Type", WarehouseEntry."Entry Type"::"Positive Adjmt.");
-        WarehouseEntry.TestField(Quantity, PurchaseLine.Quantity);
-        WarehouseEntry.TestField("Lot No.", LotNo);
+        WarehouseEntry.TestField(Quantity, LotQuantity[1]);
+        WarehouseEntry.TestField("Lot No.", LotNo[1]);
 
         WarehouseEntry.Next();
         WarehouseEntry.TestField("Item No.", PurchaseLine."No.");
         WarehouseEntry.TestField("Location Code", PurchaseLine."Location Code");
         WarehouseEntry.TestField("Bin Code", Bin.Code);
         WarehouseEntry.TestField("Entry Type", WarehouseEntry."Entry Type"::"Negative Adjmt.");
-        WarehouseEntry.TestField(Quantity, -PurchaseLine.Quantity);
-        WarehouseEntry.TestField("Lot No.", LotNo);
+        WarehouseEntry.TestField(Quantity, -LotQuantity[1]);
+        WarehouseEntry.TestField("Lot No.", LotNo[1]);
+
+        WarehouseEntry.Next();
+        WarehouseEntry.TestField("Item No.", PurchaseLine."No.");
+        WarehouseEntry.TestField("Location Code", PurchaseLine."Location Code");
+        WarehouseEntry.TestField("Bin Code", Bin.Code);
+        WarehouseEntry.TestField("Entry Type", WarehouseEntry."Entry Type"::"Positive Adjmt.");
+        WarehouseEntry.TestField(Quantity, LotQuantity[2]);
+        WarehouseEntry.TestField("Lot No.", LotNo[2]);
+
+        WarehouseEntry.Next();
+        WarehouseEntry.TestField("Item No.", PurchaseLine."No.");
+        WarehouseEntry.TestField("Location Code", PurchaseLine."Location Code");
+        WarehouseEntry.TestField("Bin Code", Bin.Code);
+        WarehouseEntry.TestField("Entry Type", WarehouseEntry."Entry Type"::"Negative Adjmt.");
+        WarehouseEntry.TestField(Quantity, -LotQuantity[2]);
+        WarehouseEntry.TestField("Lot No.", LotNo[2]);
 
         // [THEN] Ensure that Warehouse Put-away is created only for the line without Job.
         FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
@@ -4118,9 +4147,18 @@ codeunit 136302 "Job Consumption Purchase"
         JobLedgerEntry.TestField(Type, JobLedgerEntry.Type::Item);
         JobLedgerEntry.TestField("No.", PurchaseLine."No.");
         JobLedgerEntry.TestField("Location Code", PurchaseLine."Location Code");
-        JobLedgerEntry.TestField(Quantity, PurchaseLine.Quantity);
+        JobLedgerEntry.TestField(Quantity, LotQuantity[1]);
         JobLedgerEntry.TestField("Bin Code", Bin.Code);
-        JobLedgerEntry.TestField("Lot No.", LotNo);
+        JobLedgerEntry.TestField("Lot No.", LotNo[1]);
+
+        JobLedgerEntry.Next();
+        JobLedgerEntry.TestField("Entry Type", JobLedgerEntry."Entry Type"::Usage);
+        JobLedgerEntry.TestField(Type, JobLedgerEntry.Type::Item);
+        JobLedgerEntry.TestField("No.", PurchaseLine."No.");
+        JobLedgerEntry.TestField("Location Code", PurchaseLine."Location Code");
+        JobLedgerEntry.TestField(Quantity, LotQuantity[2]);
+        JobLedgerEntry.TestField("Bin Code", Bin.Code);
+        JobLedgerEntry.TestField("Lot No.", LotNo[2]);
     end;
 
     [Test]
@@ -4676,7 +4714,7 @@ codeunit 136302 "Job Consumption Purchase"
         // Take Random Quantity.
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseHeader(DocumentType, Vendor."No.", PurchaseHeader);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDecInDecimalRange(5, 10, 2));
         AttachJobToPurchaseDocument(JobTask, PurchaseHeader, 0);
     end;
 
@@ -6634,6 +6672,19 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
         ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesModalPageHandler2(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+
+        ItemTrackingLines.Next();
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+
         ItemTrackingLines.OK().Invoke();
     end;
 
