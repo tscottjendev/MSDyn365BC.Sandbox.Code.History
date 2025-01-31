@@ -391,8 +391,10 @@ codeunit 1001 "Job Post-Line"
             TempPurchaseLineJob := PurchLine;
             TempPurchaseLineJob.Insert();
             InsertTempJobJournalLine(JobJnlLine, TempPurchaseLineJob."Line No.");
-        end else
+        end else begin
+            JobJnlPostLine.SetCalledFromPurchase(true);
             JobJnlPostLine.RunWithCheck(JobJnlLine);
+        end;
     end;
 
     procedure TestSalesLine(var SalesLine: Record "Sales Line")

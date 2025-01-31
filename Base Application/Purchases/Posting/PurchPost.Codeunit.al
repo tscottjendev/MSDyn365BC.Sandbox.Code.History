@@ -6116,6 +6116,7 @@ codeunit 90 "Purch.-Post"
                 TempReservEntryJobCons."Source Ref. No." := ItemJournalLine."Line No.";
 
                 UpdateJobConsumptionReservationApplToItemEntry(TempReservEntryJobCons, ItemJournalLine, TempTrackingSpecification, NonInventoriableItem);
+                TempTrackingSpecification.Reset();
 
                 TempReservEntryJobCons.Insert();
 
