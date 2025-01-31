@@ -50,6 +50,7 @@ table 5777 "Item Reference"
         field(5; "Reference Type No."; Code[20])
         {
             Caption = 'Reference Type No.';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Reference Type" = const(Customer)) Customer."No."
             else
             if ("Reference Type" = const(Vendor)) Vendor."No.";
@@ -57,6 +58,7 @@ table 5777 "Item Reference"
         field(6; "Reference No."; Code[50])
         {
             Caption = 'Reference No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = Barcode;
             NotBlank = true;
         }
