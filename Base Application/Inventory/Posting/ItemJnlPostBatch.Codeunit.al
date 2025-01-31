@@ -94,14 +94,11 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     local procedure "Code"()
     var
-        ValueEntry: Record "Value Entry";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management";
         OldEntryType: Enum "Item Ledger Entry Type";
-        EntryNo: Integer;
         RaiseError: Boolean;
-        i: Integer;
     begin
         OnBeforeCode(ItemJnlLine);
 
@@ -170,15 +167,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         if ItemJnlLine."Line No." = 0 then
             ItemJnlLine."Line No." := WhseRegNo;
 
-        ValueEntry.ReadIsolation(IsolationLevel::UpdLock);
-        foreach EntryNo in PostponedValueEntries do begin
-            i += 1;
-            if GuiAllowed() and WindowIsOpen then
-                Window.Update(7, i);
-            ValueEntry.Get(EntryNo);
-            ItemJnlPostLine.PostInventoryToGL(ValueEntry);
-            ValueEntry.Modify();
-        end;
+        PostDeferredValueEntriesToGL();
 
         InvtSetup.SetLoadFields("Automatic Cost Adjustment", "Automatic Cost Posting");
         InvtSetup.Get();
@@ -218,6 +207,44 @@ codeunit 23 "Item Jnl.-Post Batch"
             Commit();
 
         OnAfterCode(ItemJnlLine, ItemJnlBatch, ItemRegNo, WhseRegNo);
+    end;
+
+    local procedure PostDeferredValueEntriesToGL()
+    var
+        ValueEntry: Record "Value Entry";
+        ValueEntryUpdate: Record "Value Entry";
+        EntryNo: Integer;
+        FromEntryNo: Integer;
+        ToEntryNo: Integer;
+        i: Integer;
+    begin
+        if PostponedValueEntries.Count = 0 then
+            exit;
+        FromEntryNo := 0;
+        ToEntryNo := 0;
+        // to find the range of postponed value entries
+        foreach EntryNo in PostponedValueEntries do begin
+            if EntryNo < FromEntryNo then
+                FromEntryNo := EntryNo;
+            if EntryNo > ToEntryNo then
+                ToEntryNo := EntryNo;
+        end;
+
+        ValueEntryUpdate.ReadIsolation(IsolationLevel::UpdLock);
+        ValueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);  // we already locked the ones we need to update
+        ValueEntry.SetRange("Entry No.", FromEntryNo, ToEntryNo);
+        if ValueEntry.FindSet() then
+            repeat
+                if PostponedValueEntries.Contains(ValueEntry."Entry No.") then begin
+                    PostponedValueEntries.Remove(ValueEntry."Entry No.");
+                    i += 1;
+                    if GuiAllowed() and WindowIsOpen then
+                        Window.Update(7, i);
+                    ValueEntryUpdate := ValueEntry;
+                    ItemJnlPostLine.PostInventoryToGL(ValueEntryUpdate);
+                    ValueEntryUpdate.Modify();
+                end;
+            until ValueEntry.Next() = 0;
     end;
 
     local procedure OpenProgressDialog()
@@ -975,17 +1002,11 @@ codeunit 23 "Item Jnl.-Post Batch"
         ItemJournalLine.ClearDates();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostInventoryToGL', '', false, false)]
-    local procedure OnBeforePostInventoryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line"; PostToGL: Boolean; CalledFromAdjustment: Boolean; ItemInventoryValueZero: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]
+    local procedure OnBeforePostValueEntryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
     begin
-        if not ValueEntry.Inventoriable or
-           not CalledFromAdjustment and ItemInventoryValueZero or
-           CalledFromAdjustment and not PostToGL
-        then
-            exit;
         if InvtSetup.UseLegacyPosting() then
             exit;
-
         PostponedValueEntries.Add(ValueEntry."Entry No.");
         IsHandled := true;
     end;
