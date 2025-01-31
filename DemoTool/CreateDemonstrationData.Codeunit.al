@@ -208,7 +208,7 @@ codeunit 101900 "Create Demonstration Data"
     begin
         // Virtual table does not support ModifyAll
         FeatureKey.SetRange("Is One Way", false); // only enable features that can be disabled
-        FeatureKey.SetFilter(ID, '<>PowerAutomateCopilot&<>CalcOnlyVisibleFlowFields');
+        FeatureKey.SetFilter(ID, '<>PowerAutomateCopilot&<>CalcOnlyVisibleFlowFields&<>ConcurrentInventoryPosting');
         if FeatureKey.FindSet(true) then
             repeat
                 FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
