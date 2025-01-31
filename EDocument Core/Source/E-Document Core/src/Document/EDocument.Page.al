@@ -52,6 +52,29 @@ page 6121 "E-Document"
                     Importance = Additional;
                     ToolTip = 'Specifies the direction of the electronic document.';
                 }
+                // Todo: Move
+                field("File Name"; Rec."File Name")
+                {
+                    ToolTip = 'Specifies the name of the source file.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.ViewSourceFile();
+                    end;
+                }
+                // Todo: Move
+                field("File Type"; Rec."File Type")
+                {
+                    Importance = Additional;
+                    ToolTip = 'Specifies the type of the source file.';
+                    Visible = false;
+                }
+                // Todo: Move
+                field(Service; Rec.Service)
+                {
+                    Importance = Additional;
+                    ToolTip = 'Specifies the name of the corresponding e-document service.';
+                }
                 field("Workflow Code"; Rec."Workflow Code")
                 {
                     Editable = false;
@@ -269,6 +292,18 @@ page 6121 "E-Document"
                         end
                     end;
                 }
+                action(ViewFile)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'View file';
+                    ToolTip = 'View the source file.';
+                    Image = ViewDetails;
+
+                    trigger OnAction()
+                    begin
+                        Rec.ViewSourceFile();
+                    end;
+                }
             }
             group(Incoming)
             {
@@ -411,6 +446,7 @@ page 6121 "E-Document"
                 actionref(Recreate_Promoted; Recreate) { }
                 actionref(Cancel_promoteed; Cancel) { }
                 actionref(Approval_promoteed; GetApproval) { }
+                actionref(Preview_promoteed; ViewFile) { }
 
             }
             group(Category_Troubleshoot)

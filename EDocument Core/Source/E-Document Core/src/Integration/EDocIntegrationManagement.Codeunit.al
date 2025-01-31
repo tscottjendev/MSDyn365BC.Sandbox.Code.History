@@ -148,7 +148,7 @@ codeunit 6134 "E-Doc. Integration Management"
                 EDocImport.AfterInsertImportedEdocument(EDocument, EDocService, TempBlob, EDocCount, HttpRequest, HttpResponse);
             end;
 
-            if not IsProcessed then
+            if (not IsProcessed) and EDocService.IsAutomaticProcessingEnabled() then
                 EDocImport.ProcessImportedDocument(EDocument, EDocService, TempBlob);
 
             if EDocErrorHelper.HasErrors(EDocument) then begin
@@ -203,7 +203,7 @@ codeunit 6134 "E-Doc. Integration Management"
         ErrorCount: Integer;
         Success, IsFetchableType : Boolean;
     begin
-        ReceiveContext.Status().SetStatus(Enum::"E-Document Service Status"::Imported);
+        ReceiveContext.Status().SetStatus("E-Document Service Status"::Imported);
         ErrorCount := EDocumentErrorHelper.ErrorMessageCount(EDocument);
         RunDownloadDocument(EDocument, EDocumentService, DocumentMetadata, IDocumentReceiver, ReceiveContext);
         Success := EDocumentErrorHelper.ErrorMessageCount(EDocument) = ErrorCount;
@@ -231,6 +231,14 @@ codeunit 6134 "E-Doc. Integration Management"
         EDocumentProcessing.InsertServiceStatus(EDocument, EDocumentService, ReceiveContext.Status().GetStatus());
         EDocumentProcessing.ModifyEDocumentStatus(EDocument, ReceiveContext.Status().GetStatus());
         EDocumentLog.InsertIntegrationLog(EDocument, EDocumentService, ReceiveContext.Http().GetHttpRequestMessage(), ReceiveContext.Http().GetHttpResponseMessage());
+
+        if TempEDocDataStorage."Is Structured" then
+            EDocument."Structured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No."
+        else
+            EDocument."Unstructured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
+        EDocument."File Name" := TempEDocDataStorage.Name;
+        EDocument."File Type" := TempEDocDataStorage."Data Type";
+        EDocument.Modify();
 
         // Insert logs for marking document as fetched
         if IsFetchableType then

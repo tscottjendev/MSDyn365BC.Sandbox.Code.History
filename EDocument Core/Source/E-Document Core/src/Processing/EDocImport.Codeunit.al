@@ -20,10 +20,14 @@ codeunit 6140 "E-Doc. Import" implements IImportProcess
     internal procedure UploadDocument(var EDocument: Record "E-Document")
     var
         EDocumentService: Record "E-Document Service";
+        EDocDataStorage: Record "E-Doc. Data Storage";
+        EDocLog: Record "E-Document Log";
         TempBlob: Codeunit "Temp Blob";
         OutStr: OutStream;
         InStr: InStream;
         FileName: Text;
+        EDocumentInserted: Boolean;
+        EDocumentServiceStatus: Enum "E-Document Service Status";
     begin
         if Page.RunModal(Page::"E-Document Services", EDocumentService) <> Action::LookupOK then
             exit;
@@ -36,17 +40,27 @@ codeunit 6140 "E-Doc. Import" implements IImportProcess
 
         EDocument.Direction := EDocument.Direction::Incoming;
         EDocument."Document Type" := Enum::"E-Document Type"::None;
+        EDocumentServiceStatus := "E-Document Service Status"::Imported;
 
         if EDocument."Entry No" = 0 then begin
             EDocument.Insert(true);
-            EDocumentProcessing.InsertServiceStatus(EDocument, EDocumentService, Enum::"E-Document Service Status"::Imported);
+            EDocumentInserted := true;
+            EDocumentProcessing.InsertServiceStatus(EDocument, EDocumentService, EDocumentServiceStatus);
         end else begin
             EDocument.Modify(true);
-            EDocumentProcessing.ModifyServiceStatus(EDocument, EDocumentService, Enum::"E-Document Service Status"::Imported);
+            EDocumentProcessing.ModifyServiceStatus(EDocument, EDocumentService, EDocumentServiceStatus);
         end;
 
-        EDocumentLog.InsertLog(EDocument, EDocumentService, TempBlob, Enum::"E-Document Service Status"::Imported);
-        EDocumentProcessing.ModifyEDocumentStatus(EDocument, Enum::"E-Document Service Status"::Imported);
+        EDocLog := EDocumentLog.InsertLog(EDocument, EDocumentService, TempBlob, EDocumentServiceStatus);
+        EDocumentProcessing.ModifyServiceStatus(EDocument, EDocumentService, EDocumentServiceStatus);
+
+        if EDocumentInserted then
+            if EDocDataStorage.Get(EDocLog."E-Doc. Data Storage Entry No.") then begin
+                EDocument."Unstructured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
+                EDocument.Modify();
+                EDocDataStorage.Name := CopyStr(FileName, 1, MaxStrLen(EDocDataStorage.Name));
+                EDocDataStorage.Modify();
+            end;
     end;
 
     internal procedure GetBasicInfo(var EDocument: Record "E-Document")

@@ -271,6 +271,12 @@ table 6103 "E-Document Service"
             ToolTip = 'Specifies the import process for the document.';
             DataClassification = SystemMetadata;
         }
+        field(32; "Automatic Processing"; Enum "Automatic Processing")
+        {
+            Caption = 'Automatic Processing';
+            ToolTip = 'Specifies if the processing of document should start immediately after downloading it.';
+            DataClassification = SystemMetadata;
+        }
     }
     keys
     {
@@ -294,6 +300,11 @@ table 6103 "E-Document Service"
 
         EDocBackgroundJobs.RemoveJob(Rec."Batch Recurrent Job Id");
         EDocBackgroundJobs.RemoveJob(Rec."Import Recurrent Job Id");
+    end;
+
+    internal procedure IsAutomaticProcessingEnabled(): Boolean
+    begin
+        exit("Automatic Processing" = "Automatic Processing"::Yes);
     end;
 
     internal procedure ToString(): Text

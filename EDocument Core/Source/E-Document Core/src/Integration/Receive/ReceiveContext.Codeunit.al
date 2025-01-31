@@ -83,5 +83,4 @@ codeunit 6186 ReceiveContext
         HttpMessageState: Codeunit "Http Message State";
         IntegrationActionStatus: Codeunit "Integration Action Status";
 
-
 }

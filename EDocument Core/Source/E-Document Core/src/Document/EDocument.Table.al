@@ -194,7 +194,23 @@ table 6121 "E-Document"
             ToolTip = 'Specifies the content that is structured, such as XML';
             TableRelation = "E-Doc. Data Storage";
         }
-
+        field(34; Service; Code[20])
+        {
+            Caption = 'Service';
+            ToolTip = 'Specifies the service that is used to process the E-Document.';
+            Editable = false;
+            TableRelation = "E-Document Service";
+        }
+        field(35; "File Name"; Text[256])
+        {
+            Caption = 'File Name';
+            ToolTip = 'Specifies the file name of the E-Document source.';
+        }
+        field(36; "File Type"; Enum "E-Doc. Data Storage Blob Type")
+        {
+            Caption = 'File Type';
+            ToolTip = 'Specifies the file type of the E-Document source.';
+        }
     }
     keys
     {
@@ -206,6 +222,70 @@ table 6121 "E-Document"
         {
         }
     }
+
+    internal procedure PreviewContent()
+    var
+        EDocDataStorage: Record "E-Doc. Data Storage";
+        EDocumentLog: Record "E-Document Log";
+        FileInStr: InStream;
+    begin
+        if Rec."File Type" = Rec."File Type"::PDF then
+            exit;
+
+        EDocDataStorage.SetAutoCalcFields("Data Storage");
+        if not EDocDataStorage.Get("Unstructured Data Entry No.") then begin
+            EDocumentLog.SetRange("E-Doc. Entry No", Rec."Entry No");
+            EDocumentLog.SetFilter(Status, '<>' + Format(EDocumentLog.Status::"Batch Imported"));
+
+            if not EDocumentLog.FindFirst() then
+                Error(NoFileErr, Rec.TableCaption());
+
+            if not EDocDataStorage.Get(EDocumentLog."E-Doc. Data Storage Entry No.") then
+                Error(NoFileErr, Rec.TableCaption());
+        end;
+
+        if EDocDataStorage."Data Type" <> EDocDataStorage."Data Type"::PDF then
+            exit;
+
+        if not EDocDataStorage."Data Storage".HasValue() then
+            Error(NoFileContentErr, Rec."File Name", EDocDataStorage.TableCaption());
+
+        EDocDataStorage."Data Storage".CreateInStream(FileInStr);
+        File.ViewFromStream(FileInStr, Rec."File Name", true);
+    end;
+
+    internal procedure ExportDataStorage()
+    var
+        EDocDataStorage: Record "E-Doc. Data Storage";
+        EDocumentLog: Record "E-Document Log";
+    begin
+        if not EDocDataStorage.Get("Unstructured Data Entry No.") then begin
+            EDocumentLog.SetRange("E-Doc. Entry No", Rec."Entry No");
+            EDocumentLog.SetFilter(Status, '<>' + Format(EDocumentLog.Status::"Batch Imported"));
+            if not EDocumentLog.FindFirst() then
+                Error(NoFileErr, Rec.TableCaption());
+        end else begin
+            EDocumentLog.SetRange("E-Doc. Data Storage Entry No.", EDocDataStorage."Entry No.");
+            if not EDocumentLog.FindFirst() then
+                Error(NoFileErr, Rec.TableCaption());
+        end;
+
+        EDocumentLog.ExportDataStorage();
+    end;
+
+    internal procedure ViewSourceFile()
+    begin
+        Rec.SetAutoCalcFields("File Type", "File Name");
+        if Rec."File Name" = '' then
+            exit;
+
+        if Rec."File Type" = Rec."File Type"::PDF then begin
+            Rec.PreviewContent();
+            exit;
+        end;
+
+        Rec.ExportDataStorage();
+    end;
 
     internal procedure OpenEDocument(EDocumentRecordId: RecordId)
     var
@@ -239,4 +319,6 @@ table 6121 "E-Document"
 
     var
         ToStringLbl: Label '%1,%2,%3,%4', Locked = true;
+        NoFileErr: label 'No previewable attachment exists for this %2.', Comment = '%1 - a table caption';
+        NoFileContentErr: label 'Previewing file %1 failed. The file was found in table %2, but it has no content.', Comment = '%1 - a file name; %2 - a table caption';
 }

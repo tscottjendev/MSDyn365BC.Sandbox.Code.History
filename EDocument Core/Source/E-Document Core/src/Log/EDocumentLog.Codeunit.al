@@ -165,10 +165,17 @@ codeunit 6132 "E-Document Log"
     internal procedure GetDocumentBlobFromLog(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; var TempBlob: Codeunit "Temp Blob"; EDocumentServiceStatus: Enum "E-Document Service Status"): Boolean
     var
         EDocumentLog: Record "E-Document Log";
+        EDocDataStorage: Record "E-Doc. Data Storage";
         EDocumentHelper: Codeunit "E-Document Processing";
         Telemetry: Codeunit Telemetry;
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
+        EDocDataStorage.SetAutoCalcFields("Data Storage");
+        // Todo: Remove when processing is in
+        if EDocDataStorage.Get(EDocument."Structured Data Entry No.") then begin
+            TempBlob.FromRecord(EDocDataStorage, EDocDataStorage.FieldNo("Data Storage"));
+            exit(TempBlob.HasValue());
+        end;
         EDocumentLog.SetLoadFields("E-Doc. Entry No", Status);
         EDocumentLog.SetRange("E-Doc. Entry No", EDocument."Entry No");
         EDocumentLog.SetRange("Service Code", EDocumentService.Code);

@@ -38,6 +38,7 @@ page 6133 "E-Document Service"
                 field("Service Integration"; Rec."Service Integration")
                 {
                     ToolTip = 'Specifies integration code for the electronic export setup.';
+                    Visible = LegacyIntegrationVisible;
                     ObsoleteTag = '26.0';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced with field "Service Integration V2"';
@@ -54,6 +55,10 @@ page 6133 "E-Document Service"
                 field("Use Batch Processing"; Rec."Use Batch Processing")
                 {
                     ToolTip = 'Specifies if service uses batch processing for export.';
+                }
+                field("Automatic Processing"; Rec."Automatic Processing")
+                {
+                    ToolTip = 'Specifies if the processing of document should start immediately after downloading it.';
                 }
             }
             group(BatchSettings)
@@ -246,6 +251,9 @@ page 6133 "E-Document Service"
     var
         ServiceIntegrationSetupMsg: Label 'There is no configuration setup for this service integration.';
         DocNotCreatedQst: Label 'Failed to create new Purchase %1 from E-Document. Do you want to open E-Document to see reported errors?', Comment = '%1 - Purchase Document Type';
+#if not CLEAN26
+        LegacyIntegrationVisible: Boolean;
+#endif
 
     trigger OnOpenPage()
     var
@@ -255,6 +263,9 @@ page 6133 "E-Document Service"
         FeatureTelemetry.LogUptake('0000KZ6', EDocumentHelper.GetEDocTok(), Enum::"Feature Uptake Status"::Discovered);
         CurrPage.EDocumentExportFormatMapping.Page.SaveAsImport(false);
         CurrPage.EDocumentImportFormatMapping.Page.SaveAsImport(true);
+#if not CLEAN26
+        LegacyIntegrationVisible := (Rec."Service Integration" <> Rec."Service Integration"::"No Integration");
+#endif
     end;
 
 #if not CLEAN26

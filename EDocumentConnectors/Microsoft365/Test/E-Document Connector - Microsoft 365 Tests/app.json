@@ -4,7 +4,7 @@
   "publisher": "Microsoft",
   "brief": "E-Document Connector - Microsoft 365 Tests",
   "description": "E-Document Connector - Microsoft 365 Tests",
-  "version": "26.0.29614.0",
+  "version": "26.0.29623.0",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
   "help": "https://go.microsoft.com/fwlink/?linkid=2204541",
@@ -21,12 +21,6 @@
     {
       "id": "ec6b3b0e-f983-408b-8476-bafb4368ecbc",
       "name": "E-Document Connector - Microsoft 365",
-      "publisher": "Microsoft",
-      "version": "26.0.0.0"
-    },
-    {
-      "id": "d852a468-263e-49e5-bfda-f09e33342b89",
-      "name": "E-Document Connector - Pagero",
       "publisher": "Microsoft",
       "version": "26.0.0.0"
     },
