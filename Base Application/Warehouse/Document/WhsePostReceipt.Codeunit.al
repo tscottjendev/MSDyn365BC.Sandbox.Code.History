@@ -22,6 +22,7 @@ using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Setup;
+using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Worksheet;
 using System.Utilities;
 
@@ -1167,6 +1168,8 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     local procedure ConsumeWarehouseEntryForJobPurchase(var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"): Boolean
+    var
+        Bin: Record Bin;
     begin
         if PostedWhseReceiptLine."Source Document" <> PostedWhseReceiptLine."Source Document"::"Purchase Order" then
             exit(false);
@@ -1179,13 +1182,25 @@ codeunit 5760 "Whse.-Post Receipt"
                 begin
                     TempWarehouseJournalLine."Entry Type" := TempWarehouseJournalLine."Entry Type"::"Negative Adjmt.";
                     TempWarehouseJournalLine."From Bin Code" := TempWarehouseJournalLine."To Bin Code";
+                    Bin.SetLoadFields("Zone Code", "Bin Type Code");
+                    Bin.Get(TempWarehouseJournalLine."Location Code", TempWarehouseJournalLine."From Bin Code");
+                    TempWarehouseJournalLine."From Zone Code" := Bin."Zone Code";
+                    TempWarehouseJournalLine."From Bin Type Code" := Bin."Bin Type Code";
+
                     TempWarehouseJournalLine."To Bin Code" := '';
+                    TempWarehouseJournalLine."To Zone Code" := '';
                 end;
             TempWarehouseJournalLine."Entry Type"::"Negative Adjmt.":
                 begin
                     TempWarehouseJournalLine."Entry Type" := TempWarehouseJournalLine."Entry Type"::"Positive Adjmt.";
                     TempWarehouseJournalLine."To Bin Code" := TempWarehouseJournalLine."From Bin Code";
-                    TempWarehouseJournalLine."From Bin Code" := ''
+                    Bin.SetLoadFields("Zone Code");
+                    Bin.Get(TempWarehouseJournalLine."Location Code", TempWarehouseJournalLine."From Bin Code");
+                    TempWarehouseJournalLine."To Zone Code" := Bin."Zone Code";
+
+                    TempWarehouseJournalLine."From Bin Code" := '';
+                    TempWarehouseJournalLine."From Zone Code" := '';
+                    TempWarehouseJournalLine."From Bin Type Code" := '';
                 end;
         end;
         TempWarehouseJournalLine.Quantity := -TempWarehouseJournalLine.Quantity;
