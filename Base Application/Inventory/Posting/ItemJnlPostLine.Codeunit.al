@@ -2897,6 +2897,19 @@ codeunit 22 "Item Jnl.-Post Line"
         then
             exit;
 
+        IsHandled := false;
+        OnBeforePostValueEntryToGL(ValueEntry, IsHandled);
+        if IsHandled then
+            exit;
+        PostValueEntryToGL(ValueEntry);
+    end;
+
+    /// <summary>
+    /// Posts inventory transactions to the general ledger based on the provided value entry.
+    /// </summary>
+    /// <param name="ValueEntry">Value entry to post from.</param>
+    internal procedure PostValueEntryToGL(var ValueEntry: Record "Value Entry")
+    begin
         InventoryPostingToGL.SetRunOnlyCheck(true, not PostToGL, false);
         OnPostInventoryToGLOnBeforePostInvtBuffer(InventoryPostingToGL, PostToGL);
         PostInvtBuffer(ValueEntry);
@@ -4193,6 +4206,8 @@ codeunit 22 "Item Jnl.-Post Line"
         CostAmt: Decimal;
         CostAmtACY: Decimal;
     begin
+        OldItemLedgEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
+        OldValueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
         OldValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         OldValueEntry.SetRange("Item Ledger Entry No.", ItemJnlLine."Applies-to Entry");
         OldValueEntry.SetRange("Entry Type", OldValueEntry."Entry Type"::"Indirect Cost");
@@ -4260,6 +4275,7 @@ codeunit 22 "Item Jnl.-Post Line"
         ExpectedSalesAmt := 0;
         ExpectedPurchAmt := 0;
 
+        ValueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
         ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
         ValueEntry.SetFilter("Entry Type", '<>%1', ValueEntry."Entry Type"::Revaluation);
@@ -7461,6 +7477,11 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostValueEntryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPostInventoryToGL(var ValueEntry: Record "Value Entry")
     begin
     end;
@@ -7746,6 +7767,7 @@ codeunit 22 "Item Jnl.-Post Line"
     begin
         OldValueEntry.FindFirstValueEntryByItemLedgerEntryNo(ItemLedgerEntryNo);
         OldValueEntry2.Copy(OldValueEntry);
+        OldValueEntry2.ReadIsolation(IsolationLevel::ReadUnCommitted);
         OldValueEntry2.SetFilter("Entry No.", '<>%1', OldValueEntry."Entry No.");
         OnCalcILEExpectedAmountOnBeforeCalcCostAmounts(OldValueEntry2, OldValueEntry, ItemLedgEntryNo);
         OldValueEntry2.CalcSums("Cost Amount (Expected)", "Cost Amount (Expected) (ACY)");
