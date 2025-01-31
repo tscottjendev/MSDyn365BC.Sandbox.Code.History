@@ -2,16 +2,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.eServices.EDocument.Processing.Interfaces;
+namespace Microsoft.eServices.EDocument;
 
-using Microsoft.eServices.EDocument;
-
-/// <summary>
-/// Interface for E-Document actionable actions.
-/// </summary>
-interface IImportProcess
+enum 6156 "E-Document Import Process"
 {
-
-    procedure Run(var EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service");
-
+    Extensible = true;
+    value(0; "Version 1.0")
+    {
+        Caption = 'Version 1.0';
+    }
+    value(1; "Version 2.0")
+    {
+        Caption = 'Version 2.0';
+    }
 }

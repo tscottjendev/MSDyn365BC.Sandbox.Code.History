@@ -2,16 +2,26 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.eServices.EDocument;
 
-using Microsoft.eServices.EDocument.Processing.Interfaces;
+namespace Microsoft.EServices.EDocument.Processing.Import;
 
-enum 6156 "Import Process" implements IImportProcess
+enum 6100 "Import E-Doc. Proc. Status"
 {
-    Extensible = true;
-    value(0; "Version 1.0")
+    Extensible = false;
+
+    value(0; "Unprocessed")
     {
-        Caption = 'Version 1.0';
-        Implementation = IImportProcess = "E-Doc. Import";
+    }
+    value(1; "Readable")
+    {
+    }
+    value(2; "Ready for draft")
+    {
+    }
+    value(3; "Draft Ready")
+    {
+    }
+    value(4; "Processed")
+    {
     }
 }

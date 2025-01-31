@@ -195,6 +195,17 @@ codeunit 139629 "Library - E-Document"
         LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
     end;
 
+    procedure CreateIncomingEDocument(var EDocument: Record "E-Document"; var EDocService: Record "E-Document Service")
+    var
+        EDocumentServiceStatus: Record "E-Document Service Status";
+    begin
+        EDocService.Get(CreateService("E-Document Format"::Mock, "Service Integration"::Mock));
+        EDocument.Insert();
+        EDocumentServiceStatus."E-Document Entry No" := EDocument."Entry No";
+        EDocumentServiceStatus."E-Document Service Code" := EDocService.Code;
+        EDocumentServiceStatus.Insert();
+    end;
+
     procedure CreateDocSendingProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     begin
         DocumentSendingProfile.Init();

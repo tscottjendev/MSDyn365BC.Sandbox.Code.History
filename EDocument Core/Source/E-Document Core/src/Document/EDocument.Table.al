@@ -11,6 +11,7 @@ using System.Automation;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using Microsoft.eServices.EDocument.Processing.Import;
 
 table 6121 "E-Document"
 {
@@ -310,6 +311,27 @@ table 6121 "E-Document"
             DataTypeManagement.GetRecordRef(RelatedRecord, RecRef);
             PageManagement.PageRun(RecRef);
         end;
+    end;
+
+    internal procedure EDocumentProcessingStatus(): Enum "Import E-Doc. Proc. Status"
+    begin
+        exit(GetEDocumentServiceStatus()."Import Processing Status");
+    end;
+
+    internal procedure GetEDocumentServiceStatus() EDocumentServiceStatus: Record "E-Document Service Status"
+    begin
+        EDocumentServiceStatus.SetRange("E-Document Entry No", Rec."Entry No");
+        if EDocumentServiceStatus.FindFirst() then;
+    end;
+
+    internal procedure GetEDocumentService() EDocumentService: Record "E-Document Service"
+    begin
+        if EDocumentService.Get(GetEDocumentServiceStatus()."E-Document Service Code") then;
+    end;
+
+    internal procedure GetEDocumentImportProcessingStatus(): Enum "Import E-Doc. Proc. Status"
+    begin
+        exit(GetEDocumentServiceStatus()."Import Processing Status");
     end;
 
     internal procedure ToString(): Text

@@ -5,17 +5,91 @@
 namespace Microsoft.eServices.EDocument;
 
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.eServices.EDocument.Processing;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Document;
 using Microsoft.eServices.EDocument.OrderMatch;
 using System.Utilities;
-using Microsoft.eServices.EDocument.Processing.Interfaces;
+using Microsoft.eServices.EDocument.Integration.Receive;
+using Microsoft.eServices.EDocument.Processing.Import;
 
-codeunit 6140 "E-Doc. Import" implements IImportProcess
+codeunit 6140 "E-Doc. Import"
 {
     Permissions =
         tabledata "E-Document" = im,
         tabledata "E-Doc. Imported Line" = imd;
+
+    internal procedure ReceiveAndProcess(EDocumentService: Record "E-Document Service")
+    var
+        EDocumentServiceStatus: Record "E-Document Service Status";
+        EDocImportParameters: Record "E-Doc. Import Parameters";
+        EDocument, LastFailedEDocument : Record "E-Document";
+        EDocIntegrationMgt: Codeunit "E-Doc. Integration Management";
+        ReceiveContext: Codeunit ReceiveContext;
+    begin
+        EDocIntegrationMgt.ReceiveDocuments(EDocumentService, ReceiveContext);
+
+        if EDocumentService."Import Process" = "E-Document Import Process"::"Version 1.0" then begin
+            // In V1.0 we process and create documents directly as it had been done and that's it, no middle step,
+            // later we can add support for adapting the values in the RecordRefs into the EDocHeader/EDocLines
+            ProcessReceivedDocuments(EDocumentService, LastFailedEDocument);
+            exit;
+        end;
+
+        EDocumentServiceStatus.SetRange("E-Document Service Code", EDocumentService.Code);
+        EDocumentServiceStatus.SetRange(Status, "E-Document Service Status"::Imported);
+        EDocumentServiceStatus.SetRange("Import Processing Status", "Import E-Doc. Proc. Status"::Unprocessed);
+        if EDocumentServiceStatus.FindSet() then
+            repeat
+                EDocument.Get(EDocumentServiceStatus."E-Document Entry No");
+                ProcessIncomingEDocument(EDocument, EDocumentService, EDocImportParameters);
+            until EDocumentServiceStatus.Next() = 0;
+    end;
+
+    internal procedure ProcessIncomingEDocument(EDocument: Record "E-Document"; EDocImportParameters: Record "E-Doc. Import Parameters")
+    begin
+        ProcessIncomingEDocument(EDocument, EDocument.GetEDocumentService(), EDocImportParameters);
+    end;
+
+    local procedure ProcessIncomingEDocument(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; EDocImportParameters: Record "E-Doc. Import Parameters")
+    var
+        ImportEDocumentProcess: Codeunit "Import E-Document Process";
+        PreviousStatus, CurrentStatus, DesiredStatus : Enum "Import E-Doc. Proc. Status";
+        StepToDo, StepToUndo : Enum "Import E-Document Steps";
+        StatusIndex: Integer;
+    begin
+        if EDocumentService."Import Process" = "E-Document Import Process"::"Version 1.0" then
+            exit;
+
+        CurrentStatus := EDocument.GetEDocumentImportProcessingStatus();
+        DesiredStatus := ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false);
+
+        // We undo all the steps that have been done, if CurrentStatus = DesiredStatus we undo the last step to redo it
+        for StatusIndex := ImportEDocumentProcess.StatusStepIndex(CurrentStatus) downto ImportEDocumentProcess.StatusStepIndex(DesiredStatus) do
+            if StatusIndex > 0 then begin
+                PreviousStatus := ImportEDocumentProcess.IndexToStatus(StatusIndex - 1);
+                StepToUndo := ImportEDocumentProcess.GetNextStep(PreviousStatus);
+                ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToUndo, true);
+                Commit();
+                if not ImportEDocumentProcess.Run() then begin
+                    EDocErrorHelper.LogSimpleErrorMessage(EDocument, GetLastErrorText());
+                    exit;
+                end;
+            end;
+
+        CurrentStatus := EDocument.GetEDocumentImportProcessingStatus();
+        // We run all the steps that need to be done to reach the desired state
+        for StatusIndex := ImportEDocumentProcess.StatusStepIndex(CurrentStatus) to ImportEDocumentProcess.StatusStepIndex(DesiredStatus) - 1 do
+            if StatusIndex < ImportEDocumentProcess.StatusStepIndex("Import E-Doc. Proc. Status"::Processed) then begin
+                StepToDo := ImportEDocumentProcess.GetNextStep(ImportEDocumentProcess.IndexToStatus(StatusIndex));
+                ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToDo, false);
+                Commit();
+                if not ImportEDocumentProcess.Run() then begin
+                    EDocErrorHelper.LogSimpleErrorMessage(EDocument, GetLastErrorText());
+                    exit;
+                end;
+            end;
+    end;
 
     internal procedure UploadDocument(var EDocument: Record "E-Document")
     var
@@ -91,7 +165,6 @@ codeunit 6140 "E-Doc. Import" implements IImportProcess
     var
         EDocService: Record "E-Document Service";
         TempBlob: Codeunit "Temp Blob";
-        IImportProcess: Interface "IImportProcess";
     begin
         if EDocument.Status = EDocument.Status::Processed then
             exit;
@@ -102,18 +175,7 @@ codeunit 6140 "E-Doc. Import" implements IImportProcess
         EDocService := EDocumentLog.GetLastServiceFromLog(EDocument);
         EDocumentLog.GetDocumentBlobFromLog(EDocument, EDocService, TempBlob, Enum::"E-Document Service Status"::Imported);
 
-        IImportProcess := EDocService."Import Process";
-        IImportProcess.Run(EDocument, EDocService);
-    end;
-
-    // Interface hook
-    procedure Run(var EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service")
-    var
-        TempBlob: Codeunit "Temp Blob";
-        EDocumentHelper: Codeunit "E-Document Helper";
-    begin
-        EDocumentHelper.GetEDocumentBlob(EDocument, EDocumentService, TempBlob);
-        ProcessImportedDocument(EDocument, EDocumentService, TempBlob);
+        ProcessImportedDocument(EDocument, EDocService, TempBlob);
     end;
 
     local procedure GetDocumentBasicInfo(var EDocument: Record "E-Document"; EDocService: Record "E-Document Service"; var TempBlob: Codeunit "Temp Blob")

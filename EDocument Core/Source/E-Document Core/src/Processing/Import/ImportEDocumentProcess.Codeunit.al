@@ -1,0 +1,160 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.eServices.EDocument.Processing;
+using Microsoft.eServices.EDocument;
+using Microsoft.eServices.EDocument.Processing.Import;
+
+codeunit 6104 "Import E-Document Process"
+{
+    Access = Internal;
+    InherentEntitlements = X;
+    InherentPermissions = X;
+
+    trigger OnRun()
+    var
+        EDocumentProcessing: Codeunit "E-Document Processing";
+        NewStatus: Enum "Import E-Doc. Proc. Status";
+    begin
+        if EDocument."Entry No" = 0 then
+            exit;
+
+        case Step of
+            Step::"Structure received data":
+                if UndoStep then
+                    UndoStructureReceivedData()
+                else
+                    StructureReceivedData();
+            Step::"Read into IR":
+                if UndoStep then
+                    UndoReadIntoIR()
+                else
+                    ReadIntoIR();
+            Step::"Prepare draft":
+                if UndoStep then
+                    UndoPrepareDraft()
+                else
+                    PrepareDraft();
+            Step::"Finish draft":
+                if UndoStep then
+                    UndoFinishDraft()
+                else
+                    FinishDraft();
+        end;
+        NewStatus := UndoStep ? GetStatusForStep(Step, true) : GetStatusForStep(Step, false);
+        EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, NewStatus);
+    end;
+
+    local procedure StructureReceivedData()
+    begin
+
+    end;
+
+    local procedure UndoStructureReceivedData()
+    begin
+
+    end;
+
+    local procedure ReadIntoIR()
+    begin
+
+    end;
+
+    local procedure UndoReadIntoIR()
+    begin
+
+    end;
+
+    local procedure PrepareDraft()
+    begin
+
+    end;
+
+    local procedure UndoPrepareDraft()
+    begin
+
+    end;
+
+    local procedure FinishDraft()
+    begin
+
+    end;
+
+    local procedure UndoFinishDraft()
+    begin
+
+    end;
+
+    procedure ConfigureImportRun(NewEDocument: Record "E-Document"; NewStep: Enum "Import E-Document Steps"; NewUndoStep: Boolean)
+    begin
+        EDocument := NewEDocument;
+        Step := NewStep;
+        UndoStep := NewUndoStep;
+    end;
+
+    procedure StatusStepIndex(Status: Enum "Import E-Doc. Proc. Status"): Integer
+    begin
+        case Status of
+            Status::Unprocessed:
+                exit(0);
+            Status::Readable:
+                exit(1);
+            Status::"Ready for draft":
+                exit(2);
+            Status::"Draft ready":
+                exit(3);
+            Status::Processed:
+                exit(4);
+        end;
+    end;
+
+    procedure IndexToStatus(Index: Integer) Status: Enum "Import E-Doc. Proc. Status"
+    begin
+        case Index of
+            0:
+                exit(Status::Unprocessed);
+            1:
+                exit(Status::Readable);
+            2:
+                exit(Status::"Ready for draft");
+            3:
+                exit(Status::"Draft ready");
+            4:
+                exit(Status::Processed);
+        end;
+    end;
+
+    procedure GetNextStep(Status: Enum "Import E-Doc. Proc. Status") Step: Enum "Import E-Document Steps"
+    begin
+        case Status of
+            Status::Unprocessed:
+                exit(Step::"Structure received data");
+            Status::Readable:
+                exit(Step::"Read into IR");
+            Status::"Ready for draft":
+                exit(Step::"Prepare draft");
+            Status::"Draft ready":
+                exit(Step::"Finish draft");
+        end;
+    end;
+
+    procedure GetStatusForStep(Step: Enum "Import E-Document Steps"; StepBefore: Boolean) Status: Enum "Import E-Doc. Proc. Status"
+    begin
+        case Step of
+            Step::"Structure received data":
+                exit(StepBefore ? Status::Unprocessed : Status::Readable);
+            Step::"Read into IR":
+                exit(StepBefore ? Status::Readable : Status::"Ready for draft");
+            Step::"Prepare draft":
+                exit(StepBefore ? Status::"Ready for draft" : Status::"Draft ready");
+            Step::"Finish draft":
+                exit(StepBefore ? Status::"Draft ready" : Status::Processed);
+        end;
+    end;
+
+    var
+        EDocument: Record "E-Document";
+        Step: Enum "Import E-Document Steps";
+        UndoStep: Boolean;
+}

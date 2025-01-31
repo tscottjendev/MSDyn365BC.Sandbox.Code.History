@@ -265,11 +265,11 @@ table 6103 "E-Document Service"
             DataClassification = SystemMetadata;
             ToolTip = 'Specifies whether the buyer reference is mandatory for the document.';
         }
-        field(31; "Import Process"; Enum "Import Process")
+        field(31; "Import Process"; Enum "E-Document Import Process")
         {
             Caption = 'Import Process';
-            ToolTip = 'Specifies the import process for the document.';
             DataClassification = SystemMetadata;
+            ToolTip = 'Specifies the import process for the document.';
         }
         field(32; "Automatic Processing"; Enum "Automatic Processing")
         {

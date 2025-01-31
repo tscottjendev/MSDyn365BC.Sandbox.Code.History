@@ -2,17 +2,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.eServices.EDocument.Processing;
 
-using Microsoft.eServices.EDocument;
-using Microsoft.eServices.EDocument.Processing.Interfaces;
+namespace Microsoft.EServices.EDocument.Processing.Import;
 
-codeunit 6104 "Import Process" implements IImportProcess
+table 6106 "E-Doc. Import Parameters"
 {
-    procedure Run(var EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service")
-    begin
+    Access = Internal;
+    TableType = Temporary;
 
-
-    end;
-
+    fields
+    {
+        field(1; "Step to Run"; Enum "Import E-Document Steps")
+        {
+        }
+    }
 }
