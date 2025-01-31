@@ -59,6 +59,7 @@ codeunit 1012 "Job Jnl.-Post Line"
         AsmPost: Codeunit "Assembly-Post";
         GLSetupRead: Boolean;
         CalledFromInvtPutawayPick: Boolean;
+        CalledFromPurchase: Boolean;
         NextEntryNo: Integer;
         GLEntryNo: Integer;
         AssemblyPostProgressMsg: Label '#1#################################\\Posting Assembly #2###########', Comment = '%1 = Text, %2 = Progress bar';
@@ -92,6 +93,7 @@ codeunit 1012 "Job Jnl.-Post Line"
         OnCodeOnBeforeCheckLine(JobJnlLine, CalledFromInvtPutawayPick, CheckLine);
         if CheckLine then begin
             JobJnlCheckLine.SetCalledFromInvtPutawayPick(CalledFromInvtPutawayPick);
+            JobJnlCheckLine.SetCalledFromPurchase(CalledFromPurchase);
             JobJnlCheckLine.RunCheck(JobJnlLine);
         end;
 
@@ -190,6 +192,11 @@ codeunit 1012 "Job Jnl.-Post Line"
     internal procedure SetCalledFromInvtPutawayPick(NewCalledFromInvtPutawayPick: Boolean)
     begin
         CalledFromInvtPutawayPick := NewCalledFromInvtPutawayPick;
+    end;
+
+    internal procedure SetCalledFromPurchase(NewCalledFromPurchase: Boolean)
+    begin
+        CalledFromPurchase := NewCalledFromPurchase;
     end;
 
     local procedure CheckJob(var JobJnlLine: Record "Job Journal Line"; Job: Record Job)
