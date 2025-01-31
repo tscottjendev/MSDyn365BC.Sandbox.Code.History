@@ -567,9 +567,9 @@ table 32 "Item Ledger Entry"
         key(Key14; "Item No.", Positive, "Location Code", "Variant Code")
         {
         }
-#pragma warning disable AS0009
+#pragma warning disable AS0009        
         key(Key17; "Item No.", Open, "Variant Code", Positive, "Lot No.", "Serial No.", "Package No.")
-#pragma warning restore AS0009
+#pragma warning restore AS0009        
         {
             IncludedFields = "Remaining Quantity";
         }
