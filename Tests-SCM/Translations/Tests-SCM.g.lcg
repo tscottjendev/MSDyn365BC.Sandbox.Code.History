@@ -1526,6 +1526,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Costing Batch - NamedType BlankDocumentNoError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1549229238 - NamedType 1298087485" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cost Amount for Item and SKU must not match for Item No. %1 in Prod. Order Line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Item No.]D;]A;(LookupHint=Codeunit SCM Costing Batch - NamedType CostAmountMustNotMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1549229238 - NamedType 989751795" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1%2.pdf]]></Val>
