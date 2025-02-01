@@ -316,11 +316,8 @@ codeunit 1002 "Job Create-Invoice"
             JobInvCurrency := IsJobInvCurrencyDependingOnBillingMethod(Job, JobTask2);
         Cust.Get(ReturnBillToCustomerNoDependingOnTaskBillingMethod(Job, JobTask2));
 
-        if (Job."Task Billing Method" = Job."Task Billing Method"::"Multiple customers") then
-            InvoicePerProjectTask := true
-        else
-            if InvoicePerTask then
-                InvoicePerProjectTask := true;
+        if InvoicePerTask or (Job."Task Billing Method" = Job."Task Billing Method"::"Multiple customers") then
+            InvoicePerProjectTask := true;
 
         if CreateNewInvoice(JobTask, InvoicePerProjectTask, OldJobNo, OldJobTaskNo, LastJobTask) then begin
             Job.Get(TempJobPlanningLine."Job No.");
