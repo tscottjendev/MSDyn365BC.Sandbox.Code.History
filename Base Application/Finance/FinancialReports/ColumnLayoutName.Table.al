@@ -1,7 +1,9 @@
 namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.Finance.Analysis;
+using System.Environment;
 using System.IO;
+using System.Telemetry;
 
 table 333 "Column Layout Name"
 {
@@ -60,6 +62,7 @@ table 333 "Column Layout Name"
     var
         ColumnLayout: Record "Column Layout";
         PackageImportErr: Label 'The imported package is not valid.';
+        TelemetryEventTxt: Label 'Financial Report Column Definition %1: %2', Comment = '%1 = event type, %2 = column definition', Locked = true;
 
     procedure XMLExchangeExport()
     var
@@ -70,6 +73,7 @@ table 333 "Column Layout Name"
         ConfigPackageCode := AddColumnDefinitionToPackage(Rec.Name);
         ConfigPackage.Get(ConfigPackageCode);
         ConfigXMLExchange.ExportPackage(ConfigPackage);
+        LogImportExportTelemetry(Name, 'Export');
     end;
 
     procedure XMLExchangeImport()
@@ -88,15 +92,18 @@ table 333 "Column Layout Name"
         ConfigPackage: Record "Config. Package";
         ConfigPackageTable: Record "Config. Package Table";
         ConfigPackageMgt: Codeunit "Config. Package Management";
+        NewName: Code[10];
     begin
         if not ConfigPackage.Get(PackageCode) then
             Error(PackageImportErr);
 
-        if GetNewColumnDefinitionName(PackageCode) = '' then
+        NewName := GetNewColumnDefinitionName(PackageCode);
+        if NewName = '' then
             Error(PackageImportErr);
 
         ConfigPackageTable.SetRange("Package Code", PackageCode);
         ConfigPackageMgt.ApplyPackage(ConfigPackage, ConfigPackageTable, false);
+        LogImportExportTelemetry(NewName, 'Import');
     end;
 
     local procedure GetNewColumnDefinitionName(PackageCode: Code[20]): Code[10]
@@ -159,6 +166,19 @@ table 333 "Column Layout Name"
         ConfigPackageManagement.InsertPackageFilter(ConfigPackageFilter, PackageCode, Database::"Column Layout", 0, ColumnLayout.FieldNo("Column Layout Name"), ColumnLayoutNameCode);
         if ConfigPackageField.Get(PackageCode, Database::"Column Layout Name", Rec.FieldNo("Analysis View Name")) then
             ConfigPackageField.Delete();
+    end;
+
+    local procedure LogImportExportTelemetry(DefinitionName: Text; Action: Text)
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        if not EnvironmentInfo.IsSaaS() then
+            exit;
+
+        TelemetryDimensions.Add('ColumnDefinitionCode', DefinitionName);
+        FeatureTelemetry.LogUsage('0000ONQ', 'Financial Report', StrSubstNo(TelemetryEventTxt, DefinitionName, Action), TelemetryDimensions);
     end;
 
 }
