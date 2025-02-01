@@ -41,6 +41,7 @@ codeunit 137270 "SCM Reservation III"
         AvailabilityWarningsQst: Label 'There are availability warnings on one or more lines?';
         InvalidControlErr: Label 'This is not a valid control option for the Item Tracking Lines handler.';
         NothingToHandleErr: Label 'Nothing to handle.';
+        VariantCodeMandatoryErr: Label 'Variant Code must have a value in Warehouse Journal Line: Journal Template Name=%1, Journal Batch Name=%2, Location Code=%3, Line No.=%4. It cannot be zero or empty.', Comment = '%1=Journal Template Name, %2=Journal Batch Name, %3=Location Code, %4=Line No.';
 
     [Test]
     [HandlerFunctions('ConfirmHandler,ItemTrackingLinesModalPageHandler')]
@@ -1439,6 +1440,36 @@ codeunit 137270 "SCM Reservation III"
         Assert.AreEqual(0, QtyReservedAndPicked, '');
     end;
 
+    [Test]
+    procedure CheckVariantMandatoryForWarehouseItemJournal()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        Location: Record Location;
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+    begin
+        // [SCENARIO 543616] Check Variant Code is Mandatory when register Warehouse Item Journal.
+        Initialize();
+
+        // [GIVEN] Create Item with Variant Mandatory.
+        CreateItemWithVariantMandatory(Item, ItemVariant);
+
+        // [GIVEN] Create Warehouse Item Journal Line for Warehouse Location.
+        CreateWhseItemJnlLine(WarehouseJournalLine, Location, Item."No.");
+
+        // [WHEN] Register Warehouse Item Journal Line.
+        asserterror LibraryWarehouse.RegisterWhseJournalLine(WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Location.Code, true);
+
+        // [THEN] Verify Error message
+        Assert.ExpectedError(
+            StrSubstNo(
+                VariantCodeMandatoryErr,
+                WarehouseJournalLine."Journal Template Name",
+                WarehouseJournalLine."Journal Batch Name",
+                WarehouseJournalLine."Location Code",
+                WarehouseJournalLine."Line No."));
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2255,6 +2286,30 @@ codeunit 137270 "SCM Reservation III"
         WarehouseShipmentLine.FindFirst();
         WarehouseShipmentLine.TestField(Quantity, Quantity);
         WarehouseShipmentLine.TestField("Qty. Outstanding (Base)", Quantity);
+    end;
+
+    local procedure CreateItemWithVariantMandatory(var Item: Record Item; var ItemVariant: Record "Item Variant")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::Yes);
+        Item.Modify(true);
+
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+    end;
+
+    local procedure CreateWhseItemJnlLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; var Location: Record Location; ItemNo: Code[20])
+    var
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+    begin
+        CreateWarehouseLocation(Location);
+        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
+        LibraryWarehouse.SelectWhseJournalBatchName(WarehouseJournalBatch, WarehouseJournalTemplate.Type, WarehouseJournalTemplate.Name, Location.Code);
+        LibraryWarehouse.CreateWhseJournalLine(
+            WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name",
+            WarehouseJournalBatch.Name, Location.Code, '',
+            Location."Cross-Dock Bin Code", WarehouseJournalLine."Entry Type"::"Positive Adjmt.",
+            ItemNo, LibraryRandom.RandInt(10));
     end;
 
     [RequestPageHandler]
