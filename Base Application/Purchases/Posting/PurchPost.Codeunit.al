@@ -2863,7 +2863,7 @@ codeunit 90 "Purch.-Post"
         DropShipment := not TempPurchaseLine.IsEmpty();
 
         IsHandled := false;
-        OnBeforeUpdateAssosOrderPostingNos(TempPurchaseLine, PurchaseHeader, DropShipment, IsHandled);
+        OnBeforeUpdateAssosOrderPostingNos(TempPurchaseLine, PurchaseHeader, DropShipment, IsHandled, PreviewMode);
         if IsHandled then
             exit(DropShipment);
 
@@ -11845,7 +11845,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateAssosOrderPostingNos(var TempPurchLine: Record "Purchase Line" temporary; var PurchHeader: Record "Purchase Header"; var DropShipment: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateAssosOrderPostingNos(var TempPurchLine: Record "Purchase Line" temporary; var PurchHeader: Record "Purchase Header"; var DropShipment: Boolean; var IsHandled: Boolean; PreviewMode: Boolean)
     begin
     end;
 
