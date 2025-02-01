@@ -40,6 +40,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     local procedure "Code"()
     var
         GlobalWhseEntry: Record "Warehouse Entry";
+        Item: Record Item;
     begin
         OnBeforeCode(WhseJnlLine, GlobalWhseEntryNo);
 
@@ -52,6 +53,11 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             LockWarehouseTables();
             GlobalWhseEntryNo := GlobalWhseEntry.GetLastEntryNo();
         end;
+
+        Item.SetLoadFields("Variant Mandatory if Exists");
+        Item.Get(WhseJnlLine."Item No.");
+        if Item.IsVariantMandatory() then
+            WhseJnlLine.TestField("Variant Code");
 
         OnCodeOnAfterGetLastEntryNo(WhseJnlLine);
 
