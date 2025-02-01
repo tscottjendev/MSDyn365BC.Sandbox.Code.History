@@ -58,7 +58,7 @@ page 99000882 "Change Status on Prod. Order"
             }
             field("Finish Order without Output"; FinishOrderWithoutOutput)
             {
-                Caption = 'Allow Finishing Prod. Order with no Output';
+                Caption = 'Finish Order';
                 Tooltip = 'Specifies that the status of orders with no output can be changed to finished, and the WIP will be written off to the Inventory Adjustment Account.';
                 ApplicationArea = Manufacturing;
                 Editable = FinishOrderWithoutOutputEditable;
