@@ -11489,6 +11489,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Order III - NamedType ProdOrderLineBinCodeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 191131963 - NamedType 1689869758" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This production order has already been reopened before. This can only be done once.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Order III - NamedType ProductionOrderHasAlreadyBeenReopenedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 191131963 - NamedType 2624207095" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Number of Invt. Put-away activities created]]></Val>
@@ -12243,6 +12252,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value]D;]A;(LookupHint=Codeunit SCM Production Orders II - NamedType ProductionBlockedOutputItemErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3590079757 - NamedType 2709822165" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The journal lines were successfully posted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders II - NamedType ProductionJournalPostedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3590079757 - NamedType 1652579016" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This production order does not have any output. It cannot be Reopened.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders II - NamedType ProductionOrderCannotBeReopenedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3590079757 - NamedType 3044547224" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Put-away activity no. %1 has been created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Put-away Activity No. ]D;]A;(LookupHint=Codeunit SCM Production Orders II - NamedType PutAwayActivityNoHasBeenCreatedMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3590079757 - NamedType 1473162410" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
