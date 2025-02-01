@@ -71,6 +71,9 @@
         ProductionBlockedOutputItemErr: Label 'You cannot produce %1 %2 because the %3 is %4 on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
         InvalidProdOutputHandlingErr: Label 'You cannot select %1 on %2 %3 when %4 is enabled.', Comment = '%1 = Inventory Put-away, %2 = Location Table Caption, %3 = Location Code, %4 = Directed Put-away Field Caption';
+        PutAwayActivityNoHasBeenCreatedMsg: Label 'Put-away activity no. %1 has been created.', Comment = '%1 = Put-away Activity No. ';
+        ProductionJournalPostedTxt: Label 'The journal lines were successfully posted.';
+        ProductionOrderCannotBeReopenedErr: Label 'This production order does not have any output. It cannot be Reopened.';
 
     [Test]
     [Scope('OnPrem')]
@@ -5516,6 +5519,310 @@
         Assert.RecordCount(WarehousePutAwayRequest, 0);
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJnlPageHandler,WhsePutAwayDocSelectionPageHandler,ConfirmHandler,MessageHandlerNoText')]
+    [Scope('OnPrem')]
+    procedure GeWhseDocumentsShowsWhsePutawayWhenDeleteWhsePutawayCreatedByProdJnlOfProdOrderHavingNoLocationCode()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        // [SCENARIO 561739] When run Get Warehouse Documents action from Put-away Worksheet, it shows 
+        // the Warehouse Put-away which is created by posting Production Journal from a Released 
+        // Production Order having no Location Code on its header and then deleted.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup and 
+        // Validate Bin Mandatory, Prod. Output Whse. Handling.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Prod. Output Whse. Handling", Location."Prod. Output Whse. Handling"::"Warehouse Put-away");
+        Location.Modify(true);
+
+        // [GIVEN] Create a Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, '', '');
+
+        // [GIVEN] Create Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create a Production Order and Validate Location Code.
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, '', 0);
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+
+        // [GIVEN] Create a Prod Order Line and Validate Bin Code.
+        LibraryManufacturing.CreateProdOrderLine(ProdOrderLine, ProdOrderLine.Status::Released, ProductionOrder."No.", Item."No.", '', Location.Code, LibraryRandom.RandIntInRange(2, 2));
+        ProdOrderLine.Validate("Bin Code", Bin.Code);
+        ProdOrderLine.Modify(true);
+
+        // [GIVEN] Create and Post Production Journal.
+        CreateAndPostProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [GIVEN] Delete Warehouse Activity Header.
+        WarehouseActivityHeader.Delete();
+
+        // [WHEN] Create Put-Away from Put-Away Worksheet.
+        LibraryVariableStorage.Enqueue(Format(ProdOrderLine."Location Code"));
+        LibraryVariableStorage.Enqueue(Format(ProductionOrder."No."));
+        CreatePutawayFromPutawayWorksheet(Location);
+
+        // [THEN] Document No. in Whse. PutAway Doc Selection Page is equal 
+        // to Document No. of Prod. Order Line in WhsePutAwayDocSelectionPageHandler.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TwoProdOrderLinesHavingDiffLocationsWithOrWithoutWarehousePutawayGivesErrorOnLocationCodeOfProdOrder()
+    var
+        Item: Record Item;
+        Location: array[3] of Record Location;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        // [SCENARIO 563092] If a Location having Warehouse Put-away in Prod. Output Whse. Handling field is 
+        // selected on Prod. Order Line and Stan changes the Location Code on Production 
+        // Order to another Location or as blank then it gives error and vice versa.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup and 
+        // Validate Prod. Output Whse. Handling.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
+        Location[1].Validate("Prod. Output Whse. Handling", Location[1]."Prod. Output Whse. Handling"::"Warehouse Put-away");
+        Location[1].Modify(true);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup and 
+        // Validate Prod. Output Whse. Handling.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
+        Location[2].Validate("Prod. Output Whse. Handling", Location[2]."Prod. Output Whse. Handling"::"Warehouse Put-away");
+        Location[2].Modify(true);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[3]);
+
+        // [GIVEN] Create a Production Order.
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, '', 0);
+
+        // [GIVEN] Validate Location Code in Production Order.
+        ProductionOrder.Validate("Location Code", Location[1].Code);
+        ProductionOrder.Modify(true);
+
+        // [GIVEN] Create a Prod. Order Line and Validate Bin Code.
+        LibraryManufacturing.CreateProdOrderLine(
+            ProdOrderLine,
+            ProdOrderLine.Status::Released,
+            ProductionOrder."No.",
+            Item."No.",
+            '',
+            Location[1].Code,
+            LibraryRandom.RandIntInRange(2, 2));
+
+        // [GIVEN] Save Production Order and Prod Order Line.
+        Commit();
+
+        // [WHEN] Validate Code of Location [2] in Location Code of Production Order.
+        asserterror ProductionOrder.Validate("Location Code", Location[2].Code);
+
+        // [THEN] Error on Location Code of Production Order.
+        Assert.ExpectedTestFieldError(ProductionOrder.FieldCaption("Location Code"), Location[2].Code);
+
+        // [WHEN] Validate Code of Location [3] in Location Code of Production Order.
+        asserterror ProductionOrder.Validate("Location Code", Location[3].Code);
+
+        // [THEN] Error on Location Code of Production Order.
+        Assert.ExpectedTestFieldError(ProductionOrder.FieldCaption("Location Code"), Location[3].Code);
+
+        // [WHEN] Validate '' in Location Code of Production Order..
+        asserterror ProductionOrder.Validate("Location Code", '');
+
+        // [THEN] Error on Location Code of Production Order.
+        Assert.ExpectedTestFieldError(ProductionOrder.FieldCaption("Location Code"), '');
+
+        // [WHEN] Validate Code of Location [2] in Location Code of Prod. Order Line.
+        asserterror ProdOrderLine.Validate("Location Code", Location[2].Code);
+
+        // [THEN] Error on Location Code of Prod. Order Line.
+        Assert.ExpectedTestFieldError(ProdOrderLine.FieldCaption("Location Code"), Location[2].Code);
+
+        // [WHEN] Validate Code of Location [3] in Location Code of Prod. Order Line.
+        asserterror ProdOrderLine.Validate("Location Code", Location[3].Code);
+
+        // [THEN] Error on Location Code of Prod. Order Line.
+        Assert.ExpectedTestFieldError(ProdOrderLine.FieldCaption("Location Code"), Location[3].Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJnlPageHandler,ConfirmHandler,MessageHandlerText')]
+    [Scope('OnPrem')]
+    procedure ConfirmMsgAndWhsePutAwayNoCreatedMsgIsShownIfCreateWhsePutAwayFromRelProdOrderPage()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        Location: Record Location;
+        NoSeriesLine: Record "No. Series Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseSetup: Record "Warehouse Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        WhsePutAwayNo: Code[20];
+    begin
+        // [SCENARIO 563074] When Create Warehouse Put-away from Released Production Order page 
+        // then it displays confirm message and Warehouse Put-away No. has been created message.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup and
+        // Validate Bin Mandatory, Prod. Output Whse. Handling.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Prod. Output Whse. Handling", Location."Prod. Output Whse. Handling"::"Warehouse Put-away");
+        Location.Modify(true);
+
+        // [GIVEN] Create a Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, '', '');
+
+        // [GIVEN] Create Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create a Production Order and Validate Location Code.
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, '', 0);
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+
+        // [GIVEN] Create a Prod Order Line and Validate Bin Code.
+        LibraryManufacturing.CreateProdOrderLine(ProdOrderLine, ProdOrderLine.Status::Released, ProductionOrder."No.", Item."No.", '', Location.Code, LibraryRandom.RandIntInRange(2, 2));
+        ProdOrderLine.Validate("Bin Code", Bin.Code);
+        ProdOrderLine.Modify(true);
+        Commit();
+
+        // [GIVEN] Create and Post Production Journal.
+        LibraryVariableStorage.Enqueue(ProductionJournalPostedTxt);
+        CreateAndPostProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [GIVEN] Delete Warehouse Activity Header.
+        WarehouseActivityHeader.Delete(true);
+
+        // [GIVEN] Get Warehouse Setup.
+        WarehouseSetup.Get();
+
+        // [GIVEN] Find No. Series Line.
+        NoSeriesLine.SetRange("Series Code", WarehouseSetup."Whse. Put-away Nos.");
+        NoSeriesLine.FindFirst();
+
+        // [GIVEN] Generate and save Whse. Put-away No. in a Variable.
+        WhsePutAwayNo := IncStr(NoSeriesLine."Last No. Used");
+
+        // [WHEN] Open Released Production Order page and run Create Warehouse Put-Away action.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+        LibraryVariableStorage.Enqueue(PutAwayActivityNoHasBeenCreatedMsg);
+        LibraryVariableStorage.Enqueue(WhsePutAwayNo);
+        ReleasedProductionOrder."Create Warehouse Put-Away".Invoke();
+
+        // [THEN] Confirm Message is displayed in ConfirmHandler and
+        // PutAwayActivityNoHasBeenCreatedMsg is displayed in MessageHandler.
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJnlPageHandler2,ChangeStatusOnProdOrderPageHandler,ConfirmHandler,MessageHandlerNoText')]
+    [Scope('OnPrem')]
+    procedure FinProdOrderCannottBeReopenedIfFinishedQtyIsZeroInItsProdOrderLine()
+    var
+        Item: array[2] of Record Item;
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProdOrderLine: Record "Prod. Order Line";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        FinishedProductionOrder: TestPage "Finished Production Order";
+    begin
+        // [SCENARIO 562948] When Stan runs Reopen Finished Prod. Order action from a Finished Production Order having 
+        // Finished Quantity equal to 0 in any of its Prod. Order Line then it gives error that
+        // this production order cannot be reopened.
+        Initialize();
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Item [1] and Validate Costing Method.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Costing Method", Item[1]."Costing Method"::FIFO);
+        Item[1].Modify(true);
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), '', Location.Code, false);
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create a Production BOM Line.
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(2, 2));
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create Item [2] and Validate Costing Method and Production BOM No.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Costing Method", Item[2]."Costing Method"::FIFO);
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Validate Finish Order without Output in Manufacturing Setup.
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Finish Order without Output" := true;
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item[2]."No.", LibraryRandom.RandInt(0), Location.Code, '');
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status::Released);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Create and Post Production Journal.
+        CreateAndPostProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Open Released Production Order page and run Change Status action.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+        ReleasedProductionOrder."Change &Status".Invoke();
+
+        // [GIVEN] Find Production Order.
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+
+        // [WHEN] Open Finished Production Order and run Reopen Finished Prod. Order action.
+        FinishedProductionOrder.OpenEdit();
+        FinishedProductionOrder.GoToRecord(ProductionOrder);
+        asserterror FinishedProductionOrder.ReopenFinishedProdOrder.Invoke();
+
+        // [THEN] Production order cannot be reopened error is displayed.
+        Assert.ExpectedError(ProductionOrderCannotBeReopenedErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -7378,6 +7685,30 @@
         LibraryWarehouse.WhseSourceCreateDocument(WhseWorksheetLine, SortActivity, false, false, BreakbulkFilter);
     end;
 
+    local procedure CreatePutawayFromPutawayWorksheet(Location: Record Location)
+    var
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        GetWhsePutAwayDoc: Codeunit "Get Source Doc. Inbound";
+    begin
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::"Put-away");
+        LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, Location.Code);
+
+        GetWhsePutAwayDoc.GetSingleWhsePutAwayDoc(WhseWorksheetTemplate.Name, WhseWorksheetName.Name, Location.Code);
+        WhseWorksheetLine.SortWhseWkshLines(WhseWorksheetTemplate.Name, WhseWorksheetName.Name, Location.Code, "Whse. Activity Sorting Method"::None);
+    end;
+
+    local procedure CreateAndPostProductionJournal(ProductionOrder: Record "Production Order"; ProdOrderLineNo: Integer)
+    var
+        ReleaseProdOrder: TestPage "Released Production Order";
+    begin
+        ReleaseProdOrder.OpenView();
+        ReleaseProdOrder.GoToRecord(ProductionOrder);
+        ReleaseProdOrder.ProdOrderLines.Filter.SetFilter("Line No.", Format(ProdOrderLineNo));
+        ReleaseProdOrder.ProdOrderLines.ProductionJournal.Invoke();
+    end;
+
     [ModalPageHandler]
     procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
     begin
@@ -7571,6 +7902,19 @@
     begin
     end;
 
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandlerText(Message: Text[1024])
+    var
+        ExpectedMessage: Text;
+    begin
+        ExpectedMessage := LibraryVariableStorage.DequeueText();
+        if ExpectedMessage = Message then
+            Assert.ExpectedMessage(ExpectedMessage, Message)
+        else
+            Assert.ExpectedMessage(StrSubstNo(ExpectedMessage, LibraryVariableStorage.DequeueText()), Message)
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -7618,6 +7962,48 @@
     begin
         ItemList.Next();
         ItemList.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJnlPageHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.Next();
+        ProductionJournal.Post.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhsePutAwayDocSelectionPageHandler(var WhsePutAwayDocSelection: TestPage "Put-away Selection")
+    begin
+        WhsePutAwayDocSelection.Filter.SetFilter("Location Code", LibraryVariableStorage.DequeueText());
+        WhsePutAwayDocSelection."Document No.".AssertEquals(LibraryVariableStorage.DequeueText());
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJnlPageHandler2(var ProductionJournal: TestPage "Production Journal")
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ProductionJournal.Filter.SetFilter("Entry Type", Format("Item Ledger Entry Type"::Output));
+        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Output);
+        ItemJournalLine.SetRange("Item No.", Format(ProductionJournal."Item No."));
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.Delete(true);
+
+        ProductionJournal.Filter.SetFilter("Entry Type", Format("Item Ledger Entry Type"::Consumption));
+        ProductionJournal.Post.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ChangeStatusOnProdOrderPageHandler(var ChangeStatusOnProdOrder: TestPage "Change Status on Prod. Order")
+    begin
+        ChangeStatusOnProdOrder.FirmPlannedStatus.SetValue("Production Order Status"::Finished);
+        ChangeStatusOnProdOrder.PostingDate.SetValue(WorkDate());
+        ChangeStatusOnProdOrder."Finish Order without Output".SetValue(true);
+        ChangeStatusOnProdOrder.Yes().Invoke();
     end;
 }
 

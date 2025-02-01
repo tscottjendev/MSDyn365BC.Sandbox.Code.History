@@ -171,9 +171,14 @@ table 5406 "Prod. Order Line"
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
+            var
+                ProductionOrder: Record "Production Order";
             begin
+                ProductionOrder.SetLoadFields(Status, "No.", "Location Code");
+                ProductionOrder.Get(Rec.Status, Rec."Prod. Order No.");
                 ProdOrderLineReserve.VerifyChange(Rec, xRec);
                 ProdOrderWarehouseMgt.ProdOrderLineVerifyChange(Rec, xRec);
+                ProdOrderWarehouseMgt.CompareProdOrderWithProdOrderLinesForLocation(ProductionOrder, Rec);
                 ProdOrderWarehouseMgt.ValidateWarehousePutAwayLocation(Rec);
                 GetUpdateFromSKU();
                 GetDefaultBin();

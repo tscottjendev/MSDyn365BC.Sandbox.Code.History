@@ -104,9 +104,11 @@ codeunit 5407 "Prod. Order Status Management"
         ProcessingProgressTxt: Label 'Prod. Order #1###### @2@@@@@@@@@@@@@', Comment = '%1 - Production Order No.; %2 - Progress Percentage';
         ConfirmationLbl: Label '%1 production orders will have their status changed from %2 to %3.', Comment = '%1 - Number of Prod. Orders selected; %2 - Current status; %3 - New status';
         CanReOpenFinishedProdOrderQst: Label 'Do you want to reopen the production order %1 ?', Comment = '%1 - Production Order No.';
-        OpenReleasedProdOrderQst: Label 'The production order is reopened and moved to the %1 Production Order.\\Do you want to open the production order?', Comment = '%1 = Production Order No.';
+        OpenReleasedProdOrderQst: Label 'The production order is reopened and moved to the %1 Production Order with status Released.\\Do you want to open the production order?', Comment = '%1 = Production Order No.';
         ReopenFinishedProductionOrderFeatureTelemetryNameLbl: Label 'Reopen Finished Production Order', Locked = true;
         ReopenedProductionOrderLbl: Label 'The production order is reopened and moved to the %1 Production Order with status Released.', Comment = '%1 = Production Order No.';
+        ProductionOrderHasAlreadyBeenReopenedErr: Label 'This production order has already been reopened before. This can only be done once.';
+        ProductionOrderCannotBeReopenedErr: Label 'This production order does not have any output. It cannot be Reopened.';
 
     procedure ChangeProdOrderStatus(ProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
     var
@@ -209,7 +211,11 @@ codeunit 5407 "Prod. Order Status Management"
     local procedure ValidateProdOrderHeaderForReopen(ProdOrder: Record "Production Order")
     begin
         ProdOrder.TestField(Status, ProdOrder.Status::Finished);
-        ProdOrder.TestField("Reopened", false);
+        if ProdOrder.Reopened then
+            Error(ProductionOrderHasAlreadyBeenReopenedErr);
+
+        if CheckIfFinishedQtyIsZero(ProdOrder) then
+            Error(ProductionOrderCannotBeReopenedErr);
     end;
 
     local procedure ProcessProdOrderLineForReopen(ProdOrderLine: Record "Prod. Order Line")
@@ -1537,6 +1543,17 @@ codeunit 5407 "Prod. Order Status Management"
         WarehouseActivityLine.SetFilter("Qty. Outstanding (Base)", '<>%1', 0);
         if not WarehouseActivityLine.IsEmpty() then
             Error(ProdOrderCompRemainToPickErr, ProdOrderComponent."Prod. Order No.");
+    end;
+
+    local procedure CheckIfFinishedQtyIsZero(ProdOrder: Record "Production Order"): Boolean
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ProdOrderLine.SetRange(Status, ProdOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
+        ProdOrderLine.SetRange("Finished Quantity", 0);
+        if not ProdOrderLine.IsEmpty() then
+            exit(true);
     end;
 
     [IntegrationEvent(false, false)]
