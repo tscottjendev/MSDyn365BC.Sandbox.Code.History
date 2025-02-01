@@ -4,6 +4,9 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
+#if not CLEAN24
+using Microsoft.Finance.ReceivablesPayables;
+#endif
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
@@ -593,6 +596,14 @@ codeunit 1001 "Job Post-Line"
     begin
     end;
 
+#if not CLEAN24
+    [IntegrationEvent(true, false)]
+    [Obsolete('Replaced by new implementation in codeunit Purch. Post Invoice', '20.0')]
+    local procedure OnAfterPostPurchaseGLAccounts(TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var JobJnlPostLine: Codeunit "Job Jnl.-Post Line"; GLEntryNo: Integer)
+    begin
+    end;
+#endif
+
     [IntegrationEvent(true, false)]
     local procedure OnAfterPostJobPurchaseLines(var TempPurchaseLineJob: Record "Purchase Line" temporary; var JobJnlPostLine: Codeunit "Job Jnl.-Post Line"; GLEntryNo: Integer)
     begin
@@ -668,6 +679,20 @@ codeunit 1001 "Job Post-Line"
     begin
     end;
 
+#if not CLEAN24
+    [Obsolete('Replaced by PostJobPurchaseLines().', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPurchaseGLAccountsOnAfterTempPurchaseLineJobSetFilters(var TempPurchaseLineJob: Record "Purchase Line" temporary; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
+    begin
+    end;
+
+    [Obsolete('Replaced by OnPostJobPurchaseLinesOnBeforeJobJnlPostLine().', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPurchaseGLAccountsOnBeforeJobJnlPostLine(var JobJournalLine: Record "Job Journal Line"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnPostJobPurchaseLinesOnAfterJobJnlPostLine(var TempJobJournalLine: Record "Job Journal Line" temporary; TempJobPurchaseLine: Record "Purchase Line" temporary)
     begin
@@ -677,6 +702,14 @@ codeunit 1001 "Job Post-Line"
     local procedure OnPostJobPurchaseLinesOnBeforeJobJnlPostLine(var TempJobJournalLine: Record "Job Journal Line" temporary; TempJobPurchaseLine: Record "Purchase Line" temporary; var IsHandled: Boolean)
     begin
     end;
+
+#if not CLEAN24
+    [Obsolete('Replaced by OnPostJobSalesLinesOnBeforeJobJnlPostLine().', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSalesGLAccountsOnBeforeJobJnlPostLine(var JobJournalLine: Record "Job Journal Line"; SalesLine: Record "Sales Line")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostJobSalesLinesOnBeforeJobJnlPostLine(var TempJobJournalLine: Record "Job Journal Line" temporary; var TempJobSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean)
