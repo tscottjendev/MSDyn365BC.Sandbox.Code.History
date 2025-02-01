@@ -272,7 +272,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
 
                 IsHandled := false;
                 OnBeforeCollectItemLedgerEntryTypesUsed(Item, IsHandled);
-                if IsHandled then
+                if IsHandled and not IsOnlineAdjmt then
                     CollectItemLedgerEntryTypesUsed(Item."No.");
 
                 OnMakeSingleLevelAdjmtOnBeforeCollectAvgCostAdjmtEntryPointToUpdate(TheItem);
@@ -564,6 +564,8 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
 
         if RestoreValuesFromBuffers(OutbndCostElementBuf, AdjustedCostElementBuf, OutbndItemLedgEntry."Entry No.") then begin
             if not Recursion then begin
+                if not ItemLedgerEntryTypeIsUsed("Item Ledger Entry Type"::Transfer) then
+                    exit;
                 OutbndItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Transferred-from Entry No.", "Item Ledger Entry No.");
                 OutbndItemApplnEntry.SetRange("Inbound Item Entry No.", TempRndgResidualBuf."Item Ledger Entry No.");
                 OutbndItemApplnEntry.SetRange("Item Ledger Entry No.", OutbndItemLedgEntry."Entry No.");
