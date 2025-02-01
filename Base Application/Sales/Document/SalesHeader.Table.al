@@ -4444,8 +4444,11 @@ table 36 "Sales Header"
                         FieldNo("Shipping Agent Code"):
                             SalesLine.Validate("Shipping Agent Code", "Shipping Agent Code");
                         FieldNo("Shipping Agent Service Code"):
-                            if (SalesLine."No." <> '') and (SalesLine."Shipping Agent Code" <> '') then
+                            if (SalesLine."No." <> '') and (SalesLine."Shipping Agent Code" <> '') then begin
+                                if SalesLine."Shipping Agent Code" <> "Shipping Agent Code" then
+                                    SalesLine.Validate("Shipping Agent Code", "Shipping Agent Code");
                                 SalesLine.Validate("Shipping Agent Service Code", "Shipping Agent Service Code");
+                            end;
                         FieldNo("Shipping Time"):
                             if SalesLine."No." <> '' then
                                 SalesLine.Validate("Shipping Time", "Shipping Time");
