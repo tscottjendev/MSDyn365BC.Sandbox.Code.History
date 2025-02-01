@@ -23,43 +23,43 @@ table 6101 "E-Document Purchase Line"
             TableRelation = "E-Document"."Entry No";
             DataClassification = SystemMetadata;
         }
-        field(13; "Date"; Date)
+        field(3; "Date"; Date)
         {
             DataClassification = CustomerContent;
         }
-        field(16; "Product Code"; Text[100])
+        field(4; "Product Code"; Text[100])
         {
             DataClassification = CustomerContent;
         }
-        field(14; "Description"; Text[100])
+        field(5; "Description"; Text[100])
         {
             DataClassification = CustomerContent;
         }
-        field(15; "Quantity"; Decimal)
+        field(6; "Quantity"; Decimal)
         {
             DataClassification = CustomerContent;
         }
-        field(20; "Unit of Measure"; Text[50])
+        field(7; "Unit of Measure"; Text[50])
         {
             DataClassification = CustomerContent;
         }
-        field(21; "Unit Price"; Decimal)
+        field(8; "Unit Price"; Decimal)
         {
             DataClassification = CustomerContent;
         }
-        field(11; "Amount"; Decimal)
+        field(9; "Amount"; Decimal)
         {
             DataClassification = CustomerContent;
         }
-        field(17; "Tax"; Decimal)
+        field(10; "Tax"; Decimal)
         {
             DataClassification = CustomerContent;
         }
-        field(19; "Tax Rate"; Text[100])
+        field(11; "Tax Rate"; Text[100])
         {
             DataClassification = CustomerContent;
         }
-        field(18; "Currency Code"; Code[10])
+        field(12; "Currency Code"; Code[10])
         {
             DataClassification = CustomerContent;
         }

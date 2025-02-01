@@ -36,6 +36,7 @@ codeunit 6140 "E-Doc. Import"
             exit;
         end;
 
+        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
         EDocumentServiceStatus.SetRange("E-Document Service Code", EDocumentService.Code);
         EDocumentServiceStatus.SetRange(Status, "E-Document Service Status"::Imported);
         EDocumentServiceStatus.SetRange("Import Processing Status", "Import E-Doc. Proc. Status"::Unprocessed);

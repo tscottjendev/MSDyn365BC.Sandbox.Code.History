@@ -22,7 +22,7 @@ table 6105 "E-Document Line Mapping"
         {
             DataClassification = SystemMetadata;
         }
-        field(4; "Purchase Line Type"; Enum "Purchase Line Type")
+        field(2; "Purchase Line Type"; Enum "Purchase Line Type")
         {
             Caption = 'Purchase Line Type';
             DataClassification = CustomerContent;
@@ -45,7 +45,7 @@ table 6105 "E-Document Line Mapping"
             else
             if ("Purchase Line Type" = const(Resource)) Resource;
         }
-        field(5; "Unit of Measure"; Code[20])
+        field(4; "Unit of Measure"; Code[20])
         {
             Caption = 'Unit of Measure';
             DataClassification = CustomerContent;

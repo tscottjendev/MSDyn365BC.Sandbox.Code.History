@@ -313,11 +313,6 @@ table 6121 "E-Document"
         end;
     end;
 
-    internal procedure EDocumentProcessingStatus(): Enum "Import E-Doc. Proc. Status"
-    begin
-        exit(GetEDocumentServiceStatus()."Import Processing Status");
-    end;
-
     internal procedure GetEDocumentServiceStatus() EDocumentServiceStatus: Record "E-Document Service Status"
     begin
         EDocumentServiceStatus.SetRange("E-Document Entry No", Rec."Entry No");
