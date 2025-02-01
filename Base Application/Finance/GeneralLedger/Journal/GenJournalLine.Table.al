@@ -3388,7 +3388,8 @@ table 81 "Gen. Journal Line"
         // Lines are deleted 1 by 1, this actually check if this is the last line in the General journal Bach
         GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
-        if GenJournalLine.Count = 1 then
+        GenJournalLine.SetFilter("Line No.", '<>%1', "Line No.");
+        if GenJournalLine.IsEmpty() then
             if GenJournalBatch.Get(Rec."Journal Template Name", Rec."Journal Batch Name") then
                 ApprovalsMgmt.PreventDeletingRecordWithOpenApprovalEntry(GenJournalBatch);
 
