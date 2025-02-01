@@ -2,7 +2,9 @@ namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.Finance.GeneralLedger.Account;
 using System.Environment.Configuration;
+using System.Environment;
 using System.IO;
+using System.Telemetry;
 
 codeunit 18 "Financial Report Mgt."
 {
@@ -19,6 +21,7 @@ codeunit 18 "Financial Report Mgt."
         ColumnsEditWarningNotificationMsg: Label 'Changes to this column definition will affect all financial reports using it.';
         ColumnsNotificationIdTok: Label '883e213e-08bd-4154-b929-87f689848f10', Locked = true;
         DontShowAgainMsg: Label 'Don''t show again';
+        TelemetryEventTxt: Label 'Financial Report %1: %2', Comment = '%1 = event type, %2 = report', Locked = true;
         OpenFinancialReportsLbl: Label 'Open Financial Reports';
         NotifyUpdateFinancialReportNameTxt: Label 'Notify about updating financial reports.';
         NotifyUpdateFinancialReportDescTxt: Label 'Notify that financial reports should be updated after someone creates a new G/L account.';
@@ -75,6 +78,7 @@ codeunit 18 "Financial Report Mgt."
         AddFinancialReportToConfigPackage(FinancialReport.Name, ConfigPackage);
         Commit();
         ConfigXMLExchange.ExportPackage(ConfigPackage);
+        LogImportExportTelemetry(FinancialReport.Name, 'Exported');
     end;
 
     local procedure AddFinancialReportToConfigPackage(FinancialReportName: Code[10]; var ConfigPackage: Record "Config. Package")
@@ -127,15 +131,18 @@ codeunit 18 "Financial Report Mgt."
         ConfigPackage: Record "Config. Package";
         ConfigPackageTable: Record "Config. Package Table";
         ConfigPackageMgt: Codeunit "Config. Package Management";
+        NewName: Code[10];
     begin
         if not ConfigPackage.Get(PackageCode) then
             Error(PackageImportErr);
 
-        if GetPackageFinancialReportName(PackageCode) = '' then
+        NewName := GetPackageFinancialReportName(PackageCode);
+        if NewName = '' then
             Error(PackageImportErr);
 
         ConfigPackageTable.SetRange("Package Code", PackageCode);
         ConfigPackageMgt.ApplyPackage(ConfigPackage, ConfigPackageTable, false);
+        LogImportExportTelemetry(NewName, 'Imported');
     end;
 
     local procedure GetPackageFinancialReportName(PackageCode: Code[20]) NewFinancialReportName: Code[10]
@@ -392,6 +399,19 @@ codeunit 18 "Financial Report Mgt."
         if not MyNotifications.Disable(UpdateFinancialReportNotification.Id) then
             MyNotifications.InsertDefault(UpdateFinancialReportNotification.Id,
                 NotifyUpdateFinancialReportNameTxt, NotifyUpdateFinancialReportDescTxt, false);
+    end;
+
+    local procedure LogImportExportTelemetry(Name: Text; Action: Text)
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        if not EnvironmentInfo.IsSaaS() then
+            exit;
+
+        TelemetryDimensions.Add('ReportDefinitionCode', Name);
+        FeatureTelemetry.LogUsage('0000ONR', 'Financial Report', StrSubstNo(TelemetryEventTxt, Name, Action), TelemetryDimensions);
     end;
 
     procedure GetUpdateFinancialReportNotificationId(): Guid
