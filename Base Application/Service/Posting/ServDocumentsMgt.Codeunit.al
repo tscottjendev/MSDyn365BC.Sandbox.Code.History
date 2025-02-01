@@ -264,7 +264,8 @@ codeunit 5988 "Serv-Documents Mgt."
                       Database::"Service Line", ServLine."Document Type".AsInteger(), ServLine."Document No.", ServLine."Line No.",
                       ServLine."Qty. to Ship (Base)", ServLine."Qty. to Invoice (Base)", Ship, Invoice);
                 LineCount += 1;
-                Window.Update(2, LineCount);
+                if GuiAllowed() then
+                    Window.Update(2, LineCount);
 
                 IsHandled := false;
                 OnPostDocumentLinesOnBeforeCheckServLine(ServHeader, ServLine, Ship, Invoice, ServItemLine, IsHandled);
@@ -491,7 +492,8 @@ codeunit 5988 "Serv-Documents Mgt."
             ServPostingJnlsMgt.PostLines(ServHeader, InvoicePostingInterface, Window, TotalAmount);
 
             // Post customer entry
-            Window.Update(4, 1);
+            if GuiAllowed() then
+                Window.Update(4, 1);
             GetInvoicePostingParameters();
             InvoicePostingInterface.SetParameters(InvoicePostingParameters);
             InvoicePostingInterface.SetTotalLines(TotalServiceLine, TotalServiceLineLCY);
@@ -502,7 +504,8 @@ codeunit 5988 "Serv-Documents Mgt."
             OnPostDocumentLinesOnBeforePostBalancingEntry(ServHeader, ServLine, TotalServiceLine, ServPostingJnlsMgt, GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, InvoicePostingInterface, Window, IsHandled);
             if not IsHandled then
                 if ServHeader."Bal. Account No." <> '' then begin
-                    Window.Update(5, 1);
+                    if GuiAllowed() then
+                        Window.Update(5, 1);
                     InvoicePostingInterface.SetParameters(InvoicePostingParameters);
                     InvoicePostingInterface.SetTotalLines(TotalServiceLine, TotalServiceLineLCY);
                     ServPostingJnlsMgt.PostBalancingEntry(ServHeader, InvoicePostingInterface);
@@ -888,14 +891,16 @@ codeunit 5988 "Serv-Documents Mgt."
             ServInvHeader."Pre-Assigned No. Series" := '';
             ServInvHeader."Order No. Series" := ServHeader."No. Series";
             ServInvHeader."Order No." := ServHeader."No.";
-            Window.Update(1, StrSubstNo(Text007, ServHeader."Document Type", ServHeader."No.", ServInvHeader."No."));
+            if GuiAllowed() then
+                Window.Update(1, StrSubstNo(Text007, ServHeader."Document Type", ServHeader."No.", ServInvHeader."No."));
         end else begin
             ServInvHeader."Pre-Assigned No. Series" := ServHeader."No. Series";
             ServInvHeader."Pre-Assigned No." := ServHeader."No.";
             OnPrepareInvoiceHeaderOnBeforeCheckPostingNo(ServHeader, ServInvHeader);
             if ServHeader."Posting No." <> '' then begin
                 ServInvHeader."No." := ServHeader."Posting No.";
-                Window.Update(1, StrSubstNo(Text007, ServHeader."Document Type", ServHeader."No.", ServInvHeader."No."));
+                if GuiAllowed() then
+                    Window.Update(1, StrSubstNo(Text007, ServHeader."Document Type", ServHeader."No.", ServInvHeader."No."));
             end;
         end;
 
@@ -966,7 +971,8 @@ codeunit 5988 "Serv-Documents Mgt."
         ServCrMemoHeader."Pre-Assigned No." := ServHeader."No.";
         if ServHeader."Posting No." <> '' then begin
             ServCrMemoHeader."No." := ServHeader."Posting No.";
-            Window.Update(1, StrSubstNo(Text008, ServHeader."Document Type", ServHeader."No.", ServCrMemoHeader."No."));
+            if GuiAllowed() then
+                Window.Update(1, StrSubstNo(Text008, ServHeader."Document Type", ServHeader."No.", ServCrMemoHeader."No."));
         end;
 
         if ServMgtSetup."Ext. Doc. No. Mandatory" then

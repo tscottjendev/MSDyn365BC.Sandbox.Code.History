@@ -584,6 +584,18 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
             PutAwayProdOrderLine.TestField("Location Code", ProdOrderLine."Location Code");
     end;
 
+    procedure CompareProdOrderWithProdOrderLinesForLocation(ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+        if ProductionOrder."Location Code" = ProdOrderLine."Location Code" then
+            exit;
+
+        if Location.RequirePutAwayForProdOutput(ProductionOrder."Location Code") then
+            ProdOrderLine.TestField("Location Code", ProductionOrder."Location Code");
+
+        if Location.RequirePutAwayForProdOutput(ProdOrderLine."Location Code") then
+            ProdOrderLine.TestField("Location Code", ProductionOrder."Location Code");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterProdOrderLineDelete(var ProdOrderLine: Record "Prod. Order Line")
     begin
