@@ -1225,8 +1225,10 @@ table 5406 "Prod. Order Line"
             GetItem();
             if GetSKU() then begin
                 "Unit Cost" := SKU."Unit Cost";
-                if (SKU."Routing No." <> "Routing No.") and (SKU."Routing No." <> '') then
+                if (SKU."Routing No." <> "Routing No.") and (SKU."Routing No." <> '') then begin
                     Validate("Routing No.", SKU."Routing No.");
+                    "Cost Amount" := Round(Quantity * "Unit Cost");
+                end;
                 if (SKU."Production BOM No." <> "Production BOM No.") and (SKU."Production BOM No." <> '') then begin
                     Validate("Production BOM No.", SKU."Production BOM No.");
                     ValidateUnitofMeasureCodeFromItem();
