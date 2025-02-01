@@ -17,6 +17,7 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.Shipping;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
@@ -5215,6 +5216,64 @@ codeunit 136101 "Service Orders"
             Format(ExpectedAvailabilityQty),
             ServiceLineFactBox."StrSubstNo('%1',ServInfoPaneMgt.CalcAvailability(Rec))".Value,
             StrSubstNo(AvailableExpectedQuantityErr, ExpectedAvailabilityQty));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceOrderValidateShippingServiceAgentUpdateServiceOrderLines()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ServiceHeader: Record "Service Header";
+        ServiceItem: Record "Service Item";
+        ServiceLine: Record "Service Line";
+        ShippingAgent: Record "Shipping Agent";
+        ShippingAgent2: Record "Shipping Agent";
+        ShippingAgentServices: Record "Shipping Agent Services";
+        ShippingAgentServices2: Record "Shipping Agent Services";
+        ShippingTime: DateFormula;
+    begin
+        // [FEATURE] [Shipping Agent Service]
+        Initialize();
+
+        // [GIVEN] Create two Shipping Agent Services with two different Shipping Agents
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, ShippingTime);
+        LibraryInventory.CreateShippingAgent(ShippingAgent2);
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices2, ShippingAgent2.Code, ShippingTime);
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Shipping Agent Code", ShippingAgent.Code);
+        Customer.Validate("Shipping Agent Service Code", ShippingAgentServices.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Create Items
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Service Order with lines
+        CreateServiceOrderWithMultipleLines(
+          ServiceHeader, Customer."No.", ServiceItem."No.", Item."No.", LibraryRandom.RandDec(10, 2),
+          LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Set first Shipping Agent Service on Service Order
+        ServiceHeader.Validate("Shipping Agent Code", ShippingAgentServices."Shipping Agent Code");
+        ServiceHeader.Validate("Shipping Agent Service Code", ShippingAgentServices.Code);
+
+        // [WHEN] Validate second Shipping Agent Service Code on Sales Header when lines have not the same Shipping Agent Code
+        // Without validation of Shipping Agent Code to make sure that lines aren't updated
+        ServiceHeader."Shipping Agent Code" := ShippingAgentServices2."Shipping Agent Code";
+        ServiceHeader.Validate("Shipping Agent Service Code", ShippingAgentServices2.Code);
+
+        // [THEN] Verify new Shipping Agent and Shipping Agent Service Code on the lines
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.FindSet();
+        repeat
+            ServiceLine.TestField("Shipping Agent Code", ShippingAgentServices2."Shipping Agent Code");
+            ServiceLine.TestField("Shipping Agent Service Code", ShippingAgentServices2.Code);
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure Initialize()
