@@ -12497,6 +12497,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation III - NamedType SourceDocumentError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3522513432 - NamedType 335378924" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Variant Code must have a value in Warehouse Journal Line: Journal Template Name=%1, Journal Batch Name=%2, Location Code=%3, Line No.=%4. It cannot be zero or empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Journal Template Name, %2=Journal Batch Name, %3=Location Code, %4=Line No.]D;]A;(LookupHint=Codeunit SCM Reservation III - NamedType VariantCodeMandatoryErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3764345726 - NamedType 988378694" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You do not have enough inventory to meet the demand for items in one or more lines]]></Val>

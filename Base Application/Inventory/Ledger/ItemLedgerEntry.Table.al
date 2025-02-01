@@ -1096,19 +1096,22 @@ table 32 "Item Ledger Entry"
 
     procedure CollectItemLedgerEntryTypesUsed(var ItemLedgerEntryTypesUsed: Dictionary of [Enum "Item Ledger Entry Type", Boolean]; ItemNoFilter: Text)
     var
-        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntryTypes: Query "Item Ledger Entry Types";
         ItemLedgerEntryType: Enum "Item Ledger Entry Type";
         i: Integer;
     begin
         Clear(ItemLedgerEntryTypesUsed);
 
-        if ItemNoFilter <> '' then
-            ItemLedgerEntry.SetFilter("Item No.", ItemNoFilter);
         foreach i in "Item Ledger Entry Type".Ordinals() do begin
             ItemLedgerEntryType := "Item Ledger Entry Type".FromInteger(i);
-            ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntryType);
-            ItemLedgerEntryTypesUsed.Add(ItemLedgerEntryType, not ItemLedgerEntry.IsEmpty());
+            ItemLedgerEntryTypesUsed.Add(ItemLedgerEntryType, false);
         end;
+
+
+        ItemLedgerEntryTypes.SetFilter(Item_No_, ItemNoFilter);
+        ItemLedgerEntryTypes.Open();
+        while ItemLedgerEntryTypes.Read() do
+            ItemLedgerEntryTypesUsed.Set(ItemLedgerEntryTypes.Entry_Type, true);
     end;
 
     [IntegrationEvent(false, false)]
