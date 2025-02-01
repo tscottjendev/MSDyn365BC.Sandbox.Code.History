@@ -167,6 +167,12 @@ page 99000867 "Finished Production Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies the location code to which you want to post the finished product from this production order.';
                 }
+                field("Document Put-away Status"; Rec."Document Put-away Status")
+                {
+                    ApplicationArea = Warehouse;
+                    Visible = false;
+                    ToolTip = 'Specifies the status of the warehouse put-away.';
+                }
             }
         }
         area(factboxes)
@@ -312,20 +318,6 @@ page 99000867 "Finished Production Order"
                     RunPageView = sorting("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
                     ToolTip = 'View the list of inventory movements that have been made for the order.';
                 }
-                action("Create Warehouse Put-Away")
-                {
-                    ApplicationArea = Warehouse;
-                    Caption = 'Create Warehouse Put-Away';
-                    Image = CreatePutAway;
-                    ToolTip = 'Create warehouse put-away documents for the production order lines.';
-
-                    trigger OnAction()
-                    var
-                        CreatePutAway: Codeunit "Create Put-away";
-                    begin
-                        CreatePutAway.CreateProdPutAwayFromProdOrder(Rec);
-                    end;
-                }
                 action(DocAttach)
                 {
                     ApplicationArea = Manufacturing;
@@ -376,6 +368,20 @@ page 99000867 "Finished Production Order"
                     ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
                 begin
                     ProdOrderStatusManagement.ReopenFinishedProdOrder(Rec);
+                end;
+            }
+            action("Create Warehouse Put-Away")
+            {
+                ApplicationArea = Warehouse;
+                Caption = 'Create Warehouse Put-Away';
+                Image = CreatePutAway;
+                ToolTip = 'Create warehouse put-away documents for the production order lines.';
+
+                trigger OnAction()
+                var
+                    CreatePutAway: Codeunit "Create Put-away";
+                begin
+                    CreatePutAway.CreateProdPutAwayFromProdOrder(Rec);
                 end;
             }
         }

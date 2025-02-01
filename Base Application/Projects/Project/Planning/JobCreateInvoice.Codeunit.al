@@ -1246,7 +1246,7 @@ codeunit 1002 "Job Create-Invoice"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateSalesInvoiceLines(SalesHeader: Record "Sales Header"; NewInvoice: Boolean)
+    local procedure OnAfterCreateSalesInvoiceLines(var SalesHeader: Record "Sales Header"; NewInvoice: Boolean)
     begin
     end;
 
