@@ -81,6 +81,7 @@
         EntryMustBeEqualErr: Label '%1 must be equal to %2 for Entry No. %3 in the %4.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Entry No., %4 = Table Caption';
         MissingAccountTxt: Label '%1 is missing in %2.', Comment = '%1 = Field Caption, %2 = Table Caption';
         NonInventoryItemInStandardCostCalcErr: Label 'You cannot modify %1 on Item %2 as Production BOM %3 has a non-inventory Item %4.', Comment = '%1 = Field Caption , %2 = Production Item No. , %3 = Production BOM No. , %4 = Non-Inventory Item';
+        ProductionOrderHasAlreadyBeenReopenedErr: Label 'This production order has already been reopened before. This can only be done once.';
 
     [Test]
     [Scope('OnPrem')]
@@ -5808,7 +5809,7 @@
         asserterror FinishedProductionorder.ReopenFinishedProdOrder.Invoke();
 
         // [THEN] Verify Finished Production Order cannot be Reopened more than once.
-        Assert.ExpectedTestFieldError(ProductionOrder.FieldCaption("Reopened"), Format(false));
+        Assert.ExpectedError(ProductionOrderHasAlreadyBeenReopenedErr);
     end;
 
     [Test]
