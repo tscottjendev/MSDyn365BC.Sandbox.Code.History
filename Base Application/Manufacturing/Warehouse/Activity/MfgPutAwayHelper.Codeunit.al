@@ -41,7 +41,7 @@ codeunit 7350 "Mfg. Put Away Helper"
     procedure CanCreateProdWhsePutAway(var ProdOrder: Record "Production Order"): Boolean
     begin
         if not GuiAllowed() then
-            exit;
+            exit(true);
 
         exit(Confirm(StrSubstNo(CanCreateProdPutAwayQst, ProdOrder.Status, ProdOrder."No."), false));
     end;
@@ -62,7 +62,7 @@ codeunit 7350 "Mfg. Put Away Helper"
     begin
         WhsePutAwayRequest."Document Type" := WhsePutAwayRequest."Document Type"::Production;
         WhsePutAwayRequest."Document No." := ProdOrder."No.";
-        WhsePutAwayRequest."Location Code" := ProdOrder."Location Code";
+        WhsePutAwayRequest."Location Code" := ProdOrderLine."Location Code";
         WhsePutAwayRequest."Bin Code" := ProdOrderLine."Bin Code";
         if Bin.Get(ProdOrderLine."Location Code", ProdOrderLine."Bin Code") then
             WhsePutAwayRequest."Zone Code" := Bin."Zone Code";
