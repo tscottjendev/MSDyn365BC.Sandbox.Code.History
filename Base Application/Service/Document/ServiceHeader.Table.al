@@ -3696,6 +3696,8 @@ table 5900 "Service Header"
                             end;
                         FieldNo("Shipping Agent Service Code"):
                             begin
+                                if ServLine."Shipping Agent Code" <> "Shipping Agent Code" then
+                                    ServLine.Validate("Shipping Agent Code", "Shipping Agent Code");
                                 ServLine.Validate("Shipping Agent Service Code", "Shipping Agent Service Code");
                                 ServLine.Modify(true);
                             end;
