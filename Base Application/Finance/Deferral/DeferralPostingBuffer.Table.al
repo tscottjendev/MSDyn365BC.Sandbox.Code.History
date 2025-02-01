@@ -3,6 +3,9 @@ namespace Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
+#if not CLEAN24
+using Microsoft.Finance.ReceivablesPayables;
+#endif
 using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Enums;
@@ -391,6 +394,14 @@ table 1706 "Deferral Posting Buffer"
     local procedure OnAfterPreparePurch(var DeferralPostingBuffer: Record "Deferral Posting Buffer"; PurchaseLine: Record "Purchase Line");
     begin
     end;
+
+#if not CLEAN24
+    [Obsolete('Replaced by OnUpdateOnBeforeDeferralPostBufferInsert().', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeferralPostBufferInsert(var ToDeferralPostingBuffer: Record "Deferral Posting Buffer"; FromDeferralPostingBuffer: Record "Deferral Posting Buffer"; InvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateOnAfterSetFilters(var DeferralPostingBufferRec: Record "Deferral Posting Buffer"; DeferralPostBuffer: Record "Deferral Posting Buffer")

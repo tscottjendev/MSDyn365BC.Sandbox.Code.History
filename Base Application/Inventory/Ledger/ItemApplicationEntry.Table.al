@@ -207,11 +207,15 @@ table 339 "Item Application Entry"
     end;
 
     procedure AppliedInbndTransEntryExists(InbndItemLedgEntryNo: Integer; IsCostApplication: Boolean): Boolean
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        Reset();
-        SetCurrentKey("Inbound Item Entry No.", "Item Ledger Entry No.");
-        SetRange("Inbound Item Entry No.", InbndItemLedgEntryNo);
-        if IsEmpty() then
+        ItemLedgerEntry.SetLoadFields(Positive, "Item No.");
+        if not ItemLedgerEntry.Get(InbndItemLedgEntryNo) then
+            exit(false);
+        if not ItemLedgerEntry.Positive then
+            exit(false);
+        if not IsItemEntryTypeEverPosted(ItemLedgerEntry."Item No.", "Item Ledger Entry Type"::Transfer) then
             exit(false);
 
         Reset();
@@ -386,7 +390,7 @@ table 339 "Item Application Entry"
         if IsHandled then
             exit(Result);
 
-        if not IsItemEverOutput(ItemLedgerEntry."Item No.", "Item Ledger Entry Type"::Output) then
+        if not IsItemEntryTypeEverPosted(ItemLedgerEntry."Item No.", "Item Ledger Entry Type"::Output) then
             exit(false);
 
         if ItemLedgerEntry."Order Type" <> ItemLedgerEntry."Order Type"::Production then
@@ -421,7 +425,7 @@ table 339 "Item Application Entry"
         if IsHandled then
             exit(Result);
 
-        if not IsItemEverOutput(ItemLedgerEntry."Item No.", "Item Ledger Entry Type"::"Assembly Output") then
+        if not IsItemEntryTypeEverPosted(ItemLedgerEntry."Item No.", "Item Ledger Entry Type"::"Assembly Output") then
             exit(false);
 
         if ItemLedgerEntry."Order Type" <> ItemLedgerEntry."Order Type"::Assembly then
@@ -693,13 +697,13 @@ table 339 "Item Application Entry"
         exit(not ItemApplicationEntry.IsEmpty());
     end;
 
-    local procedure IsItemEverOutput(ItemNo: Code[20]; OutputEntryType: Enum "Item Ledger Entry Type"): Boolean
+    local procedure IsItemEntryTypeEverPosted(ItemNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Entry Type"): Boolean
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetCurrentKey("Item No.", "Entry Type");
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.SetRange("Entry Type", OutputEntryType);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntryType);
         exit(not ItemLedgerEntry.IsEmpty());
     end;
 
