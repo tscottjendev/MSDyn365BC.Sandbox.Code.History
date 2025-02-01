@@ -82,6 +82,7 @@ codeunit 7313 "Create Put-away"
         BinPolicyTelemetryCategoryTok: Label 'Bin Policy', Locked = true;
         DefaultBinPutawayPolicyTelemetryTok: Label 'Default Bin Put-away Policy in used for inventory put-away.', Locked = true;
         PutawayTemplateBinPutawayPolicyTelemetryTok: Label 'Put-away template Bin Put-away Policy in used for inventory put-away.', Locked = true;
+        PutAwayActivityNoHasBeenCreatedMsg: Label 'Put-away activity no. %1 has been created.', Comment = '%1 = Put-away Activity No. ';
 
     local procedure "Code"()
     var
@@ -1123,6 +1124,9 @@ codeunit 7313 "Create Put-away"
             exit;
 
         LoopThruProdOrderLines(ProdOrder);
+
+        if GuiAllowed() then
+            Message(PutAwayActivityNoHasBeenCreatedMsg, CurrWarehouseActivityHeader."No.");
     end;
 
     procedure CalcQtyToProdOutputPutAway(EmptyZoneBin: Boolean; NewBinContent: Boolean; ProdOrderLine: Record "Prod. Order Line")

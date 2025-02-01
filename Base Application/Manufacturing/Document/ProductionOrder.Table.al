@@ -373,6 +373,8 @@ table 5405 "Production Order"
 
             trigger OnValidate()
             begin
+                ValidateWarehousePutAwayLocation(Rec);
+
                 GetDefaultBin();
 
                 Validate("Due Date"); // Scheduling consider Calendar assigned to Location
@@ -1551,6 +1553,20 @@ table 5405 "Production Order"
             until (ProdOrderComponent.Next() = 0) or Confirmed;
     end;
 
+    local procedure ValidateWarehousePutAwayLocation(ProductionOrder: Record "Production Order")
+    var
+        PutAwayProdOrderLine: Record "Prod. Order Line";
+        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
+    begin
+        PutAwayProdOrderLine.SetLoadFields(Status, "Prod. Order No.", "Location Code", "Line No.");
+        PutAwayProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        PutAwayProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        if PutAwayProdOrderLine.FindSet() then
+            repeat
+                ProdOrderWarehouseMgt.CompareProdOrderWithProdOrderLinesForLocation(Rec, PutAwayProdOrderLine);
+            until PutAwayProdOrderLine.Next() = 0;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ProductionOrder: Record "Production Order"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CallingFieldNo: Integer)
     begin
@@ -1732,7 +1748,7 @@ table 5405 "Production Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateAllLineDimOnAfterUpdateProdOrderCompDim(var ProductionOrder: Record "Production Order"; var  ProdOrderLine: Record "Prod. Order Line"; NewParentDimSetID: Integer; OldParentDimSetID: Integer);
+    local procedure OnUpdateAllLineDimOnAfterUpdateProdOrderCompDim(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; NewParentDimSetID: Integer; OldParentDimSetID: Integer);
     begin
     end;
 }
