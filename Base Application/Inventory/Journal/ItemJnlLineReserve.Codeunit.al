@@ -360,7 +360,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
     procedure DeleteLine(var ItemJournalLine: Record "Item Journal Line")
     begin
-        OnBeforeDeleteLine(ItemJournalLine);
+        OnBeforeDeleteLine(ItemJournalLine, DeleteItemTracking);
         if Blocked then
             exit;
 
@@ -628,7 +628,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteLine(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnBeforeDeleteLine(var ItemJournalLine: Record "Item Journal Line"; var DeleteItemTracking: Boolean)
     begin
     end;
 
