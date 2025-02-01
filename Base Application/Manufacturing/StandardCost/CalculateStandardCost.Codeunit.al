@@ -312,7 +312,7 @@ codeunit 5812 "Calculate Standard Cost"
             end;
 
         SetProperties(WorkDate(), NewCalcMultiLevel, false, false, '', false);
-        CalcMfgSKU(LocationCode, ItemNo, VariantCode, SKU, 0);
+        CalcMfgSKU(ItemNo, LocationCode, VariantCode, SKU, 0);
 
         if TempSKU.Find('-') then
             repeat
