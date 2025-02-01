@@ -19,7 +19,6 @@ table 349 "Dimension Value"
         field(1; "Dimension Code"; Code[20])
         {
             Caption = 'Dimension Code';
-            OptimizeForTextSearch = true;
             NotBlank = true;
             TableRelation = Dimension;
 
@@ -31,6 +30,7 @@ table 349 "Dimension Value"
         field(2; "Code"; Code[20])
         {
             Caption = 'Code';
+            OptimizeForTextSearch = true;
             NotBlank = true;
 
             trigger OnValidate()
