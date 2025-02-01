@@ -166,7 +166,7 @@ table 99000765 "Manufacturing Setup"
         }
         field(210; "Finish Order without Output"; Boolean)
         {
-            Caption = 'Finish Order without Output';
+            Caption = 'Allow Finishing Prod. Order with no Output';
 
             trigger OnValidate()
             begin
@@ -176,7 +176,7 @@ table 99000765 "Manufacturing Setup"
         field(250; "Inc. Non. Inv. Cost To Prod"; Boolean)
         {
             Caption = 'Include Non-Inventory Items to Produced Items';
-            ToolTip = 'Specifies whether to include the non-inventory items cost to produce items.';
+            ToolTip = 'Specifies whether to include the cost of non-inventory items in the cost of produced items.';
         }
         field(5500; "Preset Output Quantity"; Option)
         {

@@ -140,6 +140,7 @@ page 99000831 "Released Production Order"
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
+                    Importance = Additional;
                     ToolTip = 'Specifies if the production order is reopened.';
                 }
             }
@@ -225,6 +226,12 @@ page 99000831 "Released Production Order"
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
                     ToolTip = 'Specifies a bin to which you want to post the finished items.';
+                }
+                field("Document Put-away Status"; Rec."Document Put-away Status")
+                {
+                    ApplicationArea = Warehouse;
+                    Visible = false;
+                    ToolTip = 'Specifies the status of the warehouse put-away.';
                 }
             }
         }
@@ -320,19 +327,6 @@ page 99000831 "Released Production Order"
                                       "Source No." = field("No.");
                         RunPageView = sorting("Source Type", "Source Subtype", "Source No.");
                         ToolTip = 'View the history of quantities that are registered for the item in warehouse activities. ';
-                    }
-                    action("Registered Put-away Lines")
-                    {
-                        ApplicationArea = Warehouse;
-                        Caption = 'Registered Put-away Lines';
-                        Image = RegisteredDocs;
-                        RunObject = Page "Registered Whse. Act.-Lines";
-                        RunPageLink = "Whse. Document Type" = const(Production),
-                                  "Source Document" = const("Prod. Output"),
-                                  "Whse. Document No." = field("No.");
-                        RunPageView = sorting("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.")
-                                  where("Activity Type" = const("Put-away"));
-                        ToolTip = 'View the list of completed put-away activities.';
                     }
                 }
                 action(Dimensions)
@@ -438,6 +432,19 @@ page 99000831 "Released Production Order"
                                   "Source No." = field("No.");
                     RunPageView = sorting("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
                     ToolTip = 'View the list of inventory movements that have been made for the order.';
+                }
+                action("Registered Put-away Lines")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Registered Put-away Lines';
+                    Image = RegisteredDocs;
+                    RunObject = Page "Registered Whse. Act.-Lines";
+                    RunPageLink = "Whse. Document Type" = const(Production),
+                                  "Source Document" = const("Prod. Output"),
+                                  "Whse. Document No." = field("No.");
+                    RunPageView = sorting("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.")
+                                  where("Activity Type" = const("Put-away"));
+                    ToolTip = 'View the list of completed put-away activities.';
                 }
             }
         }
