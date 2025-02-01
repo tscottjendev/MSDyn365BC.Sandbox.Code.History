@@ -51,6 +51,7 @@ codeunit 137402 "SCM Costing Batch"
         SingleLevelCapacityCostMustNotMatchErr: Label 'Single-Level Capacity Cost of Item and SKU must not match for Item No. %1', Comment = '%1 = Item No.';
         SingleLevelMaterialCostMustMatchErr: Label 'Single-Level Material Cost of Item and SKU must match for Item No. %1', Comment = '%1 = Item No.';
         SingleLevelMaterialCostMustNotMatchErr: Label 'Single-Level Material Cost of Item and SKU must not match for Item No. %1', Comment = '%1 = Item No.';
+        CostAmountMustNotMatchErr: Label 'Cost Amount for Item and SKU must not match for Item No. %1 in Prod. Order Line.', Comment = '%1 = Item No.';
         CurrentSaveValuesId: Integer;
 
     [Test]
@@ -1407,6 +1408,180 @@ codeunit 137402 "SCM Costing Batch"
                 Item."No."));
     end;
 
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure StdCostOfSKUIsCalculatedEvenIfLengthOfItemNoIsUpTo20()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ProductionBOMLine: Record "Production BOM Line";
+        RoutingHeader: array[2] of Record "Routing Header";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        WorkCenter: array[2] of Record "Work Center";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        // [SCENARIO 563958] Standard Cost of Stockkeeping Unit is calculated even 
+        // if the Item No. is up to 20 characters in length. 
+
+        // [GIVEN] Create two Work Centers with Calendar.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter[1]);
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter[2]);
+
+        // [GIVEN] Validate Unit Cost in Work Center [1].
+        WorkCenter[1].Validate("Unit Cost", LibraryRandom.RandIntInRange(10, 10));
+        WorkCenter[1].Modify(true);
+
+        // [GIVEN] Create two Routings.
+        CreateRouting(RoutingHeader[1], WorkCenter[1]."No.");
+        CreateRouting(RoutingHeader[2], WorkCenter[2]."No.");
+
+        // [GIVEN] Create an Item without No. Series and of 20 characters in length.
+        CreateItemWithoutNoSeries(Item);
+
+        // [GIVEN] Validate Routing and Production BOM in Item.
+        ValidateRoutingAndProdBOMInItem(Item, RoutingHeader[1], ProductionBOMLine);
+
+        // [GIVEN] Calculate Standard Cost for Item.
+        Clear(CalculateStandardCost);
+        CalculateStandardCost.CalcItem(Item."No.", false);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Stockkeeping Unit.
+        LibraryInventory.CreateStockKeepingUnit(Item, Enum::"SKU Creation Method"::"Location & Variant", false, false);
+
+        // [GIVEN] Find Stockkeeping Unit.
+        StockkeepingUnit.SetRange("Item No.", Item."No.");
+        StockkeepingUnit.FindFirst();
+
+        // [GIVEN] Validate Location Code, Routing No. and Production BOM No. in Stockkeeping Unit.
+        StockkeepingUnit.Validate("Location Code", Location.Code);
+        StockkeepingUnit.Validate("Routing No.", RoutingHeader[2]."No.");
+        StockkeepingUnit.Validate("Production BOM No.", '');
+        StockkeepingUnit.Modify(true);
+
+        // [GIVEN] Calculate Standard Cost for Stockkeeping Unit.
+        CalculateStandardCost.CalcItemSKU(StockkeepingUnit."Item No.", StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code");
+
+        // [GIVEN] Find Item.
+        Item.Get(Item."No.");
+
+        // [WHEN] Find Stockkeeping Unit.
+        StockkeepingUnit.Get(StockkeepingUnit."Location Code", StockkeepingUnit."Item No.", StockkeepingUnit."Variant Code");
+
+        // [THEN] Standard Cost of Stockkeeping Unit is not equal to Standard Cost of Item.
+        Assert.AreNotEqual(Item."Standard Cost", StockkeepingUnit."Standard Cost", StrSubstNo(StandardCostMustNotMatchErr, Item."No."));
+
+        // [THEN] Single-Level Material Cost of Stockkeeping Unit is equal to Single-Level Material Cost of Item.
+        Assert.AreEqual(
+            Item."Single-Level Material Cost",
+            StockkeepingUnit."Single-Level Material Cost",
+            StrSubstNo(
+                SingleLevelMaterialCostMustMatchErr,
+                Item."No."));
+
+        // [THEN] Single-Level Capacity Cost of Stockkeeping Unit is not equal to Single-Level Capacity Cost of Item.
+        Assert.AreNotEqual(
+            Item."Single-Level Capacity Cost",
+            StockkeepingUnit."Single-Level Capacity Cost",
+            StrSubstNo(
+                SingleLevelCapacityCostMustNotMatchErr,
+                Item."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure CostAmountInProdOrderLineIsCalculatedByUnitCostOfSKUWhenSelectLocationCodeOfSKU()
+    var
+        Item: Record Item;
+        Location: array[2] of Record Location;
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        RoutingHeader: Record "Routing Header";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        WorkCenter: Record "Work Center";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+        CostAmount: Decimal;
+    begin
+        // [SCENARIO 563931] Cost Amount in Prod. Order line is calculated by Unit Cost of 
+        // Stockkeeping Unit when Validate Location Code of Stockkeeping Unit.
+
+        // [GIVEN] Create a Work Center with Calendar.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Validate Unit Cost in Work Center.
+        WorkCenter.Validate("Unit Cost", LibraryRandom.RandIntInRange(10, 10));
+        WorkCenter.Modify(true);
+
+        // [GIVEN] Create a Routing.
+        CreateRouting(RoutingHeader, WorkCenter."No.");
+
+        // [GIVEN] Create an Item and Validate Costing Method, Replenishment System and Production BOM No.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::Standard);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Production BOM No.", CreateAndCertifyProductionBOM(ProductionBOMLine, Item."Base Unit of Measure"));
+        Item.Modify(true);
+
+        // [GIVEN] Calculate Standard Cost for Item.
+        Clear(CalculateStandardCost);
+        CalculateStandardCost.CalcItem(Item."No.", false);
+
+        // [GIVEN] Create two Locations with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
+
+        // [GIVEN] Create Stockkeeping Unit.
+        LibraryInventory.CreateStockKeepingUnit(Item, Enum::"SKU Creation Method"::"Location & Variant", false, false);
+
+        // [GIVEN] Find Stockkeeping Unit.
+        StockkeepingUnit.SetRange("Item No.", Item."No.");
+        StockkeepingUnit.FindFirst();
+
+        // [GIVEN] Validate Location Code, Routing No. and Production BOM No. in Stockkeeping Unit.
+        StockkeepingUnit.Validate("Location Code", Location[1].Code);
+        StockkeepingUnit.Validate("Routing No.", RoutingHeader."No.");
+        StockkeepingUnit.Validate("Production BOM No.", '');
+        StockkeepingUnit.Modify(true);
+
+        // [GIVEN] Calculate Standard Cost for Stockkeeping Unit.
+        CalculateStandardCost.CalcItemSKU(StockkeepingUnit."Item No.", StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code");
+
+        // [GIVEN] Find Item.
+        Item.Get(Item."No.");
+
+        // [WHEN] Find Stockkeeping Unit.
+        StockkeepingUnit.Get(StockkeepingUnit."Location Code", StockkeepingUnit."Item No.", StockkeepingUnit."Variant Code");
+
+        // [THEN] Standard Cost of Stockkeeping Unit is not equal to Standard Cost of Item.
+        Assert.AreNotEqual(Item."Standard Cost", StockkeepingUnit."Standard Cost", StrSubstNo(StandardCostMustNotMatchErr, Item."No."));
+
+        // [GIVEN] Create a Production Order.
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Create a Prod. Order Line.
+        LibraryManufacturing.CreateProdOrderLine(
+            ProdOrderLine,
+            ProdOrderLine.Status::Released,
+            ProductionOrder."No.",
+            Item."No.",
+            '',
+            Location[2].Code,
+            LibraryRandom.RandInt(0));
+
+        // [GIVEN] Generate and save Cost Amount [1] in a Variable.
+        CostAmount := ProdOrderLine."Cost Amount";
+
+        // [WHEN] Validate Location Code in Prod. Order Line.
+        ProdOrderLine.Validate("Location Code", Location[1].Code);
+        ProdOrderLine.Modify(true);
+
+        // [THEN] Cost Amount of Prod. Order Line is not equal to CostAmount.
+        Assert.AreNotEqual(CostAmount, ProdOrderLine."Cost Amount", StrSubstNo(CostAmountMustNotMatchErr, Item."No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2278,6 +2453,67 @@ codeunit 137402 "SCM Costing Batch"
         Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
         Item.Validate("Routing No.", RoutingHeader."No.");
         Item.Modify(true);
+    end;
+
+    local procedure ValidateRoutingAndProdBOMInItem(var Item: Record Item; RoutingHeader: Record "Routing Header"; ProductionBOMLine: Record "Production BOM Line")
+    begin
+        Item.Validate("Costing Method", Item."Costing Method"::Standard);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Production BOM No.", CreateAndCertifyProductionBOM(ProductionBOMLine, Item."Base Unit of Measure"));
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemWithoutNoSeries(var Item: Record Item)
+    var
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        InventoryPostingGroup: Record "Inventory Posting Group";
+    begin
+        Item.Init();
+        Item."No." := LibraryUtility.GenerateRandomCode20(Item.FieldNo("No."), DATABASE::Item);
+        Item.Insert(true);
+
+        LibraryInventory.CreateItemUnitOfMeasure(
+            ItemUnitOfMeasure,
+            Item."No.",
+            '',
+            LibraryRandom.RandInt(0));
+
+        CreateVATPostingGroup(VATPostingSetup);
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
+
+        Item.Validate(Description, Item."No.");
+        Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Validate(Type, Item.Type::Inventory);
+        Item.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
+        Item.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+    end;
+
+    local procedure CreateVATPostingGroup(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+    begin
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProdPostingGroup.Code);
+    end;
+
+    local procedure CreateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingSetup: Record "Gen. Product Posting Group";
+    begin
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingSetup);
+        LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingSetup.Code);
     end;
 }
 
