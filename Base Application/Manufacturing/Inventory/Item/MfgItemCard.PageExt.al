@@ -67,6 +67,10 @@ pageextension 99000750 "Mfg. Item Card" extends "Item Card"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the default number of units of the item that are processed in one production operation. This affects standard cost calculations and capacity planning. If the item routing includes fixed costs such as setup time, the value in this field is used to calculate the standard cost and distribute the setup costs. During demand planning, this value is used together with the value in the Default Dampener % field to ignore negligible changes in demand and avoid re-planning. Note that if you leave the field blank, it will be threated as 1.';
                 }
+                field("Allow Whse. Overpick"; Rec."Allow Whse. Overpick")
+                {
+                    ApplicationArea = Manufacturing;
+                }
                 field("Production Blocked"; Rec."Production Blocked")
                 {
                     ApplicationArea = Manufacturing;
