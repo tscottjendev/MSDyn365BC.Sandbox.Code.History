@@ -13,6 +13,7 @@ using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Forecast;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.ProductionBOM;
+using System.Telemetry;
 using System.Utilities;
 
 table 99000765 "Manufacturing Setup"
@@ -176,6 +177,29 @@ table 99000765 "Manufacturing Setup"
         {
             Caption = 'Include Non-Inventory Items to Produced Items';
             ToolTip = 'Specifies whether to include the cost of non-inventory items in the cost of produced items.';
+
+            trigger OnValidate()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
+            begin
+                FeatureTelemetry.LogUptake('0000OMR', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+                if (Rec."Inc. Non. Inv. Cost To Prod") and (not xRec."Inc. Non. Inv. Cost To Prod") then
+                    FeatureTelemetry.LogUsage('0000OMS', GetFeatureTelemetryName(), StrSubstNo(FieldValueIsChangedToLbl, Rec.FieldCaption("Inc. Non. Inv. Cost To Prod"), Rec."Inc. Non. Inv. Cost To Prod"));
+            end;
+        }
+        field(260; "Load SKU Cost on Manufacturing"; Boolean)
+        {
+            Caption = 'Load SKU Cost on Manufacturing';
+            ToolTip = 'Specifies if you want to load SKU Cost in the item at the time of manufacturing.';
+
+            trigger OnValidate()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
+            begin
+                FeatureTelemetry.LogUptake('0000OMP', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+                if (Rec."Load SKU Cost on Manufacturing") and (not xRec."Load SKU Cost on Manufacturing") then
+                    FeatureTelemetry.LogUsage('0000OMQ', GetFeatureTelemetryName(), StrSubstNo(FieldValueIsChangedToLbl, Rec.FieldCaption("Load SKU Cost on Manufacturing"), Rec."Load SKU Cost on Manufacturing"));
+            end;
         }
         field(5500; "Preset Output Quantity"; Option)
         {
@@ -201,6 +225,8 @@ table 99000765 "Manufacturing Setup"
         RecordHasBeenRead: Boolean;
         FinishOrderWithoutOutputQst: Label 'You will not be able to disable %1 once you have enabled it.\\Do you want to continue?', Comment = '%1 = Field Caption';
         NotAllowedDisableFinishOrderWithoutOutputErr: Label 'You are not allowed to disable %1 once you have enabled it.', Comment = '%1 = Field Caption';
+        ManufacturingSetupFeatureTelemetryNameLbl: Label 'Manufacturing Setup', Locked = true;
+        FieldValueIsChangedToLbl: Label '%1 is changed to %2.', Comment = '%1 = Field Caption , %2 = Field Value';
 
     procedure GetRecordOnce()
     begin
@@ -222,5 +248,10 @@ table 99000765 "Manufacturing Setup"
             false)
         then
             Error('');
+    end;
+
+    local procedure GetFeatureTelemetryName(): Text
+    begin
+        exit(ManufacturingSetupFeatureTelemetryNameLbl);
     end;
 }

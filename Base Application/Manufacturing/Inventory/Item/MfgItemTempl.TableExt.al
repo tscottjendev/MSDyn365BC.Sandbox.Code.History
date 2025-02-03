@@ -68,15 +68,15 @@ tableextension 99000757 "Mfg. Item Templ." extends "Item Templ."
                 ValidateItemField(FieldNo("Order Tracking Policy"));
             end;
         }
-        field(99000779; "Material Cost - Non Inventory"; Decimal)
+        field(99000779; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
         {
             AutoFormatType = 2;
-            Caption = 'Material Cost - Non Inventory';
+            Caption = 'Single-Level Material Non-Inventory Cost';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
-                ValidateItemField(FieldNo("Material Cost - Non Inventory"));
+                ValidateItemField(FieldNo("Single-Lvl Mat. Non-Invt. Cost"));
             end;
         }
         field(99000780; "Allow Whse. Overpick"; Boolean)
