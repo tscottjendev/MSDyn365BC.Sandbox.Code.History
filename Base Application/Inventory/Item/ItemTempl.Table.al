@@ -656,6 +656,18 @@ table 1382 "Item Templ."
                 ValidateItemField(FieldNo("Scrap %"));
             end;
         }
+        field(5408; "Rolled-up Mat. Non-Invt. Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Rolled-up Material Non-Inventory Cost';
+            DataClassification = CustomerContent;
+            DecimalPlaces = 2 : 5;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Rolled-up Mat. Non-Invt. Cost"));
+            end;
+        }
         field(5409; "Inventory Value Zero"; Boolean)
         {
             Caption = 'Inventory Value Zero';
