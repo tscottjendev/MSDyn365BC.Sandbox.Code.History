@@ -6,6 +6,7 @@ namespace Microsoft.Inventory.Reports;
 
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.BOM.Tree;
+using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using System.Utilities;
 
@@ -79,6 +80,9 @@ report 5872 "BOM Cost Share Distribution"
                 column(MaterialCost; MaterialCost)
                 {
                 }
+                column(NonInventoryMaterialCost; NonInventoryMaterialCost)
+                {
+                }
                 column(CapacityCost; CapacityCost)
                 {
                 }
@@ -101,12 +105,16 @@ report 5872 "BOM Cost Share Distribution"
                         CurrReport.Break();
 
                     MaterialCost := TempBOMBuffer."Rolled-up Material Cost";
+                    if MfgCostCalMgmt.CanIncNonInvCostIntoProductionItem() then
+                        NonInventoryMaterialCost := TempBOMBuffer."Rolled-up Mat. Non-Invt. Cost";
+
                     CapacityCost := TempBOMBuffer."Rolled-up Capacity Cost";
                     SubcontrdCost := TempBOMBuffer."Rolled-up Subcontracted Cost";
                     MfgOvhdCost := TempBOMBuffer."Rolled-up Mfg. Ovhd Cost";
                     CapOvhdCost := TempBOMBuffer."Rolled-up Capacity Ovhd. Cost";
 
                     if (MaterialCost = 0) and
+                       (NonInventoryMaterialCost = 0) and
                        (CapacityCost = 0) and
                        (SubcontrdCost = 0) and
                        (CapOvhdCost = 0) and
@@ -180,6 +188,7 @@ report 5872 "BOM Cost Share Distribution"
         DirectCostCaption = 'Direct Cost';
         IndirectCostCaption = 'Indirect Cost';
         MaterialCostCaption = 'Material';
+        NonInventoryMaterialCostCaption = 'Non Inventory Material';
         CapacityCostCaption = 'Capacity';
         SubcontrdCostCaption = 'Subcontracted';
         CapOvhdCostCaption = 'Capacity Overhead';
@@ -197,11 +206,13 @@ report 5872 "BOM Cost Share Distribution"
         BOMBuffer: Record "BOM Buffer";
         TempBOMBuffer: Record "BOM Buffer" temporary;
         CalcBOMTree: Codeunit "Calculate BOM Tree";
+        MfgCostCalMgmt: Codeunit "Mfg. Cost Calculation Mgt.";
         ItemFilters: Text;
         ShowLevelAs: Option "First BOM Level","BOM Leaves";
         ShowDetails: Boolean;
         ShowCostShareAs: Option "Single-level","Rolled-up";
         MaterialCost: Decimal;
+        NonInventoryMaterialCost: Decimal;
         CapacityCost: Decimal;
         SubcontrdCost: Decimal;
         CapOvhdCost: Decimal;
@@ -290,7 +301,10 @@ report 5872 "BOM Cost Share Distribution"
         if TempBOMBuffer."Is Leaf" then
             exit(false);
         if ShowCostShareAs = ShowCostShareAs::"Single-level" then
-            exit(TempBOMBuffer."Single-Level Material Cost" = 0);
+            if MfgCostCalMgmt.CanIncNonInvCostIntoProductionItem() then
+                exit((TempBOMBuffer."Single-Level Material Cost" = 0) and (TempBOMBuffer."Single-Lvl Mat. Non-Invt. Cost" = 0))
+            else
+                exit(TempBOMBuffer."Single-Level Material Cost" = 0);
         exit(TempBOMBuffer."Single-Level Mfg. Ovhd Cost" = 0);
     end;
 
@@ -306,6 +320,7 @@ report 5872 "BOM Cost Share Distribution"
                     TempBOMBuffer.SetRange("No.", TempBOMBuffer."No.");
                     while TempBOMBuffer.Next() <> 0 do begin
                         CopyOfBOMBuffer.AddMaterialCost(TempBOMBuffer."Single-Level Material Cost", TempBOMBuffer."Rolled-up Material Cost");
+                        CopyOfBOMBuffer.AddNonInvMaterialCost(TempBOMBuffer."Single-Lvl Mat. Non-Invt. Cost", TempBOMBuffer."Rolled-up Mat. Non-Invt. Cost");
                         CopyOfBOMBuffer.AddCapacityCost(TempBOMBuffer."Single-Level Capacity Cost", TempBOMBuffer."Rolled-up Capacity Cost");
                         CopyOfBOMBuffer.AddSubcontrdCost(TempBOMBuffer."Single-Level Subcontrd. Cost", TempBOMBuffer."Rolled-up Subcontracted Cost");
                         CopyOfBOMBuffer.AddCapOvhdCost(TempBOMBuffer."Single-Level Cap. Ovhd Cost", TempBOMBuffer."Rolled-up Capacity Ovhd. Cost");

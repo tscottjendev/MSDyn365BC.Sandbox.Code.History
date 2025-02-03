@@ -6434,7 +6434,7 @@
 
     [Test]
     [HandlerFunctions('StrMenuHandler')]
-    procedure VerifyMaterialCostNonInventoryMustBeUpdatedInProductionItem()
+    procedure VerifySingleLvlMaterialNonInventoryCostMustBeUpdatedInProductionItem()
     var
         OutputItem: Record Item;
         NonInvItem: Record Item;
@@ -6443,7 +6443,7 @@
         Quantity: Decimal;
         NonInvUnitCost: Decimal;
     begin
-        // [SCENARIO 457878] Verify "Material Cost - Non Inventory" must be updated in production item When Non-Inventory item exist in Production BOM.
+        // [SCENARIO 457878] Verify "Single-Lvl Mat. Non-Invt. Cost" must be updated in production item When Non-Inventory item exist in Production BOM.
         Initialize();
 
         // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
@@ -6469,12 +6469,12 @@
         // [WHEN] Calculate Material Cost of Production Item.
         CalculateStdCost.CalcItem(OutputItem."No.", false);
 
-        // [THEN] Verify "Material Cost - Non Inventory" must be updated in production item.
+        // [THEN] Verify "Single-Lvl Mat. Non-Invt. Cost" must be updated in production item.
         OutputItem.Get(OutputItem."No.");
         Assert.AreEqual(
             NonInvUnitCost,
-            OutputItem."Material Cost - Non Inventory",
-            StrSubstNo(ValueMustBeEqualErr, OutputItem.FieldCaption("Material Cost - Non Inventory"), NonInvUnitCost, OutputItem.TableCaption()));
+            OutputItem."Single-Lvl Mat. Non-Invt. Cost",
+            StrSubstNo(ValueMustBeEqualErr, OutputItem.FieldCaption("Single-Lvl Mat. Non-Invt. Cost"), NonInvUnitCost, OutputItem.TableCaption()));
     end;
 
     [Test]
