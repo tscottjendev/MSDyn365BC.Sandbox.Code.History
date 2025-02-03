@@ -715,6 +715,13 @@ table 5700 "Stockkeeping Unit"
             MaxValue = 100;
             MinValue = 0;
         }
+        field(5408; "Rolled-up Mat. Non-Invt. Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Rolled-up Material Non-Inventory Cost';
+            DecimalPlaces = 2 : 5;
+            Editable = false;
+        }
     }
 
     keys

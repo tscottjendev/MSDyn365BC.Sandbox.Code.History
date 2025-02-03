@@ -367,10 +367,11 @@ tableextension 99000750 "Mfg. Item" extends Item
             Editable = false;
             FieldClass = FlowField;
         }
-        field(99000779; "Material Cost - Non Inventory"; Decimal)
+        field(99000779; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
         {
             AutoFormatType = 2;
-            Caption = 'Material Cost - Non Inventory';
+            Caption = 'Single-Level Material Non-Inventory Cost';
+            ToolTip = 'Specifies the total Non-inventory material cost of all components on the parent item''s BOM';
             DataClassification = CustomerContent;
             Editable = false;
         }
@@ -395,6 +396,7 @@ tableextension 99000750 "Mfg. Item" extends Item
 
     var
         InventorySetup: Record "Inventory Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         HideNonInventoryValidateOnStdCost: Boolean;
         NoActiveBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1.', Comment = '%1 - Item No.';
         ProductionBlockedOutputItemErr: Label 'You cannot produce %1 %2 because the %3 is %4 on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value';
@@ -513,6 +515,10 @@ tableextension 99000750 "Mfg. Item" extends Item
     procedure ShouldTryCostFromSKU(): Boolean
     begin
         if Rec."Costing Method" <> Rec."Costing Method"::Standard then
+            exit(false);
+
+        ManufacturingSetup.GetRecordOnce();
+        if not ManufacturingSetup."Load SKU Cost on Manufacturing" then
             exit(false);
 
         InventorySetup.GetRecordOnce();
