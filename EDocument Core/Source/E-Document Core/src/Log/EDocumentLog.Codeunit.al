@@ -6,6 +6,7 @@ namespace Microsoft.eServices.EDocument;
 
 using System.Telemetry;
 using System.Utilities;
+using Microsoft.eServices.EDocument.Processing.Import;
 
 codeunit 6132 "E-Document Log"
 {
@@ -16,6 +17,73 @@ codeunit 6132 "E-Document Log"
         tabledata "E-Doc. Mapping Log" = im,
         tabledata "E-Document Service Status" = im,
         tabledata "E-Document Integration Log" = im;
+
+    internal procedure SetFields(EDocument: Record "E-Document")
+    var
+        EDocumentService: Record "E-Document Service";
+    begin
+        SetFields(EDocument, EDocumentService);
+    end;
+
+    internal procedure SetFields(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service")
+    begin
+        Clear(this.EDocLog);
+        this.EDocLog.Validate("Document Type", EDocument."Document Type");
+        this.EDocLog.Validate("Document No.", EDocument."Document No.");
+        this.EDocLog.Validate("E-Doc. Entry No", EDocument."Entry No");
+#if not CLEAN26
+        this.EDocLog.Validate("Service Integration", EDocumentService."Service Integration");
+#endif
+        this.EDocLog.Validate("Service Integration V2", EDocumentService."Service Integration V2");
+        this.EDocLog.Validate("Service Code", EDocumentService.Code);
+        this.EDocLog.Validate("Document Format", EDocumentService."Document Format");
+    end;
+
+    internal procedure SetBlob(Name: Text[256]; Type: Enum "E-Doc. Data Storage Blob Type"; Content: Text)
+    var
+        OutStream: OutStream;
+    begin
+        Clear(this.TempDataStorageEntry);
+        this.TempDataStorageEntry.Name := Name;
+        this.TempDataStorageEntry."Data Type" := Type;
+        this.TempDataStorageEntry."Data Storage".CreateOutStream(OutStream, TextEncoding::UTF8);
+        this.TempDataStorageEntry."Data Storage Size" := StrLen(Content);
+        OutStream.WriteText(Content);
+    end;
+
+    internal procedure SetBlob(Name: Text[256]; Type: Enum "E-Doc. Data Storage Blob Type"; TempBlob: Codeunit "Temp Blob")
+    var
+        OutStream: OutStream;
+        InStream: InStream;
+    begin
+        Clear(this.TempDataStorageEntry);
+        this.TempDataStorageEntry.Name := Name;
+        this.TempDataStorageEntry."Data Type" := Type;
+        this.TempDataStorageEntry."Data Storage".CreateOutStream(OutStream, TextEncoding::UTF8);
+        this.TempDataStorageEntry."Data Storage Size" := TempBlob.Length();
+        TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
+        CopyStream(OutStream, InStream);
+    end;
+
+    internal procedure InsertLog(EDocumentServiceStatus: Enum "E-Document Service Status"): Record "E-Document Log";
+    begin
+        exit(this.InsertLog(EDocumentServiceStatus, Enum::"Import E-Doc. Proc. Status"::Unprocessed));
+    end;
+
+    internal procedure InsertLog(EDocumentServiceStatus: Enum "E-Document Service Status"; EDocumentProcStatus: Enum "Import E-Doc. Proc. Status"): Record "E-Document Log";
+    begin
+        // Reset these fields
+        this.EDocLog."E-Doc. Data Storage Entry No." := 0;
+        this.EDocLog."Entry No." := 0;
+
+        if this.TempDataStorageEntry."Data Storage Size" <> 0 then
+            this.EDocLog.Validate("E-Doc. Data Storage Entry No.", InsertDataStorage(this.TempDataStorageEntry));
+
+        this.EDocLog.Validate(Status, EDocumentServiceStatus);
+        this.EDocLog.Validate("Processing Status", EDocumentProcStatus);
+        this.EDocLog.Insert();
+        exit(this.EDocLog);
+    end;
 
     internal procedure InsertLog(EDocument: Record "E-Document"; EDocumentServiceStatus: Enum "E-Document Service Status"): Record "E-Document Log";
     var
@@ -34,17 +102,18 @@ codeunit 6132 "E-Document Log"
         exit(InsertLog(EDocument, EDocumentService, InsertDataStorage(TempBlob), EDocumentServiceStatus));
     end;
 
-    internal procedure InsertLog(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; EDocDataStorage: Record "E-Doc. Data Storage" temporary; EDocumentServiceStatus: Enum "E-Document Service Status"): Record "E-Document Log";
+    internal procedure InsertLog(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; EDocDataStorageEntryNo: Integer; EDocumentServiceStatus: Enum "E-Document Service Status"): Record "E-Document Log";
     begin
-        exit(InsertLog(EDocument, EDocumentService, InsertDataStorage(EDocDataStorage), EDocumentServiceStatus));
+        exit(InsertLog(EDocument, EDocumentService, EDocDataStorageEntryNo, EDocumentServiceStatus, Enum::"Import E-Doc. Proc. Status"::Unprocessed));
     end;
 
-    internal procedure InsertLog(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; EDocDataStorageEntryNo: Integer; EDocumentServiceStatus: Enum "E-Document Service Status") EDocumentLog: Record "E-Document Log";
+    internal procedure InsertLog(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; EDocDataStorageEntryNo: Integer; EDocumentServiceStatus: Enum "E-Document Service Status"; EDocumentProcStatus: Enum "Import E-Doc. Proc. Status") EDocumentLog: Record "E-Document Log";
     begin
         EDocumentLog.Validate("Document Type", EDocument."Document Type");
         EDocumentLog.Validate("Document No.", EDocument."Document No.");
         EDocumentLog.Validate("E-Doc. Entry No", EDocument."Entry No");
         EDocumentLog.Validate(Status, EDocumentServiceStatus);
+        EDocumentLog.Validate("Processing Status", EDocumentProcStatus);
 #if not CLEAN26
         EDocumentLog.Validate("Service Integration", EDocumentService."Service Integration");
 #endif
@@ -130,7 +199,7 @@ codeunit 6132 "E-Document Log"
         exit(EDocDataStorage."Entry No.");
     end;
 
-    internal procedure InsertDataStorage(TempEDocDataStorage: Record "E-Doc. Data Storage" temporary): Integer
+    local procedure InsertDataStorage(TempEDocDataStorage: Record "E-Doc. Data Storage" temporary): Integer
     var
         EDocDataStorage: Record "E-Doc. Data Storage";
     begin
@@ -139,8 +208,8 @@ codeunit 6132 "E-Document Log"
 
         EDocDataStorage.Copy(TempEDocDataStorage);
         EDocDataStorage."Entry No." := 0;
-        EDocDataStorage."Data Storage Size" := TempEDocDataStorage."Data Storage".Length();
         EDocDataStorage.Insert();
+        Clear(TempEDocDataStorage);
         exit(EDocDataStorage."Entry No.");
     end;
 
@@ -203,6 +272,8 @@ codeunit 6132 "E-Document Log"
     end;
 
     var
+        TempDataStorageEntry: Record "E-Doc. Data Storage" temporary;
+        EDocLog: Record "E-Document Log";
         EDocDataStorageAlreadySetErr: Label 'E-Doc. Data Storage can not be overwritten with new entry';
         EDocTelemetryGetLogFailureLbl: Label 'E-Document Blog Log Failure', Locked = true;
 

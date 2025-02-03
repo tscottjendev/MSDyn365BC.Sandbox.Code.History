@@ -47,7 +47,8 @@ codeunit 6147 "E-Document Import Job"
     begin
         EDocumentService.Get(Rec."Record ID to Process");
         EDocIntegrationMgt.ReceiveDocuments(EDocumentService, ReceiveContext);
-        EDocImport.ProcessReceivedDocuments(EDocumentService, EDocument);
+        if EDocumentService.IsAutomaticProcessingEnabled() then
+            EDocImport.ProcessReceivedDocuments(EDocumentService, EDocument);
     end;
 #endif
 }

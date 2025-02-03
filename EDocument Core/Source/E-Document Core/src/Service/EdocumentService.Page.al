@@ -299,6 +299,11 @@ page 6133 "E-Document Service"
         ReceiveContext: Codeunit ReceiveContext;
         EDocIntegration: Interface "E-Document Integration";
     begin
+        if (Rec."Import Process" = Rec."Import Process"::"Version 2.0") then begin
+            EDocImport.ReceiveAndProcess(Rec);
+            exit;
+        end;
+
         if Rec."Service Integration V2" <> Rec."Service Integration V2"::"No Integration" then begin
             EDocIntegrationMgt.ReceiveDocuments(Rec, ReceiveContext);
             EDocImport.ProcessReceivedDocuments(Rec, FailedEDocument);
@@ -320,6 +325,11 @@ page 6133 "E-Document Service"
         EDocImport: Codeunit "E-Doc. Import";
         ReceiveContext: Codeunit ReceiveContext;
     begin
+        if (Rec."Import Process" = Rec."Import Process"::"Version 2.0") then begin
+            EDocImport.ReceiveAndProcess(Rec);
+            exit;
+        end;
+
         EDocIntegrationMgt.ReceiveDocuments(Rec, ReceiveContext);
         EDocImport.ProcessReceivedDocuments(Rec, FailedEDocument);
 

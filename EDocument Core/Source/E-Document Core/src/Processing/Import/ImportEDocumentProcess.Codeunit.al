@@ -3,8 +3,12 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument.Processing;
+
 using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Import;
+using Microsoft.eServices.EDocument.Processing.Interfaces;
+using System.Utilities;
+using System.IO;
 
 codeunit 6104 "Import E-Document Process"
 {
@@ -14,12 +18,15 @@ codeunit 6104 "Import E-Document Process"
 
     trigger OnRun()
     var
-        EDocumentProcessing: Codeunit "E-Document Processing";
         NewStatus: Enum "Import E-Doc. Proc. Status";
     begin
         if EDocument."Entry No" = 0 then
             exit;
 
+        Clear(EDocumentLog);
+        EDocumentLog.SetFields(EDocument, EDocument.GetEDocumentService());
+
+        NewStatus := UndoStep ? GetStatusForStep(Step, true) : GetStatusForStep(Step, false);
         case Step of
             Step::"Structure received data":
                 if UndoStep then
@@ -42,18 +49,51 @@ codeunit 6104 "Import E-Document Process"
                 else
                     FinishDraft();
         end;
-        NewStatus := UndoStep ? GetStatusForStep(Step, true) : GetStatusForStep(Step, false);
+
+        EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, NewStatus);
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, NewStatus);
     end;
 
     local procedure StructureReceivedData()
+    var
+        //TempCreatedEDocumentDataStorageEntry: Record "E-Doc. Data Storage" temporary;
+        EDocumentDataStorage: Record "E-Doc. Data Storage";
+        EDocLog: Record "E-Document Log";
+        FileManagement: Codeunit "File Management";
+        FromBlob: Codeunit "Temp Blob";
+        IBlobType: Interface IBlobType;
+        IBlobToStructuredDataConverter: Interface IBlobToStructuredDataConverter;
+        NameWithoutExtension, Content : Text;
+        Name: Text[256];
+        //OutStream: OutStream;
+        NewType: Enum "E-Doc. Data Storage Blob Type";
     begin
+        EDocument.TestField("Unstructured Data Entry No.");
+        EDocumentDataStorage.Get(EDocument."Unstructured Data Entry No.");
 
+        IBlobType := EDocumentDataStorage."Data Type";
+        if IBlobType.IsStructured() then
+            exit;
+
+        FromBlob.FromRecord(EDocumentDataStorage, EDocumentDataStorage.FieldNo("Data Storage"));
+
+        if not IBlobType.HasConverter() then
+            Error(UnstructuredBlobTypeWithNoConverterErr);
+
+        IBlobToStructuredDataConverter := IBlobType.GetStructuredDataConverter();
+        Content := IBlobToStructuredDataConverter.Convert(FromBlob, EDocumentDataStorage."Data Type", NewType);
+
+        NameWithoutExtension := FileManagement.GetFileNameWithoutExtension(EDocumentDataStorage.Name);
+        Name := CopyStr(NameWithoutExtension + '.' + LowerCase(Format(NewType)), 1, 256);
+        EDocumentLog.SetBlob(Name, NewType, Content);
+        EDocument.Validate("Structured Data Entry No.", EDocLog."E-Doc. Data Storage Entry No.");
+        EDocument.Modify();
     end;
 
     local procedure UndoStructureReceivedData()
     begin
-
+        EDocument."Structured Data Entry No." := 0;
+        EDocument.Modify();
     end;
 
     local procedure ReadIntoIR()
@@ -86,9 +126,9 @@ codeunit 6104 "Import E-Document Process"
 
     end;
 
-    procedure ConfigureImportRun(NewEDocument: Record "E-Document"; NewStep: Enum "Import E-Document Steps"; NewUndoStep: Boolean)
+    procedure ConfigureImportRun(EDocument: Record "E-Document"; NewStep: Enum "Import E-Document Steps"; NewUndoStep: Boolean)
     begin
-        EDocument := NewEDocument;
+        this.EDocument := EDocument;
         Step := NewStep;
         UndoStep := NewUndoStep;
     end;
@@ -155,6 +195,9 @@ codeunit 6104 "Import E-Document Process"
 
     var
         EDocument: Record "E-Document";
+        EDocumentLog: Codeunit "E-Document Log";
+        EDocumentProcessing: Codeunit "E-Document Processing";
         Step: Enum "Import E-Document Steps";
         UndoStep: Boolean;
+        UnstructuredBlobTypeWithNoConverterErr: Label 'Cant process E-Document as data type does not have a converter implemented.';
 }

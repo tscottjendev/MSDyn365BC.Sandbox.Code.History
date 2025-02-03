@@ -201,6 +201,7 @@ table 6121 "E-Document"
             ToolTip = 'Specifies the service that is used to process the E-Document.';
             Editable = false;
             TableRelation = "E-Document Service";
+            ValidateTableRelation = true;
         }
         field(35; "File Name"; Text[256])
         {
@@ -321,6 +322,8 @@ table 6121 "E-Document"
 
     internal procedure GetEDocumentService() EDocumentService: Record "E-Document Service"
     begin
+        if EDocumentService.Get(Rec.Service) then
+            exit;
         if EDocumentService.Get(GetEDocumentServiceStatus()."E-Document Service Code") then;
     end;
 

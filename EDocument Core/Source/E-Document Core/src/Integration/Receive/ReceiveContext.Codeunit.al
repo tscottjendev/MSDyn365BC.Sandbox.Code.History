@@ -36,7 +36,15 @@ codeunit 6186 ReceiveContext
     /// </summary>
     procedure SetName(Name: Text[256])
     begin
-        this.TempEDocDataStorage.Name := Name;
+        this.Name := Name;
+    end;
+
+    /// <summary>
+    /// Retrieves the name of the E-Document content.
+    /// </summary>
+    internal procedure GetName(): Text[256]
+    begin
+        exit(this.Name);
     end;
 
     /// <summary>
@@ -44,7 +52,15 @@ codeunit 6186 ReceiveContext
     /// </summary>
     procedure SetType(Type: Enum "E-Doc. Data Storage Blob Type")
     begin
-        this.TempEDocDataStorage."Data Type" := Type;
+        this.Type := Type;
+    end;
+
+    /// <summary>
+    /// Get the type of the E-Document content.
+    /// </summary>
+    internal procedure GetType(): Enum "E-Doc. Data Storage Blob Type"
+    begin
+        exit(this.Type);
     end;
 
     /// <summary>
@@ -63,24 +79,11 @@ codeunit 6186 ReceiveContext
         exit(this.IntegrationActionStatus);
     end;
 
-    internal procedure GetDataStorage(var DataStorage: Record "E-Doc. Data Storage" temporary)
     var
-        OutStream: OutStream;
-        InStream: InStream;
-    begin
-        if TempBlob.HasValue() then begin
-            TempBlob.CreateInStream(InStream);
-            this.TempEDocDataStorage."Data Storage".CreateOutStream(OutStream);
-            this.TempEDocDataStorage."Data Storage Size" := TempBlob.Length();
-            CopyStream(OutStream, InStream);
-        end;
-        DataStorage.Copy(this.TempEDocDataStorage);
-    end;
-
-    var
-        TempEDocDataStorage: Record "E-Doc. Data Storage" temporary;
         TempBlob: Codeunit "Temp Blob";
         HttpMessageState: Codeunit "Http Message State";
         IntegrationActionStatus: Codeunit "Integration Action Status";
+        Name: Text[256];
+        Type: Enum "E-Doc. Data Storage Blob Type";
 
 }

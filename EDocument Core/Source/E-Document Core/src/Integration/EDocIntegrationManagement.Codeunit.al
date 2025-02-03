@@ -10,6 +10,7 @@ using Microsoft.eServices.EDocument.Integration.Receive;
 using Microsoft.eServices.EDocument.Integration.Send;
 using Microsoft.eServices.EDocument.Integration.Interfaces;
 using Microsoft.eServices.EDocument.Integration.Action;
+using Microsoft.eServices.EDocument.Processing.Interfaces;
 
 codeunit 6134 "E-Doc. Integration Management"
 {
@@ -183,12 +184,16 @@ codeunit 6134 "E-Doc. Integration Management"
             EDocument."Entry No" := 0;
             EDocument."Index In Batch" := Index;
             EDocument.Direction := EDocument.Direction::Incoming;
+            EDocument.Service := EDocumentService.Code;
             EDocument.Insert();
+
+            EDocumentLog.SetFields(EDocument, EDocumentService);
 
             DocumentsMetadata.Get(Index, DocumentMetadata);
             if ReceiveSingleDocument(EDocument, EDocumentService, DocumentMetadata, IDocumentReceiver) then begin
-                // Insert shared data for all imported documents                
-                EDocumentLog.InsertLog(EDocument, EDocumentService, DocumentMetadata, Enum::"E-Document Service Status"::"Batch Imported");
+                // Insert shared data for all imported documents        
+                EDocumentLog.SetBlob(EDocument."File Name", EDocument."File Type", DocumentMetadata);
+                EDocumentLog.InsertLog(Enum::"E-Document Service Status"::"Batch Imported");
                 EDocumentLog.InsertIntegrationLog(EDocument, EDocumentService, ReceiveContext.Http().GetHttpRequestMessage(), ReceiveContext.Http().GetHttpResponseMessage());
             end else
                 EDocument.Delete();
@@ -198,8 +203,8 @@ codeunit 6134 "E-Doc. Integration Management"
     local procedure ReceiveSingleDocument(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; DocumentMetadata: Codeunit "Temp Blob"; IDocumentReceiver: Interface IDocumentReceiver): Boolean
     var
         EDocLog: Record "E-Document Log";
-        TempEDocDataStorage: Record "E-Doc. Data Storage" temporary;
         ReceiveContext, FetchContextImpl : Codeunit ReceiveContext;
+        IBlobType: Interface IBlobType;
         ErrorCount: Integer;
         Success, IsFetchableType : Boolean;
     begin
@@ -226,18 +231,21 @@ codeunit 6134 "E-Doc. Integration Management"
 
         // Only after sucecssfully downloading and (optionally) marking as fetched, the document is considered imported
         // Insert logs for downloading document
-        ReceiveContext.GetDataStorage(TempEDocDataStorage);
-        EDocLog := EDocumentLog.InsertLog(EDocument, EDocumentService, TempEDocDataStorage, ReceiveContext.Status().GetStatus());
+        EDocumentLog.SetBlob(ReceiveContext.GetName(), ReceiveContext.GetType(), ReceiveContext.GetTempBlob());
+        EDocLog := EDocumentLog.InsertLog(ReceiveContext.Status().GetStatus());
+
         EDocumentProcessing.InsertServiceStatus(EDocument, EDocumentService, ReceiveContext.Status().GetStatus());
         EDocumentProcessing.ModifyEDocumentStatus(EDocument, ReceiveContext.Status().GetStatus());
         EDocumentLog.InsertIntegrationLog(EDocument, EDocumentService, ReceiveContext.Http().GetHttpRequestMessage(), ReceiveContext.Http().GetHttpResponseMessage());
 
-        if TempEDocDataStorage."Is Structured" then
+        IBlobType := ReceiveContext.GetType();
+        if IBlobType.IsStructured() then
             EDocument."Structured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No."
         else
             EDocument."Unstructured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
-        EDocument."File Name" := TempEDocDataStorage.Name;
-        EDocument."File Type" := TempEDocDataStorage."Data Type";
+
+        EDocument."File Name" := ReceiveContext.GetName();
+        EDocument."File Type" := ReceiveContext.GetType();
         EDocument.Modify();
 
         // Insert logs for marking document as fetched

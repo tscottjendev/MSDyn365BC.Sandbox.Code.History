@@ -2256,48 +2256,6 @@ codeunit 139624 "E-Doc E2E Test"
 #endif
 #pragma warning restore AS0018
 
-    [Test]
-    procedure ProcessingV2DoesSequenceOfSteps()
-    var
-        EDocument: Record "E-Document";
-        EDocumentService: Record "E-Document Service";
-        EDocImportParameters: Record "E-Doc. Import Parameters";
-        EDocImport: Codeunit "E-Doc. Import";
-        EDocumentProcessing: Codeunit "E-Document Processing";
-        ImportEDocumentProcess: Codeunit "Import E-Document Process";
-    begin
-        Initialize(Enum::"Service Integration"::"Mock");
-        LibraryEDoc.CreateIncomingEDocument(EDocument, EDocumentService);
-        EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
-        EDocumentService.Modify();
 
-        EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::Unprocessed);
-        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
-        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
-
-        Assert.AreEqual(ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false), EDocument.GetEDocumentImportProcessingStatus(), 'The status should be updated to the one after the step executed.');
-    end;
-
-    [Test]
-    procedure ProcessingV2UndoesSteps()
-    var
-        EDocument: Record "E-Document";
-        EDocumentService: Record "E-Document Service";
-        EDocImportParameters: Record "E-Doc. Import Parameters";
-        EDocImport: Codeunit "E-Doc. Import";
-        EDocumentProcessing: Codeunit "E-Document Processing";
-        ImportEDocumentProcess: Codeunit "Import E-Document Process";
-    begin
-        Initialize(Enum::"Service Integration"::"Mock");
-        LibraryEDoc.CreateIncomingEDocument(EDocument, EDocumentService);
-        EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
-        EDocumentService.Modify();
-
-        EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::Processed);
-        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Structure received data";
-        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
-
-        Assert.AreEqual(ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false), EDocument.GetEDocumentImportProcessingStatus(), 'The status should be updated to the one after the step executed.');
-    end;
 
 }

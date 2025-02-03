@@ -3,19 +3,18 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
-
-using Microsoft.eServices.EDocument.Processing.Interfaces;
 using Microsoft.eServices.EDocument.Processing.Import;
+using Microsoft.eServices.EDocument.Processing.Interfaces;
 
 /// <summary>
 /// E-Document Data Storage Blob Type
 /// This enum specifies the type of the binary data stored in the E-Document Data Storage table.
 /// </summary>
-enum 6109 "E-Doc. Data Storage Blob Type" implements IBlobConverter
+enum 6109 "E-Doc. Data Storage Blob Type" implements IBlobType
 {
     Access = Public;
     Extensible = true;
-    DefaultImplementation = IBlobConverter = "E-Doc. No Blob Conversion";
+    DefaultImplementation = IBlobType = "E-Doc. Default Blob Type";
 
     value(0; "Unspecified")
     {
@@ -24,7 +23,7 @@ enum 6109 "E-Doc. Data Storage Blob Type" implements IBlobConverter
     value(1; "PDF")
     {
         Caption = 'PDF';
-        Implementation = IBlobConverter = "E-Document OCR Converter";
+        Implementation = IBlobType = "E-Doc. PDF Blob Type";
     }
     value(2; "XML")
     {

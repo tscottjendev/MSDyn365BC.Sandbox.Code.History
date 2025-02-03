@@ -4,22 +4,29 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument.Processing.Import;
 
-using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
-using System.Utilities;
 
 /// <summary>
-/// E-Document No Blob Conversion
-/// This codeunit is default implementation of the IBlobConverter interface.
+/// Pass through blob converter for E-Documents.
+/// This codeunit is default implementation of the IBlobToStructuredDataConverter interface.
 /// </summary>
-codeunit 6172 "E-Doc. No Blob Conversion" implements IBlobConverter
+codeunit 6105 "E-Doc. Default Blob Type" implements IBlobType
 {
     Access = Internal;
 
-    procedure ConvertToStructuredType(EDocument: Record "E-Document"; Tempblob: Codeunit "Temp Blob"; var Content: Text) NewType: Enum "E-Doc. Data Storage Blob Type"
+    procedure IsStructured(): Boolean
     begin
-        Content := '';
-        NewType := Enum::"E-Doc. Data Storage Blob Type"::Unspecified;
+        exit(true);
+    end;
+
+    procedure HasConverter(): Boolean
+    begin
+        exit(false);
+    end;
+
+    procedure GetStructuredDataConverter(): Interface IBlobToStructuredDataConverter
+    begin
+        // Empty by design
     end;
 
 }
