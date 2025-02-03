@@ -201,7 +201,6 @@ table 5767 "Warehouse Activity Line"
         {
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
-            Editable = false;
 
             trigger OnValidate()
             var
@@ -211,6 +210,8 @@ table 5767 "Warehouse Activity Line"
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
                 "Qty. (Base)" := CalcBaseQty(QuantityNotRounded, FieldCaption(Quantity), FieldCaption("Qty. (Base)"));
                 Validate("Qty. Outstanding", (QuantityNotRounded - "Qty. Handled"));
+
+                UpdateQtyOnRelatedPlaceLine(Rec, xRec);
             end;
         }
         field(21; "Qty. (Base)"; Decimal)
@@ -977,7 +978,7 @@ table 5767 "Warehouse Activity Line"
 #pragma warning restore AA0074
         ValidValuesIfSNDefinedErr: Label 'Field %1 can only have values -1, 0 or 1 when serial no. is defined. Current value is %2.', Comment = '%1 = field name, %2 = field value';
         NotEnoughQtyToPickMsg: Label 'Quantity available to pick is not enough.';
-
+        OutstandingQtyCannotbeLessThanZeroErr: Label 'Outstanding Qty. base cannot be less than 0.';
 
     procedure CalcQty(QtyBase: Decimal): Decimal
     begin
@@ -3086,6 +3087,54 @@ table 5767 "Warehouse Activity Line"
 
         WarehouseActivityHeader."Do Not Fill Qty. to Handle" := false;
         WarehouseActivityHeader.Modify();
+    end;
+
+    local procedure UpdateQtyOnRelatedPlaceLine(FromWhseActivityLine: Record "Warehouse Activity Line"; xWhseActivityLine: Record "Warehouse Activity Line")
+    var
+        Item: Record Item;
+        WhseActivityLine: Record "Warehouse Activity Line";
+    begin
+        if CurrFieldNo = 0 then
+            exit;
+
+        if FromWhseActivityLine."Source Document" <> FromWhseActivityLine."Source Document"::"Prod. Consumption" then
+            exit;
+
+        if FromWhseActivityLine."Activity Type" <> FromWhseActivityLine."Activity Type"::Pick then
+            exit;
+
+        if (xWhseActivityLine.Quantity = 0) and (FromWhseActivityLine.Quantity <> 0) then
+            exit;
+
+        if (xWhseActivityLine.Quantity <> 0) and (FromWhseActivityLine.Quantity = 0) then
+            FromWhseActivityLine.TestField(Quantity);
+
+        if FromWhseActivityLine."Qty. Outstanding (Base)" < 0 then
+            Error(OutstandingQtyCannotbeLessThanZeroErr);
+
+        Item.SetLoadFields("No.", "Allow Whse. Overpick");
+        Item.Get(FromWhseActivityLine."Item No.");
+        Item.TestField("Allow Whse. Overpick");
+
+        WhseActivityLine.SetLoadFields("Activity Type", "No.", "Line No.", "Item No.", "Variant Code", "Location Code", "Action Type", Quantity, "Lot No.", "Serial No.", "Source No.", "Source Line No.", "Source Document");
+        WhseActivityLine.SetRange("Activity Type", FromWhseActivityLine."Activity Type");
+        WhseActivityLine.SetRange("No.", FromWhseActivityLine."No.");
+        WhseActivityLine.SetFilter("Line No.", '<>%1', FromWhseActivityLine."Line No.");
+        WhseActivityLine.SetRange("Item No.", FromWhseActivityLine."Item No.");
+        WhseActivityLine.SetRange("Variant Code", FromWhseActivityLine."Variant Code");
+        WhseActivityLine.SetRange("Location Code", FromWhseActivityLine."Location Code");
+        WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Place);
+        WhseActivityLine.SetRange(Quantity, xWhseActivityLine.Quantity);
+        WhseActivityLine.SetRange("Lot No.", FromWhseActivityLine."Lot No.");
+        WhseActivityLine.SetRange("Serial No.", FromWhseActivityLine."Serial No.");
+        WhseActivityLine.SetRange("Source Document", FromWhseActivityLine."Source Document");
+        WhseActivityLine.SetRange("Source No.", FromWhseActivityLine."Source No.");
+        WhseActivityLine.SetRange("Source Line No.", FromWhseActivityLine."Source Line No.");
+
+        WhseActivityLine.FindFirst();
+
+        WhseActivityLine.Validate(Quantity, FromWhseActivityLine.Quantity);
+        WhseActivityLine.Modify(true);
     end;
 
     [IntegrationEvent(false, false)]
