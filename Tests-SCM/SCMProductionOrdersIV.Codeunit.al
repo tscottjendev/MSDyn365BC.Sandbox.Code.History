@@ -17,17 +17,37 @@ codeunit 137083 "SCM Production Orders IV"
         LibraryCosting: Codeunit "Library - Costing";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        ShowLevelAs: Option "First BOM Level","BOM Leaves";
+        ShowCostShareAs: Option "Single-level","Rolled-up";
         IsInitialized: Boolean;
+        ItemNoLbl: Label 'ItemNo';
+        TotalCostLbl: Label 'TotalCost';
+        CapOvhdCostLbl: Label 'CapOvhdCost';
+        MfgOvhdCostLbl: Label 'MfgOvhdCost';
+        MaterialCostLbl: Label 'MaterialCost';
+        CapacityCostLbl: Label 'CapacityCost';
+        SubcontrdCostLbl: Label 'SubcontrdCost';
+        NonInventoryMaterialCostLbl: Label 'NonInventoryMaterialCost';
         MissingAccountTxt: Label '%1 is missing in %2.', Comment = '%1 = Field caption, %2 = Table Caption';
         FieldMustBeEditableErr: Label '%1 must be editable in %2', Comment = ' %1 = Field Name , %2 = Page Name';
         FieldMustNotBeEditableErr: Label '%1 must not be editable in %2', Comment = ' %1 = Field Name , %2 = Page Name';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
         EntryMustBeEqualErr: Label '%1 must be equal to %2 for Entry No. %3 in the %4.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Entry No., %4 = Table Caption';
         CannotFinishProductionLineErr: Label 'You cannot finish line %1 on %2 %3. It has consumption or capacity posted with no output.', Comment = '%1 = Production Order Line No. , %2 = Table Caption , %3 = Production Order No.';
+        MaterialCostMustBeEqualErr: Label 'Material Cost must be equal to %1 in item %2', Comment = ' %1 = Expected Value , %2 = Item No.';
+        CapacityCostMustBeEqualErr: Label 'Capacity Cost must be equal to %1 in item %2', Comment = ' %1 = Expected Value , %2 = Item No.';
+        SubcontractedCostMustBeEqualErr: Label 'Subcontracted Cost must be equal to %1 in item %2', Comment = ' %1 = Expected Value , %2 = Item No.';
+        MfgOverheadCostMustBeEqualErr: Label 'Mfg. Overhead Cost must be equal to %1 in item %2', Comment = ' %1 = Expected Value , %2 = Item No.';
+        CapacityOverheadCostMustBeEqualErr: Label 'Capacity Overhead Cost must be equal to %1 in item %2', Comment = ' %1 = Expected Value , %2 = Item No.';
+        NonInvMaterialCostMustBeEqualErr: Label 'Non Inventory Material Cost must be equal to %1 in item %2', Comment = ' %1 = Expected Value , %2 = Item No.';
+        TotalCostMustBeEqualErr: Label 'Total Cost must be equal to %1 in item %2', Comment = ' %1 = Expected Value , %2 = Item No.';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
@@ -818,6 +838,550 @@ codeunit 137083 "SCM Production Orders IV"
         Assert.ExpectedError(StrSubstNo(CannotFinishProductionLineErr, ProdOrderLine."Line No.", ProductionOrder.TableCaption(), ProdOrderLine."Prod. Order No."));
     end;
 
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure VerifyMaterialCostNonInventoryValueMustBeShownInBOMCostSharesForProductionItem()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        BOMCostShares: TestPage "BOM Cost Shares";
+        Quantity: Decimal;
+        NonInvUnitCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify "Material Cost - Non Inventory" must be shown in "BOM Cost Shares" page for production item When Non-Inventory item exist in Production BOM.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOM(OutputItem, NonInvItem, ProductionBOMHeader);
+
+        // [GIVEN] Save Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, Quantity, NonInvUnitCost);
+
+        // [GIVEN] Update "Costing Method" Standard in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Modify();
+
+        // [GIVEN] Calculate Material Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [WHEN] Set Value of Item Filter in BOM Cost Shares Page.
+        BOMCostShares.OpenView();
+        BOMCostShares.ItemFilter.SetValue(OutputItem."No.");
+
+        // [THEN] Verify "Material Cost - Non Inventory" must be shown in "BOM Cost Shares" page.
+        BOMCostShares."Rolled-up Mat. Non-Invt. Cost".AssertEquals(NonInvUnitCost);
+        BOMCostShares."Total Cost".AssertEquals(NonInvUnitCost);
+
+        // [THEN] Verify Material Costs fields in Output item.
+        OutputItem.Get(OutputItem."No.");
+        VerifyCostFieldsInItem(OutputItem, NonInvUnitCost, 0, 0, NonInvUnitCost, NonInvUnitCost, 0, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure VerifyMaterialCostNonInventoryValueMustBeShownInBOMCostSharesForProductionItemWithTwoComponents()
+    var
+        OutputItem: Record Item;
+        SemiOutputItem: Record Item;
+        NonInvItem1: Record Item;
+        NonInvItem2: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        BOMCostShares: TestPage "BOM Cost Shares";
+        Quantity: Decimal;
+        NonInvUnitCost1: Decimal;
+        NonInvUnitCost2: Decimal;
+    begin
+        // [SCENARIO 457878] Verify "Material Cost - Non Inventory" must be shown in "BOM Cost Shares" page for production item When Non-Inventory and production item exist in Production BOM.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create Semi Production Item, Non-Inventory Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOM(SemiOutputItem, NonInvItem1, ProductionBOMHeader);
+
+        // [GIVEN] Save Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost1 := LibraryRandom.RandIntInRange(20, 20);
+        NonInvUnitCost2 := LibraryRandom.RandIntInRange(30, 30);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem1, Quantity, NonInvUnitCost1);
+
+        // [GIVEN] Update "Costing Method" Standard in Semi-Production item.
+        SemiOutputItem.Validate("Costing Method", SemiOutputItem."Costing Method"::Standard);
+        SemiOutputItem.Modify();
+
+        // [GIVEN] Calculate Material Cost of Semi-Production Item.
+        CalculateStdCost.CalcItem(SemiOutputItem."No.", false);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item and Production BOM contains Non-Inventory item, Semi-Production item.
+        CreateProductionItemWithNonInvItemAndProductionBOMWithTwoComponent(OutputItem, NonInvItem2, SemiOutputItem);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem2, Quantity, NonInvUnitCost2);
+
+        // [GIVEN] Update "Costing Method" Standard in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Modify();
+
+        // [GIVEN] Calculate Material Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [WHEN] Set Value of Item Filter in BOM Cost Shares Page.
+        BOMCostShares.OpenView();
+        BOMCostShares.ItemFilter.SetValue(OutputItem."No.");
+
+        // [THEN] Verify "Material Cost - Non Inventory" must be shown in "BOM Cost Shares" page for production item When Non-Inventory and production item exist in Production BOM.
+        BOMCostShares."Rolled-up Mat. Non-Invt. Cost".AssertEquals(NonInvUnitCost1 + NonInvUnitCost2);
+        BOMCostShares."Total Cost".AssertEquals(NonInvUnitCost1 + NonInvUnitCost2);
+
+        // [THEN] Verify Material Costs fields in Output item.
+        OutputItem.Get(OutputItem."No.");
+        VerifyCostFieldsInItem(OutputItem, NonInvUnitCost1 + NonInvUnitCost2, NonInvUnitCost1, 0, NonInvUnitCost2, NonInvUnitCost1 + NonInvUnitCost2, 0, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure VerifyMaterialCostNonInventoryValueMustBeShownInBOMCostSharesForProductionItemWithThreeComponents()
+    var
+        OutputItem: Record Item;
+        SemiOutputItem: Record Item;
+        NonInvItem1: Record Item;
+        NonInvItem2: Record Item;
+        CompItem: array[2] of Record Item;
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        BOMCostShares: TestPage "BOM Cost Shares";
+        Quantity: Decimal;
+        NonInvUnitCost1: Decimal;
+        NonInvUnitCost2: Decimal;
+        CompUnitCost1: Decimal;
+        CompUnitCost2: Decimal;
+        ExpectedStandardCost: Decimal;
+        ExpectedSLMatCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify "Material Cost - Non Inventory" must be shown in "BOM Cost Shares" page for production item When Non-Inventory, component and production item exist in Production BOM.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create component items.
+        LibraryInventory.CreateItem(CompItem[1]);
+        LibraryInventory.CreateItem(CompItem[2]);
+
+        // [GIVEN] Create Semi Production Item, Non-Inventory Item and Production BOM contains Non-Inventory item and component item.
+        CreateProductionItemWithNonInvItemAndProductionBOMWithTwoComponent(SemiOutputItem, NonInvItem1, CompItem[1]);
+
+        // [GIVEN] Save Quantity, Component and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost1 := LibraryRandom.RandIntInRange(50, 50);
+        NonInvUnitCost2 := LibraryRandom.RandIntInRange(20, 20);
+        CompUnitCost1 := LibraryRandom.RandIntInRange(30, 30);
+        CompUnitCost2 := LibraryRandom.RandIntInRange(40, 40);
+        ExpectedStandardCost := NonInvUnitCost1 + NonInvUnitCost2 + CompUnitCost1 + CompUnitCost2;
+        ExpectedSLMatCost := NonInvUnitCost1 + CompUnitCost1 + CompUnitCost2;
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory and component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem1, Quantity, NonInvUnitCost1);
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem[1], Quantity, CompUnitCost1);
+
+        // [GIVEN] Update "Costing Method" Standard in Production item.
+        SemiOutputItem.Validate("Costing Method", SemiOutputItem."Costing Method"::Standard);
+        SemiOutputItem.Modify();
+
+        // [GIVEN] Calculate Material Cost of Semi-Production Item.
+        CalculateStdCost.CalcItem(SemiOutputItem."No.", false);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item and Production BOM contains Non-Inventory item, Semi-Production and component item.
+        CreateProductionItemWithNonInvItemAndProductionBOMWithThreeComponent(OutputItem, NonInvItem2, SemiOutputItem, CompItem[2]);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory and component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem2, Quantity, NonInvUnitCost2);
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem[2], Quantity, CompUnitCost2);
+
+        // [GIVEN] Update "Costing Method" Standard in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Modify();
+
+        // [GIVEN] Calculate Material Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [WHEN] Set Value of Item Filter in BOM Cost Shares Page.
+        BOMCostShares.OpenView();
+        BOMCostShares.ItemFilter.SetValue(OutputItem."No.");
+
+        // [THEN] Verify "Material Cost - Non Inventory" must be shown in "BOM Cost Shares" page for production item When Non-Inventory, component and production item exist in Production BOM.
+        BOMCostShares."Rolled-up Mat. Non-Invt. Cost".AssertEquals(NonInvUnitCost1 + NonInvUnitCost2);
+        BOMCostShares."Total Cost".AssertEquals(NonInvUnitCost1 + NonInvUnitCost2 + CompUnitCost1 + CompUnitCost2);
+
+        // [THEN] Verify Material Costs fields in Semi-Output item.
+        SemiOutputItem.Get(SemiOutputItem."No.");
+        VerifyCostFieldsInItem(SemiOutputItem, NonInvUnitCost1 + CompUnitCost1, CompUnitCost1, CompUnitCost1, NonInvUnitCost1, NonInvUnitCost1, 0, 0);
+
+        // [THEN] Verify Material Costs fields in Output item.
+        OutputItem.Get(OutputItem."No.");
+        VerifyCostFieldsInItem(OutputItem, ExpectedStandardCost, ExpectedSLMatCost, CompUnitCost1 + CompUnitCost2, NonInvUnitCost2, NonInvUnitCost1 + NonInvUnitCost2, 0, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure VerifySingleAndRolledCostFieldsWithIndirectPercentageForProductionItem()
+    var
+        OutputItem: Record Item;
+        SemiOutputItem: Record Item;
+        NonInvItem1: Record Item;
+        NonInvItem2: Record Item;
+        CompItem: array[2] of Record Item;
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        BOMCostShares: TestPage "BOM Cost Shares";
+        ExpectedOvhdCost: Decimal;
+        Quantity: Decimal;
+        NonInvUnitCost1: Decimal;
+        NonInvUnitCost2: Decimal;
+        CompUnitCost1: Decimal;
+        CompUnitCost2: Decimal;
+        IndirectCostPer: Decimal;
+        ExpectedStandardCost: Decimal;
+        ExpectedSLMatCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify "Single-Level" and "Rolled-up" fields with "Indirect Cost %" for production item.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create component items.
+        LibraryInventory.CreateItem(CompItem[1]);
+        LibraryInventory.CreateItem(CompItem[2]);
+
+        // [GIVEN] Create Semi Production Item, Non-Inventory Item and Production BOM contains Non-Inventory item and component item.
+        CreateProductionItemWithNonInvItemAndProductionBOMWithTwoComponent(SemiOutputItem, NonInvItem1, CompItem[1]);
+
+        // [GIVEN] Save Quantity, Component, Indirect% and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost1 := LibraryRandom.RandIntInRange(50, 50);
+        NonInvUnitCost2 := LibraryRandom.RandIntInRange(20, 20);
+        CompUnitCost1 := LibraryRandom.RandIntInRange(30, 30);
+        CompUnitCost2 := LibraryRandom.RandIntInRange(40, 40);
+        IndirectCostPer := LibraryRandom.RandIntInRange(10, 10);
+        ExpectedOvhdCost := (NonInvUnitCost1 + NonInvUnitCost2 + CompUnitCost1 + CompUnitCost2) * IndirectCostPer / 100;
+        ExpectedStandardCost := NonInvUnitCost1 + NonInvUnitCost2 + CompUnitCost1 + CompUnitCost2 + ExpectedOvhdCost;
+        ExpectedSLMatCost := NonInvUnitCost1 + CompUnitCost1 + CompUnitCost2;
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory and component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem1, Quantity, NonInvUnitCost1);
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem[1], Quantity, CompUnitCost1);
+
+        // [GIVEN] Update "Costing Method" Standard in Production item.
+        SemiOutputItem.Validate("Costing Method", SemiOutputItem."Costing Method"::Standard);
+        SemiOutputItem.Modify();
+
+        // [GIVEN] Calculate Material Cost of Semi-Production Item.
+        CalculateStdCost.CalcItem(SemiOutputItem."No.", false);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item and Production BOM contains Non-Inventory item, Semi-Production and component item.
+        CreateProductionItemWithNonInvItemAndProductionBOMWithThreeComponent(OutputItem, NonInvItem2, SemiOutputItem, CompItem[2]);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory and component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem2, Quantity, NonInvUnitCost2);
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem[2], Quantity, CompUnitCost2);
+
+        // [GIVEN] Update "Costing Method" Standard and "Indirect Cost %" in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Validate("Indirect Cost %", IndirectCostPer);
+        OutputItem.Modify();
+
+        // [GIVEN] Calculate Material Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [WHEN] Set Value of Item Filter in BOM Cost Shares Page.
+        BOMCostShares.OpenView();
+        BOMCostShares.ItemFilter.SetValue(OutputItem."No.");
+
+        // [THEN] Verify "Total Cost" must be shown in "BOM Cost Shares" page for production item.
+        BOMCostShares."Total Cost".AssertEquals(NonInvUnitCost1 + NonInvUnitCost2 + CompUnitCost1 + CompUnitCost2 + ExpectedOvhdCost);
+
+        // [THEN] Verify Costs fields in Semi-Output item.
+        SemiOutputItem.Get(SemiOutputItem."No.");
+        VerifyCostFieldsInItem(SemiOutputItem, NonInvUnitCost1 + CompUnitCost1, CompUnitCost1, CompUnitCost1, NonInvUnitCost1, NonInvUnitCost1, 0, 0);
+
+        // [THEN] Verify Costs fields in Output item.
+        OutputItem.Get(OutputItem."No.");
+        VerifyCostFieldsInItem(
+            OutputItem,
+            ExpectedStandardCost,
+            ExpectedSLMatCost,
+            CompUnitCost1 + CompUnitCost2,
+            NonInvUnitCost2,
+            NonInvUnitCost1 + NonInvUnitCost2,
+            ExpectedOvhdCost,
+            ExpectedOvhdCost);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure VerifySingleLevelAndRolledUpCostFieldsWithIndirectPercentageForStockKeepingUnit()
+    var
+        OutputItem: Record Item;
+        SemiOutputItem: Record Item;
+        NonInvItem1: Record Item;
+        NonInvItem2: Record Item;
+        Location: Record Location;
+        CompItem: array[2] of Record Item;
+        SemiStockkeepingUnit: Record "Stockkeeping Unit";
+        OutputStockkeepingUnit: Record "Stockkeeping Unit";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+        ExpectedOvhdCost: Decimal;
+        Quantity: Decimal;
+        NonInvUnitCost1: Decimal;
+        NonInvUnitCost2: Decimal;
+        CompUnitCost1: Decimal;
+        CompUnitCost2: Decimal;
+        IndirectCostPer: Decimal;
+        ExpectedStandardCost: Decimal;
+        ExpectedSLMatCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify "Single-Level" and "Rolled-up" fields with "Indirect Cost %" for "StockKeeping Unit".
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create component items.
+        LibraryInventory.CreateItem(CompItem[1]);
+        LibraryInventory.CreateItem(CompItem[2]);
+
+        // [GIVEN] Create Semi Production Item, Non-Inventory Item and Production BOM contains Non-Inventory item and component item.
+        CreateProductionItemWithNonInvItemAndProductionBOMWithTwoComponent(SemiOutputItem, NonInvItem1, CompItem[1]);
+
+        // [GIVEN] Update "Costing Method" Standard in Semi-Production item.
+        SemiOutputItem.Validate("Costing Method", SemiOutputItem."Costing Method"::Standard);
+        SemiOutputItem.Modify();
+
+        // [GIVEN] Save Quantity, Component, Indirect% and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost1 := LibraryRandom.RandIntInRange(50, 50);
+        NonInvUnitCost2 := LibraryRandom.RandIntInRange(20, 20);
+        CompUnitCost1 := LibraryRandom.RandIntInRange(30, 30);
+        CompUnitCost2 := LibraryRandom.RandIntInRange(40, 40);
+        IndirectCostPer := LibraryRandom.RandIntInRange(10, 10);
+        ExpectedOvhdCost := (NonInvUnitCost1 + NonInvUnitCost2 + CompUnitCost1 + CompUnitCost2) * IndirectCostPer / 100;
+        ExpectedStandardCost := NonInvUnitCost1 + NonInvUnitCost2 + CompUnitCost1 + CompUnitCost2 + ExpectedOvhdCost;
+        ExpectedSLMatCost := NonInvUnitCost1 + CompUnitCost1 + CompUnitCost2;
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Semi-Stockkeeping Unit.
+        LibraryInventory.CreateStockKeepingUnit(SemiOutputItem, Enum::"SKU Creation Method"::"Location & Variant", false, false);
+
+        // [GIVEN] Find Semi-Stockkeeping Unit.
+        SemiStockkeepingUnit.SetRange("Item No.", SemiOutputItem."No.");
+        SemiStockkeepingUnit.FindFirst();
+
+        // [GIVEN] Validate Location Code, Routing No. and Production BOM No. in Stockkeeping Unit.
+        SemiStockkeepingUnit.Validate("Location Code", Location.Code);
+        SemiStockkeepingUnit.Validate("Routing No.", '');
+        SemiStockkeepingUnit.Validate("Production BOM No.", SemiOutputItem."Production BOM No.");
+        SemiStockkeepingUnit.Modify(true);
+
+        // [GIVEN] Update "Production BOM No." in Semi-Production item.
+        SemiOutputItem.Validate("Production BOM No.", '');
+        SemiOutputItem.Modify();
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory and component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem1, Quantity, NonInvUnitCost1);
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem[1], Quantity, CompUnitCost1);
+
+        // [WHEN] Calculate Standard Cost for Stockkeeping Unit.
+        CalculateStandardCost.CalcItemSKU(SemiStockkeepingUnit."Item No.", SemiStockkeepingUnit."Location Code", SemiStockkeepingUnit."Variant Code");
+
+        // [THEN] Verify Costs fields in Semi StockKeeping Unit and Output item.
+        SemiStockkeepingUnit.Get(SemiStockkeepingUnit."Location Code", SemiStockkeepingUnit."Item No.", SemiStockkeepingUnit."Variant Code");
+        VerifyCostFieldsInItem(SemiOutputItem, 0, 0, 0, 0, 0, 0, 0);
+        VerifyCostFieldsInSKU(SemiStockkeepingUnit, NonInvUnitCost1 + CompUnitCost1, CompUnitCost1, CompUnitCost1, NonInvUnitCost1, NonInvUnitCost1, 0, 0);
+
+        // [GIVEN] Update "Production BOM No." in Semi-Production item.
+        SemiOutputItem.Validate("Production BOM No.", SemiStockkeepingUnit."Production BOM No.");
+        SemiOutputItem.Modify();
+
+        // [GIVEN] Calculate Material Cost of Semi-Production Item.
+        CalculateStdCost.CalcItem(SemiOutputItem."No.", false);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item and Production BOM contains Non-Inventory item, Semi-Production and component item.
+        CreateProductionItemWithNonInvItemAndProductionBOMWithThreeComponent(OutputItem, NonInvItem2, SemiOutputItem, CompItem[2]);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory and component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem2, Quantity, NonInvUnitCost2);
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem[2], Quantity, CompUnitCost2);
+
+        // [GIVEN] Update "Costing Method" Standard and "Indirect Cost %" in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Validate("Indirect Cost %", IndirectCostPer);
+        OutputItem.Modify();
+
+        // [GIVEN] Create Production Stockkeeping Unit.
+        LibraryInventory.CreateStockKeepingUnit(OutputItem, Enum::"SKU Creation Method"::"Location & Variant", false, false);
+
+        // [GIVEN] Find Production Stockkeeping Unit.
+        OutputStockkeepingUnit.SetRange("Item No.", OutputItem."No.");
+        OutputStockkeepingUnit.FindFirst();
+
+        // [GIVEN] Validate Location Code, Routing No. and Production BOM No. in Stockkeeping Unit.
+        OutputStockkeepingUnit.Validate("Location Code", Location.Code);
+        OutputStockkeepingUnit.Validate("Routing No.", '');
+        OutputStockkeepingUnit.Validate("Production BOM No.", OutputItem."Production BOM No.");
+        OutputStockkeepingUnit.Modify(true);
+
+        // [GIVEN] Update "Production BOM No." in Production item.
+        OutputItem.Validate("Production BOM No.", '');
+        OutputItem.Modify();
+
+        // [GIVEN] Calculate Material Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [WHEN] Calculate Standard Cost for Production Stockkeeping Unit.
+        CalculateStandardCost.CalcItemSKU(OutputStockkeepingUnit."Item No.", OutputStockkeepingUnit."Location Code", OutputStockkeepingUnit."Variant Code");
+
+        // [THEN] Verify Costs fields in Output StockKeeping Unit and item.
+        OutputStockkeepingUnit.Get(OutputStockkeepingUnit."Location Code", OutputStockkeepingUnit."Item No.", OutputStockkeepingUnit."Variant Code");
+        VerifyCostFieldsInItem(OutputItem, 0, 0, 0, 0, 0, 0, 0);
+        VerifyCostFieldsInSKU(
+            OutputStockkeepingUnit,
+            ExpectedStandardCost,
+            ExpectedSLMatCost,
+            CompUnitCost1 + CompUnitCost2,
+            NonInvUnitCost2,
+            NonInvUnitCost1 + NonInvUnitCost2,
+            ExpectedOvhdCost,
+            ExpectedOvhdCost);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler,BOMCostSharesDistributionReportHandler')]
+    procedure VerifyCostAmountInBOMCostSharesDistributionReportForProductionItem()
+    var
+        OutputItem: Record Item;
+        SemiOutputItem: Record Item;
+        NonInvItem1: Record Item;
+        NonInvItem2: Record Item;
+        CompItem: array[2] of Record Item;
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        ExpectedOvhdCost: Decimal;
+        Quantity: Decimal;
+        NonInvUnitCost1: Decimal;
+        NonInvUnitCost2: Decimal;
+        CompUnitCost1: Decimal;
+        CompUnitCost2: Decimal;
+        IndirectCostPer: Decimal;
+        ExpectedSLMatCost: Decimal;
+        ExpectedTotalCost: Decimal;
+    begin
+        // [SCENARIO 457878] Verify Cost Amount fields in "BOM Cost Share Distribution" report for production item.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create component items.
+        LibraryInventory.CreateItem(CompItem[1]);
+        LibraryInventory.CreateItem(CompItem[2]);
+
+        // [GIVEN] Create Semi Production Item, Non-Inventory Item and Production BOM contains Non-Inventory item and component item.
+        CreateProductionItemWithNonInvItemAndProductionBOMWithTwoComponent(SemiOutputItem, NonInvItem1, CompItem[1]);
+
+        // [GIVEN] Save Quantity, Component, Indirect% and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost1 := LibraryRandom.RandIntInRange(50, 50);
+        NonInvUnitCost2 := LibraryRandom.RandIntInRange(20, 20);
+        CompUnitCost1 := LibraryRandom.RandIntInRange(30, 30);
+        CompUnitCost2 := LibraryRandom.RandIntInRange(40, 40);
+        IndirectCostPer := LibraryRandom.RandIntInRange(10, 10);
+        ExpectedOvhdCost := (NonInvUnitCost1 + NonInvUnitCost2 + CompUnitCost1 + CompUnitCost2) * IndirectCostPer / 100;
+        ExpectedSLMatCost := CompUnitCost1 + CompUnitCost2 + NonInvUnitCost1;
+        ExpectedTotalCost := NonInvUnitCost1 + NonInvUnitCost2 + CompUnitCost1 + CompUnitCost2 + ExpectedOvhdCost;
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory and component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem1, Quantity, NonInvUnitCost1);
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem[1], Quantity, CompUnitCost1);
+
+        // [GIVEN] Update "Costing Method" Standard in Production item.
+        SemiOutputItem.Validate("Costing Method", SemiOutputItem."Costing Method"::Standard);
+        SemiOutputItem.Modify();
+
+        // [GIVEN] Calculate Material Cost of Semi-Production Item.
+        CalculateStdCost.CalcItem(SemiOutputItem."No.", false);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item and Production BOM contains Non-Inventory item, Semi-Production and component item.
+        CreateProductionItemWithNonInvItemAndProductionBOMWithThreeComponent(OutputItem, NonInvItem2, SemiOutputItem, CompItem[2]);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory and component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem2, Quantity, NonInvUnitCost2);
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem[2], Quantity, CompUnitCost2);
+
+        // [GIVEN] Update "Costing Method" Standard and "Indirect Cost %" in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Validate("Indirect Cost %", IndirectCostPer);
+        OutputItem.Modify();
+
+        // [GIVEN] Calculate Material Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [WHEN] Run "BOM Cost Share Distribution" with ShowLevelAs "First BOM Level" and ShowCostShareAs "Single-level".
+        RunBOMCostSharesReport(OutputItem, ShowLevelAs::"First BOM Level", true, ShowCostShareAs::"Single-level");
+
+        // [THEN] Verify Cost Amount in "BOM Cost Share Distribution" report.
+        VerifyBOMCostSharesReport(OutputItem."No.", ExpectedSLMatCost, 0, ExpectedOvhdCost, 0, 0, NonInvUnitCost2, ExpectedTotalCost);
+
+        // [WHEN] Run "BOM Cost Share Distribution" with ShowLevelAs "BOM Leaves" and ShowCostShareAs "Single-level".
+        RunBOMCostSharesReport(OutputItem, ShowLevelAs::"BOM Leaves", true, ShowCostShareAs::"Single-level");
+
+        // [THEN] Verify Cost Amount in "BOM Cost Share Distribution" report.
+        VerifyBOMCostSharesReport(OutputItem."No.", ExpectedSLMatCost, 0, ExpectedOvhdCost, 0, 0, NonInvUnitCost2, ExpectedTotalCost);
+
+        // [WHEN] Run "BOM Cost Share Distribution" with ShowLevelAs "First BOM Level" and ShowCostShareAs "Rolled-up".
+        RunBOMCostSharesReport(OutputItem, ShowLevelAs::"First BOM Level", true, ShowCostShareAs::"Rolled-up");
+
+        // [THEN] Verify Cost Amount in "BOM Cost Share Distribution" report.
+        VerifyBOMCostSharesReport(OutputItem."No.", CompUnitCost1 + CompUnitCost2, 0, ExpectedOvhdCost, 0, 0, NonInvUnitCost1 + NonInvUnitCost2, ExpectedTotalCost);
+
+        // [WHEN] Run "BOM Cost Share Distribution" with ShowLevelAs "BOM Leaves" and ShowCostShareAs "Rolled-up".
+        RunBOMCostSharesReport(OutputItem, ShowLevelAs::"BOM Leaves", true, ShowCostShareAs::"Rolled-up");
+
+        // [THEN] Verify Cost Amount in "BOM Cost Share Distribution" report.
+        VerifyBOMCostSharesReport(OutputItem."No.", CompUnitCost1 + CompUnitCost2, 0, ExpectedOvhdCost, 0, 0, NonInvUnitCost1 + NonInvUnitCost2, ExpectedTotalCost);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Production Orders IV");
@@ -1202,6 +1766,172 @@ codeunit 137083 "SCM Production Orders IV"
         PurchRcptLine.FindFirst();
     end;
 
+    local procedure CreateProductionItemWithNonInvItemAndProductionBOM(var ProdItem: Record Item; var NonInvItem: Record Item; var ProductionBOMHeader: Record "Production BOM Header")
+    begin
+        LibraryInventory.CreateItem(ProdItem);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvItem);
+
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, NonInvItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify();
+    end;
+
+    local procedure CreateProductionItemWithNonInvItemAndProductionBOMWithTwoComponent(var ProdItem: Record Item; var NonInvItem: Record Item; SemiProdItem: Record Item)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        LibraryInventory.CreateItem(ProdItem);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvItem);
+
+        LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, NonInvItem."No.", SemiProdItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify();
+    end;
+
+    local procedure CreateProductionItemWithNonInvItemAndProductionBOMWithThreeComponent(var ProdItem: Record Item; var NonInvItem: Record Item; Item1: Record Item; Item2: Record Item)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryInventory.CreateItem(ProdItem);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvItem);
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, NonInvItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item1."No.", LibraryRandom.RandIntInRange(1, 1));
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item2."No.", LibraryRandom.RandIntInRange(1, 1));
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify();
+    end;
+
+    local procedure CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem: Record Item; Quantity: Decimal; UnitCost: Decimal): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+            PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
+            LibraryPurchase.CreateVendorNo(), NonInvItem."No.", Quantity, '', WorkDate());
+
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost);
+        PurchaseLine.Modify();
+
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure VerifyCostFieldsInItem(Item: Record Item; StandardCost: Decimal; SLMatCost: Decimal; RUMatCost: Decimal; SLNonInvMatCost: Decimal; RUNonInvMatCost: Decimal; SLMfgOvhdCost: Decimal; RUMfgOvhdCost: Decimal)
+    begin
+        Assert.AreEqual(
+            StandardCost,
+            Item."Standard Cost",
+            StrSubstNo(EntryMustBeEqualErr, Item.FieldCaption("Standard Cost"), StandardCost, Item."No.", Item.TableCaption()));
+        Assert.AreEqual(
+            SLNonInvMatCost,
+            Item."Single-Lvl Mat. Non-Invt. Cost",
+            StrSubstNo(EntryMustBeEqualErr, Item.FieldCaption("Single-Lvl Mat. Non-Invt. Cost"), SLNonInvMatCost, Item."No.", Item.TableCaption()));
+        Assert.AreEqual(
+            RUNonInvMatCost,
+            Item."Rolled-up Mat. Non-Invt. Cost",
+            StrSubstNo(EntryMustBeEqualErr, Item.FieldCaption("Rolled-up Mat. Non-Invt. Cost"), RUNonInvMatCost, Item."No.", Item.TableCaption()));
+        Assert.AreEqual(
+            SLMatCost,
+            Item."Single-Level Material Cost",
+            StrSubstNo(EntryMustBeEqualErr, Item.FieldCaption("Single-Level Material Cost"), SLMatCost, Item."No.", Item.TableCaption()));
+        Assert.AreEqual(
+            RUMatCost,
+            Item."Rolled-up Material Cost",
+            StrSubstNo(EntryMustBeEqualErr, Item.FieldCaption("Rolled-up Material Cost"), RUMatCost, Item."No.", Item.TableCaption()));
+        Assert.AreEqual(
+            SLMfgOvhdCost,
+            Item."Single-Level Mfg. Ovhd Cost",
+            StrSubstNo(EntryMustBeEqualErr, Item.FieldCaption("Single-Level Mfg. Ovhd Cost"), SLMfgOvhdCost, Item."No.", Item.TableCaption()));
+        Assert.AreEqual(
+            RUMfgOvhdCost,
+            Item."Rolled-up Mfg. Ovhd Cost",
+            StrSubstNo(EntryMustBeEqualErr, Item.FieldCaption("Rolled-up Mfg. Ovhd Cost"), RUMfgOvhdCost, Item."No.", Item.TableCaption()));
+    end;
+
+    local procedure VerifyCostFieldsInSKU(SKU: Record "Stockkeeping Unit"; StandardCost: Decimal; SLMatCost: Decimal; RUMatCost: Decimal; SLNonInvMatCost: Decimal; RUNonInvMatCost: Decimal; SLMfgOvhdCost: Decimal; RUMfgOvhdCost: Decimal)
+    begin
+        Assert.AreEqual(
+            StandardCost,
+            SKU."Standard Cost",
+            StrSubstNo(EntryMustBeEqualErr, SKU.FieldCaption("Standard Cost"), StandardCost, SKU."Item No.", SKU.TableCaption()));
+        Assert.AreEqual(
+            SLNonInvMatCost,
+            SKU."Single-Lvl Mat. Non-Invt. Cost",
+            StrSubstNo(EntryMustBeEqualErr, SKU.FieldCaption("Single-Lvl Mat. Non-Invt. Cost"), SLNonInvMatCost, SKU."Item No.", SKU.TableCaption()));
+        Assert.AreEqual(
+            RUNonInvMatCost,
+            SKU."Rolled-up Mat. Non-Invt. Cost",
+            StrSubstNo(EntryMustBeEqualErr, SKU.FieldCaption("Rolled-up Mat. Non-Invt. Cost"), RUNonInvMatCost, SKU."Item No.", SKU.TableCaption()));
+        Assert.AreEqual(
+            SLMatCost,
+            SKU."Single-Level Material Cost",
+            StrSubstNo(EntryMustBeEqualErr, SKU.FieldCaption("Single-Level Material Cost"), SLMatCost, SKU."Item No.", SKU.TableCaption()));
+        Assert.AreEqual(
+            RUMatCost,
+            SKU."Rolled-up Material Cost",
+            StrSubstNo(EntryMustBeEqualErr, SKU.FieldCaption("Rolled-up Material Cost"), RUMatCost, SKU."Item No.", SKU.TableCaption()));
+        Assert.AreEqual(
+            SLMfgOvhdCost,
+            SKU."Single-Level Mfg. Ovhd Cost",
+            StrSubstNo(EntryMustBeEqualErr, SKU.FieldCaption("Single-Level Mfg. Ovhd Cost"), SLMfgOvhdCost, SKU."Item No.", SKU.TableCaption()));
+        Assert.AreEqual(
+            RUMfgOvhdCost,
+            SKU."Rolled-up Mfg. Ovhd Cost",
+            StrSubstNo(EntryMustBeEqualErr, SKU.FieldCaption("Rolled-up Mfg. Ovhd Cost"), RUMfgOvhdCost, SKU."Item No.", SKU.TableCaption()));
+    end;
+
+    local procedure RunBOMCostSharesReport(Item: Record Item; ShowLevel: Option; ShowDetails: Boolean; ShowCostShare: Option)
+    var
+        Item1: Record Item;
+    begin
+        Item1.SetRange("No.", Item."No.");
+        Commit();
+
+        LibraryVariableStorage.Enqueue(ShowCostShare);
+        LibraryVariableStorage.Enqueue(ShowLevel);
+        LibraryVariableStorage.Enqueue(ShowDetails);
+        Report.Run(Report::"BOM Cost Share Distribution", true, false, Item1);
+    end;
+
+    local procedure VerifyBOMCostSharesReport(ItemNo: Code[20]; ExpMaterialCost: Decimal; ExpCapacityCost: Decimal; ExpMfgOvhdCost: Decimal; ExpCapOvhdCost: Decimal; ExpSubcontractedCost: Decimal; ExpNonInvMaterialCost: Decimal; ExpTotalCost: Decimal)
+    var
+        CostAmount: Decimal;
+        RoundingFactor: Decimal;
+    begin
+        RoundingFactor := 100 * LibraryERM.GetUnitAmountRoundingPrecision();
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange(ItemNoLbl, ItemNo);
+
+        CostAmount := LibraryReportDataset.Sum(MaterialCostLbl);
+        Assert.AreNearlyEqual(ExpMaterialCost, CostAmount, RoundingFactor, StrSubstNo(MaterialCostMustBeEqualErr, ExpMaterialCost, ItemNo));
+
+        CostAmount := LibraryReportDataset.Sum(CapacityCostLbl);
+        Assert.AreNearlyEqual(ExpCapacityCost, CostAmount, RoundingFactor, StrSubstNo(CapacityCostMustBeEqualErr, ExpCapacityCost, ItemNo));
+
+        CostAmount := LibraryReportDataset.Sum(MfgOvhdCostLbl);
+        Assert.AreNearlyEqual(ExpMfgOvhdCost, CostAmount, RoundingFactor, StrSubstNo(MfgOverheadCostMustBeEqualErr, ExpMfgOvhdCost, ItemNo));
+
+        CostAmount := LibraryReportDataset.Sum(CapOvhdCostLbl);
+        Assert.AreNearlyEqual(ExpCapOvhdCost, CostAmount, RoundingFactor, StrSubstNo(CapacityOverheadCostMustBeEqualErr, ExpCapOvhdCost, ItemNo));
+
+        CostAmount := LibraryReportDataset.Sum(SubcontrdCostLbl);
+        Assert.AreNearlyEqual(ExpSubcontractedCost, CostAmount, RoundingFactor, StrSubstNo(SubcontractedCostMustBeEqualErr, ExpSubcontractedCost, ItemNo));
+
+        CostAmount := LibraryReportDataset.Sum(NonInventoryMaterialCostLbl);
+        Assert.AreNearlyEqual(ExpNonInvMaterialCost, CostAmount, RoundingFactor, StrSubstNo(NonInvMaterialCostMustBeEqualErr, ExpNonInvMaterialCost, ItemNo));
+
+        CostAmount := LibraryReportDataset.Sum(TotalCostLbl);
+        Assert.AreNearlyEqual(ExpTotalCost, CostAmount, RoundingFactor, StrSubstNo(TotalCostMustBeEqualErr, ExpTotalCost, ItemNo));
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
@@ -1237,5 +1967,30 @@ codeunit 137083 "SCM Production Orders IV"
     procedure ChangeStatusOnProdOrderOk(var ChangeStatusOnProductionOrder: TestPage "Change Status on Prod. Order")
     begin
         ChangeStatusOnProductionOrder.Yes().Invoke();
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure StrMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
+    begin
+        Choice := 1;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure BOMCostSharesDistributionReportHandler(var BOMCostShareDistribution: TestRequestPage "BOM Cost Share Distribution")
+    var
+        ShowCostShareAsLcl: Variant;
+        ShowLevelAsLcl: Variant;
+        ShowDetails: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ShowCostShareAsLcl);
+        LibraryVariableStorage.Dequeue(ShowLevelAsLcl);
+        LibraryVariableStorage.Dequeue(ShowDetails);
+
+        BOMCostShareDistribution.ShowCostShareAs.SetValue(ShowCostShareAsLcl);
+        BOMCostShareDistribution.ShowLevelAs.SetValue(ShowLevelAsLcl);
+        BOMCostShareDistribution.ShowDetails.SetValue(ShowDetails);
+        BOMCostShareDistribution.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
