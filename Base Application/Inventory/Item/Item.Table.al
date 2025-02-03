@@ -1322,6 +1322,14 @@ table 27 Item
             MaxValue = 100;
             MinValue = 0;
         }
+        field(5408; "Rolled-up Mat. Non-Invt. Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Rolled-up Material Non-Inventory Cost';
+            ToolTip = 'Specifies the Non-inventory material cost of all items at all levels of the parent item''s BOM.';
+            DecimalPlaces = 2 : 5;
+            Editable = false;
+        }
         field(5409; "Inventory Value Zero"; Boolean)
         {
             Caption = 'Inventory Value Zero';
