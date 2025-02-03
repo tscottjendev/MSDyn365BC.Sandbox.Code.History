@@ -210,6 +210,13 @@ tableextension 99000759 "Mfg. Stockkeeping Unit" extends "Stockkeeping Unit"
             DataClassification = CustomerContent;
             Editable = false;
         }
+        field(99000779; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Single-Level Material Non-Inventory Cost';
+            DataClassification = CustomerContent;
+            Editable = false;
+        }
     }
 
     var
