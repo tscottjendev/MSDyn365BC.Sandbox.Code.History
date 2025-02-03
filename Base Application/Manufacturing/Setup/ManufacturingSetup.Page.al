@@ -51,6 +51,10 @@ page 99000768 "Manufacturing Setup"
                 {
                     ApplicationArea = Manufacturing;
                 }
+                field("Load SKU Cost on Manufacturing"; Rec."Load SKU Cost on Manufacturing")
+                {
+                    ApplicationArea = Manufacturing;
+                }
                 field("Doc. No. Is Prod. Order No."; Rec."Doc. No. Is Prod. Order No.")
                 {
                     ApplicationArea = Manufacturing;

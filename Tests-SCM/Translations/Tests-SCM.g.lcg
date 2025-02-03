@@ -11921,6 +11921,42 @@
       <Cmt Name="Dev"><![CDATA[%1 = Production Order Line No. , %2 = Table Caption , %3 = Production Order No.]D;]A;(LookupHint=Codeunit SCM Production Orders IV - NamedType CannotFinishProductionLineErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 3076140927" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CapacityCost]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders IV - NamedType CapacityCostLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 1951852858" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Capacity Cost must be equal to %1 in item %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[ %1 = Expected Value , %2 = Item No.]D;]A;(LookupHint=Codeunit SCM Production Orders IV - NamedType CapacityCostMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 3802098356" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Capacity Overhead Cost must be equal to %1 in item %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[ %1 = Expected Value , %2 = Item No.]D;]A;(LookupHint=Codeunit SCM Production Orders IV - NamedType CapacityOverheadCostMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 3577111658" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CapOvhdCost]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders IV - NamedType CapOvhdCostLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2276747048 - NamedType 3087330047" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be equal to %2 for Entry No. %3 in the %4.]]></Val>
@@ -11948,6 +11984,51 @@
       <Cmt Name="Dev"><![CDATA[ %1 = Field Name , %2 = Page Name]D;]A;(LookupHint=Codeunit SCM Production Orders IV - NamedType FieldMustNotBeEditableErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 3938104762" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ItemNo]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders IV - NamedType ItemNoLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 3007646446" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MaterialCost]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders IV - NamedType MaterialCostLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 1234919675" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Material Cost must be equal to %1 in item %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[ %1 = Expected Value , %2 = Item No.]D;]A;(LookupHint=Codeunit SCM Production Orders IV - NamedType MaterialCostMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 4192131172" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Mfg. Overhead Cost must be equal to %1 in item %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[ %1 = Expected Value , %2 = Item No.]D;]A;(LookupHint=Codeunit SCM Production Orders IV - NamedType MfgOverheadCostMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 292861772" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MfgOvhdCost]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders IV - NamedType MfgOvhdCostLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2276747048 - NamedType 2548552079" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is missing in %2.]]></Val>
@@ -11955,6 +12036,60 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Field caption, %2 = Table Caption]D;]A;(LookupHint=Codeunit SCM Production Orders IV - NamedType MissingAccountTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 2346205153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[NonInventoryMaterialCost]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders IV - NamedType NonInventoryMaterialCostLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 1485837057" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Non Inventory Material Cost must be equal to %1 in item %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[ %1 = Expected Value , %2 = Item No.]D;]A;(LookupHint=Codeunit SCM Production Orders IV - NamedType NonInvMaterialCostMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 2307996599" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Subcontracted Cost must be equal to %1 in item %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[ %1 = Expected Value , %2 = Item No.]D;]A;(LookupHint=Codeunit SCM Production Orders IV - NamedType SubcontractedCostMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 3490200087" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[SubcontrdCost]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders IV - NamedType SubcontrdCostLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 2772987805" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TotalCost]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders IV - NamedType TotalCostLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 1203537732" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Total Cost must be equal to %1 in item %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[ %1 = Expected Value , %2 = Item No.]D;]A;(LookupHint=Codeunit SCM Production Orders IV - NamedType TotalCostMustBeEqualErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2276747048 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

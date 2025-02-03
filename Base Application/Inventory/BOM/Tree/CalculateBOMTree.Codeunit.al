@@ -671,6 +671,7 @@ codeunit 5870 "Calculate BOM Tree"
 
                 if BOMBuffer."Is Leaf" then begin
                     ParentBOMBuffer.AddMaterialCost(BOMBuffer."Single-Level Material Cost", BOMBuffer."Rolled-up Material Cost");
+                    ParentBOMBuffer.AddNonInvMaterialCost(BOMBuffer."Single-Lvl Mat. Non-Invt. Cost", BOMBuffer."Rolled-up Mat. Non-Invt. Cost");
                     ParentBOMBuffer.AddCapacityCost(BOMBuffer."Single-Level Capacity Cost", BOMBuffer."Rolled-up Capacity Cost");
                     ParentBOMBuffer.AddSubcontrdCost(BOMBuffer."Single-Level Subcontrd. Cost", BOMBuffer."Rolled-up Subcontracted Cost");
                     ParentBOMBuffer.AddCapOvhdCost(BOMBuffer."Single-Level Cap. Ovhd Cost", BOMBuffer."Rolled-up Capacity Ovhd. Cost");
@@ -679,11 +680,13 @@ codeunit 5870 "Calculate BOM Tree"
                 end else begin
                     ParentBOMBuffer.AddMaterialCost(
                       BOMBuffer."Single-Level Material Cost" +
+                      BOMBuffer."Single-Lvl Mat. Non-Invt. Cost" +
                       BOMBuffer."Single-Level Capacity Cost" +
                       BOMBuffer."Single-Level Subcontrd. Cost" +
                       BOMBuffer."Single-Level Cap. Ovhd Cost" +
                       BOMBuffer."Single-Level Mfg. Ovhd Cost",
                       BOMBuffer."Rolled-up Material Cost");
+                    ParentBOMBuffer.AddNonInvMaterialCost(0, BOMBuffer."Rolled-up Mat. Non-Invt. Cost");
                     ParentBOMBuffer.AddCapacityCost(0, BOMBuffer."Rolled-up Capacity Cost");
                     ParentBOMBuffer.AddSubcontrdCost(0, BOMBuffer."Rolled-up Subcontracted Cost");
                     ParentBOMBuffer.AddCapOvhdCost(0, BOMBuffer."Rolled-up Capacity Ovhd. Cost");
