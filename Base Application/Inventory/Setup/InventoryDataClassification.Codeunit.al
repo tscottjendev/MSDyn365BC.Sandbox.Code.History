@@ -124,6 +124,7 @@ codeunit 1764 "Inventory-Data Classification"
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Availability Calc. Overview");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Inventory Report Header");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Average Cost Calc. Overview");
+        DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"BOM Buffer");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Memoized Result");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Item Availability by Date");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"BOM Warning Log");
