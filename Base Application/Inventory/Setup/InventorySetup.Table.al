@@ -14,11 +14,11 @@ using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Transfer;
+using Microsoft.Upgrade;
 using Microsoft.Warehouse.InternalDocument;
 using Microsoft.Warehouse.InventoryDocument;
-using Microsoft.Upgrade;
-using System.Utilities;
 using System.Globalization;
+using System.Utilities;
 
 table 313 "Inventory Setup"
 {
