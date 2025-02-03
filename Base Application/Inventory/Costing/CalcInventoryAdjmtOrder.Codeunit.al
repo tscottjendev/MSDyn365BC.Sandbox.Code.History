@@ -172,10 +172,10 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
               InventoryAdjmtEntryOrder."Single-Level Material Cost", InventoryAdjmtEntryOrder."Single-Lvl Material Cost (ACY)");
 
         if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
-            if HasNewCost(InventoryAdjmtEntryOrder."Material Cost - Non Inventory", InventoryAdjmtEntryOrder."Material Cost - Non Inv. (ACY)") then
+            if HasNewCost(InventoryAdjmtEntryOrder."Single-Lvl Mat. Non-Invt. Cost", InventoryAdjmtEntryOrder."Single-Lvl Mat.NonInvCost(ACY)") then
                 InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
                   InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::"Material - Non Inventory",
-                  InventoryAdjmtEntryOrder."Material Cost - Non Inventory", InventoryAdjmtEntryOrder."Material Cost - Non Inv. (ACY)");
+                  InventoryAdjmtEntryOrder."Single-Lvl Mat. Non-Invt. Cost", InventoryAdjmtEntryOrder."Single-Lvl Mat.NonInvCost(ACY)");
 
         if HasNewCost(InventoryAdjmtEntryOrder."Single-Level Capacity Cost", InventoryAdjmtEntryOrder."Single-Lvl Capacity Cost (ACY)") then
             InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",

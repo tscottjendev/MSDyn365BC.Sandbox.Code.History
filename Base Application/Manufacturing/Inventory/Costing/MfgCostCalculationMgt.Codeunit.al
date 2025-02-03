@@ -36,7 +36,7 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
     begin
         if CanIncNonInvCostIntoProductionItem() then begin
             if Item."Costing Method" = Item."Costing Method"::Standard then
-                Item."Material Cost - Non Inventory" := 0;
+                Item."Single-Lvl Mat. Non-Invt. Cost" := 0;
 
             if Item."Standard Cost" <> xItem."Standard Cost" then
                 CalculateStandardCost.CalcItemForNonInventoryValue(Item);
@@ -131,7 +131,7 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
         then begin
             Item."Single-Level Material Cost" := InvtAdjmtEntryOrder."Single-Level Material Cost";
             if CanIncNonInvCostIntoProductionItem() then
-                Item."Material Cost - Non Inventory" := InvtAdjmtEntryOrder."Material Cost - Non Inventory";
+                Item."Single-Lvl Mat. Non-Invt. Cost" := InvtAdjmtEntryOrder."Single-Lvl Mat. Non-Invt. Cost";
             Item."Single-Level Capacity Cost" := InvtAdjmtEntryOrder."Single-Level Capacity Cost";
             Item."Single-Level Subcontrd. Cost" := InvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
             Item."Single-Level Cap. Ovhd Cost" := InvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
@@ -161,7 +161,7 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
 
         if CanIncNonInvCostIntoProductionItem() then
             StdMatCost := StdMatCost +
-              Round(QtyBase * (Item."Single-Level Material Cost" + Item."Material Cost - Non Inventory") * CurrencyFactor, RndgPrec)
+              Round(QtyBase * (Item."Single-Level Material Cost" + Item."Single-Lvl Mat. Non-Invt. Cost") * CurrencyFactor, RndgPrec)
         else
             StdMatCost := StdMatCost +
               Round(QtyBase * Item."Single-Level Material Cost" * CurrencyFactor, RndgPrec);
@@ -303,7 +303,7 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
         if not CanIncNonInvCostIntoProductionItem() then
             ActMatCost += TempSourceInvtAdjmtEntryOrder."Single-Level Material Cost"
         else
-            ActMatCost += TempSourceInvtAdjmtEntryOrder."Single-Level Material Cost" + TempSourceInvtAdjmtEntryOrder."Material Cost - Non Inventory";
+            ActMatCost += TempSourceInvtAdjmtEntryOrder."Single-Level Material Cost" + TempSourceInvtAdjmtEntryOrder."Single-Lvl Mat. Non-Invt. Cost";
         ActCapDirCost += TempSourceInvtAdjmtEntryOrder."Single-Level Capacity Cost";
         ActSubDirCost += TempSourceInvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
         ActCapOvhdCost += TempSourceInvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
@@ -311,7 +311,7 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
         if not CanIncNonInvCostIntoProductionItem() then
             ActMatCostCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Material Cost (ACY)"
         else
-            ActMatCostCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Material Cost (ACY)" + TempSourceInvtAdjmtEntryOrder."Material Cost - Non Inv. (ACY)";
+            ActMatCostCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Material Cost (ACY)" + TempSourceInvtAdjmtEntryOrder."Single-Lvl Mat.NonInvCost(ACY)";
         ActCapDirCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Capacity Cost (ACY)";
         ActCapOvhdCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Cap. Ovhd Cost(ACY)";
         ActSubDirCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Subcontrd Cost(ACY)";

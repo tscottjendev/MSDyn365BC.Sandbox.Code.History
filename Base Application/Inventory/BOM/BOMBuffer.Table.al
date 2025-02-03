@@ -344,6 +344,23 @@ table 5870 "BOM Buffer"
             DataClassification = SystemMetadata;
             DecimalPlaces = 2 : 5;
         }
+        field(77; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            BlankZero = true;
+            Caption = 'Single-Level Material Non-Inventory Cost';
+            DataClassification = CustomerContent;
+            DecimalPlaces = 2 : 5;
+        }
+        field(78; "Rolled-up Mat. Non-Invt. Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            BlankZero = true;
+            Caption = 'Rolled-up Material Non-Inventory Cost';
+            DataClassification = CustomerContent;
+            DecimalPlaces = 2 : 5;
+            Editable = false;
+        }
         field(81; "Total Cost"; Decimal)
         {
             BlankZero = true;
@@ -402,6 +419,7 @@ table 5870 "BOM Buffer"
     var
         GLSetup: Record "General Ledger Setup";
         UOMMgt: Codeunit "Unit of Measure Management";
+        MfgCostCalcMgmt: Codeunit "Mfg. Cost Calculation Mgt.";
         GLSetupRead: Boolean;
 
 #pragma warning disable AA0074
@@ -828,6 +846,12 @@ table 5870 "BOM Buffer"
         "Rolled-up Material Cost" += RolledUpCostAmt;
     end;
 
+    procedure AddNonInvMaterialCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
+    begin
+        "Single-Lvl Mat. Non-Invt. Cost" += SingleLvlCostAmt;
+        "Rolled-up Mat. Non-Invt. Cost" += RolledUpCostAmt;
+    end;
+
     procedure AddCapacityCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
     begin
         "Single-Level Capacity Cost" += SingleLvlCostAmt;
@@ -867,13 +891,31 @@ table 5870 "BOM Buffer"
         Item.Get("No.");
 
         "Unit Cost" := Item."Unit Cost";
-        "Single-Level Material Cost" := "Unit Cost";
-        "Rolled-up Material Cost" := "Single-Level Material Cost";
+        if Item.IsInventoriableType() then begin
+            "Single-Level Material Cost" := "Unit Cost";
+            "Rolled-up Material Cost" := "Single-Level Material Cost";
+        end else
+            if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
+                if not Item.IsInventoriableType() then begin
+                    "Single-Lvl Mat. Non-Invt. Cost" := "Unit Cost";
+                    "Rolled-up Mat. Non-Invt. Cost" := "Single-Lvl Mat. Non-Invt. Cost";
+                end else begin
+                    "Single-Level Material Cost" := "Unit Cost";
+                    "Rolled-up Material Cost" := "Single-Level Material Cost";
+                end;
 
-        if "Qty. per Parent" <> 0 then
-            "Single-Level Scrap Cost" := "Single-Level Material Cost" * "Scrap Qty. per Parent" / "Qty. per Parent";
-        if "Qty. per Top Item" <> 0 then
-            "Rolled-up Scrap Cost" := "Rolled-up Material Cost" * "Scrap Qty. per Top Item" / "Qty. per Top Item";
+        if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then begin
+            if "Qty. per Parent" <> 0 then
+                "Single-Level Scrap Cost" := ("Single-Level Material Cost" + "Single-Lvl Mat. Non-Invt. Cost") * "Scrap Qty. per Parent" / "Qty. per Parent";
+            if "Qty. per Top Item" <> 0 then
+                "Rolled-up Scrap Cost" := ("Rolled-up Material Cost" + "Rolled-up Mat. Non-Invt. Cost") * "Scrap Qty. per Top Item" / "Qty. per Top Item";
+        end else begin
+            if "Qty. per Parent" <> 0 then
+                "Single-Level Scrap Cost" := "Single-Level Material Cost" * "Scrap Qty. per Parent" / "Qty. per Parent";
+            if "Qty. per Top Item" <> 0 then
+                "Rolled-up Scrap Cost" := "Rolled-up Material Cost" * "Scrap Qty. per Top Item" / "Qty. per Top Item";
+        end;
+
         OnGetItemCostsOnBeforeRoundCosts(Rec);
         RoundCosts(UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
 
@@ -890,8 +932,14 @@ table 5870 "BOM Buffer"
         "Unit Cost" := Item."Unit Cost";
         "Single-Level Material Cost" :=
           RoundUnitAmt(Item."Single-Level Material Cost", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
+        if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
+            "Single-Lvl Mat. Non-Invt. Cost" :=
+              RoundUnitAmt(Item."Single-Lvl Mat. Non-Invt. Cost", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
         "Rolled-up Material Cost" :=
           RoundUnitAmt(Item."Unit Cost", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
+        if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
+            "Rolled-up Mat. Non-Invt. Cost" :=
+              RoundUnitAmt(Item."Unit Cost", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
     end;
 
     procedure GetResCosts()
@@ -936,6 +984,9 @@ table 5870 "BOM Buffer"
     procedure RoundCosts(ShareOfTotalCost: Decimal)
     begin
         "Single-Level Material Cost" := RoundUnitAmt("Single-Level Material Cost", ShareOfTotalCost);
+        if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
+            "Single-Lvl Mat. Non-Invt. Cost" := RoundUnitAmt("Single-Lvl Mat. Non-Invt. Cost", ShareOfTotalCost);
+
         "Single-Level Capacity Cost" := RoundUnitAmt("Single-Level Capacity Cost", ShareOfTotalCost);
         "Single-Level Subcontrd. Cost" := RoundUnitAmt("Single-Level Subcontrd. Cost", ShareOfTotalCost);
         "Single-Level Cap. Ovhd Cost" := RoundUnitAmt("Single-Level Cap. Ovhd Cost", ShareOfTotalCost);
@@ -943,6 +994,9 @@ table 5870 "BOM Buffer"
         "Single-Level Scrap Cost" := RoundUnitAmt("Single-Level Scrap Cost", ShareOfTotalCost);
 
         "Rolled-up Material Cost" := RoundUnitAmt("Rolled-up Material Cost", ShareOfTotalCost);
+        if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
+            "Rolled-up Mat. Non-Invt. Cost" := RoundUnitAmt("Rolled-up Mat. Non-Invt. Cost", ShareOfTotalCost);
+
         "Rolled-up Capacity Cost" := RoundUnitAmt("Rolled-up Capacity Cost", ShareOfTotalCost);
         "Rolled-up Subcontracted Cost" := RoundUnitAmt("Rolled-up Subcontracted Cost", ShareOfTotalCost);
         "Rolled-up Capacity Ovhd. Cost" := RoundUnitAmt("Rolled-up Capacity Ovhd. Cost", ShareOfTotalCost);
@@ -986,32 +1040,60 @@ table 5870 "BOM Buffer"
         "Overhead Rate" :=
           RoundUnitAmt("Overhead Rate", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
 
-        "Single-Level Mfg. Ovhd Cost" +=
-          (("Single-Level Material Cost" +
-            "Single-Level Capacity Cost" +
-            "Single-Level Subcontrd. Cost" +
-            "Single-Level Cap. Ovhd Cost") *
-           "Indirect Cost %" / 100) +
-          ("Overhead Rate" * LotSize);
+        if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
+            "Single-Level Mfg. Ovhd Cost" +=
+              (("Single-Level Material Cost" +
+                "Single-Lvl Mat. Non-Invt. Cost" +
+                "Single-Level Capacity Cost" +
+                "Single-Level Subcontrd. Cost" +
+                "Single-Level Cap. Ovhd Cost") *
+               "Indirect Cost %" / 100) +
+              ("Overhead Rate" * LotSize)
+        else
+            "Single-Level Mfg. Ovhd Cost" +=
+              (("Single-Level Material Cost" +
+                "Single-Level Capacity Cost" +
+                "Single-Level Subcontrd. Cost" +
+                "Single-Level Cap. Ovhd Cost") *
+               "Indirect Cost %" / 100) +
+              ("Overhead Rate" * LotSize);
         "Single-Level Mfg. Ovhd Cost" := RoundUnitAmt("Single-Level Mfg. Ovhd Cost", 1);
 
-        "Rolled-up Mfg. Ovhd Cost" +=
-          (("Rolled-up Material Cost" +
-            "Rolled-up Capacity Cost" +
-            "Rolled-up Subcontracted Cost" +
-            "Rolled-up Capacity Ovhd. Cost" +
-            "Rolled-up Mfg. Ovhd Cost") *
-           "Indirect Cost %" / 100) +
-          ("Overhead Rate" * LotSize);
+        if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
+            "Rolled-up Mfg. Ovhd Cost" +=
+              (("Rolled-up Material Cost" +
+                "Rolled-up Mat. Non-Invt. Cost" +
+                "Rolled-up Capacity Cost" +
+                "Rolled-up Subcontracted Cost" +
+                "Rolled-up Capacity Ovhd. Cost" +
+                "Rolled-up Mfg. Ovhd Cost") *
+               "Indirect Cost %" / 100) +
+              ("Overhead Rate" * LotSize)
+        else
+            "Rolled-up Mfg. Ovhd Cost" +=
+            (("Rolled-up Material Cost" +
+              "Rolled-up Capacity Cost" +
+              "Rolled-up Subcontracted Cost" +
+              "Rolled-up Capacity Ovhd. Cost" +
+              "Rolled-up Mfg. Ovhd Cost") *
+             "Indirect Cost %" / 100) +
+            ("Overhead Rate" * LotSize);
         "Rolled-up Mfg. Ovhd Cost" := RoundUnitAmt("Rolled-up Mfg. Ovhd Cost", 1);
     end;
 
     procedure CalcDirectCost(): Decimal
     begin
-        exit(
-          "Single-Level Material Cost" +
-          "Single-Level Capacity Cost" +
-          "Single-Level Subcontrd. Cost");
+        if not MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
+            exit(
+              "Single-Level Material Cost" +
+              "Single-Level Capacity Cost" +
+              "Single-Level Subcontrd. Cost")
+        else
+            exit(
+            "Single-Level Material Cost" +
+            "Single-Lvl Mat. Non-Invt. Cost" +
+            "Single-Level Capacity Cost" +
+            "Single-Level Subcontrd. Cost");
     end;
 
     procedure CalcIndirectCost(): Decimal
