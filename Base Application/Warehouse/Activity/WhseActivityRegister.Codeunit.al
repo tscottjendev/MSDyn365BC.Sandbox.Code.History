@@ -1034,11 +1034,13 @@ codeunit 7307 "Whse.-Activity-Register"
 
     local procedure CheckSourceDocumentForAvailableQty(var GroupedWhseActivLine: Record "Warehouse Activity Line")
     var
+        Item: Record Item;
         SourceProdOrderComp: Record "Prod. Order Component";
         SourceJobPlanningLine: Record "Job Planning Line";
         UOMMgt: Codeunit "Unit of Measure Management";
         RemainingQtyBase: Decimal;
         RemainingQtyUoM: Code[10];
+        AllowWhseOverpick: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1049,11 +1051,16 @@ codeunit 7307 "Whse.-Activity-Register"
         GroupedWhseActivLine.SetRange("Breakbulk No.", 0);
         if GroupedWhseActivLine.FindSet() then
             repeat
+                AllowWhseOverpick := false;
                 case GroupedWhseActivLine."Source Document" of
                     "Warehouse Activity Source Document"::"Prod. Consumption":
                         begin
                             SourceProdOrderComp.SetLoadFields("Remaining Qty. (Base)", "Unit of Measure Code");
                             SourceProdOrderComp.Get(GroupedWhseActivLine."Source Subtype", GroupedWhseActivLine."Source No.", GroupedWhseActivLine."Source Line No.", GroupedWhseActivLine."Source Subline No.");
+                            Item.SetLoadFields("Allow Whse. Overpick");
+                            Item.Get(GroupedWhseActivLine."Item No.");
+
+                            AllowWhseOverpick := Item."Allow Whse. Overpick";
                             RemainingQtyBase := SourceProdOrderComp."Remaining Qty. (Base)";
                             RemainingQtyUoM := SourceProdOrderComp."Unit of Measure Code";
                         end;
@@ -1067,8 +1074,9 @@ codeunit 7307 "Whse.-Activity-Register"
                             RemainingQtyUoM := SourceJobPlanningLine."Unit of Measure Code";
                         end;
                 end;
-                if UOMMgt.CalcBaseQty(GroupedWhseActivLine."Qty. to Handle", GroupedWhseActivLine."Qty. per Unit of Measure") > RemainingQtyBase then
-                    Error(ItemAlreadyConsumedErr, RemainingQtyBase, RemainingQtyUoM, GroupedWhseActivLine.FieldCaption("Line No."), GroupedWhseActivLine."Line No.", GroupedWhseActivLine.FieldCaption("Item No."), GroupedWhseActivLine."Item No.", GroupedWhseActivLine."Source Document", GroupedWhseActivLine."Source No.", GroupedWhseActivLine.FieldCaption("Source Line No."), GroupedWhseActivLine."Source Line No.");
+                if (GroupedWhseActivLine."Source Document" <> GroupedWhseActivLine."Source Document"::"Prod. Consumption") or (not AllowWhseOverpick) then
+                    if UOMMgt.CalcBaseQty(GroupedWhseActivLine."Qty. to Handle", GroupedWhseActivLine."Qty. per Unit of Measure") > RemainingQtyBase then
+                        Error(ItemAlreadyConsumedErr, RemainingQtyBase, RemainingQtyUoM, GroupedWhseActivLine.FieldCaption("Line No."), GroupedWhseActivLine."Line No.", GroupedWhseActivLine.FieldCaption("Item No."), GroupedWhseActivLine."Item No.", GroupedWhseActivLine."Source Document", GroupedWhseActivLine."Source No.", GroupedWhseActivLine.FieldCaption("Source Line No."), GroupedWhseActivLine."Source Line No.");
             until GroupedWhseActivLine.Next() = 0;
         GroupedWhseActivLine.SetRange("Breakbulk No.");
 
