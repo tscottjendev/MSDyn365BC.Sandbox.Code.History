@@ -169,8 +169,8 @@ codeunit 5804 ItemCostManagement
         Item."Rolled-up Mfg. Ovhd Cost" := FromItem."Rolled-up Mfg. Ovhd Cost";
         Item."Rolled-up Cap. Overhead Cost" := FromItem."Rolled-up Cap. Overhead Cost";
         Item."Last Unit Cost Calc. Date" := FromItem."Last Unit Cost Calc. Date";
-        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
-            Item."Material Cost - Non Inventory" := FromItem."Material Cost - Non Inventory";
+        Item."Single-Lvl Mat. Non-Invt. Cost" := FromItem."Single-Lvl Mat. Non-Invt. Cost";
+        Item."Rolled-up Mat. Non-Invt. Cost" := FromItem."Rolled-up Mat. Non-Invt. Cost";
         OnUpdateStdCostSharesOnAfterCopyCosts(Item, FromItem);
         Item.Modify();
     end;
@@ -191,6 +191,8 @@ codeunit 5804 ItemCostManagement
         SKU."Rolled-up Subcontracted Cost" := FromSKU."Rolled-up Subcontracted Cost";
         SKU."Rolled-up Mfg. Ovhd Cost" := FromSKU."Rolled-up Mfg. Ovhd Cost";
         SKU."Rolled-up Cap. Overhead Cost" := FromSKU."Rolled-up Cap. Overhead Cost";
+        SKU."Single-Lvl Mat. Non-Invt. Cost" := FromSKU."Single-Lvl Mat. Non-Invt. Cost";
+        SKU."Rolled-up Mat. Non-Invt. Cost" := FromSKU."Rolled-up Mat. Non-Invt. Cost";
         SKU.Modify();
     end;
 
