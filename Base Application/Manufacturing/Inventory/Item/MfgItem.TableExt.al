@@ -374,6 +374,13 @@ tableextension 99000750 "Mfg. Item" extends Item
             DataClassification = CustomerContent;
             Editable = false;
         }
+        field(99000780; "Allow Whse. Overpick"; Boolean)
+        {
+            AutoFormatType = 2;
+            Caption = 'Allow Whse. Overpick';
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies that the record is allowed to be created in the Warehouse Pick list against the Released Production Order more than the quantity defined in the component Line. For example, system will allow to create Pick for 10 units even if the component in the BOM is defined for 3 units.';
+        }
     }
 
     keys
