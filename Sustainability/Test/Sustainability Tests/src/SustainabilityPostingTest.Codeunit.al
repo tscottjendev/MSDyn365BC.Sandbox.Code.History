@@ -13,6 +13,7 @@ codeunit 148184 "Sustainability Posting Test"
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryResource: Codeunit "Library - Resource";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -2051,7 +2052,7 @@ codeunit 148184 "Sustainability Posting Test"
     end;
 
     [Test]
-    procedure VerifySustainabilityLedgerEntryShouldBeCreatedWhenSalesDocumentIsPosted()
+    procedure VerifySustainabilityLedgerEntryShouldNotBeCreatedWhenSalesDocumentIsPosted()
     var
         SustainabilityLedgerEntry: Record "Sustainability Ledger Entry";
         SustainabilityAccount: Record "Sustainability Account";
@@ -2063,7 +2064,7 @@ codeunit 148184 "Sustainability Posting Test"
         AccountCode: Code[20];
         PostedInvoiceNo: Code[20];
     begin
-        // [SCENARIO 537481] Verify Sustainability Ledger entry should be created when the sales document is posted.
+        // [SCENARIO 563829] Verify Sustainability Ledger entry should not be created when the sales document is posted.
         LibrarySustainability.CleanUpBeforeTesting();
 
         // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
@@ -2096,93 +2097,9 @@ codeunit 148184 "Sustainability Posting Test"
         // [WHEN] Post a Sales Document.
         PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        // [VERIFY] Verify Sustainability Ledger entry should be created when the sales document is posted.
+        // [VERIFY] Verify Sustainability Ledger entry should not be created when the sales document is posted.
         SustainabilityLedgerEntry.SetRange("Document No.", PostedInvoiceNo);
-        SustainabilityLedgerEntry.FindFirst();
-        Assert.AreEqual(
-            -TotalCO2e,
-            SustainabilityLedgerEntry."CO2e Emission",
-            StrSubstNo(ValueMustBeEqualErr, SustainabilityLedgerEntry.FieldCaption("CO2e Emission"), -TotalCO2e, SustainabilityLedgerEntry.TableCaption()));
-        Assert.AreEqual(
-            0,
-            SustainabilityLedgerEntry."Emission CO2",
-            StrSubstNo(ValueMustBeEqualErr, SustainabilityLedgerEntry.FieldCaption("Emission CO2"), 0, SustainabilityLedgerEntry.TableCaption()));
-        Assert.AreEqual(
-            0,
-            SustainabilityLedgerEntry."Emission CH4",
-            StrSubstNo(ValueMustBeEqualErr, SustainabilityLedgerEntry.FieldCaption("Emission CH4"), 0, SustainabilityLedgerEntry.TableCaption()));
-        Assert.AreEqual(
-            0,
-            SustainabilityLedgerEntry."Emission N2O",
-            StrSubstNo(ValueMustBeEqualErr, SustainabilityLedgerEntry.FieldCaption("Emission N2O"), 0, SustainabilityLedgerEntry.TableCaption()));
-    end;
-
-    [Test]
-    procedure VerifySustainabilityLedgerEntryShouldBeCreatedWhenSalesDocumentIsPartiallyPosted()
-    var
-        SustainabilityLedgerEntry: Record "Sustainability Ledger Entry";
-        SustainabilityAccount: Record "Sustainability Account";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        TotalCO2e: Decimal;
-        CategoryCode: Code[20];
-        SubcategoryCode: Code[20];
-        AccountCode: Code[20];
-        PostedInvoiceNo: Code[20];
-    begin
-        // [SCENARIO 537481] Verify Sustainability Ledger entry should be created when the sales document is posted.
-        LibrarySustainability.CleanUpBeforeTesting();
-
-        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
-        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
-
-        // [GIVEN] Create a Sustainability Account.
-        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
-        SustainabilityAccount.Get(AccountCode);
-
-        // [GIVEN] Create a Sales Header.
-        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, LibrarySales.CreateCustomerNo());
-
-        // [GIVEN] Create a Sales Line.
-        LibrarySales.CreateSalesLine(
-            SalesLine,
-            SalesHeader,
-            "Sales Line Type"::Item,
-            LibraryInventory.CreateItemNo(),
-            LibraryRandom.RandIntInRange(10, 10));
-
-        // [GIVEN] Update "Unit Price", "Qty. to Ship", "Sustainability Account No.", "Total CO2e" in the Sales line.
-        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 200));
-        SalesLine.Validate("Qty. to Ship", LibraryRandom.RandIntInRange(5, 5));
-        SalesLine.Validate("Sust. Account No.", AccountCode);
-        SalesLine.Validate("Total CO2e", LibraryRandom.RandIntInRange(100, 100));
-        SalesLine.Modify();
-
-        // [GIVEN] Save Expected "Total CO2e".
-        TotalCO2e := SalesLine."CO2e per Unit" * SalesLine."Qty. per Unit of Measure" * LibraryRandom.RandIntInRange(5, 5) * -1;
-
-        // [WHEN] Post a Sales Document.
-        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [VERIFY] Verify Sustainability Ledger entry should be created when the sales document is posted.
-        SustainabilityLedgerEntry.SetRange("Document No.", PostedInvoiceNo);
-        SustainabilityLedgerEntry.FindFirst();
-        Assert.AreEqual(
-            TotalCO2e,
-            SustainabilityLedgerEntry."CO2e Emission",
-            StrSubstNo(ValueMustBeEqualErr, SustainabilityLedgerEntry.FieldCaption("CO2e Emission"), TotalCO2e, SustainabilityLedgerEntry.TableCaption()));
-        Assert.AreEqual(
-            0,
-            SustainabilityLedgerEntry."Emission N2O",
-            StrSubstNo(ValueMustBeEqualErr, SustainabilityLedgerEntry.FieldCaption("Emission N2O"), 0, SustainabilityLedgerEntry.TableCaption()));
-        Assert.AreEqual(
-            0,
-            SustainabilityLedgerEntry."Emission CH4",
-            StrSubstNo(ValueMustBeEqualErr, SustainabilityLedgerEntry.FieldCaption("Emission CH4"), 0, SustainabilityLedgerEntry.TableCaption()));
-        Assert.AreEqual(
-            0,
-            SustainabilityLedgerEntry."Emission N2O",
-            StrSubstNo(ValueMustBeEqualErr, SustainabilityLedgerEntry.FieldCaption("Emission N2O"), 0, SustainabilityLedgerEntry.TableCaption()));
+        Assert.RecordCount(SustainabilityLedgerEntry, 0);
     end;
 
     [Test]
@@ -2197,7 +2114,7 @@ codeunit 148184 "Sustainability Posting Test"
         SubcategoryCode: Code[20];
         AccountCode: Code[20];
     begin
-        // [SCENARIO 537481] Verify Sustainability Ledger entry should be Kocked Off when the Cancel Sales Credit Memo is posted.
+        // [SCENARIO 537481] Verify Sustainability Ledger entry should be Knocked Off when the Cancel Sales Credit Memo is posted.
         LibrarySustainability.CleanUpBeforeTesting();
 
         // [GIVEN] Create a Sustainability Account.
@@ -2785,8 +2702,8 @@ codeunit 148184 "Sustainability Posting Test"
     end;
 
     [Test]
-    [HandlerFunctions('GLPostingPreviewHandler')]
-    procedure VerifySustainabilityLedgerEntryShouldBeCreatedDuringPreviewPostingOfSalesOrder()
+    [HandlerFunctions('GLPostingPreviewHandlerForSales')]
+    procedure VerifySustainabilityLedgerEntryShouldNotBeCreatedDuringPreviewPostingOfSalesOrder()
     var
         SustainabilityAccount: Record "Sustainability Account";
         SalesHeader: Record "Sales Header";
@@ -2796,7 +2713,7 @@ codeunit 148184 "Sustainability Posting Test"
         SubcategoryCode: Code[20];
         AccountCode: Code[20];
     begin
-        // [SCENARIO 537481] Verify Sustainability Ledger Entry should be created during Preview Posting of Sales order.
+        // [SCENARIO 537481] Verify Sustainability Ledger Entry should not be created during Preview Posting of Sales order.
         LibrarySustainability.CleanUpBeforeTesting();
 
         // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
@@ -2837,8 +2754,8 @@ codeunit 148184 "Sustainability Posting Test"
     end;
 
     [Test]
-    [HandlerFunctions('NavigateFindEntriesHandler')]
-    procedure VerifySustainabilityLedgerEntryShouldBeShownWhenNavigatingPostedSalesInvoice()
+    [HandlerFunctions('NavigateFindEntriesHandlerForSales')]
+    procedure VerifySustainabilityLedgerEntryShouldNotBeShownWhenNavigatingPostedSalesInvoice()
     var
         SustainabilityAccount: Record "Sustainability Account";
         SalesHeader: Record "Sales Header";
@@ -2850,7 +2767,7 @@ codeunit 148184 "Sustainability Posting Test"
         AccountCode: Code[20];
         PostedPurchInvNo: Code[20];
     begin
-        // [SCENARIO 537481] Verify Sustainability Ledger Entry should be shown when navigating Posted Sales Invoice through NavigateFindEntriesHandler handler.
+        // [SCENARIO 537481] Verify Sustainability Ledger Entry should not be shown when navigating Posted Sales Invoice through NavigateFindEntriesHandler handler.
         LibrarySustainability.CleanUpBeforeTesting();
 
         // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
@@ -2883,7 +2800,7 @@ codeunit 148184 "Sustainability Posting Test"
         // [WHEN] Post a Sales Document.
         PostedPurchInvNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        // [VERIFY] Verify Sustainability Ledger Entry should be shown when navigating Posted Sales Invoice through NavigateFindEntriesHandler handler.
+        // [VERIFY] Verify Sustainability Ledger Entry should not be shown when navigating Posted Sales Invoice through NavigateFindEntriesHandler handler.
         SalesInvoiceHeader.Get(PostedPurchInvNo);
         SalesInvoiceHeader.Navigate();
     end;
@@ -3272,7 +3189,7 @@ codeunit 148184 "Sustainability Posting Test"
     end;
 
     [Test]
-    procedure VerifySustainabilityValueAndLedgerEntryShouldBeCreatedWhenDocumentIsPosted()
+    procedure VerifySustainabilityValueEntryShouldBeCreatedWhenDocumentIsPosted()
     var
         CompItem: Record Item;
         ParentItem: Record Item;
@@ -3287,7 +3204,7 @@ codeunit 148184 "Sustainability Posting Test"
         AccountCode: array[2] of Code[20];
         CO2ePerUnit: array[2] of Decimal;
     begin
-        // [SCENARIO 537480] Verify Sustainability Value and Ledger Entry should be created When Document is posted.
+        // [SCENARIO 537480] Verify Sustainability Value Entry should be created When Document is posted.
         LibrarySustainability.CleanUpBeforeTesting();
 
         // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
@@ -3320,13 +3237,10 @@ codeunit 148184 "Sustainability Posting Test"
         // [WHEN] Post Assembly Document.
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
-        // [THEN] Verify Sustainability Value and Ledger Entry When Assembly Document is posted.
+        // [THEN] Verify Sustainability Value Entry When Assembly Document is posted.
         GetPostedAssemblyHeader(PostedAssemblyHeader, ParentItem."No.");
         SustainabilityLedgerEntry.SetRange("Document No.", PostedAssemblyHeader."No.");
-
-        Assert.RecordCount(SustainabilityLedgerEntry, 2);
-        VerifySustainabilityLedgerEntry(AccountCode[1], CO2ePerUnit[2] * Quantity);
-        VerifySustainabilityLedgerEntry(AccountCode[2], -CO2ePerUnit[2] * Quantity);
+        Assert.RecordCount(SustainabilityLedgerEntry, 0);
 
         SustainabilityValueEntry.SetRange("Document No.", PostedAssemblyHeader."No.");
         Assert.RecordCount(SustainabilityValueEntry, 2);
@@ -3337,7 +3251,7 @@ codeunit 148184 "Sustainability Posting Test"
     end;
 
     [Test]
-    procedure VerifySustainabilityValueAndLedgerEntryShouldBeCreatedWhenDocumentIsPartiallyPosted()
+    procedure VerifySustainabilityValueEntryShouldBeCreatedWhenDocumentIsPartiallyPosted()
     var
         CompItem: Record Item;
         ParentItem: Record Item;
@@ -3352,7 +3266,7 @@ codeunit 148184 "Sustainability Posting Test"
         AccountCode: array[2] of Code[20];
         CO2ePerUnit: array[2] of Decimal;
     begin
-        // [SCENARIO 537480] Verify Sustainability Value and Ledger Entry should be created When Document is partially posted.
+        // [SCENARIO 537480] Verify Sustainability Value Entry should be created When Document is partially posted.
         LibrarySustainability.CleanUpBeforeTesting();
 
         // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
@@ -3387,13 +3301,10 @@ codeunit 148184 "Sustainability Posting Test"
         // [WHEN] Post Assembly Document.
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
-        // [THEN] Verify Sustainability Value and Ledger Entry When Assembly Document is partially posted.
+        // [THEN] Verify Sustainability Value When Assembly Document is partially posted.
         GetPostedAssemblyHeader(PostedAssemblyHeader, ParentItem."No.");
         SustainabilityLedgerEntry.SetRange("Document No.", PostedAssemblyHeader."No.");
-
-        Assert.RecordCount(SustainabilityLedgerEntry, 2);
-        VerifySustainabilityLedgerEntry(AccountCode[1], CO2ePerUnit[2] * LibraryRandom.RandIntInRange(5, 5));
-        VerifySustainabilityLedgerEntry(AccountCode[2], -CO2ePerUnit[2] * LibraryRandom.RandIntInRange(5, 5));
+        Assert.RecordCount(SustainabilityLedgerEntry, 0);
 
         SustainabilityValueEntry.SetRange("Document No.", PostedAssemblyHeader."No.");
         Assert.RecordCount(SustainabilityValueEntry, 2);
@@ -3405,7 +3316,7 @@ codeunit 148184 "Sustainability Posting Test"
 
     [Test]
     [HandlerFunctions('GLPostingPreviewHandlerForAssemblyOrder')]
-    procedure VerifySustainabilityValueAndLedgerEntryShouldBeCreatedDuringPreviewPostingOfAssemblyOrder()
+    procedure VerifySustainabilityValueEntryShouldBeCreatedDuringPreviewPostingOfAssemblyOrder()
     var
         CompItem: Record Item;
         ParentItem: Record Item;
@@ -3418,7 +3329,7 @@ codeunit 148184 "Sustainability Posting Test"
         AccountCode: array[2] of Code[20];
         CO2ePerUnit: array[2] of Decimal;
     begin
-        // [SCENARIO 537480] Verify Sustainability Value and Ledger Entry should be created during preview posting of Assembly Order.
+        // [SCENARIO 537480] Verify Sustainability Value Entry should be created during preview posting of Assembly Order.
         LibrarySustainability.CleanUpBeforeTesting();
 
         // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
@@ -3461,7 +3372,7 @@ codeunit 148184 "Sustainability Posting Test"
 
     [Test]
     [HandlerFunctions('NavigateFindEntriesHandlerForAssemblyOrder')]
-    procedure VerifySustainabilityLedgerAndValueEntryShouldBeShownWhenNavigatingPostedAssemblyOrder()
+    procedure VerifySustainabilityValueEntryShouldBeShownWhenNavigatingPostedAssemblyOrder()
     var
         CompItem: Record Item;
         ParentItem: Record Item;
@@ -3474,7 +3385,7 @@ codeunit 148184 "Sustainability Posting Test"
         AccountCode: array[2] of Code[20];
         CO2ePerUnit: array[2] of Decimal;
     begin
-        // [SCENARIO 537480] Verify Sustainability Ledger and Value Entry should be shown when navigating Posted Assembly Order through NavigateFindEntriesHandler handler.
+        // [SCENARIO 537480] Verify Sustainability Value Entry should be shown when navigating Posted Assembly Order through NavigateFindEntriesHandler handler.
         LibrarySustainability.CleanUpBeforeTesting();
 
         // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
@@ -3507,7 +3418,7 @@ codeunit 148184 "Sustainability Posting Test"
         // [WHEN] Post Assembly Document.
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
-        // [VERIFY] Verify Sustainability Ledger Entry should be shown when navigating Posted Sales Invoice through NavigateFindEntriesHandler handler.
+        // [VERIFY] Verify Sustainability Value Entry should be shown when navigating Posted Sales Invoice through NavigateFindEntriesHandler handler.
         GetPostedAssemblyHeader(PostedAssemblyHeader, ParentItem."No.");
         PostedAssemblyHeader.Navigate();
 
@@ -3515,7 +3426,7 @@ codeunit 148184 "Sustainability Posting Test"
     end;
 
     [Test]
-    procedure VerifySustainabilityFieldsShouldBeUpdatedFromItemInTransferLine()
+    procedure VerifySustainabilityFieldsShouldNotBeUpdatedFromItemInTransferLine()
     var
         SustainabilityAccount: Record "Sustainability Account";
         TransferHeader: Record "Transfer Header";
@@ -3530,7 +3441,7 @@ codeunit 148184 "Sustainability Posting Test"
         SubcategoryCode: Code[20];
         AccountCode: Code[20];
     begin
-        // [SCENARIO 537480] Verify Sustainability fields should be updated from Item When "Item No." in Transfer Line.
+        // [SCENARIO 563480] Verify Sustainability fields should not be updated from Item When "Item No." in Transfer Line.
         LibrarySustainability.CleanUpBeforeTesting();
 
         // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
@@ -3557,30 +3468,31 @@ codeunit 148184 "Sustainability Posting Test"
         Item.Modify();
 
         // [WHEN] Create Transfer Order.
-        CreateTransferOrderWithLocation(TransferHeader, Item, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, Quantity);
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Quantity);
 
-        // [VERIFY] Verify Sustainability Ledger entry should be created when the sales document is posted.
+        // [VERIFY] Verify Sustainability fields should not be updated from Item When "Item No." in Transfer Line.
         GetTransferLine(TransferHeader, TransferLine);
         Assert.AreEqual(
             AccountCode,
             TransferLine."Sust. Account No.",
             StrSubstNo(ValueMustBeEqualErr, TransferLine.FieldCaption("Sust. Account No."), AccountCode, TransferLine.TableCaption()));
         Assert.AreEqual(
-            CO2ePerUnit,
+            0,
             TransferLine."CO2e per Unit",
             StrSubstNo(ValueMustBeEqualErr, TransferLine.FieldCaption("CO2e per Unit"), CO2ePerUnit, TransferLine.TableCaption()));
         Assert.AreEqual(
-            CO2ePerUnit * Quantity,
+            0,
             TransferLine."Total CO2e",
             StrSubstNo(ValueMustBeEqualErr, TransferLine.FieldCaption("Total CO2e"), CO2ePerUnit * Quantity, TransferLine.TableCaption()));
     end;
 
     [Test]
-    procedure VerifySustainabilityFieldsShouldBeUpdatedInTransferShipmentAndReceiptLine()
+    procedure VerifySustainabilityFieldsShouldBeUpdatedInTransferShipmentLine()
     var
+        AccountingPeriod: Record "Accounting Period";
         SustainabilityAccount: Record "Sustainability Account";
         TransferShipmentLine: Record "Transfer Shipment Line";
-        TransferReceiptLine: Record "Transfer Receipt Line";
         TransferHeader: Record "Transfer Header";
         FromLocation: Record Location;
         ToLocation: Record Location;
@@ -3592,8 +3504,14 @@ codeunit 148184 "Sustainability Posting Test"
         SubcategoryCode: Code[20];
         AccountCode: Code[20];
     begin
-        // [SCENARIO 537480] Verify Sustainability fields should be updated in "Transfer Shipment Line" and "Transfer Receipt Line".
+        // [SCENARIO 537480] Verify Sustainability fields should be updated in "Transfer Shipment Line".
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Find Accounting Period.
+        FindAccountingPeriod(AccountingPeriod);
+
+        // [GIVEN] Change WorkDate.
+        WorkDate(AccountingPeriod."Starting Date");
 
         // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
         LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
@@ -3606,7 +3524,7 @@ codeunit 148184 "Sustainability Posting Test"
         CO2ePerUnit := LibraryRandom.RandIntInRange(100, 100);
         Quantity := LibraryRandom.RandIntInRange(10, 10);
 
-        // [GIVEN] Create FromLocation, ToLocation and IntransitLocation that will be used to create Transfer Order.
+        // [GIVEN] Create FromLocation, ToLocation and Intransit Location that will be used to create Transfer Order.
         LibraryWarehouse.CreateTransferLocations(FromLocation, ToLocation, InTransitLocation);
 
         // [GIVEN] Create Item with Inventory.
@@ -3619,7 +3537,7 @@ codeunit 148184 "Sustainability Posting Test"
         Item.Modify();
 
         // [GIVEN] Create Transfer Order.
-        CreateTransferOrderWithLocation(TransferHeader, Item, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, Quantity);
+        CreateTransferOrderWithLocation(TransferHeader, Item, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, Quantity, CO2ePerUnit);
 
         // [WHEN] Post Transfer Order.
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
@@ -3638,28 +3556,14 @@ codeunit 148184 "Sustainability Posting Test"
             CO2ePerUnit * Quantity,
             TransferShipmentLine."Total CO2e",
             StrSubstNo(ValueMustBeEqualErr, TransferShipmentLine.FieldCaption("Total CO2e"), CO2ePerUnit * Quantity, TransferShipmentLine.TableCaption()));
-
-        GetTransferReceiptLine(TransferReceiptLine, Item."No.");
-        Assert.AreEqual(
-            AccountCode,
-            TransferReceiptLine."Sust. Account No.",
-            StrSubstNo(ValueMustBeEqualErr, TransferReceiptLine.FieldCaption("Sust. Account No."), AccountCode, TransferReceiptLine.TableCaption()));
-        Assert.AreEqual(
-            CO2ePerUnit,
-            TransferReceiptLine."CO2e per Unit",
-            StrSubstNo(ValueMustBeEqualErr, TransferReceiptLine.FieldCaption("CO2e per Unit"), CO2ePerUnit, TransferReceiptLine.TableCaption()));
-        Assert.AreEqual(
-            CO2ePerUnit * Quantity,
-            TransferReceiptLine."Total CO2e",
-            StrSubstNo(ValueMustBeEqualErr, TransferReceiptLine.FieldCaption("Total CO2e"), CO2ePerUnit * Quantity, TransferReceiptLine.TableCaption()));
     end;
 
     [Test]
-    procedure VerifySustainabilityFieldsShouldBeUpdatedInTransferShipmentAndReceiptLineWhenDocumentIsPartiallyPosted()
+    procedure VerifySustainabilityFieldsShouldBeUpdatedInTransferShipmentLineWhenDocumentIsPartiallyPosted()
     var
+        AccountingPeriod: Record "Accounting Period";
         SustainabilityAccount: Record "Sustainability Account";
         TransferShipmentLine: Record "Transfer Shipment Line";
-        TransferReceiptLine: Record "Transfer Receipt Line";
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
         FromLocation: Record Location;
@@ -3672,8 +3576,14 @@ codeunit 148184 "Sustainability Posting Test"
         SubcategoryCode: Code[20];
         AccountCode: Code[20];
     begin
-        // [SCENARIO 537480] Verify Sustainability fields should be updated in "Transfer Shipment Line" and "Transfer Receipt Line" When Transfer Order is partially posted.
+        // [SCENARIO 537480] Verify Sustainability fields should be updated in "Transfer Shipment Line" When Transfer Order is partially posted.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Find Accounting Period.
+        FindAccountingPeriod(AccountingPeriod);
+
+        // [GIVEN] Change WorkDate.
+        WorkDate(AccountingPeriod."Starting Date");
 
         // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
         LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
@@ -3699,7 +3609,7 @@ codeunit 148184 "Sustainability Posting Test"
         Item.Modify();
 
         // [GIVEN] Create Transfer Order.
-        CreateTransferOrderWithLocation(TransferHeader, Item, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, Quantity);
+        CreateTransferOrderWithLocation(TransferHeader, Item, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, Quantity, CO2ePerUnit);
 
         // [GIVEN] Update "Qty. to Ship" in Transfer Line.
         GetTransferLine(TransferHeader, TransferLine);
@@ -3709,7 +3619,7 @@ codeunit 148184 "Sustainability Posting Test"
         // [WHEN] Post Transfer Order.
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
 
-        // [VERIFY] Verify Sustainability fields should be updated in "Transfer Shipment Line" and "Transfer Receipt Line".
+        // [VERIFY] Verify Sustainability fields should be updated in "Transfer Shipment Line".
         GetTransferShipmentLine(TransferShipmentLine, Item."No.");
         Assert.AreEqual(
             AccountCode,
@@ -3723,28 +3633,14 @@ codeunit 148184 "Sustainability Posting Test"
             CO2ePerUnit * LibraryRandom.RandIntInRange(5, 5),
             TransferShipmentLine."Total CO2e",
             StrSubstNo(ValueMustBeEqualErr, TransferShipmentLine.FieldCaption("Total CO2e"), CO2ePerUnit * LibraryRandom.RandIntInRange(5, 5), TransferShipmentLine.TableCaption()));
-
-        GetTransferReceiptLine(TransferReceiptLine, Item."No.");
-        Assert.AreEqual(
-            AccountCode,
-            TransferReceiptLine."Sust. Account No.",
-            StrSubstNo(ValueMustBeEqualErr, TransferReceiptLine.FieldCaption("Sust. Account No."), AccountCode, TransferReceiptLine.TableCaption()));
-        Assert.AreEqual(
-            CO2ePerUnit,
-            TransferReceiptLine."CO2e per Unit",
-            StrSubstNo(ValueMustBeEqualErr, TransferReceiptLine.FieldCaption("CO2e per Unit"), CO2ePerUnit, TransferReceiptLine.TableCaption()));
-        Assert.AreEqual(
-            CO2ePerUnit * LibraryRandom.RandIntInRange(5, 5),
-            TransferReceiptLine."Total CO2e",
-            StrSubstNo(ValueMustBeEqualErr, TransferReceiptLine.FieldCaption("Total CO2e"), CO2ePerUnit * LibraryRandom.RandIntInRange(5, 5), TransferReceiptLine.TableCaption()));
     end;
 
     [Test]
-    procedure VerifySustainabilityValueAndLedgerEntryWhenDocumentIsPartiallyPosted()
+    procedure VerifySustainabilityValueEntryWhenDocumentIsPartiallyPosted()
     var
+        AccountingPeriod: Record "Accounting Period";
         SustainabilityAccount: Record "Sustainability Account";
         TransferShipmentLine: Record "Transfer Shipment Line";
-        TransferReceiptLine: Record "Transfer Receipt Line";
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
         FromLocation: Record Location;
@@ -3757,8 +3653,14 @@ codeunit 148184 "Sustainability Posting Test"
         SubcategoryCode: Code[20];
         AccountCode: Code[20];
     begin
-        // [SCENARIO 537480] Verify Sustainability Value Entry and Sustainability Ledger Entry When Transfer Order is partially posted.
+        // [SCENARIO 537480] Verify Sustainability Value Entry When Transfer Order is partially posted.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Find Accounting Period.
+        FindAccountingPeriod(AccountingPeriod);
+
+        // [GIVEN] Change WorkDate.
+        WorkDate(AccountingPeriod."Starting Date");
 
         // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
         LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
@@ -3771,7 +3673,7 @@ codeunit 148184 "Sustainability Posting Test"
         CO2ePerUnit := LibraryRandom.RandIntInRange(100, 100);
         Quantity := LibraryRandom.RandIntInRange(10, 10);
 
-        // [GIVEN] Create FromLocation, ToLocation and IntransitLocation that will be used to create Transfer Order.
+        // [GIVEN] Create FromLocation, ToLocation and Intransit Location that will be used to create Transfer Order.
         LibraryWarehouse.CreateTransferLocations(FromLocation, ToLocation, InTransitLocation);
 
         // [GIVEN] Create Item with Inventory.
@@ -3784,7 +3686,7 @@ codeunit 148184 "Sustainability Posting Test"
         Item.Modify();
 
         // [GIVEN] Create Transfer Order.
-        CreateTransferOrderWithLocation(TransferHeader, Item, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, Quantity);
+        CreateTransferOrderWithLocation(TransferHeader, Item, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, Quantity, CO2ePerUnit);
 
         // [GIVEN] Update "Qty. to Ship" in Transfer Line.
         GetTransferLine(TransferHeader, TransferLine);
@@ -3794,20 +3696,17 @@ codeunit 148184 "Sustainability Posting Test"
         // [WHEN] Post Transfer Order.
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
 
-        // [VERIFY] Verify Sustainability Value Entry and Sustainability Ledger Entry for "Transfer Shipment" and "Transfer Receipt".
+        // [VERIFY] Verify Sustainability Value Entry for "Transfer Shipment".
         GetTransferShipmentLine(TransferShipmentLine, Item."No.");
-        VerifySustainabilityValueEntryForTransferOrder(TransferShipmentLine."Document No.", CO2ePerUnit, -CO2ePerUnit * LibraryRandom.RandIntInRange(5, 5));
-        VerifySustainabilityLedgerEntryForTransferOrder(TransferShipmentLine."Document No.", AccountCode, -CO2ePerUnit * LibraryRandom.RandIntInRange(5, 5));
-
-        GetTransferReceiptLine(TransferReceiptLine, Item."No.");
-        VerifySustainabilityValueEntryForTransferOrder(TransferReceiptLine."Document No.", CO2ePerUnit, CO2ePerUnit * LibraryRandom.RandIntInRange(5, 5));
-        VerifySustainabilityLedgerEntryForTransferOrder(TransferReceiptLine."Document No.", AccountCode, CO2ePerUnit * LibraryRandom.RandIntInRange(5, 5));
+        VerifySustainabilityValueEntryForTransferOrder(TransferShipmentLine."Document No.", CO2ePerUnit, CO2ePerUnit * LibraryRandom.RandIntInRange(5, 5));
+        VerifySustainabilityLedgerEntryForTransferOrder(TransferShipmentLine."Document No.");
     end;
 
     [Test]
     [HandlerFunctions('TransferOrderPostOptionsHandler,GLPostingPreviewHandlerForTransferOrder')]
-    procedure VerifySustainabilityValueAndLedgerEntryShouldBeCreatedForShipDuringPreviePostingofTransferOrder()
+    procedure VerifySustainabilityValueEntryShouldBeCreatedForShipDuringPreviePostingOfTransferOrder()
     var
+        AccountingPeriod: Record "Accounting Period";
         SustainabilityAccount: Record "Sustainability Account";
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
@@ -3822,8 +3721,14 @@ codeunit 148184 "Sustainability Posting Test"
         SubcategoryCode: Code[20];
         AccountCode: Code[20];
     begin
-        // [SCENARIO 537480] Verify Sustainability Value and Ledger Entry should be created for ship during preview posting of Transfer Order.
+        // [SCENARIO 537480] Verify Sustainability Value Entry should be created for ship during preview posting of Transfer Order.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Find Accounting Period.
+        FindAccountingPeriod(AccountingPeriod);
+
+        // [GIVEN] Change WorkDate.
+        WorkDate(AccountingPeriod."Starting Date");
 
         // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
         LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
@@ -3836,7 +3741,7 @@ codeunit 148184 "Sustainability Posting Test"
         CO2ePerUnit := LibraryRandom.RandIntInRange(100, 100);
         Quantity := LibraryRandom.RandIntInRange(10, 10);
 
-        // [GIVEN] Create FromLocation, ToLocation and IntransitLocation that will be used to create Transfer Order.
+        // [GIVEN] Create FromLocation, ToLocation and Intransit Location that will be used to create Transfer Order.
         LibraryWarehouse.CreateTransferLocations(FromLocation, ToLocation, InTransitLocation);
 
         // [GIVEN] Create Item with Inventory.
@@ -3849,7 +3754,7 @@ codeunit 148184 "Sustainability Posting Test"
         Item.Modify();
 
         // [GIVEN] Create Transfer Order.
-        CreateTransferOrderWithLocation(TransferHeader, Item, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, Quantity);
+        CreateTransferOrderWithLocation(TransferHeader, Item, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, Quantity, CO2ePerUnit);
 
         // [GIVEN] Update "Qty. to Ship" in Transfer Line.
         GetTransferLine(TransferHeader, TransferLine);
@@ -3863,80 +3768,15 @@ codeunit 148184 "Sustainability Posting Test"
         LibraryVariableStorage.Enqueue(1); // Choice 1 is ship
         asserterror TransferOrderPostYesNo.Preview(TransferHeader);
 
-        // [VERIFY] No errors occured - preview mode error only.
-        Assert.ExpectedError('');
-    end;
-
-    [Test]
-    [HandlerFunctions('TransferOrderPostOptionsHandler,GLPostingPreviewHandlerForTransferOrder')]
-    procedure VerifySustainabilityValueAndLedgerEntryShouldBeCreatedForReceiptDuringPreviePostingofTransferOrder()
-    var
-        SustainabilityAccount: Record "Sustainability Account";
-        TransferHeader: Record "Transfer Header";
-        TransferLine: Record "Transfer Line";
-        FromLocation: Record Location;
-        ToLocation: Record Location;
-        InTransitLocation: Record Location;
-        Item: Record Item;
-        TransferOrderPostYesNo: Codeunit "TransferOrder-Post (Yes/No)";
-        CO2ePerUnit: Decimal;
-        Quantity: Decimal;
-        CategoryCode: Code[20];
-        SubcategoryCode: Code[20];
-        AccountCode: Code[20];
-    begin
-        // [SCENARIO 537480] Verify Sustainability Value and Ledger Entry should be created for Receipt during preview posting of Transfer Order.
-        LibrarySustainability.CleanUpBeforeTesting();
-
-        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
-        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
-
-        // [GIVEN] Create a Sustainability Account.
-        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
-        SustainabilityAccount.Get(AccountCode);
-
-        // [GIVEN] Generate "CO2e per unit" and Quantity.
-        CO2ePerUnit := LibraryRandom.RandIntInRange(100, 100);
-        Quantity := LibraryRandom.RandIntInRange(10, 10);
-
-        // [GIVEN] Create FromLocation, ToLocation and IntransitLocation that will be used to create Transfer Order.
-        LibraryWarehouse.CreateTransferLocations(FromLocation, ToLocation, InTransitLocation);
-
-        // [GIVEN] Create Item with Inventory.
-        CreateItemWithInventory(Item, FromLocation.Code);
-
-        // [GIVEN] Update "Default Sust. Account", "CO2e per Unit" in an Item.
-        Item.Get(Item."No.");
-        Item.Validate("Default Sust. Account", AccountCode);
-        Item.Validate("CO2e per Unit", CO2ePerUnit);
-        Item.Modify();
-
-        // [GIVEN] Create Transfer Order.
-        CreateTransferOrderWithLocation(TransferHeader, Item, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, Quantity);
-
-        // [GIVEN] Update "Qty. to Ship" in Transfer Line.
-        GetTransferLine(TransferHeader, TransferLine);
-        TransferLine.Validate("Qty. to Ship", LibraryRandom.RandIntInRange(5, 5));
-        TransferLine.Modify();
-
-        // [GIVEN] Post Tranfer Order
-        LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
-
-        // [GIVEN] Save a transaction.
-        Commit();
-
-        // [WHEN] Preview Transfer Order for Receive.
-        LibraryVariableStorage.Enqueue(2); // Choice 1 is Receive
-        asserterror TransferOrderPostYesNo.Preview(TransferHeader);
-
-        // [VERIFY] No errors occured - preview mode error only.
+        // [VERIFY] No errors occurred - preview mode error only.
         Assert.ExpectedError('');
     end;
 
     [Test]
     [HandlerFunctions('NavigateFindEntriesHandlerForTransferOrder')]
-    procedure VerifySustainabilityValueAndLedgerEntryShouldBeShownWhenNavigatingTransferShipment()
+    procedure VerifySustainabilityValueEntryShouldBeShownWhenNavigatingTransferShipment()
     var
+        AccountingPeriod: Record "Accounting Period";
         SustainabilityAccount: Record "Sustainability Account";
         TransferShipmentHeader: Record "Transfer Shipment Header";
         TransferHeader: Record "Transfer Header";
@@ -3951,8 +3791,14 @@ codeunit 148184 "Sustainability Posting Test"
         SubcategoryCode: Code[20];
         AccountCode: Code[20];
     begin
-        // [SCENARIO 537480] Verify Sustainability Ledger and Value Entry should be shown when navigating Transfer Shipment through NavigateFindEntriesHandler handler.
+        // [SCENARIO 537480] Verify Sustainability Value Entry should be shown when navigating Transfer Shipment through NavigateFindEntriesHandler handler.
         LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Find Accounting Period.
+        FindAccountingPeriod(AccountingPeriod);
+
+        // [GIVEN] Change WorkDate.
+        WorkDate(AccountingPeriod."Starting Date");
 
         // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
         LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
@@ -3965,7 +3811,7 @@ codeunit 148184 "Sustainability Posting Test"
         CO2ePerUnit := LibraryRandom.RandIntInRange(100, 100);
         Quantity := LibraryRandom.RandIntInRange(10, 10);
 
-        // [GIVEN] Create FromLocation, ToLocation and IntransitLocation that will be used to create Transfer Order.
+        // [GIVEN] Create FromLocation, ToLocation and Intransit Location that will be used to create Transfer Order.
         LibraryWarehouse.CreateTransferLocations(FromLocation, ToLocation, InTransitLocation);
 
         // [GIVEN] Create Item with Inventory.
@@ -3978,7 +3824,7 @@ codeunit 148184 "Sustainability Posting Test"
         Item.Modify();
 
         // [GIVEN] Create Transfer Order.
-        CreateTransferOrderWithLocation(TransferHeader, Item, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, Quantity);
+        CreateTransferOrderWithLocation(TransferHeader, Item, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, Quantity, CO2ePerUnit);
 
         // [GIVEN] Update "Qty. to Ship" in Transfer Line.
         GetTransferLine(TransferHeader, TransferLine);
@@ -3991,66 +3837,6 @@ codeunit 148184 "Sustainability Posting Test"
         // [VERIFY] Verify Sustainability Value and Ledger Entry should be shown when navigating Transfer Shipment Header through NavigateFindEntriesHandler handler.
         GetTransferShipmentHeader(TransferShipmentHeader, FromLocation.Code);
         TransferShipmentHeader.Navigate();
-    end;
-
-    [Test]
-    [HandlerFunctions('NavigateFindEntriesHandlerForTransferOrder')]
-    procedure VerifySustainabilityValueAndLedgerEntryShouldBeShownWhenNavigatingTransferReceipt()
-    var
-        SustainabilityAccount: Record "Sustainability Account";
-        TransferReceiptHeader: Record "Transfer Receipt Header";
-        TransferHeader: Record "Transfer Header";
-        TransferLine: Record "Transfer Line";
-        FromLocation: Record Location;
-        ToLocation: Record Location;
-        InTransitLocation: Record Location;
-        Item: Record Item;
-        CO2ePerUnit: Decimal;
-        Quantity: Decimal;
-        CategoryCode: Code[20];
-        SubcategoryCode: Code[20];
-        AccountCode: Code[20];
-    begin
-        // [SCENARIO 537480] Verify Sustainability Ledger and Value Entry should be shown when navigating Transfer Receipt through NavigateFindEntriesHandler handler.
-        LibrarySustainability.CleanUpBeforeTesting();
-
-        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
-        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
-
-        // [GIVEN] Create a Sustainability Account.
-        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
-        SustainabilityAccount.Get(AccountCode);
-
-        // [GIVEN] Generate "CO2e per unit" and Quantity.
-        CO2ePerUnit := LibraryRandom.RandIntInRange(100, 100);
-        Quantity := LibraryRandom.RandIntInRange(10, 10);
-
-        // [GIVEN] Create FromLocation, ToLocation and IntransitLocation that will be used to create Transfer Order.
-        LibraryWarehouse.CreateTransferLocations(FromLocation, ToLocation, InTransitLocation);
-
-        // [GIVEN] Create Item with Inventory.
-        CreateItemWithInventory(Item, FromLocation.Code);
-
-        // [GIVEN] Update "Default Sust. Account", "CO2e per Unit" in an Item.
-        Item.Get(Item."No.");
-        Item.Validate("Default Sust. Account", AccountCode);
-        Item.Validate("CO2e per Unit", CO2ePerUnit);
-        Item.Modify();
-
-        // [GIVEN] Create Transfer Order.
-        CreateTransferOrderWithLocation(TransferHeader, Item, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, Quantity);
-
-        // [GIVEN] Update "Qty. to Ship" in Transfer Line.
-        GetTransferLine(TransferHeader, TransferLine);
-        TransferLine.Validate("Qty. to Ship", LibraryRandom.RandIntInRange(5, 5));
-        TransferLine.Modify();
-
-        // [WHEN] Post Transfer Order.
-        LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
-
-        // [VERIFY] Verify Sustainability Value and Ledger Entry should be shown when navigating Transfer Receipt Header through NavigateFindEntriesHandler handler.
-        GetTransferReceiptHeader(TransferReceiptHeader, FromLocation.Code);
-        TransferReceiptHeader.Navigate();
     end;
 
     [Test]
@@ -4273,6 +4059,364 @@ codeunit 148184 "Sustainability Posting Test"
 
         // [THEN] Sustainability Value Entry is not found.
         Assert.IsTrue(SustainabilityValueEntry.IsEmpty(), SustValueEntryShouldNotBeFoundErr);
+    end;
+
+    [Test]
+    procedure VerifyDefaultEmissionFieldsMustBeUpdatedInItemForReplenishmentSystemPurchase()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        AccountCode: Code[20];
+        EmissionCO2PerUnit: Decimal;
+        EmissionCH4PerUnit: Decimal;
+        EmissionN2OPerUnit: Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+    begin
+        // [SCENARIO 563478] Verify "Default CO2 Emission", "Default CH4 Emission", "Default N2O Emission" must be updated in Item for "Replenishment System" Purchase.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Generate Emission.
+        EmissionCO2PerUnit := LibraryRandom.RandIntInRange(100, 100);
+        EmissionCH4PerUnit := LibraryRandom.RandIntInRange(200, 200);
+        EmissionN2OPerUnit := LibraryRandom.RandIntInRange(300, 300);
+
+        // [GIVEN] Create an item with "Replenishment System" and "Default Sust. Account".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("Default Sust. Account", AccountCode);
+        Item.Modify();
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create a Purchase Line.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            "Purchase Line Type"::Item,
+            Item."No.",
+            LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Update "Emission CO2 Per Unit" ,"Emission CH4 Per Unit" ,"Emission N2O Per Unit" in Purchase Line.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 100));
+        PurchaseLine.Validate("Emission CO2 Per Unit", EmissionCO2PerUnit);
+        PurchaseLine.Validate("Emission CH4 Per Unit", EmissionCH4PerUnit);
+        PurchaseLine.Validate("Emission N2O Per Unit", EmissionN2OPerUnit);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Document with Receiving and Invoicing.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify "Default CO2 Emission", "Default CH4 Emission", "Default N2O Emission" must be updated in Item for "Replenishment System" Purchase.
+        Item.Get(Item."No.");
+        Assert.AreEqual(
+            EmissionCO2PerUnit,
+            Item."Default CO2 Emission",
+            StrSubstNo(ValueMustBeEqualErr, Item.FieldCaption("Default CO2 Emission"), EmissionCO2PerUnit, Item.TableCaption()));
+        Assert.AreEqual(
+            EmissionCH4PerUnit,
+            Item."Default CH4 Emission",
+            StrSubstNo(ValueMustBeEqualErr, Item.FieldCaption("Default CH4 Emission"), EmissionCH4PerUnit, Item.TableCaption()));
+        Assert.AreEqual(
+            EmissionN2OPerUnit,
+            Item."Default N2O Emission",
+            StrSubstNo(ValueMustBeEqualErr, Item.FieldCaption("Default N2O Emission"), EmissionN2OPerUnit, Item.TableCaption()));
+    end;
+
+    [Test]
+    procedure VerifyDefaultEmissionFieldsMustNotBeUpdatedInItemIfDefaultSustAccountIsBlank()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        AccountCode: Code[20];
+        EmissionCO2PerUnit: Decimal;
+        EmissionCH4PerUnit: Decimal;
+        EmissionN2OPerUnit: Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+    begin
+        // [SCENARIO 563478] Verify "Default CO2 Emission", "Default CH4 Emission", "Default N2O Emission" must not be updated in Item If "Default Sust. Account" is blank.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Generate Emission.
+        EmissionCO2PerUnit := LibraryRandom.RandIntInRange(100, 100);
+        EmissionCH4PerUnit := LibraryRandom.RandIntInRange(200, 200);
+        EmissionN2OPerUnit := LibraryRandom.RandIntInRange(300, 300);
+
+        // [GIVEN] Create an item with "Replenishment System" and "Default Sust. Account".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Modify();
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create a Purchase Line.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            "Purchase Line Type"::Item,
+            Item."No.",
+            LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Update "Sust. Account No.", "Emission CO2 Per Unit" ,"Emission CH4 Per Unit" ,"Emission N2O Per Unit" in Purchase Line.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 100));
+        PurchaseLine.Validate("Sust. Account No.", AccountCode);
+        PurchaseLine.Validate("Emission CO2 Per Unit", EmissionCO2PerUnit);
+        PurchaseLine.Validate("Emission CH4 Per Unit", EmissionCH4PerUnit);
+        PurchaseLine.Validate("Emission N2O Per Unit", EmissionN2OPerUnit);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Document with Receiving and Invoicing.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify "Default CO2 Emission", "Default CH4 Emission", "Default N2O Emission" must not be updated in Item If "Default Sust. Account" is blank.
+        Item.Get(Item."No.");
+        Assert.AreEqual(
+            0,
+            Item."Default CO2 Emission",
+            StrSubstNo(ValueMustBeEqualErr, Item.FieldCaption("Default CO2 Emission"), 0, Item.TableCaption()));
+        Assert.AreEqual(
+            0,
+            Item."Default CH4 Emission",
+            StrSubstNo(ValueMustBeEqualErr, Item.FieldCaption("Default CH4 Emission"), 0, Item.TableCaption()));
+        Assert.AreEqual(
+            0,
+            Item."Default N2O Emission",
+            StrSubstNo(ValueMustBeEqualErr, Item.FieldCaption("Default N2O Emission"), 0, Item.TableCaption()));
+    end;
+
+    [Test]
+    procedure VerifyDefaultEmissionFieldsMustNotBeUpdatedInItemForReplenishmentSystemProdOrder()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        AccountCode: Code[20];
+        EmissionCO2PerUnit: Decimal;
+        EmissionCH4PerUnit: Decimal;
+        EmissionN2OPerUnit: Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+    begin
+        // [SCENARIO 563478] Verify "Default CO2 Emission", "Default CH4 Emission", "Default N2O Emission" must not be updated in Item for "Replenishment System" "Prod. Order".
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Generate Emission.
+        EmissionCO2PerUnit := LibraryRandom.RandIntInRange(100, 100);
+        EmissionCH4PerUnit := LibraryRandom.RandIntInRange(200, 200);
+        EmissionN2OPerUnit := LibraryRandom.RandIntInRange(300, 300);
+
+        // [GIVEN] Create an item with "Replenishment System" and "Default Sust. Account".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Default Sust. Account", AccountCode);
+        Item.Modify();
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create a Purchase Line.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            "Purchase Line Type"::Item,
+            Item."No.",
+            LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Update "Emission CO2 Per Unit" ,"Emission CH4 Per Unit" ,"Emission N2O Per Unit" in Purchase Line.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 100));
+        PurchaseLine.Validate("Emission CO2 Per Unit", EmissionCO2PerUnit);
+        PurchaseLine.Validate("Emission CH4 Per Unit", EmissionCH4PerUnit);
+        PurchaseLine.Validate("Emission N2O Per Unit", EmissionN2OPerUnit);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Document with Receiving and Invoicing.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify "Default CO2 Emission", "Default CH4 Emission", "Default N2O Emission" must not be updated in Item for "Replenishment System" "Prod. Order".
+        Item.Get(Item."No.");
+        Assert.AreEqual(
+            0,
+            Item."Default CO2 Emission",
+            StrSubstNo(ValueMustBeEqualErr, Item.FieldCaption("Default CO2 Emission"), 0, Item.TableCaption()));
+        Assert.AreEqual(
+            0,
+            Item."Default CH4 Emission",
+            StrSubstNo(ValueMustBeEqualErr, Item.FieldCaption("Default CH4 Emission"), 0, Item.TableCaption()));
+        Assert.AreEqual(
+            0,
+            Item."Default N2O Emission",
+            StrSubstNo(ValueMustBeEqualErr, Item.FieldCaption("Default N2O Emission"), 0, Item.TableCaption()));
+    end;
+
+    [Test]
+    procedure VerifyDefaultEmissionFieldsMustBeUpdatedInResource()
+    var
+        Resource: Record Resource;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        AccountCode: Code[20];
+        EmissionCO2PerUnit: Decimal;
+        EmissionCH4PerUnit: Decimal;
+        EmissionN2OPerUnit: Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+    begin
+        // [SCENARIO 563478] Verify "Default CO2 Emission", "Default CH4 Emission", "Default N2O Emission" must be updated in Resource.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Generate Emission.
+        EmissionCO2PerUnit := LibraryRandom.RandIntInRange(100, 100);
+        EmissionCH4PerUnit := LibraryRandom.RandIntInRange(200, 200);
+        EmissionN2OPerUnit := LibraryRandom.RandIntInRange(300, 300);
+
+        // [GIVEN] Find Resource.
+        LibraryResource.CreateResourceNew(Resource);
+        Resource.Validate("Default Sust. Account", AccountCode);
+        Resource.Modify();
+
+        // [GIVEN] Create a vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create a Purchase Line.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            "Purchase Line Type"::Resource,
+            Resource."No.",
+            LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Update "Emission CO2 Per Unit" ,"Emission CH4 Per Unit" ,"Emission N2O Per Unit" in Purchase Line.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 100));
+        PurchaseLine.Validate("Emission CO2 Per Unit", EmissionCO2PerUnit);
+        PurchaseLine.Validate("Emission CH4 Per Unit", EmissionCH4PerUnit);
+        PurchaseLine.Validate("Emission N2O Per Unit", EmissionN2OPerUnit);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Document with Receiving and Invoicing.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify "Default CO2 Emission", "Default CH4 Emission", "Default N2O Emission" must be updated in Resource.
+        Resource.Get(Resource."No.");
+        Assert.AreEqual(
+            EmissionCO2PerUnit,
+            Resource."Default CO2 Emission",
+            StrSubstNo(ValueMustBeEqualErr, Resource.FieldCaption("Default CO2 Emission"), EmissionCO2PerUnit, Resource.TableCaption()));
+        Assert.AreEqual(
+            EmissionCH4PerUnit,
+            Resource."Default CH4 Emission",
+            StrSubstNo(ValueMustBeEqualErr, Resource.FieldCaption("Default CH4 Emission"), EmissionCH4PerUnit, Resource.TableCaption()));
+        Assert.AreEqual(
+            EmissionN2OPerUnit,
+            Resource."Default N2O Emission",
+            StrSubstNo(ValueMustBeEqualErr, Resource.FieldCaption("Default N2O Emission"), EmissionN2OPerUnit, Resource.TableCaption()));
+    end;
+
+    [Test]
+    procedure VerifyDefaultEmissionFieldsMustNotBeUpdatedInResourceIfDefaultSustAccountIsBlank()
+    var
+        Resource: Record Resource;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        AccountCode: Code[20];
+        EmissionCO2PerUnit: Decimal;
+        EmissionCH4PerUnit: Decimal;
+        EmissionN2OPerUnit: Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+    begin
+        // [SCENARIO 563478] Verify "Default CO2 Emission", "Default CH4 Emission", "Default N2O Emission" must not be updated in Resource 
+        // If "Default Sust. Account" is blank.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Generate Emission.
+        EmissionCO2PerUnit := LibraryRandom.RandIntInRange(100, 100);
+        EmissionCH4PerUnit := LibraryRandom.RandIntInRange(200, 200);
+        EmissionN2OPerUnit := LibraryRandom.RandIntInRange(300, 300);
+
+        // [GIVEN] Find Resource.
+        LibraryResource.CreateResourceNew(Resource);
+        Resource.Validate("Default Sust. Account", '');
+        Resource.Modify();
+
+        // [GIVEN] Create a vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create a Purchase Line.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            "Purchase Line Type"::Resource,
+            Resource."No.",
+            LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Update "Sust. Account No.", "Emission CO2 Per Unit" ,"Emission CH4 Per Unit" ,"Emission N2O Per Unit" in Purchase Line.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 100));
+        PurchaseLine.Validate("Sust. Account No.", AccountCode);
+        PurchaseLine.Validate("Emission CO2 Per Unit", EmissionCO2PerUnit);
+        PurchaseLine.Validate("Emission CH4 Per Unit", EmissionCH4PerUnit);
+        PurchaseLine.Validate("Emission N2O Per Unit", EmissionN2OPerUnit);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Document with Receiving and Invoicing.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify "Default CO2 Emission", "Default CH4 Emission", "Default N2O Emission" must not be updated in Resource.
+        Resource.Get(Resource."No.");
+        Assert.AreEqual(
+            0,
+            Resource."Default CO2 Emission",
+            StrSubstNo(ValueMustBeEqualErr, Resource.FieldCaption("Default CO2 Emission"), 0, Resource.TableCaption()));
+        Assert.AreEqual(
+            0,
+            Resource."Default CH4 Emission",
+            StrSubstNo(ValueMustBeEqualErr, Resource.FieldCaption("Default CH4 Emission"), 0, Resource.TableCaption()));
+        Assert.AreEqual(
+            0,
+            Resource."Default N2O Emission",
+            StrSubstNo(ValueMustBeEqualErr, Resource.FieldCaption("Default N2O Emission"), 0, Resource.TableCaption()));
     end;
 
     local procedure CreateUserSetup(var UserSetup: Record "User Setup"; UserID: Code[50])
@@ -4781,12 +4925,15 @@ codeunit 148184 "Sustainability Posting Test"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure CreateTransferOrderWithLocation(var TransferHeader: Record "Transfer Header"; Item: Record Item; FromLocationCode: Code[10]; ToLocationCode: Code[10]; IntransitLocationCode: Code[10]; Quantity: Decimal)
+    local procedure CreateTransferOrderWithLocation(var TransferHeader: Record "Transfer Header"; Item: Record Item; FromLocationCode: Code[10]; ToLocationCode: Code[10]; IntransitLocationCode: Code[10]; Quantity: Decimal; CO2PerUnit: Decimal)
     var
         TransferLine: Record "Transfer Line";
     begin
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, IntransitLocationCode);
+
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Quantity);
+        TransferLine.Validate("CO2e per Unit", CO2PerUnit);
+        TransferLine.Modify();
     end;
 
     local procedure GetTransferLine(TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line")
@@ -4827,7 +4974,7 @@ codeunit 148184 "Sustainability Posting Test"
         SustainabilityValueEntry.FindFirst();
         Assert.RecordCount(SustainabilityValueEntry, 1);
         Assert.AreEqual(
-            CO2ePerUnit,
+            -CO2ePerUnit,
             SustainabilityValueEntry."CO2e per Unit",
             StrSubstNo(ValueMustBeEqualErr, SustainabilityValueEntry.FieldCaption("CO2e per Unit"), CO2ePerUnit, SustainabilityValueEntry.TableCaption()));
         Assert.AreEqual(
@@ -4836,21 +4983,12 @@ codeunit 148184 "Sustainability Posting Test"
             StrSubstNo(ValueMustBeEqualErr, SustainabilityValueEntry.FieldCaption("CO2e Amount (Actual)"), CO2eEmission, SustainabilityValueEntry.TableCaption()));
     end;
 
-    local procedure VerifySustainabilityLedgerEntryForTransferOrder(DocumentNo: Code[20]; AccountCode: Code[20]; CO2eEmission: Decimal)
+    local procedure VerifySustainabilityLedgerEntryForTransferOrder(DocumentNo: Code[20])
     var
         SustainabilityLedgerEntry: Record "Sustainability Ledger Entry";
     begin
         SustainabilityLedgerEntry.SetRange("Document No.", DocumentNo);
-        SustainabilityLedgerEntry.FindFirst();
-        Assert.RecordCount(SustainabilityLedgerEntry, 1);
-        Assert.AreEqual(
-            AccountCode,
-            SustainabilityLedgerEntry."Account No.",
-            StrSubstNo(ValueMustBeEqualErr, SustainabilityLedgerEntry.FieldCaption("Account No."), AccountCode, SustainabilityLedgerEntry.TableCaption()));
-        Assert.AreEqual(
-            CO2eEmission,
-            SustainabilityLedgerEntry."CO2e Emission",
-            StrSubstNo(ValueMustBeEqualErr, SustainabilityLedgerEntry.FieldCaption("CO2e Emission"), CO2eEmission, SustainabilityLedgerEntry.TableCaption()));
+        Assert.RecordCount(SustainabilityLedgerEntry, 0);
     end;
 
     local procedure CreateCorrectiveCreditMemo(PurchaseHeader: Record "Purchase Header"): Code[20]
@@ -4868,6 +5006,14 @@ codeunit 148184 "Sustainability Posting Test"
         PurchaseHeader.Modify(true);
 
         exit(PurchaseHeader."No.");
+    end;
+
+    local procedure FindAccountingPeriod(var AccountingPeriod: Record "Accounting Period")
+    begin
+        AccountingPeriod.SetRange("New Fiscal Year", false);
+        AccountingPeriod.SetRange(Closed, false);
+        AccountingPeriod.SetRange("Date Locked", false);
+        AccountingPeriod.FindFirst();
     end;
 
     [ModalPageHandler]
@@ -4977,10 +5123,28 @@ codeunit 148184 "Sustainability Posting Test"
 
     [PageHandler]
     [Scope('OnPrem')]
+    procedure GLPostingPreviewHandlerForSales(var GLPostingPreview: TestPage "G/L Posting Preview")
+    begin
+        GLPostingPreview.Filter.SetFilter("Table ID", Format(Database::"Sustainability Ledger Entry"));
+        GLPostingPreview."No. of Records".AssertEquals('');
+        GLPostingPreview.OK().Invoke();
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
     procedure NavigateFindEntriesHandler(var Navigate: TestPage Navigate)
     begin
         Navigate.Filter.SetFilter("Table ID", Format(Database::"Sustainability Ledger Entry"));
         Navigate."No. of Records".AssertEquals(1);
+        Navigate.OK().Invoke();
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure NavigateFindEntriesHandlerForSales(var Navigate: TestPage Navigate)
+    begin
+        Navigate.Filter.SetFilter("Table ID", Format(Database::"Sustainability Ledger Entry"));
+        Navigate."No. of Records".AssertEquals('');
         Navigate.OK().Invoke();
     end;
 
@@ -5021,7 +5185,7 @@ codeunit 148184 "Sustainability Posting Test"
         GLPostingPreview."No. of Records".AssertEquals(2);
 
         GLPostingPreview.Filter.SetFilter("Table ID", Format(Database::"Sustainability Ledger Entry"));
-        GLPostingPreview."No. of Records".AssertEquals(2);
+        GLPostingPreview."No. of Records".AssertEquals('');
         GLPostingPreview.OK().Invoke();
     end;
 
@@ -5031,7 +5195,7 @@ codeunit 148184 "Sustainability Posting Test"
     procedure NavigateFindEntriesHandlerForAssemblyOrder(var Navigate: TestPage Navigate)
     begin
         Navigate.Filter.SetFilter("Table ID", Format(Database::"Sustainability Ledger Entry"));
-        Navigate."No. of Records".AssertEquals(2);
+        Navigate."No. of Records".AssertEquals('');
 
         Navigate.Filter.SetFilter("Table ID", Format(Database::"Sustainability Value Entry"));
         Navigate."No. of Records".AssertEquals(2);
@@ -5046,7 +5210,7 @@ codeunit 148184 "Sustainability Posting Test"
         GLPostingPreview."No. of Records".AssertEquals(1);
 
         GLPostingPreview.Filter.SetFilter("Table ID", Format(Database::"Sustainability Ledger Entry"));
-        GLPostingPreview."No. of Records".AssertEquals(1);
+        GLPostingPreview."No. of Records".AssertEquals('');
         GLPostingPreview.OK().Invoke();
     end;
 
@@ -5055,7 +5219,7 @@ codeunit 148184 "Sustainability Posting Test"
     procedure NavigateFindEntriesHandlerForTransferOrder(var Navigate: TestPage Navigate)
     begin
         Navigate.Filter.SetFilter("Table ID", Format(Database::"Sustainability Ledger Entry"));
-        Navigate."No. of Records".AssertEquals(1);
+        Navigate."No. of Records".AssertEquals('');
 
         Navigate.Filter.SetFilter("Table ID", Format(Database::"Sustainability Value Entry"));
         Navigate."No. of Records".AssertEquals(1);
