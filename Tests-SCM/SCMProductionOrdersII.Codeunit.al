@@ -74,6 +74,8 @@
         PutAwayActivityNoHasBeenCreatedMsg: Label 'Put-away activity no. %1 has been created.', Comment = '%1 = Put-away Activity No. ';
         ProductionJournalPostedTxt: Label 'The journal lines were successfully posted.';
         ProductionOrderCannotBeReopenedErr: Label 'This production order does not have any output. It cannot be Reopened.';
+        FieldMustBeEnabledErr: Label '%1 must be enabled in Page %2', Comment = '%1 = Field Caption , %2 = Page Caption';
+        FieldMustBeVisibleErr: Label '%1 must be visible in Page %2', Comment = '%1 = Field Caption , %2 = Page Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -5823,6 +5825,384 @@
         Assert.ExpectedError(ProductionOrderCannotBeReopenedErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AllowWhseOverpickIsVisibleAndEnabledOnItemCard()
+    var
+        Item: Record Item;
+        ItemCard: TestPage "Item Card";
+    begin
+        // [SCENARIO 321914] Allow Whse. Overpick field is Visible and Enabled on Item Card page.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Open Item Card page.
+        ItemCard.OpenEdit();
+        ItemCard.GoToRecord(Item);
+
+        // [THEN] Allow Whse. Overpick is Visible on Item Card.
+        Assert.IsTrue(
+            ItemCard."Allow Whse. Overpick".Visible(),
+            StrSubstNo(
+                FieldMustBeVisibleErr,
+                ItemCard."Allow Whse. Overpick".Caption(),
+                ItemCard.Caption()));
+
+        // [THEN] Allow Whse. Overpick is Enabled on Item Card.
+        Assert.IsTrue(
+            ItemCard."Allow Whse. Overpick".Enabled(),
+            StrSubstNo(
+                FieldMustBeEnabledErr,
+                ItemCard."Allow Whse. Overpick".Caption(),
+                ItemCard.Caption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSourceCreateDocPageHandler,MessageHandlerNoText')]
+    [Scope('OnPrem')]
+    procedure QtyInWhsePickLinesCanBeMoreThanProdOrderComponentQtyIfAllowWhseOverpickIsTrueInCompItem()
+    var
+        Bin: array[4] of Record Bin;
+        Item: array[2] of Record Item;
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 321914] Quantity in Warehouse Pick Lines can be entered more than the Quantity of 
+        // Prod. Order Component if Allow Whse. Overpick in Component Item.
+        Initialize();
+
+        // [GIVEN] Create a Location and Validate Prod. Consump. Whse. Handling.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+        Location.Modify(true);
+
+        // [GIVEN] Create two Bins.
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, Bin[1].Code, '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, Bin[2].Code, '', '');
+
+        // [GIVEN] Validate From-Production Bin Code and To-Production Bin Code in Location.
+        Location.Validate("From-Production Bin Code", Bin[1].Code);
+        Location.Validate("To-Production Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Item [1] and Validate Costing Method, Replenishment System and Allow Whse. Overpick.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Costing Method", Item[1]."Costing Method"::FIFO);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Validate("Allow Whse. Overpick", true);
+        Item[1].Modify(true);
+
+        // [GIVEN] Create and Post two Item Journal Lines.
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), Bin[1].Code, Location.Code, false);
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), Bin[2].Code, Location.Code, false);
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create a Production BOM Line.
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader,
+            ProductionBOMLine,
+            '',
+            ProductionBOMLine.Type::Item,
+            Item[1]."No.",
+            LibraryRandom.RandIntInRange(3, 3));
+
+        // [GIVEN] Validate Status in Production BOM Header.
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create Item [2] and Validate Costing Method and Production BOM No.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Costing Method", Item[2]."Costing Method"::FIFO);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Validate("Allow Whse. Overpick", true);
+        Item[2].Modify(true);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item[2]."No.", LibraryRandom.RandInt(0), '', '');
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderComponent.SetRange("Item No.", Item[1]."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Validate Location Code and Bin Code in Prod. Order Component.
+        ProdOrderComponent.Validate("Location Code", Location.Code);
+        ProdOrderComponent.Validate("Bin Code", Bin[1].Code);
+        ProdOrderComponent.Modify(true);
+
+        // [GIVEN] Open Released Production Order and run Create Warehouse Pick.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+        ReleasedProductionOrder."Create Warehouse Pick".Invoke();
+
+        // [GIVEN] Generate and save Quantity in a Variable.
+        Quantity := LibraryRandom.RandIntInRange(24, 24);
+
+        // [GIVEN] Find Warehouse Activity Line.
+        WarehouseActivityLine.SetRange("Item No.", Item[1]."No.");
+        WarehouseActivityLine.FindFirst();
+
+        // [WHEN] Validate Quantity in Warehouse Activity Line.
+        WarehouseActivityLine.Validate(Quantity, Quantity);
+        WarehouseActivityLine.Modify(true);
+
+        // [THEN] Quantity in Warehouse Activity Line is equal to Quantity.
+        Assert.AreEqual(
+            Quantity,
+            WarehouseActivityLine.Quantity,
+            StrSubstNo(
+                QuantityErr,
+                WarehouseActivityLine.FieldCaption(Quantity),
+                Quantity,
+                WarehouseActivityLine.TableCaption()));
+
+        // [THEN] Qty. to Handle in Warehouse Activity Line is equal to Quantity.
+        Assert.AreEqual(
+            Quantity,
+            WarehouseActivityLine."Qty. to Handle",
+            StrSubstNo(
+                QuantityErr,
+                WarehouseActivityLine.FieldCaption("Qty. to Handle"),
+                Quantity,
+                WarehouseActivityLine.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJnlPageHandler3,ConfirmHandler,MessageHandlerNoText')]
+    [Scope('OnPrem')]
+    procedure QtyInConsumpProdJnlLineCanBeMoreThanProdOrderComponentQtyIfAllowWhseOverpickIsTrueInCompItem()
+    var
+        Bin: array[2] of Record Bin;
+        Item: array[2] of Record Item;
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 321914] Quantity in Consumption Entry Type Production Journal Line can be entered more than 
+        // the Quantity of prod. Order Component if Allow Whse. Overpick is true in Component Item.
+        Initialize();
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+        Location.Modify(true);
+
+        // [GIVEN] Create two Bins.
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, Bin[1].Code, '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, Bin[2].Code, '', '');
+
+        // [GIVEN] Validate From-Production Bin Code and To-Production Bin Code in Location.
+        Location.Validate("From-Production Bin Code", Bin[1].Code);
+        Location.Validate("To-Production Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Item [1] and Validate Costing Method, Replenishment System and Allow Whse. Overpick.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Costing Method", Item[1]."Costing Method"::FIFO);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Validate("Allow Whse. Overpick", true);
+        Item[1].Modify(true);
+
+        // [GIVEN] Create and Post two Item Journal Lines.
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), Bin[1].Code, Location.Code, false);
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), Bin[2].Code, Location.Code, false);
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create a Production BOM Line.
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(3, 3));
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create Item [2] and Validate Costing Method and Production BOM No.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Costing Method", Item[2]."Costing Method"::FIFO);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Validate("Allow Whse. Overpick", true);
+        Item[2].Modify(true);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item[2]."No.", LibraryRandom.RandInt(0), '', '');
+
+        // [GIVEN] Find Prod. Order Component.
+        ProdOrderComponent.SetRange("Item No.", Item[1]."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Validate Location Code and Bin Code in Prod. Order Component.
+        ProdOrderComponent.Validate("Location Code", Location.Code);
+        ProdOrderComponent.Validate("Bin Code", Bin[1].Code);
+        ProdOrderComponent.Modify(true);
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status::Released);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Generate and save Quantity in a Variable.
+        Quantity := LibraryRandom.RandIntInRange(5, 5);
+
+        // [WHEN] Create and Post Production Journal.
+        LibraryVariableStorage.Enqueue(Quantity);
+        LibraryVariableStorage.Enqueue(Quantity);
+        CreateAndPostProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [THEN] Quantity in Production Journal is equal to Quantity in ProductionJnlPageHandler3.
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSourceCreateDocPageHandler,ReturnOverpickedQtyPageHandler,MessageHandlerNoText')]
+    [Scope('OnPrem')]
+    procedure QtyInMovementWorksheetLineIsDiffOfQtyInBinContentAndRemQtyOfProdOrderComponentWhenRunReturnOverPickedQuantity()
+    var
+        Bin: array[2] of Record Bin;
+        BinContent: Record "Bin Content";
+        Item: array[2] of Record Item;
+        ProductionOrder: Record "Production Order";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        MovementWorksheet: TestPage "Movement Worksheet";
+    begin
+        // [SCENARIO 321914] Quantity in Movement Worksheet Line is equal to difference of Quanity in Bin Content and 
+        // Remaining Quantity of Prod. Order Component when Stan runs Return Over-Picked Quantity action.
+        Initialize();
+
+        // [GIVEN] Find Bin [1].
+        LibraryWarehouse.FindBin(Bin[1], LocationWhite.Code, FindPickZone(LocationWhite.Code), 1);
+
+        // [GIVEN] Find Bin [2].
+        Bin[2].Get(LocationWhite.Code, LocationWhite."To-Production Bin Code");
+
+        // [GIVEN] Create Warehouse Employee.
+        WarehouseEmployee.DeleteAll();
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, true);
+
+        // [GIVEN] Create Item [1] and Validate Costing Method, Replenishment System and Allow Whse. Overpick.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Costing Method", Item[1]."Costing Method"::FIFO);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Validate("Allow Whse. Overpick", true);
+        Item[1].Modify(true);
+
+        // [GIVEN] Create a Warehouse Journal Line.
+        CreateWarehouseItemJournalLine(LocationWhite.Code, Bin[1].Code, Bin[2].Code, Item[1]."No.");
+
+        // [GIVEN] Calculate Warehouse Adjustment and Post Item Journal Line.
+        CalculateWarehouseAdjustmentAndPostItemJournalLine(Item[1]);
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create a Production BOM Line.
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader,
+            ProductionBOMLine,
+            '',
+            ProductionBOMLine.Type::Item,
+            Item[1]."No.",
+            LibraryRandom.RandIntInRange(3, 3));
+
+        // [GIVEN] Validate Status in Production BOM Header.
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create Item [2] and Validate Costing Method, Replenishment System, Production BOM No. and Allow Whse. Overpick.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Costing Method", Item[2]."Costing Method"::FIFO);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Validate("Allow Whse. Overpick", true);
+        Item[2].Modify(true);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item[2]."No.", LibraryRandom.RandInt(0), '', '');
+
+        // [GIVEN] Find Prod. Order Component.
+        ProdOrderComponent.SetRange("Item No.", Item[1]."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Validate Location Code and Bin Code in Prod. Order Component.
+        ProdOrderComponent.Validate("Location Code", LocationWhite.Code);
+        ProdOrderComponent.Validate("Bin Code", Bin[2].Code);
+        ProdOrderComponent.Modify(true);
+
+        // [GIVEN] Open Released Production Order page and run Create Warehouse Pick action.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+        ReleasedProductionOrder."Create Warehouse Pick".Invoke();
+
+        // [GIVEN] Find Warehouse Activity Line.
+        WarehouseActivityLine.SetRange("Item No.", Item[1]."No.");
+        WarehouseActivityLine.FindFirst();
+
+        // [GIVEN] Validate Quantity in Warehouse Activity Line.
+        WarehouseActivityLine.Validate(Quantity, LibraryRandom.RandIntInRange(6, 6));
+        WarehouseActivityLine.Modify(true);
+
+        // [GIVEN] Find and Validate Quantity in Warehouse Activity Line.
+        WarehouseActivityLine.FindLast();
+        WarehouseActivityLine.Validate(Quantity, LibraryRandom.RandIntInRange(6, 6));
+        WarehouseActivityLine.Modify(true);
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+
+        // [GIVEN] Register Warehouse Pick.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Create Whse. Worksheet Name.
+        CreateWhseWorksheetName(WhseWorksheetName, LocationWhite.Code, WhseWorksheetName."Template Type"::Movement);
+
+        // [GIVEN] Open Movement Worksheet and run Return Over-Picked Quantity action.
+        MovementWorksheet.OpenEdit();
+        LibraryVariableStorage.Enqueue(Format(WhseWorksheetName."Worksheet Template Name"));
+        LibraryVariableStorage.Enqueue(Format(WhseWorksheetName.Name));
+        LibraryVariableStorage.Enqueue(Format(LocationWhite.Code));
+        LibraryVariableStorage.Enqueue(Format(Bin[2].Code));
+        LibraryVariableStorage.Enqueue(Format(Bin[1].Code));
+        MovementWorksheet."Return Over-Picked Quantity".Invoke();
+
+        // [GIVEN] Find Bin Content.
+        BinContent.Get(LocationWhite.Code, Bin[2].Code, Item[1]."No.", '', Item[1]."Base Unit of Measure");
+        BinContent.CalcFields(Quantity);
+
+        // [WHEN] Find Whse. Worksheet Line.
+        WhseWorksheetLine.SetRange("From Bin Code", Bin[2].Code);
+        WhseWorksheetLine.FindFirst();
+
+        // [THEN] Quantity in Whse. Worksheet Line is equal to difference of Quantity in Bin Content and Remaining Quantity of Prod. Order Component.
+        Assert.AreEqual(
+            BinContent.Quantity - ProdOrderComponent."Remaining Quantity",
+            WhseWorksheetLine.Quantity,
+            StrSubstNo(
+                QuantityErr,
+                WhseWorksheetLine.FieldCaption(Quantity),
+                BinContent.Quantity - ProdOrderComponent."Remaining Quantity",
+                WhseWorksheetLine.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -7709,6 +8089,65 @@
         ReleaseProdOrder.ProdOrderLines.ProductionJournal.Invoke();
     end;
 
+    local procedure FindPickZone(LocationCode: Code[10]): Code[10]
+    var
+        Zone: Record Zone;
+    begin
+        Zone.SetRange("Location Code", LocationCode);
+        Zone.SetRange("Bin Type Code", LibraryWarehouse.SelectBinType(false, false, true, true));
+        Zone.SetRange("Cross-Dock Bin Zone", false);
+        Zone.FindFirst();
+
+        exit(Zone.Code);
+    end;
+
+    local procedure CreateWhseWorksheetName(var WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10]; Type: Enum "Warehouse Worksheet Template Type")
+    var
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+    begin
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, Type);
+        LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
+    end;
+
+    local procedure CreateWarehouseItemJournalLine(LocationCode: Code[10]; BinCode1: Code[20]; BinCode2: Code[20]; ItemNo: Code[20])
+    var
+        WarehouseJnlBatch: Record "Warehouse Journal Batch";
+        WarehouseJnlLine: array[2] of Record "Warehouse Journal Line";
+    begin
+        CreateWarehouseJournalBatch(WarehouseJnlBatch, LocationCode);
+        LibraryWarehouse.CreateWhseJournalLine(
+            WarehouseJnlLine[1], WarehouseJnlBatch."Journal Template Name", WarehouseJnlBatch.Name, LocationCode, '', BinCode1,
+            WarehouseJnlLine[1]."Entry Type"::"Positive Adjmt.", ItemNo, LibraryRandom.RandIntInRange(100, 100));
+        LibraryWarehouse.CreateWhseJournalLine(
+            WarehouseJnlLine[2], WarehouseJnlBatch."Journal Template Name", WarehouseJnlBatch.Name, LocationCode, '', BinCode2,
+            WarehouseJnlLine[2]."Entry Type"::"Positive Adjmt.", ItemNo, LibraryRandom.RandIntInRange(100, 100));
+
+        LibraryWarehouse.PostWhseJournalLine(WarehouseJnlBatch."Journal Template Name", WarehouseJnlBatch.Name, LocationCode);
+    end;
+
+    local procedure CreateWarehouseJournalBatch(var WarehouseJnlBatch: Record "Warehouse Journal Batch"; LocationCode: Code[10])
+    var
+        WarehouseJnlTemplate: Record "Warehouse Journal Template";
+    begin
+        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJnlTemplate, WarehouseJnlTemplate.Type::Item);
+        LibraryWarehouse.CreateWhseJournalBatch(WarehouseJnlBatch, WarehouseJnlTemplate.Name, LocationCode);
+    end;
+
+    local procedure CalculateWarehouseAdjustmentAndPostItemJournalLine(var Item: Record Item)
+    var
+        ItemJnlTemplate: Record "Item Journal Template";
+        ItemJnlBatch: Record "Item Journal Batch";
+    begin
+        LibraryInventory.CreateItemJournalTemplate(ItemJnlTemplate);
+        LibraryInventory.CreateItemJournalBatch(ItemJnlBatch, ItemJnlTemplate.Name);
+        ItemJnlBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
+        ItemJnlBatch.Modify(true);
+
+        LibraryInventory.ClearItemJournal(ItemJnlTemplate, ItemJnlBatch);
+        LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJnlBatch);
+        LibraryInventory.PostItemJournalLine(ItemJnlTemplate.Name, ItemJnlBatch.Name);
+    end;
+
     [ModalPageHandler]
     procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
     begin
@@ -7941,6 +8380,13 @@
         CarryOutActionMsgPlan.OK().Invoke();
     end;
 
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseSourceCreateDocPageHandler(var WhseSourceCreateDocument: TestRequestPage "Whse.-Source - Create Document")
+    begin
+        WhseSourceCreateDocument.OK().Invoke();
+    end;
+
     [StrMenuHandler]
     [Scope('OnPrem')]
     procedure AllLevelsStrMenuHandler(StrMenuText: Text; var Choice: Integer; InstructionText: Text)
@@ -8004,6 +8450,28 @@
         ChangeStatusOnProdOrder.PostingDate.SetValue(WorkDate());
         ChangeStatusOnProdOrder."Finish Order without Output".SetValue(true);
         ChangeStatusOnProdOrder.Yes().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJnlPageHandler3(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.Filter.SetFilter("Entry Type", Format("Item Ledger Entry Type"::Consumption));
+        ProductionJournal.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        ProductionJournal.Quantity.AssertEquals(LibraryVariableStorage.DequeueText());
+        ProductionJournal.Post.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReturnOverpickedQtyPageHandler(var ReturnOverpickedQuantity: TestPage "Return Overpicked Quantity")
+    begin
+        ReturnOverpickedQuantity.WorksheetTemplName.SetValue(LibraryVariableStorage.DequeueText());
+        ReturnOverpickedQuantity.WorksheetName.SetValue(LibraryVariableStorage.DequeueText());
+        ReturnOverpickedQuantity.LocationCode.SetValue(LibraryVariableStorage.DequeueText());
+        ReturnOverpickedQuantity.FromBinCode.SetValue(LibraryVariableStorage.DequeueText());
+        ReturnOverpickedQuantity.ToBinCode.SetValue(LibraryVariableStorage.DequeueText());
+        ReturnOverpickedQuantity.OK().Invoke();
     end;
 }
 
