@@ -1,3 +1,4 @@
+#if not CLEAN26
 namespace Microsoft.PowerBIReports;
 
 using System.Integration.PowerBI;
@@ -12,7 +13,9 @@ page 37008 "Sales Actual vs. Budget Amt."
     Caption = 'Sales Actual vs. Budget Amount';
     AboutTitle = 'About Sales Actual vs. Budget Amount';
     AboutText = 'The Sales Actual vs. Budget Amount report provides a comparative analysis of sales amounts to budget amount. Featuring variance and variance percentage metrics that provide a clear view of actual performance compared to budgeted targets.';
-
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The Power BI report has been changed/removed and this is no longer required.';
+    ObsoleteTag = '26.0';
     layout
     {
         area(Content)
@@ -49,4 +52,5 @@ page 37008 "Sales Actual vs. Budget Amt."
         ReportId := SetupHelper.GetReportIdAndEnsureSetup(CurrPage.Caption(), PowerBIReportsSetup.FieldNo("Sales Report Id"));
     end;
 }
+#endif
 
