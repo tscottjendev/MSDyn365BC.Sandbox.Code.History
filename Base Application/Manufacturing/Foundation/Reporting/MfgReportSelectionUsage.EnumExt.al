@@ -11,4 +11,5 @@ enumextension 99000750 "Mfg. Report Selection Usage" extends "Report Selection U
     value(23; "M2") { Caption = 'Mat. & Requisition'; }
     value(24; "M3") { Caption = 'Shortage List'; }
     value(25; "M4") { Caption = 'Gantt Chart'; }
+    value(133; "Prod. Output Item Label") { Caption = 'Prod. Output Item Label'; }
 }
