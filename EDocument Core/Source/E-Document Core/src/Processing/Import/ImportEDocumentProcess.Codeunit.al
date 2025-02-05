@@ -21,6 +21,8 @@ codeunit 6104 "Import E-Document Process"
     begin
         if EDocument."Entry No" = 0 then
             exit;
+        if not Configured then
+            exit;
 
         Clear(EDocumentLog);
         EDocumentLog.SetFields(EDocument, EDocument.GetEDocumentService());
@@ -152,20 +154,28 @@ codeunit 6104 "Import E-Document Process"
     end;
 
     local procedure FinishDraft()
+    var
+        IEDocumentFinishDraft: Interface IEDocumentFinishDraft;
     begin
-
+        IEDocumentFinishDraft := EDocument."Document Type";
+        IEDocumentFinishDraft.ApplyDraftToBC(EDocument, EDocImportParameters);
     end;
 
     local procedure UndoFinishDraft()
+    var
+        IEDocumentFinishDraft: Interface IEDocumentFinishDraft;
     begin
-
+        IEDocumentFinishDraft := EDocument."Document Type";
+        IEDocumentFinishDraft.RevertDraftActions(EDocument);
     end;
 
-    procedure ConfigureImportRun(EDocument: Record "E-Document"; NewStep: Enum "Import E-Document Steps"; NewUndoStep: Boolean)
+    internal procedure ConfigureImportRun(EDocument: Record "E-Document"; NewStep: Enum "Import E-Document Steps"; EDocImportParameters: Record "E-Doc. Import Parameters"; NewUndoStep: Boolean)
     begin
         this.EDocument := EDocument;
         Step := NewStep;
         UndoStep := NewUndoStep;
+        this.EDocImportParameters := EDocImportParameters;
+        Configured := true;
     end;
 
     procedure StatusStepIndex(Status: Enum "Import E-Doc. Proc. Status"): Integer
@@ -230,9 +240,11 @@ codeunit 6104 "Import E-Document Process"
 
     var
         EDocument: Record "E-Document";
+        EDocImportParameters: Record "E-Doc. Import Parameters";
         EDocumentLog: Codeunit "E-Document Log";
+
         EDocumentProcessing: Codeunit "E-Document Processing";
         Step: Enum "Import E-Document Steps";
-        UndoStep: Boolean;
+        UndoStep, Configured : Boolean;
         UnstructuredBlobTypeWithNoConverterErr: Label 'Cant process E-Document as data type does not have a converter implemented.';
 }

@@ -76,9 +76,8 @@ codeunit 6140 "E-Doc. Import"
             if StatusIndex > 0 then begin
                 PreviousStatus := ImportEDocumentProcess.IndexToStatus(StatusIndex - 1);
                 StepToUndo := ImportEDocumentProcess.GetNextStep(PreviousStatus);
-                ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToUndo, true);
+                ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToUndo, EDocImportParameters, true);
                 EDocumentErrorHelper.ClearErrorMessages(EDocument);
-
                 Commit();
                 if not ImportEDocumentProcess.Run() then begin
                     EDocErrorHelper.LogSimpleErrorMessage(EDocument, GetLastErrorText());
@@ -92,9 +91,8 @@ codeunit 6140 "E-Doc. Import"
         for StatusIndex := ImportEDocumentProcess.StatusStepIndex(CurrentStatus) to ImportEDocumentProcess.StatusStepIndex(DesiredStatus) - 1 do
             if StatusIndex < ImportEDocumentProcess.StatusStepIndex("Import E-Doc. Proc. Status"::Processed) then begin
                 StepToDo := ImportEDocumentProcess.GetNextStep(ImportEDocumentProcess.IndexToStatus(StatusIndex));
-                ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToDo, false);
+                ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToDo, EDocImportParameters, false);
                 EDocumentErrorHelper.ClearErrorMessages(EDocument);
-
                 Commit();
                 if not ImportEDocumentProcess.Run() then begin
                     EDocErrorHelper.LogSimpleErrorMessage(EDocument, GetLastErrorText());
