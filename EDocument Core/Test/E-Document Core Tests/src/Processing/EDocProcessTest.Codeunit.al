@@ -30,8 +30,6 @@ codeunit 139883 "E-Doc Process Test"
     begin
         Initialize(Enum::"Service Integration"::"Mock");
         LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
-        EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
-        EDocumentService.Modify();
 
         EDocumentLog.SetBlob('Test', Enum::"E-Doc. Data Storage Blob Type"::"PDF Mock", 'Data');
         EDocumentLog.SetFields(EDocument, EDocumentService);
@@ -71,8 +69,6 @@ codeunit 139883 "E-Doc Process Test"
     begin
         Initialize(Enum::"Service Integration"::"Mock");
         LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
-        EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
-        EDocumentService.Modify();
 
         EDocumentLog.SetBlob('Test', Enum::"E-Doc. Data Storage Blob Type"::"PDF Mock", 'Data');
         EDocumentLog.SetFields(EDocument, EDocumentService);
@@ -101,12 +97,10 @@ codeunit 139883 "E-Doc Process Test"
     begin
         Initialize(Enum::"Service Integration"::"Mock");
         LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
-        EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
-        EDocumentService.Modify();
 
         EDocumentLog.SetBlob('Test', Enum::"E-Doc. Data Storage Blob Type"::"PDF Mock", 'Data');
         EDocumentLog.SetFields(EDocument, EDocumentService);
-        EDocLogRecord := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Processed);
+        EDocLogRecord := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Unprocessed);
 
         EDocument."Unstructured Data Entry No." := EDocLogRecord."E-Doc. Data Storage Entry No.";
         EDocument.Modify();
@@ -142,6 +136,8 @@ codeunit 139883 "E-Doc Process Test"
         LibraryEDoc.SetupStandardSalesScenario(Customer, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
         LibraryEDoc.SetupStandardPurchaseScenario(Vendor, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
         EDocumentService."Sent Actions Integration" := Enum::"Sent Document Actions"::Mock;
+        EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
+        EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"PDF Mock";
         EDocumentService.Modify();
 
         TransformationRule.DeleteAll();

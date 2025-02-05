@@ -5,7 +5,6 @@
 namespace Microsoft.eServices.EDocument;
 
 using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.eServices.EDocument.Processing;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Document;
 using System.IO;

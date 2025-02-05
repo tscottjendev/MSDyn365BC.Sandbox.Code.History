@@ -2,10 +2,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.eServices.EDocument.Processing;
+namespace Microsoft.eServices.EDocument.Processing.Import;
 
 using Microsoft.eServices.EDocument;
-using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
 using System.Utilities;
 using System.IO;
@@ -56,7 +55,6 @@ codeunit 6104 "Import E-Document Process"
 
     local procedure StructureReceivedData()
     var
-        //TempCreatedEDocumentDataStorageEntry: Record "E-Doc. Data Storage" temporary;
         EDocumentDataStorage: Record "E-Doc. Data Storage";
         EDocLog: Record "E-Document Log";
         FileManagement: Codeunit "File Management";
@@ -65,11 +63,17 @@ codeunit 6104 "Import E-Document Process"
         IBlobToStructuredDataConverter: Interface IBlobToStructuredDataConverter;
         NameWithoutExtension, Content : Text;
         Name: Text[256];
-        //OutStream: OutStream;
         NewType: Enum "E-Doc. Data Storage Blob Type";
     begin
-        EDocument.TestField("Unstructured Data Entry No.");
-        EDocumentDataStorage.Get(EDocument."Unstructured Data Entry No.");
+        EDocument.Get(EDocument."Entry No");
+
+        EDocLog.SetRange("E-Doc. Entry No", EDocument."Entry No");
+        EDocLog.SetRange("Service Code", EDocument.GetEDocumentService().Code);
+        EDocLog.SetRange(Status, Enum::"E-Document Service Status"::Imported);
+        EDocLog.SetRange("Processing Status", Enum::"Import E-Doc. Proc. Status"::Unprocessed);
+        EdocLog.SetFilter("E-Doc. Data Storage Entry No.", '<>0');
+        if EDocLog.FindLast() then
+            EDocumentDataStorage.Get(EDocLog."E-Doc. Data Storage Entry No.");
 
         IBlobType := EDocumentDataStorage."Data Type";
         if IBlobType.IsStructured() then
@@ -92,28 +96,59 @@ codeunit 6104 "Import E-Document Process"
 
     local procedure UndoStructureReceivedData()
     begin
+        // TODO: Could there be situations where this would be wrong? Like say in cases where we dont have unstructured data step?
+        EDocument.Get(EDocument."Entry No");
         EDocument."Structured Data Entry No." := 0;
         EDocument.Modify();
     end;
 
     local procedure ReadIntoIR()
+    var
+        EDocumentDataStorage: Record "E-Doc. Data Storage";
+        EDocLog: Record "E-Document Log";
+        FromBlob: Codeunit "Temp Blob";
+        IBlobType: Interface IBlobType;
+        IStructuredFormatReader: Interface IStructuredFormatReader;
+        StructuredDataProcess: Enum "E-Doc. Structured Data Process";
     begin
+        EDocument.Get(EDocument."Entry No");
 
+        EDocLog.SetRange("E-Doc. Entry No", EDocument."Entry No");
+        EDocLog.SetRange("Service Code", EDocument.GetEDocumentService().Code);
+        EDocLog.SetRange(Status, Enum::"E-Document Service Status"::Imported);
+        EDocLog.SetRange("Processing Status", Enum::"Import E-Doc. Proc. Status"::Readable);
+        EdocLog.SetFilter("E-Doc. Data Storage Entry No.", '<>0');
+        if EDocLog.FindLast() then
+            EDocumentDataStorage.Get(EDocLog."E-Doc. Data Storage Entry No.");
+
+        IBlobType := EDocumentDataStorage."Data Type";
+        if not IBlobType.IsStructured() then
+            exit;
+
+        FromBlob.FromRecord(EDocumentDataStorage, EDocumentDataStorage.FieldNo("Data Storage"));
+        IStructuredFormatReader := EDocument.GetEDocumentService()."E-Document Structured Format";
+        StructuredDataProcess := IStructuredFormatReader.Read(EDocument, FromBlob);
+
+        EDocument."Structured Data Process" := StructuredDataProcess;
+        EDocument.Modify();
     end;
 
     local procedure UndoReadIntoIR()
     begin
-
+        // Not really anything to do here...
     end;
 
     local procedure PrepareDraft()
+    var
+        IProcessStructuredDataFlow: Interface IProcessStructuredData;
     begin
-
+        IProcessStructuredDataFlow := Edocument."Structured Data Process";
+        IProcessStructuredDataFlow.Process(EDocument);
     end;
 
     local procedure UndoPrepareDraft()
     begin
-
+        // Not really anything to do here...
     end;
 
     local procedure FinishDraft()

@@ -2,6 +2,6 @@ enumextension 139781 "E-Doc Blob Type Mock" extends "E-Doc. Data Storage Blob Ty
 {
     value(139781; "PDF Mock")
     {
-        Implementation = IBlobType = "E-Doc PDF Mock Convert";
+        Implementation = IBlobType = "E-Doc PDF Mock";
     }
 }

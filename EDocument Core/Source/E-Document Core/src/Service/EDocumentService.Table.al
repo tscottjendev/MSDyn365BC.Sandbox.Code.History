@@ -253,6 +253,12 @@ table 6103 "E-Document Service"
             ToolTip = 'Specifies the implementation of actions that can be performed after the document is sent to the service.';
             DataClassification = SystemMetadata;
         }
+        field(29; "E-Document Structured Format"; Enum "E-Document Structured Format")
+        {
+            Caption = 'Structured Data Format';
+            ToolTip = 'Specifies the format of the structured data.';
+            DataClassification = SystemMetadata;
+        }
         field(31; "Import Process"; Enum "E-Document Import Process")
         {
             Caption = 'Import Process';

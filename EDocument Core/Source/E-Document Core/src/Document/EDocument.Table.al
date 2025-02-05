@@ -213,6 +213,11 @@ table 6121 "E-Document"
             Caption = 'File Type';
             ToolTip = 'Specifies the file type of the E-Document source.';
         }
+        field(37; "Structured Data Process"; Enum "E-Doc. Structured Data Process")
+        {
+            Caption = 'Structured Data Process';
+            ToolTip = 'Specifies the structured data process to run on the E-Document data on.';
+        }
     }
     keys
     {
