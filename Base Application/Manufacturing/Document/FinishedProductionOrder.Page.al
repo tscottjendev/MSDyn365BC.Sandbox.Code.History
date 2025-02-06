@@ -6,8 +6,6 @@ namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Attachment;
-using Microsoft.Foundation.Enums;
-using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Warehouse.Activity;
@@ -346,16 +344,16 @@ page 99000867 "Finished Production Order"
                 ApplicationArea = Manufacturing;
                 Image = Print;
                 Caption = 'Print Label';
-                ToolTip = 'Print labels for the items on the order lines.';
+                ToolTip = 'Print Labels for the items on the order lines.';
 
                 trigger OnAction()
                 var
                     ItemLedgerEntry: Record "Item Ledger Entry";
-                    ReportSelections: Record "Report Selections";
+                    OutputItemLabel: Report "Output Item Label";
                 begin
-                    ItemLedgerEntry.SetRange("Order Type", Enum::"Inventory Order Type"::Production);
                     ItemLedgerEntry.SetRange("Order No.", Rec."No.");
-                    ReportSelections.PrintWithCheckForCust(Enum::"Report Selection Usage"::"Prod. Output Item Label", ItemLedgerEntry, 0);
+                    OutputItemLabel.SetTableView(ItemLedgerEntry);
+                    OutputItemLabel.RunModal();
                 end;
             }
             action(ReopenFinishedProdOrder)
