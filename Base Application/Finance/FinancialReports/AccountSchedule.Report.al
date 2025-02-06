@@ -16,10 +16,9 @@ using System.Utilities;
 
 report 25 "Account Schedule"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Finance/FinancialReports/AccountSchedule.rdlc';
     AdditionalSearchTerms = 'financial reporting,income statement,balance sheet';
     ApplicationArea = Basic, Suite;
+    DefaultRenderingLayout = LandscapeLayout;
     Caption = 'Run Financial Report';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
@@ -757,6 +756,24 @@ report 25 "Account Schedule"
                     ValidateAccSchedName();
             SetBudgetFilterEnable();
         end;
+    }
+
+    rendering
+    {
+        layout(LandscapeLayout)
+        {
+            Caption = 'Financial Report Landscape (RDLC)';
+            LayoutFile = './Finance/FinancialReports/AccountSchedule.rdlc';
+            Summary = 'Use this layout for financial reports that fit a landscape paper orientation.';
+            Type = RDLC;
+        }
+        layout(PortraitLayout)
+        {
+            Caption = 'Financial Report Portrait (RDLC)';
+            LayoutFile = './Finance/FinancialReports/AccountSchedulePortrait.rdlc';
+            Summary = 'Use this layout for financial reports that fit a portrait paper orientation.';
+            Type = RDLC;
+        }
     }
 
     labels
