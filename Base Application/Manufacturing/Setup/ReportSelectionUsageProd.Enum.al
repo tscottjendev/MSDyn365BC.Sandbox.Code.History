@@ -14,5 +14,4 @@ enum 99000917 "Report Selection Usage Prod."
     value(2; "Shortage List") { Caption = 'Shortage List'; }
     value(3; "Gantt Chart") { Caption = 'Gantt Chart'; }
     value(4; "Prod. Order") { Caption = 'Prod. Order'; }
-    value(5; "Prod. Output Item Label") { Caption = 'Prod. Output Item Label'; }
 }
