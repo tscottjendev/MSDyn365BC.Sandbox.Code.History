@@ -4632,7 +4632,7 @@ codeunit 137069 "SCM Production Orders"
         foreach XMLNode in XMLNodeList do begin
             XMLElement := XMLNode.AsXmlElement();
             XMLElement.Attributes().Get('name', XmlAttribute);
-            Assert.IsTrue(XmlAttribute.Value in ['ItemNo', 'Description', 'BarCode', 'QRCode', 'BaseUnitofMeasure', 'VariantCode'], '');
+            Assert.IsTrue(XmlAttribute.Value in ['ItemNo', 'Description', 'BarCode', 'QRCode', 'BaseUnitofMeasure'], '');
             case XmlAttribute.Value of
                 'ItemNo':
                     begin
@@ -4663,6 +4663,7 @@ codeunit 137069 "SCM Production Orders"
                         Assert.IsTrue(StrLen(Content) > 0, '');
                     end;
             end;
+
         end;
     end;
 
