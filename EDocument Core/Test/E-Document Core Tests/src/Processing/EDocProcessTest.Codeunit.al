@@ -112,35 +112,6 @@ codeunit 139883 "E-Doc Process Test"
         Assert.AreEqual(ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false), EDocument.GetEDocumentImportProcessingStatus(), 'The status should be updated to the one after the step executed.');
     end;
 
-    [Test]
-    procedure FinishDraftCanBeUndone()
-    var
-        EDocument: Record "E-Document";
-        EDocImportParameters: Record "E-Doc. Import Parameters";
-        PurchaseHeader: Record "Purchase Header";
-        EDocImport: Codeunit "E-Doc. Import";
-        EDocumentProcessing: Codeunit "E-Document Processing";
-    begin
-        Initialize(Enum::"Service Integration"::"Mock");
-        LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
-        EDocument."Document Type" := "E-Document Type"::"Purchase Invoice";
-        EDocument.Modify();
-        EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
-        EDocumentService.Modify();
-
-        EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Draft Ready");
-        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
-        EDocImportParameters."Finish Purchase Draft Impl." := "E-Doc. Create Purchase Invoice"::"Mock Create Purchase Invoice";
-        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
-
-        PurchaseHeader.SetRange("E-Document Link", EDocument.SystemId);
-        PurchaseHeader.FindFirst();
-
-        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Structure received data";
-        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
-
-        Assert.RecordIsEmpty(PurchaseHeader);
-    end;
 
     local procedure Initialize(Integration: Enum "Service Integration")
     var

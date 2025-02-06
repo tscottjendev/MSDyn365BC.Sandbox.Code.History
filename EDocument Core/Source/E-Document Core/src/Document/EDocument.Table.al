@@ -337,11 +337,6 @@ table 6121 "E-Document"
         exit(GetEDocumentServiceStatus()."Import Processing Status");
     end;
 
-    internal procedure GetEDocumentHeaderMapping() EDocumentHeaderMapping: Record "E-Document Header Mapping"
-    begin
-        if EDocumentHeaderMapping.Get(Rec."Entry No") then;
-    end;
-
     internal procedure ToString(): Text
     begin
         exit(StrSubstNo(ToStringLbl, SystemId, "Document Record ID", "Workflow Step Instance ID", "Job Queue Entry ID"));

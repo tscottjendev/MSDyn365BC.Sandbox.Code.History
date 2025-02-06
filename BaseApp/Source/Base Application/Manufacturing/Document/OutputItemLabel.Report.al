@@ -1,7 +1,6 @@
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Inventory.Item;
-using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Ledger;
 using System.Text;
 
@@ -11,7 +10,7 @@ report 99000769 "Output Item Label"
     ApplicationArea = Manufacturing;
     WordMergeDataItem = ItemLedgerEntry;
     DefaultRenderingLayout = Word;
-    Caption = 'Production Output Item Label';
+    Caption = 'Output Item Label';
 
     dataset
     {
@@ -27,9 +26,6 @@ report 99000769 "Output Item Label"
             {
             }
             column(BaseUnitofMeasure; ItemBaseUnitOfMeasure)
-            {
-            }
-            column(VariantCode; "Variant Code")
             {
             }
             column(BarCode; BarCode)
@@ -49,14 +45,14 @@ report 99000769 "Output Item Label"
                 BarcodeFontProvider := Enum::"Barcode Font Provider"::IDAutomation1D;
                 BarcodeFontProvider2D := Enum::"Barcode Font Provider 2D"::IDAutomation2D;
 
-                case ItemTrackingType of
-                    ItemTrackingType::"Serial No.":
-                        BarcodeString := "Serial No.";
-                    ItemTrackingType::"Lot No.":
-                        BarcodeString := "Lot No.";
-                    ItemTrackingType::"Package No.":
-                        BarcodeString := "Package No.";
-                end;
+                if UseSerialNo and ("Serial No." <> '') then
+                    BarcodeString := "Serial No.";
+
+                if UseLotNo and ("Lot No." <> '') then
+                    BarcodeString := "Lot No.";
+
+                if UsePackageNo and ("Package No." <> '') then
+                    BarcodeString := "Package No.";
 
                 if StrLen(BarcodeString) > 0 then begin
                     BarcodeFontProvider.ValidateInput(BarcodeString, BarcodeSymbology);
@@ -86,11 +82,41 @@ report 99000769 "Output Item Label"
                 group(Options)
                 {
                     Caption = 'Options';
-                    field("Item Tracking Type"; ItemTrackingType)
+                    field("Use Serial No"; UseSerialNo)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Item Tracking Type';
-                        ToolTip = 'Specifies which type of Item Tracking No. to print on the label.';
+                        Caption = 'Use Serial No.';
+                        ToolTip = 'Specifies whether to print the Serial No. of the item on the label, if it exists.';
+
+                        trigger OnValidate()
+                        begin
+                            UseLotNo := false;
+                            UsePackageNo := false;
+                        end;
+                    }
+                    field("Use Lot No"; UseLotNo)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Use Lot No.';
+                        ToolTip = 'Specifies whether to print the Lot No. of the item on the label, if it exists.';
+
+                        trigger OnValidate()
+                        begin
+                            UseSerialNo := false;
+                            UsePackageNo := false;
+                        end;
+                    }
+                    field("Use Package No"; UsePackageNo)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Use Package No.';
+                        ToolTip = 'Specifies whether to print the Package No. of the item on the label, if it exists.';
+
+                        trigger OnValidate()
+                        begin
+                            UseLotNo := false;
+                            UseSerialNo := false;
+                        end;
                     }
                 }
             }
@@ -111,12 +137,20 @@ report 99000769 "Output Item Label"
         BarcodeSymbology2D: Enum "Barcode Symbology 2D";
         ItemBaseUnitOfMeasure: Code[10];
         BarCode, QRCode, ItemDescription : Text;
-        ItemTrackingType: Enum "Item Tracking Type";
+        UseSerialNo, UseLotNo, UsePackageNo : Boolean;
+        ErrorLbl: Label 'One of the three options must be on.';
 
     trigger OnInitReport()
     begin
+        UseSerialNo := true;
         BarcodeSymbology := Enum::"Barcode Symbology"::Code39;
         BarcodeSymbology2D := Enum::"Barcode Symbology 2D"::"QR-Code";
+    end;
+
+    trigger OnPreReport()
+    begin
+        if not (UseSerialNo or UseLotNo or UsePackageNo) then
+            Error(ErrorLbl);
     end;
 
 }

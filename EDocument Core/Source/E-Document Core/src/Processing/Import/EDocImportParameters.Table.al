@@ -7,14 +7,12 @@ namespace Microsoft.EServices.EDocument.Processing.Import;
 
 table 6106 "E-Doc. Import Parameters"
 {
+    Access = Internal;
     TableType = Temporary;
 
     fields
     {
         field(1; "Step to Run"; Enum "Import E-Document Steps")
-        {
-        }
-        field(2; "Finish Purchase Draft Impl."; Enum "E-Doc. Create Purchase Invoice")
         {
         }
     }
