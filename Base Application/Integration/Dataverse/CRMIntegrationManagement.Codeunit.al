@@ -3920,9 +3920,11 @@ codeunit 5330 "CRM Integration Management"
                     if CDSConnectionSetup."Is Enabled" then
                         Enabled := IsCRMIntegrationRecord(TableID);
             if not Enabled then
-                if CRMConnectionSetup.ReadPermission() then
+                if CRMConnectionSetup.ReadPermission() then begin
+                    CRMConnectionSetup.SetLoadFields("Is Enabled");
                     if CRMConnectionSetup.IsEnabled() then
                         Enabled := IsCRMIntegrationRecord(TableID);
+                end;
         end;
 
         if Enabled then begin
