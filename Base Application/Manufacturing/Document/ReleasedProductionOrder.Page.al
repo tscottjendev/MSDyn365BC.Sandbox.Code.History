@@ -6,6 +6,8 @@ namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Attachment;
+using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Requisition;
@@ -658,6 +660,23 @@ page 99000831 "Released Production Order"
                     trigger OnAction()
                     begin
                         ManuPrintReport.PrintProductionOrder(Rec, 2);
+                    end;
+                }
+                action(PrintLabel)
+                {
+                    ApplicationArea = Manufacturing;
+                    Image = Print;
+                    Caption = 'Print Label';
+                    ToolTip = 'Print labels for the items on the order lines.';
+
+                    trigger OnAction()
+                    var
+                        ItemLedgerEntry: Record "Item Ledger Entry";
+                        ReportSelections: Record "Report Selections";
+                    begin
+                        ItemLedgerEntry.SetRange("Order Type", Enum::"Inventory Order Type"::Production);
+                        ItemLedgerEntry.SetRange("Order No.", Rec."No.");
+                        ReportSelections.PrintWithCheckForCust(Enum::"Report Selection Usage"::"Prod. Output Item Label", ItemLedgerEntry, 0);
                     end;
                 }
             }
