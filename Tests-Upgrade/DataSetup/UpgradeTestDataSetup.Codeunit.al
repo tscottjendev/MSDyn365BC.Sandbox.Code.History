@@ -12,12 +12,6 @@ codeunit 132802 "Upgrade Test Data Setup"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Test Data Setup Mgt.", 'OnGetTablesToBackupPerCompany', '', false, false)]
-    local procedure BackupCRMSyncStatus(TableMapping: Dictionary of [Integer, Integer])
-    begin
-        TableMapping.Add(Database::"CRM Connection Setup", Database::"UPG - CRM Connection Setup")
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Test Data Setup Mgt.", 'OnGetTablesToBackupPerCompany', '', false, false)]
     local procedure BackupIntegrationTableMapping(TableMapping: Dictionary of [Integer, Integer])
     var
         UPGIntegrationTableMapping: Record "UPG-Integration Table Mapping";
