@@ -17,6 +17,7 @@ codeunit 99000797 "Mfg. Document Print"
         InsertRepSelection("Report Selection Usage"::M1, '1', REPORT::"Prod. Order - Job Card");
         InsertRepSelection("Report Selection Usage"::M2, '1', REPORT::"Prod. Order - Mat. Requisition");
         InsertRepSelection("Report Selection Usage"::M3, '1', REPORT::"Prod. Order - Shortage List");
+        InsertRepSelection("Report Selection Usage"::"Prod. Output Item Label", '1', REPORT::"Output Item Label");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Report Selection Mgt.", 'OnInitReportUsage', '', false, false)]
@@ -31,6 +32,8 @@ codeunit 99000797 "Mfg. Document Print"
                 InsertRepSelection("Report Selection Usage"::M2, '1', REPORT::"Prod. Order - Mat. Requisition");
             "Report Selection Usage"::M3:
                 InsertRepSelection("Report Selection Usage"::M3, '1', REPORT::"Prod. Order - Shortage List");
+            "Report Selection Usage"::"Prod. Output Item Label":
+                InsertRepSelection("Report Selection Usage"::"Prod. Output Item Label", '1', REPORT::"Output Item Label");
         end;
     end;
 
