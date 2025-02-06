@@ -165,4 +165,10 @@ table 6100 "E-Document Purchase Header"
             Clustered = true;
         }
     }
+
+    procedure GetFromEDocument(EDocument: Record "E-Document")
+    begin
+        if Rec.Get(EDocument."Entry No") then;
+    end;
+
 }
