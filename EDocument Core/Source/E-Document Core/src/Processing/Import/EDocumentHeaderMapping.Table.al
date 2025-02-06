@@ -29,7 +29,7 @@ table 6102 "E-Document Header Mapping"
         {
             Caption = 'Purchase Order No.';
             DataClassification = CustomerContent;
-            TableRelation = "Purchase Header"."No.";
+            TableRelation = "Purchase Header"."No." where("Document Type" = const(Order));
         }
     }
     keys
@@ -39,4 +39,15 @@ table 6102 "E-Document Header Mapping"
             Clustered = true;
         }
     }
+
+    procedure InsertForEDocument(EDocument: Record "E-Document")
+    begin
+        Rec."E-Document Entry No." := EDocument."Entry No";
+        if not Rec.Insert() then begin
+            Clear(Rec);
+            Rec."E-Document Entry No." := EDocument."Entry No";
+            Rec.Modify();
+        end;
+    end;
+
 }

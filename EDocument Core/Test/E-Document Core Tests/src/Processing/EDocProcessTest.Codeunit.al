@@ -113,6 +113,132 @@ codeunit 139883 "E-Doc Process Test"
     end;
 
     [Test]
+    procedure PreparingPurchaseDraftFindsPurchaseOrderWhenSpecified()
+    var
+        EDocument: Record "E-Document";
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+        EDocImportParameters: Record "E-Doc. Import Parameters";
+        PurchaseHeader: Record "Purchase Header";
+        EDocumentHeaderMapping: Record "E-Document Header Mapping";
+        EDocumentProcessing: Codeunit "E-Document Processing";
+        EDocImport: Codeunit "E-Doc. Import";
+    begin
+        Initialize(Enum::"Service Integration"::"Mock");
+        LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
+
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
+        PurchaseHeader."No." := 'EDOC-001';
+        PurchaseHeader.Insert();
+        EDocumentPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
+        EDocumentPurchaseHeader."Purchase Order No." := PurchaseHeader."No.";
+        EDocumentPurchaseHeader.Insert();
+
+        EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Ready for draft");
+        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
+        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+
+        EDocumentHeaderMapping := EDocument.GetEDocumentHeaderMapping();
+        Assert.AreEqual(PurchaseHeader."No.", EDocumentHeaderMapping."Purchase Order No.", 'The purchase order should be found when explicitly specified in the E-Document.');
+        EDocument.SetRecFilter();
+        EDocument.FindFirst();
+        Assert.AreEqual("E-Document Type"::"Purchase Order", EDocument."Document Type", 'The document type should be set to Purchase Order after preparing the draft.');
+
+        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Structure received data";
+        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+        EDocumentHeaderMapping := EDocument.GetEDocumentHeaderMapping();
+        Assert.AreEqual(0, EDocumentHeaderMapping."E-Document Entry No.", 'There should be no assignments after undoing the Prepare draft step.');
+
+        PurchaseHeader.SetRecFilter();
+        PurchaseHeader.Delete();
+    end;
+
+    [Test]
+    procedure PreparingPurchaseDraftFindsVendorByTaxId()
+    var
+        EDocument: Record "E-Document";
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+        EDocImportParameters: Record "E-Doc. Import Parameters";
+        Vendor: Record Vendor;
+        EDocumentHeaderMapping: Record "E-Document Header Mapping";
+        EDocumentProcessing: Codeunit "E-Document Processing";
+        EDocImport: Codeunit "E-Doc. Import";
+    begin
+        Initialize(Enum::"Service Integration"::"Mock");
+        LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
+
+        Vendor."No." := 'EDOC001';
+        Vendor."VAT Registration No." := 'EDOCTESTTAXID001';
+        Vendor.Insert();
+        EDocumentPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
+        EDocumentPurchaseHeader."Vendor Tax Id" := Vendor."VAT Registration No.";
+        EDocumentPurchaseHeader.Insert();
+
+        EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Ready for draft");
+        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
+        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+
+        EDocumentHeaderMapping := EDocument.GetEDocumentHeaderMapping();
+        Assert.AreEqual(Vendor."No.", EDocumentHeaderMapping."Vendor No.", 'The vendor should be found when the tax id is specified and it matches the one in BC.');
+
+        Vendor.SetRecFilter();
+        Vendor.Delete();
+    end;
+
+    [Test]
+    procedure PreparingPurchaseDraftFindsAccountConfiguredWithTextToAccountMapping()
+    var
+        EDocument: Record "E-Document";
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+        EDocumentPurchaseLine: Record "E-Document Purchase Line";
+        EDocImportParameters: Record "E-Doc. Import Parameters";
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        TextToAccountMapping: Record "Text-to-Account Mapping";
+        EDocumentHeaderMapping: Record "E-Document Header Mapping";
+        EDocumentLineMapping: Record "E-Document Line Mapping";
+        EDocumentProcessing: Codeunit "E-Document Processing";
+        EDocImport: Codeunit "E-Doc. Import";
+    begin
+        Initialize(Enum::"Service Integration"::"Mock");
+        LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
+        GLAccount."No." := 'EDOC001';
+        GLAccount.Insert();
+
+        Vendor."No." := 'EDOC001';
+        Vendor."VAT Registration No." := 'EDOCTESTTAXID001';
+        Vendor.Insert();
+
+        TextToAccountMapping."Debit Acc. No." := GLAccount."No.";
+        TextToAccountMapping."Vendor No." := Vendor."No.";
+        TextToAccountMapping."Mapping Text" := 'Test description';
+        TextToAccountMapping.Insert();
+
+        EDocumentPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
+        EDocumentPurchaseHeader."Vendor Tax Id" := Vendor."VAT Registration No.";
+        EDocumentPurchaseHeader.Insert();
+        EDocumentPurchaseLine."E-Document Entry No." := EDocument."Entry No";
+        EDocumentPurchaseLine.Description := 'Test description';
+        EDocumentPurchaseLine.Insert();
+
+        EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Ready for draft");
+        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
+        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+
+        EDocumentHeaderMapping := EDocument.GetEDocumentHeaderMapping();
+        Assert.AreEqual(Vendor."No.", EDocumentHeaderMapping."Vendor No.", 'The vendor should be found when the tax id is specified and it matches the one in BC.');
+        EDocumentLineMapping.Get(EDocumentPurchaseLine."E-Document Line Id");
+        Assert.AreEqual("Purchase Line Type"::"G/L Account", EDocumentLineMapping."Purchase Line Type", 'The purchase line type should be set to G/L Account.');
+        Assert.AreEqual(GLAccount."No.", EDocumentLineMapping."Purchase Type No.", 'The G/L Account configured in the Text-to-Account Mapping should be found.');
+
+        Vendor.SetRecFilter();
+        Vendor.Delete();
+        GLAccount.SetRecFilter();
+        GLAccount.Delete();
+        TextToAccountMapping.SetRecFilter();
+        TextToAccountMapping.Delete();
+    end;
+
+    [Test]
     procedure FinishDraftCanBeUndone()
     var
         EDocument: Record "E-Document";

@@ -19,10 +19,8 @@ codeunit 6104 "Import E-Document Process"
     var
         NewStatus: Enum "Import E-Doc. Proc. Status";
     begin
-        if EDocument."Entry No" = 0 then
-            exit;
-        if not Configured then
-            exit;
+        EDocument.SetRecFilter();
+        EDocument.FindFirst();
 
         Clear(EDocumentLog);
         EDocumentLog.SetFields(EDocument, EDocument.GetEDocumentService());
@@ -137,20 +135,28 @@ codeunit 6104 "Import E-Document Process"
 
     local procedure UndoReadIntoIR()
     begin
-        // Not really anything to do here...
     end;
 
     local procedure PrepareDraft()
     var
-        IProcessStructuredDataFlow: Interface IProcessStructuredData;
+        IProcessStructuredData: Interface IProcessStructuredData;
     begin
-        IProcessStructuredDataFlow := Edocument."Structured Data Process";
-        IProcessStructuredDataFlow.Process(EDocument);
+        IProcessStructuredData := EDocument."Structured Data Process";
+        EDocument."Document Type" := IProcessStructuredData.PrepareDraft(EDocument, EDocImportParameters);
+        EDocument.Modify();
     end;
 
     local procedure UndoPrepareDraft()
+    var
+        EDocumentHeaderMapping: Record "E-Document Header Mapping";
+        EDocumentLineMapping: Record "E-Document Line Mapping";
     begin
-        // Not really anything to do here...
+        EDocumentLineMapping.SetRange("E-Document Entry No.", EDocument."Entry No");
+        EDocumentLineMapping.DeleteAll();
+        EDocumentHeaderMapping.SetRange("E-Document Entry No.", EDocument."Entry No");
+        EDocumentHeaderMapping.DeleteAll();
+        EDocument."Document Type" := "E-Document Type"::None;
+        EDocument.Modify();
     end;
 
     local procedure FinishDraft()
@@ -175,7 +181,6 @@ codeunit 6104 "Import E-Document Process"
         Step := NewStep;
         UndoStep := NewUndoStep;
         this.EDocImportParameters := EDocImportParameters;
-        Configured := true;
     end;
 
     procedure StatusStepIndex(Status: Enum "Import E-Doc. Proc. Status"): Integer
@@ -245,6 +250,6 @@ codeunit 6104 "Import E-Document Process"
 
         EDocumentProcessing: Codeunit "E-Document Processing";
         Step: Enum "Import E-Document Steps";
-        UndoStep, Configured : Boolean;
+        UndoStep: Boolean;
         UnstructuredBlobTypeWithNoConverterErr: Label 'Cant process E-Document as data type does not have a converter implemented.';
 }

@@ -216,7 +216,7 @@ table 6121 "E-Document"
         field(37; "Structured Data Process"; Enum "E-Doc. Structured Data Process")
         {
             Caption = 'Structured Data Process';
-            ToolTip = 'Specifies the structured data process to run on the E-Document data on.';
+            ToolTip = 'Specifies the structured data process to run on the E-Document data.';
         }
     }
     keys

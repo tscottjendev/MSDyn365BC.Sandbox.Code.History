@@ -15,6 +15,6 @@ enum 6103 "E-Doc. Structured Data Process" implements IProcessStructuredData
     value(0; "Purchase Document")
     {
         Caption = 'Purchase Document';
-        Implementation = IProcessStructuredData = "E-Doc. Process Purchase Data";
+        Implementation = IProcessStructuredData = "Prepare Purchase E-Doc. Draft";
     }
 }

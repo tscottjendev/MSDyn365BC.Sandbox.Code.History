@@ -157,6 +157,10 @@ table 6100 "E-Document Purchase Header"
             DataClassification = CustomerContent;
             Caption = 'Global Location Number';
         }
+        field(36; "Vendor External Id"; Text[200])
+        {
+            DataClassification = CustomerContent;
+        }
     }
     keys
     {
@@ -168,6 +172,7 @@ table 6100 "E-Document Purchase Header"
 
     procedure GetFromEDocument(EDocument: Record "E-Document")
     begin
+        Clear(Rec);
         if Rec.Get(EDocument."Entry No") then;
     end;
 

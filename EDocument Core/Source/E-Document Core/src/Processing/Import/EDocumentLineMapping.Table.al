@@ -9,8 +9,10 @@ using Microsoft.Utilities;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Inventory.Item;
+using Microsoft.eServices.EDocument;
 using Microsoft.Finance.AllocationAccount;
 using Microsoft.Projects.Resources.Resource;
+using Microsoft.Foundation.UOM;
 
 table 6105 "E-Document Line Mapping"
 {
@@ -22,12 +24,16 @@ table 6105 "E-Document Line Mapping"
         {
             DataClassification = SystemMetadata;
         }
-        field(2; "Purchase Line Type"; Enum "Purchase Line Type")
+        field(2; "E-Document Entry No."; Integer)
+        {
+            TableRelation = "E-Document"."Entry No";
+        }
+        field(3; "Purchase Line Type"; Enum "Purchase Line Type")
         {
             Caption = 'Purchase Line Type';
             DataClassification = CustomerContent;
         }
-        field(3; "Purchase Type No."; Code[20])
+        field(4; "Purchase Type No."; Code[20])
         {
             Caption = 'Purchase Type No.';
             DataClassification = CustomerContent;
@@ -45,10 +51,11 @@ table 6105 "E-Document Line Mapping"
             else
             if ("Purchase Line Type" = const(Resource)) Resource;
         }
-        field(4; "Unit of Measure"; Code[20])
+        field(5; "Unit of Measure"; Code[20])
         {
             Caption = 'Unit of Measure';
             DataClassification = CustomerContent;
+            TableRelation = "Unit of Measure";
         }
     }
     keys
@@ -58,4 +65,18 @@ table 6105 "E-Document Line Mapping"
             Clustered = true;
         }
     }
+
+    procedure InsertForEDocumentLine(EDocument: Record "E-Document"; EDocumentLineId: Integer)
+    begin
+        if Rec.Get(EDocumentLineId) then begin
+            Clear(Rec);
+            Rec."E-Document Line Id" := EDocumentLineId;
+            Rec."E-Document Entry No." := EDocument."Entry No";
+            Rec.Modify();
+        end;
+        Rec."E-Document Entry No." := EDocument."Entry No";
+        Rec."E-Document Line Id" := EDocumentLineId;
+        Rec.Insert();
+    end;
+
 }

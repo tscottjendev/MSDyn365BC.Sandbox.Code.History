@@ -5,6 +5,7 @@
 namespace Microsoft.eServices.EDocument.Processing.Interfaces;
 
 using Microsoft.eServices.EDocument;
+using Microsoft.eServices.EDocument.Processing.Import;
 
 /// <summary>
 /// Describe the data processing used to assign Business Central values to the E-Document data structures
@@ -13,8 +14,8 @@ interface IProcessStructuredData
 {
 
     /// <summary>
-    /// Get the supported processing type for the machine readable format.
+    /// From an E-Document that has had its data structures populated, process the data to assign Business Central values
     /// </summary>
-    procedure Process(var EDocument: Record "E-Document");
+    procedure PrepareDraft(EDocument: Record "E-Document"; EDocImportParameters: Record "E-Doc. Import Parameters"): Enum "E-Document Type";
 
 }
