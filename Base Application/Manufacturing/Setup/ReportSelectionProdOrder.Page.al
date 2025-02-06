@@ -99,8 +99,6 @@ page 99000917 "Report Selection - Prod. Order"
                 Rec.SetRange(Usage, Rec.Usage::M4);
             "Report Selection Usage Prod."::"Prod. Order":
                 Rec.SetRange(Usage, Rec.Usage::"Prod.Order");
-            "Report Selection Usage Prod."::"Prod. Output Item Label":
-                Rec.SetRange(Usage, Rec.Usage::"Prod. Output Item Label");
         end;
         OnSetUsageFilterOnAfterSetFiltersByReportUsage(Rec, ReportUsage2);
         Rec.FilterGroup(0);
@@ -124,8 +122,6 @@ page 99000917 "Report Selection - Prod. Order"
                         ReportUsage2 := "Report Selection Usage Prod."::"Gantt Chart";
                     NewReportUsage::"Prod.Order":
                         ReportUsage2 := "Report Selection Usage Prod."::"Prod. Order";
-                    NewReportUsage::"Prod. Output Item Label":
-                        ReportUsage2 := "Report Selection Usage Prod."::"Prod. Output Item Label";
                     else
                         OnInitUsageFilterOnElseCase(NewReportUsage, ReportUsage2);
                 end;
