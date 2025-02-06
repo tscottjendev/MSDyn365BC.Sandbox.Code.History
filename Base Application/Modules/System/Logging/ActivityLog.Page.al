@@ -6,7 +6,6 @@ namespace Microsoft.Utilities;
 
 page 710 "Activity Log"
 {
-    ApplicationArea = Basic, Suite;
     Caption = 'Activity Log';
     DelayedInsert = false;
     DeleteAllowed = false;
@@ -14,7 +13,6 @@ page 710 "Activity Log"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    UsageCategory = History;
     SourceTable = "Activity Log";
     SourceTableView = sorting("Activity Date")
                       order(descending);
