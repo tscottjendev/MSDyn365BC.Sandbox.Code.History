@@ -56,4 +56,13 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
             until EDocumentPurchaseLine.Next() = 0;
         exit("E-Document Type"::"Purchase Invoice");
     end;
+
+    procedure OpenDraftPage(var EDocument: Record "E-Document")
+    var
+        EDocumentPurchaseDraft: Page "E-Document Purchase Draft";
+    begin
+        EDocumentPurchaseDraft.SetRecord(EDocument);
+        EDocumentPurchaseDraft.Run();
+    end;
+
 }

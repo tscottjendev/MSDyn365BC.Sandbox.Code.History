@@ -6,7 +6,7 @@ codeunit 139782 "E-Doc PDF Mock" implements IBlobType, IBlobToStructuredDataConv
         exit(false);
     end;
 
-    procedure Convert(FromTempblob: Codeunit "Temp Blob"; FromType: Enum "E-Doc. Data Storage Blob Type"; var ConvertedType: Enum "E-Doc. Data Storage Blob Type"): Text
+    procedure Convert(EDocument: Record "E-Document"; FromTempblob: Codeunit "Temp Blob"; FromType: Enum "E-Doc. Data Storage Blob Type"; var ConvertedType: Enum "E-Doc. Data Storage Blob Type"): Text
     begin
         ConvertedType := Enum::"E-Doc. Data Storage Blob Type"::JSON;
         exit('Mocked content');

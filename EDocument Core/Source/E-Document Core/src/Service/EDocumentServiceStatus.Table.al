@@ -20,7 +20,7 @@ table 6138 "E-Document Service Status"
         {
             TableRelation = "E-Document Service";
             DataClassification = SystemMetadata;
-            Caption = 'E-Document Service Code';
+            Caption = 'Service Code';
         }
         field(3; "Status"; Enum "E-Document Service Status")
         {

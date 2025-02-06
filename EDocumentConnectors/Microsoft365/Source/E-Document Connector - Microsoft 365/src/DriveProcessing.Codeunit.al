@@ -246,7 +246,7 @@ codeunit 6381 "Drive Processing"
         Base64Value: Text;
     begin
         case ServiceIntegration of
-            ServiceIntegration::Sharepoint:
+            ServiceIntegration::SharePoint:
                 begin
                     if SharepointSetup.Get() then
                         if SharepointSetup.Enabled then
@@ -278,7 +278,7 @@ codeunit 6381 "Drive Processing"
         SiteId: Text;
     begin
         case ServiceIntegration of
-            ServiceIntegration::Sharepoint:
+            ServiceIntegration::SharePoint:
                 begin
                     CheckSetupEnabled(SharepointSetup);
                     CheckFolderSharedLinkNotEmpty(SharepointSetup."Documents Folder", SharepointSetup.TableCaption());
@@ -303,7 +303,7 @@ codeunit 6381 "Drive Processing"
         ImportedDocumentsFolderId: Text;
     begin
         case ServiceIntegration of
-            ServiceIntegration::Sharepoint:
+            ServiceIntegration::SharePoint:
                 begin
                     CheckSetupEnabled(SharepointSetup);
                     CheckFolderSharedLinkNotEmpty(SharepointSetup."Imp. Documents Folder", SharepointSetup.TableCaption());
