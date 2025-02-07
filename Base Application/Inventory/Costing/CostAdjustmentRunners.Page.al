@@ -51,6 +51,11 @@ page 5811 "Cost Adjustment Runners"
                     ToolTip = 'Specifies whether the cost adjustment process should post the cost adjustment entries to the general ledger.';
                     Editable = AutoPostToGLEnabled;
                 }
+                field(Trace; Rec.Trace)
+                {
+                    Caption = 'Trace';
+                    ToolTip = 'Specifies whether you want to trace the next cost adjustment run. It can be used to pinpoint issues in the cost adjustment process.';
+                }
                 field(Status; Rec.Status)
                 {
                     Caption = 'Status';
@@ -130,8 +135,11 @@ page 5811 "Cost Adjustment Runners"
                 Image = Stop;
 
                 trigger OnAction()
+                var
+                    CostAdjItemBucket: Record "Cost Adj. Item Bucket";
                 begin
                     CancelScheduledTasks();
+                    CostAdjItemBucket.CancelBucket(true);
                 end;
             }
             action(Cancel)
@@ -164,6 +172,14 @@ page 5811 "Cost Adjustment Runners"
                     CostAdjItemBucket.CancelBucket(false);
                 end;
             }
+            action("Trace Log")
+            {
+                Caption = 'Trace Log';
+                ToolTip = 'View the trace log for the latest cost adjustment run.';
+                Image = Trace;
+
+                RunObject = page "Cost Adjustment Trace Logs";
+            }
         }
         area(Promoted)
         {
@@ -173,6 +189,7 @@ page 5811 "Cost Adjustment Runners"
             actionref("Stop_Promoted"; Stop) { }
             actionref("Cancel_Promoted"; Cancel) { }
             actionref("Reset_Promoted"; Reset) { }
+            actionref("Trace Log_Promoted"; "Trace Log") { }
         }
     }
 
