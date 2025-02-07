@@ -1,3 +1,19 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Test;
+
+using System.TestLibraries.Utilities;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Foundation.UOM;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Finance.Analysis;
+
 codeunit 137210 "SCM Copy Production BOM"
 {
     Subtype = Test;
