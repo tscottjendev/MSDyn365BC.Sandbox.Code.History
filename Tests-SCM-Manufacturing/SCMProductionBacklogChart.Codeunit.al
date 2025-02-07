@@ -1,3 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Test;
+
+using Microsoft.Manufacturing.Document;
+using Microsoft.Inventory.Item;
+using Microsoft.Manufacturing.Setup;
+
 codeunit 137111 "SCM Production Backlog Chart"
 {
     Subtype = Test;
