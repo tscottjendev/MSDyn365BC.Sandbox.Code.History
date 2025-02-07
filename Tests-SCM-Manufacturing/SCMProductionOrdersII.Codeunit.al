@@ -1,4 +1,52 @@
-﻿codeunit 137072 "SCM Production Orders II"
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Test;
+
+using Microsoft.Inventory.Journal;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Inventory.Location;
+using System.TestLibraries.Utilities;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Inventory.Item;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Purchases.Document;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Sales.Document;
+using Microsoft.Manufacturing.Planning;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Manufacturing.Family;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Manufacturing.StandardCost;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Ledger;
+using System.Utilities;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Journal;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Foundation.Enums;
+using Microsoft.Finance.GeneralLedger.Preview;
+using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Worksheet;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Setup;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Warehouse.InventoryDocument;
+using Microsoft.Foundation.Navigate;
+using Microsoft.Inventory.Costing;
+using Microsoft.Foundation.NoSeries;
+
+codeunit 137072 "SCM Production Orders II"
 {
     Subtype = Test;
     TestPermissions = Disabled;
