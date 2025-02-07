@@ -1,3 +1,27 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Test;
+
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Inventory.Journal;
+using Microsoft.Purchases.Document;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Purchases.History;
+using System.TestLibraries.Utilities;
+using Microsoft.Manufacturing.StandardCost;
+using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Reports;
+
 codeunit 137083 "SCM Production Orders IV"
 {
     Subtype = Test;
