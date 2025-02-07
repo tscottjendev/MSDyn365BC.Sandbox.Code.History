@@ -353,6 +353,7 @@ codeunit 6500 "Item Tracking Management"
 
         OnAfterReserveEntryFilter(ItemJnlLine, ReservEntry);
         ReservEntry.SetFilter("Qty. to Handle (Base)", '<>0');
+        ReservEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
         OnRetrieveItemTrackingFromReservEntryFilter(ReservEntry, ItemJnlLine);
         if SumUpItemTracking(ReservEntry, TempTrackingSpec, false, true) then begin
             ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Prospect);
