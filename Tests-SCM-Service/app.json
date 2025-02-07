@@ -1,8 +1,8 @@
 {
   "id": "e737590a-fede-4692-ac4e-d1d4849dd043",
-  "name": "Tests-Service",
+  "name": "Tests-SCM-Service",
   "publisher": "Microsoft",
-  "version": "26.0.29875.0",
+  "version": "26.0.29882.0",
   "platform": "26.0.0.0",
   "dependencies": [
     {
@@ -43,5 +43,5 @@
     "includeSourceInSymbolFile": true
   },
   "application": "26.0.0.0",
-  "brief": "Tests-Service (AU)"
+  "brief": "Tests-SCM-Service (AU)"
 }
