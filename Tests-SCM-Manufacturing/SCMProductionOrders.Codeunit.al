@@ -1,3 +1,44 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Test;
+
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Location;
+using System.TestLibraries.Utilities;
+using Microsoft.Manufacturing.Journal;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Sales.Document;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Purchases.Document;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Manufacturing.Forecast;
+using Microsoft.Foundation.Enums;
+using System.Utilities;
+using Microsoft.Finance.Analysis;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Setup;
+using System.Environment.Configuration;
+using Microsoft.Utilities;
+using Microsoft.Warehouse.Tracking;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Planning;
+using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Setup;
+using Microsoft.Warehouse.Setup;
+
+
 codeunit 137069 "SCM Production Orders"
 {
     EventSubscriberInstance = Manual;
