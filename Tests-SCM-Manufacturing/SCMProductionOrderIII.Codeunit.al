@@ -1,4 +1,56 @@
-﻿codeunit 137079 "SCM Production Order III"
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Test;
+
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Journal;
+using Microsoft.Warehouse.Journal;
+using System.TestLibraries.Utilities;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Inventory.Item;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Sales.Document;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Purchases.Document;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Sales.Setup;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Manufacturing.Family;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Manufacturing.Journal;
+using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Inventory.Availability;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Inventory.Item.Substitution;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Foundation.UOM;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Pricing.PriceList;
+using System.Utilities;
+using Microsoft.Inventory.Costing;
+using Microsoft.Manufacturing.StandardCost;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Navigate;
+using Microsoft.Inventory.Planning;
+using Microsoft.Warehouse.InventoryDocument;
+using Microsoft.Foundation.Enums;
+using Microsoft.Warehouse.Request;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Asset;
+
+codeunit 137079 "SCM Production Order III"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -2049,6 +2101,7 @@
         // Change UOM on Production Order Line.
         FindReleasedProdOrderLine(ProdOrderLine, ItemNo);
         UpdateProdOrderLineUnitOfMeasureCode(ProdOrderLine, ItemNo, ItemUnitOfMeasure.Code);
+        UpdateInventoryAccountInterim(ProdOrderLine."Location Code", ProdOrderLine."Inventory Posting Group");
 
         // Exercise: Open Production Journal and post by handler PostProductionJournalHandler.
         LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
@@ -6951,6 +7004,7 @@
         LibrarySetupStorage.Save(Database::"Inventory Setup");
 
         LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         CreateLocationSetup();
         LibraryERMCountryData.UpdateInventoryPostingSetup();
@@ -7379,6 +7433,7 @@
 
         ItemJournalLine.Validate(Quantity, Quantity);
         ItemJournalLine.Modify(true);
+        UpdateInventoryAccountInterim(ItemJournalLine."Location Code", ItemJournalLine."Inventory Posting Group");
         LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
     end;
 
@@ -8755,11 +8810,11 @@
 
     local procedure GetDifferentVATBusPostingGroup(VATBusPostingGroupCode: Code[20]): Code[20]
     var
-        VATBusPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
-        VATBusPostingGroup.SetFilter(Code, '<>%1', VATBusPostingGroupCode);
-        VATBusPostingGroup.FindFirst();
-        exit(VATBusPostingGroup.Code);
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', VATBusPostingGroupCode);
+        VATPostingSetup.FindLast();
+        exit(VATPostingSetup."VAT Bus. Posting Group");
     end;
 
     local procedure InitProdOrderComponent(var NewProdOrderComponent: Record "Prod. Order Component"; OldProdOrderComponent: Record "Prod. Order Component")
@@ -8885,7 +8940,6 @@
         RecreatedPurchaseLine.TestField("Unit Cost (LCY)", PurchaseLine."Unit Cost (LCY)");
         RecreatedPurchaseLine.TestField("Gen. Prod. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         RecreatedPurchaseLine.TestField("VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
-        RecreatedPurchaseLine.TestField("VAT Identifier", PurchaseLine."VAT Identifier");
         RecreatedPurchaseLine.TestField("Qty. per Unit of Measure", PurchaseLine."Qty. per Unit of Measure");
         RecreatedPurchaseLine.TestField("Expected Receipt Date", PurchaseLine."Expected Receipt Date");
         RecreatedPurchaseLine.TestField("Requested Receipt Date", PurchaseLine."Requested Receipt Date");
@@ -9667,6 +9721,17 @@
         LibraryVariableStorage.Enqueue(JournalLinesPostedMsg); // Required inside MessageHandler.
         LibraryVariableStorage.Enqueue(LeaveProductionJournalQst); // Required inside MessageHandler.
         ProductionJournal.Post.Invoke();
+    end;
+
+    local procedure UpdateInventoryAccountInterim(LocationCode: Code[10]; InventoryPostingGroupCode: Code[20])
+    var
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+    begin
+        InventoryPostingSetup.Get(LocationCode, InventoryPostingGroupCode);
+        if InventoryPostingSetup."Inventory Account (Interim)" = '' then begin
+            InventoryPostingSetup."Inventory Account (Interim)" := InventoryPostingSetup."Inventory Account";
+            InventoryPostingSetup.Modify();
+        end;
     end;
 
     [PageHandler]
