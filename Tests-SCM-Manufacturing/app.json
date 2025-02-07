@@ -1,9 +1,10 @@
 {
-  "id": "4564dd2f-e8b2-41ff-9905-9d7a950475a5",
-  "name": "Tests-Misc",
+  "id": "88f3615c-370c-4f39-bb5f-54e096c984e9",
+  "name": "Tests-SCM-Manufacturing",
   "publisher": "Microsoft",
   "version": "26.0.29863.0",
   "platform": "26.0.0.0",
+  "url": "https://go.microsoft.com/fwlink/?LinkId=724011",
   "dependencies": [
     {
       "id": "5d86850b-0d76-4eca-bd7b-951ad998e997",
@@ -28,12 +29,6 @@
       "name": "Business Foundation Test Libraries",
       "publisher": "Microsoft",
       "version": "26.0.0.0"
-    },
-    {
-      "id": "dd0be2ea-f733-4d65-bb34-a28f4624fb14",
-      "name": "Library Assert",
-      "publisher": "Microsoft",
-      "version": "26.0.0.0"
     }
   ],
   "target": "OnPrem",
@@ -43,5 +38,5 @@
     "includeSourceInSymbolFile": true
   },
   "application": "26.0.0.0",
-  "brief": "Tests-Misc (NL)"
+  "brief": "Tests-SCM-Manufacturing (NL)"
 }

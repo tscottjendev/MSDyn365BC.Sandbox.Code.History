@@ -148,7 +148,7 @@ codeunit 5407 "Prod. Order Status Management"
             Commit();
     end;
 
-    internal procedure ReopenFinishedProdOrder(var ProdOrder: Record "Production Order")
+    procedure ReopenFinishedProdOrder(var ProdOrder: Record "Production Order")
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
@@ -1456,7 +1456,7 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [ErrorBehavior(ErrorBehavior::Collect)]
-    internal procedure ChangeStatusWithSelectionFilter(var ProductionOrder: Record "Production Order")
+    procedure ChangeStatusWithSelectionFilter(var ProductionOrder: Record "Production Order")
     var
         TempErrors: Record "Error Message" temporary;
         ProdOrderChangeStatusBulk: Codeunit ProdOrderChangeStatusBulk;

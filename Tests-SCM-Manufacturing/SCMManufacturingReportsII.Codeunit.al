@@ -1,3 +1,26 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Test;
+
+using Microsoft.Inventory.Journal;
+using System.TestLibraries.Utilities;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Inventory.Item;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Inventory.Costing;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Reports;
+using Microsoft.Inventory.Reports;
+using Microsoft.Inventory.Tracking;
+
 codeunit 137310 "SCM Manufacturing Reports -II"
 {
     Subtype = Test;

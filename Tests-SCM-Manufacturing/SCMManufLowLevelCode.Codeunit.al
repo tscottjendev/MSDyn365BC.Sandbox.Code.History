@@ -1,3 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Test;
+
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Inventory.Item;
+using Microsoft.Manufacturing.ProductionBOM;
+
 codeunit 137039 "SCM Manuf Low Level Code"
 {
     Subtype = Test;
