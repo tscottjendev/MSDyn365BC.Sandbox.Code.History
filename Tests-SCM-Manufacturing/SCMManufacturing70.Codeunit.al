@@ -1,3 +1,43 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Test;
+
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Journal;
+using System.TestLibraries.Utilities;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Finance.Dimension;
+using Microsoft.Inventory.Planning;
+using Microsoft.Sales.Document;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Setup;
+using Microsoft.Foundation.UOM;
+using Microsoft.Manufacturing.Family;
+using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Purchases.Setup;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Manufacturing.Journal;
+using System.Utilities;
+using Microsoft.Foundation.Enums;
+using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Posting;
+
 codeunit 137063 "SCM Manufacturing 7.0"
 {
     Subtype = Test;

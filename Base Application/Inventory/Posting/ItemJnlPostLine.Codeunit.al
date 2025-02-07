@@ -2443,9 +2443,10 @@ codeunit 22 "Item Jnl.-Post Line"
 
     local procedure EnsureValueEntryLoaded(var ValueEntry: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry")
     begin
+        ValueEntry.ReadIsolation(IsolationLevel::ReadUnCommitted);
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-        if ValueEntry.Find('-') then;
+        if ValueEntry.FindFirst() then;
     end;
 
     local procedure AllowProdApplication(OldItemLedgEntry: Record "Item Ledger Entry"; ItemLedgEntry: Record "Item Ledger Entry"): Boolean
