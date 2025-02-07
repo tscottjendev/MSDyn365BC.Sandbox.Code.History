@@ -57,6 +57,10 @@ table 5801 "Cost Adj. Item Bucket"
         {
             Caption = 'Post to G/L';
         }
+        field(9; Trace; Boolean)
+        {
+            Caption = 'Trace';
+        }
         field(11; "Last Error"; Text[2048])
         {
             Caption = 'Last Error';

@@ -362,6 +362,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Cost Adj. Item Bucket" = RIMD,
                   tabledata "Cost Adjustment Detailed Log" = RIMD,
                   tabledata "Cost Adjustment Log" = RIMD,
+                  tabledata "Cost Adjustment Trace Log" = RIMD,
                   tabledata "Cost Element Buffer" = RIMD,
                   tabledata "Cost Share Buffer" = RIMD,
                   tabledata "Country/Region" = RIMD,
