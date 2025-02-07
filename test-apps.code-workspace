@@ -115,7 +115,7 @@
       "path": "./BaseApp/Test/Tests-SCM-Manufacturing"
     },
     {
-      "path": "./BaseApp/Test/Tests-Service"
+      "path": "./BaseApp/Test/Tests-SCM-Service"
     },
     {
       "path": "./BaseApp/Test/Tests-SINGLESERVER"

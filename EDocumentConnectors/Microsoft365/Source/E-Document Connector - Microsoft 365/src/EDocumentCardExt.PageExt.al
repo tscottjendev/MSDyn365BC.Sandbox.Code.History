@@ -2,7 +2,7 @@ namespace Microsoft.EServices.EDocumentConnector.Microsoft365;
 
 using Microsoft.eServices.EDocument;
 
-pageextension 6383 EDocumentListExt extends "E-Documents"
+pageextension 6385 EDocumentCardExt extends "E-Document"
 {
     actions
     {
@@ -25,7 +25,7 @@ pageextension 6383 EDocumentListExt extends "E-Documents"
                 end;
             }
         }
-        addafter(Promoted_ViewFile)
+        addafter(Preview_promoteed)
         {
             actionref(Promoted_ViewMailMessage; ViewMailMessage) { }
         }

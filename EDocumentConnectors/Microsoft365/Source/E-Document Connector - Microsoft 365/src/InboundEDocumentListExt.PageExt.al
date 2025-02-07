@@ -2,7 +2,7 @@ namespace Microsoft.EServices.EDocumentConnector.Microsoft365;
 
 using Microsoft.eServices.EDocument;
 
-pageextension 6383 EDocumentListExt extends "E-Documents"
+pageextension 6386 InboundEDocumentListExt extends "Inbound E-Documents"
 {
     actions
     {
