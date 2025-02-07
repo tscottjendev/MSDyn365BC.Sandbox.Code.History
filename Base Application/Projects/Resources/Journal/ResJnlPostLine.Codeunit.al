@@ -67,8 +67,9 @@ codeunit 212 "Res. Jnl.-Post Line"
             if ResJournalLineGlobal."Document Date" = 0D then
                 ResJournalLineGlobal."Document Date" := ResJournalLineGlobal."Posting Date";
 
-            if (ResourceRegister."No." = 0) and ResourcesSetup.UseLegacyPosting() then begin
-                ResourceRegister.LockTable();
+            if ResourceRegister."No." = 0 then begin
+                if ResourcesSetup.UseLegacyPosting() then
+                    ResourceRegister.LockTable();
                 if (not ResourceRegister.FindLast()) or (ResourceRegister."To Entry No." <> 0) then
                     InsertRegister(ResJournalLineGlobal);
             end;
