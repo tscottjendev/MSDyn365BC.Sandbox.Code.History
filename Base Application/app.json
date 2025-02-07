@@ -4,7 +4,7 @@
   "publisher": "Microsoft",
   "description": "Provides business processes that are typical for small and mid-sized companies, such as sales and purchasing, and customer and vendor management, plus complex processes, such as assembly, manufacturing, service, and directed warehouse management. https://go.microsoft.com/fwlink/?LinkId=2205496",
   "brief": "Base Application (GB)",
-  "version": "26.0.29834.0",
+  "version": "26.0.29863.0",
   "logo": "ExtensionLogo.png",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
@@ -124,6 +124,16 @@
     {
       "id": "6f0b528b-a4de-4ccd-a948-d1350e228e4a",
       "name": "Tests-SCM",
+      "publisher": "Microsoft"
+    },
+    {
+      "id": "88f3615c-370c-4f39-bb5f-54e096c984e9",
+      "name": "Tests-SCM-Manufacturing",
+      "publisher": "Microsoft"
+    },
+    {
+      "id": "e737590a-fede-4692-ac4e-d1d4849dd043",
+      "name": "Tests-Service",
       "publisher": "Microsoft"
     },
     {

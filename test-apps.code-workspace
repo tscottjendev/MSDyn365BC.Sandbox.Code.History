@@ -109,6 +109,9 @@
       "path": "./Tests-SCM"
     },
     {
+      "path": "./Tests-SCM-Manufacturing"
+    },
+    {
       "path": "./Tests-Service"
     },
     {
