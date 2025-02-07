@@ -236,7 +236,7 @@ table 6121 "E-Document"
         EDocumentLog: Record "E-Document Log";
         FileInStr: InStream;
     begin
-        if Rec."File Type" <> Rec."File Type"::PDF then
+        if Rec."File Type" = Rec."File Type"::PDF then
             exit;
 
         EDocDataStorage.SetAutoCalcFields("Data Storage");
@@ -282,6 +282,7 @@ table 6121 "E-Document"
 
     internal procedure ViewSourceFile()
     begin
+        Rec.SetAutoCalcFields("File Type", "File Name");
         if Rec."File Name" = '' then
             exit;
 

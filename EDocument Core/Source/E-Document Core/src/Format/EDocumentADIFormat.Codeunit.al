@@ -4,6 +4,7 @@ using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
 using Microsoft.eServices.EDocument.Processing.Import;
 using System.Utilities;
+// using System.Azure.DI;
 
 codeunit 6174 "E-Document ADI Format" implements IStructuredFormatReader
 {

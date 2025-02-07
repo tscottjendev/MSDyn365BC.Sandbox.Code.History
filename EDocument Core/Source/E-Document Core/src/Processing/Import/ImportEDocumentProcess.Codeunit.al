@@ -17,7 +17,6 @@ codeunit 6104 "Import E-Document Process"
 
     trigger OnRun()
     var
-        EDocLog: Record "E-Document Log";
         NewStatus: Enum "Import E-Doc. Proc. Status";
     begin
         EDocument.SetRecFilter();
@@ -50,25 +49,14 @@ codeunit 6104 "Import E-Document Process"
                     FinishDraft();
         end;
 
-        EDocLog := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, NewStatus);
+        EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, NewStatus);
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, NewStatus);
-
-        if UpdateUnstructuredDataEntryNo(EDocLog, NewStatus) then begin
-            EDocument.Get(EDocument."Entry No");
-            EDocument."Unstructured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
-            EDocument.Modify();
-        end;
-        if UpdateStructuredDataEntryNo(EDocLog, NewStatus) then begin
-            EDocument.Get(EDocument."Entry No");
-            EDocument."Structured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
-            EDocument.Modify();
-        end;
     end;
 
     local procedure StructureReceivedData()
     var
         EDocumentDataStorage: Record "E-Doc. Data Storage";
-
+        EDocLog: Record "E-Document Log";
         FileManagement: Codeunit "File Management";
         FromBlob: Codeunit "Temp Blob";
         IBlobType: Interface IBlobType;
@@ -78,8 +66,14 @@ codeunit 6104 "Import E-Document Process"
         NewType: Enum "E-Doc. Data Storage Blob Type";
     begin
         EDocument.Get(EDocument."Entry No");
-        Edocument.TestField("Unstructured Data Entry No.");
-        EDocumentDataStorage.Get(Edocument."Unstructured Data Entry No.");
+
+        EDocLog.SetRange("E-Doc. Entry No", EDocument."Entry No");
+        EDocLog.SetRange("Service Code", EDocument.GetEDocumentService().Code);
+        EDocLog.SetRange(Status, Enum::"E-Document Service Status"::Imported);
+        EDocLog.SetRange("Processing Status", Enum::"Import E-Doc. Proc. Status"::Unprocessed);
+        EdocLog.SetFilter("E-Doc. Data Storage Entry No.", '<>0');
+        if EDocLog.FindLast() then
+            EDocumentDataStorage.Get(EDocLog."E-Doc. Data Storage Entry No.");
 
         IBlobType := EDocumentDataStorage."Data Type";
         if IBlobType.IsStructured() then
@@ -91,28 +85,41 @@ codeunit 6104 "Import E-Document Process"
             Error(UnstructuredBlobTypeWithNoConverterErr);
 
         IBlobToStructuredDataConverter := IBlobType.GetStructuredDataConverter();
-        Content := IBlobToStructuredDataConverter.Convert(EDocument, FromBlob, EDocumentDataStorage."Data Type", NewType);
+        Content := IBlobToStructuredDataConverter.Convert(FromBlob, EDocumentDataStorage."Data Type", NewType);
 
         NameWithoutExtension := FileManagement.GetFileNameWithoutExtension(EDocumentDataStorage.Name);
         Name := CopyStr(NameWithoutExtension + '.' + LowerCase(Format(NewType)), 1, 256);
         EDocumentLog.SetBlob(Name, NewType, Content);
+        EDocument.Validate("Structured Data Entry No.", EDocLog."E-Doc. Data Storage Entry No.");
+        EDocument.Modify();
     end;
 
     local procedure UndoStructureReceivedData()
     begin
+        // TODO: Could there be situations where this would be wrong? Like say in cases where we dont have unstructured data step?
+        EDocument.Get(EDocument."Entry No");
+        EDocument."Structured Data Entry No." := 0;
+        EDocument.Modify();
     end;
 
     local procedure ReadIntoIR()
     var
         EDocumentDataStorage: Record "E-Doc. Data Storage";
+        EDocLog: Record "E-Document Log";
         FromBlob: Codeunit "Temp Blob";
         IBlobType: Interface IBlobType;
         IStructuredFormatReader: Interface IStructuredFormatReader;
         StructuredDataProcess: Enum "E-Doc. Structured Data Process";
     begin
         EDocument.Get(EDocument."Entry No");
-        Edocument.TestField("Structured Data Entry No.");
-        EDocumentDataStorage.Get(Edocument."Structured Data Entry No.");
+
+        EDocLog.SetRange("E-Doc. Entry No", EDocument."Entry No");
+        EDocLog.SetRange("Service Code", EDocument.GetEDocumentService().Code);
+        EDocLog.SetRange(Status, Enum::"E-Document Service Status"::Imported);
+        EDocLog.SetRange("Processing Status", Enum::"Import E-Doc. Proc. Status"::Readable);
+        EdocLog.SetFilter("E-Doc. Data Storage Entry No.", '<>0');
+        if EDocLog.FindLast() then
+            EDocumentDataStorage.Get(EDocLog."E-Doc. Data Storage Entry No.");
 
         IBlobType := EDocumentDataStorage."Data Type";
         if not IBlobType.IsStructured() then
@@ -235,17 +242,6 @@ codeunit 6104 "Import E-Document Process"
                 exit(StepBefore ? Status::"Draft ready" : Status::Processed);
         end;
     end;
-
-    local procedure UpdateUnstructuredDataEntryNo(EDocLog: Record "E-Document Log"; Status: Enum "Import E-Doc. Proc. Status"): Boolean
-    begin
-        exit((Status = Enum::"Import E-Doc. Proc. Status"::Unprocessed) and (EDocLog."E-Doc. Data Storage Entry No." <> 0));
-    end;
-
-    local procedure UpdateStructuredDataEntryNo(EDocLog: Record "E-Document Log"; Status: Enum "Import E-Doc. Proc. Status"): Boolean
-    begin
-        exit((Status = Enum::"Import E-Doc. Proc. Status"::Readable) and (EDocLog."E-Doc. Data Storage Entry No." <> 0));
-    end;
-
 
     var
         EDocument: Record "E-Document";

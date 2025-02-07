@@ -7,8 +7,8 @@ namespace Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
 using System.Utilities;
-using System.Text;
 // using System.Azure.DI;
+using System.Text;
 
 /// <summary>
 /// E-Document OCR Converter
@@ -33,22 +33,17 @@ codeunit 6173 "E-Doc. PDF Blob Type" implements IBlobType, IBlobToStructuredData
         exit(this);
     end;
 
-    procedure Convert(EDocument: Record "E-Document"; FromTempblob: Codeunit "Temp Blob"; FromType: Enum "E-Doc. Data Storage Blob Type"; var ConvertedType: Enum "E-Doc. Data Storage Blob Type") StructuredData: Text
+    procedure Convert(FromTempblob: Codeunit "Temp Blob"; FromType: Enum "E-Doc. Data Storage Blob Type"; var ConvertedType: Enum "E-Doc. Data Storage Blob Type") StructuredData: Text
     var
         Base64Convert: Codeunit "Base64 Convert";
         // AzureDI: Codeunit "Azure DI";
         Instream: InStream;
         Data: Text;
     begin
-        // Debug
-        // StructuredData := NavApp.GetResourceAsText('Test.json', TextEncoding::UTF8);
-        // ConvertedType := Enum::"E-Doc. Data Storage Blob Type"::JSON;
-
         FromTempblob.CreateInStream(InStream, TextEncoding::UTF8);
         Data := Base64Convert.ToBase64(InStream);
-
-        // StructuredData := AzureDI.AnalyzeInvoice(Data);
-        StructuredData := '';
+        // Content := AzureDI.AnalyzeInvoice(Data);
+        StructuredData := 'OCR Content';
         ConvertedType := Enum::"E-Doc. Data Storage Blob Type"::JSON;
     end;
 

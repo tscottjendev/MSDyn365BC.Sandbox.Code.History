@@ -27,8 +27,6 @@ codeunit 6132 "E-Document Log"
 
     internal procedure SetFields(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service")
     begin
-        EDocument.TestField("Entry No");
-        EDocumentService.TestField("Code");
         Clear(this.EDocLog);
         this.EDocLog.Validate("Document Type", EDocument."Document Type");
         this.EDocLog.Validate("Document No.", EDocument."Document No.");
@@ -41,19 +39,14 @@ codeunit 6132 "E-Document Log"
         this.EDocLog.Validate("Document Format", EDocumentService."Document Format");
     end;
 
-    local procedure FillTempDataStorageEntry(Name: Text[256]; Type: Enum "E-Doc. Data Storage Blob Type"; var OutStream: OutStream)
+    internal procedure SetBlob(Name: Text[256]; Type: Enum "E-Doc. Data Storage Blob Type"; Content: Text)
+    var
+        OutStream: OutStream;
     begin
         Clear(this.TempDataStorageEntry);
         this.TempDataStorageEntry.Name := Name;
         this.TempDataStorageEntry."Data Type" := Type;
         this.TempDataStorageEntry."Data Storage".CreateOutStream(OutStream, TextEncoding::UTF8);
-    end;
-
-    internal procedure SetBlob(Name: Text[256]; Type: Enum "E-Doc. Data Storage Blob Type"; Content: Text)
-    var
-        OutStream: OutStream;
-    begin
-        FillTempDataStorageEntry(Name, Type, OutStream);
         this.TempDataStorageEntry."Data Storage Size" := StrLen(Content);
         OutStream.WriteText(Content);
     end;
@@ -63,18 +56,12 @@ codeunit 6132 "E-Document Log"
         OutStream: OutStream;
         InStream: InStream;
     begin
-        FillTempDataStorageEntry(Name, Type, OutStream);
+        Clear(this.TempDataStorageEntry);
+        this.TempDataStorageEntry.Name := Name;
+        this.TempDataStorageEntry."Data Type" := Type;
+        this.TempDataStorageEntry."Data Storage".CreateOutStream(OutStream, TextEncoding::UTF8);
         this.TempDataStorageEntry."Data Storage Size" := TempBlob.Length();
         TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
-        CopyStream(OutStream, InStream);
-    end;
-
-    internal procedure SetBlob(Name: Text[256]; Type: Enum "E-Doc. Data Storage Blob Type"; InStream: InStream)
-    var
-        OutStream: OutStream;
-    begin
-        FillTempDataStorageEntry(Name, Type, OutStream);
-        this.TempDataStorageEntry."Data Storage Size" := InStream.Length();
         CopyStream(OutStream, InStream);
     end;
 

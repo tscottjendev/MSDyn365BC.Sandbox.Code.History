@@ -9,7 +9,7 @@ using Microsoft.eServices.EDocument.Processing.Interfaces;
 /// <summary>
 /// Enum for E-Document Processing
 /// </summary>
-enum 6107 "E-Doc. Structured Data Process" implements IProcessStructuredData
+enum 6103 "E-Doc. Structured Data Process" implements IProcessStructuredData
 {
     Extensible = true;
     value(0; "Purchase Document")

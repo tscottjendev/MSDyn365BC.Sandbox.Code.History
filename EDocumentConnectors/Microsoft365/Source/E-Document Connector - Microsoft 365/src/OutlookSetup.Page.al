@@ -40,13 +40,13 @@ page 6384 "Outlook Setup"
             }
             group(General)
             {
-                Caption = 'Mailbox Details';
-                InstructionalText = 'Specify the e-mail address of the Microsoft 365 mailbox in which you receive document attachments. You must have read and write access to the specified mailbox, and it must be in the same tenant in which your Businesss Central environment is hosted.';
+                Caption = 'Shared Mailbox Details';
+                InstructionalText = 'Specify the e-mail address of the shared mailbox in which you receive document attachments.';
 
                 field(Mailbox; MailboxName)
                 {
                     Caption = 'Account';
-                    ToolTip = 'Specifies the Microsoft 365 mailbox from which to download document attachments.';
+                    ToolTip = 'Specifies the shared mailbox from which to download document attachments.';
                     Editable = false;
                     ShowMandatory = true;
 
@@ -68,8 +68,6 @@ page 6384 "Outlook Setup"
                             EmailAccounts.GetAccount(TempEmailAccount);
                             TempOutlookSetup."Email Account ID" := TempEmailAccount."Account Id";
                             TempOutlookSetup."Email Connector" := TempEmailAccount.Connector;
-                            if Format(TempOutlookSetup."Email Connector") <> M365Lbl then
-                                Error(M365MailboxMustBeSpecifiedErr);
                         end;
 
                         if MailboxName <> TempEmailAccount."Email Address" then begin
@@ -164,9 +162,7 @@ page 6384 "Outlook Setup"
         TempOutlookSetup: Record "Outlook Setup" temporary;
         EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 = page caption';
         DisableToConfigErr: Label 'You must disable the setup before making changes to the configuration.';
-        MailboxMustBeSpecifiedErr: label 'You must specify the e-mail address of the Microsoft 365 mailbox in which you receive e-mails with document attachments.';
-        M365MailboxMustBeSpecifiedErr: label 'You must specify a Microsoft 365 mailbox.', Comment = 'Microsoft 365 is a name of a range of Microsoft offerings - do not translate it';
-        M365Lbl: label 'Microsoft 365', Locked = true;
+        MailboxMustBeSpecifiedErr: label 'You must specify the e-mail address of the shared mailbox in which you receive e-mails with document attachments.';
         MailboxName: Text;
         LastSync: Text;
         ShowLastSync: Boolean;

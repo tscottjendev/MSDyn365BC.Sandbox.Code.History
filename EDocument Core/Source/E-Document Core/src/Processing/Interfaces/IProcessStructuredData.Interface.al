@@ -18,7 +18,4 @@ interface IProcessStructuredData
     /// </summary>
     procedure PrepareDraft(EDocument: Record "E-Document"; EDocImportParameters: Record "E-Doc. Import Parameters"): Enum "E-Document Type";
 
-
-    procedure OpenDraftPage(var EDocument: Record "E-Document");
-
 }

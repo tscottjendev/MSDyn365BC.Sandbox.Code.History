@@ -17,9 +17,6 @@ interface IBlobToStructuredDataConverter
     /// This procedure handles the actual conversion logic based on the provided 
     /// blob and its type.
     /// </summary>
-    /// <param name="EDocument">
-    /// The E-Document record that contains the blob data.
-    /// </param>
     /// <param name="FromTempblob">
     /// The codeunit representing the unstructured data in a temporary blob format.
     /// This is the input blob that needs to be converted.
@@ -37,7 +34,6 @@ interface IBlobToStructuredDataConverter
     /// This is the structured output derived from the input blob data.
     /// </param>
     procedure Convert(
-        EDocument: Record "E-Document";
         FromTempblob: Codeunit "Temp Blob";
         FromType: Enum "E-Doc. Data Storage Blob Type";
         var ConvertedType: Enum "E-Doc. Data Storage Blob Type") StructuredData: Text;

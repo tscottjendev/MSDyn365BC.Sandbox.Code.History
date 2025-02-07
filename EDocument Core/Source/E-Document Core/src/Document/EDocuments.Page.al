@@ -29,6 +29,22 @@ page 6122 "E-Documents"
                 {
                     ToolTip = 'Specifies the entry number.';
                 }
+                // Todo: Move
+                field("File Name"; Rec."File Name")
+                {
+                    ToolTip = 'Specifies the name of the source file.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.ViewSourceFile();
+                    end;
+                }
+                // Todo: Move
+                field("File Type"; Rec."File Type")
+                {
+                    ToolTip = 'Specifies the type of the source file.';
+                    Visible = false;
+                }
                 field("Bill-to/Pay-to No."; Rec."Bill-to/Pay-to No.")
                 {
                     ToolTip = 'Specifies the customer/vendor of the electronic document.';
@@ -52,6 +68,12 @@ page 6122 "E-Documents"
                 field(Status; Rec.Status)
                 {
                     ToolTip = 'Specifies the status of the electronic document.';
+                }
+                // Todo: Move
+                field(Service; Rec.Service)
+                {
+                    ToolTip = 'Specifies the name of the corresponding e-document service.';
+                    Visible = false;
                 }
             }
         }
