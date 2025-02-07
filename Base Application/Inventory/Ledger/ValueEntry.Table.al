@@ -510,9 +510,9 @@ table 5802 "Value Entry"
         key(Key13; "Job No.", "Job Task No.", "Document No.")
         {
         }
-        key(Key14; "Item Ledger Entry Type", "Posting Date", "Item No.", "Inventory Posting Group", "Dimension Set ID", "SIFT Bucket No.")
+        key(Key14; "Item Ledger Entry Type", "Posting Date", "Item No.", "Inventory Posting Group", "Dimension Set ID")
         {
-            SumIndexFields = "Invoiced Quantity", "Sales Amount (Actual)", "Purchase Amount (Actual)";
+            IncludedFields = "Invoiced Quantity", "Sales Amount (Actual)", "Purchase Amount (Actual)";
         }
         key(Key15; "Item Ledger Entry No.", "Valuation Date", "Posting Date")
         {
