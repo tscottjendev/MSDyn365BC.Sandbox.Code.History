@@ -45,7 +45,7 @@ codeunit 5809 "Cost Adj. Session Scheduler"
                     CostAdjItemBucket.Modify();
 
                     if (CostAdjItemBucket.Status in [CostAdjItemBucket.Status::Failed, CostAdjItemBucket.Status::"Timed out"]) and
-                       (CostAdjItemBucket."Reschedule Count" > 0)
+                       (CostAdjItemBucket."Reschedule Count" > 0) and not CostAdjItemBucket.Trace
                     then
                         Reschedule(CostAdjItemBucket);
                 end;

@@ -15,7 +15,7 @@ codeunit 5808 "Cost Adjustment Runner"
         CostAdjustmentSubscribers: Codeunit "Cost Adjustment Subscribers";
     begin
         BindSubscription(CostAdjustmentSubscribers);
-        OnBeforeRunCostAdjustment();
+        OnBeforeRunCostAdjustment(Rec);
 
         CostAdjItemBucket.Copy(Rec);
         if CostAdjustmentBucketRunner.Run(CostAdjItemBucket) then
@@ -42,7 +42,7 @@ codeunit 5808 "Cost Adjustment Runner"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunCostAdjustment()
+    local procedure OnBeforeRunCostAdjustment(CostAdjItemBucket: Record "Cost Adj. Item Bucket")
     begin
     end;
 
