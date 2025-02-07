@@ -197,6 +197,7 @@ codeunit 1764 "Inventory-Data Classification"
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Cost Adj. Item Bucket");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Cost Adjustment Detailed Log");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Cost Adjustment Log");
+        DataClassificationMgt.SetTableFieldsToNormal(Database::"Cost Adjustment Trace Log");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Item Entry Relation");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Value Entry Relation");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Action Message Entry");

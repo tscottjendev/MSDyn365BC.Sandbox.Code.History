@@ -7256,7 +7256,7 @@ table 36 "Sales Header"
     var
         TotalLineAmount: Decimal;
     begin
-        TotalLineAmount := TotalingSalesLine."Unit Price" + SplitSalesLine."Amount Including VAT" - SplitSalesLine.Amount;
+        TotalLineAmount := TotalingSalesLine."Unit Price" + (SplitSalesLine."Amount Including VAT" * (SplitSalesLine."VAT %" / (SplitSalesLine."VAT %" + 100)));
         TotalingSalesLine.Validate("Unit Price", TotalLineAmount);
     end;
 

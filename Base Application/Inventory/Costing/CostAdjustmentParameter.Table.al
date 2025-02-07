@@ -27,6 +27,10 @@ table 5808 "Cost Adjustment Parameter"
         {
             Caption = 'Item-By-Item Commit';
         }
+        field(50; "Max Duration"; Duration)
+        {
+            Caption = 'Max Duration';
+        }
     }
 
     keys
