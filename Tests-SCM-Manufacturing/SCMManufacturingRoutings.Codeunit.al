@@ -1,3 +1,27 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Test;
+
+using System.TestTools.CodeCoverage;
+using System.TestLibraries.Utilities;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Manufacturing.Routing;
+using System.Tooling;
+using Microsoft.Inventory.Item;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Location;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Manufacturing.Journal;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Inventory;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Posting;
+using Microsoft.Inventory.Requisition;
+
 codeunit 137082 "SCM Manufacturing - Routings"
 {
     Subtype = Test;

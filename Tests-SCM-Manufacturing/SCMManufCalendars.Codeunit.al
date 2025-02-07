@@ -1,3 +1,21 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Test;
+
+using Microsoft.Manufacturing.Capacity;
+using System.TestLibraries.Utilities;
+using Microsoft.Foundation.Enums;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Manufacturing.MachineCenter;
+using System.Utilities;
+using Microsoft.Finance.Analysis;
+using Microsoft.Inventory.Item;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Setup;
+
 codeunit 137076 "SCM Manuf Calendars"
 {
     Subtype = Test;
