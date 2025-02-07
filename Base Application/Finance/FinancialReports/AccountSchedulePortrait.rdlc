@@ -1185,7 +1185,7 @@
                 <TablixBody>
                   <TablixColumns>
                     <TablixColumn>
-                      <Width>27.16389cm</Width>
+                      <Width>18.42793cm</Width>
                     </TablixColumn>
                   </TablixColumns>
                   <TablixRows>
@@ -1279,7 +1279,7 @@
                 </TablixRowHierarchy>
                 <DataSetName>DataSet_Result</DataSetName>
                 <Height>0.72219cm</Height>
-                <Width>27.16389cm</Width>
+                <Width>18.42793cm</Width>
                 <ZIndex>1</ZIndex>
                 <Style>
                   <Border>
@@ -1291,7 +1291,7 @@
                 <TablixBody>
                   <TablixColumns>
                     <TablixColumn>
-                      <Width>27.11214cm</Width>
+                      <Width>18.42793cm</Width>
                     </TablixColumn>
                   </TablixColumns>
                   <TablixRows>
@@ -1386,7 +1386,7 @@
                 <DataSetName>DataSet_Result</DataSetName>
                 <Top>3.07098cm</Top>
                 <Height>0.69263cm</Height>
-                <Width>27.11214cm</Width>
+                <Width>18.42793cm</Width>
                 <ZIndex>2</ZIndex>
                 <Style>
                   <Border>
@@ -1396,18 +1396,19 @@
               </Tablix>
             </ReportItems>
             <KeepTogether>true</KeepTogether>
+            <Left>0.3175cm</Left>
             <Height>1.48174in</Height>
-            <Width>770.00003pt</Width>
+            <Width>522.36645pt</Width>
             <Style />
           </Rectangle>
         </ReportItems>
         <Height>3.76362cm</Height>
         <Style />
       </Body>
-      <Width>27.16389cm</Width>
+      <Width>18.74543cm</Width>
       <Page>
         <PageHeader>
-          <Height>4.51456cm</Height>
+          <Height>4.83206cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -1445,7 +1446,7 @@
               </Paragraphs>
               <Top>2.54cm</Top>
               <Height>0.423cm</Height>
-              <Width>12.5cm</Width>
+              <Width>8.12182cm</Width>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -1468,7 +1469,7 @@
               </Paragraphs>
               <Top>3.386cm</Top>
               <Height>0.423cm</Height>
-              <Width>12.5cm</Width>
+              <Width>8.12182cm</Width>
               <ZIndex>1</ZIndex>
               <Style>
                 <Border>
@@ -1496,7 +1497,7 @@
               </Paragraphs>
               <Top>2.963cm</Top>
               <Height>0.423cm</Height>
-              <Width>12.5cm</Width>
+              <Width>8.12182cm</Width>
               <ZIndex>2</ZIndex>
               <Visibility>
                 <Hidden>=IIF(First(Fields!AccSchedLineFilter.Value, "DataSet_Result")="",TRUE,FALSE)</Hidden>
@@ -1527,7 +1528,7 @@
               </Paragraphs>
               <Top>1.44639cm</Top>
               <Height>0.38806cm</Height>
-              <Width>12.5cm</Width>
+              <Width>8.12182cm</Width>
               <ZIndex>3</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -1553,7 +1554,7 @@
               </Paragraphs>
               <Top>1.05833cm</Top>
               <Height>11pt</Height>
-              <Width>12.5cm</Width>
+              <Width>8.12182cm</Width>
               <ZIndex>4</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -1578,7 +1579,7 @@
                 </Paragraph>
               </Paragraphs>
               <Height>20pt</Height>
-              <Width>354.33071pt</Width>
+              <Width>230.22482pt</Width>
               <ZIndex>5</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -1604,7 +1605,7 @@
                 </Paragraph>
               </Paragraphs>
               <Top>0.84667cm</Top>
-              <Left>20.43436cm</Left>
+              <Left>12.06765cm</Left>
               <Height>0.38806cm</Height>
               <Width>6.67778cm</Width>
               <ZIndex>6</ZIndex>
@@ -1632,7 +1633,7 @@
                 </Paragraph>
               </Paragraphs>
               <Top>0.07056cm</Top>
-              <Left>20.43436cm</Left>
+              <Left>12.06765cm</Left>
               <Height>11pt</Height>
               <Width>6.67778cm</Width>
               <ZIndex>7</ZIndex>
@@ -1660,7 +1661,7 @@
                 </Paragraph>
               </Paragraphs>
               <Top>0.45861cm</Top>
-              <Left>20.43436cm</Left>
+              <Left>12.06765cm</Left>
               <Height>0.38806cm</Height>
               <Width>6.67778cm</Width>
               <ZIndex>8</ZIndex>
@@ -1690,7 +1691,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Left>20.43436cm</Left>
+              <Left>12.06765cm</Left>
               <Height>2pt</Height>
               <Width>6.67778cm</Width>
               <ZIndex>9</ZIndex>
@@ -1721,7 +1722,7 @@
               </Paragraphs>
               <Top>0.70556cm</Top>
               <Height>10pt</Height>
-              <Width>12.5cm</Width>
+              <Width>8.12182cm</Width>
               <ZIndex>10</ZIndex>
               <Style>
                 <Border>
@@ -1750,7 +1751,7 @@
               <rd:DefaultName>Textbox82</rd:DefaultName>
               <Top>1.83445cm</Top>
               <Height>20pt</Height>
-              <Width>12.5cm</Width>
+              <Width>8.12182cm</Width>
               <ZIndex>11</ZIndex>
               <Style>
                 <Border>
@@ -1777,7 +1778,7 @@
               <rd:DefaultName>Textbox82</rd:DefaultName>
               <Top>3.809cm</Top>
               <Height>20pt</Height>
-              <Width>12.5cm</Width>
+              <Width>8.12182cm</Width>
               <ZIndex>12</ZIndex>
               <Style>
                 <Border>
@@ -1788,14 +1789,14 @@
           </ReportItems>
           <Style />
         </PageHeader>
-        <PageHeight>21cm</PageHeight>
-        <PageWidth>29.7cm</PageWidth>
-        <InteractiveHeight>21cm</InteractiveHeight>
-        <InteractiveWidth>28cm</InteractiveWidth>
-        <LeftMargin>1.5cm</LeftMargin>
+        <PageHeight>29.7cm</PageHeight>
+        <PageWidth>21cm</PageWidth>
+        <InteractiveHeight>28cm</InteractiveHeight>
+        <InteractiveWidth>21cm</InteractiveWidth>
+        <LeftMargin>1cm</LeftMargin>
         <RightMargin>1cm</RightMargin>
         <TopMargin>1cm</TopMargin>
-        <BottomMargin>1cm</BottomMargin>
+        <BottomMargin>1.5cm</BottomMargin>
         <Style />
       </Page>
     </ReportSection>
