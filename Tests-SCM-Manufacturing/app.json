@@ -1,9 +1,10 @@
 {
-  "id": "538ca7e3-4f69-4123-b21f-97e764d396f3",
-  "name": "TestRunner-Internal",
+  "id": "88f3615c-370c-4f39-bb5f-54e096c984e9",
+  "name": "Tests-SCM-Manufacturing",
   "publisher": "Microsoft",
   "version": "26.0.29863.0",
   "platform": "26.0.0.0",
+  "url": "https://go.microsoft.com/fwlink/?LinkId=724011",
   "dependencies": [
     {
       "id": "5d86850b-0d76-4eca-bd7b-951ad998e997",
@@ -16,6 +17,18 @@
       "name": "System Application Test Library",
       "publisher": "Microsoft",
       "version": "26.0.0.0"
+    },
+    {
+      "id": "5095f467-0a01-4b99-99d1-9ff1237d286f",
+      "publisher": "Microsoft",
+      "name": "Library Variable Storage",
+      "version": "26.0.0.0"
+    },
+    {
+      "id": "bee8cf2f-494a-42f4-aabd-650e87934d39",
+      "name": "Business Foundation Test Libraries",
+      "publisher": "Microsoft",
+      "version": "26.0.0.0"
     }
   ],
   "target": "OnPrem",
@@ -24,6 +37,6 @@
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "brief": "TestRunner-Internal (NZ)",
-  "application": "26.0.0.0"
+  "application": "26.0.0.0",
+  "brief": "Tests-SCM-Manufacturing (NZ)"
 }

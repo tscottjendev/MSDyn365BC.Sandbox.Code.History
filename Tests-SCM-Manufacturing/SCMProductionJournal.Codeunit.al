@@ -1,3 +1,33 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Test;
+
+using Microsoft.Inventory.Journal;
+using Microsoft.Finance.Dimension;
+using System.TestLibraries.Utilities;
+using Microsoft.Manufacturing.Journal;
+using Microsoft.Inventory.Item;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Family;
+using Microsoft.Sales.Document;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Inventory.Location;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Warehouse.Request;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Inventory.Posting;
+
 codeunit 137034 "SCM Production Journal"
 {
     Subtype = Test;

@@ -1,3 +1,26 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Test;
+
+using Microsoft.Inventory.Journal;
+using System.TestLibraries.Utilities;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Manufacturing.Journal;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Warehouse.Request;
+using Microsoft.Inventory.Posting;
+
 codeunit 137298 "SCM Prod. Whse. Handling"
 {
     Subtype = Test;
