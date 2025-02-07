@@ -1,3 +1,41 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Test;
+
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Location;
+using Microsoft.Service.Test;
+using System.TestLibraries.Utilities;
+using Microsoft.Inventory.Item;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Sales.Document;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Journal;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Inventory.Planning;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Manufacturing.Forecast;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Inventory.BOM;
+using Microsoft.Assembly.Document;
+using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Setup;
+using Microsoft.Foundation.Calendar;
+using System.Utilities;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Foundation.Navigate;
+using Microsoft.Inventory.Setup;
+
 codeunit 137080 "SCM Planning And Manufacturing"
 {
     Subtype = Test;
