@@ -1,9 +1,10 @@
 {
-  "id": "fa3e2564-a39e-417f-9be6-c0dbe3d94069",
-  "name": "Tests-ERM",
+  "id": "88f3615c-370c-4f39-bb5f-54e096c984e9",
+  "name": "Tests-SCM-Manufacturing",
   "publisher": "Microsoft",
   "version": "26.0.29863.0",
   "platform": "26.0.0.0",
+  "url": "https://go.microsoft.com/fwlink/?LinkId=724011",
   "dependencies": [
     {
       "id": "5d86850b-0d76-4eca-bd7b-951ad998e997",
@@ -24,12 +25,6 @@
       "version": "26.0.0.0"
     },
     {
-      "id": "e7320ebb-08b3-4406-b1ec-b4927d3e280b",
-      "publisher": "Microsoft",
-      "name": "Any",
-      "version": "26.0.0.0"
-    },
-    {
       "id": "bee8cf2f-494a-42f4-aabd-650e87934d39",
       "name": "Business Foundation Test Libraries",
       "publisher": "Microsoft",
@@ -43,5 +38,5 @@
     "includeSourceInSymbolFile": true
   },
   "application": "26.0.0.0",
-  "brief": "Tests-ERM (CH)"
+  "brief": "Tests-SCM-Manufacturing (CH)"
 }
