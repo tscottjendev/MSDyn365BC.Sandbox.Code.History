@@ -120,7 +120,7 @@
       "path": "./Tests-SCM-Manufacturing"
     },
     {
-      "path": "./Tests-Service"
+      "path": "./Tests-SCM-Service"
     },
     {
       "path": "./Tests-SINGLESERVER"
