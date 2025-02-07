@@ -296,6 +296,20 @@ table 6103 "E-Document Service"
         EDocBackgroundJobs.RemoveJob(Rec."Import Recurrent Job Id");
     end;
 
+    internal procedure GetPDFReaderService()
+    begin
+        if Rec.Get(AzureDocumentIntelligenceTok) then
+            exit;
+
+        Rec.Init();
+        Rec.Code := AzureDocumentIntelligenceTok;
+        Rec."Import Process" := "Import Process"::"Version 2.0";
+        Rec.Description := AzureDocumentIntelligenceServiceTxt;
+        Rec."Automatic Processing" := "Automatic Processing"::No;
+        Rec."E-Document Structured Format" := "E-Document Structured Format"::"Azure Document Intelligence";
+        Rec.Insert(true);
+    end;
+
     internal procedure IsAutomaticProcessingEnabled(): Boolean
     begin
         exit("Automatic Processing" = "Automatic Processing"::Yes);
@@ -312,6 +326,8 @@ table 6103 "E-Document Service"
 
     var
         EDocumentBackgroundJobs: Codeunit "E-Document Background Jobs";
+        AzureDocumentIntelligenceTok: Label 'MSEOCADI';
+        AzureDocumentIntelligenceServiceTxt: Label 'E-Document PDF Service - Process pdfs with Azure Document Intelligence';
         EDocStringLbl: Label '%1,%2,%3,%4,%5', Locked = true;
         TemplateTypeErr: Label 'Only General Journal Templates of type %1, %2, %3, %4, or %5 are allowed.', Comment = '%1 - General, %2 - Purchases, %3 - Payments, %4 - Sales, %5 - Cash, %6 - Receipts';
         ServiceInActiveFlowErr: Label 'The service is used in an active workflow. You cannot delete it.';

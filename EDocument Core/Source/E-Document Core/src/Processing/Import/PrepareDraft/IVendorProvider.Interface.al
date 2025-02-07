@@ -6,6 +6,7 @@ namespace Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.eServices.EDocument;
 using Microsoft.Purchases.Vendor;
 
+
 interface IVendorProvider
 {
     procedure GetVendor(EDocument: Record "E-Document"): Record Vendor;

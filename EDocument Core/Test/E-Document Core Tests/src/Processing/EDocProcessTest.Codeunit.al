@@ -105,7 +105,12 @@ codeunit 139883 "E-Doc Process Test"
         EDocument."Unstructured Data Entry No." := EDocLogRecord."E-Doc. Data Storage Entry No.";
         EDocument.Modify();
 
-        EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::Processed);
+        EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::Unprocessed);
+        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
+        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+
+        Assert.AreEqual(ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false), EDocument.GetEDocumentImportProcessingStatus(), 'The status should be updated to the one after the step executed.');
+
         EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Structure received data";
         EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
 

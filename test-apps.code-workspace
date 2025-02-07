@@ -112,6 +112,9 @@
       "path": "./BaseApp/Test/Tests-SCM"
     },
     {
+      "path": "./BaseApp/Test/Tests-SCM-Manufacturing"
+    },
+    {
       "path": "./BaseApp/Test/Tests-Service"
     },
     {

@@ -7,11 +7,12 @@ namespace Microsoft.eServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Document;
-using System.IO;
 using Microsoft.eServices.EDocument.OrderMatch;
-using System.Utilities;
 using Microsoft.eServices.EDocument.Integration.Receive;
 using Microsoft.eServices.EDocument.Processing.Import;
+using System.IO;
+using System.Utilities;
+using Microsoft.eServices.EDocument.Processing.Interfaces;
 
 codeunit 6140 "E-Doc. Import"
 {
@@ -100,6 +101,34 @@ codeunit 6140 "E-Doc. Import"
                     exit;
                 end;
             end;
+    end;
+
+    internal procedure CreateFromType(var EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; Type: Enum "E-Doc. Data Storage Blob Type"; Filename: Text; InStr: InStream)
+    var
+        EDocLog: Record "E-Document Log";
+        IBlobType: Interface IBlobType;
+        BlobType: Enum "E-Doc. Data Storage Blob Type";
+    begin
+        IBlobType := Type;
+        EDocument.Direction := EDocument.Direction::Incoming;
+        EDocument."Document Type" := Enum::"E-Document Type"::None;
+        EDocument.Service := EDocumentService.Code;
+
+        EDocument."File Name" := CopyStr(FileName, 1, 256);
+        EDocument."File Type" := BlobType;
+        EDocument.Insert(true);
+
+        EDocumentLog.SetFields(EDocument, EDocumentService);
+        EDocumentLog.SetBlob(CopyStr(FileName, 1, 256), Type, InStr);
+
+        EDocLog := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Unprocessed);
+        EDocumentProcessing.InsertServiceStatus(EDocument, EDocumentService, Enum::"E-Document Service Status"::Imported);
+
+        if IBlobType.IsStructured() then
+            EDocument."Structured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No."
+        else
+            EDocument."Unstructured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
+        EDocument.Modify();
     end;
 
     internal procedure UploadDocument(var EDocument: Record "E-Document")

@@ -47,7 +47,8 @@
                                     <TextRun>
                                       <Value EvaluationMode="Auto">=Fields!RowNoCaption.Value</Value>
                                       <Style>
-                                        <FontFamily>Segoe UI Semibold</FontFamily>
+                                        <FontFamily>Segoe UI</FontFamily>
+                                        <FontWeight>SemiBold</FontWeight>
                                         <FontSize>8pt</FontSize>
                                       </Style>
                                     </TextRun>
@@ -79,7 +80,8 @@
                                     <TextRun>
                                       <Value EvaluationMode="Auto">=Parameters!AccSchedLineSpec_DescriptionCaptionLbl.Value</Value>
                                       <Style>
-                                        <FontFamily>Segoe UI Semibold</FontFamily>
+                                        <FontFamily>Segoe UI</FontFamily>
+                                        <FontWeight>SemiBold</FontWeight>
                                         <FontSize>8pt</FontSize>
                                       </Style>
                                     </TextRun>
@@ -109,7 +111,8 @@
                                     <TextRun>
                                       <Value EvaluationMode="Auto" />
                                       <Style>
-                                        <FontFamily>Segoe UI Semibold</FontFamily>
+                                        <FontFamily>Segoe UI</FontFamily>
+                                        <FontWeight>SemiBold</FontWeight>
                                         <FontSize>8pt</FontSize>
                                       </Style>
                                     </TextRun>
@@ -140,7 +143,8 @@
                                     <TextRun>
                                       <Value EvaluationMode="Auto">=Fields!Header.Value</Value>
                                       <Style>
-                                        <FontFamily>Segoe UI Semibold</FontFamily>
+                                        <FontFamily>Segoe UI</FontFamily>
+                                        <FontWeight>SemiBold</FontWeight>
                                         <FontSize>8pt</FontSize>
                                       </Style>
                                     </TextRun>
