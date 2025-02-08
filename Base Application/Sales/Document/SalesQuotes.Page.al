@@ -250,6 +250,7 @@ page 9300 "Sales Quotes"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Sales Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
