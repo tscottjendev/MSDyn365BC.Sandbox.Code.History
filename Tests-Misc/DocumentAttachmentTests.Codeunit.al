@@ -368,9 +368,6 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment: Record "Document Attachment";
         RecRef: RecordRef;
         SalesQuotes: TestPage "Sales Quotes";
-#if not CLEAN25
-        FinalDocAttachedAcount: Integer;
-#endif
     begin
         // [SCENARIO] Ensure that Documents Attachment factbox shows blank when quote is converted to order
 
@@ -390,10 +387,7 @@ codeunit 134776 "Document Attachment Tests"
         while SalesQuotes."No.".Value() <> SalesHeaderQuote."No." do
             if not SalesQuotes.Next() then
                 break;
-#if not CLEAN25
-        // [THEN] The number of attachments is shown as 2
-        Assert.AreEqual(2, SalesQuotes."Attached Documents".Documents.AsInteger(), '2 attachments should have been visible.');
-#endif
+
         // [THEN] The attachment list in factbox should be updated
         Assert.IsTrue(SalesQuotes."Attached Documents List".First(), 'Move to first record failed.');
         Assert.AreEqual(SalesQuotes."Attached Documents List".Name.Value(), 'foo', 'File name does not match.');
@@ -409,18 +403,6 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] Sales quote selected is a different one
         Assert.AreNotEqual(SalesHeaderQuote."No.", SalesQuotes."No.".Value(), 'Different sales quote selected.');
 
-#if not CLEAN25
-        // [THEN] The number of attachments is updated
-        FinalDocAttachedAcount := 0;
-        if SalesQuotes."No.".Value() <> '' then begin
-            DocumentAttachment.Reset();
-            DocumentAttachment.SetRange("Table ID", Database::"Sales Header");
-            DocumentAttachment.SetRange("Document Type", SalesHeaderQuote."Document Type"::Quote);
-            DocumentAttachment.SetRange("No.", SalesQuotes."No.".Value());
-            FinalDocAttachedAcount := DocumentAttachment.Count();
-        end;
-        Assert.AreEqual(FinalDocAttachedAcount, SalesQuotes."Attached Documents".Documents.AsInteger(), 'Attachments count should match quote.');
-#endif
         // [THEN] The attachment list in factbox should be updated
         Assert.IsFalse(SalesQuotes."Attached Documents List".First(), 'The attached file list should be empty');
     end;
