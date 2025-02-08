@@ -1663,8 +1663,9 @@ table 38 "Purchase Header"
             trigger OnValidate()
             begin
                 if not ("Document Type" in ["Document Type"::"Blanket Order", "Document Type"::Quote]) then
-                    if "Document Date" > "Posting Date" then
-                        Error(Text1130017, FieldCaption("Document Date"), FieldCaption("Posting Date"));
+                    if "Posting Date" <> 0D then
+                        if "Document Date" > "Posting Date" then
+                            Error(Text1130017, FieldCaption("Document Date"), FieldCaption("Posting Date"));
                 if not CheckVATExemption() then
                     "Document Date" := xRec."Document Date";
                 GLSetup.Get();
@@ -1680,7 +1681,7 @@ table 38 "Purchase Header"
                     UpdateDocumentDate := true;
                 Validate("Payment Terms Code");
                 Validate("Prepmt. Payment Terms Code");
-                
+
                 PurchWithhSoc.UpdateDateRelatedWithPurchHeaderDocDate(Rec);
                 UpdateDocumentDate := false;
             end;
