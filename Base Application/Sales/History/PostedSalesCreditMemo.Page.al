@@ -643,6 +643,7 @@ page 134 "Posted Sales Credit Memo"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Sales Cr.Memo Header"),
                               "No." = field("No.");
