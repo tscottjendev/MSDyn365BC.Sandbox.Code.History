@@ -253,11 +253,6 @@ codeunit 6132 "E-Document Log"
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
         EDocDataStorage.SetAutoCalcFields("Data Storage");
-        // Todo: Remove when processing is in
-        if EDocDataStorage.Get(EDocument."Structured Data Entry No.") then begin
-            TempBlob.FromRecord(EDocDataStorage, EDocDataStorage.FieldNo("Data Storage"));
-            exit(TempBlob.HasValue());
-        end;
         EDocumentLog.SetLoadFields("E-Doc. Entry No", Status);
         EDocumentLog.SetRange("E-Doc. Entry No", EDocument."Entry No");
         EDocumentLog.SetRange("Service Code", EDocumentService.Code);
@@ -266,6 +261,7 @@ codeunit 6132 "E-Document Log"
 #endif
         EDocumentLog.SetRange("Service Integration V2", EDocumentService."Service Integration V2");
         EDocumentLog.SetRange("Document Format", EDocumentService."Document Format");
+        EDocumentLog.SetRange("Processing Status", "Import E-Doc. Proc. Status"::Unprocessed);
         EDocumentLog.SetRange(Status, EDocumentServiceStatus);
         if not EDocumentLog.FindLast() then begin
             EDocumentHelper.GetTelemetryDimensions(EDocumentService, EDocument, TelemetryDimensions);

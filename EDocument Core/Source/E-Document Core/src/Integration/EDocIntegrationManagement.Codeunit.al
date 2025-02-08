@@ -10,7 +10,6 @@ using Microsoft.eServices.EDocument.Integration.Receive;
 using Microsoft.eServices.EDocument.Integration.Send;
 using Microsoft.eServices.EDocument.Integration.Interfaces;
 using Microsoft.eServices.EDocument.Integration.Action;
-using Microsoft.eServices.EDocument.Processing.Interfaces;
 
 codeunit 6134 "E-Doc. Integration Management"
 {
@@ -93,10 +92,11 @@ codeunit 6134 "E-Doc. Integration Management"
     #region Receive
 
 #if not CLEAN26
-    internal procedure ReceiveDocument(EDocService: Record "E-Document Service"; EDocIntegration: Interface "E-Document Integration")
+    internal procedure ReceiveDocument(EDocService: Record "E-Document Service"; EDocIntegration: Interface "E-Document Integration"): Boolean
     var
         EDocument, EDocument2 : Record "E-Document";
         EDocLog: Record "E-Document Log";
+        EDocumentLog: Codeunit "E-Document Log";
         TempBlob: Codeunit "Temp Blob";
         EDocImport: Codeunit "E-Doc. Import";
         EDocErrorHelper: Codeunit "E-Document Error Helper";
@@ -126,7 +126,7 @@ codeunit 6134 "E-Doc. Integration Management"
             IsProcessed := false;
             EDocument.Init();
             EDocument."Index In Batch" := I;
-            EDocImport.BeforeInsertImportedEdocument(EDocument, EDocService, TempBlob, EDocCount, HttpRequest, HttpResponse, IsCreated, IsProcessed);
+            EDocImport.V1_BeforeInsertImportedEdocument(EDocument, EDocService, TempBlob, EDocCount, HttpRequest, HttpResponse, IsCreated, IsProcessed);
 
             if not IsCreated then begin
                 EDocument."Entry No" := 0;
@@ -146,22 +146,21 @@ codeunit 6134 "E-Doc. Integration Management"
                 EDocumentProcessing.InsertServiceStatus(EDocument, EDocService, EDocumentServiceStatus);
                 EDocumentProcessing.ModifyEDocumentStatus(EDocument, EDocumentServiceStatus);
 
-                EDocImport.AfterInsertImportedEdocument(EDocument, EDocService, TempBlob, EDocCount, HttpRequest, HttpResponse);
+                EDocImport.V1_AfterInsertImportedEdocument(EDocument, EDocService, TempBlob, EDocCount, HttpRequest, HttpResponse);
             end;
 
             if (not IsProcessed) and EDocService.IsAutomaticProcessingEnabled() then
-                EDocImport.ProcessImportedDocument(EDocument, EDocService, TempBlob);
+                EDocImport.V1_ProcessImportedDocument(EDocument, EDocService, TempBlob);
 
             if EDocErrorHelper.HasErrors(EDocument) then begin
+                EDocumentLog.SetFields(EDocument, EDocService);
+                EDocumentLog.InsertLog("E-Document Service Status"::"Imported Document Processing Error");
                 EDocument2 := EDocument;
                 HasErrors := true;
             end;
         end;
 
-        if HasErrors and GuiAllowed() then
-            if Confirm(DocNotCreatedQst, true, EDocument2."Document Type") then
-                Page.Run(Page::"E-Document", EDocument2);
-
+        exit(not HasErrors);
     end;
 #endif
 
@@ -204,7 +203,6 @@ codeunit 6134 "E-Doc. Integration Management"
     var
         EDocLog: Record "E-Document Log";
         ReceiveContext, FetchContextImpl : Codeunit ReceiveContext;
-        IBlobType: Interface IBlobType;
         ErrorCount: Integer;
         Success, IsFetchableType : Boolean;
     begin
@@ -238,12 +236,7 @@ codeunit 6134 "E-Doc. Integration Management"
         EDocumentProcessing.ModifyEDocumentStatus(EDocument, ReceiveContext.Status().GetStatus());
         EDocumentLog.InsertIntegrationLog(EDocument, EDocumentService, ReceiveContext.Http().GetHttpRequestMessage(), ReceiveContext.Http().GetHttpResponseMessage());
 
-        IBlobType := ReceiveContext.GetType();
-        if IBlobType.IsStructured() then
-            EDocument."Structured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No."
-        else
-            EDocument."Unstructured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
-
+        EDocument."Unstructured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
         EDocument."File Name" := ReceiveContext.GetName();
         EDocument."File Type" := ReceiveContext.GetType();
         EDocument.Modify();
@@ -606,9 +599,6 @@ codeunit 6134 "E-Doc. Integration Management"
         EDocTelemetryMarkFetchedScopeStartLbl: Label 'E-Document Mark Fetched: Start Scope', Locked = true;
         EDocTelemetryMarkFetchedScopeEndLbl: Label 'E-Document Mark Fetched: End Scope', Locked = true;
         EDocNoFilterOnBatchSendErr: Label 'No Entry No. filter is set on the E-Document for batch to sending';
-#if not CLEAN26
-        DocNotCreatedQst: Label 'Failed to create new Purchase %1 from E-Document. Do you want to open E-Document to see reported errors?', Comment = '%1 - Purchase Document Type';
-#endif
 
 #if not CLEAN26
     [IntegrationEvent(false, false)]

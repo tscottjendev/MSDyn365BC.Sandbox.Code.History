@@ -6,7 +6,6 @@ namespace Microsoft.eServices.EDocument;
 
 using System.Telemetry;
 using Microsoft.eServices.EDocument.IO.Peppol;
-using Microsoft.eServices.EDocument.Integration.Receive;
 page 6133 "E-Document Service"
 {
     ApplicationArea = Basic, Suite;
@@ -55,6 +54,10 @@ page 6133 "E-Document Service"
                 field("Use Batch Processing"; Rec."Use Batch Processing")
                 {
                     ToolTip = 'Specifies if service uses batch processing for export.';
+                }
+                field("Import Process"; Rec."Import Process")
+                {
+                    ToolTip = 'Specifies the version of the import process to use for incoming e-documents.';
                 }
                 field("Automatic Processing"; Rec."Automatic Processing")
                 {
@@ -290,56 +293,18 @@ page 6133 "E-Document Service"
     end;
 #endif
 
-#if not CLEAN26
     local procedure ReceiveDocs()
     var
         FailedEDocument: Record "E-Document";
-        EDocIntegrationMgt: Codeunit "E-Doc. Integration Management";
         EDocImport: Codeunit "E-Doc. Import";
-        ReceiveContext: Codeunit ReceiveContext;
-        EDocIntegration: Interface "E-Document Integration";
+        Success: Boolean;
     begin
-        if (Rec."Import Process" = Rec."Import Process"::"Version 2.0") then begin
-            EDocImport.ReceiveAndProcess(Rec);
-            exit;
-        end;
-
-        if Rec."Service Integration V2" <> Rec."Service Integration V2"::"No Integration" then begin
-            EDocIntegrationMgt.ReceiveDocuments(Rec, ReceiveContext);
-            EDocImport.ProcessReceivedDocuments(Rec, FailedEDocument);
-
-            if FailedEDocument."Entry No" <> 0 then
+        Success := EDocImport.ReceiveAndProcessAutomatically(Rec);
+        if not Success then
+            if FailedEDocument.Get(Rec.LastEDocumentLog("E-Document Service Status"::"Imported Document Processing Error")."E-Doc. Entry No") then
                 if Confirm(DocNotCreatedQst, true, FailedEDocument."Document Type") then
                     Page.Run(Page::"E-Document", FailedEDocument);
-            exit;
-        end;
-
-        EDocIntegration := Rec."Service Integration";
-        EDocIntegrationMgt.ReceiveDocument(Rec, EDocIntegration);
     end;
-#else
-    local procedure ReceiveDocs()
-    var
-        FailedEDocument: Record "E-Document";
-        EDocIntegrationMgt: Codeunit "E-Doc. Integration Management";
-        EDocImport: Codeunit "E-Doc. Import";
-        ReceiveContext: Codeunit ReceiveContext;
-    begin
-        if (Rec."Import Process" = Rec."Import Process"::"Version 2.0") then begin
-            EDocImport.ReceiveAndProcess(Rec);
-            exit;
-        end;
-
-        EDocIntegrationMgt.ReceiveDocuments(Rec, ReceiveContext);
-        EDocImport.ProcessReceivedDocuments(Rec, FailedEDocument);
-
-        if FailedEDocument."Entry No" <> 0 then
-            if Confirm(DocNotCreatedQst, true, FailedEDocument."Document Type") then
-                Page.Run(Page::"E-Document", FailedEDocument);
-
-    end;
-#endif
-
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenServiceIntegrationSetupPage(EDocumentService: Record "E-Document Service"; var IsServiceIntegrationSetupRun: Boolean)

@@ -8,6 +8,7 @@ using System.Telemetry;
 using System.Utilities;
 using Microsoft.eServices.EDocument.Integration.Send;
 using Microsoft.eServices.EDocument.Integration.Receive;
+using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.eServices.EDocument.OrderMatch;
 using Microsoft.eServices.EDocument.OrderMatch.Copilot;
@@ -317,7 +318,7 @@ page 6121 "E-Document"
 
                     trigger OnAction()
                     begin
-                        EDocImport.GetBasicInfo(Rec);
+                        EDocImport.V1_GetBasicInfo(Rec);
                     end;
                 }
                 action(CreateDocument)
@@ -328,8 +329,11 @@ page 6121 "E-Document"
                     Visible = IsIncomingDoc and (not IsProcessed);
 
                     trigger OnAction()
+                    var
+                        EDocImportParameters: Record "E-Doc. Import Parameters";
                     begin
-                        EDocImport.ProcessDocument(Rec, false);
+                        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
+                        EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
                         if EDocumentErrorHelper.HasErrors(Rec) then
                             Message(DocNotCreatedMsg, Rec."Document Type");
                     end;
@@ -342,8 +346,11 @@ page 6121 "E-Document"
                     Visible = IsIncomingDoc and (not IsProcessed);
 
                     trigger OnAction()
+                    var
+                        EDocImportParameters: Record "E-Doc. Import Parameters";
                     begin
-                        EDocImport.ProcessDocument(Rec, true);
+                        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
+                        EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
                         if EDocumentErrorHelper.HasErrors(Rec) then
                             Message(DocNotCreatedMsg, Rec."Document Type");
                     end;
@@ -542,7 +549,7 @@ page 6121 "E-Document"
         ResetActionVisiability();
         SetIncomingDocActions();
 
-        EDocImport.ProcessEDocPendingOrderMatch(Rec);
+        EDocImport.V1_ProcessEDocPendingOrderMatch(Rec);
     end;
 
     local procedure SetStyle()

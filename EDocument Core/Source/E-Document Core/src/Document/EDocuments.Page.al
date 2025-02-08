@@ -106,28 +106,15 @@ page 6122 "E-Documents"
         }
     }
 
-    var
-        DocNotCreatedQst: Label 'Failed to create new %1 from E-Document. Do you want to open E-Document and see the reported errors?', Comment = '%1 - E-Document Document Type';
-
-
     local procedure NewFromFile()
     var
         EDocument: Record "E-Document";
-        EDocumentService: Record "E-Document Service";
         EDocImport: Codeunit "E-Doc. Import";
-        EDocErrorHelper: Codeunit "E-Document Error Helper";
     begin
         EDocImport.UploadDocument(EDocument);
         if EDocument."Entry No" <> 0 then begin
-            EDocumentService := EDocument.GetEDocumentService();
-            if not EDocumentService.IsAutomaticProcessingEnabled() then begin
-                Page.Run(Page::"E-Document", EDocument);
-                exit;
-            end;
-            EDocImport.ProcessDocument(EDocument, false);
-            if EDocErrorHelper.HasErrors(EDocument) then
-                if Confirm(DocNotCreatedQst, true, EDocument."Document Type") then
-                    Page.Run(Page::"E-Document", EDocument);
+            EDocImport.ProcessIncomingEDocument(EDocument, EDocument.GetEDocumentService().GetDefaultImportParameters());
+            Page.Run(Page::"E-Document", EDocument);
         end;
     end;
 }

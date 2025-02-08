@@ -7,6 +7,7 @@ namespace Microsoft.eServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.eServices.EDocument.Integration.Interfaces;
 using Microsoft.eServices.EDocument.Integration;
+using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.eServices.EDocument.Integration.Action;
 
 table 6103 "E-Document Service"
@@ -313,6 +314,19 @@ table 6103 "E-Document Service"
     internal procedure IsAutomaticProcessingEnabled(): Boolean
     begin
         exit("Automatic Processing" = "Automatic Processing"::Yes);
+    end;
+
+    internal procedure LastEDocumentLog(EDocumentServiceStatus: Enum "E-Document Service Status") EDocumentLog: Record "E-Document Log";
+    begin
+        EDocumentLog.SetRange("Service Code", Rec.Code);
+        EDocumentLog.SetRange(Status, EDocumentServiceStatus);
+        EDocumentLog.SetCurrentKey("Entry No.");
+        if EDocumentLog.FindLast() then;
+    end;
+
+    internal procedure GetDefaultImportParameters() EDocImportParameters: Record "E-Doc. Import Parameters"
+    begin
+        EDocImportParameters."Step to Run" := IsAutomaticProcessingEnabled() ? "Import E-Document Steps"::"Finish draft" : "Import E-Document Steps"::"Prepare draft";
     end;
 
     internal procedure ToString(): Text

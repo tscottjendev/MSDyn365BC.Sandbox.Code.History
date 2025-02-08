@@ -18,7 +18,9 @@ codeunit 6104 "Import E-Document Process"
     trigger OnRun()
     var
         EDocLog: Record "E-Document Log";
+        EDocImport: Codeunit "E-Doc. Import";
         NewStatus: Enum "Import E-Doc. Proc. Status";
+        ImportProcessVersion: Enum "E-Document Import Process";
     begin
         EDocument.SetRecFilter();
         EDocument.FindFirst();
@@ -27,41 +29,45 @@ codeunit 6104 "Import E-Document Process"
         EDocumentLog.SetFields(EDocument, EDocument.GetEDocumentService());
 
         NewStatus := UndoStep ? GetStatusForStep(Step, true) : GetStatusForStep(Step, false);
-        case Step of
-            Step::"Structure received data":
-                if UndoStep then
-                    UndoStructureReceivedData()
-                else
-                    StructureReceivedData();
-            Step::"Read into IR":
-                if UndoStep then
-                    UndoReadIntoIR()
-                else
-                    ReadIntoIR();
-            Step::"Prepare draft":
-                if UndoStep then
-                    UndoPrepareDraft()
-                else
-                    PrepareDraft();
-            Step::"Finish draft":
-                if UndoStep then
-                    UndoFinishDraft()
-                else
-                    FinishDraft();
-        end;
+        ImportProcessVersion := EDocument.GetEDocumentService()."Import Process";
 
-        EDocLog := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, NewStatus);
-        EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, NewStatus);
+        if ImportProcessVersion <> "E-Document Import Process"::"Version 1.0" then
+            case Step of
+                Step::"Structure received data":
+                    if UndoStep then
+                        UndoStructureReceivedData()
+                    else
+                        StructureReceivedData();
+                Step::"Read into IR":
+                    if UndoStep then
+                        UndoReadIntoIR()
+                    else
+                        ReadIntoIR();
+                Step::"Prepare draft":
+                    if UndoStep then
+                        UndoPrepareDraft()
+                    else
+                        PrepareDraft();
+                Step::"Finish draft":
+                    if UndoStep then
+                        UndoFinishDraft()
+                    else
+                        FinishDraft();
+            end;
 
-        if UpdateUnstructuredDataEntryNo(EDocLog, NewStatus) then begin
+        if ImportProcessVersion = "E-Document Import Process"::"Version 1.0" then begin
+            if Step = Step::"Finish draft" then
+                EDocImport.V1_ProcessEDocument(EDocument)
+        end
+        else begin
+            EDocLog := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, NewStatus);
+            EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, NewStatus);
             EDocument.Get(EDocument."Entry No");
-            EDocument."Unstructured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
-            EDocument.Modify();
-        end;
-        if UpdateStructuredDataEntryNo(EDocLog, NewStatus) then begin
-            EDocument.Get(EDocument."Entry No");
-            EDocument."Structured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
-            EDocument.Modify();
+
+            if (not UndoStep) and (Step = Step::"Structure received data") and (EDocument."Structured Data Entry No." = 0) then begin
+                EDocument."Structured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
+                EDocument.Modify();
+            end;
         end;
     end;
 
@@ -78,13 +84,14 @@ codeunit 6104 "Import E-Document Process"
         NewType: Enum "E-Doc. Data Storage Blob Type";
     begin
         EDocument.Get(EDocument."Entry No");
-        Edocument.TestField("Unstructured Data Entry No.");
+        EDocument.TestField("Unstructured Data Entry No.");
         EDocumentDataStorage.Get(Edocument."Unstructured Data Entry No.");
-
         IBlobType := EDocumentDataStorage."Data Type";
-        if IBlobType.IsStructured() then
+        if IBlobType.IsStructured() then begin
+            EDocument."Structured Data Entry No." := EDocumentDataStorage."Entry No.";
+            EDocument.Modify();
             exit;
-
+        end;
         FromBlob.FromRecord(EDocumentDataStorage, EDocumentDataStorage.FieldNo("Data Storage"));
 
         if not IBlobType.HasConverter() then
@@ -100,29 +107,24 @@ codeunit 6104 "Import E-Document Process"
 
     local procedure UndoStructureReceivedData()
     begin
+        EDocument."Structured Data Entry No." := 0;
+        EDocument.Modify();
     end;
 
     local procedure ReadIntoIR()
     var
         EDocumentDataStorage: Record "E-Doc. Data Storage";
         FromBlob: Codeunit "Temp Blob";
-        IBlobType: Interface IBlobType;
         IStructuredFormatReader: Interface IStructuredFormatReader;
-        StructuredDataProcess: Enum "E-Doc. Structured Data Process";
     begin
         EDocument.Get(EDocument."Entry No");
         Edocument.TestField("Structured Data Entry No.");
         EDocumentDataStorage.Get(Edocument."Structured Data Entry No.");
 
-        IBlobType := EDocumentDataStorage."Data Type";
-        if not IBlobType.IsStructured() then
-            exit;
-
         FromBlob.FromRecord(EDocumentDataStorage, EDocumentDataStorage.FieldNo("Data Storage"));
         IStructuredFormatReader := EDocument.GetEDocumentService()."E-Document Structured Format";
-        StructuredDataProcess := IStructuredFormatReader.Read(EDocument, FromBlob);
 
-        EDocument."Structured Data Process" := StructuredDataProcess;
+        EDocument."Structured Data Process" := IStructuredFormatReader.Read(EDocument, FromBlob);
         EDocument.Modify();
     end;
 
@@ -235,17 +237,6 @@ codeunit 6104 "Import E-Document Process"
                 exit(StepBefore ? Status::"Draft ready" : Status::Processed);
         end;
     end;
-
-    local procedure UpdateUnstructuredDataEntryNo(EDocLog: Record "E-Document Log"; Status: Enum "Import E-Doc. Proc. Status"): Boolean
-    begin
-        exit((Status = Enum::"Import E-Doc. Proc. Status"::Unprocessed) and (EDocLog."E-Doc. Data Storage Entry No." <> 0));
-    end;
-
-    local procedure UpdateStructuredDataEntryNo(EDocLog: Record "E-Document Log"; Status: Enum "Import E-Doc. Proc. Status"): Boolean
-    begin
-        exit((Status = Enum::"Import E-Doc. Proc. Status"::Readable) and (EDocLog."E-Doc. Data Storage Entry No." <> 0));
-    end;
-
 
     var
         EDocument: Record "E-Document";

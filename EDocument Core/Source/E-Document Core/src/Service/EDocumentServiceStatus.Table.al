@@ -33,7 +33,6 @@ table 6138 "E-Document Service Status"
             Caption = 'Processing Status';
             trigger OnValidate()
             begin
-                // Consider removing. "Imported Document Created" should not be prefered over Processed to indicate finished processing. 
                 if Rec."Import Processing Status" = "Import E-Doc. Proc. Status"::Unprocessed then
                     Rec.Validate(Status, "E-Document Service Status"::Imported);
                 if Rec."Import Processing Status" = "Import E-Doc. Proc. Status"::Processed then

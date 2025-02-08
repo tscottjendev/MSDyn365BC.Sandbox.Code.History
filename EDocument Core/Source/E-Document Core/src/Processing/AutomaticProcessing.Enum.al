@@ -6,8 +6,6 @@ namespace Microsoft.eServices.EDocument;
 
 enum 6132 "Automatic Processing"
 {
-    Extensible = true;
-
     value(0; Yes)
     {
     }
