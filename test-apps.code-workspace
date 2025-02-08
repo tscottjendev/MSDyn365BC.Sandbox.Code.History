@@ -3,9 +3,9 @@
     "search.exclude": {
       "**.xlf": true
     },
-    "al.enableCodeAnalysis": false,
     "allint.enabled": false,
-    "al.enableCodeActions": false
+    "al.enableCodeActions": false,
+    "al.enableCodeAnalysis": false
   },
   "folders": [
     {
@@ -115,6 +115,9 @@
     },
     {
       "path": "./Tests-SCM"
+    },
+    {
+      "path": "./Tests-SCM-Assembly"
     },
     {
       "path": "./Tests-SCM-Manufacturing"
