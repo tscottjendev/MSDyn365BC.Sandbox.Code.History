@@ -793,7 +793,6 @@ codeunit 139913 "Vendor Deferrals Test"
 
     local procedure CreateVendorContractWithDeferrals(BillingDateFormula: Text; IsVendorContractLCY: Boolean; ServiceCommitmentCount: Integer; Discount: Boolean)
     var
-        ContractsTestSubscriber: Codeunit "Contracts Test Subscriber";
         i: Integer;
     begin
         if IsVendorContractLCY then
@@ -801,15 +800,15 @@ codeunit 139913 "Vendor Deferrals Test"
         else
             ContractTestLibrary.CreateVendor(Vendor);
 
-        ContractsTestSubscriber.SetCallerName('VendorDeferralsTest - CreatePurchaseDocumentsFromVendorContractWithDeferrals');
-        BindSubscription(ContractsTestSubscriber);
-
         if Discount then
             ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item")
         else
             ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Invoicing Item");
+        Item.Validate("Unit Cost", 1200);
+        Item.Modify(false);
         ContractTestLibrary.CreateServiceObject(ServiceObject, Item."No.");
-        UnbindSubscription(ContractsTestSubscriber);
+        ServiceObject.Validate("Quantity Decimal", 1);
+        ServiceObject.Modify(false);
 
         ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate, '<1M>', 10, Enum::"Invoicing Via"::Contract, Enum::"Calculation Base Type"::"Item Price", false);
         ContractTestLibrary.CreateServiceCommitmentPackage(ServiceCommitmentPackage);

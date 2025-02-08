@@ -7834,7 +7834,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Days.Value</Value>
+                                                    <Value>=Fields!ContractBillingDetailsDays.Value</Value>
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
@@ -9336,6 +9336,9 @@ End Function
         <Field Name="ContractBillingDetailsContractNoLbl">
           <DataField>ContractBillingDetailsContractNoLbl</DataField>
         </Field>
+        <Field Name="ContractBillingDetailsPositionNoLbl">
+          <DataField>ContractBillingDetailsPositionNoLbl</DataField>
+        </Field>
         <Field Name="ContractBillingDetailsPositionDescriptionLbl">
           <DataField>ContractBillingDetailsPositionDescriptionLbl</DataField>
         </Field>
@@ -9347,9 +9350,6 @@ End Function
         </Field>
         <Field Name="ContractBillingDetailsPositionDescription">
           <DataField>ContractBillingDetailsPositionDescription</DataField>
-        </Field>
-        <Field Name="ContractBillingDetailsPositionNoLbl">
-          <DataField>ContractBillingDetailsPositionNoLbl</DataField>
         </Field>
         <Field Name="ContractBillingDetailsPositionNo">
           <DataField>ContractBillingDetailsPositionNo</DataField>
@@ -9393,8 +9393,8 @@ End Function
         <Field Name="ContractBillingDetailsEndDate">
           <DataField>ContractBillingDetailsEndDate</DataField>
         </Field>
-        <Field Name="Days">
-          <DataField>Days</DataField>
+        <Field Name="ContractBillingDetailsDays">
+          <DataField>ContractBillingDetailsDays</DataField>
         </Field>
         <Field Name="ContractBillingDetailsQuantity">
           <DataField>ContractBillingDetailsQuantity</DataField>

@@ -426,7 +426,6 @@ codeunit 139689 "Recurring Discount Test"
     [HandlerFunctions('AssignServiceCommitmentsModalPageHandler')]
     procedure TestServiceAmountInDiscountSalesServiceCommitments()
     var
-        ContractsTestSubscriber: Codeunit "Contracts Test Subscriber";
         ServAmtCalculationErr: Label 'Service Amount in Sales Service Commitments with Discount is not calculated properly.', Locked = true;
     begin
         Initialize();
@@ -434,10 +433,9 @@ codeunit 139689 "Recurring Discount Test"
         Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         Item.Modify(false);
 
-        ContractsTestSubscriber.SetCallerName('RecurringDiscountTest - TestServiceAmountInDiscountSalesServiceCommitments');
-        BindSubscription(ContractsTestSubscriber);
         ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate);
-        UnbindSubscription(ContractsTestSubscriber);
+        ServiceCommitmentTemplate.Validate(Discount, true);
+        ServiceCommitmentTemplate.Modify(false);
 
         ContractTestLibrary.CreateServiceCommitmentPackageWithLine(ServiceCommitmentTemplate.Code, ServiceCommitmentPackage, ServiceCommPackageLine);
         ContractTestLibrary.AssignItemToServiceCommitmentPackage(Item, ServiceCommitmentPackage.Code);
