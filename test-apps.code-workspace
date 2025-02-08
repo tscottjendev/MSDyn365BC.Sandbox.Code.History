@@ -112,6 +112,9 @@
       "path": "./BaseApp/Test/Tests-SCM"
     },
     {
+      "path": "./BaseApp/Test/Tests-SCM-Assembly"
+    },
+    {
       "path": "./BaseApp/Test/Tests-SCM-Manufacturing"
     },
     {
@@ -317,11 +320,11 @@
     }
   ],
   "settings": {
+    "allint.enabled": false,
+    "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
     },
-    "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false,
-    "allint.enabled": false
+    "al.enableCodeAnalysis": false
   }
 }
