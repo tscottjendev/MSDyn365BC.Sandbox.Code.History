@@ -547,6 +547,7 @@ page 5978 "Posted Service Invoice"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Invoice Header"),
                               "No." = field("No.");
             }
