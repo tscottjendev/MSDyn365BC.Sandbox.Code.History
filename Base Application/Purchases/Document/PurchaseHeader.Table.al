@@ -2909,6 +2909,7 @@ table 38 "Purchase Header"
         WarnZeroQuantityPostingDescriptionTxt: Label 'Warn before posting lines on Purchase documents where quantity is 0.';
         WarnDocAmountVatTxt: Label '%1 must not be more than %2.', comment = '%1 - Doc. Amount VAT; %2 - DocAmountVAT';
         CalledFromWhseDoc: Boolean;
+        SkipStatsPrep: Boolean;
 
     protected var
         PurchSetup: Record "Purchases & Payables Setup";
@@ -5419,9 +5420,21 @@ table 38 "Purchase Header"
 
         OnGetStatisticsPageID(StatisticsPageId, Rec);
 
+        SkipStatsPrep := true;
         PAGE.RunModal(StatisticsPageId, Rec);
+        ResetSkipStatisticsPreparationFlag();
 
         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+    end;
+
+    procedure SkipStatisticsPreparation(): Boolean
+    begin
+        exit(SkipStatsPrep)
+    end;
+
+    procedure ResetSkipStatisticsPreparationFlag()
+    begin
+        SkipStatsPrep := false;
     end;
 
     local procedure OpenDocumentStatisticsInternal()
