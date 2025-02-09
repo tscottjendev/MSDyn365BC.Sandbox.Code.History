@@ -177,6 +177,8 @@ report 716 "Inventory Cost and Price List"
 
     requestpage
     {
+        AboutTitle = 'About Inventory Cost and Price List';
+        AboutText = 'Analyze and manage your inventory costs and pricing strategies.';
         SaveValues = true;
 
         layout
