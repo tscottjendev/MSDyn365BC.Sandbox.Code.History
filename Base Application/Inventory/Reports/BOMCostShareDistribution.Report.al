@@ -140,6 +140,8 @@ report 5872 "BOM Cost Share Distribution"
 
     requestpage
     {
+        AboutTitle = 'About BOM Cost Share Distribution';
+        AboutText = 'Helps you decide whether to change component suppliers or replace internal resources with outsourced labor (or vice versa). It can also help you review and modify an item''s bill of materials.';
         SaveValues = true;
 
         layout
