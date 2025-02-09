@@ -3070,6 +3070,7 @@ table 38 "Purchase Header"
         WarnZeroQuantityPostingDescriptionTxt: Label 'Warn before posting lines on Purchase documents where quantity is 0.';
         WarnDocAmountVatTxt: Label '%1 must not be more than %2.', comment = '%1 - Doc. Amount VAT; %2 - DocAmountVAT';
         CalledFromWhseDoc: Boolean;
+        SkipStatsPrep: Boolean;
 
     protected var
         PurchSetup: Record "Purchases & Payables Setup";
@@ -5599,9 +5600,21 @@ table 38 "Purchase Header"
 
         OnGetStatisticsPageID(StatisticsPageId, Rec);
 
+        SkipStatsPrep := true;
         PAGE.RunModal(StatisticsPageId, Rec);
+        ResetSkipStatisticsPreparationFlag();
 
         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+    end;
+
+    procedure SkipStatisticsPreparation(): Boolean
+    begin
+        exit(SkipStatsPrep)
+    end;
+
+    procedure ResetSkipStatisticsPreparationFlag()
+    begin
+        SkipStatsPrep := false;
     end;
 
     local procedure OpenDocumentStatisticsInternal()
@@ -5619,17 +5632,10 @@ table 38 "Purchase Header"
 
     local procedure IsOrderDocument(): Boolean
     begin
-        case "Document Type" of
-            "Document Type"::Order,
-            "Document Type"::"Blanket Order",
-            "Document Type"::"Return Order":
-                exit(true);
-        end;
-
-        exit(false);
+        exit("Document Type" in ["Document Type"::Order, "Document Type"::"Blanket Order", "Document Type"::"Return Order"])
     end;
 
-    local procedure GetStatisticsPageID(): Integer
+    procedure GetStatisticsPageID(): Integer
     begin
         if IsOrderDocument() then begin
             if "Tax Area Code" <> '' then

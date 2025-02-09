@@ -830,6 +830,8 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseInvoiceStatsPageHandler')]
     [Scope('OnPrem')]
@@ -858,6 +860,7 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseInvoiceStatsPageHandler')]
     [Scope('OnPrem')]
@@ -885,6 +888,7 @@
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ServiceStatsPageHandler')]
@@ -1453,6 +1457,7 @@
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+#if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Purchase Invoice", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; ShowDialog: Boolean)
     begin
@@ -1464,6 +1469,7 @@
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
+#endif
 
 #if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Service Quote", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
@@ -1831,12 +1837,15 @@
         PurchaseOrderStats.OK().Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceStatsPageHandler(var PurchaseStats: TestPage "Purchase Stats.")
     begin
         PurchaseStats.OK().Invoke();
     end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]
