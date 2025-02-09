@@ -22,7 +22,7 @@ report 295 "Combine Shipments"
     {
         dataitem(SalesOrderHeader; "Sales Header")
         {
-            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Order), "Combine Shipments" = const(true));
+            DataItemTableView = sorting("Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name") where("Document Type" = const(Order), "Combine Shipments" = const(true));
             RequestFilterFields = "Sell-to Customer No.", "Bill-to Customer No.";
             RequestFilterHeading = 'Sales Order';
             dataitem("Sales Shipment Header"; "Sales Shipment Header")
@@ -180,9 +180,7 @@ report 295 "Combine Shipments"
             begin
                 if GetFilter("Operation Type") <> '' then
                     Error(MissingFilterErr, FieldName("Operation Type"));
-                SetCurrentKey(
-                    "Sell-to Customer No.", "Bill-to Customer No.", "Currency Code", "Payment Terms Code",
-                    "Payment Method Code", "Salesperson Code", "EU 3-Party Trade");
+
                 SetRange("Operation Type", OperationType.Code);
 
                 if OperationDateFrom = 0D then
