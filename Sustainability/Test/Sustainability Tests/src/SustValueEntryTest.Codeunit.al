@@ -3161,15 +3161,6 @@ codeunit 148190 "Sust. Value Entry Test"
         PurchaseOrder.Statistics.Invoke();
     end;
 
-    local procedure OpenPurchaseCrMemoStatistics(No: Code[20])
-    var
-        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
-    begin
-        PurchaseCreditMemo.OpenEdit();
-        PurchaseCreditMemo.FILTER.SetFilter("No.", No);
-        PurchaseCreditMemo.Statistics.Invoke();
-    end;
-
     local procedure VerifyPostedPurchaseInvoiceStatistics(No: Code[20])
     var
         PostedPurchaseInvoiceStatisticsPage: TestPage "Purchase Invoice Statistics";

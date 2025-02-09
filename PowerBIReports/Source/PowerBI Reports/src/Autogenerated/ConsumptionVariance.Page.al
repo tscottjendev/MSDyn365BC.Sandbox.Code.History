@@ -5,7 +5,7 @@ using System.Integration.PowerBI;
 page 37046 "Consumption Variance"
 {
     UsageCategory = ReportsAndAnalysis;
-    ApplicationArea = All;
+    ApplicationArea = Manufacturing;
 #pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
 #pragma warning restore AS0035

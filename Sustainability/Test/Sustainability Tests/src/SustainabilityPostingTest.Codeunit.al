@@ -842,6 +842,8 @@ codeunit 148184 "Sustainability Posting Test"
         LibraryVariableStorage.Clear();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseInvoiceStatisticsPageHandler')]
     procedure VerifySustainabilityFieldsInPurchaseInvoiceStatistics()
@@ -897,6 +899,65 @@ codeunit 148184 "Sustainability Posting Test"
 
         // [VERIFY] Verify Sustainability fields in Page "Purchase Invoice Statistics" before posting of Purchase Invoice.
         OpenPurchaseInvoiceStatistics(PurchaseHeader."No.");
+        LibraryVariableStorage.Clear();
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchInvoiceStatisticsPageHandler')]
+    procedure VerifySustainabilityFieldsInPurchInvoiceStatistics()
+    var
+        SustainabilityAccount: Record "Sustainability Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        EmissionCO2: Decimal;
+        EmissionCH4: Decimal;
+        EmissionN2O: Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+    begin
+        // [SCENARIO 496561] Verify Sustainability Fields in Purchase Invoice Statistics.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+        SustainabilityAccount.Get(AccountCode);
+
+        // [GIVEN] Generate Emission.
+        EmissionCO2 := LibraryRandom.RandInt(20);
+        EmissionCH4 := LibraryRandom.RandInt(5);
+        EmissionN2O := LibraryRandom.RandInt(5);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create a Purchase Line.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            "Purchase Line Type"::Item,
+            LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Update Sustainability Account No.,Emission CO2 ,Emission CH4 ,Emission N2O.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 200));
+        PurchaseLine.Validate("Sust. Account No.", AccountCode);
+        PurchaseLine.Validate("Emission CO2", EmissionCO2);
+        PurchaseLine.Validate("Emission CH4", EmissionCH4);
+        PurchaseLine.Validate("Emission N2O", EmissionN2O);
+        PurchaseLine.Modify();
+
+        // [WHEN] Save Sustainability fields.
+        LibraryVariableStorage.Enqueue(EmissionCO2);
+        LibraryVariableStorage.Enqueue(EmissionCH4);
+        LibraryVariableStorage.Enqueue(EmissionN2O);
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(0);
+
+        // [VERIFY] Verify Sustainability fields in Page "Purchase Invoice Statistics" before posting of Purchase Invoice.
+        OpenPurchInvoiceStatistics(PurchaseHeader."No.");
         LibraryVariableStorage.Clear();
     end;
 
@@ -958,6 +1019,8 @@ codeunit 148184 "Sustainability Posting Test"
         LibraryVariableStorage.Clear();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseInvoiceStatisticsPageHandler')]
     procedure VerifySustainabilityFieldsInPurchaseCrMemoStatistics()
@@ -1019,6 +1082,86 @@ codeunit 148184 "Sustainability Posting Test"
 
         // [VERIFY] Verify Sustainability fields in Page "Purchase Cr Memo Statistics" before posting of Purchase Cr Memo.
         CrMemoNo := CreateCorrectiveCreditMemoAndOpenPurchaseCrMemoStatistics(PurchaseHeader);
+
+        // [GIVEN] Post Corrective Credit Memo.
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::"Credit Memo", CrMemoNo);
+        PostedCrMemoNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Clear Variable Storage.
+        LibraryVariableStorage.Clear();
+
+        // [WHEN] Save Sustainability fields.
+        LibraryVariableStorage.Enqueue(-EmissionCO2);
+        LibraryVariableStorage.Enqueue(-EmissionCH4);
+        LibraryVariableStorage.Enqueue(-EmissionN2O);
+
+        // [VERIFY] Verify Sustainability fields in Page "Posted Purchase Cr Memo Statistics" after posting of Purchase Cr Memo.
+        VerifyPostedPurchaseCrMemoStatistics(PostedCrMemoNo);
+        LibraryVariableStorage.Clear();
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchInvoiceStatisticsPageHandler')]
+    procedure VerifySustainabilityFieldsInPurchCrMemoStatistics()
+    var
+        SustainabilityAccount: Record "Sustainability Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        EmissionCO2: Decimal;
+        EmissionCH4: Decimal;
+        EmissionN2O: Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+        CrMemoNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [SCENARIO 496561] Verify Sustainability fields in Posted Purchase Cr Memo Statistics.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+        SustainabilityAccount.Get(AccountCode);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create a Purchase Line.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            "Purchase Line Type"::Item,
+            LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Update Sustainability Account No.,Emission CO2 ,Emission CH4 ,Emission N2O.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 200));
+        PurchaseLine.Validate("Qty. to Receive", LibraryRandom.RandIntInRange(5, 5));
+        PurchaseLine.Validate("Sust. Account No.", AccountCode);
+        PurchaseLine.Validate("Emission CO2", LibraryRandom.RandInt(20));
+        PurchaseLine.Validate("Emission CH4", LibraryRandom.RandInt(5));
+        PurchaseLine.Validate("Emission N2O", LibraryRandom.RandInt(5));
+        PurchaseLine.Modify();
+
+        // [GIVEN] Save Expected Emission.
+        EmissionCO2 := PurchaseLine."Emission CO2 Per Unit" * PurchaseLine."Qty. per Unit of Measure" * LibraryRandom.RandIntInRange(5, 5);
+        EmissionCH4 := PurchaseLine."Emission CH4 Per Unit" * PurchaseLine."Qty. per Unit of Measure" * LibraryRandom.RandIntInRange(5, 5);
+        EmissionN2O := PurchaseLine."Emission N2O Per Unit" * PurchaseLine."Qty. per Unit of Measure" * LibraryRandom.RandIntInRange(5, 5);
+
+        // [WHEN] Save Sustainability fields.
+        LibraryVariableStorage.Enqueue(EmissionCO2);
+        LibraryVariableStorage.Enqueue(EmissionCH4);
+        LibraryVariableStorage.Enqueue(EmissionN2O);
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(0);
+
+        // [GIVEN] Update Reason Code in Purchase Header.
+        UpdateReasonCodeinPurchaseHeader(PurchaseHeader);
+
+        // [VERIFY] Verify Sustainability fields in Page "Purchase Cr Memo Statistics" before posting of Purchase Cr Memo.
+        CrMemoNo := CreateCorrectiveCreditMemoAndOpenPurchCrMemoStatistics(PurchaseHeader);
 
         // [GIVEN] Post Corrective Credit Memo.
         PurchaseHeader.Get(PurchaseHeader."Document Type"::"Credit Memo", CrMemoNo);
@@ -1147,6 +1290,8 @@ codeunit 148184 "Sustainability Posting Test"
         PurchaseInvHeader.Navigate();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseInvoiceStatisticsPageHandler')]
     procedure VerifySustainabilityFieldsInPurchaseCrMemoSubFormPage()
@@ -1210,6 +1355,97 @@ codeunit 148184 "Sustainability Posting Test"
 
         // [WHEN] Create Corrective Credit Memo.
         CrMemoNo := CreateCorrectiveCreditMemoAndOpenPurchaseCrMemoStatistics(PurchaseHeader);
+
+        // [VERIFY] Verify Sustainability fields before posting of Corrective Credit Memo.
+        PurchCrMemoSubformPage.OpenEdit();
+        PurchCrMemoSubformPage.Filter.SetFilter("Document No.", CrMemoNo);
+        PurchCrMemoSubformPage.Filter.SetFilter("No.", PurchaseLine."No.");
+        PurchCrMemoSubformPage."Sust. Account No.".AssertEquals(AccountCode);
+        PurchCrMemoSubformPage."Emission CH4".AssertEquals(EmissionCH4);
+        PurchCrMemoSubformPage."Emission CO2".AssertEquals(EmissionCO2);
+        PurchCrMemoSubformPage."Emission N2O".AssertEquals(EmissionN2O);
+
+        // [GIVEN] Post Corrective Credit Memo.
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::"Credit Memo", CrMemoNo);
+        PostedCrMemoNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Clear Variable Storage.
+        LibraryVariableStorage.Clear();
+
+        // [VERIFY] Verify Sustainability fields After posting of Corrective Credit Memo.
+        PostedPurchCrMemoSubformPage.OpenEdit();
+        PostedPurchCrMemoSubformPage.Filter.SetFilter("Document No.", PostedCrMemoNo);
+        PostedPurchCrMemoSubformPage.Filter.SetFilter("No.", PurchaseLine."No.");
+        PostedPurchCrMemoSubformPage."Sust. Account No.".AssertEquals(AccountCode);
+        PostedPurchCrMemoSubformPage."Emission CH4".AssertEquals(EmissionCH4);
+        PostedPurchCrMemoSubformPage."Emission CO2".AssertEquals(EmissionCO2);
+        PostedPurchCrMemoSubformPage."Emission N2O".AssertEquals(EmissionN2O);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchInvoiceStatisticsPageHandler')]
+    procedure VerifySustainabilityFieldsInPurchCrMemoSubFormPage()
+    var
+        SustainabilityAccount: Record "Sustainability Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchCrMemoSubformPage: TestPage "Purch. Cr. Memo Subform";
+        PostedPurchCrMemoSubformPage: TestPage "Posted Purch. Cr. Memo Subform";
+        EmissionCO2: Decimal;
+        EmissionCH4: Decimal;
+        EmissionN2O: Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+        CrMemoNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [SCENARIO 496561] Verify Sustainability fields in Purchase Cr Memo SubForm Page.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+        SustainabilityAccount.Get(AccountCode);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create a Purchase Line.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            "Purchase Line Type"::Item,
+            LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Update Sustainability Account No.,Emission CO2 ,Emission CH4 ,Emission N2O.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 200));
+        PurchaseLine.Validate("Qty. to Receive", LibraryRandom.RandIntInRange(5, 5));
+        PurchaseLine.Validate("Sust. Account No.", AccountCode);
+        PurchaseLine.Validate("Emission CO2", LibraryRandom.RandInt(20));
+        PurchaseLine.Validate("Emission CH4", LibraryRandom.RandInt(5));
+        PurchaseLine.Validate("Emission N2O", LibraryRandom.RandInt(5));
+        PurchaseLine.Modify();
+
+        // [GIVEN] Save Expected Emission.
+        EmissionCO2 := PurchaseLine."Emission CO2 Per Unit" * PurchaseLine."Qty. per Unit of Measure" * LibraryRandom.RandIntInRange(5, 5);
+        EmissionCH4 := PurchaseLine."Emission CH4 Per Unit" * PurchaseLine."Qty. per Unit of Measure" * LibraryRandom.RandIntInRange(5, 5);
+        EmissionN2O := PurchaseLine."Emission N2O Per Unit" * PurchaseLine."Qty. per Unit of Measure" * LibraryRandom.RandIntInRange(5, 5);
+
+        // [WHEN] Save Sustainability fields.
+        LibraryVariableStorage.Enqueue(EmissionCO2);
+        LibraryVariableStorage.Enqueue(EmissionCH4);
+        LibraryVariableStorage.Enqueue(EmissionN2O);
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(0);
+
+        // [GIVEN] Update Reason Code in Purchase Header.
+        UpdateReasonCodeinPurchaseHeader(PurchaseHeader);
+
+        // [WHEN] Create Corrective Credit Memo.
+        CrMemoNo := CreateCorrectiveCreditMemoAndOpenPurchCrMemoStatistics(PurchaseHeader);
 
         // [VERIFY] Verify Sustainability fields before posting of Corrective Credit Memo.
         PurchCrMemoSubformPage.OpenEdit();
@@ -4499,6 +4735,8 @@ codeunit 148184 "Sustainability Posting Test"
         PurchaseOrder.Statistics.Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenPurchaseInvoiceStatistics(No: Code[20])
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
@@ -4507,7 +4745,19 @@ codeunit 148184 "Sustainability Posting Test"
         PurchaseInvoice.FILTER.SetFilter("No.", No);
         PurchaseInvoice.Statistics.Invoke();
     end;
+#endif
 
+    local procedure OpenPurchInvoiceStatistics(No: Code[20])
+    var
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.FILTER.SetFilter("No.", No);
+        PurchaseInvoice.PurchaseStatistics.Invoke();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenPurchaseCrMemoStatistics(No: Code[20])
     var
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
@@ -4515,6 +4765,16 @@ codeunit 148184 "Sustainability Posting Test"
         PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.FILTER.SetFilter("No.", No);
         PurchaseCreditMemo.Statistics.Invoke();
+    end;
+#endif
+
+    local procedure OpenPurchCrMemoStatistics(No: Code[20])
+    var
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+    begin
+        PurchaseCreditMemo.OpenEdit();
+        PurchaseCreditMemo.FILTER.SetFilter("No.", No);
+        PurchaseCreditMemo.PurchaseStatistics.Invoke();
     end;
 
     local procedure VerifyPostedPurchaseCrMemoStatistics(No: Code[20])
@@ -4553,6 +4813,8 @@ codeunit 148184 "Sustainability Posting Test"
         PostedPurchaseInvoiceStatisticsPage."Emission N2O".AssertEquals(PostedEmissionN2O);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure CreateCorrectiveCreditMemoAndOpenPurchaseCrMemoStatistics(PurchaseHeader: Record "Purchase Header"): Code[20]
     var
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -4569,6 +4831,27 @@ codeunit 148184 "Sustainability Posting Test"
 
         // Open Purchase Cr Memo Statistics.
         OpenPurchaseCrMemoStatistics(PurchaseHeader."No.");
+
+        exit(PurchaseHeader."No.");
+    end;
+#endif
+
+    local procedure CreateCorrectiveCreditMemoAndOpenPurchCrMemoStatistics(PurchaseHeader: Record "Purchase Header"): Code[20]
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        PostedDocNumber: Code[20];
+    begin
+        PostedDocNumber := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchInvHeader.Get(PostedDocNumber);
+
+        // Create Corrective Credit Memo.
+        CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchaseHeader);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryRandom.RandText(10));
+        PurchaseHeader.Modify();
+
+        // Open Purchase Cr Memo Statistics.
+        OpenPurchCrMemoStatistics(PurchaseHeader."No.");
 
         exit(PurchaseHeader."No.");
     end;
@@ -5056,9 +5339,38 @@ codeunit 148184 "Sustainability Posting Test"
         SalesOrderStatisticsPage."Posted Total CO2e".AssertEquals(PostedTotalCO2e);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceStatisticsPageHandler(var PurchaseStatisticsPage: TestPage "Purchase Statistics")
+    var
+        EmissionCO2: Variant;
+        EmissionCH4: Variant;
+        EmissionN2O: Variant;
+        PostedEmissionCO2: Variant;
+        PostedEmissionCH4: Variant;
+        PostedEmissionN2O: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(EmissionCO2);
+        LibraryVariableStorage.Dequeue(EmissionCH4);
+        LibraryVariableStorage.Dequeue(EmissionN2O);
+        LibraryVariableStorage.Dequeue(PostedEmissionCO2);
+        LibraryVariableStorage.Dequeue(PostedEmissionCH4);
+        LibraryVariableStorage.Dequeue(PostedEmissionN2O);
+
+        PurchaseStatisticsPage."Emission C02".AssertEquals(EmissionCO2);
+        PurchaseStatisticsPage."Emission CH4".AssertEquals(EmissionCH4);
+        PurchaseStatisticsPage."Emission N2O".AssertEquals(EmissionN2O);
+        PurchaseStatisticsPage."Posted Emission C02".AssertEquals(PostedEmissionCO2);
+        PurchaseStatisticsPage."Posted Emission CH4".AssertEquals(PostedEmissionCH4);
+        PurchaseStatisticsPage."Posted Emission N2O".AssertEquals(PostedEmissionN2O);
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchInvoiceStatisticsPageHandler(var PurchaseStatisticsPage: TestPage "Purchase Statistics")
     var
         EmissionCO2: Variant;
         EmissionCH4: Variant;
