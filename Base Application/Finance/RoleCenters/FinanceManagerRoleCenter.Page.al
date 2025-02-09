@@ -2376,6 +2376,13 @@ page 8901 "Finance Manager Role Center"
                 group("Group55")
                 {
                     Caption = 'Reports';
+                    action("Inventory by Location")
+                    {
+                        ApplicationArea = InventoryAnalysis;
+                        Caption = 'Analyze Inventory by Location';
+                        RunObject = Query "Inventory by Location";
+                        ToolTip = 'Analyze (group, summarize, pivot) your Item Ledger Entries with related Location master data.';
+                    }
                     action("Inventory Valuation")
                     {
                         ApplicationArea = Basic, Suite;

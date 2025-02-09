@@ -1089,6 +1089,14 @@ page 31 "Item List"
             group(Inventory)
             {
                 Caption = 'Inventory';
+                action("Inventory by Location")
+                {
+                    ApplicationArea = InventoryAnalysis;
+                    Caption = 'Analyze Inventory by Location';
+                    Image = NonStockItem;
+                    RunObject = Query "Inventory by Location";
+                    ToolTip = 'Analyze (group, summarize, pivot) your Item Ledger Entries with related Location master data.';
+                }
                 action("Inventory - List")
                 {
                     ApplicationArea = Basic, Suite;
@@ -2284,6 +2292,10 @@ page 31 "Item List"
             group(Category_Report)
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Inventory by Location_Promoted"; "Inventory by Location")
+                {
+                }
 #if not CLEAN25
                 actionref("Price List_Promoted"; "Price List")
                 {
