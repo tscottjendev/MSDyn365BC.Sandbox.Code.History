@@ -21,7 +21,7 @@ codeunit 18 "Financial Report Mgt."
         ColumnsEditWarningNotificationMsg: Label 'Changes to this column definition will affect all financial reports using it.';
         ColumnsNotificationIdTok: Label '883e213e-08bd-4154-b929-87f689848f10', Locked = true;
         DontShowAgainMsg: Label 'Don''t show again';
-        TelemetryEventTxt: Label 'Financial Report %1: %2', Comment = '%1 = event type, %2 = report', Locked = true;
+        TelemetryEventTxt: Label 'Financial Report Definition %1: %2', Comment = '%1 = event type, %2 = report', Locked = true;
         OpenFinancialReportsLbl: Label 'Open Financial Reports';
         NotifyUpdateFinancialReportNameTxt: Label 'Notify about updating financial reports.';
         NotifyUpdateFinancialReportDescTxt: Label 'Notify that financial reports should be updated after someone creates a new G/L account.';
@@ -78,7 +78,7 @@ codeunit 18 "Financial Report Mgt."
         AddFinancialReportToConfigPackage(FinancialReport.Name, ConfigPackage);
         Commit();
         ConfigXMLExchange.ExportPackage(ConfigPackage);
-        LogImportExportTelemetry(FinancialReport.Name, 'Exported');
+        LogImportExportTelemetry(FinancialReport.Name, 'exported');
     end;
 
     local procedure AddFinancialReportToConfigPackage(FinancialReportName: Code[10]; var ConfigPackage: Record "Config. Package")
@@ -142,7 +142,7 @@ codeunit 18 "Financial Report Mgt."
 
         ConfigPackageTable.SetRange("Package Code", PackageCode);
         ConfigPackageMgt.ApplyPackage(ConfigPackage, ConfigPackageTable, false);
-        LogImportExportTelemetry(NewName, 'Imported');
+        LogImportExportTelemetry(NewName, 'imported');
     end;
 
     local procedure GetPackageFinancialReportName(PackageCode: Code[20]) NewFinancialReportName: Code[10]
