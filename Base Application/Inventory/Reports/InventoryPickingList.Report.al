@@ -139,6 +139,8 @@ report 813 "Inventory Picking List"
 
     requestpage
     {
+        AboutTitle = 'About Inventory Picking List';
+        AboutText = 'Explore sales orders that are covered when you pick items from inventory.';
         SaveValues = true;
 
         layout
