@@ -1006,6 +1006,8 @@
         // Verify: Verification is done for VAT Amount in 'VATAmountLineHandler' handler method.
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('YesConfirmHandler,PurchaseStatisticsHandler')]
     [Scope('OnPrem')]
@@ -1027,6 +1029,30 @@
 
         // Verify: Verification for Total Incl. VAT on Purchase Invoice Statistics page.
         // Verification done in PurchaseStatisticsHandler.
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler,PurchaseStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoicePurchStatistics()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // Check Total Incl. VAT field on Purchase Invoice Statistics before posting Invoice.
+
+        // Setup: Create Purchase Invoice and take 1 for No. of Purchase Line.
+        Initialize();
+        CreatePurchDocWithPartQtyToRcpt(PurchaseHeader, PurchaseLine, '', 1, PurchaseHeader."Document Type"::Invoice);
+        ModifyPurchaseHeaderPricesInclVAT(PurchaseHeader, true);
+
+        // Exercise: Open Statistics page from Purchase Invoice.
+        LibraryVariableStorage.Enqueue(PurchaseLine."Amount Including VAT");
+        OpenPurchaseInvoicePurchStatistics(PurchaseHeader."No.");
+
+        // Verify: Verification for Total Incl. VAT on Purchase Invoice Statistics page.
+        // Verification done in PurchaseStatisticsPageHandler.
     end;
 
 #if not CLEAN26
@@ -6174,6 +6200,8 @@
         PurchaseOrder.Statistics.Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenPurchaseInvoiceStatistics(DocumentNo: Code[20])
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
@@ -6181,6 +6209,16 @@
         PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", DocumentNo);
         PurchaseInvoice.Statistics.Invoke();
+    end;
+#endif
+
+    local procedure OpenPurchaseInvoicePurchStatistics(DocumentNo: Code[20])
+    var
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.FILTER.SetFilter("No.", DocumentNo);
+        PurchaseInvoice.PurchaseStatistics.Invoke();
     end;
 
     local procedure PurchaseVATAmountCalculation(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
@@ -6637,6 +6675,8 @@
         PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseStatisticsHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
@@ -6647,6 +6687,15 @@
         AmountForValidation := LibraryVariableStorage.DequeueDecimal();
         Assert.AreNearlyEqual(PurchaseStatistics.TotalAmount1.AsDecimal(), AmountForValidation, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, PurchaseStatistics.TotalAmount1.Caption, AmountForValidation, PurchaseStatistics.Caption));
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseStatisticsPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
+    begin
+        //  Page Handler.
+        PurchaseStatistics.TotalAmount1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
 #if not CLEAN26
