@@ -429,6 +429,8 @@ report 707 "Inventory - Availability Plan"
 
     requestpage
     {
+        AboutTitle = 'About Inventory - Availability Plan';
+        AboutText = 'Get an overview of specific items and stock-keeping units, and their availability.';
         SaveValues = true;
 
         layout
