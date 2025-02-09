@@ -73,7 +73,7 @@ table 333 "Column Layout Name"
         ConfigPackageCode := AddColumnDefinitionToPackage(Rec.Name);
         ConfigPackage.Get(ConfigPackageCode);
         ConfigXMLExchange.ExportPackage(ConfigPackage);
-        LogImportExportTelemetry(Name, 'Export');
+        LogImportExportTelemetry(Name, 'exported');
     end;
 
     procedure XMLExchangeImport()
@@ -103,7 +103,7 @@ table 333 "Column Layout Name"
 
         ConfigPackageTable.SetRange("Package Code", PackageCode);
         ConfigPackageMgt.ApplyPackage(ConfigPackage, ConfigPackageTable, false);
-        LogImportExportTelemetry(NewName, 'Import');
+        LogImportExportTelemetry(NewName, 'imported');
     end;
 
     local procedure GetNewColumnDefinitionName(PackageCode: Code[20]): Code[10]
