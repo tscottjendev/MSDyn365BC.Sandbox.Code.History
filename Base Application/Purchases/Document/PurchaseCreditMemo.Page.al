@@ -974,6 +974,7 @@ page 52 "Purchase Credit Memo"
             {
                 Caption = '&Credit Memo';
                 Image = CreditMemo;
+#if not CLEAN26                
                 action(Statistics)
                 {
                     ApplicationArea = Basic, Suite;
@@ -981,12 +982,48 @@ page 52 "Purchase Credit Memo"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
 
                     trigger OnAction()
                     begin
                         Rec.OpenDocumentStatistics();
                         CurrPage.PurchLines.Page.ForceTotalsCalculation();
                     end;
+                }
+#endif
+                action(PurchaseStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Enabled = Rec."No." <> '';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+#if CLEAN26
+                    Visible = not SalesTaxStatisticsVisible;
+#else
+                    Visible = false;
+#endif                    
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    RunObject = Page "Purchase Statistics";
+                    RunPageOnRec = true;
+                }
+                action(PurchaseOrderStats)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Enabled = Rec."No." <> '';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+#if CLEAN26
+                    Visible = SalesTaxStatisticsVisible;
+#else
+                    Visible = false;
+#endif                    
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    RunObject = Page "Purchase Order Statistics";
+                    RunPageOnRec = true;
                 }
                 action(Vendor)
                 {
@@ -1622,9 +1659,18 @@ page 52 "Purchase Credit Memo"
             {
                 Caption = 'Credit Memo', Comment = 'Generated from the PromotedActionCategories property index 5.';
 
+#if not CLEAN26
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                 }
+#else                
+                actionref(PurchaseStatistics_Promoted; PurchaseStatistics)
+                {
+                }
+#endif                
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
@@ -1724,6 +1770,7 @@ page 52 "Purchase Credit Memo"
 
         CheckShowBackgrValidationNotification();
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+        SalesTaxStatisticsVisible := Rec.GetStatisticsPageID() = Page::"Purchase Order Stats.";
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1780,6 +1827,7 @@ page 52 "Purchase Credit Memo"
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
+        SalesTaxStatisticsVisible: Boolean;
 
     local procedure ActivateFields()
     begin

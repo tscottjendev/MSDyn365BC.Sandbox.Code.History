@@ -18,7 +18,9 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         LibraryIncomingDocuments: Codeunit "Library - Incoming Documents";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+#if not CLEAN26
         Assert: Codeunit Assert;
+#endif
         isInitialized: Boolean;
 
     [Test]
@@ -496,6 +498,8 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         Assert.AreEqual(2 * PurchaseLine.Quantity * TaxPercent, PurchInvHeader."Amount Including VAT", 'PurchaseHeader."Amount Including VAT" is incorrect');
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseStatsUpdateTaxAmountModalPageHandler,ConfirmHandlerYes')]
     procedure PostPurchInvoiceTaxLiableWithIncomingDocAndTaxDifference()
@@ -529,6 +533,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         PurchaseInvoice.OpenEdit();
         PurchaseInvoice.Filter.SetFilter("No.", PurchaseLine."Document No.");
         PurchaseInvoice.Statistics.Invoke();
+        PurchaseInvoice.Close();
 
         // [WHEN] Post Purchase Invoice.
         PostPurchaseInvoiceFromPage(PurchaseLine."Document No.");
@@ -537,6 +542,42 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         VerifyAmountInclVATOnPostedPurchaseInvoice(PurchaseLine."Document No.", IncomingDocument."Amount Incl. VAT");
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+#endif
+
+    [Test]
+    procedure PostPurchaseInvoiceTaxLiableWithIncomingDocAndTaxDifference()
+    var
+        IncomingDocument: Record "Incoming Document";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        TaxDifference: Decimal;
+    begin
+        // [FEATURE] [Incoming Document] [Purchase]
+        // [SCENARIO 409746] Post Purchase Invoice with linked Incoming Document after Tax Amount is corrected according to Incoming Document.
+        Initialize();
+
+        LibraryApplicationArea.EnableSalesTaxSetup();   // for MX
+
+        // [GIVEN] Allowed Max Tax Difference = 10.
+        LibraryERM.SetMaxVATDifferenceAllowed(10);
+        LibraryPurchase.SetAllowVATDifference(true);
+
+        // [GIVEN] Tax Area "T" with Tax Detail that has "Tax Below Maximum" = 10%. 
+        // [GIVEN] Vendor with Tax Area "T", Tax Liable = true.
+        // [GIVEN] Purchase Invoice with Tax Area "T" that has Amount Incl. VAT = 500 and Tax Amount = 50.
+        // [GIVEN] Incoming Document with Amount Incl. VAT = 505 and Tax Amount = 55. Document is linked to Purchase Invoice.
+        CreatePurchaseDocument(PurchaseLine, "Purchase Document Type"::Invoice, false);
+        LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
+        UpdateIncomingDocEntryNoOnPurchaseInvoice(PurchaseLine."Document No.", IncomingDocument."Entry No.");
+        TaxDifference := 5;
+        UpdateAmountInclVATOnIncomingDoc(IncomingDocument, PurchaseLine."Amount Including VAT" + TaxDifference);
+
+        // [GIVEN] Tax Amount for Puchase Invoice is updated from 50 to 55 on Purchase Invoice Statistics page.
+        LibraryVariableStorage.Enqueue(TaxDifference);
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseLine."Document No.");
+        PurchaseInvoice.PurchaseStatistics.Invoke();
     end;
 
     local procedure Initialize()
@@ -690,6 +731,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         PurchaseCreditMemo.FILTER.SetFilter("No.", PurchaseHeader."No.");
     end;
 
+#if not CLEAN26
     local procedure PostPurchaseInvoiceFromPage(PurchaseInvoiceNo: Code[20])
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
@@ -698,6 +740,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         PurchaseInvoice.Filter.SetFilter("No.", PurchaseInvoiceNo);
         PurchaseInvoice.Post.Invoke();
     end;
+#endif
 
     local procedure SetCompareAmounts(InvoiceDiscountAmount: Decimal; TotalAmountExcTax: Decimal; TaxAmount: Decimal; TotalAmountIncTax: Decimal; CustDiscountPercent: Decimal; var Amounts: array[5] of Decimal)
     var
@@ -778,6 +821,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
           'Posted Total Amount Including Tax not equal to pre-posted value.');
     end;
 
+#if not CLEAN26
     local procedure VerifyAmountInclVATOnPostedPurchaseInvoice(PurchaseInvoiceNo: Code[20]; ExpectedAmountInclVAT: Decimal)
     var
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -788,8 +832,22 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         Assert.AreEqual(ExpectedAmountInclVAT, PurchInvHeader."Amount Including VAT", '');
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     procedure PurchaseStatsUpdateTaxAmountModalPageHandler(var PurchaseStats: TestPage "Purchase Stats.")
+    var
+        TaxDifference: Decimal;
+        NewTaxAmount: Decimal;
+    begin
+        TaxDifference := LibraryVariableStorage.DequeueDecimal();
+        NewTaxAmount := PurchaseStats.SubForm."Tax Amount".AsDecimal() + TaxDifference;
+        PurchaseStats.SubForm."Tax Amount".SetValue(NewTaxAmount);
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseStatsUpdateTaxAmountPageHandler(var PurchaseStats: TestPage "Purchase Stats.")
     var
         TaxDifference: Decimal;
         NewTaxAmount: Decimal;

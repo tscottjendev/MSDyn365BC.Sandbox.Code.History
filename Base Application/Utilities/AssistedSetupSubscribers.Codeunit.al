@@ -23,6 +23,7 @@ using System.Azure.Identity;
 using System.Email;
 using System.Environment;
 using System.Environment.Configuration;
+using System.ExternalFileStorage;
 using System.Globalization;
 using System.Integration;
 using System.Integration.Excel;
@@ -63,6 +64,9 @@ codeunit 1814 "Assisted Setup Subscribers"
         OneDriveSetupShortTitleTxt: Label 'Co-author documents', MaxLength = 50;
         OneDriveSetupDescriptionTxt: Label 'Configure which features can work with OneDrive for Business to open files in the browser, share with others, or co-author online.';
         OneDriveSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2195963', Locked = true;
+        ExtFileStorageSetupTitleTxt: Label 'Connect to external file accounts';
+        ExtFileStorageSetupShortTitleTxt: Label 'Connect to external file accounts', MaxLength = 50;
+        ExtFileStorageSetupDescriptionTxt: Label 'Configure external file accounts to be used in app scenarios, for export of data out of Business Central.';
         DataMigrationTitleTxt: Label 'Migrate business data';
         DataMigrationShortTitleTxt: Label 'Migrate data', MaxLength = 50;
         DataMigrationDescriptionTxt: Label 'Import existing data to Business Central from your former system.';
@@ -345,6 +349,13 @@ codeunit 1814 "Assisted Setup Subscribers"
         GlobalLanguage(Language.GetDefaultApplicationLanguageId());
         GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
             Page::"Document Service Setup", Language.GetDefaultApplicationLanguageId(), OneDriveSetupTitleTxt);
+        GlobalLanguage(CurrentGlobalLanguage);
+
+        GuidedExperience.InsertAssistedSetup(ExtFileStorageSetupTitleTxt, ExtFileStorageSetupShortTitleTxt, ExtFileStorageSetupDescriptionTxt, 5, ObjectType::Page,
+            Page::"File Account Wizard", AssistedSetupGroup::Connect, '', VideoCategory::Connect, '');
+        GlobalLanguage(Language.GetDefaultApplicationLanguageId());
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            Page::"File Account Wizard", Language.GetDefaultApplicationLanguageId(), ExtFileStorageSetupTitleTxt);
         GlobalLanguage(CurrentGlobalLanguage);
 
         if EnvironmentInfo.IsSaaS() then begin

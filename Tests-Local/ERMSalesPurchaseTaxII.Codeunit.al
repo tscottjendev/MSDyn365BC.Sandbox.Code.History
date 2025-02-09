@@ -249,6 +249,8 @@
         // Verify: Verify Tax Amount on Purchase Order Statistics. Verification done in PurchaseOrderStatsTestPageHandler.
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseStatsTestPageHandler')]
     [Scope('OnPrem')]
@@ -270,6 +272,30 @@
         PurchaseQuote.Statistics.Invoke();
 
         // Verify: Verify Tax Amount on Purchase Quote Statistics. Verification done in PurchaseStatsTestPageHandler.
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchStatsTestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StatisticsPurchQuoteTaxAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseQuote: TestPage "Purchase Quote";
+        TaxAmount: Decimal;
+    begin
+        // Verify Tax Amount on Purchase Quote Statistics.
+
+        // Setup: Create Purchase Quote and open Purchase Quote page.
+        Initialize();
+        TaxAmount := CreatePurchaseDocumentWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        OpenPurchaseQuotePage(PurchaseQuote, PurchaseHeader);
+
+        // Exercise.
+        PurchaseQuote.PurchaseStatistics.Invoke();
+
+        // Verify: Verify Tax Amount on Purchase Quote Statistics. Verification done in PurchStatsTestPageHandler.
     end;
 
     [Test]
@@ -6559,9 +6585,22 @@
         PurchaseOrderStats.TaxAmount.AssertEquals(TaxAmount);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseStatsTestPageHandler(var PurchaseStats: TestPage "Purchase Stats.")
+    var
+        TaxAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TaxAmount);
+        PurchaseStats.TaxAmount.AssertEquals(TaxAmount);
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchStatsTestPageHandler(var PurchaseStats: TestPage "Purchase Stats.")
     var
         TaxAmount: Variant;
     begin
