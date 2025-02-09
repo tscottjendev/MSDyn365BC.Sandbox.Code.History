@@ -84,6 +84,8 @@ report 801 "Assembly BOMs"
 
     requestpage
     {
+        AboutTitle = 'About BOMs';
+        AboutText = 'Get an overview of assembly bills of materials (BOMs), including BOMs that are part of the main BOM.';
 
         layout
         {
