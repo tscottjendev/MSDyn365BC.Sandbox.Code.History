@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.RoleCenters;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.RoleCenters;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -2385,6 +2389,13 @@ page 8901 "Finance Manager Role Center"
                 group("Group53")
                 {
                     Caption = 'Reports';
+                    action("Inventory by Location")
+                    {
+                        ApplicationArea = InventoryAnalysis;
+                        Caption = 'Analyze Inventory by Location';
+                        RunObject = Query "Inventory by Location";
+                        ToolTip = 'Analyze (group, summarize, pivot) your Item Ledger Entries with related Location master data.';
+                    }
                     action("Inventory to G/L Reconcile")
                     {
                         Caption = 'Inventory to G/L Reconcile';

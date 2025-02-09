@@ -181,7 +181,7 @@ table 84 "Acc. Schedule Name"
         AddRowDefinitionToConfigPackage(Name, ConfigPackage, PackageCode);
         Commit();
         ConfigXMLExchange.ExportPackage(ConfigPackage);
-        LogImportExportTelemetry(Name, 'Export');
+        LogImportExportTelemetry(Name, 'exported');
     end;
 
     procedure AddRowDefinitionToConfigPackage(AccScheduleName: Code[10]; var ConfigPackage: Record "Config. Package"; PackageCode: Code[20])
@@ -248,7 +248,7 @@ table 84 "Acc. Schedule Name"
 
         ConfigPackageTable.SetRange("Package Code", PackageCode);
         ConfigPackageMgt.ApplyPackage(ConfigPackage, ConfigPackageTable, false);
-        LogImportExportTelemetry(NewName, 'Import');
+        LogImportExportTelemetry(NewName, 'imported');
     end;
 
     local procedure GetPackageAccSchedName(PackageCode: Code[20]) NewName: Code[10]
