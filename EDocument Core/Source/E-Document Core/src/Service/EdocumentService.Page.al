@@ -47,10 +47,6 @@ page 6133 "E-Document Service"
                 {
                     ToolTip = 'Specifies integration code for the electronic export setup.';
                 }
-                field("Sent Actions"; Rec."Sent Actions Integration")
-                {
-                    ToolTip = 'Specifies integration code for sent e-document actions.';
-                }
                 field("Use Batch Processing"; Rec."Use Batch Processing")
                 {
                     ToolTip = 'Specifies if service uses batch processing for export.';

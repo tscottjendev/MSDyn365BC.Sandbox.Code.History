@@ -295,7 +295,6 @@ codeunit 139883 "E-Doc Process Test"
         LibraryEDoc.SetupStandardVAT();
         LibraryEDoc.SetupStandardSalesScenario(Customer, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
         LibraryEDoc.SetupStandardPurchaseScenario(Vendor, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
-        EDocumentService."Sent Actions Integration" := Enum::"Sent Document Actions"::Mock;
         EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
         EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"PDF Mock";
         EDocumentService.Modify();

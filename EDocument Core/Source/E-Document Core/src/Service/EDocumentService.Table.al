@@ -8,7 +8,6 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.eServices.EDocument.Integration.Interfaces;
 using Microsoft.eServices.EDocument.Integration;
 using Microsoft.eServices.EDocument.Processing.Import;
-using Microsoft.eServices.EDocument.Integration.Action;
 
 table 6103 "E-Document Service"
 {
@@ -247,12 +246,6 @@ table 6103 "E-Document Service"
                         Rec."Service Integration V2" := xRec."Service Integration V2";
                 end;
             end;
-        }
-        field(28; "Sent Actions Integration"; Enum "Sent Document Actions")
-        {
-            Caption = 'Sent Actions For Service';
-            ToolTip = 'Specifies the implementation of actions that can be performed after the document is sent to the service.';
-            DataClassification = SystemMetadata;
         }
         field(29; "E-Document Structured Format"; Enum "E-Document Structured Format")
         {
