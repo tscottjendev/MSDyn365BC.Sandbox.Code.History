@@ -78,6 +78,8 @@ report 809 "Where-Used List"
 
     requestpage
     {
+        AboutTitle = 'About Where-Used List';
+        AboutText = 'Get a list of the bill of materials that the selected items are components of. Use the report when you must change a component in a BOM. For example, if your vendor can''t deliver an item that you use for assembly or production.';
 
         layout
         {
