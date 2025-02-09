@@ -62,6 +62,8 @@ report 810 "Assembly BOM - Raw Materials"
 
     requestpage
     {
+        AboutTitle = 'About BOM - Raw Materials';
+        AboutText = 'Get an overview of the components in an item''s bill of materials, for both assembly and production.';
 
         layout
         {
