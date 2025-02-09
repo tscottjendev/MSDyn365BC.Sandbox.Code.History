@@ -75,6 +75,8 @@ report 812 "Assembly BOM - End Items"
 
     requestpage
     {
+        AboutTitle = 'About Assembly BOM - End Items';
+        AboutText = 'Get a list of items or bill of materials (BOMs) that aren''t components in other BOMs.';
 
         layout
         {
