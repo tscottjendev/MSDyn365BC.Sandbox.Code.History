@@ -123,6 +123,8 @@ codeunit 144053 "ERM Ignore Discount"
         UpdateCalcInvDiscountOnSalesReceivablesSetup(OldCalcInvDiscount);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseStatisticsModalPageHandler')]
     [Scope('OnPrem')]
@@ -133,6 +135,7 @@ codeunit 144053 "ERM Ignore Discount"
         InvoiceDiscountAmountOnPurchaseStatisticsPage(true, LibraryRandom.RandDec(10, 2), 0);  // True used for Ignore Discounts, Random value used for Vendor Invoice Discount Percent and 0 used for Discount Percent.
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseStatisticsModalPageHandler')]
     [Scope('OnPrem')]
@@ -145,7 +148,33 @@ codeunit 144053 "ERM Ignore Discount"
         DiscountPct := LibraryRandom.RandDec(10, 2);
         InvoiceDiscountAmountOnPurchaseStatisticsPage(false, DiscountPct, DiscountPct);  // False used for Ignore Discounts.
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceDiscOnPurchPageStatisticsWithIgnoreDiscounts()
+    begin
+        // Test to verify values on Purchase Statistics page with Ignore Discounts True on G/L Account.
+        Initialize();
+        InvoiceDiscountAmountOnPurchStatisticsPage(true, LibraryRandom.RandDec(10, 2), 0);  // True used for Ignore Discounts, Random value used for Vendor Invoice Discount Percent and 0 used for Discount Percent.
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure InvDiscOnPurchPageStatisticsWithoutIgnoreDiscounts()
+    var
+        DiscountPct: Decimal;
+    begin
+        // Test to verify values on Purchase Statistics page with Ignore Discounts False on G/L Account.
+        Initialize();
+        DiscountPct := LibraryRandom.RandDec(10, 2);
+        InvoiceDiscountAmountOnPurchStatisticsPage(false, DiscountPct, DiscountPct);  // False used for Ignore Discounts.
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure InvoiceDiscountAmountOnPurchaseStatisticsPage(IgnoreDiscounts: Boolean; VendInvDiscountPct: Decimal; DiscountPct: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
@@ -165,6 +194,32 @@ codeunit 144053 "ERM Ignore Discount"
         PurchaseInvoice.Statistics.Invoke();  // Opens PurchaseStatisticsModalPageHandler.
 
         // Verify: Verification is done in PurchaseStatisticsModalPageHandler.
+
+        // Tear Down.
+        PurchaseInvoice.Close();
+        UpdateCalcInvDiscountOnPurchasesPayablesSetup(OldCalcInvDiscount);
+    end;
+#endif
+
+    local procedure InvoiceDiscountAmountOnPurchStatisticsPage(IgnoreDiscounts: Boolean; VendInvDiscountPct: Decimal; DiscountPct: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        OldCalcInvDiscount: Boolean;
+    begin
+        // Setup: Create Purchase Invoice with Vendor Invoice Discount. Open Purchase Invoice page.
+        OldCalcInvDiscount := UpdateCalcInvDiscountOnPurchasesPayablesSetup(true);  // True used for Calculate Invoice Discount.
+        CreatePurchaseInvoice(PurchaseLine, IgnoreDiscounts, VendInvDiscountPct);
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseLine."Document No.");
+        EnqueueValuesForModalPageHandler(
+          PurchaseLine.Amount, PurchaseLine.Amount * DiscountPct / 100,
+          PurchaseLine.Amount - PurchaseLine.Amount * DiscountPct / 100);  // Enqueue values for PurchaseStatisticsPageHandler.
+
+        // Exercise.
+        PurchaseInvoice.PurchaseStatistics.Invoke();  // Opens PurchaseStatisticsPageHandler.
+
+        // Verify: Verification is done in PurchaseStatisticsPageHandler.
 
         // Tear Down.
         PurchaseInvoice.Close();
@@ -264,9 +319,28 @@ codeunit 144053 "ERM Ignore Discount"
         SalesReceivablesSetup.Modify(true);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseStatisticsModalPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
+    var
+        Amount: Variant;
+        InvDiscountAmount: Variant;
+        TotalAmountOne: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(Amount);
+        LibraryVariableStorage.Dequeue(InvDiscountAmount);
+        LibraryVariableStorage.Dequeue(TotalAmountOne);
+        PurchaseStatistics.Amount.AssertEquals(Amount);
+        PurchaseStatistics.InvDiscountAmount.AssertEquals(InvDiscountAmount);
+        PurchaseStatistics.TotalAmount1.AssertEquals(TotalAmountOne);
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseStatisticsPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
     var
         Amount: Variant;
         InvDiscountAmount: Variant;

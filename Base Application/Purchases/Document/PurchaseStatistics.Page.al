@@ -189,6 +189,10 @@ page 161 "Purchase Statistics"
 
     trigger OnOpenPage()
     begin
+        if not Rec.SkipStatisticsPreparation() then
+            Rec.PrepareOpeningDocumentStatistics();
+        Rec.ResetSkipStatisticsPreparationFlag();
+
         PurchSetup.Get();
         AllowInvDisc :=
           not (PurchSetup."Calc. Inv. Discount" and VendInvDiscRecExists(Rec."Invoice Disc. Code"));
@@ -198,6 +202,13 @@ page 161 "Purchase Statistics"
         OnOpenPageOnBeforeSetEditable(AllowInvDisc, AllowVATDifference, Rec, PurchSetup);
         CurrPage.Editable := AllowVATDifference or AllowInvDisc;
         SetVATSpecification();
+    end;
+
+    trigger OnClosePage()
+    var
+        PurchCalcDiscountByType: Codeunit "Purch - Calc Disc. By Type";
+    begin
+        PurchCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
