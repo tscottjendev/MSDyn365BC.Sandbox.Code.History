@@ -18,6 +18,7 @@ permissionset 6219 "D365 Agent"
     Permissions = tabledata Agent = Rimd,
                   tabledata "Agent Task" = RIMd,
                   tabledata "Agent Task File" = RIMd,
+                  tabledata "Agent Task Log Entry" = RIMd,
                   tabledata "Agent Task Message" = RIMd,
                   tabledata "Agent Task Message Attachment" = RIMD,
                   tabledata "Agent Access Control" = RIMD,
