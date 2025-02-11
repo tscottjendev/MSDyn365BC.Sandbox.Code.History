@@ -4767,6 +4767,34 @@ codeunit 137069 "SCM Production Orders"
         Assert.RecordIsEmpty(ProductionOrder);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProdOutputBlockedItemPreventsChangeStatusToReleased()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProductionBlockedOutputItemErr: Label 'You cannot produce %1 %2 because the %3 is %4 on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value';
+    begin
+        // [Scenario 564294] Production Order with blocked output item cannot be changed to Released status
+        Initialize();
+
+        // Create Item
+        CreateItem(Item, Item."Replenishment System"::"Prod. Order");
+
+        // Create Production Order
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", Item."No.", 1);
+
+        // Change Item to have Production Blocked set to Output
+        Item.Validate("Production Blocked", Item."Production Blocked"::Output);
+        Item.Modify(true);
+
+        // [WHEN] Try to change status of Production Order to Released
+        asserterror LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, Enum::"Production Order Status"::Released, WorkDate(), false);
+
+        // [THEN] Error about the item being blocked is shown
+        Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked"), Item."Production Blocked"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
