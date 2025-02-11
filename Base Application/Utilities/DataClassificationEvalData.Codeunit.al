@@ -3784,6 +3784,7 @@ codeunit 1751 "Data Classification Eval. Data"
         DummyAgentTaskTimelineEntry: Record "Agent Task Timeline Entry";
         DummyAgentTaskTimelineEntryStep: Record "Agent Task Timeline Entry Step";
         DummyAgentTaskPaneEntry: Record "Agent Task Pane Entry";
+        DummyAgentTaskLogEntry: Record "Agent Task Log Entry";
         TableNo: Integer;
     begin
         TableNo := DATABASE::"Agent";
@@ -3835,6 +3836,13 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyAgentTaskPaneEntry.FieldNo(Summary));
         SetFieldToCompanyConfidential(TableNo, DummyAgentTaskPaneEntry.FieldNo(Title));
 
+        TableNo := DATABASE::"Agent Task Log Entry";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, DummyAgentTaskLogEntry.FieldNo("User Security ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskLogEntry.FieldNo("Details"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskLogEntry.FieldNo("Description"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskLogEntry.FieldNo("Page Caption"));
+
         // following tables are internal but still require classification
         SetTableFieldsToNormal(2000000258); // Agent Data table
         SetFieldToPersonal(2000000258, 1); // User Security Id
@@ -3866,6 +3874,13 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(2000000272, 6); // Content
 
         SetTableFieldsToNormal(2000000273); // Agent Task Msg Attach Data table
+
+        SetTableFieldsToNormal(2000000281); // Agent Task Log Entry Data table
+        SetFieldToPersonal(2000000281, 3); // User Security ID
+        SetFieldToCompanyConfidential(2000000281, 5); // Details
+        SetFieldToCompanyConfidential(2000000281, 6); // Description
+        SetFieldToCompanyConfidential(2000000281, 8); // Page Caption
+        SetFieldToCompanyConfidential(2000000281, 9); // Client Context
     end;
 
     local procedure ClasifyScheduledPerformanceProfiling()
