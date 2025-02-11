@@ -120,6 +120,8 @@ codeunit 5407 "Prod. Order Status Management"
         OnBeforeChangeStatusOnProdOrder(ProdOrder, NewStatus.AsInteger(), IsHandled, NewPostingDate, NewUpdateUnitCost);
         if IsHandled then
             exit;
+        if (NewStatus = Enum::"Production Order Status"::Released) and (ProdOrder."Source Type" = ProdOrder."Source Type"::Item) then
+            Item.CheckItemAndVariantForProdBlocked(ProdOrder."Source No.", '', Enum::"Item Production Blocked"::Output);
         if NewStatus = NewStatus::Finished then begin
             CheckBeforeFinishProdOrder(ProdOrder);
             FlushProdOrder(ProdOrder, NewStatus, NewPostingDate);
