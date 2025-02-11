@@ -9,12 +9,12 @@ using System.Integration;
 
 page 1178 "Doc. Attachment List Factbox"
 {
-    Caption = 'Documents';
     PageType = ListPart;
     DeleteAllowed = true;
     DelayedInsert = true;
     InsertAllowed = false;
     SourceTable = "Document Attachment";
+    DataCaptionExpression = CaptionTxt;
 
     layout
     {
@@ -264,6 +264,16 @@ page 1178 "Doc. Attachment List Factbox"
             ShareOptionsVisible := (Rec.HasContent()) and (DocumentSharing.ShareEnabled());
             ShareEditOptionVisible := DocumentSharing.EditEnabledForFile('.' + Rec."File Extension");
         end;
+
+        UpdateCaptionTxt();
+    end;
+
+    local procedure UpdateCaptionTxt()
+    begin
+        if Rec.HasContent() then
+            CaptionTxt := StrSubstNo(CaptionWithCountLbl, Format(Rec.Count))
+        else
+            CaptionTxt := CaptionLbl;
     end;
 
     trigger OnInit()
@@ -276,6 +286,8 @@ page 1178 "Doc. Attachment List Factbox"
             EmailHasAttachments := OfficeHostMgmt.EmailHasAttachments()
         else
             EmailHasAttachments := false;
+
+        UpdateCaptionTxt();
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -293,6 +305,9 @@ page 1178 "Doc. Attachment List Factbox"
         IsOfficeAddIn: Boolean;
         EmailHasAttachments: Boolean;
         CannotDownloadOrViewFileWithEmptyNameErr: Label 'The file must have a name.';
+        CaptionTxt: Text;
+        CaptionLbl: Label 'Documents';
+        CaptionWithCountLbl: Label 'Documents(%1)';
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecRefFail(DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef)
