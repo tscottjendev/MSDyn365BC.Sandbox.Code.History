@@ -482,7 +482,7 @@ page 9807 "User Card"
             AllowCreateWebServiceAccessKey := false;
         end;
         if UserProperty.Get(Rec."User Security ID") then
-            TelemetryUserID := UserProperty."Telemetry User ID"
+            TelemetryUserID := LowerCase(Format(UserProperty."Telemetry User ID", 0, 4))
         else
             Clear(TelemetryUserID);
 
@@ -559,7 +559,7 @@ page 9807 "User Card"
         Password: Text[80];
         ACSStatus: Option Disabled,Pending,Registered,Unknown;
         WebServiceID: Text[80];
-        TelemetryUserID: Guid;
+        TelemetryUserID: Text;
         Confirm001Qst: Label 'The current Web Service Access Key will not be valid after editing. All clients that use it have to be updated. Do you want to continue?';
         WebServiceExpiryDate: DateTime;
 #pragma warning disable AA0470
