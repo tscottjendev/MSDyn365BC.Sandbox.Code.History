@@ -2057,6 +2057,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders - NamedType WrongLotQtyOnItemJnlErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1635960933 - Method 3536262854 - NamedType 299387800" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot produce %1 %2 because the %3 is %4 on the %1 card.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders - Method ProdOutputBlockedItemPreventsChangeStatusToReleased - NamedType ProductionBlockedOutputItemErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3590079757 - NamedType 3958965251" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Actual time used on "Production Order Statistics" Page was incorrect. Should be equal to sum of "Setup Time", "Run Time" and "Stop Time".]]></Val>
