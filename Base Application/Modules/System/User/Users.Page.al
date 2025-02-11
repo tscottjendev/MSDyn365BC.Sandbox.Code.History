@@ -112,7 +112,6 @@ page 9800 Users
                     Caption = 'Telemetry ID';
                     ToolTip = 'Specifies a telemetry ID which can be used for troubleshooting purposes.';
                     Editable = false;
-                    Visible = false;
                 }
             }
         }
@@ -322,7 +321,7 @@ page 9800 Users
         MissingUserSettingsMsg: Label 'Some user settings, such as language, region, or time zone, weren''t specified when %1 was created, so default values were assigned. You can change them if needed.', Comment = '%1=user name';
         CreateQst: Label 'Do you want to create %1 as super user?', Comment = '%1=user name, e.g. europe\myaccountname';
         HasSuperForAllCompanies: Boolean;
-        TelemetryUserId: Guid;
+        TelemetryUserId: Text;
 
     protected var
         IsSaas: Boolean;
@@ -342,7 +341,7 @@ page 9800 Users
         WindowsUserName := IdentityManagement.UserName(Rec."Windows Security ID");
         NoUserExists := false;
         if UserProperty.Get(Rec."User Security ID") then
-            TelemetryUserId := UserProperty."Telemetry User ID"
+            TelemetryUserID := LowerCase(Format(UserProperty."Telemetry User ID", 0, 4))
         else
             Clear(TelemetryUserId);
     end;
