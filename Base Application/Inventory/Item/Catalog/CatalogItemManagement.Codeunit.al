@@ -473,8 +473,9 @@ codeunit 5703 "Catalog Item Management"
         OnAfterInsertUnitOfMeasure(UnitOfMeasureCode, ItemNo);
     end;
 
-#if not CLEAN22
-    [Obsolete('Replaced by GetNewItemNo(NonstockItem)', '22.0')]
+#pragma warning disable AS0074
+#if not CLEAN24
+    [Obsolete('Replaced by GetNewItemNo(NonstockItem)', '24.0')]
     procedure GetNewItemNo(NonstockItem: Record "Nonstock Item"; Length1: Integer; Length2: Integer) NewItemNo: Code[20]
     var
         IsHandled: Boolean;
@@ -485,6 +486,7 @@ codeunit 5703 "Catalog Item Management"
         NewItemNo := NonstockItem."Item No.";
     end;
 #endif
+#pragma warning restore AS0074
 
     procedure DetermineItemNoAndItemNoSeries(var NonstockItem: Record "Nonstock Item")
     var
