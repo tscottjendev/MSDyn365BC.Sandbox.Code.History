@@ -11,6 +11,7 @@ page 99000917 "Report Selection - Prod. Order"
 {
     ApplicationArea = Manufacturing;
     Caption = 'Report Selections Production Order';
+    AdditionalSearchTerms = 'Report Selections Manufacturing';
     PageType = Worksheet;
     SaveValues = true;
     SourceTable = "Report Selections";
