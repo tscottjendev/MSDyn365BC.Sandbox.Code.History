@@ -14,6 +14,7 @@ codeunit 139659 "E-Doc. Line Matching Test"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryEDoc: Codeunit "Library - E-Document";
         LibraryPermission: Codeunit "Library - Lower Permissions";
+        Any: Codeunit Any;
         IsInitialized: Boolean;
 
     procedure Initialize(Integration: Enum "Service Integration")
@@ -153,6 +154,7 @@ codeunit 139659 "E-Doc. Line Matching Test"
 
         // [WHEN] We click "Match Automatically" action
         EDocOrderLineMatchingPage.MatchAuto_Promoted.Invoke();
+        EDocOrderLineMatchingPage.OrderLines.Last();
 
         // [THEN] we have qty 5 and matched 5 
         Assert.AreEqual('5', EDocOrderLineMatchingPage.ImportedLines.Quantity.Value(), '');
@@ -269,6 +271,111 @@ codeunit 139659 "E-Doc. Line Matching Test"
         Assert.ExpectedError('Matching of Imported Line 20000 is incomplete. It is not fully matched to purchase order lines.');
     end;
 
+    [Test]
+    procedure CreateMatchingRulesFromCopilotScenario()
+    var
+        EDocument: Record "E-Document";
+        TempEDocImportedLine: Record "E-Doc. Imported Line" temporary;
+        TempPurchaseLine: Record "Purchase Line" temporary;
+        TempEDocMatchesThatWasMatched: Record "E-Doc. Order Match" temporary;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemReference: Record "Item Reference";
+        EDocumentLineMatching: Codeunit "E-Doc. Line Matching";
+        EDocLineMatching: Codeunit "E-Doc. Line Matching";
+        EDocLog: Codeunit "E-Document Log";
+        EDocProcessing: Codeunit "E-Document Processing";
+        EDocOrderLineMatchingPage: TestPage "E-Doc. Order Line Matching";
+    begin
+        // [FEATURE] [E-Document] [Matching] 
+        // [SCENARIO] Persisting Copilot changes creates matching rules
+
+        // Setup E-Document with link to purchase order
+        Initialize(Enum::"Service Integration"::"Mock");
+        ItemReference.SetRange("Reference Type No.", Vendor."No.");
+        ItemReference.DeleteAll();
+
+        // [GIVEN] A purchase order with Qty 5 that has been received
+        CreateAndReceivePurchaseOrderWithLine(PurchaseHeader, PurchaseLine, 5);
+
+        // [GIVEN] An E-Doc with 3 imported items of quantities 1, 2 and 2
+        CreateEDocumentWithPOReference(EDocument, PurchaseHeader);
+        EDocument.FindLast();
+        EDocLog.InsertLog(EDocument, EDocumentService, Enum::"E-Document Service Status"::"Order Linked");
+        EDocProcessing.InsertServiceStatus(EDocument, EDocumentService, Enum::"E-Document Service Status"::"Order Linked");
+        CreateImportedLine(TempEDocImportedLine, EDocument, 10000, 1, PurchaseLine);
+        CreateImportedLine(TempEDocImportedLine, EDocument, 20000, 2, PurchaseLine);
+        CreateImportedLine(TempEDocImportedLine, EDocument, 30000, 2, PurchaseLine);
+        Assert.RecordCount(TempEDocImportedLine, 3);
+
+        // [GIVEN] Given these are matched and we setup create matching rules for the first 2 lines
+        LibraryPermission.SetTeamMember();
+        TempPurchaseLine := PurchaseLine;
+        TempPurchaseLine.Insert();
+        EDocumentLineMatching.MatchManually(TempEDocImportedLine, TempPurchaseLine, TempEDocMatchesThatWasMatched);
+        Assert.RecordCount(TempEDocMatchesThatWasMatched, 3);
+        TempEDocMatchesThatWasMatched.FindSet();
+        TempEDocMatchesThatWasMatched."Learn Matching Rule" := true;
+        TempEDocMatchesThatWasMatched.Modify();
+        TempEDocMatchesThatWasMatched.Next();
+        TempEDocMatchesThatWasMatched."Learn Matching Rule" := true;
+        TempEDocMatchesThatWasMatched.Modify();
+
+        // [GIVEN] We have no Item reference rules
+        ItemReference.SetRange("Reference Type No.", Vendor."No.");
+        Assert.RecordCount(ItemReference, 0);
+
+        // [WHEN] We persist the changes
+        EDocLineMatching.PersistsUpdates(TempEDocMatchesThatWasMatched, false);
+
+        // [THEN] 2 item references are made for the two first imported lines
+        Assert.RecordCount(ItemReference, 2);
+        TempEDocImportedLine.FindSet();
+        ItemReference.SetRange("Reference No.", TempEDocImportedLine."No.");
+        ItemReference.FindFirst();
+        VerifyItemReference(ItemReference, PurchaseLine."No.", PurchaseLine."Unit of Measure Code", Enum::"Item Reference Type"::Vendor, Vendor."No.", TempEDocImportedLine."No.");
+
+        TempEDocImportedLine.Next();
+        ItemReference.SetRange("Reference No.", TempEDocImportedLine."No.");
+        ItemReference.FindFirst();
+        VerifyItemReference(ItemReference, PurchaseLine."No.", PurchaseLine."Unit of Measure Code", Enum::"Item Reference Type"::Vendor, Vendor."No.", TempEDocImportedLine."No.");
+
+        // [GIVEN] We run the Matching page, remove all matches
+        Commit();
+        EDocOrderLineMatchingPage.Trap();
+        EDocLineMatching.RunMatching(EDocument);
+        EDocOrderLineMatchingPage.RemoveAllMatch.Invoke(); // Remove the persisted matches above
+        EDocOrderLineMatchingPage.ImportedLines.First();
+        EDocOrderLineMatchingPage.OrderLines.First();
+
+        // [THEN] The order line is not matched with anything
+        Assert.AreEqual('5.00', EDocOrderLineMatchingPage.OrderLines."Available Quantity".Value(), 'Invalid order line available quantity before matching.');
+        Assert.AreEqual('0', EDocOrderLineMatchingPage.OrderLines."Qty. to Invoice".Value(), 'Invalid order line quantity to invoice before matching.');
+
+        // [WHEN] Automatic matching is applied
+        EDocOrderLineMatchingPage.MatchAuto_Promoted.Invoke();
+
+        // [THEN] The new item references are used and we have matched the first two imported lines of Qty 1 and 2, I.E. 3 is matched in total
+        Assert.AreEqual('1', EDocOrderLineMatchingPage.ImportedLines.Quantity.Value(), 'Invalid imported line quantity after matching.');
+        Assert.AreEqual('1', EDocOrderLineMatchingPage.ImportedLines."Matched Quantity".Value(), 'Invalid imported line matched quantity after matching.');
+        Assert.AreEqual('5.00', EDocOrderLineMatchingPage.OrderLines."Available Quantity".Value(), 'Invalid order line available quantity after matching.');
+        Assert.AreEqual('3', EDocOrderLineMatchingPage.OrderLines."Qty. to Invoice".Value(), 'Invalid order line quantity to invoice after matching.');
+
+        // [THEN] The last line is not matched
+        EDocOrderLineMatchingPage.ImportedLines.Last();
+        Assert.AreEqual('2', EDocOrderLineMatchingPage.ImportedLines.Quantity.Value(), 'Invalid imported line quantity after matching.');
+        Assert.AreEqual('0', EDocOrderLineMatchingPage.ImportedLines."Matched Quantity".Value(), 'Invalid imported line matched quantity after matching.');
+    end;
+
+    local procedure VerifyItemReference(ItemReference: Record "Item Reference"; ItemNo: Code[20]; UnitOfMeasure: Code[10]; Type: Enum "Item Reference Type"; ReferenceTypeNo: Code[20]; ReferenceNo: Code[20])
+    begin
+        Assert.AreEqual(ItemNo, ItemReference."Item No.", 'Incorrect Item No.');
+        Assert.AreEqual(UnitOfMeasure, ItemReference."Unit of Measure", 'Incorrect Unit of Measure.');
+        Assert.AreEqual(Type, ItemReference."Reference Type", 'Incorrect Reference Type.');
+        Assert.AreEqual(ReferenceTypeNo, ItemReference."Reference Type No.", 'Incorrect Reference Type No.');
+        Assert.AreEqual(ReferenceNo, ItemReference."Reference No.", 'Incorrect Reference No.');
+    end;
+
     local procedure CreateEDocumentWithPOReference(var EDocument: Record "E-Document"; PurchaseHeader: Record "Purchase Header")
     begin
         EDocument.Init();
@@ -281,6 +388,16 @@ codeunit 139659 "E-Doc. Line Matching Test"
         EDocument.SetRecFilter();
     end;
 
+    local procedure CreateAndReceivePurchaseOrderWithLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Quantity: Decimal)
+    begin
+        CreatePurchaseOrderWithLine(PurchaseHeader, PurchaseLine, Quantity);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        PurchaseLine.FindLast();
+        PurchaseLine."Qty. to Invoice" := 0;
+        PurchaseLine.Modify();
+    end;
+
     local procedure CreatePurchaseOrderWithLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Quantity: Decimal)
     begin
         LibraryEDoc.CreatePurchaseOrderWithLine(Vendor, PurchaseHeader, PurchaseLine, Quantity);
@@ -288,18 +405,22 @@ codeunit 139659 "E-Doc. Line Matching Test"
         PurchaseLine.FindLast();
         PurchaseLine.Validate(Quantity, Quantity);
         PurchaseLine.Validate("Qty. to Invoice", 0);
+        PurchaseLine.Validate("Direct Unit Cost", 100);
         PurchaseLine.Modify();
     end;
 
-    local procedure AddPurchaseLine(Quantity: Integer; Type: Enum "Purchase Line Type")
+    local procedure CreateImportedLine(var TempEDocImportedLine: Record "E-Doc. Imported Line" temporary; EDocument: Record "E-Document"; LineNo: Integer; Quantity: Integer; MatchingPurchaseLine: Record "Purchase Line")
     var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
+        EDocImportedLine: Record "E-Doc. Imported Line";
     begin
-        PurchaseHeader.FindLast();
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, '', Quantity);
-        PurchaseLine.FindLast();
-        PurchaseLine.Validate("Qty. to Invoice", 0);
+        CreateImportedLine(EDocument, LineNo, Quantity, MatchingPurchaseLine.Type);
+        EDocImportedLine.FindLast();
+        EDocImportedLine."Unit Of Measure Code" := MatchingPurchaseLine."Unit of Measure Code";
+        EDocImportedLine."Direct Unit Cost" := MatchingPurchaseLine."Direct Unit Cost";
+        EDocImportedLine."Line Discount %" := MatchingPurchaseLine."Line Discount %";
+        EDocImportedLine.Modify();
+        TempEDocImportedLine.Copy(EDocImportedLine);
+        TempEDocImportedLine.Insert();
     end;
 
     local procedure CreateImportedLine(var TempEDocImportedLine: Record "E-Doc. Imported Line" temporary; EDocument: Record "E-Document"; LineNo: Integer; Quantity: Integer; Type: Enum "Purchase Line Type")
@@ -321,6 +442,7 @@ codeunit 139659 "E-Doc. Line Matching Test"
         EDocImportedLine."Line No." := LineNo;
         EDocImportedLine.Quantity := Quantity;
         EDocImportedLine.Type := Type;
+        EDocImportedLine."No." := CopyStr(Any.AlphanumericText(20), 1, 20);
         EDocImportedLine.Insert();
     end;
 
@@ -478,11 +600,11 @@ codeunit 139659 "E-Doc. Line Matching Test"
     begin
         EDocCreatePurchOrderLine.Type.SetValue(Enum::"Purchase Line Type"::Item);
         EDocCreatePurchOrderLine."No.".SetValue(MatchingItem."No.");
-        EDocCreatePurchOrderLine."Create matching rule".SetValue(true);
+        EDocCreatePurchOrderLine."Learn matching rule".SetValue(true);
         EDocCreatePurchOrderLine.OK().Invoke();
     end;
 
-    [ModalPageHandler]
+    [PageHandler]
     internal procedure PurchaseOrderHandler(var PurchaseOrder: TestPage "Purchase Order")
     begin
     end;

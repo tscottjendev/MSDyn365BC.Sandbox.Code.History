@@ -1,6 +1,7 @@
 namespace Microsoft.eServices.EDocument.OrderMatch;
 
 using Microsoft.Purchases.Document;
+using Microsoft.Finance.Currency;
 using Microsoft.eServices.EDocument;
 
 page 6171 "E-Doc. Create Purch Order Line"
@@ -88,10 +89,10 @@ page 6171 "E-Doc. Create Purch Order Line"
                 StyleExpr = StyleTxt;
                 Editable = false;
             }
-            field("Create matching rule"; SaveMatch)
+            field("Learn matching rule"; SaveMatch)
             {
-                Caption = 'Create matching rule';
-                ToolTip = 'Specifies that a matching rule will be created. This only applies for lines of type Item or GL Account.';
+                Caption = 'Learn matching rule';
+                Tooltip = 'Specifies whether a matching rule should be created. Item references are created for Items and Text To Account mappings are created for G/L Accounts.';
             }
         }
     }
@@ -133,6 +134,8 @@ page 6171 "E-Doc. Create Purch Order Line"
     end;
 
     procedure SetEDocumentMatchingValues()
+    var
+        Currency: Record Currency;
     begin
         Rec.Description := TempEDocImportedLine.Description;
         Rec."Unit of Measure Code" := CopyStr(TempEDocImportedLine."Unit of Measure Code", 1, MaxStrLen(Rec."Unit of Measure Code"));
@@ -140,6 +143,9 @@ page 6171 "E-Doc. Create Purch Order Line"
         Rec."Direct Unit Cost" := TempEDocImportedLine."Direct Unit Cost";
         Rec."Line Discount %" := TempEDocImportedLine."Line Discount %";
 
+        Currency.Initialize(Rec."Currency Code");
+        TotalAmount := Round(Rec."Direct Unit Cost" * Rec.Quantity * (1 - Rec."Line Discount %" / 100), Currency."Amount Rounding Precision");
+        IncomingEDocumentLineTotalAmount := TempEDocImportedLine."Direct Unit Cost" * TempEDocImportedLine.Quantity * (1 - TempEDocImportedLine."Line Discount %" / 100);
     end;
 
     internal procedure SetSharedTable(var TempPurchaseLineToSet: Record "Purchase Line" temporary)
@@ -150,6 +156,5 @@ page 6171 "E-Doc. Create Purch Order Line"
     internal procedure SetEDocImportedLine(TempEDocImportedLineToSet: Record "E-Doc. Imported Line" temporary)
     begin
         this.TempEDocImportedLine := TempEDocImportedLineToSet;
-        IncomingEDocumentLineTotalAmount := TempEDocImportedLine."Direct Unit Cost" * TempEDocImportedLine.Quantity * (1 - TempEDocImportedLine."Line Discount %" / 100);
     end;
 }

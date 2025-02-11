@@ -32,7 +32,6 @@ codeunit 6164 "E-Doc. Line Matching"
         PurchaseLineCreatedMsg: Label 'The purchase line has been created.';
         PurchaseLineCreatedReceiveItemsMsg: Label 'The purchase line has been created. Please review the purchase order and receive items.';
 
-
     procedure RunMatching(var EDocument: Record "E-Document")
     begin
         RunMatching(EDocument, false);
@@ -151,6 +150,7 @@ codeunit 6164 "E-Doc. Line Matching"
     var
         EDocImportedLine: Record "E-Doc. Imported Line";
         EDocOrderMatch: Record "E-Doc. Order Match";
+        EDocument: Record "E-Document";
         PurchaseLine: Record "Purchase Line";
     begin
         TempEDocMatchesThatWasMatched.Reset();
@@ -165,11 +165,13 @@ codeunit 6164 "E-Doc. Line Matching"
                 EDocImportedLine.Validate("Matched Quantity", EDocImportedLine."Matched Quantity" + EDocOrderMatch."Precise Quantity");
                 EDocImportedLine.Modify(true);
 
+                if TempEDocMatchesThatWasMatched."Learn Matching Rule" and EDocument.Get(EDocOrderMatch."E-Document Entry No.") then
+                    CreateMatchingRule(PurchaseLine, EDocument, EDocImportedLine);
+
                 if RemoveMatch then
                     EDocOrderMatch.Delete()
                 else
                     EDocOrderMatch.Insert();
-
             until TempEDocMatchesThatWasMatched.Next() = 0;
     end;
 
@@ -348,8 +350,6 @@ codeunit 6164 "E-Doc. Line Matching"
     end;
 
     procedure MatchAutomatically(EDocument: Record "E-Document"; var TempEDocumentImportedLine: Record "E-Doc. Imported Line" temporary; var TempPurchaseLine: Record "Purchase Line" temporary; var TempEDocMatchesThatWasMatched: Record "E-Doc. Order Match" temporary)
-    var
-        RecordMatchMgt: Codeunit "Record Match Mgt.";
     begin
         if TempEDocumentImportedLine.IsEmpty() or TempPurchaseLine.IsEmpty() then
             Error(EmptyRecordErr);
@@ -365,15 +365,46 @@ codeunit 6164 "E-Doc. Line Matching"
                 TempPurchaseLine.SetRange("Line Discount %", TempEDocumentImportedLine."Line Discount %");
                 if TempPurchaseLine.FindSet() then
                     repeat
-                        if TempPurchaseLine.MaxQtyToInvoice() > TempPurchaseLine."Qty. to Invoice" then
-                            // If substring is 80% match
-                            if RecordMatchMgt.CalculateStringNearness(TempPurchaseLine.Description, TempEDocumentImportedLine.Description, 4, 100) > 80 then
-                                MatchOneToOne(TempEDocumentImportedLine, TempPurchaseLine, TempEDocMatchesThatWasMatched);
+                        if LinesMatch(EDocument, TempEDocumentImportedLine, TempPurchaseLine) then
+                            MatchOneToOne(TempEDocumentImportedLine, TempPurchaseLine, TempEDocMatchesThatWasMatched);
                     until TempPurchaseLine.Next() = 0;
             until TempEDocumentImportedLine.Next() = 0;
 
         TempPurchaseLine.Reset();
         TempEDocumentImportedLine.Reset();
+    end;
+
+    local procedure LinesMatch(EDocument: Record "E-Document"; TempEDocumentImportedLine: Record "E-Doc. Imported Line" temporary; TempPurchaseLine: Record "Purchase Line" temporary): Boolean
+    var
+        ItemReference: Record "Item Reference";
+        TextToAccountMapping: Record "Text-to-Account Mapping";
+        RecordMatchMgt: Codeunit "Record Match Mgt.";
+    begin
+        if TempPurchaseLine.MaxQtyToInvoice() <= TempPurchaseLine."Qty. to Invoice" then
+            exit(false);
+
+        if TempPurchaseLine.Type = Enum::"Purchase Line Type"::Item then begin
+            ItemReference.SetRange("Item No.", TempPurchaseLine."No.");
+            ItemReference.SetRange("Unit of Measure", TempPurchaseLine."Unit of Measure Code");
+            ItemReference.SetRange("Reference Type", Enum::"Item Reference Type"::Vendor);
+            ItemReference.SetRange("Reference Type No.", EDocument."Bill-to/Pay-to No.");
+            ItemReference.SetRange("Reference No.", TempEDocumentImportedLine."No.");
+            if not ItemReference.IsEmpty() then
+                exit(true); // An item reference matches the two lines (Item matches)
+        end;
+
+        if TempPurchaseLine.Type = Enum::"Purchase Line Type"::"G/L Account" then begin
+            TextToAccountMapping.SetRange("Vendor No.", EDocument."Bill-to/Pay-to No.");
+            TextToAccountMapping.SetRange("Debit Acc. No.", TempPurchaseLine."No.");
+            TextToAccountMapping.SetRange("Mapping Text", TempEDocumentImportedLine."No.");
+            if not TextToAccountMapping.IsEmpty() then
+                exit(true); // A Text to account mapping matches the two lines (G/L Account matches)
+        end;
+
+        if RecordMatchMgt.CalculateStringNearness(TempPurchaseLine.Description, TempEDocumentImportedLine.Description, 4, 100) > 80 then
+            exit(true);
+
+        exit(false);
     end;
 
     procedure InsertOrderMatch(var TempEDocumentImportedLine: Record "E-Doc. Imported Line" temporary; var TempPurchaseLine: Record "Purchase Line" temporary; var TempEDocMatchesThatWasMatched: Record "E-Doc. Order Match" temporary; Quantity: Decimal; FullMatch: Boolean)
@@ -480,7 +511,7 @@ codeunit 6164 "E-Doc. Line Matching"
                 ItemReference."Unit of Measure" := PurchaseLine."Unit of Measure Code";
                 ItemReference."Reference Type" := Enum::"Item Reference Type"::Vendor;
                 ItemReference."Reference Type No." := Vendor."No.";
-                ItemReference."Reference No." := PurchaseLine."Item Reference No.";
+                ItemReference."Reference No." := EDocImportedLine."No.";
                 ItemReference.Description := StrSubstNo(AutoGeneratedEDocumentTxt, EDocument."Entry No");
                 ItemReference.Insert();
             end;
@@ -507,7 +538,6 @@ codeunit 6164 "E-Doc. Line Matching"
         // Create purchase line
         TempPurchaseLine."Document Type" := TempPurchaseLine."Document Type"::Order;
         TempPurchaseLine."Document No." := EDocument."Order No.";
-        // TempPurchaseLine."Document No." := EDocument."Document No.";
 
         PurchaseLine.SetRange("Document Type", TempPurchaseLine."Document Type");
         PurchaseLine.SetRange("Document No.", TempPurchaseLine."Document No.");
@@ -515,6 +545,7 @@ codeunit 6164 "E-Doc. Line Matching"
         TempPurchaseLine."Line No." := PurchaseLine."Line No." + 10000;
 
         TempPurchaseLine.Validate(Type, TempPurchaseLine.Type::"G/L Account"); // Default to G/L Account
+        TempPurchaseLine.Validate("Currency Code", EDocument."Currency Code");
 
         if GLAccount.Get(TempEDocumentImportedLine."No.") then begin
             TempPurchaseLine.Validate(Type, Enum::"Purchase Line Type"::"G/L Account");
@@ -538,7 +569,7 @@ codeunit 6164 "E-Doc. Line Matching"
             if PurchaseLine.Type in [Enum::"Purchase Line Type"::Item, Enum::"Purchase Line Type"::"Fixed Asset"] then begin
                 Message(PurchaseLineCreatedReceiveItemsMsg);
                 PurchaseHeader.Get(Enum::"Purchase Document Type"::Order, TempPurchaseLine."Document No.");
-                Page.RunModal(Page::"Purchase Order", PurchaseHeader);
+                Page.Run(Page::"Purchase Order", PurchaseHeader);
             end else
                 Message(PurchaseLineCreatedMsg);
         end;
