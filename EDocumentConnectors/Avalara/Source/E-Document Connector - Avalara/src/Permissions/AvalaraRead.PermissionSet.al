@@ -3,9 +3,12 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.EServices.EDocumentConnector.Avalara;
-using Microsoft.EServices.EDocumentConnector;
 
-permissionsetextension 6372 "Avl. EDoc. Connector - Read" extends "EDocConnector - Read"
+permissionset 6374 "Avalara Read"
 {
-    IncludedPermissionSets = "Avalara Read";
+    Access = Public;
+    Assignable = true;
+    Caption = 'Avalara E-Document Connector - Read';
+
+    Permissions = tabledata "Connection Setup" = r;
 }
