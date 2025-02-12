@@ -72,6 +72,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         VerifyMachineCenterCalendar(MachineCenter, WorkCenter."No.");
     end;
 
+#if not CLEAN26
     [Test]
     [HandlerFunctions('MachineCenterListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -93,6 +94,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         // Verify: Verify Machine Center details on Generated Report.
         VerifyMachineCenterList(MachineCenter);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('MachineCenterLoadBarRequestPageHandler')]
@@ -186,6 +188,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         VerifyProdOrderList(ProductionOrder);
     end;
 
+#if not CLEAN26
     [Test]
     [HandlerFunctions('WorkCenterListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -205,6 +208,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         // Verify: Verify Work Center details on Generated Report.
         VerifyWorkCenterList(WorkCenter);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('WorkCenterLoadBarRequestPageHandler')]
@@ -1006,6 +1010,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         until CalendarEntry.Next() = 0;
     end;
 
+#if not CLEAN26
     local procedure VerifyMachineCenterList(MachineCenter: Record "Machine Center")
     begin
         LibraryReportDataset.LoadDataSetFile();
@@ -1015,6 +1020,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryReportDataset.AssertCurrentRowValueEquals('Machine_Center_Capacity', MachineCenter.Capacity);
         LibraryReportDataset.AssertCurrentRowValueEquals('Machine_Center_Efficiency', MachineCenter.Efficiency);
     end;
+#endif
 
     local procedure VerifyMachineCenterLoadBar(MachineCenter: Record "Machine Center"; NoOfPeriods: Integer)
     var
@@ -1039,6 +1045,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         Assert.AreEqual(NoOfPeriods, Count, NoOfLinesError);
     end;
 
+#if not CLEAN26
     local procedure VerifyWorkCenterList(WorkCenter: Record "Work Center")
     begin
         LibraryReportDataset.LoadDataSetFile();
@@ -1048,6 +1055,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryReportDataset.AssertCurrentRowValueEquals('Work_Center__Shop_Calendar_Code_', WorkCenter."Shop Calendar Code");
         LibraryReportDataset.AssertCurrentRowValueEquals('Work_Center_Capacity', WorkCenter.Capacity);
     end;
+#endif
 
     local procedure VerifyProdOrderList(ProductionOrder: Record "Production Order")
     begin
@@ -1238,12 +1246,14 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     begin
     end;
 
+#if not CLEAN26
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure MachineCenterListRequestPageHandler(var MachineCenterList: TestRequestPage "Machine Center List")
     begin
         MachineCenterList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -1266,12 +1276,14 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         ProdOrderList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
+#if not CLEAN26
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WorkCenterListRequestPageHandler(var WorkCenterList: TestRequestPage "Work Center List")
     begin
         WorkCenterList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
