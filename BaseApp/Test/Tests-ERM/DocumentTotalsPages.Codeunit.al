@@ -1001,6 +1001,8 @@ codeunit 134344 "Document Totals Pages"
         Assert.AreEqual('', GetLastErrorCallstack, 'Unexpected error has been thrown');
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatisticsModalPageHandler')]
     [Scope('OnPrem')]
@@ -1028,6 +1030,36 @@ codeunit 134344 "Document Totals Pages"
 
         // [THEN] "Invoice Discount Amount" is equal to 10 on Sales Order page.
         SalesHeader.Find();
+        SalesOrder.SalesLines.Next();
+        SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(SalesHeader."Invoice Discount Value");
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsUpdatesInvoiceDiscountAmountNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Sales]
+        // [SCENARIO 378462] "Invoice Discount Amount" on Sales Order page is updated after it changed on Statistics page.
+        Initialize();
+
+        // [GIVEN] Sales Order with two Sales Lines with Unit Price = 5 and 10000.
+        CreateSalesHeaderWithTwoLines(SalesHeader, SalesHeader."Document Type"::Order, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5), LibraryRandom.RandInt(5), LibraryRandom.RandIntInRange(10000, 20000));
+
+        // [GIVEN] Sales Order is opened on Sales Order page.
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [WHEN] "Invoice Discount Amount" is set to 10 on Statistics page opened from Sales Order page.
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandDec(1, 2));
+        SalesOrder.SalesOrderStatistics.Invoke();
+
+        // [THEN] "Invoice Discount Amount" is equal to 10 on Sales Order page.
+        SalesHeader.Find();
+        SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(SalesHeader."Invoice Discount Value");
     end;
 
@@ -2454,6 +2486,8 @@ codeunit 134344 "Document Totals Pages"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsModalPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
@@ -2462,7 +2496,6 @@ codeunit 134344 "Document Totals Pages"
         SalesOrderStatistics.OK().Invoke();
     end;
 
-#if not CLEAN26
     [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
@@ -2473,6 +2506,14 @@ codeunit 134344 "Document Totals Pages"
           SalesStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal()); // increase VAT amount with the given value.
     end;
 #endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        SalesOrderStatistics.InvDiscountAmount_General.SetValue(LibraryVariableStorage.DequeueDecimal());
+        SalesOrderStatistics.OK().Invoke();
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure SalesInvoiceStatisticsUpdateVATAmountPageHandler(var SalesStatistics: TestPage "Sales Statistics")
