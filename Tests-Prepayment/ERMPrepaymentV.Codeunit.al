@@ -147,6 +147,8 @@
           PurchaseLine."Gen. Prod. Posting Group");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -171,6 +173,34 @@
 
         // Exercise: Open Sales Order Statistics Page.
         OpenSalesOrderStatistics(SalesLine."Document No.");
+
+        // Verify:  and Verify VAT Amount field through Page Handler(SalesOrderStatisticsPageHandler).
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsWithoutCompressPrepmtNM()
+    var
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // Check VAT Amount on Sales Order Statistics Page after Create Sales Order with Prepayment 100% and  Compress Prepayment as FALSE.
+
+        // Setup: Find VAT Posting Setup, create Sales Order with Prepayment.
+        Initialize();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreateSalesDocument(SalesLine, VATPostingSetup, false);
+
+        // Update Prepayment Account and Enqueue VAT Amount and Amount Including VAT.
+        UpdateSalesPrepmtAccount(
+          CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), SalesLine."Gen. Bus. Posting Group",
+          SalesLine."Gen. Prod. Posting Group");
+        LibraryVariableStorage.Enqueue(SalesLine."Line Amount" * SalesLine."VAT %" / 100);
+        LibraryVariableStorage.Enqueue(SalesLine."Line Amount");
+
+        // Exercise: Open Sales Order Statistics Page.
+        OpenSalesOrderStatisticsNM(SalesLine."Document No.");
 
         // Verify:  and Verify VAT Amount field through Page Handler(SalesOrderStatisticsPageHandler).
     end;
@@ -683,6 +713,8 @@
         TearDownVATPostingSetup(PurchaseHeader."VAT Bus. Posting Group");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrdStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -712,6 +744,43 @@
 
         // [WHEN] Open "Sales Order Statistic"
         OpenSalesOrderStatistics(SalesHeader."No.");
+
+        // [THEN] Default Dimension set was created
+        VerifyDimensionSetEntryIsExists(DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // Tear down
+        TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrdStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure CreateDfltDimSetForSalesPrepmtWithDfltDimInSalesPrepmtAccNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DimensionValue: Record "Dimension Value";
+        VATEntry: Record "VAT Entry";
+    begin
+        // [FEATURE] [Sales][Default Dimension]
+        // [SCENARIO 363725] Default Dimension Set is created on open "Sales Order Statistics" where prepayment account has default dimensions and order has posted prepayment invoice.
+        Initialize();
+        VATEntry.DeleteAll();
+
+        // [GIVEN] Sales order with prepayment
+        CreatePartialSalesOrder(SalesHeader, SalesLine);
+
+        // [GIVEN] Posting group with G/L Account with default dimension
+        CreateDefaultDimensionAndUpdatePostingGroup(DimensionValue, SalesHeader."Gen. Bus. Posting Group");
+
+        // [GIVEN] Posted Prepayment Invoice
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [GIVEN] Default Dimension set not exists
+        VerifyDimensionSetEntryIsNotExists(DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [WHEN] Open "Sales Order Statistic"
+        OpenSalesOrderStatisticsNM(SalesHeader."No.");
 
         // [THEN] Default Dimension set was created
         VerifyDimensionSetEntryIsExists(DimensionValue."Dimension Code", DimensionValue.Code);
@@ -1483,6 +1552,8 @@
         TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('SalesOrderStatisticsForInvDiscPageHandler')]
@@ -1518,6 +1589,43 @@
         // Exercise: Re-Open Sales Order Statistics Page.
         LibraryVariableStorage.Enqueue(SalesLine."Inv. Disc. Amount to Invoice");
         OpenSalesOrderStatistics(SalesHeader."No.");
+    end;
+#endif
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SalesOrderStatisticsForInvDiscPageHandlerNM')]
+    procedure FinalSalesInvoiceWithOneHundredPrepmtAndInvDiscStatsPageNM()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustomerNo: Code[20];
+        ItemNo: array[2] of Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice Discount]
+        // [SCENARIO 273512] Stan can post sales invoice with "Prepayment %" = 100 and non-zero "Invoice Discount %" open and reopen Statistics Page without issues
+
+        Initialize();
+        LibrarySales.SetInvoiceRounding(false);
+        PrepareCustomerAndTwoItemsWithSetup(VATPostingSetup, CustomerNo, ItemNo, 19);
+
+        // [GIVEN] Sales Order with "Line Amount" = 4000, "Invoice Discount Amount" = 500, "Prepayment %" = 100
+        CreateSalesHeader(SalesHeader, CustomerNo, 100, false);
+        CreateCustomItemSalesLine(
+          SalesLine, SalesHeader, ItemNo[1], LibraryRandom.RandInt(100), LibraryRandom.RandDec(100, 2));
+        SetSalesInvoiceDiscountAmount(SalesHeader, SalesLine.Amount / LibraryRandom.RandIntInRange(3, 10));
+        SalesLine.Find();
+
+        // [GIVEN] Posted prepayment invoice
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // Exercise: Open Sales Order Statistics Page.
+        LibraryVariableStorage.Enqueue(SalesLine."Inv. Disc. Amount to Invoice");
+        OpenSalesOrderStatisticsNM(SalesHeader."No.");
+
+        // Exercise: Re-Open Sales Order Statistics Page.
+        LibraryVariableStorage.Enqueue(SalesLine."Inv. Disc. Amount to Invoice");
+        OpenSalesOrderStatisticsNM(SalesHeader."No.");
     end;
 
     [Test]
@@ -1991,6 +2099,8 @@
         VerifyPurchaseLineFullPrepaymentWithDiscount(PurchaseHeader."No.", PurchaseLine."Document Type"::Order);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrdStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -2027,6 +2137,49 @@
 
         // [WHEN] Open Sales Order Statistics page.
         OpenSalesOrderStatistics(SalesHeader."No.");
+
+        // [THEN] Line Amount on the statistics page is equal to line amount on the sales line.
+        Assert.AreEqual(SalesLine.Amount, LibraryVariableStorage.DequeueDecimal(), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrdStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure AmountOnStatisticsPageEqualToSumOfSalesLinesAfterPostingPrepmtNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Order] [Statistics] [Line Discount]
+        // [SCENARIO 335740] Line Amount on Sales Order Statistics page is equal to sum of line amounts in sales order, for which line amount is increased after 100% prepayment is invoiced.
+        Initialize();
+
+        // [GIVEN] Sales order set up for 100% prepayment.
+        // [GIVEN] Set line discount 10% on the sales line.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Prepayment %", 100);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Modify(true);
+        LibraryERM.UpdateSalesPrepmtAccountVATGroup(
+            SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
+
+        // [GIVEN] Post prepayment invoice.
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [GIVEN] Reopen the sales order and reset line discount to 0%.
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+        SalesLine.Find();
+        SalesLine.Validate("Line Discount %", 0);
+        SalesLine.Modify(true);
+
+        // [WHEN] Open Sales Order Statistics page.
+        OpenSalesOrderStatisticsNM(SalesHeader."No.");
 
         // [THEN] Line Amount on the statistics page is equal to line amount on the sales line.
         Assert.AreEqual(SalesLine.Amount, LibraryVariableStorage.DequeueDecimal(), '');
@@ -4025,6 +4178,8 @@
         TearDownVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatisticsHandler')]
     [Scope('OnPrem')]
@@ -4069,6 +4224,54 @@
         SalesOrder.Statistics.Invoke();
 
         // [THEN] Statistics page can be closed without error (processed in SalesOrderStatisticsHandler)
+        // [THEN] Sales order posted
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsHandlerNM')]
+    [Scope('OnPrem')]
+    procedure StatisticsSalesOrderWith100PctPrepmtAndLineDiscAfterPartialPostNM()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO 428300] User can open and close statisctics page for partially posted sales order with 100 % prepayment and line discount
+        Initialize();
+
+        // [GIVEN] Partially posted sales order with 100 % prepayment and line discount
+        CreateVATPostingSetup(VATPostingSetup, 25);
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        UpdateSalesPrepmtAccount(
+            CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup),
+            GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Order,
+            LibrarySales.CreateCustomerWithBusPostingGroups(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+        SalesHeader.Validate("Prepayment %", 100);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item,
+            LibraryInventory.CreateItemNoWithPostingSetup(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"), 75.088);
+        SalesLine.Validate("Unit Price", 44.7);
+        SalesLine.Validate("Line Discount %", 10);
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.Validate("Qty. to Ship", 60.3278);
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Run statistics page
+        SalesOrder.OpenView();
+        SalesOrder.GoToRecord(SalesHeader);
+        SalesOrder.SalesOrderStatistics.Invoke();
+
+        // [THEN] Statistics page can be closed without error (processed in SalesOrderStatisticsHandlerNM)
         // [THEN] Sales order posted
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
@@ -5493,6 +5696,8 @@
         PostedSalesCreditMemos.Statistics.Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenSalesOrderStatistics(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
@@ -5500,6 +5705,15 @@
         SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.Statistics.Invoke();
+    end;
+#endif
+    local procedure OpenSalesOrderStatisticsNM(No: Code[20])
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", No);
+        SalesOrder.SalesOrderStatistics.Invoke();
     end;
 
     local procedure UpdatePurchasePrepmtAccount(PurchPrepaymentsAccount: Code[20]; GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
@@ -6389,6 +6603,8 @@
         PurchaseOrderStatistics.TotalInclVAT_Invoicing.AssertEquals(Format(TotalAmount1, 0, '<Precision,2><Standard Format,0>'));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
@@ -6405,6 +6621,29 @@
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsForInvDiscPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    var
+        InvDiscAmount_Invoicing: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(InvDiscAmount_Invoicing);
+        SalesOrderStatistics.InvDiscountAmount_Invoicing.AssertEquals(InvDiscAmount_Invoicing);
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsPageHandlerNM(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    var
+        VATAmount: Variant;
+        TotalAmount1: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(VATAmount);
+        LibraryVariableStorage.Dequeue(TotalAmount1);
+        SalesOrderStatistics.VATAmount.AssertEquals(VATAmount);
+        SalesOrderStatistics.TotalInclVAT_Invoicing.AssertEquals(Format(TotalAmount1, 0, '<Precision,2><Standard Format,0>'));
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsForInvDiscPageHandlerNM(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     var
         InvDiscAmount_Invoicing: Variant;
     begin
@@ -6432,9 +6671,18 @@
         LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.LineAmountGeneral.Value);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrdStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        LibraryVariableStorage.Enqueue(SalesOrderStatistics.LineAmountGeneral.Value);
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrdStatisticsPageHandlerNM(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         LibraryVariableStorage.Enqueue(SalesOrderStatistics.LineAmountGeneral.Value);
     end;
@@ -6467,9 +6715,17 @@
         Reply := true;
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsHandlerNM(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
     end;
 }
