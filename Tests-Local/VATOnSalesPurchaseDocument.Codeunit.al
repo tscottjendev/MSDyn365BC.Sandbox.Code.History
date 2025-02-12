@@ -33,6 +33,8 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatisticsPageHandler,VATAmountLinesPageHandler')]
     [Scope('OnPrem')]
@@ -71,6 +73,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         SalesCreditMemoStatistics.OK().Invoke();
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatisticsPageHandler,VATAmountLinesPageHandler')]
     [Scope('OnPrem')]
@@ -96,6 +99,82 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder.Statistics.Invoke();
+        SalesOrder.OK().Invoke();
+
+        // Exercise.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // Verify: Verify changed VAT Amount on Sales Invoice Statistics Page.
+        SalesInvoiceHeader.Get(DocumentNo);
+        SalesInvoiceStatistics.OpenEdit();
+        SalesInvoiceStatistics.GotoRecord(SalesInvoiceHeader);
+        SalesInvoiceStatistics.Subform."VAT Amount".AssertEquals(VATAmount);
+        SalesInvoiceStatistics.OK().Invoke();
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsPageHandlerNM,VATAmountLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATAmtOnStatsAfterPartialPostSalesRetOrderNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+        SalesCreditMemoStatistics: TestPage "Sales Credit Memo Statistics";
+        VATAmount: Decimal;
+        DocumentNo: Code[20];
+        Quantity: Decimal;
+    begin
+        // Verify that VAT Amount is edited successfully on Sales Return Order Statistics after partial Receipt and Invoice.
+
+        // Setup: Create and partially post Sales Return Order.
+        Initialize();
+        Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value for Quantity.
+        VATAmount := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order", Quantity, Quantity / 2, 0);  // Zero for Quantity to Ship.
+
+        // Open Sales Return Order Statistics Page from Sales Return Order to change VAT Amount.
+        LibraryVariableStorage.Enqueue(VATAmount);  // Enqueue value for VATAmountLinesPageHandler.
+        SalesReturnOrder.OpenEdit();
+        SalesReturnOrder.GotoRecord(SalesHeader);
+        SalesReturnOrder.SalesOrderStatistics.Invoke();  // Invoking Statistics.
+        SalesReturnOrder.OK().Invoke();
+
+        // Exercise.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // Verify: Verify changed VAT Amount on Sales Credit Memo Statistics Page.
+        SalesCrMemoHeader.Get(DocumentNo);
+        SalesCreditMemoStatistics.OpenEdit();
+        SalesCreditMemoStatistics.GotoRecord(SalesCrMemoHeader);
+        SalesCreditMemoStatistics.Subform."VAT Amount".AssertEquals(VATAmount);
+        SalesCreditMemoStatistics.OK().Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsPageHandlerNM,VATAmountLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATAmtOnStatsAfterPartialPostSalesOrderNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesOrder: TestPage "Sales Order";
+        SalesInvoiceStatistics: TestPage "Sales Invoice Statistics";
+        VATAmount: Decimal;
+        DocumentNo: Code[20];
+        Quantity: Decimal;
+    begin
+        // Verify that VAT Amount is edited successfully on Sales Order Statistics after partial Shipment and Invoice.
+
+        // Setup: Create and partially post Sales Order.
+        Initialize();
+        Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value for Quantity.
+        VATAmount := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, Quantity, 0, Quantity / 2);  // Zero for Return Quantity to Receive.
+
+        // Open Sales Order Statistics Page from Sales Order to change VAT Amount.
+        LibraryVariableStorage.Enqueue(VATAmount);  // Enqueue value for VATAmountLinesPageHandler.
+        SalesOrder.OpenEdit();
+        SalesOrder.GotoRecord(SalesHeader);
+        SalesOrder.SalesOrderStatistics.Invoke();
         SalesOrder.OK().Invoke();
 
         // Exercise.
@@ -440,9 +519,19 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         PurchaseOrderStatistics.OK().Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
+        SalesOrderStatistics.OK().Invoke();
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsPageHandlerNM(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
         SalesOrderStatistics.OK().Invoke();
