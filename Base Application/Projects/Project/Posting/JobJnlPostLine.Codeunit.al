@@ -21,6 +21,7 @@ using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Sales.Customer;
 using Microsoft.Warehouse.Journal;
+using Microsoft.Foundation.NoSeries;
 
 codeunit 1012 "Job Jnl.-Post Line"
 {
@@ -44,6 +45,7 @@ codeunit 1012 "Job Jnl.-Post Line"
         JobJnlLine2: Record "Job Journal Line";
         ItemJnlLine: Record "Item Journal Line";
         JobReg: Record "Job Register";
+        JobsSetup: Record "Jobs Setup";
         GLSetup: Record "General Ledger Setup";
         CurrExchRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
@@ -68,10 +70,13 @@ codeunit 1012 "Job Jnl.-Post Line"
 
     procedure RunWithCheck(var JobJnlLine2: Record "Job Journal Line"): Integer
     var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         JobLedgEntryNo: Integer;
     begin
         OnBeforeRunWithCheck(JobJnlLine2);
 
+        if JobReg."No." = 0 then
+            SequenceNoMgt.ClearSequenceNoCheck();
         JobJnlLine.Copy(JobJnlLine2);
         JobLedgEntryNo := Code(true);
         JobJnlLine2 := JobJnlLine;
@@ -82,6 +87,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     var
         JobLedgEntryNo: Integer;
         ShouldPostUsage: Boolean;
+        xNextEntryNo: Integer;
     begin
         OnBeforeCode(JobJnlLine);
 
@@ -104,7 +110,8 @@ codeunit 1012 "Job Jnl.-Post Line"
 
         OnBeforeCreateJobRegister(JobJnlLine);
         if JobReg."No." = 0 then begin
-            JobReg.LockTable();
+            if JobsSetup.UseLegacyPosting() then
+                JobReg.LockTable();
             if (not JobReg.FindLast()) or (JobReg."To Entry No." <> 0) then
                 InsertJobRegister();
         end;
@@ -141,7 +148,9 @@ codeunit 1012 "Job Jnl.-Post Line"
         else
             JobLedgEntryNo := CreateJobLedgEntry(JobJnlLine2);
 
+        xNextEntryNo := NextEntryNo;
         OnAfterRunCode(JobJnlLine2, JobLedgEntryNo, JobReg, NextEntryNo);
+        ValidateSequenceNo(NextEntryNo, xNextEntryNo, Database::"Job Ledger Entry");
 
         exit(JobLedgEntryNo);
     end;
@@ -154,7 +163,7 @@ codeunit 1012 "Job Jnl.-Post Line"
         IsHandled := false;
         OnBeforeGetNextEntryNo(JobJnlLine, NextEntryNo, IsHandled, JobLedgerEntry);
         if not IsHandled then
-            if JobLedgerEntry."Entry No." = 0 then begin
+            if (JobLedgerEntry."Entry No." = 0) and JobsSetup.UseLegacyPosting() then begin
                 JobLedgerEntry.LockTable();
                 NextEntryNo := JobLedgerEntry.GetLastEntryNo() + 1;
             end;
@@ -163,8 +172,8 @@ codeunit 1012 "Job Jnl.-Post Line"
 
     local procedure InsertJobRegister()
     begin
+        JobReg."No." := JobReg.GetNextEntryNo(JobsSetup.UseLegacyPosting());
         JobReg.Init();
-        JobReg."No." := JobReg."No." + 1;
         JobReg."From Entry No." := NextEntryNo;
         JobReg."To Entry No." := NextEntryNo;
         JobReg."Creation Date" := Today;
@@ -174,6 +183,27 @@ codeunit 1012 "Job Jnl.-Post Line"
         JobReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(JobReg."User ID"));
         OnIsertJobRegisterOnBeforeInsert(JobJnlLine, JobReg);
         JobReg.Insert();
+    end;
+
+    local procedure GetNextJobLedgerEntryNo(CurrEntryNo: Integer): Integer
+    var
+        JobLedgerEntry: Record "Job Ledger Entry";
+    begin
+        if JobsSetup.UseLegacyPosting() then
+            exit(CurrEntryNo + 1);
+        exit(JobLedgerEntry.GetNextEntryNo());
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Res. Ledger Entry", 'r')]
+    local procedure ValidateSequenceNo(LedgEntryNo: Integer; xLedgEntryNo: Integer; TableNo: Integer)
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        if LedgEntryNo = xLedgEntryNo then
+            exit;
+        if JobsSetup.UseLegacyPosting() then
+            exit;
+        SequenceNoMgt.ValidateSeqNo(TableNo);
     end;
 
     local procedure GetAndCheckJob()
@@ -244,6 +274,8 @@ codeunit 1012 "Job Jnl.-Post Line"
             exit(JobLedgEntryNo);
 
         SetCurrency(JobJnlLine2);
+
+        NextEntryNo := GetNextJobLedgerEntryNo(NextEntryNo);
 
         JobLedgEntry.Init();
         JobTransferLine.FromJnlLineToLedgEntry(JobJnlLine2, JobLedgEntry);
@@ -317,12 +349,12 @@ codeunit 1012 "Job Jnl.-Post Line"
         if JobLedgEntry."Entry Type" = JobLedgEntry."Entry Type"::Sale then
             JobLedgEntry.CopyTrackingFromJobJnlLine(JobJnlLine2);
 
+        JobReg."To Entry No." := NextEntryNo;
+        JobReg.Modify();
+        JobLedgEntry."Job Register No." := JobReg."No.";
         OnBeforeJobLedgEntryInsert(JobLedgEntry, JobJnlLine2);
         JobLedgEntry.Insert(true);
         OnAfterJobLedgEntryInsert(JobLedgEntry, JobJnlLine2);
-
-        JobReg."To Entry No." := NextEntryNo;
-        JobReg.Modify();
 
         JobLedgEntryNo := JobLedgEntry."Entry No.";
         IsHandled := false;
@@ -341,9 +373,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                     JobPostLine.InsertPlLineFromLedgEntry(JobLedgEntry)
             end;
 
-        NextEntryNo := NextEntryNo + 1;
         OnAfterApplyUsageLink(JobLedgEntry);
-
         exit(JobLedgEntryNo);
     end;
 
@@ -410,7 +440,6 @@ codeunit 1012 "Job Jnl.-Post Line"
 
                 OnPostItemOnBeforeAssignItemJnlLine(JobJnlLine, JobJnlLine2, ItemJnlLine, JobPlanningLine);
 
-                ItemLedgEntry.LockTable();
                 ItemJnlLine2 := ItemJnlLine;
                 ItemJnlPostLine.RunWithCheck(ItemJnlLine);
                 ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification);
@@ -483,7 +512,6 @@ codeunit 1012 "Job Jnl.-Post Line"
     local procedure PostResource(var JobJnlLine2: Record "Job Journal Line") EntryNo: Integer
     var
         ResJnlLine: Record "Res. Journal Line";
-        ResLedgEntry: Record "Res. Ledger Entry";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -493,7 +521,6 @@ codeunit 1012 "Job Jnl.-Post Line"
 
         ResJnlLine.Init();
         ResJnlLine.CopyFromJobJnlLine(JobJnlLine2);
-        ResLedgEntry.LockTable();
         ResJnlPostLine.RunWithCheck(ResJnlLine);
         UpdateJobJnlLineResourceGroupNo(JobJnlLine2, ResJnlLine);
         exit(CreateJobLedgEntry(JobJnlLine2));
