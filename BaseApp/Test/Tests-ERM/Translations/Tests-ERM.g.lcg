@@ -3884,6 +3884,15 @@
       <Cmt Name="Dev"><![CDATA[%1 and %2 = Invoice No.]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType PostedInvoiceFromSameTransactionQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2300497691 - NamedType 2932411483" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 of %2 must be equal to blank]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = date field, %2 = table name]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType PostingDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 1630371593" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Reservation Entry doen's exist.]]></Val>
