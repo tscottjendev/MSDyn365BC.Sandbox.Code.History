@@ -342,6 +342,8 @@ codeunit 141027 "ERM GST On Prepayments II"
         UpdateAllowVATDifferencePurchasesPayablesSetup(OldAllowVATDifference);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatisticsModalPageHandler,VATAmountLinesModalPageHandler')]
     [Scope('OnPrem')]
@@ -376,6 +378,51 @@ codeunit 141027 "ERM GST On Prepayments II"
         VATAmount := (SalesLine.Amount * SalesLine."VAT %" / 100) + LibraryRandom.RandDec(1, 2);
         LibraryVariableStorage.Enqueue(VATAmount);  // Enqueue for VATAmountLinesPageHandler.
         OpenSalesOrderStatisticsPage(SalesHeader."No.");
+
+        // Exercise.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Verify VAT Amount on G/L Entry.
+        VerifyAmountOnGLEntry(DocumentNo, VATPostingSetup."Sales VAT Account", -VATAmount);
+
+        // Tear Down.
+        UpdateAllowVATDifferenceSalesReceivableSetup(OldAllowVATDifference);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsPageHandler,VATAmountLinesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostSalesOrderAfterUpdatingVATAmtonVATAmtLineNM()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DocumentNo: Code[20];
+        OldAllowVATDifference: Boolean;
+        VATAmount: Decimal;
+    begin
+        // [SCENARIO] G/L Entries after posting Sales Order with Negative Lines and Update VAT Amount on VAT Amount Lines.
+
+        // [GIVEN] Update Sales & Receivable Setup, create Item, create Customer.
+        Initialize();
+        OldAllowVATDifference := UpdateAllowVATDifferenceSalesReceivableSetup(true);  // TRUE for Allow VAT Difference.
+        UpdateMaxVATDifferenceAllowedGeneralLedgerSetup();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibrarySales.CreateCustomer(Customer);
+
+        // Create Sales Order with multiple lines and update Quantity to Receive.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Taking random for Quantity.
+        CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::Item, SalesLine."No.", -LibraryRandom.RandDec(10, 2));  // Taking random for Quantity.
+        SalesLine2.Validate("Qty. to Ship", 0);
+        SalesLine2.Modify(true);
+        VATAmount := (SalesLine.Amount * SalesLine."VAT %" / 100) + LibraryRandom.RandDec(1, 2);
+        LibraryVariableStorage.Enqueue(VATAmount);  // Enqueue for VATAmountLinesPageHandler.
+        OpenSalesOrderStatisticsPageNM(SalesHeader."No.");
 
         // Exercise.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1557,6 +1604,8 @@ codeunit 141027 "ERM GST On Prepayments II"
         PurchaseOrder.Close();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenSalesOrderStatisticsPage(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
@@ -1564,6 +1613,16 @@ codeunit 141027 "ERM GST On Prepayments II"
         SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.Statistics.Invoke();  // Invokes SalesOrderStatisticsModalPageHandler.
+        SalesOrder.Close();
+    end;
+#endif
+    local procedure OpenSalesOrderStatisticsPageNM(No: Code[20])
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", No);
+        SalesOrder.SalesOrderStatistics.Invoke();  // Invokes SalesOrderStatisticsModalPageHandlerNM.
         SalesOrder.Close();
     end;
 
@@ -1803,9 +1862,18 @@ codeunit 141027 "ERM GST On Prepayments II"
         PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown();  // Invokes VATAmountLinesHandler.
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsModalPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown();  // Invokes VATAmountLinesHandler.
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown();  // Invokes VATAmountLinesHandler.
     end;
