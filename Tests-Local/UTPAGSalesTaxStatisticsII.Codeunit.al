@@ -14,9 +14,11 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySales: Codeunit "Library - Sales";
-        AmountMustEqualMsg: Label 'Amount must be equal';
         LibraryInventory: Codeunit "Library - Inventory";
+        AmountMustEqualMsg: Label 'Amount must be equal';
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -42,6 +44,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         OpenStatisticsPageForSalesOrder(SalesLine."Document No.");
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -69,6 +72,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         OpenStatisticsPageForSalesOrder(SalesLine."Document No.");
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -96,6 +100,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         OpenStatisticsPageForSalesReturnOrder(SalesLine."Document No.");
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -121,6 +126,112 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
 
         // Exercise & Verify: Invokes Action - Statistics on Sales Return Order and verify the Tax Amount and Amount Incl. Tax on Statistics page in SalesOrderStatsPageHandler.
         OpenStatisticsPageForSalesReturnOrder(SalesLine."Document No.");
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsSalesOrderNM()
+    var
+        SalesLine: Record "Sales Line";
+        VATAmount: Decimal;
+        AmountIncVAT: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 42, Sales Order without Tax Area.
+
+        // Setup: Create and open Sales Order Statistics without Tax Area Code.
+        Initialize();
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, '', '', false);
+        VATAmount := SalesLine.Quantity * SalesLine."Unit Price" * SalesLine."VAT %" / 100;
+        AmountIncVAT := SalesLine.Quantity * SalesLine."Unit Price" + VATAmount;
+
+        // Enqueue values for use in SalesOrderStatisticsPageHandler.
+        LibraryVariableStorage.Enqueue(VATAmount);
+        LibraryVariableStorage.Enqueue(AmountIncVAT);
+
+        // Exercise & Verify: Create a Sales Order, Invokes Action - Statistics on Sales Order and verify the VAT Amount and Amount Incl. VAT on Statistics page in SalesOrderStatisticsPageHandler.
+        OpenSalesOrderStatisticsPageForSalesOrder(SalesLine."Document No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsWithTaxAreaSalesOrderNM()
+    var
+        TaxDetail: Record "Tax Detail";
+        SalesLine: Record "Sales Line";
+        VATAmount: Decimal;
+        AmountIncVAT: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 42, Sales Order with Tax Area and Tax Liable TRUE.
+
+        // Setup: Create and open Sales Order Statistics with Tax Area Code.
+        Initialize();
+        CreateTaxDetail(TaxDetail);
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, TaxDetail."Tax Group Code", CreateTaxAreaLine(TaxDetail."Tax Jurisdiction Code"), true);
+        VATAmount := SalesLine.Quantity * SalesLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
+        AmountIncVAT := SalesLine.Quantity * SalesLine."Unit Price" + VATAmount;
+
+        // Enqueue values for use in SalesOrderStatsPageHandler.
+        LibraryVariableStorage.Enqueue(VATAmount);
+        LibraryVariableStorage.Enqueue(AmountIncVAT);
+
+        // Exercise & Verify: Create a Sales Order, Invokes Action - Statistics on Sales Order and verify the VAT Amount and Amount Incl. VAT on Statistics page in SalesOrderStatisticsPageHandler.
+        OpenSalesOrderStatsPageForSalesOrder(SalesLine."Document No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsSalesReturnOrderNM()
+    var
+        SalesLine: Record "Sales Line";
+        TaxDetail: Record "Tax Detail";
+        VATAmount: Decimal;
+        AmountIncVAT: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 6630, Sales Return Order without Tax Area.
+
+        // Setup: Create a Sales Return Order. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreateTaxDetail(TaxDetail);
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", TaxDetail."Tax Group Code", '', false);  // Blank Tax Area and Tax Liable FALSE.
+        VATAmount := SalesLine.Quantity * SalesLine."Unit Price" * SalesLine."VAT %" / 100;
+        AmountIncVAT := SalesLine.Quantity * SalesLine."Unit Price" + VATAmount;
+
+        // Enqueue values for use in SalesOrderStatisticsPageHandler.
+        LibraryVariableStorage.Enqueue(VATAmount);
+        LibraryVariableStorage.Enqueue(AmountIncVAT);
+
+        // Exercise & Verify: Invokes Action - Statistics on Sales Return Order and verify the VAT Amount and Amount Incl. VAT on Statistics page in SalesOrderStatisticsPageHandler.
+        OpenSalesOrderStatisticsPageForSalesReturnOrder(SalesLine."Document No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsWithTaxAreaSalesReturnOrderNM()
+    var
+        SalesLine: Record "Sales Line";
+        TaxDetail: Record "Tax Detail";
+        TaxAmount: Decimal;
+        AmountIncTax: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 6630, Sales Return Order with Tax Area and Tax Liable.
+
+        // Setup: Create Tax Setup, Create a Sales Return Order. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreateTaxDetail(TaxDetail);
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", TaxDetail."Tax Group Code", CreateTaxAreaLine(TaxDetail."Tax Jurisdiction Code"), true);  // Tax Liable TRUE.
+        TaxAmount := SalesLine.Quantity * SalesLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
+        AmountIncTax := SalesLine.Quantity * SalesLine."Unit Price" + TaxAmount;
+
+        // Enqueue values for use in SalesOrderStatsPageHandler.
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        LibraryVariableStorage.Enqueue(AmountIncTax);
+
+        // Exercise & Verify: Invokes Action - Statistics on Sales Return Order and verify the Tax Amount and Amount Incl. Tax on Statistics page in SalesOrderStatsPageHandler.
+        OpenSalesOrderStatsPageForSalesReturnOrder(SalesLine."Document No.");
     end;
 
     [Test]
@@ -359,6 +470,8 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         OpenSalesStatsPageForSalesQuote(SalesLine."Document No.");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -384,6 +497,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         OpenStatisticsPageForBlanketSalesOrder(SalesLine."Document No.");
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -409,6 +523,58 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
 
         // Exercise & Verify: Invokes Action - Statistics on Page Blanket Sales Order and verify the Tax Amount on Statistics page in SalesOrderStatsPageHandler.
         OpenStatisticsPageForBlanketSalesOrder(SalesLine."Document No.");
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsBlanketSalesOrderNM()
+    var
+        SalesLine: Record "Sales Line";
+        AmountIncVAT: Decimal;
+        VATAmount: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 507, Blanket Sales Order without Tax Area.
+
+        // Setup: Create a Blanket Order. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Blanket Order", '', '', false);   // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
+        VATAmount := SalesLine.Quantity * SalesLine."Unit Price" * SalesLine."VAT %" / 100;
+        AmountIncVAT := SalesLine.Quantity * SalesLine."Unit Price" + VATAmount;
+
+        // Enqueue values for use in SalesOrderStatisticsPageHandler.
+        LibraryVariableStorage.Enqueue(VATAmount);
+        LibraryVariableStorage.Enqueue(AmountIncVAT);
+
+        // Exercise & Verify: Invokes Action - Statistics on Page Blanket Sales Order and verify the VAT Amount on Statistics page in SalesOrderStatisticsPageHandler.
+        OpenSalesOrderStatisticsPageForBlanketSalesOrder(SalesLine."Document No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsWithTaxAreaBlanketSalesOrderNM()
+    var
+        TaxDetail: Record "Tax Detail";
+        SalesLine: Record "Sales Line";
+        TaxAmount: Decimal;
+        AmountIncVAT: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 507, Blanket Sales Order with Tax Area.
+
+        // Setup: Create Tax Setup, Create a Blanket Order. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreateTaxDetail(TaxDetail);
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Blanket Order", TaxDetail."Tax Group Code", CreateTaxAreaLine(TaxDetail."Tax Jurisdiction Code"), true);  // Tax Liable TRUE.
+        TaxAmount := SalesLine.Quantity * SalesLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
+        AmountIncVAT := SalesLine.Quantity * SalesLine."Unit Price" + TaxAmount;
+
+        // Enqueue values for use in SalesOrderStatsPageHandler.
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        LibraryVariableStorage.Enqueue(AmountIncVAT);
+
+        // Exercise & Verify: Invokes Action - Statistics on Page Blanket Sales Order and verify the Tax Amount on Statistics page in SalesOrderStatsPageHandler.
+        OpenSalesOrderStatsPageForBlanketSalesOrder(SalesLine."Document No.");
     end;
 
     [Test]
@@ -756,6 +922,8 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         exit(TaxJurisdiction.Code);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenStatisticsPageForBlanketSalesOrder(No: Code[20])
     var
         BlanketSalesOrder: TestPage "Blanket Sales Order";
@@ -766,6 +934,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         BlanketSalesOrder.Close();
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenStatisticsPageForSalesOrder(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
@@ -776,7 +945,6 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         SalesOrder.Close();
     end;
 
-#if not CLEAN26
     [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenStatisticsPageForSalesQuote(No: Code[20])
     var
@@ -788,6 +956,46 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         SalesQuote.Close();
     end;
 #endif
+    local procedure OpenSalesOrderStatisticsPageForBlanketSalesOrder(No: Code[20])
+    var
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+    begin
+        BlanketSalesOrder.OpenEdit();
+        BlanketSalesOrder.FILTER.SetFilter("No.", No);
+        BlanketSalesOrder.SalesOrderStatistics.Invoke();  // Opens Handler - SalesInvoiceStatisticsPageHandler or SalesOrderStatsPageHandler.
+        BlanketSalesOrder.Close();
+    end;
+
+    local procedure OpenSalesOrderStatsPageForBlanketSalesOrder(No: Code[20])
+    var
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+    begin
+        BlanketSalesOrder.OpenEdit();
+        BlanketSalesOrder.FILTER.SetFilter("No.", No);
+        BlanketSalesOrder.SalesOrderStats.Invoke();  // Opens Handler - SalesInvoiceStatisticsPageHandler or SalesOrderStatsPageHandler.
+        BlanketSalesOrder.Close();
+    end;
+
+    local procedure OpenSalesOrderStatisticsPageForSalesOrder(No: Code[20])
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", No);
+        SalesOrder.SalesOrderStatistics.Invoke();  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
+        SalesOrder.Close();
+    end;
+
+    local procedure OpenSalesOrderStatsPageForSalesOrder(No: Code[20])
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", No);
+        SalesOrder.SalesOrderStats.Invoke();  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
+        SalesOrder.Close();
+    end;
+
     local procedure OpenSalesStatisticsPageForSalesQuote(No: Code[20])
     var
         SalesQuote: TestPage "Sales Quote";
@@ -808,6 +1016,8 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         SalesQuote.Close();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenStatisticsPageForSalesReturnOrder(No: Code[20])
     var
         SalesReturnOrder: TestPage "Sales Return Order";
@@ -815,6 +1025,26 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         SalesReturnOrder.OpenEdit();
         SalesReturnOrder.FILTER.SetFilter("No.", No);
         SalesReturnOrder.Statistics.Invoke();  // Opens Handler - SalesOrderStatsPageHandler and SalesOrderStatisticsPageHandler.
+        SalesReturnOrder.Close();
+    end;
+#endif
+    local procedure OpenSalesOrderStatisticsPageForSalesReturnOrder(No: Code[20])
+    var
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        SalesReturnOrder.OpenEdit();
+        SalesReturnOrder.FILTER.SetFilter("No.", No);
+        SalesReturnOrder.SalesOrderStatistics.Invoke();  // Opens Handler - SalesOrderStatsPageHandler and SalesOrderStatisticsPageHandler.
+        SalesReturnOrder.Close();
+    end;
+
+    local procedure OpenSalesOrderStatsPageForSalesReturnOrder(No: Code[20])
+    var
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        SalesReturnOrder.OpenEdit();
+        SalesReturnOrder.FILTER.SetFilter("No.", No);
+        SalesReturnOrder.SalesOrderStats.Invoke();  // Opens Handler - SalesOrderStatsPageHandler and SalesOrderStatisticsPageHandler.
         SalesReturnOrder.Close();
     end;
 
@@ -902,17 +1132,36 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         Assert.AreNotEqual(ExpectedTaxAmount, 0, 'Tax Amount must not be zero');
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatsPageHandler(var SalesOrderStats: TestPage "Sales Order Stats.")
     begin
-        VerifyTaxOnStatisticsPage(SalesOrderStats."VATAmount[2]".AsDecimal(), SalesOrderStats."TotalAmount2[1]".AsDecimal());
+        VerifyTaxOnStatisticsPage(SalesOrderStats.TaxAmount.AsDecimal(), SalesOrderStats."TotalAmount2[1]".AsDecimal());
         SalesOrderStats.OK().Invoke();
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        VerifyTaxOnStatisticsPage(SalesOrderStatistics.VATAmount.AsDecimal(), SalesOrderStatistics."TotalAmount2[1]".AsDecimal());
+        SalesOrderStatistics.OK().Invoke();
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatsPageHandlerNM(var SalesOrderStats: TestPage "Sales Order Stats.")
+    begin
+        VerifyTaxOnStatisticsPage(SalesOrderStats.TaxAmount.AsDecimal(), SalesOrderStats."TotalAmount2[1]".AsDecimal());
+        SalesOrderStats.OK().Invoke();
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsPageHandlerNM(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         VerifyTaxOnStatisticsPage(SalesOrderStatistics.VATAmount.AsDecimal(), SalesOrderStatistics."TotalAmount2[1]".AsDecimal());
         SalesOrderStatistics.OK().Invoke();
@@ -922,7 +1171,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     [Scope('OnPrem')]
     procedure PurchaseOrderStatsPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
     begin
-        VerifyTaxOnStatisticsPage(PurchaseOrderStats."VATAmount[2]".AsDecimal(), PurchaseOrderStats."TotalAmount2[1]".AsDecimal());
+        VerifyTaxOnStatisticsPage(PurchaseOrderStats.TaxAmount.AsDecimal(), PurchaseOrderStats."TotalAmount2[1]".AsDecimal());
         PurchaseOrderStats.OK().Invoke();
     end;
 
@@ -1048,4 +1297,3 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         SalesCreditMemoStats.OK().Invoke();
     end;
 }
-
