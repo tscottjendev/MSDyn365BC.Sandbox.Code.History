@@ -1700,8 +1700,9 @@ table 36 "Sales Header"
                 UpdateVATReportingDate(FieldNo("Document Date"));
 
                 if not ("Document Type" in ["Document Type"::"Blanket Order", "Document Type"::Quote]) then
-                    if "Document Date" > "Posting Date" then
-                        Error(Text1130018, FieldCaption("Document Date"), FieldCaption("Posting Date"));
+                    if "Posting Date" <> 0D then
+                        if "Document Date" > "Posting Date" then
+                            Error(Text1130018, FieldCaption("Document Date"), FieldCaption("Posting Date"));
                 if not CheckVATExemption() then
                     "Document Date" := xRec."Document Date";
                 GLSetup.Get();
@@ -7272,7 +7273,7 @@ table 36 "Sales Header"
     var
         TotalLineAmount: Decimal;
     begin
-        TotalLineAmount := TotalingSalesLine."Unit Price" + SplitSalesLine."Amount Including VAT" - SplitSalesLine.Amount;
+        TotalLineAmount := TotalingSalesLine."Unit Price" + (SplitSalesLine."Amount Including VAT" * (SplitSalesLine."VAT %" / (SplitSalesLine."VAT %" + 100)));
         TotalingSalesLine.Validate("Unit Price", TotalLineAmount);
     end;
 
