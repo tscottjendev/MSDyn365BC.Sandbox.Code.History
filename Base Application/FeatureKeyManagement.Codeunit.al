@@ -25,6 +25,9 @@ codeunit 265 "Feature Key Management"
         ConcurrentInventoryPostingLbl: Label 'ConcurrentInventoryPosting', Locked = true;
         ConcurrentInventoryPosting: Boolean;
         ConcurrentInventoryPostingRead: Boolean;
+        ConcurrentJobPostingLbl: Label 'ConcurrentJobPosting', Locked = true;
+        ConcurrentJobPosting: Boolean;
+        ConcurrentJobPostingRead: Boolean;
         ConcurrentResourcePostingLbl: Label 'ConcurrentResourcePosting', Locked = true;
         ConcurrentResourcePosting: Boolean;
         ConcurrentResourcePostingRead: Boolean;
@@ -69,6 +72,14 @@ codeunit 265 "Feature Key Management"
         exit(ConcurrentInventoryPosting);
     end;
 
+    procedure IsConcurrentJobPostingEnabled(): Boolean
+    begin
+        if not ConcurrentJobPostingRead then
+            ConcurrentJobPosting := FeatureManagementFacade.IsEnabled(ConcurrentJobPostingLbl);
+        ConcurrentJobPostingRead := true;
+        exit(ConcurrentJobPosting);
+    end;
+    
     procedure IsConcurrentResourcePostingEnabled(): Boolean
     begin
         if not ConcurrentResourcePostingRead then
