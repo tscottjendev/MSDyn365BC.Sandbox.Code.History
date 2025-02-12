@@ -37,6 +37,8 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         Commit();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesPrepmtFieldsStatisticsHandler')]
     [Scope('OnPrem')]
@@ -62,6 +64,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         VerifySalesLinePrepaymentLineAmtExclVAT(SalesLine);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesPrepmtFieldsStatisticsHandler')]
     [Scope('OnPrem')]
@@ -87,6 +90,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         VerifySalesLinePrepaymentLineAmtInclVAT(SalesLine);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesPrepmtFieldsStatisticsHandler')]
     [Scope('OnPrem')]
@@ -117,6 +121,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesPrepmtFieldsStatisticsHandler')]
     [Scope('OnPrem')]
@@ -147,6 +152,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesPrepmtFieldsStatisticsHandler')]
     [Scope('OnPrem')]
@@ -171,6 +177,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         VerifySalesLinePrepaymentLineAmtExclVAT(SalesLine);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesPrepmtFieldsStatisticsHandler')]
     [Scope('OnPrem')]
@@ -192,6 +199,164 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         OpenSalesOrderStatistics(SalesLine."Document No.");
 
         // [THEN] Prepayment Line Amount on Sales Line and Sales Order Statistics Page through SalesPrepmtFieldsStatisticsHandler.
+        VerifySalesLinePrepaymentLineAmtInclVAT(SalesLine);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesPrepmtFieldsStatisticsHandlerNM')]
+    [Scope('OnPrem')]
+    procedure SalesPrepaymentAmtWithLineDiscountExclVATNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        // [SCENARIO] Prepayment Amount on Sales Line and Statistics with Line Discount and Price Excl. VAT.
+        Initialize();
+
+        // [GIVEN] Create Sales Order with Random Prepayment %.
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateSalesDocument(SalesHeader, SalesLine, GeneralPostingSetup, LibraryRandom.RandInt(50), false);
+
+        // [WHEN] Calculation of Line Discount,Open sales order statistics page and Calculate Global Variables for Verification.
+        ModifyLineDiscountPercentOnSalesLine(SalesLine);
+        CalculateSalesLinePrepaymentValuesExclVAT(SalesLine);
+        OpenSalesOrderStatisticsNM(SalesLine."Document No.");
+
+        // [THEN] Prepayment Line Amount on Sales Line and Sales Order Statistics Page through SalesPrepmtFieldsStatisticsHandlerNM.
+        VerifySalesLinePrepaymentLineAmtExclVAT(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesPrepmtFieldsStatisticsHandlerNM')]
+    [Scope('OnPrem')]
+    procedure SalesPrepaymentAmtWithLineDiscountInclVATNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        // [SCENARIO] Prepayment Amount on Sales Line and Statistics with Line Discount and Price Incl. VAT.
+        Initialize();
+
+        // [GIVEN] Create Sales Order with Random Prepayment %.
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateSalesDocument(SalesHeader, SalesLine, GeneralPostingSetup, LibraryRandom.RandInt(50), true);
+
+        // [WHEN] Calculation of Line Discount,Open sales order statistics page and Calculate Global Variables for Verification.
+        ModifyLineDiscountPercentOnSalesLine(SalesLine);
+        CalculateSalesLinePrepaymentValuesInclVAT(SalesLine);
+        OpenSalesOrderStatisticsNM(SalesLine."Document No.");
+
+        // [THEN] Prepayment Line Amount on Sales Line and Sales Order Statistics Page through SalesPrepmtFieldsStatisticsHandlerNM.
+        VerifySalesLinePrepaymentLineAmtInclVAT(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesPrepmtFieldsStatisticsHandlerNM')]
+    [Scope('OnPrem')]
+    procedure SalesPrepaymentAmtWithInvoiceDiscountExclVATNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesSetup: Record "Sales & Receivables Setup";
+        SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
+    begin
+        // [SCENARIO] Prepayment Amount on Sales Line and Statistics with Invoice Discount and Price Excl. VAT.
+        Initialize();
+
+        // [GIVEN] Create Sales Order with Random Prepayment %.
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateSalesDocument(SalesHeader, SalesLine, GeneralPostingSetup, LibraryRandom.RandInt(50), false);
+        CreateCustomerInvoiceDiscount(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Calculation of Invoice Discount,Open sales order statistics page and Calculate Global Variables for Verification.
+        SalesCalcDiscount.Run(SalesLine);
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
+        CalculateSalesLinePrepaymentValuesExclVAT(SalesLine);
+        OpenSalesOrderStatisticsNM(SalesLine."Document No.");
+
+        // [THEN] Prepayment Line Amount on Sales Line and Sales Order Statistics Page through SalesPrepmtFieldsStatisticsHandlerNM.
+        VerifySalesLinePrepaymentLineAmtExclVAT(SalesLine);
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesPrepmtFieldsStatisticsHandlerNM')]
+    [Scope('OnPrem')]
+    procedure SalesPrepaymentAmtWithInvoiceDiscountInclVATNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesSetup: Record "Sales & Receivables Setup";
+        SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
+    begin
+        // [SCENARIO] Prepayment Amount on Sales Line and Statistics with Invoice Discount and Price Incl. VAT.
+        Initialize();
+
+        // [GIVEN] Create Sales Order with Random Prepayment %.
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateSalesDocument(SalesHeader, SalesLine, GeneralPostingSetup, LibraryRandom.RandInt(50), true);
+        CreateCustomerInvoiceDiscount(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Calculation of Invoice Discount,Open sales order statistics page and Calculate Global Variables for Verification.
+        SalesCalcDiscount.Run(SalesLine);
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
+        CalculateSalesLinePrepaymentValuesInclVAT(SalesLine);
+        OpenSalesOrderStatisticsNM(SalesLine."Document No.");
+
+        // [THEN] Prepayment Line Amount on Sales Line and Sales Order Statistics Page through SalesPrepmtFieldsStatisticsHandlerNM.
+        VerifySalesLinePrepaymentLineAmtInclVAT(SalesLine);
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesPrepmtFieldsStatisticsHandlerNM')]
+    [Scope('OnPrem')]
+    procedure SalesPrepaymentAmtWithLinePrepay100ExclVATNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        // [SCENARIO] Prepayment Amount on Sales Line and Statistics with 100% prepayment and Price Excl. VAT.
+        Initialize();
+
+        // [GIVEN] Create Sales Order with Random Prepayment %.
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateSalesDocument(SalesHeader, SalesLine, GeneralPostingSetup, 100, false);
+
+        // [WHEN] Open sales order statistics page and Calculate Global Variables for Verification.
+        CalculateSalesLinePrepaymentValuesExclVAT(SalesLine);
+        OpenSalesOrderStatisticsNM(SalesLine."Document No.");
+
+        // [THEN] Prepayment Line Amount on Sales Line and Sales Order Statistics Page throught SalesPrepmtFieldsStatisticsHandlerNM.
+        VerifySalesLinePrepaymentLineAmtExclVAT(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesPrepmtFieldsStatisticsHandlerNM')]
+    [Scope('OnPrem')]
+    procedure SalesPrepaymentAmtWithLinePrepay100InclVATNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        // [SCENARIO] Prepayment Amount on Sales Line with 100% prepayment and Price Incl. VAT.
+        Initialize();
+
+        // [GIVEN] Create Sales Order with Random Prepayment %.
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateSalesDocument(SalesHeader, SalesLine, GeneralPostingSetup, 100, true);
+
+        // [WHEN] Open sales order statistics page and Calculate Global Variables for Verification.
+        CalculateSalesLinePrepaymentValuesInclVAT(SalesLine);
+        OpenSalesOrderStatisticsNM(SalesLine."Document No.");
+
+        // [THEN] Prepayment Line Amount on Sales Line and Sales Order Statistics Page through SalesPrepmtFieldsStatisticsHandlerNM.
         VerifySalesLinePrepaymentLineAmtInclVAT(SalesLine);
     end;
 
@@ -744,6 +909,8 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         SalesHeader.Modify(true);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenSalesOrderStatistics(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
@@ -751,6 +918,15 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.Statistics.Invoke();
+    end;
+#endif
+    local procedure OpenSalesOrderStatisticsNM(No: Code[20])
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", No);
+        SalesOrder.SalesOrderStatistics.Invoke();
     end;
 
     local procedure OpenPurchaseOrderStatistics(No: Code[20])
@@ -970,9 +1146,21 @@ codeunit 144002 "Unit GST Prepayment-Sales"
           StrSubstNo(ValidationError, PurchaseLine.FieldCaption("Prepmt. Line Amount"), PrepaymentAmount, PurchaseLine.TableCaption()));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesPrepmtFieldsStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        // Format Precision taken to convert Decimal value in Text.
+        SalesOrderStatistics.PrepmtTotalAmount.AssertEquals(PrepaymentAmount);
+        SalesOrderStatistics.PrepmtVATAmount.AssertEquals(PrepaymentVATAmount);
+        SalesOrderStatistics.PrepmtTotalAmount2.AssertEquals(PrepaymentTotalAmount);
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesPrepmtFieldsStatisticsHandlerNM(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         // Format Precision taken to convert Decimal value in Text.
         SalesOrderStatistics.PrepmtTotalAmount.AssertEquals(PrepaymentAmount);

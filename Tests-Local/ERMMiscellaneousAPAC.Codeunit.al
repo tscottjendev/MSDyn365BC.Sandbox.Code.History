@@ -1769,14 +1769,14 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         NewVATAmount := SalesLine."Amount Including VAT" - SalesLine."Amount" - LibraryERM.GetAmountRoundingPrecision();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewVATAmount);
-        SalesHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Sales Statistics", SalesHeader);
 
         // [THEN] VAT Amount (ACY) is updated when VAT amount is changed
         // [THEN] VAT Amount (ACY) is changed and saved when reopening Statistic page
         // [THEN] VAT Difference (ACY) is calculated correctly
         // false means don't update VAT Amount (ACY) after Statistic page reopened.
         LibraryVariableStorage.Enqueue(false);
-        SalesHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Sales Statistics", SalesHeader);
 
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         GetSalesVATAmountLine(SalesHeader, TempVATAmountLine);
@@ -1822,7 +1822,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         NewVATAmount := SalesLine."Amount Including VAT" - SalesLine."Amount" - LibraryERM.GetAmountRoundingPrecision();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewVATAmount);
-        SalesHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Sales Statistics", SalesHeader);
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         // [WHEN] Post sales invoice
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1880,7 +1880,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewVATAmount);
         LibraryVariableStorage.Enqueue(NewVATAmountACY);
-        SalesHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Sales Statistics", SalesHeader);
 
         // [THEN] VAT Amount (ACY) is updated to 50 when VAT amount is changed
         // [THEN] VAT Amount (ACY) is changed and saved when reopening Statistic page
@@ -1888,7 +1888,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // false means don't update VAT Amount (ACY) after Statistic page reopened.
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(NewVATAmountACY);
-        SalesHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Sales Statistics", SalesHeader);
 
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         GetSalesVATAmountLine(SalesHeader, TempVATAmountLine);
