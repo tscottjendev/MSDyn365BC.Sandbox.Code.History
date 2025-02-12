@@ -163,5 +163,12 @@ table 315 "Jobs Setup"
     fieldgroups
     {
     }
+
+    procedure UseLegacyPosting(): Boolean
+    var
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+    begin
+        exit(not FeatureKeyManagement.IsConcurrentJobPostingEnabled());
+    end;
 }
 
