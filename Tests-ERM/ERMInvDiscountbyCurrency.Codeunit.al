@@ -118,6 +118,8 @@ codeunit 134079 "ERM Inv Discount by Currency"
         VerifyInvoiceDiscForCustomer(SalesLine, SalesHeader.Amount);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('GeneralSalesOrderStatisticsHandler')]
     [Scope('OnPrem')]
@@ -148,6 +150,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         VerifySalesLineInvDiscAmount(SalesHeader."No.", SalesLine2."No.", InvDiscAmountForLine);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('GeneralSalesOrderStatisticsHandler')]
     [Scope('OnPrem')]
@@ -173,6 +176,75 @@ codeunit 134079 "ERM Inv Discount by Currency"
         InvoiceDiscountAmount := SalesLine."Line Amount";
         Amount := Round(InvoiceDiscountAmount / 2);
         OpenSalesOrderStatistics(SalesHeader."No.");
+        UpdateQtyToShip(SalesLine2, SalesHeader."No.");
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+
+        // Exercise: Post Sales Order and find GL Entry.
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        FindGLEntry(GLEntry, PostedDocumentNo, GeneralPostingSetup."Sales Inv. Disc. Account");
+
+        // Verify: Verify GL Entry for Invoice Discount Amount.
+        Assert.AreNearlyEqual(
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('GeneralSalesOrderStatisticsHandlerNM')]
+    [Scope('OnPrem')]
+    procedure InvDiscAmountOnSalesLineNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        InvDiscAmountForLine: Decimal;
+    begin
+        // Check Invoice Discount Amount on Sales Lines after entering Invoice Discount Amount in Sales Order Statistics window.
+
+        // Setup: Create Sales Order and add new Sales Line.
+        Initialize();
+        CreateSalesOrder(SalesHeader, SalesLine);
+        CreateAndModifySalesLine(SalesLine2, SalesHeader, SalesLine.Quantity, SalesLine."Unit Price");
+
+        // InvDiscountAmount is a global variable and used on Statistics page.
+        // Assigning value to Invoice Discount Amount to make sure InvDiscountAmount is always less than total amount of Order.
+        InvoiceDiscountAmount := SalesLine."Line Amount";
+        InvDiscAmountForLine := Round(InvoiceDiscountAmount / 2);
+
+        // Exercise: Open Sales Order Statistics Page and assign Invoice Discount Amount in Handler (SalesOrderStatisticsHandler).
+        OpenSalesOrderStatisticsNM(SalesHeader."No.");
+
+        // Verify: Verify Invoice Discount Amount on Sales Line.
+        VerifySalesLineInvDiscAmount(SalesHeader."No.", SalesLine."No.", InvDiscAmountForLine);
+        VerifySalesLineInvDiscAmount(SalesHeader."No.", SalesLine2."No.", InvDiscAmountForLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('GeneralSalesOrderStatisticsHandlerNM')]
+    [Scope('OnPrem')]
+    procedure InvDiscForPartialSalesOrderNM()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLEntry: Record "G/L Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        Amount: Decimal;
+        PostedDocumentNo: Code[20];
+    begin
+        // Check Amount on GL Entry after posting Sales Order with partial Invoice.
+
+        // Setup: Create Sales Order with Random Unit Price.
+        Initialize();
+        CreateSalesOrder(SalesHeader, SalesLine);
+        CreateAndModifySalesLine(SalesLine2, SalesHeader, SalesLine.Quantity, SalesLine."Unit Price");
+
+        // InvDiscountAmount is a global variable which is used to assign Invoice Discount Amount on Statistics page (SalesOrderStatisticsHandler).
+        // Assigning value to InvDiscountAmount to make sure Inv. Discount Amount is always less than total amount of Order.
+        InvoiceDiscountAmount := SalesLine."Line Amount";
+        Amount := Round(InvoiceDiscountAmount / 2);
+        OpenSalesOrderStatisticsNM(SalesHeader."No.");
         UpdateQtyToShip(SalesLine2, SalesHeader."No.");
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
@@ -255,6 +327,8 @@ codeunit 134079 "ERM Inv Discount by Currency"
           StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), -Amount, GLEntry.TableCaption()));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('GeneralSalesOrderStatisticsHandler')]
     [Scope('OnPrem')]
@@ -289,6 +363,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         OpenSalesOrderStatistics(SalesHeader."No.");
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('InvoicingSalesOrderStatisticsHandler')]
     [Scope('OnPrem')]
@@ -296,6 +371,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Check various VAT fields on Statistics window after modifying Inv. Discount Amount on Invoicing tab.
 
@@ -308,10 +384,11 @@ codeunit 134079 "ERM Inv Discount by Currency"
         InvoiceDiscountAmount := LibraryRandom.RandInt(10);  // InvoiceDiscountAmount is a global variable.
 
         // Following Global variables are used to verify on handler.
-        AmountInclVAT := SalesLine."Unit Price" * SalesLine."Qty. to Invoice";
-        TotalInclVAT := AmountInclVAT - InvoiceDiscountAmount;
-        VATAmount := TotalInclVAT * SalesLine."VAT %" / (100 + SalesLine."VAT %");
-        TotalExclVAT := TotalInclVAT - VATAmount;
+        GeneralLedgerSetup.Get();
+        AmountInclVAT := Round(SalesLine."Unit Price" * SalesLine."Qty. to Invoice", GeneralLedgerSetup."Amount Rounding Precision");
+        TotalInclVAT := Round(AmountInclVAT - InvoiceDiscountAmount, GeneralLedgerSetup."Amount Rounding Precision");
+        VATAmount := Round(TotalInclVAT * SalesLine."VAT %" / (100 + SalesLine."VAT %"), GeneralLedgerSetup."Amount Rounding Precision");
+        TotalExclVAT := ROund(TotalInclVAT - VATAmount, GeneralLedgerSetup."Amount Rounding Precision");
 
         // Exercise: Modify Invoice Discount Amount on Statistics window using 'InvoicingSalesOrderStatisticsHandler'.
         OpenSalesOrderStatistics(SalesHeader."No.");
@@ -319,6 +396,74 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Verify: IsVerify is a global variable and Verification is done in 'InvoicingSalesOrderStatisticsHandler'.
         IsVerify := true;
         OpenSalesOrderStatistics(SalesHeader."No.");
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('GeneralSalesOrderStatisticsHandlerNM')]
+    [Scope('OnPrem')]
+    procedure InvoiceDiscountAmountsOnSalesOrderStatisticsNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+    begin
+        // Check Invoice Discount Amount on General and Invoicing tab of Sales Order Statistics window after modifying Quantity to Invoice on Sales lines.
+
+        // Setup: Create Sales Order with Random Quantity and Unit Price.
+        Initialize();
+        CreateSalesOrder(SalesHeader, SalesLine);
+        CreateAndModifySalesLine(SalesLine2, SalesHeader, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
+        InvoiceDiscountAmount := SalesLine."Line Amount"; // InvoiceDiscountAmount is a global variable and is assigned to make sure discount is less than total Order amount.
+        OpenSalesOrderStatisticsNM(SalesHeader."No.");
+
+        // Exercise: Update Quantity to Invoice on Sales line.
+        UpdateQtyToInvoice(SalesLine, SalesHeader."No.", SalesLine.Quantity / 2);
+        UpdateQtyToInvoice(SalesLine2, SalesHeader."No.", 0);
+        FindSalesLine(SalesLine, SalesHeader."No.", SalesLine."No.");
+
+        // Calculation is done for distributed Inv. Discount Amount on Sales Lines for Invoicing.
+        InvDiscountAmountInvoicing :=
+          Round(
+          InvoiceDiscountAmount *
+            SalesLine."Qty. to Invoice" * SalesLine."Unit Price" / (SalesLine."Line Amount" + SalesLine2."Line Amount"));
+
+        // Verify: IsVerify is a global variable and Verification is done in 'GeneralSalesOrderStatisticsHandlerNM'.
+        IsVerify := true;
+        OpenSalesOrderStatisticsNM(SalesHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('InvoicingSalesOrderStatisticsHandlerNM')]
+    [Scope('OnPrem')]
+    procedure VariousVATAmountsOnSalesOrderStatisticsNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        // Check various VAT fields on Statistics window after modifying Inv. Discount Amount on Invoicing tab.
+
+        // Setup: Create Sales Order and use Random for Inv. Discount Amount.
+        Initialize();
+        CreateSalesDocumentWithVAT(SalesHeader, SalesLine);
+        UpdateQtyToInvoice(SalesLine, SalesHeader."No.", SalesLine.Quantity / 2);
+        FindSalesLine(SalesLine, SalesHeader."No.", SalesLine."No.");
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        InvoiceDiscountAmount := LibraryRandom.RandInt(10);  // InvoiceDiscountAmount is a global variable.
+
+        // Following Global variables are used to verify on handler.
+        GeneralLedgerSetup.Get();
+        AmountInclVAT := Round(SalesLine."Unit Price" * SalesLine."Qty. to Invoice", GeneralLedgerSetup."Amount Rounding Precision");
+        TotalInclVAT := Round(AmountInclVAT - InvoiceDiscountAmount, GeneralLedgerSetup."Amount Rounding Precision");
+        VATAmount := Round(TotalInclVAT * SalesLine."VAT %" / (100 + SalesLine."VAT %"), GeneralLedgerSetup."Amount Rounding Precision");
+        TotalExclVAT := Round(TotalInclVAT - VATAmount, GeneralLedgerSetup."Amount Rounding Precision");
+
+        // Exercise: Modify Invoice Discount Amount on Statistics window using 'InvoicingSalesOrderStatisticsHandlerNM'.
+        OpenSalesOrderStatisticsNM(SalesHeader."No.");
+
+        // Verify: IsVerify is a global variable and Verification is done in 'InvoicingSalesOrderStatisticsHandlerNM'.
+        IsVerify := true;
+        OpenSalesOrderStatisticsNM(SalesHeader."No.");
     end;
 
     [Normal]
@@ -538,6 +683,8 @@ codeunit 134079 "ERM Inv Discount by Currency"
         SalesHeader.Modify(true);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenSalesOrderStatistics(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
@@ -545,6 +692,15 @@ codeunit 134079 "ERM Inv Discount by Currency"
         SalesOrder.OpenView();
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.Statistics.Invoke();
+    end;
+#endif
+    local procedure OpenSalesOrderStatisticsNM(No: Code[20])
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenView();
+        SalesOrder.FILTER.SetFilter("No.", No);
+        SalesOrder.SalesOrderStatistics.Invoke();
     end;
 
     local procedure OpenPurchaseOrderStatistics(No: Code[20])
@@ -633,9 +789,28 @@ codeunit 134079 "ERM Inv Discount by Currency"
           StrSubstNo(InvoiceDiscountError, InvDiscountAmount));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GeneralSalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        if IsVerify then begin
+            Assert.AreEqual(
+              InvoiceDiscountAmount, SalesOrderStatistics.InvDiscountAmount_General.AsDecimal(),
+              StrSubstNo(InvoiceDiscountError, InvoiceDiscountAmount));
+            Assert.AreEqual(
+              InvDiscountAmountInvoicing, SalesOrderStatistics.InvDiscountAmount_Invoicing.AsDecimal(),
+              StrSubstNo(InvoiceDiscountError, InvDiscountAmountInvoicing));
+        end else begin
+            SalesOrderStatistics.InvDiscountAmount_General.SetValue(InvoiceDiscountAmount);
+            SalesOrderStatistics.OK().Invoke();
+        end;
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure GeneralSalesOrderStatisticsHandlerNM(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         if IsVerify then begin
             Assert.AreEqual(
@@ -658,6 +833,8 @@ codeunit 134079 "ERM Inv Discount by Currency"
         PurchaseOrderStatistics.OK().Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure InvoicingSalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
@@ -672,5 +849,20 @@ codeunit 134079 "ERM Inv Discount by Currency"
             SalesOrderStatistics.OK().Invoke();
         end;
     end;
-}
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure InvoicingSalesOrderStatisticsHandlerNM(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        if IsVerify then begin
+            SalesOrderStatistics.AmountInclVAT_Invoicing.AssertEquals(AmountInclVAT);
+            SalesOrderStatistics.TotalInclVAT_Invoicing.AssertEquals(TotalInclVAT);
+            SalesOrderStatistics.VATAmount_Invoicing.AssertEquals(VATAmount);
+            SalesOrderStatistics.TotalExclVAT_Invoicing.AssertEquals(TotalExclVAT);
+        end else begin
+            SalesOrderStatistics.InvDiscountAmount_Invoicing.SetValue(InvoiceDiscountAmount);
+            SalesOrderStatistics.OK().Invoke();
+        end;
+    end;
 
+}
