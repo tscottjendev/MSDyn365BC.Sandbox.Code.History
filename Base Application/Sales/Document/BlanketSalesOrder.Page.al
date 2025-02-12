@@ -892,6 +892,7 @@ page 507 "Blanket Sales Order"
             {
                 Caption = 'O&rder';
                 Image = "Order";
+#if not CLEAN26
                 action(Statistics)
                 {
                     ApplicationArea = Suite;
@@ -899,6 +900,9 @@ page 507 "Blanket Sales Order"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
 
                     trigger OnAction()
                     var
@@ -911,6 +915,23 @@ page 507 "Blanket Sales Order"
 
                         Rec.OpenSalesOrderStatistics();
                     end;
+                }
+#endif
+                action(SalesOrderStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Enabled = Rec."No." <> '';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+#if CLEAN26
+                    Visible = true;
+#else
+                    Visible = false;
+#endif                    
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    RunObject = Page "Sales Order Statistics";
+                    RunPageOnRec = true;
                 }
                 action(Card)
                 {
@@ -1295,9 +1316,18 @@ page 507 "Blanket Sales Order"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN26
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                 }
+#else                
+                actionref(SalesOrderStatistics_Promoted; SalesOrderStatistics)
+                {
+                }
+#endif
                 actionref(Approvals_Promoted; Approvals)
                 {
                 }
@@ -1461,11 +1491,13 @@ page 507 "Blanket Sales Order"
         CustomerMgt.CalculateShipBillToOptions(ShipToOptions, BillToOptions, Rec);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStatisticsAction(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option)
     begin
