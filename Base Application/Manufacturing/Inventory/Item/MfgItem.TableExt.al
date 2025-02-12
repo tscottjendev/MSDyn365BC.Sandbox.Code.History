@@ -187,10 +187,11 @@ tableextension 99000750 "Mfg. Item" extends Item
                         ItemUnitOfMeasure.Get("No.", ProdBOMHeader."Unit of Measure Code");
                         if ProdBOMHeader.Status = ProdBOMHeader.Status::Certified then begin
                             MfgSetup.Get();
-                            if MfgSetup."Dynamic Low-Level Code" then begin
-                                CODEUNIT.Run(CODEUNIT::"Calculate Low-Level Code", Rec);
-                                OnValidateProductionBOMNoOnAfterCodeunitRun(ProdBOMHeader, Rec);
-                            end;
+                            if MfgSetup."Dynamic Low-Level Code" then
+                                if NeedUpdateLowLevelCode() then begin
+                                    CODEUNIT.Run(CODEUNIT::"Calculate Low-Level Code", Rec);
+                                    OnValidateProductionBOMNoOnAfterCodeunitRun(ProdBOMHeader, Rec);
+                                end;
                             OnValidateProductionBOMNoOnAfterProcessStatusCertified(ProdBOMHeader, Rec);
                         end;
                     end;
@@ -523,5 +524,17 @@ tableextension 99000750 "Mfg. Item" extends Item
 
         InventorySetup.GetRecordOnce();
         exit(InventorySetup."Average Cost Calc. Type" = InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
+    end;
+
+    local procedure NeedUpdateLowLevelCode(): Boolean
+    var
+        Item: Record Item;
+    begin
+        if CurrFieldNo <> 0 then
+            exit(true);
+
+        Item.SetLoadFields("Base Unit of Measure", "Inventory Posting Group");
+        Item.Get("No.");
+        exit((Item."Base Unit of Measure" = Rec."Base Unit of Measure") or (Item."Inventory Posting Group" = Rec."Inventory Posting Group"));
     end;
 }
