@@ -434,7 +434,10 @@ codeunit 134379 "ERM Sales Quotes"
         Assert.IsFalse(SalesQuotes.Dimensions.Enabled(), ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesQuotes.Customer.Enabled(), ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesQuotes."C&ontact".Enabled(), ControlShouldBeDisabledErr);
+#if not CLEAN26
         Assert.IsFalse(SalesQuotes.Statistics.Enabled(), ControlShouldBeDisabledErr);
+#endif
+        Assert.IsFalse(SalesQuotes.SalesStatistics.Enabled(), ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesQuotes."Co&mments".Enabled(), ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesQuotes.CreateCustomer.Enabled(), ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesQuotes.CreateTask.Enabled(), ControlShouldBeDisabledErr);
@@ -476,7 +479,10 @@ codeunit 134379 "ERM Sales Quotes"
         Assert.IsTrue(SalesQuotes.Dimensions.Enabled(), ControlShouldBeEnabledErr);
         Assert.IsTrue(SalesQuotes.Customer.Enabled(), ControlShouldBeEnabledErr);
         Assert.IsTrue(SalesQuotes."C&ontact".Enabled(), ControlShouldBeEnabledErr);
+#if not CLEAN26
         Assert.IsTrue(SalesQuotes.Statistics.Enabled(), ControlShouldBeEnabledErr);
+#endif
+        Assert.IsTrue(SalesQuotes.SalesStatistics.Enabled(), ControlShouldBeEnabledErr);
         Assert.IsTrue(SalesQuotes."Co&mments".Enabled(), ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesQuotes.CreateCustomer.Enabled(), ControlShouldBeDisabledErr);
         Assert.IsTrue(SalesQuotes.CreateTask.Enabled(), ControlShouldBeEnabledErr);
