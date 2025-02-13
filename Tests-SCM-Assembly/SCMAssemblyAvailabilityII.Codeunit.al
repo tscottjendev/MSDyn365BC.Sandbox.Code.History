@@ -34,7 +34,6 @@ codeunit 137912 "SCM Assembly Availability II"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryInventory: Codeunit "Library - Inventory";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         TestMethodName: Text[30];
@@ -315,7 +314,7 @@ codeunit 137912 "SCM Assembly Availability II"
         MockItem(ParentParentItem);
         ParentParentItem.Validate("Replenishment System", ParentParentItem."Replenishment System"::Assembly);
         ParentParentItem.Modify(true);
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentParentItem."No.", BOMComponent.Type::Item,
+        LibraryInventory.CreateBOMComponent(BOMComponent, ParentParentItem."No.", BOMComponent.Type::Item,
           ParentItem."No.", 1, ParentItem."Base Unit of Measure");
 
         // change asm header from parent item to parent of parent item
@@ -1378,7 +1377,7 @@ codeunit 137912 "SCM Assembly Availability II"
         end;
 
         // make the Assembly list- the reason it wasnt above because it throws up availability warning.
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItem."No.", BOMComponent.Type::Item,
+        LibraryInventory.CreateBOMComponent(BOMComponent, ParentItem."No.", BOMComponent.Type::Item,
           ChildItem."No.", 1, ChildItem."Base Unit of Measure");
 
         if (Step = 1) or
@@ -1679,7 +1678,7 @@ codeunit 137912 "SCM Assembly Availability II"
         MockItem(ParentItem);
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::Assembly);
         ParentItem.Modify(true);
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItem."No.", BOMComponent.Type::Item,
+        LibraryInventory.CreateBOMComponent(BOMComponent, ParentItem."No.", BOMComponent.Type::Item,
           ChildItem."No.", QtyPer, ChildItem."Base Unit of Measure");
     end;
 
