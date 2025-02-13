@@ -513,7 +513,6 @@ codeunit 6140 "E-Doc. Import"
         exit(Vendor."Receive E-Document To" = Enum::"E-Document Type"::"Purchase Order");
     end;
 
-#pragma warning disable AS0022
     local procedure ReceiveEDocumentToPurchaseOrder(var EDocument: Record "E-Document"; var EDocService: Record "E-Document Service"; var SourceDocumentHeader: RecordRef; var SourceDocumentLine: RecordRef; var EDocServiceStatus: Enum "E-Document Service Status"; Vendor: Record Vendor; var WindowInstance: Dialog)
     var
         DocumentHeader: RecordRef;
@@ -539,7 +538,6 @@ codeunit 6140 "E-Doc. Import"
         end else
             EDocServiceStatus := Enum::"E-Document Service Status"::Pending;
     end;
-#pragma warning restore AS0022
 
     internal procedure V1_ProcessEDocPendingOrderMatch(var EDocument: Record "E-Document")
     var

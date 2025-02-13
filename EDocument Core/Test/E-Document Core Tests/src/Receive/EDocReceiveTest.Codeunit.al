@@ -1441,7 +1441,6 @@ codeunit 139628 "E-Doc. Receive Test"
         PurchaseField.SetRange("No.", 10705);
     end;
 
-#pragma warning disable AS0018
 #if not CLEAN26
 
     // Tests inside CLEAN26 are testing the interfaces that is to be removed when CLEAN26 tags are removed.
@@ -2762,6 +2761,5 @@ codeunit 139628 "E-Doc. Receive Test"
 
 
 #endif
-#pragma warning restore AS0018
 
 }

@@ -7,7 +7,6 @@ namespace Microsoft.eServices.EDocument;
 using Microsoft.Foundation.Attachment;
 using Microsoft.eServices.EDocument.Processing.Import;
 
-#pragma implicitwith disable
 page 6105 "Inbound E-Documents"
 {
     ApplicationArea = Basic, Suite;
@@ -274,5 +273,3 @@ page 6105 "Inbound E-Documents"
         EDocumentHelper.OpenDraftPage(Rec);
     end;
 }
-
-#pragma implicitwith restore

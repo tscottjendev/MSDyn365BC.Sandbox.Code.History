@@ -1527,7 +1527,6 @@ codeunit 139624 "E-Doc E2E Test"
     end;
 
 
-#pragma warning disable AS0018
 #if not CLEAN26
 
     [Test]
@@ -2253,5 +2252,4 @@ codeunit 139624 "E-Doc E2E Test"
     end;
 
 #endif
-#pragma warning restore AS0018
 }
