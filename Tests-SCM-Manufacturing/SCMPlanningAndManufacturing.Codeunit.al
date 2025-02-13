@@ -2411,12 +2411,12 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateItemWithOrderTrackingPolicy(ParentItem, "Order Tracking Policy"::"Tracking & Action Msg.");
 
         // [GIVEN] Create a BOM component for the child item.
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
             BOMComponent, ChildItem."No.", BOMComponent.Type::Item,
             CompItem."No.", LibraryRandom.RandIntInRange(1, 1), '');
 
         // [GIVEN] Create a BOM component for the parent item.
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
             BOMComponent, ParentItem."No.", BOMComponent.Type::Item,
             ChildItem."No.", LibraryRandom.RandIntInRange(1, 1), '');
 
