@@ -38,7 +38,6 @@ codeunit 137906 "SCM Assembly Availability"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryKitting: Codeunit "Library - Kitting";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         DummyAssemblyOrderTestPage: TestPage "Assembly Order";
@@ -82,9 +81,9 @@ codeunit 137906 "SCM Assembly Availability"
         childItem.Get(LibraryKitting.CreateItemWithNewUOMUsingItemNo('Child1', 500, 700));
         childItem2.Get(LibraryKitting.CreateItemWithNewUOMUsingItemNo('Child2', 500, 700));
 
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parentItem."No.", BOMComp.Type::Item, childItem."No.", QTYChild, childItem."Base Unit of Measure");
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parentItem."No.", BOMComp.Type::Item, childItem2."No.", QTYChild, childItem2."Base Unit of Measure");
 
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order,
@@ -152,7 +151,7 @@ codeunit 137906 "SCM Assembly Availability"
         parentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 1));
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", 1));
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(500, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parentItem."No.", BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
 
         AssemblyHeader.RefreshBOM();
@@ -182,7 +181,7 @@ codeunit 137906 "SCM Assembly Availability"
 
         parentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 1));
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(500, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parentItem."No.", BOMComp.Type::Item, childItem."No.", QTYChild, childItem."Base Unit of Measure");
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", QTYParent));
 
@@ -213,7 +212,7 @@ codeunit 137906 "SCM Assembly Availability"
 
         parentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOMUsingItemNo('Parent', 500, 700, 1));
         childItem.Get(LibraryKitting.CreateItemWithNewUOMUsingItemNo('Child', 500, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, parentItem."No.", BOMComponent.Type::Item, childItem."No.", QTYChild, childItem."Base Unit of Measure");
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", QTYParent));
         LibraryWarehouse.CreateLocation(Location);
@@ -259,7 +258,7 @@ codeunit 137906 "SCM Assembly Availability"
         QTYChild := 5;
         parentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOMUsingItemNo('Parent', 500, 700, 1));
         childItem.Get(LibraryKitting.CreateItemWithNewUOMUsingItemNo('Child', 500, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parentItem."No.", BOMComp.Type::Item, childItem."No.", QTYChild, childItem."Base Unit of Measure");
 
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", QTYParent));
@@ -300,7 +299,7 @@ codeunit 137906 "SCM Assembly Availability"
         parentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOMUsingItemNo('Parent', 500, 700, 1));
         childItem.Get(LibraryKitting.CreateItemWithNewUOMUsingItemNo('Child', 500, 700));
 
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parentItem."No.", BOMComp.Type::Item, childItem."No.", QTYChild, childItem."Base Unit of Measure");
 
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", QTYParent));
@@ -385,7 +384,7 @@ codeunit 137906 "SCM Assembly Availability"
         parentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOMUsingItemNo('Parent', 500, 700, 1));
         childItem.Get(LibraryKitting.CreateItemWithNewUOMUsingItemNo('Child', 500, 700));
 
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parentItem."No.", BOMComp.Type::Item, childItem."No.", QTYChild, childItem."Base Unit of Measure");
 
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", QTYParent));
@@ -434,9 +433,9 @@ codeunit 137906 "SCM Assembly Availability"
         childItem.Get(LibraryKitting.CreateItemWithNewUOMUsingItemNo('Child1', 500, 700));
         childItem2.Get(LibraryKitting.CreateItemWithNewUOMUsingItemNo('Child2', 500, 700));
 
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parentItem."No.", BOMComp.Type::Item, childItem."No.", QTYChild, childItem."Base Unit of Measure");
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parentItem."No.", BOMComp.Type::Item, childItem2."No.", QTYChild, childItem2."Base Unit of Measure");
 
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrderNo(WorkDate2, 'testAvailField',
@@ -476,7 +475,7 @@ codeunit 137906 "SCM Assembly Availability"
         LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ParentItem."No.", NonBaseUOM.Code, 10);
 
         ChildItem.Get(LibraryKitting.CreateItemWithNewUOMUsingItemNo('Child1', 500, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, ParentItem."No.", BOMComp.Type::Item, ChildItem."No.", 2, ChildItem."Base Unit of Measure");
 
         AssemblyHeader.Get(
@@ -513,7 +512,7 @@ codeunit 137906 "SCM Assembly Availability"
 
         // [GIVEN] Component item.
         LibraryInventory.CreateItem(CompItem);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
 
         // [GIVEN] Post 2 pcs of the component to inventory.
