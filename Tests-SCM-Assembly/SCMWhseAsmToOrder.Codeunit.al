@@ -47,7 +47,6 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         ERR_ATS_QTY_TO_ASM: Label 'Quantity to Assemble cannot be higher than the Remaining Quantity, which is %1.';
         ERR_ATO_QTY_TO_ASM: Label 'Quantity to Assemble cannot be lower than %1 or higher than %2.';
         LibraryItemTracking: Codeunit "Library - Item Tracking";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -1745,7 +1744,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         // Create ATO sales line for 2 PCS of parent item
         MockATOItem(ParentItem, ChildItem1);
         LibraryInventory.CreateItem(ChildItem2);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ParentItem."No.", BOMComponent.Type::Item, ChildItem2."No.", 1, ChildItem2."Base Unit of Measure");
         MockLocation(Location, true, true);
         Location.Validate("Require Shipment", true);
@@ -2181,9 +2180,9 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
         // [GIVEN] Assemble-to-order item "A" with two components "IS" and "IN".
         CreateATOItem(ATOItem);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ATOItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ATOItem."No.", BOMComponent.Type::Item, TrackedCompItem."No.", 1, TrackedCompItem."Base Unit of Measure");
 
         // [GIVEN] Sales order for 1 pc for item "A". "Qty. to Assemble to Order" = 1.
@@ -2453,7 +2452,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         ParentItem.Modify();
 
         LibraryInventory.CreateItem(ChildItem);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BomComp, ParentItem."No.", BomComp.Type::Item, ChildItem."No.", 1, ChildItem."Base Unit of Measure");
     end;
 
