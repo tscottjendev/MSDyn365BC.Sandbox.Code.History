@@ -372,8 +372,7 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
             PurchSetup."Copy Line Descr. to G/L Entry",
             PurchaseLine."Line No.",
             PurchaseLine.Description,
-            PurchaseHeader."Posting Description",
-            (PurchaseLine.Type = PurchaseLine.Type::"Fixed Asset") or PurchSetup."Copy Line Descr. to G/L Entry");
+            PurchaseHeader."Posting Description");
     end;
 
     procedure SetSalesTax(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
