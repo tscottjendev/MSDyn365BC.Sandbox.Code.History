@@ -3152,7 +3152,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] BOM Component for "IT01": Resource "RES01" with "Quantity per" = 30 and "Unit of Measure Code" = "MIN"
         QtyPerLine := LibraryRandom.RandDec(100, 2);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent,
           Item."No.",
           BOMComponent.Type::Resource,

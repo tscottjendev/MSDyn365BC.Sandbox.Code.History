@@ -46,7 +46,6 @@ codeunit 137926 "SCM Assembly Item Tracking"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryERM: Codeunit "Library - ERM";
         SNMissingErr: Label 'You must assign a serial number for item', Comment = '%1 - Item No.';
         LNMissingErr: Label 'You must assign a lot number for item', Comment = '%1 - Item No.';
@@ -318,7 +317,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         LibraryInventory.CreateItem(AsmItem);
         AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
         AsmItem.Modify(true);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", QtyPer, CompItem."Base Unit of Measure");
 
         // [GIVEN] Post component "C" to inventory, note the item ledger entry no. = "X".
@@ -450,7 +449,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         AsmItem.Modify(true);
 
         // [GIVEN] Create Assembly BOM of assembled Item
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
 
         // [GIVEN] Create Inventory of Componenty Item with Serial Number
@@ -534,7 +533,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         LibraryInventory.CreateItem(CompItem);
         AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
         AsmItem.Modify(true);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", QtyPer, CompItem."Base Unit of Measure");
     end;
 

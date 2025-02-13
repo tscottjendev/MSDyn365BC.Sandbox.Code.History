@@ -31,7 +31,6 @@ codeunit 137916 "SCM Assembly Reservation I"
 
     var
         LibraryAssembly: Codeunit "Library - Assembly";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibrarySales: Codeunit "Library - Sales";
@@ -692,7 +691,7 @@ codeunit 137916 "SCM Assembly Reservation I"
     begin
         LibraryInventory.CreateItem(CompItem);
 
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", QtyPer, CompItem."Base Unit of Measure");
     end;
 

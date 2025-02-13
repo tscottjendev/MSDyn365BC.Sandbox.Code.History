@@ -2310,7 +2310,7 @@ codeunit 137101 "SCM Kitting"
         // [GIVEN] Assembled item "A" with item "C" as a component. "Inventory Value Zero" is enabled for item "A"
         Qty := LibraryRandom.RandDec(100, 2);
         LibraryInventory.CreateItem(AsmItem);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, ComponentItem."No.", 1, ComponentItem."Base Unit of Measure");
 
         AsmItem.Validate("Inventory Value Zero", true);
@@ -3080,7 +3080,7 @@ codeunit 137101 "SCM Kitting"
         Item.Modify(true);
 
         LibraryResource.CreateResourceNew(Resource);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, Item."No.", BOMComponent.Type::Resource, Resource."No.", 1, Resource."Base Unit of Measure");
     end;
 

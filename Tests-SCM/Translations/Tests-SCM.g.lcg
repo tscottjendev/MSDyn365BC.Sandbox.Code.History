@@ -635,33 +635,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Bugfixes - Method CarryOutPlanWkshSuggestedQuantityReductionAfterAssigningLotTracking - NamedType IncorrectTrackingQtyErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1640954912 - NamedType 2786924276" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Child]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Calculate Assembly Cost - NamedType TEXT_CHILD)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1640954912 - NamedType 4107517250" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ItemA]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Calculate Assembly Cost - NamedType TEXT_ItemA)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1640954912 - NamedType 724272218" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Parent]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Calculate Assembly Cost - NamedType TEXT_PARENT)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 671879611 - NamedType 1171748669" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Test Calculate Cost/Price]]></Val>

@@ -317,13 +317,11 @@ codeunit 99000773 "Calculate Prod. Order"
             ProdOrderComp."Line No." := NextProdOrderCompLineNo;
             ProdOrderComp.Validate("Item No.", ProdBOMLine[Level]."No.");
             ProdOrderComp."Variant Code" := ProdBOMLine[Level]."Variant Code";
-            if Item2.Get(ProdOrderComp."Item No.") then
-                if Item2.IsInventoriableType() then
-                    ProdOrderComp."Location Code" := SKU."Components at Location";
+            ProdOrderComp."Location Code" := SKU."Components at Location";
             ProdOrderComp."Bin Code" := GetDefaultBin();
             ProdOrderComp.Description := ProdBOMLine[Level].Description;
             ProdOrderComp.Validate("Unit of Measure Code", ProdBOMLine[Level]."Unit of Measure Code");
-            if ProdOrderComp."Item No." <> '' then
+            if (ProdOrderComp."Item No." <> '') and Item2.Get(ProdOrderComp."Item No.") then
                 QtyRoundPrecision := UOMMgt.GetQtyRoundingPrecision(Item2, ProdBOMLine[Level]."Unit of Measure Code");
             if QtyRoundPrecision <> 0 then
                 ProdOrderComp."Quantity per" := Round(ProdBOMLine[Level]."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM, QtyRoundPrecision)
