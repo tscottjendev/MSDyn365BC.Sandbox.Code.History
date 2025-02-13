@@ -1001,7 +1001,6 @@ codeunit 134102 "ERM Prepayment III"
         BOMComponent: Record "BOM Component";
         SalesPrepaymentPct: Record "Sales Prepayment %";
         SalesLine: Record "Sales Line";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         SalesOrder: TestPage "Sales Order";
         ItemNo: Code[20];
     begin
@@ -1015,7 +1014,7 @@ codeunit 134102 "ERM Prepayment III"
         CreateSalesPrepaymentPct(SalesPrepaymentPct, SalesPrepaymentPct."Sales Code");
 
         // Create BOM Component and Sales Order with Zero Quantity.
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ItemNo, BOMComponent.Type::Item, SalesPrepaymentPct."Item No.", 1, '');
         LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
