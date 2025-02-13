@@ -142,6 +142,9 @@
       "path": "./Tests-Workflow"
     },
     {
+      "path": "./Base Application/System/DevTools/CALTest"
+    },
+    {
       "path": "./System Application/Email/src/Test Email"
     },
     {
@@ -152,15 +155,12 @@
     },
     {
       "path": "./Test Runner/src/DataDrivenTest"
-    },
-    {
-      "path": "./Base Application/System/DevTools/CALTest"
     }
   ],
   "settings": {
-    "al.enableCodeActions": false,
-    "al.enableCodeAnalysis": false,
     "allint.enabled": false,
+    "al.enableCodeAnalysis": false,
+    "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
     }

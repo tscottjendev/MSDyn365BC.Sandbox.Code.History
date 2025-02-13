@@ -886,7 +886,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         Initialize();
         CreateBOMComponentSetup(BOMComponent);
         LibraryInventory.CreateItem(Item);
-        LibraryManufacturing.CreateBOMComponent(BOMComponent2, BOMComponent."No.", BOMComponent2.Type::Item, Item."No.", 1, '');
+        LibraryInventory.CreateBOMComponent(BOMComponent2, BOMComponent."No.", BOMComponent2.Type::Item, Item."No.", 1, '');
 
         // Exercise: Generate the BOM - Sub Assemblies report.
         Commit();
@@ -1460,7 +1460,7 @@ codeunit 137304 "SCM Manufacturing Reports"
     begin
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, Item."No.", BOMComponent.Type::Item, Item2."No.", 1, '');
+        LibraryInventory.CreateBOMComponent(BOMComponent, Item."No.", BOMComponent.Type::Item, Item2."No.", 1, '');
         LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', LibraryRandom.RandDec(100, 2), WorkDate(),
           LibraryRandom.RandDec(100, 2));
         LibraryPatterns.POSTPositiveAdjustment(Item2, '', '', '', LibraryRandom.RandDec(100, 2), WorkDate(),
