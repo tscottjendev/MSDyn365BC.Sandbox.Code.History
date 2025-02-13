@@ -1,4 +1,4 @@
-codeunit 134327 "ERM Purchase Order"
+﻿codeunit 134327 "ERM Purchase Order"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -30,7 +30,6 @@ codeunit 134327 "ERM Purchase Order"
         LibraryJob: Codeunit "Library - Job";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPlanning: Codeunit "Library - Planning";
 #if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
@@ -3207,6 +3206,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // [WHEN] Run "Get Receipt Lines" and select Posted Receipt Line
         PurchRcptLine.InsertInvLineFromRcptLine(PurchLine);
+
         // [THEN] Invoice "Invoice Discount Value" = "Y"
         PurchHeader.Find();
         PurchHeader.CalcFields("Invoice Discount Amount");
@@ -6800,14 +6800,13 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         BOMComponent: Record "BOM Component";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
         // [FEATURE] [Resource] [BOM]
         // [SCENARIO 341999] Explode BOM with resource component
         Initialize();
 
         // [GIVEN] Item with resource BOM component
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItemNo(), BOMComponent.Type::Resource, LibraryResource.CreateResourceNo(), 1, '');
+        LibraryInventory.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItemNo(), BOMComponent.Type::Resource, LibraryResource.CreateResourceNo(), 1, '');
 
         // [GIVEN] Purchase order with item
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
@@ -8575,7 +8574,7 @@ codeunit 134327 "ERM Purchase Order"
                 SourceCurrencyErr,
                 GLEntry.FieldCaption("Source Currency Amount")));
     end;
-    
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -11478,7 +11477,7 @@ codeunit 134327 "ERM Purchase Order"
         LibraryUtility.FindRecord(RecRef);
         RecRef.SetTable(ItemUnitOfMeasure);
 
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ParentItemNo, BOMComponent.Type::Item, ItemNo, LibraryRandom.RandInt(10), ItemUnitOfMeasure.Code);
     end;
 

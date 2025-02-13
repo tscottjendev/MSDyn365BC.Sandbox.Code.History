@@ -46,7 +46,6 @@ codeunit 137908 "SCM Assembly Order"
         LibraryKitting: Codeunit "Library - Kitting";
         LibraryInventory: Codeunit "Library - Inventory";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
@@ -140,7 +139,7 @@ codeunit 137908 "SCM Assembly Order"
         LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
         LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, ParentQtyPerUOM);
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", BOMQtyPer, childItem."Base Unit of Measure");
 
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, HeaderQty));
@@ -182,7 +181,7 @@ codeunit 137908 "SCM Assembly Order"
         LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
         LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, ParentQtyPerUOM);
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", BOMQtyPer, childItem."Base Unit of Measure");
 
         CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate2, parent);
@@ -229,7 +228,7 @@ codeunit 137908 "SCM Assembly Order"
         parent := MakeItemWithLot();
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 1));
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
 
         AssemblyHeader.RefreshBOM();
@@ -251,7 +250,7 @@ codeunit 137908 "SCM Assembly Order"
         Initialize();
         parent := MakeItemWithLot();
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
 
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 1));
@@ -273,10 +272,10 @@ codeunit 137908 "SCM Assembly Order"
         Initialize();
         parent := MakeItemWithLot();
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
 
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 1));
@@ -300,24 +299,24 @@ codeunit 137908 "SCM Assembly Order"
         Initialize();
         parent := MakeItemWithLot();
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
 
         SecondParent := MakeItemWithLot();
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, SecondParent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, SecondParent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, SecondParent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, SecondParent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
 
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 1));
@@ -343,10 +342,10 @@ codeunit 137908 "SCM Assembly Order"
         Initialize();
         parent := MakeItemWithLot();
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(500, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Resource, resource."No.", 1, resource."Base Unit of Measure");
 
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 1));
@@ -369,12 +368,12 @@ codeunit 137908 "SCM Assembly Order"
         Initialize();
         parent := MakeItemWithLot();
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(500, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Resource, resource."No.", 1, resource."Base Unit of Measure");
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::" ", '', 0, '');
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 1));
         validateCount(AssemblyHeader."No.", 3);
@@ -397,15 +396,15 @@ codeunit 137908 "SCM Assembly Order"
         Initialize();
         parent := MakeItemWithLot();
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(500, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Resource, resource."No.", 1, resource."Base Unit of Measure");
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 1));
         validateCount(AssemblyHeader."No.", 2);
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
         AssemblyHeader.RefreshBOM();
         validateCount(AssemblyHeader."No.", 3);
@@ -441,10 +440,10 @@ codeunit 137908 "SCM Assembly Order"
         Initialize();
         parent := MakeItemWithLot();
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
 
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 1));
@@ -471,7 +470,7 @@ codeunit 137908 "SCM Assembly Order"
         Item.Get(parent);
         Item.Validate("Costing Method", Item."Costing Method"::Average);
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(10, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 10, childItem."Base Unit of Measure");
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 1));
         AssemblyHeader.UpdateUnitCost();
@@ -494,10 +493,10 @@ codeunit 137908 "SCM Assembly Order"
         Initialize();
         parent := MakeItemWithLot();
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(500, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Resource, resource."No.", 1, resource."Base Unit of Measure");
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(500, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Resource, resource."No.", 1, resource."Base Unit of Measure");
         BOMComp.Validate("Resource Usage Type", BOMComp."Resource Usage Type"::Fixed);
         BOMComp.Modify(true);
@@ -530,10 +529,10 @@ codeunit 137908 "SCM Assembly Order"
 
         parent := MakeItemWithLot();
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(500, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Resource, resource."No.", BomQty, resource."Base Unit of Measure");
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(500, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Resource, resource."No.", BomQty, resource."Base Unit of Measure");
         BOMComp.Validate("Resource Usage Type", BOMComp."Resource Usage Type"::Fixed);
         BOMComp.Modify(true);
@@ -570,7 +569,7 @@ codeunit 137908 "SCM Assembly Order"
         Initialize();
         Parent := LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 10);
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(100, 0));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, Parent, BOMComp.Type::Resource, resource."No.", 5, resource."Base Unit of Measure");
         BOMComp.Validate("Resource Usage Type", BOMComp."Resource Usage Type"::Fixed);
         BOMComp.Modify(true);
@@ -604,7 +603,7 @@ codeunit 137908 "SCM Assembly Order"
         parent := LibraryKitting.CreateStdCostItemWithNewUOM(500, 700, 1);
         Costprice := 500;
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(Costprice, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 1));
         validateCount(AssemblyHeader."No.", 1);
@@ -783,7 +782,7 @@ codeunit 137908 "SCM Assembly Order"
 
         parent := LibraryKitting.CreateStdCostItemWithNewUOM(500, 700, 1);
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(100, 700));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", BomQuantity, childItem."Base Unit of Measure");
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, OrderQuantity));
 
@@ -808,7 +807,7 @@ codeunit 137908 "SCM Assembly Order"
         Initialize();
         parent := LibraryKitting.CreateStdCostItemWithNewUOM(500, 700, 1);
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 4));
         validateCount(AssemblyHeader."No.", 1);
@@ -1619,7 +1618,7 @@ codeunit 137908 "SCM Assembly Order"
         Initialize();
         parent := LibraryKitting.CreateStdCostItemWithNewUOM(500, 700, 1);
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 1));
         validateCount(AssemblyHeader."No.", 1);
@@ -1643,7 +1642,7 @@ codeunit 137908 "SCM Assembly Order"
         Initialize();
         parent := LibraryKitting.CreateStdCostItemWithNewUOM(500, 700, 1);
         childItem.Get(MakeItem());
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
         CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate2, parent);
         validateCount(AssemblyHeader."No.", 0);
@@ -2337,7 +2336,7 @@ codeunit 137908 "SCM Assembly Order"
         LibraryInventory.CreateItem(Item2);
 
         // [GIVEN] Create Bom Component.
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
             BOMComponent,
             Item2."No.",
             BOMComponent.Type::Item,

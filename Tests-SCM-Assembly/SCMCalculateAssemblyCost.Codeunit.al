@@ -1,3 +1,23 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Assembly.Test;
+
+using Microsoft.Manufacturing.Setup;
+using System.Environment.Configuration;
+using Microsoft.Assembly.Document;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.Location;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Manufacturing.StandardCost;
+using Microsoft.Inventory.Journal;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Inventory.Setup;
+
 codeunit 137911 "SCM Calculate Assembly Cost"
 {
     Subtype = Test;
@@ -14,7 +34,6 @@ codeunit 137911 "SCM Calculate Assembly Cost"
 
     var
         LibraryKitting: Codeunit "Library - Kitting";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryCosting: Codeunit "Library - Costing";
@@ -49,7 +68,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         VArCost := 20;
         ParentItem.Get(LibraryKitting.CreateStdCostItemWithNewUOMUsingItemNo(TEXT_PARENT, 10, 20, 1));
         ChildItem.Get(LibraryKitting.CreateStdCostItemWithNewUOMUsingItemNo(TEXT_CHILD, 10, 20, 1));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BomComponent, ParentItem."No.", BomComponent.Type::Item, ChildItem."No.", 1, ChildItem."Base Unit of Measure");
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::Assembly);
         ParentItem.Modify();
@@ -98,9 +117,9 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         ItemA.Get(LibraryKitting.CreateStdCostItemWithNewUOMUsingItemNo(TEXT_ItemA, 10, 20, 1));
         ItemB.Get(LibraryKitting.CreateItemWithNewUOM(7, 10));
         ItemC.Get(LibraryKitting.CreateItemWithNewUOM(13, 10));
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ItemA."No.", BOMComponent.Type::Item, ItemB."No.", 1, ItemB."Base Unit of Measure");
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ItemA."No.", BOMComponent.Type::Item, ItemC."No.", 1, ItemC."Base Unit of Measure");
         ItemA.Validate("Replenishment System", ItemA."Replenishment System"::Assembly);
         ItemA.Modify();
@@ -132,7 +151,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         ItemB."Overhead Rate" := 10;
         ItemB.Modify();
 
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ItemA."No.", BOMComponent.Type::Item, ItemB."No.", 1, ItemB."Base Unit of Measure");
         ItemA.Validate("Replenishment System", ItemA."Replenishment System"::Assembly);
         ItemA."Overhead Rate" := 12;
@@ -164,7 +183,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         ItemB.Get(LibraryKitting.CreateItemWithNewUOM(10, 10));
         ItemB.Modify();
 
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ItemA."No.", BOMComponent.Type::Item, ItemB."No.", 1, ItemB."Base Unit of Measure");
         ItemA.Validate("Replenishment System", ItemA."Replenishment System"::Assembly);
         ItemA."Overhead Rate" := 4;

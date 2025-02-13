@@ -42,7 +42,6 @@ codeunit 137927 "SCM Assembly Copy"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryResource: Codeunit "Library - Resource";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -783,7 +782,7 @@ codeunit 137927 "SCM Assembly Copy"
         // [GIVEN] Create resource "R" and set it as BOM component for item "I".
         // [GIVEN] Set "Resource Usage Type" = "Fixed" and "Quantity Per" = 5.
         LibraryResource.CreateResourceNew(Resource);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Resource, Resource."No.", QtyPer, Resource."Base Unit of Measure");
         BOMComponent.Validate("Resource Usage Type", BOMComponent."Resource Usage Type"::Fixed);
         BOMComponent.Modify(true);
