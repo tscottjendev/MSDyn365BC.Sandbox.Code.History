@@ -53,7 +53,6 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
         LibrarySales: Codeunit "Library - Sales";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         IsInitialized: Boolean;
         MSG_PICK_ACT_CREATED: Label 'Pick activity no.';
         MSG_NOTHING_TO_HANDLE: Label 'Nothing to handle.';
@@ -3219,7 +3218,7 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
         QtyToConsume := LibraryRandom.RandInt(5);
         QtyToSell := LibraryRandom.RandIntInRange(6, 10);
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, CompItem."No.", QtyPerUoM);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, KitItem."No.", BOMComponent.Type::Item, CompItem."No.", QtyPerUoM, CompItem."Base Unit of Measure");
 
         // [GIVEN] Purchase and put-away 1 box of component item "C" into a bin "B2"
