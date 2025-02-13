@@ -4784,7 +4784,7 @@
         Item[4].Modify(true);
 
         // [GIVEN] Create a BOM Component for Item[5].
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
             BOMComponent,
             Item[5]."No.",
             BOMComponent.Type::Item,
