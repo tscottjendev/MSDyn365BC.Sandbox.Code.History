@@ -58,7 +58,6 @@ codeunit 137097 "SCM Kitting - Undo"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
@@ -270,7 +269,7 @@ codeunit 137097 "SCM Kitting - Undo"
     [Normal]
     local procedure AddComponentToAssemblyList(var BOMComponent: Record "BOM Component"; ComponentType: Enum "BOM Component Type"; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10]; QuantityPer: Decimal)
     begin
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, QuantityPer, UOM);
+        LibraryInventory.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, QuantityPer, UOM);
         if ComponentType = "BOM Component Type"::Resource then
             BOMComponent.Validate("Resource Usage Type", ResourceUsage);
         BOMComponent.Validate("Variant Code", VariantCode);
