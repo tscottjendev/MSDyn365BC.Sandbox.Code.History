@@ -3790,7 +3790,6 @@ codeunit 1751 "Data Classification Eval. Data"
         TableNo := DATABASE::"Agent";
         SetTableFieldsToNormal(TableNo);
         SetFieldToPersonal(TableNo, DummyAgent.FieldNo("User Security ID"));
-        SetFieldToCompanyConfidential(TableNo, DummyAgent.FieldNo("Instructions"));
 
         TableNo := DATABASE::"Agent Access Control";
         SetTableFieldsToNormal(TableNo);
