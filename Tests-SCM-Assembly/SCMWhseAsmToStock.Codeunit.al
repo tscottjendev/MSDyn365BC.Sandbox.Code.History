@@ -66,7 +66,6 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         MessagePickCreated: Label 'Pick activity no. ';
         MessageCreated: Label 'has been created.';
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryResource: Codeunit "Library - Resource";
         LibraryUtility: Codeunit "Library - Utility";
@@ -179,7 +178,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
     begin
         LibraryInventory.CreateItem(CompItem);
         LibraryInventory.CreateItem(AsmItem);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate2, AsmItem."No.", '', Quantity, '');
         Commit(); // committing as subsequent errors might roll back bin content creation
@@ -623,7 +622,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
         LibraryInventory.CreateItem(CompItem2);
         LibraryInventory.CreateItem(AsmItem2);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem2."No.", BOMComponent.Type::Item, CompItem2."No.", 1, CompItem2."Base Unit of Measure");
         LibraryAssembly.ReleaseAO(AsmHeader);
         // ** negative test - modify assembly header
@@ -635,7 +634,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
         LibraryInventory.CreateItem(CompItem2);
         LibraryInventory.CreateItem(AsmItem2);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem2."No.", BOMComponent.Type::Item, CompItem2."No.", 1, CompItem2."Base Unit of Measure");
         asserterror
         begin
