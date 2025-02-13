@@ -4901,7 +4901,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         for i := 1 to 2 do begin
             LibraryInventory.CreateItem(Item);
-            LibraryManufacturing.CreateBOMComponent(
+            LibraryInventory.CreateBOMComponent(
               BOMComponent, ParentItem."No.", BOMComponent.Type::Item, Item."No.", 1, ParentItem."Base Unit of Measure");
         end;
     end;

@@ -39,7 +39,6 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -325,7 +324,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Normal]
     local procedure AddComponentToAssemblyList(var BOMComponent: Record "BOM Component"; ComponentType: Enum "BOM Component Type"; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10]; QuantityPer: Decimal)
     begin
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, QuantityPer, UOM);
+        LibraryInventory.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, QuantityPer, UOM);
         if ComponentType = BOMComponent.Type::Resource then
             BOMComponent.Validate("Resource Usage Type", ResourceUsage);
         BOMComponent.Validate("Variant Code", VariantCode);
