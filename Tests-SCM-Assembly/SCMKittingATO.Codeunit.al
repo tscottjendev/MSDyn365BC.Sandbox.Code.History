@@ -66,7 +66,6 @@ codeunit 137096 "SCM Kitting - ATO"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -341,7 +340,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
     local procedure AddComponentToAssemblyList(var BOMComponent: Record "BOM Component"; ComponentType: Enum "BOM Component Type"; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10]; QuantityPer: Decimal)
     begin
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, QuantityPer, UOM);
+        LibraryInventory.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, QuantityPer, UOM);
         if ComponentType = BOMComponent.Type::Resource then
             BOMComponent.Validate("Resource Usage Type", ResourceUsage);
         BOMComponent.Validate("Variant Code", VariantCode);
@@ -5478,10 +5477,10 @@ codeunit 137096 "SCM Kitting - ATO"
         LibraryInventory.CreateItem(Item3);
 
         // [GIVEN] Create BOM Component.
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, Item."No.", BOMComponent.Type::Item, Item2."No.", LibraryRandom.RandInt(0), Item."Base Unit of Measure");
+        LibraryInventory.CreateBOMComponent(BOMComponent, Item."No.", BOMComponent.Type::Item, Item2."No.", LibraryRandom.RandInt(0), Item."Base Unit of Measure");
 
         // [GIVEN] Create BOM Component 2.
-        LibraryManufacturing.CreateBOMComponent(BOMComponent2, Item."No.", BOMComponent2.Type::Item, Item3."No.", LibraryRandom.RandIntInRange(2, 2), Item."Base Unit of Measure");
+        LibraryInventory.CreateBOMComponent(BOMComponent2, Item."No.", BOMComponent2.Type::Item, Item3."No.", LibraryRandom.RandIntInRange(2, 2), Item."Base Unit of Measure");
 
         // [GIVEN] Create and Post Item Journal Line.
         CreateAndPostItemJournalLine(ItemJournalLine, Item2, Item3);

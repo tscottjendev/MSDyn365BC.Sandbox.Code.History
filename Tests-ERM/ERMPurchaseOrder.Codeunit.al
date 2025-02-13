@@ -30,7 +30,6 @@
         LibraryJob: Codeunit "Library - Job";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPlanning: Codeunit "Library - Planning";
 #if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
@@ -6803,14 +6802,13 @@
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         BOMComponent: Record "BOM Component";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
         // [FEATURE] [Resource] [BOM]
         // [SCENARIO 341999] Explode BOM with resource component
         Initialize();
 
         // [GIVEN] Item with resource BOM component
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItemNo(), BOMComponent.Type::Resource, LibraryResource.CreateResourceNo(), 1, '');
+        LibraryInventory.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItemNo(), BOMComponent.Type::Resource, LibraryResource.CreateResourceNo(), 1, '');
 
         // [GIVEN] Purchase order with item
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
@@ -8497,7 +8495,7 @@
         // [WHEN] Post Invoice of Purchase Invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader[2], false, true);
 
-        // [THEN] Value Entry with "Entry Type" "Direct Cost", Item and item charge has Global Dimension 1 Code.
+        // [THEN] Value Entry with Entry Type, Direct Cost, Item and item charge has Global Dimension 1 Code.
         FindDirectCostValueEntry(ValueEntry, Item."No.", ItemCharge."No.");
         Assert.AreEqual('', ValueEntry."Global Dimension 1 Code",
             StrSubstNo(
@@ -8579,7 +8577,7 @@
                 SourceCurrencyErr,
                 GLEntry.FieldCaption("Source Currency Amount")));
     end;
-    
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -11482,7 +11480,7 @@
         LibraryUtility.FindRecord(RecRef);
         RecRef.SetTable(ItemUnitOfMeasure);
 
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ParentItemNo, BOMComponent.Type::Item, ItemNo, LibraryRandom.RandInt(10), ItemUnitOfMeasure.Code);
     end;
 
@@ -11942,7 +11940,7 @@
     end;
 #endif
 
- local procedure CreateLocationWithDimension(var Location: Record Location; var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type")
+    local procedure CreateLocationWithDimension(var Location: Record Location; var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type")
     var
         DefaultDimension: Record "Default Dimension";
     begin
