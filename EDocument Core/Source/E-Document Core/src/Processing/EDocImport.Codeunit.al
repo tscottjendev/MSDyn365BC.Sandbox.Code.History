@@ -57,7 +57,7 @@ codeunit 6140 "E-Doc. Import"
         exit(ProcessIncomingEDocument(EDocument, EDocument.GetEDocumentService(), EDocImportParameters));
     end;
 
-    local procedure ProcessIncomingEDocument(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; EDocImportParameters: Record "E-Doc. Import Parameters"): Boolean
+    internal procedure ProcessIncomingEDocument(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; EDocImportParameters: Record "E-Doc. Import Parameters"): Boolean
     var
         ImportEDocumentProcess: Codeunit "Import E-Document Process";
         PreviousStatus, CurrentStatus, DesiredStatus : Enum "Import E-Doc. Proc. Status";
@@ -100,8 +100,13 @@ codeunit 6140 "E-Doc. Import"
         EDocumentErrorHelper.ClearErrorMessages(EDocument);
         Commit();
         if not ImportEDocumentProcess.Run() then begin
+
+            EDocument.SetRecFilter();
+            EDocument.FindFirst();
+
             EDocErrorHelper.LogSimpleErrorMessage(EDocument, GetLastErrorText());
             EDocumentLog.InsertLog(Enum::"E-Document Service Status"::"Imported Document Processing Error", EDocument.GetEDocumentImportProcessingStatus());
+            EDocumentProcessing.ModifyEDocumentStatus(EDocument, Enum::"E-Document Service Status"::"Imported Document Processing Error");
             exit(false);
         end;
         exit(true);
@@ -111,7 +116,6 @@ codeunit 6140 "E-Doc. Import"
     var
         EDocLog: Record "E-Document Log";
         IBlobType: Interface IBlobType;
-        BlobType: Enum "E-Doc. Data Storage Blob Type";
     begin
         IBlobType := Type;
         EDocument.Direction := EDocument.Direction::Incoming;
@@ -119,7 +123,7 @@ codeunit 6140 "E-Doc. Import"
         EDocument.Service := EDocumentService.Code;
 
         EDocument."File Name" := CopyStr(FileName, 1, 256);
-        EDocument."File Type" := BlobType;
+        EDocument."File Type" := Type;
         EDocument.Insert(true);
 
         EDocumentLog.SetFields(EDocument, EDocumentService);

@@ -2,14 +2,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.eServices.EDocument;
+namespace Microsoft.Integration.DynamicsFieldService;
 
-enum 6132 "Automatic Processing"
+enum 6612 "FS Integration Type"
 {
-    value(0; Yes)
+    Extensible = true;
+
+    value(0; Project)
     {
+        Caption = 'Projects (default)';
     }
-    value(1; No)
+    value(1; Service)
     {
+        Caption = 'Service';
     }
 }
