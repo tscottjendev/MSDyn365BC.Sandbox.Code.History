@@ -28,7 +28,6 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryCosting: Codeunit "Library - Costing";
 #endif
         LibraryRandom: Codeunit "Library - Random";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
 #if not CLEAN25
@@ -1512,7 +1511,7 @@ codeunit 137062 "SCM Sales & Receivables"
 
     local procedure CreateBOMComponent(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; Type: Enum "BOM Component Type"; No: Code[20])
     begin
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, Type, No, 1, '');
+        LibraryInventory.CreateBOMComponent(BOMComponent, ParentItemNo, Type, No, 1, '');
     end;
 
     local procedure CreatePurchaseInvoiceHeader(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])

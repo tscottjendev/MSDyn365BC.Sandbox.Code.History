@@ -15,7 +15,6 @@ codeunit 148184 "Sustainability Posting Test"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryResource: Codeunit "Library - Resource";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         InformationTakenToLedgerEntryLbl: Label '%1 on the Ledger Entry should be taken from %2', Locked = true;
@@ -5171,7 +5170,7 @@ codeunit 148184 "Sustainability Posting Test"
 
     local procedure AddComponentToAssemblyList(var BOMComponent: Record "BOM Component"; ComponentType: Enum "BOM Component Type"; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; UOM: Code[10]; QuantityPer: Decimal)
     begin
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, QuantityPer, UOM);
+        LibraryInventory.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, QuantityPer, UOM);
         BOMComponent.Validate("Variant Code", VariantCode);
         if ComponentNo = '' then
             BOMComponent.Validate(Description,

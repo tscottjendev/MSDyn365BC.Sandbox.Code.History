@@ -1956,7 +1956,7 @@ codeunit 137621 "SCM Costing Bugs II"
         AsmItem.Validate("Unit Cost", 5.29);
         AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
         AsmItem.Modify(true);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
 
         // [GIVEN] Receive and invoice purchase order at location "Blue" for 3 pcs of item "C", 5.29 LCY each.
