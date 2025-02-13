@@ -1766,7 +1766,7 @@ codeunit 137088 "SCM Order Planning - III"
         Item.Modify(true);
 
         // [GIVEN] Make item "I" a component of a parent item "P" and create assembly order for "P".
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, LibraryInventory.CreateItemNo(), BOMComponent.Type::Item, Item."No.", 1, Item."Base Unit of Measure");
         LibraryAssembly.CreateAssemblyHeader(
           AssemblyHeader, WorkDate() + 10, BOMComponent."Parent Item No.", '', LibraryRandom.RandInt(10), '');
