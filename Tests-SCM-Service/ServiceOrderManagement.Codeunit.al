@@ -48,7 +48,6 @@ codeunit 136135 "Service Order Management"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
@@ -1254,7 +1253,7 @@ codeunit 136135 "Service Order Management"
     var
         BOMComponent: Record "BOM Component";
     begin
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ItemNo, BOMComponent.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '');
         exit(BOMComponent."Quantity per");
     end;

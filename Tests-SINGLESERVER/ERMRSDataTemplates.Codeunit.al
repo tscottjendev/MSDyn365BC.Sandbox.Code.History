@@ -1034,7 +1034,7 @@ codeunit 136601 "ERM RS Data Templates"
         Initialize();
 
         // [GIVEN] BOM Component with blank Item's "No."
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItem(Item), BOMComponent.Type::Item, '', 1, '');
+        LibraryInventory.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItem(Item), BOMComponent.Type::Item, '', 1, '');
 
         // [GIVEN] Config. Template Header for Item
         // [WHEN] Validate "Service" as "Default Value" for Item's "Type" in Config. Template Line
