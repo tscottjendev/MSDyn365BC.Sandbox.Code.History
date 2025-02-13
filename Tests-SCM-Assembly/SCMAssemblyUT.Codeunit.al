@@ -36,7 +36,6 @@ codeunit 137928 "SCM Assembly UT"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryResource: Codeunit "Library - Resource";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -603,12 +602,12 @@ codeunit 137928 "SCM Assembly UT"
         // [SCENARIO 286199] "Assembly BOM" field value is TRUE when an Item from Assembly BOM has its own Assembly BOM of Item type.
 
         // [GIVEN] Add an Item to Assembly BOM of Item "I1".
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, LibraryInventory.CreateItemNo(),
           BOMComponent.Type::Item, LibraryInventory.CreateItemNo(), 1, '');
 
         // [WHEN] Add Item "I1" to Assembly BOM of Item "I2".
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, LibraryInventory.CreateItemNo(),
           BOMComponent.Type::Item, BOMComponent."Parent Item No.", 1, '');
 
@@ -627,12 +626,12 @@ codeunit 137928 "SCM Assembly UT"
         // [SCENARIO 286199] "Assembly BOM" field value is TRUE when an Item from Assembly BOM has its own Assembly BOM of Resource type.
 
         // [GIVEN] Add a Resource to Assembly BOM of Item "I1".
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, LibraryInventory.CreateItemNo(),
           BOMComponent.Type::Resource, LibraryResource.CreateResourceNo(), 1, '');
 
         // [WHEN] Add Item "I1" to Assembly BOM of Item "I2".
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, LibraryInventory.CreateItemNo(),
           BOMComponent.Type::Item, BOMComponent."Parent Item No.", 1, '');
 
@@ -651,7 +650,7 @@ codeunit 137928 "SCM Assembly UT"
         // [SCENARIO 286199] "Assembly BOM" field value is FALSE when an Item from Assembly BOM doesn't have its own Assembly BOM.
 
         // [WHEN] Add an Item without Assembly BOM to Assembly BOM of Item "I1".
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, LibraryInventory.CreateItemNo(),
           BOMComponent.Type::Item, LibraryInventory.CreateItemNo(), 1, '');
 

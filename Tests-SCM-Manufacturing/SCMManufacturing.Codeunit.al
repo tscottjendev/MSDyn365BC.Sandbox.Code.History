@@ -4830,7 +4830,7 @@ codeunit 137404 "SCM Manufacturing"
         Item: Record Item;
     begin
         Item.Get(ItemNo);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ParentItemNo, BOMComponent.Type::Item, Item."No.", QuantityPer, Item."Base Unit of Measure");
     end;
 
