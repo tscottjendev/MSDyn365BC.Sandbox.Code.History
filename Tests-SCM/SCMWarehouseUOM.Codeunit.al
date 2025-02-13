@@ -5004,7 +5004,7 @@ codeunit 137150 "SCM Warehouse UOM"
 
         LibraryInventory.CreateItem(ChildItem);
 
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ParentItem."No.", BOMComponent.Type::Item, ChildItem."No.", 1, ParentItem."Base Unit of Measure");
         BOMComponent.Validate("Quantity per", QtyPer);
         BOMComponent.Modify(true);
