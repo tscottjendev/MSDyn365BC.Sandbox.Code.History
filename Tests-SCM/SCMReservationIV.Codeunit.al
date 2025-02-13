@@ -3057,7 +3057,7 @@ codeunit 137271 "SCM Reservation IV"
         BOMComponent: Record "BOM Component";
     begin
         LibraryInventory.CreateItem(Item);
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, Item."No.", BOMComponent.Type::Item, ItemNo, 1, '');
+        LibraryInventory.CreateBOMComponent(BOMComponent, Item."No.", BOMComponent.Type::Item, ItemNo, 1, '');
         exit(Item."No.");
     end;
 
