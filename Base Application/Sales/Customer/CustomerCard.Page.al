@@ -2436,8 +2436,7 @@ page 21 "Customer Card"
 
     local procedure OnAfterGetCurrRecordFuncBackground()
     begin
-        Rec.CalcFields("Sales (LCY)", "Profit (LCY)", "Inv. Discounts (LCY)", "Payments (LCY)");
-        CustomerMgt.CalculateStatisticsWithCurrentCustomerValues(Rec, AdjmtCostLCY, AdjCustProfit, AdjProfitPct, CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY, CustProfit);
+        CustomerMgt.CalculateStatistic(Rec, AdjmtCostLCY, AdjCustProfit, AdjProfitPct, CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY, CustProfit);
     end;
 
     trigger OnInit()
@@ -2893,4 +2892,3 @@ page 21 "Customer Card"
     begin
     end;
 }
-
