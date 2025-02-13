@@ -1,4 +1,4 @@
-codeunit 132201 "Library - Inventory"
+﻿codeunit 132201 "Library - Inventory"
 {
     // Unsupported version tags:
     // 
@@ -69,6 +69,25 @@ codeunit 132201 "Library - Inventory"
         BaseCalendarChange.Validate(Date, Date);
         BaseCalendarChange.Validate(Day, Day);
         BaseCalendarChange.Insert(true);
+    end;
+
+    procedure CreateBOMComponent(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; Type: Enum "BOM Component Type"; No: Code[20]; QuantityPer: Decimal; UnitOfMeasureCode: Code[10])
+    var
+        RecRef: RecordRef;
+    begin
+        BOMComponent.Init();
+        BOMComponent.Validate("Parent Item No.", ParentItemNo);
+        RecRef.GetTable(BOMComponent);
+        BOMComponent.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, BOMComponent.FieldNo("Line No.")));
+        BOMComponent.Insert(true);
+        BOMComponent.Validate(Type, Type);
+        if BOMComponent.Type <> BOMComponent.Type::" " then begin
+            BOMComponent.Validate("No.", No);
+            BOMComponent.Validate("Quantity per", QuantityPer);
+            if UnitOfMeasureCode <> '' then
+                BOMComponent.Validate("Unit of Measure Code", UnitOfMeasureCode);
+        end;
+        BOMComponent.Modify(true);
     end;
 
     procedure ClearItemJournal(ItemJournalTemplate: Record "Item Journal Template"; ItemJournalBatch: Record "Item Journal Batch")

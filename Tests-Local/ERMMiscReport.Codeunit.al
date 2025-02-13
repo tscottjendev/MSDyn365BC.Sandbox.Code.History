@@ -2254,7 +2254,7 @@ codeunit 142060 "ERM Misc. Report"
 
     local procedure CreateAndUpdateBOMComponent(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; ItemNo: Code[20])
     begin
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ParentItemNo, BOMComponent.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2), '');
     end;
 

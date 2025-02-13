@@ -237,24 +237,13 @@ codeunit 132202 "Library - Manufacturing"
         RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
+#if not CLEAN26
+    [Obsolete('Moved to LibraryInventory', '26.0')]
     procedure CreateBOMComponent(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; Type: Enum "BOM Component Type"; No: Code[20]; QuantityPer: Decimal; UnitOfMeasureCode: Code[10])
-    var
-        RecRef: RecordRef;
     begin
-        BOMComponent.Init();
-        BOMComponent.Validate("Parent Item No.", ParentItemNo);
-        RecRef.GetTable(BOMComponent);
-        BOMComponent.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, BOMComponent.FieldNo("Line No.")));
-        BOMComponent.Insert(true);
-        BOMComponent.Validate(Type, Type);
-        if BOMComponent.Type <> BOMComponent.Type::" " then begin
-            BOMComponent.Validate("No.", No);
-            BOMComponent.Validate("Quantity per", QuantityPer);
-            if UnitOfMeasureCode <> '' then
-                BOMComponent.Validate("Unit of Measure Code", UnitOfMeasureCode);
-        end;
-        BOMComponent.Modify(true);
+        LibraryInventory.CreateBOMComponent(BOMComponent, ParentItemNo, Type, No, QuantityPer, UnitOfMeasureCode);
     end;
+#endif
 
     procedure CreateCalendarAbsenceEntry(var CalendarAbsenceEntry: Record "Calendar Absence Entry"; CapacityType: Enum "Capacity Type"; No: Code[20]; Date: Date; StartingTime: Time; EndingTime: Time; Capacity: Decimal)
     begin
