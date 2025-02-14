@@ -3781,9 +3781,9 @@ codeunit 1751 "Data Classification Eval. Data"
         DummyAgentTaskMessage: Record "Agent Task Message";
         DummyAgentTaskStep: Record "Agent Task Step";
         DummyAgentTaskFile: Record "Agent Task File";
-        DummyAgentTaskTimelineEntry: Record "Agent Task Timeline Entry";
-        DummyAgentTaskTimelineEntryStep: Record "Agent Task Timeline Entry Step";
-        DummyAgentTaskPaneEntry: Record "Agent Task Pane Entry";
+        DummyAgentTaskTimelineStep: Record "Agent Task Timeline Step";
+        DummyAgentTaskTimelineStepDetail: Record "Agent Task Timeline Step Det.";
+        DummyAgentTaskTimeline: Record "Agent Task Timeline";
         DummyAgentTaskLogEntry: Record "Agent Task Log Entry";
         TableNo: Integer;
     begin
@@ -3817,23 +3817,23 @@ codeunit 1751 "Data Classification Eval. Data"
         TableNo := DATABASE::"Agent Task Message Attachment";
         SetTableFieldsToNormal(TableNo);
 
-        TableNo := DATABASE::"Agent Task Timeline Entry";
+        TableNo := DATABASE::"Agent Task Timeline Step";
         SetTableFieldsToNormal(TableNo);
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineEntry.FieldNo("Title"));
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineEntry.FieldNo("Description"));
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineEntry.FieldNo("Primary Page Summary"));
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineEntry.FieldNo("Primary Page Query"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineStep.FieldNo("Title"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineStep.FieldNo("Description"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineStep.FieldNo("Primary Page Summary"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineStep.FieldNo("Primary Page Query"));
 
-        TableNo := DATABASE::"Agent Task Timeline Entry Step";
+        TableNo := DATABASE::"Agent Task Timeline Step Det.";
         SetTableFieldsToNormal(TableNo);
-        SetFieldToPersonal(TableNo, DummyAgentTaskTimelineEntryStep.FieldNo("User Security ID"));
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineEntryStep.FieldNo("Client Context"));
+        SetFieldToPersonal(TableNo, DummyAgentTaskTimelineStepDetail.FieldNo("User Security ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineStepDetail.FieldNo("Client Context"));
 
-        TableNo := DATABASE::"Agent Task Pane Entry";
+        TableNo := DATABASE::"Agent Task Timeline";
         SetTableFieldsToNormal(TableNo);
-        SetFieldToPersonal(TableNo, DummyAgentTaskPaneEntry.FieldNo("Created By"));
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskPaneEntry.FieldNo(Summary));
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskPaneEntry.FieldNo(Title));
+        SetFieldToPersonal(TableNo, DummyAgentTaskTimeline.FieldNo("Created By"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimeline.FieldNo(Summary));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimeline.FieldNo(Title));
 
         TableNo := DATABASE::"Agent Task Log Entry";
         SetTableFieldsToNormal(TableNo);
@@ -3862,7 +3862,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(2000000269, 3); // User Security Id
         SetFieldToCompanyConfidential(2000000269, 5); // Details
 
-        SetTableFieldsToNormal(2000000271); // Agent Task Step Group table
+        SetTableFieldsToNormal(2000000271); // Agent Task Timeline Step Data table
         SetFieldToCompanyConfidential(2000000271, 4); // Description
         SetFieldToCompanyConfidential(2000000271, 6); // Primary Page Bookmark
         SetFieldToCompanyConfidential(2000000271, 7); // Primary Page Summary
