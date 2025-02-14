@@ -97,7 +97,7 @@ page 151 "Customer Statistics"
                     ShowCaption = false;
                     group("This Period")
                     {
-                        Caption = 'This Period';
+                        Caption = 'This Fiscal Period';
                         field("CustDateName[1]"; CustDateName[1])
                         {
                             ApplicationArea = Basic, Suite;
@@ -239,7 +239,7 @@ page 151 "Customer Statistics"
                     }
                     group("This Year")
                     {
-                        Caption = 'This Year';
+                        Caption = 'This Fiscal Year';
                         field(Text001; Text001)
                         {
                             ApplicationArea = Basic, Suite;
@@ -382,7 +382,7 @@ page 151 "Customer Statistics"
                     }
                     group("Last Year")
                     {
-                        Caption = 'Last Year';
+                        Caption = 'Last Fiscal Year';
                         field(Placeholder1; Text001)
                         {
                             ApplicationArea = Basic, Suite;
@@ -725,7 +725,6 @@ page 151 "Customer Statistics"
 
     var
         DateFilterCalc: Codeunit "DateFilter-Calc";
-
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'Overdue Amounts (LCY) as of %1';
@@ -768,4 +767,3 @@ page 151 "Customer Statistics"
     begin
     end;
 }
-
