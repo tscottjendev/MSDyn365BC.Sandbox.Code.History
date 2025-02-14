@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Intercompany.Outbox;
 
 using Microsoft.Intercompany.Comment;
+using Microsoft.Intercompany;
 using Microsoft.Intercompany.Journal;
 using Microsoft.Intercompany.Partner;
 
@@ -22,12 +23,10 @@ table 416 "Handled IC Outbox Trans."
             Editable = false;
             TableRelation = "IC Partner";
         }
-        field(3; "Source Type"; Option)
+        field(3; "Source Type"; Enum "IC Transaction Source Type")
         {
             Caption = 'Source Type';
             Editable = false;
-            OptionCaption = 'Journal,Sales Document,Purchase Document';
-            OptionMembers = Journal,"Sales Document","Purchase Document";
         }
         field(5; "Document Type"; Enum "IC Transaction Document Type")
         {
