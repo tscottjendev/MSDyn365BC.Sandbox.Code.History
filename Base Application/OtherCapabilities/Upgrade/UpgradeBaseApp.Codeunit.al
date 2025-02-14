@@ -221,6 +221,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeCountryVATSchemeDK();
         UpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocation();
         UpgradeIntegrationTableMappingTemplates();
+        UpgradeICOutboxTransactionSourceType();
     end;
 
     local procedure ClearTemporaryTables()
@@ -3730,5 +3731,23 @@ codeunit 104000 "Upgrade - BaseApp"
             until ManIntegrationTableMapping.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingTemplatesUpgradeTag());
+    end;
+
+    local procedure UpgradeICOutboxTransactionSourceType()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        ICOutboxTransactionDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetICOutboxTransactionSourceTypeUpgradeTag()) then
+            exit;
+
+        ICOutboxTransactionDataTransfer.SetTables(Database::"IC Outbox Transaction", Database::"IC Outbox Transaction");
+        ICOutboxTransactionDataTransfer.AddFieldValue(ICOutboxTransaction.FieldNo("Source Type"), ICOutboxTransaction.FieldNo("IC Source Type"));
+        ICOutboxTransactionDataTransfer.CopyFields();
+        Clear(ICOutboxTransactionDataTransfer);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICOutboxTransactionSourceTypeUpgradeTag());
     end;
 }
