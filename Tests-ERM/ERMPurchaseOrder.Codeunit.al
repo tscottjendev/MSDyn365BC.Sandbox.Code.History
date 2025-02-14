@@ -6114,6 +6114,31 @@
 
     [Test]
     [Scope('OnPrem')]
+    procedure CombineGLEntriesForTheSameAccountIfCopyDocumentLineDescrToGLEntryIsFalse()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        AccountNo: Code[20];
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [G/L Entry] [Description]
+        // [SCENARIO 300843] G/L account type lines combined  to single G/L entry when PurchasSetup."Copy Line Descr. to G/L Entry" = "No"
+        Initialize();
+
+        // [GIVEN] Set PurchaseSetup."Copy Line Descr. to G/L Entry" = "No"
+        SetPurchSetupCopyLineDescrToGLEntry(false);
+
+        // [GIVEN] Create purchase order with sereval "G/L Account" type purchase lines with unique descriptions "Descr1" - "Descr5"
+        AccountNo := CreatePurchOrderWithSameAccountLines(PurchaseHeader, "Purchase Line Type"::"G/L Account", 3);
+
+        // [WHEN] Purchase order is being posted
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] One G/L entry created for combined lines
+        VerifyCombinedGLEntries(InvoiceNo, AccountNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ExtendCopyDocumentLineDescriptionToGLEntry()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -8964,6 +8989,23 @@
         end;
     end;
 
+    local procedure CreatePurchOrderWithSameAccountLines(var PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; LineCount: Integer): Code[20]
+    var
+        PurchaseLine: Record "Purchase Line";
+        AccountNo: Code[20];
+        i: Integer;
+    begin
+        AccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        for i := 1 to LineCount do
+            case Type of
+                PurchaseLine.Type::"G/L Account":
+                    LibraryPurchase.CreatePurchaseLine(
+                      PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", AccountNo, 1);
+            end;
+        exit(AccountNo);
+    end;
+
     local procedure FindPurchRcptHeader(var PurchRcptHeader: Record "Purch. Rcpt. Header"; OrderNo: Code[20])
     begin
         PurchRcptHeader.SetRange("Order No.", OrderNo);
@@ -10021,6 +10063,13 @@
         Item.Modify(true);
     end;
 
+    local procedure ModifyFullPrepmtAndLocationOnPurchLine(var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10])
+    begin
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Validate("Prepayment %", 100);
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure ChangeQtyToInvoice(var InvPurchLine: Record "Purchase Line"; InvPurchHeader: Record "Purchase Header")
     begin
         InvPurchLine.SetRange("Document Type", InvPurchHeader."Document Type");
@@ -10673,6 +10722,15 @@
             GLEntry.SETRANGE(Description, TempPurchaseLine.Description);
             Assert.RecordIsNotEmpty(GLEntry);
         until TempPurchaseLine.Next() = 0;
+    end;
+
+    local procedure VerifyCombinedGLEntries(InvoiceNo: Code[20]; AccountNo: Code[20])
+    var
+        GLEntry: Record "G/l Entry";
+    begin
+        GLEntry.SETRANGE("Document No.", InvoiceNo);
+        GLEntry.SETRANGE("G/L Account No.", AccountNo);
+        Assert.IsTrue(GLEntry.Count() = 1, 'One G/L Entry should be posted');
     end;
 
     local procedure VerifyJobLedgerEntryZeroUnitCost(DocumentNo: Code[20]; JobNo: Code[20])
