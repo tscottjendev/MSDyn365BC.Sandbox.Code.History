@@ -164,6 +164,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetIntegrationTableMappingTemplatesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPopulateUserSetupEmailUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPurchaseCreditMemoVendorCrMemoNoUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetICOutboxTransactionSourceTypeUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -1168,5 +1169,10 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetPurchaseCreditMemoVendorCrMemoNoUpgradeTag(): Code[250]
     begin
         exit('MS-559602-PurchaseCreditMemoVendorCrMemoNoUpgradeTag-20241206');
+    end;
+
+    internal procedure GetICOutboxTransactionSourceTypeUpgradeTag(): Code[250]
+    begin
+        exit('MS-557872-ICOutboxTransactionSourceTypeUpgradeTag-20251202');
     end;
 }
