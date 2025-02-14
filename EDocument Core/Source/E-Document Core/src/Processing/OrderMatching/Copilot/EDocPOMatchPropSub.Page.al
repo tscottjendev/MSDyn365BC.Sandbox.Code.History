@@ -53,7 +53,7 @@ page 6163 "E-Doc. PO Match Prop. Sub"
                 field("Learn Matching Rule"; Rec."Learn Matching Rule")
                 {
                     ApplicationArea = All;
-                    Tooltip = 'Specifies whether a matching rule should be created for this proposal. Item references are created for Items and Text To Account mappings are created for G/L Accounts.';
+                    Tooltip = 'Specifies whether a matching rule should be created for this proposal. Item references are created for Items and Text To Account Mappings are created for G/L Accounts.';
 
                     trigger OnValidate()
                     begin
