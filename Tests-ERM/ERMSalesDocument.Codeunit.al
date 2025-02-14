@@ -3615,6 +3615,31 @@
 
     [Test]
     [Scope('OnPrem')]
+    procedure CombineGLEntriesForTheSameAccountIfCopyDocumentLineDescrToGLEntryIsFalse()
+    var
+        SalesHeader: Record "Sales Header";
+        AccountNo: Code[20];
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [G/L Entry] [Description]
+        // [SCENARIO 300843] G/L account type lines combined  to single G/L entry when SalesSetup."Copy Line Descr. to G/L Entry" = "No"
+        Initialize();
+
+        // [GIVEN] Set SalesSetup."Copy Line Descr. to G/L Entry" = "No"
+        SetSalesSetupCopyLineDescrToGLEntry(false);
+
+        // [GIVEN] Create sales order with sereval "G/L Account" type sales with same G/L Account No.
+        AccountNo := CreateSalesOrderWithSameAccountLines(SalesHeader, "Sales Line Type"::"G/L Account", 3);
+
+        // [WHEN] Sales order is being posted
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] One combined G/L entry created
+        VerifyCombinedGLEntries(InvoiceNo, AccountNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ExtendCopyDocumentLineDescriptionToGLEntry()
     var
         SalesHeader: Record "Sales Header";
@@ -5382,6 +5407,23 @@
         end;
     end;
 
+    local procedure CreateSalesOrderWithSameAccountLines(var SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; LineCount: Integer): Code[20]
+    var
+        SalesLine: Record "Sales Line";
+        AccountNo: Code[20];
+        i: Integer;
+    begin
+        AccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        for i := 1 to LineCount do
+            case Type of
+                SalesLine.Type::"G/L Account":
+                    LibrarySales.CreateSalesLine(
+                      SalesLine, SalesHeader, SalesLine.Type::"G/L Account", AccountNo, 1);
+            end;
+        exit(AccountNo);
+    end;
+
     local procedure CreateVATPostingSetupWithVATClauseCode(var VATPostingSetup: Record "VAT Posting Setup"; VATClauseCode: Code[20])
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -6189,6 +6231,15 @@
             GLEntry.SETRANGE(Description, TempSalesLine.Description);
             Assert.RecordIsNotEmpty(GLEntry);
         until TempSalesLine.Next() = 0;
+    end;
+
+    local procedure VerifyCombinedGLEntries(InvoiceNo: Code[20]; AccountNo: Code[20])
+    var
+        GLEntry: Record "g/l Entry";
+    begin
+        GLEntry.SETRANGE("Document No.", InvoiceNo);
+        GLEntry.SETRANGE("G/L Account No.", AccountNo);
+        Assert.IsTrue(GLEntry.Count() = 1, 'One G/L Entry should be posted');
     end;
 
     local procedure VerifyVATEntryForCreditMemo(DocumentNo: Code[20]; Amount: Decimal)
