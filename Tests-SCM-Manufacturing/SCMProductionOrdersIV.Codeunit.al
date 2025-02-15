@@ -22,6 +22,8 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Reports;
 using Microsoft.Manufacturing.Setup;
+using Microsoft.Inventory.Costing;
+using Microsoft.Manufacturing.Journal;
 using Microsoft.Sales.Document;
 
 codeunit 137083 "SCM Production Orders IV"
@@ -3187,6 +3189,118 @@ codeunit 137083 "SCM Production Orders IV"
         ReleasedProductionOrder.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('PostProductionJournalHandler,ConfirmHandlerTrue,MessageHandler,ReleasedProdOrderPageHandler')]
+    procedure VerifyCostIsAdjustedMustBeFalseInInventoryAdjmtEntryOrderWhenReopenProductionOrder()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        FinishedProductionOrder: TestPage "Finished Production Order";
+    begin
+        // [SCENARIO 563303] Verify "Cost is Adjusted" must be false after reopen production order in "Inventory Adjmt. Entry (Order)".
+        Initialize();
+
+        // [GIVEN] Set location code in Manufacturing Setup.
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", '');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create an Item with BOM and Routing.
+        CreateItemWithBOMAndRouting(Item, ChildItem, LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] Create and Post Item Journal Line for Component item with Unit Cost.
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine, ChildItem."No.", LibraryRandom.RandIntInRange(10, 50), '', '', LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '', '');
+
+        // [GIVEN] Find Released Production Order Line.
+        FindProdOrderLine(ProdOrderLine, ProdOrderLine.Status::Released, ProductionOrder."No.");
+
+        // [GIVEN] Open and Post Production Journal.
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [WHEN] Change Status From Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] "Is Finished" must be true when status is changed to Finished.
+        InventoryAdjmtEntryOrder.Get(InventoryAdjmtEntryOrder."Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+        Assert.AreEqual(
+            true,
+            InventoryAdjmtEntryOrder."Is Finished",
+            StrSubstNo(ValueMustBeEqualErr, InventoryAdjmtEntryOrder.FieldCaption("Is Finished"), true, InventoryAdjmtEntryOrder.TableCaption()));
+
+        // [THEN] "Cost is Adjusted" must be false when status is changed to Finished.
+        Assert.AreEqual(
+            false,
+            InventoryAdjmtEntryOrder."Cost is Adjusted",
+            StrSubstNo(ValueMustBeEqualErr, InventoryAdjmtEntryOrder.FieldCaption("Cost is Adjusted"), false, InventoryAdjmtEntryOrder.TableCaption()));
+
+        // [WHEN] Run Adjust Cost Item Entries
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] "Cost is Adjusted" must be true when Adjust Cost Item Entries is executed.
+        Item.Get(Item."No.");
+        InventoryAdjmtEntryOrder.Get(InventoryAdjmtEntryOrder."Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+        Assert.AreEqual(
+            true,
+            InventoryAdjmtEntryOrder."Cost is Adjusted",
+            StrSubstNo(ValueMustBeEqualErr, InventoryAdjmtEntryOrder.FieldCaption("Cost is Adjusted"), true, InventoryAdjmtEntryOrder.TableCaption()));
+        Assert.AreEqual(
+            true,
+            Item."Cost is Adjusted",
+            StrSubstNo(ValueMustBeEqualErr, Item.FieldCaption("Cost is Adjusted"), true, Item.TableCaption()));
+
+        // [GIVEN] Get Finished Production Order.
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+
+        // [WHEN] Execute "ReopenFinishProdOrder" action.
+        FinishedProductionOrder.OpenEdit();
+        FinishedProductionOrder.GoToRecord(ProductionOrder);
+        FinishedProductionOrder.ReopenFinishedProdOrder.Invoke();
+
+        // [THEN] "Is Finished" and "Cost is Adjusted" must be false when reopen the production order in Item and "Inventory Adjmt. Entry (Order)".
+        Item.Get(Item."No.");
+        InventoryAdjmtEntryOrder.Get(InventoryAdjmtEntryOrder."Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+        Assert.AreEqual(
+            false,
+            InventoryAdjmtEntryOrder."Is Finished",
+            StrSubstNo(ValueMustBeEqualErr, InventoryAdjmtEntryOrder.FieldCaption("Is Finished"), false, InventoryAdjmtEntryOrder.TableCaption()));
+        Assert.AreEqual(
+            false,
+            InventoryAdjmtEntryOrder."Cost is Adjusted",
+            StrSubstNo(ValueMustBeEqualErr, InventoryAdjmtEntryOrder.FieldCaption("Cost is Adjusted"), false, InventoryAdjmtEntryOrder.TableCaption()));
+        Assert.AreEqual(
+            false,
+            Item."Cost is Adjusted",
+            StrSubstNo(ValueMustBeEqualErr, Item.FieldCaption("Cost is Adjusted"), false, Item.TableCaption()));
+
+        // [GIVEN] Change Status From Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [WHEN] Run Adjust Cost Item Entries
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] "Cost is Adjusted" must be true when Adjust Cost Item Entries is executed.
+        Item.Get(Item."No.");
+        InventoryAdjmtEntryOrder.Get(InventoryAdjmtEntryOrder."Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+        Assert.AreEqual(
+            true,
+            InventoryAdjmtEntryOrder."Cost is Adjusted",
+            StrSubstNo(ValueMustBeEqualErr, InventoryAdjmtEntryOrder.FieldCaption("Cost is Adjusted"), true, InventoryAdjmtEntryOrder.TableCaption()));
+        Assert.AreEqual(
+            true,
+            Item."Cost is Adjusted",
+            StrSubstNo(ValueMustBeEqualErr, Item.FieldCaption("Cost is Adjusted"), true, Item.TableCaption()));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Production Orders IV");
@@ -3760,6 +3874,54 @@ codeunit 137083 "SCM Production Orders IV"
         SalesLine.Modify(true);
     end;
 
+    local procedure CreateItemWithBOMAndRouting(var Item: Record Item; var ChildItem: Record Item; QuantityPer: Decimal)
+    var
+        WorkCenter: Record "Work Center";
+    begin
+        CreateItemsSetup(Item, ChildItem, QuantityPer);
+        UpdateFlushingMethodOnItem(ChildItem, ChildItem."Flushing Method"::"Pick + Backward");
+        UpdateBOMHeader(Item."Production BOM No.", ChildItem."No.", CreateRoutingAndUpdateItem(Item, WorkCenter));
+        WorkCenter.Validate("Subcontractor No.", '');
+        WorkCenter.Modify();
+    end;
+
+    local procedure UpdateBOMHeader(ProductionBOMNo: Code[20]; ItemNo: Code[20]; RoutingLinkCode: Code[10])
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        ProductionBOMHeader.SetRange("No.", ProductionBOMNo);
+        ProductionBOMHeader.FindFirst();
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::"Under Development");
+        ProductionBOMHeader.Modify(true);
+
+        UpdateBOMLineRoutingLinkCode(ProductionBOMNo, ItemNo, RoutingLinkCode);
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+    end;
+
+    local procedure UpdateBOMLineRoutingLinkCode(ProductionBOMHeaderNo: Code[20]; ItemNo: Code[20]; RoutingLinkCode: Code[10])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        FindProdBOMLine(ProductionBOMLine, ProductionBOMHeaderNo, ItemNo);
+        ProductionBOMLine.Validate("Routing Link Code", RoutingLinkCode);
+        ProductionBOMLine.Modify(true);
+    end;
+
+    local procedure UpdateFlushingMethodOnItem(var Item: Record Item; FlushingMethod: Enum "Flushing Method")
+    begin
+        Item.Validate("Flushing Method", FlushingMethod);
+        Item.Modify(true);
+    end;
+
+    local procedure FindProdBOMLine(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMHeaderNo: Code[20]; ItemNo: Code[20])
+    begin
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeaderNo);
+        ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
+        ProductionBOMLine.SetRange("No.", ItemNo);
+        ProductionBOMLine.FindFirst();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
@@ -3805,6 +3967,12 @@ codeunit 137083 "SCM Production Orders IV"
         ChangeStatusOnProductionOrder.Yes().Invoke();
     end;
 
+    [ModalPageHandler]
+    procedure PostProductionJournalHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.Post.Invoke();
+    end;
+
     [StrMenuHandler]
     [Scope('OnPrem')]
     procedure StrMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
@@ -3828,5 +3996,10 @@ codeunit 137083 "SCM Production Orders IV"
         BOMCostShareDistribution.ShowLevelAs.SetValue(ShowLevelAsLcl);
         BOMCostShareDistribution.ShowDetails.SetValue(ShowDetails);
         BOMCostShareDistribution.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [PageHandler]
+    procedure ReleasedProdOrderPageHandler(var ReleasedProductionOrder: TestPage "Released Production Order")
+    begin
     end;
 }

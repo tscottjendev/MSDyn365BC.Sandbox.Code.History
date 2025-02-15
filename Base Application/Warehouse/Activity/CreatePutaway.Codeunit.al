@@ -83,6 +83,7 @@ codeunit 7313 "Create Put-away"
         DefaultBinPutawayPolicyTelemetryTok: Label 'Default Bin Put-away Policy in used for inventory put-away.', Locked = true;
         PutawayTemplateBinPutawayPolicyTelemetryTok: Label 'Put-away template Bin Put-away Policy in used for inventory put-away.', Locked = true;
         PutAwayActivityNoHasBeenCreatedMsg: Label 'Put-away activity no. %1 has been created.', Comment = '%1 = Put-away Activity No. ';
+        NothingToCreateErr: Label 'There is nothing to create.';
 
     local procedure "Code"()
     var
@@ -1092,8 +1093,15 @@ codeunit 7313 "Create Put-away"
             ProdOrder.Modify();
         end;
 
-        if PutAwayRequired then
+        if PutAwayRequired then begin
             MfgPutAwayHelper.CreateWhsePutAwayRequestForProdOutput(ProdOrder, ProdOrderLine);
+
+            ProdOrderLine."Put-away Status" := ProdOrderLine.GetLineStatus();
+            ProdOrderLine.Modify();
+
+            ProdOrder."Document Put-away Status" := ProdOrder.GetHeaderStatus(0);
+            ProdOrder.Modify();
+        end;
 
         if not ShouldCreatePutAway then
             if PutAwayRequired then begin
@@ -1126,7 +1134,10 @@ codeunit 7313 "Create Put-away"
         LoopThruProdOrderLines(ProdOrder);
 
         if GuiAllowed() then
-            Message(PutAwayActivityNoHasBeenCreatedMsg, CurrWarehouseActivityHeader."No.");
+            if CurrWarehouseActivityHeader."No." <> '' then
+                Message(PutAwayActivityNoHasBeenCreatedMsg, CurrWarehouseActivityHeader."No.")
+            else
+                Error(NothingToCreateErr);
     end;
 
     procedure CalcQtyToProdOutputPutAway(EmptyZoneBin: Boolean; NewBinContent: Boolean; ProdOrderLine: Record "Prod. Order Line")
@@ -1566,7 +1577,9 @@ codeunit 7313 "Create Put-away"
         if (CurrWarehouseActivityHeader."No." = '') and InsertHeader then
             InsertWhseActivHeader(ProdOrderLine);
 
-        CurrWarehouseActivityHeader.TestField("No.");
+        if CurrWarehouseActivityHeader."No." = '' then
+            Error(NothingToCreateErr);
+
         ProdOrderWhseMgmt.TransferFromOutputLine(WhseActivLine, ProdOrderLine);
         WhseActivLine."No." := CurrWarehouseActivityHeader."No.";
         WhseActivLine."Line No." := LineNo;
