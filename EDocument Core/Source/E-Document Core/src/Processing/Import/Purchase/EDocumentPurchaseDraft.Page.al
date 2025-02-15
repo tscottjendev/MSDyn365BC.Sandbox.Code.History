@@ -65,7 +65,7 @@ page 6181 "E-Document Purchase Draft"
                             LookupVendor();
                         end;
                     }
-                    field("Vendor Name"; EDocumentPurchaseHeader."Vendor Name")
+                    field("Vendor Name"; EDocumentPurchaseHeader."Vendor Company Name")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Vendor Name';
@@ -127,7 +127,7 @@ page 6181 "E-Document Purchase Draft"
                     Editable = false;
                     Importance = Promoted;
                 }
-                field("Amount Excl. VAT"; EDocumentPurchaseHeader.Total - EDocumentPurchaseHeader."Total Tax")
+                field("Amount Excl. VAT"; EDocumentPurchaseHeader.Total - EDocumentPurchaseHeader."Total VAT")
                 {
                     Caption = 'Amount Excl. VAT';
                     ToolTip = 'Specifies the total amount of the electronic document excluding VAT.';

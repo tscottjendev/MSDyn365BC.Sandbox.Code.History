@@ -22,57 +22,66 @@ table 6101 "E-Document Purchase Line"
         }
         field(2; "E-Document Entry No."; Integer)
         {
+            Caption = 'E-Document Entry No.';
             TableRelation = "E-Document"."Entry No";
             DataClassification = SystemMetadata;
             Editable = false;
         }
         field(3; "Date"; Date)
         {
+            Caption = 'Date';
             DataClassification = CustomerContent;
             Editable = false;
         }
         field(4; "Product Code"; Text[100])
         {
+            Caption = 'Product Code';
             DataClassification = CustomerContent;
             Editable = false;
         }
         field(5; "Description"; Text[100])
         {
+            Caption = 'Description';
             DataClassification = CustomerContent;
             Editable = false;
         }
         field(6; "Quantity"; Decimal)
         {
+            Caption = 'Quantity';
             DataClassification = CustomerContent;
             Editable = false;
         }
         field(7; "Unit of Measure"; Text[50])
         {
+            Caption = 'Unit of Measure';
             DataClassification = CustomerContent;
             Editable = false;
         }
         field(8; "Unit Price"; Decimal)
         {
+            Caption = 'Unit Price';
             DataClassification = CustomerContent;
             Editable = false;
         }
-        field(9; "Amount"; Decimal)
+        field(9; "Sub Total"; Decimal)
         {
+            Caption = 'Sub Total';
             DataClassification = CustomerContent;
-            Editable = false;
         }
-        field(10; "Tax"; Decimal)
+        field(10; "Total Discount"; Decimal)
         {
+            Caption = 'Total Discount';
             DataClassification = CustomerContent;
-            Editable = false;
         }
-        field(11; "Tax Rate"; Text[100])
+        field(11; "VAT Rate"; Decimal)
         {
+            Caption = 'VAT Rate';
             DataClassification = CustomerContent;
             Editable = false;
         }
         field(12; "Currency Code"; Code[10])
         {
+            Caption = 'Currency Code';
             DataClassification = CustomerContent;
             Editable = false;
         }

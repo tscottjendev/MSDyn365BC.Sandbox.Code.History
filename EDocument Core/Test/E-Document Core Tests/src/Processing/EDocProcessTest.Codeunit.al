@@ -175,7 +175,7 @@ codeunit 139883 "E-Doc Process Test"
         Vendor."VAT Registration No." := 'EDOCTESTTAXID001';
         Vendor.Insert();
         EDocumentPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
-        EDocumentPurchaseHeader."Vendor Tax Id" := Vendor."VAT Registration No.";
+        EDocumentPurchaseHeader."Vendor VAT Id" := Vendor."VAT Registration No.";
         EDocumentPurchaseHeader.Insert();
 
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Ready for draft");
@@ -219,7 +219,7 @@ codeunit 139883 "E-Doc Process Test"
         TextToAccountMapping.Insert();
 
         EDocumentPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
-        EDocumentPurchaseHeader."Vendor Tax Id" := Vendor."VAT Registration No.";
+        EDocumentPurchaseHeader."Vendor VAT Id" := Vendor."VAT Registration No.";
         EDocumentPurchaseHeader.Insert();
         EDocumentPurchaseLine."E-Document Entry No." := EDocument."Entry No";
         EDocumentPurchaseLine.Description := 'Test description';

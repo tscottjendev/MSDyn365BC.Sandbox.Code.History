@@ -70,13 +70,13 @@ codeunit 6174 "E-Document ADI Format" implements IStructuredFormatReader
         if FieldsObject.Get('totalTax', Token) then
             if Token.IsObject() then
                 if Token.AsObject().Get('value_number', Token) then
-                    EDocumentPurchaseHeader."Total Tax" := EDocument."Amount Incl. VAT" - Token.AsValue().AsDecimal();
+                    EDocumentPurchaseHeader."Total VAT" := EDocument."Amount Incl. VAT" - Token.AsValue().AsDecimal();
 
         // Extract the Vendor Name
         if FieldsObject.Get('billingAddressRecipient', Token) then
             if Token.IsObject() then
                 if Token.AsObject().Get('value_text', Token) then
-                    EDocumentPurchaseHeader."Vendor Name" := Token.AsValue().AsText();
+                    EDocumentPurchaseHeader."Vendor Company Name" := Token.AsValue().AsText();
 
         // Extract the Vendor Name
         if FieldsObject.Get('billingAddress', Token) then
@@ -88,7 +88,7 @@ codeunit 6174 "E-Document ADI Format" implements IStructuredFormatReader
         if FieldsObject.Get('vendorTaxId', Token) then
             if Token.IsObject() then
                 if Token.AsObject().Get('value_text', Token2) then
-                    EDocumentPurchaseHeader."Vendor Tax Id" := Token2.AsValue().AsText();
+                    EDocumentPurchaseHeader."Vendor VAT Id" := Token2.AsValue().AsText();
 
         EDocumentPurchaseHeader.Modify();
         EDocument."Document Type" := EDocument."Document Type"::"Purchase Invoice";
@@ -106,7 +106,7 @@ codeunit 6174 "E-Document ADI Format" implements IStructuredFormatReader
                 if Token2.AsObject().Get('amount', Token3) then
                     if Token3.IsObject() then
                         if Token3.AsObject().Get('value_number', Token3) then
-                            EDocumentPurchaseLine.Amount := Token3.AsValue().AsDecimal();
+                            EDocumentPurchaseLine."Sub Total" := Token3.AsValue().AsDecimal();
 
                 if Token2.AsObject().Get('description', Token3) then
                     if Token3.IsObject() then

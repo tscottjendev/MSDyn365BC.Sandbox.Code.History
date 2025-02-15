@@ -23,7 +23,7 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineAccountProvider, IUnitO
         EDocumentImportHelper: Codeunit "E-Document Import Helper";
     begin
         EDocumentPurchaseHeader.GetFromEDocument(EDocument);
-        if Vendor.Get(EDocumentImportHelper.FindVendor('', EDocumentPurchaseHeader."Vendor GLN", EDocumentPurchaseHeader."Vendor Tax Id")) then
+        if Vendor.Get(EDocumentImportHelper.FindVendor('', EDocumentPurchaseHeader."Vendor GLN", EDocumentPurchaseHeader."Vendor VAT Id")) then
             exit;
         ServiceParticipant.SetRange("Participant Type", ServiceParticipant."Participant Type"::Vendor);
         ServiceParticipant.SetRange("Participant Identifier", EDocumentPurchaseHeader."Vendor External Id");
@@ -35,7 +35,7 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineAccountProvider, IUnitO
         if Vendor.Get(ServiceParticipant.Participant) then
             exit;
 
-        if Vendor.Get(EDocumentImportHelper.FindVendorByNameAndAddress(EDocumentPurchaseHeader."Vendor Name", EDocumentPurchaseHeader."Vendor Address")) then;
+        if Vendor.Get(EDocumentImportHelper.FindVendorByNameAndAddress(EDocumentPurchaseHeader."Vendor Company Name", EDocumentPurchaseHeader."Vendor Address")) then;
     end;
 
     procedure GetUnitOfMeasure(EDocumentHeader: Record "E-Document"; EDocumentLineId: Integer; ExternalUnitOfMeasure: Text) UnitOfMeasure: Record "Unit of Measure"
