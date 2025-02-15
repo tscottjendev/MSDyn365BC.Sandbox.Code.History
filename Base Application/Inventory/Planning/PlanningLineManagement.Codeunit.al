@@ -338,8 +338,7 @@ codeunit 99000809 "Planning Line Management"
                                 PlanningComponent."Line No." := NextPlanningCompLineNo;
                                 PlanningComponent.Validate("Item No.", AsmBOMComp[Level]."No.");
                                 PlanningComponent."Variant Code" := AsmBOMComp[Level]."Variant Code";
-                                if IsInventoryItem(AsmBOMComp[Level]."No.") then
-                                    PlanningComponent."Location Code" := SKU."Components at Location";
+                                PlanningComponent."Location Code" := SKU."Components at Location";
                                 PlanningComponent.Description := CopyStr(AsmBOMComp[Level].Description, 1, MaxStrLen(PlanningComponent.Description));
                                 PlanningComponent."Planning Line Origin" := ReqLine."Planning Line Origin";
                                 PlanningComponent.Validate("Unit of Measure Code", AsmBOMComp[Level]."Unit of Measure Code");
@@ -633,8 +632,7 @@ codeunit 99000809 "Planning Line Management"
         PlanningComponent."Line No." := NextPlanningCompLineNo;
         PlanningComponent.Validate("Item No.", ProdBOMLine."No.");
         PlanningComponent."Variant Code" := ProdBOMLine."Variant Code";
-        if IsInventoryItem(ProdBOMLine."No.") then
-            PlanningComponent."Location Code" := SKU."Components at Location";
+        PlanningComponent."Location Code" := SKU."Components at Location";
         PlanningComponent.Description := ProdBOMLine.Description;
         PlanningComponent."Planning Line Origin" := ReqLine."Planning Line Origin";
         PlanningComponent.Validate("Unit of Measure Code", ProdBOMLine."Unit of Measure Code");
