@@ -8,6 +8,7 @@ using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.BOM.Tree;
 using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.Costing.ActionMessage;
 using Microsoft.Inventory.Comment;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Counting.Comment;
@@ -195,6 +196,7 @@ codeunit 1764 "Inventory-Data Classification"
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Inventory Report Entry");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Inventory Adjmt. Entry (Order)");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Cost Adj. Item Bucket");
+        DataClassificationMgt.SetTableFieldsToNormal(Database::"Cost Adjmt. Action Message");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Cost Adjustment Detailed Log");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Cost Adjustment Log");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Cost Adjustment Trace Log");

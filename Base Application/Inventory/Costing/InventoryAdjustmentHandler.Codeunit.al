@@ -31,12 +31,15 @@ codeunit 5894 "Inventory Adjustment Handler"
                 CostAdjustmentWithParams.SetFilterItem(Item);
             CostAdjustmentWithParams.MakeMultiLevelAdjmt(CostAdjustmentParamsMgt);
         end else begin
+            CostAdjustmentParamsMgt.GetParameters(CostAdjustmentParameter);
             InventoryAdjustment.SetProperties(CostAdjustmentParameter."Online Adjustment", CostAdjustmentParameter."Post to G/L");
             InventoryAdjustment.SetJobUpdateProperties(CostAdjustmentParameter."Skip Job Item Cost Update");
             if IsItemFiltered then
                 InventoryAdjustment.SetFilterItem(Item);
             InventoryAdjustment.MakeMultiLevelAdjmt();
         end;
+
+        OnAfterMakeInventoryAdjustment(CostAdjustmentParamsMgt);
     end;
 
     procedure MakeInventoryAdjustment(IsOnlineAdjmt: Boolean; PostToGL: Boolean)
@@ -69,6 +72,11 @@ codeunit 5894 "Inventory Adjustment Handler"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMakeInventoryAdjustment(var InventoryAdjustment: Interface "Inventory Adjustment"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMakeInventoryAdjustment(var CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.")
     begin
     end;
 
