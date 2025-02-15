@@ -3771,6 +3771,9 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(4592); // SOA KPI Entry
         SetFieldToPersonal(4592, 5); // Created by User ID
         SetTableFieldsToNormal(4593); // SOA KPI
+        SetTableFieldsToNormal(4585); // SOA Email
+        SetFieldToPersonal(4592, 9); // Sender Email
+        SetFieldToPersonal(4592, 10); // Sender Name
     end;
 
     local procedure ClassifyAgents()

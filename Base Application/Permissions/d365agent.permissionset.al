@@ -26,6 +26,5 @@ permissionset 6219 "D365 Agent"
                   tabledata "Agent Task Timeline" = Rimd,
                   tabledata "Agent Task Timeline Step" = Rimd,
                   tabledata "Agent Task Timeline Step Det." = Rimd,
-                  tabledata "Agent Task User Int Suggestion" = Rimd,
                   system "Manage Agent Tasks" = X;
 }
