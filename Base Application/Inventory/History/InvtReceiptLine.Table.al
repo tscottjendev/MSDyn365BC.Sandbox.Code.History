@@ -282,7 +282,6 @@ table 5853 "Invt. Receipt Line"
         key(Key1; "Document No.", "Line No.")
         {
             Clustered = true;
-            MaintainSIFTIndex = false;
         }
     }
 
