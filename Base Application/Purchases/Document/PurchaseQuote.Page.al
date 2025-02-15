@@ -929,22 +929,6 @@ page 49 "Purchase Quote"
                     RunObject = Page "Purchase Stats.";
                     RunPageOnRec = true;
                 }
-                action(PurchaseOrderStats)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Statistics';
-                    Enabled = Rec."No." <> '';
-                    Image = Statistics;
-                    ShortCutKey = 'F7';
-#if CLEAN26
-                    Visible = SalesTaxStatisticsVisible;
-#else
-                    Visible = false;
-#endif
-                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
-                    RunObject = Page "Purchase Order Statistics";
-                    RunPageOnRec = true;
-                }
                 action(Vendor)
                 {
                     ApplicationArea = Suite;

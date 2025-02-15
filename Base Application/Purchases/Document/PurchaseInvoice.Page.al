@@ -1157,7 +1157,7 @@ page 51 "Purchase Invoice"
                     RunObject = Page "Purchase Statistics";
                     RunPageOnRec = true;
                 }
-                action(PurchaseOrderStats)
+                action(PurchaseStats)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
@@ -1170,7 +1170,7 @@ page 51 "Purchase Invoice"
                     Visible = false;
 #endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
-                    RunObject = Page "Purchase Order Statistics";
+                    RunObject = Page "Purchase Stats.";
                     RunPageOnRec = true;
                 }
                 action(Vendor)
