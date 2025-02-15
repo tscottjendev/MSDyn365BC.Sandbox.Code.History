@@ -1,4 +1,5 @@
-﻿namespace Microsoft.Sales.Peppol;
+﻿
+namespace Microsoft.Sales.Peppol;
 
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
@@ -278,17 +279,28 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
 
                 trigger OnAfterGetRecord()
                 begin
-                    PEPPOLMgt.GetAdditionalDocRefInfo(
-                        additionaldocrefloop.Number,
-                        DocumentAttachments,
-                        SalesHeader,
-                        AdditionalDocumentReferenceID,
-                        AdditionalDocRefDocumentType,
-                        URI,
-                        filename,
-                        mimeCode,
-                        EmbeddedDocumentBinaryObject,
-                        ProcessedDocType.AsInteger());
+                    if (AdditionalDocRefLoop.Number <= DocumentAttachments.Count()) then
+                        PEPPOLMgt.GetAdditionalDocRefInfo(
+                           additionaldocrefloop.Number,
+                           DocumentAttachments,
+                           SalesHeader,
+                           AdditionalDocumentReferenceID,
+                           AdditionalDocRefDocumentType,
+                           URI,
+                           filename,
+                           mimeCode,
+                           EmbeddedDocumentBinaryObject,
+                           ProcessedDocType.AsInteger())
+                    else
+                        if GeneratePDF then
+                            PEPPOLMgt.GeneratePDFAttachmentAsAdditionalDocRef(
+                                 SalesHeader,
+                                 AdditionalDocumentReferenceID,
+                                 AdditionalDocRefDocumentType,
+                                 URI,
+                                 filename,
+                                 mimeCode,
+                                 EmbeddedDocumentBinaryObject);
 
                     if AdditionalDocumentReferenceID = '' then
                         currXMLport.Skip();
@@ -299,8 +311,12 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                     NumberRangeEnd: Integer;
                 begin
                     NumberRangeEnd := DocumentAttachments.Count();
-                    // Make sure range end it never 0
-                    if DocumentAttachments.IsEmpty() then
+
+                    if GeneratePDF then
+                        NumberRangeEnd += 1;
+
+                    // Make sure range end is never 0
+                    if NumberRangeEnd = 0 then
                         NumberRangeEnd := 1;
                     AdditionalDocRefLoop.SetRange(Number, 1, NumberRangeEnd);
                 end;
@@ -2134,6 +2150,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
         SpecifyASalesCreditMemoNoErr: Label 'You must specify a sales credit memo number.';
         UnSupportedTableTypeErr: Label 'The %1 table is not supported.', Comment = '%1 is the table.';
         ProcessedDocType: Enum "PEPPOL Processing Type";
+        GeneratePDF: Boolean;
 
     local procedure GetTotals()
     begin
@@ -2218,6 +2235,15 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
         end;
     end;
 
+    /// <summary>
+    /// Controls whether a PDF document should be generated and included as an additional document reference.
+    /// </summary>
+    /// <param name="GeneratePDFValue">If true, generates a PDF based on Report Selection settings.</param>
+    procedure SetGeneratePDF(GeneratePDFValue: Boolean)
+    begin
+        this.GeneratePDF := GeneratePDFValue;
+    end;
+
     local procedure GetCustomizationID(): Text
     begin
         exit('urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0');
@@ -2253,4 +2279,3 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
     begin
     end;
 }
-
