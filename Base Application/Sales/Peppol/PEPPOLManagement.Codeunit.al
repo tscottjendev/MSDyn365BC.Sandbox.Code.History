@@ -8,6 +8,7 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.UOM;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Inventory.Item;
@@ -167,6 +168,64 @@ codeunit 1605 "PEPPOL Management"
 
         OnAfterGetAdditionalDocRefInfo(
           AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType.AsInteger(), DocumentAttachments);
+    end;
+
+    /// <summary>
+    /// Generates a PDF attachment from report set in Report Selections.
+    /// </summary>
+    /// <param name="SalesHeader">Record "Sales Header" that contains the document information.</param>
+    /// <param name="AdditionalDocumentReferenceID">Additional Document Reference ID is set to original document no.</param>
+    /// <param name="AdditionalDocRefDocumentType">Document type is set to an empty string.</param>
+    /// <param name="URI">URI is set to an empty string.</param>
+    /// <param name="Filename">Filename generated in format 'DocumentType_DocumentNo.pdf'.</param>
+    /// <param name="MimeCode">The MimeCode is set to application/pdf.</param>
+    /// <param name="EmbeddedDocumentBinaryObject">Text output parameter that contains the Base64 encoded PDF content.</param>
+    internal procedure GeneratePDFAttachmentAsAdditionalDocRef(SalesHeader: Record "Sales Header"; var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var Filename: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text)
+    var
+        Base64Convert: Codeunit "Base64 Convert";
+        TempBlob: Codeunit "Temp Blob";
+        FileNameTok: Label '%1_%2.pdf', Comment = '1: Document Type, 2: Document No', Locked = true;
+    begin
+        AdditionalDocumentReferenceID := '';
+        AdditionalDocRefDocumentType := '';
+        URI := '';
+        MimeCode := '';
+        EmbeddedDocumentBinaryObject := '';
+        Filename := '';
+
+        if not GeneratePDFAsTempBlob(SalesHeader, TempBlob) then
+            exit;
+
+        Filename := StrSubstNo(FileNameTok, SalesHeader."Document Type", SalesHeader."No.");
+        AdditionalDocumentReferenceID := SalesHeader."No.";
+        EmbeddedDocumentBinaryObject := Base64Convert.ToBase64(TempBlob.CreateInStream());
+        MimeCode := 'application/pdf';
+    end;
+
+    local procedure GeneratePDFAsTempBlob(SalesHeader: Record "Sales Header"; var TempBlob: Codeunit "Temp Blob"): Boolean
+    var
+        ReportSelections: Record "Report Selections";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        case SalesHeader."Document Type" of
+            SalesHeader."Document Type"::Invoice:
+                begin
+                    SalesInvoiceHeader.SetRange("No.", SalesHeader."No.");
+                    if SalesInvoiceHeader.IsEmpty() then
+                        exit(false);
+                    ReportSelections.GetPdfReportForCust(TempBlob, "Report Selection Usage"::"S.Invoice", SalesInvoiceHeader, SalesHeader."Bill-to Customer No.");
+                end;
+            SalesHeader."Document Type"::"Credit Memo":
+                begin
+                    SalesCrMemoHeader.SetRange("No.", SalesHeader."No.");
+                    if SalesCrMemoHeader.IsEmpty() then
+                        exit(false);
+                    ReportSelections.GetPdfReportForCust(TempBlob, "Report Selection Usage"::"S.Cr.Memo", SalesCrMemoHeader, SalesHeader."Bill-to Customer No.");
+                end;
+        end;
+
+        exit(TempBlob.HasValue());
     end;
 
     procedure GetAccountingSupplierPartyInfo(var SupplierEndpointID: Text; var SupplierSchemeID: Text; var SupplierName: Text)
@@ -1606,4 +1665,3 @@ codeunit 1605 "PEPPOL Management"
     begin
     end;
 }
-
