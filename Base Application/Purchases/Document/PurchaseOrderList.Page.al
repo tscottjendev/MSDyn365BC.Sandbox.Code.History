@@ -379,6 +379,17 @@ page 9307 "Purchase Order List"
                         Rec.OpenPurchaseOrderStatistics();
                     end;
                 }
+                action(VendorStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor Statistics';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
+                    Image = Statistics;
+                    RunObject = Page "Vendor Statistics";
+                    RunPageLink = "No." = field("Buy-from Vendor No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the buy-from vendor on the purchase document.';
+                }
                 action(Approvals)
                 {
                     AccessByPermission = TableData "Approval Entry" = R;
@@ -1039,4 +1050,3 @@ page 9307 "Purchase Order List"
     begin
     end;
 }
-

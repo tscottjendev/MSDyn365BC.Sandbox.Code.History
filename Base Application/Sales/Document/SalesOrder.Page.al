@@ -1437,6 +1437,17 @@ page 42 "Sales Order"
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the customer on the sales document.';
                 }
+                action(CustomerStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer Statistics';
+                    Enabled = IsCustomerOrContactNotEmpty;
+                    Image = Statistics;
+                    RunObject = Page "Customer Statistics";
+                    RunPageLink = "No." = field("Sell-to Customer No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the sell-to customer on the sales document.';
+                }
                 action(Dimensions)
                 {
                     AccessByPermission = TableData Dimension = R;

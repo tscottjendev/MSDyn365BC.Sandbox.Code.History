@@ -22,6 +22,7 @@ using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Structure;
+using System.Utilities;
 
 table 5406 "Prod. Order Line"
 {
@@ -353,6 +354,9 @@ table 5406 "Prod. Order Line"
 
             trigger OnValidate()
             begin
+                if CurrFieldNo <> 0 then
+                    UpdateManualScheduling();
+
                 Validate("Ending Time");
             end;
         }
@@ -373,7 +377,10 @@ table 5406 "Prod. Order Line"
                     if IsHandled then
                         exit;
 
-                    CalcProdOrder.Recalculate(Rec, 1, true);
+                    if (CurrFieldNo <> 0) and (Rec."Manual Scheduling") then
+                        CalcProdOrder.Recalculate(Rec, 1, false)
+                    else
+                        CalcProdOrder.Recalculate(Rec, 1, true);
 
                     OnAfterRecalculate(Rec, 1, CurrFieldNo);
 
@@ -573,6 +580,12 @@ table 5406 "Prod. Order Line"
             MaxValue = 1;
             Editable = false;
         }
+        field(75; "Manual Scheduling"; Boolean)
+        {
+            Caption = 'Manual Scheduling';
+            Editable = false;
+            ToolTip = 'Specifies that the End/Due Dates on the production have been scheduled manually.';
+        }
         field(80; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
@@ -700,6 +713,9 @@ table 5406 "Prod. Order Line"
 
             trigger OnValidate()
             begin
+                if CurrFieldNo <> 0 then
+                    UpdateManualScheduling();
+
                 "Ending Date" := DT2Date("Ending Date-Time");
                 "Ending Time" := DT2Time("Ending Date-Time");
                 Validate("Ending Time");
@@ -997,18 +1013,22 @@ table 5406 "Prod. Order Line"
         ProdOrder: Record "Production Order";
         GLSetup: Record "General Ledger Setup";
         Location: Record Location;
+        MfgSetup: Record "Manufacturing Setup";
         ProdOrderLineReserve: Codeunit "Prod. Order Line-Reserve";
         ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
         UOMMgt: Codeunit "Unit of Measure Management";
         VersionMgt: Codeunit VersionManagement;
         CalcProdOrder: Codeunit "Calculate Prod. Order";
         DimMgt: Codeunit DimensionManagement;
+        ConfirmManagement: Codeunit "Confirm Management";
         Blocked: Boolean;
         GLSetupRead: Boolean;
         IgnoreErrors: Boolean;
         ErrorOccured: Boolean;
         CalledFromComponent: Boolean;
         CalledFromHeader: Boolean;
+        ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst: Label '%1 is greater or equal to %2 in %3 Status=%4,Prod. Order No.=%5, Line No.=%6. Do you want to continue?\\ If yes, %7 will be changed to %8.',
+                                                                Comment = '%1 = Field Caption , %2 = Field Caption, %3 = Table Caption, %4 = Status , %5 = Production Order No., %6 = Production Order Line No., %7= Field Caption, %8 = New Date';
 
     procedure DeleteRelations()
     var
@@ -1670,6 +1690,33 @@ table 5406 "Prod. Order Line"
     begin
         Rec.CalcFields("Put-away Qty. (Base)");
         exit(Rec."Finished Qty. (Base)" - (Rec."Put-away Qty. (Base)" + Rec."Qty. Put Away (Base)"));
+    end;
+
+    local procedure GetMfgSetup()
+    begin
+        MfgSetup.GetRecordOnce();
+    end;
+
+    local procedure UpdateManualScheduling()
+    begin
+        GetMfgSetup();
+
+        Rec.Validate("Manual Scheduling", MfgSetup."Manual Scheduling");
+    end;
+
+    procedure ConfirmUpdateDueDateAndEndingDate(NewFieldCaption: Text; NewFieldValue: Date): Boolean
+    begin
+        if not Rec."Manual Scheduling" then
+            exit(true);
+
+        if not ConfirmManagement.GetResponseOrDefault(
+            StrSubstNo(
+                ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst, Rec.FieldCaption("Ending Date"), Rec.FieldCaption("Due Date"), Rec.TableCaption(),
+                Rec.Status, Rec."Prod. Order No.", Rec."Line No.", NewFieldCaption, NewFieldValue), false)
+        then
+            Error('');
+
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]
