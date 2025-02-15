@@ -266,6 +266,7 @@ codeunit 99000787 "Create Prod. Order Lines"
     procedure InitProdOrderLine(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     var
         Item: Record Item;
+        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -282,6 +283,8 @@ codeunit 99000787 "Create Prod. Order Lines"
         OnInitProdOrderLineBeforeAssignItemNo(ProdOrderLine, ItemNo, VariantCode, LocationCode);
         ProdOrderLine.Validate("Item No.", ItemNo);
         ProdOrderLine."Location Code" := LocationCode;
+        ProdOrderWarehouseMgt.CompareProdOrderWithProdOrderLinesForLocation(ProdOrder, ProdOrderLine);
+        ProdOrderWarehouseMgt.ValidateWarehousePutAwayLocation(ProdOrderLine);
         ProdOrderLine.Validate("Variant Code", VariantCode);
         OnInitProdOrderLineAfterVariantCode(ProdOrderLine, VariantCode);
         if (LocationCode = ProdOrder."Location Code") and (ProdOrder."Bin Code" <> '') then
