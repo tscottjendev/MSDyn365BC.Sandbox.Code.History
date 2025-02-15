@@ -34,6 +34,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemFilterTok: Label '%1|%2|%3';
         isInitialized: Boolean;
         InvCostMustBeZeroErr: Label 'Total cost amount must be 0 after correction.';
+        ReverseCapacityLedgerEntryForSubContractingErr: Label 'Entry cannot be reversed as it is linked to the subcontracting work center.';
 
     local procedure Initialize()
     var
@@ -1155,6 +1156,51 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         Assert.AreEqual(0, InventoryCostByItem(ComponentItem."No."), InvCostMustBeZeroErr);
     end;
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    procedure VerifyCapacityLedgerEntryMustNotBeReversedWhenSubcontractingIsTrue()
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+        CapacityLedgerEntries: TestPage "Capacity Ledger Entries";
+    begin
+        // [SCENARIO 562491] Verify Capacity Ledger Entry must not be reversed When "Subcontracting" is true on Capacity Ledger Entry.
+        Initialize();
+
+        // [GIVEN] Create an item.
+        CreateItem(Item);
+
+        // [GIVEN] Create Routing with Subcontracting.
+        CreateRoutingAndUpdateItemSubcontracted(Item, WorkCenter, true);
+
+        // [GIVEN] Create and refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(100, 2), '', '');
+
+        // [GIVEN] Calculate Subcontracting
+        CalculateSubcontractOrder(WorkCenter);
+
+        // [GIVEN] Accept and Carry Out Action Message on Subcontracting Worksheet.   
+        AcceptActionMessage(RequisitionLine, Item."No.");
+        LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
+
+        // [GIVEN] Post Purchase Order.
+        PostPurchaseOrder(Item."No.", true, true);
+
+        // [GIVEN] Find Capacity Ledger Entry.
+        FindCapacityLedgerEntry(CapacityLedgerEntry, ProductionOrder."No.", WorkCenter."No.");
+
+        // [WHEN] Reverse Capacity Ledger Entry.
+        CapacityLedgerEntries.OpenEdit();
+        CapacityLedgerEntries.GoToRecord(CapacityLedgerEntry);
+        asserterror CapacityLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Capacity Ledger Entry must not be reversed When "Subcontracting" is true on Capacity Ledger Entry.
+        Assert.ExpectedError(ReverseCapacityLedgerEntryForSubContractingErr);
+    end;
+
     local procedure AcceptActionMessage(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
     begin
         SelectRequisitionLine(RequisitionLine, ItemNo);
@@ -1980,6 +2026,103 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemApplicationEntry.SetRange("Cost Application", false);
         ItemApplicationEntry.FindFirst();
         ItemApplicationEntry.TestField(Quantity, Quantity);
+    end;
+
+    local procedure CreateRoutingAndUpdateItem(var Item: Record Item; var WorkCenter: Record "Work Center"): Code[10]
+    begin
+        exit(CreateRoutingAndUpdateItemSubcontracted(Item, WorkCenter, false));
+    end;
+
+    local procedure CreateRoutingAndUpdateItemSubcontracted(var Item: Record Item; var WorkCenter: Record "Work Center"; IsSubcontracted: Boolean): Code[10]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        RoutingLink: Record "Routing Link";
+    begin
+        CreateWorkCenter(WorkCenter, IsSubcontracted);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.");
+        RoutingLink.FindFirst();
+        RoutingLine.Validate("Routing Link Code", RoutingLink.Code);
+        RoutingLine.Modify(true);
+
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+
+        exit(RoutingLink.Code);
+    end;
+
+    local procedure CreateWorkCenter(var WorkCenter: Record "Work Center"; IsSubcontracted: Boolean)
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        LibraryERM.FindGenPostingSetupWithDefVAT(GeneralPostingSetup);
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        if IsSubcontracted then
+            WorkCenter.Validate("Subcontractor No.", LibraryPurchase.CreateVendorNo());
+
+        WorkCenter.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        WorkCenter.Modify(true);
+    end;
+
+    local procedure CreateRoutingLine(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; CenterNo: Code[20])
+    var
+        OperationNo: Code[10];
+    begin
+        OperationNo := LibraryManufacturing.FindLastOperationNo(RoutingHeader."No.") + Format(LibraryRandom.RandInt(5));
+        LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, CenterNo, OperationNo, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
+    end;
+
+    local procedure CreateAndRefreshReleasedProductionOrder(var ProductionOrder: Record "Production Order"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
+    begin
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, SourceNo, Quantity, LocationCode, BinCode);
+    end;
+
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
+    begin
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, SourceNo, Quantity);
+        ProductionOrder.Validate("Location Code", LocationCode);
+        ProductionOrder.Validate("Bin Code", BinCode);
+        ProductionOrder.Modify(true);
+
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure PostPurchaseOrder(ItemNo: Code[20]; ShipReceive: Boolean; Invoice: Boolean)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        FindPurchaseOrderLine(PurchaseLine, ItemNo);
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+
+        if Invoice and (PurchaseHeader."Vendor Invoice No." = '') then
+            PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, ShipReceive, Invoice);
+    end;
+
+    local procedure FindPurchaseOrderLine(var PurchaseLine: Record "Purchase Line"; No: Code[20])
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", No);
+        PurchaseLine.FindFirst();
+    end;
+
+    local procedure CreateItem(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        Item.Modify(true);
+    end;
+
+    local procedure FindCapacityLedgerEntry(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; ProductionOrderNo: Code[20]; WorkCenterNo: Code[20])
+    begin
+        CapacityLedgerEntry.SetRange("Order No.", ProductionOrderNo);
+        CapacityLedgerEntry.SetRange("Work Center No.", WorkCenterNo);
+        CapacityLedgerEntry.FindFirst();
     end;
 
     [MessageHandler]
