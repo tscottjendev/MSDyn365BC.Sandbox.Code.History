@@ -1795,6 +1795,9 @@ table 83 "Item Journal Line"
         key(Key6; "Journal Template Name", "Journal Batch Name", "Document No.")
         {
         }
+        key(Key7; "Journal Template Name", "Journal Batch Name", "Document No.", "Item No.", "Location Code", "Bin Code")
+        {
+        }
     }
 
     fieldgroups
@@ -4016,22 +4019,54 @@ table 83 "Item Journal Line"
             CalculationDate := WorkDate();
     end;
 
-
+    /// <summary>
+    /// Event triggered after initializing default dimension sources for the Item Journal Line record.
+    /// Subscribing to this event allows developers to extend the standard behavior of initializing default dimesions for the item journal record.
+    /// </summary>
+    /// <param name="ItemJournalLine">The Item Journal Line record.</param>
+    /// <param name="DefaultDimSource">The list of default dimension sources.</param>
+    /// <param name="FieldNo">The field number that triggered the validation.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ItemJournalLine: Record "Item Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggerd before creating a dimension for an item journal line.
+    /// Subscribing to this event allows developers to implement custom logic or override asigning default source dimensions to the item journal line.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record to which dimensions are being assigned.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default validation logic should be skipped.</param>
+    /// <param name="CurrFieldNo">The current field number being processed.</param>
+    /// <param name="DefaultDimSource">A list of dictionaries containing default dimension sources, with each dictionary mapping an integer (dimension type) to a dimension code.</param>
+    /// <param name="InheritFromDimSetID">The dimension set ID from which dimensions will be inherited, if applicable.</param>
+    /// <param name="InheritFromTableNo">The table number from which dimensions will be inherited, if applicable.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean; CurrFieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
     begin
     end;
 
+
+    /// <summary>
+    /// Event triggered after the new item journal line has been set up.
+    /// This event allows developers to add custom logic or make adjustments to the record after the new line has been configured.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record that was set up.</param>
+    /// <param name="LastItemJournalLine">Provided item journal line record used as a source.</param>
+    /// <param name="ItemJournalTemplate">Item journal template record defining the template settings for tue current item journal record.</param>
+    /// <param name="ItemJnlBatch">Item journal batch record containing batch-specific settings for tue current item journal record.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewLine(var ItemJournalLine: Record "Item Journal Line"; var LastItemJournalLine: Record "Item Journal Line"; ItemJournalTemplate: Record "Item Journal Template"; ItemJnlBatch: Record "Item Journal Batch")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after calculating the signed value.
+    /// This event allows developers to adjust or log the signed value after the main procedure logic has executed.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record for which the signed value was calculated.</param>
+    /// <param name="Value">The original value provided to the procedure.</param>
+    /// <param name="Result">The resulting signed value calculated by the procedure. Developers can modify this value if needed within the event logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSigned(ItemJournalLine: Record "Item Journal Line"; Value: Decimal; var Result: Decimal)
     begin
@@ -4067,21 +4102,45 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from the "Sales Header" to the current record.
+    /// This event allows developers to implement custom logic or make adjustments to the current record after data has been copied from the "Sales Header."
+    /// </summary>
+    /// <param name="ItemJnlLine">The current item journal line record to which the data from the "Sales Header" has been copied.</param>
+    /// <param name="SalesHeader">Provided "Sales Header" record from which data was copied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyItemJnlLineFromSalesHeader(var ItemJnlLine: Record "Item Journal Line"; SalesHeader: Record "Sales Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from the "Sales Line" to the current record.
+    /// This event allows developers to implement custom logic or make adjustments to the current record after data has been copied from the "Sales Line."
+    /// </summary>
+    /// <param name="ItemJnlLine">The current record to which the data from the "Sales Line" has been copied.</param>
+    /// <param name="SalesLine">Provided "Sales Line" record from which data was copied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyItemJnlLineFromSalesLine(var ItemJnlLine: Record "Item Journal Line"; SalesLine: Record "Sales Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from the "Purchase Header" to the current record.
+    /// This event allows developers to implement custom logic or make adjustments to the current record after data has been copied from the "Purchase Header."
+    /// </summary>
+    /// <param name="ItemJnlLine">The current Item journal line record to which the data from the "Purchase Header" has been copied.</param>
+    /// <param name="PurchHeader">Provided "Purchase Header" record from which data was copied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyItemJnlLineFromPurchHeader(var ItemJnlLine: Record "Item Journal Line"; PurchHeader: Record "Purchase Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from the "Purchase Line" to the current record.
+    /// This event allows developers to implement custom logic or make adjustments to the current record after data has been copied from the "Purchase Line."
+    /// </summary>
+    /// <param name="ItemJnlLine">The current record to which the data from the "Purchase Line" has been copied.</param>
+    /// <param name="PurchLine">Provided "Purchase Line" record from which data was copied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyItemJnlLineFromPurchLine(var ItemJnlLine: Record "Item Journal Line"; PurchLine: Record "Purchase Line")
     begin
@@ -4152,6 +4211,12 @@ table 83 "Item Journal Line"
     end;
 #endif
 
+    /// <summary>
+    /// Event triggered after copying data from the "Job Journal Line" to the current record.
+    /// This event allows developers to implement custom logic or make adjustments to the current record after data has been copied from the "Job Journal Line."
+    /// </summary>
+    /// <param name="ItemJournalLine">The current record to which the data from the "Job Journal Line" has been copied.</param>
+    /// <param name="JobJnlLine">Provided "Job Journal Line" record from which data was copied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyItemJnlLineFromJobJnlLine(var ItemJournalLine: Record "Item Journal Line"; JobJournalLine: Record "Job Journal Line")
     begin
@@ -4192,21 +4257,45 @@ table 83 "Item Journal Line"
     begin
     end;
 
+
+    /// <summary>
+    /// Event triggered after getting the global "Item" record based on the "Item No." field value.
+    /// This event allows developers to apply additional logic or handle changes after the global "Item" record has been retrieved.
+    /// </summary>
+    /// <param name="Item">Global "Item" record that has been retrieved.</param>
+    /// <param name="ItemJournalLine">The current item journal line record whose "Item No." field was used to retrieve the item.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetItemChange(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after getting the global "Item Variant" record and synchronizing it with the "Variant Code" and "Item No." fields.
+    /// This event allows developers to apply additional logic or handle changes after the "Item Variant" record has been retrieved.
+    /// </summary>
+    /// <param name="ItemVariant">Global "Item Variant" record that has been retrieved.</param>
+    /// <param name="ItemJournalLine">The current item journal line record whose "Variant Code" and "Item No." fields were used to retrieve the item variant.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetItemVariantChange(var ItemVariant: Record "Item Variant"; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving the line with price.
+    /// This event allows developers to modify or enhance the behavior of the `LineWithPrice` interface after it has been set. Custom logic can be applied to tailor the behavior of the assigned interface.
+    /// </summary>
+    /// <param name="LineWithPrice">The "Line With Price" interface that has been set to the "Item Journal Line - Price" codeunit. Developers can use this parameter to extend or modify its behavior.</param>
     [IntegrationEvent(true, false)]
     local procedure OnAfterGetLineWithPrice(var LineWithPrice: Interface "Line With Price")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after calculating the "Unit Amount" for the current item journal line record.
+    /// This event allows developers to add custom logic or make adjustments to the calculated "Unit Amount" value after the procedure has completed its logic.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record for which the unit amount was calculated.</param>
+    /// <param name="UnitCost">The calculated unit cost used in determining the unit amount. This value reflects the item's cost adjusted for its unit of measure and any applicable indirect costs.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetUnitAmount(var ItemJournalLine: Record "Item Journal Line"; UnitCost: Decimal)
     begin
@@ -4222,6 +4311,11 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the "General Ledger Setup" has been read.
+    /// This event allows developers to implement custom logic or make adjustments after the "General Ledger Setup" has been successfully loaded into memory.
+    /// </summary>
+    /// <param name="GLSetup">The global "General Ledger Setup" record that was read.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterReadGLSetup(var GeneralLedgerSetup: Record "General Ledger Setup")
     begin
@@ -4232,11 +4326,23 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting the fields of a "Reservation Entry" record in the "SetReservationEntry" procedure.
+    /// This event allows developers to implement custom logic or modify the "Reservation Entry" record after its fields have been populated using the provided data.
+    /// </summary>
+    /// <param name="ReservEntry">The "Reservation Entry" record whose fields have been set.</param>
+    /// <param name="ItemJournalLine">Current item journal line record used to populate the "Reservation Entry" record.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetReservationEntry(var ReservEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line");
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on a "Reservation Entry" record in the "SetReservationFilters" procedure.
+    /// This event allows developers to implement custom filters or modify the "Reservation Entry" record after its filters have been set using the current record data.
+    /// </summary>
+    /// <param name="ReservEntry">The "Reservation Entry" record with filters applied.</param>
+    /// <param name="ItemJournalLine">Current item journal line record used to set the filters on the "Reservation Entry" record.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line");
     begin
@@ -4247,21 +4353,49 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after updating the "Amount" field in the current item journal line record.
+    /// This event allows developers to add custom logic after the "Amount" field has been updated. 
+    /// For example, additional calculations or validations can be performed at this stage
+    /// </summary>
+    /// <param name="ItemJournalLine">The record containing the updated "Amount" field.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateAmount(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after validating the shortcut dimension code for the current item journal line record.
+    /// This event allows developers to adjust or log the validated dimension code and its integration with the "Dimension Set ID".
+    /// </summary>
+    /// <param name="ItemJournalLine">The current current item journal line record for which the shortcut dimension code was validated.</param>
+    /// <param name="xItemJournalLine">The previous state of the record before the validation process.</param>
+    /// <param name="FieldNumber">The field number of the shortcut dimension that was validated.</param>
+    /// <param name="ShortcutDimCode">The validated shortcut dimension code. Developers can use this parameter to review or further process the validated code.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before performing the item availability check.
+    /// This event allows developers to add custom logic or override the default behavior of the item availability check.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current "Item Journal Line" record being checked for item availability.</param>
+    /// <param name="CalledByFieldNo">The number of the field that triggered the check.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemAvailable(ItemJournalLine: Record "Item Journal Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+     /// <summary>
+    /// Event triggered before checking the reserved quantity (base) during the valid.tion of quantity
+    /// This event allows developers to override or enhance the logic for checking reserved quantities in base units.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current record being validated for reserved quantities.</param>
+    /// <param name="Item">Provided global item record.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReservedQtyBase(var ItemJournalLine: Record "Item Journal Line"; var Item: Record Item; var IsHandled: Boolean)
     begin
@@ -4277,21 +4411,48 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before calculating the unit cost in the "FindUnitCost" procedure.
+    /// This event allows developers to implement custom logic for calculating the unit cost.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record for which the unit cost is being calculated.</param>
+    /// <param name="UnitCost">The calculated unit cost. This can be set by the subscriber to override the default calculation.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default validation logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindUnitCost(var ItemJournalLine: Record "Item Journal Line"; var UnitCost: Decimal; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before calculating the "Unit Amount".
+    /// This event allows developers to add custom logic or override the default unit amount calculation.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current record for which the unit amount is being calculated.</param>
+    /// <param name="CalledByFieldNo">The field number that initiated the calculation.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default calculation logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetUnitAmount(var ItemJournalLine: Record "Item Journal Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before executing the lookup logic for the "Item No." field in the "LookupItemNo" procedure.
+    /// This event allows developers to implement custom logic or modify the behavior before the default lookup logic for the "Item No." field is executed.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record for which the "Item No." lookup is being performed.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default lookup logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupItemNo(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before retrieving and calculating costs.
+    /// This event allows developers to implement custom logic or override the default cost retrieval process.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record for which costs are being retrieved.</param>
+    /// <param name="UnitCost">The calculated unit cost for the record. Developers can modify this value in the event logic.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default calculation logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRetrieveCosts(var ItemJournalLine: Record "Item Journal Line"; var UnitCost: Decimal; var IsHandled: Boolean)
     begin
@@ -4302,41 +4463,98 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before initializing the selection of an "Item Ledger Entry" in the "SelectItemEntry" procedure.
+    /// This event allows developers to add custom logic or modify the behavior before the selection process begins. 
+    /// For example, additional filters or setup logic can be applied to the record or process.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current record being processed in the "SelectItemEntry" procedure.</param>
+    /// <param name="xItemJournalLine">The previous version of the record before modifications.</param>
+    /// <param name="CurrentFieldNo">The number of the field that has triggered the validation process.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelectItemEntry(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the "New Bin Code" for same-location transfers.
+    /// This event allows developers to implement custom logic or override the default behavior for setting the "New Bin Code".
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record where the "New Bin Code" is set.</param>
+    /// <param name="CurrentFieldNo">The field number currently being processed.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default procedure logic should be skipped.</param> gasa
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetNewBinCodeForSameLocationTransfer(var ItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Applies-to Entry" field in the current item journal line record.
+    /// This event allows developers to add custom logic or override the default behavior before the "Applies-to Entry" field has been validated.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="CurrentFieldNo">The number of the field that has triggered the validation process.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default validation logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateAppliesToEntry(var ItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the Amount field.
+    /// This event allows developers to add custom logic or skip the default processing.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default validation logic should be skipped.</param>
+    /// <remarks>For instance, it can be used to change how 'Unit Amount' will be calculated.</remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateAmount(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the direct cost "Unit Amount" for the current item journal line record.
+    /// This event allows developers to implement custom logic or override the default validation process. 
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record for which the direct cost "Unit Amount" is being validated.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default validation logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateItemDirectCostUnitAmount(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Unit of Measure Code" field in the current item journal line record.
+    /// This event allows developers to add custom logic or override the default behavior before the "Unit of Measure Code" field has been validated.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default validation logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateUnitOfMeasureCode(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Quantity (Base)" field in the current item journal line record.
+    /// This event allows developers to add custom logic or override the default behavior before the "Quantity (Base)" field has been validated.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="xItemJournalLine">The previous version of the item journal line record before the change.</param>
+    /// <param name="FieldNo">The number of the field that has triggered the validation process.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default validation logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateQuantityBase(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Output Quantity (Base)" field in the current item journal line record.
+    /// This event allows developers to add custom logic or override the default behavior before the "Output Quantity (Base)" field has been validated.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="xItemJournalLine">The previous version of the item journal line record before the change.</param>
+    /// <param name="FieldNo">The number of the field that has triggered the validation process.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default validation logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyReservedQty(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CalledByFieldNo: Integer)
     begin
@@ -4347,11 +4565,26 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after finding the first item journal line in the current batch.
+    /// This event allows developers to add custom logic or modify the current item journal line record after the first line is found.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being set up.</param>
+    /// <param name="FirstItemJournalLine">Item journal line record representing the first line found in the current batch.</param>
+    /// <param name="LastItemJnlLine">Provided item journal line record used as a reference for setup.</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetUpNewLineOnAfterFindItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; var FirstItemJournalLine: Record "Item Journal Line"; var LastItemJnlLine: Record "Item Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before opening the "Item Ledger Entries" page in the "SelectItemEntry" procedure.
+    /// This event allows developers to customize or apply additional logic to the "Item Ledger Entry" record 
+    /// before it is displayed on the "Item Ledger Entries" page.
+    /// </summary>
+    /// <param name="ItemLedgerEntry">The "Item Ledger Entry" record being prepared for display.</param>
+    /// <param name="ItemJournalLine">The current record being processed in the "SelectItemEntry" procedure.</param>
+    /// <param name="CurrentFieldNo">The field number currently being processed, which determines the context of the selection.</param>
     [IntegrationEvent(false, false)]
     local procedure OnSelectItemEntryOnBeforeOpenPage(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer)
     begin
@@ -4372,16 +4605,38 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before checking if tracking exists for selected item ledger entry during the validation of the "Applies-from Entry" field.
+    /// In case tracking exists error will be thrown.
+    /// This event allows developers to add custom logic or override the default behavior when verifying if tracking exists for the "Applies-from Entry".
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="ItemLedgEntry">The item ledger entry record associated with the "Applies-from Entry" field.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default tracking existence check should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateAppliesfromEntryOnBeforeCheckTrackingExistsError(ItemJournalLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving the item during validation of the "Item No." field.
+    /// This event allows developers to execute custom logic after the item has been retrieved during validation.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="Item">The retrived "Item" record.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterGetItem(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after determining whether the system should check source of the item ledger entry.
+    /// If the item journal line "Entry Type" is "Output", then the system should check if item ledger entry must be created from production order.
+    /// This event allows developers to execute custom logic after the default process of source item ledger entry checking has been executed.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="ItemLedgEntry">The related item ledger entry record retrieved using the "Applies-to Entry" field.</param>
+    /// <param name="ShouldCheckItemLedgEntryFieldsForOutput">A boolean parameter indicating whether additional checks on the item ledger entry fields should be performed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateAppliestoEntryOnAfterCalcShouldCheckItemLedgEntryFieldsForOutput(var ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; var ShouldCheckItemLedgEntryFieldsForOutput: Boolean)
     begin
@@ -4395,21 +4650,47 @@ table 83 "Item Journal Line"
     end;
 #endif
 
+    /// <summary>
+    /// Event triggered when the "Order Type" is recognized as an unhandled case during the validation of the "Order No." field.
+    /// This event allows developers to extend the logic for unhandled "Order Type" cases during the validation of the "Order No." field.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateOrderNoOnCaseOrderTypeElse(var ItemJournalLine: Record "Item Journal Line"; var xItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the production order line record during the validation of the "Order Line No." field.
+    /// This event allows developers to add custom logic or modify the behavior after filters are applied to the production order line record.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="ProdOrderLine">The production order line record with the applied filters.</param>
+    /// <remarks>It can be used to reset or add additional filters to the production order line.</remarks>
     [IntegrationEvent(false, false)]
     local procedure OnValidateOrderLineNoOnCaseOrderTypeElse(var ItemJournalLine: Record "Item Journal Line"; var xItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before calculating unit amount during the validation of the "Quantity" field.
+    /// This event allows developers to add custom logic or perform additional actions before the unit amount has been calculated.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record that is being processed.</param>
+    /// <param name="xItemJournalLine">The previous version of the item journal line record before the change.</param>
+    /// <param name="CurrFieldNo">The number of field that has triggered the validation process.</param> gasa
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeGetUnitAmount(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CallingFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after calculating whether to show an error for existing item tracking on the "Applies-to Entry" field.
+    /// This event allows developers to modify the logic or state of the "ShowTrackingExistsError" parameter.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="xItemJournalLine">The previous version of the item journal line record before the change.</param>
+    /// <param name="ShowTrackingExistsError">A boolean parameter indicating whether an error for existing item tracking should be displayed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateAppliesToEntryOnAferCalcShowTrackingExistsError(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var ShowTrackingExistsError: Boolean)
     begin
@@ -4420,16 +4701,37 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the shortcut dimension code to the current item journal line record.
+    /// This event allows developers to implement custom logic or modify the dimension code before the validation logic is executed.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record for which the shortcut dimension code is being validated.</param>
+    /// <param name="xItemJournalLine">The previous state of the record before the validation process.</param>
+    /// <param name="FieldNumber">The field number of the shortcut dimension being validated.</param>
+    /// <param name="ShortcutDimCode">The shortcut dimension code to be validated. Developers can modify this parameter within the event logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before calculating the unit cost during the validation of the "Unit of Measure Code" field.
+    /// This event allows developers to modify or override the default calculation logic for the unit cost.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="UnitCost">The unit cost value to be calculated. Developers can modify this value within the event.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default unit cost calculation should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateUnitOfMeasureCodeOnBeforeCalcUnitCost(var ItemJournalLine: Record "Item Journal Line"; var UnitCost: Decimal; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before calling validation of warehouse source line during the validation of the "Unit of Measure Code" field.
+    /// This event allows developers to implement custom logic or make modifications before warehouse validation has been performed for the source line.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current record representing the item journal line being processed.</param>
+    /// <param name="xItemJournalLine">The previous version of the item journal line record before the change.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateUnitOfMeasureCodeOnBeforeWhseValidateSourceLine(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line")
     begin
@@ -4440,33 +4742,66 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before updating the "Amount" field incurrent item journal line.
+    /// This event allows developers to add custom logic or override the standard "Amount" calculation logic. 
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAmount(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting the unit cost for the current record.
+    /// This event allows developers to adjust or log the unit cost after it has been calculated.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current record for which costs were retrieved.</param>
+    /// <param name="UnitCost">The calculated unit cost for the record after the default logic has been executed. Developers can adjust this value further if needed.</param>
+    /// <param name="Item">The "Item" record associated with the cost calculation.</param>
     [IntegrationEvent(false, false)]
     local procedure OnRetrieveCostsOnAfterSetUnitCost(var ItemJournalLine: Record "Item Journal Line"; var UnitCost: Decimal; Item: Record Item)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the unit of measure code for the "Item No." field.
+    /// This event allows developers to execute custom logic before the unit of measure code validation.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record.</param>
+    /// <param name="Item">The "Item" record being validated.</param>
+    /// <param name="CurrFieldNo">The number of field that triggered the validation.</param>
+    /// <param name="xItemJournalLine">The previous state of the item journal line record.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnBeforeValidateUnitOfmeasureCode(var ItemJournalLine: Record "Item Journal Line"; var Item: Record Item; CurrFieldNo: Integer; xItemJournalLine: Record "Item Journal Line");
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the description on item journal line from the retrived item record.
+    /// This event allows developers to modify the record or item before the description has been set.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record.</param>
+    /// <param name="Item">The related item record retrieved using the "Item No." field.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnBeforeSetDescription(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after calculating the unit cost during validation of the "Item No." field.
+    /// This event allows developers to execute custom logic after unit cost calculation has been completed.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record.</param>
+    /// <param name="Item">The related item record retrieved using the "Item No." field.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterCalcUnitCost(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
     begin
     end;
 
 #if not CLEAN26
-    [Obsolete('Replacec by event OnValidateItemNoOnSetCostAndPrice', '26.0')]
+    [Obsolete('Replaced by event OnValidateItemNoOnSetCostAndPrice', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterCalcUnitAmount(var ItemJournalLine: Record "Item Journal Line"; WorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center"; MachineCenter: Record Microsoft.Manufacturing.MachineCenter."Machine Center")
     begin
@@ -4478,6 +4813,11 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    ///<summary>
+    ///Event triggered after creating default dimensions for the current record if field "Item No." is empty.
+    ///This event allows developers to add custom dimensions after default ones have been created.
+    ///</summary>
+    ///<param name="ItemJournalLine">The current item journal line record.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterCreateDimInitial(var ItemJournalLine: Record "Item Journal Line")
     begin
@@ -4488,6 +4828,13 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Location Code" field in the item journal line.
+    /// This event allows developers to add custom logic or override the default behavior before the "Location Code" field has been validated.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="xItemJournalLine">The previous version of the item journal line record before the change.</param>
+    /// <param name="IsHandled">A boolean parameter that, in case true, indicates that the default validation logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateLocationCode(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean);
     begin
@@ -4498,6 +4845,12 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving or clearing a location record in the "GetLocation" procedure.
+    /// This event allows developers to perform additional actions after the location record has been retrieved based on the provided location code.
+    /// </summary>
+    /// <param name="Location">The "Location" record that has been retrieved or cleared.</param>
+    /// <param name="LocationCode">Provided location code used to retrieve the "Location" record.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetLocation(var Location: Record Location; LocationCode: Code[10])
     begin
@@ -4518,6 +4871,12 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after initializing the revaluation journal line.
+    /// This event allows developers to adjust or log the initialized revaluation journal line after the default logic has been executed.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record representing the revaluation journal line that was initialized.</param>
+    /// <param name="ItemLedgEntry2">The "Item Ledger Entry" record used as the source for initialization.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitRevalJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgEntry2: Record "Item Ledger Entry")
     begin
@@ -4533,6 +4892,12 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered to determine if a bin code check is needed for the production order component during the validation of the "Bin Code" field.
+    /// This event allows developers to add custom logic or override the default behavior for checking the production order component's bin code.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current record representing the item journal line being processed.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default bin code check for the production order component should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBinCodeOnCheckProdOrderCompBinCodeCheckNeeded(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
@@ -4543,11 +4908,24 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before assigning indirect cost percentage and overhead rate during validation of the "Item No." field.
+    /// This event allows developers to modify these fields or execute additional logic before the values have been assigned.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="Item">The related item record retrieved using the "Item No." field.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnBeforeAssignIndirectCostPct(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the default price calculation method.
+    /// This event allows developers to override or extend the default behavior for setting the price calculation method in the item journal line.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being procesed.</param>
+    /// <param name="ItemJnlBatch">The item journal batch record containing batch-specific settings for tue current item journal record.</param>
+    /// <param name="DimMgt">The dimension management codeunit used for handling dimensions.</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetUpNewLineOnBeforeSetDefaultPriceCalculationMethod(var ItemJournalLine: Record "Item Journal Line"; ItemJnlBatch: Record "Item Journal Batch"; var DimMgt: Codeunit DimensionManagement)
     begin
@@ -4568,6 +4946,12 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before testing the "Bin Mandatory" field on a selected Location of the current item journal line during the validation of the "Bin Code" field.
+    /// This event allows developers to add custom logic or override the default behavior when testing the "Bin Mandatory" field for the selected Location.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default testing logic of the "Bin Mandatory" field should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBinCodeOnBeforeTestBinMandatory(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
@@ -4591,11 +4975,23 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the selection process for an item ledger entry is completed.
+    /// This event allows developers to add custom logic or postprocessing after an entry has been selected.
+    /// </summary>
+    /// <param name="ItemJournalLine">The updated "Item Journal Line" record after the selection process.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSelectItemEntry(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before initializing the revaluation journal line.
+    /// This event allows developers to implement custom logic or override the default initialization process.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record representing the revaluation journal line being initialized.</param>
+    /// <param name="ItemLedgEntry2">The "Item Ledger Entry" record used as the source for initialization.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default validation logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitRevalJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgEntry2: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
@@ -4611,6 +5007,14 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before calculating the signed value.
+    /// This event allows developers to implement custom logic for determining the signed value.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record for which the signed value is being calculated.</param>
+    /// <param name="Value">The original value provided to the procedure.</param>
+    /// <param name="Result">The resulting signed value. Developers can set this parameter to the desired value within the event logic.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default validation logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSigned(ItemJournalLine: Record "Item Journal Line"; var Value: Decimal; var Result: Decimal; var IsHandled: Boolean)
     begin
@@ -4621,6 +5025,17 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before updating global dimensions from the calculated "Dimension Set ID".
+    /// This event allows developers to customize the update process for global dimensions after the "Dimension Set ID" is calculated.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being updated with dimensions.</param>
+    /// <param name="xItemJournalLine">The record before the current modifications were made.</param>
+    /// <param name="CurrentFieldNo">The field number currently being processed, providing context for dimension creation.</param>
+    /// <param name="OldDimSetID">The previous "Dimension Set ID" value before it was updated.</param>
+    /// <param name="DefaultDimSource">A list of dictionaries containing default dimension sources, with each dictionary mapping an integer (dimension type) to a dimension code.</param>
+    /// <param name="InheritFromDimSetID">The dimension set ID from which dimensions were inherited, if applicable.</param>
+    /// <param name="InheritFromTableNo">The table number from which dimensions were inherited, if applicable.</param>
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnBeforeUpdateGlobalDimFromDimSetID(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer; OldDimSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
     begin
@@ -4631,16 +5046,37 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting source filters on a "Reservation Entry" record in the "SetReservEntrySourceFilters" procedure.
+    /// This event allows developers to implement custom filters or modify the "Reservation Entry" record after its source filters have been set based on the provided source key and context.
+    /// </summary>
+    /// <param name="ReservationEntry">The "Reservation Entry" record with source filters applied.</param>
+    /// <param name="SourceKey">A boolean parameter indicating whether the source key is included in the filters.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetReservEntrySourceFilters(var ReservationEntry: Record "Reservation Entry"; SourceKey: Boolean);
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after evaluating whether a current line is considered empty based on values of Quantity, 'Item No.' and 'Value Entry Type'.
+    /// This event allows developers to add custom logic or modify the result of the empty line evaluation. 
+    /// For example, additional conditions can be checked or the result can be overridden based on specific business requirements.
+    /// </summary>
+    /// <param name="ItemJournalLine">The record being evaluated to determine if it qualifies as an empty line.</param>
+    /// <param name="Result">A boolean value indicating whether the line is considered empty.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterEmptyLine(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "New Location Code" field in the item journal line.
+    /// This event allows developers to add custom logic or override the default behavior before the "New Location Code" field has been validated.
+    /// </summary>
+    /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
+    /// <param name="xItemJournalLine">The previous version of the item journal line record before the change.</param>
+    /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default validation logic should be skipped.</param>
+    /// <remarks> Developer can overide the rule that field 'Entry Type' must be 'Transfer' in order to validate new value.</remarks> gasa
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateNewLocationCode(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean);
     begin
