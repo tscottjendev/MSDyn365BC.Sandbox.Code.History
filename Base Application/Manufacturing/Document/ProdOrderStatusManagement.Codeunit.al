@@ -23,6 +23,8 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Purchases.Document;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Worksheet;
 using System.Environment.Configuration;
 using System.Telemetry;
 using System.Utilities;
@@ -227,7 +229,7 @@ codeunit 5407 "Prod. Order Status Management"
         ValidateProdOrderLineForReopen(ProdOrderLine);
         TransferReopenProdOrderLine(ProdOrderLine);
         TransReopenProdOrderComp(ProdOrderLine);
-
+        UpdateSourceSubtypeForPutAwayDocumentWhenStatusIsChanged(ProdOrderLine, ProdOrderLine.Status::Released);
         UpdateProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
         UpdateProdOrderLine.Delete();
     end;
@@ -245,6 +247,7 @@ codeunit 5407 "Prod. Order Status Management"
 
     local procedure TransferReopenProdOrderLine(FromProdOrderLine: Record "Prod. Order Line")
     var
+        Item: Record Item;
         ProductionOrderLine: Record "Prod. Order Line";
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
     begin
@@ -258,6 +261,10 @@ codeunit 5407 "Prod. Order Status Management"
         InvtAdjmtEntryOrder."Cost is Adjusted" := false;
         InvtAdjmtEntryOrder."Is Finished" := false;
         InvtAdjmtEntryOrder.Modify();
+
+        Item.Get(ProductionOrderLine."Item No.");
+        Item."Cost is Adjusted" := false;
+        Item.Modify();
     end;
 
     local procedure TransReopenProdOrderComp(FromProdOrderLine: Record "Prod. Order Line")
@@ -571,7 +578,7 @@ codeunit 5407 "Prod. Order Status Management"
                           ACYMgt.CalcACYAmt(ToProdOrderLine."Cost Amount", NewPostingDate, false);
                         ReservMgt.SetReservSource(FromProdOrderLine);
                         ReservMgt.DeleteReservEntries(true, 0);
-                        UpdateWhseActivityLineToFinishedForProdOutput(FromProdOrderLine);
+                        UpdateSourceSubtypeForPutAwayDocumentWhenStatusIsChanged(FromProdOrderLine, NewStatus);
                         OnTransProdOrderLineOnAfterDeleteReservEntries(FromProdOrderLine, ToProdOrderLine, NewStatus);
                     end else begin
                         if Item.Get(FromProdOrderLine."Item No.") then
@@ -614,21 +621,45 @@ codeunit 5407 "Prod. Order Status Management"
         end;
     end;
 
-    local procedure UpdateWhseActivityLineToFinishedForProdOutput(ProdOrderLine: Record "Prod. Order Line")
+    local procedure UpdateSourceSubtypeForPutAwayDocumentWhenStatusIsChanged(ProdOrderLine: Record "Prod. Order Line"; NewProdOrderStatus: Enum "Production Order Status")
+    begin
+        UpdateWhseActivityLineForProdOutput(ProdOrderLine, NewProdOrderStatus);
+        UpdateWhseWorksheetLineForProdOutput(ProdOrderLine, NewProdOrderStatus);
+    end;
+
+    local procedure UpdateWhseActivityLineForProdOutput(ProdOrderLine: Record "Prod. Order Line"; NewProdOrderStatus: Enum "Production Order Status")
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
         WhseActivityLine.SetLoadFields("Source Subtype");
-        WhseActivityLine.SetRange("Action Type", WhseActivityLine."Activity Type"::"Put-away");
+        WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Put-away");
         WhseActivityLine.SetRange("Source Type", Database::"Prod. Order Line");
         WhseActivityLine.SetRange("Source Subtype", ProdOrderLine.Status.AsInteger());
+        WhseActivityLine.SetRange("Source Document", WhseActivityLine."Source Document"::"Prod. Output");
         WhseActivityLine.SetRange("Source No.", ProdOrderLine."Prod. Order No.");
         WhseActivityLine.SetRange("Source Line No.", ProdOrderLine."Line No.");
         WhseActivityLine.SetRange("Whse. Document Type", WhseActivityLine."Whse. Document Type"::Production);
         WhseActivityLine.SetRange("Whse. Document No.", ProdOrderLine."Prod. Order No.");
         WhseActivityLine.SetRange("Whse. Document Line No.", ProdOrderLine."Line No.");
         if not WhseActivityLine.IsEmpty() then
-            WhseActivityLine.ModifyAll("Source Subtype", ProdOrderLine.Status::Finished.AsInteger());
+            WhseActivityLine.ModifyAll("Source Subtype", NewProdOrderStatus.AsInteger());
+    end;
+
+    local procedure UpdateWhseWorksheetLineForProdOutput(ProdOrderLine: Record "Prod. Order Line"; NewProdOrderStatus: Enum "Production Order Status")
+    var
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+    begin
+        WhseWorksheetLine.SetLoadFields("Source Subtype");
+        WhseWorksheetLine.SetRange("Source Type", Database::"Prod. Order Line");
+        WhseWorksheetLine.SetRange("Source Subtype", ProdOrderLine.Status.AsInteger());
+        WhseWorksheetLine.SetRange("Source Document", "Warehouse Journal Source Document"::"Prod. Output");
+        WhseWorksheetLine.SetRange("Source No.", ProdOrderLine."Prod. Order No.");
+        WhseWorksheetLine.SetRange("Source Line No.", ProdOrderLine."Line No.");
+        WhseWorksheetLine.SetRange("Whse. Document Type", WhseWorksheetLine."Whse. Document Type"::Production);
+        WhseWorksheetLine.SetRange("Whse. Document No.", ProdOrderLine."Prod. Order No.");
+        WhseWorksheetLine.SetRange("Whse. Document Line No.", ProdOrderLine."Line No.");
+        if not WhseWorksheetLine.IsEmpty() then
+            WhseWorksheetLine.ModifyAll("Source Subtype", NewProdOrderStatus.AsInteger());
     end;
 
     local procedure InsertProdOrderLine(var ToProdOrderLine: Record "Prod. Order Line"; FromProdOrderLine: Record "Prod. Order Line")
