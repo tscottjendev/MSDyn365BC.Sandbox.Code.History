@@ -1082,6 +1082,8 @@ report 5915 "Service Document - Test"
 
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                     AddError(DimMgt.GetDimValuePostingErr());
+
+                OnAfterCheckServiceDoc("Service Header", ErrorText, ErrorCounter);
             end;
 
             trigger OnPreDataItem()
@@ -1604,6 +1606,11 @@ report 5915 "Service Document - Test"
             else
                 if not UserSetupManagement.TestAllowedPostingDate(ServiceHeader."Posting Date", TempErrorText) then
                     AddError(TempErrorText);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckServiceDoc(ServiceHeader: Record "Service Header"; var ErrorText: array[99] of Text[250]; var ErrorCounter: Integer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
