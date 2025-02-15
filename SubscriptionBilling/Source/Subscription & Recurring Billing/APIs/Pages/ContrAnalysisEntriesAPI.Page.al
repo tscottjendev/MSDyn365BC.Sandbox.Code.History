@@ -27,7 +27,19 @@ page 8087 "Contr. Analysis Entries API"
                 field(serviceObjectNo; Rec."Service Object No.")
                 {
                 }
+#if not CLEAN26
                 field(serviceObjectItemNo; Rec."Service Object Item No.")
+                {
+                    ObsoleteReason = 'Replaced by field Service Object Source No.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+                    Visible = false;
+                }
+#endif
+                field(serviceObjectSourceType; Rec."Service Object Source Type")
+                {
+                }
+                field(serviceObjectSourceNo; Rec."Service Object Source No.")
                 {
                 }
                 field(serviceObjectDescription; Rec."Service Object Description")
@@ -58,6 +70,12 @@ page 8087 "Contr. Analysis Entries API"
                 {
                 }
                 field(calculationBasePerc; Rec."Calculation Base %")
+                {
+                }
+                field(unitCost; Rec."Unit Cost")
+                {
+                }
+                field(unitCostLCY; Rec."Unit Cost (LCY)")
                 {
                 }
                 field(price; Rec."Price")

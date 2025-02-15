@@ -3,6 +3,7 @@ namespace Microsoft.SubscriptionBilling;
 using System.Utilities;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.Dimension;
 
 table 8051 "Service Contract Setup"
 {
@@ -71,14 +72,44 @@ table 8051 "Service Contract Setup"
         {
             Caption = 'Origin Name for collective Sales Invoice';
         }
+        field(21; "Dimension Code Cust. Contr."; Code[20])
+        {
+            Caption = 'Dimension Code for Customer Contract';
+            TableRelation = Dimension;
+        }
         field(59; "Default Period Calculation"; enum "Period Calculation")
         {
             Caption = 'Default Period Calculation';
+            InitValue = "Align to End of Month";
             trigger OnValidate()
             begin
                 if xRec."Default Period Calculation" <> Rec."Default Period Calculation" then
                     if ConfirmManagement.GetResponse(UpdatePeriodCalculationQst, true) then
                         PropagatePeriodCalculationUpdate();
+            end;
+        }
+        field(60; "Default Billing Base Period"; DateFormula)
+        {
+            Caption = 'Default Billing Base Period';
+            InitValue = '1M';
+            trigger OnValidate()
+            begin
+                if Format(Rec."Default Billing Base Period") = '' then
+                    Message(ManualCreationOfContractLinesNotPossibleMsg, FieldCaption("Default Billing Base Period"))
+                else
+                    DateFormulaManagement.ErrorIfDateFormulaNegative("Default Billing Base Period");
+            end;
+        }
+        field(61; "Default Billing Rhythm"; DateFormula)
+        {
+            Caption = 'Default Billing Rhythm';
+            InitValue = '1M';
+            trigger OnValidate()
+            begin
+                if Format(Rec."Default Billing Rhythm") = '' then
+                    Message(ManualCreationOfContractLinesNotPossibleMsg, FieldCaption("Default Billing Rhythm"))
+                else
+                    DateFormulaManagement.ErrorIfDateFormulaNegative("Default Billing Rhythm");
             end;
         }
         field(180; "Def. Rel. Jnl. Template Name"; Code[10])
@@ -111,14 +142,14 @@ table 8051 "Service Contract Setup"
         }
     }
 
-    trigger OnInsert()
-    begin
-        ContractTextsCreateDefaults();
-    end;
-
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        DateFormulaManagement: Codeunit "Date Formula Management";
         UpdatePeriodCalculationQst: Label 'Do you want to update existing Service Commitments, Sales Service Commitments and Service Commitment Package lines? Choose Yes to change existing records. Choose No to change the default value but not update existing records.';
+        IsEmptyTxt: Label '%1 or %2 is empty.', Comment = '%1 = FieldCaption, %2 = FieldCaption';
+        EnterValuesInFieldsMsg: Label 'In order to continue please enter a values for fields ''%1'' and ''%2''.', Comment = '%1 = FieldCaption, %2 = FieldCaption';
+        OpenServiceContractSetupTok: Label 'Open Service Contract Setup.';
+        ManualCreationOfContractLinesNotPossibleMsg: Label 'No manual contract lines can be created without %1. Do you want to delete the value?', Comment = '%1 = FieldCaption';
 
     procedure ContractTextsCreateDefaults()
     begin
@@ -132,7 +163,7 @@ table 8051 "Service Contract Setup"
 
     procedure VerifyContractTextsSetup()
     var
-        BillingPeriodSetupMissingErr: Label 'The %1 is incomplete. You have to set up a value for "%2" as a description line.';
+        BillingPeriodSetupMissingErr: Label 'The %1 is incomplete. You have to set up a value for "%2" as a description line.', Comment = '%1 = TableCaption, %2 = Specific text type value"';
     begin
         if (Rec."Contract Invoice Description" <> Enum::"Contract Invoice Text Type"::"Billing Period") and
            (Rec."Contract Invoice Add. Line 1" <> Enum::"Contract Invoice Text Type"::"Billing Period") and
@@ -153,5 +184,30 @@ table 8051 "Service Contract Setup"
         ServiceCommPackageLine.ModifyAll("Period Calculation", Rec."Default Period Calculation", false);
         SalesServiceCommitment.ModifyAll("Period Calculation", Rec."Default Period Calculation", false);
         ServiceCommitment.ModifyAll("Period Calculation", Rec."Default Period Calculation", false);
+    end;
+
+    internal procedure CheckPrerequisitesForCreatingManualContractLine()
+    var
+        FieldEmptyErrorInfo: ErrorInfo;
+    begin
+        Get();
+        if (Format("Default Billing Base Period") <> '') and (Format("Default Billing Rhythm") <> '') then
+            exit;
+
+        FieldEmptyErrorInfo.Title(StrSubstNo(IsEmptyTxt, FieldCaption("Default Billing Base Period"), FieldCaption("Default Billing Rhythm")));
+        FieldEmptyErrorInfo.Message(StrSubstNo(EnterValuesInFieldsMsg, FieldCaption("Default Billing Base Period"), FieldCaption("Default Billing Rhythm")));
+        FieldEmptyErrorInfo.PageNo := Page::"Service Contract Setup";
+        FieldEmptyErrorInfo.AddNavigationAction(OpenServiceContractSetupTok);
+
+        Error(FieldEmptyErrorInfo);
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Service Contract Setup", 'I')]
+    internal procedure InitRecord()
+    begin
+        if not Get() then begin
+            ContractTextsCreateDefaults();
+            Insert();
+        end;
     end;
 }

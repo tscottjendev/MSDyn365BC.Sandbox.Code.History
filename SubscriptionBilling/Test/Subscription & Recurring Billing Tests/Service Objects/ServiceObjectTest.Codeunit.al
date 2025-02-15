@@ -2,6 +2,7 @@ namespace Microsoft.SubscriptionBilling;
 
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Calendar;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.Currency;
 using System.TestLibraries.Utilities;
 using Microsoft.Inventory.Item;
@@ -350,7 +351,7 @@ codeunit 148157 "Service Object Test"
         SetupServiceObjectTemplatePackageAndAssignItemToPackage(ServiceCommitmentTemplateCode, ServiceObject, ServiceCommitmentPackage, ServiceCommPackageLine);
         ModifyCurrentServiceCommPackageLine('<12M>', '<12M>', '<1M>', ServiceCommPackageLine);
 
-        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Item No."));
+        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Source No."));
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(ServiceAndCalculationStartDate, ServiceCommitmentPackage);
 
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
@@ -410,15 +411,8 @@ codeunit 148157 "Service Object Test"
         Initialize();
 
         ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, false);
-        ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate);
-
-        ServiceCommitmentTemplate.Description += ' Temp';
-        ServiceCommitmentTemplate."Calculation Base Type" := Enum::"Calculation Base Type"::"Document Price";
-        ServiceCommitmentTemplate."Calculation Base %" := 10;
-        Evaluate(ServiceCommitmentTemplate."Billing Base Period", '<12M>');
-        ServiceCommitmentTemplate."Invoicing via" := Enum::"Invoicing Via"::Contract;
-        ServiceCommitmentTemplate.Modify(false);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, false);
+        ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate, '<12M>', 10, "Invoicing Via"::Contract, "Calculation Base Type"::"Document Price", false);
 
         ContractTestLibrary.CreateServiceCommitmentPackageWithLine(ServiceCommitmentTemplate.Code, ServiceCommitmentPackage, ServiceCommPackageLine);
         ContractTestLibrary.AssignItemToServiceCommitmentPackage(Item, ServiceCommitmentPackage.Code);
@@ -452,9 +446,9 @@ codeunit 148157 "Service Object Test"
         Initialize();
 
         ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, false);
-        ContractTestLibrary.CreateServiceObjectAttributeMappedToServiceObject(ServiceObject."No.", ItemAttribute[1], ItemAttributeValue[1], false);
-        ContractTestLibrary.CreateServiceObjectAttributeMappedToServiceObject(ServiceObject."No.", ItemAttribute[2], ItemAttributeValue[2], true);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, false);
+        ContractTestLibrary.CreateItemAttributeMappedToServiceObject(ServiceObject."No.", ItemAttribute[1], ItemAttributeValue[1], false);
+        ContractTestLibrary.CreateItemAttributeMappedToServiceObject(ServiceObject."No.", ItemAttribute[2], ItemAttributeValue[2], true);
 
         LibraryVariableStorage.Enqueue(ItemAttribute[1].ID);
         LibraryVariableStorage.Enqueue(ItemAttribute[2].ID);
@@ -583,6 +577,20 @@ codeunit 148157 "Service Object Test"
     end;
 
     [Test]
+    procedure CheckServiceCommitmentUnitCostCalculation()
+    var
+        Item: Record Item;
+        ServiceCommitment: Record "Service Commitment";
+        ServiceObject: Record "Service Object";
+    begin
+        SetupServiceObjectWithServiceCommitment(Item, ServiceObject, false, true);
+        FindServiceCommitment(ServiceCommitment, ServiceObject."No.");
+        VerifyUnitCost(ServiceCommitment, Item);
+        ServiceCommitment.Next();
+        VerifyUnitCost(ServiceCommitment, Item);
+    end;
+
+    [Test]
     procedure CheckServiceCommitmentServiceAmountCalculation()
     var
         Currency: Record Currency;
@@ -616,7 +624,8 @@ codeunit 148157 "Service Object Test"
         DiscountPercent := LibraryRandom.RandDec(100, 2);
         ServiceCommitment.Validate("Discount %", DiscountPercent);
 
-        ExpectedServiceAmount := Round((ServiceCommitment.Price * ServiceObject."Quantity Decimal") - (ServiceCommitment.Price * ServiceObject."Quantity Decimal" * DiscountPercent / 100), Currency."Amount Rounding Precision");
+        ExpectedServiceAmount := Round((ServiceCommitment.Price * ServiceObject."Quantity Decimal"), Currency."Amount Rounding Precision");
+        ExpectedServiceAmount := ExpectedServiceAmount - Round((ExpectedServiceAmount * DiscountPercent / 100), Currency."Amount Rounding Precision");
         ServiceCommitment.TestField("Service Amount", ExpectedServiceAmount);
         Commit(); // retain data after asserterror
 
@@ -704,7 +713,7 @@ codeunit 148157 "Service Object Test"
         AddNewServiceCommPackageLine('', '<1M>', '', ServiceCommitmentTemplateCode, ServiceCommitmentPackage.Code, ServiceCommPackageLine);
         AddNewServiceCommPackageLine('', '', '', ServiceCommitmentTemplateCode, ServiceCommitmentPackage.Code, ServiceCommPackageLine);
 
-        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Item No."));
+        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Source No."));
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(ServiceAndCalculationStartDate, ServiceCommitmentPackage);
 
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
@@ -741,7 +750,7 @@ codeunit 148157 "Service Object Test"
         Initialize();
 
         ServiceAndCalculationStartDate := CalcDate('<-5Y>', WorkDate());
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, false);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, false);
         ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate);
         Evaluate(ServiceCommitmentTemplate."Billing Base Period", '<12M>');
         ServiceCommitmentTemplate.Modify(false);
@@ -754,7 +763,7 @@ codeunit 148157 "Service Object Test"
         Evaluate(ServiceCommPackageLine."Billing Rhythm", '<1M>');
         ServiceCommPackageLine.Modify(false);
 
-        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Item No."));
+        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Source No."));
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(ServiceAndCalculationStartDate, ServiceCommitmentPackage);
 
         FindServiceCommitment(ServiceCommitment, ServiceObject."No.");
@@ -831,7 +840,7 @@ codeunit 148157 "Service Object Test"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, false);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, false);
         ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate);
 
         ServiceCommitmentTemplate.Description += ' Temp';
@@ -897,13 +906,13 @@ codeunit 148157 "Service Object Test"
 
         ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate);
         ContractTestLibrary.CreateServiceCommitmentPackageWithLine(ServiceCommitmentTemplate.Code, ServiceCommitmentPackage, ServiceCommPackageLine);
-        ContractTestLibrary.CreateServiceObjectItem(Item, false);
+        ContractTestLibrary.CreateItemForServiceObject(Item, false);
         ContractTestLibrary.AssignItemToServiceCommitmentPackage(Item, ServiceCommitmentPackage.Code);
 
         ItemServCommitmentPackage.Get(Item."No.", ServiceCommitmentPackage.Code);
         ItemServCommitmentPackage.Standard := true;
         ItemServCommitmentPackage.Modify(false);
-        ContractTestLibrary.CreateServiceObject(ServiceObject, Item."No.");
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item."No.");
 
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
         ServiceCommitment.SetRange(Template, ServiceCommitmentTemplate.Code);
@@ -927,7 +936,7 @@ codeunit 148157 "Service Object Test"
         SetupServiceObjectTemplatePackageAndAssignItemToPackage(ServiceCommitmentTemplateCode, ServiceObject, ServiceCommitmentPackage, ServiceCommPackageLine);
         ModifyCurrentServiceCommPackageLine('<12M>', '<12M>', '<1M>', ServiceCommPackageLine);
 
-        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Item No."));
+        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Source No."));
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(WorkDate(), ServiceCommitmentPackage);
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
         if ServiceCommitment.FindSet() then
@@ -962,7 +971,7 @@ codeunit 148157 "Service Object Test"
         SetupServiceObjectTemplatePackageAndAssignItemToPackage(ServiceCommitmentTemplateCode, ServiceObject, ServiceCommitmentPackage, ServiceCommPackageLine);
         ModifyCurrentServiceCommPackageLine('<12M>', '<12M>', '<1M>', ServiceCommPackageLine);
 
-        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Item No."));
+        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Source No."));
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(ServiceAndCalculationStartDate, ServiceCommitmentPackage);
 
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
@@ -995,7 +1004,7 @@ codeunit 148157 "Service Object Test"
         // Service Object has Document Attachments created
         // [WHEN] Service Object is deleted
         // expect that Document Attachments are deleted
-        ContractTestLibrary.CreateServiceObject(ServiceObject, '');
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, '');
         ServiceObject.TestField("No.");
         RandomNoOfAttachments := LibraryRandom.RandInt(10);
         for i := 1 to RandomNoOfAttachments do
@@ -1082,9 +1091,9 @@ codeunit 148157 "Service Object Test"
         Initialize();
 
         ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, false);
-        ContractTestLibrary.CreateServiceObjectAttributeMappedToServiceObject(ServiceObject."No.", ItemAttribute[1], ItemAttributeValue[1], false);
-        ContractTestLibrary.CreateServiceObjectAttributeMappedToServiceObject(ServiceObject."No.", ItemAttribute[2], ItemAttributeValue[2], true);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, false);
+        ContractTestLibrary.CreateItemAttributeMappedToServiceObject(ServiceObject."No.", ItemAttribute[1], ItemAttributeValue[1], false);
+        ContractTestLibrary.CreateItemAttributeMappedToServiceObject(ServiceObject."No.", ItemAttribute[2], ItemAttributeValue[2], true);
 
         ServiceObjectTestPage.OpenEdit();
         ServiceObjectTestPage.GoToRecord(ServiceObject);
@@ -1102,7 +1111,7 @@ codeunit 148157 "Service Object Test"
         // Create Service Object with End-User
         ContractTestLibrary.CreateCustomer(Customer);
         ContractTestLibrary.InitContractsApp();
-        ContractTestLibrary.CreateServiceObject(ServiceObject, '');
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, '');
         ServiceObject.SetHideValidationDialog(true);
         ServiceObject.Validate("End-User Customer No.");
 
@@ -1134,9 +1143,9 @@ codeunit 148157 "Service Object Test"
         ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate);
         ContractTestLibrary.CreateServiceCommitmentPackageWithLine(ServiceCommitmentTemplate.Code, ServiceCommitmentPackage, ServiceCommPackageLine);
         ContractTestLibrary.SetupSalesServiceCommitmentItemAndAssignToServiceCommitmentPackage(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item", ServiceCommitmentPackage.Code);
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, false);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, false);
         ServiceObject.SetHideValidationDialog(true);
-        ServiceCommitmentPackage.FilterCodeOnPackageFilter(ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Item No."));
+        ServiceCommitmentPackage.FilterCodeOnPackageFilter(ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Source No."));
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(WorkDate(), ServiceCommitmentPackage);
 
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
@@ -1196,9 +1205,9 @@ codeunit 148157 "Service Object Test"
                 ServiceCommPackageLine, Format(ServiceCommPackageLine."Billing Base Period"), ServiceCommPackageLine."Calculation Base %",
                 Format(ServiceCommPackageLine."Billing Rhythm"), Format(ServiceCommPackageLine."Extension Term"), "Service Partner"::Vendor, ServiceCommPackageLine."Invoicing Item No.");
         ContractTestLibrary.SetupSalesServiceCommitmentItemAndAssignToServiceCommitmentPackage(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item", ServiceCommitmentPackage.Code);
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, false);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, false);
         ServiceObject.SetHideValidationDialog(true);
-        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Item No."));
+        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Source No."));
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(WorkDate(), ServiceCommitmentPackage);
 
         ContractTestLibrary.CreateServiceCommitmentPackageWithLine(ServiceCommitmentTemplate.Code, ServiceCommitmentPackage2, ServiceCommPackageLine1);
@@ -1215,7 +1224,7 @@ codeunit 148157 "Service Object Test"
         ServiceObject.Modify(true);
 
         ContractsItemManagement.CreateTempSalesHeader(TempSalesHeader, TempSalesHeader."Document Type"::Order, ServiceObject."End-User Customer No.", ServiceObject."Bill-to Customer No.", WorkDate(), '');
-        ContractsItemManagement.CreateTempSalesLine(TempSalesLine, TempSalesHeader, ServiceObject."Item No.", ServiceObject."Quantity Decimal", WorkDate());
+        ContractsItemManagement.CreateTempSalesLine(TempSalesLine, TempSalesHeader, ServiceObject, WorkDate());
 
         ServiceCommitment.Reset();
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
@@ -1229,7 +1238,7 @@ codeunit 148157 "Service Object Test"
         ServiceCommitment.SetRange(Partner, "Service Partner"::Vendor);
         ServiceCommitment.FindSet();
         repeat
-            ServiceCommitment.TestField("Calculation Base Amount", Item."Last Direct Cost");
+            ServiceCommitment.TestField("Calculation Base Amount", Item."Unit Cost");
         until ServiceCommitment.Next() = 0;
     end;
 
@@ -1330,9 +1339,9 @@ codeunit 148157 "Service Object Test"
         ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate);
         ContractTestLibrary.CreateServiceCommitmentPackageWithLine(ServiceCommitmentTemplate.Code, ServiceCommitmentPackage, ServiceCommPackageLine);
         ContractTestLibrary.SetupSalesServiceCommitmentItemAndAssignToServiceCommitmentPackage(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item", ServiceCommitmentPackage.Code);
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, false);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, false);
         ServiceObject.SetHideValidationDialog(true);
-        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Item No."));
+        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Source No."));
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(WorkDate(), ServiceCommitmentPackage);
 
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
@@ -1355,16 +1364,25 @@ codeunit 148157 "Service Object Test"
         until ServiceCommitment.Next() = 0;
     end;
 
-    [Test]
-    procedure UT_CheckCannotDeleteServiceObjectWhileServiceCommitmentExist()
+    local procedure VerifyUnitCost(ServiceCommitment: Record "Service Commitment"; Item: Record Item)
     var
-        Item: Record Item;
-        ServiceObject: Record "Service Object";
+        ExpectedUnitCost: Decimal;
+        ValueNotCorrectTok: Label '%1 value is not correct.', Locked = true;
     begin
-        Initialize();
+        case ServiceCommitment.Partner of
+            "Service Partner"::Customer:
+                begin
+                    ExpectedUnitCost := Item."Unit Cost" * ServiceCommitment."Calculation Base %" / 100;
+                    Assert.AreEqual(ExpectedUnitCost, ServiceCommitment."Unit Cost", StrSubstNo(ValueNotCorrectTok, ServiceCommitment.FieldCaption("Unit Cost")));
+                    Assert.AreEqual(ExpectedUnitCost, ServiceCommitment."Unit Cost (LCY)", StrSubstNo(ValueNotCorrectTok, ServiceCommitment.FieldCaption("Unit Cost (LCY)")));
+                end;
+            "Service Partner"::Vendor:
+                begin
+                    Assert.AreEqual(ServiceCommitment.Price, ServiceCommitment."Unit Cost", StrSubstNo(ValueNotCorrectTok, ServiceCommitment.FieldCaption("Unit Cost")));
+                    Assert.AreEqual(ServiceCommitment.Price, ServiceCommitment."Unit Cost (LCY)", StrSubstNo(ValueNotCorrectTok, ServiceCommitment.FieldCaption("Unit Cost (LCY)")));
+                end;
+        end;
 
-        SetupServiceObjectWithServiceCommitment(Item, ServiceObject, false, true);
-        asserterror ServiceObject.Delete(true);
     end;
 
     [Test]
@@ -1374,7 +1392,7 @@ codeunit 148157 "Service Object Test"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateServiceObject(ServiceObject, '');
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, '');
 
         ServiceObject.TestField("No.");
         ServiceObject.TestField("Quantity Decimal");
@@ -1390,7 +1408,7 @@ codeunit 148157 "Service Object Test"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateServiceObject(ServiceObject, '');
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, '');
         ServiceObject.TestField("Customer Price Group", '');
         ContractTestLibrary.CreateCustomer(Customer);
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
@@ -1410,9 +1428,24 @@ codeunit 148157 "Service Object Test"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, false);
-        ServiceObject.TestField("Item No.", Item."No.");
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, false);
+        ServiceObject.TestField(Type, ServiceObject.Type::Item);
+        ServiceObject.TestField("Source No.", Item."No.");
         ServiceObject.TestField(Description, Item.Description);
+    end;
+
+    [Test]
+    procedure CheckCreateServiceObjectWithGLAccountNo()
+    var
+        GLAccount: Record "G/L Account";
+        ServiceObject: Record "Service Object";
+    begin
+        ClearAll();
+        ContractTestLibrary.CreateServiceObjectForGLAccount(ServiceObject, GLAccount);
+        ServiceObject.TestField(Type, ServiceObject.Type::"G/L Account");
+        ServiceObject.TestField("Source No.", GLAccount."No.");
+        ServiceObject.TestField(Description, GLAccount.Name);
+        ServiceObject.TestField("Quantity Decimal", 1);
     end;
 
     [Test]
@@ -1422,7 +1455,7 @@ codeunit 148157 "Service Object Test"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateServiceObject(ServiceObject, '');
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, '');
         asserterror ServiceObject.Validate("Quantity Decimal", 0);
     end;
 
@@ -1434,7 +1467,7 @@ codeunit 148157 "Service Object Test"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, true);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, true);
 
         ServiceObject.TestField("Quantity Decimal", 1);
         ServiceObject.Validate("Serial No.", 'S1');
@@ -1456,7 +1489,7 @@ codeunit 148157 "Service Object Test"
         Initialize();
 
         ContractTestLibrary.CreateContactsWithCustomerAndGetContactPerson(Contact, Customer);
-        ContractTestLibrary.CreateServiceObject(ServiceObject, '');
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, '');
         ServiceObject.SetHideValidationDialog(true);
         ServiceObject.Validate("End-User Contact No.", Contact."No.");
         ServiceObject.TestField("End-User Customer No.", Customer."No.");
@@ -1474,7 +1507,7 @@ codeunit 148157 "Service Object Test"
 
         ContractTestLibrary.CreateCustomer(Customer);
         ContractTestLibrary.CreateCustomer(Customer2);
-        ContractTestLibrary.CreateServiceObject(ServiceObject, '');
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, '');
         ServiceObject.SetHideValidationDialog(true);
 
         ServiceObject.Validate("End-User Customer Name", Customer.Name);
@@ -1498,7 +1531,7 @@ codeunit 148157 "Service Object Test"
         ContractTestLibrary.CreateItemTranslation(ItemTranslation, Item."No.", '');
 
         // [WHEN] Create Service Object without End User
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, false);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, false);
 
         // [THEN] Item Description should not be translated in Service Object
         Assert.AreEqual(Item.Description, ServiceObject.Description, 'Item description should not be translated in Service Object');
@@ -1524,7 +1557,8 @@ codeunit 148157 "Service Object Test"
         MockServiceObjectWithEndUserCustomerNo(ServiceObject, Customer."No.");
 
         // [WHEN] add Item in Service Object
-        ServiceObject.Validate("Item No.", Item."No.");
+        ServiceObject.Validate(Type, Enum::"Service Object Type"::Item);
+        ServiceObject.Validate("Source No.", Item."No.");
         ServiceObject.Modify(false);
 
         // [THEN] Item Description should be translated in Service Object
@@ -1727,7 +1761,7 @@ codeunit 148157 "Service Object Test"
         Item: Record Item;
         ServiceCommitmentTemplate: Record "Service Commitment Template";
     begin
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, false);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, false);
         ServiceObject.SetHideValidationDialog(true);
         ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate);
         ContractTestLibrary.CreateServiceCommitmentPackageWithLine(ServiceCommitmentTemplateCode, ServiceCommitmentPackage, ServiceCommPackageLine);
@@ -1738,9 +1772,9 @@ codeunit 148157 "Service Object Test"
     local procedure SetupServiceObjectWithServiceCommitment(var Item: Record Item; var ServiceObject: Record "Service Object"; SNSpecificTracking: Boolean; CreateWithAdditionalVendorServCommLine: Boolean)
     begin
         if CreateWithAdditionalVendorServCommLine then
-            ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, Enum::"Invoicing Via"::Contract, SNSpecificTracking, Item, 1, 1)
+            ContractTestLibrary.CreateServiceObjectForItemWithServiceCommitments(ServiceObject, Enum::"Invoicing Via"::Contract, SNSpecificTracking, Item, 1, 1)
         else
-            ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, Enum::"Invoicing Via"::Contract, SNSpecificTracking, Item, 1, 0);
+            ContractTestLibrary.CreateServiceObjectForItemWithServiceCommitments(ServiceObject, Enum::"Invoicing Via"::Contract, SNSpecificTracking, Item, 1, 0);
         ServiceObject.SetHideValidationDialog(true);
     end;
 

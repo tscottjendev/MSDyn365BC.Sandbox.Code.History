@@ -4,7 +4,7 @@ page 8054 "Contract Types"
 {
     PageType = List;
     UsageCategory = Lists;
-    ApplicationArea = Jobs;
+    ApplicationArea = All;
     SourceTable = "Contract Type";
     Caption = 'Contract Types';
     LinksAllowed = false;
@@ -55,7 +55,7 @@ page 8054 "Contract Types"
         {
             action(OpenTranslation)
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Caption = 'Translations';
                 Image = Translate;
                 ToolTip = 'Displays or edits translations. Translations are automatically considered and used according to the language code when printing.';

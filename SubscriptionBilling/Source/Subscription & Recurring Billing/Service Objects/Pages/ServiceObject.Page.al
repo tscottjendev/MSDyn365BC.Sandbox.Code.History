@@ -23,7 +23,7 @@ page 8060 "Service Object"
                 Caption = 'General';
                 field("No."; Rec."No.")
                 {
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+                    ToolTip = 'Specifies the number of Service Object.';
 
                     trigger OnAssistEdit()
                     begin
@@ -31,14 +31,43 @@ page 8060 "Service Object"
                             CurrPage.Update();
                     end;
                 }
+#if not CLEAN26
                 field("Item No."; Rec."Item No.")
                 {
                     ToolTip = 'Specifies the Item No. of the service object.';
+                    ObsoleteReason = 'Replaced by field Source No.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
                         CurrPage.Update();
                     end;
+                }
+#endif
+                field(Type; Rec.Type)
+                {
+                    ToolTip = 'Specifies the type of the Service Object.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
+                }
+                field("Source No."; Rec."Source No.")
+                {
+                    ToolTip = 'Specifies the No. of the Item or G/L Account of the Service Object.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
+                }
+                field("Created in Contract line"; Rec."Created in Contract line")
+                {
+                    ToolTip = 'Specifies whether the Service Object was created by creating a Contract line manually.';
+                    Visible = false;
                 }
                 field(Description; Rec.Description)
                 {
@@ -482,10 +511,12 @@ page 8060 "Service Object"
             part(ServiceObjectAttrFactbox; "Service Object Attr. Factbox")
             {
                 ApplicationArea = Basic, Suite;
+                Visible = Rec.Type = Rec.Type::Item;
             }
             part(ItemAttributesFactbox; "Item Attributes Factbox")
             {
                 ApplicationArea = Basic, Suite;
+                Visible = Rec.Type = Rec.Type::Item;
             }
             part("Attached Documents"; "Doc. Attachment List Factbox")
             {
@@ -513,6 +544,7 @@ page 8060 "Service Object"
                 Caption = 'Assign Service Commitments';
                 ToolTip = 'Opens the page with assignable service commitment packages.';
                 Image = ServiceLedger;
+                Enabled = Rec.Type = Rec.Type::Item;
 
                 trigger OnAction()
                 var
@@ -522,8 +554,9 @@ page 8060 "Service Object"
                     PackageFilter: Text;
                 begin
                     Rec.TestField("No.");
-                    Rec.TestField("Item No.");
-                    PackageFilter := ItemServCommitmentPackage.GetPackageFilterForItem(Rec."Item No.", Rec."No.");
+                    Rec.TestField(Type, Rec.Type::Item);
+                    Rec.TestField("Source No.");
+                    PackageFilter := ItemServCommitmentPackage.GetPackageFilterForItem(Rec."Source No.", Rec."No.");
                     ServiceCommitmentPackage.SetRange("Price Group", Rec."Customer Price Group");
                     if ServiceCommitmentPackage.IsEmpty() then
                         ServiceCommitmentPackage.SetRange("Price Group");
@@ -561,17 +594,6 @@ page 8060 "Service Object"
                 end;
             }
         }
-        area(Promoted)
-        {
-            group(Category_Process)
-            {
-                Caption = 'Process';
-                actionref(AssignServices_Promoted; AssignServices) { }
-                actionref(UpdateServicesDatesAction_Promoted; UpdateServicesDatesAction) { }
-                actionref(UpdateExchangeRates_Promoted; UpdateExchangeRates) { }
-                actionref(Attributes_Promoted; Attributes) { }
-            }
-        }
         area(Navigation)
         {
             action(Attributes)
@@ -581,6 +603,7 @@ page 8060 "Service Object"
                 Caption = 'Attributes';
                 Image = Category;
                 ToolTip = 'Displays the attributes of the Service Object that describe it in more detail.';
+                Enabled = Rec.Type = Rec.Type::Item;
 
                 trigger OnAction()
                 begin
@@ -588,6 +611,17 @@ page 8060 "Service Object"
                     CurrPage.SaveRecord();
                     CurrPage.ServiceObjectAttrFactbox.Page.LoadServiceObjectAttributesData(Rec."No.");
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+                actionref(AssignServices_Promoted; AssignServices) { }
+                actionref(UpdateServicesDatesAction_Promoted; UpdateServicesDatesAction) { }
+                actionref(UpdateExchangeRates_Promoted; UpdateExchangeRates) { }
+                actionref(Attributes_Promoted; Attributes) { }
             }
         }
     }
@@ -621,9 +655,11 @@ page 8060 "Service Object"
 
     trigger OnAfterGetCurrRecord()
     begin
-        CurrPage.ServiceObjectAttrFactbox.Page.LoadServiceObjectAttributesData(Rec."No.");
-        CurrPage.ItemAttributesFactbox.Page.LoadItemAttributesData(Rec."Item No.");
-        Rec.SetPrimaryAttributeValueAndCaption(PrimaryAttributeValue, PrimaryAttributeValueCaption);
+        if Rec.IsItem() then begin
+            CurrPage.ServiceObjectAttrFactbox.Page.LoadServiceObjectAttributesData(Rec."No.");
+            CurrPage.ItemAttributesFactbox.Page.LoadItemAttributesData(Rec."Source No.");
+            Rec.SetPrimaryAttributeValueAndCaption(PrimaryAttributeValue, PrimaryAttributeValueCaption);
+        end;
     end;
 
     var

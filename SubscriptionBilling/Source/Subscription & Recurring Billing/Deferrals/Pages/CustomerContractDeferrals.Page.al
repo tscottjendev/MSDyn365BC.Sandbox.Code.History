@@ -109,7 +109,7 @@ page 8079 "Customer Contract Deferrals"
         {
             action(Dimensions)
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Caption = 'Dimensions';
                 Image = Dimensions;
                 ShortcutKey = 'Shift+Ctrl+D';

@@ -21,7 +21,7 @@ codeunit 8031 "Usage Based Billing Inst."
         InitializeUsageBasedGenericDataExchangeColumns();
         InitializeUsageBasedGenericDataExchangeFields();
         CreateUsageBasedGenericDataExchColumnDefinition(UsageBasedDataExchDefCodeTxt, UsageBasedDataExchDefLineCodeTxt);
-        CreateUsageBasedDataExchangeMapping(UsageBasedDataExchDefCodeTxt, UsageBasedDataExchDefLineCodeTxt, RRef.Number, UsageBasedDataExchMappingTxt, Codeunit::"Generic Import Mappings", 0, 0);
+        DataExchMapping.InsertRec(UsageBasedDataExchDefCodeTxt, UsageBasedDataExchDefLineCodeTxt, RRef.Number, UsageBasedDataExchMappingTxt, Codeunit::"Generic Import Mappings", 0, 0);
         CreateUsageBasedGenericDataExchangeFieldMapping(UsageBasedDataExchDefCodeTxt, UsageBasedDataExchDefLineCodeTxt, RRef.Number);
     end;
 
@@ -129,11 +129,6 @@ codeunit 8031 "Usage Based Billing Inst."
                     DataExchColumnDef.ValidateRec();
                 end;
             end;
-    end;
-
-    procedure CreateUsageBasedDataExchangeMapping(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; TableId: Integer; NewName: Text[250]; MappingCodeunit: Integer; DataExchNoFieldId: Integer; DataExchLineFieldId: Integer)
-    begin
-        DataExchMapping.InsertRec(DataExchDefCode, DataExchLineDefCode, TableId, NewName, MappingCodeunit, DataExchNoFieldId, DataExchLineFieldId);
     end;
 
     procedure CreateUsageBasedGenericDataExchangeFieldMapping(DataExchDefCode: Code[20]; DataExchDefLineCode: Code[20]; TableId: Integer)

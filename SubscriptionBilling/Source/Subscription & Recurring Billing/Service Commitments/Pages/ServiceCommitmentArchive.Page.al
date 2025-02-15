@@ -65,7 +65,10 @@ page 8094 "Service Commitment Archive"
                 {
                     ToolTip = 'Specifies the amount for the service including discount.';
                 }
-
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
+                {
+                    ToolTip = 'Specifies the unit cost of the item.';
+                }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ToolTip = 'Specifies the currency of amounts in the service.';

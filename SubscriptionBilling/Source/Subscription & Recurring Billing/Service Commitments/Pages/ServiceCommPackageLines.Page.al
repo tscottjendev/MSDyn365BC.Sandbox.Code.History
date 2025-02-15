@@ -156,6 +156,8 @@ page 8058 "Service Comm. Package Lines"
         Bold := false;
         ServiceContractSetup.Get();
         Rec."Period Calculation" := ServiceContractSetup."Default Period Calculation";
+        Rec."Billing Base Period" := ServiceContractSetup."Default Billing Base Period";
+        Rec."Billing Rhythm" := ServiceContractSetup."Default Billing Rhythm";
     end;
 
     var

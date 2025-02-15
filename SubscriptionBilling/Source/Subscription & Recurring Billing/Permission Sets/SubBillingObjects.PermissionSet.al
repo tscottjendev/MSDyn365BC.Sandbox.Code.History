@@ -162,6 +162,7 @@ permissionset 8001 "Sub. Billing Objects"
         codeunit "Date Formula Management" = X,
         codeunit "Date Time Management" = X,
         codeunit "Dimension Mgt." = X,
+        codeunit "Generic Connector Processing" = X,
         codeunit "Personalization Data Mgmt." = X,
         codeunit "Report Formatting" = X,
         codeunit "Session Store" = X,
@@ -169,7 +170,9 @@ permissionset 8001 "Sub. Billing Objects"
         codeunit "Sub. Billing Installation" = X,
         codeunit TableAndFieldManagement = X,
         codeunit "Text Management" = X,
-        codeunit "Upgrade Subscription Billling" = X,
+#if not CLEAN26
+        codeunit "Upgrade Subscription Billing" = X,
+#endif
         codeunit "Vendor Management" = X,
         codeunit "Billing Correction" = X,
         codeunit "Billing Proposal" = X,
@@ -201,7 +204,7 @@ permissionset 8001 "Sub. Billing Objects"
         codeunit "Update Serv. Comm. Term. Dates" = X,
         codeunit "Create Usage Data Billing" = X,
         codeunit "Generic Import Mappings" = X,
-        codeunit "Generic Usage Data Import" = X,
+        codeunit "Import And Process Usage Data" = X,
         codeunit "Process Usage Data Billing" = X,
         codeunit "Process Usage Data Import" = X,
         codeunit "Usage Based Billing Inst." = X,

@@ -318,6 +318,35 @@ table 8002 "Planned Service Commitment"
         {
             Caption = 'Price Binding Period';
         }
+        field(100; "Unit Cost"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 2;
+            Caption = 'Unit Cost';
+            Editable = false;
+        }
+        field(101; "Unit Cost (LCY)"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Unit Cost (LCY)';
+
+            trigger OnValidate()
+            var
+                Currency: Record Currency;
+            begin
+                if Rec."Currency Code" <> '' then begin
+                    Currency.Initialize("Currency Code");
+                    Currency.TestField("Unit-Amount Rounding Precision");
+                    "Unit Cost" :=
+                      Round(
+                        CurrExchRate.ExchangeAmtLCYToFCY(
+                          "Currency Factor Date", Rec."Currency Code",
+                          "Unit Cost (LCY)", Rec."Currency Factor"),
+                        Currency."Unit-Amount Rounding Precision")
+                end else
+                    "Unit Cost" := "Unit Cost (LCY)";
+            end;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';

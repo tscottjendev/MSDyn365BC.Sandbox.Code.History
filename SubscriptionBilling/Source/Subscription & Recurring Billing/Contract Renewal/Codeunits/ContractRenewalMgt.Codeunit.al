@@ -97,7 +97,7 @@ codeunit 8003 "Contract Renewal Mgt."
         CustomerContractLine.Reset();
         CustomerContractLine.SetRange("Contract No.", CustomerContractNo);
         CustomerContractLine.SetRange("Planned Serv. Comm. exists", false);
-        CustomerContractLine.SetRange("Contract Line Type", CustomerContractLine."Contract Line Type"::"Service Commitment");
+        CustomerContractLine.FilterOnServiceObjectContractLineType();
         CustomerContractLine.SetRange(Closed, false);
         if CustomerContractLine.FindSet() then
             repeat
@@ -254,7 +254,7 @@ codeunit 8003 "Contract Renewal Mgt."
 
         CustomerContractLine2.Reset();
         CustomerContractLine2.SetRange("Contract No.", CustomerContractLine."Contract No.");
-        CustomerContractLine2.SetRange("Contract Line Type", CustomerContractLine."Contract Line Type"::"Service Commitment");
+        CustomerContractLine2.FilterOnServiceObjectContractLineType();
         CustomerContractLine2.SetRange(Closed, false);
         if CustomerContractLine2.Count() <> CustomerContractLine.Count() then begin
             PrepareNotification(Notify, GetNotificationIDForInvalidLinesHidden(), NotAllLinesShownMsg, 'HideNotificationActiveForLinesNotShownForCurrentUser', DontShowAgainActionLbl);

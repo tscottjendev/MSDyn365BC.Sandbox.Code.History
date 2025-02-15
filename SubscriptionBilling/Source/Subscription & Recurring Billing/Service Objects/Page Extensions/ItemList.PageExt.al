@@ -22,7 +22,7 @@ pageextension 8055 "Item List" extends "Item List"
         {
             action(ServiceCommitments)
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Image = ServiceLedger;
                 Caption = 'Service Commitments';
                 ToolTip = 'View or add service commitments for the item.';

@@ -97,7 +97,8 @@ codeunit 139914 "Imp. Service And Contract Test"
             ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
             if not ServiceCommitment.IsEmpty() then
                 Error(UnexpectedServCommErr);
-            ServiceObject.TestField("Item No.", ImportedServiceObject."Item No.");
+            ServiceObject.TestField(Type, ServiceObject.Type::Item);
+            ServiceObject.TestField("Source No.", ImportedServiceObject."Item No.");
             ServiceObject.TestField(Description, ImportedServiceObject.Description);
             ServiceObject.TestField("Quantity Decimal", ImportedServiceObject."Quantity (Decimal)");
             ServiceObject.TestField("Unit of Measure", ImportedServiceObject."Unit of Measure");
@@ -141,10 +142,10 @@ codeunit 139914 "Imp. Service And Contract Test"
         Initialize();
         SetupImportedServiceObjectAndCreateServiceObject();
         ContractTestLibrary.CreateServiceCommitmentPackage(ServiceCommitmentPackage);
-        ContractTestLibrary.CreateImportedServiceCommitmentCustomer(ImportedServiceCommitment, ImportedServiceObject, CustomerContract, "Contract Line Type"::"Service Commitment");
+        ContractTestLibrary.CreateImportedServiceCommitmentCustomer(ImportedServiceCommitment, ImportedServiceObject, CustomerContract, Enum::"Contract Line Type"::Item);
         UpdateImportedServiceCommitment();
         ContractTestLibrary.CreateImportedServiceCommitmentCustomer(ImportedServiceCommitment, ImportedServiceObject, CustomerContract, "Contract Line Type"::Comment);
-        ContractTestLibrary.CreateImportedServiceCommitmentVendor(ImportedServiceCommitment, ImportedServiceObject, VendorContract, "Contract Line Type"::"Service Commitment");
+        ContractTestLibrary.CreateImportedServiceCommitmentVendor(ImportedServiceCommitment, ImportedServiceObject, VendorContract, Enum::"Contract Line Type"::Item);
         UpdateImportedServiceCommitment();
         ContractTestLibrary.CreateImportedServiceCommitmentVendor(ImportedServiceCommitment, ImportedServiceObject, VendorContract, "Contract Line Type"::Comment);
 
@@ -254,7 +255,7 @@ codeunit 139914 "Imp. Service And Contract Test"
         // [THEN] assert errors when running Create Contract Line
         Initialize();
         SetupImportedServiceObjectAndCreateServiceObject();
-        ContractTestLibrary.CreateImportedServiceCommitmentCustomer(ImportedServiceCommitment, ImportedServiceObject, CustomerContract, "Contract Line Type"::"Service Commitment");
+        ContractTestLibrary.CreateImportedServiceCommitmentCustomer(ImportedServiceCommitment, ImportedServiceObject, CustomerContract, Enum::"Contract Line Type"::Item);
         ImportedServiceCommitment.SetRecFilter();
         CreateServiceCommitment.Run(ImportedServiceCommitment);
         ImportedServiceCommitment.Get(ImportedServiceCommitment."Entry No.");
@@ -309,7 +310,7 @@ codeunit 139914 "Imp. Service And Contract Test"
         // [THEN] assert errors when running Create Service Commitment
         Initialize();
         SetupImportedServiceObjectAndCreateServiceObject();
-        ContractTestLibrary.CreateImportedServiceCommitmentCustomer(ImportedServiceCommitment, ImportedServiceObject, CustomerContract, "Contract Line Type"::"Service Commitment");
+        ContractTestLibrary.CreateImportedServiceCommitmentCustomer(ImportedServiceCommitment, ImportedServiceObject, CustomerContract, Enum::"Contract Line Type"::Item);
         ImportedServiceCommitment.SetRecFilter();
         InitialImportedServiceCommitment := ImportedServiceCommitment;
         Commit(); // retain Imported Service Commitment
@@ -404,7 +405,7 @@ codeunit 139914 "Imp. Service And Contract Test"
         // [THEN] assert errors when running Create Contract Line
         Initialize();
         SetupImportedServiceObjectAndCreateServiceObject();
-        ContractTestLibrary.CreateImportedServiceCommitmentVendor(ImportedServiceCommitment, ImportedServiceObject, VendorContract, "Contract Line Type"::"Service Commitment");
+        ContractTestLibrary.CreateImportedServiceCommitmentVendor(ImportedServiceCommitment, ImportedServiceObject, VendorContract, Enum::"Contract Line Type"::Item);
         ImportedServiceCommitment.SetRecFilter();
         CreateServiceCommitment.Run(ImportedServiceCommitment);
         ImportedServiceCommitment.Get(ImportedServiceCommitment."Entry No.");
@@ -439,7 +440,7 @@ codeunit 139914 "Imp. Service And Contract Test"
         ImportedServiceCommitment.Init();
         ImportedServiceCommitment."Entry No." := 0;
         ImportedServiceCommitment."Service Object No." := ImportedServiceObject."Service Object No.";
-        ImportedServiceCommitment."Contract Line Type" := Enum::"Contract Line Type"::"Service Commitment";
+        ImportedServiceCommitment."Contract Line Type" := Enum::"Contract Line Type"::Item;
         ImportedServiceCommitment.Partner := "Service Partner"::Customer;
         ImportedServiceCommitment."Invoicing via" := "Invoicing Via"::Contract;
         ImportedServiceCommitment."Invoicing Item No." := '';

@@ -199,6 +199,19 @@ table 8019 "Contract Analysis Entry"
             Caption = 'Quantity';
             Editable = false;
         }
+        field(100; "Unit Cost"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 2;
+            Caption = 'Unit Cost';
+            Editable = false;
+        }
+        field(101; "Unit Cost (LCY)"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Unit Cost (LCY)';
+            Editable = false;
+        }
         field(202; "Renewal Term"; DateFormula)
         {
             Caption = 'Renewal Term';
@@ -238,9 +251,25 @@ table 8019 "Contract Analysis Entry"
         {
             Caption = 'Usage Based Billing';
         }
+        field(8007; "Service Object Source Type"; Enum "Service Object Type")
+        {
+            Caption = 'Service Object Source Type';
+        }
+        field(8008; "Service Object Source No."; Code[20])
+        {
+            Caption = 'Service Object Source No.';
+        }
         field(8009; "Service Object Item No."; Code[20])
         {
             Caption = 'Service Object Item No.';
+            ObsoleteReason = 'Replaced by field Service Object Source No.';
+#if not CLEAN26
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#endif
         }
         field(8010; "Service Object Description"; Text[100])
         {
@@ -257,11 +286,12 @@ table 8019 "Contract Analysis Entry"
 
     internal procedure InitFromServiceCommitment(ServiceCommitment: Record "Service Commitment")
     begin
-        ServiceCommitment.CalcFields("Service Object Description", "Item No.", "Quantity Decimal");
+        ServiceCommitment.CalcFields("Service Object Description", "Source Type", "Source No.", "Quantity Decimal");
         Rec.Init();
         Rec."Service Object No." := ServiceCommitment."Service Object No.";
         Rec."Service Object Description" := ServiceCommitment."Service Object Description";
-        Rec."Service Object Item No." := ServiceCommitment."Item No.";
+        Rec."Service Object Source Type" := ServiceCommitment."Source Type";
+        Rec."Service Object Source No." := ServiceCommitment."Source No.";
         Rec."Service Commitment Entry No." := ServiceCommitment."Entry No.";
         Rec.Description := ServiceCommitment.Description;
         Rec."Contract No." := ServiceCommitment."Contract No.";
@@ -280,6 +310,8 @@ table 8019 "Contract Analysis Entry"
         Rec."Calculation Base %" := ServiceCommitment."Calculation Base %";
         Rec."Calculation Base Amount" := ServiceCommitment."Calculation Base Amount";
         Rec."Calculation Base Amount (LCY)" := ServiceCommitment."Calculation Base Amount (LCY)";
+        Rec."Unit Cost" := ServiceCommitment."Unit Cost";
+        Rec."Unit Cost (LCY)" := ServiceCommitment."Unit Cost (LCY)";
         Rec."Term Until" := ServiceCommitment."Term Until";
         Rec."Billing Base Period" := ServiceCommitment."Billing Base Period";
         Rec."Billing Rhythm" := ServiceCommitment."Billing Rhythm";
@@ -313,18 +345,16 @@ table 8019 "Contract Analysis Entry"
 
     internal procedure CalculateMonthlyRecurringCost(ServiceCommitment: Record "Service Commitment")
     var
-        VendorServiceCommitment: Record "Service Commitment";
-        CalculatedMonthlyPrice: Decimal;
+        CalculatedMonthlyAmount: Decimal;
     begin
         case ServiceCommitment.Partner of
             Enum::"Service Partner"::Customer:
-                if FindRelatedVendorServiceCommitment(VendorServiceCommitment, ServiceCommitment) then begin
-                    repeat
-                        CalculatedMonthlyPrice += CalculateMonthlyPrice(ServiceCommitment."Service Amount (LCY)", ServiceCommitment."Billing Base Period");
-                        if VendorServiceCommitment.Discount then
-                            CalculatedMonthlyPrice := CalculatedMonthlyPrice - 1;
-                    until VendorServiceCommitment.Next() = 0;
-                    Rec."Monthly Recurring Cost (LCY)" := CalculatedMonthlyPrice;
+                begin
+                    ServiceCommitment.CalcFields("Quantity Decimal");
+                    CalculatedMonthlyAmount := CalculateMonthlyPrice(ServiceCommitment."Unit Cost (LCY)" * ServiceCommitment."Quantity Decimal", ServiceCommitment."Billing Base Period");
+                    if ServiceCommitment.Discount then
+                        CalculatedMonthlyAmount *= -1;
+                    Rec."Monthly Recurring Cost (LCY)" := CalculatedMonthlyAmount;
                 end;
             Enum::"Service Partner"::Vendor:
                 begin
@@ -335,28 +365,20 @@ table 8019 "Contract Analysis Entry"
         end;
     end;
 
-    local procedure FindRelatedVendorServiceCommitment(var VendorServiceCommitment: Record "Service Commitment"; CustomerServiceCommitment: Record "Service Commitment"): Boolean
-    begin
-        VendorServiceCommitment.SetRange(Partner, "Service Partner"::Vendor);
-        VendorServiceCommitment.SetRange("Package Code", CustomerServiceCommitment."Package Code");
-        VendorServiceCommitment.SetRange("Service Object No.", CustomerServiceCommitment."Service Object No.");
-        VendorServiceCommitment.SetRange("Invoicing via", "Invoicing Via"::Contract);
-        VendorServiceCommitment.SetFilter("Contract No.", '<>%1', '');
-        VendorServiceCommitment.SetFilter("Service End Date", '%1|>=%2', 0D, Today());
-        exit(VendorServiceCommitment.FindFirst());
-    end;
-
     local procedure CalculateMonthlyPrice(ServiceAmountLCY: Decimal; BillingBasePeriod: DateFormula): Decimal
     var
-        EssDateTimeMgt: Codeunit "Date Time Management";
+        ServiceCommitment: Record "Service Commitment";
         DateFormulaManagement: Codeunit "Date Formula Management";
         PeriodLetter: Char;
         PeriodCount: Integer;
     begin
         DateFormulaManagement.FindDateFormulaType(BillingBasePeriod, PeriodCount, PeriodLetter);
-        if PeriodLetter in ['D', 'W'] then
-            exit(EssDateTimeMgt.CalculateProRatedAmount(ServiceAmountLCY, CalcDate('<-CM>', Rec."Analysis Date"), 0T, CalcDate('<CM>', Rec."Analysis Date"), 0T, BillingBasePeriod))
-        else
+        if PeriodLetter in ['D', 'W'] then begin
+            ServiceCommitment."Billing Base Period" := BillingBasePeriod;
+            ServiceCommitment."Billing Rhythm" := BillingBasePeriod;
+            ServiceCommitment.Price := ServiceAmountLCY;
+            exit(ServiceCommitment.UnitPriceForPeriod(CalcDate('<-CM>', Rec."Analysis Date"), CalcDate('<CM>', Rec."Analysis Date")));
+        end else
             case PeriodLetter of
                 'M':
                     exit(ServiceAmountLCY / PeriodCount);

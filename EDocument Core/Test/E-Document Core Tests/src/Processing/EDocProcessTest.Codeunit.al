@@ -278,6 +278,7 @@ codeunit 139883 "E-Doc Process Test"
         TransformationRule: Record "Transformation Rule";
         EDocument: Record "E-Document";
         EDocDataStorage: Record "E-Doc. Data Storage";
+        EDocumentsSetup: Record "E-Documents Setup";
         EDocumentServiceStatus: Record "E-Document Service Status";
     begin
         LibraryLowerPermission.SetOutsideO365Scope();
@@ -298,6 +299,7 @@ codeunit 139883 "E-Doc Process Test"
         EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
         EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"PDF Mock";
         EDocumentService.Modify();
+        EDocumentsSetup.InsertNewExperienceSetup();
 
         TransformationRule.DeleteAll();
         TransformationRule.CreateDefaultTransformations();

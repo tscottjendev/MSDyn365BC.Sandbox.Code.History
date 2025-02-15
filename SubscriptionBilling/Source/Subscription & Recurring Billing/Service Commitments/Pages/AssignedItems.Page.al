@@ -29,13 +29,11 @@ page 8063 "Assigned Items"
                 }
                 field(BaseUnitOfMeasure; Item."Base Unit of Measure")
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the base unit used to measure the item, such as piece, box, or pallet. The base unit of measure also serves as the conversion basis for alternate units of measure.';
                     Caption = 'Base Unit of Measure';
                 }
                 field(UnitPrice; Item."Unit Price")
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the price for one unit of the item, in LCY.';
                     Caption = 'Unit Price';
                 }

@@ -22,12 +22,31 @@ page 8059 "Service Objects"
             {
                 field("No."; Rec."No.")
                 {
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+                    ToolTip = 'Specifies the number of Service Object.';
                 }
+                field(Type; Rec.Type)
+                {
+                    ToolTip = 'Specifies the type of the Service Object.';
+                }
+                field("Source No."; Rec."Source No.")
+                {
+                    ToolTip = 'Specifies the No. of the Item or G/L Account of the Service Object.';
+                }
+                field("Created in Contract line"; Rec."Created in Contract line")
+                {
+                    ToolTip = 'Specifies whether the Service Object was created by creating a Contract line manually.';
+                    Visible = false;
+                }
+#if not CLEAN26
                 field("Item No."; Rec."Item No.")
                 {
                     ToolTip = 'Specifies the Item No. of the service object.';
+                    ObsoleteReason = 'Replaced by field Source No.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+                    Visible = false;
                 }
+#endif
                 field(Description; Rec.Description)
                 {
                     ToolTip = 'Specifies a description of the service object.';
@@ -63,10 +82,12 @@ page 8059 "Service Objects"
             part(ServiceObjectAttrFactbox; "Service Object Attr. Factbox")
             {
                 ApplicationArea = Basic, Suite;
+                Visible = Rec.Type = Rec.Type::Item;
             }
             part(ItemAttributesFactbox; "Item Attributes Factbox")
             {
                 ApplicationArea = Basic, Suite;
+                Visible = Rec.Type = Rec.Type::Item;
             }
             part("Attached Documents"; "Doc. Attachment List Factbox")
             {
@@ -96,6 +117,7 @@ page 8059 "Service Objects"
                 Image = Category;
                 Scope = Repeater;
                 ToolTip = 'Displays the attributes of the Service Object that describe it in more detail.';
+                Enabled = Rec.Type = Rec.Type::Item;
 
                 trigger OnAction()
                 begin
@@ -109,7 +131,9 @@ page 8059 "Service Objects"
 
     trigger OnAfterGetCurrRecord()
     begin
-        CurrPage.ServiceObjectAttrFactbox.Page.LoadServiceObjectAttributesData(Rec."No.");
-        CurrPage.ItemAttributesFactbox.Page.LoadItemAttributesData(Rec."Item No.");
+        if Rec.IsItem() then begin
+            CurrPage.ServiceObjectAttrFactbox.Page.LoadServiceObjectAttributesData(Rec."No.");
+            CurrPage.ItemAttributesFactbox.Page.LoadItemAttributesData(Rec."Source No.");
+        end;
     end;
 }

@@ -10,7 +10,7 @@ codeunit 8071 "Sub. Billing Activities Cue"
     Permissions = tabledata "Subscription Billing Cue" = r;
 
     var
-        Results: Dictionary of [Text, Text];
+        ResultsGlobal: Dictionary of [Text, Text];
 
     trigger OnRun()
     var
@@ -18,9 +18,9 @@ codeunit 8071 "Sub. Billing Activities Cue"
     begin
         Parameters := Page.GetBackgroundParameters();
 
-        CalculateFieldValues(Parameters, Results);
+        CalculateFieldValues(Parameters, ResultsGlobal);
 
-        Page.SetBackgroundTaskResult(Results);
+        Page.SetBackgroundTaskResult(ResultsGlobal);
     end;
 
     procedure CalculateFieldValues(Parameters: Dictionary of [Text, Text]; var ReturnResults: Dictionary of [Text, Text])

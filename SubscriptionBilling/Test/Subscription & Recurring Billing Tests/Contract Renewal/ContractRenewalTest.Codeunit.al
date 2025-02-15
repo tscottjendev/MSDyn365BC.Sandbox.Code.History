@@ -568,7 +568,7 @@ codeunit 139692 "Contract Renewal Test"
         CustomerContract.TestField("No.");
         CustomerContractLine.Reset();
         CustomerContractLine.SetRange("Contract No.", CustomerContract."No.");
-        CustomerContractLine.SetRange("Contract Line Type", CustomerContractLine."Contract Line Type"::"Service Commitment");
+        CustomerContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::Item);
         // Find highest End Date
         ReferenceDate := 0D;
         CustomerContractLine.FindSet();
@@ -676,7 +676,6 @@ codeunit 139692 "Contract Renewal Test"
     local procedure Initialize()
     begin
         ClearAll();
-        ContractTestLibrary.DeleteAllContractRecords();
         ContractTestLibrary.InitContractsApp();
     end;
 
@@ -739,7 +738,7 @@ codeunit 139692 "Contract Renewal Test"
         ContractTestLibrary.CreateCustomerContractWithContractType(CustomerContract, ContractType);
         // 1 Service Object, 2 Customer- & 1 Vendor-related service commitment
         Clear(ServiceObject);
-        ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, NewInvoicingVia::Contract, SNSpecific, Item, NoOfNewCustomerServCommLines, NoOfNewVendorServCommLines);
+        ContractTestLibrary.CreateServiceObjectForItemWithServiceCommitments(ServiceObject, NewInvoicingVia::Contract, SNSpecific, Item, NoOfNewCustomerServCommLines, NoOfNewVendorServCommLines);
 
         // Set Start- / End-Date for Services
         ServiceCommitment.Reset();
@@ -757,12 +756,12 @@ codeunit 139692 "Contract Renewal Test"
         ServiceObject.SetHideValidationDialog(true);
         ServiceObject.Validate("End-User Customer No.", CustomerContract."Sell-to Customer No.");
         ServiceObject.Modify(false);
-        ContractTestLibrary.AssignServiceObjectToCustomerContract(CustomerContract, ServiceObject, false); // ExchangeRateSelectionModalPageHandler, MessageHandler
+        ContractTestLibrary.AssignServiceObjectForItemToCustomerContract(CustomerContract, ServiceObject, false); // ExchangeRateSelectionModalPageHandler, MessageHandler
 
         if NoOfNewVendorServCommLines > 0 then begin
             Clear(VendorContract);
             ContractTestLibrary.CreateVendorContractWithContractType(VendorContract, ContractType);
-            ContractTestLibrary.AssignServiceObjectToVendorContract(VendorContract, ServiceObject, false);
+            ContractTestLibrary.AssignServiceObjectForItemToVendorContract(VendorContract, ServiceObject, false);
 
             VendorContract.TestField("Buy-from Vendor No.");
             Vendor.Get(VendorContract."Buy-from Vendor No.");
@@ -965,6 +964,7 @@ codeunit 139692 "Contract Renewal Test"
         ServiceCommitment.Get(SalesServiceCommitment."Service Commitment Entry No.");
         CustomerContractLine.Get(ServiceCommitment."Contract No.", ServiceCommitment."Contract Line No.");
         SalesLine.TestField("Unit Price", ServiceCommitment.Price);
+        SalesLine.TestField("Unit Cost (LCY)", ServiceCommitment."Unit Cost (LCY)");
         TempContractRenewalLine.Reset();
         TempContractRenewalLine.SetRange("Linked to Contract No.", ServiceCommitment."Contract No.");
         TempContractRenewalLine.SetRange("Linked to Contract Line No.", ServiceCommitment."Contract Line No.");
@@ -980,7 +980,7 @@ codeunit 139692 "Contract Renewal Test"
         CustomerContract.TestField("No.");
         CustomerContractLine.Reset();
         CustomerContractLine.SetRange("Contract No.", CustomerContract."No.");
-        CustomerContractLine.SetRange("Contract Line Type", CustomerContractLine."Contract Line Type"::"Service Commitment");
+        CustomerContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::Item);
         // Find highest End Date
         CustomerContractLine.FindSet();
         repeat

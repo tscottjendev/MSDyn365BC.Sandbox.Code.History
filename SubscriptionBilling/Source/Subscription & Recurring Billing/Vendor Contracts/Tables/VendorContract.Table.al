@@ -1557,22 +1557,22 @@ table 8063 "Vendor Contract"
 
     internal procedure UpdateServicesDates()
     var
-        VendorContractLines: Record "Vendor Contract Line";
+        VendorContractLine: Record "Vendor Contract Line";
         TempServiceObject: Record "Service Object" temporary;
         ServiceObject: Record "Service Object";
     begin
-        VendorContractLines.SetRange("Contract No.", Rec."No.");
-        VendorContractLines.SetRange("Contract Line Type", "Contract Line Type"::"Service Commitment");
-        if VendorContractLines.FindSet() then
+        VendorContractLine.SetRange("Contract No.", Rec."No.");
+        VendorContractLine.FilterOnServiceObjectContractLineType();
+        if VendorContractLine.FindSet() then
             repeat
-                if not TempServiceObject.Get(VendorContractLines."Service Object No.") then begin
-                    ServiceObject.Get(VendorContractLines."Service Object No.");
+                if not TempServiceObject.Get(VendorContractLine."Service Object No.") then begin
+                    ServiceObject.Get(VendorContractLine."Service Object No.");
                     ServiceObject.UpdateServicesDates();
                     ServiceObject.Modify(false);
                     TempServiceObject := ServiceObject;
                     TempServiceObject.Insert(false);
                 end;
-            until VendorContractLines.Next() = 0;
+            until VendorContractLine.Next() = 0;
     end;
 
     procedure CreateVendorContractLineFromServiceCommitment(ServiceCommitment: Record "Service Commitment")

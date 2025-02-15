@@ -58,7 +58,7 @@ codeunit 139690 "Contract Price Proposal Test"
         Initialize();
 
         CreateContractPriceUpdateProposalForCustomerServiceCommitments("Price Update Method"::"Calculation Base by %", WorkDate(), '<12M>', '<1M>', LibraryRandom.RandDec(100, 2), '<12M>', '<12M>', '<12M>');
-
+        Currency.InitRoundingPrecision();
         ContractPriceUpdateLine.SetRange("Price Update Template Code", PriceUpdateTemplateCustomer.Code);
         ContractPriceUpdateLine.FindSet();
         repeat
@@ -256,7 +256,7 @@ codeunit 139690 "Contract Price Proposal Test"
         Assert.IsTrue(ServiceCommitment."Planned Serv. Comm. exists", 'Planned Service Commitment was not created on Process Price Update.');
 
         PlannedServiceCommitment.Get(ContractPriceUpdateLine."Service Commitment Entry No.");
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, ServiceObject."End-User Customer No.");
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, ServiceObject."End-User Customer No.");
         CreateAndPostSalesBillingDocuments(SalesHeader, SalesInvoiceHeader);
         Commit(); // retain data after asserterror
 
@@ -363,7 +363,7 @@ codeunit 139690 "Contract Price Proposal Test"
             Clear(CustomerContract);
             Clear(ServiceObject);
             Clear(Customer);
-            ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.");
+            ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
             // every 2nd Contract gets a ContractType
             if i mod 2 = 0 then
                 CustomerContract."Contract Type" := ContractType.Code
@@ -483,7 +483,7 @@ codeunit 139690 "Contract Price Proposal Test"
 
         PlannedServiceCommitment.Get(ContractPriceUpdateLine."Service Commitment Entry No.");
 
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, ServiceObject."End-User Customer No.");
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, ServiceObject."End-User Customer No.");
         CreateAndPostSalesBillingDocuments(SalesHeader, SalesInvoiceHeader);
         Commit(); // retain data after asserterror
 
@@ -574,7 +574,7 @@ codeunit 139690 "Contract Price Proposal Test"
 
         CreateContractPriceUpdateProposalForCustomerServiceCommitments("Price Update Method"::"Calculation Base by %", WorkDate(), '<12M>', '<12M>', LibraryRandom.RandDec(100, 2), '<1M>', '<1M>', '<1M>');
         // Make sure that the service commitment is fully invoice until date of next price update
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, ServiceObject."End-User Customer No.");
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, ServiceObject."End-User Customer No.");
         CreateAndPostSalesBillingDocuments(SalesHeader, SalesInvoiceHeader);
         Commit(); // retain data after asserterror
 
@@ -649,6 +649,8 @@ codeunit 139690 "Contract Price Proposal Test"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+        ContractTestLibrary.InitSourceCodeSetup();
+        IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Contract Price Proposal Test");
     end;
 
@@ -689,9 +691,9 @@ codeunit 139690 "Contract Price Proposal Test"
         PriceUpdateTemplateCustomer."Group by" := Enum::"Contract Billing Grouping"::Contract;
 
         ContractTestLibrary.CreateCustomer(Customer);
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.", false);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.", false);
         ContractTestLibrary.CreateCustomer(Customer2);
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract2, ServiceObject2, Customer2."No.", false);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract2, ServiceObject2, Customer2."No.", false);
 
         PriceUpdateManagement.CreatePriceUpdateProposal(PriceUpdateTemplateCustomer.Code, CalcDate(PriceUpdateTemplateCustomer.InclContrLinesUpToDateFormula, WorkDate()), WorkDate());
     end;
@@ -716,8 +718,8 @@ codeunit 139690 "Contract Price Proposal Test"
     begin
         ContractTestLibrary.CreatePriceUpdateTemplate(PriceUpdateTemplateVendor, "Service Partner"::Vendor, PriceUpdateMethod, UpdateValuePercentage, PerformUpdateOnFormula, InclContrLinesUpToDateFormula, PriceBindingPeriod);
         ContractTestLibrary.CreateVendor(Vendor);
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, Vendor."No.", false);
-        UpdateItemLastDirectCost(ServiceObject."Item No.");
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.", false);
+        UpdateItemUnitCost(ServiceObject."Source No.");
         PriceUpdateManagement.CreatePriceUpdateProposal(PriceUpdateTemplateVendor.Code, CalcDate(PriceUpdateTemplateVendor.InclContrLinesUpToDateFormula, ContractPriceUpdateBaseDate), ContractPriceUpdateBaseDate);
     end;
 
@@ -746,7 +748,7 @@ codeunit 139690 "Contract Price Proposal Test"
         ServiceCommitmentFilterText := DummyServComm.GetView(false);
         DummyServObj.SetRange("Serial No.", SerialNo);
         ServiceObjectFilterText := DummyServObj.GetView(false);
-        DummyServObj.SetRange("Item No.", LibraryRandom.RandText(19));
+        DummyServObj.SetRange("Source No.", LibraryRandom.RandText(19));
         BadServiceObjectFilterText := DummyServObj.GetView(false);
         DummyContract.SetRange("Contract Type", ContractTypeCode);
         ContractFilterText := DummyContract.GetView(false);
@@ -760,11 +762,11 @@ codeunit 139690 "Contract Price Proposal Test"
         PriceUpdateTemplateCustomer."Group by" := Enum::"Contract Billing Grouping"::Contract;
 
         ContractTestLibrary.CreateVendor(Vendor);
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, Vendor."No.", false);
-        UpdateItemLastDirectCost(ServiceObject."Item No.");
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.", false);
+        UpdateItemUnitCost(ServiceObject."Source No.");
         ContractTestLibrary.CreateVendor(Vendor2);
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract2, ServiceObject2, Vendor2."No.", false);
-        UpdateItemLastDirectCost(ServiceObject2."Item No.");
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract2, ServiceObject2, Vendor2."No.", false);
+        UpdateItemUnitCost(ServiceObject2."Source No.");
         PriceUpdateManagement.CreatePriceUpdateProposal(PriceUpdateTemplateVendor.Code, CalcDate(PriceUpdateTemplateVendor.InclContrLinesUpToDateFormula, WorkDate()), WorkDate());
     end;
 
@@ -805,10 +807,9 @@ codeunit 139690 "Contract Price Proposal Test"
         ServiceCommitment.TestField("Discount Amount", ExpectedDiscountAmount);
     end;
 
-    local procedure UpdateItemLastDirectCost(ItemNo: Code[20])
+    local procedure UpdateItemUnitCost(ItemNo: Code[20])
     begin
         Item.Get(ItemNo);
-        Item."Last Direct Cost" := LibraryRandom.RandDec(100, 2);
         Item.Modify(false);
     end;
 

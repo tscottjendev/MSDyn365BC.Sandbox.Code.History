@@ -266,6 +266,7 @@ codeunit 8002 "Create Contract Renewal"
         end;
         if ServiceCommitment."Discount %" <> 0 then
             SalesLine.Validate("Line Discount %", ServiceCommitment."Discount %");
+        SalesLine.Validate("Unit Cost (LCY)", ServiceCommitment."Unit Cost (LCY)");
         SalesLine.GetCombinedDimensionSetID(SalesLine."Dimension Set ID", ServiceCommitment."Dimension Set ID");
         SalesLine."Exclude from Doc. Total" := true;
         SalesLine.Insert(false);
@@ -341,6 +342,8 @@ codeunit 8002 "Create Contract Renewal"
             SalesServiceCommitment.Validate("Calculation Base Amount", ServiceCommitment."Calculation Base Amount");
             if SalesServiceCommitment.Price <> ServiceCommitment.Price then
                 SalesServiceCommitment.Validate(Price, ServiceCommitment.Price);
+            SalesServiceCommitment."Unit Cost" := ServiceCommitment."Unit Cost";
+            SalesServiceCommitment."Unit Cost (LCY)" := ServiceCommitment."Unit Cost (LCY)";
             SalesServiceCommitment."Service Object No." := ContractRenewalLine."Service Object No.";
             SalesServiceCommitment."Service Commitment Entry No." := ContractRenewalLine."Service Commitment Entry No.";
             SalesServiceCommitment."Linked to No." := ContractRenewalLine."Contract No.";

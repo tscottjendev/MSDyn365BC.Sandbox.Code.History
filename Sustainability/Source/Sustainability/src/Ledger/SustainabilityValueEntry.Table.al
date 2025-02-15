@@ -50,7 +50,7 @@ table 6227 "Sustainability Value Entry"
         }
         field(7; "Valued Quantity"; Decimal)
         {
-            Caption = 'Valued Quantity';
+            Caption = 'Sust. Valued Quantity';
             DecimalPlaces = 0 : 5;
         }
         field(8; "Item Ledger Entry Quantity"; Decimal)

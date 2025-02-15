@@ -29,7 +29,15 @@ page 8051 "Service Contract Setup"
                 }
                 field("Default Period Calculation"; Rec."Default Period Calculation")
                 {
-                    ToolTip = 'Determines which Period Calculation will initially be set in Service Commitment Package line.';
+                    ToolTip = 'Specifies which Period Calculation will initially be set in Service Commitment Package line.';
+                }
+                field("Default Billing Base Period"; Rec."Default Billing Base Period")
+                {
+                    ToolTip = 'Specifies the default period to which the service commitment amount relates. For example, enter 1M if the amount relates to one month or 12M if the amount relates to 1 year.';
+                }
+                field("Default Billing Rhythm"; Rec."Default Billing Rhythm")
+                {
+                    ToolTip = 'Specifies the default rhythm in which the service commitment is calculated. Using a date formula, the rhythm can be defined as monthly, quarterly or annual calculation.';
                 }
             }
             group(Dimensions)
@@ -39,6 +47,11 @@ page 8051 "Service Contract Setup"
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies whether the contract number is also automatically created as a dimension value when a customer contract is created.';
+                }
+                field("Dimension Code Cust. Contr."; Rec."Dimension Code Cust. Contr.")
+                {
+                    ApplicationArea = Dimensions;
+                    ToolTip = 'Specifies the Dimension Code that is used for Customer Contracts.';
                 }
             }
             group("Number Series")
@@ -116,12 +129,7 @@ page 8051 "Service Contract Setup"
 
     trigger OnOpenPage()
     begin
-        Rec.Reset();
-        if not Rec.Get() then begin
-            Rec.Init();
-            Rec.ContractTextsCreateDefaults();
-            Rec.Insert(false);
-        end;
+        Rec.InitRecord();
 
         GLSetup.Get();
         IsJournalTemplatesVisible := GLSetup."Journal Templ. Name Mandatory";

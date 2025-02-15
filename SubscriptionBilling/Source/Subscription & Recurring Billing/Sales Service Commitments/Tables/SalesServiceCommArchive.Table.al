@@ -172,6 +172,15 @@ table 8069 "Sales Service Comm. Archive"
             Caption = 'Process';
             Editable = false;
         }
+        field(100; "Unit Cost"; Decimal)
+        {
+            Caption = 'Unit Cost';
+        }
+        field(101; "Unit Cost (LCY)"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Unit Cost (LCY)';
+        }
     }
 
     keys

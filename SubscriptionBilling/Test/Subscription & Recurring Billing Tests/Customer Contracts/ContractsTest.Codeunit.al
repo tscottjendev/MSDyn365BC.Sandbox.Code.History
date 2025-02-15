@@ -1,6 +1,7 @@
 namespace Microsoft.SubscriptionBilling;
 
 using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Inventory.Item;
 using Microsoft.Purchases.Vendor;
@@ -84,7 +85,7 @@ codeunit 148155 "Contracts Test"
         // [SCENARIO] Create Customer Contract. Add Description and check if the ContractLineType for that line is Comment
         Initialize();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
         CreateCustomerContractSetup(Customer, ServiceObject, CustomerContract);
 
         DescriptionText := LibraryRandom.RandText(100);
@@ -127,7 +128,7 @@ codeunit 148155 "Contracts Test"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', true);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, '', true);
         ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Customer, WorkDate());
         BillingLine.SetRange("Billing Template Code", BillingTemplate.Code);
         BillingLine.SetRange(Partner, BillingLine.Partner::Customer);
@@ -214,7 +215,7 @@ codeunit 148155 "Contracts Test"
     begin
         Initialize();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
 
         ServCommWOCustContract.OpenEdit();
         ServiceCommitment.Reset();
@@ -230,7 +231,7 @@ codeunit 148155 "Contracts Test"
 
     [Test]
     [HandlerFunctions('ServCommWOCustContractPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
-    procedure CheckServiceCommitmentAssignmentToCustomerContract()
+    procedure CheckServiceCommitmentAssignmentToCustomerContractForServiceObjectWithItem()
     var
         Customer: Record Customer;
         CustomerContract: Record "Customer Contract";
@@ -243,7 +244,7 @@ codeunit 148155 "Contracts Test"
         // [SCENARIO] Check that proper Service Commitments are assigned to Customer Contract Lines
         Initialize();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
 
         ContractTestLibrary.CreateCustomerContract(CustomerContract, Customer."No.");
 
@@ -255,7 +256,7 @@ codeunit 148155 "Contracts Test"
         ServiceCommitment.FindSet();
         repeat
             CustomerContractLine.SetRange("Contract No.", CustomerContract."No.");
-            CustomerContractLine.SetRange("Contract Line Type", CustomerContractLine."Contract Line Type"::"Service Commitment");
+            CustomerContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::Item);
             CustomerContractLine.SetRange("Service Object No.", ServiceCommitment."Service Object No.");
             CustomerContractLine.SetRange("Service Commitment Entry No.", ServiceCommitment."Entry No.");
             case ServiceCommitment."Invoicing via" of
@@ -263,7 +264,8 @@ codeunit 148155 "Contracts Test"
                     begin
                         Assert.IsTrue(CustomerContractLine.FindFirst(), 'Service Commitment not assigned to expected Customer Contract Line.');
                         CustomerContractLine.TestField("Contract No.", ServiceCommitment."Contract No.");
-                        CustomerContractLine.TestField("Contract Line Type", CustomerContractLine."Contract Line Type"::"Service Commitment");
+                        CustomerContractLine.TestField("Contract Line Type", Enum::"Contract Line Type"::Item);
+                        CustomerContractLine.TestField("No.", ServiceObject."Source No.");
                     end;
                 Enum::"Invoicing Via"::Sales:
                     begin
@@ -274,6 +276,43 @@ codeunit 148155 "Contracts Test"
                     Error(InvoicingViaNotManagedErr, Format(ServiceCommitment."Invoicing via"));
             end;
         until ServiceCommitment.Next() = 0;
+    end;
+
+    [Test]
+    [HandlerFunctions('ServCommWOCustContractPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
+    procedure CheckServiceCommitmentAssignmentToCustomerContractForServiceObjectWithGLAccount()
+    var
+        Customer: Record Customer;
+        CustomerContract: Record "Customer Contract";
+        CustomerContractLine: Record "Customer Contract Line";
+        ServiceCommitment: Record "Service Commitment";
+        ServiceObject: Record "Service Object";
+        CustomerContractPage: TestPage "Customer Contract";
+    begin
+        // [SCENARIO] Create a Service Object for G/L Account and make sure that its service commitments can be assigned to a contract
+
+        // [GIVEN] A Service Object for G/L Account has been created with service commitments included
+        SetupServiceObjectForNewGLAccountWithServiceCommitment(Customer, ServiceObject);
+
+        // [WHEN] A Contract has been created and Service Commitments are assigned on a contract
+        ContractTestLibrary.CreateCustomerContract(CustomerContract, Customer."No.");
+
+        CustomerContractPage.OpenEdit();
+        CustomerContractPage.GoToRecord(CustomerContract);
+        CustomerContractPage.GetServiceCommitmentsAction.Invoke();
+
+        // [THEN] A new Contract Line has been created for previously created service commitment
+        ServiceCommitment.Reset();
+        ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
+        ServiceCommitment.FindFirst();
+        CustomerContractLine.SetRange("Contract No.", CustomerContract."No.");
+        CustomerContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::"G/L Account");
+        CustomerContractLine.SetRange("Service Object No.", ServiceCommitment."Service Object No.");
+        CustomerContractLine.SetRange("Service Commitment Entry No.", ServiceCommitment."Entry No.");
+        Assert.IsTrue(CustomerContractLine.FindFirst(), 'Service Commitment not assigned to expected Customer Contract Line.');
+        CustomerContractLine.TestField("Contract No.", ServiceCommitment."Contract No.");
+        CustomerContractLine.TestField("Contract Line Type", Enum::"Contract Line Type"::"G/L Account");
+        CustomerContractLine.TestField("No.", ServiceObject."Source No.");
     end;
 
     [Test]
@@ -291,8 +330,8 @@ codeunit 148155 "Contracts Test"
         // [SCENARIO] Check that proper Service Commitments are assigned to Customer Contract Lines
         Initialize();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject2, false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject2, false);
         ContractTestLibrary.CreateCustomerContract(CustomerContract, Customer."No.");
         ShipToAddress.SetRange("Customer No.", Customer."No.");
         ShipToAddress.FindFirst();
@@ -327,7 +366,7 @@ codeunit 148155 "Contracts Test"
         Initialize();
         Currency.InitRoundingPrecision();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
         ContractTestLibrary.CreateCustomerContract(CustomerContract, Customer."No.");
 
         CustomerContractPage.OpenEdit();
@@ -349,7 +388,7 @@ codeunit 148155 "Contracts Test"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', true);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, '', true);
         TestCustomerContractLinesServiceObjectDescription(CustomerContract."No.", ServiceObject.Description);
 
         ServiceObject.Description := CopyStr(LibraryRandom.RandText(100), 1, MaxStrLen(ServiceObject.Description));
@@ -392,7 +431,7 @@ codeunit 148155 "Contracts Test"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', true);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, '', true);
         CustomerReference := CopyStr(LibraryRandom.RandText(MaxStrLen(ServiceObject."Customer Reference")), 1, MaxStrLen(ServiceObject."Customer Reference"));
         ServiceObject."Customer Reference" := CopyStr(CustomerReference, 1, MaxStrLen(ServiceObject."Customer Reference"));
         ServiceObject.Modify(false);
@@ -411,7 +450,7 @@ codeunit 148155 "Contracts Test"
     end;
 
     [Test]
-    [HandlerFunctions('ExchangeRateSelectionModalPageHandler,MessageHandler')]
+    [HandlerFunctions('ExchangeRateSelectionModalPageHandler,ConfirmHandler,MessageHandler')]
     procedure CheckValueChangesOnCustomerContractLines()
     var
         Currency: Record Currency;
@@ -422,17 +461,20 @@ codeunit 148155 "Contracts Test"
         ServiceCommitment: Record "Service Commitment";
         ServiceObject: Record "Service Object";
         BillingRhythmValue: DateFormula;
+        BillingBasePeriod: DateFormula;
         ExpectedDate: Date;
         ExpectedDecimalValue: Decimal;
         MaxServiceAmount: Decimal;
         SrvCommFieldNotTransferredErr: Label 'Service Commitment field "%1" not transferred from Customer Contract Line.', Locked = true;
+        NotTransferredMisspelledTok: Label 'Service Commitment field "%1" not transfered from Customer Contract Line.', Locked = true;
         CustomerContractPage: TestPage "Customer Contract";
         DescriptionText: Text;
+        ServiceObjectQuantity: Decimal;
     begin
         // [SCENARIO] Assign Service Commitments to Customer Contract Lines. Change values on Customer Contract Lines and check that Service Commitment has changed values.
         Initialize();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
         Currency.InitRoundingPrecision();
         CreateCustomerContractSetup(Customer, ServiceObject, CustomerContract);
 
@@ -441,9 +483,14 @@ codeunit 148155 "Contracts Test"
 
         CustomerContractLine.Reset();
         CustomerContractLine.SetRange("Contract No.", CustomerContract."No.");
-        CustomerContractLine.SetRange("Contract Line Type", CustomerContractLine."Contract Line Type"::"Service Commitment");
+        CustomerContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::Item);
         CustomerContractLine.FindFirst();
         CustomerContractPage.Lines.GoToRecord(CustomerContractLine);
+
+        ServiceObjectQuantity := LibraryRandom.RandDecInDecimalRange(1, 100, 2);
+        CustomerContractPage.Lines."Service Object Quantity".SetValue(ServiceObjectQuantity);
+        ServiceObject.Get(CustomerContractLine."Service Object No.");
+        Assert.AreEqual(ServiceObject."Quantity Decimal", ServiceObjectQuantity, 'Service Object Quantity not transferred from Customer Contract Line.');
 
         DescriptionText := LibraryRandom.RandText(100);
         CustomerContractPage.Lines."Service Object Description".SetValue(DescriptionText);
@@ -461,6 +508,16 @@ codeunit 148155 "Contracts Test"
         CustomerContractPage.Lines."Service End Date".SetValue(ExpectedDate);
         ServiceCommitment.Get(OldServiceCommitment."Entry No.");
         Assert.AreEqual(ExpectedDate, ServiceCommitment."Service End Date", StrSubstNo(SrvCommFieldNotTransferredErr, ServiceCommitment.FieldCaption("Service End Date")));
+
+        ExpectedDate := CalcDate('<1D>', WorkDate());
+        CustomerContractPage.Lines."Cancellation Possible Until".SetValue(ExpectedDate);
+        ServiceCommitment.Get(OldServiceCommitment."Entry No.");
+        Assert.AreEqual(ExpectedDate, ServiceCommitment."Cancellation Possible Until", StrSubstNo(NotTransferredMisspelledTok, ServiceCommitment.FieldCaption("Cancellation Possible Until")));
+
+        ExpectedDate := CalcDate('<1D>', WorkDate());
+        CustomerContractPage.Lines."Term Until".SetValue(ExpectedDate);
+        ServiceCommitment.Get(OldServiceCommitment."Entry No.");
+        Assert.AreEqual(ExpectedDate, ServiceCommitment."Term Until", StrSubstNo(NotTransferredMisspelledTok, ServiceCommitment.FieldCaption("Term Until")));
 
         ExpectedDecimalValue := LibraryRandom.RandDecInDecimalRange(1, 100, 2);
         while ExpectedDecimalValue = OldServiceCommitment."Discount %" do
@@ -503,6 +560,11 @@ codeunit 148155 "Contracts Test"
         ServiceCommitment.Get(OldServiceCommitment."Entry No.");
         Assert.AreEqual(DescriptionText, ServiceCommitment.Description, StrSubstNo(SrvCommFieldNotTransferredErr, ServiceCommitment.FieldCaption(Description)));
 
+        Evaluate(BillingBasePeriod, '<3M>');
+        CustomerContractPage.Lines."Billing Base Period".SetValue(BillingBasePeriod);
+        ServiceCommitment.Get(OldServiceCommitment."Entry No.");
+        Assert.AreEqual(BillingBasePeriod, ServiceCommitment."Billing Base Period", StrSubstNo(NotTransferredMisspelledTok, ServiceCommitment.FieldCaption("Billing Base Period")));
+
         Evaluate(BillingRhythmValue, '<3M>');
         CustomerContractPage.Lines."Billing Rhythm".SetValue(BillingRhythmValue);
         ServiceCommitment.Get(OldServiceCommitment."Entry No.");
@@ -520,7 +582,7 @@ codeunit 148155 "Contracts Test"
     begin
         Initialize();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
         ContractTestLibrary.CreateCustomerContract(CustomerContract, Customer."No.");
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
 
@@ -547,7 +609,9 @@ codeunit 148155 "Contracts Test"
     var
         CustomerContract: Record "Customer Contract";
         CustomerContractLine: Record "Customer Contract Line";
+        ServiceCommitment: Record "Service Commitment";
         ServiceObject: Record "Service Object";
+        EntryNo: Integer;
     begin
         // Test: Service Commitment should be disconnected from the contract when the line type changes
         Initialize();
@@ -556,11 +620,14 @@ codeunit 148155 "Contracts Test"
 
         CustomerContractLine.Reset();
         CustomerContractLine.SetRange("Contract No.", CustomerContract."No.");
-        CustomerContractLine.SetRange("Contract Line Type", CustomerContractLine."Contract Line Type"::"Service Commitment");
+        CustomerContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::Item);
         CustomerContractLine.SetFilter("Service Object No.", '<>%1', '');
         CustomerContractLine.SetFilter("Service Commitment Entry No.", '<>%1', 0);
         CustomerContractLine.FindFirst();
-        asserterror CustomerContractLine.Validate("Contract Line Type", CustomerContractLine."Contract Line Type"::Comment);
+        EntryNo := CustomerContractLine."Service Commitment Entry No.";
+        CustomerContractLine.Validate("Contract Line Type", CustomerContractLine."Contract Line Type"::Comment);
+        ServiceCommitment.Get(EntryNo);
+        ServiceCommitment.TestField("Contract No.", '');
     end;
 
     [Test]
@@ -635,7 +702,7 @@ codeunit 148155 "Contracts Test"
         // [SCENARIO] try to assign Service Commitment to wrong Contract No (different Customer No.)
         Initialize();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
         ContractTestLibrary.CreateCustomerContract(CustomerContract, Customer."No.");
         ContractTestLibrary.CreateCustomer(Customer2);
         ContractTestLibrary.CreateCustomerContract(CustomerContract, Customer2."No.");
@@ -661,7 +728,7 @@ codeunit 148155 "Contracts Test"
     begin
         Initialize();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
         ContractTestLibrary.CreateCustomerContract(CustomerContract, Customer."No.");
 
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
@@ -686,7 +753,7 @@ codeunit 148155 "Contracts Test"
     begin
         Initialize();
         SetupNewContract(false, ServiceObject, CustomerContract);
-        CreateContractCommentLine(CustomerContract."No.", CustomerContractLine);
+        ContractTestLibrary.InsertCustomerContractCommentLine(CustomerContract, CustomerContractLine);
         CustomerContractLine.Reset();
         asserterror CustomerContractLine.MergeContractLines(CustomerContractLine);
     end;
@@ -701,7 +768,7 @@ codeunit 148155 "Contracts Test"
         ServiceObject: Record "Service Object";
     begin
         Initialize();
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', true);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, '', true);
         CreateAndPostBillingProposal(WorkDate(), ServiceObject."No.");
         asserterror UpdateServiceStartDateFromCustomerContractSubpage(CustomerContract."No.", CustomerContractLine, ServiceCommitment);
     end;
@@ -718,11 +785,11 @@ codeunit 148155 "Contracts Test"
         Initialize();
 
         ContractTestLibrary.InitContractsApp();
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', false);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, '', false);
         ServiceObject."Customer Reference" := CopyStr(LibraryRandom.RandText(MaxStrLen(ServiceObject."Customer Reference")), 1, MaxStrLen(ServiceObject."Customer Reference"));
         ServiceObject.Modify(false);
 
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject2, '', false);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject2, '', false);
         ServiceObject2."Customer Reference" := CopyStr(LibraryRandom.RandText(MaxStrLen(ServiceObject2."Customer Reference")), 1, MaxStrLen(ServiceObject2."Customer Reference"));
         ServiceObject2.Modify(false);
 
@@ -745,7 +812,7 @@ codeunit 148155 "Contracts Test"
 
         SetupNewContract(false, ServiceObject, CustomerContract);
         CreateTwoEqualServiceObjectsWithServiceCommitments(ServiceObject, ServiceObject2);
-        ContractTestLibrary.AssignServiceObjectToCustomerContract(CustomerContract, ServiceObject2, false);
+        ContractTestLibrary.AssignServiceObjectForItemToCustomerContract(CustomerContract, ServiceObject2, false);
         ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Customer);
         asserterror CustomerContractLine.MergeContractLines(CustomerContractLine);
     end;
@@ -764,7 +831,7 @@ codeunit 148155 "Contracts Test"
 
         SetupNewContract(false, ServiceObject, CustomerContract);
         CreateTwoEqualServiceObjectsWithServiceCommitments(ServiceObject, ServiceObject1);
-        ContractTestLibrary.AssignServiceObjectToCustomerContract(CustomerContract, ServiceObject1, false);
+        ContractTestLibrary.AssignServiceObjectForItemToCustomerContract(CustomerContract, ServiceObject1, false);
         CustomerContractLine.FindFirst();
         CustomerContractLine.GetServiceCommitment(ServiceCommitment);
         ServiceCommitment."Next Billing Date" := CalcDate('<1D>', ServiceCommitment."Next Billing Date");
@@ -807,7 +874,7 @@ codeunit 148155 "Contracts Test"
 
         // [GIVEN] Create Customer and Service Object
         ContractTestLibrary.CreateCustomer(Customer);
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, false);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, false);
         ServiceObject.Validate("End-User Customer No.", Customer."No.");
         ServiceObject.Modify(false);
 
@@ -856,7 +923,7 @@ codeunit 148155 "Contracts Test"
         ContractTestLibrary.CreateCustomerContractWithContractType(CustomerContract, ContractType);
         ContractType.HarmonizedBillingCustContracts := true;
         ContractType.Modify(false);
-        ContractTestLibrary.AssignServiceObjectToCustomerContract(CustomerContract, ServiceObject, true);
+        ContractTestLibrary.AssignServiceObjectForItemToCustomerContract(CustomerContract, ServiceObject, true);
         CustomerContract.FindEarliestServiceCommitment(ServiceCommitment, 0);
         CustomerContract.TestField("Billing Base Date", ServiceCommitment."Next Billing Date");
         CustomerContract.TestField("Default Billing Rhythm", ServiceCommitment."Billing Rhythm");
@@ -879,8 +946,8 @@ codeunit 148155 "Contracts Test"
     begin
         Initialize();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.");
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
         ContractTestLibrary.InsertCustomerContractCommentLine(CustomerContract, CustomerContractLine2);
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
         ServiceCommitment.SetRange("Contract No.", CustomerContract."No.");
@@ -892,7 +959,7 @@ codeunit 148155 "Contracts Test"
             until ServiceCommitment.Next() = 0;
         CustomerContract.UpdateServicesDates();
         CustomerContractLine.SetRange("Contract No.", CustomerContract."No.");
-        CustomerContractLine.SetRange("Contract Line Type", "Contract Line Type"::"Service Commitment");
+        CustomerContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::Item);
         CustomerContractLine.SetRange(Closed, false);
         Assert.RecordIsNotEmpty(CustomerContractLine);
     end;
@@ -920,6 +987,78 @@ codeunit 148155 "Contracts Test"
 
         // Translation has been deleted with its master-record
         Assert.RecordIsEmpty(FieldTranslation);
+    end;
+
+    [Test]
+    procedure ManuallyCreateContractLineForItem()
+    var
+        Customer: Record Customer;
+        CustomerContract: Record "Customer Contract";
+        CustomerContractLine: Record "Customer Contract Line";
+        ServiceCommitment: Record "Service Commitment";
+        ServiceObject: Record "Service Object";
+    begin
+        // [SCENARIO] Manually create contract lines for Item and expect Service Object to be created
+
+        // [GIVEN] A Customer Contract has been created
+        ClearAll();
+        ContractTestLibrary.InitContractsApp();
+        ContractTestLibrary.CreateCustomer(Customer);
+        ContractTestLibrary.CreateCustomerContract(CustomerContract, Customer."No.");
+
+        // [WHEN] A Customer Contract Line has been manually created and Item No. is entered.
+        ContractTestLibrary.InsertCustomerContractItemLine(CustomerContract, CustomerContractLine);
+
+        // [THEN] Service Object has been created with a single Service Commiment
+        ServiceObject.Get(CustomerContractLine."Service Object No.");
+        ServiceObject.TestField("Quantity Decimal", 1);
+        ServiceObject.TestField(ServiceObject.Type, ServiceObject.Type::Item);
+        ServiceObject.TestField("End-User Customer No.", CustomerContract."Sell-to Customer No.");
+        ServiceObject.TestField("Bill-to Customer No.", CustomerContract."Bill-to Customer No.");
+        ServiceObject.TestField("Created in Contract line", true);
+        ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
+        Assert.RecordCount(ServiceCommitment, 1);
+        ServiceCommitment.FindFirst();
+        ServiceCommitment.TestField("Invoicing via", ServiceCommitment."Invoicing via"::Contract);
+        ServiceCommitment.TestField("Created in Contract line", true);
+        ServiceCommitment.TestField("Contract No.", CustomerContractLine."Contract No.");
+        ServiceCommitment.TestField("Contract Line No.", CustomerContractLine."Line No.");
+    end;
+
+    [Test]
+    procedure ManuallyCreateContractLineForGLAccount()
+    var
+        Customer: Record Customer;
+        CustomerContract: Record "Customer Contract";
+        CustomerContractLine: Record "Customer Contract Line";
+        ServiceCommitment: Record "Service Commitment";
+        ServiceObject: Record "Service Object";
+    begin
+        // [SCENARIO] Manually create contract lines for G/L Account and expect Service Object to be created
+
+        // [GIVEN] A Customer Contract has been created
+        ClearAll();
+        ContractTestLibrary.DeleteAllContractRecords();
+        ContractTestLibrary.CreateCustomer(Customer);
+        ContractTestLibrary.CreateCustomerContract(CustomerContract, Customer."No.");
+
+        // [WHEN] A Customer Contract Line has been manually created and G/L Account No. is entered.
+        ContractTestLibrary.InsertCustomerContractGLAccountLine(CustomerContract, CustomerContractLine);
+
+        // [THEN] Service Object has been created with a single Service Commiment
+        ServiceObject.Get(CustomerContractLine."Service Object No.");
+        ServiceObject.TestField("Quantity Decimal", 1);
+        ServiceObject.TestField(ServiceObject.Type, ServiceObject.Type::"G/L Account");
+        ServiceObject.TestField("End-User Customer No.", CustomerContract."Sell-to Customer No.");
+        ServiceObject.TestField("Bill-to Customer No.", CustomerContract."Bill-to Customer No.");
+        ServiceObject.TestField("Created in Contract line", true);
+        ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
+        Assert.RecordCount(ServiceCommitment, 1);
+        ServiceCommitment.FindFirst();
+        ServiceCommitment.TestField("Invoicing via", ServiceCommitment."Invoicing via"::Contract);
+        ServiceCommitment.TestField("Created in Contract line", true);
+        ServiceCommitment.TestField("Contract No.", CustomerContractLine."Contract No.");
+        ServiceCommitment.TestField("Contract Line No.", CustomerContractLine."Line No.");
     end;
 
     [Test]
@@ -965,7 +1104,7 @@ codeunit 148155 "Contracts Test"
         ContractTestLibrary.CreateCustomerContractWithContractType(CustomerContract, ContractType);
         ContractType.HarmonizedBillingCustContracts := true;
         ContractType.Modify(false);
-        ContractTestLibrary.AssignServiceObjectToCustomerContract(CustomerContract, ServiceObject, true);
+        ContractTestLibrary.AssignServiceObjectForItemToCustomerContract(CustomerContract, ServiceObject, true);
         CustomerContract.TestField("Billing Base Date");
         CustomerContract.TestField("Default Billing Rhythm");
         CustomerContract.TestField("Next Billing From");
@@ -995,8 +1134,9 @@ codeunit 148155 "Contracts Test"
         Initialize();
 
         // [GIVEN]
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false, true);
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
+        ContractAnalysisEntry.DeleteAll(false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false, true);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
 
         // [WHEN]
         Report.Run(Report::"Create Contract Analysis");
@@ -1006,9 +1146,10 @@ codeunit 148155 "Contracts Test"
         if ContractAnalysisEntry.FindSet() then
             repeat
                 ServiceCommitment.Get(ContractAnalysisEntry."Service Commitment Entry No.");
-                ServiceCommitment.CalcFields("Item No.", "Service Object Description", "Quantity Decimal");
+                ServiceCommitment.CalcFields("Source Type", "Source No.", "Service Object Description", "Quantity Decimal");
                 ContractAnalysisEntry.TestField("Service Object No.", ServiceCommitment."Service Object No.");
-                ContractAnalysisEntry.TestField("Service Object Item No.", ServiceCommitment."Item No.");
+                ContractAnalysisEntry.TestField("Service Object Source Type", ServiceCommitment."Source Type");
+                ContractAnalysisEntry.TestField("Service Object Source No.", ServiceCommitment."Source No.");
                 ContractAnalysisEntry.TestField("Service Object Description", ServiceCommitment."Service Object Description");
                 ContractAnalysisEntry.TestField("Service Commitment Entry No.", ServiceCommitment."Entry No.");
                 ContractAnalysisEntry.TestField("Package Code", ServiceCommitment."Package Code");
@@ -1046,6 +1187,8 @@ codeunit 148155 "Contracts Test"
                 ContractAnalysisEntry.TestField("Quantity Decimal", ServiceCommitment."Quantity Decimal");
                 ContractAnalysisEntry.TestField("Renewal Term", ServiceCommitment."Renewal Term");
                 ContractAnalysisEntry.TestField("Dimension Set ID", ServiceCommitment."Dimension Set ID");
+                ContractAnalysisEntry.TestField("Unit Cost", ServiceCommitment."Unit Cost");
+                ContractAnalysisEntry.TestField("Unit Cost (LCY)", ServiceCommitment."Unit Cost (LCY)");
             until ContractAnalysisEntry.Next() = 0;
     end;
 
@@ -1068,7 +1211,7 @@ codeunit 148155 "Contracts Test"
         ContractTestLibrary.CreateCustomer(Customer);
         ContractTestLibrary.CreateCustomerContract(CustomerContract, Customer."No.");
         CreateAndAssignHarmonizationCustomerContractType(CustomerContract);
-        ContractTestLibrary.AssignServiceObjectToCustomerContract(CustomerContract, ServiceObject, true);
+        ContractTestLibrary.AssignServiceObjectForItemToCustomerContract(CustomerContract, ServiceObject, true);
         ServiceCommitment.FindLast();
         ServiceCommitment.Validate("Service Start Date", CalcDate('<-1M>', ServiceCommitment."Service Start Date"));
         Evaluate(ServiceCommitment."Billing Rhythm", '2M');
@@ -1089,9 +1232,10 @@ codeunit 148155 "Contracts Test"
         ServiceObject: Record "Service Object";
         VendorContract: Record "Vendor Contract";
         AmountArray: array[4] of Decimal;
-        ExpectedResultArray: array[4] of Decimal;
+        ExpectedResultAmountArray, ExpectedUnitCostLCYArray : array[4] of Decimal;
         RoundedExpectedResult: Decimal;
         RoundedResult: Decimal;
+        UnitCostLCY: Decimal;
         i: Integer;
         BillingBasePeriodArray: array[4] of Text;
     begin
@@ -1108,40 +1252,47 @@ codeunit 148155 "Contracts Test"
         BillingBasePeriodArray[2] := '<2D>';
         BillingBasePeriodArray[3] := '<1W>';
         BillingBasePeriodArray[4] := '<2W>';
-        AmountArray[1] := 1;
-        AmountArray[2] := 1;
-        AmountArray[3] := 1;
-        AmountArray[4] := 1;
-        ExpectedResultArray[1] := 1;
-        ExpectedResultArray[2] := 1 / 2;
-        ExpectedResultArray[3] := 1 / 7; // 1W
-        ExpectedResultArray[4] := 1 / 14; // 2W
+        for i := 1 to 4 do
+            AmountArray[i] := 280;
 
-        SetupServiceObjectWithCustomerServiceCommitments(BillingBasePeriodArray, AmountArray, 4, ServiceObject);
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, ServiceObject."End-User Customer No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, '');
+        UnitCostLCY := 140;
+
+        ExpectedResultAmountArray[1] := AmountArray[1];
+        ExpectedResultAmountArray[2] := AmountArray[2] / 2;
+        ExpectedResultAmountArray[3] := AmountArray[3] / 7; //1W
+        ExpectedResultAmountArray[4] := AmountArray[4] / 14; //2W
+
+        SetupServiceObjectWithCustomerServiceCommitments(BillingBasePeriodArray, AmountArray, UnitCostLCY, 4, ServiceObject);
+
+        ExpectedUnitCostLCYArray[1] := (UnitCostLCY * ServiceObject."Quantity Decimal") / 1;
+        ExpectedUnitCostLCYArray[2] := (UnitCostLCY * ServiceObject."Quantity Decimal") / 2;
+        ExpectedUnitCostLCYArray[3] := (UnitCostLCY * ServiceObject."Quantity Decimal") / 7;
+        ExpectedUnitCostLCYArray[4] := (UnitCostLCY * ServiceObject."Quantity Decimal") / 14;
+
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, ServiceObject."End-User Customer No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, '');
 
         // [WHEN]
         Report.Run(Report::"Create Contract Analysis");
 
-        // [THEN]
+        //[THEN]: Test Customer Contract Analysis Entry for Expected values
         Currency.InitRoundingPrecision();
         ContractAnalysisEntry.SetRange("Service Object No.", ServiceObject."No.");
         Assert.RecordIsNotEmpty(ContractAnalysisEntry);
         ContractAnalysisEntry.FindSet();
         for i := 1 to 4 do begin
             RoundedResult := Round(ContractAnalysisEntry."Monthly Recurr. Revenue (LCY)", Currency."Amount Rounding Precision");
-            RoundedExpectedResult := Round(ExpectedResultArray[i] * (CalcDate('<CM>', ContractAnalysisEntry."Analysis Date") - CalcDate('<-CM>', ContractAnalysisEntry."Analysis Date")), Currency."Amount Rounding Precision");
+            RoundedExpectedResult := Round(ExpectedResultAmountArray[i] * (CalcDate('<CM>', ContractAnalysisEntry."Analysis Date") - CalcDate('<-CM-1D>', ContractAnalysisEntry."Analysis Date")), Currency."Amount Rounding Precision");
             Assert.AreEqual(RoundedExpectedResult, RoundedResult, 'Monthly Recurr. Revenue (LCY) was not calculated correctly');
 
             RoundedResult := Round(ContractAnalysisEntry."Monthly Recurring Cost (LCY)", Currency."Amount Rounding Precision");
-            RoundedExpectedResult := Round(ExpectedResultArray[i] * (CalcDate('<CM>', ContractAnalysisEntry."Analysis Date") - CalcDate('<-CM>', ContractAnalysisEntry."Analysis Date")), Currency."Amount Rounding Precision");
+            RoundedExpectedResult := Round(ExpectedUnitCostLCYArray[i] * (CalcDate('<CM>', ContractAnalysisEntry."Analysis Date") - CalcDate('<-CM-1D>', ContractAnalysisEntry."Analysis Date")), Currency."Amount Rounding Precision");
             Assert.AreEqual(RoundedExpectedResult, RoundedResult, 'Monthly Recurring Cost (LCY) was not calculated correctly');
             ContractAnalysisEntry.Next();
         end;
-        // Test Vendor Service Commitment in Contract Analysis Entry
+        //[THEN]: Test Vendor Contract Analysis Entry for Expected values
         ContractAnalysisEntry.TestField("Monthly Recurr. Revenue (LCY)", 0);
-        ContractAnalysisEntry.TestField("Monthly Recurring Cost (LCY)", ExpectedResultArray[i] * (CalcDate('<CM>', ContractAnalysisEntry."Analysis Date") - CalcDate('<-CM>', ContractAnalysisEntry."Analysis Date")));
+        ContractAnalysisEntry.TestField("Monthly Recurring Cost (LCY)", ExpectedResultAmountArray[i] * (CalcDate('<CM>', ContractAnalysisEntry."Analysis Date") - CalcDate('<-CM-1D>', ContractAnalysisEntry."Analysis Date")));
     end;
 
     [Test]
@@ -1157,8 +1308,8 @@ codeunit 148155 "Contracts Test"
         // Test: Service Commitment cannot be deleted if an open contract line exists
         Initialize();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
 
         ServiceCommitment.Reset();
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
@@ -1183,8 +1334,8 @@ codeunit 148155 "Contracts Test"
         // Test: A closed Contract Line is deleted when deleting the Service Commitment
         Initialize();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
 
         ServiceCommitment.Reset();
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
@@ -1211,7 +1362,7 @@ codeunit 148155 "Contracts Test"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', true);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, '', true);
         UpdateServiceStartDateFromCustomerContractSubpage(CustomerContract."No.", CustomerContractLine, ServiceCommitment);
         CustomerContractLine.GetServiceCommitment(ServiceCommitment);
         ServiceCommitment.TestField("Next Billing Date", ServiceCommitment."Service Start Date");
@@ -1236,7 +1387,7 @@ codeunit 148155 "Contracts Test"
         SetupNewContract(false, ServiceObject, CustomerContract);
         CreateTwoEqualServiceObjectsWithServiceCommitments(ServiceObject, ServiceObject1);
         ExpectedServiceAmount := GetTotalServiceAmountFromServiceCommitments(Currency, ServiceObject."No.", ServiceObject1);
-        ContractTestLibrary.AssignServiceObjectToCustomerContract(CustomerContract, ServiceObject1, false);
+        ContractTestLibrary.AssignServiceObjectForItemToCustomerContract(CustomerContract, ServiceObject1, false);
 
         CustomerContractLine.Reset();
         CustomerContractLine.MergeContractLines(CustomerContractLine);
@@ -1269,19 +1420,20 @@ codeunit 148155 "Contracts Test"
         CustomerContract: Record "Customer Contract";
         ServiceObject: Record "Service Object";
         VendorContract: Record "Vendor Contract";
-        AmountArray: array[7] of Decimal;
+        AmountArray, ExpectedUnitCostLCYArray : array[7] of Decimal;
+        UnitCostLCY: Decimal;
         i: Integer;
         BillingBasePeriodArray: array[7] of Text;
     begin
         // [SCENARIO] Try to create Contract Analysis Entry and test the values
         // Setup multiple customer service commitments with different options
-        // 1. Service Amount = 1200 Billing base period = 12M; MRR = 100
-        // 2. Service Amount = 200 Billing base period = 2M; MRR = 100
-        // 3. Service Amount = 100 Billing base period = 1M; MRR = 100
-        // 4. Service Amount = 1200 Billing base period = 1Y; MRR = 100
-        // 5. Service Amount = 2400 Billing base period = 2Y; MRR = 100
-        // 6. Service Amount = 300 Billing base period = 1Q; MRR = 100
-        // 7. Service Amount = 600 Billing base period = 2Q; MRR = 100
+        //1. Service Amount = 1200 Billing base period = 12M; MRR = 100, UnitCostLCY = 140
+        //2. Service Amount = 200 Billing base period = 2M; MRR = 100, UnitCostLCY = 140
+        //3. Service Amount = 100 Billing base period = 1M; MRR = 100, UnitCostLCY = 140
+        //4. Service Amount = 1200 Billing base period = 1Y; MRR = 100, UnitCostLCY = 140
+        //5. Service Amount = 2400 Billing base period = 2Y; MRR = 100, UnitCostLCY = 140
+        //6. Service Amount = 300 Billing base period = 1Q; MRR = 100, UnitCostLCY = 140
+        //7. Service Amount = 600 Billing base period = 2Q; MRR = 100, UnitCostLCY = 140
         // Add Vendor Service Commitment with Billing base period 2Q and Service Amount = 600 Expected for Customer Service Commitment MRC = 100
         Initialize();
         ContractAnalysisEntry.DeleteAll(false);
@@ -1303,22 +1455,34 @@ codeunit 148155 "Contracts Test"
         AmountArray[6] := 300;
         AmountArray[7] := 600;
 
-        SetupServiceObjectWithCustomerServiceCommitments(BillingBasePeriodArray, AmountArray, 7, ServiceObject);
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, ServiceObject."End-User Customer No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, '');
+        UnitCostLCY := 140;
+
+        SetupServiceObjectWithCustomerServiceCommitments(BillingBasePeriodArray, AmountArray, UnitCostLCY, 7, ServiceObject);
+
+        ExpectedUnitCostLCYArray[1] := (UnitCostLCY * ServiceObject."Quantity Decimal") / 12;
+        ExpectedUnitCostLCYArray[2] := (UnitCostLCY * ServiceObject."Quantity Decimal") / 2;
+        ExpectedUnitCostLCYArray[3] := (UnitCostLCY * ServiceObject."Quantity Decimal") / 1;
+        ExpectedUnitCostLCYArray[4] := (UnitCostLCY * ServiceObject."Quantity Decimal") / 12;
+        ExpectedUnitCostLCYArray[5] := (UnitCostLCY * ServiceObject."Quantity Decimal") / 24;
+        ExpectedUnitCostLCYArray[6] := (UnitCostLCY * ServiceObject."Quantity Decimal") / 3;
+        ExpectedUnitCostLCYArray[7] := (UnitCostLCY * ServiceObject."Quantity Decimal") / 6;
+
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, ServiceObject."End-User Customer No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, '');
 
         // [WHEN]
         Report.Run(Report::"Create Contract Analysis");
 
-        // [THEN]
+        //[THEN]: Test Customer Contract Analysis Entry for Expected values
         ContractAnalysisEntry.SetRange("Service Object No.", ServiceObject."No.");
         Assert.RecordIsNotEmpty(ContractAnalysisEntry);
         ContractAnalysisEntry.FindFirst();
         for i := 1 to ArrayLen(AmountArray) do begin
             ContractAnalysisEntry.TestField("Monthly Recurr. Revenue (LCY)", 100);
-            ContractAnalysisEntry.TestField("Monthly Recurring Cost (LCY)", 100);
+            ContractAnalysisEntry.TestField("Monthly Recurring Cost (LCY)", ExpectedUnitCostLCYArray[i]);
             ContractAnalysisEntry.Next();
         end;
+        //[THEN]: Test Vendor Contract Analysis Entry for Expected values
         ContractAnalysisEntry.TestField("Monthly Recurr. Revenue (LCY)", 0);
         ContractAnalysisEntry.TestField("Monthly Recurring Cost (LCY)", 100);
     end;
@@ -1337,7 +1501,7 @@ codeunit 148155 "Contracts Test"
         Initialize();
         Currency.InitRoundingPrecision();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
         ContractTestLibrary.CreateCustomerContract(CustomerContract, Customer."No.");
 
         CustomerContractPage.OpenEdit();
@@ -1368,7 +1532,7 @@ codeunit 148155 "Contracts Test"
         Initialize();
         Currency.InitRoundingPrecision();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
         ContractTestLibrary.CreateCustomerContract(CustomerContract, Customer."No.");
 
         CustomerContractPage.OpenEdit();
@@ -1422,10 +1586,10 @@ codeunit 148155 "Contracts Test"
         // [SCENARIO] Test if the customer contract line will be closed in case of different constellations
         Initialize();
 
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, false);
 
         // [GIVEN] Create a customer contract with service commitments
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
         ContractTestLibrary.InsertCustomerContractCommentLine(CustomerContract, CustomerContractLine2);
 
         // [GIVEN] Make sure that Service End Date is filled, to fullfil the requirement for close of the customer contract line
@@ -1457,7 +1621,7 @@ codeunit 148155 "Contracts Test"
         CustomerContractLine.Reset();
         CustomerContractLine.SetRange("Contract No.", CustomerContract."No.");
         CustomerContractLine.SetRange("Service Object No.", ServiceObject."No.");
-        CustomerContractLine.SetRange("Contract Line Type", "Contract Line Type"::"Service Commitment");
+        CustomerContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::Item);
         CustomerContractLine.SetRange(Closed, false);
         Assert.RecordIsEmpty(CustomerContractLine);
     end;
@@ -1562,7 +1726,7 @@ codeunit 148155 "Contracts Test"
         ServiceObject: Record "Service Object";
     begin
         Initialize();
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', true);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, '', true);
         ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Customer);
         asserterror UpdateServiceStartDateFromCustomerContractSubpage(CustomerContract."No.", CustomerContractLine, ServiceCommitment);
     end;
@@ -1638,6 +1802,7 @@ codeunit 148155 "Contracts Test"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+        ContractTestLibrary.InitSourceCodeSetup();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Contracts Test");
 
         IsInitialized := true;
@@ -1679,18 +1844,6 @@ codeunit 148155 "Contracts Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateContractCommentLine(CustomerContractNo: Code[20]; var CustomerContractLine: Record "Customer Contract Line")
-    var
-        RecRef: RecordRef;
-    begin
-        RecRef.GetTable(CustomerContractLine);
-        CustomerContractLine.Init();
-        CustomerContractLine."Contract No." := CustomerContractNo;
-        CustomerContractLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, CustomerContractLine.FieldNo("Line No."));
-        CustomerContractLine."Contract Line Type" := CustomerContractLine."Contract Line Type"::Comment;
-        CustomerContractLine.Insert(true);
-    end;
-
     local procedure CreateContractWithDetailOverviewAndSalesInvoice(i: Integer; var SalesHeader: Record "Sales Header"; var CustomerContract: Record "Customer Contract")
     var
         BillingLine: Record "Billing Line";
@@ -1721,7 +1874,7 @@ codeunit 148155 "Contracts Test"
         ServiceObject: Record "Service Object";
         TextMgmt: Codeunit "Text Management";
     begin
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, CustomerNo, true);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, CustomerNo, true);
         CustomerContract."Detail Overview" := DetailOverview;
         CustomerContract.Modify(false);
         TextMgmt.AppendText(ContractsFilter, CustomerContract."No.", '|');
@@ -1781,10 +1934,10 @@ codeunit 148155 "Contracts Test"
 
     local procedure SetupNewContract(CreateAdditionalLine: Boolean; var ServiceObject: Record "Service Object"; var CustomerContract: Record "Customer Contract")
     begin
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', CreateAdditionalLine);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, '', CreateAdditionalLine);
     end;
 
-    local procedure SetupServiceObjectWithCustomerServiceCommitments(BillingBasePeriodArray: array[4] of Text; AmountArray: array[4] of Decimal; NoOfRecords: Integer; var ServiceObject: Record "Service Object")
+    local procedure SetupServiceObjectWithCustomerServiceCommitments(BillingBasePeriodArray: array[7] of Text; AmountArray: array[7] of Decimal; ItemUnitCost: Decimal; NoOfRecords: Integer; var ServiceObject: Record "Service Object")
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -1796,7 +1949,10 @@ codeunit 148155 "Contracts Test"
         i: Integer;
     begin
         ContractTestLibrary.CreateCustomer(Customer);
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, false);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, false);
+        Item."Unit Cost" := ItemUnitCost;
+        Item.Modify(false);
+
         ServiceObject.Validate("End-User Customer Name", Customer.Name);
         ServiceObject.Modify(false);
 
@@ -1811,7 +1967,7 @@ codeunit 148155 "Contracts Test"
 
         ContractTestLibrary.CreateServiceCommitmentPackageLine(ServiceCommitmentPackage.Code, ServiceCommitmentTemplate.Code, ServiceCommPackageLine, BillingBasePeriodArray[i], BillingBasePeriodArray[i], Enum::"Service Partner"::Vendor);
         ContractTestLibrary.AssignItemToServiceCommitmentPackage(Item, ServiceCommitmentPackage.Code);
-        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Item No."));
+        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Source No."));
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(WorkDate(), ServiceCommitmentPackage);
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
         ServiceCommitment.FindFirst();
@@ -1819,6 +1975,7 @@ codeunit 148155 "Contracts Test"
             ServiceCommitment.Validate("Calculation Base %", 100);
             ServiceCommitment.Validate("Calculation Base Amount", AmountArray[i]);
             ServiceCommitment.Validate("Service Amount", AmountArray[i]);
+            ServiceCommitment.CalculateUnitCost();
             ServiceCommitment.Modify(false);
             ServiceCommitment.Next();
         end;
@@ -1829,7 +1986,7 @@ codeunit 148155 "Contracts Test"
         ServiceCommitment.Modify(false);
     end;
 
-    local procedure SetupServiceObjectWithServiceCommitment(var Customer: Record Customer; var ServiceObject: Record "Service Object"; SNSpecificTracking: Boolean; AddVendorServiceCommitment: Boolean)
+    local procedure SetupServiceObjectForNewItemWithServiceCommitment(var Customer: Record Customer; var ServiceObject: Record "Service Object"; SNSpecificTracking: Boolean; AddVendorServiceCommitment: Boolean)
     var
         Item: Record Item;
         ItemServCommitmentPackage: Record "Item Serv. Commitment Package";
@@ -1839,7 +1996,7 @@ codeunit 148155 "Contracts Test"
         ServiceCommitmentTemplate2: Record "Service Commitment Template";
     begin
         ContractTestLibrary.CreateCustomer(Customer);
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, SNSpecificTracking);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, SNSpecificTracking);
         ServiceObject.Validate("End-User Customer Name", Customer.Name);
         ServiceObject.Modify(false);
 
@@ -1882,13 +2039,24 @@ codeunit 148155 "Contracts Test"
         end;
 
         ContractTestLibrary.AssignItemToServiceCommitmentPackage(Item, ServiceCommitmentPackage.Code);
-        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Item No."));
+        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Source No."));
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(WorkDate(), ServiceCommitmentPackage);
     end;
 
-    local procedure SetupServiceObjectWithServiceCommitment(var Customer: Record Customer; var ServiceObject: Record "Service Object"; SNSpecificTracking: Boolean)
+    local procedure SetupServiceObjectForNewItemWithServiceCommitment(var Customer: Record Customer; var ServiceObject: Record "Service Object"; SNSpecificTracking: Boolean)
     begin
-        SetupServiceObjectWithServiceCommitment(Customer, ServiceObject, SNSpecificTracking, false);
+        SetupServiceObjectForNewItemWithServiceCommitment(Customer, ServiceObject, SNSpecificTracking, false);
+    end;
+
+    local procedure SetupServiceObjectForNewGLAccountWithServiceCommitment(var Customer: Record Customer; var ServiceObject: Record "Service Object")
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        ClearAll();
+        ContractTestLibrary.CreateCustomer(Customer);
+        ContractTestLibrary.CreateServiceObjectForGLAccountWithServiceCommitments(ServiceObject, GLAccount, 1, 0, '<1Y>', '<1M>');
+        ServiceObject.Validate("End-User Customer Name", Customer.Name);
+        ServiceObject.Modify(false);
     end;
 
     local procedure TestHarmonizationForCustomerContract(var CustomerContract: Record "Customer Contract"; var BillingLine: Record "Billing Line"; var ServiceCommitment: Record "Service Commitment")
@@ -1920,7 +2088,8 @@ codeunit 148155 "Contracts Test"
     begin
         NewServiceObject.Get(ServiceObjectNo);
         NewServiceObject.TestField(Description, ServiceObject.Description);
-        NewServiceObject.TestField("Item No.", ServiceObject."Item No.");
+        NewServiceObject.TestField(Type, NewServiceObject.Type::Item);
+        NewServiceObject.TestField("Source No.", ServiceObject."Source No.");
         NewServiceObject.TestField("End-User Customer No.", ServiceObject."End-User Customer No.");
         NewServiceObject.TestField("Quantity Decimal", ServiceObject."Quantity Decimal" + ServiceObject1."Quantity Decimal");
     end;
@@ -1938,7 +2107,10 @@ codeunit 148155 "Contracts Test"
             ServiceCommitment.TestField("Currency Factor", CurrencyFactor);
 
             if RecalculatePrice then begin // if currency code is changed to '', amounts and amounts in lcy in service commitments should be the same
-                Assert.AreNearlyEqual(Round(CurrExchRate.ExchangeAmtLCYToFCY(CurrencyFactorDate, CustomerCurrencyCode, ServiceCommitment."Price (LCY)", CurrencyFactor), Currency."Unit-Amount Rounding Precision"), ServiceCommitment.Price, 0.01, 'Price is not almost equal');
+                Currency.Get(CustomerCurrencyCode);
+                ServiceCommitment.TestField(
+                    Price,
+                    Round(CurrExchRate.ExchangeAmtLCYToFCY(CurrencyFactorDate, CustomerCurrencyCode, ServiceCommitment."Price (LCY)", CurrencyFactor), Currency."Unit-Amount Rounding Precision"));
 
                 ServiceCommitment.TestField(
                     "Service Amount",

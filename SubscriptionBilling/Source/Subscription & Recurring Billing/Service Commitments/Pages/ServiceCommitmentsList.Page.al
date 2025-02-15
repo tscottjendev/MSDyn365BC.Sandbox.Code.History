@@ -46,6 +46,10 @@ page 8014 "Service Commitments List"
                 {
                     ToolTip = 'Specifies the value of the Quantity field.';
                 }
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
+                {
+                    ToolTip = 'Specifies the unit cost of the item.';
+                }
                 field(Price; Rec.Price)
                 {
                     ToolTip = 'Specifies the price of the service with quantity of 1 in the billing period. The price is calculated from Base Price and Base Price %.';
@@ -217,11 +221,31 @@ page 8014 "Service Commitments List"
                     ToolTip = 'Specifies the value of the Dimension Set ID field.';
                     Visible = false;
                 }
+                field("Source Type"; Rec."Source Type")
+                {
+                    ToolTip = 'Specifies the type of the Service Object.';
+                    Visible = false;
+                }
+                field("Source No."; Rec."Source No.")
+                {
+                    ToolTip = 'Specifies the No. of the Item or G/L Account of the Service Object.';
+                    Visible = false;
+                }
+                field("Created in Contract line"; Rec."Created in Contract line")
+                {
+                    ToolTip = 'Specifies whether the Service Object was created by creating a Contract line manually.';
+                    Visible = false;
+                }
+#if not CLEAN26
                 field("Item No."; Rec."Item No.")
                 {
                     ToolTip = 'Specifies the value of the Item No. field.';
+                    ObsoleteReason = 'Replaced by field Source No.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                     Visible = false;
                 }
+#endif
                 field("Service Object Description"; Rec."Service Object Description")
                 {
                     ToolTip = 'Specifies the value of the Service Object Description field.';

@@ -76,8 +76,9 @@ codeunit 8006 "Create Service Commitment"
             ServiceCommitment."Invoicing Item No." := ImportedServiceCommitment."Invoicing Item No."
         else
             if ServiceObject.Get(ServiceCommitment."Service Object No.") then
-                if ContractsItemManagement.IsServiceCommitmentItem(ServiceObject."Item No.") then
-                    ServiceCommitment."Invoicing Item No." := ServiceObject."Item No.";
+                if ServiceObject.IsItem() then
+                    if ContractsItemManagement.IsServiceCommitmentItem(ServiceObject."Source No.") then
+                        ServiceCommitment."Invoicing Item No." := ServiceObject."Source No.";
         ServiceCommitment.Template := ImportedServiceCommitment."Template Code";
         ServiceCommitment.Validate("Package Code", ImportedServiceCommitment."Package Code");
         ServiceCommitment.Partner := ImportedServiceCommitment.Partner;
@@ -121,8 +122,7 @@ codeunit 8006 "Create Service Commitment"
             ServiceCommitment.CalculateInitialServiceEndDate();
         ServiceCommitment.CalculateInitialCancellationPossibleUntilDate();
 
-        ServiceObject.Get(ServiceCommitment."Service Object No.");
-        ServiceCommitment.SetDefaultDimensionFromItem(ServiceObject."Item No.");
+        ServiceCommitment.SetDefaultDimensions(true);
         ServiceCommitment."Renewal Term" := ServiceCommitment."Initial Term";
         ServiceCommitment."Pricing Unit Cost Surcharge %" := ImportedServiceCommitment."Pricing Unit Cost Surcharge %";
         ServiceCommitment."Supplier Reference Entry No." := ImportedServiceCommitment."Supplier Reference Entry No.";

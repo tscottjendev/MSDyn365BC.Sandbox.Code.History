@@ -1,11 +1,11 @@
 {
   "settings": {
+    "al.enableCodeActions": false,
+    "allint.enabled": false,
     "search.exclude": {
       "**.xlf": true
     },
-    "al.enableCodeActions": false,
-    "al.enableCodeAnalysis": false,
-    "allint.enabled": false
+    "al.enableCodeAnalysis": false
   },
   "folders": [
     {
@@ -55,9 +55,6 @@
     },
     {
       "path": "./EDocumentConnectors/Avalara/Test/E-Document Connector - Avalara Tests"
-    },
-    {
-      "path": "./EDocumentConnectors/Microsoft365/Test/E-Document Connector - Microsoft 365 Tests"
     },
     {
       "path": "./EDocumentConnectors/Logiq/Test/E-Document Connector - Logiq Tests"

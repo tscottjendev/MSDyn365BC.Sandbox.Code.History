@@ -599,7 +599,7 @@ codeunit 139912 "Customer Deferrals Test"
 
         // [GIVEN] Contract has been created and the billing proposal with non posted contract credit memo
         SetPostingAllowTo(0D);
-        CreateCustomerContractWithDeferrals('<2M-CM>', true, 1, true);
+        CreateCustomerContractWithDeferrals('<2M-CM>', true, 1, false);
         CreateBillingProposalAndCreateBillingDocuments('<2M-CM>', '<8M+CM>');
 
         // [WHEN] Post the credit memo
@@ -697,7 +697,12 @@ codeunit 139912 "Customer Deferrals Test"
         CreateCustomerContractWithDeferrals(BillingDateFormula, IsCustomerContractLCY, 1, false);
     end;
 
-    local procedure CreateCustomerContractWithDeferrals(BillingDateFormula: Text; IsCustomerContractLCY: Boolean; ServiceCommitmentCount: Integer; Discount: Boolean)
+    local procedure CreateCustomerContractWithDeferrals(BillingDateFormula: Text; IsCustomerContractLCY: Boolean; UseInvoicingItem: Boolean)
+    begin
+        CreateCustomerContractWithDeferrals(BillingDateFormula, IsCustomerContractLCY, 1, UseInvoicingItem);
+    end;
+
+    local procedure CreateCustomerContractWithDeferrals(BillingDateFormula: Text; IsCustomerContractLCY: Boolean; ServiceCommitmentCount: Integer; UseInvoicingItem: Boolean)
     var
         i: Integer;
     begin
@@ -705,14 +710,14 @@ codeunit 139912 "Customer Deferrals Test"
             ContractTestLibrary.CreateCustomerInLCY(Customer)
         else
             ContractTestLibrary.CreateCustomer(Customer);
-        if Discount then
-            ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item")
+        if UseInvoicingItem then
+            ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Invoicing Item")
         else
-            ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Invoicing Item");
+            ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
         Item.Validate("Unit Price", 1200);
         Item.Modify(false);
 
-        ContractTestLibrary.CreateServiceObject(ServiceObject, Item."No.");
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item."No.");
 
         ServiceObject.Validate("Quantity Decimal", 1);
         ServiceObject.SetHideValidationDialog(true);
@@ -727,10 +732,10 @@ codeunit 139912 "Customer Deferrals Test"
         end;
 
         ContractTestLibrary.AssignItemToServiceCommitmentPackage(Item, ServiceCommitmentPackage.Code);
-        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Item No."));
+        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Source No."));
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(CalcDate(BillingDateFormula, WorkDate()), ServiceCommitmentPackage);
 
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.");
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
     end;
 
     local procedure CreateSalesDocumentsFromCustomerContractWODeferrals()

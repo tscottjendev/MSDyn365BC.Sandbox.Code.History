@@ -81,7 +81,6 @@ codeunit 8004 "Post Contract Renewal"
         PlannedServiceCommitment: Record "Planned Service Commitment";
         ServiceCommitment: Record "Service Commitment";
         TempServiceCommitment: Record "Service Commitment" temporary;
-        ServiceObject: Record "Service Object";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -91,7 +90,6 @@ codeunit 8004 "Post Contract Renewal"
 
         SalesServiceCommitment.TestField("Service Object No.");
         SalesServiceCommitment.TestField("Service Commitment Entry No.");
-        ServiceObject.Get(SalesServiceCommitment."Service Object No.");
         ServiceCommitment.Get(SalesServiceCommitment."Service Commitment Entry No.");
 
         TempServiceCommitment.Init();
@@ -114,8 +112,8 @@ codeunit 8004 "Post Contract Renewal"
         TempServiceCommitment.CalculateInitialServiceEndDate();
         TempServiceCommitment.CalculateInitialCancellationPossibleUntilDate();
         TempServiceCommitment.SetCurrencyData(SalesHeader."Currency Factor", SalesHeader."Posting Date", SalesHeader."Currency Code");
-        TempServiceCommitment.SetLCYFields(TempServiceCommitment.Price, TempServiceCommitment."Service Amount", TempServiceCommitment."Discount Amount", TempServiceCommitment."Calculation Base Amount");
-        TempServiceCommitment.SetDefaultDimensionFromItem(ServiceObject."Item No.");
+        TempServiceCommitment.SetLCYFields(true);
+        TempServiceCommitment.SetDefaultDimensions(true);
         TempServiceCommitment.GetCombinedDimensionSetID(SalesLine."Dimension Set ID", TempServiceCommitment."Dimension Set ID");
 
         PlannedServiceCommitment.TransferFields(TempServiceCommitment, true);
@@ -298,6 +296,8 @@ codeunit 8004 "Post Contract Renewal"
                 ServiceCommitment.Price := PlannedServiceCommitment.Price;
                 ServiceCommitment."Discount %" := PlannedServiceCommitment."Discount %";
                 ServiceCommitment."Discount Amount" := PlannedServiceCommitment."Discount Amount";
+                ServiceCommitment."Unit Cost" := PlannedServiceCommitment."Unit Cost";
+                ServiceCommitment.SetLCYFields(true);
                 ServiceCommitment."Billing Rhythm" := PlannedServiceCommitment."Billing Rhythm";
                 ServiceCommitment."Billing Base Period" := PlannedServiceCommitment."Billing Base Period";
                 ServiceCommitment."Term Until" := PlannedServiceCommitment."Term Until";

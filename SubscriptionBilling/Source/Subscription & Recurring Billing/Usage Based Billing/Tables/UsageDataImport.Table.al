@@ -128,6 +128,12 @@ table 8013 "Usage Data Import"
         UsageDataBlob.DeleteAll(false);
     end;
 
+    internal procedure SetStatus(ProcessingStatus: Enum Microsoft.SubscriptionBilling."Processing Status")
+    begin
+        Rec.Validate("Processing Status", ProcessingStatus);
+        Rec.Modify(true);
+    end;
+
     internal procedure SetReason(ReasonText: Text)
     var
         TextManagement: Codeunit "Text Management";
@@ -209,7 +215,7 @@ table 8013 "Usage Data Import"
         InStream: InStream;
     begin
         FileName := '';
-        UploadIntoStream(UsageDataTxt, '', FileManagement.GetToFilterText('CSV files (*.csv)|*.csv|Txt files (*.txt)|*.txt', UsageDataTxt), FileName, InStream);
+        UploadIntoStream(UsageDataLbl, '', FileManagement.GetToFilterText('CSV files (*.csv)|*.csv|Txt files (*.txt)|*.txt', UsageDataLbl), FileName, InStream);
         if FileName = '' then
             exit;
 
@@ -356,7 +362,7 @@ table 8013 "Usage Data Import"
 
     var
         FileManagement: Codeunit "File Management";
-        UsageDataTxt: Label 'Import Usage Data';
+        UsageDataLbl: Label 'Import Usage Data';
         UsageDataBillingWithInvoiceErr: Label 'There are Usage Data Billings which are already in an Invoice.';
         OnlyOneRecordCanBeSelectedErr: Label 'You must choose one record.';
         UsageBasedBillingDoesNotExistsErr: Label 'Usage Based Billing does not exist.';

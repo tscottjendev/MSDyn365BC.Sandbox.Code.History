@@ -10,7 +10,7 @@ pageextension 8086 "Source Code Setup" extends "Source Code Setup"
         {
             group(SubcriptionBilling)
             {
-                Caption = 'Subcription Billing';
+                Caption = 'Subscription Billing';
                 field(ContractDeferralsRelease; Rec."Contract Deferrals Release")
                 {
                     ApplicationArea = All;

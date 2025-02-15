@@ -3,6 +3,7 @@ namespace Microsoft.SubscriptionBilling;
 using System.Utilities;
 using Microsoft.Sales.Document;
 using Microsoft.Purchases.Document;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.Currency;
 
 codeunit 8062 "Billing Proposal"
@@ -13,7 +14,6 @@ codeunit 8062 "Billing Proposal"
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
         CreateBillingDocuments: Codeunit "Create Billing Documents";
-        DateFormulaManagement: Codeunit "Date Formula Management";
         SessionStore: Codeunit "Session Store";
         CreateBillingDocumentPage: Page "Create Billing Document";
         LastContractNo: Code[20];
@@ -259,7 +259,7 @@ codeunit 8062 "Billing Proposal"
             ServiceCommitment."Usage Based Billing":
                 begin
                     UsageDataBilling.Reset();
-                    UsageDataBilling.SetCurrentKey("Usage Data Import Entry No.", "Service Commitment Entry No.", Partner, "Document Type", "Charge End Date", "Charge End Time");
+                    UsageDataBilling.SetCurrentKey("Usage Data Import Entry No.", "Service Commitment Entry No.", Partner, "Document Type", "Charge End Date");
                     UsageDataBilling.FilterOnServiceCommitment(ServiceCommitment);
                     UsageDataBilling.SetRange("Document Type", "Usage Based Billing Doc. Type"::None);
                     SkipServiceCommitment := UsageDataBilling.IsEmpty();
@@ -323,7 +323,7 @@ codeunit 8062 "Billing Proposal"
             BillingLine."Billing to" := NewBillingToDate;
 
         UpdateBillingLineFromServiceCommitment(BillingLine, ServiceCommitment);
-        CalculateBillingLineUnitPriceAndServiceAmounts(BillingLine, ServiceCommitment);
+        CalculateBillingLineUnitAmountsAndServiceAmount(BillingLine, ServiceCommitment);
         BillingLine."Billing Template Code" := BillingTemplate.Code;
 
         OnBeforeInsertBillingLineUpdateBillingLine(BillingLine, ServiceCommitment);
@@ -334,7 +334,7 @@ codeunit 8062 "Billing Proposal"
         ServiceCommitment.UpdateNextBillingDate(BillingLine."Billing to");
         ServiceCommitment.Modify(false);
 
-        NewBillingFromDate2 := CalculateNextToDate(ServiceCommitment, ServiceCommitment."Billing Rhythm", BillingLine."Billing from") + 1;
+        NewBillingFromDate2 := ServiceCommitment.CalculateNextToDate(ServiceCommitment."Billing Rhythm", BillingLine."Billing from") + 1;
         NewBillingToDate2 := CalculateNextBillingToDateForServiceCommitment(ServiceCommitment, NewBillingFromDate2);
         if NewBillingToDate2 >= BillingPeriodEnd then
             NewBillingToDate2 := BillingPeriodEnd;
@@ -350,90 +350,52 @@ codeunit 8062 "Billing Proposal"
         end;
     end;
 
-    local procedure CalculateBillingLineUnitPriceAndServiceAmounts(var BillingLine: Record "Billing Line"; ServiceCommitment: Record "Service Commitment")
+    local procedure SetBillingLineUnitPriceAndServiceAmountsFromUsageDataBilling(var BillingLine: Record "Billing Line"; ServiceCommitment: Record "Service Commitment"): Boolean
     var
-        Currency: Record Currency;
+        UsageDataBilling: Record "Usage Data Billing";
     begin
-        Currency.Initialize(ServiceCommitment."Currency Code");
+        if not ServiceCommitment.IsUsageBasedBillingValid() then
+            exit(false);
 
-        BillingLine."Unit Price" := CalculateBillingLineUnitPrice(BillingLine, ServiceCommitment);
-        if not ServiceCommitment."Usage Based Billing" then
-            BillingLine."Unit Price" := Round(BillingLine."Unit Price", Currency."Unit-Amount Rounding Precision");
+        if not ServiceCommitment.IsUsageDataBillingFound(UsageDataBilling, BillingLine."Billing from", BillingLine."Billing to") then
+            exit(false);
 
-        BillingLine."Service Amount" := CalculateBillingLineServiceAmount(BillingLine);
-        if not ServiceCommitment."Usage Based Billing" then
-            BillingLine."Service Amount" := Round(BillingLine."Service Amount", Currency."Amount Rounding Precision");
+        UsageDataBilling.CalcSums(Amount, "Cost Amount");
+        case BillingLine.Partner of
+            Enum::"Service Partner"::Vendor:
+                BillingLine."Service Amount" := UsageDataBilling."Cost Amount";
+            Enum::"Service Partner"::Customer:
+                BillingLine."Service Amount" := UsageDataBilling.Amount;
+        end;
+        UsageDataBilling.FindLast();
+        BillingLine."Service Obj. Quantity Decimal" := UsageDataBilling.Quantity;
+        BillingLine."Unit Price" := BillingLine."Service Amount" / UsageDataBilling.Quantity;
+        exit(true);
     end;
 
-    local procedure CalculateBillingLineUnitPrice(BillingLine: Record "Billing Line"; ServiceCommitment: Record "Service Commitment") UnitPrice: Decimal
+    local procedure CalculateBillingLineUnitAmountsAndServiceAmount(var BillingLine: Record "Billing Line"; ServiceCommitment: Record "Service Commitment")
     var
-        PeriodFormula: DateFormula;
-        BillingPeriodRatio: Decimal;
-        PeriodPrice: Decimal;
-        DayPrice: Decimal;
-        FollowUpDays: Integer;
-        Periods: Integer;
-        FollowUpPeriodDays: Integer;
+        Currency: Record Currency;
+        GLSetup: Record "General Ledger Setup";
     begin
-        BillingPeriodRatio := GetBillingPeriodRatio(BillingLine."Billing Rhythm", ServiceCommitment."Billing Base Period");
-        if BillingPeriodRatio > 1 then begin
-            PeriodPrice := ServiceCommitment.Price;
-            PeriodFormula := ServiceCommitment."Billing Base Period";
-        end else begin
-            PeriodPrice := ServiceCommitment.Price * BillingPeriodRatio;
-            PeriodFormula := ServiceCommitment."Billing Rhythm";
-        end;
-        CalculatePeriodCountAndDaysCount(ServiceCommitment, PeriodFormula, BillingLine."Billing from", BillingLine."Billing to", Periods, FollowUpDays, FollowUpPeriodDays);
-        if FollowUpPeriodDays <> 0 then
-            DayPrice := PeriodPrice / FollowUpPeriodDays;
-        UnitPrice := PeriodPrice * Periods + DayPrice * FollowUpDays;
+        if SetBillingLineUnitPriceAndServiceAmountsFromUsageDataBilling(BillingLine, ServiceCommitment) then
+            exit;
+        GLSetup.Get();
+        Currency.Initialize(ServiceCommitment."Currency Code");
+
+        ServiceCommitment.UnitPriceAndCostForPeriod(BillingLine."Billing Rhythm", BillingLine."Billing from", BillingLine."Billing to", BillingLine."Unit Price", BillingLine."Unit Cost", BillingLine."Unit Cost (LCY)");
+        BillingLine."Unit Price" := Round(BillingLine."Unit Price", Currency."Unit-Amount Rounding Precision");
+        BillingLine."Unit Cost" := Round(BillingLine."Unit Cost", Currency."Unit-Amount Rounding Precision");
+        BillingLine."Unit Cost (LCY)" := Round(BillingLine."Unit Cost (LCY)", GLSetup."Unit-Amount Rounding Precision");
+
+        BillingLine."Service Amount" := CalculateBillingLineServiceAmount(BillingLine);
+        BillingLine."Service Amount" := Round(BillingLine."Service Amount", Currency."Amount Rounding Precision");
     end;
 
     internal procedure CalculateBillingLineServiceAmount(var BillingLine: Record "Billing Line") ServiceAmount: Decimal
     begin
         BillingLine.TestField("Service Obj. Quantity Decimal");
         ServiceAmount := BillingLine."Unit Price" * BillingLine."Service Obj. Quantity Decimal" * (1 - BillingLine."Discount %" / 100);
-    end;
-
-    local procedure CalculatePeriodCountAndDaysCount(ServiceCommitment: Record "Service Commitment"; PeriodFormula: DateFormula; StartDate: Date; EndDate: Date; var Periods: Integer; var FollowUpDays: Integer; var FollowUpPeriodDays: Integer)
-    var
-        LastDayInPreviousPeriod: Date;
-        LastDayInNextPeriod: Date;
-        FollowUpDaysExist: Boolean;
-        PeriodFormulaInteger: Integer;
-        Letter: Char;
-    begin
-        Periods := 0;
-        FollowUpDays := 0;
-        FollowUpPeriodDays := 0;
-        FollowUpDaysExist := true;
-
-        LastDayInNextPeriod := StartDate - 1;
-        DateFormulaManagement.FindDateFormulaType(PeriodFormula, PeriodFormulaInteger, Letter);
-        repeat
-            Evaluate(PeriodFormula, '<' + Format((Periods + 1) * PeriodFormulaInteger) + Letter + '>');
-            LastDayInPreviousPeriod := LastDayInNextPeriod;
-            LastDayInNextPeriod := CalculateNextToDate(ServiceCommitment, PeriodFormula, StartDate);
-            if LastDayInNextPeriod <= EndDate then
-                Periods += 1;
-            FollowUpDaysExist := LastDayInNextPeriod <> EndDate;
-        until LastDayInNextPeriod >= EndDate;
-        if FollowUpDaysExist then begin
-            FollowUpDays := EndDate - LastDayInPreviousPeriod;
-            FollowUpPeriodDays := LastDayInNextPeriod - LastDayInPreviousPeriod;
-        end;
-    end;
-
-    local procedure GetBillingPeriodRatio(BillingRhythm: DateFormula; BillingBaseRhytm: DateFormula) BillingPeriodRatio: Decimal
-    var
-        BillingPeriodCount: Integer;
-        BillingBasePeriodCount: Integer;
-    begin
-        if (Format(BillingRhythm) = '') or (Format(BillingBaseRhytm) = '') then
-            exit(0);
-        DateFormulaManagement.FindDateFormulaTypeForComparison(BillingRhythm, BillingPeriodCount);
-        DateFormulaManagement.FindDateFormulaTypeForComparison(BillingBaseRhytm, BillingBasePeriodCount);
-        BillingPeriodRatio := BillingPeriodCount / BillingBasePeriodCount;
     end;
 
     local procedure UpdateBillingLineFromServiceCommitment(var BillingLine: Record "Billing Line"; ServiceCommitment: Record "Service Commitment")
@@ -493,7 +455,7 @@ codeunit 8062 "Billing Proposal"
             if UsageDataBilling.FindFirst() then
                 BillingPeriodStart := UsageDataBilling."Charge Start Date";
             if UsageDataBilling.FindLast() then
-                BillingPeriodEnd := CalcDate('<-1D>', UsageDataBilling."Charge End Date");
+                BillingPeriodEnd := UsageDataBilling."Charge End Date";
             exit;
         end;
 
@@ -523,7 +485,7 @@ codeunit 8062 "Billing Proposal"
         CustomerContract: Record "Customer Contract";
     begin
         ServiceCommitment.TestField("Billing Rhythm");
-        NextBillingToDate := CalculateNextToDate(ServiceCommitment, ServiceCommitment."Billing Rhythm", BillingFromDate);
+        NextBillingToDate := ServiceCommitment.CalculateNextToDate(ServiceCommitment."Billing Rhythm", BillingFromDate);
         if (NextBillingToDate >= ServiceCommitment."Service End Date") and (ServiceCommitment."Service End Date" <> 0D) then
             NextBillingToDate := ServiceCommitment."Service End Date";
         if ServiceCommitment.IsPartnerVendor() then
@@ -531,29 +493,8 @@ codeunit 8062 "Billing Proposal"
         CustomerContract.Get(ServiceCommitment."Contract No.");
         if CustomerContract.IsContractTypeSetAsHarmonizedBilling() then
             HarmonizeNextBillingTo(CustomerContract."Next Billing To", NextBillingToDate, BillingFromDate);
+        ServiceCommitment.SetNextBillingDateFromUsageDataBillingMetadata(NextBillingToDate, BillingFromDate);
         OnAfterCalculateNextBillingToDateForServiceCommitment(NextBillingToDate, ServiceCommitment, BillingFromDate);
-    end;
-
-    internal procedure CalculateNextToDate(ServiceCommitment: Record "Service Commitment"; PeriodFormula: DateFormula; FromDate: Date) NextToDate: Date
-    var
-        DistanceToEndOfMonth: Integer;
-        LastDateInLastMonth: Date;
-    begin
-        case ServiceCommitment."Period Calculation" of
-            ServiceCommitment."Period Calculation"::"Align to Start of Month":
-                NextToDate := CalcDate(PeriodFormula, FromDate) - 1;
-            ServiceCommitment."Period Calculation"::"Align to End of Month":
-                begin
-                    DistanceToEndOfMonth := CalcDate('<CM>', ServiceCommitment."Service Start Date") - ServiceCommitment."Service Start Date";
-                    if DistanceToEndOfMonth > 2 then
-                        NextToDate := CalcDate(PeriodFormula, FromDate) - 1
-                    else begin
-                        LastDateInLastMonth := CalcDate(PeriodFormula, FromDate);
-                        LastDateInLastMonth := CalcDate('<CM>', LastDateInLastMonth);
-                        NextToDate := LastDateInLastMonth - DistanceToEndOfMonth - 1;
-                    end;
-                end;
-        end;
     end;
 
     internal procedure DeleteBillingProposal(BillingTemplateCode: Code[20])
@@ -708,7 +649,7 @@ codeunit 8062 "Billing Proposal"
         TempBillingTemplate: Record "Billing Template" temporary;
     begin
         CreateTempBillingTemplate(TempBillingTemplate, ServicePartner);
-        ProcessContractServiceCommitments(TempBillingTemplate, ContractNo, '', BillingDate, BillingToDate, BillingRhythmFilter);
+        ProcessContractServiceCommitments(TempBillingTemplate, ContractNo, ContractLineFilter, BillingDate, BillingToDate, BillingRhythmFilter);
     end;
 
     internal procedure CreateBillingProposalForPurchaseHeader(ServicePartner: Enum "Service Partner"; var TempServiceCommitment: Record "Service Commitment" temporary; BillingDate: Date; BillingToDate: Date)
@@ -861,7 +802,7 @@ codeunit 8062 "Billing Proposal"
         BillingLine: Record "Billing Line";
     begin
         CustomerContractLine.SetRange("Contract No.", ContractNo);
-        CustomerContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::"Service Commitment");
+        CustomerContractLine.FilterOnServiceObjectContractLineType();
         if CustomerContractLine.FindSet() then
             repeat
                 BillingLine.FilterBillingLineOnContractLine("Service Partner"::Customer, ContractNo, CustomerContractLine."Line No.");
@@ -876,7 +817,7 @@ codeunit 8062 "Billing Proposal"
         BillingLine: Record "Billing Line";
     begin
         VendorContractLine.SetRange("Contract No.", ContractNo);
-        VendorContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::"Service Commitment");
+        VendorContractLine.FilterOnServiceObjectContractLineType();
         if VendorContractLine.FindSet() then
             repeat
                 BillingLine.FilterBillingLineOnContractLine("Service Partner"::Vendor, ContractNo, VendorContractLine."Line No.");

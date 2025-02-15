@@ -120,6 +120,12 @@ page 8067 "Recurring Billing"
                     ToolTip = 'Specifies the amount for the service including discount.';
                     StyleExpr = LineStyleExpr;
                 }
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
+                {
+                    ToolTip = 'Specifies the unit cost for the billing period.';
+                    StyleExpr = LineStyleExpr;
+                    BlankZero = true;
+                }
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ToolTip = 'Specifies the Unit Price for the service billing period without discount.';

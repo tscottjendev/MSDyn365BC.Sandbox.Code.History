@@ -60,6 +60,10 @@ page 8083 "Sales Serv. Comm. Archive List"
                 {
                     ToolTip = 'Specifies the amount for the service including discount.';
                 }
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
+                {
+                    ToolTip = 'Specifies the unit cost of the item.';
+                }
                 field("Agreed Serv. Comm. Start Date"; Rec."Agreed Serv. Comm. Start Date")
                 {
                     ToolTip = 'Specifies the individually agreed start of the service. Enter a date here to overwrite the determination of the start of service with the start of service formula upon delivery. If the field remains empty, the start of the service is determined upon delivery.';

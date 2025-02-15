@@ -376,7 +376,8 @@ codeunit 8059 "Contracts General Mgt."
 
     internal procedure TestMergingServiceObjects(ServiceObject: Record "Service Object"; PrevServiceObject: Record "Service Object")
     begin
-        ServiceObject.TestField("Item No.", PrevServiceObject."Item No.");
+        ServiceObject.TestField(Type, PrevServiceObject.Type);
+        ServiceObject.TestField("Source No.", PrevServiceObject."Source No.");
         ServiceObject.TestField("Unit of Measure", PrevServiceObject."Unit of Measure");
         ServiceObject.TestField("End-User Contact No.", PrevServiceObject."End-User Contact No.");
         ServiceObject.TestField("End-User Customer No.", PrevServiceObject."End-User Customer No.");

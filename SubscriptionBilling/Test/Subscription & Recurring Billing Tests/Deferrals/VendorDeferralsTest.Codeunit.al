@@ -248,7 +248,7 @@ codeunit 139913 "Vendor Deferrals Test"
         // [SCENARIO] Deferral Entries releasing a single invoice line should be created and not for all invoice lines
 
         // [GIVEN] Contract has been created and the billing proposal with non posted contract invoice
-        CreateVendorContractWithDeferrals('<2M-CM>', true, 2, false);
+        CreateVendorContractWithDeferrals('<2M-CM>', true, 2);
         CreateBillingProposalAndCreateBillingDocuments('<2M-CM>', '<8M+CM>');
 
         // [WHEN] Post the contract invoice and a credit memo crediting only the first invoice line
@@ -680,7 +680,7 @@ codeunit 139913 "Vendor Deferrals Test"
 
         // [GIVEN] Contract has been created and the billing proposal with non posted contract credit memo
         SetPostingAllowTo(0D);
-        CreateVendorContractWithDeferrals('<2M-CM>', true, 1, true);
+        CreateVendorContractWithDeferrals('<2M-CM>', true, 1);
         CreateBillingProposalAndCreateBillingDocuments('<2M-CM>', '<8M+CM>');
 
         // [WHEN] Post the contract credit memo
@@ -788,10 +788,10 @@ codeunit 139913 "Vendor Deferrals Test"
 
     local procedure CreateVendorContractWithDeferrals(BillingDateFormula: Text; IsVendorContractLCY: Boolean)
     begin
-        CreateVendorContractWithDeferrals(BillingDateFormula, IsVendorContractLCY, 1, false);
+        CreateVendorContractWithDeferrals(BillingDateFormula, IsVendorContractLCY, 1);
     end;
 
-    local procedure CreateVendorContractWithDeferrals(BillingDateFormula: Text; IsVendorContractLCY: Boolean; ServiceCommitmentCount: Integer; Discount: Boolean)
+    local procedure CreateVendorContractWithDeferrals(BillingDateFormula: Text; IsVendorContractLCY: Boolean; ServiceCommitmentCount: Integer)
     var
         i: Integer;
     begin
@@ -800,13 +800,10 @@ codeunit 139913 "Vendor Deferrals Test"
         else
             ContractTestLibrary.CreateVendor(Vendor);
 
-        if Discount then
-            ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item")
-        else
-            ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Invoicing Item");
+        ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
         Item.Validate("Unit Cost", 1200);
         Item.Modify(false);
-        ContractTestLibrary.CreateServiceObject(ServiceObject, Item."No.");
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item."No.");
         ServiceObject.Validate("Quantity Decimal", 1);
         ServiceObject.Modify(false);
 
@@ -818,10 +815,10 @@ codeunit 139913 "Vendor Deferrals Test"
         end;
 
         ContractTestLibrary.AssignItemToServiceCommitmentPackage(Item, ServiceCommitmentPackage.Code);
-        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Item No."));
+        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Source No."));
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(CalcDate(BillingDateFormula, WorkDate()), ServiceCommitmentPackage);
 
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, Vendor."No.");
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.");
     end;
 
     local procedure FetchAndTestUpdatedVendorContractDeferral()

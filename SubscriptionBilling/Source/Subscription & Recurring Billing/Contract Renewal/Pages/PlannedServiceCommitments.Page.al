@@ -111,6 +111,10 @@ page 8004 "Planned Service Commitments"
                 {
                     ToolTip = 'Specifies the amount for the service including discount.';
                 }
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
+                {
+                    ToolTip = 'Specifies the unit cost of the item.';
+                }
                 field("Calculation Base Amount (LCY)"; Rec."Calculation Base Amount (LCY)")
                 {
                     ToolTip = 'Specifies the basis on which the price is calculated in client currency.';

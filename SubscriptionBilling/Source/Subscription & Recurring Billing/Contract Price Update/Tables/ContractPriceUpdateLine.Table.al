@@ -248,11 +248,12 @@ table 8004 "Contract Price Update Line"
             "Service Partner"::Customer:
                 begin
                     ContractsItemManagement.CreateTempSalesHeader(TempSalesHeader, TempSalesHeader."Document Type"::Order, ServiceObject."End-User Customer No.", ServiceObject."Bill-to Customer No.", Rec."Perform Update On", '');
-                    ContractsItemManagement.CreateTempSalesLine(TempSalesLine, TempSalesHeader, ServiceObject."Item No.", ServiceObject."Quantity Decimal", Rec."Perform Update On");
+                    ContractsItemManagement.CreateTempSalesLine(TempSalesLine, TempSalesHeader, ServiceObject, Rec."Perform Update On");
                     Rec."New Calculation Base" := ContractsItemManagement.CalculateUnitPrice(TempSalesHeader, TempSalesLine);
                 end;
             "Service Partner"::Vendor:
-                Rec."New Calculation Base" := ContractsItemManagement.CalculateUnitCost(ServiceObject."Item No.");
+                if ServiceObject.IsItem() then
+                    Rec."New Calculation Base" := ContractsItemManagement.CalculateUnitCost(ServiceObject."Source No.");
         end;
     end;
 

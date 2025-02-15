@@ -225,7 +225,10 @@ table 8003 "Price Update Template"
                     DefaultFilterFields[2] := VendorContract.FieldNo("Buy-from Vendor No.");
                 end;
             Database::"Service Object":
-                DefaultFilterFields[1] := ServiceObject.FieldNo("Item No.");
+                begin
+                    DefaultFilterFields[1] := ServiceObject.FieldNo(Type);
+                    DefaultFilterFields[2] := ServiceObject.FieldNo("Source No.");
+                end;
             Database::"Service Commitment":
                 begin
                     DefaultFilterFields[1] := ServiceCommitment.FieldNo(Partner);

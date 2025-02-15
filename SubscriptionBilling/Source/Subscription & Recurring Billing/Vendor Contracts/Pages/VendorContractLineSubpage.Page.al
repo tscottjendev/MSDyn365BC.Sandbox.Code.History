@@ -4,7 +4,6 @@ using Microsoft.Finance.Dimension;
 
 page 8078 "Vendor Contract Line Subpage"
 {
-
     PageType = ListPart;
     SourceTable = "Vendor Contract Line";
     Caption = 'Vendor Contract Lines';
@@ -17,35 +16,62 @@ page 8078 "Vendor Contract Line Subpage"
         {
             repeater(ContractLines)
             {
+                field("Contract Line Type"; Rec."Contract Line Type")
+                {
+                    ToolTip = 'Specifies the contract line type.';
+                    ValuesAllowed = Comment, Item, "G/L Account";
+
+                    trigger OnValidate()
+                    begin
+                        UpdateEditableOnRow();
+                        CurrPage.Update();
+                    end;
+                }
+                field("No."; Rec."No.")
+                {
+                    ToolTip = 'Specifies the No. of the Item or G/L Account of the Service Object.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
+                }
+                field("Invoicing Item No."; ServiceCommitment."Invoicing Item No.")
+                {
+                    ToolTip = 'Specifies the value of the Invoicing Item No. field.';
+                    Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Invoicing Item No."));
+                    end;
+                }
                 field("Service Start Date"; ServiceCommitment."Service Start Date")
                 {
                     Caption = 'Service Start Date';
                     ToolTip = 'Specifies the date from which the service is valid and will be invoiced.';
+                    Editable = not IsCommentLineEditable;
+                    Enabled = not IsCommentLineEditable;
 
                     trigger OnValidate()
                     begin
                         UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Service Start Date"));
                     end;
                 }
-                field("Service End Date"; ServiceCommitment."Service End Date")
+                field("Next Billing Date"; ServiceCommitment."Next Billing Date")
                 {
-                    Caption = 'Service End Date';
+                    Caption = 'Next Billing Date';
+                    ToolTip = 'Specifies the date of the next billing possible.';
+                    Editable = false;
                     StyleExpr = NextBillingDateStyleExpr;
-                    ToolTip = 'Specifies the date up to which the service is valid.';
-
-                    trigger OnValidate()
-                    begin
-                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Service End Date"));
-                    end;
-                }
-                field("Planned Serv. Comm. exists"; Rec."Planned Serv. Comm. exists")
-                {
-                    ToolTip = 'Specifies if a planned Renewal exists for the service commitment.';
                 }
                 field("Service Object No."; Rec."Service Object No.")
                 {
                     Visible = false;
                     ToolTip = 'Specifies the number of the service object no.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
 
                     trigger OnAssistEdit()
                     begin
@@ -65,7 +91,8 @@ page 8078 "Vendor Contract Line Subpage"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update(false);
+                        if not Rec.IsCommentLine() then
+                            CurrPage.Update(false);
                     end;
 
                     trigger OnAssistEdit()
@@ -78,11 +105,7 @@ page 8078 "Vendor Contract Line Subpage"
                     Caption = 'Primary Attribute';
                     Editable = false;
                     Visible = false;
-                    ToolTip = 'Displays the primary attribute of the related Service Object.';
-                }
-                field("Service Commitment Description"; Rec."Service Commitment Description")
-                {
-                    ToolTip = 'Specifies the description of the service.';
+                    ToolTip = 'Specifies the primary attribute of the related Service Object.';
                 }
                 field("Service Object Customer Reference"; ServiceObject."Customer Reference")
                 {
@@ -91,140 +114,18 @@ page 8078 "Vendor Contract Line Subpage"
                     Visible = false;
                     ToolTip = 'Specifies the reference by which the customer identifies the service object.';
                 }
-                field("Service Object Quantity"; Rec."Service Obj. Quantity Decimal")
+                field("Service Commitment Description"; Rec."Service Commitment Description")
                 {
-                    ToolTip = 'Number of units of service object.';
-
-                    trigger OnDrillDown()
-                    begin
-                        Rec.OpenServiceObjectCard();
-                    end;
+                    ToolTip = 'Specifies the description of the service.';
                 }
-                field(Price; ServiceCommitment.Price)
+                field("Service Object Quantity"; ServiceCommitment."Quantity Decimal")
                 {
-                    Caption = 'Price';
-                    ToolTip = 'Specifies the price of the service with quantity of 1 in the billing period. The price is calculated from Base Price and Base Price %.';
-                    Editable = false;
-                    BlankZero = true;
-                }
-                field("Discount %"; ServiceCommitment."Discount %")
-                {
-                    Caption = 'Discount %';
-                    ToolTip = 'Specifies the percent of the discount for the service.';
-                    BlankZero = true;
-                    MinValue = 0;
-                    MaxValue = 100;
-                    Editable = not IsDiscountLine;
-                    Enabled = not IsDiscountLine;
+                    ToolTip = 'Specifies the number of units of service object.';
 
                     trigger OnValidate()
                     begin
-                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Discount %"));
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Quantity Decimal"));
                     end;
-                }
-                field("Discount Amount"; ServiceCommitment."Discount Amount")
-                {
-                    Caption = 'Discount Amount';
-                    ToolTip = 'Specifies the amount of the discount for the service.';
-                    BlankZero = true;
-                    MinValue = 0;
-                    Editable = not IsDiscountLine;
-                    Enabled = not IsDiscountLine;
-
-                    trigger OnValidate()
-                    begin
-                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Discount Amount"));
-                    end;
-                }
-                field("Service Amount"; ServiceCommitment."Service Amount")
-                {
-                    Caption = 'Service Amount';
-                    ToolTip = 'Specifies the amount for the service including discount.';
-                    BlankZero = true;
-
-                    trigger OnValidate()
-                    begin
-                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Service Amount"));
-                    end;
-                }
-                field("Price (LCY)"; ServiceCommitment."Price (LCY)")
-                {
-                    Caption = 'Price (LCY)';
-                    ToolTip = 'Specifies the price of the service in client currency related to quantity of 1 in the billing period. The price is calculated from Base Price and Base Price %.';
-                    Visible = false;
-                    BlankZero = true;
-
-                    trigger OnValidate()
-                    begin
-                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Price (LCY)"));
-                    end;
-                }
-                field("Discount Amount (LCY)"; ServiceCommitment."Discount Amount (LCY)")
-                {
-                    Caption = 'Discount Amount (LCY)';
-                    ToolTip = 'Specifies the discount amount in client currency that is granted on the service.';
-                    Visible = false;
-                    BlankZero = true;
-                    Editable = not IsDiscountLine;
-                    Enabled = not IsDiscountLine;
-
-                    trigger OnValidate()
-                    begin
-                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Discount Amount (LCY)"));
-                    end;
-                }
-                field("Service Amount (LCY)"; ServiceCommitment."Service Amount (LCY)")
-                {
-                    Caption = 'Service Amount (LCY)';
-                    ToolTip = 'Specifies the amount in client currency for the service including discount.';
-                    Visible = false;
-                    BlankZero = true;
-
-                    trigger OnValidate()
-                    begin
-                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Service Amount (LCY)"));
-                    end;
-                }
-                field("Currency Code"; ServiceCommitment."Currency Code")
-                {
-                    Caption = 'Currency Code';
-                    ToolTip = 'Specifies the currency of amounts in the service.';
-                    Visible = false;
-
-                    trigger OnValidate()
-                    begin
-                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Currency Code"));
-                    end;
-                }
-                field("Currency Factor"; ServiceCommitment."Currency Factor")
-                {
-                    Caption = 'Currency Factor';
-                    ToolTip = 'Specifies the currency factor valid for the service, which is used to convert amounts to the client currency.';
-                    Visible = false;
-                    BlankZero = true;
-
-                    trigger OnValidate()
-                    begin
-                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Currency Factor"));
-                    end;
-                }
-                field("Currency Factor Date"; ServiceCommitment."Currency Factor Date")
-                {
-                    Caption = 'Currency Factor Date';
-                    ToolTip = 'Specifies the date when the currency factor was last updated.';
-                    Visible = false;
-
-                    trigger OnValidate()
-                    begin
-                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Currency Factor Date"));
-                    end;
-                }
-                field("Next Billing Date"; ServiceCommitment."Next Billing Date")
-                {
-                    Caption = 'Next Billing Date';
-                    ToolTip = 'Specifies the date of the next billing possible.';
-                    Editable = false;
-                    StyleExpr = NextBillingDateStyleExpr;
                 }
                 field("Calculation Base Amount"; ServiceCommitment."Calculation Base Amount")
                 {
@@ -232,6 +133,8 @@ page 8078 "Vendor Contract Line Subpage"
                     Caption = 'Calculation Base Amount';
                     ToolTip = 'Specifies the base amount from which the price will be calculated.';
                     BlankZero = true;
+                    Editable = not IsCommentLineEditable;
+                    Enabled = not IsCommentLineEditable;
 
                     trigger OnValidate()
                     begin
@@ -244,29 +147,170 @@ page 8078 "Vendor Contract Line Subpage"
                     Caption = 'Calculation Base %';
                     ToolTip = 'Specifies the percent at which the price of the service will be calculated. 100% means that the price corresponds to the Base Price.';
                     BlankZero = true;
+                    Editable = not IsCommentLineEditable;
+                    Enabled = not IsCommentLineEditable;
 
                     trigger OnValidate()
                     begin
                         UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Calculation Base %"));
                     end;
                 }
+                field(Price; ServiceCommitment.Price)
+                {
+                    Caption = 'Price';
+                    ToolTip = 'Specifies the price of the service with quantity of 1 in the billing period. The price is calculated from Base Price and Base Price %.';
+                    Editable = false;
+                    BlankZero = true;
+                }
+                field("Price (LCY)"; ServiceCommitment."Price (LCY)")
+                {
+                    Caption = 'Price (LCY)';
+                    ToolTip = 'Specifies the price of the service in client currency related to quantity of 1 in the billing period. The price is calculated from Base Price and Base Price %.';
+                    Visible = false;
+                    BlankZero = true;
+                    Editable = not IsCommentLineEditable;
+                    Enabled = not IsCommentLineEditable;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Price (LCY)"));
+                    end;
+                }
+                field("Discount %"; ServiceCommitment."Discount %")
+                {
+                    Caption = 'Discount %';
+                    ToolTip = 'Specifies the percent of the discount for the service.';
+                    BlankZero = true;
+                    MinValue = 0;
+                    MaxValue = 100;
+                    Editable = (not IsCommentLineEditable) and (not IsDiscountLine);
+                    Enabled = (not IsCommentLineEditable) and (not IsDiscountLine);
+
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Discount %"));
+                    end;
+                }
+                field("Discount Amount"; ServiceCommitment."Discount Amount")
+                {
+                    Caption = 'Discount Amount';
+                    ToolTip = 'Specifies the amount of the discount for the service.';
+                    BlankZero = true;
+                    MinValue = 0;
+                    Editable = (not IsCommentLineEditable) and (not IsDiscountLine);
+                    Enabled = (not IsCommentLineEditable) and (not IsDiscountLine);
+
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Discount Amount"));
+                    end;
+                }
+                field("Discount Amount (LCY)"; ServiceCommitment."Discount Amount (LCY)")
+                {
+                    Caption = 'Discount Amount (LCY)';
+                    ToolTip = 'Specifies the discount amount in client currency that is granted on the service.';
+                    Visible = false;
+                    BlankZero = true;
+                    Editable = (not IsCommentLineEditable) and (not IsDiscountLine);
+                    Enabled = (not IsCommentLineEditable) and (not IsDiscountLine);
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Discount Amount (LCY)"));
+                    end;
+                }
+                field("Service Amount"; ServiceCommitment."Service Amount")
+                {
+                    Caption = 'Service Amount';
+                    ToolTip = 'Specifies the amount for the service including discount.';
+                    BlankZero = true;
+                    Editable = not IsCommentLineEditable;
+                    Enabled = not IsCommentLineEditable;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Service Amount"));
+                    end;
+                }
+                field("Service Amount (LCY)"; ServiceCommitment."Service Amount (LCY)")
+                {
+                    Caption = 'Service Amount (LCY)';
+                    ToolTip = 'Specifies the amount in client currency for the service including discount.';
+                    Visible = false;
+                    BlankZero = true;
+                    Editable = not IsCommentLineEditable;
+                    Enabled = not IsCommentLineEditable;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Service Amount (LCY)"));
+                    end;
+                }
                 field("Billing Base Period"; ServiceCommitment."Billing Base Period")
                 {
                     Caption = 'Billing Base Period';
                     ToolTip = 'Specifies for which period the Service Amount is valid. If you enter 1M here, a period of one month, or 12M, a period of 1 year, to which Service Amount refers to.';
-                    Editable = false;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Billing Base Period"));
+                    end;
+                }
+                field("Billing Rhythm"; ServiceCommitment."Billing Rhythm")
+                {
+                    Caption = 'Billing Rhythm';
+                    ToolTip = 'Specifies the Dateformula for rhythm in which the service is invoiced. Using a Dateformula rhythm can be, for example, a monthly, a quarterly or a yearly invoicing.';
+                    Editable = not IsCommentLineEditable;
+                    Enabled = not IsCommentLineEditable;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Billing Rhythm"));
+                    end;
+                }
+                field("Service End Date"; ServiceCommitment."Service End Date")
+                {
+                    Caption = 'Service End Date';
+                    StyleExpr = NextBillingDateStyleExpr;
+                    ToolTip = 'Specifies the date up to which the service is valid.';
+                    Editable = not IsCommentLineEditable;
+                    Enabled = not IsCommentLineEditable;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Service End Date"));
+                    end;
+                }
+                field("Next Price Update"; ServiceCommitment."Next Price Update")
+                {
+                    ToolTip = 'Specifies the date of the next price update.';
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Next Price Update"));
+                    end;
+                }
+                field("Planned Serv. Comm. exists"; Rec."Planned Serv. Comm. exists")
+                {
+                    ToolTip = 'Specifies if a planned Renewal exists for the service commitment.';
                 }
                 field("Cancellation Possible Until"; ServiceCommitment."Cancellation Possible Until")
                 {
                     Caption = 'Cancellation Possible Until';
                     ToolTip = 'Specifies the last date for a timely termination. The date is determined by the initial term, extension term and a notice period. An initial term of 12 months and a 3-month notice period means that the deadline for a notice of termination is after 9 months. An extension period of 12 months postpones this date by 12 months.';
-                    Editable = false;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Cancellation Possible Until"));
+                    end;
                 }
                 field("Term Until"; ServiceCommitment."Term Until")
                 {
                     Caption = 'Term Until';
                     ToolTip = 'Specifies the earliest regular date for the end of the service, taking into account the initial term, extension term and a notice period. An initial term of 24 months results in a fixed term of 2 years. An extension period of 12 months postpones this date by 12 months.';
-                    Editable = false;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Term Until"));
+                    end;
                 }
                 field("Initial Term"; ServiceCommitment."Initial Term")
                 {
@@ -282,14 +326,12 @@ page 8078 "Vendor Contract Line Subpage"
                     Editable = false;
                     Visible = false;
                 }
-                field("Billing Rhythm"; ServiceCommitment."Billing Rhythm")
+                field("Exclude from Price Update"; ServiceCommitment."Exclude from Price Update")
                 {
-                    Caption = 'Billing Rhythm';
-                    ToolTip = 'Specifies the Dateformula for rhythm in which the service is invoiced. Using a Dateformula rhythm can be, for example, a monthly, a quarterly or a yearly invoicing.';
-
+                    ToolTip = 'Specifies whether this line is considered in by the Contract Price Update. Setting it to yes will exclude the line from all price updates.';
                     trigger OnValidate()
                     begin
-                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Billing Rhythm"));
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Exclude from Price Update"));
                     end;
                 }
                 field("Package Code"; ServiceCommitment."Package Code")
@@ -306,40 +348,68 @@ page 8078 "Vendor Contract Line Subpage"
                     Editable = false;
                     Visible = false;
                 }
-                field("Contract Line Type"; Rec."Contract Line Type")
-                {
-                    ToolTip = 'Specifies the contract line type.';
-                    Editable = false;
-                    Visible = false;
-                }
                 field(Discount; ServiceCommitment.Discount)
                 {
                     Editable = false;
                     ToolTip = 'Specifies whether the Service Commitment is used as a basis for periodic invoicing or discounts.';
                 }
-                field("Next Price Update"; ServiceCommitment."Next Price Update")
-                {
-                    ToolTip = 'Specifies the date of the next price update.';
-                }
-                field("Exclude from Price Update"; ServiceCommitment."Exclude from Price Update")
+                field("Price Binding Period"; ServiceCommitment."Price Binding Period")
                 {
                     Visible = false;
-                    ToolTip = 'Specifies whether this line is considered in by the Contract Price Update. Setting it to yes will exclude the line from all price updates.';
+                    ToolTip = 'Specifies the initial period, in which the price will not be changed by the price update function. The "Next Price Update" will be set based on the Service Start Date and Price Binding Period, for every new Service Commitment.';
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Price Binding Period"));
+                    end;
                 }
                 field("Period Calculation"; ServiceCommitment."Period Calculation")
                 {
                     Visible = false;
-                    ToolTip = 'The Period Calculation controls how a period is determined for billing. The calculation of a month from 28.02. can extend to 27.03. (Align to Start of Month) or 30.03. (Align to End of Month).';
-
+                    ToolTip = 'Specifies the Period Calculation method, which controls how a period is determined for billing. The calculation of a month from 28.02. can extend to 27.03. (Align to Start of Month) or 30.03. (Align to End of Month).';
                     trigger OnValidate()
                     begin
                         UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Period Calculation"));
                     end;
                 }
-                field("Price Binding Period"; ServiceCommitment."Price Binding Period")
+                field("Currency Code"; ServiceCommitment."Currency Code")
                 {
-                    Editable = false;
-                    ToolTip = 'Specifies the period the price will not be changed after the price update. It sets a new "Next Price Update" in the contract line after the price update has been performed.';
+                    Caption = 'Currency Code';
+                    ToolTip = 'Specifies the currency of amounts in the service.';
+                    Visible = false;
+                    Editable = not IsCommentLineEditable;
+                    Enabled = not IsCommentLineEditable;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Currency Code"));
+                    end;
+                }
+                field("Currency Factor"; ServiceCommitment."Currency Factor")
+                {
+                    Caption = 'Currency Factor';
+                    ToolTip = 'Specifies the currency factor valid for the service, which is used to convert amounts to the client currency.';
+                    Visible = false;
+                    BlankZero = true;
+                    Editable = not IsCommentLineEditable;
+                    Enabled = not IsCommentLineEditable;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Currency Factor"));
+                    end;
+                }
+                field("Currency Factor Date"; ServiceCommitment."Currency Factor Date")
+                {
+                    Caption = 'Currency Factor Date';
+                    ToolTip = 'Specifies the date when the currency factor was last updated.';
+                    Visible = false;
+                    Editable = not IsCommentLineEditable;
+                    Enabled = not IsCommentLineEditable;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Currency Factor Date"));
+                    end;
                 }
             }
         }
@@ -407,6 +477,20 @@ page 8078 "Vendor Contract Line Subpage"
                         UsageDataBilling.ShowForContractLine("Service Partner"::Vendor, Rec."Contract No.", Rec."Line No.");
                     end;
                 }
+                action(UsageDataBillingMetadata)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Usage Data Metadata';
+                    Image = DataEntry;
+                    Scope = Repeater;
+                    ToolTip = 'Shows the metadata related to the service commitment.';
+                    Enabled = UsageDataEnabled;
+
+                    trigger OnAction()
+                    begin
+                        ServiceCommitment.ShowUsageDataBillingMetadata();
+                    end;
+                }
             }
             action(MergeContractLines)
             {
@@ -429,14 +513,14 @@ page 8078 "Vendor Contract Line Subpage"
     begin
         InitializePageVariables();
         SetNextBillingDateStyle();
-        Rec.LoadAmountsForContractLine(ServiceCommitment.Price, ServiceCommitment."Discount %", ServiceCommitment."Discount Amount", ServiceCommitment."Service Amount");
+        Rec.LoadServiceCommitmentForContractLine(ServiceCommitment);
     end;
 
     trigger OnAfterGetCurrRecord()
     var
         UsageDataBilling: Record "Usage Data Billing";
     begin
-        IsDiscountLine := ServiceCommitment.Discount;
+        UpdateEditableOnRow();
         UsageDataEnabled := UsageDataBilling.ExistForContractLine("Service Partner"::Vendor, Rec."Contract No.", Rec."Line No.");
     end;
 
@@ -447,12 +531,15 @@ page 8078 "Vendor Contract Line Subpage"
     end;
 
     var
-        ServiceCommitment: Record "Service Commitment";
-        ServiceObject: Record "Service Object";
         ContractsGeneralMgt: Codeunit "Contracts General Mgt.";
         NextBillingDateStyleExpr: Text;
         IsDiscountLine: Boolean;
+        IsCommentLineEditable: Boolean;
         UsageDataEnabled: Boolean;
+
+    protected var
+        ServiceObject: Record "Service Object";
+        ServiceCommitment: Record "Service Commitment";
 
     local procedure InitializePageVariables()
     var
@@ -479,5 +566,11 @@ page 8078 "Vendor Contract Line Subpage"
     begin
         ServiceCommitment.EditDimensionSet();
         CurrPage.Update();
+    end;
+
+    local procedure UpdateEditableOnRow()
+    begin
+        IsCommentLineEditable := Rec.IsCommentLine();
+        IsDiscountLine := ServiceCommitment.Discount;
     end;
 }

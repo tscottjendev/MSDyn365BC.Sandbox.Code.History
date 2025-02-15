@@ -67,11 +67,11 @@ codeunit 8028 "Usage Based Contr. Subscribers"
         ItemReference.ModifyAll("Supplier Ref. Entry No.", ItemVendor."Supplier Ref. Entry No.", false);
     end;
 
-    local procedure RemoveDocumentValuesFromUsageDataBilling(UsageBasedBillingDocType: Enum "Usage Based Billing Doc. Type"; DocumentNo: Code[20])
+    local procedure RemoveDocumentValuesFromUsageDataBilling(ServicePartner: Enum "Service Partner"; UsageBasedBillingDocType: Enum "Usage Based Billing Doc. Type"; DocumentNo: Code[20])
     var
         UsageDataBilling: Record "Usage Data Billing";
     begin
-        UsageDataBilling.FilterOnDocumentTypeAndDocumentNo(UsageBasedBillingDocType, DocumentNo);
+        UsageDataBilling.FilterOnDocumentTypeAndDocumentNo(ServicePartner, UsageBasedBillingDocType, DocumentNo);
         if UsageDataBilling.IsEmpty() then
             exit;
 
@@ -81,9 +81,9 @@ codeunit 8028 "Usage Based Contr. Subscribers"
             until UsageDataBilling.Next() = 0;
     end;
 
-    local procedure UsageDataBillingWithDocumentExist(var UsageDataBilling: Record "Usage Data Billing"; GetBillingDocumentTypeFromSalesDocumentType: Enum "Usage Based Billing Doc. Type"; DocumentNo: Code[20]): Boolean
+    local procedure UsageDataBillingWithDocumentExist(var UsageDataBilling: Record "Usage Data Billing"; ServicePartner: Enum "Service Partner"; GetBillingDocumentTypeFromSalesDocumentType: Enum "Usage Based Billing Doc. Type"; DocumentNo: Code[20]): Boolean
     begin
-        UsageDataBilling.FilterOnDocumentTypeAndDocumentNo(GetBillingDocumentTypeFromSalesDocumentType, DocumentNo);
+        UsageDataBilling.FilterOnDocumentTypeAndDocumentNo(ServicePartner, GetBillingDocumentTypeFromSalesDocumentType, DocumentNo);
         exit(not UsageDataBilling.IsEmpty());
     end;
 
@@ -131,7 +131,7 @@ codeunit 8028 "Usage Based Contr. Subscribers"
     begin
         if not Rec."Recurring Billing" then
             exit;
-        RemoveDocumentValuesFromUsageDataBilling(Enum::"Usage Based Billing Doc. Type"::"Posted Invoice", Rec."No.");
+        RemoveDocumentValuesFromUsageDataBilling(Enum::"Service Partner"::Customer, Enum::"Usage Based Billing Doc. Type"::"Posted Invoice", Rec."No.");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purch. Inv. Header", 'OnAfterDeleteEvent', '', false, false)]
@@ -139,7 +139,7 @@ codeunit 8028 "Usage Based Contr. Subscribers"
     begin
         if not Rec."Recurring Billing" then
             exit;
-        RemoveDocumentValuesFromUsageDataBilling(Enum::"Usage Based Billing Doc. Type"::"Posted Invoice", Rec."No.");
+        RemoveDocumentValuesFromUsageDataBilling(Enum::"Service Partner"::Vendor, Enum::"Usage Based Billing Doc. Type"::"Posted Invoice", Rec."No.");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterDeleteEvent', '', false, false)]
@@ -159,7 +159,7 @@ codeunit 8028 "Usage Based Contr. Subscribers"
         if UsageDataBilling.IsEmpty() then
             exit;
 
-        RemoveDocumentValuesFromUsageDataBilling(Enum::"Usage Based Billing Doc. Type"::Invoice, Rec."No.");
+        RemoveDocumentValuesFromUsageDataBilling(Enum::"Service Partner"::Customer, Enum::"Usage Based Billing Doc. Type"::Invoice, Rec."No.");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterDeleteEvent', '', false, false)]
@@ -179,7 +179,7 @@ codeunit 8028 "Usage Based Contr. Subscribers"
         if UsageDataBilling.IsEmpty() then
             exit;
 
-        RemoveDocumentValuesFromUsageDataBilling(Enum::"Usage Based Billing Doc. Type"::Invoice, Rec."No.");
+        RemoveDocumentValuesFromUsageDataBilling(Enum::"Service Partner"::Vendor, Enum::"Usage Based Billing Doc. Type"::Invoice, Rec."No.");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterPostSalesDoc', '', false, false)]
@@ -189,7 +189,7 @@ codeunit 8028 "Usage Based Contr. Subscribers"
     begin
         if not SalesHeader."Recurring Billing" then
             exit;
-        if not UsageDataBillingWithDocumentExist(UsageDataBilling, UsageBasedDocTypeConv.ConvertSalesDocTypeToUsageBasedBillingDocType(SalesHeader."Document Type"), SalesHeader."No.") then
+        if not UsageDataBillingWithDocumentExist(UsageDataBilling, Enum::"Service Partner"::Customer, UsageBasedDocTypeConv.ConvertSalesDocTypeToUsageBasedBillingDocType(SalesHeader."Document Type"), SalesHeader."No.") then
             exit;
 
         if UsageDataBilling.FindSet() then
@@ -198,8 +198,10 @@ codeunit 8028 "Usage Based Contr. Subscribers"
                     UsageDataBilling.SaveDocumentValues(Enum::"Usage Based Billing Doc. Type"::"Posted Credit Memo", SalesCrMemoHdrNo, UsageDataBilling."Document Line No.", UsageDataBilling."Billing Line Entry No.");
                     CreateAdditionalUsageDataBilling(UsageDataBilling);
                 end
-                else
+                else begin
                     UsageDataBilling.SaveDocumentValues(Enum::"Usage Based Billing Doc. Type"::"Posted Invoice", SalesInvHdrNo, UsageDataBilling."Document Line No.", UsageDataBilling."Billing Line Entry No.");
+                    UsageDataBilling.SetMetadataAsInvoiced();
+                end;
             until UsageDataBilling.Next() = 0;
     end;
 
@@ -210,7 +212,7 @@ codeunit 8028 "Usage Based Contr. Subscribers"
     begin
         if not PurchaseHeader."Recurring Billing" then
             exit;
-        if not UsageDataBillingWithDocumentExist(UsageDataBilling, UsageBasedDocTypeConv.ConvertPurchaseDocTypeToUsageBasedBillingDocType(PurchaseHeader."Document Type"), PurchaseHeader."No.") then
+        if not UsageDataBillingWithDocumentExist(UsageDataBilling, Enum::"Service Partner"::Vendor, UsageBasedDocTypeConv.ConvertPurchaseDocTypeToUsageBasedBillingDocType(PurchaseHeader."Document Type"), PurchaseHeader."No.") then
             exit;
         if UsageDataBilling.FindSet() then
             repeat

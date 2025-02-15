@@ -13,8 +13,6 @@ page 6106 "Outbound E-Documents"
     SourceTable = "E-Document";
     CardPageId = "E-Document";
     PageType = List;
-    UsageCategory = Lists;
-    AdditionalSearchTerms = 'Edoc,Outbound,Outgoing,Out,Electronic Document,EDocuments,E Documents,E invoices,Einvoices,Electronic';
     RefreshOnActivate = true;
     Editable = false;
     DeleteAllowed = false;
@@ -97,5 +95,13 @@ page 6106 "Outbound E-Documents"
             actionref(Promoted_EDocumentServices; EDocumentServices) { }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        EDocumentsSetup: Record "E-Documents Setup";
+    begin
+        if not EDocumentsSetup.IsNewEDocumentExperienceActive() then
+            Error('');
+    end;
 
 }

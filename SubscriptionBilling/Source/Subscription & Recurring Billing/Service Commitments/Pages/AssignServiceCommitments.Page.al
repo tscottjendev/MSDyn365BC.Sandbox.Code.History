@@ -27,7 +27,7 @@ page 8065 "Assign Service Commitments"
                     Caption = 'Service and Calculation Start Date';
                     ToolTip = 'Specifies the date from which the service(s) are valid and should be calculated. The date is taken over when services are created as Service Start Date and Next Calculation Date.';
                 }
-                field(ItemNo; ServiceObject."Item No.")
+                field(ItemNo; ServiceObject."Source No.")
                 {
                     Editable = false;
                     Caption = 'Item No.';

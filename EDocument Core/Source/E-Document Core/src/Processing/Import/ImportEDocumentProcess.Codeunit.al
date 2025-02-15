@@ -30,7 +30,7 @@ codeunit 6104 "Import E-Document Process"
         EDocumentLog.SetFields(EDocument, EDocument.GetEDocumentService());
 
         NewStatus := UndoStep ? GetStatusForStep(Step, true) : GetStatusForStep(Step, false);
-        ImportProcessVersion := EDocument.GetEDocumentService()."Import Process";
+        ImportProcessVersion := EDocument.GetEDocumentService().GetImportProcessVersion();
 
         if ImportProcessVersion <> "E-Document Import Process"::"Version 1.0" then
             case Step of

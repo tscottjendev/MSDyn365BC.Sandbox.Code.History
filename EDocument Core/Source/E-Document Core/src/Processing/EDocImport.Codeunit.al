@@ -52,6 +52,14 @@ codeunit 6140 "E-Doc. Import"
         exit(AllEDocumentsProcessed);
     end;
 
+    procedure ProcessIncomingEDocument(EDocument: Record "E-Document"): Boolean
+    var
+        EDocumentService: Record "E-Document Service";
+    begin
+        EDocumentService := EDocument.GetEDocumentService();
+        ProcessIncomingEDocument(EDocument, EDocumentService, EDocumentService.GetDefaultImportParameters());
+    end;
+
     procedure ProcessIncomingEDocument(EDocument: Record "E-Document"; EDocImportParameters: Record "E-Doc. Import Parameters"): Boolean
     begin
         exit(ProcessIncomingEDocument(EDocument, EDocument.GetEDocumentService(), EDocImportParameters));

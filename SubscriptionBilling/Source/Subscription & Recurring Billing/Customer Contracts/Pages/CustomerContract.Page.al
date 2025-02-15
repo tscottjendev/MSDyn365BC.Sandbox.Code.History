@@ -132,6 +132,20 @@ page 8052 "Customer Contract"
                                     Rec.SetRange("Sell-to Contact No.");
                         end;
                     }
+                    field("Sell-to Phone No."; Rec."Sell-to Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        ToolTip = 'Specifies the telephone number of the contact person that the sales document will be sent to.';
+                    }
+                    field("Sell-to E-Mail"; Rec."Sell-to E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        ToolTip = 'Specifies the email address of the contact person that the sales document will be sent to.';
+                    }
                 }
                 field("Sell-to Contact"; Rec."Sell-to Contact")
                 {

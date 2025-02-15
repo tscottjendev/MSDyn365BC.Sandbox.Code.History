@@ -12,7 +12,7 @@ codeunit 8073 "Sales Report Printout Mgmt."
     SingleInstance = true;
 
     var
-        ReportFormatting: Codeunit "Report Formatting";
+        ReportFormattingGlobal: Codeunit "Report Formatting";
         RecurringServicesTotalLbl: Label 'Recurring Services (* Part of Recurring Billing)';
         RecurringServicesPerLineLbl: Label 'Recurring Services*';
         TotalTextTok: Label 'TotalText', Locked = true;
@@ -77,7 +77,7 @@ codeunit 8073 "Sales Report Printout Mgmt."
                 ServCommGroup.SetRange("Value Long", ServCommGroupPerPeriod."Value Long");
                 if ServCommGroup.IsEmpty then begin
                     ServCommGroup.Reset();
-                    ReportFormatting.AddValueToBuffer(ServCommGroup, '', '', ServCommGroupPerPeriod."Value Long");
+                    ReportFormattingGlobal.AddValueToBuffer(ServCommGroup, '', '', ServCommGroupPerPeriod."Value Long");
                 end else
                     ServCommGroup.Reset();
             until ServCommGroupPerPeriod.Next() = 0;
@@ -125,8 +125,8 @@ codeunit 8073 "Sales Report Printout Mgmt."
                 SalesLineServiceCommitments.Insert(false);
             until SalesServiceCommitment.Next() = 0;
             // Adds captions for Line Details
-            ReportFormatting.AddValueToBuffer(SalesLineServiceCommitmentsCaption, TotalTextTok, RecurringServicesTotalLbl);
-            ReportFormatting.AddValueToBuffer(SalesLineServiceCommitmentsCaption, SalesLineServiceCommitments.FieldName(Description), RecurringServicesPerLineLbl);
+            ReportFormattingGlobal.AddValueToBuffer(SalesLineServiceCommitmentsCaption, TotalTextTok, RecurringServicesTotalLbl);
+            ReportFormattingGlobal.AddValueToBuffer(SalesLineServiceCommitmentsCaption, SalesLineServiceCommitments.FieldName(Description), RecurringServicesPerLineLbl);
         end;
     end;
 

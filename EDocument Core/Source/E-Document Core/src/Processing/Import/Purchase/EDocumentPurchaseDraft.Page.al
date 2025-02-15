@@ -213,7 +213,11 @@ page 6181 "E-Document Purchase Draft"
     }
 
     trigger OnOpenPage()
+    var
+        EDocumentsSetup: Record "E-Documents Setup";
     begin
+        if not EDocumentsSetup.IsNewEDocumentExperienceActive() then
+            Error('');
         if EDocumentPurchaseHeader.Get(Rec."Entry No") then;
         if EDocumentHeaderMapping.Get(Rec."Entry No") then;
         EDocumentServiceStatus := Rec.GetEDocumentServiceStatus();

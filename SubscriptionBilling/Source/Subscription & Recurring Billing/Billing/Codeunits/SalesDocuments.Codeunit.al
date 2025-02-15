@@ -11,6 +11,7 @@ using Microsoft.Inventory.Tracking;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Utilities;
 
 codeunit 8063 "Sales Documents"
@@ -20,6 +21,7 @@ codeunit 8063 "Sales Documents"
 
     var
         SalesServiceCommMgmt: Codeunit "Sales Service Commitment Mgmt.";
+        ContractsItemManagement: Codeunit "Contracts Item Management";
         CalledFromContractRenewal: Boolean;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnBeforeDeleteEvent, '', false, false)]
@@ -104,13 +106,30 @@ codeunit 8063 "Sales Documents"
     local procedure SetVATProductPostingGroupInContractRenewalLineOnAfterAssignFieldsForNo(var SalesLine: Record "Sales Line")
     var
         Item: Record Item;
+        GLAccount: Record "G/L Account";
+        ServiceObject: Record "Service Object";
     begin
         if not SalesLine.IsLineWithServiceObject() then
             exit;
-        if not SalesLine.GetItemFromServiceObject(Item) then
+
+        ServiceObject.Get(SalesLine."No.");
+        if ServiceObject."Source No." = '' then
             exit;
 
-        SalesLine.Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+        case ServiceObject.Type of
+            ServiceObject.Type::Item:
+                begin
+                    Item.Get(ServiceObject."Source No.");
+                    Item.TestField("VAT Prod. Posting Group");
+                    SalesLine.Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+                end;
+            ServiceObject.Type::"G/L Account":
+                begin
+                    GLAccount.Get(ServiceObject."Source No.");
+                    GLAccount.TestField("VAT Prod. Posting Group");
+                    SalesLine.Validate("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
+                end;
+        end;
     end;
 
     local procedure ResetServiceCommitmentAndDeleteBillingLinesForSalesLine(SalesLine: Record "Sales Line")
@@ -347,7 +366,7 @@ codeunit 8063 "Sales Documents"
         //The function makes sure that Shipped and Invoiced quantities for Service Commitment Items are properly set for Sales Shipment Line
         if not (SalesShptLine.Type = SalesShptLine.Type::Item) then
             exit;
-        if not SalesServiceCommMgmt.IsServiceCommitmentItem(SalesShptLine."No.") then
+        if not ContractsItemManagement.IsServiceCommitmentItem(SalesShptLine."No.") then
             exit;
 
         SalesShptLine."Quantity Invoiced" := SalesShptLine.Quantity;
@@ -444,17 +463,13 @@ codeunit 8063 "Sales Documents"
                 ServiceCommitment.CalculateInitialServiceEndDate();
                 ServiceCommitment.CalculateInitialCancellationPossibleUntilDate();
                 ServiceCommitment.SetCurrencyData(SalesHeader."Currency Factor", SalesHeader."Posting Date", SalesHeader."Currency Code");
-                ServiceCommitment.SetLCYFields(ServiceCommitment.Price, ServiceCommitment."Service Amount", ServiceCommitment."Discount Amount", ServiceCommitment."Calculation Base Amount");
-
-                if ServiceCommitment."Invoicing Item No." <> '' then
-                    ServiceCommitment.SetDefaultDimensionFromItem(ServiceCommitment."Invoicing Item No.", false)
-                else
-                    ServiceCommitment.SetDefaultDimensionFromItem(ServiceObject."Item No.", false);
+                ServiceCommitment.SetLCYFields(true);
+                ServiceCommitment.SetDefaultDimensions(false);
                 ServiceCommitment.GetCombinedDimensionSetID(SalesLine."Dimension Set ID", ServiceCommitment."Dimension Set ID");
                 ServiceCommitment."Renewal Term" := ServiceCommitment."Initial Term";
                 OnCreateServiceObjectFromSalesLineBeforeInsertServiceCommitment(ServiceCommitment, SalesServiceCommitment, SalesLine);
+                ServiceCommitment.CalculateServiceAmount(ServiceCommitment.FieldNo("Discount %"));
                 ServiceCommitment.Insert(false);
-                ServiceCommitment.UpdateServiceCommitment(ServiceCommitment.FieldNo("Discount %"));
                 OnCreateServiceObjectFromSalesLineAfterInsertServiceCommitment(ServiceCommitment, SalesServiceCommitment, SalesLine);
             until SalesServiceCommitment.Next() = 0;
         OnAfterCreateServiceObjectFromSalesLine(ServiceObject, SalesHeader, SalesLine);
@@ -465,7 +480,8 @@ codeunit 8063 "Sales Documents"
     begin
         ServiceObject.Init();
         ServiceObject.SetHideValidationDialog(true);
-        ServiceObject."Item No." := SalesLine."No.";
+        ServiceObject.Type := ServiceObject.Type::Item;
+        ServiceObject."Source No." := SalesLine."No.";
         ServiceObject.Validate(Description, SalesLine.Description);
         ServiceObject.Validate("Quantity Decimal", Abs(Quantity));
 
@@ -682,6 +698,8 @@ codeunit 8063 "Sales Documents"
         Item: Record Item;
     begin
         if ToSalesHeader."Recurring Billing" then
+            exit;
+        if not ToSalesLine.IsSalesDocumentTypeWithServiceCommitments() then
             exit;
         if ToSalesLine.Type <> ToSalesLine.Type::Item then
             exit;

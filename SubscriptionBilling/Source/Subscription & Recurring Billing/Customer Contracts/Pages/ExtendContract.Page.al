@@ -1,7 +1,6 @@
 namespace Microsoft.SubscriptionBilling;
 
 using Microsoft.Inventory.Item;
-using Microsoft.Sales.Document;
 using Microsoft.Sales.Customer;
 using Microsoft.Inventory.Item.Catalog;
 
@@ -194,6 +193,7 @@ page 8002 "Extend Contract"
                 {
                     Caption = 'Unit Cost (LCY)';
                     ToolTip = 'Specifies the cost price in customer currency for the selected item.';
+                    DecimalPlaces = 2 : 5;
                     Editable = false;
                 }
                 field(UnitPrice; UnitPrice)
@@ -376,13 +376,15 @@ page 8002 "Extend Contract"
 
     internal procedure ValidateItemNo()
     begin
-        if ItemNo = Item."No." then
-            exit;
-
         if ItemNo = '' then begin
+            UnitPrice := 0;
+            UnitCostLCY := 0;
             Clear(Item);
             exit;
         end;
+
+        if ItemNo = Item."No." then
+            exit;
 
         FillTempServiceCommitmentPackage();
 
@@ -457,7 +459,7 @@ page 8002 "Extend Contract"
                 end;
 
             if (UsageDataSupplierNo <> '') and (UsageDataSubscription."Supplier Reference Entry No." <> 0) then
-                if GenericUsageDataImport.GetServiceCommitmentForSubscription(UsageDataSupplierNo, UsageDataSubscription."Supplier Reference", ServiceCommitment) then
+                if ImportAndProcessUsageData.GetServiceCommitmentForSubscription(UsageDataSupplierNo, UsageDataSubscription."Supplier Reference", ServiceCommitment) then
                     Error(SubscriptionAlreadyConnectedErr, ServiceCommitment."Service Object No.", ServiceCommitment."Entry No.");
 
             SupplierReferenceEntryNo := UsageDataSubscription."Supplier Reference Entry No.";
@@ -465,18 +467,8 @@ page 8002 "Extend Contract"
     end;
 
     local procedure GetItemCost()
-    var
-        TempSalesLine: Record "Sales Line" temporary;
     begin
-        UnitCostLCY := 0;
-        if (VendorContract."No." = '') or (ItemNo = '') then
-            exit;
-
-        TempSalesLine.Type := "Sales Line Type"::Item;
-        TempSalesLine."No." := ItemNo;
-        TempSalesLine.Quantity := QuantityDecimal;
-        TempSalesLine."Unit of Measure Code" := Item."Base Unit of Measure";
-        UnitCostLCY := Item."Last Direct Cost" * TempSalesLine."Qty. per Unit of Measure";
+        UnitCostLCY := ContractItemMgt.CalculateUnitCost(ItemNo);
     end;
 
     local procedure GetAdditionalServiceCommitments()
@@ -578,7 +570,7 @@ page 8002 "Extend Contract"
         UsageDataSupplier: Record "Usage Data Supplier";
         ContractItemMgt: Codeunit "Contracts Item Management";
         ExtendContractMgt: Codeunit "Extend Contract Mgt.";
-        GenericUsageDataImport: Codeunit "Generic Usage Data Import";
+        ImportAndProcessUsageData: Codeunit "Import And Process Usage Data";
         CustomerContractNo: Code[20];
         VendorContractNo: Code[20];
         UnitPrice: Decimal;

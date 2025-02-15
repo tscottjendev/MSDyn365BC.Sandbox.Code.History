@@ -91,7 +91,7 @@ codeunit 139892 "Usage Based B. Test Library"
         GenericImportSettings.Insert(true);
     end;
 
-    procedure CreateSimpleUsageDataGenericImport(var UsageDataGenericImport: Record "Usage Data Generic Import"; UsageDataImportEntryNo: Integer; ServiceObjectNo: Code[20]; CustomerNo: Code[20]; UnitCost: Decimal; BillingPeriodStartDate: Date; BillingPeriodEndDate: Date; SubscriptionStartDate: Date; SubscriptionEndDate: Date; Quantity: Integer)
+    procedure CreateSimpleUsageDataGenericImport(var UsageDataGenericImport: Record "Usage Data Generic Import"; UsageDataImportEntryNo: Integer; ServiceObjectNo: Code[20]; CustomerNo: Code[20]; UnitCost: Decimal; BillingPeriodStartDate: Date; BillingPeriodEndDate: Date; SubscriptionStartDate: Date; SubscriptionEndDate: Date; Quantity: Decimal)
     begin
         UsageDataGenericImport.Init();
         UsageDataGenericImport."Usage Data Import Entry No." := UsageDataImportEntryNo;
@@ -150,28 +150,39 @@ codeunit 139892 "Usage Based B. Test Library"
     procedure CreateUsageDataCSVFileBasedOnRecordAndImportToUsageDataBlob(var UsageDataBlob: Record "Usage Data Blob"; var RecordRef: RecordRef;
                                                                           ServiceObjectNo: Code[20]; ServiceCommitmentEntryNo: Integer)
     begin
-        CreateUsageDataCSVFileBasedOnRecordAndImportToUsageDataBlob(UsageDataBlob, RecordRef, ServiceObjectNo, ServiceCommitmentEntryNo, WorkDate(), WorkDate(), WorkDate(), WorkDate(), LibraryRandom.RandDec(10, 2));
+        CreateUsageDataCSVFileBasedOnRecordAndImportToUsageDataBlob(
+            UsageDataBlob,
+            RecordRef,
+            CopyStr(LibraryRandom.RandText(80), 1, 80),
+            CopyStr(LibraryRandom.RandText(80), 1, 80),
+            ServiceObjectNo,
+            ServiceCommitmentEntryNo,
+            WorkDate(),
+            WorkDate(),
+            WorkDate(),
+            WorkDate(),
+            LibraryRandom.RandDec(10, 2));
     end;
 
-    procedure CreateUsageDataCSVFileBasedOnRecordAndImportToUsageDataBlob(var UsageDataBlob: Record "Usage Data Blob"; var RecordRef: RecordRef;
-                                                                          ServiceObjectNo: Code[20]; ServiceCommitmentEntryNo: Integer;
-                                                                          BillingPeriodStartingDate: Date; BillingPeriodEndingDate: Date; SubscriptionStartingDate: Date; SubscriptionEndingDate: Date; Quantity: Decimal)
+    procedure CreateUsageDataCSVFileBasedOnRecordAndImportToUsageDataBlob(var UsageDataBlob: Record "Usage Data Blob"; var RecordRef: RecordRef; CustomerId: Text[80]; SubscriptionId: Text[80]; ServiceObjectNo: Code[20]; ServiceCommitmentEntryNo: Integer;
+            BillingPeriodStartingDate: Date; BillingPeriodEndingDate: Date; SubscriptionStartingDate: Date; SubscriptionEndingDate: Date; Quantity: Decimal)
     var
         FieldCount: Integer;
         OutStr: OutStream;
     begin
         UsageDataBlob.Data.CreateOutStream(OutStr, TextEncoding::UTF8);
         FieldCount := RecordRef.FieldCount();
-        CreateOutStreamHeaders(OutStr, RecordRef, FieldCount);
-        CreateOutStreamData(OutStr, RecordRef, FieldCount, ServiceObjectNo, BillingPeriodStartingDate, BillingPeriodEndingDate, SubscriptionStartingDate, SubscriptionEndingDate, Quantity);
+        CreateOutStreamHeaders(UsageDataBlob, OutStr, RecordRef, FieldCount);
+        CreateOutStreamData(UsageDataBlob, OutStr, RecordRef, FieldCount, CustomerId, SubscriptionId, ServiceObjectNo, ServiceCommitmentEntryNo, BillingPeriodStartingDate, BillingPeriodEndingDate, SubscriptionStartingDate, SubscriptionEndingDate, Quantity);
         UsageDataBlob.ComputeHashValue();
         UsageDataBlob."Import Status" := Enum::"Processing Status"::Ok;
         UsageDataBlob.Modify(false);
     end;
 
-    local procedure CreateOutStreamData(var OutStr: OutStream; var RecordRef: RecordRef; FieldCount: Integer;
-                                                                          ServiceObjectNo: Code[20];
-                                                                          BillingPeriodStartingDate: Date; BillingPeriodEndingDate: Date; SubscriptionStartingDate: Date; SubscriptionEndingDate: Date; Quantity: Decimal)
+    procedure CreateOutStreamData(var UsageDataBlob: Record "Usage Data Blob"; var OutStr: OutStream; var RecordRef: RecordRef; FieldCount: Integer;
+                                                                              CustomerId: Text[80]; SubscriptionId: Text[80];
+                                                                              ServiceObjectNo: Code[20]; ServiceCommitmentEntryNo: Integer;
+                                                                              BillingPeriodStartingDate: Date; BillingPeriodEndingDate: Date; SubscriptionStartingDate: Date; SubscriptionEndingDate: Date; Quantity: Decimal)
     var
         FieldRef: FieldRef;
     begin
@@ -183,6 +194,10 @@ codeunit 139892 "Usage Based B. Test Library"
                         case FieldRef.Number of
                             6:
                                 OutStr.WriteText(ServiceObjectNo);
+                            7:
+                                OutStr.WriteText(CustomerId);
+                            10:
+                                OutStr.WriteText(SubscriptionId);
                             25:
                                 Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
                             else
@@ -213,7 +228,7 @@ codeunit 139892 "Usage Based B. Test Library"
         OutStr.WriteText();
     end;
 
-    local procedure CreateOutStreamHeaders(var OutStr: OutStream; var RecordRef: RecordRef; FieldCount: Integer)
+    procedure CreateOutStreamHeaders(var UsageDataBlob: Record "Usage Data Blob"; var OutStr: OutStream; var RecordRef: RecordRef; FieldCount: Integer)
     var
         FieldRef: FieldRef;
     begin
@@ -292,7 +307,7 @@ codeunit 139892 "Usage Based B. Test Library"
         CustomerContract.Insert(true);
         CustomerContractLine.Init();
         CustomerContractLine."Contract No." := CustomerContract."No.";
-        CustomerContractLine."Contract Line Type" := CustomerContractLine."Contract Line Type"::"Service Commitment";
+        CustomerContractLine."Contract Line Type" := CustomerContractLine."Contract Line Type"::Item;
         CustomerContractLine.Insert(false);
     end;
 

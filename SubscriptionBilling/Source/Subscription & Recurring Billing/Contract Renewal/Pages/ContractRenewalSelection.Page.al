@@ -276,8 +276,7 @@ page 8006 "Contract Renewal Selection"
     trigger OnAfterGetRecord()
     begin
         InitializePageVariables();
-        Rec.LoadAmountsForContractLine(TempServiceCommitment.Price, TempServiceCommitment."Discount %", TempServiceCommitment."Discount Amount",
-                                       TempServiceCommitment."Service Amount", TempServiceCommitment."Calculation Base Amount", TempServiceCommitment."Calculation Base %");
+        Rec.LoadServiceCommitmentForContractLine(TempServiceCommitment);
 
         LineCheckText := '';
         if not CheckContractLine(Rec) then begin
@@ -381,7 +380,7 @@ page 8006 "Contract Renewal Selection"
         ContractRenewalDocumentAlreadyExistsErr: Label 'A Sales document already exists for %1 %2, %3 %4.';
         ContractRenewalLineAlreadyExistsErr: Label 'A Contract Renewal Line already exists for %1 %2, %3 %4.';
     begin
-        if CustomerContractLine."Contract Line Type" <> CustomerContractLine."Contract Line Type"::"Service Commitment" then
+        if CustomerContractLine.IsCommentLine() then
             exit;
         CustomerContractLine.TestField("Service Object No.");
         CustomerContractLine.TestField("Service Commitment Entry No.");

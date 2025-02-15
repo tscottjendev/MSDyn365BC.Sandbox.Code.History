@@ -75,9 +75,9 @@ codeunit 148159 "Usage Based Extend Contr. Test"
         Initialize();
 
         SetupImportedServiceObjectAndCreateServiceObject();
-        ContractTestLibrary.CreateImportedServiceCommitmentCustomer(ImportedServiceCommitment, ImportedServiceObject, CustomerContract, "Contract Line Type"::"Service Commitment");
+        ContractTestLibrary.CreateImportedServiceCommitmentCustomer(ImportedServiceCommitment, ImportedServiceObject, CustomerContract, Enum::"Contract Line Type"::Item);
         UpdateImportedServiceCommitment("Usage Based Pricing"::"Unit Cost Surcharge");
-        ContractTestLibrary.CreateImportedServiceCommitmentVendor(ImportedServiceCommitment, ImportedServiceObject, VendorContract, "Contract Line Type"::"Service Commitment");
+        ContractTestLibrary.CreateImportedServiceCommitmentVendor(ImportedServiceCommitment, ImportedServiceObject, VendorContract, Enum::"Contract Line Type"::Item);
         UpdateImportedServiceCommitment("Usage Based Pricing"::"Usage Quantity");
         Commit(); // retain created Imported Service Commitments
 
@@ -122,7 +122,7 @@ codeunit 148159 "Usage Based Extend Contr. Test"
         // [THEN] assert errors when running Create Service Commitment
         Initialize();
         SetupImportedServiceObjectAndCreateServiceObject();
-        ContractTestLibrary.CreateImportedServiceCommitmentCustomer(ImportedServiceCommitment, ImportedServiceObject, CustomerContract, "Contract Line Type"::"Service Commitment");
+        ContractTestLibrary.CreateImportedServiceCommitmentCustomer(ImportedServiceCommitment, ImportedServiceObject, CustomerContract, Enum::"Contract Line Type"::Item);
         ImportedServiceCommitment.SetRecFilter();
         InitialImportedServiceCommitment := ImportedServiceCommitment;
         Commit(); // retain Imported Service Commitment
@@ -313,10 +313,10 @@ codeunit 148159 "Usage Based Extend Contr. Test"
         CreateMultipleUsageDataBlobFiles();
         UsageDataImport."Processing Step" := Enum::"Processing Step"::"Create Imported Lines";
         UsageDataImport.Modify(false);
-        Codeunit.Run(Codeunit::"Generic Usage Data Import", UsageDataImport);
+        Codeunit.Run(Codeunit::"Import And Process Usage Data", UsageDataImport);
         UsageDataImport."Processing Step" := Enum::"Processing Step"::"Process Imported Lines";
         UsageDataImport.Modify(false);
-        Codeunit.Run(Codeunit::"Generic Usage Data Import", UsageDataImport);
+        Codeunit.Run(Codeunit::"Import And Process Usage Data", UsageDataImport);
     end;
 
     local procedure TestAssertErrorOnCreateServiceCommitmentRun(var InitialImportedServiceCommitment: Record "Imported Service Commitment")

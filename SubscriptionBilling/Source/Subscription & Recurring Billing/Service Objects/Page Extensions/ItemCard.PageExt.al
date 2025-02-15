@@ -29,10 +29,6 @@ pageextension 8054 "Item Card" extends "Item Card"
                 SubPageLink = "Item No." = field("No.");
             }
         }
-        modify("Last Direct Cost")
-        {
-            Importance = Standard;
-        }
         modify("Allow Invoice Disc.")
         {
             Editable = not IsServiceCommitmentItemEditable;
@@ -63,7 +59,7 @@ pageextension 8054 "Item Card" extends "Item Card"
         {
             action(ServiceCommitments)
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Image = ServiceLedger;
                 Caption = 'Service Commitments';
                 ToolTip = 'View or add service commitments for the item.';

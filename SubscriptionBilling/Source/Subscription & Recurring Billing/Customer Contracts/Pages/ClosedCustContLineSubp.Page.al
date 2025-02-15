@@ -2,7 +2,6 @@ namespace Microsoft.SubscriptionBilling;
 
 page 8080 "Closed Cust. Cont. Line Subp."
 {
-
     PageType = ListPart;
     SourceTable = "Customer Contract Line";
     Caption = 'Closed Customer Contract Lines';
@@ -29,16 +28,27 @@ page 8080 "Closed Cust. Cont. Line Subp."
                     ToolTip = 'Specifies the contract line type.';
                     Editable = false;
                 }
+                field("No."; Rec."No.")
+                {
+                    ToolTip = 'Specifies the No. of the Item or G/L Account of the Service Object.';
+                    Editable = false;
+                }
+                field("Invoicing Item No."; ServiceCommitment."Invoicing Item No.")
+                {
+                    ToolTip = 'Specifies the value of the Invoicing Item No. field.';
+                    Editable = false;
+                    Visible = false;
+                }
                 field("Service Start Date"; ServiceCommitment."Service Start Date")
                 {
                     Caption = 'Service Start Date';
                     ToolTip = 'Specifies the date from which the service is valid and will be invoiced.';
                     Editable = false;
                 }
-                field("Service End Date"; ServiceCommitment."Service End Date")
+                field("Next Billing Date"; ServiceCommitment."Next Billing Date")
                 {
-                    Caption = 'Service End Date';
-                    ToolTip = 'Specifies the date up to which the service is valid.';
+                    Caption = 'Next Billing Date';
+                    ToolTip = 'Specifies the date of the next billing possible.';
                     Editable = false;
                 }
                 field("Service Object No."; Rec."Service Object No.")
@@ -89,12 +99,36 @@ page 8080 "Closed Cust. Cont. Line Subp."
                         Rec.OpenServiceObjectCard();
                     end;
                 }
+                field("Calculation Base Amount"; ServiceCommitment."Calculation Base Amount")
+                {
+                    MinValue = 0;
+                    Caption = 'Calculation Base Amount';
+                    ToolTip = 'Specifies the base amount from which the price will be calculated.';
+                    BlankZero = true;
+                    Editable = false;
+                }
+                field("Calculation Base %"; ServiceCommitment."Calculation Base %")
+                {
+                    MinValue = 0;
+                    Caption = 'Calculation Base %';
+                    ToolTip = 'Specifies the percent at which the price of the service will be calculated. 100% means that the price corresponds to the Base Price.';
+                    BlankZero = true;
+                    Editable = false;
+                }
                 field(Price; ServiceCommitment.Price)
                 {
                     Caption = 'Price';
                     ToolTip = 'Specifies the price of the service with quantity of 1 in the billing period. The price is calculated from Base Price and Base Price %.';
                     Editable = false;
                     BlankZero = true;
+                }
+                field("Price (LCY)"; ServiceCommitment."Price (LCY)")
+                {
+                    Caption = 'Price (LCY)';
+                    ToolTip = 'Specifies the price of the service in client currency related to quantity of 1 in the billing period. The price is calculated from Base Price and Base Price %.';
+                    Visible = false;
+                    BlankZero = true;
+                    Editable = false;
                 }
                 field("Discount %"; ServiceCommitment."Discount %")
                 {
@@ -113,26 +147,18 @@ page 8080 "Closed Cust. Cont. Line Subp."
                     MinValue = 0;
                     Editable = false;
                 }
-                field("Service Amount"; ServiceCommitment."Service Amount")
-                {
-                    Caption = 'Service Amount';
-                    ToolTip = 'Specifies the amount for the service including discount.';
-                    BlankZero = true;
-                    Editable = false;
-                }
-                field("Price (LCY)"; ServiceCommitment."Price (LCY)")
-                {
-                    Caption = 'Price (LCY)';
-                    ToolTip = 'Specifies the price of the service in client currency related to quantity of 1 in the billing period. The price is calculated from Base Price and Base Price %.';
-                    Visible = false;
-                    BlankZero = true;
-                    Editable = false;
-                }
                 field("Discount Amount (LCY)"; ServiceCommitment."Discount Amount (LCY)")
                 {
                     Caption = 'Discount Amount (LCY)';
                     ToolTip = 'Specifies the discount amount in client currency that is granted on the service.';
                     Visible = false;
+                    BlankZero = true;
+                    Editable = false;
+                }
+                field("Service Amount"; ServiceCommitment."Service Amount")
+                {
+                    Caption = 'Service Amount';
+                    ToolTip = 'Specifies the amount for the service including discount.';
                     BlankZero = true;
                     Editable = false;
                 }
@@ -144,54 +170,22 @@ page 8080 "Closed Cust. Cont. Line Subp."
                     BlankZero = true;
                     Editable = false;
                 }
-                field("Currency Code"; ServiceCommitment."Currency Code")
-                {
-                    Caption = 'Currency Code';
-                    ToolTip = 'Specifies the currency of amounts in the service.';
-                    Visible = false;
-                    Editable = false;
-                }
-                field("Currency Factor"; ServiceCommitment."Currency Factor")
-                {
-                    Caption = 'Currency Factor';
-                    ToolTip = 'Specifies the currency factor valid for the service, which is used to convert amounts to the client currency.';
-                    Visible = false;
-                    BlankZero = true;
-                    Editable = false;
-                }
-                field("Currency Factor Date"; ServiceCommitment."Currency Factor Date")
-                {
-                    Caption = 'Currency Factor Date';
-                    ToolTip = 'Specifies the date when the currency factor was last updated.';
-                    Visible = false;
-                    Editable = false;
-                }
-                field("Next Billing Date"; ServiceCommitment."Next Billing Date")
-                {
-                    Caption = 'Next Billing Date';
-                    ToolTip = 'Specifies the date of the next billing possible.';
-                    Editable = false;
-                }
-                field("Calculation Base Amount"; ServiceCommitment."Calculation Base Amount")
-                {
-                    MinValue = 0;
-                    Caption = 'Calculation Base Amount';
-                    ToolTip = 'Specifies the base amount from which the price will be calculated.';
-                    BlankZero = true;
-                    Editable = false;
-                }
-                field("Calculation Base %"; ServiceCommitment."Calculation Base %")
-                {
-                    MinValue = 0;
-                    Caption = 'Calculation Base %';
-                    ToolTip = 'Specifies the percent at which the price of the service will be calculated. 100% means that the price corresponds to the Base Price.';
-                    BlankZero = true;
-                    Editable = false;
-                }
                 field("Billing Base Period"; ServiceCommitment."Billing Base Period")
                 {
                     Caption = 'Billing Base Period';
                     ToolTip = 'Specifies for which period the Service Amount is valid. If you enter 1M here, a period of one month, or 12M, a period of 1 year, to which Service Amount refers to.';
+                    Editable = false;
+                }
+                field("Billing Rhythm"; ServiceCommitment."Billing Rhythm")
+                {
+                    Caption = 'Billing Rhythm';
+                    ToolTip = 'Specifies the Dateformula for rhythm in which the service is invoiced. Using a Dateformula rhythm can be, for example, a monthly, a quarterly or a yearly invoicing.';
+                    Editable = false;
+                }
+                field("Service End Date"; ServiceCommitment."Service End Date")
+                {
+                    Caption = 'Service End Date';
+                    ToolTip = 'Specifies the date up to which the service is valid.';
                     Editable = false;
                 }
                 field("Cancellation Possible Until"; ServiceCommitment."Cancellation Possible Until")
@@ -220,12 +214,6 @@ page 8080 "Closed Cust. Cont. Line Subp."
                     Editable = false;
                     Visible = false;
                 }
-                field("Billing Rhythm"; ServiceCommitment."Billing Rhythm")
-                {
-                    Caption = 'Billing Rhythm';
-                    ToolTip = 'Specifies the Dateformula for rhythm in which the service is invoiced. Using a Dateformula rhythm can be, for example, a monthly, a quarterly or a yearly invoicing.';
-                    Editable = false;
-                }
                 field("Package Code"; ServiceCommitment."Package Code")
                 {
                     Caption = 'Package Code';
@@ -251,6 +239,28 @@ page 8080 "Closed Cust. Cont. Line Subp."
                     Visible = false;
                     Editable = false;
                     ToolTip = 'The Period Calculation controls how a period is determined for billing. The calculation of a month from 28.02. can extend to 27.03. (Align to Start of Month) or 30.03. (Align to End of Month).';
+                }
+                field("Currency Code"; ServiceCommitment."Currency Code")
+                {
+                    Caption = 'Currency Code';
+                    ToolTip = 'Specifies the currency of amounts in the service.';
+                    Visible = false;
+                    Editable = false;
+                }
+                field("Currency Factor"; ServiceCommitment."Currency Factor")
+                {
+                    Caption = 'Currency Factor';
+                    ToolTip = 'Specifies the currency factor valid for the service, which is used to convert amounts to the client currency.';
+                    Visible = false;
+                    BlankZero = true;
+                    Editable = false;
+                }
+                field("Currency Factor Date"; ServiceCommitment."Currency Factor Date")
+                {
+                    Caption = 'Currency Factor Date';
+                    ToolTip = 'Specifies the date when the currency factor was last updated.';
+                    Visible = false;
+                    Editable = false;
                 }
             }
         }
@@ -282,7 +292,7 @@ page 8080 "Closed Cust. Cont. Line Subp."
     trigger OnAfterGetRecord()
     begin
         InitializePageVariables();
-        Rec.LoadAmountsForContractLine(ServiceCommitment.Price, ServiceCommitment."Discount %", ServiceCommitment."Discount Amount", ServiceCommitment."Service Amount", ServiceCommitment."Calculation Base Amount", ServiceCommitment."Calculation Base %");
+        Rec.LoadServiceCommitmentForContractLine(ServiceCommitment);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -297,7 +307,6 @@ page 8080 "Closed Cust. Cont. Line Subp."
         ContractsGeneralMgt: Codeunit "Contracts General Mgt.";
 
     local procedure InitializePageVariables()
-    var
     begin
         Rec.GetServiceCommitment(ServiceCommitment);
         Rec.GetServiceObject(ServiceObject);

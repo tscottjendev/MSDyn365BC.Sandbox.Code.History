@@ -21,9 +21,23 @@ page 8090 "Contract Analysis Entries"
                 {
                     ToolTip = 'Specifies the contract to which the service is to be assigned.';
                 }
+#if not CLEAN26
                 field("Service Object Item No."; Rec."Service Object Item No.")
                 {
                     ToolTip = 'Specifies the Item No. of the service object.';
+                    ObsoleteReason = 'Replaced by field Service Object Source No.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+                    Visible = false;
+                }
+#endif
+                field("Service Object Source Type"; Rec."Service Object Source Type")
+                {
+                    ToolTip = 'Specifies the Source Type of the service object.';
+                }
+                field("Service Object Source No."; Rec."Service Object Source No.")
+                {
+                    ToolTip = 'Specifies the Source No. of the service object.';
                 }
                 field("Service Object Description"; Rec."Service Object Description")
                 {
@@ -140,6 +154,10 @@ page 8090 "Contract Analysis Entries"
                 field("Term Until"; Rec."Term Until")
                 {
                     ToolTip = 'Specifies the earliest regular date for the end of the service, taking into account the initial term, extension term and a notice period. An initial term of 24 months results in a fixed term of 2 years. An extension period of 12 months postpones this date by 12 months.';
+                }
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
+                {
+                    ToolTip = 'Specifies the unit cost of the item.';
                 }
                 field("Price (LCY)"; Rec."Price (LCY)")
                 {

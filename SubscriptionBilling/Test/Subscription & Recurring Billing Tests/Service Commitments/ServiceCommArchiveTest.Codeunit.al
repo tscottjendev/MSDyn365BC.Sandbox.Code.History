@@ -75,6 +75,11 @@ codeunit 139916 "Service Comm. Archive Test"
         ServiceCommitmentSubPage."Discount Amount".SetValue(LibraryRandom.RandDecInDecimalRange(0, ServiceCommitment.Price, 2));
         CheckServiceCommitmentArchive(ServiceCommitment.FieldName("Discount Amount"));
         FindAndTestServiceCommitmentArchive();
+
+        FetchPreviousServiceCommitment();
+        ServiceCommitmentSubPage."Unit Cost (LCY)".SetValue(LibraryRandom.RandDecInDecimalRange(0, ServiceCommitment.Price, 2));
+        CheckServiceCommitmentArchive(ServiceCommitment.FieldName("Unit Cost (LCY)"));
+        FindAndTestServiceCommitmentArchive();
     end;
 
     [Test]
@@ -134,6 +139,11 @@ codeunit 139916 "Service Comm. Archive Test"
         FetchPreviousServiceCommitment();
         CustomerContractLineSubPage."Discount Amount".SetValue(LibraryRandom.RandDecInDecimalRange(0, ServiceCommitment.Price, 2));
         CheckServiceCommitmentArchive(ServiceCommitment.FieldName("Discount Amount"));
+        FindAndTestServiceCommitmentArchive();
+
+        FetchPreviousServiceCommitment();
+        CustomerContractLineSubPage."Unit Cost (LCY)".SetValue(LibraryRandom.RandDecInDecimalRange(0, ServiceCommitment.Price, 2));
+        CheckServiceCommitmentArchive(ServiceCommitment.FieldName("Unit Cost (LCY)"));
         FindAndTestServiceCommitmentArchive();
     end;
 
@@ -199,9 +209,9 @@ codeunit 139916 "Service Comm. Archive Test"
         ServiceCommitmentArchive.DeleteAll(false);
         ContractTestLibrary.InitContractsApp();
         if CreateWithAdditionalVendorServCommLine then
-            ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, Enum::"Invoicing Via"::Contract, SNSpecificTracking, Item, 1, 1)
+            ContractTestLibrary.CreateServiceObjectForItemWithServiceCommitments(ServiceObject, Enum::"Invoicing Via"::Contract, SNSpecificTracking, Item, 1, 1)
         else
-            ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, Enum::"Invoicing Via"::Contract, SNSpecificTracking, Item, 1, 0);
+            ContractTestLibrary.CreateServiceObjectForItemWithServiceCommitments(ServiceObject, Enum::"Invoicing Via"::Contract, SNSpecificTracking, Item, 1, 0);
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
         ServiceCommitment.FindFirst();
     end;
@@ -266,6 +276,8 @@ codeunit 139916 "Service Comm. Archive Test"
         ServiceCommitmentArchive.TestField("Discount %", SourceServiceCommitment."Discount %");
         ServiceCommitmentArchive.TestField("Discount Amount", SourceServiceCommitment."Discount Amount");
         ServiceCommitmentArchive.TestField("Service Amount", SourceServiceCommitment."Service Amount");
+        ServiceCommitmentArchive.TestField("Unit Cost", SourceServiceCommitment."Unit Cost");
+        ServiceCommitmentArchive.TestField("Unit Cost (LCY)", SourceServiceCommitment."Unit Cost (LCY)");
     end;
 
     #endregion Procedures

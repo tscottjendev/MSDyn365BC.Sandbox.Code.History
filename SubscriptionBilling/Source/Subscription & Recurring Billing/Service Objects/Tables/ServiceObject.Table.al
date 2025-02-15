@@ -1,14 +1,16 @@
 namespace Microsoft.SubscriptionBilling;
 
-
 using System.Utilities;
 using System.EMail;
 using System.Environment.Configuration;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.UOM;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
+using Microsoft.Purchases.Document;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Outlook;
@@ -317,21 +319,15 @@ table 8057 "Service Object"
         {
             Caption = 'Item No.';
             TableRelation = Item where("Service Commitment Option" = filter("Sales with Service Commitment" | "Service Commitment Item" | "Invoicing Item"));
+            ObsoleteReason = 'Replaced by field Source No.';
+#if not CLEAN26
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#endif
 
-            trigger OnValidate()
-            var
-                Item: Record Item;
-                ContractsItemManagement: Codeunit "Contracts Item Management";
-            begin
-                if "Item No." <> '' then begin
-                    Item.Get("Item No.");
-                    Description := ContractsItemManagement.GetItemTranslation("Item No.", '', "End-User Customer No.");
-                    Validate("Unit of Measure", Item."Sales Unit of Measure");
-                    if "Serial No." <> '' then
-                        Validate("Quantity Decimal", 1);
-                    InsertServiceCommitmentsFromStandardServCommPackages();
-                end;
-            end;
         }
         field(21; Description; Text[100])
         {
@@ -391,6 +387,72 @@ table 8057 "Service Object"
             Caption = 'Customer Price Group';
             Editable = false;
             TableRelation = "Customer Price Group";
+        }
+        field(50; Type; Enum "Service Object Type")
+        {
+            Caption = 'Type';
+
+            trigger OnValidate()
+            var
+                ServiceCommitment: Record "Service Commitment";
+            begin
+                if Type <> xRec.Type then begin
+                    if ServiceCommitmentsExist() then
+                        Error(CannotChangeWhileServiceCommitmentExistsErr, FieldCaption(Type), ServiceCommitment.TableCaption);
+                    "Source No." := '';
+                    Description := '';
+                    "Unit of Measure" := '';
+                end;
+            end;
+        }
+        field(51; "Source No."; Code[20])
+        {
+            Caption = 'Source No.';
+            TableRelation = if (Type = const(Item)) Item where("Service Commitment Option" = filter("Sales with Service Commitment" | "Service Commitment Item"), Blocked = const(false))
+            else if (Type = const("G/L Account")) "G/L Account" where("Direct Posting" = const(true), "Account Type" = const(Posting), Blocked = const(false));
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            var
+                Item: Record Item;
+                GLAccount: Record "G/L Account";
+                ServiceCommitment: Record "Service Commitment";
+                ContractsItemManagement: Codeunit "Contracts Item Management";
+            begin
+                if "Source No." <> xRec."Source No." then
+                    if ServiceCommitmentsExist() then
+                        Error(CannotChangeWhileServiceCommitmentExistsErr, FieldCaption("Source No."), ServiceCommitment.TableCaption);
+                if "Source No." <> '' then
+                    case Type of
+                        Type::Item:
+                            begin
+                                if not Item.Get("Source No.") then
+                                    Error(EntityDoesNotExistErr, Item.TableCaption, "Source No.");
+                                if Item.Blocked or Item."Service Commitment Option" in ["Item Service Commitment Type"::"Sales without Service Commitment", "Item Service Commitment Type"::"Sales without Service Commitment"] then
+                                    Error(ItemBlockedOrWithoutServiceCommitmentsErr, "Source No.");
+                                Description := ContractsItemManagement.GetItemTranslation("Source No.", '', "End-User Customer No.");
+                                Validate("Unit of Measure", Item."Sales Unit of Measure");
+                                if CurrFieldNo = FieldNo("Source No.") then
+                                    InsertServiceCommitmentsFromStandardServCommPackages();
+                                if "Serial No." <> '' then
+                                    Validate("Quantity Decimal", 1);
+                            end;
+                        Type::"G/L Account":
+                            begin
+                                if not GLAccount.Get("Source No.") then
+                                    Error(EntityDoesNotExistErr, GLAccount.TableCaption, "Source No.");
+                                if GLAccount.Blocked or not GLAccount."Direct Posting" or (GLAccount."Account Type" <> GLAccount."Account Type"::Posting) then
+                                    Error(GLAccountBlockedOrNotForDirectPostingErr, "Source No.");
+                                Description := GLAccount.Name;
+                                Validate("Quantity Decimal", 1);
+                            end;
+                    end;
+            end;
+        }
+        field(52; "Created in Contract line"; Boolean)
+        {
+            Caption = 'Created in Contract line';
+            Editable = false;
         }
         field(79; "End-User Customer Name"; Text[100])
         {
@@ -655,7 +717,7 @@ table 8057 "Service Object"
         field(96; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Source No."));
 
             trigger OnValidate()
             begin
@@ -828,7 +890,9 @@ table 8057 "Service Object"
         field(5425; "Unit of Measure"; Code[10])
         {
             Caption = 'Unit of Measure';
-            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
+            TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("Source No."))
+            else
+            if (Type = const("G/L Account")) "Unit of Measure";
         }
     }
     keys
@@ -845,21 +909,8 @@ table 8057 "Service Object"
     end;
 
     trigger OnDelete()
-    var
-        ServiceCommitment: Record "Service Commitment";
-        ServiceCommitmentArchive: Record "Service Commitment Archive";
-        ContractsGeneralMgt: Codeunit "Contracts General Mgt.";
     begin
-        ServiceCommitment.SetRange("Service Object No.", "No.");
-        if not ServiceCommitment.IsEmpty() then
-            Error(ServiceCommitmentExistsErr, "No.", ServiceCommitment.TableCaption);
-
-        ServiceCommitmentArchive.SetRange("Service Object No.", Rec."No.");
-        ServiceCommitmentArchive.DeleteAll(true);
-
-        TestUpdateRequiredOnBillingLines();
-
-        ContractsGeneralMgt.DeleteDocumentAttachmentForNo(Database::"Service Object", Rec."No.");
+        DeleteRelatedRecords();
     end;
 
     trigger OnModify()
@@ -886,17 +937,18 @@ table 8057 "Service Object"
         EndUserCustomerTxt: Label 'End-User Customer';
         BillToCustomerTxt: Label 'Bill-to Customer';
         SerialQtyErr: Label 'Only service objects with quantity 1 may have a serial number.';
-        ServiceObjectAlreadyExistErr: Label 'Service object %1 already exists.';
+        ServiceObjectAlreadyExistErr: Label 'Service object %1 already exists.', Comment = '%1 = Object number';
         ModifyCustomerAddressNotificationLbl: Label 'Update the address';
-        ModifyCustomerAddressNotificationMsg: Label 'The address you entered for %1 is different from the customer''s existing address.', Comment = '%1=customer name';
+        ModifyCustomerAddressNotificationMsg: Label 'The address you entered for %1 is different from the customer''s existing address.', Comment = '%1 = Customer name';
         DontShowAgainActionLbl: Label 'Don''t show again';
-        ContactRelatedToDifferentCompanyErr: Label 'Contact %1 %2 is related to a different company than customer %3.';
-        ContactNotRelatedToCustomerErr: Label 'Contact %1 %2 is not related to customer %3.';
-        ContactIsNotRelatedToAnyCustomerErr: Label 'Contact %1 %2 is not related to a customer.';
+        ContactRelatedToDifferentCompanyErr: Label 'Contact %1 %2 is related to a different company than customer %3.', Comment = '%1 = Contact number, %2 = Contact name, %3 = Customer number';
+        ContactNotRelatedToCustomerErr: Label 'Contact %1 %2 is not related to customer %3.', Comment = '%1 = Contact number, %2 = Contact name, %3 = Customer number';
+        ContactIsNotRelatedToAnyCustomerErr: Label 'Contact %1 %2 is not related to a customer.', Comment = '%1 = Contact number, %2 = Contact name';
         ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field for the End User, %2, will be deleted. Do you want to continue?', Comment = '%1 - Contact No., %2 - Email';
-        ServiceCommitmentExistsErr: Label 'Cannot delete %1 while %2 exists.';
-        ModifyEndUserCustomerAddressNotificationNameTxt: Label 'Update Sell-to Customer Address';
-        ModifyEndUserCustomerAddressNotificationDescriptionTxt: Label 'Warn if the sell-to address on service object is different from the customer''s existing address.';
+        CannotDeleteBecauseServiceCommitmentExistsErr: Label 'Cannot delete %1 while %2 connected to a contract exists.', Comment = '%1 = No., %2 = TableCaption';
+        CannotChangeWhileServiceCommitmentExistsErr: Label 'Cannot change %1 while %2 exists.', Comment = '%1 = No., %2 = TableCaption';
+        ModifyEndUserCustomerAddressNotificationNameTxt: Label 'Update End-User Customer Address';
+        ModifyEndUserCustomerAddressNotificationDescriptionTxt: Label 'Warn if the End-User address on service object is different from the customer''s existing address.';
         ModifyBillToCustomerAddressNotificationNameTxt: Label 'Update Bill-to Customer Address';
         ModifyBillToCustomerAddressNotificationDescriptionTxt: Label 'Warn if the bill-to address on service object is different from the customer''s existing address.';
         EndUserCustomerChangeNotAllowedErr: Label 'The End-User cannot be changed because at least one service is already linked to a contract.';
@@ -904,12 +956,42 @@ table 8057 "Service Object"
         UpdateExchangeRatesInServiceMsg: Label 'If you want to update the exchange rates in the services, specify the key date and start the processing with OK.';
         SerialNoLbl: Label 'Serial No.: %1';
         PrimaryAttributeTxt: Label 'Primary Attribute';
+        EntityDoesNotExistErr: Label '%1 with the No. %2 does not exist.', Comment = '%1 = Item or GL Account, %2 = Entity No.';
+        ItemBlockedOrWithoutServiceCommitmentsErr: Label 'The item %1 cannot be blocked and must be of type "Non-Inventory" with the Subscription Option set to "Sales with Subscription" or "Subscription Item".', Comment = '%1 = Item No.';
+        GLAccountBlockedOrNotForDirectPostingErr: Label 'The G/L Account %1 cannot be blocked and must allow direct posting to it.', Comment = '%1 = G/L Account No.';
 
     protected var
         CalledFromExtendContract: Boolean;
         UnitPrice: Decimal;
         UnitCost: Decimal;
         HideValidationDialog: Boolean;
+
+    local procedure DeleteRelatedRecords()
+    var
+        ServiceCommitment: Record "Service Commitment";
+        ServiceCommitmentArchive: Record "Service Commitment Archive";
+        ContractsGeneralMgt: Codeunit "Contracts General Mgt.";
+    begin
+        FilterServiceCommitments(ServiceCommitment);
+        ServiceCommitment.SetFilter("Contract No.", '<>%1', '');
+        if not ServiceCommitment.IsEmpty() then
+            Error(CannotDeleteBecauseServiceCommitmentExistsErr, "No.", ServiceCommitment.TableCaption);
+
+        ServiceCommitment.DeleteAll(true);
+
+        ServiceCommitmentArchive.SetRange("Service Object No.", Rec."No.");
+        ServiceCommitmentArchive.DeleteAll(true);
+
+        TestUpdateRequiredOnBillingLines();
+
+        ContractsGeneralMgt.DeleteDocumentAttachmentForNo(Database::"Service Object", Rec."No.");
+    end;
+
+    internal procedure DeleteServiceObjectFromContract()
+    begin
+        if not ServiceCommitmentsExist() then
+            Delete(true);
+    end;
 
     local procedure InitInsert()
     var
@@ -931,6 +1013,61 @@ table 8057 "Service Object"
                 while ServiceObject.Get("No.") do
                     "No." := NoSeries.GetNextNo("No. Series");
             end;
+    end;
+
+    internal procedure InitForSourceNo(ContractLineType: enum "Contract Line Type"; SourceNo: Code[20])
+    begin
+        Init();
+        SetHideValidationDialog(true);
+        case ContractLineType of
+            ContractLineType::Item:
+                Type := Type::Item;
+            ContractLineType::"G/L Account":
+                Type := Type::"G/L Account";
+        end;
+        Validate("Source No.", SourceNo);
+        if "Quantity Decimal" <> 1 then
+            "Quantity Decimal" := 1;
+        Validate("Provision Start Date", WorkDate());
+    end;
+
+    internal procedure UpdateCustomerDataFromCustomerContract(CustomerContract: Record "Customer Contract")
+    begin
+        "End-User Contact No." := CustomerContract."Sell-to Contact No.";
+        "End-User Customer No." := CustomerContract."Sell-to Customer No.";
+        "End-User Customer Name" := CustomerContract."Sell-to Customer Name";
+        "End-User Customer Name 2" := CustomerContract."Sell-to Customer Name 2";
+        "End-User Address" := CustomerContract."Sell-to Address";
+        "End-User Address 2" := CustomerContract."Sell-to Address 2";
+        "End-User City" := CustomerContract."Sell-to City";
+        "End-User Post Code" := CustomerContract."Sell-to Post Code";
+        "End-User County" := CustomerContract."Sell-to County";
+        "End-User Country/Region Code" := CustomerContract."Sell-to Country/Region Code";
+        "End-User Phone No." := CustomerContract."Sell-to Phone No.";
+        "End-User E-Mail" := CustomerContract."Sell-to E-Mail";
+        "End-User Contact" := CustomerContract."Sell-to Contact";
+        "Bill-to Contact No." := CustomerContract."Bill-to Contact No.";
+        "Bill-to Customer No." := CustomerContract."Bill-to Customer No.";
+        "Bill-to Name" := CustomerContract."Bill-to Name";
+        "Bill-to Name 2" := CustomerContract."Bill-to Name 2";
+        "Bill-to Address" := CustomerContract."Bill-to Address";
+        "Bill-to Address 2" := CustomerContract."Bill-to Address 2";
+        "Bill-to City" := CustomerContract."Bill-to City";
+        "Bill-to Post Code" := CustomerContract."Bill-to Post Code";
+        "Bill-to County" := CustomerContract."Bill-to County";
+        "Bill-to Country/Region Code" := CustomerContract."Bill-to Country/Region Code";
+        "Bill-to Contact" := CustomerContract."Bill-to Contact";
+        "Ship-to Code" := CustomerContract."Ship-to Code";
+        "Ship-to Name" := CustomerContract."Ship-to Name";
+        "Ship-to Name 2" := CustomerContract."Ship-to Name 2";
+        "Ship-to Address" := CustomerContract."Ship-to Address";
+        "Ship-to Address 2" := CustomerContract."Ship-to Address 2";
+        "Ship-to City" := CustomerContract."Ship-to City";
+        "Ship-to Post Code" := CustomerContract."Ship-to Post Code";
+        "Ship-to County" := CustomerContract."Ship-to County";
+        "Ship-to Country/Region Code" := CustomerContract."Ship-to Country/Region Code";
+        "Ship-to Contact" := CustomerContract."Ship-to Contact";
+        "Customer Price Group" := CustomerContract."Customer Price Group";
     end;
 
     local procedure GetCustomerServiceContractSetup()
@@ -1576,7 +1713,7 @@ table 8057 "Service Object"
             exit(true);
     end;
 
-    local procedure InsertServiceCommitmentsFromStandardServCommPackages()
+    internal procedure InsertServiceCommitmentsFromStandardServCommPackages()
     begin
         if SkipInsertServiceCommitments then
             exit;
@@ -1590,12 +1727,12 @@ table 8057 "Service Object"
         ServiceCommitmentPackage: Record "Service Commitment Package";
         PackageFilter: Text;
     begin
-        PackageFilter := ItemServCommitmentPackage.GetPackageFilterForItem(Rec."Item No.", Rec."No.");
+        PackageFilter := ItemServCommitmentPackage.GetPackageFilterForItem(Rec."Source No.", Rec."No.");
         if PackageFilter = '' then
             ItemServCommitmentPackage.SetRange(Code, '')
         else
             ItemServCommitmentPackage.SetFilter(Code, PackageFilter);
-        ItemServCommitmentPackage.FilterAllStandardPackageFilterForItem(Rec."Item No.", Rec."Customer Price Group");
+        ItemServCommitmentPackage.FilterAllStandardPackageFilterForItem(Rec."Source No.", Rec."Customer Price Group");
 
         if ItemServCommitmentPackage.FindSet() then begin
             repeat
@@ -1617,8 +1754,9 @@ table 8057 "Service Object"
         ServiceCommitment: Record "Service Commitment";
         ServiceCommPackageLine: Record "Service Comm. Package Line";
         Item: Record Item;
+        ContractsItemManagement: Codeunit "Contracts Item Management";
     begin
-        Item.Get("Item No.");
+        Item.Get("Source No.");
         if ServiceCommitmentPackage.FindSet() then
             repeat
                 ServiceCommPackageLine.SetRange("Package Code", ServiceCommitmentPackage.Code);
@@ -1674,18 +1812,22 @@ table 8057 "Service Object"
                                 if CalledFromExtendContract then
                                     ServiceCommitment."Calculation Base Amount" := UnitCost
                                 else
-                                    ServiceCommitment."Calculation Base Amount" := Item."Unit Cost";
+                                    ServiceCommitment."Calculation Base Amount" := ContractsItemManagement.CalculateUnitCost(Item."No.");
                         end;
                         ServiceCommitment."Billing Base Period" := ServiceCommPackageLine."Billing Base Period";
                         ServiceCommitment."Usage Based Billing" := ServiceCommPackageLine."Usage Based Billing";
                         ServiceCommitment."Usage Based Pricing" := ServiceCommPackageLine."Usage Based Pricing";
                         ServiceCommitment.Validate("Price Binding Period", ServiceCommPackageLine."Price Binding Period");
-                        ServiceCommitment.SetLCYFields(ServiceCommitment.Price, ServiceCommitment."Service Amount", ServiceCommitment."Discount Amount", ServiceCommitment."Calculation Base Amount");
                         ServiceCommitment.Validate("Calculation Base %", ServiceCommPackageLine."Calculation Base %");
                         ServiceCommitment.Validate("Billing Rhythm", ServiceCommPackageLine."Billing Rhythm");
                         ServiceCommitment.Validate(Discount, ServiceCommPackageLine.Discount);
+                        if ServiceCommitment.Partner = ServiceCommitment.Partner::Customer then
+                            ServiceCommitment.CalculateUnitCost();
+                        ServiceCommitment.SetLCYFields(false);
                         ServiceCommitment."Period Calculation" := ServiceCommPackageLine."Period Calculation";
-                        ServiceCommitment.SetDefaultDimensionFromItem(Rec."Item No.");
+                        ServiceCommitment.SetDefaultDimensions(true);
+                        ServiceCommitment."Usage Based Billing" := ServiceCommPackageLine."Usage Based Billing";
+                        ServiceCommitment."Usage Based Pricing" := ServiceCommPackageLine."Usage Based Pricing";
                         ServiceCommitment."Pricing Unit Cost Surcharge %" := ServiceCommPackageLine."Pricing Unit Cost Surcharge %";
                         OnBeforeInsertServiceCommitmentFromServiceCommitmentPackageLine(ServiceCommitment, ServiceCommPackageLine);
                         ServiceCommitment.Insert(false);
@@ -1705,12 +1847,17 @@ table 8057 "Service Object"
         Page.RunModal(Page::"Service Object", ServiceObject);
     end;
 
+    local procedure FilterServiceCommitments(var ServiceCommitment: Record "Service Commitment")
+    begin
+        ServiceCommitment.Reset();
+        ServiceCommitment.SetRange("Service Object No.", "No.");
+    end;
+
     local procedure ServiceCommitmentsExist(): Boolean
     var
         ServiceCommitment: Record "Service Commitment";
     begin
-        ServiceCommitment.Reset();
-        ServiceCommitment.SetRange("Service Object No.", "No.");
+        FilterServiceCommitments(ServiceCommitment);
         exit(not ServiceCommitment.IsEmpty);
     end;
 
@@ -1719,12 +1866,14 @@ table 8057 "Service Object"
         ServiceCommitment: Record "Service Commitment";
         IsHandled: Boolean;
     begin
-        if not ServiceCommitmentsExist() then
-            exit;
-
         IsHandled := false;
         OnBeforeRecalculateLines(Rec, xRec, ChangedFieldName, IsHandled);
         if IsHandled then
+            exit;
+
+        if not ServiceCommitmentsExist() then
+            exit;
+        if IsGLAccount() then
             exit;
 
         IsHandled := false;
@@ -1737,7 +1886,7 @@ table 8057 "Service Object"
 
         if Confirmed then begin
             Modify();
-            ServiceCommitment.SetRange("Service Object No.", "No.");
+            FilterServiceCommitments(ServiceCommitment);
             if ServiceCommitment.FindSet() then
                 repeat
                     if FieldCaption("Quantity Decimal") <> ChangedFieldName then
@@ -1763,7 +1912,7 @@ table 8057 "Service Object"
         SkipProvisionEndDateUpdate: Boolean;
     begin
         LastServiceEndDate := 0D;
-        ServiceCommitment.SetRange("Service Object No.", "No.");
+        FilterServiceCommitments(ServiceCommitment);
         if ServiceCommitment.FindSet() then
             repeat
                 if (ServiceCommitment."Service End Date" <> 0D) and (Today() > ServiceCommitment."Service End Date") and ServiceCommitment.IsFullyInvoiced() then begin
@@ -1801,7 +1950,7 @@ table 8057 "Service Object"
     var
         CustomerContractLine: Record "Customer Contract Line";
     begin
-        CustomerContractLine.SetRange("Contract Line Type", CustomerContractLine."Contract Line Type"::"Service Commitment");
+        CustomerContractLine.FilterOnServiceObjectContractLineType();
         CustomerContractLine.SetRange("Service Commitment Entry No.", ServiceCommitment."Entry No.");
         CustomerContractLine.SetRange(Closed, false);
         CustomerContractLine.ModifyAll(Closed, true, true);
@@ -1811,7 +1960,7 @@ table 8057 "Service Object"
     var
         VendorContractLine: Record "Vendor Contract Line";
     begin
-        VendorContractLine.SetRange("Contract Line Type", VendorContractLine."Contract Line Type"::"Service Commitment");
+        VendorContractLine.FilterOnServiceObjectContractLineType();
         VendorContractLine.SetRange("Service Commitment Entry No.", ServiceCommitment."Entry No.");
         VendorContractLine.SetRange("Closed", false);
         VendorContractLine.ModifyAll("Closed", true, false);
@@ -1826,7 +1975,7 @@ table 8057 "Service Object"
         if Description = xRec.Description then
             exit;
         CustomerContractLine.SetRange("Service Object No.", Rec."No.");
-        CustomerContractLine.SetRange("Contract Line Type", CustomerContractLine."Contract Line Type"::"Service Commitment");
+        CustomerContractLine.FilterOnServiceObjectContractLineType();
         CustomerContractLine.ModifyAll("Service Object Description", Rec.Description, false);
     end;
 
@@ -1839,7 +1988,7 @@ table 8057 "Service Object"
         if Description = xRec.Description then
             exit;
         VendorContractLine.SetRange("Service Object No.", Rec."No.");
-        VendorContractLine.SetRange("Contract Line Type", VendorContractLine."Contract Line Type"::"Service Commitment");
+        VendorContractLine.FilterOnServiceObjectContractLineType();
         VendorContractLine.ModifyAll("Service Object Description", Rec.Description, false);
     end;
 
@@ -1862,6 +2011,9 @@ table 8057 "Service Object"
         if ServiceCommitment.IsEmpty() then
             exit;
 
+        if IsGLAccount() then
+            exit;
+
         Confirmed := true;
         if not HideValidationDialog and GuiAllowed then
             Confirmed := ConfirmManagement.GetResponse(EndUserCustomerChangeQst, true);
@@ -1878,7 +2030,8 @@ table 8057 "Service Object"
     begin
         ServiceCommitment.SetRange("Service Object No.", Rec."No.");
         ServiceCommitment.DeleteAll(false);
-        InsertServiceCommitmentsFromStandardServCommPackages();
+        if IsItem() then
+            InsertServiceCommitmentsFromStandardServCommPackages();
     end;
 
     internal procedure UpdateAmountsOnServiceCommitmentsBasedOnExchangeRates()
@@ -1913,6 +2066,12 @@ table 8057 "Service Object"
         ServiceCommitment.SetFilter("Contract No.", '%1', '');
     end;
 
+    internal procedure FilterOnItemNo(ItemNo: Code[20])
+    begin
+        SetRange(Type, Type::Item);
+        SetRange("Source No.", ItemNo);
+    end;
+
     procedure InsertFromItemNoAndCustomerContract(var ServiceObject: Record "Service Object"; ItemNo: Code[20]; SourceQuantity: Decimal; ProvisionStartDate: Date; CustomerContract: Record "Customer Contract")
     var
         Item: Record Item;
@@ -1923,7 +2082,8 @@ table 8057 "Service Object"
         Item.Get(ItemNo);
         ServiceObject.Init();
         ServiceObject.SetHideValidationDialog(true);
-        ServiceObject."Item No." := ItemNo;
+        ServiceObject.Type := ServiceObject.Type::Item;
+        ServiceObject."Source No." := ItemNo;
         ServiceObject.Description := ContractsItemManagement.GetItemTranslation(ItemNo, '', CustomerContract."Sell-to Customer No.");
         ServiceObject."Unit of Measure" := Item."Base Unit of Measure";
         ServiceObject."Quantity Decimal" := SourceQuantity;
@@ -1988,6 +2148,46 @@ table 8057 "Service Object"
     internal procedure SkipInsertServiceCommitmentsFromStandardServCommPackages(Skip: Boolean)
     begin
         SkipInsertServiceCommitments := Skip;
+    end;
+
+    internal procedure GetContractLineTypeFromServiceObject(): Enum "Contract Line Type"
+    begin
+        case Type of
+            Type::Item:
+                exit("Contract Line Type"::Item);
+            Type::"G/L Account":
+                exit("Contract Line Type"::"G/L Account");
+        end;
+    end;
+
+    internal procedure GetSalesLineType(): Enum "Sales Line Type"
+    begin
+        case Type of
+            Type::Item:
+                exit("Sales Line Type"::Item);
+            Type::"G/L Account":
+                exit("Sales Line Type"::"G/L Account");
+        end;
+    end;
+
+    internal procedure GetPurchaseLineType(): Enum "Purchase Line Type"
+    begin
+        case Type of
+            Type::Item:
+                exit("Purchase Line Type"::Item);
+            Type::"G/L Account":
+                exit("Purchase Line Type"::"G/L Account");
+        end;
+    end;
+
+    internal procedure IsItem(): Boolean
+    begin
+        exit(Type = Type::Item);
+    end;
+
+    local procedure IsGLAccount(): Boolean
+    begin
+        exit(Type = Type::"G/L Account");
     end;
 
     local procedure GetRecalculateLinesDialog(ChangedFieldName: Text): Text

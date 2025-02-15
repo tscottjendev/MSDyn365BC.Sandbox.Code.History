@@ -3,6 +3,7 @@ namespace Microsoft.SubscriptionBilling;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
+using Microsoft.Finance.Currency;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -159,6 +160,23 @@ table 8064 "Billing Line Archive"
         {
             Caption = 'Code';
             TableRelation = "Billing Template";
+        }
+        field(101; "Currency Code"; Code[20])
+        {
+            Caption = 'Code';
+            TableRelation = Currency.Code;
+        }
+        field(102; "Unit Cost"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 2;
+            Caption = 'Unit Cost';
+            Editable = false;
+        }
+        field(103; "Unit Cost (LCY)"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Unit Cost (LCY)';
         }
     }
 

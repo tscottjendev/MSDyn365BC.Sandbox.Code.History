@@ -117,10 +117,10 @@ codeunit 8069 "Sales Service Commitment Mgmt."
         if not SalesLine2.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.") then
             exit(false);
         if ServiceCommitmentItemOnly then begin
-            if not IsServiceCommitmentItem(SalesLine."No.") then
+            if not ItemManagement.IsServiceCommitmentItem(SalesLine."No.") then
                 exit(false);
         end else
-            if not IsItemWithServiceCommitments(SalesLine."No.") then
+            if not ItemManagement.IsItemWithServiceCommitments(SalesLine."No.") then
                 exit(false);
         exit(true);
     end;
@@ -133,16 +133,6 @@ codeunit 8069 "Sales Service Commitment Mgmt."
     procedure IsSalesLineWithServiceCommitmentItem(var SalesLine: Record "Sales Line"; SkipTemporaryCheck: Boolean): Boolean
     begin
         exit(IsSalesLineWithSalesServiceCommitments(SalesLine, SkipTemporaryCheck, true));
-    end;
-
-    procedure IsItemWithServiceCommitments(ItemNo: Code[20]): Boolean
-    begin
-        exit(ItemManagement.IsItemWithServiceCommitments(ItemNo));
-    end;
-
-    procedure IsServiceCommitmentItem(ItemNo: Code[20]): Boolean
-    begin
-        exit(ItemManagement.IsServiceCommitmentItem(ItemNo));
     end;
 
     procedure IsSalesLineWithSalesServiceCommitmentsToShip(SalesLine: Record "Sales Line"): Boolean
@@ -222,6 +212,8 @@ codeunit 8069 "Sales Service Commitment Mgmt."
             SalesServiceCommitment."Price Binding Period" := ServiceCommitmentPackageLine."Price Binding Period";
             SalesServiceCommitment."Period Calculation" := ServiceCommitmentPackageLine."Period Calculation";
             SalesServiceCommitment.CalculateCalculationBaseAmount();
+            if SalesServiceCommitment.Partner = SalesServiceCommitment.Partner::Customer then
+                SalesServiceCommitment.CalculateUnitCost();
             SalesServiceCommitment."Pricing Unit Cost Surcharge %" := ServiceCommitmentPackageLine."Pricing Unit Cost Surcharge %";
             OnBeforeModifySalesServiceCommitmentFromServCommPackageLine(SalesServiceCommitment, ServiceCommitmentPackageLine);
             SalesServiceCommitment.Modify(false);
@@ -329,6 +321,16 @@ codeunit 8069 "Sales Service Commitment Mgmt."
     local procedure UpdateSalesServiceCommitmentOnAfterInsertSalesOrderLine(var SalesOrderLine: Record "Sales Line"; SalesQuoteLine: Record "Sales Line")
     begin
         TransferServiceCommitments(SalesQuoteLine, SalesOrderLine);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Order", OnRunOnAfterSalesQuoteLineDeleteAll, '', false, false)]
+    local procedure DeleteSalesServiceCommitmentOnAfterSalesQuoteLineDeleteAll(var SalesHeaderRec: Record "Sales Header")
+    var
+        SalesServiceCommitment: Record "Sales Service Commitment";
+    begin
+        SalesServiceCommitment.SetRange("Document Type", SalesHeaderRec."Document Type");
+        SalesServiceCommitment.SetRange("Document No.", SalesHeaderRec."No.");
+        SalesServiceCommitment.DeleteAll(false);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Blanket Sales Order to Order", OnAfterInsertSalesOrderLine, '', false, false)]
@@ -441,7 +443,7 @@ codeunit 8069 "Sales Service Commitment Mgmt."
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Sales Shipment Line", OnCodeOnBeforeProcessItemShptEntry, '', false, false)]
     local procedure RemoveQuantityInvoicedForServiceCommitmentItems(var SalesShipmentLine: Record "Sales Shipment Line")
     begin
-        if IsServiceCommitmentItem(SalesShipmentLine."No.") then begin
+        if ItemManagement.IsServiceCommitmentItem(SalesShipmentLine."No.") then begin
             SalesShipmentLine."Quantity Invoiced" := 0;
             SalesShipmentLine."Qty. Invoiced (Base)" := 0;
         end;

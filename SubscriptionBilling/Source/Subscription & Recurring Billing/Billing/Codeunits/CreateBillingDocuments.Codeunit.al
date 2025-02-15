@@ -228,20 +228,25 @@ codeunit 8060 "Create Billing Documents"
         OnAfterCustomerContractLineGetInInsertSalesLineFromTempBillingLine(CustomerContractLine);
 
         SalesLine.InitFromSalesHeader(SalesHeader);
-        SalesLine.Type := SalesLine.Type::Item;
         SessionStore.SetBooleanKey('CreateBillingDocumentsAllowInsertOfInvoicingItemNo', true);
-        if (ServiceCommitment."Invoicing Item No." <> '') and (ServiceObject."Item No." <> ServiceCommitment."Invoicing Item No.") then
+        if (ServiceCommitment."Invoicing Item No." <> '') and
+            ((ServiceObject."Source No." <> ServiceCommitment."Invoicing Item No.") or (ServiceObject.Type = ServiceObject.Type::"G/L Account"))
+        then begin
+            SalesLine.Type := SalesLine.Type::Item;
             SalesLine.Validate("No.", ServiceCommitment."Invoicing Item No.")
-        else begin
-            SalesLine.Validate("No.", ServiceObject."Item No.");
+        end else begin
+            SalesLine.Validate(Type, ServiceObject.GetSalesLineType());
+            SalesLine.Validate("No.", ServiceObject."Source No.");
             SalesLine.Validate("Variant Code", ServiceObject."Variant Code");
-            ErrorIfItemUnitOfMeasureCodeDoesNotExist(SalesLine."No.", ServiceObject);
         end;
         SessionStore.RemoveBooleanKey('CreateBillingDocumentsAllowInsertOfInvoicingItemNo');
+        if SalesLine.Type = SalesLine.Type::Item then
+            ErrorIfItemUnitOfMeasureCodeDoesNotExist(SalesLine."No.", ServiceObject);
         SalesLine.Validate("Unit of Measure Code", ServiceObject."Unit of Measure");
         SalesLine.Validate(Quantity, TempBillingLine.GetSign() * ServiceObject."Quantity Decimal");
         SalesLine.Validate("Unit Price", GetSalesDocumentSign(SalesLine."Document Type") * TempBillingLine."Unit Price");
         SalesLine.Validate("Line Discount %", TempBillingLine."Discount %");
+        SalesLine.Validate("Unit Cost (LCY)", TempBillingLine."Unit Cost (LCY)");
         SalesLine."Recurring Billing from" := TempBillingLine."Billing from";
         SalesLine."Recurring Billing to" := TempBillingLine."Billing to";
         SalesLine."Discount" := TempBillingLine.Discount;
@@ -254,6 +259,8 @@ codeunit 8060 "Create Billing Documents"
                 MaxStrLen(SalesLine.Description));
         TranslationHelper.RestoreGlobalLanguage();
         SalesLine."Description 2" := '';
+
+        SetInvoicePriceFromUsageDataBilling(SalesLine, TempBillingLine);
         OnBeforeInsertSalesLineFromContractLine(SalesLine, TempBillingLine);
         SalesLine.Insert(false);
 
@@ -292,6 +299,23 @@ codeunit 8060 "Create Billing Documents"
         OnAfterInsertSalesLineFromBillingLine(CustomerContractLine, SalesLine);
     end;
 
+    local procedure SetInvoicePriceFromUsageDataBilling(var SalesLine: Record "Sales Line"; var BillingLine: Record "Billing Line")
+    var
+        UsageDataBilling: Record "Usage Data Billing";
+        ServiceCommitment: Record "Service Commitment";
+    begin
+        if not ServiceCommitment.Get(BillingLine."Service Commitment Entry No.") then
+            exit;
+        if not ServiceCommitment.IsUsageBasedBillingValid() then
+            exit;
+
+        if not ServiceCommitment.IsUsageDataBillingFound(UsageDataBilling, BillingLine."Billing from", BillingLine."Billing to") then
+            exit;
+
+        UsageDataBilling.CalcSums(Amount);
+        SalesLine.Validate("Unit Price", UsageDataBilling.Amount / SalesLine.Quantity);
+    end;
+
     local procedure InsertPurchaseLineFromTempBillingLine()
     var
         PurchaseLine: Record "Purchase Line";
@@ -306,12 +330,15 @@ codeunit 8060 "Create Billing Documents"
         ServiceCommitment.Get(TempBillingLine."Service Commitment Entry No.");
 
         InitPurchaseLine(PurchaseLine);
-        PurchaseLine.Type := PurchaseLine.Type::Item;
         SessionStore.SetBooleanKey('CreateBillingDocumentsAllowInsertOfInvoicingItemNo', true);
-        if (ServiceCommitment."Invoicing Item No." <> '') and (ServiceObject."Item No." <> ServiceCommitment."Invoicing Item No.") then
-            PurchaseLine.Validate("No.", ServiceCommitment."Invoicing Item No.")
-        else begin
-            PurchaseLine.Validate("No.", ServiceObject."Item No.");
+        if (ServiceCommitment."Invoicing Item No." <> '') and
+            ((ServiceObject."Source No." <> ServiceCommitment."Invoicing Item No.") or (ServiceObject.Type = ServiceObject.Type::"G/L Account"))
+        then begin
+            PurchaseLine.Type := PurchaseLine.Type::Item;
+            PurchaseLine.Validate("No.", ServiceCommitment."Invoicing Item No.");
+        end else begin
+            PurchaseLine.Validate(Type, ServiceObject.GetPurchaseLineType());
+            PurchaseLine.Validate("No.", ServiceObject."Source No.");
             PurchaseLine.Validate("Variant Code", ServiceObject."Variant Code");
         end;
         SessionStore.RemoveBooleanKey('CreateBillingDocumentsAllowInsertOfInvoicingItemNo');
@@ -325,6 +352,8 @@ codeunit 8060 "Create Billing Documents"
         PurchaseLine.GetCombinedDimensionSetID(PurchaseLine."Dimension Set ID", ServiceCommitment."Dimension Set ID");
         PurchaseLine.Description := ServiceCommitment.Description;
         PurchaseLine."Description 2" := CopyStr(ServiceObject.Description, 1, MaxStrLen(PurchaseLine."Description 2"));
+        SetInvoicePriceFromUsageDataBilling(PurchaseLine, TempBillingLine);
+
         OnBeforeInsertPurchaseLineFromContractLine(PurchaseLine, TempBillingLine);
         PurchaseLine.Insert(false);
         InsertDescriptionPurchaseLine(
@@ -353,6 +382,23 @@ codeunit 8060 "Create Billing Documents"
             until UsageDataBilling.Next() = 0;
 
         OnAfterInsertPurchaseLineFromBillingLine(ServiceCommitment, PurchaseLine);
+    end;
+
+    local procedure SetInvoicePriceFromUsageDataBilling(var PurchLine: Record "Purchase Line"; var BillingLine: Record "Billing Line")
+    var
+        UsageDataBilling: Record "Usage Data Billing";
+        ServiceCommitment: Record "Service Commitment";
+    begin
+        if not ServiceCommitment.Get(BillingLine."Service Commitment Entry No.") then
+            exit;
+        if not ServiceCommitment.IsUsageBasedBillingValid() then
+            exit;
+
+        if not ServiceCommitment.IsUsageDataBillingFound(UsageDataBilling, BillingLine."Billing from", BillingLine."Billing to") then
+            exit;
+
+        UsageDataBilling.CalcSums("Cost Amount");
+        PurchLine.Validate("Unit Cost", UsageDataBilling."Cost Amount" / PurchLine.Quantity);
     end;
 
     local procedure GetBillingLineNo(BillingDocumentType: Enum "Rec. Billing Document Type"; ServiceParner: Enum "Service Partner"; DocumentNo: Code[20]; ContractNo: Code[20]; ContractLineNo: Integer): Integer
@@ -680,6 +726,8 @@ codeunit 8060 "Create Billing Documents"
                 if TempBillingLine."Billing to" < BillingLine."Billing to" then
                     TempBillingLine."Billing to" := BillingLine."Billing to";
                 OnCreateTempBillingLinesBeforeSaveTempBillingLine(TempBillingLine, BillingLine);
+                TempBillingLine."Unit Cost" += BillingLine."Unit Cost";
+                TempBillingLine."Unit Cost (LCY)" += BillingLine."Unit Cost (LCY)";
                 TempBillingLine.Modify(false);
             until BillingLine.Next() = 0;
     end;

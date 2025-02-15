@@ -36,7 +36,7 @@ page 8062 "Item Serv. Commitments Factbox"
         {
             action(ServiceCommitments)
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Image = ServiceLedger;
                 Caption = 'Service Commitments';
                 ToolTip = 'View or add service commitments for the item.';

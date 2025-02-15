@@ -1,6 +1,8 @@
 namespace Microsoft.SubscriptionBilling;
 
 using System.Utilities;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Inventory.Item;
 
 table 8062 "Customer Contract Line"
 {
@@ -29,11 +31,48 @@ table 8062 "Customer Contract Line"
             var
                 TempCustomerContractLine: Record "Customer Contract Line" temporary;
             begin
-                CheckTypeChangeAllowed();
                 CheckAndDisconnectContractLine();
                 TempCustomerContractLine := Rec;
                 Init();
                 "Contract Line Type" := TempCustomerContractLine."Contract Line Type";
+            end;
+        }
+        field(4; "No."; Code[20])
+        {
+            Caption = 'No.';
+            TableRelation = if ("Contract Line Type" = const(Item)) Item where("Service Commitment Option" = filter("Sales with Service Commitment" | "Service Commitment Item"), Blocked = const(false))
+            else if ("Contract Line Type" = const("G/L Account")) "G/L Account" where("Direct Posting" = const(true), "Account Type" = const(Posting), Blocked = const(false));
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            var
+                Item: Record Item;
+                GLAccount: Record "G/L Account";
+                TempCustomerContractLine: Record "Customer Contract Line" temporary;
+            begin
+                case "Contract Line Type" of
+                    "Contract Line Type"::Item:
+                        begin
+                            if not Item.Get("No.") then
+                                Error(EntityDoesNotExistErr, Item.TableCaption, "No.");
+                            if Item.Blocked or Item."Service Commitment Option" in ["Item Service Commitment Type"::"Sales without Service Commitment", "Item Service Commitment Type"::"Sales without Service Commitment"] then
+                                Error(ItemBlockedOrWithoutServiceCommitmentsErr, "No.");
+                        end;
+                    "Contract Line Type"::"G/L Account":
+                        begin
+                            if not GLAccount.Get("No.") then
+                                Error(EntityDoesNotExistErr, GLAccount.TableCaption, "No.");
+                            if GLAccount.Blocked or not GLAccount."Direct Posting" or (GLAccount."Account Type" <> GLAccount."Account Type"::Posting) then
+                                Error(GLAccountBlockedOrNotForDirectPostingErr, "No.");
+                        end;
+                end;
+
+                TempCustomerContractLine := Rec;
+                Init();
+                SystemId := TempCustomerContractLine.SystemId;
+                "Contract Line Type" := TempCustomerContractLine."Contract Line Type";
+                "No." := TempCustomerContractLine."No.";
+                CreateServiceObjectWithServiceCommitment();
             end;
         }
         field(100; "Service Object No."; Code[20])
@@ -98,20 +137,17 @@ table 8062 "Customer Contract Line"
 
     trigger OnDelete()
     begin
-        if not CalledFromDeleteServiceCommitment then begin
-            AskIfClosedContractLineCanBeDeleted();
-            CheckAndDisconnectContractLine();
-            UpdateServiceCommitmentDimensions();
-        end;
+        AskIfClosedContractLineCanBeDeleted();
+        UpdateServiceCommitmentDimensions();
         RecalculateHarmonizedBillingFieldsOnCustomerContract(Rec."Line No.");
         ErrorIfUsageDataBillingIsLinkedToContractLine();
+        CheckAndDisconnectContractLine();
     end;
 
     var
         TextManagement: Codeunit "Text Management";
         ContractsGeneralMgt: Codeunit "Contracts General Mgt.";
         ConfirmManagement: Codeunit "Confirm Management";
-        CalledFromDeleteServiceCommitment: Boolean;
         HideValidationDialog: Boolean;
         DeletionNotAllowedErr: Label 'Deletion is not allowed because the line is linked to a contract billing line. Please delete the billing proposal first.';
         ClosedContractLinesDeletionQst: Label 'Deleting the contract line breaks the link to the service in the service object. Do you want to continue?';
@@ -119,11 +155,38 @@ table 8062 "Customer Contract Line"
         BillingLinesForSelectedContractLinesExistsErr: Label 'Billing Lines for exists for at least one of the selected contract lines. Delete the Billing Lines before merging the Contract Lines.';
         ContractLinesWithDifferentDimensionSelectedErr: Label 'There are different dimension values for the Contract Lines. Complete the dimensions before merging the Contract Lines.';
         ContractLinesWithDifferentNextBillingDateSelectedErr: Label 'There is a different Next Billing Date for the Contract Lines. The Contract Lines must be billed so that the Next Billing Date is the same before they can be combined.';
-        NotAllowdMergingTextLinesErr: Label 'Merging with text lines is not allowed.';
+        NotAllowedMergingTextLinesErr: Label 'Merging with text lines is not allowed.';
         ContractLinesMergedMsg: Label 'Customer contract lines have been merged.';
         ContractLineWithDifferentCustRefCannotBeMergedErr: Label 'Service Commitments from Service Objects with different Customer References cannot be merged.';
         LinesWithSerialNoCannotBeMergedErr: Label 'Contract lines cannot be merged if Serial No. is entered into Service Object.';
         ContractLineCannotBeDeletedErr: Label 'You cannot delete the contract line because usage data exist for it. Please delete all related data in Usage Data Billing first.';
+        EntityDoesNotExistErr: Label '%1 with the No. %2 does not exist.', Comment = '%1 = Item or GL Account, %2 = Entity No.';
+        ItemBlockedOrWithoutServiceCommitmentsErr: Label 'The item %1 cannot be blocked and must be of type "Non-Inventory" with the Subscription Option set to "Sales with Subscription" or "Subscription Item".', Comment = '%1=Item No.';
+        GLAccountBlockedOrNotForDirectPostingErr: Label 'The G/L Account %1 cannot be blocked and must allow direct posting to it.', Comment = '%1=G/L Account No.';
+
+    local procedure CreateServiceObjectWithServiceCommitment()
+    var
+        CustomerContract: Record "Customer Contract";
+        ServiceObject: Record "Service Object";
+        ServiceCommitment: Record "Service Commitment";
+    begin
+        CustomerContract.Get("Contract No.");
+        ServiceObject.InitForSourceNo("Contract Line Type", "No.");
+        ServiceObject.UpdateCustomerDataFromCustomerContract(CustomerContract);
+        ServiceObject."Created in Contract line" := true;
+        ServiceObject.Insert(true);
+        "Service Object No." := ServiceObject."No.";
+        "Service Object Description" := ServiceObject.Description;
+
+        ServiceCommitment.InitForServiceObject(ServiceObject, "Service Partner"::Customer);
+        ServiceCommitment.UpdateFromCustomerContract(CustomerContract);
+        ServiceCommitment."Created in Contract line" := true;
+        ServiceCommitment."Contract No." := Rec."Contract No.";
+        ServiceCommitment."Contract Line No." := Rec."Line No.";
+        ServiceCommitment.Insert(false);
+        "Service Commitment Entry No." := ServiceCommitment."Entry No.";
+        "Service Commitment Description" := ServiceCommitment.Description;
+    end;
 
     local procedure ErrorIfUsageDataBillingIsLinkedToContractLine()
     var
@@ -141,41 +204,20 @@ table 8062 "Customer Contract Line"
         ServiceCommitment: Record "Service Commitment";
         BillingLineArchive: Record "Billing Line Archive";
     begin
-        if Rec."Service Commitment Entry No." <> 0 then
-            if ServiceCommitment.Get(Rec."Service Commitment Entry No.") then begin
-                ServiceCommitment."Contract No." := '';
-                ServiceCommitment."Contract Line No." := 0;
-                ServiceCommitment.Modify(false);
-            end;
-
         if ContractsGeneralMgt.BillingLineExists(Enum::"Service Partner"::Customer, Rec."Contract No.", Rec."Line No.") then
             Error(DeletionNotAllowedErr);
 
         BillingLineArchive.FilterBillingLineArchiveOnContractLine(Enum::"Service Partner"::Customer, "Contract No.", "Line No.");
-        if BillingLineArchive.FindSet() then
+        if BillingLineArchive.FindSet() then begin
             repeat
                 if not BillingLineArchive.PostedDocumentExist() then
                     BillingLineArchive.Delete(false);
             until BillingLineArchive.Next() = 0;
-        OnAfterCheckAndDisconnectContractLine(Rec, xRec);
-    end;
+            ServiceCommitment.DisconnectContractLine("Service Commitment Entry No.");
+        end else
+            ServiceCommitment.DeleteOrDisconnectServiceCommitment("Service Commitment Entry No.");
 
-    local procedure CheckTypeChangeAllowed()
-    var
-        ServiceCommitment: Record "Service Commitment";
-        TypeChangeNotAllowedErr: Label '%1 cannot be changed to %2 as long as the line is connected to a %3 (%4 %5, %6 %7)';
-    begin
-        if Rec."Service Commitment Entry No." <> 0 then
-            if ServiceCommitment.Get(Rec."Service Commitment Entry No.") then
-                Error(
-                    TypeChangeNotAllowedErr,
-                    Rec.FieldCaption("Contract Line Type"),
-                    Rec."Contract Line Type",
-                    ServiceCommitment.TableCaption,
-                    Rec.FieldCaption("Service Object No."),
-                    Rec."Service Object No.",
-                    Rec.FieldCaption("Service Commitment Entry No."),
-                    Rec."Service Commitment Entry No.");
+        OnAfterCheckAndDisconnectContractLine(Rec, xRec);
     end;
 
     internal procedure OpenServiceObjectCard()
@@ -200,7 +242,8 @@ table 8062 "Customer Contract Line"
         ServiceObject: Record "Service Object";
     begin
         case Rec."Contract Line Type" of
-            Enum::"Contract Line Type"::"Service Commitment":
+            Enum::"Contract Line Type"::Item,
+            Enum::"Contract Line Type"::"G/L Account":
                 begin
                     ServiceObject.Get(Rec."Service Object No.");
                     ServiceObject.Validate(Description, Rec."Service Object Description");
@@ -215,7 +258,8 @@ table 8062 "Customer Contract Line"
         ServiceCommitment: Record "Service Commitment";
     begin
         case Rec."Contract Line Type" of
-            Enum::"Contract Line Type"::"Service Commitment":
+            Enum::"Contract Line Type"::Item,
+            Enum::"Contract Line Type"::"G/L Account":
                 begin
                     ServiceCommitment.Get(Rec."Service Commitment Entry No.");
                     ServiceCommitment.Validate(Description, Rec."Service Commitment Description");
@@ -225,43 +269,40 @@ table 8062 "Customer Contract Line"
         OnAfterUpdateServiceCommitmentDescription(Rec);
     end;
 
-    internal procedure LoadAmountsForContractLine(var Price: Decimal; var DiscountPerc: Decimal; var DiscountAmount: Decimal; var ServiceAmount: Decimal; var CalculationBaseAmount: Decimal; var CalculationBasePercent: Decimal)
+    internal procedure LoadServiceCommitmentForContractLine(var ServiceCommitment: Record "Service Commitment")
+    var
+        LocalServiceCommitment: Record "Service Commitment"; //in case the parameter is passed as temporary table
     begin
-        ResetAmountsForContractLine(Price, DiscountPerc, DiscountAmount, ServiceAmount, CalculationBaseAmount, CalculationBasePercent);
+        ServiceCommitment.Init();
         if "Contract No." = '' then
             exit;
         case "Contract Line Type" of
-            Enum::"Contract Line Type"::"Service Commitment":
-                SetAmountsForContractLineFromServiceCommitment(Price, DiscountPerc, DiscountAmount, ServiceAmount, CalculationBaseAmount, CalculationBasePercent);
+            Enum::"Contract Line Type"::Item,
+            Enum::"Contract Line Type"::"G/L Account":
+                if GetServiceCommitment(LocalServiceCommitment) then begin
+                    LocalServiceCommitment.CalcFields("Quantity Decimal");
+                    ServiceCommitment.TransferFields(LocalServiceCommitment);
+                end;
         end;
         OnAfterLoadAmountsForContractLine(Rec);
     end;
 
-    internal procedure UpdateFormatingOnServiceCommitment(FieldNo: Integer)
-    var
-        ServiceCommitment: Record "Service Commitment";
-    begin
-        GetServiceCommitment(ServiceCommitment);
-        ServiceCommitment.Modify(false);
-    end;
-
-    procedure GetServiceCommitment(var ServiceCommitment: Record "Service Commitment")
+    procedure GetServiceCommitment(var ServiceCommitment: Record "Service Commitment"): Boolean
     var
     begin
-        if not ServiceCommitment.Get(Rec."Service Commitment Entry No.") then
-            ServiceCommitment.Init();
+        ServiceCommitment.Init();
+        exit(ServiceCommitment.Get(Rec."Service Commitment Entry No."));
     end;
 
-    procedure GetServiceObject(var ServiceObject: Record "Service Object")
+    procedure GetServiceObject(var ServiceObject: Record "Service Object"): Boolean
     begin
-        if not ServiceObject.Get(Rec."Service Object No.") then
-            ServiceObject.Init();
+        ServiceObject.Init();
+        exit(ServiceObject.Get(Rec."Service Object No."));
     end;
 
     local procedure UpdateServiceCommitmentDimensions()
     var
         ServiceCommitment: Record "Service Commitment";
-        ServiceObject: Record "Service Object";
     begin
         if Rec."Service Object No." = '' then
             exit;
@@ -269,8 +310,7 @@ table 8062 "Customer Contract Line"
         if not ServiceCommitment.Get(Rec."Service Commitment Entry No.") then
             exit;
 
-        ServiceObject.Get(Rec."Service Object No.");
-        ServiceCommitment.SetDefaultDimensionFromItem(ServiceObject."Item No.");
+        ServiceCommitment.SetDefaultDimensions(true);
         ServiceCommitment.Modify(false);
         DeleteRelatedVendorServiceCommDimensions(ServiceCommitment);
     end;
@@ -279,13 +319,11 @@ table 8062 "Customer Contract Line"
     var
         VendorServiceCommitment: Record "Service Commitment";
         VendorContract: Record "Vendor Contract";
-        ServiceObject: Record "Service Object";
     begin
         VendorServiceCommitment.FilterOnServiceObjectAndPackage(ServiceCommitment."Service Object No.", ServiceCommitment.Template, ServiceCommitment."Package Code", Enum::"Service Partner"::Vendor);
         if VendorServiceCommitment.FindSet() then
             repeat
-                ServiceObject.Get(VendorServiceCommitment."Service Object No.");
-                VendorServiceCommitment.SetDefaultDimensionFromItem(ServiceObject."Item No.");
+                VendorServiceCommitment.SetDefaultDimensions(true);
                 if VendorContract.Get(VendorServiceCommitment."Contract No.") then
                     VendorServiceCommitment.GetCombinedDimensionSetID(VendorServiceCommitment."Dimension Set ID", VendorContract."Dimension Set ID");
                 VendorServiceCommitment.Modify(false);
@@ -304,7 +342,7 @@ table 8062 "Customer Contract Line"
     begin
         CustomerContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::Comment);
         if not CustomerContractLine.IsEmpty() then
-            Error(NotAllowdMergingTextLinesErr);
+            Error(NotAllowedMergingTextLinesErr);
         CustomerContractLine.SetRange("Contract Line Type");
     end;
 
@@ -371,10 +409,8 @@ table 8062 "Customer Contract Line"
     local procedure RecalculateHarmonizedBillingFieldsOnCustomerContract(DeletedCustContractLineNo: Integer)
     var
         CustomerContract: Record "Customer Contract";
-        ServiceCommitment: Record "Service Commitment";
     begin
         CustomerContract.Get(Rec."Contract No.");
-        Rec.GetServiceCommitment(ServiceCommitment);
         CustomerContract.RecalculateHarmonizedBillingFieldsBasedOnNextBillingDate(DeletedCustContractLineNo);
     end;
 
@@ -382,6 +418,11 @@ table 8062 "Customer Contract Line"
     begin
         Rec.SetRange("Service Commitment Entry No.", ServiceCommitment."Entry No.");
         Rec.SetRange("Contract No.", ServiceCommitment."Contract No.");
+    end;
+
+    internal procedure FilterOnServiceObjectContractLineType()
+    begin
+        SetRange("Contract Line Type", "Contract Line Type"::Item, "Contract Line Type"::"G/L Account");
     end;
 
     internal procedure MergeContractLines(var CustomerContractLine: Record "Customer Contract Line")
@@ -405,9 +446,10 @@ table 8062 "Customer Contract Line"
         Rec.Init();
         Rec."Contract No." := ContractNo;
         Rec."Line No." := GetNextLineNo(Rec."Contract No.");
-        Rec."Contract Line Type" := Enum::"Contract Line Type"::"Service Commitment";
-        Rec."Service Object No." := ServiceCommitment."Service Object No.";
         ServiceObject.Get(ServiceCommitment."Service Object No.");
+        Rec."Contract Line Type" := ServiceObject.GetContractLineTypeFromServiceObject();
+        Rec."No." := ServiceObject."Source No.";
+        Rec."Service Object No." := ServiceObject."No.";
         Rec."Service Object Description" := ServiceObject.Description;
         Rec."Service Commitment Entry No." := ServiceCommitment."Entry No.";
         Rec."Service Commitment Description" := ServiceCommitment.Description;
@@ -419,7 +461,7 @@ table 8062 "Customer Contract Line"
         ServiceObject: Record "Service Object";
         ServiceCommitment: Record "Service Commitment";
     begin
-        CreateServiceObject(ServiceObject, RefCustomerContractLine."Service Object No.", CustomerContractLine);
+        CreateDuplicateServiceObject(ServiceObject, RefCustomerContractLine."Service Object No.", CustomerContractLine);
         CreateMergedServiceCommitment(ServiceCommitment, ServiceObject, RefCustomerContractLine);
         CloseCustomerContractLines(CustomerContractLine);
         if not AssignNewServiceCommitmentToCustomerContract(CustomerContractLine."Contract No.", ServiceCommitment) then
@@ -438,12 +480,12 @@ table 8062 "Customer Contract Line"
             until CustomerContractLine.Next() = 0;
     end;
 
-    local procedure CreateServiceObject(var ServiceObject: Record "Service Object"; ServiceObjectNo: Code[20]; var CustomerContractLine: Record "Customer Contract Line")
+    local procedure CreateDuplicateServiceObject(var NewServiceObject: Record "Service Object"; ServiceObjectNo: Code[20]; var CustomerContractLine: Record "Customer Contract Line")
     begin
-        ServiceObject.Get(ServiceObjectNo);
-        ServiceObject."No." := '';
-        ServiceObject."Quantity Decimal" := GetNewServiceObjectQuantity(CustomerContractLine);
-        ServiceObject.Insert(true);
+        NewServiceObject.Get(ServiceObjectNo);
+        NewServiceObject."No." := '';
+        NewServiceObject."Quantity Decimal" := GetNewServiceObjectQuantity(CustomerContractLine);
+        NewServiceObject.Insert(true);
     end;
 
     local procedure CreateMergedServiceCommitment(var ServiceCommitment: Record "Service Commitment"; ServiceObject: Record "Service Object"; RefCustomerContractLine: Record "Customer Contract Line")
@@ -494,29 +536,6 @@ table 8062 "Customer Contract Line"
         CustomerContractLine.Modify(false);
     end;
 
-    local procedure SetAmountsForContractLineFromServiceCommitment(var Price: Decimal; var DiscountPerc: Decimal; var DiscountAmount: Decimal; var ServiceAmount: Decimal; var CalculationBaseAmount: Decimal; var CalculationBasePercent: Decimal)
-    var
-        ServiceCommitment: Record "Service Commitment";
-    begin
-        GetServiceCommitment(ServiceCommitment);
-        Price := ServiceCommitment.Price;
-        DiscountPerc := ServiceCommitment."Discount %";
-        DiscountAmount := ServiceCommitment."Discount Amount";
-        ServiceAmount := ServiceCommitment."Service Amount";
-        CalculationBaseAmount := ServiceCommitment."Calculation Base Amount";
-        CalculationBasePercent := ServiceCommitment."Calculation Base %";
-    end;
-
-    local procedure ResetAmountsForContractLine(var Price: Decimal; var DiscountPerc: Decimal; var DiscountAmount: Decimal; var ServiceAmount: Decimal; var CalculationBaseAmount: Decimal; var CalculationBasePercent: Decimal)
-    begin
-        Price := 0;
-        DiscountPerc := 0;
-        DiscountAmount := 0;
-        ServiceAmount := 0;
-        CalculationBasePercent := 0;
-        CalculationBaseAmount := 0;
-    end;
-
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
@@ -534,9 +553,9 @@ table 8062 "Customer Contract Line"
         exit(ConfirmManagement.GetResponse(ConfirmQuestion, DefaultButton));
     end;
 
-    internal procedure SetCalledFromDeleteServiceCommitment(NewCalledFromDeleteServiceCommitment: Boolean)
+    internal procedure IsCommentLine(): Boolean
     begin
-        CalledFromDeleteServiceCommitment := NewCalledFromDeleteServiceCommitment;
+        exit("Contract Line Type" = "Contract Line Type"::Comment);
     end;
 
     [InternalEvent(false, false)]

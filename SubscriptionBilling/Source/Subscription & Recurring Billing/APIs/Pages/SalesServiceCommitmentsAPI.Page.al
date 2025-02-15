@@ -69,6 +69,12 @@ page 8019 "Sales Service Commitments API"
                 field(serviceAmount; Rec."Service Amount")
                 {
                 }
+                field(unitCost; Rec."Unit Cost")
+                {
+                }
+                field(unitCostLCY; Rec."Unit Cost (LCY)")
+                {
+                }
                 field(serviceCommStartFormula; Rec."Service Comm. Start Formula")
                 {
                 }

@@ -109,7 +109,7 @@ page 8081 "Vendor Contract Deferrals"
         {
             action(Dimensions)
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Caption = 'Dimensions';
                 Image = Dimensions;
                 ShortcutKey = 'Shift+Ctrl+D';

@@ -102,9 +102,9 @@ tableextension 8052 Item extends Item
     }
     var
         ConfirmManagement: Codeunit "Confirm Management";
-        ItemTypeErr: Label 'The value "%1" can only be set if the option "%2" is selected in the "%3" field.';
-        ItemServiceCommitmentPackageQst: Label 'Service commitment packages can only be stored for items with the service option "%1" or "%2". You want to change the value to "%3". In doing so, the stored service commitment packages will be deleted. Do you want to continue?';
-        ServiceCommitmentErr: Label 'Service commitment packages can be assigned only to items with service commitment option "%1" or "%2". The current value is "%3".';
+        ItemTypeErr: Label 'The value "%1" can only be set if the option "%2" is selected in the "%3" field.', Comment = '%1 = Commitment type, %2 = Item type, %3 = Field name';
+        ItemServiceCommitmentPackageQst: Label 'Service commitment packages can only be stored for items with the service option "%1" or "%2". You want to change the value to "%3". In doing so, the stored service commitment packages will be deleted. Do you want to continue?', Comment = '%1 = Commitment type, %2 = Commitment type, %3 = Commitment type';
+        ServiceCommitmentErr: Label 'Service commitment packages can be assigned only to items with service commitment option "%1" or "%2". The current value is "%3".', Comment = '%1 = Commitment type, %2 = Commitment type, %3 = Commitment type';
         DoNotAllowInvoiceDiscountForServiceCommitmentItemErr: Label 'Service Commitment Items cannot be included in an invoice discount.';
         UsageDataReferenceEntryNoExistsErr: Label 'The Service Commitment Option cannot be changed because for this Item Usage Data Supplier Reference Entry No. (see Actions "Suppliers" or "Item references") is defined for this Item.';
 

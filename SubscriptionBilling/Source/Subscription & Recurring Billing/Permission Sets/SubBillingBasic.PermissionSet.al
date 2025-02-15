@@ -43,6 +43,7 @@ permissionset 8054 "Sub. Billing Basic"
         tabledata "Sales Service Commitment Buff." = R,
         tabledata "Generic Import Settings" = R,
         tabledata "Usage Data Billing" = R,
+        tabledata "Usage Data Billing Metadata" = R,
         tabledata "Usage Data Blob" = R,
         tabledata "Usage Data Customer" = R,
         tabledata "Usage Data Generic Import" = R,

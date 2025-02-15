@@ -31,11 +31,11 @@ page 8084 "Sub. Billing Role Center"
         {
             part(Headline; "Sub. Billing Headline RC")
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
             }
             part(ManagementActivities; "Sub. Billing Activities")
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
             }
         }
     }
@@ -46,12 +46,20 @@ page 8084 "Sub. Billing Role Center"
             group(SalesAndPurchases)
             {
                 Caption = 'Sales & Purchases';
+                action("Sales Quotes")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Sales Quotes';
+                    Image = Quote;
+                    RunObject = Page "Sales Quotes";
+                    ToolTip = 'Make offers to customers to sell certain products on certain delivery and payment terms. While you negotiate with a customer, you can change and resend the sales quote as much as needed. When the customer accepts the offer, you convert the sales quote to a sales invoice or a sales order in which you process the sale.';
+                }
                 action(SalesOrder)
                 {
                     Caption = 'Sales Orders';
                     Image = Order;
                     RunObject = page "Sales Order List";
-                    ToolTip = 'Executes the Sales Orders action.';
+                    ToolTip = 'Record your agreements with customers to sell certain products on certain delivery and payment terms. Sales orders, unlike sales invoices, allow you to ship partially, deliver directly from your vendor to your customer, initiate warehouse handling, and print various customer-facing documents. Sales invoicing is integrated in the sales order process.';
                 }
                 action(SalesInvoices)
                 {
@@ -360,7 +368,7 @@ page 8084 "Sub. Billing Role Center"
         {
             action(CustomersList)
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Caption = 'Customers';
                 Image = Customer;
                 RunObject = page "Customer List";
@@ -368,7 +376,7 @@ page 8084 "Sub. Billing Role Center"
             }
             action(VendorsList)
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Caption = 'Vendors';
                 Image = Vendor;
                 RunObject = page "Vendor List";
@@ -381,7 +389,7 @@ page 8084 "Sub. Billing Role Center"
                 ObsoleteState = Pending;
                 ObsoleteTag = '26.0';
                 Visible = false;
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Caption = 'Projects';
                 Image = Job;
                 RunObject = page "Job List";
@@ -390,7 +398,7 @@ page 8084 "Sub. Billing Role Center"
 #endif
             action(ItemsList)
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Caption = 'Items';
                 Image = Item;
                 RunObject = page "Item List";
@@ -398,7 +406,7 @@ page 8084 "Sub. Billing Role Center"
             }
             action(ServiceObjectsList)
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Caption = 'Service Objects';
                 Image = ServiceSetup;
                 RunObject = page "Service Objects";
@@ -406,7 +414,7 @@ page 8084 "Sub. Billing Role Center"
             }
             action(CustomerContractsList)
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Caption = 'Customer Contracts';
                 Image = Customer;
                 RunObject = page "Customer Contracts";
@@ -414,7 +422,7 @@ page 8084 "Sub. Billing Role Center"
             }
             action(VendorContractsList)
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Caption = 'Vendor Contracts';
                 Image = Vendor;
                 RunObject = page "Vendor Contracts";
@@ -425,10 +433,17 @@ page 8084 "Sub. Billing Role Center"
         {
             action(RecurringBilling)
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Caption = 'Recurring Billing';
                 RunObject = page "Recurring Billing";
                 ToolTip = 'Opens the page for creating billing proposals for Recurring Services.';
+            }
+            action(ContractDeferralsRelease)
+            {
+                ApplicationArea = All;
+                Caption = 'Contract Deferrals Release';
+                RunObject = report "Contract Deferrals Release";
+                ToolTip = 'Releases the deferrals for the all contracts.';
             }
             group(New)
             {
@@ -479,7 +494,7 @@ page 8084 "Sub. Billing Role Center"
                 Caption = 'Reports';
                 action(OverviewOfContractComponents)
                 {
-                    ApplicationArea = Jobs;
+                    ApplicationArea = All;
                     Caption = 'Overview of Contract Components';
                     Image = "Report";
                     RunObject = Report "Overview Of Contract Comp";
@@ -487,7 +502,7 @@ page 8084 "Sub. Billing Role Center"
                 }
                 action(CustomerContractDeferralsAnalysis)
                 {
-                    ApplicationArea = Jobs;
+                    ApplicationArea = All;
                     Caption = 'Customer Contract Deferrals Analysis';
                     Image = "Report";
                     RunObject = Report "Cust. Contr. Def. Analysis";
@@ -495,7 +510,7 @@ page 8084 "Sub. Billing Role Center"
                 }
                 action(VendorContractDeferralsAnalysis)
                 {
-                    ApplicationArea = Jobs;
+                    ApplicationArea = All;
                     Caption = 'Vendor Contract Deferrals Analysis';
                     Image = "Report";
                     RunObject = Report "Vend Contr. Def. Analysis";

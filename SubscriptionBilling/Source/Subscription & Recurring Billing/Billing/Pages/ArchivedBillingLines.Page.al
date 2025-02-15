@@ -69,6 +69,10 @@ page 8073 "Archived Billing Lines"
                 {
                     ToolTip = 'Specifies the amount for the service including discount.';
                 }
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
+                {
+                    ToolTip = 'Specifies the unit cost for the billing period.';
+                }
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ToolTip = 'Specifies the Unit Price for the service billing period without discount.';

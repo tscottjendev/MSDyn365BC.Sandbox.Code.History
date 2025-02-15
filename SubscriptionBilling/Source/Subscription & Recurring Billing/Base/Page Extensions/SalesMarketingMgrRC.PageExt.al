@@ -18,7 +18,7 @@ pageextension 8084 "Sales Marketing Mgr. RC" extends "Sales & Relationship Mgr. 
                 ObsoleteState = Pending;
                 ObsoleteTag = '26.0';
                 Visible = false;
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Caption = 'Subscription & Recurring Billing';
             }
         }

@@ -260,6 +260,18 @@ table 8073 "Service Commitment Archive"
         {
             Caption = 'Variant Code (Service Object)';
         }
+        field(100; "Unit Cost"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 2;
+            Caption = 'Unit Cost';
+            Editable = false;
+        }
+        field(101; "Unit Cost (LCY)"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Unit Cost (LCY)';
+        }
         field(107; "Closed"; Boolean)
         {
             Caption = 'Closed';
@@ -327,6 +339,8 @@ table 8073 "Service Commitment Archive"
         Rec."Calculation Base Amount (LCY)" := ServiceCommitment."Calculation Base Amount (LCY)";
         Rec."Dimension Set ID" := ServiceCommitment."Dimension Set ID";
         Rec."Next Price Update" := ServiceCommitment."Next Price Update";
+        Rec."Unit Cost" := ServiceCommitment."Unit Cost";
+        Rec."Unit Cost (LCY)" := ServiceCommitment."Unit Cost (LCY)";
         Rec.Closed := ServiceCommitment.Closed;
         OnAfterCopyFromServiceCommitment(Rec, ServiceCommitment);
     end;

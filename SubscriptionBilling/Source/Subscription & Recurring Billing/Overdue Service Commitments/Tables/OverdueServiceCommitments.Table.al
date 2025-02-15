@@ -53,6 +53,14 @@ table 8007 "Overdue Service Commitments"
         field(11; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ObsoleteReason = 'Replaced by field Source No.';
+#if not CLEAN26
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#endif
             TableRelation = Item;
         }
         field(12; "Contract Type"; Code[10])
@@ -88,6 +96,14 @@ table 8007 "Overdue Service Commitments"
         field(19; "Quantity Decimal"; Decimal)
         {
             Caption = 'Quantity';
+        }
+        field(8007; "Source Type"; Enum "Service Object Type")
+        {
+            Caption = 'Source Type';
+        }
+        field(8008; "Source No."; Code[20])
+        {
+            Caption = 'Source No.';
         }
     }
 
@@ -145,7 +161,7 @@ table 8007 "Overdue Service Commitments"
     begin
         ServiceCommitment.SetFilter("Next Billing Date", '<%1', OverdueDate);
         ServiceCommitment.SetRange(Closed, false);
-        ServiceCommitment.SetAutoCalcFields("Service Object Description", "Item No.", "Quantity Decimal");
+        ServiceCommitment.SetAutoCalcFields("Service Object Description", "Source Type", "Source No.", "Quantity Decimal");
         if ServiceCommitment.FindSet() then
             repeat
                 Rec.Init();
@@ -171,7 +187,8 @@ table 8007 "Overdue Service Commitments"
                 Rec."Quantity Decimal" := ServiceCommitment."Quantity Decimal";
                 Rec.Price := ServiceCommitment.Price;
                 Rec."Service Amount" := ServiceCommitment."Service Amount";
-                Rec."Item No." := ServiceCommitment."Item No.";
+                Rec."Source Type" := ServiceCommitment."Source Type";
+                Rec."Source No." := ServiceCommitment."Source No.";
                 Rec."Billing Rhythm" := ServiceCommitment."Billing Rhythm";
                 Rec."Service Start Date" := ServiceCommitment."Service Start Date";
                 Rec."Service End Date" := ServiceCommitment."Service End Date";

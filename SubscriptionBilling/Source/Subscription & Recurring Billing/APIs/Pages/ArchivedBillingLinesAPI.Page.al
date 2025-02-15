@@ -84,6 +84,12 @@ page 8022 "Archived Billing Lines API"
                 field(documentLineNo; Rec."Document Line No.")
                 {
                 }
+                field(unitCost; Rec."Unit Cost")
+                {
+                }
+                field(unitCostLCY; Rec."Unit Cost (LCY)")
+                {
+                }
                 field(unitPrice; Rec."Unit Price")
                 {
                 }

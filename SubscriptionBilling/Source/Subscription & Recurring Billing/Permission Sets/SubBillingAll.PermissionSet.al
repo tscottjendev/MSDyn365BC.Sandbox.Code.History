@@ -3,7 +3,7 @@ namespace Microsoft.SubscriptionBilling;
 permissionset 8052 "Sub. Billing All"
 {
     Assignable = true;
-    Caption = 'Subcription Billing All', MaxLength = 30;
+    Caption = 'Subscription Billing All', MaxLength = 30;
     ObsoleteReason = 'Removed as the permission set has been replaced with "Sub. Billing Basic".';
     ObsoleteState = Pending;
     ObsoleteTag = '26.0';

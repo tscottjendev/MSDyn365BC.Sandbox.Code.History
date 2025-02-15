@@ -38,6 +38,7 @@ page 8009 "Imported Service Commitments"
                 field("Contract Line Type"; Rec."Contract Line Type")
                 {
                     ToolTip = 'Specifies the contract line type.';
+                    ValuesAllowed = Comment, Item, "G/L Account";
                 }
                 field("Package Code"; Rec."Package Code")
                 {

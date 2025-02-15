@@ -24,7 +24,6 @@ codeunit 8029 "Usage Based Billing Mgmt."
     internal procedure ConnectSubscriptionsToServiceObjects(var UsageDataSubscription: Record "Usage Data Subscription")
     var
         UsageDataSubscription2: Record "Usage Data Subscription";
-        ServiceObject: Record "Service Object";
         i: Integer;
         ProgressBox: Dialog;
         TotalCount: Integer;
@@ -44,8 +43,7 @@ codeunit 8029 "Usage Based Billing Mgmt."
                 TestUsageDataSubscription(UsageDataSubscription2);
                 if UsageDataSubscription2."Processing Status" <> "Processing Status"::Error then begin
                     AskToProceedIfServiceObjectIsAssignedToMultipleSubscriptions(UsageDataSubscription2);
-                    ServiceObject.Get(UsageDataSubscription2."Connect to Service Object No.");
-                    ErrorIfServiceObjectItemIsBlocked(ServiceObject, UsageDataSubscription2);
+                    ErrorIfServiceObjectItemIsBlocked(UsageDataSubscription);
                 end;
 
                 if UsageDataSubscription2."Processing Status" <> "Processing Status"::Error then
@@ -206,13 +204,16 @@ codeunit 8029 "Usage Based Billing Mgmt."
                 Error(ProcessingInterruptedTxt);
     end;
 
-    local procedure ErrorIfServiceObjectItemIsBlocked(ServiceObject: Record "Service Object"; var UsageDataSubscription: Record "Usage Data Subscription")
+    local procedure ErrorIfServiceObjectItemIsBlocked(var UsageDataSubscription: Record "Usage Data Subscription")
     var
+        ServiceObject: Record "Service Object";
         Item: Record Item;
     begin
-        if Item.Get(ServiceObject."Item No.") then
+        ServiceObject.Get(UsageDataSubscription."Connect to Service Object No.");
+        ServiceObject.TestField(Type, ServiceObject.Type::Item);
+        if Item.Get(ServiceObject."Source No.") then
             if Item.Blocked then
-                UsageDataSubscription.SetErrorReason(StrSubstNo(ItemBlockedErr, ServiceObject."No.", ServiceObject."Item No."));
+                UsageDataSubscription.SetErrorReason(StrSubstNo(ItemBlockedErr, ServiceObject."No.", ServiceObject."Source No."));
     end;
 
     procedure ConnectSubscriptionToServiceObjectWithNewServiceCommitments(var UsageDataSubscription: Record "Usage Data Subscription")
@@ -229,7 +230,8 @@ codeunit 8029 "Usage Based Billing Mgmt."
         EndingDate: Date;
     begin
         ServiceObject.Get(UsageDataSubscription."Connect to Service Object No.");
-        Item.Get(ServiceObject."Item No.");
+        ServiceObject.TestField(Type, ServiceObject.Type::Item);
+        Item.Get(ServiceObject."Source No.");
 
         if FindCustomerServiceCommitmentFromServiceObject(ServiceCommitment, ServiceObject."No.", UsageDataSubscription) then
             CustomerContractNo := ServiceCommitment."Contract No."

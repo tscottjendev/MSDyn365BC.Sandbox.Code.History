@@ -86,6 +86,8 @@ codeunit 130630 "No Transactions Subscriber"
                 exit(true);
             'Service Mgt. Setup':
                 exit(true);
+            'Service Contract Setup':
+                exit(true);
             'Translation':
                 exit(true);
             'Upgrade Tags':

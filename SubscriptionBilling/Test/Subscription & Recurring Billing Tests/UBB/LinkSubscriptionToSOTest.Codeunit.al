@@ -71,7 +71,7 @@ codeunit 148158 "Link Subscription To SO Test"
         ContractTestLibrary.CreateCustomer(Customer);
         CreateServiceObjectWithServiceCommitments();
 
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.");
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
         FilterUsageDataSubscriptionOnSupplier(UsageDataSubscription, UsageDataImport."Supplier No.");
         UsageDataSubscription.FindSet();
         repeat
@@ -99,7 +99,7 @@ codeunit 148158 "Link Subscription To SO Test"
         Item.Blocked := true;
         Item.Modify(false);
 
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.");
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
         ValidateUsageDataSubscriptionConnectToServiceObject(Enum::"Connect To SO Method"::"New Service Commitments");
 
         FilterUsageDataSubscriptionOnSupplier(UsageDataSubscription, UsageDataImport."Supplier No.");
@@ -120,7 +120,7 @@ codeunit 148158 "Link Subscription To SO Test"
         ContractTestLibrary.CreateCustomer(Customer);
         CreateServiceObjectWithServiceCommitments();
 
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.");
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
         ValidateUsageDataSubscriptionConnectToServiceObject(Enum::"Connect To SO Method"::"Existing Service Commitments");
         FilterUsageDataSubscriptionOnSupplier(UsageDataSubscription, UsageDataImport."Supplier No.");
         UsageBasedBillingMgmt.ConnectSubscriptionsToServiceObjects(UsageDataSubscription);
@@ -152,8 +152,8 @@ codeunit 148158 "Link Subscription To SO Test"
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
         ServiceCommitment.ModifyAll("Service End Date", CalcDate('<1D>', Today()), false);
 
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.");
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, '');
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, '');
         ServiceCommitment.Reset();
         FilterServiceCommOnServiceObjectAndPartner(ServiceObject."No.", "Service Partner"::Customer);
         ServiceCommitment.SetFilter("Service End Date", '%1|>=%2', 0D, Today()); // =UsageDataSubscription."Connect to SO at Date"
@@ -190,7 +190,7 @@ codeunit 148158 "Link Subscription To SO Test"
         ContractTestLibrary.CreateCustomer(Customer);
         CreateServiceObjectWithServiceCommitments();
 
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.");
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
         ValidateUsageDataSubscriptionConnectToServiceObject(Enum::"Connect To SO Method"::"Existing Service Commitments");
         UsageBasedBillingMgmt.ConnectSubscriptionToServiceObjectWithExistingServiceCommitments(UsageDataSubscription);
 
@@ -226,7 +226,7 @@ codeunit 148158 "Link Subscription To SO Test"
         ContractTestLibrary.CreateCustomer(Customer);
         CreateServiceObjectWithServiceCommitments();
 
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.");
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
         ValidateUsageDataSubscriptionConnectToServiceObject(Enum::"Connect To SO Method"::"New Service Commitments");
         FilterUsageDataSubscriptionOnSupplier(UsageDataSubscription, UsageDataImport."Supplier No.");
         UsageBasedBillingMgmt.ConnectSubscriptionsToServiceObjects(UsageDataSubscription);
@@ -267,7 +267,7 @@ codeunit 148158 "Link Subscription To SO Test"
 
     local procedure CreateServiceObjectWithServiceCommitments()
     begin
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, false);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, false);
         ServiceObject."Provision End Date" := 0D;
         ServiceObject.Validate("End-User Customer No.", Customer."No.");
         ServiceObject.Modify(false);
@@ -330,10 +330,10 @@ codeunit 148158 "Link Subscription To SO Test"
         CreateMultipleUsageDataBlobFiles();
         UsageDataImport."Processing Step" := Enum::"Processing Step"::"Create Imported Lines";
         UsageDataImport.Modify(false);
-        Codeunit.Run(Codeunit::"Generic Usage Data Import", UsageDataImport);
+        Codeunit.Run(Codeunit::"Import And Process Usage Data", UsageDataImport);
         UsageDataImport."Processing Step" := Enum::"Processing Step"::"Process Imported Lines";
         UsageDataImport.Modify(false);
-        Codeunit.Run(Codeunit::"Generic Usage Data Import", UsageDataImport);
+        Codeunit.Run(Codeunit::"Import And Process Usage Data", UsageDataImport);
     end;
 
     local procedure SetupDataExchangeDefinition()

@@ -83,11 +83,16 @@ page 8035 "Usage Data Billings"
                 {
                     ToolTip = 'Specifies the calculated period (in days).';
                 }
+#if not CLEAN26
                 field("Charged Period (Hours)"; Rec."Charged Period (Hours)")
                 {
                     ToolTip = 'Specifies the calculated period (in hours).';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'No longer needed as the time component is not relevant for processing of usage data.';
+                    ObsoleteTag = '26.0';
                 }
+#endif
                 field(Quantity; Rec.Quantity)
                 {
                     ToolTip = 'Specifies the quantity.';
@@ -135,6 +140,37 @@ page 8035 "Usage Data Billings"
                 field("Document Line No."; Rec."Document Line No.")
                 {
                     ToolTip = 'Specifies the document line for which the usage data will be billed.';
+                }
+            }
+        }
+    }
+    actions
+    {
+        area(Navigation)
+        {
+            action(UsageDataBillingMetadata)
+            {
+                ApplicationArea = All;
+                Caption = 'Usage Data Metadata';
+                Image = DataEntry;
+                Scope = Repeater;
+                ToolTip = 'Shows the metadata related to the service commitment.';
+
+                trigger OnAction()
+                var
+                    ServiceCommitment: Record "Service Commitment";
+                begin
+                    if ServiceCommitment.Get(Rec."Service Commitment Entry No.") then
+                        ServiceCommitment.ShowUsageDataBillingMetadata();
+                end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                actionref(UsageDataBillingMetadata_Promoted; UsageDataBillingMetadata)
+                {
                 }
             }
         }

@@ -3,6 +3,7 @@ namespace Microsoft.SubscriptionBilling;
 using Microsoft.Inventory.Item;
 using Microsoft.Sales.Customer;
 using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Document;
 
@@ -54,8 +55,8 @@ codeunit 148154 "Vendor Contracts Test"
     var
         VendorContractLine2: Record "Vendor Contract Line";
     begin
-        SetupServiceObjectWithServiceCommitment(false);
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, Vendor."No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
+        SetupServiceObjectForNewItemWithServiceCommitment(false);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
         ContractTestLibrary.InsertVendorContractCommentLine(VendorContract, VendorContractLine2);
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
         ServiceCommitment.SetRange("Contract No.", VendorContract."No.");
@@ -68,7 +69,7 @@ codeunit 148154 "Vendor Contracts Test"
             until ServiceCommitment.Next() = 0;
         VendorContract.UpdateServicesDates();
         VendorContractLine.SetRange("Contract No.", VendorContract."No.");
-        VendorContractLine.SetRange("Contract Line Type", "Contract Line Type"::"Service Commitment");
+        VendorContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::Item);
         VendorContractLine.SetRange(Closed, false);
         asserterror VendorContractLine.FindFirst();
     end;
@@ -97,12 +98,12 @@ codeunit 148154 "Vendor Contracts Test"
 
     [Test]
     [HandlerFunctions('ServCommWOVendContractPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
-    procedure CheckServiceCommitmentAssignmentToVendorContract()
+    procedure CheckServiceCommitmentAssignmentToVendorContractForServiceObjectWithItem()
     var
         InvoicingViaNotManagedErr: Label 'Invoicing via %1 not managed', Locked = true;
     begin
         // [SCENARIO] Check that proper Service Commitments are assigned to Vendor Contract Lines.
-        SetupServiceObjectWithServiceCommitment(false);
+        SetupServiceObjectForNewItemWithServiceCommitment(false);
         ContractTestLibrary.CreateVendorContract(VendorContract, Vendor."No.");
 
         VendorContractPage.OpenEdit();
@@ -115,7 +116,7 @@ codeunit 148154 "Vendor Contracts Test"
         ServiceCommitment.FindSet();
         repeat
             VendorContractLine.SetRange("Contract No.", VendorContract."No.");
-            VendorContractLine.SetRange("Contract Line Type", VendorContractLine."Contract Line Type"::"Service Commitment");
+            VendorContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::Item);
             VendorContractLine.SetRange("Service Object No.", ServiceCommitment."Service Object No.");
             VendorContractLine.SetRange("Service Commitment Entry No.", ServiceCommitment."Entry No.");
             case ServiceCommitment."Invoicing via" of
@@ -123,7 +124,7 @@ codeunit 148154 "Vendor Contracts Test"
                     begin
                         AssertThat.IsTrue(VendorContractLine.FindFirst(), 'Service Commitment not assigned to expected Vendor Contract Line.');
                         VendorContractLine.TestField("Contract No.", ServiceCommitment."Contract No.");
-                        VendorContractLine.TestField("Contract Line Type", VendorContractLine."Contract Line Type"::"Service Commitment");
+                        VendorContractLine.TestField("Contract Line Type", Enum::"Contract Line Type"::Item);
                     end;
                 Enum::"Invoicing Via"::Sales:
                     begin
@@ -137,10 +138,40 @@ codeunit 148154 "Vendor Contracts Test"
     end;
 
     [Test]
+    [HandlerFunctions('ServCommWOVendContractPageHandler')]
+    procedure CheckServiceCommitmentAssignmentToVendorContractForServiceObjectWithGLAccount()
+    begin
+        // [SCENARIO] Create a Service Object for G/L Account and make sure that its service commitments can be assigned to a contract
+
+        // [GIVEN] A Service Object for G/L Account has been created with service commitments included
+        SetupServiceObjectForNewGLAccountWithServiceCommitment();
+
+        // [WHEN] A Contract has been created and Service Commitments are assigned on a contract
+        ContractTestLibrary.CreateVendorContract(VendorContract, Vendor."No.");
+
+        VendorContractPage.OpenEdit();
+        VendorContractPage.GoToRecord(VendorContract);
+        VendorContractPage.GetServiceCommitmentsAction.Invoke();
+
+        // [THEN] A new Contract Line has been created for previously created service commitment
+        ServiceCommitment.Reset();
+        ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
+        ServiceCommitment.FindFirst();
+        VendorContractLine.SetRange("Contract No.", VendorContract."No.");
+        VendorContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::"G/L Account");
+        VendorContractLine.SetRange("Service Object No.", ServiceCommitment."Service Object No.");
+        VendorContractLine.SetRange("Service Commitment Entry No.", ServiceCommitment."Entry No.");
+        AssertThat.IsTrue(VendorContractLine.FindFirst(), 'Service Commitment not assigned to expected Vendor Contract Line.');
+        VendorContractLine.TestField("Contract No.", ServiceCommitment."Contract No.");
+        VendorContractLine.TestField("Contract Line Type", Enum::"Contract Line Type"::"G/L Account");
+        VendorContractLine.TestField("No.", ServiceObject."Source No.");
+    end;
+
+    [Test]
     [HandlerFunctions('ServCommWOVendContractPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
     procedure CheckServiceCommitmentAssignmentToVendorContractInFCY()
     begin
-        SetupServiceObjectWithServiceCommitment(false);
+        SetupServiceObjectForNewItemWithServiceCommitment(false);
         ContractTestLibrary.CreateVendorContract(VendorContract, Vendor."No.");
 
         VendorContractPage.OpenEdit();
@@ -156,7 +187,7 @@ codeunit 148154 "Vendor Contracts Test"
     begin
         ClearAll();
         ContractTestLibrary.DeleteAllContractRecords();
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, Vendor."No.", true);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.", true);
         TestVendorContractLinesServiceObjectDescription(VendorContract."No.", ServiceObject.Description);
 
         ServiceObject.Description := CopyStr(LibraryRandom.RandText(100), 1, MaxStrLen(ServiceObject.Description));
@@ -185,13 +216,16 @@ codeunit 148154 "Vendor Contracts Test"
     end;
 
     [Test]
-    [HandlerFunctions('ExchangeRateSelectionModalPageHandler,MessageHandler')]
+    [HandlerFunctions('ExchangeRateSelectionModalPageHandler,ConfirmHandler,MessageHandler')]
     procedure CheckValueChangesOnVendorContractLines()
     var
         OldServiceCommitment: Record "Service Commitment";
+        BillingBasePeriod: DateFormula;
         ServCommFieldFromVendContrLineErr: Label 'Service Commitment field "%1" not transferred from Vendor Contract Line.', Locked = true;
         ServCommFieldFromCustContrLineErr: Label 'Service Commitment field "%1" not transferred from Customer Contract Line.', Locked = true;
+        NotTransferredMisspelledTok: Label 'Service Commitment field "%1" not transfered from Customer Contract Line.', Locked = true;
         MaxServiceAmount: Decimal;
+        ServiceObjectQuantity: Decimal;
     begin
         // [SCENARIO] Assign Service Commitments to Vendor Contract Lines. Change values on Vendor Contract Lines and check that Service Commitment has changed values.
         Currency.InitRoundingPrecision();
@@ -202,9 +236,15 @@ codeunit 148154 "Vendor Contracts Test"
 
         VendorContractLine.Reset();
         VendorContractLine.SetRange("Contract No.", VendorContract."No.");
-        VendorContractLine.SetRange("Contract Line Type", VendorContractLine."Contract Line Type"::"Service Commitment");
+        VendorContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::Item);
         VendorContractLine.FindFirst();
         VendorContractPage.Lines.GoToRecord(VendorContractLine);
+
+        ServiceObjectQuantity := LibraryRandom.RandDecInDecimalRange(1, 100, 2);
+        VendorContractPage.Lines."Service Object Quantity".SetValue(ServiceObjectQuantity);
+        ServiceObject.Get(VendorContractLine."Service Object No.");
+        AssertThat.AreEqual(ServiceObject."Quantity Decimal", ServiceObjectQuantity, 'Service Object Quantity not transferred from Customer Contract Line.');
+
 
         DescriptionText := LibraryRandom.RandText(100);
         VendorContractPage.Lines."Service Object Description".SetValue(DescriptionText);
@@ -222,6 +262,16 @@ codeunit 148154 "Vendor Contracts Test"
         VendorContractPage.Lines."Service End Date".SetValue(ExpectedDate);
         ServiceCommitment.Get(OldServiceCommitment."Entry No.");
         AssertThat.AreEqual(ExpectedDate, ServiceCommitment."Service End Date", StrSubstNo(ServCommFieldFromVendContrLineErr, ServiceCommitment.FieldCaption("Service End Date")));
+
+        ExpectedDate := CalcDate('<1D>', WorkDate());
+        VendorContractPage.Lines."Cancellation Possible Until".SetValue(ExpectedDate);
+        ServiceCommitment.Get(OldServiceCommitment."Entry No.");
+        AssertThat.AreEqual(ExpectedDate, ServiceCommitment."Cancellation Possible Until", StrSubstNo(NotTransferredMisspelledTok, ServiceCommitment.FieldCaption("Cancellation Possible Until")));
+
+        ExpectedDate := CalcDate('<1D>', WorkDate());
+        VendorContractPage.Lines."Term Until".SetValue(ExpectedDate);
+        ServiceCommitment.Get(OldServiceCommitment."Entry No.");
+        AssertThat.AreEqual(ExpectedDate, ServiceCommitment."Term Until", StrSubstNo(NotTransferredMisspelledTok, ServiceCommitment.FieldCaption("Term Until")));
 
         ExpectedDecimalValue := LibraryRandom.RandDecInDecimalRange(1, 100, 2);
         while ExpectedDecimalValue = OldServiceCommitment."Discount %" do
@@ -264,6 +314,11 @@ codeunit 148154 "Vendor Contracts Test"
         ServiceCommitment.Get(OldServiceCommitment."Entry No.");
         AssertThat.AreEqual(DescriptionText, ServiceCommitment.Description, StrSubstNo(ServCommFieldFromVendContrLineErr, ServiceCommitment.FieldCaption(Description)));
 
+        Evaluate(BillingBasePeriod, '<3M>');
+        VendorContractPage.Lines."Billing Base Period".SetValue(BillingBasePeriod);
+        ServiceCommitment.Get(OldServiceCommitment."Entry No.");
+        AssertThat.AreEqual(BillingBasePeriod, ServiceCommitment."Billing Base Period", StrSubstNo(NotTransferredMisspelledTok, ServiceCommitment.FieldCaption("Billing Base Period")));
+
         Evaluate(BillingRhythmValue, '<3M>');
         VendorContractPage.Lines."Billing Rhythm".SetValue(BillingRhythmValue);
         ServiceCommitment.Get(OldServiceCommitment."Entry No.");
@@ -273,6 +328,8 @@ codeunit 148154 "Vendor Contracts Test"
     [Test]
     [HandlerFunctions('ExchangeRateSelectionModalPageHandler,MessageHandler')]
     procedure ContractLineDisconnectServiceOnTypeChange()
+    var
+        EntryNo: Integer;
     begin
         // Test: Service Commitment should be disconnected from the contract when the line type changes
         ClearAll();
@@ -280,11 +337,14 @@ codeunit 148154 "Vendor Contracts Test"
 
         VendorContractLine.Reset();
         VendorContractLine.SetRange("Contract No.", VendorContract."No.");
-        VendorContractLine.SetRange("Contract Line Type", VendorContractLine."Contract Line Type"::"Service Commitment");
+        VendorContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::Item);
         VendorContractLine.SetFilter("Service Object No.", '<>%1', '');
         VendorContractLine.SetFilter("Service Commitment Entry No.", '<>%1', 0);
         VendorContractLine.FindFirst();
-        asserterror VendorContractLine.Validate("Contract Line Type", VendorContractLine."Contract Line Type"::Comment);
+        EntryNo := VendorContractLine."Service Commitment Entry No.";
+        VendorContractLine.Validate("Contract Line Type", VendorContractLine."Contract Line Type"::Comment);
+        ServiceCommitment.Get(EntryNo);
+        ServiceCommitment.TestField("Contract No.", '');
     end;
 
     [Test]
@@ -300,7 +360,7 @@ codeunit 148154 "Vendor Contracts Test"
     [HandlerFunctions('ServCommWOVendContractPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
     procedure ExpectErrorOnAssignServiceCommitmentsWithMultipleCurrencies()
     begin
-        SetupServiceObjectWithServiceCommitment(false);
+        SetupServiceObjectForNewItemWithServiceCommitment(false);
         ContractTestLibrary.CreateVendorContract(VendorContract, Vendor."No.");
 
         ServiceCommitment.Reset();
@@ -329,7 +389,7 @@ codeunit 148154 "Vendor Contracts Test"
     procedure ExpectErrorOnMergeTextLine()
     begin
         SetupNewContract(false);
-        CreateContractCommentLine(500);
+        ContractTestLibrary.InsertVendorContractCommentLine(VendorContract, VendorContractLine);
         VendorContractLine.Reset();
         asserterror VendorContractLine.MergeContractLines(VendorContractLine);
     end;
@@ -350,7 +410,7 @@ codeunit 148154 "Vendor Contracts Test"
         ClearAll();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         ContractTestLibrary.DeleteAllContractRecords();
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, Vendor."No.", true);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.", true);
         CreateAndPostBillingProposal();
 
         asserterror UpdateServiceStartDateFromVendorContractSubpage();
@@ -362,7 +422,7 @@ codeunit 148154 "Vendor Contracts Test"
     begin
         ClearAll();
         ContractTestLibrary.DeleteAllContractRecords();
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, Vendor."No.", true);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.", true);
         ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Vendor);
 
         asserterror UpdateServiceStartDateFromVendorContractSubpage();
@@ -374,8 +434,8 @@ codeunit 148154 "Vendor Contracts Test"
     var
         VendorContractLine2: Record "Vendor Contract Line";
     begin
-        SetupServiceObjectWithServiceCommitment(false);
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, Vendor."No.");
+        SetupServiceObjectForNewItemWithServiceCommitment(false);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.");
         ContractTestLibrary.InsertVendorContractCommentLine(VendorContract, VendorContractLine2);
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
         ServiceCommitment.SetRange("Contract No.", VendorContract."No.");
@@ -387,9 +447,65 @@ codeunit 148154 "Vendor Contracts Test"
             until ServiceCommitment.Next() = 0;
         VendorContract.UpdateServicesDates();
         VendorContractLine.SetRange("Contract No.", VendorContract."No.");
-        VendorContractLine.SetRange("Contract Line Type", "Contract Line Type"::"Service Commitment");
+        VendorContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::Item);
         VendorContractLine.SetRange(Closed, false);
         VendorContractLine.FindFirst();
+    end;
+
+    [Test]
+    procedure ManuallyCreateContractLineForItem()
+    begin
+        // [SCENARIO] Manually create contract lines for Item and expect Service Object to be created
+
+        // [GIVEN] A Vendor Contract has been created
+        ClearAll();
+        ContractTestLibrary.DeleteAllContractRecords();
+        ContractTestLibrary.CreateVendor(Vendor);
+        ContractTestLibrary.CreateVendorContract(VendorContract, Vendor."No.");
+
+        // [WHEN] A Vendor Contract Line has been manually created and Item No. is entered.
+        ContractTestLibrary.InsertVendorContractItemLine(VendorContract, VendorContractLine);
+
+        // [THEN] Service Object has been created with a single Service Commiment
+        ServiceObject.Get(VendorContractLine."Service Object No.");
+        ServiceObject.TestField("Quantity Decimal", 1);
+        ServiceObject.TestField(ServiceObject.Type, ServiceObject.Type::Item);
+        ServiceObject.TestField("Created in Contract line", true);
+        ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
+        AssertThat.RecordCount(ServiceCommitment, 1);
+        ServiceCommitment.FindFirst();
+        ServiceCommitment.TestField("Invoicing via", ServiceCommitment."Invoicing via"::Contract);
+        ServiceCommitment.TestField("Created in Contract line", true);
+        ServiceCommitment.TestField("Contract No.", VendorContractLine."Contract No.");
+        ServiceCommitment.TestField("Contract Line No.", VendorContractLine."Line No.");
+    end;
+
+    [Test]
+    procedure ManuallyCreateContractLineForGLAccount()
+    begin
+        // [SCENARIO] Manually create contract lines for G/L Account and expect Service Object to be created
+
+        // [GIVEN] A Vendor Contract has been created
+        ClearAll();
+        ContractTestLibrary.InitContractsApp();
+        ContractTestLibrary.CreateVendor(Vendor);
+        ContractTestLibrary.CreateVendorContract(VendorContract, Vendor."No.");
+
+        // [WHEN] A Vendor Contract Line has been manually created and G/L Account No. is entered.
+        ContractTestLibrary.InsertVendorContractGLAccountLine(VendorContract, VendorContractLine);
+
+        // [THEN] Service Object has been created with a single Service Commiment
+        ServiceObject.Get(VendorContractLine."Service Object No.");
+        ServiceObject.TestField("Quantity Decimal", 1);
+        ServiceObject.TestField(ServiceObject.Type, ServiceObject.Type::"G/L Account");
+        ServiceObject.TestField("Created in Contract line", true);
+        ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
+        AssertThat.RecordCount(ServiceCommitment, 1);
+        ServiceCommitment.FindFirst();
+        ServiceCommitment.TestField("Invoicing via", ServiceCommitment."Invoicing via"::Contract);
+        ServiceCommitment.TestField("Created in Contract line", true);
+        ServiceCommitment.TestField("Contract No.", VendorContractLine."Contract No.");
+        ServiceCommitment.TestField("Contract Line No.", VendorContractLine."Line No.");
     end;
 
     [Test]
@@ -412,8 +528,8 @@ codeunit 148154 "Vendor Contracts Test"
         // Test: A closed Contract Line is deleted when deleting the Service Commitment
         ClearAll();
         ContractTestLibrary.DeleteAllContractRecords();
-        SetupServiceObjectWithServiceCommitment(false);
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, Customer."No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
+        SetupServiceObjectForNewItemWithServiceCommitment(false);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Customer."No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
 
         ServiceCommitment.Reset();
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
@@ -436,8 +552,8 @@ codeunit 148154 "Vendor Contracts Test"
         // Test: Service Commitment cannot be deleted if an open contract line exists
         ClearAll();
         ContractTestLibrary.DeleteAllContractRecords();
-        SetupServiceObjectWithServiceCommitment(false);
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, Customer."No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
+        SetupServiceObjectForNewItemWithServiceCommitment(false);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Customer."No."); // ExchangeRateSelectionModalPageHandler, MessageHandler
 
         ServiceCommitment.Reset();
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
@@ -455,7 +571,7 @@ codeunit 148154 "Vendor Contracts Test"
     begin
         ClearAll();
         ContractTestLibrary.DeleteAllContractRecords();
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, Vendor."No.", true);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.", true);
 
         UpdateServiceStartDateFromVendorContractSubpage();
 
@@ -504,7 +620,7 @@ codeunit 148154 "Vendor Contracts Test"
     [HandlerFunctions('ServCommWOVendContractPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
     procedure TestRecalculateServiceCommitmentsOnChangeCurrencyCode()
     begin
-        SetupServiceObjectWithServiceCommitment(false);
+        SetupServiceObjectForNewItemWithServiceCommitment(false);
         ContractTestLibrary.CreateVendorContract(VendorContract, Vendor."No.");
 
         VendorContractPage.OpenEdit();
@@ -522,7 +638,7 @@ codeunit 148154 "Vendor Contracts Test"
     [HandlerFunctions('ServCommWOVendContractPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
     procedure TestResetServiceCommitmentsOnCurrencyCodeDelete()
     begin
-        SetupServiceObjectWithServiceCommitment(false);
+        SetupServiceObjectForNewItemWithServiceCommitment(false);
         ContractTestLibrary.CreateVendorContract(VendorContract, Vendor."No.");
 
         VendorContractPage.OpenEdit();
@@ -576,15 +692,6 @@ codeunit 148154 "Vendor Contracts Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateContractCommentLine(LineNo: Integer)
-    begin
-        VendorContractLine.Init();
-        VendorContractLine."Line No." := LineNo;
-        VendorContractLine."Contract No." := VendorContract."No.";
-        VendorContractLine."Contract Line Type" := VendorContractLine."Contract Line Type"::Comment;
-        VendorContractLine.Insert(true);
-    end;
-
     local procedure CreateTwoEqualServiceObjectsWithServiceCommitments()
     begin
         ServiceObject1 := ServiceObject;
@@ -608,8 +715,8 @@ codeunit 148154 "Vendor Contracts Test"
 
     local procedure CreateVendorContractSetup()
     begin
-        SetupServiceObjectWithServiceCommitment(false);
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, Vendor."No.");
+        SetupServiceObjectForNewItemWithServiceCommitment(false);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.");
     end;
 
     local procedure GetTotalServiceAmountFromServiceCommitments(): Decimal
@@ -624,10 +731,10 @@ codeunit 148154 "Vendor Contracts Test"
         ClearAll();
         ContractTestLibrary.DeleteAllContractRecords();
         ContractTestLibrary.InitContractsApp();
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, '', CreateAdditionalLine);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, '', CreateAdditionalLine);
     end;
 
-    local procedure SetupServiceObjectWithServiceCommitment(SNSpecificTracking: Boolean)
+    local procedure SetupServiceObjectForNewItemWithServiceCommitment(SNSpecificTracking: Boolean)
     var
         ItemServCommitmentPackage: Record "Item Serv. Commitment Package";
         ServiceCommPackageLine: Record "Service Comm. Package Line";
@@ -635,7 +742,7 @@ codeunit 148154 "Vendor Contracts Test"
     begin
         ClearAll();
         ContractTestLibrary.CreateVendor(Vendor);
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, Item, SNSpecificTracking);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item, SNSpecificTracking);
         ServiceObject.SetHideValidationDialog(true);
         ServiceObject.Validate("End-User Customer Name", Customer.Name);
         ServiceObject.Modify(false);
@@ -685,15 +792,28 @@ codeunit 148154 "Vendor Contracts Test"
         ServiceCommPackageLine.Modify(false);
 
         ContractTestLibrary.AssignItemToServiceCommitmentPackage(Item, ServiceCommitmentPackage.Code);
-        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Item No."));
+        ServiceCommitmentPackage.SetFilter(Code, ItemServCommitmentPackage.GetPackageFilterForItem(ServiceObject."Source No."));
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(WorkDate(), ServiceCommitmentPackage);
+    end;
+
+    local procedure SetupServiceObjectForNewGLAccountWithServiceCommitment()
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        ClearAll();
+        ContractTestLibrary.InitContractsApp();
+        ContractTestLibrary.CreateCustomer(Customer);
+        ContractTestLibrary.CreateServiceObjectForGLAccountWithServiceCommitments(ServiceObject, GLAccount, 0, 1, '<1Y>', '<1M>');
+        ServiceObject.Validate("End-User Customer Name", Customer.Name);
+        ServiceObject.Modify(false);
     end;
 
     local procedure TestNewServiceObject()
     begin
         NewServiceObject.Get(VendorContractLine."Service Object No.");
         NewServiceObject.TestField(Description, ServiceObject.Description);
-        NewServiceObject.TestField("Item No.", ServiceObject."Item No.");
+        NewServiceObject.TestField(Type, ServiceObject.Type);
+        NewServiceObject.TestField("Source No.", ServiceObject."Source No.");
         NewServiceObject.TestField("End-User Customer No.", ServiceObject."End-User Customer No.");
         NewServiceObject.TestField("Quantity Decimal", ServiceObject."Quantity Decimal" + ServiceObject1."Quantity Decimal");
     end;
@@ -709,6 +829,7 @@ codeunit 148154 "Vendor Contracts Test"
             ServiceCommitment.TestField("Currency Factor", CurrencyFactor);
 
             if RecalculatePrice then begin // if currency code is changed to '', amounts and amounts in lcy in service commitments should be the same
+                Currency.Get(Vendor."Currency Code");
                 ServiceCommitment.TestField(Price,
                 Round(CurrExchRate.ExchangeAmtLCYToFCY(CurrencyFactorDate, Vendor."Currency Code", ServiceCommitment."Price (LCY)", CurrencyFactor), Currency."Unit-Amount Rounding Precision"));
 

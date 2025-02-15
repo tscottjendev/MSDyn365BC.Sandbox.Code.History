@@ -4,12 +4,14 @@ using System.Utilities;
 using System.Security.User;
 using System.Reflection;
 using System.Environment.Configuration;
+using System.EMail;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
+using Microsoft.Sales.Pricing;
 using Microsoft.Projects.Project.Job;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Team;
@@ -367,6 +369,16 @@ table 8052 "Customer Contract"
                 ServiceCommitment.ModifyExcludeFromPriceUpdateInAllRelatedServiceCommitments("Service Partner"::Customer, Rec."No.", Rec.DefaultExcludeFromPriceUpdate);
             end;
         }
+        field(34; "Customer Price Group"; Code[10])
+        {
+            Caption = 'Customer Price Group';
+            TableRelation = "Customer Price Group";
+
+            trigger OnValidate()
+            begin
+                MessageIfCustomerContractLinesExist(CopyStr(FieldCaption("Customer Price Group"), 1, 100));
+            end;
+        }
         field(43; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
@@ -653,6 +665,25 @@ table 8052 "Customer Contract"
             TableRelation = "No. Series";
         }
 
+        field(171; "Sell-to Phone No."; Text[30])
+        {
+            Caption = 'Sell-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
+        field(172; "Sell-to E-Mail"; Text[80])
+        {
+            Caption = 'Email';
+            ExtendedDatatype = EMail;
+
+            trigger OnValidate()
+            var
+                MailManagement: Codeunit "Mail Management";
+            begin
+                if "Sell-to E-Mail" = '' then
+                    exit;
+                MailManagement.CheckValidEmailAddresses("Sell-to E-Mail");
+            end;
+        }
         field(200; Description; Blob)
         {
             Caption = 'Description';
@@ -977,14 +1008,14 @@ table 8052 "Customer Contract"
         CurencyFactorDate: Date;
         CurrencyFactorDate: Date;
         Confirmed: Boolean;
-        RenameErr: Label 'You cannot rename a %1.';
+        RenameErr: Label 'You cannot rename a %1.', Comment = '%1 = a Table caption.';
         ConfirmChangeQst: Label 'Do you want to change %1?', Comment = '%1 = a Field Caption like Currency Code';
-        ContactNotRelatedToCustomerErr: Label 'Contact %1 %2 is not related to customer %3.';
-        ContactRelatedToDifferentCompanyErr: Label 'Contact %1 %2 is related to a different company than customer %3.';
-        ContactIsNotRelatedToAnyCustomerErr: Label 'Contact %1 %2 is not related to a customer.';
+        ContactNotRelatedToCustomerErr: Label 'Contact %1 %2 is not related to customer %3.', Comment = '%1 = Contact number, %2 = Contact name, %3 = Customer number';
+        ContactRelatedToDifferentCompanyErr: Label 'Contact %1 %2 is related to a different company than customer %3.', Comment = '%1 = Contact number, %2 = Contact name, %3 = Customer number';
+        ContactIsNotRelatedToAnyCustomerErr: Label 'Contact %1 %2 is not related to a customer.', Comment = '%1 = Contact number, %2 = Contact name';
         SkipSellToContact: Boolean;
         SkipBillToContact: Boolean;
-        CustomerContractAlreadyExistErr: Label 'The customer contract %1 already exists.';
+        CustomerContractAlreadyExistErr: Label 'The customer contract %1 already exists.', Comment = '%1 = Contract number';
         ModifyCustomerAddressNotificationLbl: Label 'Update the address';
         DontShowAgainActionLbl: Label 'Don''t show again';
         ModifyCustomerAddressNotificationMsg: Label 'The address you entered for %1 is different from the customer''s existing address.', Comment = '%1=customer name';
@@ -999,7 +1030,10 @@ table 8052 "Customer Contract"
         UpdateDimensionsOnLinesQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         AssignServicePricesMustBeRecalculatedMsg: Label 'You added services to a contract in which a different currency is stored than in the services. The prices for the services must therefore be recalculated.';
         CurrCodeChangePricesMustBeRecalculatedMsg: Label 'If you change the currency code, the prices for existing services must be recalculated.';
-        UpdatedDeferralsMsg: Label 'The dimensions in %1 deferrals have been updated.';
+        UpdatedDeferralsMsg: Label 'The dimensions in %1 deferrals have been updated.', Comment = '%1 = number of (count)';
+        LinesNotUpdatedMsg: Label 'You have changed %1 on the contract header, but it has not been changed on the existing contract lines.', Comment = '%1 = FieldCaption';
+        SplitMessageTxt: Label '%1\%2', Comment = '%1 = message text 1, %2 = message text 2', Locked = true;
+        UpdateLinesManuallyTxt: Label 'You must update the existing contract lines manually.';
 
     protected var
         HideValidationDialog: Boolean;
@@ -1090,6 +1124,17 @@ table 8052 "Customer Contract"
         CustomerContractLine.Reset();
         CustomerContractLine.SetRange("Contract No.", Rec."No.");
         exit(not CustomerContractLine.IsEmpty());
+    end;
+
+    internal procedure MessageIfCustomerContractLinesExist(ChangedFieldName: Text[100])
+    var
+        MessageText: Text;
+    begin
+        if CustomerContractLinesExists() and not GetHideValidationDialog() then begin
+            MessageText := StrSubstNo(LinesNotUpdatedMsg, ChangedFieldName);
+            MessageText := StrSubstNo(SplitMessageTxt, MessageText, UpdateLinesManuallyTxt);
+            Message(MessageText);
+        end;
     end;
 
     internal procedure NotReleasedCustomerContractDeferralsExists(): Boolean
@@ -1503,6 +1548,8 @@ table 8052 "Customer Contract"
     begin
         "Sell-to Customer Name" := Cust.Name;
         "Sell-to Customer Name 2" := Cust."Name 2";
+        "Sell-to Phone No." := Cust."Phone No.";
+        "Sell-to E-Mail" := Cust."E-Mail";
         if SellToCustomerIsReplaced() or ShouldCopyAddressFromSellToCustomer(SellToCustomer) then begin
             "Sell-to Address" := SellToCustomer.Address;
             "Sell-to Address 2" := SellToCustomer."Address 2";
@@ -1582,6 +1629,7 @@ table 8052 "Customer Contract"
         "Payment Method Code" := BillToCustomer."Payment Method Code";
 
         "Currency Code" := BillToCustomer."Currency Code";
+        "Customer Price Group" := BillToCustomer."Customer Price Group";
         SetSalespersonCode(BillToCustomer."Salesperson Code", "Salesperson Code");
 
         OnAfterSetFieldsBilltoCustomer(Rec, BillToCustomer);
@@ -1890,14 +1938,14 @@ table 8052 "Customer Contract"
                     Error(Salesperson.GetPrivacyBlockedGenericText(Salesperson, true));
     end;
 
-    internal procedure CheckContactRelatedToCustomerCompany(ContactNo: Code[20]; CustomerNo: Code[20]; CurrFieldNo: Integer)
+    internal procedure CheckContactRelatedToCustomerCompany(ContactNo: Code[20]; CustomerNo: Code[20]; CurrentFieldNo: Integer)
     var
         Contact: Record Contact;
         ContBusRel: Record "Contact Business Relation";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckContactRelatedToCustomerCompany(Rec, CurrFieldNo, IsHandled);
+        OnBeforeCheckContactRelatedToCustomerCompany(Rec, CurrentFieldNo, IsHandled);
         if IsHandled then
             exit;
 
@@ -1921,36 +1969,35 @@ table 8052 "Customer Contract"
         end;
     end;
 
-    procedure CreateCustomerContractLinesFromServiceCommitments(var ServiceCommitment: Record "Service Commitment" temporary)
+    procedure CreateCustomerContractLinesFromServiceCommitments(var TempServiceCommitment: Record "Service Commitment" temporary)
     var
         ServiceObject: Record "Service Object";
     begin
-        ServiceCommitment.TestServiceCommitmentsCurrencyCode(ServiceCommitment);
-        if (("Currency Code" <> ServiceCommitment."Currency Code") and ("Currency Code" <> '')) then
-            if not ServiceCommitment.OpenExchangeSelectionPage(CurrencyFactorDate, CurrencyFactor, Rec."Currency Code", AssignServicePricesMustBeRecalculatedMsg, false) then
+        TempServiceCommitment.TestServiceCommitmentsCurrencyCode(TempServiceCommitment);
+        if (("Currency Code" <> TempServiceCommitment."Currency Code") and ("Currency Code" <> '')) then
+            if not TempServiceCommitment.OpenExchangeSelectionPage(CurrencyFactorDate, CurrencyFactor, Rec."Currency Code", AssignServicePricesMustBeRecalculatedMsg, false) then
                 Error('');
 
         ClearDeviatingShipToAddressNotification();
-        if ServiceCommitment.FindSet() then
+        if TempServiceCommitment.FindSet() then
             repeat
-                ServiceCommitment.TestField("Service Object No.");
-                ServiceObject.Get(ServiceCommitment."Service Object No.");
-                ServiceCommitment.TestField("Contract No.");
-                Rec.Get(ServiceCommitment."Contract No.");
+                TempServiceCommitment.TestField("Service Object No.");
+                ServiceObject.Get(TempServiceCommitment."Service Object No.");
+                TempServiceCommitment.TestField("Contract No.");
+                Rec.Get(TempServiceCommitment."Contract No.");
 
                 AppendShipToAddressBufferIfShipToCodeDiffers(ServiceObject);
-                CreateCustomerContractLineFromServiceCommitment(ServiceCommitment, ServiceCommitment."Contract No.");
-                ServiceCommitment.Delete(false);
-            until ServiceCommitment.Next() = 0;
+                CreateCustomerContractLineFromServiceCommitment(TempServiceCommitment, TempServiceCommitment."Contract No.");
+            until TempServiceCommitment.Next() = 0;
         NotifyIfShipToAddressDiffers();
     end;
 
-    procedure CreateCustomerContractLineFromServiceCommitment(ServiceCommitment: Record "Service Commitment"; ContractNo: Code[20])
+    procedure CreateCustomerContractLineFromServiceCommitment(TempServiceCommitment: Record "Service Commitment" temporary; ContractNo: Code[20])
     var
         CustomerContractLine: Record "Customer Contract Line";
         ServiceCommitment2: Record "Service Commitment";
     begin
-        ServiceCommitment2.Get(ServiceCommitment."Entry No.");
+        ServiceCommitment2.Get(TempServiceCommitment."Entry No.");
         CreateCustomerContractLineFromServiceCommitment(ServiceCommitment2, ContractNo, CustomerContractLine);
     end;
 
@@ -2047,22 +2094,22 @@ table 8052 "Customer Contract"
 
     internal procedure UpdateServicesDates()
     var
-        CustomerContractLines: Record "Customer Contract Line";
+        CustomerContractLine: Record "Customer Contract Line";
         TempServiceObject: Record "Service Object" temporary;
         ServiceObject: Record "Service Object";
     begin
-        CustomerContractLines.SetRange("Contract No.", Rec."No.");
-        CustomerContractLines.SetRange("Contract Line Type", "Contract Line Type"::"Service Commitment");
-        if CustomerContractLines.FindSet() then
+        CustomerContractLine.SetRange("Contract No.", Rec."No.");
+        CustomerContractLine.FilterOnServiceObjectContractLineType();
+        if CustomerContractLine.FindSet() then
             repeat
-                if not TempServiceObject.Get(CustomerContractLines."Service Object No.") then begin
-                    ServiceObject.Get(CustomerContractLines."Service Object No.");
+                if not TempServiceObject.Get(CustomerContractLine."Service Object No.") then begin
+                    ServiceObject.Get(CustomerContractLine."Service Object No.");
                     ServiceObject.UpdateServicesDates();
                     ServiceObject.Modify(false);
                     TempServiceObject := ServiceObject;
                     TempServiceObject.Insert(false);
                 end;
-            until CustomerContractLines.Next() = 0;
+            until CustomerContractLine.Next() = 0;
     end;
 
     internal procedure UpdateAndRecalculateServiceCommitmentCurrencyData()
@@ -2142,7 +2189,7 @@ table 8052 "Customer Contract"
         CustomerContractLine: Record "Customer Contract Line";
     begin
         CustomerContractLine.SetRange("Contract No.", Rec."No.");
-        CustomerContractLine.SetRange("Contract Line Type", Enum::"Contract Line Type"::"Service Commitment");
+        CustomerContractLine.FilterOnServiceObjectContractLineType();
         exit(CustomerContractLine.IsEmpty());
     end;
 

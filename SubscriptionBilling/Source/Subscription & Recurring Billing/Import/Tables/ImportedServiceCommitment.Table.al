@@ -165,7 +165,7 @@ table 8009 "Imported Service Commitment"
 
             trigger OnValidate()
             begin
-                Rec.SetCurrencyData();
+                Rec.InitCurrencyData();
             end;
         }
         field(30; "Currency Factor"; Decimal)
@@ -274,7 +274,7 @@ table 8009 "Imported Service Commitment"
         Rec."Processed by" := CopyStr(UserId(), 1, MaxStrLen(Rec."Processed by"));
     end;
 
-    internal procedure SetCurrencyData()
+    internal procedure InitCurrencyData()
     var
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";

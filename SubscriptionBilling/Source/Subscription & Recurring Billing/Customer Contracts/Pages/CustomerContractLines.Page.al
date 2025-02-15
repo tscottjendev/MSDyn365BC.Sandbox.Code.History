@@ -180,7 +180,7 @@ page 8075 "Customer Contract Lines"
     begin
         InitializePageVariables();
         SetNextBillingDateStyle();
-        Rec.LoadAmountsForContractLine(ServiceCommitment.Price, ServiceCommitment."Discount %", ServiceCommitment."Discount Amount", ServiceCommitment."Service Amount", ServiceCommitment."Calculation Base Amount", ServiceCommitment."Calculation Base %");
+        Rec.LoadServiceCommitmentForContractLine(ServiceCommitment);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

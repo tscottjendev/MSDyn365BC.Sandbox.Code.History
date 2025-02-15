@@ -42,5 +42,6 @@ permissionset 8053 "Sub. Billing User"
         tabledata "Usage Data Import" = IMD,
         tabledata "Usage Data Subscription" = IMD,
         tabledata "Usage Data Supplier" = IMD,
-        tabledata "Usage Data Supplier Reference" = IMD;
+        tabledata "Usage Data Supplier Reference" = IMD,
+        tabledata "Usage Data Billing Metadata" = IMD;
 }

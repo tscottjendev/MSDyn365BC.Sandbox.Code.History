@@ -10,6 +10,7 @@ page 8064 "Service Commitments"
     AutoSplitKey = true;
     InsertAllowed = false;
     DeleteAllowed = true;
+    ModifyAllowed = true;
     ApplicationArea = All;
 
     layout
@@ -37,7 +38,6 @@ page 8064 "Service Commitments"
                     ToolTip = 'Specifies the date from which the service is valid and will be invoiced.';
                     trigger OnValidate()
                     begin
-                        Rec.UpdateServiceCommitment(Rec.FieldNo("Service Start Date"));
                         CurrPage.Update();
                     end;
                 }
@@ -58,7 +58,6 @@ page 8064 "Service Commitments"
                     ToolTip = 'Specifies the base amount from which the price will be calculated.';
                     trigger OnValidate()
                     begin
-                        Rec.UpdateServiceCommitment(Rec.FieldNo("Calculation Base Amount"));
                         CurrPage.Update();
                     end;
                 }
@@ -67,7 +66,6 @@ page 8064 "Service Commitments"
                     ToolTip = 'Specifies the percent at which the price of the service will be calculated. 100% means that the price corresponds to the Base Price.';
                     trigger OnValidate()
                     begin
-                        Rec.UpdateServiceCommitment(Rec.FieldNo("Calculation Base %"));
                         CurrPage.Update();
                     end;
                 }
@@ -76,7 +74,6 @@ page 8064 "Service Commitments"
                     ToolTip = 'Specifies the price of the service with quantity of 1 in the billing period. The price is calculated from Base Price and Base Price %.';
                     trigger OnValidate()
                     begin
-                        Rec.UpdateServiceCommitment(Rec.FieldNo(Price));
                         CurrPage.Update();
                     end;
                 }
@@ -85,7 +82,6 @@ page 8064 "Service Commitments"
                     ToolTip = 'Specifies the percent of the discount for the service.';
                     trigger OnValidate()
                     begin
-                        Rec.UpdateServiceCommitment(Rec.FieldNo("Discount %"));
                         CurrPage.Update();
                     end;
                 }
@@ -94,7 +90,6 @@ page 8064 "Service Commitments"
                     ToolTip = 'Specifies the amount of the discount for the service.';
                     trigger OnValidate()
                     begin
-                        Rec.UpdateServiceCommitment(Rec.FieldNo("Discount Amount"));
                         CurrPage.Update();
                     end;
                 }
@@ -103,7 +98,15 @@ page 8064 "Service Commitments"
                     ToolTip = 'Specifies the amount for the service including discount.';
                     trigger OnValidate()
                     begin
-                        Rec.UpdateServiceCommitment(Rec.FieldNo("Service Amount"));
+                        CurrPage.Update();
+                    end;
+                }
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
+                {
+                    ToolTip = 'Specifies the unit cost of the item.';
+                    trigger OnValidate()
+                    begin
+                        Rec.UpdateServiceCommitment(Rec.FieldNo("Unit Cost (LCY)"));
                         CurrPage.Update();
                     end;
                 }
@@ -147,7 +150,7 @@ page 8064 "Service Commitments"
                     ToolTip = 'Specifies for which period the Service Amount is valid. If you enter 1M here, a period of one month, or 12M, a period of 1 year, to which Service Amount refers to.';
                     trigger OnValidate()
                     begin
-                        Rec.UpdateServiceCommitment(Rec.FieldNo("Billing Base Period"));
+                        CurrPage.Update();
                     end;
                 }
                 field("Billing Rhythm"; Rec."Billing Rhythm")
@@ -155,13 +158,17 @@ page 8064 "Service Commitments"
                     ToolTip = 'Specifies the Dateformula for hythm in which the service is invoiced. Using a Dateformula rhythm can be, for example, a monthly, a quarterly or a yearly invoicing.';
                     trigger OnValidate()
                     begin
-                        Rec.UpdateServiceCommitment(Rec.FieldNo("Billing Rhythm"));
                         CurrPage.Update();
                     end;
                 }
                 field("Invoicing via"; Rec."Invoicing via")
                 {
                     ToolTip = 'Specifies whether the service commitment is invoiced via a contract. Service commitments with invoicing via sales are not charged. Only the items are billed.';
+                }
+                field("Invoicing Item No."; Rec."Invoicing Item No.")
+                {
+                    ToolTip = 'Specifies the value of the Invoicing Item No. field.';
+                    Visible = false;
                 }
                 field(Partner; Rec.Partner)
                 {
@@ -171,6 +178,7 @@ page 8064 "Service Commitments"
                 {
                     ToolTip = 'Specifies in which contract the service will be calculated.';
                     Editable = false;
+                    Lookup = false;
 
                     trigger OnAssistEdit()
                     begin
@@ -264,56 +272,93 @@ page 8064 "Service Commitments"
     {
         area(Processing)
         {
+#if not CLEAN26
             group(ServiceCommitments)
             {
                 Caption = 'Service Commitments';
                 Image = "Item";
-                action(Dimensions)
-                {
-                    AccessByPermission = tabledata Dimension = R;
-                    ApplicationArea = Dimensions;
-                    Caption = 'Dimensions';
-                    Image = Dimensions;
-                    Scope = Repeater;
-                    ShortcutKey = 'Shift+Ctrl+D';
-                    ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
+                ObsoleteReason = 'This group control is removed';
+                ObsoleteState = Pending;
+                ObsoleteTag = '26.0';
+            }
+#endif
+            action(NewLine)
+            {
+                ApplicationArea = All;
+                Caption = 'New Line';
+                Image = NewRow;
+                Scope = Repeater;
+                ToolTip = 'Creates a new entry.';
 
-                    trigger OnAction()
-                    begin
-                        Rec.EditDimensionSet();
-                    end;
-                }
-                action(DisconnectfromSubscription)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Disconnect from Subscription';
-                    ToolTip = 'Disconnects the service from the subscription.';
-                    Enabled = Rec."Supplier Reference Entry No." <> 0;
-                    Image = DeleteQtyToHandle;
+                trigger OnAction()
+                var
+                    ServiceCommitment: Record "Service Commitment";
+                begin
+                    ServiceCommitment.Copy(Rec);
+                    ServiceCommitment.FilterGroup(4);
+                    ServiceCommitment.NewLineForServiceObject();
+                end;
+            }
+            action(Dimensions)
+            {
+                AccessByPermission = tabledata Dimension = R;
+                ApplicationArea = Dimensions;
+                Caption = 'Dimensions';
+                Image = Dimensions;
+                Scope = Repeater;
+                ShortcutKey = 'Shift+Ctrl+D';
+                ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
-                    trigger OnAction()
-                    var
-                        UsageBasedBillingMgmt: Codeunit "Usage Based Billing Mgmt.";
-                    begin
-                        UsageBasedBillingMgmt.DisconnectServiceCommitmentFromSubscription(Rec);
-                    end;
-                }
-                action("Usage Data")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Usage Data';
-                    Image = DataEntry;
-                    Scope = Repeater;
-                    ToolTip = 'Shows the related usage data.';
-                    Enabled = UsageDataEnabled;
+                trigger OnAction()
+                begin
+                    Rec.EditDimensionSet();
+                end;
+            }
+            action(DisconnectfromSubscription)
+            {
+                ApplicationArea = All;
+                Caption = 'Disconnect from Subscription';
+                ToolTip = 'Disconnects the service from the subscription.';
+                Enabled = Rec."Supplier Reference Entry No." <> 0;
+                Image = DeleteQtyToHandle;
+                Scope = Repeater;
 
-                    trigger OnAction()
-                    var
-                        UsageDataBilling: Record "Usage Data Billing";
-                    begin
-                        UsageDataBilling.ShowForServiceCommitments(Rec.Partner, Rec."Service Object No.", Rec."Entry No.");
-                    end;
-                }
+                trigger OnAction()
+                var
+                    UsageBasedBillingMgmt: Codeunit "Usage Based Billing Mgmt.";
+                begin
+                    UsageBasedBillingMgmt.DisconnectServiceCommitmentFromSubscription(Rec);
+                end;
+            }
+            action("Usage Data")
+            {
+                ApplicationArea = All;
+                Caption = 'Usage Data';
+                Image = DataEntry;
+                Scope = Repeater;
+                ToolTip = 'Shows the related usage data.';
+                Enabled = UsageDataEnabled;
+
+                trigger OnAction()
+                var
+                    UsageDataBilling: Record "Usage Data Billing";
+                begin
+                    UsageDataBilling.ShowForServiceCommitments(Rec.Partner, Rec."Service Object No.", Rec."Entry No.");
+                end;
+            }
+            action(UsageDataBillingMetadata)
+            {
+                ApplicationArea = All;
+                Caption = 'Usage Data Metadata';
+                Image = DataEntry;
+                Scope = Repeater;
+                ToolTip = 'Shows the metadata related to the service commitment.';
+                Enabled = UsageDataEnabled;
+
+                trigger OnAction()
+                begin
+                    Rec.ShowUsageDataBillingMetadata();
+                end;
             }
         }
     }

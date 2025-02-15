@@ -21,7 +21,16 @@ query 8000 "Overdue Customer Serv. Comm."
             column(Quantity; "Quantity Decimal") { }
             column(Price; Price) { }
             column(ServiceAmount; "Service Amount") { }
-            column(ItemNo; "Item No.") { }
+#if not CLEAN26
+            column(ItemNo; "Item No.")
+            {
+                ObsoleteReason = 'Replaced by field Source No.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '26.0';
+            }
+#endif
+            column(SourceType; "Source Type") { }
+            column(SourceNo; "Source No.") { }
             column(BillingRhythm; "Billing Rhythm") { }
             column(ServiceStartDate; "Service Start Date") { }
             column(ServiceEndDate; "Service End Date") { }

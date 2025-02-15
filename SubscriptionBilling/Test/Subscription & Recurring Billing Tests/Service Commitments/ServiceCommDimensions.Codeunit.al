@@ -17,6 +17,7 @@ codeunit 148160 "Service Comm. Dimensions"
 
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
+        ServiceContractSetup: Record "Service Contract Setup";
         Assert: Codeunit Assert;
         ContractTestLibrary: Codeunit "Contract Test Library";
         DimMgt: Codeunit DimensionManagement;
@@ -176,18 +177,18 @@ codeunit 148160 "Service Comm. Dimensions"
         // [WHEN] Customer Contract dimension value is created
         ContractTestLibrary.InsertCustomerContractDimensionCode();
 
-        ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 1);
+        ContractTestLibrary.CreateServiceObjectForItemWithServiceCommitments(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 1);
         ContractTestLibrary.CreateCustomer(Customer);
         ServiceObject."End-User Customer No." := Customer."No.";
         ServiceObject.Modify(false);
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.");
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
 
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
         ServiceCommitment.SetRange(Partner, Enum::"Service Partner"::Vendor);
         ServiceCommitment.FindSet();
         repeat
             DimensionSetEntry.SetRange("Dimension Set ID", ServiceCommitment."Dimension Set ID");
-            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Dimension Code Cust. Contr.");
+            DimensionSetEntry.SetRange("Dimension Code", ServiceContractSetup."Dimension Code Cust. Contr.");
             DimensionSetEntry.FindFirst();
             DimensionSetEntry.TestField("Dimension Value Code", CustomerContract."No.");
         until ServiceCommitment.Next() = 0;
@@ -200,7 +201,7 @@ codeunit 148160 "Service Comm. Dimensions"
         ServiceCommitment.FindSet();
         repeat
             DimensionSetEntry.SetRange("Dimension Set ID", ServiceCommitment."Dimension Set ID");
-            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Dimension Code Cust. Contr.");
+            DimensionSetEntry.SetRange("Dimension Code", ServiceContractSetup."Dimension Code Cust. Contr.");
             if not DimensionSetEntry.IsEmpty() then
                 Error(DimSetEntryNotExpectedErr);
         until ServiceCommitment.Next() = 0;
@@ -217,7 +218,7 @@ codeunit 148160 "Service Comm. Dimensions"
         Initialize();
 
         CreateServiceObjectItemWithDimensions(ItemDimSetID, Item);
-        ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 0);
+        ContractTestLibrary.CreateServiceObjectForItemWithServiceCommitments(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 0);
 
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
         ServiceCommitment.FindFirst();
@@ -236,7 +237,7 @@ codeunit 148160 "Service Comm. Dimensions"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateServiceObjectItemWithServiceCommitments(Item);
+        ContractTestLibrary.CreateItemForServiceObjectWithServiceCommitments(Item);
         ServiceCommPackageLine.FindFirst();
         repeat
             ContractTestLibrary.UpdateServiceCommitmentPackageLine(ServiceCommPackageLine, '<12M>', 10, '12M', '<1M>', Enum::"Service Partner"::Customer, Item."No.");
@@ -245,7 +246,7 @@ codeunit 148160 "Service Comm. Dimensions"
         until ServiceCommPackageLine.Next() = 0;
         CreateAndPostSalesOrder(SalesHeader, SalesLine, '', Item."No.");
 
-        ServiceObject.SetRange("Item No.", Item."No.");
+        ServiceObject.FilterOnItemNo(Item."No.");
         ServiceObject.FindFirst();
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
         ServiceCommitment.FindFirst();
@@ -267,12 +268,12 @@ codeunit 148160 "Service Comm. Dimensions"
         Initialize();
 
         CreateServiceObjectItemWithDimensions(ItemDimSetID, Item);
-        ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 0);
+        ContractTestLibrary.CreateServiceObjectForItemWithServiceCommitments(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 0);
 
         ContractTestLibrary.CreateCustomer(Customer);
         ServiceObject."End-User Customer No." := Customer."No.";
         ServiceObject.Modify(false);
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.");
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
 
         CustomerContractLine.SetRange("Contract No.", CustomerContract."No.");
         CustomerContractLine.DeleteAll(true);
@@ -296,9 +297,9 @@ codeunit 148160 "Service Comm. Dimensions"
         Initialize();
 
         CreateServiceObjectItemWithDimensions(ItemDimSetID, Item);
-        ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 1);
+        ContractTestLibrary.CreateServiceObjectForItemWithServiceCommitments(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 1);
 
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, '');
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, '');
         VendorContract.Modify(false);
 
         VendorContractLine.SetRange("Contract No.", VendorContract."No.");
@@ -385,13 +386,13 @@ codeunit 148160 "Service Comm. Dimensions"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 1);
+        ContractTestLibrary.CreateServiceObjectForItemWithServiceCommitments(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 1);
 
         ContractTestLibrary.CreateCustomer(Customer);
         ServiceObject."End-User Customer No." := Customer."No.";
         ServiceObject.Modify(false);
 
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.");
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
         CustomerContractLine.Reset();
         asserterror CustomerContractLine.MergeContractLines(CustomerContractLine);
     end;
@@ -426,7 +427,7 @@ codeunit 148160 "Service Comm. Dimensions"
         ContractTestLibrary.CreateDefaultDimensionValueForTable(DimensionValueB1, Database::Item, InvoicingItem."No."); // Dimension B1
 
         // Create Service Object Item + Dimensions
-        ContractTestLibrary.CreateServiceObjectItem(ServiceObjectItem, false);
+        ContractTestLibrary.CreateItemForServiceObject(ServiceObjectItem, false);
         LibraryDimension.CreateDimensionValue(DimensionValueA2, DimensionValueA1."Dimension Code"); // Dimension A2
         LibraryDimension.CreateDefaultDimension(DefaultDimension, Database::Item, ServiceObjectItem."No.", DimensionValueA2."Dimension Code", DimensionValueA2.Code);
         ContractTestLibrary.CreateDefaultDimensionValueForTable(DimensionValueC1, Database::Item, InvoicingItem."No."); // Dimension C1
@@ -442,7 +443,7 @@ codeunit 148160 "Service Comm. Dimensions"
         CreateAndPostSalesOrder(SalesHeader, SalesLine, '', ServiceObjectItem."No.");
 
         ServiceObject.Reset();
-        ServiceObject.SetRange("Item No.", ServiceObjectItem."No.");
+        ServiceObject.FilterOnItemNo(ServiceObjectItem."No.");
         ServiceObject.FindFirst();
 
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
@@ -673,7 +674,7 @@ codeunit 148160 "Service Comm. Dimensions"
         ContractTestLibrary.AssignItemToServiceCommitmentPackage(Item, ServiceCommitmentPackage.Code);
 
         // [WHEN] Assign Service Commitment Package to Service Object
-        ContractTestLibrary.CreateServiceObject(ServiceObject, Item."No.", false);
+        ContractTestLibrary.CreateServiceObject(ServiceObject, "Service Object Type"::Item, Item."No.", false);
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(WorkDate(), ServiceCommitmentPackage);
 
         // [THEN] Service Commitment created with Dimension "Dim1" and value "B" from Invoicing Item and "Dim2" and value "X" from Invoicing Item
@@ -704,13 +705,13 @@ codeunit 148160 "Service Comm. Dimensions"
         Initialize();
 
         CreateServiceObjectItemWithDimensions(ItemDimSetID, Item);
-        ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 0);
+        ContractTestLibrary.CreateServiceObjectForItemWithServiceCommitments(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 0);
         DimSetIDArray[2] := ItemDimSetID;
 
         ContractTestLibrary.CreateCustomer(Customer);
         ServiceObject."End-User Customer No." := Customer."No.";
         ServiceObject.Modify(false);
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.");
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
         DimSetIDArray[1] := CustomerContract."Dimension Set ID";
         NewDimSetID := DimMgt.GetCombinedDimensionSetID(DimSetIDArray, ServiceCommitment."Shortcut Dimension 1 Code", ServiceCommitment."Shortcut Dimension 2 Code");
 
@@ -734,12 +735,12 @@ codeunit 148160 "Service Comm. Dimensions"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 0);
+        ContractTestLibrary.CreateServiceObjectForItemWithServiceCommitments(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 0);
 
         ContractTestLibrary.CreateCustomer(Customer);
         ServiceObject."End-User Customer No." := Customer."No.";
         ServiceObject.Modify(false);
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.");
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
         DimSetIDArray[1] := CustomerContract."Dimension Set ID";
 
         LibraryJob.CreateJob(Job);
@@ -786,8 +787,8 @@ codeunit 148160 "Service Comm. Dimensions"
         // Assign packages to different customer and vendor contracts
         // Expect the customer contract dimension to be assigned only to vendor service commitment from the same package
 
-        ContractTestLibrary.CreateServiceObjectItem(ServiceObjectItem, false);
-        ContractTestLibrary.CreateServiceObjectWithItem(ServiceObject, ServiceObjectItem, false);
+        ContractTestLibrary.CreateItemForServiceObject(ServiceObjectItem, false);
+        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, ServiceObjectItem, false);
         ContractTestLibrary.CreateCustomer(Customer);
         ServiceObject."End-User Customer No." := Customer."No.";
         ServiceObject.Modify(false);
@@ -811,7 +812,7 @@ codeunit 148160 "Service Comm. Dimensions"
 
         ContractTestLibrary.CreateVendor(Vendor);
         ContractTestLibrary.CreateVendorContract(VendorContract, Vendor."No.");
-        ContractTestLibrary.AssignServiceObjectToVendorContract(VendorContract, ServiceObject, false);
+        ContractTestLibrary.AssignServiceObjectForItemToVendorContract(VendorContract, ServiceObject, false);
 
         // Assign second service commitment to separate contract
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
@@ -828,7 +829,7 @@ codeunit 148160 "Service Comm. Dimensions"
         ServiceCommitment.FindSet();
         repeat
             DimensionSetEntry.SetRange("Dimension Set ID", ServiceCommitment."Dimension Set ID");
-            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Dimension Code Cust. Contr.");
+            DimensionSetEntry.SetRange("Dimension Code", ServiceContractSetup."Dimension Code Cust. Contr.");
             DimensionSetEntry.FindFirst();
             DimensionSetEntry.TestField("Dimension Value Code", CustomerContract."No.");
         until ServiceCommitment.Next() = 0;
@@ -849,13 +850,13 @@ codeunit 148160 "Service Comm. Dimensions"
         Initialize();
 
         CreateServiceObjectItemWithDimensions(DimSetIDArray[2], Item);
-        ContractTestLibrary.CreateServiceObjectWithItemAndWithServiceCommitment(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 1);
+        ContractTestLibrary.CreateServiceObjectForItemWithServiceCommitments(ServiceObject, Enum::"Invoicing Via"::Contract, false, Item, 1, 1);
 
         ContractTestLibrary.CreateVendor(Vendor);
         ContractTestLibrary.CreateVendorContract(VendorContract, Vendor."No.");
         ContractTestLibrary.AppendRandomDimensionValueToDimensionSetID(VendorContract."Dimension Set ID");
         VendorContract.Modify(false);
-        ContractTestLibrary.AssignServiceObjectToVendorContract(VendorContract, ServiceObject, false);
+        ContractTestLibrary.AssignServiceObjectForItemToVendorContract(VendorContract, ServiceObject, false);
         DimSetIDArray[1] := VendorContract."Dimension Set ID";
         NewDimSetID := DimMgt.GetCombinedDimensionSetID(DimSetIDArray, ServiceCommitment."Shortcut Dimension 1 Code", ServiceCommitment."Shortcut Dimension 2 Code");
 
@@ -875,6 +876,7 @@ codeunit 148160 "Service Comm. Dimensions"
         ContractTestLibrary.InitContractsApp();
         ContractTestLibrary.InsertCustomerContractDimensionCode();
 
+        ServiceContractSetup.Get();
         GeneralLedgerSetup.Get();
 
         if IsInitialized then
@@ -927,7 +929,7 @@ codeunit 148160 "Service Comm. Dimensions"
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
-        ContractTestLibrary.CreateServiceObjectItem(Item, false);
+        ContractTestLibrary.CreateItemForServiceObject(Item, false);
         ContractTestLibrary.CreateDefaultDimensionValueForTable(Database::Item, Item."No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Item, Item."No.");
         ItemDimSetID := DimMgt.GetDefaultDimID(DefaultDimSource, '', Item."Global Dimension 1 Code", Item."Global Dimension 2 Code", 0, Database::Item);

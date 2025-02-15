@@ -108,6 +108,7 @@ permissionset 36951 "PowerBi Report Basic"
         query "Value Entries - Purch." = X,
         query "Value Entries - Sales" = X,
         query "Vendor Ledg. Entries - PBI API" = X,
+        query "Dynamic Dimensions - PBI API" = X,
         query "Warehouse Activity Lines" = X,
         query "Warehouse Entries" = X,
         query "Whse. Journal Lines - From Bin" = X,

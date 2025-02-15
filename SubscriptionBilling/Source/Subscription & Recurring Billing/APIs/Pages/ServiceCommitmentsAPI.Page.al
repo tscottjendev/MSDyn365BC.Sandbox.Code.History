@@ -54,6 +54,12 @@ page 8018 "Service Commitments API"
                 field(calculationBase; Rec."Calculation Base %")
                 {
                 }
+                field(unitCost; Rec."Unit Cost")
+                {
+                }
+                field(unitCostLCY; Rec."Unit Cost (LCY)")
+                {
+                }
                 field(price; Rec.Price)
                 {
                 }
@@ -150,7 +156,19 @@ page 8018 "Service Commitments API"
                 field(dimensionSetID; Rec."Dimension Set ID")
                 {
                 }
+#if not CLEAN26
                 field(itemNo; Rec."Item No.")
+                {
+                    ObsoleteReason = 'Replaced by field Source No.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+                    Visible = false;
+                }
+#endif
+                field(sourceType; Rec."Source Type")
+                {
+                }
+                field(sourceNo; Rec."Source No.")
                 {
                 }
                 field(serviceObjectDescription; Rec."Service Object Description")

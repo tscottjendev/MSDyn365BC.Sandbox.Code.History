@@ -120,6 +120,12 @@ page 8074 "Billing Lines"
                     Style = StrongAccent;
                     StyleExpr = UpdateRequiredStyleExpr;
                 }
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
+                {
+                    ToolTip = 'Specifies the unit cost for the billing period.';
+                    Style = StrongAccent;
+                    StyleExpr = UpdateRequiredStyleExpr;
+                }
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ToolTip = 'Specifies the Unit Price for the service billing period without discount.';

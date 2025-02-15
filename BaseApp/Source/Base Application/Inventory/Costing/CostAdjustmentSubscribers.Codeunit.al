@@ -123,6 +123,7 @@ codeunit 5821 "Cost Adjustment Subscribers"
                         repeat
                             CostAdjustmentDetailedLog := TempCostAdjustmentDetailedLog;
                             CostAdjustmentDetailedLog.Insert();
+                            OnCostAdjustmentDetailLogCreated(CostAdjustmentDetailedLog);
                         until TempCostAdjustmentDetailedLog.Next() = 0;
                 end;
             InventorySetup."Cost Adjustment Logging"::"Errors Only":
@@ -146,6 +147,7 @@ codeunit 5821 "Cost Adjustment Subscribers"
                     if TempCostAdjustmentDetailedLog.FindFirst() then begin
                         CostAdjustmentDetailedLog := TempCostAdjustmentDetailedLog;
                         CostAdjustmentDetailedLog.Insert();
+                        OnCostAdjustmentDetailLogCreated(CostAdjustmentDetailedLog);
                     end;
                 end;
         end;
@@ -196,6 +198,7 @@ codeunit 5821 "Cost Adjustment Subscribers"
                         repeat
                             CostAdjustmentDetailedLog := TempCostAdjustmentDetailedLog;
                             CostAdjustmentDetailedLog.Insert();
+                            OnCostAdjustmentDetailLogCreated(CostAdjustmentDetailedLog);
                         until TempCostAdjustmentDetailedLog.Next() = 0;
                 end;
             InventorySetup."Cost Adjustment Logging"::"Errors Only":
@@ -219,6 +222,7 @@ codeunit 5821 "Cost Adjustment Subscribers"
                     if TempCostAdjustmentDetailedLog.FindFirst() then begin
                         CostAdjustmentDetailedLog := TempCostAdjustmentDetailedLog;
                         CostAdjustmentDetailedLog.Insert();
+                        OnCostAdjustmentDetailLogCreated(CostAdjustmentDetailedLog);
                     end;
                 end;
         end;
@@ -608,5 +612,10 @@ codeunit 5821 "Cost Adjustment Subscribers"
         foreach DictKey in Dict.Keys() do
             JObject.Add(DictKey, Dict.Get(DictKey));
         JObject.WriteTo(JsonAsText);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCostAdjustmentDetailLogCreated(var CostAdjustmentDetailedLog: Record "Cost Adjustment Detailed Log")
+    begin
     end;
 }

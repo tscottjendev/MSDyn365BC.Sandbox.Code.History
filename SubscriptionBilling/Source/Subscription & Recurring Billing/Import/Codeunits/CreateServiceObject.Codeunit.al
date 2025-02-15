@@ -53,7 +53,8 @@ codeunit 8005 "Create Service Object"
         ServiceObject.SetHideValidationDialog(true);
         OnAfterServiceObjectInsert(ServiceObject, ImportedServiceObject);
 
-        ServiceObject.Validate("Item No.", ImportedServiceObject."Item No.");
+        ServiceObject.Type := ServiceObject.Type::Item;
+        ServiceObject.Validate("Source No.", ImportedServiceObject."Item No.");
         if ImportedServiceObject.Description <> '' then
             ServiceObject.Description := ImportedServiceObject.Description;
         ServiceObject.Validate("Quantity Decimal", ImportedServiceObject."Quantity (Decimal)");

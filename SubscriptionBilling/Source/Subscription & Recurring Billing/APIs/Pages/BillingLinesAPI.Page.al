@@ -90,6 +90,12 @@ page 8021 "Billing Lines API"
                 field(documentLineNo; Rec."Document Line No.")
                 {
                 }
+                field(unitCost; Rec."Unit Cost")
+                {
+                }
+                field(unitCostLCY; Rec."Unit Cost (LCY)")
+                {
+                }
                 field(unitPrice; Rec."Unit Price")
                 {
                 }

@@ -30,6 +30,9 @@ codeunit 139885 "Item Service Comm. Type Test"
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
+        AssertThat: Codeunit Assert;
+        ServiceCommitmentItemErr: Label 'Items that are marked as Service Commitment Item may not be used here. Please choose another item.';
+        InvoicingItemErr: Label 'Items that are marked as Invoicing Item may not be used here. Please choose another item.';
 
     #region Tests
 
@@ -78,18 +81,42 @@ codeunit 139885 "Item Service Comm. Type Test"
     end;
 
     [Test]
-    procedure ExpectErrorServiceCommitmentItemAssignment()
+    procedure ExpectErrorUsingBillingItemOnBOM()
     begin
         ClearAll();
-        Clear(SalesLine);
-        Clear(Item);
-        ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
-        SalesLine.Type := SalesLine.Type::Item;
-        asserterror SalesLine.Validate("No.", Item."No.");
-        PurchaseLine.Type := PurchaseLine.Type::Item;
-        asserterror PurchaseLine.Validate("No.", Item."No.");
+        // [GIVEN] Create Invoicing Item
+        ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Invoicing Item");
+        // [WHEN] Try to enter BOM Component with Item which is Invoicing Item
         BOMComponent.Type := BOMComponent.Type::Item;
         asserterror BOMComponent.Validate("No.", Item."No.");
+        // [THEN] expect error is thrown
+        AssertThat.ExpectedError(InvoicingItemErr);
+    end;
+
+    [Test]
+    procedure ExpectErrorUsingServiceCommitmentItemOnSalesInvoice()
+    begin
+        ClearAll();
+        // [GIVEN] Create Sales Invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+        // [WHEN] Try to enter Sales Line with Item which is Service Commitment Item
+        ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
+        asserterror LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Enum::"Sales Line Type"::Item, Item."No.", 1);
+        // [THEN] expect error is thrown
+        AssertThat.ExpectedError(ServiceCommitmentItemErr);
+    end;
+
+    [Test]
+    procedure ExpectErrorUsingServiceCommitmentItemOnPurchaseQuote()
+    begin
+        ClearAll();
+        // [GIVEN] Create Purchase Invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, '');
+        // [WHEN] Try to enter Purchase Line with Item which is Service Commitment Item
+        ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
+        asserterror LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Enum::"Purchase Line Type"::Item, Item."No.", 1);
+        // [THEN] expect error is thrown
+        AssertThat.ExpectedError(ServiceCommitmentItemErr);
     end;
 
     [Test]

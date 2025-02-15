@@ -174,12 +174,11 @@ tableextension 8054 "Sales Line" extends "Sales Line"
             exit;
         if not Rec.IsSalesDocumentTypeWithServiceCommitments() then
             exit;
+        SalesServiceCommitment.FilterOnSalesLine(Rec);
         if SalesServiceCommitment.IsEmpty() then
             exit;
 
-        SalesServiceCommitment.FilterOnSalesLine(Rec);
-        if not SalesServiceCommitment.IsEmpty() then
-            SalesServiceCommitment.DeleteAll(false);
+        SalesServiceCommitment.DeleteAll(false);
     end;
 
     internal procedure GetCombinedDimensionSetID(DimSetID1: Integer; DimSetID2: Integer)
@@ -213,14 +212,10 @@ tableextension 8054 "Sales Line" extends "Sales Line"
         then
             exit;
 
-        if SalesServiceCommitment.IsEmpty then
-            exit;
-
-        SalesLine.CalcFields("Service Commitments");
-        if SalesLine."Service Commitments" = 0 then
-            exit;
-
         SalesServiceCommitment.FilterOnSalesLine(SalesLine);
+        if SalesServiceCommitment.IsEmpty() then
+            exit;
+
         if SalesServiceCommitment.FindSet() then begin
             SalesLine.Modify(false);
             repeat
@@ -248,39 +243,21 @@ tableextension 8054 "Sales Line" extends "Sales Line"
 
     internal procedure SetExcludeFromDocTotal()
     var
-        SalesServiceCommitmentMgmt: Codeunit "Sales Service Commitment Mgmt.";
-        IsContractRenewal: Boolean;
+        ItemManagement: Codeunit "Contracts Item Management";
+        IsContractRenewalLocal: Boolean;
         IsHandled: Boolean;
     begin
         OnBeforeSetExcludeFromDocTotal(Rec, IsHandled);
         if IsHandled then
             exit;
-        IsContractRenewal := Rec.IsContractRenewal();
+        IsContractRenewalLocal := Rec.IsContractRenewal();
 
-        if IsContractRenewal then begin
+        if IsContractRenewalLocal then begin
             if Rec.Type = Rec.Type::"Service Object" then
-                Rec.Validate("Exclude from Doc. Total", IsContractRenewal);
+                Rec.Validate("Exclude from Doc. Total", IsContractRenewalLocal);
         end else
             if (Rec.Type = Rec.Type::Item) and (Rec."No." <> '') and (not Rec.IsLineAttachedToBillingLine()) then
-                Rec.Validate("Exclude from Doc. Total", SalesServiceCommitmentMgmt.IsServiceCommitmentItem(Rec."No."));
-    end;
-
-    internal procedure GetItemFromServiceObject(var Item: Record Item): Boolean
-    var
-        ServiceObject: Record "Service Object";
-    begin
-        if Rec.Type <> "Sales Line Type"::"Service Object" then
-            exit;
-        if Rec."No." = '' then
-            exit;
-
-        ServiceObject.SetLoadFields("Item No.");
-        ServiceObject.Get(Rec."No.");
-        if ServiceObject."Item No." = '' then
-            exit;
-
-        Item.SetLoadFields("VAT Prod. Posting Group");
-        exit(Item.Get(ServiceObject."Item No."));
+                Rec.Validate("Exclude from Doc. Total", ItemManagement.IsServiceCommitmentItem(Rec."No."));
     end;
 
     internal procedure IsLineWithServiceObject(): Boolean

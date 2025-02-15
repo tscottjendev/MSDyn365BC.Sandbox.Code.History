@@ -178,6 +178,18 @@ table 8061 "Billing Line"
             Caption = 'Code';
             TableRelation = Currency.Code;
         }
+        field(102; "Unit Cost"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 2;
+            Caption = 'Unit Cost';
+            Editable = false;
+        }
+        field(103; "Unit Cost (LCY)"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Unit Cost (LCY)';
+        }
         field(200; Indent; Integer)
         {
             Caption = 'Indent';

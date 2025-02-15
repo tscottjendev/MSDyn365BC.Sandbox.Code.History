@@ -39,7 +39,6 @@ page 6133 "E-Document Service"
                     Caption = 'Service Integration';
                     ToolTip = 'Specifies integration code for the electronic export setup.';
                 }
-
             }
             group(ImportProcessing)
             {

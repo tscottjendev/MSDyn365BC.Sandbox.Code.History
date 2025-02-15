@@ -76,7 +76,7 @@ codeunit 148156 "Service Commitment Test"
     procedure CheckDeleteServiceCommitmentAfterDeleteCustomerContractLine()
     begin
         Initialize();
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', true);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, '', true);
         CustomerContractLine.SetRange("Contract No.", CustomerContract."No.");
         CustomerContractLine.DeleteAll(true);
         ServiceCommitment.Reset();
@@ -91,7 +91,7 @@ codeunit 148156 "Service Commitment Test"
         VendorContractLine: Record "Vendor Contract Line";
     begin
         Initialize();
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, '', true);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, '', true);
         VendorContractLine.SetRange("Contract No.", VendorContract."No.");
         VendorContractLine.DeleteAll(true);
         ServiceCommitment.Reset();
@@ -257,7 +257,7 @@ codeunit 148156 "Service Commitment Test"
     var
     begin
         Initialize();
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', true);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, '', true);
         UpdateServiceDatesAndCloseCustomerContractLines();
 
         ServiceCommitment.Reset();
@@ -271,7 +271,7 @@ codeunit 148156 "Service Commitment Test"
     var
     begin
         Initialize();
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', true);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, '', true);
         ServiceCommitment.Reset();
         ServiceCommitment.SetRange("Service Object No.", ServiceObject."No.");
         asserterror ServiceCommitment.DeleteAll(true);
@@ -283,7 +283,7 @@ codeunit 148156 "Service Commitment Test"
     var
     begin
         Initialize();
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, '', true);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, '', true);
         UpdateServiceDatesAndCloseCustomerContractLines();
 
         ServiceCommitment.Reset();
@@ -297,7 +297,7 @@ codeunit 148156 "Service Commitment Test"
     var
     begin
         Initialize();
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', true);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, '', true);
         UpdateServiceDatesAndCloseCustomerContractLines();
 
         ServiceCommitment."Next Billing Date" := CalcDate('<1D>', ServiceCommitment."Next Billing Date");
@@ -321,7 +321,7 @@ codeunit 148156 "Service Commitment Test"
         ServiceContractSetup.Modify(false);
 
         // Create closed service commitments that should not be considered
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', true); // ExchangeRateSelectionModalPageHandler,MessageHandler
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, '', true); // ExchangeRateSelectionModalPageHandler,MessageHandler
         UpdateServiceDatesAndCloseCustomerContractLines();
 
         // Create service commitments to consider

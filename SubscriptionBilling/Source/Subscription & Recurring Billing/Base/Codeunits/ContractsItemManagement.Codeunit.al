@@ -138,12 +138,11 @@ codeunit 8055 "Contracts Item Management"
         TempSalesHeader: Record "Sales Header" temporary;
     begin
         //Currently BillToCustomer is not taken into consideration for price calculation
-        //In the future (probably) the setup will be created, reference: IC221779
         UnitPrice := 0;
         if (SellToCustomerNo = '') or (ItemNo = '') then
             exit;
         CreateTempSalesHeader(TempSalesHeader, TempSalesHeader."Document Type"::Order, SellToCustomerNo, SellToCustomerNo, 0D, CurrencyCode);
-        CreateTempSalesLine(TempSalesLine, TempSalesHeader, ItemNo, Quantity);
+        CreateTempSalesLine(TempSalesLine, TempSalesHeader, "Service Object Type"::Item, ItemNo, Quantity, 0D);
         UnitPrice := CalculateUnitPrice(TempSalesHeader, TempSalesLine);
     end;
 
@@ -162,29 +161,34 @@ codeunit 8055 "Contracts Item Management"
         TempSalesHeader."Order Date" := OrderDate;
     end;
 
-    internal procedure CreateTempSalesLine(var TempSalesLine: Record "Sales Line" temporary; var TempSalesHeader: Record "Sales Header" temporary; ItemNo: Code[20]; Quantity: Decimal)
+    internal procedure CreateTempSalesLine(var TempSalesLine: Record "Sales Line" temporary; var TempSalesHeader: Record "Sales Header" temporary; ServiceObject: Record "Service Object"; OrderDate: Date)
     begin
-        CreateTempSalesLine(TempSalesLine, TempSalesHeader, ItemNo, Quantity, 0D);
+        CreateTempSalesLine(TempSalesLine, TempSalesHeader, ServiceObject.Type, ServiceObject."Source No.", ServiceObject."Quantity Decimal", OrderDate);
     end;
 
-    internal procedure CreateTempSalesLine(var TempSalesLine: Record "Sales Line" temporary; var TempSalesHeader: Record "Sales Header" temporary; ItemNo: Code[20]; Quantity: Decimal; OrderDate: Date)
+    internal procedure CreateTempSalesLine(var TempSalesLine: Record "Sales Line" temporary; var TempSalesHeader: Record "Sales Header" temporary; ServiceObjectType: enum "Service Object Type"; SourceNo: Code[20]; Quantity: Decimal; OrderDate: Date)
     begin
-        CreateTempSalesLine(TempSalesLine, TempSalesHeader, ItemNo, Quantity, OrderDate, '');
+        CreateTempSalesLine(TempSalesLine, TempSalesHeader, ServiceObjectType, SourceNo, Quantity, OrderDate, '');
     end;
 
-    internal procedure CreateTempSalesLine(var TempSalesLine: Record "Sales Line" temporary; var TempSalesHeader: Record "Sales Header" temporary; ItemNo: Code[20]; Quantity: Decimal; OrderDate: Date; VariantCode: Code[10])
+    internal procedure CreateTempSalesLine(var TempSalesLine: Record "Sales Line" temporary; var TempSalesHeader: Record "Sales Header" temporary; ServiceObjectType: enum "Service Object Type"; SourceNo: Code[20]; Quantity: Decimal; OrderDate: Date; VariantCode: Code[10])
     begin
         TempSalesLine.Init();
         TempSalesLine.SetHideValidationDialog(true);
         TempSalesLine.SuspendStatusCheck(true);
         TempSalesLine.Validate("Document Type", TempSalesHeader."Document Type");
         TempSalesLine."Document No." := TempSalesHeader."No.";
-        TempSalesLine.Type := TempSalesLine.Type::Item;
+        case ServiceObjectType of
+            ServiceObjectType::Item:
+                TempSalesLine.Type := TempSalesLine.Type::Item;
+            ServiceObjectType::"G/L Account":
+                TempSalesLine.Type := TempSalesLine.Type::"G/L Account";
+        end;
         TempSalesLine."Sell-to Customer No." := TempSalesHeader."Sell-to Customer No.";
         TempSalesLine."Bill-to Customer No." := TempSalesHeader."Bill-to Customer No.";
         TempSalesLine."Customer Price Group" := TempSalesHeader."Customer Price Group";
         TempSalesLine."VAT Bus. Posting Group" := TempSalesHeader."VAT Bus. Posting Group";
-        TempSalesLine."No." := ItemNo;
+        TempSalesLine."No." := SourceNo;
         TempSalesLine.Quantity := Quantity;
         TempSalesLine."Currency Code" := TempSalesHeader."Currency Code";
         TempSalesLine."Variant Code" := VariantCode;
@@ -208,9 +212,9 @@ codeunit 8055 "Contracts Item Management"
         Item: Record Item;
     begin
         if ItemNo = '' then
-            exit;
+            exit(0);
         Item.Get(ItemNo);
-        exit(Item."Last Direct Cost");
+        exit(Item."Unit Cost");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Price List Line", OnAfterValidateEvent, "Allow Invoice Disc.", false, false)]

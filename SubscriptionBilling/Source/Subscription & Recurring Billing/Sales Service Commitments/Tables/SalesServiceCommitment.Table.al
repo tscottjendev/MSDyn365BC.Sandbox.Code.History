@@ -175,7 +175,7 @@ table 8068 "Sales Service Commitment"
             trigger OnValidate()
             begin
                 TestIfSalesOrderIsReleased();
-                DateFormulaManagement.ErrorIfDateFormulaNegative("Initial Term");
+                DateFormulaManagementGlobal.ErrorIfDateFormulaNegative("Initial Term");
             end;
         }
         field(24; "Notice Period"; DateFormula)
@@ -184,7 +184,7 @@ table 8068 "Sales Service Commitment"
             trigger OnValidate()
             begin
                 TestIfSalesOrderIsReleased();
-                DateFormulaManagement.ErrorIfDateFormulaNegative("Notice Period");
+                DateFormulaManagementGlobal.ErrorIfDateFormulaNegative("Notice Period");
             end;
         }
         field(25; "Extension Term"; DateFormula)
@@ -195,7 +195,7 @@ table 8068 "Sales Service Commitment"
                 TestIfSalesOrderIsReleased();
                 if Format("Extension Term") = '' then
                     TestField("Notice Period", "Extension Term");
-                DateFormulaManagement.ErrorIfDateFormulaNegative("Extension Term");
+                DateFormulaManagementGlobal.ErrorIfDateFormulaNegative("Extension Term");
             end;
         }
         field(26; "Billing Base Period"; DateFormula)
@@ -206,8 +206,8 @@ table 8068 "Sales Service Commitment"
             trigger OnValidate()
             begin
                 TestIfSalesOrderIsReleased();
-                DateFormulaManagement.ErrorIfDateFormulaEmpty("Billing Base Period", FieldCaption("Billing Base Period"));
-                DateFormulaManagement.ErrorIfDateFormulaNegative("Billing Base Period");
+                DateFormulaManagementGlobal.ErrorIfDateFormulaEmpty("Billing Base Period", FieldCaption("Billing Base Period"));
+                DateFormulaManagementGlobal.ErrorIfDateFormulaNegative("Billing Base Period");
             end;
         }
         field(27; "Billing Rhythm"; DateFormula)
@@ -218,8 +218,8 @@ table 8068 "Sales Service Commitment"
             trigger OnValidate()
             begin
                 TestIfSalesOrderIsReleased();
-                DateFormulaManagement.ErrorIfDateFormulaEmpty("Billing Rhythm", FieldCaption("Billing Rhythm"));
-                DateFormulaManagement.ErrorIfDateFormulaNegative("Billing Rhythm");
+                DateFormulaManagementGlobal.ErrorIfDateFormulaEmpty("Billing Rhythm", FieldCaption("Billing Rhythm"));
+                DateFormulaManagementGlobal.ErrorIfDateFormulaNegative("Billing Rhythm");
             end;
         }
         field(28; "Invoicing via"; Enum "Invoicing Via")
@@ -302,6 +302,27 @@ table 8068 "Sales Service Commitment"
             end;
 
         }
+        field(100; "Unit Cost"; Decimal)
+        {
+            Caption = 'Unit Cost';
+            Editable = false;
+        }
+        field(101; "Unit Cost (LCY)"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Unit Cost (LCY)';
+
+            trigger OnValidate()
+            var
+                SalesHeader: Record "Sales Header";
+            begin
+                GetSalesHeader(SalesHeader);
+                if SalesHeader."Currency Code" <> '' then
+                    "Unit Cost" := Round(CurrExchRate.ExchangeAmtLCYToFCY(GetDate(), SalesHeader."Currency Code", "Unit Cost (LCY)", SalesHeader."Currency Factor"), Currency."Unit-Amount Rounding Precision")
+                else
+                    "Unit Cost" := "Unit Cost (LCY)";
+            end;
+        }
         field(8000; "Usage Based Billing"; Boolean)
         {
             Caption = 'Usage Based Billing';
@@ -360,7 +381,7 @@ table 8068 "Sales Service Commitment"
         TestIfSalesOrderIsReleased();
         xRec.Get(xRec."Line No.");
         if ((xRec."Billing Base Period" <> Rec."Billing Base Period") or (xRec."Billing Rhythm" <> Rec."Billing Rhythm")) then
-            DateFormulaManagement.CheckIntegerRatioForDateFormulas("Billing Base Period", FieldCaption("Billing Base Period"), "Billing Rhythm", FieldCaption("Billing Rhythm"));
+            DateFormulaManagementGlobal.CheckIntegerRatioForDateFormulas("Billing Base Period", FieldCaption("Billing Base Period"), "Billing Rhythm", FieldCaption("Billing Rhythm"));
     end;
 
     trigger OnDelete()
@@ -477,14 +498,17 @@ table 8068 "Sales Service Commitment"
         Validate("Calculation Base Amount", CalculatedBaseAmount);
         if "Calculation Base Type" = "Calculation Base Type"::"Document Price And Discount" then
             Validate("Discount %", SalesLine."Line Discount %");
+        if (Partner = Partner::Customer) and
+           ("Calculation Base Type" in [Enum::"Calculation Base Type"::"Document Price", Enum::"Calculation Base Type"::"Document Price And Discount"])
+       then
+            CalculateUnitCost();
         Modify();
     end;
 
     local procedure CalculateCalculationBaseAmountVendor()
     var
-        Item: Record Item;
         SalesHeader: Record "Sales Header";
-        CurrExchRate: Record "Currency Exchange Rate";
+        ContractsItemManagement: Codeunit "Contracts Item Management";
         CurrencyDate: Date;
         CalculatedBaseAmount: Decimal;
         IsHandled: Boolean;
@@ -493,15 +517,16 @@ table 8068 "Sales Service Commitment"
             "Calculation Base Type"::"Item Price":
                 begin
                     SalesLine.TestField(Type, SalesLine.Type::Item);
-                    Item.Get(SalesLine."No.");
-                    CalculatedBaseAmount := Item."Last Direct Cost";
+                    CalculatedBaseAmount := ContractsItemManagement.CalculateUnitCost(SalesLine."No.");
                     if SalesLine."Currency Code" <> '' then begin
-                        GetSalesHeader(SalesHeader);
-                        if SalesHeader."Posting Date" <> 0D then
-                            CurrencyDate := SalesHeader."Posting Date"
-                        else
-                            CurrencyDate := WorkDate();
-                        CalculatedBaseAmount := CurrExchRate.ExchangeAmtLCYToFCY(CurrencyDate, SalesHeader."Currency Code", CalculatedBaseAmount, SalesHeader."Currency Factor");
+                        SalesHeader := SalesLine.GetSalesHeader();
+                        CurrencyDate := SalesLine.GetDate();
+                        CalculatedBaseAmount :=
+                            Round(
+                                CurrExchRate.ExchangeAmtLCYToFCY(
+                                    CurrencyDate, SalesHeader."Currency Code",
+                                    CalculatedBaseAmount, SalesHeader."Currency Factor"),
+                                Currency."Unit-Amount Rounding Precision");
                     end;
                 end;
             "Calculation Base Type"::"Document Price":
@@ -526,6 +551,8 @@ table 8068 "Sales Service Commitment"
             Validate(Price, "Calculation Base Amount" * "Calculation Base %" / 100);
         end else
             Validate(Price, 0);
+        if Partner = Partner::Vendor then
+            CalculateUnitCost();
     end;
 
     procedure GetSalesHeader(var OutSalesHeader: Record "Sales Header")
@@ -540,6 +567,7 @@ table 8068 "Sales Service Commitment"
                 else begin
                     SalesHeader.TestField("Currency Factor");
                     Currency.Get(SalesHeader."Currency Code");
+                    Currency.TestField("Unit-Amount Rounding Precision");
                     Currency.TestField("Amount Rounding Precision");
                 end
             else
@@ -733,6 +761,37 @@ table 8068 "Sales Service Commitment"
         SalesLine.UpdateUnitPrice(FieldNo(Rec.Process));
     end;
 
+    internal procedure CalculateUnitCost()
+    var
+        SalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+        CurrencyDate: Date;
+    begin
+        SalesLine.Get(Rec."Document Type", Rec."Document No.", Rec."Document Line No.");
+        case Rec.Partner of
+            Partner::Customer:
+                Rec.Validate("Unit Cost (LCY)", SalesLine."Unit Cost (LCY)" * Rec."Calculation Base %" / 100);
+            Partner::Vendor:
+                if SalesLine."Currency Code" <> '' then begin
+                    SalesHeader := SalesLine.GetSalesHeader();
+                    CurrencyDate := SalesLine.GetDate();
+                    Rec.Validate("Unit Cost (LCY)",
+                                 Round(
+                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                        CurrencyDate, SalesHeader."Currency Code",
+                                        Rec.Price, SalesHeader."Currency Factor"),
+                                    Currency."Unit-Amount Rounding Precision"));
+                end else
+                    Rec.Validate("Unit Cost (LCY)", Rec.Price);
+        end;
+    end;
+
+    procedure GetDate(): Date
+    begin
+        SalesLine.Get(Rec."Document Type", Rec."Document No.", Rec."Document Line No.");
+        exit(SalesLine.GetDate());
+    end;
+
     [InternalEvent(false, false)]
     local procedure OnCalculateBaseTypeElseCaseOnCalculateCalculationBaseAmountCustomer(SalesServiceCommitment: Record "Sales Service Commitment"; SalesLine: Record "Sales Line"; var CalculatedBaseAmount: Decimal; var IsHandled: Boolean)
     begin
@@ -760,8 +819,9 @@ table 8068 "Sales Service Commitment"
 
     var
         Currency: Record Currency;
+        CurrExchRate: Record "Currency Exchange Rate";
         SalesLine: Record "Sales Line";
-        DateFormulaManagement: Codeunit "Date Formula Management";
+        DateFormulaManagementGlobal: Codeunit "Date Formula Management";
         ServiceAmountIncreaseErr: Label '%1 cannot be greater than %2.', Comment = '%1 and %2 are numbers';
         ReleasedSalesOrderExistsErr: Label 'Service commitments cannot be edited on orders with status = Released.';
         CalculateBaseTypeOptionNotImplementedErr: Label 'Unknown option %1 for %2.\\ Object Name: %3, Procedure: %4', Comment = '%1=Format("Calculation Base Type"), %2 = Fieldcaption for "Calculation Base Type", %3 = Current object name, %4 = Current procedure name';

@@ -10,7 +10,7 @@ pageextension 8080 "Business Manager RC" extends "Business Manager Role Center"
         {
             part(SubBillingActivities; "Sub. Billing Activities")
             {
-                ApplicationArea = Jobs;
+                ApplicationArea = All;
                 Caption = 'Subscription & Recurring Billing';
             }
         }

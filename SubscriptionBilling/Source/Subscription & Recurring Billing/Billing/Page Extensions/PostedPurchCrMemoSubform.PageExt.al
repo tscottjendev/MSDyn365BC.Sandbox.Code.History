@@ -35,7 +35,7 @@ pageextension 8074 "Posted Purch Cr. Memo Subform" extends "Posted Purch. Cr. Me
                 var
                     UsageDataBilling: Record "Usage Data Billing";
                 begin
-                    UsageDataBilling.ShowForDocuments("Usage Based Billing Doc. Type"::"Posted Credit Memo", Rec."Document No.", Rec."Line No.");
+                    UsageDataBilling.ShowForDocuments(Enum::"Service Partner"::Vendor, "Usage Based Billing Doc. Type"::"Posted Credit Memo", Rec."Document No.", Rec."Line No.");
                 end;
             }
         }
@@ -46,7 +46,7 @@ pageextension 8074 "Posted Purch Cr. Memo Subform" extends "Posted Purch. Cr. Me
         UsageDataBilling: Record "Usage Data Billing";
     begin
         IsConnectedToContractLine := ContractsGeneralMgt.HasConnectionToContractLine(Rec."Contract No.", Rec."Contract Line No.");
-        UsageDataEnabled := UsageDataBilling.ExistForDocuments("Usage Based Billing Doc. Type"::"Posted Credit Memo", Rec."Document No.", Rec."Line No.");
+        UsageDataEnabled := UsageDataBilling.ExistForDocuments(Enum::"Service Partner"::Vendor, "Usage Based Billing Doc. Type"::"Posted Credit Memo", Rec."Document No.", Rec."Line No.");
     end;
 
     var

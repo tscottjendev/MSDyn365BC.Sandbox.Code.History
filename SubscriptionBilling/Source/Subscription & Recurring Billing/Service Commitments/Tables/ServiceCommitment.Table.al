@@ -7,6 +7,7 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Account;
 
 table 8059 "Service Commitment"
 {
@@ -395,6 +396,36 @@ table 8059 "Service Commitment"
             FieldClass = FlowField;
             CalcFormula = exist("Planned Service Commitment" where("Entry No." = field("Entry No.")));
         }
+        field(100; "Unit Cost"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 2;
+            Caption = 'Unit Cost';
+            Editable = false;
+        }
+        field(101; "Unit Cost (LCY)"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Unit Cost (LCY)';
+
+            trigger OnValidate()
+            var
+                Currency: Record Currency;
+            begin
+                NoManualEntryOfUnitCostLCYForVendorServCommError(CurrFieldNo);
+                if Rec."Currency Code" <> '' then begin
+                    Currency.Initialize("Currency Code");
+                    Currency.TestField("Unit-Amount Rounding Precision");
+                    "Unit Cost" :=
+                      Round(
+                        CurrExchRate.ExchangeAmtLCYToFCY(
+                          "Currency Factor Date", Rec."Currency Code",
+                          "Unit Cost (LCY)", Rec."Currency Factor"),
+                        Currency."Unit-Amount Rounding Precision")
+                end else
+                    "Unit Cost" := "Unit Cost (LCY)";
+            end;
+        }
         field(202; "Renewal Term"; DateFormula)
         {
             Caption = 'Renewal Term';
@@ -432,20 +463,6 @@ table 8059 "Service Commitment"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
-        field(8009; "Item No."; Code[20])
-        {
-            Caption = 'Item No.';
-            Editable = false;
-            FieldClass = FlowField;
-            CalcFormula = lookup("Service Object"."Item No." where("No." = field("Service Object No.")));
-        }
-        field(8010; "Service Object Description"; Text[100])
-        {
-            Caption = 'Service Object Description';
-            Editable = false;
-            FieldClass = FlowField;
-            CalcFormula = lookup("Service Object".Description where("No." = field("Service Object No.")));
-        }
         field(8000; "Usage Based Billing"; Boolean)
         {
             Caption = 'Usage Based Billing';
@@ -471,7 +488,47 @@ table 8059 "Service Commitment"
             TableRelation = "Usage Data Supplier Reference" where(Type = const(Subscription));
             Editable = false;
         }
-
+        field(8006; "Created in Contract line"; Boolean)
+        {
+            Caption = 'Created in Contract line';
+            Editable = false;
+        }
+        field(8007; "Source Type"; Enum "Service Object Type")
+        {
+            Caption = 'Source Type';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Service Object".Type where("No." = field("Service Object No.")));
+        }
+        field(8008; "Source No."; Code[20])
+        {
+            Caption = 'Source No.';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Service Object"."Source No." where("No." = field("Service Object No.")));
+        }
+        field(8009; "Item No."; Code[20])
+        {
+            Caption = 'Item No.';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Service Object"."Item No." where("No." = field("Service Object No.")));
+            ObsoleteReason = 'Replaced by field Source No.';
+#if not CLEAN26
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#endif
+        }
+        field(8010; "Service Object Description"; Text[100])
+        {
+            Caption = 'Service Object Description';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Service Object".Description where("No." = field("Service Object No.")));
+        }
     }
 
     keys
@@ -529,6 +586,7 @@ table 8059 "Service Commitment"
         ZeroExchangeRateErr: Label 'The price could not be updated because the exchange rate is 0.';
         BillingLineForServiceCommitmentExistErr: Label 'The contract line is in the current billing. Delete the billing line to be able to adjust the service start date.';
         BillingLineArchiveForServiceCommitmentExistErr: Label 'The contract line has already been billed. The service start date can no longer be changed.';
+        NoManualEntryOfUnitCostLCYForVendorServCommErr: Label 'Please use the fields "Calculation Base Amount" and "Calculation Base %" in order to update the unit cost.';
 
     local procedure CheckServiceDates()
     begin
@@ -692,9 +750,11 @@ table 8059 "Service Commitment"
             Validate(Price, "Calculation Base Amount" * "Calculation Base %" / 100)
         else
             Validate(Price, 0);
+        if Partner = Partner::Vendor then
+            CalculateUnitCost();
     end;
 
-    local procedure CalculateServiceAmount(CalledByFieldNo: Integer)
+    internal procedure CalculateServiceAmount(CalledByFieldNo: Integer)
     var
         ServiceObject: Record "Service Object";
         MaxServiceAmount: Decimal;
@@ -719,8 +779,11 @@ table 8059 "Service Commitment"
             "Service Amount" := Price * ServiceObject."Quantity Decimal";
             if not "Usage Based Billing" then
                 "Service Amount" := Round("Service Amount", Currency."Amount Rounding Precision");
-            if CalledByFieldNo = FieldNo("Discount %") then
-                "Discount Amount" := Round("Service Amount" * "Discount %" / 100, Currency."Amount Rounding Precision");
+            if CalledByFieldNo = FieldNo("Discount %") then begin
+                "Discount Amount" := "Service Amount" * "Discount %" / 100;
+                if not "Usage Based Billing" then
+                    "Discount Amount" := Round("Discount Amount", Currency."Amount Rounding Precision");
+            end;
             if CalledByFieldNo = FieldNo("Discount Amount") then
                 "Discount %" := Round("Discount Amount" / "Service Amount" * 100, 0.00001);
             if ("Discount Amount" > MaxServiceAmount) and ("Discount Amount" <> 0) then
@@ -729,7 +792,7 @@ table 8059 "Service Commitment"
             if "Service Amount" > MaxServiceAmount then
                 Error(CannotBeGreaterThanErr, FieldCaption("Service Amount"), Format(MaxServiceAmount));
         end;
-        SetLCYFields("Price", "Service Amount", "Discount Amount", "Calculation Base Amount");
+        SetLCYFields(false);
         OnAfterCalculateServiceAmount(Rec, CalledByFieldNo);
     end;
 
@@ -755,6 +818,8 @@ table 8059 "Service Commitment"
         else
             NewNextBillingDate := CalcDate('<+1D>', "Service End Date");
         "Next Billing Date" := NewNextBillingDate;
+
+        SetNextBillingDateFromUsageDataBillingMetadata("Next Billing Date");
         OnAfterUpdateNextBillingDate(Rec, LastBillingToDate);
     end;
 
@@ -766,7 +831,7 @@ table 8059 "Service Commitment"
             exit;
         CustomerContractLine.SetRange("Service Object No.", Rec."Service Object No.");
         CustomerContractLine.SetRange("Service Commitment Entry No.", Rec."Entry No.");
-        CustomerContractLine.SetRange("Contract Line Type", CustomerContractLine."Contract Line Type"::"Service Commitment");
+        CustomerContractLine.FilterOnServiceObjectContractLineType();
         CustomerContractLine.ModifyAll("Service Commitment Description", Rec.Description, false);
     end;
 
@@ -777,7 +842,6 @@ table 8059 "Service Commitment"
         if ((Rec."Currency Factor" = 0) and (Rec."Currency Code" = '')) then
             exit;
         Currency.Initialize("Currency Code");
-        Currency.Initialize("Currency Code");
         Rec.Validate("Calculation Base Amount", Round(CurrExchRate.ExchangeAmtLCYToFCY("Currency Factor Date", "Currency Code", "Calculation Base Amount (LCY)", "Currency Factor"), Currency."Unit-Amount Rounding Precision"));
     end;
 
@@ -787,21 +851,29 @@ table 8059 "Service Commitment"
         Rec."Service Amount" := Rec."Service Amount (LCY)";
         Rec."Discount Amount" := Rec."Discount Amount (LCY)";
         Rec."Calculation Base Amount" := Rec."Calculation Base Amount (LCY)";
+        Rec."Unit Cost" := Rec."Unit Cost (LCY)";
         Rec.SetCurrencyData(0, 0D, '');
     end;
 
-    internal procedure SetLCYFields(NewPriceLCY: Decimal; NewServiceAmountLCY: Decimal; NewDiscountAmountLCY: Decimal; NewCalculationBaseAmountLCY: Decimal)
+    internal procedure SetLCYFields(IncludeUnitCost: Boolean)
     begin
         if "Currency Code" = '' then begin
-            Rec."Price (LCY)" := NewPriceLCY;
-            Rec."Service Amount (LCY)" := NewServiceAmountLCY;
-            Rec."Discount Amount (LCY)" := NewDiscountAmountLCY;
-            Rec."Calculation Base Amount (LCY)" := NewCalculationBaseAmountLCY;
+            Rec."Price (LCY)" := Rec.Price;
+            Rec."Service Amount (LCY)" := Rec."Service Amount";
+            Rec."Discount Amount (LCY)" := Rec."Discount Amount";
+            Rec."Calculation Base Amount (LCY)" := Rec."Calculation Base Amount";
+            if IncludeUnitCost then
+                Rec."Unit Cost (LCY)" := Rec."Unit Cost";
         end else begin
-            Rec."Price (LCY)" := CurrExchRate.ExchangeAmtFCYToLCY("Currency Factor Date", "Currency Code", NewPriceLCY, "Currency Factor");
-            Rec."Service Amount (LCY)" := CurrExchRate.ExchangeAmtFCYToLCY("Currency Factor Date", "Currency Code", NewServiceAmountLCY, "Currency Factor");
-            Rec."Discount Amount (LCY)" := CurrExchRate.ExchangeAmtFCYToLCY("Currency Factor Date", "Currency Code", NewDiscountAmountLCY, "Currency Factor");
-            Rec."Calculation Base Amount (LCY)" := CurrExchRate.ExchangeAmtFCYToLCY("Currency Factor Date", "Currency Code", NewCalculationBaseAmountLCY, "Currency Factor");
+            Currency.Initialize(Rec."Currency Code");
+            Currency.TestField("Unit-Amount Rounding Precision");
+            Currency.TestField("Amount Rounding Precision");
+            Rec."Price (LCY)" := Round(CurrExchRate.ExchangeAmtFCYToLCY("Currency Factor Date", "Currency Code", Rec.Price, "Currency Factor"), Currency."Unit-Amount Rounding Precision");
+            Rec."Service Amount (LCY)" := Round(CurrExchRate.ExchangeAmtFCYToLCY("Currency Factor Date", "Currency Code", Rec."Service Amount", "Currency Factor"), Currency."Amount Rounding Precision");
+            Rec."Discount Amount (LCY)" := Round(CurrExchRate.ExchangeAmtFCYToLCY("Currency Factor Date", "Currency Code", Rec."Discount Amount", "Currency Factor"), Currency."Amount Rounding Precision");
+            Rec."Calculation Base Amount (LCY)" := Round(CurrExchRate.ExchangeAmtFCYToLCY("Currency Factor Date", "Currency Code", Rec."Calculation Base Amount", "Currency Factor"), Currency."Unit-Amount Rounding Precision");
+            if IncludeUnitCost then
+                Rec."Unit Cost (LCY)" := Round(CurrExchRate.ExchangeAmtFCYToLCY("Currency Factor Date", "Currency Code", Rec."Unit Cost", "Currency Factor"), Currency."Unit-Amount Rounding Precision");
         end;
     end;
 
@@ -821,38 +893,69 @@ table 8059 "Service Commitment"
     end;
 
     internal procedure UpdateServiceCommitment(CalledByFieldNo: Integer)
+    var
+        ServiceObject: Record "Service Object";
+        ServiceCommitment: Record "Service Commitment";
+        MultipleServiceCommitmentsUpdatedMsg: Label 'There are multiple Service Commitments in the Service Object %1. The quantity was changed for all Service Commitments.', Comment = '%1 = Object number';
     begin
         case CalledByFieldNo of
-            FieldNo("Service Start Date"):
+            FieldNo("Quantity Decimal"):
                 begin
-                    Rec.ErrorIfBillingLineArchiveForServiceCommitmentExist();
-                    Rec.ErrorIfBillingLineForServiceCommitmentExist();
-                    Validate("Service Start Date", "Service Start Date");
+                    ServiceObject.Get(Rec."Service Object No.");
+                    ServiceObject.Validate("Quantity Decimal", "Quantity Decimal");
+                    ServiceObject.Modify(true);
+                    ServiceCommitment.SetRange("Service Object No.", Rec."Service Object No.");
+                    if ServiceCommitment.Count > 1 then
+                        Message(MultipleServiceCommitmentsUpdatedMsg, Rec."Service Object No.");
+                end
+            else begin
+                case CalledByFieldNo of
+                    FieldNo("Invoicing Item No."):
+                        Validate("Invoicing Item No.", "Invoicing Item No.");
+                    FieldNo("Service Start Date"):
+                        begin
+                            Rec.ErrorIfBillingLineArchiveForServiceCommitmentExist();
+                            Rec.ErrorIfBillingLineForServiceCommitmentExist();
+                            Validate("Service Start Date", "Service Start Date");
+                        end;
+                    FieldNo("Service End Date"):
+                        Validate("Service End Date", "Service End Date");
+                    FieldNo("Quantity Decimal"):
+                        Validate("Quantity Decimal", "Quantity Decimal");
+                    FieldNo("Discount %"):
+                        Validate("Discount %", "Discount %");
+                    FieldNo("Discount Amount"):
+                        Validate("Discount Amount", "Discount Amount");
+                    FieldNo("Service Amount"):
+                        Validate("Service Amount", "Service Amount");
+                    FieldNo("Calculation Base Amount"):
+                        Validate("Calculation Base Amount", "Calculation Base Amount");
+                    FieldNo("Calculation Base %"):
+                        Validate("Calculation Base %", "Calculation Base %");
+                    FieldNo("Billing Base Period"):
+                        Validate("Billing Base Period", "Billing Base Period");
+                    FieldNo("Billing Rhythm"):
+                        Validate("Billing Rhythm", "Billing Rhythm");
+                    FieldNo("Cancellation Possible Until"):
+                        Validate("Cancellation Possible Until", "Cancellation Possible Until");
+                    FieldNo("Term Until"):
+                        Validate("Term Until", "Term Until");
+                    FieldNo("Currency Code"):
+                        Validate("Currency Code", "Currency Code");
+                    FieldNo("Exclude from Price Update"):
+                        Validate("Exclude from Price Update", "Exclude from Price Update");
+                    FieldNo("Next Price Update"):
+                        Validate("Next Price Update", "Next Price Update");
+                    FieldNo("Period Calculation"):
+                        Validate("Period Calculation", "Period Calculation");
+                    FieldNo("Price Binding Period"):
+                        Validate("Period Calculation", "Period Calculation");
+                    FieldNo("Unit Cost (LCY)"):
+                        Validate("Unit Cost (LCY)", "Unit Cost (LCY)");
                 end;
-            FieldNo("Service End Date"):
-                Validate("Service End Date", "Service End Date");
-            FieldNo("Discount %"):
-                Validate("Discount %", "Discount %");
-            FieldNo("Discount Amount"):
-                Validate("Discount Amount", "Discount Amount");
-            FieldNo("Service Amount"):
-                Validate("Service Amount", "Service Amount");
-            FieldNo("Calculation Base Amount"):
-                Validate("Calculation Base Amount", "Calculation Base Amount");
-            FieldNo("Calculation Base %"):
-                Validate("Calculation Base %", "Calculation Base %");
-            FieldNo("Billing Rhythm"):
-                Validate("Billing Rhythm", "Billing Rhythm");
-            FieldNo("Currency Code"):
-                Validate("Currency Code", "Currency Code");
-            FieldNo("Exclude from Price Update"):
-                Validate("Exclude from Price Update", "Exclude from Price Update");
-            FieldNo("Next Price Update"):
-                Validate("Next Price Update", "Next Price Update");
-            FieldNo("Period Calculation"):
-                Validate("Period Calculation", "Period Calculation");
+                Modify(true);
+            end;
         end;
-        Modify(true);
         OnAfterUpdateServiceCommitment(Rec);
     end;
 
@@ -887,23 +990,28 @@ table 8059 "Service Commitment"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
-    procedure SetDefaultDimensionFromItem(ServiceObjectItemNo: Code[20]; AppendDimFromInvoicingItem: Boolean)
+    procedure SetDefaultDimensions(UseSource: Boolean)
     var
+        ServiceObject: Record "Service Object";
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
-        if AppendDimFromInvoicingItem then
+        if Rec."Invoicing Item No." <> '' then
             DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Invoicing Item No.");
 
-        DimMgt.AddDimSource(DefaultDimSource, Database::Item, ServiceObjectItemNo);
+        if UseSource then begin
+            ServiceObject.Get("Service Object No.");
+            case ServiceObject.Type of
+                ServiceObject.Type::Item:
+                    DimMgt.AddDimSource(DefaultDimSource, Database::Item, ServiceObject."Source No.");
+                ServiceObject.Type::"G/L Account":
+                    DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", ServiceObject."Source No.");
+            end;
+        end;
 
         "Dimension Set ID" := DimMgt.GetDefaultDimID(DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
-    internal procedure SetDefaultDimensionFromItem(ItemNo: Code[20])
-    begin
-        SetDefaultDimensionFromItem(ItemNo, true);
-    end;
 
     internal procedure GetCombinedDimensionSetID(DimSetID1: Integer; DimSetID2: Integer)
     var
@@ -967,29 +1075,68 @@ table 8059 "Service Commitment"
         Rec.SetRange("Package Code", PackageCode);
     end;
 
-    [InternalEvent(false, false)]
-    local procedure OnBeforeValidateShortcutDimCode(var ServiceCommitment: Record "Service Commitment"; xServiceCommitment: Record "Service Commitment"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    procedure NewLineForServiceObject()
+    var
+        ServiceContractSetup: Record "Service Contract Setup";
+        ServiceObject: Record "Service Object";
+        ServiceCommitment: Record "Service Commitment";
     begin
+        ServiceContractSetup.CheckPrerequisitesForCreatingManualContractLine();
+        ServiceObject.Get(Rec.GetFilter("Service Object No."));
+        ServiceObject.TestField("Source No.");
+        ServiceCommitment.Init();
+        ServiceCommitment."Entry No." := 0;
+        ServiceCommitment."Service Object No." := ServiceObject."No.";
+        ServiceCommitment.Description := ServiceObject.Description;
+        ServiceCommitment."Invoicing via" := ServiceCommitment."Invoicing via"::Contract;
+        ServiceCommitment.Partner := ServiceCommitment.Partner::Customer;
+        ServiceCommitment."Customer Price Group" := ServiceObject."Customer Price Group";
+        ServiceCommitment.Validate("Service Start Date", WorkDate());
+        ServiceCommitment."Billing Base Period" := ServiceContractSetup."Default Billing Base Period";
+        ServiceCommitment."Billing Rhythm" := ServiceContractSetup."Default Billing Rhythm";
+        ServiceCommitment."Period Calculation" := ServiceContractSetup."Default Period Calculation";
+        ServiceCommitment.SetDefaultDimensions(true);
+        ServiceCommitment.Insert(false);
     end;
 
-    [InternalEvent(false, false)]
-    local procedure OnAfterValidateShortcutDimCode(var ServiceCommitment: Record "Service Commitment"; xServiceCommitment: Record "Service Commitment"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    procedure InitForServiceObject(ServiceObject: Record "Service Object"; ServicePartner: enum "Service Partner")
+    var
+        ServiceContractSetup: Record "Service Contract Setup";
+        ItemManagement: Codeunit "Contracts Item Management";
     begin
+        ServiceContractSetup.CheckPrerequisitesForCreatingManualContractLine();
+        Init();
+        "Service Object No." := ServiceObject."No.";
+        "Entry No." := 0;
+        Description := ServiceObject.Description;
+        "Invoicing via" := "Invoicing via"::Contract;
+        Partner := ServicePartner;
+        "Customer Price Group" := ServiceObject."Customer Price Group";
+        Validate("Service Start Date", ServiceObject."Provision Start Date");
+        "Billing Base Period" := ServiceContractSetup."Default Billing Base Period";
+        "Billing Rhythm" := ServiceContractSetup."Default Billing Rhythm";
+        "Renewal Term" := "Initial Term";
+        "Period Calculation" := ServiceContractSetup."Default Period Calculation";
+        if ServiceObject.IsItem() then
+            if ItemManagement.IsServiceCommitmentItem(ServiceObject."Source No.") then
+                "Invoicing Item No." := ServiceObject."Source No.";
+        SetDefaultDimensions(true);
     end;
 
-    [InternalEvent(false, false)]
-    local procedure OnBeforeValidateDimensionSetID(var ServiceCommitment: Record "Service Commitment"; xServiceCommitment: Record "Service Commitment")
+    internal procedure UpdateFromCustomerContract(CustomerContract: Record "Customer Contract")
     begin
+        "Currency Code" := CustomerContract."Currency Code";
+        InitCurrencyData();
+        GetCombinedDimensionSetID("Dimension Set ID", CustomerContract."Dimension Set ID");
+        "Exclude from Price Update" := CustomerContract.DefaultExcludeFromPriceUpdate;
     end;
 
-    [InternalEvent(false, false)]
-    local procedure OnAfterValidateDimensionSetID(var ServiceCommitment: Record "Service Commitment"; xServiceCommitment: Record "Service Commitment")
+    internal procedure UpdateFromVendorContract(VendorContract: Record "Vendor Contract")
     begin
-    end;
-
-    [InternalEvent(false, false)]
-    local procedure OnAfterCopyFromSalesServiceCommitment(var Rec: Record "Service Commitment"; SalesServiceCommitment: Record "Sales Service Commitment")
-    begin
+        "Currency Code" := VendorContract."Currency Code";
+        InitCurrencyData();
+        GetCombinedDimensionSetID("Dimension Set ID", VendorContract."Dimension Set ID");
+        "Exclude from Price Update" := VendorContract.DefaultExcludeFromPriceUpdate;
     end;
 
     procedure CopyFromSalesServiceCommitment(SalesServiceCommitment: Record "Sales Service Commitment")
@@ -1004,6 +1151,7 @@ table 8059 "Service Commitment"
         Rec."Service Amount" := SalesServiceCommitment."Service Amount";
         Rec."Calculation Base Amount" := SalesServiceCommitment."Calculation Base Amount";
         Rec."Calculation Base %" := SalesServiceCommitment."Calculation Base %";
+        Rec."Unit Cost" := SalesServiceCommitment."Unit Cost";
         Rec."Discount %" := SalesServiceCommitment."Discount %";
         Rec."Discount Amount" := SalesServiceCommitment."Discount Amount";
         Rec."Billing Base Period" := SalesServiceCommitment."Billing Base Period";
@@ -1123,6 +1271,22 @@ table 8059 "Service Commitment"
         Rec.SetRange("Contract No.", ContractNo);
     end;
 
+    internal procedure InitCurrencyData()
+    var
+        Currency: Record Currency;
+    begin
+        if Rec."Currency Code" = '' then begin
+            "Currency Factor" := 0;
+            "Currency Factor Date" := 0D;
+        end else begin
+            Currency.Get("Currency Code");
+            if "Currency Factor Date" = 0D then
+                "Currency Factor Date" := WorkDate();
+            if (Rec."Currency Factor Date" <> xRec."Currency Factor Date") or (Rec."Currency Code" <> xRec."Currency Code") then
+                "Currency Factor" := CurrExchRate.ExchangeRate("Currency Factor Date", "Currency Code");
+        end
+    end;
+
     internal procedure SetCurrencyData(CurrencyFactor: Decimal; CurrencyFactorDate: Date; CurrencyCode: Code[10])
     begin
         Rec."Currency Factor" := CurrencyFactor;
@@ -1185,7 +1349,9 @@ table 8059 "Service Commitment"
             (xRec."Discount Amount" <> Rec."Discount Amount") or
             (xRec."Service Amount" <> Rec."Service Amount") or
             (xRec."Billing Base Period" <> Rec."Billing Base Period") or
-            (xRec."Billing Rhythm" <> Rec."Billing Rhythm")
+            (xRec."Billing Rhythm" <> Rec."Billing Rhythm") or
+            (xRec."Unit Cost" <> Rec."Unit Cost") or
+            (xRec."Unit Cost (LCY)" <> Rec."Unit Cost (LCY)")
         then
             CreateServiceCommitmentArchive(ServiceCommitmentArchive, xRec, PerformUpdateOn, TypeOfPriceUpdate);
     end;
@@ -1251,11 +1417,12 @@ table 8059 "Service Commitment"
             "Service Partner"::Customer:
                 begin
                     ContractsItemManagement.CreateTempSalesHeader(TempSalesHeader, TempSalesHeader."Document Type"::Order, ServiceObject."End-User Customer No.", ServiceObject."Bill-to Customer No.", Rec."Service Start Date", Rec."Currency Code");
-                    ContractsItemManagement.CreateTempSalesLine(TempSalesLine, TempSalesHeader, ServiceObject."Item No.", ServiceObject."Quantity Decimal", Rec."Service Start Date", ServiceObject."Variant Code");
+                    ContractsItemManagement.CreateTempSalesLine(TempSalesLine, TempSalesHeader, ServiceObject.Type, ServiceObject."Source No.", ServiceObject."Quantity Decimal", Rec."Service Start Date", ServiceObject."Variant Code");
                     Rec."Calculation Base Amount" := ContractsItemManagement.CalculateUnitPrice(TempSalesHeader, TempSalesLine);
                 end;
             "Service Partner"::Vendor:
-                Rec."Calculation Base Amount" := ContractsItemManagement.CalculateUnitCost(ServiceObject."Item No.");
+                if ServiceObject.IsItem() then
+                    Rec."Calculation Base Amount" := ContractsItemManagement.CalculateUnitCost(ServiceObject."Source No.");
         end;
     end;
 
@@ -1343,6 +1510,33 @@ table 8059 "Service Commitment"
             exit(ChangeExcludeFromPriceUpdateToYesQst);
     end;
 
+    internal procedure CalculateUnitCost()
+    var
+        ServiceObject: Record "Service Object";
+        ContractsItemManagement: Codeunit "Contracts Item Management";
+    begin
+        case Rec.Partner of
+            Partner::Customer:
+                begin
+                    ServiceObject.Get("Service Object No.");
+                    if ServiceObject.Type = ServiceObject.Type::Item then
+                        Rec.Validate("Unit Cost (LCY)", ContractsItemManagement.CalculateUnitCost(ServiceObject."Source No.") * Rec."Calculation Base %" / 100);
+                end;
+            Partner::Vendor:
+                if Rec."Currency Code" <> '' then begin
+                    Currency.Initialize(Rec."Currency Code");
+                    Currency.TestField("Unit-Amount Rounding Precision");
+                    Rec.Validate("Unit Cost (LCY)",
+                                 Round(
+                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                        Rec."Currency Factor Date", Rec."Currency Code",
+                                        Rec.Price, Rec."Currency Factor"),
+                                    Currency."Unit-Amount Rounding Precision"));
+                end else
+                    Rec.Validate("Unit Cost (LCY)", Rec.Price);
+        end;
+    end;
+
     internal procedure DeleteContractPriceUpdateLines()
     var
         ContractPriceUpdateLine: Record "Contract Price Update Line";
@@ -1426,6 +1620,197 @@ table 8059 "Service Commitment"
         exit(not BillingLine.IsEmpty());
     end;
 
+    internal procedure DisconnectContractLine(EntryNo: Integer)
+    begin
+        if EntryNo <> 0 then
+            if Get(EntryNo) then begin
+                "Contract No." := '';
+                "Contract Line No." := 0;
+                Modify(false);
+            end;
+    end;
+
+    internal procedure DeleteOrDisconnectServiceCommitment(EntryNo: Integer)
+    var
+        ServiceObject: Record "Service Object";
+    begin
+        if EntryNo <> 0 then
+            if Get(EntryNo) then
+                if "Created in Contract line" then begin
+                    Delete();
+                    DeleteContractPriceUpdateLines();
+                    if ServiceObject.Get("Service Object No.") then
+                        ServiceObject.DeleteServiceObjectFromContract();
+                end else
+                    DisconnectContractLine(EntryNo);
+    end;
+
+    internal procedure IsUsageDataBillingFound(var UsageDataBilling: Record "Usage Data Billing"; BillingFromDate: Date; BillingToDate: Date): Boolean
+    begin
+        SetUsageDataBillingFilters(UsageDataBilling, BillingFromDate, BillingToDate);
+        exit(not UsageDataBilling.IsEmpty());
+    end;
+
+    local procedure SetUsageDataBillingFilters(var UsageDataBilling: Record "Usage Data Billing"; BillingFromDate: Date; BillingToDate: Date)
+    begin
+        UsageDataBilling.SetRange("Service Object No.", Rec."Service Object No.");
+        UsageDataBilling.SetRange("Service Commitment Entry No.", Rec."Entry No.");
+        UsageDataBilling.SetRange(Partner, Rec.Partner);
+        UsageDataBilling.SetRange("Usage Base Pricing", Enum::"Usage Based Pricing"::"Usage Quantity", Enum::"Usage Based Pricing"::"Unit Cost Surcharge");
+        UsageDataBilling.SetRange("Document Type", "Usage Based Billing Doc. Type"::None);
+        UsageDataBilling.SetFilter("Charge Start Date", '>=%1', BillingFromDate);
+        UsageDataBilling.SetFilter("Charge End Date", '<=%1', CalcDate('<1D>', BillingToDate));
+    end;
+
+    internal procedure IsUsageBasedBillingValid(): Boolean
+    begin
+        exit(Rec."Usage Based Billing" and (Rec."Service Object No." <> ''));
+    end;
+
+    internal procedure SetNextBillingDateFromUsageDataBillingMetadata(var NextBillingToDate: Date)
+    var
+        UsageDataBillingMetadata: Record "Usage Data Billing Metadata";
+    begin
+        UsageDataBillingMetadata.SetRange("Service Object No.", Rec."Service Object No.");
+        UsageDataBillingMetadata.SetRange("Service Commitment Entry No.", Rec."Entry No.");
+        UsageDataBillingMetadata.SetRange(Invoiced, false);
+        UsageDataBillingMetadata.SetRange(Rebilling, true);
+        if UsageDataBillingMetadata.FindFirst() then
+            NextBillingToDate := CalcDate('<+1D>', UsageDataBillingMetadata."Original Invoiced to Date");
+    end;
+
+    internal procedure SetNextBillingDateFromUsageDataBillingMetadata(var NextBillingToDate: Date; BillingFromDate: Date)
+    var
+        UsageDataBillingMetadata: Record "Usage Data Billing Metadata";
+    begin
+        UsageDataBillingMetadata.SetRange("Service Object No.", Rec."Service Object No.");
+        UsageDataBillingMetadata.SetRange("Service Commitment Entry No.", Rec."Entry No.");
+        UsageDataBillingMetadata.SetFilter("Supplier Charge Start Date", '>=%1', BillingFromDate);
+        UsageDataBillingMetadata.SetRange(Invoiced, false);
+        UsageDataBillingMetadata.SetRange(Rebilling, true);
+        if UsageDataBillingMetadata.FindFirst() then
+            NextBillingToDate := UsageDataBillingMetadata."Supplier Charge End Date";
+    end;
+
+    internal procedure ShowUsageDataBillingMetadata()
+    var
+        UsageDataBillingMetadata: Record "Usage Data Billing Metadata";
+    begin
+        UsageDataBillingMetadata.SetRange("Service Commitment Entry No.", Rec."Entry No.");
+        Page.RunModal(Page::"Usage Data Billing Metadata", UsageDataBillingMetadata);
+    end;
+
+    internal procedure UnitPriceForPeriod(ChargePeriodStart: Date; ChargePeriodEnd: Date) UnitPrice: Decimal
+    var
+        UnitCost: Decimal;
+        UnitCostLCY: Decimal;
+    begin
+        Rec.UnitPriceAndCostForPeriod(Rec."Billing Rhythm", ChargePeriodStart, ChargePeriodEnd, UnitPrice, UnitCost, UnitCostLCY);
+    end;
+
+    internal procedure UnitPriceAndCostForPeriod(BillingRhythm: DateFormula; ChargePeriodStart: Date; ChargePeriodEnd: Date; var UnitPrice: Decimal; var UnitCost: Decimal; var UnitCostLCY: Decimal)
+    var
+        PeriodFormula: DateFormula;
+        BillingPeriodRatio: Decimal;
+        PeriodPrice, PeriodUnitCost, PeriodUnitCostLCY : Decimal;
+        DayPrice, DayUnitCost, DayUnitCostLCY : Decimal;
+        FollowUpDays: Integer;
+        Periods: Integer;
+        FollowUpPeriodDays: Integer;
+    begin
+        BillingPeriodRatio := Rec.GetBillingPeriodRatio(BillingRhythm, Rec."Billing Base Period");
+        if BillingPeriodRatio > 1 then begin
+            PeriodPrice := Rec.Price;
+            PeriodUnitCost := Rec."Unit Cost";
+            PeriodUnitCostLCY := Rec."Unit Cost (LCY)";
+            PeriodFormula := Rec."Billing Base Period";
+        end else begin
+            PeriodPrice := Rec.Price * BillingPeriodRatio;
+            PeriodUnitCost := Rec."Unit Cost" * BillingPeriodRatio;
+            PeriodUnitCostLCY := Rec."Unit Cost (LCY)" * BillingPeriodRatio;
+            PeriodFormula := Rec."Billing Rhythm";
+        end;
+        Rec.CalculatePeriodCountAndDaysCount(PeriodFormula, ChargePeriodStart, ChargePeriodEnd, Periods, FollowUpDays, FollowUpPeriodDays);
+        if FollowUpPeriodDays <> 0 then begin
+            DayPrice := PeriodPrice / FollowUpPeriodDays;
+            DayUnitCost := PeriodUnitCost / FollowUpPeriodDays;
+            DayUnitCostLCY := PeriodUnitCostLCY / FollowUpPeriodDays;
+        end;
+        UnitPrice := PeriodPrice * Periods + DayPrice * FollowUpDays;
+        UnitCost := PeriodUnitCost * Periods + DayUnitCost * FollowUpDays;
+        UnitCostLCY := PeriodUnitCostLCY * Periods + DayUnitCostLCY * FollowUpDays;
+    end;
+
+    internal procedure CalculatePeriodCountAndDaysCount(PeriodFormula: DateFormula; StartDate: Date; EndDate: Date; var Periods: Integer; var FollowUpDays: Integer; var FollowUpPeriodDays: Integer)
+    var
+        LastDayInPreviousPeriod: Date;
+        LastDayInNextPeriod: Date;
+        FollowUpDaysExist: Boolean;
+        PeriodFormulaInteger: Integer;
+        Letter: Char;
+    begin
+        Periods := 0;
+        FollowUpDays := 0;
+        FollowUpPeriodDays := 0;
+        FollowUpDaysExist := true;
+
+        LastDayInNextPeriod := StartDate - 1;
+        DateFormulaManagement.FindDateFormulaType(PeriodFormula, PeriodFormulaInteger, Letter);
+        repeat
+            Evaluate(PeriodFormula, '<' + Format((Periods + 1) * PeriodFormulaInteger) + Letter + '>');
+            LastDayInPreviousPeriod := LastDayInNextPeriod;
+            LastDayInNextPeriod := Rec.CalculateNextToDate(PeriodFormula, StartDate);
+            if LastDayInNextPeriod <= EndDate then
+                Periods += 1;
+            FollowUpDaysExist := LastDayInNextPeriod <> EndDate;
+        until LastDayInNextPeriod >= EndDate;
+        if FollowUpDaysExist then begin
+            FollowUpDays := EndDate - LastDayInPreviousPeriod;
+            FollowUpPeriodDays := LastDayInNextPeriod - LastDayInPreviousPeriod;
+        end;
+    end;
+
+    internal procedure GetBillingPeriodRatio(BillingRhythm: DateFormula; BillingBaseRhytm: DateFormula) BillingPeriodRatio: Decimal
+    var
+        BillingPeriodCount: Integer;
+        BillingBasePeriodCount: Integer;
+    begin
+        if (Format(BillingRhythm) = '') or (Format(BillingBaseRhytm) = '') then
+            exit(0);
+        DateFormulaManagement.FindDateFormulaTypeForComparison(BillingRhythm, BillingPeriodCount);
+        DateFormulaManagement.FindDateFormulaTypeForComparison(BillingBaseRhytm, BillingBasePeriodCount);
+        BillingPeriodRatio := BillingPeriodCount / BillingBasePeriodCount;
+    end;
+
+    internal procedure CalculateNextToDate(PeriodFormula: DateFormula; FromDate: Date) NextToDate: Date
+    var
+        DistanceToEndOfMonth: Integer;
+        LastDateInLastMonth: Date;
+    begin
+        case Rec."Period Calculation" of
+            Rec."Period Calculation"::"Align to Start of Month":
+                NextToDate := CalcDate(PeriodFormula, FromDate) - 1;
+            Rec."Period Calculation"::"Align to End of Month":
+                begin
+                    DistanceToEndOfMonth := CalcDate('<CM>', Rec."Service Start Date") - Rec."Service Start Date";
+                    if DistanceToEndOfMonth > 2 then
+                        NextToDate := CalcDate(PeriodFormula, FromDate) - 1
+                    else begin
+                        LastDateInLastMonth := CalcDate(PeriodFormula, FromDate);
+                        LastDateInLastMonth := CalcDate('<CM>', LastDateInLastMonth);
+                        NextToDate := LastDateInLastMonth - DistanceToEndOfMonth - 1;
+                    end;
+                end;
+        end;
+        Rec.SetNextBillingDateFromUsageDataBillingMetadata(NextToDate, FromDate);
+    end;
+
+    local procedure NoManualEntryOfUnitCostLCYForVendorServCommError(CurrentFieldNo: Integer)
+    begin
+        if Rec.IsPartnerVendor() and (CurrentFieldNo = Rec.FieldNo("Unit Cost (LCY)")) then
+            Error(NoManualEntryOfUnitCostLCYForVendorServCommErr);
+    end;
+
     [InternalEvent(false, false)]
     local procedure OnAfterUpdateNextBillingDate(var ServiceCommitment: Record "Service Commitment"; LastBillingToDate: Date)
     begin
@@ -1446,4 +1831,28 @@ table 8059 "Service Commitment"
     begin
     end;
 
+    [InternalEvent(false, false)]
+    local procedure OnBeforeValidateShortcutDimCode(var ServiceCommitment: Record "Service Commitment"; xServiceCommitment: Record "Service Commitment"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnAfterValidateShortcutDimCode(var ServiceCommitment: Record "Service Commitment"; xServiceCommitment: Record "Service Commitment"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnBeforeValidateDimensionSetID(var ServiceCommitment: Record "Service Commitment"; xServiceCommitment: Record "Service Commitment")
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnAfterValidateDimensionSetID(var ServiceCommitment: Record "Service Commitment"; xServiceCommitment: Record "Service Commitment")
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnAfterCopyFromSalesServiceCommitment(var Rec: Record "Service Commitment"; SalesServiceCommitment: Record "Sales Service Commitment")
+    begin
+    end;
 }

@@ -17,7 +17,7 @@ codeunit 8075 "Extend Contract Mgt."
         ItemServCommitmentPackage: Record "Item Serv. Commitment Package";
     begin
         // insert service commitments from standard item service commitment package
-        ServiceCommitmentPackage.FilterCodeOnPackageFilter(ItemServCommitmentPackage.GetAllStandardPackageFilterForItem(ServiceObject."Item No.", ServiceObject."Customer Price Group"));
+        ServiceCommitmentPackage.FilterCodeOnPackageFilter(ItemServCommitmentPackage.GetAllStandardPackageFilterForItem(ServiceObject."Source No.", ServiceObject."Customer Price Group"));
         ServiceObject.InsertServiceCommitmentsFromServCommPackage(ServiceObject."Provision Start Date", 0D, ServiceCommitmentPackage, UsageBasedBillingPackageLinesOnly);
         // insert service commitments from additionally selected service commitment package(s)
         TempServiceCommitmentPackage.SetRange(Selected, true);

@@ -10,7 +10,7 @@ pageextension 8085 "General Posting Setup Card" extends "General Posting Setup C
         {
             group(SubcriptionBilling)
             {
-                Caption = 'Subcription Billing', locked = true;
+                Caption = 'Subscription Billing', locked = true;
                 field(CustomerContractAccount; Rec."Customer Contract Account")
                 {
                     ApplicationArea = All;

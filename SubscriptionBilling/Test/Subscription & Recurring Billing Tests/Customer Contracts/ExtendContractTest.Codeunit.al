@@ -163,7 +163,6 @@ codeunit 148152 "Extend Contract Test"
         ResetGlobals();
         ContractTestLibrary.InitContractsApp();
         ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
-        Item."Last Direct Cost" := LibraryRandom.RandDec(100, 2);
         Item."Unit Cost" := LibraryRandom.RandDec(100, 2);
         Item.Modify(false);
         ContractTestLibrary.CreateServiceCommitmentPackageWithLine(ServiceCommitmentTemplate.Code, ServiceCommitmentPackage, ServiceCommPackageLine);
@@ -398,7 +397,8 @@ codeunit 148152 "Extend Contract Test"
     local procedure CheckCreatedServiceObject()
     begin
         ServiceObject.FindLast();
-        ServiceObject.TestField("Item No.", Item."No.");
+        ServiceObject.TestField(Type, ServiceObject.Type::Item);
+        ServiceObject.TestField("Source No.", Item."No.");
         ServiceObject.TestField("End-User Customer No.", CustomerContract."Sell-to Customer No.");
         ServiceObject.TestField("Provision Start Date", WorkDate());
         ServiceObject.TestField("Quantity Decimal", ServiceObjectQty);
@@ -507,7 +507,7 @@ codeunit 148152 "Extend Contract Test"
         Assert.AreEqual(CustomerContract."No.", ExtendContract.CustomerContractNo.Value, 'Extend Contract was not initialize properly.');
         Assert.AreEqual(WorkDate(), PageProvisionStartDate, 'Extend Contract was not initialize properly.');
         Assert.AreEqual(CustomerContract."Sell-to Customer Name", ExtendContract."Sell-to Customer Name".Value, 'Extend Contract was not initialize properly.');
-        Assert.AreEqual(ExtendContract.UnitCostLCY.Value, Format(Item."Last Direct Cost"), 'Unit Cost was not calculated properly');
+        Assert.AreEqual(ExtendContract.UnitCostLCY.Value, Format(Item."Unit Cost"), 'Unit Cost was not calculated properly');
         ExtendContract.Cancel().Invoke();
     end;
 

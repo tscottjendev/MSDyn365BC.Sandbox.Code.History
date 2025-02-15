@@ -56,9 +56,23 @@ page 8007 "Overdue Service Commitments"
                 {
                     ToolTip = 'Specifies the amount for the service including discount.';
                 }
+#if not CLEAN26
                 field("Item No."; Rec."Item No.")
                 {
                     ToolTip = 'Specifies the Item No. of the Service Object.';
+                    ObsoleteReason = 'Replaced by field Source No.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+                    Visible = false;
+                }
+#endif
+                field("Source Type"; Rec."Source Type")
+                {
+                    ToolTip = 'Specifies the type of the Service Object.';
+                }
+                field("Source No."; Rec."Source No.")
+                {
+                    ToolTip = 'Specifies the No. of the Item or G/L Account of the Service Object.';
                 }
                 field("Contract Type"; Rec."Contract Type")
                 {
