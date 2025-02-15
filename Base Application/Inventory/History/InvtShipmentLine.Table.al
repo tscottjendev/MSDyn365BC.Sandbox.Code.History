@@ -300,7 +300,6 @@ table 5855 "Invt. Shipment Line"
         key(Key1; "Document No.", "Line No.")
         {
             Clustered = true;
-            MaintainSIFTIndex = false;
         }
     }
 
