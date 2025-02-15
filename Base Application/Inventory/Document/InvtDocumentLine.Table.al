@@ -692,12 +692,14 @@ table 5851 "Invt. Document Line"
         key(Key1; "Document Type", "Document No.", "Line No.")
         {
             Clustered = true;
-            MaintainSIFTIndex = false;
         }
         key(Key2; "Location Code")
         {
         }
         key(Key3; "Item No.", "Variant Code")
+        {
+        }
+        key(Key4; "Document Type", "Document No.", "Item No.", "Location Code")
         {
         }
     }
