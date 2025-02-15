@@ -91,6 +91,7 @@ codeunit 90 "Purch.-Post"
                   TableData "Return Shipment Line" = rimd,
                   tabledata "G/L Entry" = r;
     TableNo = "Purchase Header";
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -180,6 +181,9 @@ codeunit 90 "Purch.-Post"
 
         OnRunOnAfterCalcVATAmountLines(PurchHeader, TempPurchLineGlobal, TempVATAmountLine);
 
+        Clear(PostponedValueEntries);
+        BindSubscription(this); // Start collect value entries for GLPosting
+
         PurchaseLinesProcessed := false;
         if TempPurchLineGlobal.FindSet() then
             repeat
@@ -209,6 +213,9 @@ codeunit 90 "Purch.-Post"
                 end;
                 ErrorMessageMgt.PopContext(ErrorContextElementPostLine);
             until LastLineRetrieved;
+
+        UnBindSubscription(this); // Stop collecting value entries for GLPosting
+        ItemJnlPostLine.PostDeferredValueEntriesToGL(PostponedValueEntries);
 
         OnAfterProcessPurchLines(
           PurchHeader, PurchRcptHeader, PurchInvHeader, PurchCrMemoHeader, ReturnShptHeader,
@@ -373,6 +380,7 @@ codeunit 90 "Purch.-Post"
         GLSetupRead: Boolean;
         LogErrorMode: Boolean;
         PurchSetupRead: Boolean;
+        PostponedValueEntries: List of [Integer];
         InvoiceGreaterThanReturnShipmentErr: Label 'The quantity you are attempting to invoice is greater than the quantity in return shipment %1.', Comment = '%1 = Return Shipment No.';
         ReturnShipmentLinesDeletedErr: Label 'Return shipment lines have been deleted.';
         InvoiceMoreThanShippedErr: Label 'You cannot invoice return order %1 for more than you have shipped.', Comment = '%1 = Order No.';
@@ -6078,7 +6086,7 @@ codeunit 90 "Purch.-Post"
 
         PurchLine.LockTable();
         SalesLine.LockTable();
-        if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
+        if InvSetup.UseLegacyPosting() and not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
             GLEntry.GetLastEntryNo();
         end;
@@ -8697,6 +8705,17 @@ codeunit 90 "Purch.-Post"
     begin
         ItemChargeAssgntPurch.SetFilter("Applies-to Doc. Line No.", '<>%1', ItemChargeAssgntPurch."Applies-to Doc. Line No.");
         ItemChargeAssgntPurch.DeleteAll();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]
+    local procedure OnBeforePostValueEntryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        if InventorySetup.UseLegacyPosting() then
+            exit;
+        PostponedValueEntries.Add(ValueEntry."Entry No.");
+        IsHandled := true;
     end;
 
     [IntegrationEvent(false, false)]

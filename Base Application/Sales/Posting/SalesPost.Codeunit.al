@@ -100,6 +100,7 @@ codeunit 80 "Sales-Post"
                   TableData "G/L Entry" = r,
                   Tabledata Job = r;
     TableNo = "Sales Header";
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -213,6 +214,7 @@ codeunit 80 "Sales-Post"
         RoundingLineInserted: Boolean;
         DropShipOrder: Boolean;
         DocumentIsReadyToBeChecked: Boolean;
+        PostponedValueEntries: List of [Integer];
         CannotAssignInvoicedErr: Label 'You cannot assign item charges to the %1 %2 = %3,%4 = %5, %6 = %7, because it has been invoiced.', Comment = '%1 = Sales Line, %2/%3 = Document Type, %4/%5 - Document No.,%6/%7 = Line No.';
         InvoiceMoreThanReceivedErr: Label 'You cannot invoice more than you have received for return order %1.', Comment = '%1 = Order No.';
         ReturnReceiptLinesDeletedErr: Label 'The return receipt lines have been deleted.';
@@ -462,6 +464,9 @@ codeunit 80 "Sales-Post"
 
         OnBeforePostSalesLines(SalesHeader, TempSalesLineGlobal, TempVATAmountLine, EverythingInvoiced);
 
+        Clear(PostponedValueEntries);
+        BindSubscription(this); // Start collect value entries for GLPosting
+
         SalesLinesProcessed := false;
         if TempSalesLineGlobal.FindSet() then
             repeat
@@ -481,6 +486,9 @@ codeunit 80 "Sales-Post"
                     SalesHeader, TempSalesLineGlobal, LastLineRetrieved, SalesInvHeader, SalesCrMemoHeader, SalesHeader2, xSalesLine, SalesShptHeader, ReturnRcptHeader);
                 ErrorMessageMgt.PopContext(ErrorContextElementPostLine);
             until LastLineRetrieved;
+
+        UnBindSubscription(this); // Stop collecting value entries for GLPosting
+        ItemJnlPostLine.PostDeferredValueEntriesToGL(PostponedValueEntries);
 
         OnAfterPostSalesLines(
           SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader, WhseShip, WhseReceive, SalesLinesProcessed,
@@ -6037,7 +6045,7 @@ codeunit 80 "Sales-Post"
         PurchOrderLine.LockTable();
         PurchOrderHeader.LockTable();
         GetGLSetup();
-        if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
+        if InvSetup.UseLegacyPosting() and not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
             GLEntry.GetLastEntryNo();
         end;
@@ -10338,6 +10346,17 @@ codeunit 80 "Sales-Post"
            (SalesHeader."Applies-to Doc. No." <> '')
         then
             exit(true);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]
+    local procedure OnBeforePostValueEntryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        if InventorySetup.UseLegacyPosting() then
+            exit;
+        PostponedValueEntries.Add(ValueEntry."Entry No.");
+        IsHandled := true;
     end;
 
     [IntegrationEvent(false, false)]

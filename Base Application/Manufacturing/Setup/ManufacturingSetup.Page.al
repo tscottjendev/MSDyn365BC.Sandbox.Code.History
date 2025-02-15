@@ -168,6 +168,14 @@ page 99000768 "Manufacturing Setup"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a percentage of an item''s lot size by which an existing supply must change before a planning suggestion is made.';
                 }
+                field("Manual Scheduling"; Rec."Manual Scheduling")
+                {
+                    ApplicationArea = Manufacturing;
+                }
+                field("Safety Lead Time for Man. Sch."; Rec."Safety Lead Time for Man. Sch.")
+                {
+                    ApplicationArea = Manufacturing;
+                }
             }
         }
         area(factboxes)

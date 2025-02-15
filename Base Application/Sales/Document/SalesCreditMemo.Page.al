@@ -855,7 +855,7 @@ page 44 "Sales Credit Memo"
                     Visible = true;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Sales Statistics";
                     RunPageOnRec = true;
@@ -871,6 +871,17 @@ page 44 "Sales Credit Memo"
                                   "Date Filter" = field("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the customer on the sales document.';
+                }
+                action(CustomerStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer Statistics';
+                    Enabled = IsCustomerOrContactNotEmpty;
+                    Image = Statistics;
+                    RunObject = Page "Customer Statistics";
+                    RunPageLink = "No." = field("Sell-to Customer No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the sell-to customer on the sales document.';
                 }
                 action("Co&mments")
                 {
@@ -1457,7 +1468,7 @@ page 44 "Sales Credit Memo"
                     ObsoleteState = Pending;
                     ObsoleteTag = '26.0';
                 }
-#else                
+#else
                 actionref(SalesStatistics_Promoted; SalesStatistics)
                 {
                 }
@@ -1872,4 +1883,3 @@ page 44 "Sales Credit Memo"
     end;
 #endif
 }
-
