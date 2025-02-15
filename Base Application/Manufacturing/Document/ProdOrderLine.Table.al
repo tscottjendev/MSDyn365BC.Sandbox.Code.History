@@ -1255,6 +1255,7 @@ table 5406 "Prod. Order Line"
                 end;
             end else begin
                 "Unit Cost" := Item."Unit Cost";
+                "Cost Amount" := Round(Quantity * "Unit Cost");
                 "Routing No." := Item."Routing No.";
                 "Production BOM No." := Item."Production BOM No.";
             end;
