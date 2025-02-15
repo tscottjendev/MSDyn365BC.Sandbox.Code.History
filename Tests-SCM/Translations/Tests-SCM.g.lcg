@@ -1337,6 +1337,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Costing Rollup Sev 2 - NamedType MissingOutputQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1407136536 - NamedType 3517419559" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Entry cannot be reversed as it is linked to the subcontracting work center.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Costing Rollup Sev 2 - NamedType ReverseCapacityLedgerEntryForSubContractingErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1407136536 - NamedType 4170628520" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must run the Adjust Cost - Item Entries batch job once to adjust these.]]></Val>
