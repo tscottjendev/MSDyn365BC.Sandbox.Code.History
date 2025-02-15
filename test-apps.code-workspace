@@ -162,7 +162,7 @@
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
     },
     {
-      "path": "./SubscriptionBilling/Test/Subscription & Recurring Billing Tests"
+      "path": "./SubscriptionBilling/Test/Subscription Billing Tests"
     },
     {
       "path": "./SimplifiedBankStatementImport/Test/Simplified Bank Statement Import Test"
