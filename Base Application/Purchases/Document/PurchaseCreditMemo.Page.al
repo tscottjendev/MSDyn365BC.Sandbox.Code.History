@@ -974,7 +974,7 @@ page 52 "Purchase Credit Memo"
             {
                 Caption = '&Credit Memo';
                 Image = CreditMemo;
-#if not CLEAN26                
+#if not CLEAN26
                 action(Statistics)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1004,7 +1004,7 @@ page 52 "Purchase Credit Memo"
                     Visible = not SalesTaxStatisticsVisible;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Purchase Statistics";
                     RunPageOnRec = true;
@@ -1020,7 +1020,7 @@ page 52 "Purchase Credit Memo"
                     Visible = SalesTaxStatisticsVisible;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Purchase Order Statistics";
                     RunPageOnRec = true;
@@ -1036,6 +1036,17 @@ page 52 "Purchase Credit Memo"
                                   "Date Filter" = field("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the vendor on the purchase document.';
+                }
+                action(VendorStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor Statistics';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
+                    Image = Statistics;
+                    RunObject = Page "Vendor Statistics";
+                    RunPageLink = "No." = field("Buy-from Vendor No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the buy-from vendor on the purchase document.';
                 }
                 action(Dimensions)
                 {
@@ -1666,11 +1677,11 @@ page 52 "Purchase Credit Memo"
                     ObsoleteState = Pending;
                     ObsoleteTag = '26.0';
                 }
-#else                
+#else
                 actionref(PurchaseStatistics_Promoted; PurchaseStatistics)
                 {
                 }
-#endif                
+#endif
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
@@ -2084,4 +2095,3 @@ page 52 "Purchase Credit Memo"
     begin
     end;
 }
-
