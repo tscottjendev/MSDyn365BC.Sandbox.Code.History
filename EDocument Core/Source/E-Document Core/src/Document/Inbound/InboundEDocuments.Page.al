@@ -144,7 +144,7 @@ page 6105 "Inbound E-Documents"
 
                 trigger OnAction()
                 begin
-                    ProcessEDocument();
+                    ProcessEDocument(Rec);
                 end;
             }
             action(EDocumentServices)
@@ -258,7 +258,7 @@ page 6105 "Inbound E-Documents"
             exit;
 
         EDocImportParameters."Step to Run" := EDocImportParameters."Step to Run"::"Prepare draft";
-        ProcessEDocument();
+        ProcessEDocument(EDocument);
     end;
 
     local procedure NewFromXml()
@@ -276,22 +276,22 @@ page 6105 "Inbound E-Documents"
             exit;
 
         EDocImport.CreateFromType(EDocument, EDocumentService, Enum::"E-Doc. Data Storage Blob Type"::XML, FileName, InStr);
-        ProcessEDocument();
+        ProcessEDocument(EDocument);
     end;
 
-    local procedure ProcessEDocument()
+    local procedure ProcessEDocument(var EDocument: Record "E-Document")
     var
         EDocImport: Codeunit "E-Doc. Import";
         Progress: Dialog;
     begin
-        if not EDocumentHelper.EnsureInboundEDocumentHasService(Rec) then
+        if not EDocumentHelper.EnsureInboundEDocumentHasService(EDocument) then
             exit;
 
         Progress.Open(ProcessDialogMsg);
-        EDocImport.ProcessIncomingEDocument(Rec);
+        EDocImport.ProcessIncomingEDocument(EDocument);
         Progress.Close();
-        if Rec.GetEDocumentImportProcessingStatus() = "Import E-Doc. Proc. Status"::"Draft Ready" then
-            EDocumentHelper.OpenDraftPage(Rec);
+        if EDocument.GetEDocumentImportProcessingStatus() = "Import E-Doc. Proc. Status"::"Draft Ready" then
+            EDocumentHelper.OpenDraftPage(EDocument);
     end;
 
 }

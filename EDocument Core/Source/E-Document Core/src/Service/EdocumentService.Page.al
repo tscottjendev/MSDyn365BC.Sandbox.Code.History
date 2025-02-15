@@ -172,6 +172,15 @@ page 6133 "E-Document Service"
                         }
                     }
                 }
+                group(Parameters)
+                {
+                    Caption = 'Parameters';
+                    Visible = Rec."Document Format" = Rec."Document Format"::"PEPPOL BIS 3.0";
+
+                    field("Embed PDF in export"; Rec."Embed PDF in export")
+                    {
+                    }
+                }
 
             }
             part(EDocumentDataExchDef; "E-Doc. Service Data Exch. Sub")

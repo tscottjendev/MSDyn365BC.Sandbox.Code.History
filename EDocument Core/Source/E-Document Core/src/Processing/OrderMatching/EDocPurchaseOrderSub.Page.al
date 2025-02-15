@@ -49,7 +49,7 @@ page 6168 "E-Doc. Purchase Order Sub"
                     Editable = false;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours.';
                 }
-                field("Available Quantity"; Rec."Quantity Received" - Rec."Quantity Invoiced")
+                field("Available Quantity"; AvailableQuantity)
                 {
                     Caption = 'Available Quantity';
                     StyleExpr = StyleTxt;
@@ -82,10 +82,15 @@ page 6168 "E-Doc. Purchase Order Sub"
         EDocumentBeingMatched: Record "E-Document";
         StyleTxt: Text;
         IsMatched: Boolean;
+        AvailableQuantity: Decimal;
 
     trigger OnAfterGetRecord()
     begin
         IsMatched := Rec.HasEDocMatch(EDocumentBeingMatched."Entry No");
+        if Rec.Type = Enum::"Purchase Line Type"::"G/L Account" then
+            AvailableQuantity := Rec."Quantity" - Rec."Quantity Invoiced"
+        else
+            AvailableQuantity := Rec."Quantity Received" - Rec."Quantity Invoiced";
         SetUserInteractions();
     end;
 

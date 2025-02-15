@@ -266,6 +266,12 @@ table 6103 "E-Document Service"
             ToolTip = 'Specifies if the processing of a document should start automatically after it is imported.';
             DataClassification = SystemMetadata;
         }
+        field(40; "Embed PDF in export"; Boolean)
+        {
+            Caption = 'Embed document PDF to export';
+            ToolTip = 'Specifies whether you want to automatically create a PDF based on Report Selection, as a background process, and embed it into the E-Document export file when posting the document.';
+            DataClassification = SystemMetadata;
+        }
     }
     keys
     {

@@ -55,7 +55,6 @@ codeunit 139883 "E-Doc Process Test"
         Assert.IsTrue(IBlobType.IsStructured(), 'New entry should always be structured');
     end;
 
-
     [Test]
     procedure ProcessingDoesSequenceOfSteps()
     var

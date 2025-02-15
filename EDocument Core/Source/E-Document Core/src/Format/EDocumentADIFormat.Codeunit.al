@@ -5,7 +5,7 @@ using Microsoft.eServices.EDocument.Processing.Interfaces;
 using Microsoft.eServices.EDocument.Processing.Import;
 using System.Utilities;
 
-codeunit 6174 "E-Document ADI Format" implements IStructuredFormatReader
+codeunit 6175 "E-Document ADI Format" implements IStructuredFormatReader
 {
 
     Access = Internal;

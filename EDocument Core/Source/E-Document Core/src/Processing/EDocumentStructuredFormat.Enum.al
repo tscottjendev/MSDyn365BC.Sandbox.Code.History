@@ -16,6 +16,6 @@ enum 6104 "E-Document Structured Format" implements IStructuredFormatReader
     value(0; "Azure Document Intelligence")
     {
         Caption = 'Azure Document Intelligence';
-        Implementation = IStructuredFormatReader = "E-Document ADI Format";
+        Implementation = IStructuredFormatReader = "E-Document ADI Handler";
     }
 }
