@@ -673,9 +673,10 @@ codeunit 10 "Type Helper"
 
     procedure NewLine(): Text
     var
-        Environment: DotNet Environment;
+        SystemEnvironment: DotNet SystemEnvironment;
     begin
-        exit(Environment.NewLine);
+        SystemEnvironment := SystemEnvironment.SystemEnvironment();
+        exit(SystemEnvironment.NewLine());
     end;
 
     local procedure MinimumInt3(i1: Integer; i2: Integer; i3: Integer): Integer

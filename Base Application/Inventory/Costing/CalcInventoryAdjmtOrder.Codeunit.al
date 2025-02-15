@@ -285,9 +285,10 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
 
         if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Production then
             CalcActualMaterialCostQuery.SetRange(Order_Line_No_, InvtAdjmtEntryOrder."Order Line No.");
+        OnCalcActualMaterialCostsOnAfterSetFilters(ItemLedgEntry, InvtAdjmtEntryOrder, CalcActualMaterialCostQuery, IsHandled);
+
         CalcActualMaterialCostQuery.Open();
 
-        OnCalcActualMaterialCostsOnAfterSetFilters(ItemLedgEntry, InvtAdjmtEntryOrder, CalcActualMaterialCostQuery, IsHandled);
         if not IsHandled then
             while CalcActualMaterialCostQuery.Read() do begin
                 InvtAdjmtEntryOrder.AddSingleLvlMaterialCost(
@@ -316,7 +317,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
             end;
     end;
 
-    local procedure AdjustForRevNegCon(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; ItemLedgEntryNo: Integer)
+    procedure AdjustForRevNegCon(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; ItemLedgEntryNo: Integer)
     var
         ValueEntry: Record "Value Entry";
     begin

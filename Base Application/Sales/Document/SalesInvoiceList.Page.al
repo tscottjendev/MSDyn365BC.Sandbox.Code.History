@@ -380,7 +380,7 @@ page 9301 "Sales Invoice List"
                     Visible = not SalesTaxStatisticsVisible;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Sales Statistics";
                     RunPageOnRec = true;
@@ -400,6 +400,16 @@ page 9301 "Sales Invoice List"
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Sales Order Stats.";
                     RunPageOnRec = true;
+                }
+                action(CustomerStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer Statistics';
+                    Image = Statistics;
+                    RunObject = Page "Customer Statistics";
+                    RunPageLink = "No." = field("Sell-to Customer No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the sell-to customer on the sales document.';
                 }
                 action("Co&mments")
                 {
@@ -803,7 +813,7 @@ page 9301 "Sales Invoice List"
                     ObsoleteState = Pending;
                     ObsoleteTag = '26.0';
                 }
-#else                
+#else
                 actionref(SalesStatistics_Promoted; SalesStatistics)
                 {
                 }
@@ -953,4 +963,3 @@ page 9301 "Sales Invoice List"
     begin
     end;
 }
-

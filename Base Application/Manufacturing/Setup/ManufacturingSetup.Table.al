@@ -201,6 +201,16 @@ table 99000765 "Manufacturing Setup"
                     FeatureTelemetry.LogUsage('0000OMQ', GetFeatureTelemetryName(), StrSubstNo(FieldValueIsChangedToLbl, Rec.FieldCaption("Load SKU Cost on Manufacturing"), Rec."Load SKU Cost on Manufacturing"));
             end;
         }
+        field(270; "Manual Scheduling"; Boolean)
+        {
+            Caption = 'Manual Scheduling';
+            ToolTip = 'Specifies that the End/Due Dates on the production have been scheduled manually.';
+        }
+        field(271; "Safety Lead Time for Man. Sch."; DateFormula)
+        {
+            Caption = 'Safety Lead Time for Manual Scheduling';
+            ToolTip = 'Specifies the time that will be added to the End date to calculate the Due Date when the production order is manually scheduled.';
+        }
         field(5500; "Preset Output Quantity"; Option)
         {
             Caption = 'Preset Output Quantity';

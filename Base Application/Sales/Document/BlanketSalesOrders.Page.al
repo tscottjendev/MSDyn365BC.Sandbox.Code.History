@@ -260,7 +260,7 @@ page 9303 "Blanket Sales Orders"
                     Visible = not SalesTaxStatisticsVisible;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Sales Order Statistics";
                     RunPageOnRec = true;
@@ -280,6 +280,16 @@ page 9303 "Blanket Sales Orders"
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Sales Order Stats.";
                     RunPageOnRec = true;
+                }
+                action(CustomerStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer Statistics';
+                    Image = Statistics;
+                    RunObject = Page "Customer Statistics";
+                    RunPageLink = "No." = field("Sell-to Customer No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the sell-to customer on the sales document.';
                 }
                 action("Co&mments")
                 {
@@ -501,7 +511,7 @@ page 9303 "Blanket Sales Orders"
                     ObsoleteState = Pending;
                     ObsoleteTag = '26.0';
                 }
-#else                
+#else
                 actionref(SalesOrderStatistics_Promoted; SalesOrderStatistics)
                 {
                 }
@@ -568,4 +578,3 @@ page 9303 "Blanket Sales Orders"
     end;
 #endif
 }
-
