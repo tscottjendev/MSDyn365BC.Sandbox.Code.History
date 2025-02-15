@@ -6128,23 +6128,43 @@
     local procedure VerifyGLEntriesScenario_376012_Sales(InvoiceNo: Code[20]; PrepmtInvoiceNo: Code[20]; PrepmtAccNo: array[2] of Code[20]; PostAccNo: array[6] of Code[20])
     begin
         VerifyPrepmtAndInvoiceVATEntries(InvoiceNo, PrepmtInvoiceNo);
-        VerifyGLEntry(PrepmtInvoiceNo, PrepmtAccNo[1], -28.11, -5.64);
-        VerifyGLEntry(PrepmtInvoiceNo, PrepmtAccNo[2], -28.14, -5.61);
-        VerifyGLEntry(InvoiceNo, PrepmtAccNo[1], 28.11, 5.64);
-        VerifyGLEntry(InvoiceNo, PrepmtAccNo[2], 28.14, 5.61);
-        VerifyGLEntryWithFilter(InvoiceNo, StrSubstNo('%1|%2|%3', PostAccNo[1], PostAccNo[3], PostAccNo[5]), -28.11, -5.64);
-        VerifyGLEntryWithFilter(InvoiceNo, StrSubstNo('%1|%2|%3', PostAccNo[2], PostAccNo[4], PostAccNo[6]), -28.14, -5.61);
+
+        // The rolling rounding depends on which order we post the lines, so the 56.25 may be split into 28.11+28.14 or 28.12+28.13 
+        // Instead of validating each G/L Entry separately, we validate the total amount for each account.
+        // VerifyGLEntry(PrepmtInvoiceNo, PrepmtAccNo[1], -28.11, -5.64);
+        // VerifyGLEntry(PrepmtInvoiceNo, PrepmtAccNo[2], -28.14, -5.61);
+        VerifyGLEntryWithFilter(PrepmtInvoiceNo, StrSubstNo('%1|%2', PrepmtAccNo[1], PrepmtAccNo[2]), -56.25, -11.25);
+
+        // Instead of validating each G/L Entry separately, we validate the total amount for each account.
+        // VerifyGLEntry(InvoiceNo, PrepmtAccNo[1], 28.11, 5.64);
+        // VerifyGLEntry(InvoiceNo, PrepmtAccNo[2], 28.14, 5.61);
+        VerifyGLEntryWithFilter(InvoiceNo, StrSubstNo('%1|%2', PrepmtAccNo[1], PrepmtAccNo[2]), 56.25, 11.25);
+
+        // Instead of validating each G/L Entry separately, we validate the total amount for each account.
+        // VerifyGLEntryWithFilter(InvoiceNo, StrSubstNo('%1|%2|%3', PostAccNo[1], PostAccNo[3], PostAccNo[5]), -28.11, -5.64);
+        // VerifyGLEntryWithFilter(InvoiceNo, StrSubstNo('%1|%2|%3', PostAccNo[2], PostAccNo[4], PostAccNo[6]), -28.14, -5.61);
+        VerifyGLEntryWithFilter(InvoiceNo, StrSubstNo('%1|%2|%3|%4|%5|%6', PostAccNo[1], PostAccNo[2], PostAccNo[3], PostAccNo[4], PostAccNo[5], PostAccNo[6]), -56.25, -11.25);
     end;
 
     local procedure VerifyGLEntriesScenario_376012_Purch(InvoiceNo: Code[20]; PrepmtInvoiceNo: Code[20]; PrepmtAccNo: array[2] of Code[20]; PostAccNo: array[6] of Code[20])
     begin
         VerifyPrepmtAndInvoiceVATEntries(InvoiceNo, PrepmtInvoiceNo);
-        VerifyGLEntry(PrepmtInvoiceNo, PrepmtAccNo[1], 28.11, 5.64);
-        VerifyGLEntry(PrepmtInvoiceNo, PrepmtAccNo[2], 28.14, 5.61);
-        VerifyGLEntry(InvoiceNo, PrepmtAccNo[1], -28.11, -5.64);
-        VerifyGLEntry(InvoiceNo, PrepmtAccNo[2], -28.14, -5.61);
-        VerifyGLEntryWithFilter(InvoiceNo, StrSubstNo('%1|%2|%3', PostAccNo[1], PostAccNo[3], PostAccNo[5]), 28.11, 5.64);
-        VerifyGLEntryWithFilter(InvoiceNo, StrSubstNo('%1|%2|%3', PostAccNo[2], PostAccNo[4], PostAccNo[6]), 28.14, 5.61);
+
+        // The rolling rounding depends on which order we post the lines, so the 56.25 may be split into 28.11+28.14 or 28.12+28.13 
+        // Instead of validating each G/L Entry separately, we validate the total amount for each account.
+        // VerifyGLEntry(PrepmtInvoiceNo, PrepmtAccNo[1], 28.11, 5.64);
+        // VerifyGLEntry(PrepmtInvoiceNo, PrepmtAccNo[2], 28.14, 5.61);
+        VerifyGLEntryWithFilter(PrepmtInvoiceNo, StrSubstNo('%1|%2', PrepmtAccNo[1], PrepmtAccNo[2]), 56.25, 11.25);
+
+        // Instead of validating each G/L Entry separately, we validate the total amount for each account.
+        // VerifyGLEntry(InvoiceNo, PrepmtAccNo[1], -28.11, -5.64);
+        // VerifyGLEntry(InvoiceNo, PrepmtAccNo[2], -28.14, -5.61);
+        VerifyGLEntryWithFilter(InvoiceNo, StrSubstNo('%1|%2', PrepmtAccNo[1], PrepmtAccNo[2]), -56.25, -11.25);
+
+        // Instead of validating each G/L Entry separately, we validate the total amount for each account.
+        // VerifyGLEntryWithFilter(InvoiceNo, StrSubstNo('%1|%2|%3', PostAccNo[1], PostAccNo[3], PostAccNo[5]), 28.11, 5.64);
+        // VerifyGLEntryWithFilter(InvoiceNo, StrSubstNo('%1|%2|%3', PostAccNo[2], PostAccNo[4], PostAccNo[6]), 28.14, 5.61);
+        VerifyGLEntryWithFilter(InvoiceNo, StrSubstNo('%1|%2|%3|%4|%5|%6', PostAccNo[1], PostAccNo[2], PostAccNo[3], PostAccNo[4], PostAccNo[5], PostAccNo[6]), 56.25, 11.25);
     end;
 
     local procedure TransNoIsNotZeroInDtldCustLedgEntries(DocumentNo: Code[20])

@@ -1334,7 +1334,7 @@ page 42 "Sales Order"
                     Visible = true;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Sales Order Statistics";
                     RunPageOnRec = true;
@@ -1350,6 +1350,17 @@ page 42 "Sales Order"
                                   "Date Filter" = field("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the customer on the sales document.';
+                }
+                action(CustomerStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer Statistics';
+                    Enabled = IsCustomerOrContactNotEmpty;
+                    Image = Statistics;
+                    RunObject = Page "Customer Statistics";
+                    RunPageLink = "No." = field("Sell-to Customer No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the sell-to customer on the sales document.';
                 }
                 action(Dimensions)
                 {
@@ -2568,7 +2579,7 @@ page 42 "Sales Order"
                     ObsoleteState = Pending;
                     ObsoleteTag = '26.0';
                 }
-#else                
+#else
                 actionref(SalesOrderStatistics_Promoted; SalesOrderStatistics)
                 {
                 }
@@ -3177,4 +3188,3 @@ page 42 "Sales Order"
     begin
     end;
 }
-

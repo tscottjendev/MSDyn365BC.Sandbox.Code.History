@@ -287,6 +287,10 @@ table 5405 "Production Order"
             begin
                 if "Due Date" = 0D then
                     exit;
+
+                if CurrFieldNo <> 0 then
+                    UpdateManualScheduling();
+
                 if (CurrFieldNo = FieldNo("Due Date")) or
                    (CurrFieldNo = FieldNo("Location Code")) or
                    UpdateEndDate
@@ -573,6 +577,9 @@ table 5405 "Production Order"
 
             trigger OnValidate()
             begin
+                if CurrFieldNo <> 0 then
+                    UpdateManualScheduling();
+
                 "Ending Date" := DT2Date("Ending Date-Time");
                 "Ending Time" := DT2Time("Ending Date-Time");
                 Validate("Ending Time");
@@ -589,6 +596,12 @@ table 5405 "Production Order"
         {
             Caption = 'Reopened';
             Editable = false;
+        }
+        field(290; "Manual Scheduling"; Boolean)
+        {
+            Caption = 'Manual Scheduling';
+            Editable = false;
+            ToolTip = 'Specifies that the End/Due Dates on the production have been scheduled manually.';
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -1289,6 +1302,7 @@ table 5405 "Production Order"
     local procedure UpdateStartingEndingTime(Direction: Option Forward,Backward)
     var
         IsHandled: Boolean;
+        NewDueDate: Date;
     begin
         ProdOrderLine.SetCurrentKey(Status, "Prod. Order No.", "Planning Level Code");
         ProdOrderLine.Ascending(Direction = Direction::Backward);
@@ -1323,13 +1337,19 @@ table 5405 "Production Order"
                             ProdOrderLine."Ending Date" := "Ending Date";
                         end;
                 end;
+                ProdOrderLine."Manual Scheduling" := Rec."Manual Scheduling";
                 ProdOrderLine.Modify();
+
+                LeadTimeMgt.SetManualScheduling(ProdOrderLine."Manual Scheduling");
                 CalcProdOrder.SetParameter(true);
                 case Direction of
                     Direction::Forward:
                         CalcProdOrder.Recalculate(ProdOrderLine, 0, true);
                     Direction::Backward:
-                        CalcProdOrder.Recalculate(ProdOrderLine, 1, true);
+                        if ProdOrderLine."Manual Scheduling" then
+                            CalcProdOrder.Recalculate(ProdOrderLine, 1, false)
+                        else
+                            CalcProdOrder.Recalculate(ProdOrderLine, 1, true);
                 end;
                 IsHandled := false;
                 OnBeforeUpdateProdOrderLineDueDate(ProdOrderLine, IsHandled);
@@ -1337,10 +1357,20 @@ table 5405 "Production Order"
                     if ProdOrderLine."Planning Level Code" > 0 then
                         ProdOrderLine."Due Date" := ProdOrderLine."Ending Date"
                     else
-                        ProdOrderLine."Due Date" :=
-                          LeadTimeMgt.GetPlannedDueDate(
-                            ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
-                            ProdOrderLine."Ending Date", '', "Requisition Ref. Order Type"::"Prod. Order");
+                        if ProdOrderLine."Manual Scheduling" then begin
+                            NewDueDate :=
+                                LeadTimeMgt.GetPlannedDueDate(
+                                    ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
+                                    ProdOrderLine."Ending Date", '', "Requisition Ref. Order Type"::"Prod. Order");
+                            if NewDueDate > ProdOrderLine."Due Date" then
+                                if ProdOrderLine.ConfirmUpdateDueDateAndEndingDate(ProdOrderLine.FieldCaption("Due Date"), NewDueDate) then
+                                    ProdOrderLine."Due Date" := NewDueDate
+                        end else
+                            ProdOrderLine."Due Date" :=
+                              LeadTimeMgt.GetPlannedDueDate(
+                                ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
+                                ProdOrderLine."Ending Date", '', "Requisition Ref. Order Type"::"Prod. Order");
+
                 if "Due Date" = 0D then
                     "Due Date" := ProdOrderLine."Due Date";
                 case Direction of
@@ -1374,6 +1404,7 @@ table 5405 "Production Order"
     local procedure UpdateEndingDate(var ProdOrderLine: Record "Prod. Order Line")
     var
         IsHandled: Boolean;
+        NewEndingDate: Date;
     begin
         IsHandled := false;
         OnBeforeUpdateEndingDate(ProdOrderLine, Rec, IsHandled, CurrFieldNo);
@@ -1382,21 +1413,46 @@ table 5405 "Production Order"
 
         if ProdOrderLine.FindSet(true) then
             repeat
+                ProdOrderLine."Manual Scheduling" := Rec."Manual Scheduling";
                 ProdOrderLine."Due Date" := "Due Date";
                 ProdOrderLine.Modify();
                 CalcProdOrder.SetParameter(true);
-                ProdOrderLine."Ending Date" :=
-                    LeadTimeMgt.GetPlannedEndingDate(
-                        ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
-                        ProdOrderLine."Due Date", '', "Requisition Ref. Order Type"::"Prod. Order");
+                LeadTimeMgt.SetManualScheduling(ProdOrderLine."Manual Scheduling");
+                if ShouldUpdateEndingDate(ProdOrderLine) then begin
+                    NewEndingDate :=
+                        LeadTimeMgt.GetPlannedEndingDate(
+                            ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
+                            ProdOrderLine."Due Date", '', "Requisition Ref. Order Type"::"Prod. Order");
+
+                    if ProdOrderLine.ConfirmUpdateDueDateAndEndingDate(ProdOrderLine.FieldCaption("Ending Date"), NewEndingDate) then
+                        ProdOrderLine."Ending Date" := NewEndingDate;
+                end;
+
                 OnUpdateEndingDateOnBeforeCalcProdOrderRecalculate(ProdOrderLine);
-                CalcProdOrder.Recalculate(ProdOrderLine, 1, true);
+                if ProdOrderLine."Manual Scheduling" then
+                    CalcProdOrder.Recalculate(ProdOrderLine, 1, false)
+                else
+                    CalcProdOrder.Recalculate(ProdOrderLine, 1, true);
                 "Starting Date-Time" := CreateDateTime("Starting Date", "Starting Time");
                 "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
                 OnUpdateEndingDateOnBeforeProdOrderLineModify(ProdOrderLine, Rec);
                 ProdOrderLine.Modify(true);
                 ProdOrderLine.CheckEndingDate(CurrFieldNo <> 0);
             until ProdOrderLine.Next() = 0
+    end;
+
+    local procedure ShouldUpdateEndingDate(ProdOrderLine: Record "Prod. Order Line"): Boolean
+    begin
+        if not ProdOrderLine."Manual Scheduling" then
+            exit(true);
+
+        if ProdOrderLine."Ending Date" = 0D then
+            exit(true);
+
+        if ProdOrderLine."Ending Date" < ProdOrderLine."Due Date" then
+            exit(false);
+
+        exit(true);
     end;
 
     procedure ShowDocDim()
@@ -1565,6 +1621,18 @@ table 5405 "Production Order"
             repeat
                 ProdOrderWarehouseMgt.CompareProdOrderWithProdOrderLinesForLocation(Rec, PutAwayProdOrderLine);
             until PutAwayProdOrderLine.Next() = 0;
+    end;
+
+    local procedure GetMfgSetup()
+    begin
+        MfgSetup.GetRecordOnce();
+    end;
+
+    local procedure UpdateManualScheduling()
+    begin
+        GetMfgSetup();
+
+        Rec.Validate("Manual Scheduling", MfgSetup."Manual Scheduling");
     end;
 
     [IntegrationEvent(false, false)]

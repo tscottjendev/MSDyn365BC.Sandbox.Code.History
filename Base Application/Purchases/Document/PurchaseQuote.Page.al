@@ -886,7 +886,7 @@ page 49 "Purchase Quote"
             {
                 Caption = '&Quote';
                 Image = Quote;
-#if not CLEAN26                
+#if not CLEAN26
                 action(Statistics)
                 {
                     ApplicationArea = Suite;
@@ -916,7 +916,7 @@ page 49 "Purchase Quote"
                     Visible = true;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Purchase Statistics";
                     RunPageOnRec = true;
@@ -932,6 +932,17 @@ page 49 "Purchase Quote"
                                   "Date Filter" = field("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the vendor on the purchase document.';
+                }
+                action(VendorStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor Statistics';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
+                    Image = Statistics;
+                    RunObject = Page "Vendor Statistics";
+                    RunPageLink = "No." = field("Buy-from Vendor No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the buy-from vendor on the purchase document.';
                 }
                 action("Co&mments")
                 {
@@ -1490,18 +1501,18 @@ page 49 "Purchase Quote"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
-#if not CLEAN26                
+#if not CLEAN26
                 actionref(Statistics_Promoted; Statistics)
                 {
                     ObsoleteReason = 'The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '26.0';
                 }
-#else                
+#else
                 actionref(PurchaseStatistics_Promoted; PurchaseStatistics)
                 {
                 }
-#endif                
+#endif
                 actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
@@ -1763,4 +1774,3 @@ page 49 "Purchase Quote"
     begin
     end;
 }
-
