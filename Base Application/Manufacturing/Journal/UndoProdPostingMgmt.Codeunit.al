@@ -148,7 +148,6 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
 
         ItemJnlLine.Validate("Setup Time", -Abs(CapacityLedgEntry."Setup Time"));
         ItemJnlLine.Validate("Run Time", -Abs(CapacityLedgEntry."Run Time"));
-        ItemJnlLine.Validate("Output Quantity", -Abs(CapacityLedgEntry."Output Quantity"));
         ItemJnlLine.Validate(Quantity, -Abs(CapacityLedgEntry.Quantity));
         ItemJnlLine.Validate("Scrap Code", CapacityLedgEntry."Scrap Code");
         ItemJnlLine.Validate("Scrap Quantity", -Abs(CapacityLedgEntry."Scrap Quantity"));
@@ -313,7 +312,6 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
     local procedure ValidateProdOrder(CapacityLedgerEntry: Record "Capacity Ledger Entry")
     var
         ProductionOrder: Record "Production Order";
-        ProdOrderLine: Record "Prod. Order Line";
     begin
         CapacityLedgerEntry.TestField("Order Type", CapacityLedgerEntry."Order Type"::Production);
         if CapacityLedgerEntry.Quantity < 0 then
@@ -322,10 +320,8 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ProductionOrder.SetLoadFields(Status, "No.");
         ProductionOrder.Get(ProductionOrder.Status::Released, CapacityLedgerEntry."Order No.");
 
-        ProdOrderLine.SetLoadFields(Status, "Prod. Order No.", "Line No.");
-        ProdOrderLine.Get(ProdOrderLine.Status::Released, CapacityLedgerEntry."Order No.", CapacityLedgerEntry."Order Line No.");
-
-        ValidateSubcontracting(ProdOrderLine);
+        if CapacityLedgerEntry.Subcontracting then
+            Error(SubContractingErr);
     end;
 
     local procedure CreateOutputReservationEntry(ItemJnlLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry")
