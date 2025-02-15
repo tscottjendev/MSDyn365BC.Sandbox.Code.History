@@ -1175,6 +1175,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Field Caption,%2 =  Field Value, %3 = Table Caption.]D;]A;(LookupHint=Codeunit ERM Payment Lines - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2799076071 - NamedType 3288670887" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Remaining Amount must be %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Field Value.]D;]A;(LookupHint=Codeunit ERM Payment Lines - NamedType RemainingAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2799076071 - NamedType 668728601" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Vendor Ledger Entries are not applied.]]></Val>
@@ -3747,6 +3756,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Subcontracting - NamedType ReturnTrasferOrderErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2418598749 - NamedType 3517419559" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Entry cannot be reversed as it is linked to the subcontracting work center.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Subcontracting - NamedType ReverseCapacityLedgerEntryForSubContractingErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2418598749 - NamedType 428463962" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

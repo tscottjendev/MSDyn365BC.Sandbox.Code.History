@@ -1606,4 +1606,3 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
             Message(InputMessage);
     end;
 }
-

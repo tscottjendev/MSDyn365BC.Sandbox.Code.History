@@ -182,6 +182,7 @@ codeunit 22 "Item Jnl.-Post Line"
         SkipApplicationCheck: Boolean;
         CalledFromApplicationWorksheet: Boolean;
         SkipSerialNoQtyValidation: Boolean;
+        PostToGlLbl: Label 'Posting to G/L    #1#####', Comment = '%1 is an integer value';
 
     /// <summary>
     /// Posts the provided item journal line. The line is copied to a global variable. A check is performed to ensure the Item and Variant are not blocked.
@@ -6518,6 +6519,49 @@ codeunit 22 "Item Jnl.-Post Line"
             else
                 exit(-Abs(OldItemLedgerEntry."Reserved Quantity"));
         end;
+    end;
+
+    procedure PostDeferredValueEntriesToGL(PostponedValueEntries: List of [Integer])
+    var
+        ValueEntry: Record "Value Entry";
+        ValueEntryUpdate: Record "Value Entry";
+        Window: Dialog;
+        EntryNo: Integer;
+        FromEntryNo: Integer;
+        ToEntryNo: Integer;
+    begin
+        if PostponedValueEntries.Count = 0 then
+            exit;
+        if GuiAllowed then
+            Window.Open(PostToGlLbl);
+        FromEntryNo := 2100000000;
+        ToEntryNo := 0;
+        // to find the range of postponed value entries
+        foreach EntryNo in PostponedValueEntries do begin
+            if EntryNo < FromEntryNo then
+                FromEntryNo := EntryNo;
+            if EntryNo > ToEntryNo then
+                ToEntryNo := EntryNo;
+        end;
+
+        ValueEntryUpdate.ReadIsolation(IsolationLevel::UpdLock);
+        ValueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);  // we already locked the ones we need to update
+        ValueEntry.SetRange("Entry No.", FromEntryNo, ToEntryNo);
+        EntryNo := 0;
+        if ValueEntry.FindSet() then
+            repeat
+                if PostponedValueEntries.Contains(ValueEntry."Entry No.") then begin
+                    PostponedValueEntries.Remove(ValueEntry."Entry No.");
+                    EntryNo += 1;
+                    if GuiAllowed then
+                        Window.Update(1, EntryNo);
+                    ValueEntryUpdate := ValueEntry;
+                    PostValueEntryToGL(ValueEntryUpdate);
+                    ValueEntryUpdate.Modify();
+                end;
+            until ValueEntry.Next() = 0;
+        if GuiAllowed then
+            Window.Close();
     end;
 
     [IntegrationEvent(false, false)]

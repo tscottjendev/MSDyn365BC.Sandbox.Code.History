@@ -145,6 +145,11 @@ page 99000831 "Released Production Order"
                     Importance = Additional;
                     ToolTip = 'Specifies if the production order is reopened.';
                 }
+                field("Manual Scheduling"; Rec."Manual Scheduling")
+                {
+                    ApplicationArea = Manufacturing;
+                    Importance = Additional;
+                }
             }
             part(ProdOrderLines; "Released Prod. Order Lines")
             {

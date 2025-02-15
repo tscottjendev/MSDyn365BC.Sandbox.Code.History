@@ -930,7 +930,7 @@ page 507 "Blanket Sales Order"
                     Visible = true;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Sales Order Statistics";
                     RunPageOnRec = true;
@@ -939,11 +939,23 @@ page 507 "Blanket Sales Order"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Card';
+                    Enabled = IsCustomerOrContactNotEmpty;
                     Image = EditLines;
                     RunObject = Page "Customer Card";
                     RunPageLink = "No." = field("Sell-to Customer No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the customer on the sales document.';
+                }
+                action(CustomerStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer Statistics';
+                    Enabled = IsCustomerOrContactNotEmpty;
+                    Image = Statistics;
+                    RunObject = Page "Customer Statistics";
+                    RunPageLink = "No." = field("Sell-to Customer No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the sell-to customer on the sales document.';
                 }
                 action("Co&mments")
                 {
@@ -1336,7 +1348,7 @@ page 507 "Blanket Sales Order"
                     ObsoleteState = Pending;
                     ObsoleteTag = '26.0';
                 }
-#else                
+#else
                 actionref(SalesOrderStatistics_Promoted; SalesOrderStatistics)
                 {
                 }
@@ -1439,6 +1451,7 @@ page 507 "Blanket Sales Order"
     protected var
         ShipToOptions: Enum "Sales Ship-to Options";
         BillToOptions: Enum "Sales Bill-to Options";
+        IsCustomerOrContactNotEmpty: Boolean;
         IsActivityCodeMandatory: Boolean;
 
     local procedure ActivateFields()
@@ -1450,6 +1463,7 @@ page 507 "Blanket Sales Order"
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
         IsSalesLinesEditable := Rec.SalesLinesEditable();
+        IsCustomerOrContactNotEmpty := (Rec."Sell-to Customer No." <> '') or (Rec."Sell-to Contact No." <> '');
     end;
 
     local procedure ApproveCalcInvDisc()

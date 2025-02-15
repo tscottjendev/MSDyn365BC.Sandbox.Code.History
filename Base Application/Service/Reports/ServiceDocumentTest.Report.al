@@ -1139,6 +1139,8 @@ report 5915 "Service Document - Test"
                             AddError(TempInclInVATReportErrorLog."Error Message");
                         until TempInclInVATReportErrorLog.Next() = 0;
                 end;
+		
+                OnAfterCheckServiceDoc("Service Header", ErrorText, ErrorCounter);
             end;
 
             trigger OnPreDataItem()
@@ -1676,6 +1678,11 @@ report 5915 "Service Document - Test"
             else
                 if not UserSetupManagement.TestAllowedPostingDate(ServiceHeader."Posting Date", TempErrorText) then
                     AddError(TempErrorText);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckServiceDoc(ServiceHeader: Record "Service Header"; var ErrorText: array[99] of Text[250]; var ErrorCounter: Integer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
