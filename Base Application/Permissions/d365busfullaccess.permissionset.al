@@ -85,6 +85,7 @@ using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.BOM.Tree;
 using Microsoft.Inventory.Comment;
 using Microsoft.Inventory.Costing;
+using Microsoft.Inventory.Costing.ActionMessage;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Document;
 using Microsoft.Inventory.History;
@@ -360,6 +361,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Copy Item Buffer" = RIMD,
                   tabledata "Copy Item Parameters" = RIMD,
                   tabledata "Cost Adj. Item Bucket" = RIMD,
+                  tabledata "Cost Adjmt. Action Message" = RIMD,
                   tabledata "Cost Adjustment Detailed Log" = RIMD,
                   tabledata "Cost Adjustment Log" = RIMD,
                   tabledata "Cost Adjustment Trace Log" = RIMD,

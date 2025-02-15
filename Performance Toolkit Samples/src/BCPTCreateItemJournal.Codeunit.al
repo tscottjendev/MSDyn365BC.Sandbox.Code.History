@@ -26,12 +26,13 @@ codeunit 149140 "BCPT Create Item Journal"
             DocumentNo := SelectItemJournal(ItemJournalBatch);
             case j of
                 1:
-                    Item.SetFilter("No.", '11x*');
+                    Item.SetFilter("No.", '11*');
                 2:
                     Item.SetFilter("No.", '70*');
                 3:
-                    Item.SetFilter("No.", '19*');
+                    Item.SetFilter("No.", '13*');
             end;
+            Item.SetRange(Type, Item.Type::"Inventory");
             Item.SetLoadFields("No.");
             Item.FindSet();
             for i := 1 to 1000 do begin

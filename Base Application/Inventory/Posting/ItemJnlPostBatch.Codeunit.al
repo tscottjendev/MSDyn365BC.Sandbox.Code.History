@@ -83,7 +83,6 @@ codeunit 23 "Item Jnl.-Post Batch"
         Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
         Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
         Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
-        PostToGlLbl: Label 'Posting to G/L        #7######';
         Text008: Label 'There are new postings made in the period you want to revalue item no. %1.\';
 #pragma warning restore AA0470
         Text009: Label 'You must calculate the inventory value again.';
@@ -167,7 +166,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         if ItemJnlLine."Line No." = 0 then
             ItemJnlLine."Line No." := WhseRegNo;
 
-        PostDeferredValueEntriesToGL();
+        ItemJnlPostLine.PostDeferredValueEntriesToGL(PostponedValueEntries);
 
         InvtSetup.SetLoadFields("Automatic Cost Adjustment", "Automatic Cost Posting");
         InvtSetup.Get();
@@ -209,44 +208,6 @@ codeunit 23 "Item Jnl.-Post Batch"
         OnAfterCode(ItemJnlLine, ItemJnlBatch, ItemRegNo, WhseRegNo);
     end;
 
-    local procedure PostDeferredValueEntriesToGL()
-    var
-        ValueEntry: Record "Value Entry";
-        ValueEntryUpdate: Record "Value Entry";
-        EntryNo: Integer;
-        FromEntryNo: Integer;
-        ToEntryNo: Integer;
-        i: Integer;
-    begin
-        if PostponedValueEntries.Count = 0 then
-            exit;
-        FromEntryNo := 0;
-        ToEntryNo := 0;
-        // to find the range of postponed value entries
-        foreach EntryNo in PostponedValueEntries do begin
-            if EntryNo < FromEntryNo then
-                FromEntryNo := EntryNo;
-            if EntryNo > ToEntryNo then
-                ToEntryNo := EntryNo;
-        end;
-
-        ValueEntryUpdate.ReadIsolation(IsolationLevel::UpdLock);
-        ValueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);  // we already locked the ones we need to update
-        ValueEntry.SetRange("Entry No.", FromEntryNo, ToEntryNo);
-        if ValueEntry.FindSet() then
-            repeat
-                if PostponedValueEntries.Contains(ValueEntry."Entry No.") then begin
-                    PostponedValueEntries.Remove(ValueEntry."Entry No.");
-                    i += 1;
-                    if GuiAllowed() and WindowIsOpen then
-                        Window.Update(7, i);
-                    ValueEntryUpdate := ValueEntry;
-                    ItemJnlPostLine.PostInventoryToGL(ValueEntryUpdate);
-                    ValueEntryUpdate.Modify();
-                end;
-            until ValueEntry.Next() = 0;
-    end;
-
     local procedure OpenProgressDialog()
     var
         IsHandled: Boolean;
@@ -264,14 +225,12 @@ codeunit 23 "Item Jnl.-Post Batch"
               Text001 +
               Text002 +
               Text003 +
-              Text004 +
-              PostToGlLbl)
+              Text004)
         else
             Window.Open(
               Text001 +
               Text002 +
-              Text005 +
-              PostToGlLbl);
+              Text005);
 
         Window.Update(1, ItemJnlLine."Journal Batch Name");
         WindowIsOpen := true;
@@ -333,7 +292,10 @@ codeunit 23 "Item Jnl.-Post Batch"
         LastDocNo2 := '';
         LastPostedDocNo := '';
 
-        ItemJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.");
+        if InvtSetup.UseLegacyPosting() then
+            ItemJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.")
+        else
+            ItemJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.", "Item No.", "Location Code", "Bin Code", "Line No.");
         ItemJnlLine.FindSet();
         repeat
             if not ItemJnlLine.EmptyLine() and (ItemJnlBatch."No. Series" <> '') and (ItemJnlLine."Document No." <> LastDocNo2) then

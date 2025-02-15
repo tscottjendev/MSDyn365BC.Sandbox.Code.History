@@ -21,6 +21,7 @@ codeunit 99000855 "Planning-Get Parameters"
         MfgSetup: Record "Manufacturing Setup";
         HasGotMfgSetUp: Boolean;
         LotForLot: Boolean;
+        ManualScheduling: Boolean;
 
     procedure AtSKU(var SKU: Record "Stockkeeping Unit"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     begin
@@ -68,15 +69,24 @@ codeunit 99000855 "Planning-Get Parameters"
             end;
             SetComponentsAtLocation(LocationCode);
         end;
-        if Format(GlobalSKU."Safety Lead Time") = '' then
-            if Format(MfgSetup."Default Safety Lead Time") <> '' then
-                GlobalSKU."Safety Lead Time" := MfgSetup."Default Safety Lead Time"
-            else
-                Evaluate(GlobalSKU."Safety Lead Time", '<0D>');
+
+        if ManualScheduling and MfgSetup."Manual Scheduling" then
+            GlobalSKU."Safety Lead Time" := MfgSetup."Safety Lead Time for Man. Sch."
+        else
+            if Format(GlobalSKU."Safety Lead Time") = '' then
+                if Format(MfgSetup."Default Safety Lead Time") <> '' then
+                    GlobalSKU."Safety Lead Time" := MfgSetup."Default Safety Lead Time"
+                else
+                    Evaluate(GlobalSKU."Safety Lead Time", '<0D>');
         AdjustInvalidSettings(GlobalSKU);
         SKU := GlobalSKU;
 
         OnAfterAtSKU(SKU, GlobalSKU);
+    end;
+
+    procedure SetManualScheduling(NewManualScheduling: Boolean)
+    begin
+        ManualScheduling := NewManualScheduling;
     end;
 
     local procedure GetItem(ItemNo: Code[20])
