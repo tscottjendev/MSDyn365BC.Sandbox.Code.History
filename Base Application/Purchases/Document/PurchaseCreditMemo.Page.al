@@ -1009,7 +1009,7 @@ page 52 "Purchase Credit Memo"
                     RunObject = Page "Purchase Statistics";
                     RunPageOnRec = true;
                 }
-                action(PurchaseOrderStats)
+                action(PurchaseStats)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
@@ -1022,7 +1022,7 @@ page 52 "Purchase Credit Memo"
                     Visible = false;
 #endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
-                    RunObject = Page "Purchase Order Statistics";
+                    RunObject = Page "Purchase Stats.";
                     RunPageOnRec = true;
                 }
                 action(Vendor)
