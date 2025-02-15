@@ -4225,13 +4225,11 @@ codeunit 137065 "SCM Reservation II"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Source No.", SourceNo);
-        ItemLedgerEntry.FindSet();
 
-        ItemLedgerEntry.TestField(Quantity, Quantity1);
-        ItemLedgerEntry.Next();
-        ItemLedgerEntry.TestField(Quantity, Quantity1);
-        ItemLedgerEntry.Next();
-        ItemLedgerEntry.TestField(Quantity, Quantity2);
+        ItemLedgerEntry.SetRange(Quantity, Quantity1);
+        Assert.AreEqual(2, ItemLedgerEntry.Count(), 'Expected 2 entries with first Quantity');
+        ItemLedgerEntry.SetRange(Quantity, Quantity2);
+        Assert.AreEqual(1, ItemLedgerEntry.Count(), 'Expected 1 entry with second Quantity');
     end;
 
     local procedure VerifyItemLedgerEntriesForCostAmountActual(ItemNo: Code[20])

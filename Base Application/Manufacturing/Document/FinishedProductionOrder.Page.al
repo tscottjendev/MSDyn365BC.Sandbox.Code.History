@@ -103,6 +103,11 @@ page 99000867 "Finished Production Order"
                     Editable = false;
                     ToolTip = 'Specifies if the production order is reopened.';
                 }
+                field("Manual Scheduling"; Rec."Manual Scheduling")
+                {
+                    ApplicationArea = Manufacturing;
+                    Importance = Additional;
+                }
             }
             part(ProdOrderLines; "Finished Prod. Order Lines")
             {
