@@ -2381,6 +2381,24 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType CapOvhdCostLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 128858617" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is greater or equal to %2 in %3 Status=%4,Prod. Order No.=%5, Line No.=%6. Do you want to continue?\\ If yes, %7 will be changed to %8.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Field Caption, %3 = Table Caption, %4 = Status , %5 = Production Order No., %6 = Production Order Line No., %7= Field Caption, %8 = New Date]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 2755553953" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The change leads to a date conflict with existing reservations.\Reserved quantity (Base): %1, Date %2\Cancel or change reservations and try again]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - reserved quantity, %2 - date]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType DateConflictErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2276747048 - NamedType 3087330047" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be equal to %2 for Entry No. %3 in the %4.]]></Val>
@@ -2399,6 +2417,24 @@
       <Cmt Name="Dev"><![CDATA[ %1 = Field Name , %2 = Page Name]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType FieldMustBeEditableErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 458614382" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be enabled in Page %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Page Caption]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType FieldMustBeEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 1362185211" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be visible in Page %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Page Caption]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType FieldMustBeVisibleErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2276747048 - NamedType 1292234088" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must not be editable in %2]]></Val>
@@ -2415,6 +2451,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType ItemNoLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 3133577811" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Manual Scheduling must be true in %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Table Caption]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType ManualSchedulingMustBeTrueErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2276747048 - NamedType 3007646446" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

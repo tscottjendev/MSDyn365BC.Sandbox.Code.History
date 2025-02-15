@@ -526,6 +526,7 @@ codeunit 99000773 "Calculate Prod. Order"
             ProdOrderLine."Starting Time" := ProdOrderRoutingLine."Starting Time";
         end;
 
+        LeadTimeMgt.SetManualScheduling(ProdOrderLine."Manual Scheduling");
         IsHandled := false;
         OnCalculateProdOrderDatesOnSetBeforeDueDate(ProdOrderLine, IsHandled);
         if not IsHandled then begin
@@ -538,7 +539,8 @@ codeunit 99000773 "Calculate Prod. Order"
                 NewDueDate := ProdOrderLine."Ending Date";
 
             if LetDueDateDecrease or (NewDueDate > ProdOrderLine."Due Date") then
-                ProdOrderLine."Due Date" := NewDueDate;
+                if ProdOrderLine.ConfirmUpdateDueDateAndEndingDate(ProdOrderLine.FieldCaption("Due Date"), NewDueDate) then
+                    ProdOrderLine."Due Date" := NewDueDate;
         end;
 
         OnCalculateProdOrderDatesOnBeforeUpdateDatetime(ProdOrderLine, NewDueDate, LetDueDateDecrease);
@@ -548,6 +550,7 @@ codeunit 99000773 "Calculate Prod. Order"
         OnBeforeUpdateProdOrderDates(ProdOrder, ProdOrderLine, ProdOrderModify);
 
         if not ProdOrderModify then begin
+            ProdOrder.Validate("Manual Scheduling", ProdOrderLine."Manual Scheduling");
             ProdOrder.AdjustStartEndingDate();
             ProdOrder.Modify();
         end;
@@ -939,6 +942,7 @@ codeunit 99000773 "Calculate Prod. Order"
     begin
         ProdOrderLine := ProdOrderLine2;
 
+        LeadTimeMgt.SetManualScheduling(ProdOrderLine2."Manual Scheduling");
         LeadTime :=
           LeadTimeMgt.ManufacturingLeadTime(
             ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code");
