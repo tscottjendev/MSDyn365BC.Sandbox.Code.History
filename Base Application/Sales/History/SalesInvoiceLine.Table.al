@@ -593,8 +593,7 @@ table 113 "Sales Invoice Line"
         }
         key(Key9; "Document No.", "Location Code")
         {
-            MaintainSQLIndex = false;
-            SumIndexFields = Amount, "Amount Including VAT", "Inv. Discount Amount";
+            IncludedFields = Amount, "Amount Including VAT", "Inv. Discount Amount";
         }
         key(Key10; Type, "No.")
         {

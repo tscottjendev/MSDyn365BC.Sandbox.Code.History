@@ -21,6 +21,8 @@ using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Reports;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Sales.Document;
 
 codeunit 137083 "SCM Production Orders IV"
 {
@@ -48,6 +50,7 @@ codeunit 137083 "SCM Production Orders IV"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySales: Codeunit "Library - Sales";
         ShowLevelAs: Option "First BOM Level","BOM Leaves";
         ShowCostShareAs: Option "Single-level","Rolled-up";
         IsInitialized: Boolean;
@@ -72,6 +75,12 @@ codeunit 137083 "SCM Production Orders IV"
         CapacityOverheadCostMustBeEqualErr: Label 'Capacity Overhead Cost must be equal to %1 in item %2', Comment = ' %1 = Expected Value , %2 = Item No.';
         NonInvMaterialCostMustBeEqualErr: Label 'Non Inventory Material Cost must be equal to %1 in item %2', Comment = ' %1 = Expected Value , %2 = Item No.';
         TotalCostMustBeEqualErr: Label 'Total Cost must be equal to %1 in item %2', Comment = ' %1 = Expected Value , %2 = Item No.';
+        ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst: Label '%1 is greater or equal to %2 in %3 Status=%4,Prod. Order No.=%5, Line No.=%6. Do you want to continue?\\ If yes, %7 will be changed to %8.',
+                                                                Comment = '%1 = Field Caption , %2 = Field Caption, %3 = Table Caption, %4 = Status , %5 = Production Order No., %6 = Production Order Line No., %7= Field Caption, %8 = New Date';
+        ManualSchedulingMustBeTrueErr: Label 'Manual Scheduling must be true in %1.', Comment = '%1 = Table Caption';
+        DateConflictErr: Label 'The change leads to a date conflict with existing reservations.\Reserved quantity (Base): %1, Date %2\Cancel or change reservations and try again', Comment = '%1 - reserved quantity, %2 - date';
+        FieldMustBeVisibleErr: Label '%1 must be visible in Page %2', Comment = '%1 = Field Caption , %2 = Page Caption';
+        FieldMustBeEnabledErr: Label '%1 must be enabled in Page %2', Comment = '%1 = Field Caption , %2 = Page Caption';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
@@ -1406,6 +1415,1778 @@ codeunit 137083 "SCM Production Orders IV"
         VerifyBOMCostSharesReport(OutputItem."No.", CompUnitCost1 + CompUnitCost2, 0, ExpectedOvhdCost, 0, 0, NonInvUnitCost1 + NonInvUnitCost2, ExpectedTotalCost);
     end;
 
+    [Test]
+    procedure ManualSchedulingAndSafetyLeadTimeForManSchAreVisibleAndEnabledOnManufacturingSetup()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ManufacturingSetupPage: TestPage "Manufacturing Setup";
+    begin
+        // [SCENARIO 317246] Verify "Manual Scheduling" and "Safety Lead Time for Man. Sch." must be visible in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [WHEN] Open Manufacturing Setup page.
+        ManufacturingSetupPage.OpenEdit();
+        ManufacturingSetupPage.GoToRecord(ManufacturingSetup);
+
+        // [THEN] Manual Scheduling is Visible on Manufacturing Setup page.
+        Assert.IsTrue(
+            ManufacturingSetupPage."Manual Scheduling".Visible(),
+            StrSubstNo(
+                FieldMustBeVisibleErr,
+                ManufacturingSetupPage."Manual Scheduling".Caption(),
+                ManufacturingSetupPage.Caption()));
+
+        // [THEN] Manual Scheduling is Enabled on Manufacturing Setup page.
+        Assert.IsTrue(
+            ManufacturingSetupPage."Manual Scheduling".Enabled(),
+            StrSubstNo(
+                FieldMustBeEnabledErr,
+                ManufacturingSetupPage."Manual Scheduling".Caption(),
+                ManufacturingSetupPage.Caption()));
+
+        // [THEN] Safety Lead Time for man. Sch. is Visible on Manufacturing Setup page.
+        Assert.IsTrue(
+            ManufacturingSetupPage."Safety Lead Time for Man. Sch.".Visible(),
+            StrSubstNo(
+                FieldMustBeVisibleErr,
+                ManufacturingSetupPage."Safety Lead Time for Man. Sch.".Caption(),
+                ManufacturingSetupPage.Caption()));
+
+        // [THEN] Safety Lead Time for man. Sch. is Enabled on Manufacturing Setup page.
+        Assert.IsTrue(
+            ManufacturingSetupPage."Safety Lead Time for Man. Sch.".Enabled(),
+            StrSubstNo(
+                FieldMustBeEnabledErr,
+                ManufacturingSetupPage."Safety Lead Time for Man. Sch.".Caption(),
+                ManufacturingSetupPage.Caption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageFromConfirmHandlerTrue')]
+    procedure IfEndDateGreatThanDueDateIsEnteredOnProdOrderLineThanDueDateIsCalcBySafetyLeadTimeForManSchIfManualSchedulingIsTrue()
+    var
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ReleasedProdOrderLines: TestPage "Released Prod. Order Lines";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date greater than Due Date is entered on Released Prod. Order Lines page then
+        // Due Date is equal to Safety Lead Time for Man. Sch. added to Ending Date if 
+        // Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandIntInRange(10, 10), '', '');
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Prod. Order Lines page.
+        ReleasedProdOrderLines.OpenEdit();
+        ReleasedProdOrderLines.GoToRecord(ProdOrderLine);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate(ManufacturingSetup."Safety Lead Time for Man. Sch.", ReleasedProdOrderLines."Due Date".AsDate());
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := CalcDate(ManufacturingSetup."Safety Lead Time for Man. Sch.", EndingDate);
+
+        // [WHEN] Set EndingDate value in Ending Date - Time field of Released Prod. Order Lines page.
+        LibraryVariableStorage.Enqueue(
+            StrSubstNo(
+                ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst,
+                ReleasedProdOrderLines."Ending Date".Caption(),
+                ReleasedProdOrderLines."Due Date".Caption(),
+                ProdOrderLine.TableCaption(),
+                ProdOrderLine.Status,
+                ProdOrderLine."Prod. Order No.",
+                ProdOrderLine."Line No.",
+                ProdOrderLine.FieldCaption("Due Date"),
+                DueDate));
+        ReleasedProdOrderLines."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] Due Date in Released Prod. Order Lines page is equal to DueDate.
+        ReleasedProdOrderLines."Due Date".AssertEquals(DueDate);
+
+        // [WHEN] Find Production Order.
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+
+        // [THEN] Manual Scheduling is true in Production Order.
+        Assert.IsTrue(ProductionOrder."Manual Scheduling", StrSubstNo(ManualSchedulingMustBeTrueErr, ProductionOrder.TableCaption()));
+
+        // [WHEN] Find Prod. Order Line.
+        ProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+
+        // [THEN] Manual Scheduling is true in Prod. Order Line.
+        Assert.IsTrue(ProdOrderLine."Manual Scheduling", StrSubstNo(ManualSchedulingMustBeTrueErr, ProdOrderLine.TableCaption()));
+        ReleasedProdOrderLines.Close();
+    end;
+
+    [Test]
+    procedure IfEndDateLessThanDueDateIsEnteredOnProdOrderLineThanDueDateRemainsSameIfManualSchedulingIsTrue()
+    var
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ReleasedProdOrderLines: TestPage "Released Prod. Order Lines";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date less than Due Date is entered on Released Prod. Order Lines page then
+        // Due Date remains same if Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(0), '', '');
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Prod. Order Lines page.
+        ReleasedProdOrderLines.OpenEdit();
+        ReleasedProdOrderLines.GoToRecord(ProdOrderLine);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate('<-2D>', ReleasedProdOrderLines."Due Date".AsDate());
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := ReleasedProdOrderLines."Due Date".AsDate();
+
+        // [WHEN] Set EndingDate value in Ending Date - Time field of Released Prod. Order Lines page.
+        ReleasedProdOrderLines."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] Due Date in Released Prod. Order Lines page is equal to DueDate.
+        ReleasedProdOrderLines."Due Date".AssertEquals(DueDate);
+        ReleasedProdOrderLines.Close();
+    end;
+
+    [Test]
+    procedure IfEndDateLessThanOldEndDateIsEnteredOnProdOrderLineThanDueDateRemainsSameIfManualSchedulingIsTrue()
+    var
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ReleasedProdOrderLines: TestPage "Released Prod. Order Lines";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date less than the old Ending Date is entered on Released Prod. Order Lines page then
+        // Due Date remains same if Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(0), '', '');
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Prod. Order Lines page.
+        ReleasedProdOrderLines.OpenEdit();
+        ReleasedProdOrderLines.GoToRecord(ProdOrderLine);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate('<-1D>', ReleasedProdOrderLines."Ending Date".AsDate());
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := ReleasedProdOrderLines."Due Date".AsDate();
+
+        // [WHEN] Set EndingDate value in Ending Date - Time field of Released Prod. Order Lines page.
+        ReleasedProdOrderLines."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] Due Date in Released Prod. Order Lines page is equal to DueDate.
+        ReleasedProdOrderLines."Due Date".AssertEquals(DueDate);
+        ReleasedProdOrderLines.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageFromConfirmHandlerTrue')]
+    procedure IfEndDateSameAsDueDateIsEnteredOnProdOrderLineThanDueDateIsCalcBySafetyLeadTimeForManSchIfManualSchedulingIsTrue()
+    var
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ReleasedProdOrderLines: TestPage "Released Prod. Order Lines";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date same as Due Date is entered on Released Prod. Order Lines page then
+        // Due Date is equal to Safety Lead Time for Man. Sch. added to Ending Date if 
+        // Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(0), '', '');
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Prod. Order Lines page.
+        ReleasedProdOrderLines.OpenEdit();
+        ReleasedProdOrderLines.GoToRecord(ProdOrderLine);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := ReleasedProdOrderLines."Due Date".AsDate();
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := CalcDate(ManufacturingSetup."Safety Lead Time for Man. Sch.", EndingDate);
+
+        // [WHEN] Set EndingDate value in Ending Date - Time field of Released Prod. Order Lines page.
+        LibraryVariableStorage.Enqueue(
+            StrSubstNo(
+                ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst,
+                ReleasedProdOrderLines."Ending Date".Caption(),
+                ReleasedProdOrderLines."Due Date".Caption(),
+                ProdOrderLine.TableCaption(),
+                ProdOrderLine.Status,
+                ProdOrderLine."Prod. Order No.",
+                ProdOrderLine."Line No.",
+                ProdOrderLine.FieldCaption("Due Date"),
+                DueDate));
+        ReleasedProdOrderLines."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] Due Date in Released Prod. Order Lines page is equal to DueDate.
+        ReleasedProdOrderLines."Due Date".AssertEquals(DueDate);
+
+        // [WHEN] Find Production Order.
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+
+        // [THEN] Manual Scheduling is true in Production Order.
+        Assert.IsTrue(ProductionOrder."Manual Scheduling", StrSubstNo(ManualSchedulingMustBeTrueErr, ProductionOrder.TableCaption()));
+
+        // [WHEN] Find Prod. Order Line.
+        ProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+
+        // [THEN] Manual Scheduling is true in Prod. Order Line.
+        Assert.IsTrue(ProdOrderLine."Manual Scheduling", StrSubstNo(ManualSchedulingMustBeTrueErr, ProdOrderLine.TableCaption()));
+        ReleasedProdOrderLines.Close();
+    end;
+
+    [Test]
+    procedure IfDueDateGreatThanEndDateIsEnteredOnProdOrderThanEndDateRemainsSameIfManualSchedulingIsTrue()
+    var
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Due Date greater than Ending Date is entered on Released Production Order page then
+        // Ending Date remains same if Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(0), '', '');
+
+        // [GIVEN] Open Released Production Order page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := ProductionOrder."Ending Date";
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := CalcDate('<3D>', EndingDate);
+
+        // [WHEN] Set DueDate value in Due Date field of Released Production Order page.
+        ReleasedProductionOrder."Due Date".SetValue(DueDate);
+
+        // [THEN] Ending Date in Production Order is equal to EndingDate.
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+        Assert.AreEqual(
+            EndingDate,
+            ProductionOrder."Ending Date",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrder.FieldCaption("Ending Date"), EndingDate, ProductionOrder.TableCaption()));
+        ReleasedProductionOrder.Close();
+
+        // [WHEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+
+        // [THEN] Ending Date in Prod. Order Line is equal to EndingDate.
+        Assert.AreEqual(
+            EndingDate,
+            ProdOrderLine."Ending Date",
+            StrSubstNo(ValueMustBeEqualErr, ProdOrderLine.FieldCaption("Ending Date"), EndingDate, ProdOrderLine.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageFromConfirmHandlerTrue')]
+    procedure IfDueDateLessThanEndDateIsEnteredOnProdOrderThanEndDateIsCalcBySafetyLeadTimeForManSchIfManualSchedulingIsTrue()
+    var
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Due Date less than Ending Date is entered on Released Production Order page then
+        // Ending Date is equal to Safety Lead Time for Man. Sch. reduced from Due Date if 
+        // Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(0), '', '');
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Prod. Order page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := CalcDate('<-3D>', ProductionOrder."Ending Date");
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate(Format('-') + Format(ManufacturingSetup."Safety Lead Time for Man. Sch."), DueDate);
+
+        // [WHEN] Set DueDate value in Due Date field of Released Production Order page.
+        LibraryVariableStorage.Enqueue(
+            StrSubstNo(
+                ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst,
+                ProductionOrder.FieldCaption("Ending Date"),
+                ReleasedProductionOrder."Due Date".Caption(),
+                ProdOrderLine.TableCaption(),
+                ProdOrderLine.Status,
+                ProdOrderLine."Prod. Order No.",
+                ProdOrderLine."Line No.",
+                ProdOrderLine.FieldCaption("Ending Date"),
+                EndingDate));
+        ReleasedProductionOrder."Due Date".SetValue(DueDate);
+
+        // [THEN] Ending Date in Production Order is equal to EndingDate.
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+        Assert.AreEqual(
+            EndingDate,
+            ProductionOrder."Ending Date",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrder.FieldCaption("Ending Date"), EndingDate, ProductionOrder.TableCaption()));
+
+        // [THEN] Ending Date in Prod. Order Line is equal to EndingDate.
+        ProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+        Assert.AreEqual(
+            EndingDate,
+            ProdOrderLine."Ending Date",
+            StrSubstNo(ValueMustBeEqualErr, ProdOrderLine.FieldCaption("Ending Date"), EndingDate, ProdOrderLine.TableCaption()));
+
+        // [THEN] Manual Scheduling is true in Production Order.
+        Assert.IsTrue(ProductionOrder."Manual Scheduling", StrSubstNo(ManualSchedulingMustBeTrueErr, ProductionOrder.TableCaption()));
+
+        // [THEN] Manual Scheduling is true in Prod. Order Line.
+        Assert.IsTrue(ProdOrderLine."Manual Scheduling", StrSubstNo(ManualSchedulingMustBeTrueErr, ProdOrderLine.TableCaption()));
+        ReleasedProductionOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageFromConfirmHandlerTrue')]
+    procedure IfDueDateSameAsEndDateIsEnteredOnProdOrderThanEndDateIsCalcBySafetyLeadTimeForManSchIfManualSchedulingIsTrue()
+    var
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Due Date same as Ending Date is entered on Released Production Order page then
+        // Ending Date is equal to Safety Lead Time for Man. Sch. reduced from Due Date if 
+        // Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(0), '', '');
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Production Order page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := ProductionOrder."Ending Date";
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate(Format('-') + Format(ManufacturingSetup."Safety Lead Time for Man. Sch."), DueDate);
+
+        // [WHEN] Set DueDate value in Due Date field of Released Production Order page.
+        LibraryVariableStorage.Enqueue(
+            StrSubstNo(
+                ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst,
+                ProductionOrder.FieldCaption("Ending Date"),
+                ReleasedProductionOrder."Due Date".Caption(),
+                ProdOrderLine.TableCaption(),
+                ProdOrderLine.Status,
+                ProdOrderLine."Prod. Order No.",
+                ProdOrderLine."Line No.",
+                ProdOrderLine.FieldCaption("Ending Date"),
+                EndingDate));
+        ReleasedProductionOrder."Due Date".SetValue(DueDate);
+
+        // [THEN] Ending Date in Production Order is equal to EndingDate.
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+        Assert.AreEqual(
+            EndingDate,
+            ProductionOrder."Ending Date",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrder.FieldCaption("Ending Date"), EndingDate, ProductionOrder.TableCaption()));
+
+        // [THEN] Ending Date in Prod. Order Line is equal to EndingDate.
+        ProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+        Assert.AreEqual(
+            EndingDate,
+            ProdOrderLine."Ending Date",
+            StrSubstNo(ValueMustBeEqualErr, ProdOrderLine.FieldCaption("Ending Date"), EndingDate, ProdOrderLine.TableCaption()));
+
+        // [THEN] Manual Scheduling is true in Production Order.
+        Assert.IsTrue(ProductionOrder."Manual Scheduling", StrSubstNo(ManualSchedulingMustBeTrueErr, ProductionOrder.TableCaption()));
+
+        // [THEN] Manual Scheduling is true in Prod. Order Line.
+        Assert.IsTrue(ProdOrderLine."Manual Scheduling", StrSubstNo(ManualSchedulingMustBeTrueErr, ProdOrderLine.TableCaption()));
+        ReleasedProductionOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageFromConfirmHandlerTrue')]
+    procedure IfEndDateGreatThanDueDateIsEnteredOnProdOrderLineSrcTypeSalesThanEndDateIsCalcBySafetyLeadTimeForManSchIfManualSchIsTrue()
+    var
+        Item: array[2] of Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReleasedProdOrderLines: TestPage "Released Prod. Order Lines";
+        EndingDate: Date;
+        DueDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date greater than Due Date is entered on Released Prod. Order Lines page then
+        // System should not allow to change the Due Date greater than previous due date
+        // if Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Item [1] and Validate Replenishment System.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Modify(true);
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), '', '');
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create a Production BOM Line.
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(2, 2));
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create an Item and Validate Replenishment System, Manufacturing Policy and Production BOM No.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Manufacturing Policy", Item[2]."Manufacturing Policy"::"Make-to-Order");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine, Item[2]."No.", LibraryRandom.RandInt(0), '');
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProdOrderWithSalesSourceType(ProductionOrder, ProductionOrder.Status::Released, SalesHeader."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Prod. Order Lines page.
+        ReleasedProdOrderLines.OpenEdit();
+        ReleasedProdOrderLines.GoToRecord(ProdOrderLine);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate('<5D>', ProdOrderLine."Due Date");
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := CalcDate(ManufacturingSetup."Safety Lead Time for Man. Sch.", EndingDate);
+
+        // [WHEN] Set EndingDate value in Ending Date - Time field of Released Prod. Order Lines page.
+        LibraryVariableStorage.Enqueue(
+            StrSubstNo(
+                ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst,
+                ProductionOrder.FieldCaption("Ending Date"),
+                ReleasedProdOrderLines."Due Date".Caption(),
+                ProdOrderLine.TableCaption(),
+                ProdOrderLine.Status,
+                ProdOrderLine."Prod. Order No.",
+                ProdOrderLine."Line No.",
+                ProdOrderLine.FieldCaption("Due Date"),
+                DueDate));
+        asserterror ReleasedProdOrderLines."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] System should throw Date conflict error.
+        Assert.ExpectedError(
+            StrSubstNo(
+                DateConflictErr,
+                LibraryRandom.RandInt(0),
+                CalcDate(ManufacturingSetup."Safety Lead Time for Man. Sch.", EndingDate)));
+        ReleasedProdOrderLines.Close();
+    end;
+
+    [Test]
+    procedure IfEndDateLessThanDueDateIsEnteredOnProdOrderLineSrcTypeSalesThanDueDateRemainsSameIfManualSchIsTrue()
+    var
+        Item: array[2] of Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReleasedProdOrderLines: TestPage "Released Prod. Order Lines";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date less than Due Date is entered on Released Prod. Order Lines page then
+        // Due Date remains same if Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Item [1] and Validate Replenishment System.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Modify(true);
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), '', '');
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create a Production BOM Line.
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(2, 2));
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create an Item and Validate Replenishment System, Manufacturing Policy and Production BOM No.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Manufacturing Policy", Item[2]."Manufacturing Policy"::"Make-to-Order");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine, Item[2]."No.", LibraryRandom.RandInt(0), '');
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProdOrderWithSalesSourceType(ProductionOrder, ProductionOrder.Status::Released, SalesHeader."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Prod. Order Lines page.
+        ReleasedProdOrderLines.OpenEdit();
+        ReleasedProdOrderLines.GoToRecord(ProdOrderLine);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate('<-3D>', ProdOrderLine."Due Date");
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := ReleasedProdOrderLines."Due Date".AsDate();
+
+        // [WHEN] Set EndingDate value in Ending Date - Time field of Released Prod. Order Lines page.
+        ReleasedProdOrderLines."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] Due Date in Released Prod. Order Lines page is equal to DueDate.
+        ReleasedProdOrderLines."Due Date".AssertEquals(DueDate);
+        ReleasedProdOrderLines.Close();
+    end;
+
+    [Test]
+    procedure IfEndDateLessThanOldEndDateIsEnteredOnProdOrderLineSrcTypeSalesThanDueDateRemainsSameIfManualSchIsTrue()
+    var
+        Item: array[2] of Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReleasedProdOrderLines: TestPage "Released Prod. Order Lines";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date less than Due Date is entered on Released Prod. Order Lines page then
+        // Due Date remains same if Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Item [1] and Validate Replenishment System.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Modify(true);
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), '', '');
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create a Production BOM Line and Validate Status.
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(2, 2));
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create an Item and Validate Replenishment System, Manufacturing Policy and Production BOM No.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Manufacturing Policy", Item[2]."Manufacturing Policy"::"Make-to-Order");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine, Item[2]."No.", LibraryRandom.RandInt(0), '');
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProdOrderWithSalesSourceType(ProductionOrder, ProductionOrder.Status::Released, SalesHeader."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Prod. Order Lines page.
+        ReleasedProdOrderLines.OpenEdit();
+        ReleasedProdOrderLines.GoToRecord(ProdOrderLine);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate('<-3D>', ProdOrderLine."Ending Date");
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := ReleasedProdOrderLines."Due Date".AsDate();
+
+        // [WHEN] Set EndingDate value in Ending Date - Time field of Released Prod. Order Lines page.
+        ReleasedProdOrderLines."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] Due Date in Released Prod. Order Lines page is equal to DueDate.
+        ReleasedProdOrderLines."Due Date".AssertEquals(DueDate);
+        ReleasedProdOrderLines.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageFromConfirmHandlerTrue')]
+    procedure IfEndDateSameAsDueDateIsEnteredOnProdOrderLineSrcTypeSalesThanDueDateIsCalcBySafetyLeadTimeForManSchIfManualSchIsTrue()
+    var
+        Item: array[2] of Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReleasedProdOrderLines: TestPage "Released Prod. Order Lines";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date same as Due Date is entered on Released Prod. Order Lines page then
+        // System should not allow to change the Due Date greater than previous due date
+        // if Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Item [1] and Validate Replenishment System.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Modify(true);
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), '', '');
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create a Production BOM Line. and Validate Status.
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(2, 2));
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create an Item and Validate Replenishment System, Manufacturing Policy and Production BOM No.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Manufacturing Policy", Item[2]."Manufacturing Policy"::"Make-to-Order");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine, Item[2]."No.", LibraryRandom.RandInt(0), '');
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProdOrderWithSalesSourceType(ProductionOrder, ProductionOrder.Status::Released, SalesHeader."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Prod. Order Lines page.
+        ReleasedProdOrderLines.OpenEdit();
+        ReleasedProdOrderLines.GoToRecord(ProdOrderLine);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := ProductionOrder."Due Date";
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := CalcDate(ManufacturingSetup."Safety Lead Time for Man. Sch.", EndingDate);
+
+        // [WHEN] Set EndingDate value in Ending Date - Time Date field of Released Prod. Order Lines page.
+        LibraryVariableStorage.Enqueue(
+            StrSubstNo(
+                ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst,
+                ProdOrderLine.FieldCaption("Ending Date"),
+                ReleasedProdOrderLines."Due Date".Caption(),
+                ProdOrderLine.TableCaption(),
+                ProdOrderLine.Status,
+                ProdOrderLine."Prod. Order No.",
+                ProdOrderLine."Line No.",
+                ProdOrderLine.FieldCaption("Due Date"),
+                DueDate));
+        asserterror ReleasedProdOrderLines."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] System should throw Date conflict error.
+        Assert.ExpectedError(
+            StrSubstNo(
+                DateConflictErr,
+                LibraryRandom.RandInt(0),
+                CalcDate(ManufacturingSetup."Safety Lead Time for Man. Sch.", EndingDate)));
+        ReleasedProdOrderLines.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageFromConfirmHandlerTrue')]
+    procedure IfDueDateLessThanEndDateIsEnteredOnProdOrderSrcTypeSalesThanEndDateIsCalcBySafetyLeadTimeForManSchIfManualSchIsTrue()
+    var
+        Item: array[2] of Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReleasedProdOrder: TestPage "Released Production Order";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Due Date less than Ending Date is entered on Released Production Order page then
+        // Ending Date is equal to Safety Lead Time for Man. Sch. reduced from Due Date if 
+        // Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Item [1] and Validate Replenishment System.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Modify(true);
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), '', '');
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create a Production BOM Line.
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(2, 2));
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create an Item and Validate Replenishment System, Manufacturing Policy and Production BOM No.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Manufacturing Policy", Item[2]."Manufacturing Policy"::"Make-to-Order");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine, Item[2]."No.", LibraryRandom.RandInt(0), '');
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProdOrderWithSalesSourceType(ProductionOrder, ProductionOrder.Status::Released, SalesHeader."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Prod. Order page.
+        ReleasedProdOrder.OpenEdit();
+        ReleasedProdOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := CalcDate('<-3D>', ProdOrderLine."Ending Date");
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate('<-2D>', DueDate);
+
+        // [WHEN] Change Due Date in Production Order.
+        LibraryVariableStorage.Enqueue(
+            StrSubstNo(
+                ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst,
+                ProductionOrder.FieldCaption("Ending Date"),
+                ProductionOrder.FieldCaption("Due Date"),
+                ProdOrderLine.TableCaption(),
+                ProdOrderLine.Status,
+                ProdOrderLine."Prod. Order No.",
+                ProdOrderLine."Line No.",
+                ProdOrderLine.FieldCaption("Ending Date"),
+                EndingDate));
+        ReleasedProdOrder."Due Date".SetValue(DueDate);
+
+        // [THEN] Ending Date in Production Order is equal to EndingDate.
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+        Assert.AreEqual(
+            EndingDate,
+            ProductionOrder."Ending Date",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrder.FieldCaption("Ending Date"), EndingDate, ProductionOrder.TableCaption()));
+
+        // [THEN] Due Date in Released Prod. Order page is equal to DueDate.
+        ReleasedProdOrder."Due Date".AssertEquals(DueDate);
+        ReleasedProdOrder.Close();
+
+        // [THEN] Ending Date in Prod. Order Line is equal to EndingDate.
+        ProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+        Assert.AreEqual(
+            EndingDate,
+            ProdOrderLine."Ending Date",
+            StrSubstNo(ValueMustBeEqualErr, ProdOrderLine.FieldCaption("Ending Date"), EndingDate, ProdOrderLine.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageFromConfirmHandlerTrue')]
+    procedure IfDueDateSameAsEndDateIsEnteredOnProdOrderSrcTypeSalesThanEndDateIsCalcBySafetyLeadTimeForManSchIfManualSchIsTrue()
+    var
+        Item: array[2] of Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Due Date is same as Ending Date is entered on Released Production Order page then
+        // Ending Date is equal to Safety Lead Time for Man. Sch. reduced from Due Date if 
+        // Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        Evaluate(ManufacturingSetup."Default Safety Lead Time", '<5D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Item [1] and Validate Replenishment System.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Modify(true);
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), '', '');
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create a Production BOM Line.
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(2, 2));
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create an Item and Validate Replenishment System, Manufacturing Policy and Production BOM No.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Manufacturing Policy", Item[2]."Manufacturing Policy"::"Make-to-Order");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine, Item[2]."No.", LibraryRandom.RandInt(0), '');
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProdOrderWithSalesSourceType(ProductionOrder, ProductionOrder.Status::Released, SalesHeader."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Production Order page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+        DueDate := ProductionOrder."Ending Date";
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate(Format('-') + Format(ManufacturingSetup."Safety Lead Time for Man. Sch."), DueDate);
+
+        // [WHEN] Set DueDate value in Due Date field of Released Production Order page.
+        LibraryVariableStorage.Enqueue(
+            StrSubstNo(
+                ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst,
+                ProductionOrder.FieldCaption("Ending Date"),
+                ProductionOrder.FieldCaption("Due Date"),
+                ProdOrderLine.TableCaption(),
+                ProdOrderLine.Status,
+                ProdOrderLine."Prod. Order No.",
+                ProdOrderLine."Line No.",
+                ProdOrderLine.FieldCaption("Ending Date"),
+                EndingDate));
+        ReleasedProductionOrder."Due Date".SetValue(DueDate);
+
+        // [THEN] Ending Date in Production Order is equal to EndingDate.
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+        Assert.AreEqual(
+            EndingDate,
+            ProductionOrder."Ending Date",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrder.FieldCaption("Ending Date"), EndingDate, ProductionOrder.TableCaption()));
+
+        // [THEN] Ending Date in Prod. Order Line is equal to EndingDate.
+        ProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+        Assert.AreEqual(
+            EndingDate,
+            ProdOrderLine."Ending Date",
+            StrSubstNo(ValueMustBeEqualErr, ProdOrderLine.FieldCaption("Ending Date"), EndingDate, ProdOrderLine.TableCaption()));
+
+        // [THEN] Manual Scheduling is true in Production Order.
+        Assert.IsTrue(ProductionOrder."Manual Scheduling", StrSubstNo(ManualSchedulingMustBeTrueErr, ProductionOrder.TableCaption()));
+
+        // [THEN] Manual Scheduling is true in Prod. Order Line.
+        Assert.IsTrue(ProdOrderLine."Manual Scheduling", StrSubstNo(ManualSchedulingMustBeTrueErr, ProdOrderLine.TableCaption()));
+        ReleasedProductionOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageFromConfirmHandlerTrue')]
+    procedure IfEndDateGreatThanDueDateIsEnteredOnProdOrderThanDueDateIsCalcBySafetyLeadTimeForManSchIfManualSchedulingIsTrue()
+    var
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        ReleasedProdOrderLines: TestPage "Released Prod. Order Lines";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date greater than Due Date is entered on Released Production Order page then
+        // Due Date is equal to Safety Lead Time for Man. Sch. added to Ending Date if 
+        // Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(0), '', '');
+
+        // [GIVEN] Open Released Production Order page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate(ManufacturingSetup."Safety Lead Time for Man. Sch.", ReleasedProductionOrder."Due Date".AsDate());
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := CalcDate(ManufacturingSetup."Safety Lead Time for Man. Sch.", EndingDate);
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [WHEN] Set EndingDate value in Ending Date - Time field of Released Production Order page.
+        LibraryVariableStorage.Enqueue(
+            StrSubstNo(
+                ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst,
+                ProductionOrder.FieldCaption("Ending Date"),
+                ReleasedProductionOrder."Due Date".Caption(),
+                ProdOrderLine.TableCaption(),
+                ProdOrderLine.Status,
+                ProdOrderLine."Prod. Order No.",
+                ProdOrderLine."Line No.",
+                ProdOrderLine.FieldCaption("Due Date"),
+                DueDate));
+        ReleasedProductionOrder."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] Due Date in Released Production Order page is equal to DueDate.
+        ReleasedProductionOrder."Due Date".AssertEquals(DueDate);
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+
+        // [WHEN] Open Released Prod. Order Lines page.
+        ReleasedProdOrderLines.OpenEdit();
+        ReleasedProdOrderLines.GoToRecord(ProdOrderLine);
+
+        // [THEN] Due Date of Released Prod. Order Lines page is equal to DueDate.
+        ReleasedProdOrderLines."Due Date".AssertEquals(DueDate);
+
+        // [WHEN] Find Production Order.
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+
+        // [THEN] Manual Scheduling is true in Production Order.
+        Assert.IsTrue(ProductionOrder."Manual Scheduling", StrSubstNo(ManualSchedulingMustBeTrueErr, ProductionOrder.TableCaption()));
+
+        // [WHEN] Find Prod. Order Line.
+        ProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+
+        // [THEN] Manual Scheduling is true in Prod. Order Line.
+        Assert.IsTrue(ProdOrderLine."Manual Scheduling", StrSubstNo(ManualSchedulingMustBeTrueErr, ProdOrderLine.TableCaption()));
+        ReleasedProductionOrder.Close();
+    end;
+
+    [Test]
+    procedure IfEndDateLessThanDueDateIsEnteredOnProdOrderThanDueDateRemainsSameIfManualSchedulingIsTrue()
+    var
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        ReleasedProdOrderLines: TestPage "Released Prod. Order Lines";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date less than Due Date is entered on Released Production Order page then
+        // Due Date remains same if Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(0), '', '');
+
+        // [GIVEN] Open Released Production Order page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate('<-2D>', ReleasedProductionOrder."Due Date".AsDate());
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := ReleasedProductionOrder."Due Date".AsDate();
+
+        // [WHEN] Set EndingDate value in Ending Date - Time field of Released Production Order page.
+        ReleasedProductionOrder."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] Due Date in Released Production Order page is equal to DueDate.
+        ReleasedProductionOrder."Due Date".AssertEquals(DueDate);
+        ReleasedProductionOrder.Close();
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+
+        // [WHEN] Open Released Prod. Order Lines page.
+        ReleasedProdOrderLines.OpenEdit();
+        ReleasedProdOrderLines.GoToRecord(ProdOrderLine);
+
+        // [THEN] Due Date of Released Prod. Order Lines page is equal to DueDate.
+        ReleasedProdOrderLines."Due Date".AssertEquals(DueDate);
+    end;
+
+    [Test]
+    procedure IfEndDateLessThanOldEndDateIsEnteredOnProdOrderThanDueDateRemainsSameIfManualSchedulingIsTrue()
+    var
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        ReleasedProdOrderLines: TestPage "Released Prod. Order Lines";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date less than the old Ending Date is entered on Released Production Order page then
+        // Due Date remains same if Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(0), '', '');
+
+        // [GIVEN] Open Released Production Order page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate('<-1D>', DT2Date(ReleasedProductionOrder."Ending Date-Time".AsDateTime()));
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := ReleasedProductionOrder."Due Date".AsDate();
+
+        // [WHEN] Set EndingDate value in Ending Date - Time field of Released Production Order page.
+        ReleasedProductionOrder."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] Due Date in Released Production Order page is equal to DueDate.
+        ReleasedProductionOrder."Due Date".AssertEquals(DueDate);
+        ReleasedProductionOrder.Close();
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+
+        // [WHEN] Open Released Prod. Order Lines page.
+        ReleasedProdOrderLines.OpenEdit();
+        ReleasedProdOrderLines.GoToRecord(ProdOrderLine);
+
+        // [THEN] Due Date of Released Prod. Order Lines page is equal to DueDate.
+        ReleasedProdOrderLines."Due Date".AssertEquals(DueDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageFromConfirmHandlerTrue')]
+    procedure IfEndDateSameAsDueDateIsEnteredOnProdOrderThanDueDateIsCalcBySafetyLeadTimeForManSchIfManualSchedulingIsTrue()
+    var
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        ReleasedProdOrderLines: TestPage "Released Prod. Order Lines";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date same as Due Date is entered on Released Production Order page then
+        // Due Date is equal to Safety Lead Time for Man. Sch. added to Ending Date if 
+        // Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(0), '', '');
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Production Order page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := ReleasedProductionOrder."Due Date".AsDate();
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := CalcDate(ManufacturingSetup."Safety Lead Time for Man. Sch.", EndingDate);
+
+        // [WHEN] Set EndingDate value in Ending Date - Time field of Released Production Order page.
+        LibraryVariableStorage.Enqueue(
+            StrSubstNo(
+                ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst,
+                ProductionOrder.FieldCaption("Ending Date"),
+                ReleasedProductionOrder."Due Date".Caption(),
+                ProdOrderLine.TableCaption(),
+                ProdOrderLine.Status,
+                ProdOrderLine."Prod. Order No.",
+                ProdOrderLine."Line No.",
+                ProdOrderLine.FieldCaption("Due Date"),
+                DueDate));
+        ReleasedProductionOrder."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] Due Date in Released Production Order page is equal to DueDate.
+        ReleasedProductionOrder."Due Date".AssertEquals(DueDate);
+
+        // [WHEN] Open Released Prod. Order Lines page.
+        ReleasedProdOrderLines.OpenEdit();
+        ReleasedProdOrderLines.GoToRecord(ProdOrderLine);
+
+        // [THEN] Due Date of Released Prod. Order Lines page is equal to DueDate.
+        ReleasedProdOrderLines."Due Date".AssertEquals(DueDate);
+
+        // [WHEN] Find Production Order.
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+
+        // [THEN] Manual Scheduling is true in Production Order.
+        Assert.IsTrue(ProductionOrder."Manual Scheduling", StrSubstNo(ManualSchedulingMustBeTrueErr, ProductionOrder.TableCaption()));
+
+        // [WHEN] Find Prod. Order Line.
+        ProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+
+        // [THEN] Manual Scheduling is true in Prod. Order Line.
+        Assert.IsTrue(ProdOrderLine."Manual Scheduling", StrSubstNo(ManualSchedulingMustBeTrueErr, ProdOrderLine.TableCaption()));
+        ReleasedProductionOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageFromConfirmHandlerTrue')]
+    procedure IfEndDateGreatThanDueDateIsEnteredOnProdOrderSrcTypeSalesThanEndDateIsCalcBySafetyLeadTimeForManSchIfManualSchIsTrue()
+    var
+        Item: array[2] of Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        EndingDate: Date;
+        DueDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date greater than Due Date is entered on Released Production Order page then
+        // System should not allow to change the Due Date greater than previous due date
+        // if Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Item [1] and Validate Replenishment System.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Modify(true);
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), '', '');
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create a Production BOM Line.
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(2, 2));
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create an Item and Validate Replenishment System, Manufacturing Policy and Production BOM No.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Manufacturing Policy", Item[2]."Manufacturing Policy"::"Make-to-Order");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine, Item[2]."No.", LibraryRandom.RandInt(0), '');
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProdOrderWithSalesSourceType(ProductionOrder, ProductionOrder.Status::Released, SalesHeader."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Production Order page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate('<5D>', ProductionOrder."Due Date");
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := CalcDate(ManufacturingSetup."Safety Lead Time for Man. Sch.", EndingDate);
+
+        // [WHEN] Set EndingDate value in Ending Date - Time field of Released Production Order page.
+        LibraryVariableStorage.Enqueue(
+            StrSubstNo(
+                ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst,
+                ProductionOrder.FieldCaption("Ending Date"),
+                ReleasedProductionOrder."Due Date".Caption(),
+                ProdOrderLine.TableCaption(),
+                ProdOrderLine.Status,
+                ProdOrderLine."Prod. Order No.",
+                ProdOrderLine."Line No.",
+                ProdOrderLine.FieldCaption("Due Date"),
+                DueDate));
+        asserterror ReleasedProductionOrder."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] System should throw Date conflict error.
+        Assert.ExpectedError(
+            StrSubstNo(
+                DateConflictErr,
+                LibraryRandom.RandInt(0),
+                CalcDate(ManufacturingSetup."Safety Lead Time for Man. Sch.", EndingDate)));
+        ReleasedProductionOrder.Close();
+    end;
+
+    [Test]
+    procedure IfEndDateLessThanDueDateIsEnteredOnProdOrderSrcTypeSalesThanDueDateRemainsSameIfManualSchIsTrue()
+    var
+        Item: array[2] of Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        ReleasedProdOrderLines: TestPage "Released Prod. Order Lines";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date less than Due Date is entered on Released Production Order page then
+        // Due Date remains same if Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Item [1] and Validate Replenishment System.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Modify(true);
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), '', '');
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create a Production BOM Line.
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(2, 2));
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create an Item and Validate Replenishment System, Manufacturing Policy and Production BOM No.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Manufacturing Policy", Item[2]."Manufacturing Policy"::"Make-to-Order");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine, Item[2]."No.", LibraryRandom.RandInt(0), '');
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProdOrderWithSalesSourceType(ProductionOrder, ProductionOrder.Status::Released, SalesHeader."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Production Order page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate('<-3D>', ProductionOrder."Due Date");
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := ReleasedProductionOrder."Due Date".AsDate();
+
+        // [WHEN] Set EndingDate value in Ending Date - Time field of Released Production Order page.
+        ReleasedProductionOrder."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] Due Date in Released Production Order page is equal to DueDate.
+        ReleasedProductionOrder."Due Date".AssertEquals(DueDate);
+        ReleasedProductionOrder.Close();
+
+        // [WHEN] Open Released Prod. Order Lines page.
+        ReleasedProdOrderLines.OpenEdit();
+        ReleasedProdOrderLines.GoToRecord(ProdOrderLine);
+
+        // [THEN] Due Date of Released Prod. Order Lines page is equal to DueDate.
+        ReleasedProdOrderLines."Due Date".AssertEquals(DueDate);
+    end;
+
+    [Test]
+    procedure IfEndDateLessThanOldEndDateIsEnteredOnProdOrderSrcTypeSalesThanDueDateRemainsSameIfManualSchIsTrue()
+    var
+        Item: array[2] of Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        ReleasedProdOrderLines: TestPage "Released Prod. Order Lines";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date less than Due Date is entered on Released Production Order page then
+        // Due Date remains same if Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Item [1] and Validate Replenishment System.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Modify(true);
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), '', '');
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create a Production BOM Line and Validate Status.
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(2, 2));
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create an Item and Validate Replenishment System, Manufacturing Policy and Production BOM No.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Manufacturing Policy", Item[2]."Manufacturing Policy"::"Make-to-Order");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine, Item[2]."No.", LibraryRandom.RandInt(0), '');
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProdOrderWithSalesSourceType(ProductionOrder, ProductionOrder.Status::Released, SalesHeader."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Prod. Order Lines page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := CalcDate('<-3D>', ProductionOrder."Ending Date");
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := ReleasedProductionOrder."Due Date".AsDate();
+
+        // [WHEN] Set EndingDate value in Ending Date - Time field of Released Production Order page.
+        ReleasedProductionOrder."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] Due Date in Released Production Order page is equal to DueDate.
+        ReleasedProductionOrder."Due Date".AssertEquals(DueDate);
+        ReleasedProductionOrder.Close();
+
+        // [WHEN] Open Released Prod. Order Lines page.
+        ReleasedProdOrderLines.OpenEdit();
+        ReleasedProdOrderLines.GoToRecord(ProdOrderLine);
+
+        // [THEN] Due Date of Released Prod. Order Lines page is equal to DueDate.
+        ReleasedProdOrderLines."Due Date".AssertEquals(DueDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageFromConfirmHandlerTrue')]
+    procedure IfEndDateSameAsDueDateIsEnteredOnProdOrderSrcTypeSalesThanDueDateIsCalcBySafetyLeadTimeForManSchIfManualSchIsTrue()
+    var
+        Item: array[2] of Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        DueDate: Date;
+        EndingDate: Date;
+    begin
+        // [SCENARIO 317246] If Ending Date same as Due Date is entered on Released Production Order page then
+        // System should not allow to change the Due Date greater than previous due date
+        // if Manual Scheduling is true in Manufacturing Setup.
+        Initialize();
+
+        // [GIVEN] Find Manufacturing Setup.
+        ManufacturingSetup.Get();
+
+        // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
+        ManufacturingSetup.Validate("Manual Scheduling", true);
+        Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Item [1] and Validate Replenishment System.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Modify(true);
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), '', '');
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create a Production BOM Line. and Validate Status.
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(2, 2));
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create an Item and Validate Replenishment System, Manufacturing Policy and Production BOM No.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Manufacturing Policy", Item[2]."Manufacturing Policy"::"Make-to-Order");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine, Item[2]."No.", LibraryRandom.RandInt(0), '');
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProdOrderWithSalesSourceType(ProductionOrder, ProductionOrder.Status::Released, SalesHeader."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Released Production Order page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Generate and save Ending Date in a Variable.
+        EndingDate := ReleasedProductionOrder."Due Date".AsDate();
+
+        // [GIVEN] Generate and save Due Date in a Variable.
+        DueDate := CalcDate(ManufacturingSetup."Safety Lead Time for Man. Sch.", EndingDate);
+
+        // [WHEN] Set EndingDate value in Ending Date - Time Date field of Released Production Order page.
+        LibraryVariableStorage.Enqueue(
+            StrSubstNo(
+                ConfirmUpdateDateIfEndDateIsGreaterOrEqualToDueDateQst,
+                ProductionOrder.FieldCaption("Ending Date"),
+                ReleasedProductionOrder."Due Date".Caption(),
+                ProdOrderLine.TableCaption(),
+                ProdOrderLine.Status,
+                ProdOrderLine."Prod. Order No.",
+                ProdOrderLine."Line No.",
+                ProdOrderLine.FieldCaption("Due Date"),
+                DueDate));
+        asserterror ReleasedProductionOrder."Ending Date-Time".SetValue(EndingDate);
+
+        // [THEN] System should throw Date conflict error.
+        Assert.ExpectedError(
+            StrSubstNo(
+                DateConflictErr,
+                LibraryRandom.RandInt(0),
+                CalcDate(ManufacturingSetup."Safety Lead Time for Man. Sch.", EndingDate)));
+        ReleasedProductionOrder.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Production Orders IV");
@@ -1956,10 +3737,41 @@ codeunit 137083 "SCM Production Orders IV"
         Assert.AreNearlyEqual(ExpTotalCost, CostAmount, RoundingFactor, StrSubstNo(TotalCostMustBeEqualErr, ExpTotalCost, ItemNo));
     end;
 
+    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal; BinCode: Code[20]; LocationCode: Code[10])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine, ItemNo, Quantity, BinCode, LocationCode, LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndRefreshProdOrderWithSalesSourceType(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal)
+    begin
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::"Sales Header", SourceNo, Quantity);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
     begin
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure VerifyMessageFromConfirmHandlerTrue(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), ConfirmMessage);
         Reply := true;
     end;
 
