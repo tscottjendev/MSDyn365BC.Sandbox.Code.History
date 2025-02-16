@@ -15,6 +15,7 @@ using Microsoft.Inventory.Comment;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Setup;
@@ -34,6 +35,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
                 tabledata "G/L Entry" = r,
                 tabledata "Item Entry Relation" = i;
     TableNo = "Transfer Header";
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -114,7 +116,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
         InventorySetup.Get();
         InventorySetup.TestField("Posted Direct Trans. Nos.");
 
-        if InventorySetup."Automatic Cost Posting" then begin
+        if InventorySetup.UseLegacyPosting() and InventorySetup."Automatic Cost Posting" then begin
             GLEntry.LockTable();
             GLEntry.GetLastEntryNo();
         end;
@@ -141,6 +143,11 @@ codeunit 5856 "TransferOrder-Post Transfer"
         DirectTransLine.LockTable();
         TransLine.SetRange(Quantity);
         OnRunOnAfterTransLineSetFiltersForInsertShipmentLines(TransLine, TransHeader, Location, WhseShip);
+
+        Clear(PostponedValueEntries);
+        BindSubscription(this); // Start collecting value entries for GLPosting
+        if not InventorySetup.UseLegacyPosting() then
+            TransLine.SetCurrentKey("Document No.", "Item No.", "Transfer-from Code", "Transfer-from Bin Code", "Line No.");
         if TransLine.FindSet() then
             repeat
                 LineCount := LineCount + 1;
@@ -158,6 +165,9 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
                 InsertDirectTransLine(DirectTransHeader, TransLine);
             until TransLine.Next() = 0;
+        TransLine.SetCurrentKey("Document No.", "Line No.");
+        UnBindSubscription(this); // Stop collecting value entries for GLPosting
+        ItemJnlPostLine.PostDeferredValueEntriesToGL(PostponedValueEntries);
 
         MakeInventoryAdjustment();
 
@@ -179,11 +189,11 @@ codeunit 5856 "TransferOrder-Post Transfer"
             TransHeader.DeleteOneTransferOrder(TransHeader, TransLine);
         Window.Close();
 
+        TransferHeader2 := TransHeader;
+        OnAfterTransferOrderPostTransfer(TransferHeader2, SuppressCommit, DirectTransHeader, InvtPickPutAway);
+
         UpdateAnalysisView.UpdateAll(0, true);
         UpdateItemAnalysisView.UpdateAll(0, true);
-        TransferHeader2 := TransHeader;
-
-        OnAfterTransferOrderPostTransfer(TransferHeader2, SuppressCommit, DirectTransHeader, InvtPickPutAway);
     end;
 
     var
@@ -209,6 +219,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
         WhsePostShipment: Codeunit "Whse.-Post Shipment";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
+        PostponedValueEntries: List of [Integer];
         SourceCode: Code[10];
         HideValidationDialog: Boolean;
         InvtPickPutaway: Boolean;
@@ -601,6 +612,15 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
         if WarehouseShipmentLine.CheckDirectTransfer(false, false) then
             WarehouseShipmentLine.TestField("Qty. to Ship (Base)", WarehouseShipmentLine."Qty. Outstanding (Base)");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]
+    local procedure OnBeforePostValueEntryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    begin
+        if InventorySetup.UseLegacyPosting() then
+            exit;
+        PostponedValueEntries.Add(ValueEntry."Entry No.");
+        IsHandled := true;
     end;
 
     [IntegrationEvent(false, false)]
