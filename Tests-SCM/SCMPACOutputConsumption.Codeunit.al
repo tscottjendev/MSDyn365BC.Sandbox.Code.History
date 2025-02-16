@@ -260,13 +260,13 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // Create Items with Flushing method - Manual with the third Item containing Routing No. and Production BOM No.
         // Update Routing link Code on required BOM component Lines.
-        ItemNos[1] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Manual);
-        ItemNos[2] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Manual);
+        ItemNos[1] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::"Pick + Manual");
+        ItemNos[2] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::"Pick + Manual");
         ProductionBOMNo := LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ItemNos[1], ItemNos[2], 1);
         UpdateBOMHeader(ProductionBOMNo, ItemNos[2], RoutingLinkCode);
 
         ItemNos[3] := CreateItemManufacturing(
-            Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Manual, RoutingNo, ProductionBOMNo);
+            Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::"Pick + Manual", RoutingNo, ProductionBOMNo);
 
         // Calculate Standard Cost for third Item.
         // Calculate Calendar for Work Center with dates having a difference of 5 weeks.
