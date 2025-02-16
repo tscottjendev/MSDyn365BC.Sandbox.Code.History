@@ -2330,7 +2330,7 @@ codeunit 137072 "SCM Production Orders II"
         CreateProductionChainOfItems(ItemNo, 3);
         for i := 1 to 3 do begin
             Item.Get(ItemNo[i]);
-            Item.Validate("Flushing Method", Item."Flushing Method"::Manual);
+            Item.Validate("Flushing Method", Item."Flushing Method"::"Pick + Manual");
             Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
             Item.Modify(true);
         end;
@@ -3856,7 +3856,7 @@ codeunit 137072 "SCM Production Orders II"
         // [GIVEN] Create Component Item
         CreateProductionItem(CompItem, '');
         CompItem.Validate("Replenishment System", CompItem."Replenishment System"::Purchase);
-        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::Manual);
+        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::"Pick + Manual");
         CompItem.Validate("Purch. Unit of Measure", CompItem."Base Unit of Measure");
         CompItem.Validate("Rounding Precision", RoundPrecision);
         CompItem.Modify(true);
@@ -3870,7 +3870,7 @@ codeunit 137072 "SCM Production Orders II"
         CreateProductionItem(ProdItem, '');
         ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Stock");
         ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
-        ProdItem.Validate("Flushing Method", ProdItem."Flushing Method"::Manual);
+        ProdItem.Validate("Flushing Method", ProdItem."Flushing Method"::"Pick + Manual");
         ProdItem.Validate("Rounding Precision", 0.00001);
         ProdItem.Modify(true);
         LibraryInventory.CreateItemUnitOfMeasureCode(ProdItemUnitOfMeasure, ProdItem."No.", ProdItemUoMQty);
@@ -4685,17 +4685,17 @@ codeunit 137072 "SCM Production Orders II"
         ItemJnlLine: Record "Item Journal Line";
         ProductionJournalMgt: codeunit "Production Journal Mgt";
     begin
-        // [SCENARIO 504304] When stan creates a Released Production Order using Manual Flushing Method, Quantity calculated by Calcluate Consumption action in Consumption Journal must match with the Expected Quantity of Prod. Order Component.
+        // [SCENARIO 504304] When Stan creates a Released Production Order using Pick + Manual Flushing Method, Quantity calculated by Calcluate Consumption action in Consumption Journal must match with the Expected Quantity of Prod. Order Component.
         Initialize();
 
         // [GIVEN] Create Component Item with Item Unit of Measure Code and Validate Flushing Method.
         CreateComponentItemWithItemUnitOfMeasureCode(CompItem, CompItemUnitOfMeasure);
-        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::Manual);
+        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::"Pick + Manual");
         CompItem.Modify(true);
 
         // [GIVEN] Create Production Item with Item Unit of Measure Code and Validate Flushing Method.
         CreateProductionItemWithItemUnitOfMeasureCode(ProdItem, ProdItemUnitOfMeasure);
-        ProdItem.Validate("Flushing Method", ProdItem."Flushing Method"::Manual);
+        ProdItem.Validate("Flushing Method", ProdItem."Flushing Method"::"Pick + Manual");
         ProdItem.Modify(true);
 
         // [GIVEN] Create and Refresh Production Order.
@@ -4811,7 +4811,7 @@ codeunit 137072 "SCM Production Orders II"
         // [GIVEN] Create Production Item with Item Unit of Measure Code and Validate Flushing Method.
         CreateProdItemWithItemUnitOfMeasureCode(ProdItem, ProdItemUnitOfMeasure, LibraryRandom.RandIntInRange(50, 50));
         ProdItem.Validate("Base Unit of Measure", ProdItemUnitOfMeasure[1].Code);
-        ProdItem.Validate("Flushing Method", ProdItem."Flushing Method"::Manual);
+        ProdItem.Validate("Flushing Method", ProdItem."Flushing Method"::"Pick + Manual");
         ProdItem.Modify(true);
 
         // [GIVEN] Create Production BOM.
@@ -9119,9 +9119,9 @@ codeunit 137072 "SCM Production Orders II"
     procedure ProductionJournalPageHandlerPostOnlyOutput(var ProductionJournal: TestPage "Production Journal")
     var
         EntryType: Enum "Item Ledger Entry Type";
-        FlushingMethod: Enum "Flushing Method";
+        FlushingMethodFilter: Enum "Flushing Method Filter";
     begin
-        ProductionJournal.FlushingFilter.SetValue(FlushingMethod::Manual);
+        ProductionJournal.FlushingFilter.SetValue(FlushingMethodFilter::"All Methods");
         Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Consumption), '');
         ProductionJournal.Quantity.SetValue(0);
         Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Output), '');

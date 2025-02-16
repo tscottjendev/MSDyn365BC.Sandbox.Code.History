@@ -333,6 +333,10 @@ table 5407 "Prod. Order Component"
             var
                 ItemLedgEntry: Record "Item Ledger Entry";
                 PickWhseWorksheetLine: Record "Whse. Worksheet Line";
+#if not CLEAN26
+                FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
+                PickQtyCheckNeeded, WhseWorksheetLineExistCheckNeeded : Boolean;
             begin
                 if ("Flushing Method" = "Flushing Method"::Backward) and (Status = Status::Released) then begin
                     ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
@@ -346,12 +350,32 @@ table 5407 "Prod. Order Component"
                         Error(Text99000002, "Flushing Method", ItemLedgEntry.TableCaption());
                 end;
 
-                if ("Flushing Method" <> xRec."Flushing Method") and
-                   (xRec."Flushing Method" in
-                    [xRec."Flushing Method"::Manual,
-                     xRec."Flushing Method"::"Pick + Forward",
-                     xRec."Flushing Method"::"Pick + Backward"])
-                then begin
+#if not CLEAN26
+                if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then begin
+                    PickQtyCheckNeeded :=
+                        ("Flushing Method" <> xRec."Flushing Method") and
+                        (xRec."Flushing Method" in
+                            [xRec."Flushing Method"::Manual, xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]);
+                    WhseWorksheetLineExistCheckNeeded :=
+                        (xRec."Flushing Method" in
+                            [xRec."Flushing Method"::Manual, xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]) and
+                        ("Flushing Method" in
+                            ["Flushing Method"::Forward, "Flushing Method"::Backward]);
+                end else begin
+#endif
+                    PickQtyCheckNeeded :=
+                        ("Flushing Method" <> xRec."Flushing Method") and
+                        (xRec."Flushing Method" in
+                            [xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]);
+                    WhseWorksheetLineExistCheckNeeded :=
+                        (xRec."Flushing Method" in
+                            [xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]) and
+                        ("Flushing Method" in
+                            ["Flushing Method"::Manual, "Flushing Method"::Forward, "Flushing Method"::Backward]);
+#if not CLEAN26
+                end;
+#endif
+                if PickQtyCheckNeeded then begin
                     CalcFields("Pick Qty.");
                     if "Pick Qty." <> 0 then
                         Error(Text99000007, "Flushing Method", "Item No.");
@@ -359,12 +383,7 @@ table 5407 "Prod. Order Component"
                     if "Qty. Picked" <> 0 then
                         Error(Text99000008, "Flushing Method", "Item No.");
 
-                    if (xRec."Flushing Method" in
-                        [xRec."Flushing Method"::Manual,
-                         xRec."Flushing Method"::"Pick + Forward",
-                         xRec."Flushing Method"::"Pick + Backward"]) and
-                       ("Flushing Method" in ["Flushing Method"::Forward, "Flushing Method"::Backward])
-                    then begin
+                    if WhseWorksheetLineExistCheckNeeded then begin
                         PickWhseWorksheetLine.SetRange("Source Type", Database::"Prod. Order Component");
                         PickWhseWorksheetLine.SetRange("Source No.", "Prod. Order No.");
                         PickWhseWorksheetLine.SetRange("Source Line No.", "Prod. Order Line No.");
@@ -1559,30 +1578,69 @@ table 5407 "Prod. Order Component"
     end;
 
     local procedure GetBinCodeFromRtngLine(ProdOrderRtngLine: Record "Prod. Order Routing Line") BinCode: Code[20]
+#if not CLEAN26
+    var
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
     begin
-        case "Flushing Method" of
-            "Flushing Method"::Manual,
-          "Flushing Method"::"Pick + Forward",
-          "Flushing Method"::"Pick + Backward":
-                BinCode := ProdOrderRtngLine."To-Production Bin Code";
-            "Flushing Method"::Forward,
-          "Flushing Method"::Backward:
-                BinCode := ProdOrderRtngLine."Open Shop Floor Bin Code";
-        end;
+#if not CLEAN26
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+            case "Flushing Method" of
+                "Flushing Method"::Manual,
+                "Flushing Method"::"Pick + Manual",
+                "Flushing Method"::"Pick + Forward",
+                "Flushing Method"::"Pick + Backward":
+                    BinCode := ProdOrderRtngLine."To-Production Bin Code";
+                "Flushing Method"::Forward,
+                "Flushing Method"::Backward:
+                    BinCode := ProdOrderRtngLine."Open Shop Floor Bin Code";
+            end
+        else
+#endif
+            case "Flushing Method" of
+                "Flushing Method"::"Pick + Manual",
+                "Flushing Method"::"Pick + Forward",
+                "Flushing Method"::"Pick + Backward":
+                    BinCode := ProdOrderRtngLine."To-Production Bin Code";
+                "Flushing Method"::Manual,
+                "Flushing Method"::Forward,
+                "Flushing Method"::Backward:
+                    BinCode := ProdOrderRtngLine."Open Shop Floor Bin Code";
+            end;
     end;
 
     local procedure GetBinCodeFromLocation(LocationCode: Code[10]) BinCode: Code[20]
+#if not CLEAN26
+    var
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
     begin
         GetLocation(LocationCode);
-        case "Flushing Method" of
-            "Flushing Method"::Manual,
-          "Flushing Method"::"Pick + Forward",
-          "Flushing Method"::"Pick + Backward":
-                BinCode := Location."To-Production Bin Code";
-            "Flushing Method"::Forward,
-          "Flushing Method"::Backward:
-                BinCode := Location."Open Shop Floor Bin Code";
-        end;
+#if not CLEAN26
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+            case "Flushing Method" of
+                "Flushing Method"::Manual,
+                "Flushing Method"::"Pick + Manual",
+                "Flushing Method"::"Pick + Forward",
+                "Flushing Method"::"Pick + Backward":
+                    BinCode := Location."To-Production Bin Code";
+                "Flushing Method"::Forward,
+                "Flushing Method"::Backward:
+                    BinCode := Location."Open Shop Floor Bin Code";
+            end
+        else
+#endif
+            case "Flushing Method" of
+                "Flushing Method"::"Pick + Manual",
+                "Flushing Method"::"Pick + Forward",
+                "Flushing Method"::"Pick + Backward":
+                    BinCode := Location."To-Production Bin Code";
+                "Flushing Method"::Manual,
+                "Flushing Method"::Forward,
+                "Flushing Method"::Backward:
+                    BinCode := Location."Open Shop Floor Bin Code";
+            end;
+
         OnAfterGetBinCodeFromLocation(Rec, Location, BinCode);
     end;
 
