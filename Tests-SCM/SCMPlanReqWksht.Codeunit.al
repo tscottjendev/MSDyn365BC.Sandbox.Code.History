@@ -6646,7 +6646,7 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
         StockkeepingUnit.Validate("Reordering Policy", StockkeepingUnit."Reordering Policy"::"Lot-for-Lot");
         StockkeepingUnit.Validate("Manufacturing Policy", StockkeepingUnit."Manufacturing Policy"::"Make-to-Stock");
         StockkeepingUnit.Validate("Assembly Policy", StockkeepingUnit."Assembly Policy"::"Assemble-to-Stock");
-        StockkeepingUnit.Validate("Flushing Method", StockkeepingUnit."Flushing Method"::Manual);
+        StockkeepingUnit.Validate("Flushing Method", StockkeepingUnit."Flushing Method"::"Pick + Manual");
         StockkeepingUnit.Modify(true);
     end;
 

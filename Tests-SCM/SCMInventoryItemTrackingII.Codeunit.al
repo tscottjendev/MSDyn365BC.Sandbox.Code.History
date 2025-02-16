@@ -3882,7 +3882,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         ProdOrderComponent.Validate("Item No.", ItemNo);
         ProdOrderComponent.Validate("Quantity per", 1);
         ProdOrderComponent.Validate("Location Code", LocationCode);
-        ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::Manual);
+        ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::"Pick + Manual");
         ProdOrderComponent.Modify(true);
     end;
 
