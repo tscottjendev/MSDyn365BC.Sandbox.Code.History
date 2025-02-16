@@ -4499,6 +4499,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Flushing Method", Item."Flushing Method"::"Pick + Manual");
         Item.Modify(true);
     end;
 

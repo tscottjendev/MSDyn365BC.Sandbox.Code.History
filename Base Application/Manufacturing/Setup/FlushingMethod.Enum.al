@@ -14,5 +14,5 @@ enum 5417 "Flushing Method"
     value(2; "Backward") { Caption = 'Backward'; }
     value(3; "Pick + Forward") { Caption = 'Pick + Forward'; }
     value(4; "Pick + Backward") { Caption = 'Pick + Backward'; }
-
+    value(6; "Pick + Manual") { Caption = 'Pick + Manual'; }
 }
