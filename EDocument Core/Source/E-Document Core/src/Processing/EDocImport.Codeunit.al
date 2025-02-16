@@ -140,10 +140,7 @@ codeunit 6140 "E-Doc. Import"
         EDocLog := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Unprocessed);
         EDocumentProcessing.InsertServiceStatus(EDocument, EDocumentService, Enum::"E-Document Service Status"::Imported);
 
-        if IBlobType.IsStructured() then
-            EDocument."Structured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No."
-        else
-            EDocument."Unstructured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
+        EDocument."Unstructured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
         EDocument.Modify();
     end;
 

@@ -18,4 +18,9 @@ enum 6104 "E-Document Structured Format" implements IStructuredFormatReader
         Caption = 'Azure Document Intelligence';
         Implementation = IStructuredFormatReader = "E-Document ADI Handler";
     }
+    value(1; "PEPPOL BIS 3.0")
+    {
+        Caption = 'PEPPOL BIS 3.0';
+        Implementation = IStructuredFormatReader = "E-Document PEPPOL Handler";
+    }
 }
