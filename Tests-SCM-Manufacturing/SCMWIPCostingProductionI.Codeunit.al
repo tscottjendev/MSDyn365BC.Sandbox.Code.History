@@ -2177,7 +2177,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
             ProductionBOMHeader, ItemNo[1], 1); // specific value needed for test
         LibraryManufacturing.CreateItemManufacturing(
           Item, "Costing Method"::FIFO, 0,
-          Item."Reordering Policy"::" ", "Flushing Method"::Manual, '', ProductionBOMNo[1]);
+          Item."Reordering Policy"::" ", "Flushing Method"::"Pick + Manual", '', ProductionBOMNo[1]);
         Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
         Item.Modify(true);
         ItemNo[3] := Item."No.";
@@ -2188,7 +2188,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         Clear(Item);
         LibraryManufacturing.CreateItemManufacturing(
           Item, "Costing Method"::FIFO, 0,
-          Item."Reordering Policy"::" ", "Flushing Method"::Manual, '', ProductionBOMNo[2]);
+          Item."Reordering Policy"::" ", "Flushing Method"::"Pick + Manual", '', ProductionBOMNo[2]);
         Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
         Item.Modify(true);
         ItemNo[4] := Item."No.";
@@ -2199,7 +2199,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         Clear(Item);
         LibraryManufacturing.CreateItemManufacturing(
           Item, "Costing Method"::FIFO, 0,
-          Item."Reordering Policy"::" ", "Flushing Method"::Manual, '', ProductionBOMNo[3]);
+          Item."Reordering Policy"::" ", "Flushing Method"::"Pick + Manual", '', ProductionBOMNo[3]);
         Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
         Item.Modify(true);
         ItemNo[5] := Item."No.";
