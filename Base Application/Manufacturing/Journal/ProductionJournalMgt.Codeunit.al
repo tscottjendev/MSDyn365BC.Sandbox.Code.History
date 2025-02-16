@@ -235,14 +235,14 @@ codeunit 5510 "Production Journal Mgt"
         if IsHandled then
             exit;
 
-        if ProdOrderComp."Flushing Method" <> ProdOrderComp."Flushing Method"::Manual then
+        if not (ProdOrderComp."Flushing Method" in [ProdOrderComp."Flushing Method"::Manual, ProdOrderComp."Flushing Method"::"Pick + Manual"]) then
             NeededQty := 0
         else
             NeededQty := ProdOrderComp.GetNeededQty(CalcBasedOn, true);
 
         OriginalNeededQty := NeededQty;
 
-        if ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::Manual then begin
+        if ProdOrderComp."Flushing Method" in [ProdOrderComp."Flushing Method"::Manual, ProdOrderComp."Flushing Method"::"Pick + Manual"] then begin
             if ProdOrderComp."Location Code" <> Location.Code then
                 if not Location.GetLocationSetup(ProdOrderComp."Location Code", Location) then
                     Clear(Location);

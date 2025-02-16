@@ -12,12 +12,16 @@ codeunit 265 "Feature Key Management"
     var
         FeatureManagementFacade: Codeunit "Feature Management Facade";
         AutomaticAccountCodesTxt: Label 'AutomaticAccountCodes', Locked = true;
-        SIEAuditFileExportTxt: label 'SIEAuditFileExport', Locked = true;
+        SIEAuditFileExportTxt: Label 'SIEAuditFileExport', Locked = true;
 #if not CLEAN24
         PhysInvtOrderPackageTrackingTxt: Label 'PhysInvtOrderPackageTracking', Locked = true;
 #endif
 #if not CLEAN24
         GLCurrencyRevaluationTxt: Label 'GLCurrencyRevaluation', Locked = true;
+#endif
+#if not CLEAN26
+        ManufacturingFlushingMethodActivateManualWithoutPickLbl: Label 'Manufacturing_FlushingMethod_ActivateManualWoPick', Locked = true;
+        ManufacturingFlushingMethodActivateManualWithoutPick, ManufacturingFlushingMethodActivateManualWithoutPickRead : Boolean;
 #endif
         ConcurrentWarehousingPostingLbl: Label 'ConcurrentWarehousingPosting', Locked = true;
         ConcurrentWarehousingPosting: Boolean;
@@ -79,7 +83,7 @@ codeunit 265 "Feature Key Management"
         ConcurrentJobPostingRead := true;
         exit(ConcurrentJobPosting);
     end;
-    
+
     procedure IsConcurrentResourcePostingEnabled(): Boolean
     begin
         if not ConcurrentResourcePostingRead then
@@ -87,6 +91,22 @@ codeunit 265 "Feature Key Management"
         ConcurrentResourcePostingRead := true;
         exit(ConcurrentResourcePosting);
     end;
+
+#if not CLEAN26
+    procedure IsManufacturingFlushingMethodActivateManualWithoutPickEnabled(): Boolean
+    begin
+        if not ManufacturingFlushingMethodActivateManualWithoutPickRead then begin
+            ManufacturingFlushingMethodActivateManualWithoutPick := FeatureManagementFacade.IsEnabled(GetManufacturingFlushingMethodActivateManualWithoutPickFeatureKey());
+            ManufacturingFlushingMethodActivateManualWithoutPickRead := true;
+        end;
+        exit(ManufacturingFlushingMethodActivateManualWithoutPick);
+    end;
+
+    local procedure GetManufacturingFlushingMethodActivateManualWithoutPickFeatureKey(): Text[50]
+    begin
+        exit(ManufacturingFlushingMethodActivateManualWithoutPickLbl);
+    end;
+#endif
 
 #if not CLEAN24
     local procedure GetPhysInvtOrderPackageTrackingFeatureKey(): Text[50]
@@ -114,16 +134,20 @@ codeunit 265 "Feature Key Management"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management Facade", 'OnAfterFeatureEnableConfirmed', '', false, false)]
     local procedure HandleOnAfterFeatureEnableConfirmed(var FeatureKey: Record "Feature Key")
-#if not CLEAN24
+#if not CLEAN26
     var
         FeatureTelemetry: Codeunit System.Telemetry."Feature Telemetry";
 #endif
     begin
-#if not CLEAN24
+#if not CLEAN26
         // Log feature uptake
         case FeatureKey.ID of
+#if not CLEAN24
             GLCurrencyRevaluationTxt:
                 FeatureTelemetry.LogUptake('0000JRR', GLCurrencyRevaluationTxt, Enum::System.Telemetry."Feature Uptake Status"::Discovered);
+#endif
+            GetManufacturingFlushingMethodActivateManualWithoutPickFeatureKey():
+                FeatureTelemetry.LogUptake('0000OQS', ManufacturingFlushingMethodActivateManualWithoutPickLbl, Enum::System.Telemetry."Feature Uptake Status"::Discovered);
         end;
 #endif
     end;

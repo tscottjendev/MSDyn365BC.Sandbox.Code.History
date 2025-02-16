@@ -1151,7 +1151,7 @@ codeunit 137272 "SCM Reservation V"
         for Index := 1 to ArrayLen(ItemNo) do begin
             ;
             LibraryInventory.CreateItem(Item);
-            Item.Validate("Flushing Method", Item."Flushing Method"::Manual);
+            Item.Validate("Flushing Method", Item."Flushing Method"::"Pick + Manual");
             Item.Validate(Reserve, ReservationPolicy);
             Item.Modify(true);
             ItemNo[Index] := Item."No.";

@@ -212,6 +212,12 @@ table 99000765 "Manufacturing Setup"
             Caption = 'Safety Lead Time for Manual Scheduling';
             ToolTip = 'Specifies the time that will be added to the End date to calculate the Due Date when the production order is manually scheduled.';
         }
+        field(300; "Default Flushing Method"; Enum "Flushing Method")
+        {
+            Caption = 'Default Flushing Method';
+            InitValue = "Pick + Manual";
+            ToolTip = 'Specifies default flushing method assigned to new items. A different costing method on item cards will override this default.';
+        }
         field(5500; "Preset Output Quantity"; Option)
         {
             Caption = 'Preset Output Quantity';

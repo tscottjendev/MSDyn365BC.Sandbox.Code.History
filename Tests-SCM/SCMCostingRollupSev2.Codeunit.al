@@ -677,7 +677,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         // Create Parent item and attach Production BOM.
         LibraryManufacturing.CreateItemManufacturing(
           Item, Item."Costing Method"::FIFO, LibraryRandom.RandDec(10, 2), Item."Reordering Policy"::"Lot-for-Lot",
-          Item."Flushing Method"::Manual, '', ProductionBOMHeader."No.");
+          Item."Flushing Method"::"Pick + Manual", '', ProductionBOMHeader."No.");
 
         // Create Production Order, Refresh and Post Production Journal.
         LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item, Location.Code, '', Quantity, WorkDate());
