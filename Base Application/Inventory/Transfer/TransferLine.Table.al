@@ -1114,13 +1114,16 @@ table 5741 "Transfer Line"
         key(Key6; "Transfer-from Code", "Shipment Date", "Item No.", "Variant Code")
         {
         }
-        key(Key7; "Subcontr. Purch. Order No.", "Subcontr. Purch. Order Line", "Prod. Order No.", "Prod. Order Line No.", "Prod. Order Comp. Line No.", "Return Order", "Derived From Line No.")
+        key(Key7; "Document No.", "Item No.", "Transfer-from Code", "Transfer-from Bin Code")
         {
-            SumIndexFields = "Qty. in Transit (Base)", "Outstanding Qty. (Base)";
         }
-        key(Key8; "Prod. Order No.", "Routing No.", "Routing Reference No.", "Operation No.", "Subcontr. Purch. Order No.", "Derived From Line No.")
+        key(Key70; "Subcontr. Purch. Order No.", "Subcontr. Purch. Order Line", "Prod. Order No.", "Prod. Order Line No.", "Prod. Order Comp. Line No.", "Return Order", "Derived From Line No.")
         {
-            SumIndexFields = "WIP Outstanding Qty. (Base)";
+            IncludedFields = "Qty. in Transit (Base)", "Outstanding Qty. (Base)";
+        }
+        key(Key80; "Prod. Order No.", "Routing No.", "Routing Reference No.", "Operation No.", "Subcontr. Purch. Order No.", "Derived From Line No.")
+        {
+            IncludedFields = "WIP Outstanding Qty. (Base)";
         }
     }
 
