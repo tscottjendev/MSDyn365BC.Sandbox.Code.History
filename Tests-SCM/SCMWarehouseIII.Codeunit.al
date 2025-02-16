@@ -4252,7 +4252,7 @@ codeunit 137051 "SCM Warehouse - III"
           ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Line No.");
         ProdOrderComponent.Validate("Item No.", Item."No.");
         ProdOrderComponent.Validate("Location Code", Location.Code);
-        ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::Manual);
+        ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::"Pick + Manual");
         ProdOrderComponent.Validate("Quantity per", PartQty);
         ProdOrderComponent.Modify(true);
 
@@ -6347,7 +6347,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, true, true, true, true, false);
         CreateProductionOrderComponentWithItemQtyAndFlushingMethod(
           ProdOrderComponent, ProdOrderComponent.Status::Released, ProductionOrder."No.", GetFirstProdOrderLineNo(ProductionOrder),
-          ChildItemNo, ChildItemQty, LocationCode, "Flushing Method"::Manual);
+          ChildItemNo, ChildItemQty, LocationCode, "Flushing Method"::"Pick + Manual");
         LibraryVariableStorage.Enqueue(TrackingAction::AssignLotNo);
         LibraryVariableStorage.Enqueue(ChildItemLotNo);
         LibraryVariableStorage.Enqueue(ProdOrderComponent.Quantity);

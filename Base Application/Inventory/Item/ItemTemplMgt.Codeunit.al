@@ -53,6 +53,7 @@ codeunit 1336 "Item Templ. Mgt."
         InventorySetup.Get();
         Item."Costing Method" := InventorySetup."Default Costing Method";
 
+        OnCreateItemFromTemplateOnBeforeItemInsert(Item);
         Item.Insert(true);
 
         ApplyItemTemplate(Item, ItemTempl, true);
@@ -102,11 +103,13 @@ codeunit 1336 "Item Templ. Mgt."
         InventorySetup.Get();
         TempItem.Init();
         TempItem."Costing Method" := InventorySetup."Default Costing Method";
+        OnInitFromTemplateOnAfterPrepareTempItem(TempItem, Item, ItemTempl, UpdateExistingValues);
         EmptyItemRecRef.GetTable(TempItem);
         ItemTemplRecRef.GetTable(ItemTempl);
         EmptyItemTemplRecRef.Open(Database::"Item Templ.");
         EmptyItemTemplRecRef.Init();
         UpdateDefaultCostingMethodToEmptyItemTemplateRecRef(EmptyItemTemplRecRef, ItemTempl.FieldNo("Costing Method"), InventorySetup);
+        OnInitFromTemplateOnAfterPrepareEmptyItemTemplRecordRef(EmptyItemTemplRecRef, ItemTempl, UpdateExistingValues);
 
         FillFieldExclusionList(FieldExclusionList);
 
@@ -709,6 +712,21 @@ codeunit 1336 "Item Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenBlankCardConfirmed(var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateItemFromTemplateOnBeforeItemInsert(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitFromTemplateOnAfterPrepareTempItem(var TempItem: Record Item temporary; var Item: Record Item; ItemTempl: Record "Item Templ."; UpdateExistingValues: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitFromTemplateOnAfterPrepareEmptyItemTemplRecordRef(var EmptyItemTemplRecordRef: RecordRef; ItemTempl: Record "Item Templ."; UpdateExistingValues: Boolean)
     begin
     end;
 }
