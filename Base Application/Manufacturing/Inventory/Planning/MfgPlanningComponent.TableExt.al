@@ -222,16 +222,35 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
     end;
 
     local procedure GetFlushingMethodBin(): Code[20]
+#if not CLEAN26
+    var
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
     begin
-        case "Flushing Method" of
-            "Flushing Method"::Manual,
-          "Flushing Method"::"Pick + Forward",
-          "Flushing Method"::"Pick + Backward":
-                exit(Location."To-Production Bin Code");
-            "Flushing Method"::Forward,
-          "Flushing Method"::Backward:
-                exit(Location."Open Shop Floor Bin Code");
-        end;
+#if not CLEAN26
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+            case "Flushing Method" of
+                "Flushing Method"::Manual,
+                "Flushing Method"::"Pick + Manual",
+                "Flushing Method"::"Pick + Forward",
+                "Flushing Method"::"Pick + Backward":
+                    exit(Location."To-Production Bin Code");
+                "Flushing Method"::Forward,
+                "Flushing Method"::Backward:
+                    exit(Location."Open Shop Floor Bin Code");
+            end
+        else
+#endif
+            case "Flushing Method" of
+                "Flushing Method"::"Pick + Manual",
+                "Flushing Method"::"Pick + Forward",
+                "Flushing Method"::"Pick + Backward":
+                    exit(Location."To-Production Bin Code");
+                "Flushing Method"::Manual,
+                "Flushing Method"::Forward,
+                "Flushing Method"::Backward:
+                    exit(Location."Open Shop Floor Bin Code");
+            end;
     end;
 
     procedure UpdateExpectedQuantityForPlanningNeeds()

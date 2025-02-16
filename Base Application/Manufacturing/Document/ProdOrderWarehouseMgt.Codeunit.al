@@ -169,9 +169,7 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
                 if Location."Bin Mandatory" and (Location."Prod. Consump. Whse. Handling" = Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then begin
                     OnSetZoneAndBinsForConsumptionOnBeforeCheckQtyPicked(ItemJournalLine, ProdOrderComponent);
                     if (ProdOrderComponent."Planning Level Code" = 0) and
-                       ((ProdOrderComponent."Flushing Method" = ProdOrderComponent."Flushing Method"::Manual) or
-                        (ProdOrderComponent."Flushing Method" = ProdOrderComponent."Flushing Method"::"Pick + Backward") or
-                        (ProdOrderComponent."Flushing Method" = ProdOrderComponent."Flushing Method"::"Pick + Forward"))
+                       FlushingMethodRequiresPick(ProdOrderComponent."Flushing Method")
                     then
                         CheckProdOrderCompLineQtyPickedBase(ProdOrderComponent, ItemJournalLine);
                     GetBin(ItemJournalLine."Location Code", WarehouseJournalLine."From Bin Code");
@@ -1085,7 +1083,7 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
                             if ProdOrderComp.Get(
                                 ProdOrderComp.Status::Released,
                                 NewItemJnlLine."Order No.", NewItemJnlLine."Order Line No.", NewItemJnlLine."Prod. Order Comp. Line No.") and
-                                (ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::Manual) and
+                                FlushingMethodRequiresManualPick(ProdOrderComp."Flushing Method") and
                                 (NewItemJnlLine.Quantity >= 0)
                             then begin
                                 QtyRemainingToBePicked :=
@@ -1370,6 +1368,34 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         end;
         if WhseWorksheetCreate.CreateWhseWkshLine(WhseWkshLine, ProdOrderLine) then
             exit(true);
+    end;
+
+    local procedure FlushingMethodRequiresPick(FlushingMethod: Enum "Flushing Method"): Boolean
+#if not CLEAN26
+    var
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
+    begin
+#if not CLEAN26
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+            exit(FlushingMethod in [FlushingMethod::Manual, FlushingMethod::"Pick + Manual", FlushingMethod::"Pick + Backward", FlushingMethod::"Pick + Forward"])
+        else
+#endif
+            exit(FlushingMethod in [FlushingMethod::"Pick + Manual", FlushingMethod::"Pick + Backward", FlushingMethod::"Pick + Forward"]);
+    end;
+
+    local procedure FlushingMethodRequiresManualPick(FlushingMethod: Enum "Flushing Method"): Boolean
+#if not CLEAN26
+    var
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
+    begin
+#if not CLEAN26
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+            exit(FlushingMethod in [FlushingMethod::Manual, FlushingMethod::"Pick + Manual"])
+        else
+#endif
+            exit(FlushingMethod = FlushingMethod::"Pick + Manual");
     end;
 
     [IntegrationEvent(false, false)]

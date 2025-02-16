@@ -1444,7 +1444,7 @@ codeunit 137011 "SCM Revaluation-II"
         // Create Parent item and attach Production BOM.
         CreateProductionItem(
           Item, ItemCostingMethod, Item."Reordering Policy"::"Lot-for-Lot",
-          Item."Flushing Method"::Manual, RoutingNo, ProductionBOMHeader."No.", InventoryPostingGroup);
+          Item."Flushing Method"::"Pick + Manual", RoutingNo, ProductionBOMHeader."No.", InventoryPostingGroup);
     end;
 
     local procedure CreateProductionItem(var Item: Record Item; ItemCostingMethod: Enum "Costing Method"; ItemReorderPolicy: Enum "Reordering Policy"; FlushingMethod: Enum "Flushing Method"; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; InventoryPostingGroup: Code[20])

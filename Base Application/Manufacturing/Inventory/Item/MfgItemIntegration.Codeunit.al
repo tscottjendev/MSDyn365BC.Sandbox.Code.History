@@ -1,17 +1,18 @@
 namespace Microsoft.Inventory.Item;
 
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Inventory.Requisition;
-using Microsoft.Inventory.Transfer;
-using Microsoft.Inventory.Ledger;
-using Microsoft.Inventory.Journal;
-using Microsoft.Warehouse.Structure;
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Warehouse.Structure;
 
 codeunit 99000795 "Mfg. Item Integration"
 {
@@ -22,6 +23,35 @@ codeunit 99000795 "Mfg. Item Integration"
         CannotModifyUnitOfMeasureErr: Label 'You cannot modify %1 %2 for item %3 because non-zero %5 with %2 exists in %4.', Comment = '%1 Table name (Item Unit of measure), %2 Value of Measure (KG, PCS...), %3 Item ID, %4 Entry Table Name, %5 Field Caption';
         CannotRenameItemErr: Label 'You cannot rename %1 in a %2, because it is used in %3.', Comment = '%1 = Item No. caption, %2 = Table caption, %3 = Reference Table caption';
     // Item
+
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterValidateEvent', 'No.', false, false)]
+    local procedure ItemOnAfterValidateEventNo(var Rec: Record Item; var xRec: Record Item)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if (Rec."No." <> xRec."No.") and (xRec."No." = '') then
+            if ManufacturingSetup.Get() then
+                Rec."Flushing Method" := ManufacturingSetup."Default Flushing Method";
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnInsertOnAfterAssignNo', '', false, false)]
+    local procedure OnInsertOnAfterAssignNo(var Item: Record Item)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if ManufacturingSetup.Get() then
+            Item."Flushing Method" := ManufacturingSetup."Default Flushing Method";
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnAssistEditOnAfterAssignNo', '', false, false)]
+    local procedure OnAssistEditOnAfterAssignNo(var Item: Record Item; xItem: Record Item)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if xItem."No." = '' then
+            if ManufacturingSetup.Get() then
+                Item."Flushing Method" := ManufacturingSetup."Default Flushing Method";
+    end;
 
     [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterHasBOM', '', false, false)]
     local procedure OnAfterHasBOM(var Item: Record Item; var Result: Boolean);
@@ -64,6 +94,18 @@ codeunit 99000795 "Mfg. Item Integration"
             exit(true);
 
         exit(false);
+    end;
+
+    // Item Card
+
+    [EventSubscriber(ObjectType::Page, Page::"Item Card", 'OnCreateItemFromTemplateOnBeforeIsFoundationEnabled', '', false, false)]
+    local procedure OnCreateItemFromTemplateOnBeforeIsFoundationEnabled(var Item: Record Item)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if Item."No." = '' then
+            if ManufacturingSetup.Get() then
+                Item."Flushing Method" := ManufacturingSetup."Default Flushing Method";
     end;
 
     // Inventory Posting Setup
@@ -332,5 +374,56 @@ codeunit 99000795 "Mfg. Item Integration"
     local procedure OnAfterCopyFromItem(var StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item)
     begin
         StockkeepingUnit."Flushing Method" := Item."Flushing Method";
+    end;
+
+    // Catalog Item Management
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Catalog Item Management", 'OnCreateNewItemOnBeforeItemInsert', '', false, false)]
+    local procedure OnCreateNewItemOnBeforeItemInsert(var Item: Record Item; NonstockItem: Record "Nonstock Item")
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if ManufacturingSetup.Get() then
+            Item."Flushing Method" := ManufacturingSetup."Default Flushing Method";
+    end;
+
+    // Item Templ. Mgt.
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnCreateItemFromTemplateOnBeforeItemInsert', '', false, false)]
+    local procedure OnCreateItemFromTemplateOnBeforeItemInsert(var Item: Record Item)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if ManufacturingSetup.Get() then
+            Item."Flushing Method" := ManufacturingSetup."Default Flushing Method";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnInitFromTemplateOnAfterPrepareTempItem', '', false, false)]
+    local procedure OnInitFromTemplateOnAfterPrepareTempItem(var TempItem: Record Item temporary)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if ManufacturingSetup.Get() then
+            TempItem."Flushing Method" := ManufacturingSetup."Default Flushing Method";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnInitFromTemplateOnAfterPrepareEmptyItemTemplRecordRef', '', false, false)]
+    local procedure OnInitFromTemplateOnAfterPrepareEmptyItemTemplRecordRef(var EmptyItemTemplRecordRef: RecordRef; ItemTempl: Record "Item Templ.")
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if ManufacturingSetup.Get() then
+            EmptyItemTemplRecordRef.Field(ItemTempl.FieldNo("Flushing Method")).Value := ManufacturingSetup."Default Flushing Method";
+    end;
+
+    // Item Templ. Card
+
+    [EventSubscriber(ObjectType::Page, Page::"Item Templ. Card", 'OnAfterOnNewRecord', '', false, false)]
+    local procedure OnAfterOnNewRecord(var ItemTempl: Record "Item Templ.")
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if ManufacturingSetup.Get() then
+            ItemTempl."Flushing Method" := ManufacturingSetup."Default Flushing Method";
     end;
 }
