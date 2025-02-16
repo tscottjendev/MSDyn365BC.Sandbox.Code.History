@@ -23,6 +23,9 @@ codeunit 5774 "Whse.-Production Release"
 
     procedure Release(ProdOrder: Record "Production Order")
     var
+#if not CLEAN26
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
         LocationCode2: Code[10];
         CurrentSignFactor: Integer;
         OldSignFactor: Integer;
@@ -37,12 +40,23 @@ codeunit 5774 "Whse.-Production Release"
         ProdOrderComp.SetCurrentKey(Status, "Prod. Order No.", "Location Code");
         ProdOrderComp.SetRange(Status, ProdOrder.Status);
         ProdOrderComp.SetRange("Prod. Order No.", ProdOrder."No.");
-        ProdOrderComp.SetFilter(
-          "Flushing Method",
-          '%1|%2|%3',
-          ProdOrderComp."Flushing Method"::Manual,
-          ProdOrderComp."Flushing Method"::"Pick + Forward",
-          ProdOrderComp."Flushing Method"::"Pick + Backward");
+#if not CLEAN26
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+            ProdOrderComp.SetFilter(
+              "Flushing Method",
+              '%1|%2|%3|%4',
+              ProdOrderComp."Flushing Method"::Manual,
+              ProdOrderComp."Flushing Method"::"Pick + Manual",
+              ProdOrderComp."Flushing Method"::"Pick + Forward",
+              ProdOrderComp."Flushing Method"::"Pick + Backward")
+        else
+#endif
+            ProdOrderComp.SetFilter(
+              "Flushing Method",
+              '%1|%2|%3',
+              ProdOrderComp."Flushing Method"::"Pick + Manual",
+              ProdOrderComp."Flushing Method"::"Pick + Forward",
+              ProdOrderComp."Flushing Method"::"Pick + Backward");
         ProdOrderComp.SetRange("Planning Level Code", 0);
         ProdOrderComp.SetFilter("Remaining Quantity", '<>0');
         if ProdOrderComp.Find('-') then
@@ -181,6 +195,9 @@ codeunit 5774 "Whse.-Production Release"
     procedure DeleteLine(ProdOrderComponent: Record "Prod. Order Component")
     var
         ProdOrderComp2: Record "Prod. Order Component";
+#if not CLEAN26
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
         KeepWarehouseRequest: Boolean;
     begin
         KeepWarehouseRequest := false;
@@ -189,11 +206,21 @@ codeunit 5774 "Whse.-Production Release"
         ProdOrderComp2.SetRange(Status, ProdOrderComponent.Status);
         ProdOrderComp2.SetRange("Prod. Order No.", ProdOrderComponent."Prod. Order No.");
         ProdOrderComp2.SetRange("Location Code", ProdOrderComponent."Location Code");
-        ProdOrderComp2.SetFilter(
-          "Flushing Method", '%1|%2|%3',
-          ProdOrderComp2."Flushing Method"::Manual,
-          ProdOrderComp2."Flushing Method"::"Pick + Forward",
-          ProdOrderComp2."Flushing Method"::"Pick + Backward");
+#if not CLEAN26
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+            ProdOrderComp2.SetFilter(
+              "Flushing Method", '%1|%2|%3|%4',
+              ProdOrderComp2."Flushing Method"::Manual,
+              ProdOrderComp2."Flushing Method"::"Pick + Manual",
+              ProdOrderComp2."Flushing Method"::"Pick + Forward",
+              ProdOrderComp2."Flushing Method"::"Pick + Backward")
+        else
+#endif
+            ProdOrderComp2.SetFilter(
+              "Flushing Method", '%1|%2|%3',
+              ProdOrderComp2."Flushing Method"::"Pick + Manual",
+              ProdOrderComp2."Flushing Method"::"Pick + Forward",
+              ProdOrderComp2."Flushing Method"::"Pick + Backward");
         ProdOrderComp2.SetRange("Planning Level Code", 0);
         ProdOrderComp2.SetFilter("Remaining Quantity", '<>0');
         if ProdOrderComp2.Find('-') then
@@ -268,13 +295,21 @@ codeunit 5774 "Whse.-Production Release"
     local procedure ProdOrderCompletelyPicked(LocationCode: Code[10]; ProdOrderNo: Code[20]; ProdOrderStatus: Enum "Production Order Status"; CompLineNo: Integer): Boolean
     var
         ProdOrderComp2: Record "Prod. Order Component";
+#if not CLEAN26
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
     begin
         ProdOrderComp2.SetCurrentKey(Status, "Prod. Order No.", "Location Code");
         ProdOrderComp2.SetRange(Status, ProdOrderStatus);
         ProdOrderComp2.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderComp2.SetRange("Location Code", LocationCode);
         ProdOrderComp2.SetFilter("Line No.", '<>%1', CompLineNo);
-        ProdOrderComp2.SetRange("Flushing Method", ProdOrderComp."Flushing Method"::Manual);
+#if not CLEAN26
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+            ProdOrderComp2.SetFilter("Flushing Method", '%1|%2', ProdOrderComp."Flushing Method"::Manual, ProdOrderComp."Flushing Method"::"Pick + Manual")
+        else
+#endif
+        ProdOrderComp2.SetRange("Flushing Method", ProdOrderComp."Flushing Method"::"Pick + Manual");
         ProdOrderComp2.SetRange("Planning Level Code", 0);
         ProdOrderComp2.SetRange("Completely Picked", false);
         exit(ProdOrderComp2.IsEmpty());
@@ -283,16 +318,29 @@ codeunit 5774 "Whse.-Production Release"
     local procedure ProdOrderCompletelyHandled(ProductionOrder: Record "Production Order"; LocationCode: Code[10]): Boolean
     var
         ProdOrderComponent: Record "Prod. Order Component";
+#if not CLEAN26
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
     begin
         ProdOrderComponent.SetCurrentKey(Status, "Prod. Order No.", "Location Code");
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderComponent.SetRange("Location Code", LocationCode);
-        ProdOrderComponent.SetFilter(
-          "Flushing Method", '%1|%2|%3',
-          ProdOrderComponent."Flushing Method"::Manual,
-          ProdOrderComponent."Flushing Method"::"Pick + Forward",
-          ProdOrderComponent."Flushing Method"::"Pick + Backward");
+#if not CLEAN26
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+            ProdOrderComponent.SetFilter(
+              "Flushing Method", '%1|%2|%3|%4',
+              ProdOrderComponent."Flushing Method"::Manual,
+              ProdOrderComponent."Flushing Method"::"Pick + Manual",
+              ProdOrderComponent."Flushing Method"::"Pick + Forward",
+              ProdOrderComponent."Flushing Method"::"Pick + Backward")
+        else
+#endif
+            ProdOrderComponent.SetFilter(
+              "Flushing Method", '%1|%2|%3',
+              ProdOrderComponent."Flushing Method"::"Pick + Manual",
+              ProdOrderComponent."Flushing Method"::"Pick + Forward",
+              ProdOrderComponent."Flushing Method"::"Pick + Backward");
         ProdOrderComponent.SetRange("Planning Level Code", 0);
         ProdOrderComponent.SetFilter("Remaining Quantity", '<>0');
         exit(ProdOrderComponent.IsEmpty());
