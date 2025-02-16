@@ -487,6 +487,11 @@ codeunit 6140 "E-Doc. Import"
             exit;
         end;
 
+        if EDocument.IsDuplicate() then begin
+            EDocument.Delete(true);
+            exit;
+        end;
+
         ParseDocumentLines(EDocument, EDocService, TempBlob, SourceDocumentHeader, SourceDocumentLine, TempEDocMapping);
         if EDocErrorHelper.HasErrors(EDocument) then begin
             EDocServiceStatus := Enum::"E-Document Service Status"::"Imported document processing error";
