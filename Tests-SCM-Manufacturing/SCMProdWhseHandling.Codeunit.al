@@ -46,7 +46,12 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryPatterns: Codeunit "Library - Patterns";
         isInitialized: Boolean;
+        ThereIsNothingToCreateMsg: Label 'There is nothing to create.';
+        NothingToHandleMsg: Label 'Nothing to handle. The production components are completely picked or not eligible for picking.';
+        CannotPostConsumptionMsg: Label 'You cannot post consumption for order no. %1 because a quantity of %2 remains to be picked.', Comment = '%1 - Production Order No., %2 - Quantity';
+        PickActivitiesCreatedMsg: Label 'Number of Invt. Pick activities created';
 
     [Test]
     [Scope('OnPrem')]
@@ -59,7 +64,6 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         Location: Record Location;
         ProductionOrder: Record "Production Order";
         MessageShown: Text;
-        ThereIsNothingToCreateMsg: Label 'There is nothing to create.';
     begin
         // [SCENARIO] 'There is nothing to create' is shown when Production Consumption is set to 'No Warehouse Handling'.
         Initialize();
@@ -120,7 +124,6 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         Location: Record Location;
         ProductionOrder: Record "Production Order";
         MessageShown: Text;
-        ThereIsNothingToCreateMsg: Label 'There is nothing to create.';
     begin
         // [SCENARIO] Production Consumption set to 'Warehouse Pick (Mandatory)' shows 'Nothing to create' message when user tries to create inventory picks.
         Initialize();
@@ -259,7 +262,6 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         ProductionOrder: Record "Production Order";
         WhseOutputProdRelease: Codeunit "Whse.-Output Prod. Release";
         MessageShown: Text;
-        ThereIsNothingToCreateMsg: Label 'There is nothing to create.';
     begin
         // [SCENARIO] Production Consumption set to 'Warehouse Pick (Mandatory)' shows 'Nothing to create' message when user tries to create inventory picks.
         Initialize();
@@ -1020,6 +1022,458 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
+    // [Test]
+    // [HandlerFunctions('SimpleMessageHandler')]
+    // procedure AllowConsumptionPostingForManualFlushingWithoutWarehouseOrInventoryPickWhenWarehousePickMandatorySelected()
+    // begin
+    //     // [FEATURE] [Production Order] [Prod. Consump. Whse. Handling with Item Flusing Method Manual] 
+    //     // [SCENARIO] Allow consumption posting without warehouse or inventory pick when 'Warehouse Pick (mandatory)' is selected.
+    //     // TODO P+M: Enable feature
+    //     Initialize();
+    //     AllowConsumptionPostingForManualFlushingWithoutWarehouseOrInventoryPick("Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
+    // end;
+
+    // [Test]
+    // [HandlerFunctions('SimpleMessageHandler')]
+    // procedure AllowConsumptionPostingForManualFlushingWithoutWarehouseOrInventoryPickWhenWarehousePickOptionalSelected()
+    // begin
+    //     // [FEATURE] [Production Order] [Prod. Consump. Whse. Handling with Item Flusing Method Manual] 
+    //     // [SCENARIO] Allow consumption posting without warehouse or inventory pick when 'Warehouse Pick (optional)' is selected
+    //     // TODO P+M: Enable feature
+    //     Initialize();
+    //     AllowConsumptionPostingForManualFlushingWithoutWarehouseOrInventoryPick("Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+    // end;
+
+    // [Test]
+    // [HandlerFunctions('SimpleMessageHandler')]
+    // procedure AllowConsumptionPostingForManualFlushingWithoutWarehouseOrInventoryPickWhenInventoryPickMovementSelected()
+    // begin
+    //     // [FEATURE] [Production Order] [Prod. Consump. Whse. Handling with Item Flusing Method Manual] 
+    //     // [SCENARIO] Allow consumption posting without warehouse or inventory pick when 'Inventory Pick/Movement' is selected.
+    //     // TODO P+M: Enable feature
+    //     Initialize();
+    //     AllowConsumptionPostingForManualFlushingWithoutWarehouseOrInventoryPick("Prod. Consump. Whse. Handling"::"Inventory Pick/Movement");
+    // end;
+
+    // [Test]
+    // [HandlerFunctions('SimpleMessageHandler')]
+    // procedure AllowConsumptionPostingForManualFlushingWarehouseOrInventoryPickWhenNoWarehouseHandlingSelected()
+    // begin
+    //     // [FEATURE] [Production Order] [Prod. Consump. Whse. Handling with Item Flusing Method Manual] 
+    //     // [SCENARIO] Allow consumption posting without warehouse or inventory pick when 'No Warehouse Handling' is selected.
+    //     // TODO P+M: Enable feature
+    //     Initialize();
+    //     AllowConsumptionPostingForManualFlushingWithoutWarehouseOrInventoryPick("Prod. Consump. Whse. Handling"::"No Warehouse Handling");
+    // end;
+
+    [Test]
+    [HandlerFunctions('SimpleMessageHandler,WhseSrcCreateDocReqHandler')]
+    procedure AllowConsumptionPostingForPickPlusManualFlushingWithoutWarehouseOrInventoryPickWhenNoWarehouseHandlingSelected()
+    begin
+        // [FEATURE] [Production Order] [Prod. Consump. Whse. Handling with Item Flusing Method Pick + Manual] 
+        // [SCENARIO] Allow consumption posting without warehouse or inventory pick when 'No Warehouse Handling' is selected.
+        Initialize();
+        AllowConsumptionPostingForPickPlusManualFlushingWithoutWarehouseOrInventoryPick("Prod. Consump. Whse. Handling"::"No Warehouse Handling");
+    end;
+
+    // local procedure AllowConsumptionPostingForManualFlushingWithoutWarehouseOrInventoryPick(ProdConsumpWhseHandling: Enum "Prod. Consump. Whse. Handling")
+    // var
+    //     CompItem, ProdItem : Record Item;
+    //     ItemLedgerEntry: Record "Item Ledger Entry";
+    //     ItemJournalLine: Record "Item Journal Line";
+    //     Location: Record Location;
+    //     ProductionOrder: Record "Production Order";
+    //     ReleasedProductionOrder: TestPage "Released Production Order";
+    //     MessageShown: Text;
+    // begin
+    //     // [GIVEN] Create Location "A" with specific "Prod. Consump. Whse. Handling" for production consumption. 
+    //     LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+    //     Location.Validate("Prod. Consump. Whse. Handling", ProdConsumpWhseHandling);
+    //     Location.Modify(true);
+
+    //     // [GIVEN] Component item "C" and production item "P" with manual flushing.
+    //     CreateProdItemWithOneComponentAndSpecificFlushing(ProdItem, CompItem, "Flushing Method"::Manual);
+
+    //     // [GIVEN] Post 100 pcs of item "C" to inventory at location "A".
+    //     CreateAndPostItemJournalLine(CompItem."No.", Location.Code, LibraryRandom.RandIntInRange(100, 100));
+
+    //     // [GIVEN] Create Released Production Order for 10 quantity of the parent item.
+    //     CreateAndRefreshProductionOrder(
+    //         ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item,
+    //         ProdItem."No.", LibraryRandom.RandIntInRange(10, 10), Location.Code);
+
+    //     // [GIVEN] Open Released Production Order Page
+    //     ReleasedProductionOrder.OpenEdit();
+    //     ReleasedProductionOrder.GotoRecord(ProductionOrder);
+
+    //     // [WHEN] Create Warehouse Pick for the production order.
+    //     ReleasedProductionOrder."Create Warehouse Pick".Invoke();
+
+    //     // [THEN] 'Nothing to handle' message is shown.'.
+    //     MessageShown := LibraryVariableStorage.DequeueText();
+    //     Assert.ExpectedMessage(NothingToHandleMsg, MessageShown);
+
+    //     // [GIVEN] Run Create Inventory PutAway/Pick/Movement to Create Inventory Pick.
+    //     LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Prod. Consumption", ProductionOrder."No.", false, true, false);
+
+    //     // [THEN] 'There is nothing to create' message is shown.'.
+    //     MessageShown := LibraryVariableStorage.DequeueText();
+    //     Assert.ExpectedMessage(ThereIsNothingToCreateMsg, MessageShown);
+
+    //     // [WHEN] Post consumption for the production order component.
+    //     CreateConsumptionJournalLine(ItemJournalLine, ProductionOrder."No.", CompItem."No.", ProductionOrder.Quantity);
+    //     Codeunit.Run(Codeunit::"Item Jnl.-Post Batch", ItemJournalLine);
+
+    //     // [THEN] Consumption Posted Item Ledger Entry exists for Component Item
+    //     ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+    //     FindLastItemLedgerEntry(ItemLedgerEntry, CompItem."No.", Location.Code, false);
+    // end;
+
+    local procedure AllowConsumptionPostingForPickPlusManualFlushingWithoutWarehouseOrInventoryPick(ProdConsumpWhseHandling: Enum "Prod. Consump. Whse. Handling")
+    var
+        CompItem, ProdItem : Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        MessageShown: Text;
+    begin
+        // [GIVEN] Create Location "A" with specific "Prod. Consump. Whse. Handling" for production consumption. 
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Prod. Consump. Whse. Handling", ProdConsumpWhseHandling);
+        Location.Modify(true);
+
+        // [GIVEN] Component item "C" and production item "P" with pick + manual flushing.
+        CreateProdItemWithOneComponentAndSpecificFlushing(ProdItem, CompItem, "Flushing Method"::"Pick + Manual");
+
+        // [GIVEN] Post 100 pcs of item "C" to inventory at location "A".
+        CreateAndPostItemJournalLine(CompItem."No.", Location.Code, LibraryRandom.RandIntInRange(100, 100));
+
+        // [GIVEN] Create Released Production Order for 10 quantity of the parent item.
+        CreateAndRefreshProductionOrder(
+            ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item,
+            ProdItem."No.", LibraryRandom.RandIntInRange(10, 10), Location.Code);
+
+        // [GIVEN] Open Released Production Order Page
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GotoRecord(ProductionOrder);
+
+        // [WHEN] Create Warehouse Pick for the production order.
+        asserterror ReleasedProductionOrder."Create Warehouse Pick".Invoke();
+
+        // [THEN] 'Nothing to handle' message is shown.'.
+        Assert.IsTrue(StrPos(NothingToHandleMsg, GetLastErrorText()) > 0, '');
+
+        // [GIVEN] Run Create Inventory PutAway/Pick/Movement to Create Inventory Pick.
+        LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Prod. Consumption", ProductionOrder."No.", false, true, false);
+
+        // [THEN] 'There is nothing to create' message is shown.'.
+        MessageShown := LibraryVariableStorage.DequeueText();
+        Assert.ExpectedMessage(ThereIsNothingToCreateMsg, MessageShown);
+
+        // [WHEN] Post consumption for the production order component.
+        CreateConsumptionJournalLine(ItemJournalLine, ProductionOrder."No.", CompItem."No.", ProductionOrder.Quantity);
+        Codeunit.Run(Codeunit::"Item Jnl.-Post Batch", ItemJournalLine);
+
+        // [THEN] Consumption Posted Item Ledger Entry exists for Component Item
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        FindLastItemLedgerEntry(ItemLedgerEntry, CompItem."No.", Location.Code, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('SimpleMessageHandler,WhseSrcCreateDocReqHandler')]
+    procedure AllowConsumptionPostingForPickPlusManualFlushingWithoutWarehouseOrInventoryPickWhenWarehousePickOptionalSelected()
+    begin
+        // [FEATURE] [Production Order] [Prod. Consump. Whse. Handling with Item Flusing Method Pick + Manual]  
+        // [SCENARIO] Allow consumption posting without warehouse or inventory pick when 'Warehouse Pick (optional)' is selected.
+        Initialize();
+
+        // [GIVEN] Warehouse Pick (optional) - Post consumption with warehouse pick creation 
+        AllowConsumptionPostingForPickPlusManualFlushingWithWarehousePickOptional("Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)", true, true, false, false);
+
+        // [GIVEN] Warehouse Pick (optional) - Posting consumption with warehouse pick posting 
+        AllowConsumptionPostingForPickPlusManualFlushingWithWarehousePickOptional("Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)", true, false, true, false);
+
+        // [GIVEN] Warehouse Pick (optional) - Creating inventory pick not allowed
+        AllowConsumptionPostingForPickPlusManualFlushingWithWarehousePickOptional("Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)", false, false, false, true);
+    end;
+
+    local procedure AllowConsumptionPostingForPickPlusManualFlushingWithWarehousePickOptional(
+        ProdConsumpWhseHandling: Enum "Prod. Consump. Whse. Handling"; PostConsumption: Boolean; CreateWhsePick: Boolean; WhsePickPosting: Boolean; CreateInvtPick: Boolean)
+    var
+        CompItem, ProdItem : Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        WhseActivityHeader: Record "Warehouse Activity Header";
+        WhseActivityLine: Record "Warehouse Activity Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        MessageShown: Text;
+    begin
+        // [GIVEN] Create Location "A" with specific "Prod. Consump. Whse. Handling" for production consumption. 
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Prod. Consump. Whse. Handling", ProdConsumpWhseHandling);
+        Location.Modify(true);
+
+        // [GIVEN] Component item "C" and production item "P" with pick + manual flushing.
+        CreateProdItemWithOneComponentAndSpecificFlushing(ProdItem, CompItem, "Flushing Method"::"Pick + Manual");
+
+        // [GIVEN] Post 100 pcs of item "C" to inventory at location "A".
+        CreateAndPostItemJournalLine(CompItem."No.", Location.Code, LibraryRandom.RandIntInRange(100, 100));
+
+        // [GIVEN] Create Released Production Order for 10 quantity of the parent item.
+        CreateAndRefreshProductionOrder(
+            ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item,
+            ProdItem."No.", LibraryRandom.RandIntInRange(10, 10), Location.Code);
+
+        // [GIVEN] Open Released Production Order Page
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GotoRecord(ProductionOrder);
+
+        if CreateInvtPick then begin
+            // [GIVEN] Run Create Inventory PutAway/Pick/Movement to Create Inventory Pick.
+            LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Prod. Consumption", ProductionOrder."No.", false, true, false);
+
+            // [THEN] 'There is nothing to create' message is shown.'.
+            MessageShown := LibraryVariableStorage.DequeueText();
+            Assert.ExpectedMessage(ThereIsNothingToCreateMsg, MessageShown);
+        end;
+
+        // [WHEN] Create Warehouse Pick for the production order if required.
+        if CreateWhsePick then begin
+            // [WHEN] Create Warehouse Pick for the production order.
+            ReleasedProductionOrder."Create Warehouse Pick".Invoke();
+            Clear(WhseActivityLine);
+            WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
+            WhseActivityLine.SetRange("Item No.", CompItem."No.");
+            WhseActivityLine.SetRange("Location Code", Location.Code);
+            WhseActivityLine.FindFirst();
+            LibraryVariableStorage.DequeueText();
+        end;
+
+        // [WHEN] Warehouse Pick can be posted.
+        if WhsePickPosting then begin
+            // [WHEN] Create Warehouse Pick for the production order.
+            ReleasedProductionOrder."Create Warehouse Pick".Invoke();
+            Clear(WhseActivityLine);
+            WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
+            WhseActivityLine.SetRange("Item No.", CompItem."No.");
+            WhseActivityLine.SetRange("Location Code", Location.Code);
+            WhseActivityLine.FindFirst();
+            WhseActivityLine.Validate("Qty. to Handle", WhseActivityLine.Quantity);
+            WhseActivityLine.Modify(true);
+
+            // [THEN] Warehouse Pick can be posted.
+            Clear(WhseActivityHeader);
+            WhseActivityHeader.SetRange(Type, WhseActivityHeader.Type::"Pick");
+            WhseActivityHeader.SetRange("No.", WhseActivityLine."No.");
+            WhseActivityHeader.FindFirst();
+            LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
+            LibraryVariableStorage.DequeueText();
+        end;
+
+        // [THEN] Consumption should be Posted or not based on "Prod. Consump. Whse. Handling" selected for component item.
+        if PostConsumption then begin
+            // [WHEN] Post consumption for the production order component.
+            CreateConsumptionJournalLine(ItemJournalLine, ProductionOrder."No.", CompItem."No.", ProductionOrder.Quantity);
+            Codeunit.Run(Codeunit::"Item Jnl.-Post Batch", ItemJournalLine);
+
+            // [THEN] Consumption Posted Item Ledger Entry exists for Component Item
+            ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+            FindLastItemLedgerEntry(ItemLedgerEntry, CompItem."No.", Location.Code, false);
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('SimpleMessageHandler,WhseSrcCreateDocReqHandler,CreateInvtPutawayPickMvmtDocReqHandler')]
+    procedure AllowConsumptionPostingForPickPlusManualFlushingWithoutWarehouseOrInventoryPickWhenWarehousePickMandatorySelected()
+    begin
+        // [FEATURE] [Production Order] [Prod. Consump. Whse. Handling with Item Flusing Method Pick + Manual] 
+        // [SCENARIO] Allow consumption posting without warehouse or inventory pick when 'Warehouse Pick (mandatory)' is selected.
+        Initialize();
+
+        // [GIVEN] Warehouse Pick (mandatory) - Posting consumption with warehouse pick posting
+        AllowConsumptionPostingForPickPlusManualFlushingWithWarehousePickMandatory("Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)", true, false, true, false);
+
+        // [GIVEN] Warehouse Pick (mandatory) - Posting consumption without warehouse pick posting should return as error
+        AllowConsumptionPostingForPickPlusManualFlushingWithWarehousePickMandatory("Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)", false, true, false, false);
+
+        // [GIVEN] Warehouse Pick (optional) - Creating inventory pick not allowed
+        AllowConsumptionPostingForPickPlusManualFlushingWithWarehousePickMandatory("Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)", false, false, false, true);
+    end;
+
+    local procedure AllowConsumptionPostingForPickPlusManualFlushingWithWarehousePickMandatory(
+            ProdConsumpWhseHandling: Enum "Prod. Consump. Whse. Handling"; PostConsumption: Boolean; CreateWhsePick: Boolean; WhsePickPosting: Boolean; CreateInvtPick: Boolean)
+    var
+        CompItem, ProdItem : Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        WhseActivityHeader: Record "Warehouse Activity Header";
+        WhseActivityLine: Record "Warehouse Activity Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        MessageShown: Text;
+    begin
+        // [GIVEN] Create Location "A" with specific "Prod. Consump. Whse. Handling" for production consumption. 
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Prod. Consump. Whse. Handling", ProdConsumpWhseHandling);
+        Location.Modify(true);
+
+        // [GIVEN] Component item "C" and production item "P" with pick + manual flushing.
+        CreateProdItemWithOneComponentAndSpecificFlushing(ProdItem, CompItem, "Flushing Method"::"Pick + Manual");
+
+        // [GIVEN] Post 100 pcs of item "C" to inventory at location "A".
+        CreateAndPostItemJournalLine(CompItem."No.", Location.Code, LibraryRandom.RandIntInRange(100, 100));
+
+        // [GIVEN] Create Released Production Order for 10 quantity of the parent item.
+        CreateAndRefreshProductionOrder(
+            ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item,
+            ProdItem."No.", LibraryRandom.RandIntInRange(10, 10), Location.Code);
+
+        // [GIVEN] Open Released Production Order Page
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GotoRecord(ProductionOrder);
+
+        if CreateInvtPick then begin
+            // [WHEN] Create Inventory Pick not allowed for the production order.  
+            ReleasedProductionOrder."Create Inventor&y Put-away/Pick/Movement".Invoke();
+
+            // [THEN] 'There is nothing to create' message is shown.'.
+            MessageShown := LibraryVariableStorage.DequeueText();
+            Assert.ExpectedMessage(ThereIsNothingToCreateMsg, MessageShown);
+        end;
+
+        // [WHEN] Create Warehouse Pick for the production order if required.
+        if CreateWhsePick then begin
+            // [WHEN] Create Warehouse Pick for the production order.
+            ReleasedProductionOrder."Create Warehouse Pick".Invoke();
+            Clear(WhseActivityLine);
+            WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
+            WhseActivityLine.SetRange("Item No.", CompItem."No.");
+            WhseActivityLine.SetRange("Location Code", Location.Code);
+            WhseActivityLine.FindFirst();
+            LibraryVariableStorage.DequeueText();
+        end;
+
+        if WhsePickPosting then begin
+            // [WHEN] Create Warehouse Pick for the production order.
+            ReleasedProductionOrder."Create Warehouse Pick".Invoke();
+            Clear(WhseActivityLine);
+            WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
+            WhseActivityLine.SetRange("Item No.", CompItem."No.");
+            WhseActivityLine.SetRange("Location Code", Location.Code);
+            WhseActivityLine.FindFirst();
+            WhseActivityLine.Validate("Qty. to Handle", WhseActivityLine.Quantity);
+            WhseActivityLine.Modify(true);
+
+            Clear(WhseActivityHeader);
+            WhseActivityHeader.SetRange(Type, WhseActivityHeader.Type::"Pick");
+            WhseActivityHeader.SetRange("No.", WhseActivityLine."No.");
+            WhseActivityHeader.FindFirst();
+            LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
+            LibraryVariableStorage.DequeueText();
+        end;
+
+        // [THEN] Consumption should be Posted or not based on "Prod. Consump. Whse. Handling" selected for component item.
+        if PostConsumption then begin
+            // [WHEN] Post consumption for the production order component.
+            CreateConsumptionJournalLine(ItemJournalLine, ProductionOrder."No.", CompItem."No.", ProductionOrder.Quantity);
+            Codeunit.Run(Codeunit::"Item Jnl.-Post Batch", ItemJournalLine);
+
+            // [THEN] Consumption Posted Item Ledger Entry exists for Component Item
+            ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+            FindLastItemLedgerEntry(ItemLedgerEntry, CompItem."No.", Location.Code, false);
+        end else begin
+            // [WHEN] Post consumption for the production order component.
+            asserterror CreateConsumptionJournalLine(ItemJournalLine, ProductionOrder."No.", CompItem."No.", ProductionOrder.Quantity);
+
+            // [THEN] 'You cannot post consumption for order no.' error message is shown.'.
+            Assert.IsTrue(StrPos(GetLastErrorText(), StrSubstNo(CannotPostConsumptionMsg, ProductionOrder."No.", ProductionOrder.Quantity)) > 0, '');
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('SimpleMessageHandler,WhseSrcCreateDocReqHandler')]
+    procedure AllowConsumptionPostingForPickPlusManualFlushingWithoutWarehouseOrInventoryPickWhenInventoryPickMovementSelected()
+    begin
+        // [FEATURE] [Production Order] [Prod. Consump. Whse. Handling with Item Flusing Method] 
+        // [SCENARIO] Allow consumption posting without warehouse or inventory pick when 'Inventory Pick/Movement' is selected.
+        Initialize();
+
+        // [GIVEN] Inventory Pick/Movement - Posting consumption without inventory pick creation 
+        AllowConsumptionPostingForPickPlusManualFlushingWithInventoryPick("Prod. Consump. Whse. Handling"::"Inventory Pick/Movement", true, false, false);
+
+        // [GIVEN] Inventory Pick/Movement - Posting consumption with inventory pick creation 
+        AllowConsumptionPostingForPickPlusManualFlushingWithInventoryPick("Prod. Consump. Whse. Handling"::"Inventory Pick/Movement", true, false, true);
+
+        // [GIVEN] Inventory Pick/Movement - Warehouse pick creation should return an error
+        AllowConsumptionPostingForPickPlusManualFlushingWithInventoryPick("Prod. Consump. Whse. Handling"::"Inventory Pick/Movement", false, true, false);
+    end;
+
+    local procedure AllowConsumptionPostingForPickPlusManualFlushingWithInventoryPick(
+        ProdConsumpWhseHandling: Enum "Prod. Consump. Whse. Handling"; PostConsumption: Boolean; CreateWhsePick: Boolean; CreateInvtPick: Boolean)
+    var
+        CompItem, ProdItem : Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        MessageShown: Text;
+    begin
+        // [GIVEN] Create Location "A" with specific "Prod. Consump. Whse. Handling" for production consumption. 
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Prod. Consump. Whse. Handling", ProdConsumpWhseHandling);
+        Location.Modify(true);
+
+        // [GIVEN] Component item "C" and production item "P" with pick + manual flushing.
+        CreateProdItemWithOneComponentAndSpecificFlushing(ProdItem, CompItem, "Flushing Method"::"Pick + Manual");
+
+        // [GIVEN] Post 100 pcs of item "C" to inventory at location "A".
+        CreateAndPostItemJournalLine(CompItem."No.", Location.Code, LibraryRandom.RandIntInRange(100, 100));
+
+        // [GIVEN] Create Released Production Order for 10 quantity of the parent item.
+        CreateAndRefreshProductionOrder(
+            ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item,
+            ProdItem."No.", LibraryRandom.RandIntInRange(10, 10), Location.Code);
+
+        // [GIVEN] Open Released Production Order Page
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GotoRecord(ProductionOrder);
+
+        if CreateInvtPick then begin
+            // [GIVEN] Run Create Inventory PutAway/Pick/Movement to Create Inventory Pick.
+            LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Prod. Consumption", ProductionOrder."No.", false, true, false);
+
+            RegisterInventoryMovement(Location);
+
+            // [THEN] Pick created message is shown.'.
+            MessageShown := LibraryVariableStorage.DequeueText();
+            Assert.IsTrue(StrPos(MessageShown, PickActivitiesCreatedMsg) > 0, '');
+        end;
+
+        // [WHEN] Create Warehouse Pick for the production order if required.
+        if CreateWhsePick then begin
+            // [WHEN] Create Warehouse Pick for the production order.
+            asserterror ReleasedProductionOrder."Create Warehouse Pick".Invoke();
+            Assert.IsTrue(StrPos(NothingToHandleMsg, GetLastErrorText()) > 0, '');
+        end;
+
+        // [THEN] Consumption should be Posted or not based on "Prod. Consump. Whse. Handling" selected for component item.
+        if PostConsumption then begin
+            // [WHEN] Post consumption for the production order component.
+            CreateConsumptionJournalLine(ItemJournalLine, ProductionOrder."No.", CompItem."No.", ProductionOrder.Quantity);
+            Codeunit.Run(Codeunit::"Item Jnl.-Post Batch", ItemJournalLine);
+
+            // [THEN] Consumption Posted Item Ledger Entry exists for Component Item
+            ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+            FindLastItemLedgerEntry(ItemLedgerEntry, CompItem."No.", Location.Code, false);
+        end;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1049,15 +1503,15 @@ codeunit 137298 "SCM Prod. Whse. Handling"
 
     local procedure CreateConsumptionJournal(var ItemJournalLine: Record "Item Journal Line"; ProductionOrderNo: Code[20])
     var
-        ItemJournalBatch: Record "Item Journal Batch";
-        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatchLoc: Record "Item Journal Batch";
+        ItemJournalTemplateLoc: Record "Item Journal Template";
     begin
-        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Consumption);
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplateLoc, ItemJournalTemplateLoc.Type::Consumption);
         LibraryInventory.SelectItemJournalBatchName(
-          ItemJournalBatch, ItemJournalBatch."Template Type"::Consumption, ItemJournalTemplate.Name);
-        LibraryManufacturing.CalculateConsumption(ProductionOrderNo, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
-        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+          ItemJournalBatchLoc, ItemJournalBatchLoc."Template Type"::Consumption, ItemJournalTemplateLoc.Name);
+        LibraryManufacturing.CalculateConsumption(ProductionOrderNo, ItemJournalBatchLoc."Journal Template Name", ItemJournalBatchLoc.Name);
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatchLoc."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatchLoc.Name);
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
         ItemJournalLine.FindFirst();
@@ -1065,16 +1519,16 @@ codeunit 137298 "SCM Prod. Whse. Handling"
 
     local procedure CreateAndPostConsumptionJournal(ProductionOrderNo: Code[20])
     var
-        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalBatchLoc: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
-        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalTemplateLoc: Record "Item Journal Template";
     begin
-        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Consumption);
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplateLoc, ItemJournalTemplateLoc.Type::Consumption);
         LibraryInventory.SelectItemJournalBatchName(
-          ItemJournalBatch, ItemJournalBatch."Template Type"::Consumption, ItemJournalTemplate.Name);
-        LibraryManufacturing.CalculateConsumption(ProductionOrderNo, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
-        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+          ItemJournalBatchLoc, ItemJournalBatchLoc."Template Type"::Consumption, ItemJournalTemplateLoc.Name);
+        LibraryManufacturing.CalculateConsumption(ProductionOrderNo, ItemJournalBatchLoc."Journal Template Name", ItemJournalBatchLoc.Name);
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatchLoc."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatchLoc.Name);
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
         ItemJournalLine.SetRange(Quantity, 0);
@@ -1084,8 +1538,8 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         end;
 
         ItemJournalLine.SetRange(Quantity);
-        ItemJournalLine.FindFirst();
-        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+        Assert.IsFalse(ItemJournalLine.IsEmpty(), 'Item Journal Line is empty.');
+        LibraryInventory.PostItemJournalLine(ItemJournalBatchLoc."Journal Template Name", ItemJournalBatchLoc.Name);
     end;
 
     local procedure CreateProdItemWithTwoComponents(var ParentItem: Record Item; var CompItem1: Record Item; var CompItem2: Record Item)
@@ -1279,6 +1733,92 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         ItemJournalLine.FindFirst();
 
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
+    end;
+
+    local procedure RegisterInventoryMovement(Location: Record Location)
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        WarehouseActivityHeader.Init();
+        WarehouseActivityHeader.SetCurrentKey("Location Code");
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindLast();
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+        WarehouseActivityHeader."Registering No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
+        WarehouseActivityHeader.Modify(true);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure CreateProdItemWithOneComponentAndSpecificFlushing(var ParentItem: Record Item; var CompItem: Record Item; FlushingMethod: Enum "Flushing Method")
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        LibraryInventory.CreateItem(ParentItem);
+        ParentItem.Validate("Flushing Method", FlushingMethod);
+        ParentItem.Modify(true);
+
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Flushing Method", FlushingMethod);
+        CompItem.Modify(true);
+
+        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ParentItem, CompItem, 1, '');
+    end;
+
+    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, '', Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateConsumptionJournalLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderNo: Code[20]; ItemNo: Code[20]; Qty: Decimal)
+    var
+        ItemJournalTemplateLoc: Record "Item Journal Template";
+        ItemJournalBatchLoc: Record "Item Journal Batch";
+    begin
+        InitItemJournalBatch(ItemJournalBatchLoc, ItemJournalBatchLoc."Template Type"::Consumption);
+        ItemJournalLine.Init();
+        ItemJournalLine."Entry Type" := ItemJournalLine."Entry Type"::Consumption;
+
+        ItemJournalTemplateLoc.Get(ItemJournalBatchLoc."Journal Template Name");
+        LibraryInventory.CreateItemJnlLineWithNoItem(ItemJournalLine, ItemJournalBatchLoc, ItemJournalTemplateLoc.Name, ItemJournalBatchLoc.Name, ItemJournalLine."Entry Type"::Consumption);
+        ItemJournalLine.Validate("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.Validate("Order No.", ProdOrderNo);
+        ItemJournalLine.Validate("Item No.", ItemNo);
+        ItemJournalLine.Validate(Quantity, Qty);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure InitItemJournalBatch(var ItemJournalBatchPar: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
+    var
+        ItemJournalTemplateLoc: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplateLoc, TemplateType);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatchPar, TemplateType, ItemJournalTemplateLoc.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplateLoc, ItemJournalBatchPar);
+    end;
+
+    local procedure FindLastItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; LocationCode: Code[10]; IsPositive: Boolean)
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Location Code", LocationCode);
+        ItemLedgerEntry.SetRange(Positive, IsPositive);
+        ItemLedgerEntry.FindLast();
+    end;
+
+    [RequestPageHandler]
+    procedure CreateInvtPutawayPickMvmtDocReqHandler(var CreateInvtPutawayPickMvmtReqPage: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    begin
+        CreateInvtPutawayPickMvmtReqPage.CInvtPick.SetValue(true);
+        CreateInvtPutawayPickMvmtReqPage.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure WhseSrcCreateDocReqHandler(var CreatePickReqPage: TestRequestPage "Whse.-Source - Create Document")
+    begin
+        CreatePickReqPage.DoNotFillQtytoHandle.SetValue(true);
+        CreatePickReqPage.OK().Invoke();
     end;
 
     [MessageHandler]
