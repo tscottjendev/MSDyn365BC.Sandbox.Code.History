@@ -2316,7 +2316,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Item: Record Item;
         ItemNo: Code[20];
     begin
-        ItemNo := CreateAndModifyItem(VendorNo, Item."Flushing Method"::Manual, Item."Replenishment System"::Purchase);
+        ItemNo := CreateAndModifyItem(VendorNo, Item."Flushing Method"::"Pick + Manual", Item."Replenishment System"::Purchase);
         LibraryCosting.CreatePurchasePrice(
           PurchasePrice, VendorNo, ItemNo, StartingDate, CurrencyCode, '', '', LibraryRandom.RandDec(10, 2));  // Take random for Quantity.
         PurchasePrice.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // take random for Direct Unit Cost.
