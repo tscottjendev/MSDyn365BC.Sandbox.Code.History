@@ -13,6 +13,8 @@ page 9521 "Database Missing Indexes"
     SourceTable = "Database Missing Indexes";
     ApplicationArea = All;
     UsageCategory = Administration;
+    SourceTableView = sorting("Estimated Benefit")
+                      order(descending);
 
     layout
     {
@@ -54,6 +56,36 @@ page 9521 "Database Missing Indexes"
                     ApplicationArea = All;
                     Caption = 'Index Include Columns';
                     ToolTip = 'A list of columns that are part of the SELECT clause in the SQL query needing the index.';
+                }
+                field("Seeks"; Rec."User Seeks")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Seeks';
+                    ToolTip = 'Number of seeks caused by queries that the recommended index could have been used for.';
+                }
+                field("Scans"; Rec."User Scans")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Scans';
+                    ToolTip = 'Number of scans caused by queries that the recommended index could have been used for.';
+                }
+                field("Average Total Cost"; Rec."Average Total User Cost")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Average Total Cost';
+                    ToolTip = 'Average cost of the queries that could be reduced by the index.';
+                }
+                field("Average Impact"; Rec."Average User Impact")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Average Impact';
+                    ToolTip = 'Average percentage benefit that queries could experience if this missing index is added.';
+                }
+                field("Estimated Benefit"; Rec."Estimated Benefit")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Estimated Benefit';
+                    ToolTip = 'The estimated benefit gained by adding the missing index.';
                 }
             }
         }
