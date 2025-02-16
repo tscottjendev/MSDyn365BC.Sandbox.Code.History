@@ -1353,7 +1353,7 @@ codeunit 137297 "SCM Inventory Misc. V"
 
     local procedure UpdateRoutingOnItem(var Item: Record Item; WorkCenterNo: Code[20])
     begin
-        Item.Get(CreateAndModifyItem('', Item."Flushing Method"::Manual, Item."Replenishment System"::Purchase));
+        Item.Get(CreateAndModifyItem('', Item."Flushing Method"::"Pick + Manual", Item."Replenishment System"::Purchase));
         Item.Validate("Routing No.", CreateRoutingSetup(WorkCenterNo, ''));
         Item.Modify(true);
     end;
@@ -1381,7 +1381,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        Item.Get(CreateAndModifyItem('', Item."Flushing Method"::Manual, Item."Replenishment System"::Purchase));
+        Item.Get(CreateAndModifyItem('', Item."Flushing Method"::"Pick + Manual", Item."Replenishment System"::Purchase));
         UpdateInventoryPostingSetup(LocationCode, Item."Inventory Posting Group");
         CreateItemJournalLine(ItemJournalLine, Item."No.", '', LocationCode, BinCode);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -1880,7 +1880,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         Item: Record Item;
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        Item.Get(CreateAndModifyItem('', Item."Flushing Method"::Manual, Item."Replenishment System"::"Prod. Order"));
+        Item.Get(CreateAndModifyItem('', Item."Flushing Method"::"Pick + Manual", Item."Replenishment System"::"Prod. Order"));
         UpdateInventoryPostingSetup(Bin."Location Code", Item."Inventory Posting Group");
         CreateAndUpdateProductionBOM(Item, ItemNo);
         CreateAndRefreshProdOrder(ProductionOrder, Item."No.", Bin."Location Code", 1);  // Taken 1 for Quantity as value is important.

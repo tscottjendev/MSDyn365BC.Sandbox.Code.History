@@ -1167,6 +1167,9 @@ table 5405 "Production Order"
     var
         ProdOrderCompLine: Record "Prod. Order Component";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+#if not CLEAN26
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
     begin
         ProdOrderCompLine.Reset();
         ProdOrderCompLine.SetRange(Status, Status);
@@ -1189,11 +1192,22 @@ table 5405 "Production Order"
         ProdOrderCompLine.Reset();
         ProdOrderCompLine.SetRange(Status, Status);
         ProdOrderCompLine.SetRange("Prod. Order No.", "No.");
-        ProdOrderCompLine.SetFilter(
-          "Flushing Method", '%1|%2|%3',
-          ProdOrderCompLine."Flushing Method"::Manual,
-          ProdOrderCompLine."Flushing Method"::"Pick + Forward",
-          ProdOrderCompLine."Flushing Method"::"Pick + Backward");
+
+#if not CLEAN26
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+            ProdOrderCompLine.SetFilter(
+              "Flushing Method", '%1|%2|%3|%4',
+              ProdOrderCompLine."Flushing Method"::Manual,
+              ProdOrderCompLine."Flushing Method"::"Pick + Manual",
+              ProdOrderCompLine."Flushing Method"::"Pick + Forward",
+              ProdOrderCompLine."Flushing Method"::"Pick + Backward")
+        else
+#endif
+            ProdOrderCompLine.SetFilter(
+              "Flushing Method", '%1|%2|%3',
+              ProdOrderCompLine."Flushing Method"::"Pick + Manual",
+              ProdOrderCompLine."Flushing Method"::"Pick + Forward",
+              ProdOrderCompLine."Flushing Method"::"Pick + Backward");
         ProdOrderCompLine.SetRange("Planning Level Code", 0);
         ProdOrderCompLine.SetFilter("Expected Quantity", '>0');
         if ProdOrderCompLine.Find('-') then
