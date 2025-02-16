@@ -2308,6 +2308,7 @@ table 27 Item
                     "No." := NoSeries.GetNextNo("No. Series");
 #endif
                 "Costing Method" := InventorySetup."Default Costing Method";
+                OnInsertOnAfterAssignNo(Rec, xRec);
             end;
 
             DimMgt.UpdateDefaultDim(
@@ -2567,6 +2568,7 @@ table 27 Item
             "No." := NoSeries.GetNextNo("No. Series");
             if xRec."No." = '' then
                 "Costing Method" := InventorySetup."Default Costing Method";
+            OnAssistEditOnAfterAssignNo(Rec, xRec);
             exit(true);
         end;
     end;
@@ -4111,6 +4113,16 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnFindItemVendOnAfterFindItemVend(var ItemVendor: Record "Item Vendor"; Item: Record Item; var StockkeepingUnit: Record "Stockkeeping Unit"; LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnAfterAssignNo(var Item: Record Item; xItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssistEditOnAfterAssignNo(var Item: Record Item; xItem: Record Item)
     begin
     end;
 }

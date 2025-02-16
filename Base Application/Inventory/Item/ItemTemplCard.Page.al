@@ -692,6 +692,7 @@ page 1384 "Item Templ. Card"
             exit;
 
         Rec."Costing Method" := InventorySetup."Default Costing Method";
+        OnAfterOnNewRecord(Rec);
     end;
 
     trigger OnInit()
@@ -776,5 +777,10 @@ page 1384 "Item Templ. Card"
     begin
         InventorySetup.Get();
         ShowVariantMandatoryDefaultYes := InventorySetup."Variant Mandatory if Exists";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnNewRecord(var ItemTempl: Record "Item Templ.")
+    begin
     end;
 }

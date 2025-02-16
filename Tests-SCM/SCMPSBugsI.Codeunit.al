@@ -396,7 +396,7 @@ codeunit 137035 "SCM PS Bugs-I"
         CreateItem(
           Item, Item."Costing Method"::FIFO, RoutingHeader."No.", ProductionBOMHeader."No.", Item."Manufacturing Policy"::"Make-to-Order",
           Item."Reordering Policy", Item."Replenishment System"::"Prod. Order");
-        UpdateItem(Item, Item."Flushing Method"::Manual, Item."Reordering Policy", 0);
+        UpdateItem(Item, Item."Flushing Method"::"Pick + Manual", Item."Reordering Policy", 0);
 
         // Create Sales Order and Create Firm Planned Prod order using order Planning.Change Status to Released.
         CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandInt(10));
@@ -735,7 +735,7 @@ codeunit 137035 "SCM PS Bugs-I"
         CreateItem(
           Item, Item."Costing Method"::FIFO, RoutingHeader."No.", ProductionBOMHeader."No.", Item."Manufacturing Policy"::"Make-to-Order",
           Item."Reordering Policy", Item."Replenishment System"::"Prod. Order");
-        UpdateItem(Item, Item."Flushing Method"::Manual, Item."Reordering Policy", 0);
+        UpdateItem(Item, Item."Flushing Method"::"Pick + Manual", Item."Reordering Policy", 0);
 
         // Create Released Production Order and Refresh it.
         ProdOrderNo := CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.", '');
@@ -814,7 +814,7 @@ codeunit 137035 "SCM PS Bugs-I"
         Initialize();
         LibraryInventory.CreateItem(Item);
         CreateProdBOM(ProductionBOMHeader, Item, '');
-        CreateRoutingSetup(RoutingHeader, Item."Flushing Method"::Manual);
+        CreateRoutingSetup(RoutingHeader, Item."Flushing Method"::"Pick + Manual");
         CreateItem(
           Item2, Item2."Costing Method"::FIFO, RoutingHeader."No.", ProductionBOMHeader."No.",
           Item2."Manufacturing Policy"::"Make-to-Stock", Item2."Reordering Policy", Item2."Replenishment System"::Purchase);
