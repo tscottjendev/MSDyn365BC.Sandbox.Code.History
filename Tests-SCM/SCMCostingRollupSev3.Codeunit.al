@@ -310,7 +310,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         InventorySetup.Get();
         ExecuteUIHandlers();
         CreateCurrencyWithExchangeRate(Currency);
-        ItemNo := CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::Manual,
+        ItemNo := CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::"Pick + Manual",
             Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10));
         SetupForAdjustCostOnACY(SalesHeader, ItemNo, Currency.Code);
 
@@ -354,7 +354,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         InventorySetup.Get();
         ExecuteUIHandlers();
         CreateCurrencyWithExchangeRate(Currency);
-        ItemNo := CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::Manual,
+        ItemNo := CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::"Pick + Manual",
             Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10));
         SetupForAdjustCostOnACY(SalesHeader, ItemNo, Currency.Code);
 
@@ -403,7 +403,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
 
         // Setup: Create Item and post Positive Adj Item Journal Line.
         Item.Get(
-          CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::Manual, Item."Replenishment System"::Purchase, 0));
+          CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::"Pick + Manual", Item."Replenishment System"::Purchase, 0));
         LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 2388, WorkDate(), 63.3152);
         PosAdjItemLedgerEntry.SetRange("Item No.", Item."No.");
         PosAdjItemLedgerEntry.FindFirst();
@@ -747,7 +747,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         Job: Record Job;
         JobTask: Record "Job Task";
     begin
-        Item.Get(CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::Manual,
+        Item.Get(CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::"Pick + Manual",
             Item."Replenishment System"::Purchase, 0));
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);

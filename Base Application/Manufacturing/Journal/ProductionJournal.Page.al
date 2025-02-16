@@ -898,7 +898,7 @@ page 5510 "Production Journal"
         PostingDate := PostDate;
         xPostingDate := PostingDate;
 
-        FlushingFilter := FlushingFilter::Manual;
+        FlushingFilter := FlushingFilter::"All Methods";
     end;
 
     local procedure GetActTimeAndQtyBase()

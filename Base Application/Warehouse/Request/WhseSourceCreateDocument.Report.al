@@ -418,6 +418,10 @@ report 7305 "Whse.-Source - Create Document"
             end;
 
             trigger OnPreDataItem()
+#if not CLEAN26
+            var
+                FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
             begin
                 if WhseDoc <> WhseDoc::Production then
                     CurrReport.Break();
@@ -440,11 +444,21 @@ report 7305 "Whse.-Source - Create Document"
 
                 SetRange("Prod. Order No.", ProdOrderHeader."No.");
                 SetRange(Status, Status::Released);
-                SetFilter(
-                  "Flushing Method", '%1|%2|%3',
-                  "Flushing Method"::Manual,
-                  "Flushing Method"::"Pick + Forward",
-                  "Flushing Method"::"Pick + Backward");
+#if not CLEAN26
+                if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+                    SetFilter(
+                      "Flushing Method", '%1|%2|%3|%4',
+                      "Flushing Method"::Manual,
+                      "Flushing Method"::"Pick + Manual",
+                      "Flushing Method"::"Pick + Forward",
+                      "Flushing Method"::"Pick + Backward")
+                else
+#endif
+                    SetFilter(
+                      "Flushing Method", '%1|%2|%3',
+                      "Flushing Method"::"Pick + Manual",
+                      "Flushing Method"::"Pick + Forward",
+                      "Flushing Method"::"Pick + Backward");
                 SetRange("Planning Level Code", 0);
                 SetFilter("Expected Qty. (Base)", '>0');
 
