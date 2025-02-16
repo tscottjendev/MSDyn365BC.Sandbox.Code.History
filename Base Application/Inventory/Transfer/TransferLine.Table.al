@@ -984,6 +984,9 @@ table 5741 "Transfer Line"
         key(Key6; "Transfer-from Code", "Shipment Date", "Item No.", "Variant Code")
         {
         }
+        key(Key7; "Document No.", "Item No.", "Transfer-from Code", "Transfer-from Bin Code")
+        {
+        }
     }
 
     fieldgroups
