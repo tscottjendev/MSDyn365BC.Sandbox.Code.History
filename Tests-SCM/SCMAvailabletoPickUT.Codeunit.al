@@ -655,7 +655,7 @@ codeunit 137501 "SCM Available to Pick UT"
         // [GIVEN] Production BOM item available in pick bin
         SetupLocationWithBins(Location, 1);
         Quantity := 1;
-        SetupProductionOrderScenario(ProdChild, ProdParent, Enum::"Flushing Method"::Manual, Quantity, Location);
+        SetupProductionOrderScenario(ProdChild, ProdParent, Enum::"Flushing Method"::"Pick + Manual", Quantity, Location);
 
         // [GIVEN] Released production order with qty. available in pick bin for ProdParent
         LibraryManufacturing.CreateAndRefreshProductionOrder(ProductionOrder, Enum::"Production Order Status"::Released, Enum::"Prod. Order Source Type"::Item, ProdParent."No.", Quantity);
@@ -708,7 +708,7 @@ codeunit 137501 "SCM Available to Pick UT"
         // [GIVEN] Item available in pick bin
         Quantity := 1;
         SetupLocationWithBins(Location, 1);
-        SetupProductionOrderScenario(ProdChild, ProdParent, Enum::"Flushing Method"::Manual, Quantity, Location);
+        SetupProductionOrderScenario(ProdChild, ProdParent, Enum::"Flushing Method"::"Pick + Manual", Quantity, Location);
 
         // [GIVEN] Released production order with qty. available in pick bin for ProdParent
         LibraryManufacturing.CreateAndRefreshProductionOrder(ProductionOrder, Enum::"Production Order Status"::Released, Enum::"Prod. Order Source Type"::Item, ProdParent."No.", 1);
@@ -778,7 +778,7 @@ codeunit 137501 "SCM Available to Pick UT"
         SetupLocationWithBins(Location, 1);
         LibraryInventory.CreateItem(ProdChild);
         LibraryManufacturing.CreateCertifiedProductionBOM(ProdBOMHeader, ProdChild."No.", Quantity);
-        LibraryManufacturing.CreateItemManufacturing(ProdParent, Enum::"Costing Method"::Standard, 1000, Enum::"Reordering Policy"::" ", Enum::"Flushing Method"::Manual, '', ProdBOMHeader."No.");
+        LibraryManufacturing.CreateItemManufacturing(ProdParent, Enum::"Costing Method"::Standard, 1000, Enum::"Reordering Policy"::" ", Enum::"Flushing Method"::"Pick + Manual", '', ProdBOMHeader."No.");
 
         // [GIVEN] Released production order
         LibraryManufacturing.CreateAndRefreshProductionOrder(ProductionOrder, Enum::"Production Order Status"::Released, Enum::"Prod. Order Source Type"::Item, ProdParent."No.", 1);
@@ -1930,7 +1930,7 @@ codeunit 137501 "SCM Available to Pick UT"
         // [GIVEN] Production BOM item available in pick bin
         SetupLocationWithBins(Location, 1);
         Quantity := 1;
-        SetupProductionOrderScenario(ProdChild, ProdParent, Enum::"Flushing Method"::Manual, Quantity, Location);
+        SetupProductionOrderScenario(ProdChild, ProdParent, Enum::"Flushing Method"::"Pick + Manual", Quantity, Location);
 
         // [GIVEN] Warehouse shipment for the released production order with qty. available in pick bin for ProdParent
         LibraryManufacturing.CreateAndRefreshProductionOrder(ProductionOrder, Enum::"Production Order Status"::Released, Enum::"Prod. Order Source Type"::Item, ProdParent."No.", 1);
