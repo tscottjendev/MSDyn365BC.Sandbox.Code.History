@@ -2520,6 +2520,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ProdOrderComponent.Status := ProductionOrder.Status;
         ProdOrderComponent."Prod. Order No." := ProductionOrder."No.";
         ProdOrderComponent."Item No." := ItemNo;
+        ProdOrderComponent."Flushing Method" := ProdOrderComponent."Flushing Method"::"Pick + Manual";
         ProdOrderComponent."Location Code" := LocationCode;
         ProdOrderComponent."Quantity per" := 1;
         ProdOrderComponent."Expected Quantity" := 7;
