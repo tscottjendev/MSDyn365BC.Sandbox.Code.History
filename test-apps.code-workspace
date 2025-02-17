@@ -1,12 +1,4 @@
 {
-  "settings": {
-    "al.enableCodeAnalysis": false,
-    "allint.enabled": false,
-    "al.enableCodeActions": false,
-    "search.exclude": {
-      "**.xlf": true
-    }
-  },
   "folders": [
     {
       "path": "./Onprem Permissions/Test/OnPrem Permissions Tests"
@@ -323,5 +315,13 @@
     {
       "path": "./EDocumentsConnector/Test/E-Documents Connector Tests"
     }
-  ]
+  ],
+  "settings": {
+    "allint.enabled": false,
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "al.enableCodeAnalysis": false,
+    "al.enableCodeActions": false
+  }
 }
