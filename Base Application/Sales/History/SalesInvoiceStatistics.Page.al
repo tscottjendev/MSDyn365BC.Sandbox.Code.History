@@ -183,7 +183,7 @@ page 397 "Sales Invoice Statistics"
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
                     Caption = 'Credit Limit (LCY)';
-                    ToolTip = 'Specifies information about the credit limit in LCY, for the customer who you created and posted this sales invoice for. ';
+                    ToolTip = 'Specifies information about the credit limit in LCY, for the customer who you created and posted this sales invoice for. The value 0 is treated as unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
@@ -364,4 +364,3 @@ page 397 "Sales Invoice Statistics"
     begin
     end;
 }
-
