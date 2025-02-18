@@ -85,7 +85,7 @@ page 437 "Reminder Statistics"
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
                     Caption = 'Credit Limit (LCY)';
-                    ToolTip = 'Specifies the maximum credit in LCY that can be extended to the customer for whom you created and posted this service credit memo. ';
+                    ToolTip = 'Specifies the maximum credit in LCY that can be extended to the customer for whom you created and posted this service credit memo. The value 0 is treated as unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
@@ -157,4 +157,3 @@ page 437 "Reminder Statistics"
     begin
     end;
 }
-
