@@ -724,6 +724,7 @@ table 6623 "FS Connection Setup"
         Validate("Hour Unit of Measure", SourceFSConnectionSetup."Hour Unit of Measure");
         Validate("Line Synch. Rule", SourceFSConnectionSetup."Line Synch. Rule");
         Validate("Line Post Rule", SourceFSConnectionSetup."Line Post Rule");
+        Validate("Integration Type", SourceFSConnectionSetup."Integration Type");
         Modify(true);
     end;
 
