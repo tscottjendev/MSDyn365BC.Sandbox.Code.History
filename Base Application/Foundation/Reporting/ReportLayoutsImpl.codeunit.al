@@ -11,6 +11,7 @@ using System.Reflection;
 using System.IO;
 using System.Utilities;
 using System.Security.AccessControl;
+using System;
 
 /// <summary>
 /// This code unit supports the 'Report Layouts' page and provides implementations for adding/deleting/editing user and extension defined report layouts.
@@ -391,6 +392,35 @@ codeunit 9660 "Report Layouts Impl."
         end;
     end;
 
+    internal procedure ValidateLayout(SelectedReportLayoutList: Record "Report Layout List")
+    var
+        RdlcReportManager: DotNet RdlcReportManager;
+        WordReportManager: DotNet WordReportManager;
+        ExcelReportManager: DotNet ExcelReportManager;
+        IsValid: Boolean;
+        ErrorMessage: Text;
+        ValidLayoutLbl: Label 'The report layout is valid.';
+        LayoutFormatNotSupportedLbl: Label 'Layout validation is not supported for this layout format.';
+    begin
+        case SelectedReportLayoutList."Layout Format" of
+            SelectedReportLayoutList."Layout Format"::RDLC:
+                IsValid := RdlcReportManager.ValidateReportLayout(SelectedReportLayoutList."Report ID", SelectedReportLayoutList.SystemId, ErrorMessage);
+            SelectedReportLayoutList."Layout Format"::Word:
+                IsValid := WordReportManager.ValidateReportLayout(SelectedReportLayoutList."Report ID", SelectedReportLayoutList.SystemId, ErrorMessage);
+            SelectedReportLayoutList."Layout Format"::Excel:
+                IsValid := ExcelReportManager.ValidateReportLayout(SelectedReportLayoutList."Report ID", SelectedReportLayoutList.SystemId, ErrorMessage);
+            else begin
+                IsValid := false;
+                ErrorMessage := LayoutFormatNotSupportedLbl;
+            end;
+        end;
+
+        if IsValid then
+            Message(ValidLayoutLbl)
+        else
+            Error(ErrorMessage);
+    end;
+
     local procedure CreateLayoutMime(FileNameWithExtension: Text) MimeType: Text[255]
     var
         FileManagement: Codeunit "File Management";
@@ -529,12 +559,12 @@ codeunit 9660 "Report Layouts Impl."
 
     internal procedure ShowInfoDialog(SelectedReportLayoutList: Record "Report Layout List")
     var
-        InfoDialogTxt: Label 'Report ID: %1\Report Name: %2\Layout Name: %3\Description: %4\Type: %5\System ID: %6\Created Date: %7\Created By: %8\Last Modified Date: %9\Last Modified By: %10',
+        InfoDialogLbl: Label 'Report ID: %1\Report Name: %2\Layout Name: %3\Description: %4\Type: %5\System ID: %6\Created Date: %7\Created By: %8\Last Modified Date: %9\Last Modified By: %10',
                        Comment = 'Text to build the message displayed on the layout info dialog. %1 = Repport ID, %2 = Report Name, %3 = Layout Name, %4 = Description, %5 = Layout Type, %6 = System ID, %7 = Created Date, %8 = Created By, %9 = Last Modified Date, %10 = Last Modified By';
     begin
 
         // We need to use this format with % and variable passed to the Message function so that backslahes in the variables are not replaced with new lines.
-        Message(InfoDialogTxt,
+        Message(InfoDialogLbl,
             SelectedReportLayoutList."Report ID".ToText(),
             SelectedReportLayoutList."Report Name",
             SelectedReportLayoutList.Caption,
