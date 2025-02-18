@@ -20,7 +20,6 @@ page 9660 "Report Layouts"
     InsertAllowed = false;
     ModifyAllowed = false;
     DeleteAllowed = true;
-    PromotedActionCategories = 'New,Process,Report,Approve';
     AdditionalSearchTerms = 'Custom Report Layouts, Report Layout Selection';
     PageType = List;
     SourceTable = "Report Layout List";
@@ -188,11 +187,7 @@ page 9660 "Report Layouts"
                 ApplicationArea = Basic, Suite;
                 Caption = 'New';
                 Image = NewDocument;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
                 Scope = Repeater;
-                PromotedCategory = Process;
                 ToolTip = 'Create a new layout.';
 
                 trigger OnAction()
@@ -208,13 +203,8 @@ page 9660 "Report Layouts"
             action(EditLayout)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Edit Info';
+                Caption = 'Edit info';
                 Image = Edit;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
-                Scope = Repeater;
-                PromotedCategory = Process;
                 Enabled = LayoutIsSelected;
                 ToolTip = 'Edit layout information.';
 
@@ -234,12 +224,8 @@ page 9660 "Report Layouts"
             action(RunReport)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Run Report';
+                Caption = 'Run report';
                 Image = "Report";
-                PromotedOnly = true;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
                 Enabled = LayoutIsSelected;
                 ToolTip = 'Run the report using the selected layout.';
 
@@ -249,33 +235,11 @@ page 9660 "Report Layouts"
                 end;
             }
 
-            action(DefaulLayoutSelection)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Set Default';
-                Image = ListPage;
-                PromotedOnly = true;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
-                Enabled = LayoutIsSelected;
-                ToolTip = 'Set the current layout as the default layout for the specified report.';
-                trigger OnAction()
-                begin
-                    ReportLayoutsImpl.SetDefaultReportLayoutSelection(Rec, true);
-                    CurrPage.Update(false);
-                end;
-            }
-
             action(ExportLayout)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Export Layout';
+                Caption = 'Export layout';
                 Image = Export;
-                PromotedOnly = true;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
                 Enabled = LayoutIsSelected;
                 ToolTip = 'Export the selected layout file.';
 
@@ -288,12 +252,8 @@ page 9660 "Report Layouts"
             action(UpdateAndExportLayout)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Update and Export Layout';
+                Caption = 'Update and export layout';
                 Image = Export;
-                PromotedOnly = true;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
                 Enabled = LayoutIsSelected;
                 ToolTip = 'Export the selected layout file using the current report dataset design.';
 
@@ -303,31 +263,11 @@ page 9660 "Report Layouts"
                 end;
             }
 
-            action(ExportReportSchema)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Export Report Schema';
-                Image = Export;
-                PromotedOnly = true;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
-                Enabled = LayoutIsSelected;
-                ToolTip = 'Export report schema as a Microsft Word Custom Xml document.';
-                trigger OnAction()
-                begin
-                    ReportLayoutsImpl.ExportReportSchema(Rec, '', true);
-                end;
-            }
             action(ReplaceLayout)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Replace Layout';
+                Caption = 'Replace layout';
                 Image = Import;
-                PromotedOnly = true;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
                 Enabled = LayoutIsSelected;
                 ToolTip = 'Replace the existing layout file.';
 
@@ -344,15 +284,52 @@ page 9660 "Report Layouts"
                 end;
             }
 
+            action(ExportReportSchema)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Export report schema';
+                Image = Export;
+                Enabled = LayoutIsSelected;
+                ToolTip = 'Export report schema as a Microsft Word Custom Xml document.';
+                trigger OnAction()
+                begin
+                    ReportLayoutsImpl.ExportReportSchema(Rec, '', true);
+                end;
+            }
+
+            action(DefaulLayoutSelection)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Set as default';
+                Image = ListPage;
+                Enabled = LayoutIsSelected;
+                ToolTip = 'Set the current layout as the default layout for the specified report.';
+                trigger OnAction()
+                begin
+                    ReportLayoutsImpl.SetDefaultReportLayoutSelection(Rec, true);
+                    CurrPage.Update(false);
+                end;
+            }
+
+            action(ValidateLayout)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Validate layout';
+                Image = ValidateEmailLoggingSetup;
+                Enabled = LayoutIsSelected;
+                ToolTip = 'Validate the report layout.';
+
+                trigger OnAction()
+                begin
+                    ReportLayoutsImpl.ValidateLayout(Rec);
+                end;
+            }
+
             action(ShowInfoDialog)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Show Layout Info';
+                Caption = 'Show layout info';
                 Image = Info;
-                PromotedOnly = true;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
                 Enabled = LayoutIsSelected;
                 ToolTip = 'Show the report layout information.';
 
@@ -376,6 +353,7 @@ page 9660 "Report Layouts"
                     ReportLayoutsImpl.OpenInOneDrive(Rec);
                 end;
             }
+
             action(EditInOneDrive)
             {
                 ApplicationArea = Basic, Suite;
@@ -391,6 +369,7 @@ page 9660 "Report Layouts"
                     ReportLayoutsImpl.EditInOneDrive(Rec);
                 end;
             }
+
             action(ShareWithOneDrive)
             {
                 ApplicationArea = Basic, Suite;
@@ -404,6 +383,54 @@ page 9660 "Report Layouts"
                 begin
                     ReportLayoutsImpl.ShareWithOneDrive(Rec);
                 end;
+            }
+        }
+
+        area(Promoted)
+        {
+            actionref(NewLayout_Promoted; NewLayout)
+            {
+            }
+
+            actionref(EditLayout_Promoted; EditLayout)
+            {
+            }
+
+            actionref(RunReport_Promoted; RunReport)
+            {
+            }
+
+            actionref(ExportLayout_Promoted; ExportLayout)
+            {
+            }
+
+            actionref(ReplaceLayout_Promoted; ReplaceLayout)
+            {
+            }
+
+            group(Layout)
+            {
+                Caption = 'Layout';
+
+                actionref(UpdateAndExportLayout_Promoted; UpdateAndExportLayout)
+                {
+                }
+
+                actionref(ExportReportSchema_Promoted; ExportReportSchema)
+                {
+                }
+
+                actionref(DefaulLayoutSelection_Promoted; DefaulLayoutSelection)
+                {
+                }
+
+                actionref(ValidateLayout_Promoted; ValidateLayout)
+                {
+                }
+
+                actionref(ShowInfoDialog_Promoted; ShowInfoDialog)
+                {
+                }
             }
         }
     }
