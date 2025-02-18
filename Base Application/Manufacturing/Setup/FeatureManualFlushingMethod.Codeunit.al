@@ -151,6 +151,8 @@ codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
         PlanningComponent.SetRange("Flushing Method", PlanningComponent."Flushing Method"::Manual);
         InsertDocumentEntry(Database::"Planning Component", PlanningComponent.TableCaption(), PlanningComponent.Count());
 
+        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Consumption);
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Flushing Method", ItemJournalLine."Flushing Method"::Manual);
         InsertDocumentEntry(Database::"Item Journal Line", ItemJournalLine.TableCaption(), ItemJournalLine.Count());
 
@@ -222,6 +224,8 @@ codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
+        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Consumption);
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Flushing Method", ItemJournalLine."Flushing Method"::Manual);
         if ItemJournalLine.FindSet(true) then
             repeat
@@ -277,7 +281,10 @@ codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
         UpgradeTag: Codeunit "Upgrade Tag";
     begin
         // Set the upgrade tag to indicate that the data update is executed/skipped and the feature is enabled.
-        // This is needed when the feature is enabled by default in a future version, to skip the data upgrade.        
+        // This is needed when the feature is enabled by default in a future version, to skip the data upgrade.
+        if UpgradeTag.HasUpgradeTag(GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag()) then
+            exit;
+
         UpgradeTag.SetUpgradeTag(GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag());
         if not DataUpgradeExecuted then
             UpgradeTag.SetSkippedUpgrade(GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag(), true);

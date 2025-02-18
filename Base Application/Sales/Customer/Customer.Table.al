@@ -285,7 +285,7 @@ table 18 Customer
         {
             AutoFormatType = 1;
             Caption = 'Credit Limit (LCY)';
-            ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
+            ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued. The value 0 is treated as unlimited credit.';
         }
         field(21; "Customer Posting Group"; Code[20])
         {
@@ -1880,7 +1880,7 @@ table 18 Customer
     trigger OnInsert()
     var
         Customer: Record Customer;
-#if not CLEAN24        
+#if not CLEAN24
         NoSeriesMgt: Codeunit NoSeriesManagement;
 #endif
         IsHandled: Boolean;
