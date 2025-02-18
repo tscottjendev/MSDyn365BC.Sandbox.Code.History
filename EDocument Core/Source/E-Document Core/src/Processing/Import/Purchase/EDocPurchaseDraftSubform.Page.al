@@ -22,9 +22,11 @@ page 6183 "E-Doc. Purchase Draft Subform"
                     ToolTip = 'Specifies the line number.';
                     StyleExpr = StyleTxt;
                     Editable = false;
+                    Visible = false;
                 }
                 field("Line Type"; EDocumentLineMapping."Purchase Line Type")
                 {
+                    Caption = 'Type';
                     ApplicationArea = All;
                     StyleExpr = StyleTxt;
                     Editable = true;

@@ -13,6 +13,7 @@ page 6181 "E-Document Purchase Draft"
 {
     ApplicationArea = Basic, Suite;
     DataCaptionExpression = DataCaption;
+    Caption = 'Purchase Document Draft';
     PageType = Card;
     SourceTable = "E-Document";
     InsertAllowed = false;
@@ -38,14 +39,6 @@ page 6181 "E-Document Purchase Draft"
                         Rec.ShowRecord();
                         CurrPage.Update();
                     end;
-                }
-                field("Status"; Rec.Status)
-                {
-                    Caption = 'Status';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the current state of the electronic document.';
-                    StyleExpr = StyleStatusTxt;
-                    Editable = false;
                 }
                 group("Buy-from")
                 {
@@ -109,6 +102,14 @@ page 6181 "E-Document Purchase Draft"
                         ToolTip = 'Specifies the due date of the electronic document.';
                         Editable = false;
                     }
+                }
+                field("Status"; Rec.Status)
+                {
+                    Caption = 'Status';
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the current state of the electronic document.';
+                    StyleExpr = StyleStatusTxt;
+                    Editable = false;
                 }
             }
             part(Lines; "E-Doc. Purchase Draft Subform")
@@ -174,10 +175,10 @@ page 6181 "E-Document Purchase Draft"
             action(CreateDocument)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Create Document';
-                ToolTip = 'Process the selected electronic document into a business central document';
+                Caption = 'Finalize Draft';
+                ToolTip = 'Process the electronic document into a business central document';
                 Image = CreateDocument;
-                Visible = ShowCreateDocumentAction;
+                Visible = ShowFinalizeDraftAction;
 
                 trigger OnAction()
                 begin
@@ -238,7 +239,7 @@ page 6181 "E-Document Purchase Draft"
         SetStyle();
         DataCaption := 'Purchase Document Draft ' + Format(Rec."Entry No");
 
-        ShowCreateDocumentAction := Rec.GetEDocumentImportProcessingStatus() = Enum::"Import E-Doc. Proc. Status"::"Draft Ready";
+        ShowFinalizeDraftAction := Rec.GetEDocumentImportProcessingStatus() = Enum::"Import E-Doc. Proc. Status"::"Draft Ready";
         ShowAnalyzeDocumentAction :=
             (Rec.GetEDocumentImportProcessingStatus() = Enum::"Import E-Document Steps"::"Structure received data") and
             (Rec.Status = Enum::"E-Document Status"::Error);
@@ -327,7 +328,7 @@ page 6181 "E-Document Purchase Draft"
         ErrorsAndWarningsNotification: Notification;
         RecordLinkTxt, StyleStatusTxt, ServiceStatusStyleTxt, VendorName, DataCaption : Text;
         HasErrorsOrWarnings, HasErrors : Boolean;
-        ShowCreateDocumentAction: Boolean;
+        ShowFinalizeDraftAction: Boolean;
         ShowAnalyzeDocumentAction: Boolean;
         EDocHasErrorOrWarningMsg: Label 'Errors or warnings found for E-Document. Please review below in "Error Messages" section.';
 

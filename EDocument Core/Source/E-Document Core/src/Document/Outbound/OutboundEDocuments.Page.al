@@ -28,6 +28,7 @@ page 6106 "Outbound E-Documents"
                 ShowCaption = false;
                 field("Entry No"; Rec."Entry No")
                 {
+                    Caption = 'No.';
                     ToolTip = 'Specifies the entry number.';
                 }
                 field("Customer Name"; Rec."Bill-to/Pay-to Name")
@@ -65,7 +66,7 @@ page 6106 "Outbound E-Documents"
             }
             part("Outbound E-Doc. Factbox"; "Outbound E-Doc. Factbox")
             {
-                Caption = 'Details';
+                Caption = 'E-Document';
                 SubPageLink = "E-Document Entry No" = field("Entry No");
                 ShowFilter = false;
             }

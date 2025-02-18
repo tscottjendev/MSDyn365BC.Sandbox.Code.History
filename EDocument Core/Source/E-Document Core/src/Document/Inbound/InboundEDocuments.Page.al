@@ -26,9 +26,23 @@ page 6105 "Inbound E-Documents"
             repeater(DocumentList)
             {
                 ShowCaption = false;
+                field("File Name"; Rec."File Name")
+                {
+                    ToolTip = 'Specifies the name of the source file.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.ViewSourceFile();
+                    end;
+                }
+                field("File Type"; Rec."File Type")
+                {
+                    ToolTip = 'Specifies the type of the source file.';
+                    Visible = false;
+                }
                 field("Entry No"; Rec."Entry No")
                 {
-                    Caption = 'Entry No.';
+                    Caption = 'No.';
                     ToolTip = 'Specifies the entry number.';
 
                     trigger OnDrillDown()
@@ -59,20 +73,6 @@ page 6105 "Inbound E-Documents"
                         Rec.ShowRecord();
                     end;
                 }
-                field("File Name"; Rec."File Name")
-                {
-                    ToolTip = 'Specifies the name of the source file.';
-
-                    trigger OnDrillDown()
-                    begin
-                        Rec.ViewSourceFile();
-                    end;
-                }
-                field("File Type"; Rec."File Type")
-                {
-                    ToolTip = 'Specifies the type of the source file.';
-                    Visible = false;
-                }
                 field(Service; Rec.Service)
                 {
                     ToolTip = 'Specifies the service code of the electronic document.';
@@ -91,7 +91,7 @@ page 6105 "Inbound E-Documents"
             }
             part(InboundEDocFactbox; "Inbound E-Doc. Factbox")
             {
-                Caption = 'Details';
+                Caption = 'E-Document';
                 SubPageLink = "E-Document Entry No" = field("Entry No");
                 ShowFilter = false;
             }
@@ -125,7 +125,7 @@ page 6105 "Inbound E-Documents"
             }
             action(ImportManually)
             {
-                Caption = 'Import other File';
+                Caption = 'Import other file';
                 ToolTip = 'Create an electronic document by manually uploading a file.';
                 Image = Import;
 

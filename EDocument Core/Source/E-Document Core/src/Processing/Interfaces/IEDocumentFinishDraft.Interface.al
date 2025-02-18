@@ -2,8 +2,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.eServices.EDocument.Processing.Import;
+namespace Microsoft.eServices.EDocument.Processing.Interfaces;
+
 using Microsoft.eServices.EDocument;
+using Microsoft.eServices.EDocument.Processing.Import;
 
 /// <summary>
 /// Interface that deals with creating a document in Business Central from the draft entities.

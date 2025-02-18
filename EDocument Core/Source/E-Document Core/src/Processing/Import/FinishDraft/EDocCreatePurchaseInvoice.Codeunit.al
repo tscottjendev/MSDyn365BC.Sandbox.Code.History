@@ -6,6 +6,7 @@ namespace Microsoft.eServices.EDocument.Processing.Import;
 
 using Microsoft.eServices.EDocument;
 using Microsoft.Purchases.Document;
+using Microsoft.eServices.EDocument.Processing.Interfaces;
 
 /// <summary>
 /// Dealing with the creation of the purchase invoice after the draft has been populated.

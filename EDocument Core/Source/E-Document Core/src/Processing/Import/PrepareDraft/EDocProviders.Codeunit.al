@@ -12,6 +12,8 @@ using Microsoft.Bank.Reconciliation;
 using Microsoft.eServices.EDocument.Service.Participant;
 using Microsoft.Inventory.Item;
 using Microsoft.Purchases.Document;
+using Microsoft.eServices.EDocument.Processing.Interfaces;
+
 
 codeunit 6124 "E-Doc. Providers" implements IPurchaseLineAccountProvider, IUnitOfMeasureProvider, IVendorProvider, IPurchaseOrderProvider
 {

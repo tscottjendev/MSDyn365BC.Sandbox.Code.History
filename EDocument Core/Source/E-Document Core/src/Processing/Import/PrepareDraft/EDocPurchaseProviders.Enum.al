@@ -4,6 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument.Processing.Import;
 
+using Microsoft.eServices.EDocument.Processing.Interfaces;
+
 enum 6110 "E-Doc Purchase Providers" implements IVendorProvider, IPurchaseOrderProvider, IPurchaseLineAccountProvider, IUnitOfMeasureProvider
 {
     Extensible = true;

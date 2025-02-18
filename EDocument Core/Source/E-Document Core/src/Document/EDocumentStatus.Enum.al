@@ -8,7 +8,7 @@ enum 6108 "E-Document Status"
 {
     Extensible = true;
     AssignmentCompatibility = true;
-    value(0; "In Progress") { Caption = 'In Progress'; }
+    value(0; "In Progress") { Caption = 'In progress'; }
     value(1; "Processed") { Caption = 'Processed'; }
     value(2; "Error") { Caption = 'Error'; }
 }
