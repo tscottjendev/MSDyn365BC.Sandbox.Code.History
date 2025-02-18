@@ -619,7 +619,7 @@ page 6030 "Service Statistics"
                     AutoFormatType = 1;
                     Caption = 'Credit Limit (LCY)';
                     Editable = false;
-                    ToolTip = 'Specifies information about the customer''s credit limit.';
+                    ToolTip = 'Specifies information about the customer''s credit limit. The value 0 is treated as unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
@@ -932,4 +932,3 @@ page 6030 "Service Statistics"
     begin
     end;
 }
-

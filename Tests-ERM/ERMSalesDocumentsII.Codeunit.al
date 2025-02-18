@@ -4524,6 +4524,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        SetShowAmountsOnly();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Documents II");
@@ -6332,6 +6333,15 @@ codeunit 134386 "ERM Sales Documents II"
         StandardPurchaseCode.Init();
         StandardVendorPurchaseCode.Code := StandardPurchaseCode.Code;
         StandardVendorPurchaseCode.Insert(true);
+    end;
+
+    local procedure SetShowAmountsOnly()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Show Amounts", GeneralLedgerSetup."Show Amounts"::"Amount Only");
+        GeneralLedgerSetup.Modify();
     end;
 
 #if not CLEAN26
