@@ -182,7 +182,7 @@ page 398 "Sales Credit Memo Statistics"
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
                     Caption = 'Credit Limit (LCY)';
-                    ToolTip = 'Specifies the credit limit in LCY of the customer who you created and posted this sales credit memo for.';
+                    ToolTip = 'Specifies the credit limit in LCY of the customer who you created and posted this sales credit memo for. The value 0 is treated as unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
@@ -353,4 +353,3 @@ page 398 "Sales Credit Memo Statistics"
     begin
     end;
 }
-
