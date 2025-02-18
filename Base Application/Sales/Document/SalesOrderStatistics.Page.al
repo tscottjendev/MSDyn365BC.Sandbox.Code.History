@@ -730,7 +730,7 @@ page 402 "Sales Order Statistics"
                     AutoFormatType = 1;
                     Caption = 'Credit Limit (LCY)';
                     Editable = false;
-                    ToolTip = 'Specifies the credit limit of the customer that you created the sales document for.';
+                    ToolTip = 'Specifies the credit limit of the customer that you created the sales document for. The value 0 is treated as unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
@@ -1294,4 +1294,3 @@ page 402 "Sales Order Statistics"
     begin
     end;
 }
-
