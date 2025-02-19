@@ -4919,7 +4919,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnPostDtldVendLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(VendPostingGr, DetailedCVLedgEntryBuffer, GenJournalLine, TempDimensionPostingBuffer, AdjAmount, SaveEntryNo, LedgEntryInserted, IsHandled);
         if not IsHandled then
             CreateGLEntriesForTotalAmounts(
-                GenJournalLine, TempDimensionPostingBuffer, AdjAmount, SaveEntryNo, GetVendorPayablesAccount(GenJournalLine, VendPostingGr), LedgEntryInserted);
+                GenJournalLine, TempDimensionPostingBuffer, AdjAmount, SaveEntryNo, GetVendorPayablesAccount2(DetailedCVLedgEntryBuffer, GenJournalLine, VendPostingGr), LedgEntryInserted);
 
         OnPostDtldVendLedgEntriesOnAfterCreateGLEntriesForTotalAmounts(TempGLEntryBuf, GlobalGLEntry, NextTransactionNo);
 
@@ -8158,6 +8158,19 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
         VendorPostingGroup.SetRange("Payables Account", GLAccNo);
         exit(VendorPostingGroup.Count() > 0);
+    end;
+
+    local procedure GetVendorPayablesAccount2(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var GenJournalLine: Record "Gen. Journal Line"; VendPostingGr: Record "Vendor Posting Group"): Code[20]
+    begin
+        if MultiplePostingGroups then begin
+            DetailedCVLedgEntryBuffer.Reset();
+            DetailedCVLedgEntryBuffer.SetFilter("Entry Type", '%1|%2', DetailedCVLedgEntryBuffer."Entry Type"::"Realized Gain", DetailedCVLedgEntryBuffer."Entry Type"::"Realized Loss");
+            if DetailedCVLedgEntryBuffer.FindFirst() then
+                exit(GetVendDtldCVLedgEntryBufferAccNo(GenJournalLine, DetailedCVLedgEntryBuffer));
+
+            exit(GetVendorPayablesAccount(GenJournalLine, VendPostingGr));
+        end else
+            exit(GetVendorPayablesAccount(GenJournalLine, VendPostingGr));
     end;
 
     [IntegrationEvent(true, false)]
