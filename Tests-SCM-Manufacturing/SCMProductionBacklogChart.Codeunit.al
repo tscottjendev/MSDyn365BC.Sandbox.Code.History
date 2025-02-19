@@ -62,7 +62,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         Initialize();
         for count := 1 to ProdItems do begin
             LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::"Prod. Order", '', '');
-            LibraryAssembly.CreateBOM(Item, 1);
+            LibraryManufacturing.CreateProductionBOM(Item, 1);
             CreateProdOrders(Item."No.", ProductionOrder.Status::Simulated, Simulated);
             CreateProdOrders(Item."No.", ProductionOrder.Status::Planned, Planned);
             CreateProdOrders(Item."No.", ProductionOrder.Status::"Firm Planned", FirmPlanned);
@@ -125,7 +125,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         Initialize();
         for count := 1 to ProdItems do begin
             LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::"Prod. Order", '', '');
-            LibraryAssembly.CreateBOM(Item, 1);
+            LibraryManufacturing.CreateProductionBOM(Item, 1);
             CreateProdOrders(Item."No.", ProductionOrder.Status::Simulated, Simulated);
             CreateProdOrders(Item."No.", ProductionOrder.Status::Planned, Planned);
             CreateProdOrders(Item."No.", ProductionOrder.Status::"Firm Planned", FirmPlanned);
@@ -178,7 +178,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         Initialize();
         for count := 1 to ProdItems do begin
             LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::"Prod. Order", '', '');
-            LibraryAssembly.CreateBOM(Item, 1);
+            LibraryManufacturing.CreateProductionBOM(Item, 1);
             CreateProdOrders(Item."No.", ProductionOrder.Status::Simulated, Simulated);
             CreateProdOrders(Item."No.", ProductionOrder.Status::Planned, Planned);
             CreateProdOrders(Item."No.", ProductionOrder.Status::"Firm Planned", FirmPlanned);
@@ -242,7 +242,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         Initialize();
         for count := 1 to ProdItems do begin
             LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::"Prod. Order", '', '');
-            LibraryAssembly.CreateBOM(Item, 1);
+            LibraryManufacturing.CreateProductionBOM(Item, 1);
             CreateProdOrders(Item."No.", ProductionOrder.Status::Simulated, Simulated);
             CreateProdOrders(Item."No.", ProductionOrder.Status::Planned, Planned);
             CreateProdOrders(Item."No.", ProductionOrder.Status::"Firm Planned", FirmPlanned);
@@ -302,7 +302,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         Initialize();
         for count := 1 to ProdItems do begin
             LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::"Prod. Order", '', '');
-            LibraryAssembly.CreateBOM(Item, 1);
+            LibraryManufacturing.CreateProductionBOM(Item, 1);
             CreateProdOrders(Item."No.", ProductionOrder.Status::Simulated, Simulated);
             CreateProdOrders(Item."No.", ProductionOrder.Status::Planned, Planned);
             CreateProdOrders(Item."No.", ProductionOrder.Status::"Firm Planned", FirmPlanned);
