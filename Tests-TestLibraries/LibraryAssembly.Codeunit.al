@@ -13,7 +13,6 @@ codeunit 132207 "Library - Assembly"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
         LibraryDimension: Codeunit "Library - Dimension";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryResource: Codeunit "Library - Resource";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         Assert: Codeunit Assert;
@@ -647,61 +646,25 @@ codeunit 132207 "Library - Assembly"
         AssemblySetup.Modify(true);
     end;
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing as CreateProductionBOM', '26.0')]
     procedure CreateBOM(var Item: Record Item; NoOfComps: Integer)
     var
-        Item1: Record Item;
-        ProductionBOMHeader: Record "Production BOM Header";
-        ProductionBOMLine: Record "Production BOM Line";
-        "count": Integer;
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
-
-        for count := 1 to NoOfComps do begin
-            CreateItem(Item1, Item."Costing Method"::Standard, Item."Replenishment System"::Purchase, '', '');
-            LibraryManufacturing.CreateProductionBOMLine(
-              ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item1."No.", 1);
-        end;
-
-        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
-        ProductionBOMHeader.Modify(true);
-        Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
-        Item.Modify(true);
+        LibraryManufacturing.CreateProductionBOM(Item, NoOfComps);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing as CreateProductionRouting', '26.0')]
     procedure CreateRouting(var Item: Record Item; NoOfLines: Integer)
     var
-        MachineCenter: Record "Machine Center";
-        WorkCenter: Record "Work Center";
-        RoutingHeader: Record "Routing Header";
-        RoutingLine: Record "Routing Line";
-        "count": Integer;
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
-        LibraryManufacturing.CreateWorkCenter(WorkCenter);
-
-        for count := 1 to NoOfLines do
-            if count mod 2 = 0 then begin
-                RoutingLine.Validate(Type, RoutingLine.Type::"Work Center");
-                LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, WorkCenter."No.",
-                  CopyStr(
-                    LibraryUtility.GenerateRandomCode(RoutingLine.FieldNo("Operation No."), DATABASE::"Routing Line"), 1,
-                    LibraryUtility.GetFieldLength(DATABASE::"Routing Line", RoutingLine.FieldNo("Operation No."))),
-                  LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
-            end else begin
-                LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", LibraryRandom.RandInt(5));
-                RoutingLine.Validate(Type, RoutingLine.Type::"Machine Center");
-                LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, MachineCenter."No.",
-                  CopyStr(
-                    LibraryUtility.GenerateRandomCode(RoutingLine.FieldNo("Operation No."), DATABASE::"Routing Line"), 1,
-                    LibraryUtility.GetFieldLength(DATABASE::"Routing Line", RoutingLine.FieldNo("Operation No."))),
-                  LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
-            end;
-
-        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
-        RoutingHeader.Modify(true);
-        Item.Validate("Routing No.", RoutingHeader."No.");
-        Item.Modify(true);
+        LibraryManufacturing.CreateProductionRouting(Item, NoOfLines);
     end;
+#endif
 
     procedure CreateDimensionSetup(var TempDimension: Record Dimension temporary; var TempDimensionValue: Record "Dimension Value" temporary)
     var
@@ -866,11 +829,12 @@ codeunit 132207 "Library - Assembly"
     var
         BOMComponent: Record "BOM Component";
         Item2: Record Item;
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         Depth: Integer;
     begin
         CreateItem(Item, CostingMethod, ReplenishmentMethod, '', '');
         if ReplenishmentMethod = Item."Replenishment System"::"Prod. Order" then
-            CreateBOM(Item, NoOfComps)
+            LibraryManufacturing.CreateProductionBOM(Item, NoOfComps)
         else
             CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, NoOfComps, NoOfComps, NoOfComps, 1, '', '');
 
@@ -891,7 +855,7 @@ codeunit 132207 "Library - Assembly"
             Item.Validate("Replenishment System", ReplenishmentMethod);
             Item.Modify(true);
             if ReplenishmentMethod = Item."Replenishment System"::"Prod. Order" then
-                CreateBOM(Item, NoOfComps);
+                LibraryManufacturing.CreateProductionBOM(Item, NoOfComps);
         end;
         Commit();
     end;
