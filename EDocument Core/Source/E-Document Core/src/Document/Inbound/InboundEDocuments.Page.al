@@ -288,7 +288,8 @@ page 6105 "Inbound E-Documents"
             exit;
 
         Progress.Open(ProcessDialogMsg);
-        EDocImport.ProcessIncomingEDocument(EDocument);
+        if not EDocImport.ProcessAutomaticallyIncomingEDocument(EDocument) then
+            exit;
         Progress.Close();
         if EDocument.GetEDocumentImportProcessingStatus() = "Import E-Doc. Proc. Status"::"Draft Ready" then
             EDocumentHelper.OpenDraftPage(EDocument);

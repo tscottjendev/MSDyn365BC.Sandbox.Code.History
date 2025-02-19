@@ -22,6 +22,7 @@ codeunit 6104 "Import E-Document Process"
         EDocImport: Codeunit "E-Doc. Import";
         NewStatus: Enum "Import E-Doc. Proc. Status";
         ImportProcessVersion: Enum "E-Document Import Process";
+        CreateJournalLineV1: Boolean;
     begin
         EDocument.SetRecFilter();
         EDocument.FindFirst();
@@ -57,8 +58,17 @@ codeunit 6104 "Import E-Document Process"
             end;
 
         if ImportProcessVersion = "E-Document Import Process"::"Version 1.0" then begin
-            if Step = Step::"Finish draft" then
-                EDocImport.V1_ProcessEDocument(EDocument)
+            if Step = Step::"Finish draft" then begin
+                case EDocImportParameters."Purch. Journal V1 Behavior" of
+                    EDocImportParameters."Purch. Journal V1 Behavior"::"Inherit from service":
+                        CreateJournalLineV1 := EDocument.GetEDocumentService()."Create Journal Lines";
+                    EDocImportParameters."Purch. Journal V1 Behavior"::"Create journal line":
+                        CreateJournalLineV1 := true;
+                    EDocImportParameters."Purch. Journal V1 Behavior"::"Create purchase document":
+                        CreateJournalLineV1 := false;
+                end;
+                EDocImport.V1_ProcessEDocument(EDocument, CreateJournalLineV1)
+            end
         end
         else begin
             EDocLog := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, NewStatus);

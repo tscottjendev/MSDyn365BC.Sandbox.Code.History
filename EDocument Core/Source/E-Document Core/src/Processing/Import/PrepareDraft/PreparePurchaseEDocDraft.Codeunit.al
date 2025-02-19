@@ -26,10 +26,10 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         IPurchaseLineAccountProvider: Interface IPurchaseLineAccountProvider;
         IPurchaseOrderProvider: Interface IPurchaseOrderProvider;
     begin
-        IVendorProvider := EDocImportParameters."Prepare Draft Value Providers";
-        IUnitOfMeasureProvider := EDocImportParameters."Prepare Draft Value Providers";
-        IPurchaseLineAccountProvider := EDocImportParameters."Prepare Draft Value Providers";
-        IPurchaseOrderProvider := EDocImportParameters."Prepare Draft Value Providers";
+        IVendorProvider := EDocImportParameters."Processing Customizations";
+        IUnitOfMeasureProvider := EDocImportParameters."Processing Customizations";
+        IPurchaseLineAccountProvider := EDocImportParameters."Processing Customizations";
+        IPurchaseOrderProvider := EDocImportParameters."Processing Customizations";
 
         EDocumentPurchaseHeader.GetFromEDocument(EDocument);
         EDocumentPurchaseHeader.TestField("E-Document Entry No.");

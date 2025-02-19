@@ -91,6 +91,7 @@ page 6122 "E-Documents"
                 Caption = 'View file';
                 ToolTip = 'View the source file.';
                 Image = ViewDetails;
+                Visible = NewEDocumentExperienceActive;
 
                 trigger OnAction()
                 begin

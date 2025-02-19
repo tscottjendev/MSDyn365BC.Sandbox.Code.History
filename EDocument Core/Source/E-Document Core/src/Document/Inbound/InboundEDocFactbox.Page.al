@@ -33,6 +33,7 @@ page 6108 "Inbound E-Doc. Factbox"
                 Caption = 'Processing Status';
                 ToolTip = 'Specifies the processing status of an E-Document';
                 Editable = false;
+                Visible = ImportProcessingStatusVisible;
             }
             field(Logs; Rec.Logs())
             {
@@ -56,6 +57,17 @@ page 6108 "Inbound E-Doc. Factbox"
             }
         }
     }
+
+    var
+        ImportProcessingStatusVisible: Boolean;
+
+    trigger OnOpenPage()
+    var
+        EDocumentsSetup: Record "E-Documents Setup";
+    begin
+        ImportProcessingStatusVisible := EDocumentsSetup.IsNewEDocumentExperienceActive();
+    end;
+
 }
 
 

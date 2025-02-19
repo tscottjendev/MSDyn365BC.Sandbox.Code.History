@@ -260,7 +260,7 @@ codeunit 139883 "E-Doc Process Test"
 
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Draft Ready");
         EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
-        EDocImportParameters."Finish Purchase Draft Impl." := "E-Doc. Create Purchase Invoice"::"Mock Create Purchase Invoice";
+        EDocImportParameters."Processing Customizations" := "E-Doc. Proc. Customizations"::"Mock Create Purchase Invoice";
         EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
 
         PurchaseHeader.SetRange("E-Document Link", EDocument.SystemId);

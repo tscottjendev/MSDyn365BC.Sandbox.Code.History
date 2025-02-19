@@ -20,7 +20,7 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         PurchaseHeader: Record "Purchase Header";
         IEDocumentFinishPurchaseDraft: Interface IEDocumentCreatePurchaseInvoice;
     begin
-        IEDocumentFinishPurchaseDraft := EDocImportParameters."Finish Purchase Draft Impl.";
+        IEDocumentFinishPurchaseDraft := EDocImportParameters."Processing Customizations";
         PurchaseHeader := IEDocumentFinishPurchaseDraft.CreatePurchaseInvoice(EDocument);
         PurchaseHeader.TestField("Document Type", "Purchase Document Type"::Invoice);
         PurchaseHeader.TestField("No.");
