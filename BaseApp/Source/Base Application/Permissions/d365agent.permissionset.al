@@ -22,7 +22,7 @@ permissionset 6219 "D365 Agent"
                   tabledata "Agent Task Message" = RIMd,
                   tabledata "Agent Task Message Attachment" = RIMD,
                   tabledata "Agent Access Control" = RIMD,
-                  tabledata "Agent Task Step" = RIMd,
+                  tabledata "Agent Task Memory Entry" = RIMd,
                   tabledata "Agent Task Timeline" = Rimd,
                   tabledata "Agent Task Timeline Step" = Rimd,
                   tabledata "Agent Task Timeline Step Det." = Rimd,
