@@ -12,6 +12,7 @@ codeunit 132202 "Library - Manufacturing"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         TemplateName: Label 'FOR. LABOR';
@@ -399,6 +400,28 @@ codeunit 132202 "Library - Manufacturing"
         ProductionBOMCommentLine.Insert(true);
     end;
 
+    procedure CreateProductionBOM(var Item: Record Item; NoOfComps: Integer)
+    var
+        Item1: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        LibraryAssembly: Codeunit "Library - Assembly";
+        "count": Integer;
+    begin
+        CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+
+        for count := 1 to NoOfComps do begin
+            LibraryAssembly.CreateItem(Item1, Item."Costing Method"::Standard, Item."Replenishment System"::Purchase, '', '');
+            CreateProductionBOMLine(
+              ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item1."No.", 1);
+        end;
+
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+        Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item.Modify(true);
+    end;
+
     procedure CreateProductionBOMHeader(var ProductionBOMHeader: Record "Production BOM Header"; UnitOfMeasureCode: Code[10]): Code[20]
     begin
         LibraryUtility.UpdateSetupNoSeriesCode(
@@ -559,6 +582,41 @@ codeunit 132202 "Library - Manufacturing"
             if OrderType = OrderType::ProjectOrder then
                 EndLoop := true;
         until (SalesLine.Next() = 0) or EndLoop;
+    end;
+
+    procedure CreateProductionRouting(var Item: Record Item; NoOfLines: Integer)
+    var
+        MachineCenter: Record "Machine Center";
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        "count": Integer;
+    begin
+        CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateWorkCenter(WorkCenter);
+
+        for count := 1 to NoOfLines do
+            if count mod 2 = 0 then begin
+                RoutingLine.Validate(Type, RoutingLine.Type::"Work Center");
+                CreateRoutingLineSetup(RoutingLine, RoutingHeader, WorkCenter."No.",
+                  CopyStr(
+                    LibraryUtility.GenerateRandomCode(RoutingLine.FieldNo("Operation No."), DATABASE::"Routing Line"), 1,
+                    LibraryUtility.GetFieldLength(DATABASE::"Routing Line", RoutingLine.FieldNo("Operation No."))),
+                  LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
+            end else begin
+                CreateMachineCenter(MachineCenter, WorkCenter."No.", LibraryRandom.RandInt(5));
+                RoutingLine.Validate(Type, RoutingLine.Type::"Machine Center");
+                CreateRoutingLineSetup(RoutingLine, RoutingHeader, MachineCenter."No.",
+                  CopyStr(
+                    LibraryUtility.GenerateRandomCode(RoutingLine.FieldNo("Operation No."), DATABASE::"Routing Line"), 1,
+                    LibraryUtility.GetFieldLength(DATABASE::"Routing Line", RoutingLine.FieldNo("Operation No."))),
+                  LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
+            end;
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
     end;
 
     procedure CreateRegisteredAbsence(var RegisteredAbsence: Record "Registered Absence"; CapacityType: Enum "Capacity Type"; No: Code[20]; Date: Date; StartingTime: Time; EndingTime: Time)
