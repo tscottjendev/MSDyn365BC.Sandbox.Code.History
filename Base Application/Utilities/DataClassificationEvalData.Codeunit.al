@@ -3782,7 +3782,7 @@ codeunit 1751 "Data Classification Eval. Data"
         DummyAgentAccessControl: Record "Agent Access Control";
         DummyAgentTask: Record "Agent Task";
         DummyAgentTaskMessage: Record "Agent Task Message";
-        DummyAgentTaskStep: Record "Agent Task Step";
+        DummyAgentTaskMemoryEntry: Record "Agent Task Memory Entry";
         DummyAgentTaskFile: Record "Agent Task File";
         DummyAgentTaskTimelineStep: Record "Agent Task Timeline Step";
         DummyAgentTaskTimelineStepDetail: Record "Agent Task Timeline Step Det.";
@@ -3808,10 +3808,11 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(TableNo);
         SetFieldToCompanyConfidential(TableNo, DummyAgentTaskMessage.FieldNo("Content"));
 
-        TableNo := DATABASE::"Agent Task Step";
+        TableNo := DATABASE::"Agent Task Memory Entry";
         SetTableFieldsToNormal(TableNo);
-        SetFieldToPersonal(TableNo, DummyAgentTaskStep.FieldNo("User Security ID"));
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskStep.FieldNo("Details"));
+        SetFieldToPersonal(TableNo, DummyAgentTaskMemoryEntry.FieldNo("User Security ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskMemoryEntry.FieldNo("Details"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskMemoryEntry.FieldNo("Description"));
 
         TableNo := DATABASE::"Agent Task File";
         SetTableFieldsToNormal(TableNo);
@@ -3861,9 +3862,11 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(2000000268); // Agent Task Message Data table
         SetFieldToCompanyConfidential(2000000268, 5); // Content
 
-        SetTableFieldsToNormal(2000000269); // Agent Task Step Data table
+        SetTableFieldsToNormal(2000000269); // Agent Task Memory Entry Data table
         SetFieldToPersonal(2000000269, 3); // User Security Id
         SetFieldToCompanyConfidential(2000000269, 5); // Details
+        SetFieldToCompanyConfidential(2000000269, 6); // Description
+        SetFieldToCompanyConfidential(2000000269, 8); // Internal Details
 
         SetTableFieldsToNormal(2000000271); // Agent Task Timeline Step Data table
         SetFieldToCompanyConfidential(2000000271, 4); // Description
