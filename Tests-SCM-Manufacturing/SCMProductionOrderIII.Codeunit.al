@@ -6990,6 +6990,43 @@ codeunit 137079 "SCM Production Order III"
             StrSubstNo(MissingAccountTxt, InventoryPostingSetup.FieldCaption("Mat. Non-Inv. Variance Acc."), InventoryPostingSetup.TableCaption() + ' ' + InventoryPostingSetup.GetFilters()));
     end;
 
+    [Test]
+    [HandlerFunctions('SourceDocumentsPageHandler')]
+    procedure WarehouseShipmentGetSourceDocumentsNotShowProdConsumptionLine()
+    var
+        Item: array[2] of Record Item;
+        ProductionOrder: Record "Production Order";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipment: TestPage "Warehouse Shipment";
+    begin
+        // [SCENARIO 563482] The production order component line should not be displayed when retrieving source documents from a warehouse shipment.
+        Initialize();
+
+        // [GIVEN] Create Production BOM.
+        CreateItemsSetup(Item[1], Item[2], LibraryRandom.RandInt(2));
+
+        // [GIVEN] Modify Green Location.
+        ModifyLocation(LocationBlue);
+
+        // [GIVEN] Post Postive Adjustment.
+        CreateAndPostItemJournalLine(Item[2]."No.", LibraryRandom.RandIntInRange(5, 10), LocationBlue.Code, '');
+
+        // [GIVEN] Create Released Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item[1]."No.", 1, LocationBlue.Code, '');
+
+        // [GIVEN] Create Warehouse Shipment Header.
+        LibraryWarehouse.CreateWarehouseShipmentHeader(WarehouseShipmentHeader);
+        WarehouseShipmentHeader.Validate("Location Code", LocationBlue.Code);
+        WarehouseShipmentHeader.Modify(true);
+
+        // [WHEN] Open Warehouse Shipment Page.
+        WarehouseShipment.OpenEdit();
+        WarehouseShipment.GoToRecord(WarehouseShipmentHeader);
+
+        // [THEN] verify production order component line should not be displayed When 'Get Source Documents' was invoke.
+        WarehouseShipment."Get Source Documents".Invoke();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -7043,6 +7080,7 @@ codeunit 137079 "SCM Production Order III"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, true);
         LibraryWarehouse.CreateLocationWMS(LocationRed, true, false, false, false, false);  // Location Red.
         LibraryWarehouse.CreateLocationWMS(LocationBlue, false, false, false, false, false);  // Location Blue.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationBlue.Code, false);
         LibraryWarehouse.CreateNumberOfBins(LocationRed.Code, '', '', LibraryRandom.RandInt(3) + 2, false);  // Value  required for number of Bins.
 
         LibraryWarehouse.CreateLocationWMS(LocationSilver, true, true, true, false, false);  // Location Silver.
@@ -9568,6 +9606,16 @@ codeunit 137079 "SCM Production Order III"
             StrSubstNo(EntryMustBeEqualErr, TempGLEntry.FieldCaption(Amount), ExpectedAmount, TempGLEntry."Entry No.", TempGLEntry.TableCaption()));
     end;
 
+    local procedure ModifyLocation(Location: Record Location)
+    begin
+        Location.Validate("Require Receive", true);
+        Location.Validate("Require Shipment", true);
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+        Location.Validate("Asm. Consump. Whse. Handling", Location."Asm. Consump. Whse. Handling"::"No Warehouse Handling");
+        Location.Validate("Job Consump. Whse. Handling", Location."Job Consump. Whse. Handling"::"No Warehouse Handling");
+        Location.Modify(true);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -9819,6 +9867,13 @@ codeunit 137079 "SCM Production Order III"
     procedure StrMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
     begin
         Choice := 1;
+    end;
+
+    [ModalPageHandler]
+    procedure SourceDocumentsPageHandler(var SourceDocuments: TestPage "Source Documents")
+    begin
+        SourceDocuments.First();
+        SourceDocuments."Source No.".AssertEquals('');
     end;
 }
 
