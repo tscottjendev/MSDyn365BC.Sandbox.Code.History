@@ -193,7 +193,7 @@ page 6033 "Service Invoice Statistics"
                     ApplicationArea = Service;
                     AutoFormatType = 1;
                     Caption = 'Credit Limit (LCY)';
-                    ToolTip = 'Specifies information about the customer''s credit limit. The value 0 is treated as unlimited credit.';
+                    ToolTip = 'Specifies the credit limit of the customer on the service document. The value 0 represents unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {

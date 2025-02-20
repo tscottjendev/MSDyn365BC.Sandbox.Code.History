@@ -192,7 +192,7 @@ page 398 "Sales Credit Memo Statistics"
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
                     Caption = 'Credit Limit (LCY)';
-                    ToolTip = 'Specifies the credit limit in LCY of the customer who you created and posted this sales credit memo for. The value 0 is treated as unlimited credit.';
+                    ToolTip = 'Specifies the credit limit of the customer on the sales document. The value 0 represents unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
