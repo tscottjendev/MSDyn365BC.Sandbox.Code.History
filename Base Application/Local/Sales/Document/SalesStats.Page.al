@@ -205,7 +205,7 @@ page 10042 "Sales Stats."
                     AutoFormatType = 1;
                     Caption = 'Credit Limit ($)';
                     Editable = false;
-                    ToolTip = 'Specifies the customer''s credit limit, in dollars.';
+                    ToolTip = 'Specifies the credit limit in dollars of the customer on the sales document. The value 0 represents unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
@@ -304,7 +304,7 @@ page 10042 "Sales Stats."
 
     trigger OnOpenPage()
     begin
-#if not CLEAN26        
+#if not CLEAN26
         if not Rec.SkipStatisticsPreparation() then
             Rec.PrepareOpeningDocumentStatistics();
         Rec.ResetSkipStatisticsPreparationFlag();
@@ -567,4 +567,3 @@ page 10042 "Sales Stats."
     begin
     end;
 }
-
