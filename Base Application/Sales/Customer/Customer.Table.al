@@ -285,7 +285,7 @@ table 18 Customer
         {
             AutoFormatType = 1;
             Caption = 'Credit Limit (LCY)';
-            ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued. The value 0 is treated as unlimited credit.';
+            Tooltip = 'Specifies the maximum amount of credit that you extend to the customer for their purchases before you issue warnings. The value 0 represents unlimited credit.';
         }
         field(21; "Customer Posting Group"; Code[20])
         {
