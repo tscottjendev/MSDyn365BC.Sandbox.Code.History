@@ -90,6 +90,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         WarehouseRequest.FilterGroup(2);
         WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Outbound);
         WarehouseRequest.SetRange("Location Code", WhseShptHeader."Location Code");
+        WarehouseRequest.SetFilter("Source Document", '<>%1', WarehouseRequest."Source Document"::"Prod. Consumption");
         OnGetSingleOutboundDocOnSetFilterGroupFilters(WarehouseRequest, WhseShptHeader);
         WarehouseRequest.FilterGroup(0);
         WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Released);
