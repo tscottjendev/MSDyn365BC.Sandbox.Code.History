@@ -866,6 +866,10 @@ table 98 "General Ledger Setup"
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
         }
+        field(192; "Hide Company Bank Account"; Boolean)
+        {
+            Caption = 'Hide Company Bank Account';
+        }
         field(10001; "VAT in Use"; Boolean)
         {
             Caption = 'VAT in Use';
