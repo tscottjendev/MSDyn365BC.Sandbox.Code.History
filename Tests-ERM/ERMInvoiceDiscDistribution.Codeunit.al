@@ -594,6 +594,8 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         VerifySalesLines(SalesLine, 0);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsMPHGetInvoiceDiscountAmounts')]
     [Scope('OnPrem')]
@@ -634,7 +636,51 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
         LibraryVariableStorage.AssertEmpty();
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatsMPHGetInvoiceDiscountAmounts')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderPartialInvoicingInvoiceDiscountAmtOnSubtotals()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        Quantity: Decimal;
+        UnitPrice: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Subtotals] [UI]
+        // [SCENARIO 218622] Cassie can change invoice discount on partial invoicing purchase order page.
+
+        // [GIVEN] Purchase order with 3 lines
+        // [GIVEN] Line[1]: Quantity = 10, "Qty. to Invoice" = 0, "Unit Price" = 1000, "Line Amount" = 10000
+        // [GIVEN] Line[2]: Quantity = 10, "Qty. to Invoice" = 5, "Unit Price" = 1000, "Line Amount" = 10000
+        // [GIVEN] Line[3]: Quantity = 10, "Qty. to Invoice" = 10, "Unit Price" = 1000, "Line Amount" = 10000
+        Quantity := 10;
+        UnitPrice := 1000;
+        CreatePartialInvoicingPurchaseDocumentWithLines(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Quantity, UnitPrice, 2);
+
+        // [WHEN] Set "Invoice Discount Amount Excl. VAT" = 1000 at subtotals
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+        PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(UnitPrice);
+
+        // [THEN] Line[1]: "Invoice Discount Amount Excl. VAT" = 333.33, "Inv. Disc. Amount to Invoice" = 0
+        // [THEN] Line[2]: "Invoice Discount Amount Excl. VAT" = 333.34, "Inv. Disc. Amount to Invoice" = 166.67
+        // [THEN] Line[3]: "Invoice Discount Amount Excl. VAT" = 333.33, "Inv. Disc. Amount to Invoice" = 333.33
+        VerifyPurchaseLines(PurchaseLine, 1);
+
+        // [THEN] "Invoice Discount Amount" on Invoicing tab of Statistics page = 500
+        PurchaseOrder.PurchaseOrderStatistics.Invoke();
+
+        Assert.AreEqual(UnitPrice, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountGeneralTabErr);
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsMPHSetInvoiceDiscountGeneral')]
     [Scope('OnPrem')]
@@ -673,7 +719,49 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         // [THEN] Line[3]: "Invoice Discount Amount Excl. VAT" = 333.33, "Inv. Disc. Amount to Invoice" = 333.33
         VerifyPurchaseLines(PurchaseLine, 1);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatsMPHSetInvoiceDiscountGeneral')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderPartialInvoicingInvoiceDiscountAmtOnStatisticsGeneralTab()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        Quantity: Decimal;
+        UnitPrice: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Statistics] [UI]
+        // [SCENARIO 218622] Cassie can change invoice discount for partial invoicing purchase order on general tab of statistics page.
+
+        // [GIVEN] Purchase order with 3 lines
+        // [GIVEN] Line[1]: Quantity = 10, "Qty. to Invoice" = 0, "Unit Price" = 1000, "Line Amount" = 10000
+        // [GIVEN] Line[2]: Quantity = 10, "Qty. to Invoice" = 5, "Unit Price" = 1000, "Line Amount" = 10000
+        // [GIVEN] Line[3]: Quantity = 10, "Qty. to Invoice" = 10, "Unit Price" = 1000, "Line Amount" = 10000
+        Quantity := 10;
+        UnitPrice := 1000;
+        CreatePartialInvoicingPurchaseDocumentWithLines(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Quantity, UnitPrice, 2);
+
+        // [WHEN] Cassie validated "Invoice Discount Amount" = 1000 on General tab of Statistics page
+        EnqueueInvoiceDiscountAmountForGeneralTab(UnitPrice);
+        OpenPurchasOrderAndStatisticsNM(PurchaseOrder, PurchaseHeader);
+
+        // [THEN] "Invoice Discount Amount" = 500 on Invoicing tab
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
+        // [THEN] "Inv. Disc. Amount Excl. VAT" on subtotals = 1000;
+        PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(UnitPrice);
+
+        // [THEN] Line[1]: "Invoice Discount Amount Excl. VAT" = 333.33, "Inv. Disc. Amount to Invoice" = 0
+        // [THEN] Line[2]: "Invoice Discount Amount Excl. VAT" = 333.34, "Inv. Disc. Amount to Invoice" = 166.67
+        // [THEN] Line[3]: "Invoice Discount Amount Excl. VAT" = 333.33, "Inv. Disc. Amount to Invoice" = 333.33
+        VerifyPurchaseLines(PurchaseLine, 1);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsMPHSetInvoiceDiscountInvoicing')]
     [Scope('OnPrem')]
@@ -712,7 +800,49 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         // [THEN] Line[3]: "Invoice Discount Amount Excl. VAT" = 0, "Inv. Disc. Amount to Invoice" = 333.33
         VerifyPurchaseLines(PurchaseLine, 0);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatsMPHSetInvoiceDiscountInvoicing')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderPartialInvoicingInvoiceDiscountAmtOnStatisticsInvoicingTab()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        Quantity: Decimal;
+        UnitPrice: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Statistics] [UI]
+        // [SCENARIO 218622] Cassie can change invoice discount for partial invoicing purchase order on invoicing tab of statistics page.
+
+        // [GIVEN] Purchase order with 3 lines
+        // [GIVEN] Line[1]: Quantity = 10, "Qty. to Invoice" = 0, "Unit Price" = 1000, "Line Amount" = 10000
+        // [GIVEN] Line[2]: Quantity = 10, "Qty. to Invoice" = 5, "Unit Price" = 1000, "Line Amount" = 10000
+        // [GIVEN] Line[3]: Quantity = 10, "Qty. to Invoice" = 10, "Unit Price" = 1000, "Line Amount" = 10000
+        Quantity := 10;
+        UnitPrice := 1000;
+        CreatePartialInvoicingPurchaseDocumentWithLines(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Quantity, UnitPrice, 2);
+
+        // [WHEN] Validate "Invoice Discount Amount" = 500 on Invoicing tab of Statistics page
+        EnqueueInvoiceDiscountAmountForInvoicingTab(UnitPrice);
+        OpenPurchasOrderAndStatisticsNM(PurchaseOrder, PurchaseHeader);
+
+        // [THEN] "Invoice Discount Amount" = 1000 on General tab
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountGeneralTabErr);
+        LibraryVariableStorage.AssertEmpty();
+        // [THEN] "Inv. Disc. Amount Excl. VAT" on subtotals = 0;
+        PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(0);
+
+        // [THEN] Line[1]: "Invoice Discount Amount Excl. VAT" = 0, "Inv. Disc. Amount to Invoice" = 0
+        // [THEN] Line[2]: "Invoice Discount Amount Excl. VAT" = 0, "Inv. Disc. Amount to Invoice" = 166.67
+        // [THEN] Line[3]: "Invoice Discount Amount Excl. VAT" = 0, "Inv. Disc. Amount to Invoice" = 333.33
+        VerifyPurchaseLines(PurchaseLine, 0);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsMPHSetInvoiceDiscountGeneral')]
     [Scope('OnPrem')]
@@ -742,7 +872,40 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         // [THEN] "Inv. Disc. Amount Excl. VAT" on subtotals = 1000;
         PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(UnitPrice);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatsMPHSetInvoiceDiscountGeneral')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderPartialInvoicingInvoiceDiscountAmountOnStatsGeneralTabWith11Lines()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        Quantity: Decimal;
+        UnitPrice: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Statistics] [UI]
+        // [SCENARIO 218622] Cassie can change invoice discount for partial invoicing purchase order on general tab of statistics page.
+
+        Quantity := 10;
+        UnitPrice := 1000;
+        CreatePartialInvoicingPurchaseDocumentWithLines(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Quantity, UnitPrice, 11);
+
+        // [WHEN] Cassie validated "Invoice Discount Amount" = 1000 on General tab of Statistics page
+        EnqueueInvoiceDiscountAmountForGeneralTab(UnitPrice);
+        OpenPurchasOrderAndStatisticsNM(PurchaseOrder, PurchaseHeader);
+
+        // [THEN] "Invoice Discount Amount" = 500 on Invoicing tab
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
+        // [THEN] "Inv. Disc. Amount Excl. VAT" on subtotals = 1000;
+        PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(UnitPrice);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsMPHGetInvoiceDiscountAmounts,ConfirmHandlerYes')]
     [Scope('OnPrem')]
@@ -787,7 +950,55 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
         LibraryVariableStorage.AssertEmpty();
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatsMPHGetInvoiceDiscountAmounts,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderPartialInvoicedInvoiceDiscountAmtOnSubtotals()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        Quantity: Decimal;
+        UnitPrice: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Subtotals] [UI]
+        // [SCENARIO 218622] Cassie can change invoice discount on partial invoiced purchase order page.
+
+        // [GIVEN] Purchase order with 3 lines
+        // [GIVEN] Line[1]: Quantity = 10, "Qty. to Invoice" = 0, "Unit Price" = 1000, "Line Amount" = 10000
+        // [GIVEN] Line[2]: Quantity = 10, "Qty. to Invoice" = 5, "Unit Price" = 1000, "Line Amount" = 10000
+        // [GIVEN] Line[3]: Quantity = 10, "Qty. to Invoice" = 10, "Unit Price" = 1000, "Line Amount" = 10000
+        Quantity := 10;
+        UnitPrice := 1000;
+        CreatePartialInvoicingPurchaseDocumentWithLines(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Quantity, UnitPrice, 2);
+
+        // [GIVEN] Purchase order posted. "Qty. To Invoice" updated to remaining quantity in lines
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Set "Invoice Discount Amount Excl. VAT" = 1000 at subtotals
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+        PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(UnitPrice);
+
+        // [THEN] Line[1]: "Invoice Discount Amount Excl. VAT" = 333.33, "Inv. Disc. Amount to Invoice" = 333.33
+        // [THEN] Line[2]: "Invoice Discount Amount Excl. VAT" = 333.34, "Inv. Disc. Amount to Invoice" = 166.67
+        // [THEN] Line[3]: "Invoice Discount Amount Excl. VAT" = 333.33, "Inv. Disc. Amount to Invoice" = 0
+        PurchaseLine.Ascending(false);
+        VerifyPurchaseLines(PurchaseLine, 1);
+
+        // [THEN] "Invoice Discount Amount" on Invoicing tab of Statistics page = 500
+        PurchaseOrder.PurchaseOrderStatistics.Invoke();
+
+        Assert.AreEqual(UnitPrice, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountGeneralTabErr);
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsMPHSetInvoiceDiscountGeneral,ConfirmHandlerYes')]
     [Scope('OnPrem')]
@@ -830,7 +1041,53 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         PurchaseLine.Ascending(false);
         VerifyPurchaseLines(PurchaseLine, 1);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatsMPHSetInvoiceDiscountGeneral,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderPartialInvoicedInvoiceDiscountAmtOnStatisticsGeneralTab()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        Quantity: Decimal;
+        UnitPrice: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Statistics] [UI]
+        // [SCENARIO 218622] Cassie can change invoice discount for partial invoiced purchase order on general tab of statistics page.
+
+        // [GIVEN] Purchase order with 3 lines
+        // [GIVEN] Line[1]: Quantity = 10, "Qty. to Invoice" = 0, "Unit Price" = 1000, "Line Amount" = 10000
+        // [GIVEN] Line[2]: Quantity = 10, "Qty. to Invoice" = 5, "Unit Price" = 1000, "Line Amount" = 10000
+        // [GIVEN] Line[3]: Quantity = 10, "Qty. to Invoice" = 10, "Unit Price" = 1000, "Line Amount" = 10000
+        Quantity := 10;
+        UnitPrice := 1000;
+        CreatePartialInvoicingPurchaseDocumentWithLines(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Quantity, UnitPrice, 2);
+
+        // [GIVEN] Purchase order posted. "Qty. To Invoice" updated to remaining quantity in lines
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Cassie validated "Invoice Discount Amount" = 1000 on General tab of Statistics page
+        EnqueueInvoiceDiscountAmountForGeneralTab(UnitPrice);
+        OpenPurchasOrderAndStatisticsNM(PurchaseOrder, PurchaseHeader);
+
+        // [THEN] "Invoice Discount Amount" = 500 on Invoicing tab
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
+        // [THEN] "Inv. Disc. Amount Excl. VAT" on subtotals = 1000;
+        PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(UnitPrice);
+
+        // [THEN] Line[1]: "Invoice Discount Amount Excl. VAT" = 333.33, "Inv. Disc. Amount to Invoice" = 333.33
+        // [THEN] Line[2]: "Invoice Discount Amount Excl. VAT" = 333.34, "Inv. Disc. Amount to Invoice" = 166.67
+        // [THEN] Line[3]: "Invoice Discount Amount Excl. VAT" = 333.33, "Inv. Disc. Amount to Invoice" = 0
+        PurchaseLine.Ascending(false);
+        VerifyPurchaseLines(PurchaseLine, 1);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsMPHSetInvoiceDiscountInvoicing,ConfirmHandlerYes')]
     [Scope('OnPrem')]
@@ -860,6 +1117,50 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         // [WHEN] Validate "Invoice Discount Amount" = 500 on Invoicing tab of Statistics page
         EnqueueInvoiceDiscountAmountForInvoicingTab(UnitPrice);
         OpenPurchasOrderAndStatistics(PurchaseOrder, PurchaseHeader);
+
+        // [THEN] "Invoice Discount Amount" = 0 on General tab
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountGeneralTabErr);
+        LibraryVariableStorage.AssertEmpty();
+        // [THEN] "Inv. Disc. Amount Excl. VAT" on subtotals = 0;
+        PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(0);
+
+        // [THEN] Line[1]: "Invoice Discount Amount Excl. VAT" = 0, "Inv. Disc. Amount to Invoice" = 333.33
+        // [THEN] Line[2]: "Invoice Discount Amount Excl. VAT" = 0, "Inv. Disc. Amount to Invoice" = 166.67
+        // [THEN] Line[3]: "Invoice Discount Amount Excl. VAT" = 0, "Inv. Disc. Amount to Invoice" = 0
+        PurchaseLine.Ascending(false);
+        VerifyPurchaseLines(PurchaseLine, 0);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatsMPHSetInvoiceDiscountInvoicing,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderPartialInvoicedInvoiceDiscAmtOnStatisticsInvoicingTab()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        Quantity: Decimal;
+        UnitPrice: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Statistics] [UI]
+        // [SCENARIO 218622] Cassie can change invoice discount for partial invoiced purchase order on invoicing tab of statistics page.
+
+        // [GIVEN] Purchase order with 3 lines
+        // [GIVEN] Line[1]: Quantity = 10, "Qty. to Invoice" = 0, "Unit Price" = 1000, "Line Amount" = 10000
+        // [GIVEN] Line[2]: Quantity = 10, "Qty. to Invoice" = 5, "Unit Price" = 1000, "Line Amount" = 10000
+        // [GIVEN] Line[3]: Quantity = 10, "Qty. to Invoice" = 10, "Unit Price" = 1000, "Line Amount" = 10000
+        Quantity := 10;
+        UnitPrice := 1000;
+        CreatePartialInvoicingPurchaseDocumentWithLines(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Quantity, UnitPrice, 2);
+
+        // [GIVEN] Purchase order posted. "Qty. To Invoice" updated to remaining quantity in lines
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Validate "Invoice Discount Amount" = 500 on Invoicing tab of Statistics page
+        EnqueueInvoiceDiscountAmountForInvoicingTab(UnitPrice);
+        OpenPurchasOrderAndStatisticsNM(PurchaseOrder, PurchaseHeader);
 
         // [THEN] "Invoice Discount Amount" = 0 on General tab
         Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountGeneralTabErr);
@@ -959,6 +1260,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         SalesOrder.Statistics.Invoke();
     end;
 #endif
+
     local procedure OpenSalesOrderAndStatisticsNM(var SalesOrder: TestPage "Sales Order"; var SalesHeader: Record "Sales Header")
     begin
         SalesOrder.OpenEdit();
@@ -966,11 +1268,21 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         SalesOrder.SalesOrderStatistics.Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenPurchasOrderAndStatistics(var PurchaseOrder: TestPage "Purchase Order"; var PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.Statistics.Invoke();
+    end;
+#endif
+
+    local procedure OpenPurchasOrderAndStatisticsNM(var PurchaseOrder: TestPage "Purchase Order"; var PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+        PurchaseOrder.PurchaseOrderStatistics.Invoke();
     end;
 
     local procedure VerifySalesLines(var SalesLine: Record "Sales Line"; Multiplier: Decimal)
@@ -1060,6 +1372,8 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         SalesOrderStatistics.OK().Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsMPHGetInvoiceDiscountAmounts(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
@@ -1068,7 +1382,19 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_Invoicing.AsDecimal());
         PurchaseOrderStatistics.OK().Invoke();
     end;
+#endif
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatsMPHGetInvoiceDiscountAmounts(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    begin
+        LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_General.AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_Invoicing.AsDecimal());
+        PurchaseOrderStatistics.OK().Invoke();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsMPHSetInvoiceDiscountGeneral(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
@@ -1077,10 +1403,32 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_Invoicing.AsDecimal());
         PurchaseOrderStatistics.OK().Invoke();
     end;
+#endif
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatsMPHSetInvoiceDiscountGeneral(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    begin
+        PurchaseOrderStatistics.InvDiscountAmount_General.SetValue(LibraryVariableStorage.DequeueDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_Invoicing.AsDecimal());
+        PurchaseOrderStatistics.OK().Invoke();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsMPHSetInvoiceDiscountInvoicing(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    begin
+        PurchaseOrderStatistics.InvDiscountAmount_Invoicing.SetValue(LibraryVariableStorage.DequeueDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_General.AsDecimal());
+        PurchaseOrderStatistics.OK().Invoke();
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatsMPHSetInvoiceDiscountInvoicing(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
         PurchaseOrderStatistics.InvDiscountAmount_Invoicing.SetValue(LibraryVariableStorage.DequeueDecimal());
         LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_General.AsDecimal());
@@ -1094,4 +1442,3 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         Reply := true;
     end;
 }
-
