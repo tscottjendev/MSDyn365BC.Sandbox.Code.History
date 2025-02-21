@@ -825,7 +825,13 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
     local procedure GetAmountsForDeferral(PurchLine: Record "Purchase Line"; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var DeferralAccount: Code[20])
     var
         DeferralTemplate: Record "Deferral Template";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        PurchPostInvoiceEvents.RunOnBeforeGetAmountsForDeferral(PurchLine, AmtToDefer, AmtToDeferACY, DeferralAccount, IsHandled);
+        if IsHandled then
+            exit;
+
         DeferralTemplate.Get(PurchLine."Deferral Code");
         DeferralTemplate.TestField("Deferral Account");
         DeferralAccount := DeferralTemplate."Deferral Account";
