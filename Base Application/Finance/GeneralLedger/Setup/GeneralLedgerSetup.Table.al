@@ -867,6 +867,10 @@ table 98 "General Ledger Setup"
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
         }
+        field(192; "Hide Company Bank Account"; Boolean)
+        {
+            Caption = 'Hide Company Bank Account';
+        }
         field(11600; "BAS to be Lodged as a Group"; Boolean)
         {
             Caption = 'BAS to be Lodged as a Group';
