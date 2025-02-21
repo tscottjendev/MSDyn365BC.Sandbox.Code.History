@@ -233,6 +233,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
 
         CheckGenJnlLine(GenJnlLine, CheckLine);
+        OnCodeOnAfterCheckGenJnlLine(GenJnlLine, CheckLine);
 
         AmountRoundingPrecision := InitAmounts(GenJnlLine);
 
@@ -268,7 +269,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                  GenJnlLine."Account Type"::"Fixed Asset"])
             then begin
                 CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", GenJnlLine);
-                OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing, NextEntryNo);
+                OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing, NextEntryNo, JobLine);
                 Balancing := true;
             end;
 
@@ -277,7 +278,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
         if GenJnlLine."Bal. Account No." <> '' then begin
             CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", GenJnlLine);
-            OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing, NextEntryNo);
+            OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing, NextEntryNo, JobLine);
             PostGenJnlLine(GenJnlLine, not Balancing);
         end;
 
@@ -9232,7 +9233,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnCodeOnAfterRunExhangeAccGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean; var NextEntryNo: Integer)
+    local procedure OnCodeOnAfterRunExhangeAccGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean; var NextEntryNo: Integer; var JobLine: Boolean)
     begin
     end;
 
@@ -10598,6 +10599,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitDetailedCVLedgEntryBufCalcPmtTolerance(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenJnlLine: Record "Gen. Journal Line"; var PmtTolAmtToBeApplied: Decimal; NextTransactionNo: Integer; FirstNewVATEntryNo: Integer; var PmtTol: Decimal; var PmtTolLCY: Decimal; var PmtTolAddCurr: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCodeOnAfterCheckGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; CheckLine: Boolean)
     begin
     end;
 }

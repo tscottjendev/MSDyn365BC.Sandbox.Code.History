@@ -868,6 +868,10 @@ table 98 "General Ledger Setup"
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
         }
+        field(192; "Hide Company Bank Account"; Boolean)
+        {
+            Caption = 'Hide Company Bank Account';
+        }
         field(10600; "Application always Allowed"; Boolean)
         {
             Caption = 'Application always Allowed';
