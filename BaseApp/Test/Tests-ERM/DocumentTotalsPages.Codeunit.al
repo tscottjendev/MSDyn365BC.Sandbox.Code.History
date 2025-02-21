@@ -1063,6 +1063,8 @@ codeunit 134344 "Document Totals Pages"
         SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(SalesHeader."Invoice Discount Value");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalPageHandler')]
     [Scope('OnPrem')]
@@ -1090,6 +1092,40 @@ codeunit 134344 "Document Totals Pages"
 
         // [THEN] "Invoice Discount Amount" is equal to 10 on Purchase Order page.
         PurchaseHeader.Find();
+        PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(PurchaseHeader."Invoice Discount Value");
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatsUpdatesInvoiceDiscountAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Purchase]
+        // [SCENARIO 378462] "Invoice Discount Amount" on Purchase Order page is updated after it changed on Statistics page.
+        Initialize();
+
+        // [GIVEN] Purchase Order with two Purchase Lines with Direct Unit Cost = 5 and 10000.
+        CreatePurchaseHeaderWithTwoLines(
+            PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5),
+            LibraryRandom.RandInt(5), LibraryRandom.RandIntInRange(10000, 20000));
+
+        // [GIVEN] Purchase Order is opened on Purchase Order page.
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        // [WHEN] "Invoice Discount Amount" is set to 10 on Statistics page opened from Purchase Order page.
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandDec(1, 2));
+        PurchaseOrder.PurchaseOrderStatistics.Invoke();
+        PurchaseOrder.Close();
+
+        // [THEN] "Invoice Discount Amount" is equal to 10 on Purchase Order page.
+        PurchaseHeader.Find();
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
         PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(PurchaseHeader."Invoice Discount Value");
     end;
 
@@ -2543,9 +2579,20 @@ codeunit 134344 "Document Totals Pages"
           PurchaseStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal()); // increase VAT amount with the given value.
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsModalPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    begin
+        PurchaseOrderStatistics.InvDiscountAmount_General.SetValue(LibraryVariableStorage.DequeueDecimal());
+        PurchaseOrderStatistics.OK().Invoke();
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
         PurchaseOrderStatistics.InvDiscountAmount_General.SetValue(LibraryVariableStorage.DequeueDecimal());
         PurchaseOrderStatistics.OK().Invoke();

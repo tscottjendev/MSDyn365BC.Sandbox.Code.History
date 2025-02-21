@@ -769,6 +769,8 @@ codeunit 148184 "Sustainability Posting Test"
             StrSubstNo(ValueMustBeEqualErr, PurchaseLine.FieldCaption("Posted Emission N2O"), EmissionN2O, PurchaseLine.TableCaption()));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
     procedure VerifySustainabilityFieldsInPurchaseOrderStatistics()
@@ -840,6 +842,81 @@ codeunit 148184 "Sustainability Posting Test"
 
         // [VERIFY] Verify Sustainability fields in Page "Purchase Order Statistics" after partially posting of Purchase order.
         OpenPurchaseOrderStatistics(PurchaseHeader."No.");
+        LibraryVariableStorage.Clear();
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchOrderStatisticsPageHandler')]
+    procedure VerifySustainabilityFieldsInPurchOrderStatistics()
+    var
+        SustainabilityAccount: Record "Sustainability Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        EmissionCO2: Decimal;
+        EmissionCH4: Decimal;
+        EmissionN2O: Decimal;
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+    begin
+        // [SCENARIO 496561] Verify Sustainability Fields in Purchase Order Statistics.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+        SustainabilityAccount.Get(AccountCode);
+
+        // [GIVEN] Generate Emission.
+        EmissionCO2 := LibraryRandom.RandInt(20);
+        EmissionCH4 := LibraryRandom.RandInt(5);
+        EmissionN2O := LibraryRandom.RandInt(5);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create a Purchase Line.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            "Purchase Line Type"::Item,
+            LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Update Sustainability Account No.,Emission CO2 ,Emission CH4 ,Emission N2O.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 200));
+        PurchaseLine.Validate("Qty. to Receive", LibraryRandom.RandIntInRange(5, 5));
+        PurchaseLine.Validate("Sust. Account No.", AccountCode);
+        PurchaseLine.Validate("Emission CO2", EmissionCO2);
+        PurchaseLine.Validate("Emission CH4", EmissionCH4);
+        PurchaseLine.Validate("Emission N2O", EmissionN2O);
+        PurchaseLine.Modify();
+
+        // [WHEN] Save Sustainability fields.
+        LibraryVariableStorage.Enqueue(EmissionCO2);
+        LibraryVariableStorage.Enqueue(EmissionCH4);
+        LibraryVariableStorage.Enqueue(EmissionN2O);
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(0);
+
+        // [VERIFY] Verify Sustainability fields in Page "Purchase Order Statistics" before posting of Purchase order.
+        OpenPurchOrderStatistics(PurchaseHeader."No.");
+        LibraryVariableStorage.Clear();
+
+        // [GIVEN] Post a Purchase Document.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Save Sustainability fields.
+        LibraryVariableStorage.Enqueue(EmissionCO2);
+        LibraryVariableStorage.Enqueue(EmissionCH4);
+        LibraryVariableStorage.Enqueue(EmissionN2O);
+        LibraryVariableStorage.Enqueue(PurchaseLine."Emission CO2 Per Unit" * PurchaseLine."Qty. per Unit of Measure" * LibraryRandom.RandIntInRange(5, 5));
+        LibraryVariableStorage.Enqueue(PurchaseLine."Emission CH4 Per Unit" * PurchaseLine."Qty. per Unit of Measure" * LibraryRandom.RandIntInRange(5, 5));
+        LibraryVariableStorage.Enqueue(PurchaseLine."Emission N2O Per Unit" * PurchaseLine."Qty. per Unit of Measure" * LibraryRandom.RandIntInRange(5, 5));
+
+        // [VERIFY] Verify Sustainability fields in Page "Purchase Order Statistics" after partially posting of Purchase order.
+        OpenPurchOrderStatistics(PurchaseHeader."No.");
         LibraryVariableStorage.Clear();
     end;
 
@@ -5408,6 +5485,8 @@ codeunit 148184 "Sustainability Posting Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenPurchaseOrderStatistics(No: Code[20])
     var
         PurchaseOrder: TestPage "Purchase Order";
@@ -5415,6 +5494,16 @@ codeunit 148184 "Sustainability Posting Test"
         PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
         PurchaseOrder.Statistics.Invoke();
+    end;
+#endif
+
+    local procedure OpenPurchOrderStatistics(No: Code[20])
+    var
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.FILTER.SetFilter("No.", No);
+        PurchaseOrder.PurchaseOrderStatistics.Invoke();
     end;
 
 #if not CLEAN26
@@ -6031,9 +6120,38 @@ codeunit 148184 "Sustainability Posting Test"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatisticsPage: TestPage "Purchase Order Statistics")
+    var
+        EmissionCO2: Variant;
+        EmissionCH4: Variant;
+        EmissionN2O: Variant;
+        PostedEmissionCO2: Variant;
+        PostedEmissionCH4: Variant;
+        PostedEmissionN2O: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(EmissionCO2);
+        LibraryVariableStorage.Dequeue(EmissionCH4);
+        LibraryVariableStorage.Dequeue(EmissionN2O);
+        LibraryVariableStorage.Dequeue(PostedEmissionCO2);
+        LibraryVariableStorage.Dequeue(PostedEmissionCH4);
+        LibraryVariableStorage.Dequeue(PostedEmissionN2O);
+
+        PurchaseOrderStatisticsPage."Emission C02".AssertEquals(EmissionCO2);
+        PurchaseOrderStatisticsPage."Emission CH4".AssertEquals(EmissionCH4);
+        PurchaseOrderStatisticsPage."Emission N2O".AssertEquals(EmissionN2O);
+        PurchaseOrderStatisticsPage."Posted Emission C02".AssertEquals(PostedEmissionCO2);
+        PurchaseOrderStatisticsPage."Posted Emission CH4".AssertEquals(PostedEmissionCH4);
+        PurchaseOrderStatisticsPage."Posted Emission N2O".AssertEquals(PostedEmissionN2O);
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchOrderStatisticsPageHandler(var PurchaseOrderStatisticsPage: TestPage "Purchase Order Statistics")
     var
         EmissionCO2: Variant;
         EmissionCH4: Variant;
