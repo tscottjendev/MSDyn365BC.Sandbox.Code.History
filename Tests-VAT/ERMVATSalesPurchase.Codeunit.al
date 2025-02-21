@@ -786,6 +786,8 @@
         // Verification done in handler.
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsHandler,CheckValuesOnVATAmountLinesMPH')]
     [Scope('OnPrem')]
@@ -809,6 +811,34 @@
         // Verify: Verify VAT Amount field on VAT Amount Lines page.
         // Verification done in handler.
     end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler,CheckValuesOnVATAmountLinesMPH')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsVATAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // Check whether VAT Amount field is editable on VAT Amount Line using Purchase Order Statistics page.
+
+        // Setup.
+        Initialize();
+        ModifyAllowVATDifferencePurchases(false);
+
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseLine."Document Type"::Order, false);
+
+        // Exercise: Open Sales Order Statistics page.
+        LibraryVariableStorage.Enqueue(PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100);
+        OpenPurchOrderStatistics(PurchaseHeader."No.");
+
+        // Verify: Verify VAT Amount field on VAT Amount Lines page.
+        // Verification done in handler.
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
 
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsHandler,EditSalesVATAmountLinesHandler')]
@@ -848,6 +878,7 @@
         // [THEN] Document Totals on "Purch Order" page are updated: "VAT Amount" is 21.
         PurchOrderPage.PurchLines."Total VAT Amount".AssertEquals(ExpectedVATAmount);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('SalesOrderStatisticsHandlerNM,EditSalesVATAmountLinesHandler')]
@@ -994,6 +1025,8 @@
         // Verify: Verification is done for VAT Amount in 'VATAmountLineHandler' handler method.
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsHandler,VATAmountLineHandler')]
     [Scope('OnPrem')]
@@ -1011,6 +1044,28 @@
 
         // Exercise: Open Statistics page from Purchase Order.
         OpenPurchaseOrderStatistics(PurchaseHeader."No.");
+
+        // Verify: Verification is done for VAT Amount in 'VATAmountLineHandler' handler method.
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler,VATAmountLineHandler')]
+    [Scope('OnPrem')]
+    procedure VATAmtFromPurchaseOrderStatistics()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // Check that field VAT Amount must not be editable on VAT Amount Line Page of Purchase Order Statistics Page.
+
+        // Setup: Create Purchase Order and take 1 for No of Purchase Lines.
+        Initialize();
+        ModifyAllowVATDifferencePurchases(false);
+        CreatePurchDocWithPartQtyToRcpt(PurchaseHeader, PurchaseLine, '', 1, PurchaseHeader."Document Type"::Order);
+
+        // Exercise: Open Statistics page from Purchase Order.
+        OpenPurchOrderStatistics(PurchaseHeader."No.");
 
         // Verify: Verification is done for VAT Amount in 'VATAmountLineHandler' handler method.
     end;
@@ -3542,6 +3597,8 @@
         SalesInvoice.SalesStatistics.Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenPurchaseOrderStatistics(DocumentNo: Code[20])
     var
         PurchaseOrder: TestPage "Purchase Order";
@@ -3549,6 +3606,16 @@
         PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", DocumentNo);
         PurchaseOrder.Statistics.Invoke();
+    end;
+#endif
+
+    local procedure OpenPurchOrderStatistics(DocumentNo: Code[20])
+    var
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.FILTER.SetFilter("No.", DocumentNo);
+        PurchaseOrder.PurchaseOrderStatistics.Invoke();
     end;
 
 #if not CLEAN26
@@ -4021,6 +4088,8 @@
         SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
@@ -4028,6 +4097,16 @@
         // Modal Page Handler.
         PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
     end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    begin
+        // Page Handler.
+        PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
+    end;
+
 
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
