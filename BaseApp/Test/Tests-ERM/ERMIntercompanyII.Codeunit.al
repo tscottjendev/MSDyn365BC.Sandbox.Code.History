@@ -6918,6 +6918,92 @@ codeunit 134152 "ERM Intercompany II"
                  SalesHeader.TableName));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SendMultipleICPurchaseOrder()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseHeaderUI: Record "Purchase Header";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        Vendor: Record Vendor;
+        ICPartnerCode: Code[20];
+    begin
+        // [SCENARIO 563725] Send intercompany purchase order with bulk selection.
+        Initialize();
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddO365Setup();
+        LibraryLowerPermissions.AddSalesDocsCreate();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddPurchDocsCreate();
+
+        // [GIVEN] Create IC Partner Code. 
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Create IC Vendor.
+        Vendor.Get(CreateICVendor(ICPartnerCode));
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Create Two Purchase Order with IC Partner.        
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Order, Vendor."No.", CreateItem());
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Order, Vendor."No.", CreateItem());
+
+        // [WHEN] Send IC Purchase Orders.
+        PurchaseHeaderUI.SetFilter("No.", '%1|%2', PurchaseHeader[1]."No.", PurchaseHeader[2]."No.");
+        PurchaseHeaderUI.SendICPurchaseDoc(PurchaseHeaderUI);
+
+        // [THEN] Verify Multiple Purchase Orders are sent. 
+        VerifyICOutboxTransaction(
+            ICOutboxTransaction,
+            ICOutboxTransaction."Document Type"::Order,
+            PurchaseHeaderUI.GetFilter("No."),
+            ICOutboxTransaction."Source Type"::"Purchase Document",
+            PurchaseHeaderUI.Count,
+            ICPartnerCode);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SendMultipleICSalesOrder()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesHeaderUI: Record "Sales Header";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        Customer: Record Customer;
+        ICPartnerCode: Code[20];
+    begin
+        // [SCENARIO 563725] Send intercompany sales order with bulk selection.
+        Initialize();
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddO365Setup();
+        LibraryLowerPermissions.AddSalesDocsCreate();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddPurchDocsCreate();
+
+        // [GIVEN] Create IC Partner Code. 
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Create IC Customer.
+        Customer.Get(CreateICCustomer(ICPartnerCode));
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Create Two Sales Order with IC Partner.        
+        CreateSalesDocument(SalesHeader[1], SalesHeader[1]."Document Type"::Order, Customer."No.", CreateItem());
+        CreateSalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::Order, Customer."No.", CreateItem());
+
+        // [WHEN] Send IC Sales Orders.
+        SalesHeaderUI.SetFilter("No.", '%1|%2', SalesHeader[1]."No.", SalesHeader[2]."No.");
+        SalesHeaderUI.SendICSalesDoc(SalesHeaderUI);
+
+        // [THEN] Verify Multiple Sales Orders are sent. 
+        VerifyICOutboxTransaction(
+            ICOutboxTransaction,
+            ICOutboxTransaction."Document Type"::Order,
+            SalesHeaderUI.GetFilter("No."),
+            ICOutboxTransaction."Source Type"::"Sales Document",
+            SalesHeaderUI.Count,
+            ICPartnerCode);
+    end;
+
     local procedure CreateAndUpdateICCustomerPrivacyBlocked(ICPartnerCode: Code[20]): Code[20]
     var
         Customer: Record Customer;
@@ -7096,6 +7182,21 @@ codeunit 134152 "ERM Intercompany II"
         ICOutboxPurchaseLine."Document Type" := ConvertPurchDocTypeToICOutboxPurchLine(PurchaseHeader."Document Type");
         InboxICSalesDocument(
             SalesHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxSalesHeader, ICOutboxPurchaseLine, PurchaseHeader."No.", CustomerNo);
+    end;
+
+    local procedure VerifyICOutboxTransaction(
+        var ICOutboxTransaction: Record "IC Outbox Transaction";
+        DocumentType: Enum "IC Transaction Document Type";
+        DocumentNo: Text;
+        SourceType: Option;
+        ExpectedCount: Integer;
+        ICPartnerCode: Code[20])
+    begin
+        ICOutboxTransaction.SetFilter("Document No.", DocumentNo);
+        ICOutboxTransaction.SetRange("Document Type", DocumentType);
+        ICOutboxTransaction.SetRange("Source Type", SourceType);
+        ICOutboxTransaction.SetRange("IC Partner Code", ICPartnerCode);
+        Assert.RecordCount(ICOutboxTransaction, ExpectedCount);
     end;
 }
 
