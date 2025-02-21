@@ -13,7 +13,9 @@
         LibrarySales: Codeunit "Library - Sales";
         ErrorEventSuscriptionErr: Label 'There are %1 events with error:%2.';
         OnBeforeCalculateSalesTaxStatisticsTxt: Label 'OnBeforeCalculateSalesTaxStats';
+#if not CLEAN26
         LibraryPurchase: Codeunit "Library - Purchase";
+#endif
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
@@ -784,6 +786,8 @@
         VerifyDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -811,7 +815,10 @@
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -839,6 +846,7 @@
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
+#endif
 
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
@@ -1764,6 +1772,8 @@
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
@@ -1777,6 +1787,7 @@
         PurchaseLine."Tax Group Code" := 'X';
         PurchaseLine.Modify();
     end;
+#endif
 
     local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     begin
@@ -1795,6 +1806,8 @@
         ServiceLine.Modify();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure CreateServiceInvoice(var ServiceHeader: Record "Service Header")
     var
         ServiceItem: Record "Service Item";
@@ -1814,7 +1827,10 @@
 
         CODEUNIT.Run(CODEUNIT::"Service-Post", ServiceHeader);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure CreateServiceCreditMemo(var ServiceHeader: Record "Service Header")
     var
         ServiceItem: Record "Service Item";
@@ -1837,6 +1853,7 @@
 
         CODEUNIT.Run(CODEUNIT::"Service-Post", ServiceHeader);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure VerifyDataTypeBuffer(VerifyText: Text)
@@ -1875,9 +1892,19 @@
         SalesOrderStats.OK().Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatsPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
+    begin
+        PurchaseOrderStats.OK().Invoke();
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchOrderStatsPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
     begin
         PurchaseOrderStats.OK().Invoke();
     end;

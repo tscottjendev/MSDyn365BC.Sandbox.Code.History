@@ -793,6 +793,8 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         OpenSalesOrderStatsPageForSalesCreditMemo(SalesLine."Document No.");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -819,7 +821,37 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Exercise and Verify: Invokes Action - Statistics on Page Purchase Order List and verify Tax Amount and Amount Inclusive Tax on PurchaseOrderStatsPageHandler.
         OpenStatisticsPageForPurchaseOrder(PurchaseLine."Document No.");
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchOrderStatsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsWithTaxAreaPurchOrderList()
+    var
+        PurchaseLine: Record "Purchase Line";
+        TaxDetail: Record "Tax Detail";
+        TaxAmount: Decimal;
+        AmountIncTax: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9307 Purchase Order List.
+
+        // Setup: Create Purchase Order with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
+        CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Order, CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
+        TaxAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * TaxDetail."Tax Below Maximum" / 100;
+        AmountIncTax := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + TaxAmount;
+
+        // Enqueue required inside PurchOrderStatsPageHandler.
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        LibraryVariableStorage.Enqueue(AmountIncTax);
+
+        // Exercise and Verify: Invokes Action - Statistics on Page Purchase Order List and verify Tax Amount and Amount Inclusive Tax on PurchaseOrderStatsPageHandler.
+        OpenStatisticsPageForPurchOrder(PurchaseLine."Document No.");
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -844,7 +876,35 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Exercise and Verify: Invokes Action - Statistics on Page Purchase Order List and verify VAT Amount and Amount Inclusive VAT on PurchaseOrderStatisticsPageHandler.
         OpenStatisticsPageForPurchaseOrder(PurchaseLine."Document No.");
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsPurchOrderList()
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATAmount: Decimal;
+        AmountIncVAT: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9307 Purchase Order List.
+
+        // Setup: Create Purchase Order without Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Order, '', '', false);  // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
+        VATAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * PurchaseLine."VAT %" / 100;
+        AmountIncVAT := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + VATAmount;
+
+        // Enqueue required inside PurchOrderStatisticsPageHandler.
+        LibraryVariableStorage.Enqueue(VATAmount);
+        LibraryVariableStorage.Enqueue(AmountIncVAT);
+
+        // Exercise and Verify: Invokes Action - Statistics on Page Purchase Order List and verify VAT Amount and Amount Inclusive VAT on PurchOrderStatisticsPageHandler.
+        OpenStatisticsPageForPurchaseOrderStatistics(PurchaseLine."Document No.");
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -871,7 +931,37 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Exercise and Verify: Invokes Action - Statistics on Page Purchase Return Order List and verify Tax Amount and Amount Inclusive Tax on PurchaseOrderStatsPageHandler.
         OpenStatisticsPageForPurchaseReturnOrder(PurchaseLine."Document No.");
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchOrderStatsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsWithTaxAreaPurchReturnOrderList()
+    var
+        PurchaseLine: Record "Purchase Line";
+        TaxDetail: Record "Tax Detail";
+        TaxAmount: Decimal;
+        AmountIncTax: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9311 Purchase Return Order List.
+
+        // Setup: Create Purchase Return Order with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
+        CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Return Order", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
+        TaxAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * TaxDetail."Tax Below Maximum" / 100;
+        AmountIncTax := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + TaxAmount;
+
+        // Enqueue required inside PurchaseOrderStatsPageHandler.
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        LibraryVariableStorage.Enqueue(AmountIncTax);
+
+        // Exercise and Verify: Invokes Action - Statistics on Page Purchase Return Order List and verify Tax Amount and Amount Inclusive Tax on PurchaseOrderStatsPageHandler.
+        OpenStatsPageForPurchReturnOrder(PurchaseLine."Document No.");
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -896,9 +986,35 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Exercise and Verify: Invokes Action - Statistics on Page Purchase Return Order List and verify VAT Amount and Amount Inclusive VAT on PurchaseOrderStatisticsPageHandler.
         OpenStatisticsPageForPurchaseReturnOrder(PurchaseLine."Document No.");
     end;
+#endif
 
     [Test]
-    [HandlerFunctions('PurchaseOrderStatsPageHandler')]
+    [HandlerFunctions('PurchOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsPurchReturnOrderList()
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATAmount: Decimal;
+        AmountIncVAT: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9311 Purchase Return Order List.
+
+        // Setup: Create Purchase Return Order without Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Return Order", '', '', false);  // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
+        VATAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * PurchaseLine."VAT %" / 100;
+        AmountIncVAT := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + VATAmount;
+
+        // Enqueue required inside PurchaseOrderStatisticsPageHandler.
+        LibraryVariableStorage.Enqueue(VATAmount);
+        LibraryVariableStorage.Enqueue(AmountIncVAT);
+
+        // Exercise and Verify: Invokes Action - Statistics on Page Purchase Return Order List and verify VAT Amount and Amount Inclusive VAT on PurchaseOrderStatisticsPageHandler.
+        OpenStatisticsPageForPurchReturnOrder(PurchaseLine."Document No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchOrderStatsPageHandler')]
     [Scope('OnPrem')]
     procedure OnActionStatisticsWithTaxAreaBlanketPurchaseOrders()
     var
@@ -921,9 +1037,11 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         LibraryVariableStorage.Enqueue(AmountIncTax);
 
         // Exercise and Verify: Invokes Action - Statistics on Page Blanket Purchase Order List and verify Tax Amount and Amount Inclusive Tax on PurchaseOrderStatsPageHandler.
-        OpenStatisticsPageForBlanketPurchaseOrder(PurchaseLine."Document No.");
+        OpenStatsPageForBlanketPurchOrder(PurchaseLine."Document No.");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -948,7 +1066,35 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Exercise and Verify: Invokes Action - Statistics on Page Blanket Purchase Order List and verify VAT Amount and Amount Inclusive VAT on PurchaseOrderStatisticsPageHandler.
         OpenStatisticsPageForBlanketPurchaseOrder(PurchaseLine."Document No.");
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsBlanketPurchOrders()
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATAmount: Decimal;
+        AmountIncVAT: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9310 Blanket Purchase Order List.
+
+        // Setup: Create Blanket Purchase Order without Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Blanket Order", '', '', false);  // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
+        VATAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * PurchaseLine."VAT %" / 100;
+        AmountIncVAT := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + VATAmount;
+
+        // Enqueue required inside PurchOrderStatisticsPageHandler.
+        LibraryVariableStorage.Enqueue(VATAmount);
+        LibraryVariableStorage.Enqueue(AmountIncVAT);
+
+        // Exercise and Verify: Invokes Action - Statistics on Page Blanket Purchase Order List and verify VAT Amount and Amount Inclusive VAT on PurchOrderStatisticsPageHandler.
+        OpenPurchaseOrderStatisticsPageForBlanketPurchaseOrder(PurchaseLine."Document No.");
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseStatsPageHandler')]
     [Scope('OnPrem')]
@@ -975,7 +1121,38 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Exercise and Verify: Invokes Action - Statistics on Page Purchase Quotes and verify Tax Amount and Amount Inclusive Tax on PurchaseStatsPageHandler.
         OpenStatisticsPageForPurchaseQuote(PurchaseLine."Document No.");
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchStatsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsWithTaxAreaPurchQuotes()
+    var
+        PurchaseLine: Record "Purchase Line";
+        TaxDetail: Record "Tax Detail";
+        TaxAmount: Decimal;
+        AmountIncTax: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9306 Purchase Quotes.
+
+        // Setup: Create Purchase Quote with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
+        CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Quote, CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
+        TaxAmount := PurchaseLine."Line Amount" * TaxDetail."Tax Below Maximum" / 100;
+        AmountIncTax := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + TaxAmount;
+
+        // Enqueue required inside PurchaseStatsPageHandler.
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        LibraryVariableStorage.Enqueue(AmountIncTax);
+
+        // Exercise and Verify: Invokes Action - Statistics on Page Purchase Quotes and verify Tax Amount and Amount Inclusive Tax on PurchaseStatsPageHandler.
+        OpenStatsPageForPurchQuote(PurchaseLine."Document No.");
+    end;
+
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -998,9 +1175,37 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         LibraryVariableStorage.Enqueue(AmountIncVAT);
 
         // Exercise and Verify: Invokes Action - Statistics on Page Purchase Quotes and verify VAT Amount and Amount Inclusive VAT on PurchaseStatisticsPageHandler.
-        OpenStatisticsPageForPurchaseQuote(PurchaseLine."Document No.");
+        OpenPurchaseStatisticsPageForPurchaseQuote(PurchaseLine."Document No.");
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsPurchQuotes()
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATAmount: Decimal;
+        AmountIncVAT: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9306 Purchase Quotes.
+
+        // Setup: Create Purchase Quote without Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Quote, '', '', false);  // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
+        VATAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * PurchaseLine."VAT %" / 100;
+        AmountIncVAT := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + VATAmount;
+
+        // Enqueue required inside PurchaseStatisticsPageHandler.
+        LibraryVariableStorage.Enqueue(VATAmount);
+        LibraryVariableStorage.Enqueue(AmountIncVAT);
+
+        // Exercise and Verify: Invokes Action - Statistics on Page Purchase Quotes and verify VAT Amount and Amount Inclusive VAT on PurchaseStatisticsPageHandler.
+        OpenStatisticsPageForPurchQuote(PurchaseLine."Document No.");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseStatsPageHandler')]
     [Scope('OnPrem')]
@@ -1027,7 +1232,37 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Exercise and Verify: Invokes Action - Statistics on Page Purchase Credit Memos and verify Tax Amount and Amount Inclusive Tax on PurchaseStatsPageHandler.
         OpenStatisticsPageForPurchaseCreditMemo(PurchaseLine."Document No.");
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchStatsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsWithTaxAreaPurchCreditMemos()
+    var
+        PurchaseLine: Record "Purchase Line";
+        TaxDetail: Record "Tax Detail";
+        TaxAmount: Decimal;
+        AmountIncTax: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9309 Purchase Credit Memos.
+
+        // Setup: Create Purchase Credit Memo with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
+        CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
+        TaxAmount := PurchaseLine."Line Amount" * TaxDetail."Tax Below Maximum" / 100;
+        AmountIncTax := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + TaxAmount;
+
+        // Enqueue required inside PurchaseStatsPageHandler.
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        LibraryVariableStorage.Enqueue(AmountIncTax);
+
+        // Exercise and Verify: Invokes Action - Statistics on Page Purchase Credit Memos and verify Tax Amount and Amount Inclusive Tax on PurchaseStatsPageHandler.
+        OpenStatisticsPageForPurchCreditMemo(PurchaseLine."Document No.");
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -1052,7 +1287,35 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Exercise and Verify: Invokes Action - Statistics on Page Purchase Credit Memos and verify VAT Amount and Amount Inclusive VAT on PurchaseStatisticsPageHandler.
         OpenStatisticsPageForPurchaseCreditMemo(PurchaseLine."Document No.");
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsPurchCreditMemos()
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATAmount: Decimal;
+        AmountIncVAT: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9309 Purchase Credit Memos.
+
+        // Setup: Create Purchase Credit Memo without Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", '', '', false);  // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
+        VATAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * PurchaseLine."VAT %" / 100;
+        AmountIncVAT := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + VATAmount;
+
+        // Enqueue required inside PurchStatisticsPageHandler.
+        LibraryVariableStorage.Enqueue(VATAmount);
+        LibraryVariableStorage.Enqueue(AmountIncVAT);
+
+        // Exercise and Verify: Invokes Action - Statistics on Page Purchase Credit Memos and verify VAT Amount and Amount Inclusive VAT on PurchStatisticsPageHandler.
+        OpenPurchaseStatisticsPageForPurchaseCreditMemo(PurchaseLine."Document No.");
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseStatsPageHandler')]
     [Scope('OnPrem')]
@@ -1079,7 +1342,37 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Exercise and Verify: Invokes Action - Statistics on Page Purchase Invoices and verify Tax Amount and Amount Inclusive Tax on PurchaseStatsPageHandler.
         OpenStatisticsPageForPurchaseInvoice(PurchaseLine."Document No.");
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchStatsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsWithTaxAreaPurchInvoices()
+    var
+        PurchaseLine: Record "Purchase Line";
+        TaxDetail: Record "Tax Detail";
+        TaxAmount: Decimal;
+        AmountIncTax: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9308 Purchase Invoices.
+
+        // Setup: Create Purchase Invoice with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
+        CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
+        TaxAmount := PurchaseLine."Line Amount" * TaxDetail."Tax Below Maximum" / 100;
+        AmountIncTax := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + TaxAmount;
+
+        // Enqueue required inside PurchaseStatsPageHandler.
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        LibraryVariableStorage.Enqueue(AmountIncTax);
+
+        // Exercise and Verify: Invokes Action - Statistics on Page Purchase Invoices and verify Tax Amount and Amount Inclusive Tax on PurchaseStatsPageHandler.
+        OpenStatisticsPageForPurchInvoice(PurchaseLine."Document No.");
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -1103,6 +1396,32 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Exercise and Verify: Invokes Action - Statistics on Page Purchase Invoices and verify VAT Amount and Amount Inclusive VAT on PurchaseStatisticsPageHandler.
         OpenStatisticsPageForPurchaseInvoice(PurchaseLine."Document No.");
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsPurchInvoices()
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATAmount: Decimal;
+        AmountIncVAT: Decimal;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9308 Purchase Invoices.
+
+        // Setup: Create Purchase Invoice without Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, '', '', false);  // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
+        VATAmount := PurchaseLine."VAT %" * PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity / 100;
+        AmountIncVAT := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + VATAmount;
+
+        // Enqueue required inside PurchStatisticsPageHandler.
+        LibraryVariableStorage.Enqueue(VATAmount);
+        LibraryVariableStorage.Enqueue(AmountIncVAT);
+
+        // Exercise and Verify: Invokes Action - Statistics on Page Purchase Invoices and verify VAT Amount and Amount Inclusive VAT on PurchStatisticsPageHandler.
+        OpenPurchaseStatisticsPageForPurchaseInvoice(PurchaseLine."Document No.");
     end;
 
     [Test]
@@ -1914,7 +2233,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindLast() then;
+        //if SalesLine.FindLast() then;
 
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
@@ -2236,6 +2555,8 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         SalesCreditMemos.Close();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenStatisticsPageForPurchaseOrder(No: Code[20])
     var
         PurchaseOrderList: TestPage "Purchase Order List";
@@ -2245,7 +2566,10 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         PurchaseOrderList.Statistics.Invoke();  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
         PurchaseOrderList.Close();
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenStatisticsPageForPurchaseReturnOrder(No: Code[20])
     var
         PurchaseReturnOrderList: TestPage "Purchase Return Order List";
@@ -2255,7 +2579,30 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         PurchaseReturnOrderList.Statistics.Invoke();  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
         PurchaseReturnOrderList.Close();
     end;
+#endif
 
+    local procedure OpenStatisticsPageForPurchReturnOrder(No: Code[20])
+    var
+        PurchaseReturnOrderList: TestPage "Purchase Return Order List";
+    begin
+        PurchaseReturnOrderList.OpenEdit();
+        PurchaseReturnOrderList.FILTER.SetFilter("No.", No);
+        PurchaseReturnOrderList.PurchaseOrderStatistics.Invoke();  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
+        PurchaseReturnOrderList.Close();
+    end;
+
+    local procedure OpenStatsPageForPurchReturnOrder(No: Code[20])
+    var
+        PurchaseReturnOrderList: TestPage "Purchase Return Order List";
+    begin
+        PurchaseReturnOrderList.OpenEdit();
+        PurchaseReturnOrderList.FILTER.SetFilter("No.", No);
+        PurchaseReturnOrderList.PurchaseOrderStats.Invoke();  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
+        PurchaseReturnOrderList.Close();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenStatisticsPageForBlanketPurchaseOrder(No: Code[20])
     var
         BlanketPurchaseOrders: TestPage "Blanket Purchase Orders";
@@ -2265,7 +2612,20 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         BlanketPurchaseOrders.Statistics.Invoke();  // Opens Handler - PurchaseOrderStatisticsPageHandler and PurchaseOrderStatsPageHandler.
         BlanketPurchaseOrders.Close();
     end;
+#endif
 
+    local procedure OpenPurchaseOrderStatisticsPageForBlanketPurchaseOrder(No: Code[20])
+    var
+        BlanketPurchaseOrders: TestPage "Blanket Purchase Orders";
+    begin
+        BlanketPurchaseOrders.OpenEdit();
+        BlanketPurchaseOrders.FILTER.SetFilter("No.", No);
+        BlanketPurchaseOrders.PurchaseOrderStatistics.Invoke();  // Opens Handler - PurchaseOrderStatisticsPageHandler and PurchaseOrderStatsPageHandler.
+        BlanketPurchaseOrders.Close();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenStatisticsPageForPurchaseQuote(No: Code[20])
     var
         PurchaseQuotes: TestPage "Purchase Quotes";
@@ -2275,7 +2635,43 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         PurchaseQuotes.Statistics.Invoke();  // Opens Handler - PurchaseStatsPageHandler and PurchaseStatisticsPageHandler.
         PurchaseQuotes.Close();
     end;
+#endif
 
+#if not CLEAN26
+	[Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    local procedure OpenPurchaseStatisticsPageForPurchaseQuote(No: Code[20])
+    var
+        PurchaseQuotes: TestPage "Purchase Quotes";
+    begin
+        PurchaseQuotes.OpenEdit();
+        PurchaseQuotes.FILTER.SetFilter("No.", No);
+        PurchaseQuotes.Statistics.Invoke();  // Opens Handler - PurchaseStatsPageHandler and PurchaseStatisticsPageHandler.
+        PurchaseQuotes.Close();
+    end;
+#endif
+
+    local procedure OpenStatisticsPageForPurchQuote(No: Code[20])
+    var
+        PurchaseQuotes: TestPage "Purchase Quotes";
+    begin
+        PurchaseQuotes.OpenEdit();
+        PurchaseQuotes.FILTER.SetFilter("No.", No);
+        PurchaseQuotes.PurchaseStatistics.Invoke();  // Opens Handler - PurchStatsPageHandler and PurchStatisticsPageHandler.
+        PurchaseQuotes.Close();
+    end;
+
+    local procedure OpenStatsPageForPurchQuote(No: Code[20])
+    var
+        PurchaseQuotes: TestPage "Purchase Quotes";
+    begin
+        PurchaseQuotes.OpenEdit();
+        PurchaseQuotes.FILTER.SetFilter("No.", No);
+        PurchaseQuotes.PurchaseStats.Invoke();  // Opens Handler - PurchStatsPageHandler and PurchStatisticsPageHandler.
+        PurchaseQuotes.Close();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenStatisticsPageForPurchaseCreditMemo(No: Code[20])
     var
         PurchaseCreditMemos: TestPage "Purchase Credit Memos";
@@ -2286,6 +2682,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         PurchaseCreditMemos.Close();
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenStatisticsPageForPurchaseInvoice(No: Code[20])
     var
         PurchaseInvoices: TestPage "Purchase Invoices";
@@ -2293,6 +2690,77 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         PurchaseInvoices.OpenEdit();
         PurchaseInvoices.FILTER.SetFilter("No.", No);
         PurchaseInvoices.Statistics.Invoke();  // Opens Handler - PurchaseStatsPageHandler and PurchaseStatisticsPageHandler.
+        PurchaseInvoices.Close();
+    end;
+#endif
+
+    local procedure OpenPurchaseStatisticsPageForPurchaseCreditMemo(No: Code[20])
+    var
+        PurchaseCreditMemos: TestPage "Purchase Credit Memos";
+    begin
+        PurchaseCreditMemos.OpenEdit();
+        PurchaseCreditMemos.FILTER.SetFilter("No.", No);
+        PurchaseCreditMemos.PurchaseStatistics.Invoke();  // Opens Handler-  PurchaseStatsPageHandler and PurchaseStatisticsPageHandler..
+        PurchaseCreditMemos.Close();
+    end;
+
+    local procedure OpenPurchaseStatisticsPageForPurchaseInvoice(No: Code[20])
+    var
+        PurchaseInvoices: TestPage "Purchase Invoices";
+    begin
+        PurchaseInvoices.OpenEdit();
+        PurchaseInvoices.FILTER.SetFilter("No.", No);
+        PurchaseInvoices.PurchaseStatistics.Invoke();  // Opens Handler - PurchaseStatsPageHandler and PurchaseStatisticsPageHandler.
+        PurchaseInvoices.Close();
+    end;
+
+    local procedure OpenStatisticsPageForPurchOrder(No: Code[20])
+    var
+        PurchaseOrderList: TestPage "Purchase Order List";
+    begin
+        PurchaseOrderList.OpenEdit();
+        PurchaseOrderList.FILTER.SetFilter("No.", No);
+        PurchaseOrderList.PurchaseOrderStats.Invoke();  // Opens Handler - PurchOrderStatsPageHandler and PurchOrderStatisticsPageHandler.
+        PurchaseOrderList.Close();
+    end;
+
+    local procedure OpenStatisticsPageForPurchaseOrderStatistics(No: Code[20])
+    var
+        PurchaseOrderList: TestPage "Purchase Order List";
+    begin
+        PurchaseOrderList.OpenEdit();
+        PurchaseOrderList.FILTER.SetFilter("No.", No);
+        PurchaseOrderList.PurchaseOrderStatistics.Invoke();  // Opens Handler - PurchOrderStatsPageHandler and PurchOrderStatisticsPageHandler.
+        PurchaseOrderList.Close();
+    end;
+
+    local procedure OpenStatsPageForBlanketPurchOrder(No: Code[20])
+    var
+        BlanketPurchaseOrders: TestPage "Blanket Purchase Orders";
+    begin
+        BlanketPurchaseOrders.OpenEdit();
+        BlanketPurchaseOrders.FILTER.SetFilter("No.", No);
+        BlanketPurchaseOrders.PurchaseOrderStats.Invoke();  // Opens Handler - PurchOrderStatisticsPageHandler and PurchOrderStatsPageHandler.
+        BlanketPurchaseOrders.Close();
+    end;
+
+    local procedure OpenStatisticsPageForPurchCreditMemo(No: Code[20])
+    var
+        PurchaseCreditMemos: TestPage "Purchase Credit Memos";
+    begin
+        PurchaseCreditMemos.OpenEdit();
+        PurchaseCreditMemos.FILTER.SetFilter("No.", No);
+        PurchaseCreditMemos.PurchaseStats.Invoke();  // Opens Handler-  PurchaseStatsPageHandler and PurchaseStatisticsPageHandler..
+        PurchaseCreditMemos.Close();
+    end;
+
+    local procedure OpenStatisticsPageForPurchInvoice(No: Code[20])
+    var
+        PurchaseInvoices: TestPage "Purchase Invoices";
+    begin
+        PurchaseInvoices.OpenEdit();
+        PurchaseInvoices.FILTER.SetFilter("No.", No);
+        PurchaseInvoices.PurchaseStats.Invoke();  // Opens Handler - PurchaseStatsPageHandler and PurchaseStatisticsPageHandler.
         PurchaseInvoices.Close();
     end;
 
@@ -2500,6 +2968,8 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         ServiceStatistics.OK().Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatsPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
@@ -2507,7 +2977,18 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         VerifyTaxOnStatisticsPage(PurchaseOrderStats."VATAmount[2]".AsDecimal(), PurchaseOrderStats."TotalAmount2[1]".AsDecimal());
         PurchaseOrderStats.OK().Invoke();
     end;
+#endif
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchOrderStatsPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
+    begin
+        VerifyTaxOnStatisticsPage(PurchaseOrderStats.TaxAmount.AsDecimal(), PurchaseOrderStats."TotalAmount2[1]".AsDecimal());
+        PurchaseOrderStats.OK().Invoke();
+    end;
+
+
+#if not CLEAN26
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseStatsPageHandler(var PurchaseStats: TestPage "Purchase Stats.")
@@ -2515,7 +2996,18 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         VerifyTaxOnStatisticsPage(PurchaseStats.TaxAmount.AsDecimal(), PurchaseStats.TotalAmount2.AsDecimal());
         PurchaseStats.OK().Invoke();
     end;
+#endif
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchStatsPageHandler(var PurchaseStats: TestPage "Purchase Stats.")
+    begin
+        VerifyTaxOnStatisticsPage(PurchaseStats.TaxAmount.AsDecimal(), PurchaseStats.TotalAmount2.AsDecimal());
+        PurchaseStats.OK().Invoke();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
@@ -2523,10 +3015,30 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         VerifyTaxOnStatisticsPage(PurchaseOrderStatistics."VATAmount[1]".AsDecimal(), PurchaseOrderStatistics.TotalInclVAT_General.AsDecimal());
         PurchaseOrderStatistics.OK().Invoke();
     end;
+#endif    
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    begin
+        VerifyTaxOnStatisticsPage(PurchaseOrderStatistics."VATAmount[1]".AsDecimal(), PurchaseOrderStatistics.TotalInclVAT_General.AsDecimal());
+        PurchaseOrderStatistics.OK().Invoke();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseStatisticsPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
+    begin
+        VerifyTaxOnStatisticsPage(PurchaseStatistics.VATAmount.AsDecimal(), PurchaseStatistics.TotalAmount2.AsDecimal());
+        PurchaseStatistics.OK().Invoke();
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchStatisticsPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
     begin
         VerifyTaxOnStatisticsPage(PurchaseStatistics.VATAmount.AsDecimal(), PurchaseStatistics.TotalAmount2.AsDecimal());
         PurchaseStatistics.OK().Invoke();

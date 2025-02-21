@@ -390,6 +390,8 @@ codeunit 134395 "ERM Document Totals UT"
           ManualDiscountAllowed, 'Manual discount must not be enabled when Calc. Inv. Discount is set. Posting will undo changes.');
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -430,7 +432,51 @@ codeunit 134395 "ERM Document Totals UT"
         PurchaseVerifyTotalsAreCalculated(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, PurchaseHeader);
         LibraryVariableStorage.AssertEmpty();
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseUpdateTotalsStatsControlsUpdateTotals()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        CurrentPurchaseLine: Record "Purchase Line";
+        TotalPurchaseLine: Record "Purchase Line";
+        DocumentTotals: Codeunit "Document Totals";
+        RefreshMessageEnabled: Boolean;
+        InvDiscAmountEditable: Boolean;
+        VATAmount: Decimal;
+        ControlStyle: Text;
+        RefreshMessageText: Text;
+        NumberOfLines: Integer;
+    begin
+        // Setup
+        Initialize();
+        NumberOfLines := LibraryRandom.RandIntInRange(1, 10);
+
+        CreatePurchaseDocument(PurchaseHeader, NumberOfLines);
+        GetCurrentPurchaseLine(CurrentPurchaseLine, PurchaseHeader);
+
+        // Execute
+        DocumentTotals.PurchaseUpdateTotalsControls(
+          CurrentPurchaseLine, PurchaseHeader, TotalPurchaseLine, RefreshMessageEnabled, ControlStyle, RefreshMessageText,
+          InvDiscAmountEditable, VATAmount);
+
+        // Verify
+        PurchaseVerifyTotalsStatsAreCalculated(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, PurchaseHeader);
+
+        // Execute again - no change should happen
+        DocumentTotals.PurchaseUpdateTotalsControls(
+          CurrentPurchaseLine, PurchaseHeader, TotalPurchaseLine, RefreshMessageEnabled, ControlStyle, RefreshMessageText,
+          InvDiscAmountEditable, VATAmount);
+
+        // Verify
+        PurchaseVerifyTotalsStatsAreCalculated(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, PurchaseHeader);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -470,6 +516,49 @@ codeunit 134395 "ERM Document Totals UT"
         // Verify
         Assert.AreNotEqual(PreviousTotalAmount, TotalsPurchaseLine.Amount, 'Total amount should be updated');
         PurchaseVerifyTotalsAreCalculated(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, PurchaseHeader);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseUpdateTotalsStatsControlsRecalculatesIfTheRecordIsChanged()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        CurrentPurchaseLine: Record "Purchase Line";
+        TotalsPurchaseLine: Record "Purchase Line";
+        DocumentTotals: Codeunit "Document Totals";
+        RefreshMessageEnabled: Boolean;
+        InvDiscAmountEditable: Boolean;
+        VATAmount: Decimal;
+        ControlStyle: Text;
+        RefreshMessageText: Text;
+        PreviousTotalAmount: Decimal;
+        NumberOfLines: Integer;
+    begin
+        // Setup
+        Initialize();
+        NumberOfLines := LibraryRandom.RandIntInRange(1, 10);
+        CreatePurchaseDocument(PurchaseHeader, NumberOfLines);
+        GetCurrentPurchaseLine(CurrentPurchaseLine, PurchaseHeader);
+        DocumentTotals.PurchaseUpdateTotalsControls(
+          CurrentPurchaseLine, PurchaseHeader, TotalsPurchaseLine, RefreshMessageEnabled, ControlStyle, RefreshMessageText,
+          InvDiscAmountEditable, VATAmount);
+        PreviousTotalAmount := TotalsPurchaseLine.Amount;
+
+        // Execute
+        GetCurrentPurchaseLine(CurrentPurchaseLine, PurchaseHeader);
+        CurrentPurchaseLine.Validate("Line Amount", CurrentPurchaseLine."Line Amount" / 2);
+        CurrentPurchaseLine.Modify(true);
+        Clear(TotalsPurchaseLine);
+        DocumentTotals.PurchaseUpdateTotalsControls(
+          CurrentPurchaseLine, PurchaseHeader, TotalsPurchaseLine, RefreshMessageEnabled, ControlStyle, RefreshMessageText,
+          InvDiscAmountEditable, VATAmount);
+
+        // Verify
+        Assert.AreNotEqual(PreviousTotalAmount, TotalsPurchaseLine.Amount, 'Total amount should be updated');
+        PurchaseVerifyTotalsStatsAreCalculated(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, PurchaseHeader);
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -549,6 +638,8 @@ codeunit 134395 "ERM Document Totals UT"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -589,6 +680,50 @@ codeunit 134395 "ERM Document Totals UT"
 
         // Verify
         PurchaseVerifyTotalsAreCalculated(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, PurchaseHeader);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseRedistributeTotalsStatsClearsRefreshMessageAndTotalsAreUpdated()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        CurrentPurchaseLine: Record "Purchase Line";
+        TotalsPurchaseLine: Record "Purchase Line";
+        DocumentTotals: Codeunit "Document Totals";
+        RefreshMessageEnabled: Boolean;
+        InvDiscAmountEditable: Boolean;
+        VATAmount: Decimal;
+        ControlStyle: Text;
+        RefreshMessageText: Text;
+        NumberOfLines: Integer;
+    begin
+        // Setup
+        Initialize();
+        NumberOfLines := LibraryRandom.RandIntInRange(1, 10);
+        CreatePurchaseDocument(PurchaseHeader, NumberOfLines);
+        GetCurrentPurchaseLine(CurrentPurchaseLine, PurchaseHeader);
+
+        PurchaseHeader.Validate("Invoice Discount Calculation", PurchaseHeader."Invoice Discount Calculation"::"%");
+        PurchaseHeader.Modify();
+
+        CurrentPurchaseLine.Validate("Recalculate Invoice Disc.", true);
+        CurrentPurchaseLine.Modify();
+
+        DocumentTotals.PurchaseUpdateTotalsControls(
+          CurrentPurchaseLine, PurchaseHeader, TotalsPurchaseLine, RefreshMessageEnabled, ControlStyle, RefreshMessageText,
+          InvDiscAmountEditable, VATAmount);
+
+        // Execute - Verify that calling it twice will not reset
+        PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, PurchaseHeader);
+        DocumentTotals.PurchaseUpdateTotalsControls(
+          CurrentPurchaseLine, PurchaseHeader, TotalsPurchaseLine, RefreshMessageEnabled, ControlStyle, RefreshMessageText,
+          InvDiscAmountEditable, VATAmount);
+
+        // Verify
+        PurchaseVerifyTotalsStatsAreCalculated(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, PurchaseHeader);
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -1218,6 +1353,8 @@ codeunit 134395 "ERM Document Totals UT"
         SalesCompareWithOrderStatisticsNM(SalesHeader);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure PurchaseCompareWithOrderStatistics(PurchaseHeader: Record "Purchase Header")
     var
         PurchaseOrder: TestPage "Purchase Order";
@@ -1229,6 +1366,20 @@ codeunit 134395 "ERM Document Totals UT"
         LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal());
         LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal());
         PurchaseOrder.Statistics.Invoke();
+    end;
+#endif
+
+    local procedure PurchaseCompareWithOrderStats(PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal());
+        PurchaseOrder.PurchaseOrderStatistics.Invoke();
     end;
 
     local procedure PurchaseVerifyTotalsAreSetToZero(RefreshMessageEnabled: Boolean; ControlStyle: Text; InvDiscAmountEditable: Boolean; TotalsPurchaseLine: Record "Purchase Line"; VATAmount: Decimal)
@@ -1242,6 +1393,8 @@ codeunit 134395 "ERM Document Totals UT"
         Assert.AreEqual(0, VATAmount, 'When totals are not calcualted VAT Amount must be set to zero');
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure PurchaseVerifyTotalsAreCalculated(RefreshMessageEnabled: Boolean; ControlStyle: Text; InvDiscAmountEditable: Boolean; PurchaseHeader: Record "Purchase Header")
     begin
         Assert.IsFalse(RefreshMessageEnabled, 'Refresh message enabled needs to be false for invoices under 10 lines');
@@ -1249,6 +1402,16 @@ codeunit 134395 "ERM Document Totals UT"
         Assert.IsTrue(InvDiscAmountEditable, 'Invoice Discount amount should be editable');
 
         PurchaseCompareWithOrderStatistics(PurchaseHeader);
+    end;
+#endif
+
+    local procedure PurchaseVerifyTotalsStatsAreCalculated(RefreshMessageEnabled: Boolean; ControlStyle: Text; InvDiscAmountEditable: Boolean; PurchaseHeader: Record "Purchase Header")
+    begin
+        Assert.IsFalse(RefreshMessageEnabled, 'Refresh message enabled needs to be false for invoices under 10 lines');
+        Assert.AreEqual(ControlStyle, 'Strong', 'Wrong style value');
+        Assert.IsTrue(InvDiscAmountEditable, 'Invoice Discount amount should be editable');
+
+        PurchaseCompareWithOrderStats(PurchaseHeader);
     end;
 
 #if not CLEAN26
@@ -1293,9 +1456,32 @@ codeunit 134395 "ERM Document Totals UT"
           'VAT Amount is not correct');
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsModalHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    var
+        VATApplied: Variant;
+        TotalAmountInclVAT: Variant;
+        InvDiscAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(InvDiscAmount);
+        LibraryVariableStorage.Dequeue(TotalAmountInclVAT);
+        LibraryVariableStorage.Dequeue(VATApplied);
+
+        Assert.AreEqual(InvDiscAmount, PurchaseOrderStatistics.InvDiscountAmount_General.AsDecimal(),
+          'Invoice Discount Amount is not correct');
+        Assert.AreEqual(TotalAmountInclVAT, PurchaseOrderStatistics.TotalInclVAT_General.AsDecimal(),
+          'Total Amount Incl. VAT is not correct');
+        Assert.AreEqual(VATApplied, PurchaseOrderStatistics."VATAmount[1]".AsDecimal(),
+          'VAT Amount is not correct');
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     var
         VATApplied: Variant;
         TotalAmountInclVAT: Variant;

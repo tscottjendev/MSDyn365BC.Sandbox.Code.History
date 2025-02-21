@@ -1981,6 +1981,8 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify: Verify Tax Amount should be Updated Tax Amount after reopening Sales Tax Lines Subform Dyn page.
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsForGenPageHandler,SalesTaxLinesSubformNotEditableDynModalPageHandler')]
     [Scope('OnPrem')]
@@ -1993,7 +1995,23 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::General);
         SetupPurchaseVATLines();
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchOrderStatsForGenPageHandler,SalesTaxLinesSubformNotEditableDynModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure NoOfVATLinesGeneralWhenPurchOrderOpen()
+    var
+        PurchaseNoOfLinesOnStats: Option General,Invoicing,Shipping,Prepayment;
+    begin
+        // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_General when Purchase Order open.
+        Initialize();
+        LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::General);
+        SetupPurchVATLines();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsForGenPageHandler,SalesTaxLinesSubformEditableDynModalPageHandler')]
     [Scope('OnPrem')]
@@ -2009,7 +2027,26 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SetupPurchaseVATLines();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchOrderStatsForGenPageHandler,SalesTaxLinesSubformEditableDynModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure NoOfVATLinesGeneralWhenPurchOrderOpenD365()
+    var
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        PurchaseNoOfLinesOnStats: Option General,Invoicing,Shipping,Prepayment;
+    begin
+        // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_General when Purchase Order open.
+        Initialize();
+        LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::General);
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
+        SetupPurchVATLines();
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsForGenPageHandler,SalesTaxLinesSubformNotEditableDynModalPageHandler')]
     [Scope('OnPrem')]
@@ -2022,7 +2059,23 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::Invoicing);
         SetupPurchaseVATLines();
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchOrderStatsForGenPageHandler,SalesTaxLinesSubformNotEditableDynModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure NoOfVATLinesInvoiceWhenPurchOrderOpen()
+    var
+        PurchaseNoOfLinesOnStats: Option General,Invoicing,Shipping,Prepayment;
+    begin
+        // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_Invoice when Purchase Order open.
+        Initialize();
+        LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::Invoicing);
+        SetupPurchVATLines();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsForGenPageHandler,SalesTaxLinesSubformEditableDynModalPageHandler')]
     [Scope('OnPrem')]
@@ -2038,7 +2091,26 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SetupPurchaseVATLines();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchOrderStatsForGenPageHandler,SalesTaxLinesSubformEditableDynModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure NoOfVATLinesInvoiceWhenPurchOrderOpenD365()
+    var
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        PurchaseNoOfLinesOnStats: Option General,Invoicing,Shipping,Prepayment;
+    begin
+        // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_Invoice when Purchase Order open.
+        Initialize();
+        LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::Invoicing);
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
+        SetupPurchVATLines();
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsForGenPageHandler,SalesTaxLinesSubformNotEditableDynModalPageHandler')]
     [Scope('OnPrem')]
@@ -2051,7 +2123,23 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::Shipping);
         SetupPurchaseVATLines();
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchOrderStatsForGenPageHandler,SalesTaxLinesSubformNotEditableDynModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure NoOfVATLinesShippingWhenPurchOrderOpen()
+    var
+        PurchaseNoOfLinesOnStats: Option General,Invoicing,Shipping,Prepayment;
+    begin
+        // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_Shipping when Purchse Order open.
+        Initialize();
+        LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::Shipping);
+        SetupPurchVATLines();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsForGenPageHandler,SalesTaxLinesPageHandler')]
     [Scope('OnPrem')]
@@ -2064,7 +2152,23 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         EnqueueValuesInOrderStatistics(PurchaseNoOfLinesOnStats::Prepayment, true, 0, false);
         SetupPurchaseVATLines();
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchOrderStatsForGenPageHandler,SalesTaxLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure NoOfVATLinesPrepaymentWhenPurchOrderOpen()
+    var
+        PurchaseNoOfLinesOnStats: Option General,Invoicing,Shipping,Prepayment;
+    begin
+        // Verify Sales Tax Amount Field is Editable on Sales Tax Lines_Prepayment when Purchse Order open.
+        Initialize();
+        EnqueueValuesInOrderStatistics(PurchaseNoOfLinesOnStats::Prepayment, true, 0, false);
+        SetupPurchVATLines();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsForGenPageHandler,SalesTaxLinesSubformNotEditableDynModalPageHandler')]
     [Scope('OnPrem')]
@@ -2092,7 +2196,38 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Verify: Verify Tax Amount not editable on Sales Tax Lines_Shipping Tab after releasing.
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchOrderStatsForGenPageHandler,SalesTaxLinesSubformNotEditableDynModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure NoVATLinesShippingAfterPurchOrderReleased()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ReleasePurchaseDocument: Codeunit "Release Purchase Document";
+        PurchaseOrder: TestPage "Purchase Order";
+        PurchaseNoOfLines: Option General,Invoicing,Shipping,Prepayment;
+    begin
+        // Verify Tax Amount not Editable after Releasing on Sales Tax Lines_Shipping on Purchase Order Statistics.
+
+        // Setup: Create and Release Sales Order.
+        Initialize();
+        UpdateSetups(true, LibraryRandom.RandIntInRange(10, 100));
+        CreateAndModifyPurchaseDocument(PurchaseLine);
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        LibraryVariableStorage.Enqueue(PurchaseNoOfLines::Shipping);
+        ReleasePurchaseDocument.PerformManualRelease(PurchaseHeader);
+        OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader);
+
+        // Exercise: Open Purchase Statistics.
+        PurchaseOrder.PurchaseOrderStats.Invoke();
+
+        // Verify: Verify Tax Amount not editable on Sales Tax Lines_Shipping Tab after releasing.
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsForGenPageHandler,SalesTaxLinesPageHandler')]
     [Scope('OnPrem')]
@@ -2128,6 +2263,46 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Exercise: Open Purchase Statistics.
         PurchaseOrder.Statistics.Invoke();
+
+        // Verify: Verify Tax Amount should be Updated Tax Amount after reopening Sales Tax Lines Subform Dyn page.
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchOrderStatsForGenPageHandler,SalesTaxLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesTaxAmountWhenPurchOrderReopen()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ReleasePurchaseDocument: Codeunit "Release Purchase Document";
+        PurchaseOrder: TestPage "Purchase Order";
+        Amount: Variant;
+        TaxAmount: Decimal;
+        PurchaseNoOfLines: Option General,Invoice,Shipping;
+    begin
+        // Verify Tax Amount is Editable after Releasing and Tax Amount should be Updated Amount after Reopening Purchase Order.
+
+        // Setup: Create and Release Purchase Order.
+        Initialize();
+        UpdateSetups(true, LibraryRandom.RandIntInRange(10, 100));
+        CreateAndModifyPurchaseDocument(PurchaseLine);
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        ReleasePurchaseDocument.PerformManualRelease(PurchaseHeader);
+        TaxAmount := LibraryRandom.RandInt(3);
+        EnqueueValuesInOrderStatistics(PurchaseNoOfLines::Invoice, true, TaxAmount, true);
+        OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader);
+
+        // After Releasing Purchase Order update Tax Amount on Sales Tax Lines.
+        PurchaseOrder.PurchaseOrderStats.Invoke();
+
+        // After Updating Tax Amount Reopen Purchase Order.
+        LibraryVariableStorage.Dequeue(Amount);
+        ReleasePurchaseDocument.Reopen(PurchaseHeader);
+        EnqueueValuesInOrderStatistics(PurchaseNoOfLines::General, false, Amount, false);
+
+        // Exercise: Open Purchase Statistics.
+        PurchaseOrder.PurchaseOrderStats.Invoke();
 
         // Verify: Verify Tax Amount should be Updated Tax Amount after reopening Sales Tax Lines Subform Dyn page.
     end;
@@ -4164,6 +4339,8 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify: Each page handler will determine the editability of Tax Amount.
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure SetupPurchaseVATLines()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -4180,6 +4357,27 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Exercise: Invoke Purchase Order Statistics.
         PurchaseOrder.Statistics.Invoke();
+
+        // Verify: Verify Tax Amount Field is not editable on Sales Tax Lines Subform Dyn page.
+    end;
+#endif
+
+    local procedure SetupPurchVATLines()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // Setup: Create Purchase Order with Tax Area Code.
+        UpdateSetups(true, LibraryRandom.RandIntInRange(10, 100));
+        CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandInt(5));
+        PurchaseHeader.Modify(true);
+        OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader);
+
+        // Exercise: Invoke Purchase Order Statistics.
+        PurchaseOrder.PurchaseOrderStats.Invoke();
 
         // Verify: Verify Tax Amount Field is not editable on Sales Tax Lines Subform Dyn page.
     end;
@@ -4615,9 +4813,33 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Message Handler.
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatsForGenPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
+    var
+        PurchaseNoOfLinesStatistics: Variant;
+        PurchaseNoOfLine: Option General,Invoicing,Shipping,Prepayment;
+    begin
+        LibraryVariableStorage.Dequeue(PurchaseNoOfLinesStatistics);
+        PurchaseNoOfLine := PurchaseNoOfLinesStatistics;
+        case PurchaseNoOfLine of
+            PurchaseNoOfLine::General:
+                PurchaseOrderStats.NoOfVATLines.DrillDown();
+            PurchaseNoOfLine::Invoicing:
+                PurchaseOrderStats.NoOfVATLines_Invoice.DrillDown();
+            PurchaseNoOfLine::Shipping:
+                PurchaseOrderStats.NoOfVATLines_Shipping.DrillDown();
+            PurchaseNoOfLine::Prepayment:
+                PurchaseOrderStats.NoOfVATLines_Prepayment.DrillDown();
+        end;
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchOrderStatsForGenPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
     var
         PurchaseNoOfLinesStatistics: Variant;
         PurchaseNoOfLine: Option General,Invoicing,Shipping,Prepayment;
@@ -4736,4 +4958,3 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
     end;
 }
-
