@@ -508,7 +508,7 @@ table 38 "Purchase Header"
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateOrderDate(Rec, xRec, IsHandled);
+                OnBeforeValidateOrderDate(Rec, xRec, IsHandled, CurrFieldNo);
                 if IsHandled then
                     exit;
 
@@ -6872,14 +6872,15 @@ table 38 "Purchase Header"
     begin
         IsHandled := false;
         OnBeforeValidateEmptySellToCustomerAndLocation(Rec, Vend, IsHandled, xRec);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            Validate("Sell-to Customer No.", '');
 
-        Validate("Sell-to Customer No.", '');
+            if "Buy-from Vendor No." <> '' then
+                GetVend("Buy-from Vendor No.");
+            UpdateLocationCode(Vend."Location Code");
+        end;
 
-        if "Buy-from Vendor No." <> '' then
-            GetVend("Buy-from Vendor No.");
-        UpdateLocationCode(Vend."Location Code");
+        OnAfterValidateEmptySellToCustomerAndLocation(Rec, Vend);
     end;
 
     /// <summary>
@@ -8558,7 +8559,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateOrderDate(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateOrderDate(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; CurrFieldNo: Integer)
     begin
     end;
 
@@ -8776,6 +8777,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPstdDocLinesToReverse(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterValidateEmptySellToCustomerAndLocation(var PurchaseHeader: Record "Purchase Header"; var Vendor: Record Vendor)
     begin
     end;
 }
