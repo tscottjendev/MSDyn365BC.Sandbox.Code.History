@@ -5038,7 +5038,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
                (OldVendLedgEntry.Count = 1)
             then
                 GenJnlLine."Applies-to Occurrence No." := 1;
-            if (GenJnlLine."Applies-to Occurrence No." <> 0) and (OldVendLedgEntry.Count = 1) then
+            if (GenJnlLine."Applies-to Occurrence No." <> 0) and
+                ((OldVendLedgEntry.Count = 1) or (GenJnlLine.Amount = NewCVLedgEntryBuf."Amount to Apply"))
+            then
                 OldVendLedgEntry.SetRange("Document Occurrence", GenJnlLine."Applies-to Occurrence No.");
 
             OldVendLedgEntry.SetRange(Open, true);
