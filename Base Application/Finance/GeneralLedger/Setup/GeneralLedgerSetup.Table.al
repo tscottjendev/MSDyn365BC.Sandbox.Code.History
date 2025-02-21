@@ -871,6 +871,10 @@ table 98 "General Ledger Setup"
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
         }
+        field(192; "Hide Company Bank Account"; Boolean)
+        {
+            Caption = 'Hide Company Bank Account';
+        }
         field(11003; "Currency Code For EURO"; Code[10])
         {
             Caption = 'Currency Code For EURO';
