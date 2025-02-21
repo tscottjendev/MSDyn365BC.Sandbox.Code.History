@@ -19,6 +19,8 @@ codeunit 141080 "VAT On Document Statistics II"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalPageHandler')]
     [Scope('OnPrem')]
@@ -41,6 +43,31 @@ codeunit 141080 "VAT On Document Statistics II"
         BlanketPurchaseOrder.Statistics.Invoke();  // Opens PurchaseOrderStatisticsModalPageHandler.
 
         // Verify: Verification is done in PurchaseOrderStatisticsModalPageHandler.
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure BlnktPurchaseOrderStatsWithAddReportingCurrSetup()
+    var
+        PurchaseLine: Record "Purchase Line";
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+    begin
+        // [FEATURE] [Purchase] [Blanket Order]
+        // [SCENARIO] values on Statistics page for Blanket Purchase Order with Additional Reporting Currency setup.
+
+        // [GIVEN] Run Additional Reporting Currency job and Create Blanket Purchase Order.
+        Initialize();
+        RunAddReportingCurrAndCreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Blanket Order");
+        EnqueueValuesForHandler(PurchaseLine."Amount Including VAT", PurchaseLine.Amount * PurchaseLine."VAT %" / 100);  // Enqueue values for PurchaseOrderStatisticsPageHandler.
+        BlanketPurchaseOrder.OpenEdit();
+        BlanketPurchaseOrder.FILTER.SetFilter("No.", PurchaseLine."Document No.");
+
+        // Exercise.
+        BlanketPurchaseOrder.PurchaseOrderStatistics.Invoke();  // Opens PurchaseOrderStatisticsPageHandler.
+
+        // Verify: Verification is done in PurchaseOrderStatisticsPageHandler.
     end;
 
 #if not CLEAN26
@@ -704,9 +731,27 @@ codeunit 141080 "VAT On Document Statistics II"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsModalPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    var
+        AmountInclVAT: Variant;
+        VATAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(AmountInclVAT);
+        LibraryVariableStorage.Dequeue(VATAmount);
+        VerifyStatisticsPage(
+          PurchaseOrderStatistics.TotalInclVAT_General.AsDecimal(), AmountInclVAT, PurchaseOrderStatistics.TotalInclVAT_General.Caption,
+          PurchaseOrderStatistics."VATAmount[1]".AsDecimal(), VATAmount, PurchaseOrderStatistics."VATAmount[1]".Caption,
+          PurchaseOrderStatistics.Caption);
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     var
         AmountInclVAT: Variant;
         VATAmount: Variant;

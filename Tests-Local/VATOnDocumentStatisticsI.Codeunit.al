@@ -35,6 +35,8 @@ codeunit 141079 "VAT On Document Statistics I"
         LibraryRandom: Codeunit "Library - Random";
         AmountErr: Label '%1 must be %2 in %3.';
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalPageHandler,VATAmountLinesModalPageHandler')]
     [Scope('OnPrem')]
@@ -60,6 +62,37 @@ codeunit 141079 "VAT On Document Statistics I"
         PurchaseOrder.Statistics.Invoke();  // Opens PurchaseOrderStatisticsModalPageHandler.
 
         // Verify: Verification is done in PurchaseOrderStatisticsModalPageHandler and VATAmountLinesModalPageHandler.
+
+        // Tear Down.
+        UpdateInvRoundingPrecisionOnGeneralLedgerSetup(OldInvoiceRoundingPrecision);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler,VATAmountLinesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchOrderStatisticsWithInvRoundingPrecision()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        OldInvoiceRoundingPrecision: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Order] [Invoice Rounding]
+        // [SCENARIO] values on Purchase Order Statistics page of Purchase Order with Invoice Rounding Precision.
+
+        // [GIVEN] Update Invoice Rounding Precision on General Ledger Setup. Create Purchase Order.
+        Initialize();
+        OldInvoiceRoundingPrecision :=
+          UpdateInvRoundingPrecisionOnGeneralLedgerSetup(LibraryRandom.RandDecInDecimalRange(0.02, 0.1, 2));  // Random value required for Invoice Rounding Precision.
+        CreatePurchaseOrderWithSetup(PurchaseLine);
+        EnqueueValuesForHandler(PurchaseLine.Amount * PurchaseLine."VAT %" / 100, PurchaseLine."Amount Including VAT");  // Enqueue values for PurchaseOrderStatisticsModalPageHandler and VATAmountLinesModalPageHandler.
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.FILTER.SetFilter("No.", PurchaseLine."Document No.");
+
+        // Exercise.
+        PurchaseOrder.PurchaseOrderStatistics.Invoke();  // Opens PurchaseOrderStatisticsPageHandler.
+
+        // Verify: Verification is done in PurchaseOrderStatisticsPageHandler and VATAmountLinesModalPageHandler.
 
         // Tear Down.
         UpdateInvRoundingPrecisionOnGeneralLedgerSetup(OldInvoiceRoundingPrecision);
@@ -344,9 +377,25 @@ codeunit 141079 "VAT On Document Statistics I"
         GeneralLedgerSetup.Modify(true);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsModalPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    var
+        VATAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(VATAmount);
+        Assert.AreNearlyEqual(
+          PurchaseOrderStatistics."VATAmount[1]".AsDecimal(), VATAmount, LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(AmountErr, PurchaseOrderStatistics."VATAmount[1]".Caption, VATAmount, PurchaseOrderStatistics.Caption));
+        PurchaseOrderStatistics.NoOfVATLines_General.DrillDown();  // Opens VATAmountLinesModalPageHandler.
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     var
         VATAmount: Variant;
     begin

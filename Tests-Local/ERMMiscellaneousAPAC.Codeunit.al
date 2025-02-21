@@ -1617,13 +1617,13 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         NewVATAmount := PurchaseLine."Amount Including VAT" - PurchaseLine."Amount" - LibraryERM.GetAmountRoundingPrecision();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewVATAmount);
-        PurchaseHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Purchase Statistics", PurchaseHeader);
 
         // [THEN] VAT Amount (ACY) is changed and saved when reopening Statistic page
         // [THEN] VAT Difference (ACY) is calculated correctly
         // false means don't update VAT Amount (ACY) after Statistic page reopened.
         LibraryVariableStorage.Enqueue(false);
-        PurchaseHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Purchase Statistics", PurchaseHeader);
 
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         GetPurchaseVATAmountLine(PurchaseHeader, TempVATAmountLine);
@@ -1674,7 +1674,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [WHEN] Change VAT Amount to 11.1 on Purchase Statistics
         NewVATAmount := PurchaseLine."Amount Including VAT" - PurchaseLine."Amount" + MaxVATDifferenceAllowed;
         LibraryVariableStorage.Enqueue(NewVATAmount);
-        PurchaseHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Purchase Statistics", PurchaseHeader);
 
         // [THEN] The error is executed, the VAT amount cannot be changed with the VAT difference bigger than "Max Allowed VAT Difference" * "Vendor Exchange Rate (ACY)"
         Assert.ExpectedError(StrSubstNo(VATDifferenceErr, MaxVATDifferenceAllowed * PurchaseHeader."Vendor Exchange Rate (ACY)"));
@@ -1719,7 +1719,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         NewVATAmount := PurchaseLine."Amount Including VAT" - PurchaseLine."Amount" - LibraryERM.GetAmountRoundingPrecision();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewVATAmount);
-        PurchaseHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Purchase Statistics", PurchaseHeader);
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         // [WHEN] Post purchase invoice
         PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
