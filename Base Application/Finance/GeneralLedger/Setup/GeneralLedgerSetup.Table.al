@@ -870,6 +870,10 @@ table 98 "General Ledger Setup"
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
         }
+        field(192; "Hide Company Bank Account"; Boolean)
+        {
+            Caption = 'Hide Company Bank Account';
+        }
         field(12100; "Use Document Date in Currency"; Boolean)
         {
             Caption = 'Use Document Date in Currency';
