@@ -3772,6 +3772,8 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(4592, 5); // Created by User ID
         SetTableFieldsToNormal(4593); // SOA KPI
         SetTableFieldsToNormal(4585); // SOA Email
+        SetTableFieldsToNormal(4586); // SOA Billing Log
+        SetTableFieldsToNormal(4587); // SOA Billing Task Setup
         SetFieldToPersonal(4592, 9); // Sender Email
         SetFieldToPersonal(4592, 10); // Sender Name
     end;
