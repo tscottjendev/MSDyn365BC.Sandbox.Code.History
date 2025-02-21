@@ -228,7 +228,13 @@ codeunit 1104 "Cost Account Allocation"
     local procedure CalcItemSoldQtyShare(CostAllocationTarget: Record "Cost Allocation Target")
     var
         ValueEntry: Record "Value Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcItemSoldQtyShare(CostAllocationTarget, ValueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcItemShare(CostAllocationTarget, ValueEntry."Item Ledger Entry Type"::Sale, ValueEntry.FieldNo("Invoiced Quantity"));
     end;
 
@@ -292,6 +298,7 @@ codeunit 1104 "Cost Account Allocation"
                     exit(ValueEntry."Purchase Amount (Actual)");
                 end;
         end;
+        OnAfterSumValueEntryField(ValueEntry, SumFieldNo);
     end;
 
     local procedure CalcDateFilter(CostAllocationTarget: Record "Cost Allocation Target")
@@ -474,6 +481,16 @@ codeunit 1104 "Cost Account Allocation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcEmployeeCountShare(CostAllocationTarget: Record "Cost Allocation Target"; var TotalShare: Decimal; StartDate: Date; EndDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcItemSoldQtyShare(var CostAllocationTarget: Record "Cost Allocation Target"; var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSumValueEntryField(var ValueEntry: Record "Value Entry"; SumFieldNo: Integer)
     begin
     end;
 }
