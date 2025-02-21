@@ -528,7 +528,7 @@ table 38 "Purchase Header"
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateOrderDate(Rec, xRec, IsHandled);
+                OnBeforeValidateOrderDate(Rec, xRec, IsHandled, CurrFieldNo);
                 if IsHandled then
                     exit;
 
@@ -2961,7 +2961,9 @@ table 38 "Purchase Header"
         WarnZeroQuantityPostingDescriptionTxt: Label 'Warn before posting lines on Purchase documents where quantity is 0.';
         WarnDocAmountVatTxt: Label '%1 must not be more than %2.', comment = '%1 - Doc. Amount VAT; %2 - DocAmountVAT';
         CalledFromWhseDoc: Boolean;
+#if not CLEAN26
         SkipStatsPrep: Boolean;
+#endif
 
     protected var
         PurchSetup: Record "Purchases & Payables Setup";
@@ -5410,6 +5412,8 @@ table 38 "Purchase Header"
         end;
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Open statistics page for purchase orders.
     /// </summary>
@@ -5428,6 +5432,7 @@ table 38 "Purchase Header"
         OpenDocumentStatisticsInternal();
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Open statistics page for purchase documents.
     /// </summary>
@@ -5438,6 +5443,7 @@ table 38 "Purchase Header"
     begin
         OpenDocumentStatisticsInternal();
     end;
+#endif
 
     /// <summary>
     /// Prepares the opening document statistics for a purchase document. It checks the user's permissions, 
@@ -5462,6 +5468,8 @@ table 38 "Purchase Header"
         Commit();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Opens a purchase document statistics page based on the document type. 
     /// After the page is closed, the recalculate invoice discount field is set to false on all purchase document lines.
@@ -5482,16 +5490,19 @@ table 38 "Purchase Header"
         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     procedure SkipStatisticsPreparation(): Boolean
     begin
         exit(SkipStatsPrep)
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     procedure ResetSkipStatisticsPreparationFlag()
     begin
         SkipStatsPrep := false;
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenDocumentStatisticsInternal()
     var
         IsHandled: Boolean;
@@ -5504,6 +5515,7 @@ table 38 "Purchase Header"
         PrepareOpeningDocumentStatistics();
         ShowDocumentStatisticsPage();
     end;
+#endif    
 
     local procedure IsOrderDocument(): Boolean
     begin
@@ -5517,6 +5529,8 @@ table 38 "Purchase Header"
         exit(false);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure GetStatisticsPageID(): Integer
     begin
         if IsOrderDocument() then
@@ -5524,6 +5538,7 @@ table 38 "Purchase Header"
 
         exit(PAGE::"Purchase Statistics");
     end;
+#endif
 
     [IntegrationEvent(true, false)]
     procedure OnCheckPurchasePostRestrictions()
@@ -7058,14 +7073,15 @@ table 38 "Purchase Header"
     begin
         IsHandled := false;
         OnBeforeValidateEmptySellToCustomerAndLocation(Rec, Vend, IsHandled, xRec);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            Validate("Sell-to Customer No.", '');
 
-        Validate("Sell-to Customer No.", '');
+            if "Buy-from Vendor No." <> '' then
+                GetVend("Buy-from Vendor No.");
+            UpdateLocationCode(Vend."Location Code");
+        end;
 
-        if "Buy-from Vendor No." <> '' then
-            GetVend("Buy-from Vendor No.");
-        UpdateLocationCode(Vend."Location Code");
+        OnAfterValidateEmptySellToCustomerAndLocation(Rec, Vend);
     end;
 
     /// <summary>
@@ -8129,10 +8145,13 @@ table 38 "Purchase Header"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenPurchaseOrderStatistics(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetShipToCodeEmpty(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
@@ -8409,20 +8428,26 @@ table 38 "Purchase Header"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenDocumentStatistics(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareOpeningDocumentStatistics(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnGetStatisticsPageID(var PageID: Integer; PurchaseHeader: Record "Purchase Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeTestStatusOpen(var PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; CallingFieldNo: Integer)
@@ -8805,7 +8830,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateOrderDate(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateOrderDate(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; CurrFieldNo: Integer)
     begin
     end;
 
@@ -9028,6 +9053,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPstdDocLinesToReverse(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterValidateEmptySellToCustomerAndLocation(var PurchaseHeader: Record "Purchase Header"; var Vendor: Record Vendor)
     begin
     end;
 }
