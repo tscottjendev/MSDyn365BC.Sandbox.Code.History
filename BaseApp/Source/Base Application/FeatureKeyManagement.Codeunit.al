@@ -21,7 +21,7 @@ codeunit 265 "Feature Key Management"
 #endif
 #if not CLEAN26
         ManufacturingFlushingMethodActivateManualWithoutPickLbl: Label 'Manufacturing_FlushingMethod_ActivateManualWoPick', Locked = true;
-        ManufacturingFlushingMethodActivateManualWithoutPick, ManufacturingFlushingMethodActivateManualWithoutPickRead : Boolean;
+        ManufacturingFlushingMethodActivateManualWithoutPick, ManufacturingFlushingMethodActivateManualWithoutPickRead, MockEnabledManufacturingFlushingMethodActivateManualWithoutPick : Boolean;
 #endif
         ConcurrentWarehousingPostingLbl: Label 'ConcurrentWarehousingPosting', Locked = true;
         ConcurrentWarehousingPosting: Boolean;
@@ -95,6 +95,8 @@ codeunit 265 "Feature Key Management"
 #if not CLEAN26
     procedure IsManufacturingFlushingMethodActivateManualWithoutPickEnabled(): Boolean
     begin
+        if MockEnabledManufacturingFlushingMethodActivateManualWithoutPick then
+            exit(true);
         if not ManufacturingFlushingMethodActivateManualWithoutPickRead then begin
             ManufacturingFlushingMethodActivateManualWithoutPick := FeatureManagementFacade.IsEnabled(GetManufacturingFlushingMethodActivateManualWithoutPickFeatureKey());
             ManufacturingFlushingMethodActivateManualWithoutPickRead := true;
@@ -105,6 +107,11 @@ codeunit 265 "Feature Key Management"
     local procedure GetManufacturingFlushingMethodActivateManualWithoutPickFeatureKey(): Text[50]
     begin
         exit(ManufacturingFlushingMethodActivateManualWithoutPickLbl);
+    end;
+
+    procedure SetMockEnabledManufacturingFlushingMethodActivateManualWithoutPick(SetMockEnabled: Boolean)
+    begin
+        MockEnabledManufacturingFlushingMethodActivateManualWithoutPick := SetMockEnabled;
     end;
 #endif
 
