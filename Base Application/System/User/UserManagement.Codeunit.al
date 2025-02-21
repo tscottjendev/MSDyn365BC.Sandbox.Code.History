@@ -57,9 +57,7 @@ using System.Diagnostics;
 using System.Environment;
 using System.Environment.Configuration;
 using System.IO;
-#if not CLEAN26
 using System.Reflection;
-#endif
 using System.Security.AccessControl;
 using System.Security.Encryption;
 using System.Threading;
@@ -167,8 +165,8 @@ codeunit 418 "User Management"
     end;
 
     var
-#if not CLEAN26
         Text003Err: Label 'You do not have permissions for this action on the table %1.', Comment = '%1 table name';
+#if not CLEAN26
 #pragma warning disable AA0470
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';
 #pragma warning restore AA0470
@@ -407,7 +405,9 @@ codeunit 418 "User Management"
                             TableInformation.SetRange("Table No.", Field.TableNo);
                             if TableInformation.FindFirst() then
                                 if TableInformation."No. of Records" > 0 then
+#pragma warning disable AA0448
                                     Error(Text003Err, Field.TableName);
+#pragma warning restore AA0448
                         end;
                         RecRef.Close();
                     end;
@@ -501,6 +501,148 @@ codeunit 418 "User Management"
         if EnvironmentInfo.IsSaaS() then
             if not (User."License Type" in [User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application, User."License Type"::"AAD Group", User."License Type"::Agent]) then
                 Error(UnsupportedLicenseTypeOnSaasErr, User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application, User."License Type"::"AAD Group", User."License Type"::Agent);
+    end;
+
+    local procedure RenameField(TableID: Integer; FieldID: Integer; OldUserName: Code[50]; NewUserName: Code[50]; CompanyName: Text[30])
+    var
+        Field: Record Field;
+        TableInformation: Record "Table Information";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        FieldRef2: FieldRef;
+        NumberOfPrimaryKeyFields: Integer;
+    begin
+        if not Field.Get(TableID, FieldID) then
+            exit;
+
+        RecRef.Open(TableID, false, CompanyName);
+        if RecRef.ReadPermission then begin
+            FieldRef := RecRef.Field(FieldID);
+            FieldRef.SetRange(CopyStr(OldUserName, 1, Field.Len));
+            if RecRef.FindSet(true) then
+                repeat
+                    if IsPrimaryKeyField(TableID, FieldID, NumberOfPrimaryKeyFields) then
+                        RenameRecord(RecRef, TableID, NumberOfPrimaryKeyFields, NewUserName, CompanyName)
+                    else begin
+                        FieldRef2 := RecRef.Field(FieldID);
+                        FieldRef2.Value := CopyStr(NewUserName, 1, Field.Len);
+                        RecRef.Modify();
+                    end;
+                until RecRef.Next() = 0;
+        end else begin
+            TableInformation.SetFilter("Company Name", '%1|%2', '', CompanyName);
+            TableInformation.SetRange("Table No.", TableID);
+            if TableInformation.FindFirst() then
+                if TableInformation."No. of Records" > 0 then
+#pragma warning disable AA0448
+                    Error(Text003Err, Field.TableName);
+#pragma warning restore AA0448
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::User, OnRenameUserOnBeforeProcessField, '', false, false)]
+    local procedure RenameBaseAppSpecificFields(TableID: Integer; FieldID: Integer; OldUserName: Code[50]; NewUserName: Code[50]; CompanyName: Text[30]; var IsHandled: Boolean)
+    begin
+        // Handle BaseApp specific fields with indirect permissions
+        case TableID of
+            Database::"G/L Entry",
+            Database::"Cust. Ledger Entry",
+            Database::"Vendor Ledger Entry",
+            Database::"G/L Register",
+            Database::"Item Register",
+            Database::"G/L Budget Entry",
+            Database::"Sales Shipment Header",
+            Database::"Sales Invoice Header",
+            Database::"Sales Cr.Memo Header",
+            Database::"Purch. Rcpt. Header",
+            Database::"Purch. Inv. Header",
+            Database::"Purch. Cr. Memo Hdr.",
+            Database::"Job Ledger Entry",
+            Database::"Res. Ledger Entry",
+            Database::"Resource Register",
+            Database::"Job Register",
+            Database::"VAT Entry",
+            Database::"Bank Account Ledger Entry",
+            Database::"Check Ledger Entry",
+            Database::"Phys. Inventory Ledger Entry",
+            Database::"Issued Reminder Header",
+            Database::"Reminder/Fin. Charge Entry",
+            Database::"Issued Fin. Charge Memo Header",
+            Database::"Reservation Entry",
+            Database::"Item Application Entry",
+            Database::"Detailed Cust. Ledg. Entry",
+            Database::"Detailed Vendor Ledg. Entry",
+            Database::"Change Log Entry",
+            Database::"Approval Entry",
+            Database::"Approval Comment Line",
+            Database::"Posted Approval Entry",
+            Database::"Posted Approval Comment Line",
+            Database::"Posted Assembly Header",
+            Database::"Cost Entry",
+            Database::"Cost Register",
+            Database::"Cost Budget Entry",
+            Database::"Cost Budget Register",
+            Database::"Interaction Log Entry",
+            Database::"Campaign Entry",
+            Database::"FA Ledger Entry",
+            Database::"FA Register",
+            Database::"Maintenance Ledger Entry",
+            Database::"Ins. Coverage Ledger Entry",
+            Database::"Insurance Register",
+            Database::"Value Entry",
+#if not CLEAN25
+            Database::Microsoft.Service.Ledger."Service Ledger Entry",
+            Database::Microsoft.Service.Ledger."Service Register",
+            Database::Microsoft.Service.Contract."Contract Gain/Loss Entry",
+            Database::Microsoft.Service.Contract."Filed Service Contract Header",
+            Database::Microsoft.Service.History."Service Shipment Header",
+            Database::Microsoft.Service.History."Service Invoice Header",
+            Database::Microsoft.Service.History."Service Cr.Memo Header",
+#endif
+            Database::"Return Shipment Header",
+            Database::"Return Receipt Header",
+            Database::"Item Budget Entry",
+            Database::"Warehouse Entry",
+            Database::"Warehouse Register",
+            Database::"Workflow Step Instance Archive",
+            Database::"Date Compr. Register",
+            Database::"Requisition Line",
+            Database::"Overdue Approval Entry",
+            Database::"Job Queue Entry",
+            Database::"Job Queue Log Entry",
+            Database::"Error Message Register",
+            Database::"Activity Log",
+            Database::"Workflow Step Instance",
+            Database::"Notification Entry",
+            Database::"Sent Notification Entry",
+            Database::"User Setup",
+            Database::"VAT Registration Log",
+            Database::"Item Application Entry History",
+            Database::"CV Ledger Entry Buffer",
+            Database::"Detailed CV Ledg. Entry Buffer",
+            Database::"VAT Report Archive",
+            Database::"Cash Flow Forecast Entry",
+            Database::"Job Planning Line",
+            Database::"Cost Type",
+            Database::"Cost Allocation Source",
+            Database::"Cost Allocation Target",
+            Database::"Cost Center",
+            Database::"Credit Transfer Register",
+            Database::"Direct Debit Collection",
+            Database::"Isolated Certificate",
+            Database::"Logged Segment",
+            Database::"Saved Segment Criteria",
+            Database::"Sales Header Archive",
+            Database::"Purchase Header Archive",
+            Database::"Employee Ledger Entry",
+            Database::"Detailed Employee Ledger Entry",
+            Database::"Manufacturing User Template",
+            Database::"Field Monitoring Setup":
+                begin
+                    RenameField(TableID, FieldID, OldUserName, NewUserName, CompanyName);
+                    IsHandled := true;
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

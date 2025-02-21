@@ -188,6 +188,8 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         SalesInvoiceStatistics.OK().Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsPageHandler,VATAmountLinesPageHandler')]
     [Scope('OnPrem')]
@@ -233,7 +235,56 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         PurchCreditMemoStatistics.SubForm."VAT Amount".AssertEquals(VATAmount);
         PurchCreditMemoStatistics.OK().Invoke();
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchOrderStatisticsPageHandler,VATAmountLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATAmtOnStatsAfterPartialPostPurchReturnOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        PurchCreditMemoStatistics: TestPage "Purch. Credit Memo Statistics";
+        VATAmount: Decimal;
+        DocumentNo: Code[20];
+        Quantity: Decimal;
+    begin
+        // Verify that VAT Amount is edited successfully on Purchase Return Order Statistics after partial Shipment and Invoice.
+
+        // Setup: Create and partially post Purchase Return Order.
+        Initialize();
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Modify(true);
+        Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value for Quantity.
+        VATAmount :=
+          CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Quantity, Quantity / 2, 0);  // Zero for Quantity to Receive.
+
+        // Open Purchase Return Order Statistics Page from Purchase Return Order to change VAT Amount.
+        LibraryVariableStorage.Enqueue(VATAmount);  // Enqueue value for VATAmountLinesPageHandler.
+        PurchaseReturnOrder.OpenEdit();
+        PurchaseReturnOrder.GotoRecord(PurchaseHeader);
+        PurchaseReturnOrder.PurchaseOrderStatistics.Invoke();  // Invoking Statistics.
+        PurchaseReturnOrder.OK().Invoke();
+
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+
+        // Exercise.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // Verify: Verify changed VAT Amount on Purchase Credit Memo Statistics Page.
+        PurchCrMemoHdr.Get(DocumentNo);
+        PurchCreditMemoStatistics.OpenEdit();
+        PurchCreditMemoStatistics.GotoRecord(PurchCrMemoHdr);
+        PurchCreditMemoStatistics.SubForm."VAT Amount".AssertEquals(VATAmount);
+        PurchCreditMemoStatistics.OK().Invoke();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsPageHandler,VATAmountLinesPageHandler')]
     [Scope('OnPrem')]
@@ -260,6 +311,49 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.Statistics.Invoke();
+        PurchaseOrder.OK().Invoke();
+
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+
+        // Exercise.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // Verify: Verify changed VAT Amount on Purchase Invoice Statistics Page.
+        PurchInvHeader.Get(DocumentNo);
+        PurchaseInvoiceStatistics.OpenEdit();
+        PurchaseInvoiceStatistics.GotoRecord(PurchInvHeader);
+        PurchaseInvoiceStatistics.SubForm."VAT Amount".AssertEquals(VATAmount);
+        PurchaseInvoiceStatistics.OK().Invoke();
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchOrderStatisticsPageHandler,VATAmountLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATAmtOnStatsAfterPartialPostPurchaseOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseOrder: TestPage "Purchase Order";
+        PurchaseInvoiceStatistics: TestPage "Purchase Invoice Statistics";
+        VATAmount: Decimal;
+        DocumentNo: Code[20];
+        Quantity: Decimal;
+    begin
+        // Verify that VAT Amount is edited successfully on Purchase Order Statistics after partial Receipt and Invoice.
+
+        // Setup: Create and partially post Purchase Order.
+        Initialize();
+        Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value for Quantity.
+        VATAmount := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, Quantity, 0, Quantity / 2);  // Zero for Return Quantity to Ship.
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        // Open Purchase Order Statistics Page from Purchase Order to change VAT Amount.
+        LibraryVariableStorage.Enqueue(VATAmount);  // Enqueue value for VATAmountLinesPageHandler.
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+        PurchaseOrder.PurchaseOrderStatistics.Invoke();
         PurchaseOrder.OK().Invoke();
 
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -511,9 +605,20 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         SalesReceivablesSetup.Modify(true);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    begin
+        PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
+        PurchaseOrderStatistics.OK().Invoke();
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
         PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
         PurchaseOrderStatistics.OK().Invoke();
