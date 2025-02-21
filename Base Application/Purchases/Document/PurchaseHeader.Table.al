@@ -27,6 +27,7 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.Shipping;
+using Microsoft.Intercompany;
 using Microsoft.Intercompany.Partner;
 using Microsoft.Intercompany.Setup;
 using Microsoft.Inventory;
@@ -7615,6 +7616,17 @@ table 38 "Purchase Header"
     begin
         if PrepaymentMgt.TestPurchasePrepayment(Rec) then
             Error(PrepaymentInvoicesNotPaidErr, Rec."Document Type", Rec."No.");
+    end;
+
+    procedure SendICPurchaseDoc(var PurchaseHeader: Record "Purchase Header")
+    var
+        ICInOutboxMgt: Codeunit ICInboxOutboxMgt;
+    begin
+        if PurchaseHeader.FindSet() then
+            repeat
+                if ApprovalsMgmt.PrePostApprovalCheckPurch(PurchaseHeader) then
+                    ICInOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+            until PurchaseHeader.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
