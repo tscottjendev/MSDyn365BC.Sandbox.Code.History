@@ -162,7 +162,7 @@ page 104 "Account Schedule"
                 field(Show; Rec.Show)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether the account schedule line will be printed on the report.';
+                    ToolTip = 'Specifies whether the line will be printed on the report.';
                 }
                 field(Bold; Rec.Bold)
                 {
@@ -188,7 +188,7 @@ page 104 "Account Schedule"
                 field("New Page"; Rec."New Page")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether there will be a page break after the current account when the account schedule is printed.';
+                    ToolTip = 'Specifies whether there will be a page break after the current line when the financial report is exported to PDF or printed.';
                 }
                 field(HideCurrencySymbol; Rec."Hide Currency Symbol")
                 {
