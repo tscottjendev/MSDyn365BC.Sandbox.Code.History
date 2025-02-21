@@ -635,6 +635,8 @@ codeunit 134287 "Non-Deductible VAT Statistics"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsDrillDownInvLinesModalPageHandler,VATAmountLinesCheckOrVerifyNonDedVATAmtModalPageHandler')]
     procedure NonDedVATAmtInPurchOrderMultipleLines()
@@ -707,7 +709,83 @@ codeunit 134287 "Non-Deductible VAT Statistics"
 
         LibraryVariableStorage.AssertEmpty();
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsDrillDownInvLinesPageHandler,VATAmountLinesCheckOrVerifyNonDedVATAmtModalPageHandler')]
+    procedure NonDedVATAmtInPurchaseOrderMultipleLines()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrderPage: TestPage "Purchase Order";
+        LineCount: Integer;
+        MaxVATDifference: Decimal;
+        NonDedVATAmount: Decimal;
+        VATAmount: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] The "VAT Amount" and "Non-Deductible VAT amount" are correct for the purchase order with "Qty To Invoice" changed for partial posting
+
+        Initialize();
+        LineCount := LibraryRandom.RandIntInRange(3, 5);
+        MaxVATDifference := LineCount * LibraryRandom.RandDecInDecimalRange(0.1, 1, 2);
+        // [GIVEN] "Allow VAT Difference" is enabled in Purchases Setup
+        // [GIVEN] "Max VAT Difference" is 0.01 in General Ledger Setup
+        SetAllowVATDifference(MaxVATDifference);
+        // [GIVEN] Normal VAT Posting Setup with "VAT %" = 20 and Non-Deductible VAT %" = 75
+        LibraryNonDeductibleVAT.CreateNonDeductibleNormalVATPostingSetup(VATPostingSetup);
+        // [GIVEN] Purchase order with Quantity = 2, Amount = 100. VAT Amount = 20. Non-Deductible VAT Amount = 15
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Order,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        for i := 1 to LineCount do begin
+            LibraryPurchase.CreatePurchaseLineWithUnitCost(
+                PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"),
+                LibraryRandom.RandDec(100, 2), LibraryRandom.RandInt(100));
+            NonDedVATAmount += (PurchaseLine."Amount Including VAT" - PurchaseLine.Amount) * VATPostingSetup."Non-Deductible VAT %" / 100;
+            VATAmount += PurchaseLine."Amount Including VAT" - PurchaseLine.Amount;
+        end;
+        NonDedVATAmount := Round(NonDedVATAmount) - MaxVATDifference;
+        VATAmount -= MaxVATDifference;
+
+        // Variables to set value in statistics
+        LibraryVariableStorage.Enqueue(false); // set value
+        LibraryVariableStorage.Enqueue(NonDedVATAmount);
+        LibraryVariableStorage.Enqueue(VATAmount);
+
+        // [GIVEN] Open purchase order page
+        PurchaseOrderPage.OpenEdit();
+        PurchaseOrderPage.Filter.SetFilter("No.", PurchaseHeader."No.");
+        // [GIVEN] Open statistics of the invoice
+        PurchaseOrderPage.PurchaseOrderStatistics.Invoke();
+        // [GIVEN] Change "Non-Deductible VAT Amount" to 7.4 in statistics
+        // [GIVEN] Change "VAT Amount" to 9.9 in statistics
+        // Sets in VATAmountLinesCheckOrVerifyNonDedVATAmtModalPageHandler
+
+        // Variables to set value in statistics
+        LibraryVariableStorage.Enqueue(true); // verify value
+        LibraryVariableStorage.Enqueue(NonDedVATAmount);
+        LibraryVariableStorage.Enqueue(VATAmount);
+        // [WHEN] Open purchase order statistics
+        PurchaseOrderPage.PurchaseOrderStatistics.Invoke();
+        // [THEN] "Non-Deductible VAT Amount" is 7.4 in statistics
+        // [THEN] "VAT Amount" is 9.9 in statistics
+        // Verifies in VATAmountLinesCheckOrVerifyNonDedVATAmtModalPageHandler
+
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.CalcSums("VAT Difference", "Non-Deductible VAT Diff.");
+        // [THEN] "VAT Difference" is -0.01  in the purchase line
+        PurchaseLine.TestField("VAT Difference", -MaxVATDifference);
+        // [THEN] "Non-Deductible VAT Diff." is -0.01 in the purchase line
+        PurchaseLine.TestField("Non-Deductible VAT Diff.", -MaxVATDifference);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsDrillDownInvLinesModalPageHandler,VATAmountLinesCheckOrVerifyNonDedVATAmtModalPageHandler')]
     procedure NonDedVATAmtInPurchOrderToBePartiallyPosted()
@@ -767,6 +845,82 @@ codeunit 134287 "Non-Deductible VAT Statistics"
         LibraryVariableStorage.Enqueue(VATAmount);
         // [WHEN] Open purchase order statistics
         PurchaseOrderPage.Statistics.Invoke();
+        // [THEN] "Non-Deductible VAT Amount" is 7.4 in statistics
+        // [THEN] "VAT Amount" is 9.9 in statistics
+        // Verifies in VATAmountLinesCheckOrVerifyNonDedVATAmtModalPageHandler
+
+        PurchaseLine.Find();
+        // [THEN] "VAT Difference" is -0.01  in the purchase line
+        PurchaseLine.TestField("VAT Difference", -MaxVATDifference);
+        // [THEN] "Amount Including VAT" is 119.99 in the purchase line
+        PurchaseLine.TestField("Amount Including VAT", OriginalPurchaseLine."Amount Including VAT" - MaxVATDifference);
+        // [THEN] "Non-Deductible VAT" is 14.99 in the purchase line
+        PurchaseLine.TestField("Non-Deductible VAT Amount", OriginalPurchaseLine."Non-Deductible VAT Amount" - MaxVATDifference);
+        // [THEN] "Non-Deductible VAT Diff." is -0.01 in the purchase line
+        PurchaseLine.TestField("Non-Deductible VAT Diff.", -MaxVATDifference);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsDrillDownInvLinesPageHandler,VATAmountLinesCheckOrVerifyNonDedVATAmtModalPageHandler')]
+    procedure NonDedVATAmtInPurchaseOrderToBePartiallyPosted()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        OriginalPurchaseLine: Record "Purchase Line";
+        PurchaseOrderPage: TestPage "Purchase Order";
+        Quantity: Integer;
+        MaxVATDifference: Decimal;
+        NonDedVATAmount: Decimal;
+        VATAmount: Decimal;
+    begin
+        // [SCENARIO] The "VAT Amount" and "Non-Deductible VAT amount" are correct for the purchase order with "Qty To Invoice" changed for partial posting
+
+        Initialize();
+        Quantity := 2;
+        MaxVATDifference := LibraryRandom.RandDecInDecimalRange(0.1, 1, 2);
+        // [GIVEN] "Allow VAT Difference" is enabled in Purchases Setup
+        // [GIVEN] "Max VAT Difference" is 0.01 in General Ledger Setup
+        SetAllowVATDifference(MaxVATDifference);
+        // [GIVEN] Normal VAT Posting Setup with "VAT %" = 20 and Non-Deductible VAT %" = 75
+        LibraryNonDeductibleVAT.CreateNonDeductibleNormalVATPostingSetup(VATPostingSetup);
+        // [GIVEN] Purchase order with Quantity = 2, Amount = 100. VAT Amount = 20. Non-Deductible VAT Amount = 15
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Order,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(
+            PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"),
+            LibraryRandom.RandDec(100, 2), Quantity);
+        // [GIVEN] Set "Qty to Invoice" = 1. For invoicing the numbers will be: VAT Amount = 10. Non-Deductible VAT Amount = 7.5
+        OriginalPurchaseLine := PurchaseLine;
+        PurchaseLine.Validate("Qty. to Invoice", Quantity / 2);
+        PurchaseLine.Modify(true);
+        NonDedVATAmount := (PurchaseLine."Amount Including VAT" - PurchaseLine.Amount) * VATPostingSetup."Non-Deductible VAT %" / 100;
+        NonDedVATAmount := Round(NonDedVATAmount * PurchaseLine."Qty. to Invoice" / PurchaseLine.Quantity) - MaxVATDifference;
+        VATAmount := Round((PurchaseLine."Amount Including VAT" - PurchaseLine.Amount) * PurchaseLine."Qty. to Invoice" / PurchaseLine.Quantity) - MaxVATDifference;
+
+        // Variables to set value in statistics
+        LibraryVariableStorage.Enqueue(false); // set value
+        LibraryVariableStorage.Enqueue(NonDedVATAmount);
+        LibraryVariableStorage.Enqueue(VATAmount);
+
+        // [GIVEN] Open purchase order page
+        PurchaseOrderPage.OpenEdit();
+        PurchaseOrderPage.Filter.SetFilter("No.", PurchaseHeader."No.");
+        // [GIVEN] Open statistics of the invoice
+        PurchaseOrderPage.PurchaseOrderStatistics.Invoke();
+        // [GIVEN] Change "Non-Deductible VAT Amount" to 7.4 in statistics
+        // [GIVEN] Change "VAT Amount" to 9.9 in statistics
+        // Sets in VATAmountLinesCheckOrVerifyNonDedVATAmtModalPageHandler
+
+        // Variables to set value in statistics
+        LibraryVariableStorage.Enqueue(true); // verify value
+        LibraryVariableStorage.Enqueue(NonDedVATAmount);
+        LibraryVariableStorage.Enqueue(VATAmount);
+        // [WHEN] Open purchase order statistics
+        PurchaseOrderPage.PurchaseOrderStatistics.Invoke();
         // [THEN] "Non-Deductible VAT Amount" is 7.4 in statistics
         // [THEN] "VAT Amount" is 9.9 in statistics
         // Verifies in VATAmountLinesCheckOrVerifyNonDedVATAmtModalPageHandler
@@ -1457,8 +1611,17 @@ codeunit 134287 "Non-Deductible VAT Statistics"
         end;
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     procedure PurchaseOrderStatisticsDrillDownInvLinesModalPageHandler(var PurchaseOrderStatisticsPage: TestPage "Purchase Order Statistics")
+    begin
+        PurchaseOrderStatisticsPage.NoOfVATLines_Invoicing.Drilldown();
+    end;
+#endif
+
+    [PageHandler]
+    procedure PurchaseOrderStatisticsDrillDownInvLinesPageHandler(var PurchaseOrderStatisticsPage: TestPage "Purchase Order Statistics")
     begin
         PurchaseOrderStatisticsPage.NoOfVATLines_Invoicing.Drilldown();
     end;

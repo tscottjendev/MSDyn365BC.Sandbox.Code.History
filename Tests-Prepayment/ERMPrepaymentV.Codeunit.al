@@ -37,6 +37,8 @@
         PrepaymentInvoicesNotPaidErr: Label 'You cannot get lines until you have posted all related prepayment invoices to mark the prepayment as paid.';
         LineAmountMustMatchErr: Label 'Line Amount must match.';
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -61,6 +63,35 @@
 
         // Exercise: Open Purchase Order Statistics Page.
         OpenPurchaseOrderStatistics(PurchaseLine."Document No.");
+
+        // Verify:  and Verify VAT Amount field through Page Handler(PurchaseOrderStatisticsHandler).
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchOrderStatisticsWithoutCompressPrepmt()
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // Check VAT Amount on Purchase Order Statistics Page after Create Purchase Order with Prepayment 100% and  Compress Prepayment as FALSE.
+
+        // Setup: Find VAT Posting Setup, create Purchase Order with Prepayment.
+        Initialize();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreatePurchaseDocument(PurchaseLine, VATPostingSetup, false);
+
+        // Update Prepayment Account and Enqueue VAT Amount and Amount Including VAT.
+        UpdatePurchasePrepmtAccount(
+          CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), PurchaseLine."Gen. Bus. Posting Group",
+          PurchaseLine."Gen. Prod. Posting Group");
+        LibraryVariableStorage.Enqueue(PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100);
+        LibraryVariableStorage.Enqueue(PurchaseLine."Amount Including VAT");
+
+        // Exercise: Open Purchase Order Statistics Page.
+        OpenPurchOrderStatistics(PurchaseLine."Document No.");
 
         // Verify:  and Verify VAT Amount field through Page Handler(PurchaseOrderStatisticsHandler).
     end;
@@ -678,6 +709,8 @@
         VerifyDimensionSetEntryIsExists(DimensionValueJob2."Dimension Code", DimensionValueJob2.Code);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrdStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -705,6 +738,42 @@
 
         // [WHEN] Open "Purchase Order Statistic"
         OpenPurchaseOrderStatistics(PurchaseHeader."No.");
+
+        // [THEN] Default Dimension set was created
+        VerifyDimensionSetEntryIsExists(DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // Tear down
+        TearDownVATPostingSetup(PurchaseHeader."VAT Bus. Posting Group");
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchOrdStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateDfltDimSetForPurchasePrepmtWithDfltDimInPurchPrepmtAcc()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DimensionValue: Record "Dimension Value";
+    begin
+        // [FEATURE] [Sales] [Default Dimension]
+        // [SCENARIO 363725] Default Dimension Set is created on open "Purchase Order Statistics" where prepayment account has default dimensions and order has posted prepayment invoice.
+
+        Initialize();
+        // [GIVEN] Purchase order with prepayment
+        CreatePartialPurchOrder(PurchaseHeader, PurchaseLine);
+
+        // [GIVEN] Posting group with G/L Account with default dimension
+        CreateDefaultDimensionAndUpdatePostingGroup(DimensionValue, PurchaseHeader."Gen. Bus. Posting Group");
+
+        // [GIVEN] Posted Prepayment Invoice
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [GIVEN] Default Dimension set not exists
+        VerifyDimensionSetEntryIsNotExists(DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [WHEN] Open "Purchase Order Statistic"
+        OpenPurchOrderStatistics(PurchaseHeader."No.");
 
         // [THEN] Default Dimension set was created
         VerifyDimensionSetEntryIsExists(DimensionValue."Dimension Code", DimensionValue.Code);
@@ -2203,6 +2272,8 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrdStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -2239,6 +2310,50 @@
 
         // [WHEN] Open Purchase Order Statistics page.
         OpenPurchaseOrderStatistics(PurchaseHeader."No.");
+
+        // [THEN] Line Amount on the statistics page is equal to line amount on the purchase line.
+        Assert.AreEqual(PurchaseLine.Amount, LibraryVariableStorage.DequeueDecimal(), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchOrdStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure AmountOnStatisticsPageEqualToSumOfPurchaseLinesAfterPostingPrepmt()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Order] [Statistics] [Line Discount]
+        // [SCENARIO 335740] Line Amount on Purchase Order Statistics page is equal to sum of line amounts in purchase order, for which line amount is increased after 100% prepayment is invoiced.
+        Initialize();
+
+        // [GIVEN] Purchase order set up for 100% prepayment.
+        // [GIVEN] Set line discount 10% on the purchase line.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Prepayment %", 100);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Modify(true);
+        LibraryERM.UpdatePurchPrepmtAccountVATGroup(
+            PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
+
+        // [GIVEN] Post prepayment invoice.
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [GIVEN] Reopen the purchase order and reset line discount to 0%.
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        PurchaseLine.Find();
+        PurchaseLine.Validate("Line Discount %", 0);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Open Purchase Order Statistics page.
+        OpenPurchOrderStatistics(PurchaseHeader."No.");
 
         // [THEN] Line Amount on the statistics page is equal to line amount on the purchase line.
         Assert.AreEqual(PurchaseLine.Amount, LibraryVariableStorage.DequeueDecimal(), '');
@@ -5677,6 +5792,8 @@
         exit(Job."No.");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenPurchaseOrderStatistics(No: Code[20])
     var
         PurchaseOrder: TestPage "Purchase Order";
@@ -5684,6 +5801,16 @@
         PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
         PurchaseOrder.Statistics.Invoke();
+    end;
+#endif
+
+    local procedure OpenPurchOrderStatistics(No: Code[20])
+    var
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.FILTER.SetFilter("No.", No);
+        PurchaseOrder.PurchaseOrderStatistics.Invoke();
     end;
 
     local procedure OpenPstdPurchCrMemorStatistics(No: Code[20])
@@ -6596,9 +6723,25 @@
         PurchCreditMemoStatistics.AmountInclVAT.AssertEquals(Format(TotalAmount1, 0, '<Precision,2><Standard Format,0>'));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    var
+        VATAmount: Variant;
+        TotalAmount1: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(VATAmount);
+        LibraryVariableStorage.Dequeue(TotalAmount1);
+        PurchaseOrderStatistics."VATAmount[1]".AssertEquals(VATAmount);
+        PurchaseOrderStatistics.TotalInclVAT_Invoicing.AssertEquals(Format(TotalAmount1, 0, '<Precision,2><Standard Format,0>'));
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     var
         VATAmount: Variant;
         TotalAmount1: Variant;
@@ -6670,9 +6813,19 @@
         SalesCreditMemoStatistics.AmountInclVAT.AssertEquals(Format(TotalAmount1, 0, '<Precision,2><Standard Format,0>'));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrdStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    begin
+        LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.LineAmountGeneral.Value);
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchOrdStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
         LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.LineAmountGeneral.Value);
     end;
