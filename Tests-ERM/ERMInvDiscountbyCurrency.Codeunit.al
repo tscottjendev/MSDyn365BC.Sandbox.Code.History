@@ -259,6 +259,8 @@ codeunit 134079 "ERM Inv Discount by Currency"
           StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsHandler')]
     [Scope('OnPrem')]
@@ -288,6 +290,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         VerifyPurchLineInvDiscAmount(PurchaseHeader."No.", PurchaseLine2."No.", InvDiscAmountForLine);
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsHandler')]
     [Scope('OnPrem')]
@@ -313,6 +316,75 @@ codeunit 134079 "ERM Inv Discount by Currency"
         InvoiceDiscountAmount := PurchaseLine."Line Amount";
         Amount := Round(InvoiceDiscountAmount / 2);
         OpenPurchaseOrderStatistics(PurchaseHeader."No.");
+        UpdateQtyToReceive(PurchaseLine2, PurchaseHeader."No.");
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+
+        // Exercise: Post Purchase Order and find GL Entry.
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        FindGLEntry(GLEntry, PostedDocumentNo, GeneralPostingSetup."Purch. Inv. Disc. Account");
+
+        // Verify: Verify GL Entry for Invoice Discount Amount.
+        Assert.AreNearlyEqual(
+          -Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), -Amount, GLEntry.TableCaption()));
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure InvDiscountAmountOnPurchLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        InvDiscAmountForLine: Decimal;
+    begin
+        // Check Invoice Discount Amount on Purchase Line after entering Invoice Discount Amount in Purchase Order Statistics window.
+
+        // Setup: Create Purchase Order and add new Purchase Line.
+        Initialize();
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+        CreateAndModifyPurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine.Quantity, PurchaseLine."Direct Unit Cost");
+
+        // InvDiscountAmount is a global variable which is used to assign Invoice Discount Amount on Statistics page. Assigning value to InvDiscountAmount to make sure Inv. Discount Amount is always less than total amount of Order.
+        InvoiceDiscountAmount := PurchaseLine."Line Amount";
+        InvDiscAmountForLine := Round(InvoiceDiscountAmount / 2);
+
+        // Exercise: Open Purchase Order Statistics Page and assign Invoice Discount Amount in Handler (PurchaseOrderStatisticsPageHandler).
+        OpenPurchaseOrderStats(PurchaseHeader."No.");
+
+        // Verify: Verify Invoice Discount Amount on Purchase Line.
+        VerifyPurchLineInvDiscAmount(PurchaseHeader."No.", PurchaseLine."No.", InvDiscAmountForLine);
+        VerifyPurchLineInvDiscAmount(PurchaseHeader."No.", PurchaseLine2."No.", InvDiscAmountForLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure InvDiscountForPartialPurchOrder()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLEntry: Record "G/L Entry";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        PostedDocumentNo: Code[20];
+        Amount: Decimal;
+    begin
+        // Check Amount on GL Entry after posting Purchase Order with partial Invoice.
+
+        // Setup: Create Purchase Order with Random Quantity and Direct Unit Cost.
+        Initialize();
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+        CreateAndModifyPurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine.Quantity, PurchaseLine."Direct Unit Cost");
+
+        // InvDiscountAmount is a global variable which is used to assign Invoice Discount Amount on Statistics page (PurchaseOrderStatisticsPageHandler).
+        // Assigning value to InvDiscountAmount to make sure Inv. Discount Amount is always less than total amount of Order.
+        InvoiceDiscountAmount := PurchaseLine."Line Amount";
+        Amount := Round(InvoiceDiscountAmount / 2);
+        OpenPurchaseOrderStats(PurchaseHeader."No.");
         UpdateQtyToReceive(PurchaseLine2, PurchaseHeader."No.");
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
@@ -703,6 +775,8 @@ codeunit 134079 "ERM Inv Discount by Currency"
         SalesOrder.SalesOrderStatistics.Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenPurchaseOrderStatistics(No: Code[20])
     var
         PurchaseOrder: TestPage "Purchase Order";
@@ -710,6 +784,16 @@ codeunit 134079 "ERM Inv Discount by Currency"
         PurchaseOrder.OpenView();
         PurchaseOrder.FILTER.SetFilter("No.", No);
         PurchaseOrder.Statistics.Invoke();
+    end;
+#endif
+
+    local procedure OpenPurchaseOrderStats(No: Code[20])
+    var
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        PurchaseOrder.OpenView();
+        PurchaseOrder.FILTER.SetFilter("No.", No);
+        PurchaseOrder.PurchaseOrderStatistics.Invoke();
     end;
 
     local procedure UpdateQtyToShip(SalesLine: Record "Sales Line"; DocumentNo: Code[20])
@@ -808,6 +892,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         end;
     end;
 #endif
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure GeneralSalesOrderStatisticsHandlerNM(var SalesOrderStatistics: TestPage "Sales Order Statistics")
@@ -825,9 +910,19 @@ codeunit 134079 "ERM Inv Discount by Currency"
         end;
     end;
 
+#if not CLEAN26
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    begin
+        PurchaseOrderStatistics.InvDiscountAmount_General.SetValue(InvoiceDiscountAmount);
+        PurchaseOrderStatistics.OK().Invoke();
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
         PurchaseOrderStatistics.InvDiscountAmount_General.SetValue(InvoiceDiscountAmount);
         PurchaseOrderStatistics.OK().Invoke();
