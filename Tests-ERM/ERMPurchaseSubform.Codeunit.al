@@ -41,6 +41,8 @@ codeunit 134394 "ERM Purchase Subform"
         MustMatchErr: Label '%1 and %2 must match.';
         InvoiceDiscPct: Label 'Invoice Disc. Pct.';
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -63,7 +65,33 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckOrderStatistics(PurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderAddingLinesUpdatesTotalsStatistics()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        ItemQuantity: Decimal;
+        ItemLastDirectCost: Decimal;
+    begin
+        Initialize();
+        ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
+        ItemLastDirectCost := LibraryRandom.RandDecInRange(1, 100, 2);
+
+        CreateVendor(Vendor);
+        CreateItem(Item, ItemLastDirectCost);
+
+        CreateOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseOrder);
+
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -86,7 +114,33 @@ codeunit 134394 "ERM Purchase Subform"
         ValidateOrderInvoiceDiscountAmountIsReadOnly(PurchaseOrder);
         CheckOrderStatistics(PurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderAddingLineUpdatesInvoiceDiscountWhenInvoiceDiscountTypeIsPerc()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+
+        CreateOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseOrder);
+        // prepare dialog
+        LibraryVariableStorage.Enqueue('Do you');
+        LibraryVariableStorage.Enqueue(true);
+        PurchaseOrder.CalculateInvoiceDiscount.Invoke();
+
+        ValidateOrderInvoiceDiscountAmountIsReadOnly(PurchaseOrder);
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -128,7 +182,52 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderModifyingLineUpdatesTotalsAndInvoiceDiscTypePct()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+
+        CreateOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseOrder);
+
+        PurchaseOrder.PurchLines.First();
+        ItemQuantity := ItemQuantity * 2;
+        PurchaseOrder.PurchLines.Quantity.SetValue(ItemQuantity);
+        PurchaseOrder.PurchLines.Next();
+        PurchaseOrder.PurchLines.First();
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+
+        PurchaseOrder.PurchLines."Line Amount".SetValue(
+          Round(PurchaseOrder.PurchLines."Line Amount".AsDecimal() / 2, 1));
+        PurchaseOrder.PurchLines.Next();
+        PurchaseOrder.PurchLines.First();
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+
+        PurchaseOrder.PurchLines."No.".SetValue('');
+        PurchaseOrder.PurchLines.Next();
+        PurchaseOrder.PurchLines.First();
+
+        ValidateOrderInvoiceDiscountAmountIsReadOnly(PurchaseOrder);
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Document No.", PurchaseOrder."No.".Value);
+        PurchaseLine.FindFirst();
+        LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -164,7 +263,46 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderModifyingLineUpdatesTotalsAndSetsInvDiscTypeAmtToZero()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
+
+        CreateOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseOrder);
+
+        PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        PurchaseOrder.PurchLines.First();
+        ItemQuantity := ItemQuantity * 2;
+        PurchaseOrder.PurchLines.Quantity.SetValue(ItemQuantity);
+        PurchaseOrder.PurchLines.Next();
+        PurchaseOrder.PurchLines.First();
+
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+
+        PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Document No.", PurchaseOrder."No.".Value);
+        PurchaseLine.FindFirst();
+        LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -191,7 +329,37 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckOrderStatistics(PurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderChangingSellToVendorToVendorWithoutDiscountsSetDiscAndCustDiscPctToZero()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        NewVendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+        CreateVendor(NewVendor);
+
+        CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
+
+        AnswerYesToAllConfirmDialogs();
+        PurchaseOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
+        PurchaseOrder.PurchLines.Next();
+
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -214,7 +382,33 @@ codeunit 134394 "ERM Purchase Subform"
         ValidateOrderInvoiceDiscountAmountIsReadOnly(PurchaseOrder);
         CheckOrderStatistics(PurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderDiscTypePercentageIsSetWhenInvoiceIsOpened()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+
+        CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+
+        OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
+
+        ValidateOrderInvoiceDiscountAmountIsReadOnly(PurchaseOrder);
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -237,7 +431,33 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckOrderStatistics(PurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderDiscountTypeAmtIsSetWhenInvoiceIsOpened()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
+
+        CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
+        PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -268,7 +488,41 @@ codeunit 134394 "ERM Purchase Subform"
         ValidateOrderInvoiceDiscountAmountIsReadOnly(PurchaseOrder);
         CheckOrderStatistics(PurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderChangingSellToVendorRecalculatesForInvoiceDiscountTypePct()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        NewVendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        NewCustDiscPct: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+        NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
+        CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
+
+        CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
+
+        AnswerYesToAllConfirmDialogs();
+
+        PurchaseOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
+        PurchaseOrder.PurchLines.Next();
+
+        ValidateOrderInvoiceDiscountAmountIsReadOnly(PurchaseOrder);
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -299,7 +553,41 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckOrderStatistics(PurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderChangingSellToVendorSetsDiscountToZeroForInvoiceDiscountTypeAmt()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        NewVendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+        NewCustDiscPct: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
+        NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
+
+        CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
+        PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        AnswerYesToAllConfirmDialogs();
+        PurchaseOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
+        PurchaseOrder.PurchLines.Next();
+
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -325,7 +613,36 @@ codeunit 134394 "ERM Purchase Subform"
         ValidateOrderInvoiceDiscountAmountIsReadOnly(PurchaseOrder);
         CheckOrderStatistics(PurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderModifyindFieldOnHeaderUpdatesTotalsAndDiscountsForInvoiceDiscountTypePct()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+
+        CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+
+        OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
+
+        AnswerYesToConfirmDialog();
+        PurchaseOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
+
+        ValidateOrderInvoiceDiscountAmountIsReadOnly(PurchaseOrder);
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -350,6 +667,33 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         CheckOrderStatistics(PurchaseOrder);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderModifyindFieldOnHeaderSetsDiscountToZeroForInvoiceDiscountTypeAmt()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
+
+        CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
+        PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        AnswerYesToConfirmDialog();
+        PurchaseOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
+
+        CheckPurchaseOrderStatistics(PurchaseOrder);
     end;
 
     [Test]
@@ -427,6 +771,8 @@ codeunit 134394 "ERM Purchase Subform"
         OrderCheckCurrencyOnTotals(PurchaseOrder, Vendor."Currency Code");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -451,6 +797,33 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchaseOrder.CalculateInvoiceDiscount.Invoke();
         CheckOrderStatistics(PurchaseOrder);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderApplyManualDisc()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+        SetAllowManualDisc();
+
+        CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
+
+        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        PurchaseOrder.CalculateInvoiceDiscount.Invoke();
+        CheckPurchaseOrderStatistics(PurchaseOrder);
     end;
 
 #if not CLEAN26
@@ -2680,6 +3053,8 @@ codeunit 134394 "ERM Purchase Subform"
         CheckPurchaseQuoteStatistics(PurchaseQuote);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler,PurchaseOrderHandler')]
     [Scope('OnPrem')]
@@ -2715,7 +3090,46 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckOrderStatistics(PurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler,PurchaseOrderHandler')]
+    [Scope('OnPrem')]
+    procedure QuoteMakeOrderWithDisAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseQuote: TestPage "Purchase Quote";
+        PurchaseOrder: TestPage "Purchase Order";
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+        NumberOfLines: Integer;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
+
+        CreateQuoteWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+
+        OpenPurchaseQuote(PurchaseHeader, PurchaseQuote);
+
+        AnswerYesToAllConfirmDialogs();
+        LibraryVariableStorage.Enqueue(QuoteMsg);
+        PurchaseQuote.MakeOrder.Invoke();
+
+        Clear(PurchaseHeader);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindFirst();
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler,PurchaseOrderHandler')]
     [Scope('OnPrem')]
@@ -2749,6 +3163,42 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseOrder.GotoRecord(PurchaseHeader);
 
         CheckOrderStatistics(PurchaseOrder);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler,PurchaseOrderHandler')]
+    [Scope('OnPrem')]
+    procedure QuoteMakeOrderWithDiscountPercentage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseQuote: TestPage "Purchase Quote";
+        PurchaseOrder: TestPage "Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+
+        CreateQuoteWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+
+        OpenPurchaseQuote(PurchaseHeader, PurchaseQuote);
+
+        AnswerYesToAllConfirmDialogs();
+        LibraryVariableStorage.Enqueue(QuoteMsg);
+        PurchaseQuote.MakeOrder.Invoke();
+
+        Clear(PurchaseHeader);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindFirst();
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+
+        CheckPurchaseOrderStatistics(PurchaseOrder);
     end;
 
     [Test]
@@ -2851,6 +3301,8 @@ codeunit 134394 "ERM Purchase Subform"
         Assert.IsTrue(PurchaseQuote.PurchLines."Unit of Measure Code".Editable(), UnitofMeasureCodeIsEditableMsg);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2873,7 +3325,33 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderAddingLinesUpdatesTotalsStats()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        ItemQuantity: Decimal;
+        ItemLastDirectCost: Decimal;
+    begin
+        Initialize();
+        ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
+        ItemLastDirectCost := LibraryRandom.RandDecInRange(1, 100, 2);
+
+        CreateVendor(Vendor);
+        CreateItem(Item, ItemLastDirectCost);
+
+        CreateBlanketOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, BlanketPurchaseOrder);
+
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2892,7 +3370,29 @@ codeunit 134394 "ERM Purchase Subform"
         ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(BlanketPurchaseOrder);
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderAddingLineUpdatesInvoiceDiscountWhenInvoiceDiscTypeIsPercentage()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+
+        CreateBlanketOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, BlanketPurchaseOrder);
+
+        ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(BlanketPurchaseOrder);
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2939,7 +3439,57 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderModifyingLineUpdatesTotalsAndInvoiceDiscTypePct()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseLine: Record "Purchase Line";
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+
+        CreateBlanketOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, BlanketPurchaseOrder);
+
+        BlanketPurchaseOrder.PurchLines.First();
+        ItemQuantity := ItemQuantity * 2;
+        BlanketPurchaseOrder.PurchLines.Quantity.SetValue(ItemQuantity);
+        BlanketPurchaseOrder.PurchLines.Next();
+        BlanketPurchaseOrder.PurchLines.First();
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+
+        BlanketPurchaseOrder.PurchLines."Line Amount".SetValue(
+          Round(BlanketPurchaseOrder.PurchLines."Line Amount".AsDecimal() / 2, 1));
+        BlanketPurchaseOrder.PurchLines.Next();
+        BlanketPurchaseOrder.PurchLines.First();
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+
+        BlanketPurchaseOrder.PurchLines."Line Discount %".SetValue('0');
+        BlanketPurchaseOrder.PurchLines.Next();
+        BlanketPurchaseOrder.PurchLines.First();
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+
+        BlanketPurchaseOrder.PurchLines."No.".SetValue('');
+        BlanketPurchaseOrder.PurchLines.Next();
+        BlanketPurchaseOrder.PurchLines.First();
+
+        ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(BlanketPurchaseOrder);
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Blanket Order");
+        PurchaseLine.SetRange("Document No.", BlanketPurchaseOrder."No.".Value);
+        PurchaseLine.FindFirst();
+        LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -2975,7 +3525,46 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderModifyingLineUpdatesTotalsAndSetsInvDiscTypeAmtToZero()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
+
+        CreateBlanketOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, BlanketPurchaseOrder);
+
+        BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        BlanketPurchaseOrder.PurchLines.First();
+        ItemQuantity := ItemQuantity * 2;
+        BlanketPurchaseOrder.PurchLines.Quantity.SetValue(ItemQuantity);
+        BlanketPurchaseOrder.PurchLines.Next();
+        BlanketPurchaseOrder.PurchLines.First();
+
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+
+        BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Blanket Order");
+        PurchaseLine.SetRange("Document No.", BlanketPurchaseOrder."No.".Value);
+        PurchaseLine.FindFirst();
+        LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3002,7 +3591,37 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderChangingSellToVendorToVendorWithoutDiscountsSetDiscAndCustDiscPctToZero()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        NewVendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+        CreateVendor(NewVendor);
+
+        CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
+
+        AnswerYesToAllConfirmDialogs();
+        BlanketPurchaseOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
+        BlanketPurchaseOrder.PurchLines.Next();
+
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3025,7 +3644,33 @@ codeunit 134394 "ERM Purchase Subform"
         ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(BlanketPurchaseOrder);
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure BlanketPurchOrderDiscountTypePercentageIsSetWhenInvoiceIsOpened()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+
+        CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+
+        OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
+
+        ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(BlanketPurchaseOrder);
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3048,7 +3693,33 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderDiscTypeAmountIsSetWhenInvoiceIsOpened()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
+
+        CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
+        BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3079,7 +3750,41 @@ codeunit 134394 "ERM Purchase Subform"
         ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(BlanketPurchaseOrder);
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderChangingSellToVendorRecalculatesForInvoiceDiscTypePercentage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        NewVendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        NewCustDiscPct: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+        NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
+        CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
+
+        CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
+
+        AnswerYesToAllConfirmDialogs();
+
+        BlanketPurchaseOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
+        BlanketPurchaseOrder.PurchLines.Next();
+
+        ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(BlanketPurchaseOrder);
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3110,7 +3815,41 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderChangingSellToVendorSetsDiscountToZeroForInvoiceDisTypeAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        NewVendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+        NewCustDiscPct: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
+        NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
+
+        CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
+        BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        AnswerYesToAllConfirmDialogs();
+        BlanketPurchaseOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
+        BlanketPurchaseOrder.PurchLines.Next();
+
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3136,7 +3875,36 @@ codeunit 134394 "ERM Purchase Subform"
         ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(BlanketPurchaseOrder);
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderModifyindFieldOnHeaderUpdatesTotalsAndDiscountsForInvoiceDiscTypePercentage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+
+        CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+
+        OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
+
+        AnswerYesToConfirmDialog();
+        BlanketPurchaseOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
+
+        ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(BlanketPurchaseOrder);
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3162,7 +3930,36 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderModifyindFieldOnHeaderSetsDiscountToZeroForInvoiceDiscTypeAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
+
+        CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
+        BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        AnswerYesToConfirmDialog();
+        BlanketPurchaseOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
+
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler,BlanketOrderMessageHandler')]
     [Scope('OnPrem')]
@@ -3198,7 +3995,46 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckOrderStatistics(PurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler,BlanketOrderMessageHandler')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderMakeOrderWithDiscAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        PurchaseOrder: TestPage "Purchase Order";
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+        NumberOfLines: Integer;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
+
+        CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+
+        OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
+
+        AnswerYesToAllConfirmDialogs();
+        LibraryVariableStorage.Enqueue(BlanketMsg);
+        BlanketPurchaseOrder.MakeOrder.Invoke();
+
+        Clear(PurchaseHeader);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindFirst();
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler,BlanketOrderMessageHandler')]
     [Scope('OnPrem')]
@@ -3233,6 +4069,42 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckOrderStatistics(PurchaseOrder);
     end;
+#endif
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler,BlanketOrderMessageHandler')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderMakeOrderWithDiscPrecentage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        PurchaseOrder: TestPage "Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+
+        CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+
+        OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
+
+        AnswerYesToAllConfirmDialogs();
+        LibraryVariableStorage.Enqueue(BlanketMsg);
+        BlanketPurchaseOrder.MakeOrder.Invoke();
+
+        Clear(PurchaseHeader);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindFirst();
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+
+        CheckPurchaseOrderStatistics(PurchaseOrder);
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -3258,6 +4130,8 @@ codeunit 134394 "ERM Purchase Subform"
         BlanketPurchaseOrderCheckCurrencyOnTotals(BlanketPurchaseOrder, Vendor."Currency Code");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3283,7 +4157,36 @@ codeunit 134394 "ERM Purchase Subform"
         BlanketPurchaseOrder.CalculateInvoiceDiscount.Invoke();
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderApplyManualDisc()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+        SetAllowManualDisc();
+
+        CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
+
+        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        BlanketPurchaseOrder.CalculateInvoiceDiscount.Invoke();
+        CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3306,7 +4209,33 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckReturnOrderStatistics(PurchaseReturnOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReturnPurchOrderAddingLinesUpdatesTotals()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        ItemQuantity: Decimal;
+        ItemLastDirectCost: Decimal;
+    begin
+        Initialize();
+        ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
+        ItemLastDirectCost := LibraryRandom.RandDecInRange(1, 100, 2);
+
+        CreateVendor(Vendor);
+        CreateItem(Item, ItemLastDirectCost);
+
+        CreateReturnOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseReturnOrder);
+
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3325,7 +4254,29 @@ codeunit 134394 "ERM Purchase Subform"
         ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(PurchaseReturnOrder);
         CheckReturnOrderStatistics(PurchaseReturnOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReturnOrderAddingLineUpdatesInvoiceDiscountWhenInvoiceDiscTypeIsPercentage()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+
+        CreateReturnOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseReturnOrder);
+
+        ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(PurchaseReturnOrder);
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3372,7 +4323,57 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReturnOrderModifyingLineUpdatesTotalsAndInvDiscTypePercentage()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseLine: Record "Purchase Line";
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+
+        CreateReturnOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseReturnOrder);
+
+        PurchaseReturnOrder.PurchLines.First();
+        ItemQuantity := ItemQuantity * 2;
+        PurchaseReturnOrder.PurchLines.Quantity.SetValue(ItemQuantity);
+        PurchaseReturnOrder.PurchLines.Next();
+        PurchaseReturnOrder.PurchLines.First();
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
+
+        PurchaseReturnOrder.PurchLines."Line Amount".SetValue(
+          Round(PurchaseReturnOrder.PurchLines."Line Amount".AsDecimal() / 2, 1));
+        PurchaseReturnOrder.PurchLines.Next();
+        PurchaseReturnOrder.PurchLines.First();
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
+
+        PurchaseReturnOrder.PurchLines."Line Discount %".SetValue('0');
+        PurchaseReturnOrder.PurchLines.Next();
+        PurchaseReturnOrder.PurchLines.First();
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
+
+        PurchaseReturnOrder.PurchLines."No.".SetValue('');
+        PurchaseReturnOrder.PurchLines.Next();
+        PurchaseReturnOrder.PurchLines.First();
+
+        ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(PurchaseReturnOrder);
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
+
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Return Order");
+        PurchaseLine.SetRange("Document No.", PurchaseReturnOrder."No.".Value);
+        PurchaseLine.FindFirst();
+        LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3408,7 +4409,46 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReturnOrderModifyingLineUpdatesTotalsAndSetsInvDiscTypeAmtToZero()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
+
+        CreateReturnOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseReturnOrder);
+
+        PurchaseReturnOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        PurchaseReturnOrder.PurchLines.First();
+        ItemQuantity := ItemQuantity * 2;
+        PurchaseReturnOrder.PurchLines.Quantity.SetValue(ItemQuantity);
+        PurchaseReturnOrder.PurchLines.Next();
+        PurchaseReturnOrder.PurchLines.First();
+
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
+
+        PurchaseReturnOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
+
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Return Order");
+        PurchaseLine.SetRange("Document No.", PurchaseReturnOrder."No.".Value);
+        PurchaseLine.FindFirst();
+        LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3435,7 +4475,37 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckReturnOrderStatistics(PurchaseReturnOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReturnOrderChangingSellToVendorToVendorWithoutDiscountsSetDiscAndCustDiscPctToZero()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        NewVendor: Record Vendor;
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+        CreateVendor(NewVendor);
+
+        CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenReturnOrder(PurchaseHeader, PurchaseReturnOrder);
+
+        AnswerYesToAllConfirmDialogs();
+        PurchaseReturnOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
+        PurchaseReturnOrder.PurchLines.Next();
+
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3458,7 +4528,33 @@ codeunit 134394 "ERM Purchase Subform"
         ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(PurchaseReturnOrder);
         CheckReturnOrderStatistics(PurchaseReturnOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReturnOrderDiscountTypePercIsSetWhenInvoiceIsOpened()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+
+        CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+
+        OpenReturnOrder(PurchaseHeader, PurchaseReturnOrder);
+
+        ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(PurchaseReturnOrder);
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3481,7 +4577,33 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckReturnOrderStatistics(PurchaseReturnOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReturnOrderDiscTypeAmountIsSetWhenInvoiceIsOpened()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
+
+        CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenReturnOrder(PurchaseHeader, PurchaseReturnOrder);
+        PurchaseReturnOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3512,7 +4634,42 @@ codeunit 134394 "ERM Purchase Subform"
         ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(PurchaseReturnOrder);
         CheckReturnOrderStatistics(PurchaseReturnOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReturnOrderChangingSellToVendorRecalculatesForInvoiceDiscountTypePerc()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        NewVendor: Record Vendor;
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        NewCustDiscPct: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+        NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
+        CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
+
+        CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenReturnOrder(PurchaseHeader, PurchaseReturnOrder);
+
+        AnswerYesToAllConfirmDialogs();
+
+        PurchaseReturnOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
+        PurchaseReturnOrder.PurchLines.Next();
+
+        ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(PurchaseReturnOrder);
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
+    end;
+
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3543,7 +4700,41 @@ codeunit 134394 "ERM Purchase Subform"
 
         CheckReturnOrderStatistics(PurchaseReturnOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReturnOrderChangingSellToVendorSetsDiscountToZeroForInvoiceDiscTypeAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        NewVendor: Record Vendor;
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+        NewCustDiscPct: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
+        NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
+
+        CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenReturnOrder(PurchaseHeader, PurchaseReturnOrder);
+        PurchaseReturnOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        AnswerYesToAllConfirmDialogs();
+        PurchaseReturnOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
+        PurchaseReturnOrder.PurchLines.Next();
+
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3569,7 +4760,36 @@ codeunit 134394 "ERM Purchase Subform"
         ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(PurchaseReturnOrder);
         CheckReturnOrderStatistics(PurchaseReturnOrder);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReturnOrderModifyindFieldOnHeaderUpdatesTotalsAndDiscountsForInvoiceDiscountTypePerc()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+
+        CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+
+        OpenReturnOrder(PurchaseHeader, PurchaseReturnOrder);
+
+        AnswerYesToConfirmDialog();
+        PurchaseReturnOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
+
+        ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(PurchaseReturnOrder);
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3594,6 +4814,33 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseReturnOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         CheckReturnOrderStatistics(PurchaseReturnOrder);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReturnOrderModifyindFieldOnHeaderSetsDiscountToZeroForInvoiceDiscTypeAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+        InvoiceDiscountAmount: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
+
+        CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenReturnOrder(PurchaseHeader, PurchaseReturnOrder);
+        PurchaseReturnOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
+
+        AnswerYesToConfirmDialog();
+        PurchaseReturnOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
+
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
     end;
 
     [Test]
@@ -3671,6 +4918,8 @@ codeunit 134394 "ERM Purchase Subform"
         ReturnOrderCheckCurrencyOnTotals(PurchaseReturnOrder, Vendor."Currency Code");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsModalHandler')]
     [Scope('OnPrem')]
@@ -3695,6 +4944,33 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchaseReturnOrder.CalculateInvoiceDiscount.Invoke();
         CheckReturnOrderStatistics(PurchaseReturnOrder);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReturnOrderApplyManualDisc()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        NumberOfLines: Integer;
+        ItemQuantity: Decimal;
+    begin
+        Initialize();
+        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
+        SetAllowManualDisc();
+
+        CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
+        OpenReturnOrder(PurchaseHeader, PurchaseReturnOrder);
+
+        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        PurchaseReturnOrder.CalculateInvoiceDiscount.Invoke();
+        CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder);
     end;
 
     [Test]
@@ -5748,6 +7024,8 @@ codeunit 134394 "ERM Purchase Subform"
         GeneralLedgerSetup.Get();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure CheckOrderStatistics(PurchaseOrder: TestPage "Purchase Order")
     begin
         LibraryVariableStorage.Clear();
@@ -5755,6 +7033,16 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal());
         LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal());
         PurchaseOrder.Statistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
+    end;
+#endif
+
+    local procedure CheckPurchaseOrderStatistics(PurchaseOrder: TestPage "Purchase Order")
+    begin
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal());
+        PurchaseOrder.PurchaseOrderStatistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
 
 #if not CLEAN26
@@ -5816,6 +7104,8 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseQuote.PurchaseStatistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure CheckBlanketOrderStatistics(BlanketPurchaseOrder: TestPage "Blanket Purchase Order")
     begin
         LibraryVariableStorage.Clear();
@@ -5824,7 +7114,19 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryVariableStorage.Enqueue(BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDecimal());
         BlanketPurchaseOrder.Statistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
+#endif
 
+    local procedure CheckBlanketPurchaseOrderStatistics(BlanketPurchaseOrder: TestPage "Blanket Purchase Order")
+    begin
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal());
+        LibraryVariableStorage.Enqueue(BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal());
+        LibraryVariableStorage.Enqueue(BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDecimal());
+        BlanketPurchaseOrder.PurchaseOrderStatistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure CheckReturnOrderStatistics(PurchaseReturnOrder: TestPage "Purchase Return Order")
     begin
         LibraryVariableStorage.Clear();
@@ -5832,6 +7134,16 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryVariableStorage.Enqueue(PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDecimal());
         LibraryVariableStorage.Enqueue(PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDecimal());
         PurchaseReturnOrder.Statistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
+    end;
+#endif
+
+    local procedure CheckPurchaseReturnOrderStatistics(PurchaseReturnOrder: TestPage "Purchase Return Order")
+    begin
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDecimal());
+        PurchaseReturnOrder.PurchaseOrderStatistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
 
     [Normal]
@@ -6660,9 +7972,32 @@ codeunit 134394 "ERM Purchase Subform"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsModalHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    var
+        VATApplied: Variant;
+        TotalAmountInclVAT: Variant;
+        InvDiscAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(InvDiscAmount);
+        LibraryVariableStorage.Dequeue(TotalAmountInclVAT);
+        LibraryVariableStorage.Dequeue(VATApplied);
+
+        Assert.AreEqual(InvDiscAmount, PurchaseOrderStatistics.InvDiscountAmount_General.AsDecimal(),
+          'Invoice Discount Amount is not correct');
+        Assert.AreEqual(TotalAmountInclVAT, PurchaseOrderStatistics.TotalInclVAT_General.AsDecimal(),
+          'Total Amount Incl. VAT is not correct');
+        Assert.AreEqual(VATApplied, PurchaseOrderStatistics."VATAmount[1]".AsDecimal(),
+          'VAT Amount is not correct');
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     var
         VATApplied: Variant;
         TotalAmountInclVAT: Variant;

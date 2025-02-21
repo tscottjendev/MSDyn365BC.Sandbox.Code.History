@@ -67,7 +67,7 @@ codeunit 9800 User
                 Company.FindSet();
                 repeat
                     IsHandled := false;
-                    OnRenameUserOnBeforeProcessField(Field.TableNo, Field."No.", OldUserName, NewUserName, IsHandled);
+                    OnRenameUserOnBeforeProcessField(Field.TableNo, Field."No.", OldUserName, NewUserName, Company.Name, IsHandled);
                     if not IsHandled then begin
                         RecRef.Open(Field.TableNo, false, Company.Name);
                         if RecRef.ReadPermission then begin
@@ -88,7 +88,9 @@ codeunit 9800 User
                             TableInformation.SetRange("Table No.", Field.TableNo);
                             if TableInformation.FindFirst() then
                                 if TableInformation."No. of Records" > 0 then
-                                    Error(TablePermissionDeniedErr, Field.TableCaption);
+#pragma warning disable AA0448
+                                    Error(TablePermissionDeniedErr, Field.TableName);
+#pragma warning restore AA0448
                         end;
                         RecRef.Close();
                     end;
@@ -167,7 +169,7 @@ codeunit 9800 User
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRenameUserOnBeforeProcessField(TableID: Integer; FieldID: Integer; OldUserName: Code[50]; NewUserName: Code[50]; var IsHandled: Boolean)
+    local procedure OnRenameUserOnBeforeProcessField(TableID: Integer; FieldID: Integer; OldUserName: Code[50]; NewUserName: Code[50]; CompanyName: Text[30]; var IsHandled: Boolean)
     begin
     end;
 
