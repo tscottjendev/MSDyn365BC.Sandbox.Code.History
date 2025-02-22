@@ -109,12 +109,6 @@ codeunit 1012 "Job Jnl.-Post Line"
             JobJnlLine."Document Date" := JobJnlLine."Posting Date";
 
         OnBeforeCreateJobRegister(JobJnlLine);
-        if JobReg."No." = 0 then begin
-            if JobsSetup.UseLegacyPosting() then
-                JobReg.LockTable();
-            if (not JobReg.FindLast()) or (JobReg."To Entry No." <> 0) then
-                InsertJobRegister();
-        end;
 
         GetAndCheckJob();
 
@@ -170,28 +164,29 @@ codeunit 1012 "Job Jnl.-Post Line"
         OnAfterGetNextEntryNo(JobLedgerEntry, NextEntryNo);
     end;
 
-    local procedure InsertJobRegister()
+    local procedure InsertRegister(JobLedgEntryNo: Integer)
     begin
-        JobReg."No." := JobReg.GetNextEntryNo(JobsSetup.UseLegacyPosting());
-        JobReg.Init();
-        JobReg."From Entry No." := NextEntryNo;
-        JobReg."To Entry No." := NextEntryNo;
-        JobReg."Creation Date" := Today;
-        JobReg."Creation Time" := Time;
-        JobReg."Source Code" := JobJnlLine."Source Code";
-        JobReg."Journal Batch Name" := JobJnlLine."Journal Batch Name";
-        JobReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(JobReg."User ID"));
-        OnIsertJobRegisterOnBeforeInsert(JobJnlLine, JobReg);
-        JobReg.Insert();
-    end;
-
-    local procedure GetNextJobLedgerEntryNo(CurrEntryNo: Integer): Integer
-    var
-        JobLedgerEntry: Record "Job Ledger Entry";
-    begin
-        if JobsSetup.UseLegacyPosting() then
-            exit(CurrEntryNo + 1);
-        exit(JobLedgerEntry.GetNextEntryNo());
+        if JobReg."No." = 0 then begin
+            JobReg."No." := JobReg.GetNextEntryNo(JobsSetup.UseLegacyPosting());
+            JobReg.Init();
+            JobReg."From Entry No." := NextEntryNo;
+            JobReg."To Entry No." := NextEntryNo;
+            JobReg."Creation Date" := Today;
+            JobReg."Creation Time" := Time;
+            JobReg."Source Code" := JobJnlLine."Source Code";
+            JobReg."Journal Batch Name" := JobJnlLine."Journal Batch Name";
+            JobReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(JobReg."User ID"));
+            OnIsertJobRegisterOnBeforeInsert(JobJnlLine, JobReg);
+            JobReg.Insert();
+        end else begin
+            if ((JobLedgEntryNo < JobReg."From Entry No.") and (JobLedgEntryNo <> 0)) or
+               ((JobReg."From Entry No." = 0) and (JobLedgEntryNo > 0))
+            then
+                JobReg."From Entry No." := JobLedgEntryNo;
+            if JobLedgEntryNo > JobReg."To Entry No." then
+                JobReg."To Entry No." := JobLedgEntryNo;
+            JobReg.Modify();
+        end;
     end;
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"Res. Ledger Entry", 'r')]
@@ -275,7 +270,8 @@ codeunit 1012 "Job Jnl.-Post Line"
 
         SetCurrency(JobJnlLine2);
 
-        NextEntryNo := GetNextJobLedgerEntryNo(NextEntryNo);
+        if not JobsSetup.UseLegacyPosting() then
+            NextEntryNo := JobLedgEntry.GetNextEntryNo();
 
         JobLedgEntry.Init();
         JobTransferLine.FromJnlLineToLedgEntry(JobJnlLine2, JobLedgEntry);
@@ -349,8 +345,7 @@ codeunit 1012 "Job Jnl.-Post Line"
         if JobLedgEntry."Entry Type" = JobLedgEntry."Entry Type"::Sale then
             JobLedgEntry.CopyTrackingFromJobJnlLine(JobJnlLine2);
 
-        JobReg."To Entry No." := NextEntryNo;
-        JobReg.Modify();
+        InsertRegister(JobLedgEntry."Entry No.");
         JobLedgEntry."Job Register No." := JobReg."No.";
         OnBeforeJobLedgEntryInsert(JobLedgEntry, JobJnlLine2);
         JobLedgEntry.Insert(true);
@@ -373,7 +368,10 @@ codeunit 1012 "Job Jnl.-Post Line"
                     JobPostLine.InsertPlLineFromLedgEntry(JobLedgEntry)
             end;
 
+        if JobsSetup.UseLegacyPosting() then
+            NextEntryNo := NextEntryNo + 1;
         OnAfterApplyUsageLink(JobLedgEntry);
+
         exit(JobLedgEntryNo);
     end;
 

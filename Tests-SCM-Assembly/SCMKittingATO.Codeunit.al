@@ -70,7 +70,6 @@ codeunit 137096 "SCM Kitting - ATO"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryAssembly: Codeunit "Library - Assembly";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
 #if not CLEAN25
@@ -2589,7 +2588,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // [GIVEN] Component Item with Item Category Code = "X2" and Warehouse Class Code = "Y2"
         CreateItemWithCategoryAndWarehouseClass(ComponentItem);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        LibraryPatterns.POSTPositiveAdjustment(
+        LibraryInventory.PostPositiveAdjustment(
           ComponentItem, Location.Code, '', '', LibraryRandom.RandIntInRange(10, 100), WorkDate(), LibraryRandom.RandInt(10));
 
         // [GIVEN] Assembly Order for Parent Item
@@ -4153,8 +4152,8 @@ codeunit 137096 "SCM Kitting - ATO"
         PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
         if PurchRcptLine.FindSet() then
             repeat
-                LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(PurchaseHeader, PurchRcptLine, LibraryRandom.RandDec(100, 2),
-                  LibraryRandom.RandDec(100, 2));
+                LibraryPurchase.AssignPurchChargeToPurchRcptLine(
+                    PurchaseHeader, PurchRcptLine, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
             until PurchRcptLine.Next() = 0;
 
         // Exercise - post the charges.
@@ -5508,6 +5507,54 @@ codeunit 137096 "SCM Kitting - ATO"
 
         // [THEN] Assemble-to-Order Link is deleted.
         Assert.IsTrue(AssembleToOrderLink.IsEmpty(), ATOLinkShouldNotBeFoundErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('MsgHandler')]
+    procedure ShowDocumentOnAssemblyLinesForBlanketOrderPageShouldOpenCorrectPage()
+    var
+        AssembleToOrderLink: Record "Assemble-to-Order Link";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        AssemblyLines: TestPage "Assembly Lines";
+        BlanketAssemblyOrder: TestPage "Blanket Assembly Order";
+    begin
+        // [SCENARIO 564531] Show document in Assembly order line page opens the wrong page when the Assembly order line belongs a blanket assembly order.
+        Initialize();
+
+        // [GIVEN] Assembled item "I".
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", 2, 0, 0, 1, Item."Costing Method"::FIFO);
+
+        // [GIVEN] Create sales blanket order with item "I", set "Qty. to Assemble to Order" = "Quantity".
+        // [GIVEN] A linked assembly blanket order is created in the background.
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order",
+            '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
+        SetQtyToAssembleToOrder(SalesLine, SalesLine.Quantity);
+
+        // [GIVEN] Clear "Qty. to Assemble to Order".
+        // [GIVEN] That deletes the assembly blanket order together the Assemble-to-Order link.
+        SetQtyToAssembleToOrder(SalesLine, 0);
+        Assert.IsFalse(AssembleToOrderLink.AsmExistsForSalesLine(SalesLine), '');
+
+        // [WHEN] Set "Qty. to Assemble to Order" back to "Quantity".
+        SetQtyToAssembleToOrder(SalesLine, SalesLine.Quantity);
+
+        // [THEN] A new linked assembly blanket order is created.
+        FindLinkedAssemblyOrder(AssemblyHeader, SalesHeader."Document Type", SalesHeader."No.");
+        FindAssemblyLine(AssemblyHeader, AssemblyLine);
+
+        // [WHEN] Open Assembly Lines Page and invoke show document action
+        AssemblyLines.OpenEdit();
+        BlanketAssemblyOrder.Trap();
+        AssemblyLines.GoToRecord(AssemblyLine);
+        AssemblyLines."Show Document".Invoke();
+
+        // [THEN] Verify Blanket Assembly Order Page opened
+        BlanketAssemblyOrder."No.".AssertEquals(AssemblyHeader."No.");
     end;
 
     local procedure VerifyAssembleToOrderLinesPageOpened(SalesHeader: Record "Sales Header"; QtyAssembleToOrder: Decimal)
