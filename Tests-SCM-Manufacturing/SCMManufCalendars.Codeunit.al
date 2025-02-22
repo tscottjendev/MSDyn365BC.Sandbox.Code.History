@@ -28,6 +28,7 @@ codeunit 137076 "SCM Manuf Calendars"
     end;
 
     var
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryUtility: Codeunit "Library - Utility";
@@ -527,7 +528,7 @@ codeunit 137076 "SCM Manuf Calendars"
         CertifyRouting(RoutingHeader);
         CreateItemWithRouting(Item, RoutingHeader."No.");
 
-        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", Item, '', '', 10, ProdOrderDueDate);
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", Item, '', '', 10, ProdOrderDueDate);
 
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
@@ -686,7 +687,7 @@ codeunit 137076 "SCM Manuf Calendars"
 
     local procedure CreateItemWithRouting(var Item: Record Item; RoutingNo: Code[20])
     begin
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
         Item.Validate("Routing No.", RoutingNo);
         Item.Modify(true);
     end;

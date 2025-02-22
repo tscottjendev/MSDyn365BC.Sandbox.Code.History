@@ -5,6 +5,7 @@
 namespace Microsoft.Assembly.Setup;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Location;
 using Microsoft.Sales.History;
@@ -71,6 +72,12 @@ table 905 "Assembly Setup"
         field(130; "Create Movements Automatically"; Boolean)
         {
             Caption = 'Create Movements Automatically';
+        }
+        field(140; "Default Gen. Bus. Post. Group"; Code[20])
+        {
+            Caption = 'Default General Business Posting Group';
+            ToolTip = 'Specifies the general business posting group that is used by default for assembly orders.';
+            TableRelation = "Gen. Business Posting Group";
         }
     }
 
