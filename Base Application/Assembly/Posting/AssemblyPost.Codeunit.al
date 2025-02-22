@@ -606,6 +606,7 @@ codeunit 900 "Assembly-Post"
         ItemJnlLine."Posting No. Series" := PostingNoSeries;
         ItemJnlLine.Type := ItemJnlLine.Type::" ";
         ItemJnlLine."Item No." := AssemblyLine."No.";
+        ItemJnlLine."Gen. Bus. Posting Group" := AssemblyLine."Gen. Bus. Posting Group";
         ItemJnlLine."Gen. Prod. Posting Group" := AssemblyLine."Gen. Prod. Posting Group";
         ItemJnlLine."Inventory Posting Group" := AssemblyLine."Inventory Posting Group";
 
@@ -672,6 +673,7 @@ codeunit 900 "Assembly-Post"
         ItemJnlLine."Posting No. Series" := PostingNoSeries;
         ItemJnlLine.Type := ItemJnlLine.Type::" ";
         ItemJnlLine."Item No." := AssemblyHeader."Item No.";
+        ItemJnlLine."Gen. Bus. Posting Group" := AssemblyHeader."Gen. Bus. Posting Group";
         ItemJnlLine."Gen. Prod. Posting Group" := AssemblyHeader."Gen. Prod. Posting Group";
         ItemJnlLine."Inventory Posting Group" := AssemblyHeader."Inventory Posting Group";
 
@@ -952,6 +954,7 @@ codeunit 900 "Assembly-Post"
         ItemJnlLine."Qty. per Unit of Measure" := AssemblyHeader."Qty. per Unit of Measure";
 
         ItemJnlLine.Validate("Location Code", AssemblyLine."Location Code");
+        ItemJnlLine."Gen. Bus. Posting Group" := AssemblyLine."Gen. Bus. Posting Group";
         ItemJnlLine."Gen. Prod. Posting Group" := AssemblyLine."Gen. Prod. Posting Group";
         ItemJnlLine."Inventory Posting Group" := AssemblyLine."Inventory Posting Group";
         ItemJnlLine."Unit Cost" := AssemblyLine."Unit Cost";

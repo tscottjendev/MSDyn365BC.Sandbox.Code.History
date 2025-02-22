@@ -223,7 +223,8 @@ codeunit 101900 "Create Demonstration Data"
                              'CalcOnlyVisibleFlowFields',
                              'ConcurrentInventoryPosting',
                              'ConcurrentJobPosting',
-                             'ConcurrentResourcePosting']
+                             'ConcurrentResourcePosting',
+                             'SemanticMetadataSearch']
         then
             exit(true);
 

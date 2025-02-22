@@ -185,9 +185,11 @@ page 917 "Component - Item FactBox"
     end;
 
     var
-        Item: Record Item;
         AssemblyAvailabilityMgt: Codeunit "Assembly Availability Mgt.";
         AssemblyInfoPaneManagement: Codeunit "Assembly Info-Pane Management";
+
+    protected var
+        Item: Record Item;
 
     local procedure ShowNo(): Code[20]
     begin
