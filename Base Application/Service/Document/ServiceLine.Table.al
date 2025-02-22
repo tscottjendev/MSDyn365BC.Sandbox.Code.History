@@ -3765,7 +3765,7 @@ table 5902 "Service Line"
         OnAfterUpdateUnitPrice(Rec, xRec, CalledByFieldNo, CurrFieldNo);
     end;
 
-    local procedure ApplyPrice(PriceType: Enum "Price Type"; ServiceHeader: Record "Service Header"; CalledByFieldNo: Integer)
+    procedure ApplyPrice(PriceType: Enum "Price Type"; ServiceHeader: Record "Service Header"; CalledByFieldNo: Integer)
     var
         PriceCalculation: Interface "Price Calculation";
         Line: Variant;

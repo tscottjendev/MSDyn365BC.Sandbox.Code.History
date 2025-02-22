@@ -11102,6 +11102,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Cubage Value, %2 = Maximum Quantity, %3 =  Maximum Cubage Caption, %4 = Maximum Cubage Value, %5 = Bin Table Caption]D;]A;(LookupHint=Codeunit SCM Warehouse - Receiving - NamedType ExceedsMaximumCubage)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3546302981 - NamedType 1003500272" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[From Bin Should be blank]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse - Receiving - NamedType FromBinBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3546302981 - NamedType 3741881461" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Number of Invt. Pick activities created: 2 out of a total of 3.]]></Val>
