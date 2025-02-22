@@ -480,6 +480,9 @@ codeunit 905 "Assembly Line Management"
         if IsHandled then
             exit;
 
+        if AsmHeader."Gen. Bus. Posting Group" <> OldAsmHeader."Gen. Bus. Posting Group" then
+            AssemblyLine.Validate("Gen. Bus. Posting Group", AsmHeader."Gen. Bus. Posting Group");
+
         if AsmHeader.IsStatusCheckSuspended() then
             AssemblyLine.SuspendStatusCheck(true);
 

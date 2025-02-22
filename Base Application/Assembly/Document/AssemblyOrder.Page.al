@@ -269,6 +269,11 @@ page 900 "Assembly Order"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
+                {
+                    ApplicationArea = Assembly;
+                    ToolTip = 'Specifies the code for the General Business Posting Group that applies to the entry.';
+                }
             }
         }
         area(factboxes)
