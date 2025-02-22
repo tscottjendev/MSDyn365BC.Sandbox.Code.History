@@ -968,6 +968,18 @@ codeunit 132201 "Library - Inventory"
         TransferLine.Modify(true);
     end;
 
+    procedure CreateTransferOrder(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; Item: Record Item; FromLocation: Record Location; ToLocation: Record Location; InTransitLocation: Record Location; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; ShipmentDate: Date)
+    begin
+        CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
+        TransferHeader.Validate("Posting Date", PostingDate);
+        TransferHeader.Validate("Shipment Date", ShipmentDate);
+        TransferHeader.Modify();
+        CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
+        TransferLine.Validate("Shipment Date", ShipmentDate);
+        TransferLine.Validate("Variant Code", VariantCode);
+        TransferLine.Modify();
+    end;
+
     procedure CreateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10])
     begin
         Clear(TransferRoute);
@@ -975,6 +987,15 @@ codeunit 132201 "Library - Inventory"
         TransferRoute.Validate("Transfer-from Code", TransferFrom);
         TransferRoute.Validate("Transfer-to Code", TransferTo);
         TransferRoute.Insert(true);
+    end;
+
+    procedure CreateAndPostTransferOrder(var TransferHeader: Record "Transfer Header"; Item: Record Item; FromLocation: Record Location; ToLocation: Record Location; InTransitLocation: Record Location; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; ShipmentDate: Date; Ship: Boolean; Receive: Boolean)
+    var
+        TransferLine: Record "Transfer Line";
+    begin
+        CreateTransferOrder(
+          TransferHeader, TransferLine, Item, FromLocation, ToLocation, InTransitLocation, VariantCode, Qty, PostingDate, ShipmentDate);
+        PostTransferHeader(TransferHeader, Ship, Receive);
     end;
 
     procedure CreateUnitOfMeasureCode(var UnitOfMeasure: Record "Unit of Measure")
@@ -1242,6 +1263,81 @@ codeunit 132201 "Library - Inventory"
         end;
     end;
 
+    procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; PostingDate: Date; EntryType: Enum "Item Ledger Entry Type"; Qty: Decimal; UnitAmount: Decimal)
+    begin
+        MakeItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, PostingDate, EntryType, Qty);
+        ItemJournalLine."Location Code" := LocationCode;
+        ItemJournalLine."Variant Code" := VariantCode;
+        ItemJournalLine.Validate("Unit Amount", UnitAmount);
+        ItemJournalLine.Insert();
+    end;
+
+    procedure CreateItemJournalLineWithApplication(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; PostingDate: Date; EntryType: Enum "Item Ledger Entry Type"; Qty: Decimal; UnitAmount: Decimal; AppltoEntryNo: Integer)
+    begin
+        MakeItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, PostingDate, EntryType, Qty);
+        ItemJournalLine."Location Code" := LocationCode;
+        ItemJournalLine."Variant Code" := VariantCode;
+        ItemJournalLine.Validate("Unit Amount", UnitAmount);
+        ItemJournalLine.Validate("Applies-to Entry", AppltoEntryNo);
+        ItemJournalLine.Insert();
+    end;
+
+    procedure CreateItemReclassificationJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; VariantCode: Code[10]; LocationCode: Code[10]; NewLocationCode: Code[10]; BinCode: Code[20]; NewBinCode: Code[20]; PostingDate: Date; Quantity: Decimal)
+    begin
+        MakeItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, PostingDate, ItemJournalLine."Entry Type"::Transfer, Quantity);
+        ItemJournalLine."Location Code" := LocationCode;
+        ItemJournalLine."Variant Code" := VariantCode;
+        ItemJournalLine."New Location Code" := NewLocationCode;
+        ItemJournalLine."Bin Code" := BinCode;
+        ItemJournalLine."New Bin Code" := NewBinCode;
+        ItemJournalLine.Insert();
+    end;
+
+    procedure CreateRevaluationJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; var Item: Record Item; NewPostingDate: Date; NewCalculatePer: Enum "Inventory Value Calc. Per"; NewByLocation: Boolean; NewByVariant: Boolean; NewUpdStdCost: Boolean; NewCalcBase: Enum "Inventory Value Calc. Base")
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        NewDocNo: Code[20];
+    begin
+        NewDocNo := LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Document No."), DATABASE::"Item Journal Line");
+        RevaluationJournalCalcInventory(
+          ItemJournalBatch, Item, NewPostingDate, NewDocNo, NewCalculatePer, NewByLocation, NewByVariant, NewUpdStdCost, NewCalcBase);
+    end;
+
+    procedure RevaluationJournalCalcInventory(var ItemJournalBatch: Record "Item Journal Batch"; var Item: Record Item; NewPostingDate: Date; NewDocNo: Code[20]; NewCalculatePer: Enum "Inventory Value Calc. Per"; NewByLocation: Boolean; NewByVariant: Boolean; NewUpdStdCost: Boolean; NewCalcBase: Enum "Inventory Value Calc. Base")
+    var
+        TmpItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        CalculateInventoryValue: Report "Calculate Inventory Value";
+        ItemJnlMgt: Codeunit ItemJnlManagement;
+        JnlSelected: Boolean;
+    begin
+        Commit();
+        CalculateInventoryValue.SetParameters(
+            NewPostingDate, NewDocNo, true, NewCalculatePer, NewByLocation, NewByVariant,
+            NewUpdStdCost, NewCalcBase, true);
+
+        CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Revaluation);
+
+        ItemJournalLine.Init();
+        ItemJnlMgt.TemplateSelection(PAGE::"Revaluation Journal", 3, false, ItemJournalLine, JnlSelected); // 3 = FormTemplate::Revaluation
+        ItemJnlMgt.OpenJnl(ItemJournalBatch.Name, ItemJournalLine);
+
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.SetUpNewLine(ItemJournalLine);
+        CalculateInventoryValue.SetItemJnlLine(ItemJournalLine);
+
+        if Item.HasFilter then
+            TmpItem.CopyFilters(Item)
+        else begin
+            Item.Get(Item."No.");
+            TmpItem.SetRange("No.", Item."No.");
+        end;
+        CalculateInventoryValue.SetTableView(TmpItem);
+        CalculateInventoryValue.UseRequestPage(false);
+        CalculateInventoryValue.RunModal();
+    end;
+
     procedure MakeItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; PostingDate: Date; EntryType: Enum "Item Ledger Entry Type"; Quantity: Decimal)
     var
         RecRef: RecordRef;
@@ -1308,6 +1404,49 @@ codeunit 132201 "Library - Inventory"
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
     begin
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
+    end;
+
+    procedure PostItemJournalLine(TemplateType: Enum "Item Journal Template Type"; EntryType: Enum "Item Ledger Entry Type"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; Qty: Decimal; PostingDate: Date; UnitAmount: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        CreateItemJournalBatchByType(ItemJournalBatch, TemplateType);
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate, EntryType, Qty, UnitAmount);
+        ItemJournalLine."Bin Code" := BinCode;
+        ItemJournalLine.Modify();
+        PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    procedure PostNegativeAdjustment(Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; Qty: Decimal; PostingDate: Date; UnitAmount: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        PostItemJournalLine(
+            ItemJournalTemplate.Type::Item, ItemJournalLine."Entry Type"::"Negative Adjmt.", Item,
+            LocationCode, VariantCode, BinCode, Qty, PostingDate, UnitAmount);
+    end;
+
+    procedure PostPositiveAdjustment(Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; Qty: Decimal; PostingDate: Date; UnitAmount: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        PostItemJournalLine(
+            ItemJournalTemplate.Type::Item, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item,
+            LocationCode, VariantCode, BinCode, Qty, PostingDate, UnitAmount);
+    end;
+
+    procedure PostReclassificationJournalLine(Item: Record Item; StartDate: Date; FromLocationCode: Code[10]; ToLocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; NewBinCode: Code[20]; Quantity: Decimal)
+    var
+        ItemJnlBatch: Record "Item Journal Batch";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalBatchByType(ItemJnlBatch, ItemJnlBatch."Template Type"::Transfer);
+        CreateItemReclassificationJournalLine(ItemJnlLine, ItemJnlBatch, Item, VariantCode, FromLocationCode, ToLocationCode,
+          BinCode, NewBinCode, StartDate, Quantity);
+        PostItemJournalBatch(ItemJnlBatch);
     end;
 
     procedure PostTransferHeader(var TransferHeader: Record "Transfer Header"; Ship: Boolean; Receive: Boolean)
@@ -1597,6 +1736,44 @@ codeunit 132201 "Library - Inventory"
     begin
         InventoryPostingSetup.Validate("Mat. Non-Inv. Variance Acc.", LibraryERM.CreateGLAccountNo());
         InventoryPostingSetup.Modify();
+    end;
+
+    procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; UnitCost: Decimal; OverheadRate: Decimal; IndirectCostPercent: Decimal; ItemTrackingCode: Code[10])
+    begin
+        CreateItem(Item);
+        Item."Costing Method" := CostingMethod;
+        if Item."Costing Method" = Item."Costing Method"::Standard then
+            Item."Standard Cost" := UnitCost;
+        Item."Unit Cost" := UnitCost;
+        Item."Overhead Rate" := OverheadRate;
+        Item."Indirect Cost %" := IndirectCostPercent;
+        Item."Item Tracking Code" := ItemTrackingCode;
+        Item.Description := Item."No.";
+        Item.Modify();
+    end;
+
+    procedure CreateItemSimple(var Item: Record Item; CostingMethod: Enum "Costing Method"; UnitCost: Decimal)
+    begin
+        CreateItem(Item, CostingMethod, UnitCost, 0, 0, '');
+    end;
+
+    procedure CreateItemWithExtendedText(var Item: Record Item; ExtText: Text; CostingMethod: Enum "Costing Method"; UnitCost: Decimal)
+    var
+        ExtendedTextHeader: Record "Extended Text Header";
+        ExtendedTextLine: Record "Extended Text Line";
+    begin
+        // Create Item.
+        CreateItem(Item, CostingMethod, UnitCost, 0, 0, '');
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify();
+
+        // Create Extended Text Header and Line.
+        CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        ExtendedTextHeader.Validate("All Language Codes", true);
+        ExtendedTextHeader.Modify();
+        CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        ExtendedTextLine.Validate(Text, CopyStr(ExtText, 1, MaxStrLen(ExtendedTextLine.Text)));
+        ExtendedTextLine.Modify();
     end;
 
     [IntegrationEvent(false, false)]
