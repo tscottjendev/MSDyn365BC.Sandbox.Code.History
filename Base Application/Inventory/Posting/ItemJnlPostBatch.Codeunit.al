@@ -282,6 +282,7 @@ codeunit 23 "Item Jnl.-Post Batch"
     local procedure PostLines(var ItemJnlLine: Record "Item Journal Line"; var PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management")
     var
         TempTrackingSpecification: Record "Tracking Specification" temporary;
+        ItemJnlLineLoop: Record "Item Journal Line";
         OriginalQuantity: Decimal;
         OriginalQuantityBase: Decimal;
         IsHandled: Boolean;
@@ -292,12 +293,14 @@ codeunit 23 "Item Jnl.-Post Batch"
         LastDocNo2 := '';
         LastPostedDocNo := '';
 
+        ItemJnlLineLoop.Copy(ItemJnlLine);
         if InvtSetup.UseLegacyPosting() then
-            ItemJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.")
+            ItemJnlLineLoop.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.")
         else
-            ItemJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.", "Item No.", "Location Code", "Bin Code", "Line No.");
-        ItemJnlLine.FindSet();
+            ItemJnlLineLoop.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.", "Item No.", "Location Code", "Bin Code", "Line No.");
+        ItemJnlLineLoop.FindSet();
         repeat
+            ItemJnlLine := ItemJnlLineLoop;
             if not ItemJnlLine.EmptyLine() and (ItemJnlBatch."No. Series" <> '') and (ItemJnlLine."Document No." <> LastDocNo2) then
                 ItemJnlLine.TestField("Document No.", NoSeriesBatch.GetNextNo(ItemJnlBatch."No. Series", ItemJnlLine."Posting Date"));
             if not ItemJnlLine.EmptyLine() then
@@ -354,7 +357,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                 PhysInvtCountMgt.AddToTempItemSKUList(
                     ItemJnlLine."Item No.", ItemJnlLine."Location Code", ItemJnlLine."Variant Code", ItemJnlLine."Phys Invt Counting Period Type");
             end;
-        until ItemJnlLine.Next() = 0;
+        until ItemJnlLineLoop.Next() = 0;
 
         CreatePutaway.CreateProdWhsePutAway();
         OnAfterPostLines(ItemJnlLine, ItemRegNo, WhseRegNo);

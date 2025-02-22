@@ -14,7 +14,6 @@ codeunit 137081 "SCM Warehouse Documents UI"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -105,7 +104,7 @@ codeunit 137081 "SCM Warehouse Documents UI"
 
         // [GIVEN] Item "I" with stock on location "L"
         LibraryInventory.CreateItem(Item);
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', 100, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(Item, Location.Code, '', '', 100, WorkDate(), 0);
 
         // [GIVEN] Create a sales order "SO" on the location "L" and release the order
         LibrarySales.CreateSalesOrderWithLocation(SalesHeader, LibrarySales.CreateCustomerNo(), Location.Code);
@@ -174,7 +173,7 @@ codeunit 137081 "SCM Warehouse Documents UI"
 
         // [GIVEN] Item "I" with stock on location "L1"
         LibraryInventory.CreateItem(Item);
-        LibraryPatterns.POSTPositiveAdjustment(Item, Locations[1].Code, '', '', 100, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(Item, Locations[1].Code, '', '', 100, WorkDate(), 0);
 
         // [GIVEN] Create transfer order "TO" moving the item "I" from location "L1" to location "L2", and release the order
         LibraryInventory.CreateTransferHeader(TransferHeader, Locations[1].Code, Locations[2].Code, Locations[3].Code);
@@ -248,7 +247,7 @@ codeunit 137081 "SCM Warehouse Documents UI"
         LibraryService.ReleaseServiceDocument(ServiceHeader);
 
         Item.Get(ServiceLine."No.");
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', 1, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(Item, Location.Code, '', '', 1, WorkDate(), 0);
 
         // [GIVEN] Create a warehouse shipment from the service order
         LibraryWarehouse.CreateWhseShipmentFromServiceOrder(ServiceHeader);
@@ -370,7 +369,7 @@ codeunit 137081 "SCM Warehouse Documents UI"
 
         // [GIVEN] Item "I" with stock on location "L"
         LibraryInventory.CreateItem(Item);
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', 100, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(Item, Location.Code, '', '', 100, WorkDate(), 0);
 
         // [GIVEN] Create a sales order on location "L" and post shipment
         LibrarySales.CreateSalesOrderWithLocation(SalesHeader, LibrarySales.CreateCustomerNo(), Location.Code);
