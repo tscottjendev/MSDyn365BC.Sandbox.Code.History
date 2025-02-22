@@ -81,7 +81,6 @@ codeunit 137079 "SCM Production Order III"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryPlanning: Codeunit "Library - Planning";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
@@ -7427,7 +7426,7 @@ codeunit 137079 "SCM Production Order III"
         VerifyReleasedProdOrderLine(Item."No.", ProductionOrder.Quantity, ProductionOrder.Quantity); // Verify that Finished Quantity on Prod. Order Line exist after Purchase Order posting.
 
         if DoConsumeOutputBeforeUndo then
-            LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', ProductionOrder.Quantity / 2, WorkDate(), LibraryRandom.RandDec(100, 2));
+            LibraryInventory.PostNegativeAdjustment(Item, '', '', '', ProductionOrder.Quantity / 2, WorkDate(), LibraryRandom.RandDec(100, 2));
 
         // [WHEN] Undo Purchase Receipt.
         DocumentNo := FindAndUndoPurcReceiptLine(Item."No.");

@@ -34,7 +34,6 @@ codeunit 137158 "SCM Orders V"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJob: Codeunit "Library - Job";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryResource: Codeunit "Library - Resource";
         LibraryITLocalization: Codeunit "Library - IT Localization";
@@ -4450,12 +4449,12 @@ codeunit 137158 "SCM Orders V"
           BOMComponent.Type::Item, CompItem, AssemblyItem."No.", '', BOMComponent."Resource Usage Type", QuantityPer, true);
     end;
 
-    local procedure CreateAssemblyItemWithMultipleBOMComponents(var CompItem: Record Item; var CompItem2: Record Item): Code[10]
+    local procedure CreateAssemblyItemWithMultipleBOMComponents(var CompItem: Record Item; var CompItem2: Record Item): Code[20]
     var
         AssemblyItem: Record Item;
         BOMComponent: Record "BOM Component";
     begin
-        LibraryPatterns.MAKEItemWithExtendedText(CompItem, ExtendedTxt, CompItem."Costing Method"::FIFO, 0);
+        LibraryInventory.CreateItemWithExtendedText(CompItem, ExtendedTxt, CompItem."Costing Method"::FIFO, 0);
         LibraryAssembly.CreateItem(CompItem2, CompItem2."Costing Method", CompItem."Replenishment System"::Purchase, '', '');
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItem."No.", LibraryRandom.RandDec(10, 2));
         LibraryAssembly.CreateAssemblyListComponent(
@@ -4467,7 +4466,6 @@ codeunit 137158 "SCM Orders V"
     local procedure CreateJobWithJobTask(var JobTask: Record "Job Task")
     var
         Job: Record Job;
-        LibraryJob: Codeunit "Library - Job";
     begin
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
