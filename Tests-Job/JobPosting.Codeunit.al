@@ -2318,6 +2318,64 @@ codeunit 136309 "Job Posting"
         GLPostingPreview.OK().Invoke();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
+    procedure PostJobJournalAndCheckRegister()
+    var
+        JobJournalLine: Record "Job Journal Line";
+        JobTask: Record "Job Task";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        JobRegister: Record "Job Register";
+        JobsSetup: Record "Jobs Setup";
+        ResLedgerEntry: Record "Res. Ledger Entry";
+        ResourceRegister: Record "Resource Register";
+        ResourcesSetup: Record "Resources Setup";
+        JobJournalPost: Codeunit "Job Jnl.-Post";
+        RandomInput: Decimal;
+    begin
+        // Check value of Job Ledger Entries and Job Planning Line exist or not after posting Job Journal Line.
+
+        // 1. Setup: Create Job with Job Task, Resource and Job Journal Line with 3 lines.
+        Initialize();
+        RandomInput := LibraryRandom.RandDec(10, 2);  // Using Random Value for Quantity,Unit Cost and Unit Price.
+        CreateJobWithJobTask(JobTask);
+        CreateJobJournalLine(
+          LibraryJob.UsageLineTypeBoth(), JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo(),
+          RandomInput, RandomInput, RandomInput);  // Using Random because value is not important.
+        CreateJobJournalLine(
+          LibraryJob.UsageLineTypeBoth(), JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo(),
+          RandomInput, RandomInput, RandomInput);  // Using Random because value is not important.
+        CreateJobJournalLine(
+          LibraryJob.UsageLineTypeBoth(), JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo(),
+          RandomInput, RandomInput, RandomInput);  // Using Random because value is not important.
+        Commit();
+
+        // [WHEN] Post job journal
+        JobJournalPost.Run(JobJournalLine);
+
+        // [THEN] Check the entries that will be created when the journal is posted
+        JobRegister.FindLast();
+        JobLedgerEntry.SetRange("Entry No.", JobRegister."From Entry No.", JobRegister."To Entry No.");
+        if JobsSetup.UseLegacyPosting() then
+            Assert.AreEqual(
+                JobLedgerEntry.Count(), JobRegister."To Entry No." - JobRegister."From Entry No." + 1, 'incorrect number of job entries');
+        JobLedgerEntry.FindFirst();
+        Assert.AreEqual(JobLedgerEntry."Entry No.", JobRegister."From Entry No.", 'incorrect job register From Entry No.');
+        JobLedgerEntry.FindLast();
+        Assert.AreEqual(JobLedgerEntry."Entry No.", JobRegister."To Entry No.", 'incorrect job register To Entry No.');
+
+        ResourceRegister.FindLast();
+        ResLedgerEntry.SetRange("Entry No.", ResourceRegister."From Entry No.", ResourceRegister."To Entry No.");
+        if ResourcesSetup.UseLegacyPosting() then
+            Assert.AreEqual(
+                JobLedgerEntry.Count(), ResourceRegister."To Entry No." - ResourceRegister."From Entry No." + 1, 'incorrect number of resource entries');
+        ResLedgerEntry.FindFirst();
+        Assert.AreEqual(ResLedgerEntry."Entry No.", ResourceRegister."From Entry No.", 'incorrect resource register From Entry No.');
+        ResLedgerEntry.FindLast();
+        Assert.AreEqual(ResLedgerEntry."Entry No.", ResourceRegister."To Entry No.", 'incorrect resource register To Entry No.');
+    end;
+
     local procedure Initialize()
     var
         NoSeries: Record "No. Series";

@@ -23,7 +23,6 @@ codeunit 137272 "SCM Reservation V"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         ReservationManagement: Codeunit "Reservation Management";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryERM: Codeunit "Library - ERM";
         isInitialized: Boolean;
         ExpectedMessage: Label 'The Credit Memo doesn''t have a Corrected Invoice No. Do you want to continue?';
@@ -649,7 +648,7 @@ codeunit 137272 "SCM Reservation V"
 
         // [GIVEN] An item "ITEM" available to reserve and to ship.
         LibraryInventory.CreateItem(Item);
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 1000, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', 1000, WorkDate(), 0);
 
         // [GIVEN] A Customer "CUST" with Invoice discounts for all items
         CustInvoiceDisc.Get(CreateCustomerInvDiscount(), '', 0);

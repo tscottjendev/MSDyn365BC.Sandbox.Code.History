@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Setup;
 
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.BOM.Tree;
@@ -210,6 +211,12 @@ table 99000765 "Manufacturing Setup"
         {
             Caption = 'Safety Lead Time for Manual Scheduling';
             ToolTip = 'Specifies the time that will be added to the End date to calculate the Due Date when the production order is manually scheduled.';
+        }
+        field(280; "Default Gen. Bus. Post. Group"; Code[20])
+        {
+            Caption = 'Default General Business Posting Group';
+            ToolTip = 'Specifies the default general business posting group for production orders.';
+            TableRelation = "Gen. Business Posting Group";
         }
         field(300; "Default Flushing Method"; Enum "Flushing Method")
         {
