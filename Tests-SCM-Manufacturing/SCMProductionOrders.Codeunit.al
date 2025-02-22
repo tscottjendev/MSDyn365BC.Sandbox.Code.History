@@ -71,7 +71,6 @@ codeunit 137069 "SCM Production Orders"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -2352,7 +2351,7 @@ codeunit 137069 "SCM Production Orders"
 
         LibraryWarehouse.CreateBin(Bin, LocationSilver.Code, LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin), '', '');
         FindProdOrderComponentItem(Item, ProductionOrder.Status, ProductionOrder."No.");
-        LibraryPatterns.POSTPositiveAdjustment(Item, LocationSilver.Code, '', Bin.Code, 1, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(Item, LocationSilver.Code, '', Bin.Code, 1, WorkDate(), 0);
         PostConsumptionJournalLine(ProdOrderLine, Item, WorkDate(), LocationSilver.Code, Bin.Code, 1);
 
         VerifyItemLedgerEntryPosted(ProductionOrder."No.", Item."No.", '');
@@ -3198,7 +3197,7 @@ codeunit 137069 "SCM Production Orders"
         LibraryInventory.CreateItem(ParentItem);
         LibraryInventory.CreateItem(ComponentItem);
         UpdateFlushingMethodOnItem(ComponentItem, ComponentItem."Flushing Method"::Forward);
-        LibraryPatterns.POSTPositiveAdjustment(ComponentItem, '', '', '', 1, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(ComponentItem, '', '', '', 1, WorkDate(), 0);
 
         LibraryManufacturing.CreateRoutingLink(RoutingLink);
 
@@ -5051,7 +5050,7 @@ codeunit 137069 "SCM Production Orders"
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
-        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, ProdOrderLine."Due Date", ProdOrderLine.Quantity, 300);
+        LibraryManufacturing.CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, ProdOrderLine."Due Date", ProdOrderLine.Quantity, 300);
         FindItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         ItemJournalLine.Validate("Item No.");
@@ -5979,7 +5978,7 @@ codeunit 137069 "SCM Production Orders"
 
     local procedure MakeConsumptionJournalLine(var ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; PostingDate: Date; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal)
     begin
-        LibraryPatterns.MAKEConsumptionJournalLine(
+        LibraryManufacturing.CreateConsumptionJournalLine(
           ConsumptionItemJournalBatch, ProdOrderLine, Item, PostingDate, LocationCode, '', Qty, LibraryRandom.RandDec(1000, 2));
         UpdateBinCodeOnItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name, BinCode);
     end;

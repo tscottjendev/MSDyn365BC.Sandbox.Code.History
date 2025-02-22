@@ -1236,7 +1236,7 @@ table 5940 "Service Item"
         end;
     end;
 
-    local procedure ServItemLinesExist() Result: Boolean
+    procedure ServItemLinesExist() Result: Boolean
     begin
         ServItemLine.Reset();
         ServItemLine.SetCurrentKey("Service Item No.");

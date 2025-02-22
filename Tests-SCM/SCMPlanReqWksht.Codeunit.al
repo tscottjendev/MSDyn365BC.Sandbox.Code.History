@@ -24,7 +24,6 @@
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryRandom: Codeunit "Library - Random";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -2376,7 +2375,7 @@
         Qty := LibraryRandom.RandInt(100);
         CreateItemWithReorderPoint(
           CompItem, CompItem."Reordering Policy"::"Maximum Qty.", CompItem."Replenishment System"::Purchase, Qty, Qty + 1);
-        LibraryPatterns.MAKEItemSimple(ProdItem, ProdItem."Costing Method"::FIFO, 0);
+        LibraryInventory.CreateItemSimple(ProdItem, ProdItem."Costing Method"::FIFO, 0);
 
         CreateReleasedProdOrder(ProdItem, CompItem, Qty);
 
@@ -5253,8 +5252,8 @@
         ProdBOMHeader: Record "Production BOM Header";
         ProdOrder: Record "Production Order";
     begin
-        LibraryPatterns.MAKEProductionBOM(ProdBOMHeader, ProdItem, CompItem, 1, '');
-        LibraryPatterns.MAKEProductionOrder(ProdOrder, ProdOrder.Status::Released, ProdItem, '', '', Qty, WorkDate());
+        LibraryManufacturing.CreateProductionBOM(ProdBOMHeader, ProdItem, CompItem, 1, '');
+        LibraryManufacturing.CreateProductionOrder(ProdOrder, ProdOrder.Status::Released, ProdItem, '', '', Qty, WorkDate());
     end;
 
     local procedure UpdateForecastOnManufacturingSetup(CurrentProductionForecast: Code[10])
@@ -5392,7 +5391,7 @@
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibraryPatterns.MAKESalesOrder(
+        LibrarySales.CreateSalesOrder(
           SalesHeader, SalesLine, Item, '', '', Quantity * LibraryRandom.RandDecInDecimalRange(1.5, 2, 2), WorkDate(), Item."Unit Cost");
         AutoReserveForSalesLine(SalesLine);
     end;
