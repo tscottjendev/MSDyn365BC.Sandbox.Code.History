@@ -44,7 +44,6 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         UoMMgt: Codeunit "Unit of Measure Management";
@@ -4178,7 +4177,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        LibraryPatterns.POSTPositiveAdjustment(
+        LibraryInventory.PostPositiveAdjustment(
           Item, LocationCode, '', '', LibraryRandom.RandIntInRange(10, 100), WorkDate(), LibraryRandom.RandInt(10));
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, Type, '');
         LibraryPurchase.CreatePurchaseLine(
@@ -4194,9 +4193,9 @@ codeunit 137151 "SCM Warehouse - Shipping"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        LibraryPatterns.POSTPositiveAdjustment(
+        LibraryInventory.PostPositiveAdjustment(
           Item, LocationBlue.Code, '', '', LibraryRandom.RandIntInRange(10, 100), WorkDate(), LibraryRandom.RandInt(10));
-        LibraryPatterns.POSTPositiveAdjustment(
+        LibraryInventory.PostPositiveAdjustment(
           Item, LocationWhite.Code, '', '', LibraryRandom.RandIntInRange(10, 100), WorkDate(), LibraryRandom.RandInt(10));
         LibraryInventory.CreateTransferHeader(TransferHeader, LocationBlue.Code, LocationWhite.Code, LocationInTransit.Code);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandIntInRange(2, 10));
@@ -4721,11 +4720,11 @@ codeunit 137151 "SCM Warehouse - Shipping"
     var
         SalesLine: array[3] of Record "Sales Line";
     begin
-        LibraryPatterns.POSTPositiveAdjustment(
+        LibraryInventory.PostPositiveAdjustment(
           Item, LocationCode, '', Bin[1].Code, Quantity[1], WorkDate(), LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.POSTPositiveAdjustment(
+        LibraryInventory.PostPositiveAdjustment(
           Item, LocationCode, '', Bin[2].Code, Quantity[2], WorkDate(), LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.POSTPositiveAdjustment(
+        LibraryInventory.PostPositiveAdjustment(
           Item, LocationCode, '', Bin[3].Code, Quantity[3], WorkDate(), LibraryRandom.RandDec(100, 2));
 
         CreateAndReleaseSalesOrderWithMultipleLinesAndItemTracking(
