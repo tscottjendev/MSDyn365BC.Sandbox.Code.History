@@ -75,6 +75,10 @@ page 99000768 "Manufacturing Setup"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies that status of orders with no output can be changed to finished and the WIP will be written off to Inventory Adjustment Account.';
                 }
+                field("Default Gen. Bus. Post. Group"; Rec."Default Gen. Bus. Post. Group")
+                {
+                    ApplicationArea = Manufacturing;
+                }
                 field("Default Flushing Method"; Rec."Default Flushing Method")
                 {
                     ApplicationArea = Manufacturing;
