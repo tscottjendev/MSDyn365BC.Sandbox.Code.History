@@ -39,7 +39,6 @@ codeunit 136121 "Service Reservation"
     var
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
@@ -50,18 +49,18 @@ codeunit 136121 "Service Reservation"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         isInitialized: Boolean;
-        ItemNotOnInventoryError: Label 'Reserved item %1 is not on inventory.';
         ItemNo: Code[20];
         QuantityOnServiceLine: Decimal;
         OriginalQuantity: Decimal;
         QuantityReserved: Decimal;
         ItemTrackingAction: Option SelectEntries,AssignSerialNo,Verification;
         ServiceLineAction: Option ItemTracking,Reserve;
+        ReserveFromCurrentLine: Boolean;
+        ItemNotOnInventoryError: Label 'Reserved item %1 is not on inventory.';
         ReserveQuantityError: Label '%1 must not be changed when a quantity is reserved in %2 %3=''%4'',%5=''%6'',%7=''%8''.';
         NoOfEntriesError: Label 'Wrong no. of entries found in %1.';
         ServiceLineExistError: Label '%1 must not exist.';
         ReserveError: Label 'There is nothing available to reserve.';
-        ReserveFromCurrentLine: Boolean;
 
     local procedure Initialize()
     var
@@ -1907,7 +1906,7 @@ codeunit 136121 "Service Reservation"
 
         // [GIVEN] Item on Inventory with Reserve = Optional
         CreateItemWithReserve(Item, Item.Reserve::Optional);
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', Quantity, WorkDate(), LibraryRandom.RandDec(10, 2));
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', Quantity, WorkDate(), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] Sales Order for Customer with Reserve = Always
         CreateSalesOrderLineByPage(SalesOrder, CreateCustomerWithReserveAlways(), Item."No.");

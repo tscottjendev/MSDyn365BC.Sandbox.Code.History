@@ -27,7 +27,6 @@
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryERM: Codeunit "Library - ERM";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -2531,8 +2530,8 @@
     local procedure PostConsumptionAndOutput(ProdOrderLine: Record "Prod. Order Line"; ComponentItem: Record Item; ProdItemUnitCost: Decimal; ConsumptionQty: Decimal; OutputQty: Decimal; PostingDate: Date)
     begin
         if ConsumptionQty <> 0 then
-            LibraryPatterns.POSTConsumption(ProdOrderLine, ComponentItem, '', '', ConsumptionQty, PostingDate, ComponentItem."Unit Cost");
-        LibraryPatterns.POSTOutput(ProdOrderLine, OutputQty, PostingDate, ProdItemUnitCost);
+            LibraryManufacturing.POSTConsumption(ProdOrderLine, ComponentItem, '', '', ConsumptionQty, PostingDate, ComponentItem."Unit Cost");
+        LibraryManufacturing.POSTOutput(ProdOrderLine, OutputQty, PostingDate, ProdItemUnitCost);
     end;
 
     local procedure RunRolledUpCostShareReport(ItemNo: Code[20])

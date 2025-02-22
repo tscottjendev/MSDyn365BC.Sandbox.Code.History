@@ -847,6 +847,8 @@ table 5405 "Production Order"
         "Starting Date-Time" := CreateDateTime("Starting Date", "Starting Time");
         "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
 
+        SetDefaultGenBusPostingGroup();
+
         OnAfterInitRecord(Rec);
     end;
 
@@ -1635,6 +1637,14 @@ table 5405 "Production Order"
             repeat
                 ProdOrderWarehouseMgt.CompareProdOrderWithProdOrderLinesForLocation(Rec, PutAwayProdOrderLine);
             until PutAwayProdOrderLine.Next() = 0;
+    end;
+
+    local procedure SetDefaultGenBusPostingGroup()
+    begin
+        GetMfgSetup();
+        if MfgSetup."Default Gen. Bus. Post. Group" <> '' then
+            if Rec."Gen. Bus. Posting Group" = '' then
+                Validate("Gen. Bus. Posting Group", MfgSetup."Default Gen. Bus. Post. Group");
     end;
 
     local procedure GetMfgSetup()

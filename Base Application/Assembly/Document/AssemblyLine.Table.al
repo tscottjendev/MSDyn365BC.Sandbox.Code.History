@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -109,6 +109,7 @@ table 901 "Assembly Line"
                         Validate("Dimension Set ID", 0);
 
                     "Due Date" := AssemblyHeader."Starting Date";
+                    Rec.Validate("Gen. Bus. Posting Group", AssemblyHeader."Gen. Bus. Posting Group");
                     case Type of
                         Type::Item:
                             CopyFromItem();
@@ -563,6 +564,11 @@ table 901 "Assembly Line"
             begin
                 TestStatusOpen();
             end;
+        }
+        field(64; "Gen. Bus. Posting Group"; Code[20])
+        {
+            Caption = 'Gen. Bus. Posting Group';
+            TableRelation = "Gen. Business Posting Group";
         }
         field(65; "Unit Cost"; Decimal)
         {
@@ -1028,7 +1034,7 @@ table 901 "Assembly Line"
         ItemAvailabilityCheck.RunModal();
     end;
 
-    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     var
         UOMMgt: Codeunit "Unit of Measure Management";
     begin
@@ -2051,6 +2057,21 @@ table 901 "Assembly Line"
                 "Qty. per Unit of Measure" := UnitOfMeasureManagement.GetResQtyPerUnitOfMeasure(Resource, "Unit of Measure Code");
             else
                 "Qty. per Unit of Measure" := 1;
+        end;
+    end;
+
+    internal procedure ShowAssemblyDocument()
+    var
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        AssemblyHeader.Get(Rec."Document Type", Rec."Document No.");
+        case AssemblyHeader."Document Type" of
+            AssemblyHeader."Document Type"::Quote:
+                Page.Run(Page::"Assembly Quote", AssemblyHeader);
+            AssemblyHeader."Document Type"::Order:
+                Page.Run(Page::"Assembly Order", AssemblyHeader);
+            AssemblyHeader."Document Type"::"Blanket Order":
+                Page.Run(Page::"Blanket Assembly Order", AssemblyHeader);
         end;
     end;
 
