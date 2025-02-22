@@ -46,7 +46,6 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryPatterns: Codeunit "Library - Patterns";
         isInitialized: Boolean;
         ThereIsNothingToCreateMsg: Label 'There is nothing to create.';
         NothingToHandleMsg: Label 'Nothing to handle. The production components are completely picked or not eligible for picking.';
@@ -1798,7 +1797,7 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         CompItem.Validate("Flushing Method", FlushingMethod);
         CompItem.Modify(true);
 
-        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ParentItem, CompItem, 1, '');
+        LibraryManufacturing.CreateProductionBOM(ProductionBOMHeader, ParentItem, CompItem, 1, '');
     end;
 
     local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal)

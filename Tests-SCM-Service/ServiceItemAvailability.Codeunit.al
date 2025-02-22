@@ -40,7 +40,6 @@ codeunit 136137 "Service Item Availability"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         ServiceLines: TestPage "Service Lines";
@@ -532,8 +531,8 @@ codeunit 136137 "Service Item Availability"
         Qty2 := LibraryRandom.RandDec(10, 2);
 
         // [GIVEN] Two Item Ledger Entries for Item "I" on Location "L": "ILE1" and "ILE2"
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', Qty1, WorkDate(), LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', Qty2, WorkDate(), LibraryRandom.RandDec(100, 2));
+        LibraryInventory.PostPositiveAdjustment(Item, Location.Code, '', '', Qty1, WorkDate(), LibraryRandom.RandDec(100, 2));
+        LibraryInventory.PostPositiveAdjustment(Item, Location.Code, '', '', Qty2, WorkDate(), LibraryRandom.RandDec(100, 2));
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
 

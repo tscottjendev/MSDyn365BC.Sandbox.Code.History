@@ -235,6 +235,12 @@ page 901 "Assembly Order Subform"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied from.';
                 }
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
+                {
+                    ApplicationArea = Assembly;
+                    ToolTip = 'Specifies the code for the General Business Posting Group that applies to the entry.';
+                    Visible = false;
+                }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
