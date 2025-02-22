@@ -42,7 +42,6 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
@@ -462,7 +461,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         Initialize();
         Item.Get(CreateChildItemWithInventory());
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', LibraryRandom.RandDec(100, 2),
+        LibraryInventory.PostPositiveAdjustment(Item, Location.Code, '', '', LibraryRandom.RandDec(100, 2),
           WorkDate(), LibraryRandom.RandDec(100, 2));
         LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::Location, false, false);
 

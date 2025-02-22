@@ -19,7 +19,6 @@ codeunit 137270 "SCM Reservation III"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
@@ -1208,9 +1207,9 @@ codeunit 137270 "SCM Reservation III"
         AdditionalItemUOM1: Record "Item Unit of Measure";
         AdditionalItemUOM2: Record "Item Unit of Measure";
     begin
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
-        LibraryPatterns.MAKEAdditionalItemUOM(AdditionalItemUOM1, Item."No.", QtyPerAltUOM1);
-        LibraryPatterns.MAKEAdditionalItemUOM(AdditionalItemUOM2, Item."No.", QtyPerAltUOM2);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
+        LibraryInventory.CreateItemUnitOfMeasureCode(AdditionalItemUOM1, Item."No.", QtyPerAltUOM1);
+        LibraryInventory.CreateItemUnitOfMeasureCode(AdditionalItemUOM2, Item."No.", QtyPerAltUOM2);
 
         BaseUOMCode := Item."Base Unit of Measure";
         AltUOMCode1 := AdditionalItemUOM1.Code;
