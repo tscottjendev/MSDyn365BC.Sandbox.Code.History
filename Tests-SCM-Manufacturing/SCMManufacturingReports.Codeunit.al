@@ -44,7 +44,6 @@ codeunit 137304 "SCM Manufacturing Reports"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -1393,7 +1392,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibraryPatterns.MAKESalesOrder(
+        LibrarySales.CreateSalesOrder(
           SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandDec(1000, 2),
           WorkDate(), LibraryRandom.RandDec(1000, 2));
         SalesLine.Validate("Shipment Date", CalcDate('<-1D>', WorkDate()));
@@ -1461,9 +1460,9 @@ codeunit 137304 "SCM Manufacturing Reports"
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
         LibraryInventory.CreateBOMComponent(BOMComponent, Item."No.", BOMComponent.Type::Item, Item2."No.", 1, '');
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', LibraryRandom.RandDec(100, 2), WorkDate(),
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', LibraryRandom.RandDec(100, 2), WorkDate(),
           LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.POSTPositiveAdjustment(Item2, '', '', '', LibraryRandom.RandDec(100, 2), WorkDate(),
+        LibraryInventory.PostPositiveAdjustment(Item2, '', '', '', LibraryRandom.RandDec(100, 2), WorkDate(),
           LibraryRandom.RandDec(100, 2));
     end;
 
