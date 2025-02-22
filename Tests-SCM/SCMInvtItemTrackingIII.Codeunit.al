@@ -25,7 +25,6 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryPlanning: Codeunit "Library - Planning";
         TrackingOption: Option AssignSerialLot,AssignLotNo,SelectEntries,SetLotNo,SetQuantity,SetLotNoAndQty,SetSerialNoAndQty,SelectAndApplyToItemEntry,SetEntriesToInvoice,InvokeOK,AssignLotNoManual;
         isInitialized: Boolean;
@@ -3541,7 +3540,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         Item.Get(
           CreateTrackedItem(
             LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(SNTracking, LotNoTracking)));
-        LibraryPatterns.MAKEAdditionalItemUOM(ItemUnitOfMeasure, Item."No.", QtyPerUOM);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", QtyPerUOM);
     end;
 
     local procedure CreateItemWithSalesPurchUOM(var Item: Record Item; SNTracking: Boolean; LotNoTracking: Boolean; QtyPerUOM: Decimal)
