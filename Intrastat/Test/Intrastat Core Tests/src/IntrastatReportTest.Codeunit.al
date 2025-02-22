@@ -19,7 +19,6 @@ codeunit 139550 "Intrastat Report Test"
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryMarketing: Codeunit "Library - Marketing";
@@ -712,7 +711,7 @@ codeunit 139550 "Intrastat Report Test"
         LibraryIntrastat.CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, LibraryIntrastat.CreateItem());
 
         // [GIVEN] Item Charge Purchase Line
-        LibraryPatterns.ASSIGNPurchChargeToPurchaseLine(PurchaseHeader, PurchaseLine, 1, LibraryRandom.RandDecInRange(100, 200, 2));
+        LibraryPurchase.AssignPurchChargeToPurchaseLine(PurchaseHeader, PurchaseLine, 1, LibraryRandom.RandDecInRange(100, 200, 2));
 
         // [GIVEN] Purchase Order is Received and Invoiced on 01.Jan
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);

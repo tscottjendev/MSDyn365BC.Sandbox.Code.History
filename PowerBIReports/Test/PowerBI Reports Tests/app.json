@@ -2,7 +2,7 @@
   "id": "7628c8de-f349-4806-a540-21b0044f7722",
   "name": "PowerBI Reports Tests",
   "publisher": "Microsoft",
-  "version": "26.0.30435.0",
+  "version": "26.0.30444.0",
   "brief": "Tests for PowerBI Reports",
   "description": "Tests for PowerBI Reports",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -47,6 +47,12 @@
       "name": "PowerBI Reports Test Library",
       "publisher": "Microsoft",
       "version": "26.0.0.0"
+    },
+    {
+      "id": "b3780cd9-f8f8-4a83-a4d5-0c2ad87b28af",
+      "name": "Sustainability",
+      "publisher": "Microsoft",
+      "version": "26.0.0.0"
     }
   ],
   "screenshots": [],
@@ -56,7 +62,7 @@
   "idRanges": [
     {
       "from": 139875,
-      "to": 139889
+      "to": 139890
     }
   ],
   "resourceExposurePolicy": {

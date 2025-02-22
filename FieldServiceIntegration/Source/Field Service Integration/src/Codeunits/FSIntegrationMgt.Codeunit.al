@@ -81,7 +81,7 @@ codeunit 6615 "FS Integration Mgt."
         ImportFieldServiceIntegrationSolution(CRMHelper, TempConnectionString, UserGUID, IntegrationRoleGUID, ForceRedeploy, ImportSolutionFailed);
 
         FSConnectionSetup.Get();
-        if FSConnectionSetup."Integration Type" = FSConnectionSetup."Integration Type"::Service then
+        if FSConnectionSetup."Integration Type" = FSConnectionSetup."Integration Type"::"Service and projects" then
             ImportPremiumFieldServiceIntegrationSolution(CRMHelper, TempConnectionString, UserGUID, IntegrationRoleGUID, ForceRedeploy, ImportSolutionFailed);
 
         if CDSIntegrationImpl.IsIntegrationEnabled() then begin
@@ -189,7 +189,7 @@ codeunit 6615 "FS Integration Mgt."
         FSConnectionSetup: Record "FS Connection Setup";
     begin
         FSConnectionSetup.Get();
-        if TryTouchFSSolutionEntities() and (FSConnectionSetup."Integration Type" = FSConnectionSetup."Integration Type"::Project) then
+        if TryTouchFSSolutionEntities() and (FSConnectionSetup."Integration Type" = FSConnectionSetup."Integration Type"::Projects) then
             exit(true);
 
         ClearLastError();
@@ -263,7 +263,7 @@ codeunit 6615 "FS Integration Mgt."
         SetToManualLbl: Label 'Set to Manual';
         OpenNoSeriesListLbl: Label 'Open No. Series. list';
     begin
-        if not (IntegrationType = IntegrationType::Service) then
+        if not (IntegrationType = IntegrationType::"Service and projects") then
             exit;
 
         ServiceMgtSetup.Get();
@@ -299,7 +299,7 @@ codeunit 6615 "FS Integration Mgt."
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        if not (IntegrationType = IntegrationType::Service) then
+        if not (IntegrationType = IntegrationType::"Service and projects") then
             exit;
 
         ServiceMgtSetup.Get();

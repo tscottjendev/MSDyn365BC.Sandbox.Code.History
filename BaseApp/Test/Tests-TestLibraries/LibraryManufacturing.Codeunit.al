@@ -15,6 +15,7 @@ codeunit 132202 "Library - Manufacturing"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         TemplateName: Label 'FOR. LABOR';
         BatchName: Label 'DEFAULT', Comment = 'Default Batch';
 
@@ -1089,6 +1090,193 @@ codeunit 132202 "Library - Manufacturing"
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenJournal(var RequisitionLine: Record "Requisition Line"; var Handled: Boolean)
     begin
+    end;
+
+    // Move from Library Patterns
+
+    procedure CreateConsumptionJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; ProdOrderLine: Record "Prod. Order Line"; ComponentItem: Record Item; PostingDate: Date; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; UnitCost: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        EntryType: Enum "Item Ledger Entry Type";
+    begin
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Consumption);
+        EntryType := ItemJournalLine."Entry Type"::"Negative Adjmt.";
+        if ComponentItem.IsNonInventoriableType() then
+            EntryType := ItemJournalLine."Entry Type"::Consumption;
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch, ComponentItem, LocationCode, VariantCode, PostingDate,
+          EntryType, Qty, 0);
+        ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::Consumption);
+        ItemJournalLine.Validate("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.Validate("Order No.", ProdOrderLine."Prod. Order No.");
+        ItemJournalLine.Validate("Order Line No.", ProdOrderLine."Line No.");
+        if ItemJournalLine."Location Code" <> LocationCode then // required for CH
+            ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Unit Cost", UnitCost);
+        ItemJournalLine.Modify(true);
+    end;
+
+    procedure CreateOutputJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; ProdOrderLine: Record "Prod. Order Line"; PostingDate: Date; Qty: Decimal; UnitCost: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        Item: Record Item;
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Output);
+        Item.Get(ProdOrderLine."Item No.");
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch, Item, ProdOrderLine."Location Code", ProdOrderLine."Variant Code", PostingDate,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", 0, 0);
+        ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::Output);
+        ItemJournalLine.Validate("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.Validate("Order No.", ProdOrderLine."Prod. Order No.");
+        ItemJournalLine.Validate("Order Line No.", ProdOrderLine."Line No.");
+        ItemJournalLine.Validate("Item No.", ProdOrderLine."Item No.");
+        RoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+        if RoutingLine.FindFirst() then
+            ItemJournalLine.Validate("Operation No.", RoutingLine."Operation No.");
+        ItemJournalLine.Validate("Output Quantity", Qty);
+        ItemJournalLine.Validate("Unit Cost", UnitCost);
+        ItemJournalLine.Modify();
+    end;
+
+    procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; var ParentItem: Record Item; ChildItem: Record Item; ChildItemQtyPer: Decimal; RoutingLinkCode: Code[10])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        CreateProductionBOMHeader(ProductionBOMHeader, ParentItem."Base Unit of Measure");
+        CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ChildItem."No.", ChildItemQtyPer);
+        ProductionBOMLine.Validate("Routing Link Code", RoutingLinkCode);
+        ProductionBOMLine.Modify();
+
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify();
+
+        ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ParentItem.Modify();
+    end;
+
+    procedure CreateProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Enum "Production Order Status"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; DueDate: Date)
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        NoSeries: Codeunit "No. Series";
+        ProdNoSeries: Code[20];
+    begin
+        ProdNoSeries := LibraryUtility.GetGlobalNoSeriesCode();
+        ManufacturingSetup.Get();
+        case ProdOrderStatus of
+            ProductionOrder.Status::Simulated:
+                if ManufacturingSetup."Simulated Order Nos." <> ProdNoSeries then begin
+                    ManufacturingSetup."Simulated Order Nos." := ProdNoSeries;
+                    ManufacturingSetup.Modify();
+                end;
+            ProductionOrder.Status::Planned:
+                if ManufacturingSetup."Planned Order Nos." <> ProdNoSeries then begin
+                    ManufacturingSetup."Planned Order Nos." := ProdNoSeries;
+                    ManufacturingSetup.Modify();
+                end;
+            ProductionOrder.Status::"Firm Planned":
+                if ManufacturingSetup."Firm Planned Order Nos." <> ProdNoSeries then begin
+                    ManufacturingSetup."Firm Planned Order Nos." := ProdNoSeries;
+                    ManufacturingSetup.Modify();
+                end;
+            ProductionOrder.Status::Released:
+                if ManufacturingSetup."Released Order Nos." <> ProdNoSeries then begin
+                    ManufacturingSetup."Released Order Nos." := ProdNoSeries;
+                    ManufacturingSetup.Modify();
+                end;
+        end;
+
+        Clear(ProductionOrder);
+        ProductionOrder."No." := NoSeries.GetNextNo(ProdNoSeries);
+        ProductionOrder.Status := ProdOrderStatus;
+        ProductionOrder.Validate("Source Type", ProductionOrder."Source Type"::Item);
+        ProductionOrder.Validate("Source No.", Item."No.");
+        ProductionOrder.Validate(Quantity, Qty);
+        ProductionOrder.Validate("Location Code", LocationCode);
+        ProductionOrder.Validate("Due Date", DueDate);
+        ProductionOrder.Insert(true);
+        RefreshProdOrder(ProductionOrder, false, true, true, true, true);
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.ModifyAll("Variant Code", VariantCode);
+    end;
+
+    procedure CreateRouting(var RoutingHeader: Record "Routing Header"; var Item: Record Item; RoutingLinkCode: Code[10]; DirectUnitCost: Decimal)
+    var
+        RoutingLine: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+    begin
+        CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        WorkCenter.FindFirst();
+        WorkCenter.Validate("Direct Unit Cost", DirectUnitCost);
+        WorkCenter.Modify();
+
+        CreateRoutingLine(RoutingHeader, RoutingLine, '', '', RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Routing Link Code", RoutingLinkCode);
+        RoutingLine.Validate("Run Time", 1);
+        RoutingLine.Modify();
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify();
+
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify();
+    end;
+
+    procedure CreateRoutingforWorkCenter(var RoutingHeader: Record "Routing Header"; var Item: Record Item; WorkCenterNo: Code[20])
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        CreateRoutingLine(RoutingHeader, RoutingLine, '', '', RoutingLine.Type::"Work Center", WorkCenterNo);
+        RoutingLine.Validate("Run Time", 1);
+        RoutingLine.Modify();
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify();
+
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify();
+    end;
+
+    procedure PostConsumption(ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        CreateConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, Item, PostingDate, LocationCode, VariantCode, Qty, UnitCost);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    procedure PostOutput(ProdOrderLine: Record "Prod. Order Line"; Qty: Decimal; PostingDate: Date; UnitCost: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        Item: Record Item;
+    begin
+        Item.Get(ProdOrderLine."Item No.");
+        CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, PostingDate, Qty, UnitCost);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    procedure PostOutputWithItemTracking(ProdOrderLine: Record "Prod. Order Line"; Qty: Decimal; RunTime: Decimal; PostingDate: Date; UnitCost: Decimal; SerialNo: Code[50]; LotNo: Code[50])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        Item: Record Item;
+        ReservEntry: Record "Reservation Entry";
+    begin
+        Item.Get(ProdOrderLine."Item No.");
+        CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, PostingDate, Qty, UnitCost);
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.Validate("Run Time", RunTime);
+        ItemJournalLine.Modify();
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine, SerialNo, LotNo, Qty);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 }
 

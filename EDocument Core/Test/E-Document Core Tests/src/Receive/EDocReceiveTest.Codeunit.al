@@ -61,6 +61,9 @@ codeunit 139628 "E-Doc. Receive Test"
         Vendor.Modify();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
 
+        PurchaseHeader."Due Date" := WorkDate() + 30;
+        PurchaseHeader.Modify();
+
         for i := 1 to 3 do begin
             LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
             PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));

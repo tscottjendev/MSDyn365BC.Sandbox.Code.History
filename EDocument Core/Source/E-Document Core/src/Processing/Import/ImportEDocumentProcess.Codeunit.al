@@ -110,6 +110,9 @@ codeunit 6104 "Import E-Document Process"
         IBlobToStructuredDataConverter := IBlobType.GetStructuredDataConverter();
         Content := IBlobToStructuredDataConverter.Convert(EDocument, FromBlob, EDocumentDataStorage."Data Type", NewType);
 
+        if StrLen(Content) = 0 then
+            Error(UnstructuredBlobConversionErr);
+
         NameWithoutExtension := FileManagement.GetFileNameWithoutExtension(EDocumentDataStorage.Name);
         Name := CopyStr(NameWithoutExtension + '.' + LowerCase(Format(NewType)), 1, 256);
         EDocumentLog.SetBlob(Name, NewType, Content);
@@ -264,4 +267,5 @@ codeunit 6104 "Import E-Document Process"
         Step: Enum "Import E-Document Steps";
         UndoStep: Boolean;
         UnstructuredBlobTypeWithNoConverterErr: Label 'Cant process E-Document as data type does not have a converter implemented.';
+        UnstructuredBlobConversionErr: Label 'Conversion of the source document to structured format failed. Verify that the source document is not corrupted.';
 }
