@@ -191,6 +191,40 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
           Round(QtyBase * Item."Single-Level Mfg. Ovhd Cost" * CurrencyFactor, RndgPrec);
     end;
 
+    procedure CalcProdOrderLineStdCost(ProdOrderLine: Record "Prod. Order Line"; CurrencyFactor: Decimal; RndgPrec: Decimal; var StdMatCost: Decimal; var StdNonInvMatCost: Decimal; var StdCapDirCost: Decimal; var StdSubDirCost: Decimal; var StdCapOvhdCost: Decimal; var StdMfgOvhdCost: Decimal)
+    var
+        Item: Record Item;
+        InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        QtyBase: Decimal;
+    begin
+        if InvtAdjmtEntryOrder.Get(InvtAdjmtEntryOrder."Order Type"::Production, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.") and
+           InvtAdjmtEntryOrder."Completely Invoiced"
+        then begin
+            Item."Single-Level Material Cost" := InvtAdjmtEntryOrder."Single-Level Material Cost";
+            Item."Single-Lvl Mat. Non-Invt. Cost" := InvtAdjmtEntryOrder."Single-Lvl Mat. Non-Invt. Cost";
+            Item."Single-Level Capacity Cost" := InvtAdjmtEntryOrder."Single-Level Capacity Cost";
+            Item."Single-Level Subcontrd. Cost" := InvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
+            Item."Single-Level Cap. Ovhd Cost" := InvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
+            Item."Single-Level Mfg. Ovhd Cost" := InvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
+            QtyBase := ProdOrderLine."Finished Qty. (Base)";
+        end else begin
+            Item.Get(ProdOrderLine."Item No.");
+            UpdateCostFromSKU(Item, ProdOrderLine);
+            QtyBase := ProdOrderLine."Quantity (Base)";
+        end;
+
+        StdMatCost := StdMatCost + Round(QtyBase * Item."Single-Level Material Cost" * CurrencyFactor, RndgPrec);
+        StdNonInvMatCost := StdNonInvMatCost + Round(QtyBase * (Item."Single-Lvl Mat. Non-Invt. Cost") * CurrencyFactor, RndgPrec);
+        StdCapDirCost := StdCapDirCost +
+          Round(QtyBase * Item."Single-Level Capacity Cost" * CurrencyFactor, RndgPrec);
+        StdSubDirCost := StdSubDirCost +
+          Round(QtyBase * Item."Single-Level Subcontrd. Cost" * CurrencyFactor, RndgPrec);
+        StdCapOvhdCost := StdCapOvhdCost +
+          Round(QtyBase * Item."Single-Level Cap. Ovhd Cost" * CurrencyFactor, RndgPrec);
+        StdMfgOvhdCost := StdMfgOvhdCost +
+          Round(QtyBase * Item."Single-Level Mfg. Ovhd Cost" * CurrencyFactor, RndgPrec);
+    end;
+
     local procedure UpdateCostFromSKU(var Item: Record Item; ProdOrderLine: Record "Prod. Order Line")
     var
         SKU: Record "Stockkeeping Unit";
@@ -288,6 +322,63 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
 #endif
     end;
 
+    procedure CalcProdOrderLineExpCost(ProdOrderLine: Record "Prod. Order Line"; ShareOfTotalCapCost: Decimal; var ExpMatCost: Decimal; var ExpNonInvMatCost: Decimal; var ExpCapDirCost: Decimal; var ExpSubDirCost: Decimal; var ExpCapOvhdCost: Decimal; var ExpMfgOvhdCost: Decimal)
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        ProdOrderComp: Record "Prod. Order Component";
+        ProdOrderRtngLine: Record "Prod. Order Routing Line";
+        ExpOperCost: Decimal;
+        ExpMfgDirCost: Decimal;
+        ExpCapDirCostRtng: Decimal;
+        ExpSubDirCostRtng: Decimal;
+        ExpCapOvhdCostRtng: Decimal;
+        ExpOvhdCost: Decimal;
+    begin
+        ProdOrderComp.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.");
+        ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
+        ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+        ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+        if ProdOrderComp.Find('-') then
+            repeat
+                Item.Get(ProdOrderComp."Item No.");
+                if Item.IsNonInventoriableType() then
+                    ExpNonInvMatCost += ProdOrderComp."Cost Amount"
+                else
+                    ExpMatCost := ExpMatCost + ProdOrderComp."Cost Amount";
+            until ProdOrderComp.Next() = 0;
+
+        ProdOrderRtngLine.SetRange(Status, ProdOrderLine.Status);
+        ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+        ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+        ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+        if ProdOrderRtngLine.Find('-') then
+            repeat
+                ExpOperCost :=
+                  ProdOrderRtngLine."Expected Operation Cost Amt." -
+                  ProdOrderRtngLine."Expected Capacity Ovhd. Cost";
+                if ProdOrderRtngLine.Type = ProdOrderRtngLine.Type::"Work Center" then begin
+                    if not WorkCenter.Get(ProdOrderRtngLine."No.") then
+                        Clear(WorkCenter);
+                end else
+                    Clear(WorkCenter);
+
+                if WorkCenter."Subcontractor No." <> '' then
+                    ExpSubDirCostRtng := ExpSubDirCostRtng + ExpOperCost
+                else
+                    ExpCapDirCostRtng := ExpCapDirCostRtng + ExpOperCost;
+                ExpCapOvhdCostRtng := ExpCapOvhdCostRtng + ProdOrderRtngLine."Expected Capacity Ovhd. Cost";
+            until ProdOrderRtngLine.Next() = 0;
+
+        ExpCapDirCost := ExpCapDirCost + Round(ExpCapDirCostRtng * ShareOfTotalCapCost);
+        ExpSubDirCost := ExpSubDirCost + Round(ExpSubDirCostRtng * ShareOfTotalCapCost);
+        ExpCapOvhdCost := ExpCapOvhdCost + Round(ExpCapOvhdCostRtng * ShareOfTotalCapCost);
+        ExpMfgDirCost := ExpMatCost + ExpNonInvMatCost + ExpCapDirCost + ExpSubDirCost + ExpCapOvhdCost;
+        ExpOvhdCost := ExpMfgOvhdCost + ProdOrderLine."Overhead Rate" * ProdOrderLine."Quantity (Base)";
+        ExpMfgOvhdCost := ExpOvhdCost +
+          Round(CostCalculationMgt.CalcOvhdCost(ExpMfgDirCost, ProdOrderLine."Indirect Cost %", 0, 0));
+    end;
+
     procedure CalcProdOrderLineActCost(ProdOrderLine: Record "Prod. Order Line"; var ActMatCost: Decimal; var ActCapDirCost: Decimal; var ActSubDirCost: Decimal; var ActCapOvhdCost: Decimal; var ActMfgOvhdCost: Decimal; var ActMatCostCostACY: Decimal; var ActCapDirCostACY: Decimal; var ActSubDirCostACY: Decimal; var ActCapOvhdCostACY: Decimal; var ActMfgOvhdCostACY: Decimal)
     var
         TempSourceInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)" temporary;
@@ -328,6 +419,46 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
             ActMatCostCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Material Cost (ACY)"
         else
             ActMatCostCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Material Cost (ACY)" + TempSourceInvtAdjmtEntryOrder."Single-Lvl Mat.NonInvCost(ACY)";
+        ActCapDirCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Capacity Cost (ACY)";
+        ActCapOvhdCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Cap. Ovhd Cost(ACY)";
+        ActSubDirCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Subcontrd Cost(ACY)";
+        ActMfgOvhdCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Mfg. Ovhd Cost(ACY)";
+    end;
+
+    procedure CalcProdOrderLineActCost(ProdOrderLine: Record "Prod. Order Line"; var ActMatCost: Decimal; var ActNonInvMatCost: Decimal; var ActCapDirCost: Decimal; var ActSubDirCost: Decimal; var ActCapOvhdCost: Decimal; var ActMfgOvhdCost: Decimal; var ActMatCostACY: Decimal; var ActNonInvMatCostACY: Decimal; var ActCapDirCostACY: Decimal; var ActSubDirCostACY: Decimal; var ActCapOvhdCostACY: Decimal; var ActMfgOvhdCostACY: Decimal)
+    var
+        TempSourceInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)" temporary;
+        CalcInvtAdjmtOrder: Codeunit "Calc. Inventory Adjmt. - Order";
+        OutputQty: Decimal;
+    begin
+        if ProdOrderLine.IsStatusLessThanReleased() then begin
+            ActMatCost := 0;
+            ActNonInvMatCost := 0;
+            ActCapDirCost := 0;
+            ActSubDirCost := 0;
+            ActCapOvhdCost := 0;
+            ActMfgOvhdCost := 0;
+            ActMatCostACY := 0;
+            ActNonInvMatCostACY := 0;
+            ActCapDirCostACY := 0;
+            ActCapOvhdCostACY := 0;
+            ActSubDirCostACY := 0;
+            ActMfgOvhdCostACY := 0;
+            exit;
+        end;
+
+        TempSourceInvtAdjmtEntryOrder.SetProdOrderLine(ProdOrderLine);
+        OutputQty := CalcInvtAdjmtOrder.CalcOutputQty(TempSourceInvtAdjmtEntryOrder, false);
+        CalcInvtAdjmtOrder.CalcActualUsageCosts(TempSourceInvtAdjmtEntryOrder, OutputQty, TempSourceInvtAdjmtEntryOrder);
+
+        ActMatCost += TempSourceInvtAdjmtEntryOrder."Single-Level Material Cost";
+        ActNonInvMatCost += TempSourceInvtAdjmtEntryOrder."Single-Lvl Mat. Non-Invt. Cost";
+        ActCapDirCost += TempSourceInvtAdjmtEntryOrder."Single-Level Capacity Cost";
+        ActSubDirCost += TempSourceInvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
+        ActCapOvhdCost += TempSourceInvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
+        ActMfgOvhdCost += TempSourceInvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
+        ActMatCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Material Cost (ACY)";
+        ActNonInvMatCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Mat.NonInvCost(ACY)";
         ActCapDirCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Capacity Cost (ACY)";
         ActCapOvhdCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Cap. Ovhd Cost(ACY)";
         ActSubDirCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Subcontrd Cost(ACY)";
