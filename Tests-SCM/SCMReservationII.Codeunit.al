@@ -3298,7 +3298,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         LibraryInventory.ClearItemJournal(OutputItemJournalTemplate, OutputItemJournalBatch);
         LibraryManufacturing.CreateOutputJournal(ItemJournalLine, OutputItemJournalTemplate, OutputItemJournalBatch, '', ProductionOrderNo);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
     end;
 
     local procedure CreatePickWorksheetLineFromProdOrder(var WhseWorksheetLine: Record "Whse. Worksheet Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; LocationCode: Code[10])
