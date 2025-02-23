@@ -3759,7 +3759,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         LibraryInventory.ClearItemJournal(OutputItemJournalTemplate, OutputItemJournalBatch);
         LibraryManufacturing.CreateOutputJournal(ItemJournalLine, OutputItemJournalTemplate, OutputItemJournalBatch, '', ProductionOrderNo);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
     end;
 
     local procedure UpdateQuantityAndPostOutputJournal(OutputQuantity: Decimal; TrackingLine: Boolean)

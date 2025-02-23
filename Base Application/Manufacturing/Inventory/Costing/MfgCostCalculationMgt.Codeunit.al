@@ -43,6 +43,22 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
         end;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Stockkeeping Unit", OnBeforeValidateStandardCost, '', false, false)]
+    local procedure OnBeforeValidateSKUStandardCost(var StockkeepingUnit: Record "Stockkeeping Unit"; xStockkeepingUnit: Record "Stockkeeping Unit")
+    var
+        Item: Record Item;
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        if CanIncNonInvCostIntoProductionItem() then begin
+            Item.Get(StockkeepingUnit."Item No.");
+            if Item."Costing Method" = Item."Costing Method"::Standard then
+                StockkeepingUnit."Single-Lvl Mat. Non-Invt. Cost" := 0;
+
+            if StockkeepingUnit."Standard Cost" <> xStockkeepingUnit."Standard Cost" then
+                CalculateStandardCost.CalcSKUForNonInventoryValue(StockkeepingUnit);
+        end;
+    end;
+
     procedure CalcRoutingCostPerUnit(Type: Enum "Capacity Type"; No: Code[20]; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type")
     var
         WorkCenter: Record "Work Center";
