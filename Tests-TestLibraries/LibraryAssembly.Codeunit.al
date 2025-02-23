@@ -829,13 +829,13 @@ codeunit 132207 "Library - Assembly"
     var
         BOMComponent: Record "BOM Component";
         Item2: Record Item;
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         Depth: Integer;
+        BOMCreated: Boolean;
     begin
         CreateItem(Item, CostingMethod, ReplenishmentMethod, '', '');
-        if ReplenishmentMethod = Item."Replenishment System"::"Prod. Order" then
-            LibraryManufacturing.CreateProductionBOM(Item, NoOfComps)
-        else
+        BOMCreated := false;
+        OnCreateMultipleLvlTreeOnCreateBOM(Item, NoOfComps, BOMCreated);
+        if not BOMCreated then
             CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, NoOfComps, NoOfComps, NoOfComps, 1, '', '');
 
         CreateItem(Item1, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
@@ -854,8 +854,7 @@ codeunit 132207 "Library - Assembly"
             Item.Find();
             Item.Validate("Replenishment System", ReplenishmentMethod);
             Item.Modify(true);
-            if ReplenishmentMethod = Item."Replenishment System"::"Prod. Order" then
-                LibraryManufacturing.CreateProductionBOM(Item, NoOfComps);
+            OnCreateMultipleLvlTreeOnCreateBOM(Item, NoOfComps, BOMCreated);
         end;
         Commit();
     end;
@@ -3320,6 +3319,11 @@ codeunit 132207 "Library - Assembly"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertInventoryPostingSetup(var InventoryPostingSetup: Record "Inventory Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateMultipleLvlTreeOnCreateBOM(var Item: Record Item; NoOfComps: Integer; var BOMCreated: Boolean)
     begin
     end;
 }

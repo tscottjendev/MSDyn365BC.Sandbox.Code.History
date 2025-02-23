@@ -254,6 +254,8 @@ codeunit 5804 ItemCostManagement
         SKU: Record "Stockkeeping Unit";
     begin
         SKU.Get(FromSKU."Location Code", FromSKU."Item No.", FromSKU."Variant Code");
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            SKU.SetHideNonInventoryValidateOnStdCost(true);
         SKU.Validate("Standard Cost", FromSKU."Standard Cost");
         SKU."Single-Level Material Cost" := FromSKU."Single-Level Material Cost";
         SKU."Single-Level Capacity Cost" := FromSKU."Single-Level Capacity Cost";

@@ -105,9 +105,9 @@ codeunit 137003 "SCM WIP Costing Production-I"
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, AutoCostPosting, FlushingMethod, CostingMethod,
           true, true, false, false, false, false, false);
         if FlushingMethod = "Flushing Method"::Manual then begin
-            LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+            LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
             LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-            LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+            LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
             LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         end;
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
@@ -406,7 +406,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           true, true, false, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
 
@@ -439,10 +439,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           true, true, false, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
 
         // 2. Exercise: Post Output and Post Inventory Cost to G/L.
@@ -474,10 +474,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           true, true, false, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
@@ -544,9 +544,9 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           true, false, false, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         CopyPurchaseLinesToTemp(TempPurchaseLine, PurchaseHeader);
@@ -585,9 +585,9 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           true, false, false, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);  // Invoice.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
@@ -691,9 +691,9 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           false, false, false, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         CopyPurchaseLinesToTemp(TempPurchaseLine, PurchaseHeader);
@@ -729,9 +729,9 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           false, false, false, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
@@ -796,9 +796,9 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           false, false, false, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         UpdateLessQtyOutputJournal(ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
@@ -835,9 +835,9 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           false, false, false, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         UpdateLessQtyOutputJournal(ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
@@ -871,9 +871,9 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           false, false, false, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);  // Invoice.
@@ -965,9 +965,9 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Average,
           true, true, false, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
@@ -998,9 +998,9 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Average,
           true, true, false, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         UpdateLessQtyOutputJournal(ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
@@ -1032,10 +1032,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Average,
           true, true, false, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         UpdateDiffQtyConsmpJournal(ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         UpdateLessQtyOutputJournal(ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
@@ -1099,9 +1099,9 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Average,
           true, true, false, false, false, true, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
@@ -1166,11 +1166,11 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetupAddnlCurr(
           PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Standard,
           true, true, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
@@ -1204,12 +1204,12 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetupAddnlCurr(
           PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Standard,
           true, true, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         UpdateDiffQtyConsmpJournal(ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
@@ -1243,12 +1243,12 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetupAddnlCurr(
           PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Standard,
           true, true, false, false, false, false);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         UpdateDiffQtyConsmpJournal(ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         UpdateLessQtyOutputJournal(ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
@@ -1319,11 +1319,11 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetupAddnlCurr(
           PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Standard,
           true, true, false, false, false, true);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
@@ -2446,10 +2446,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
-        LibraryInventory.CreateItemJournal(
+        LibraryManufacturing.CreateProdItemJournal(
           ItemJournalBatch, '', ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ParentItemNo, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ParentItemNo, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);

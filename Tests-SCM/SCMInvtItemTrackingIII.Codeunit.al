@@ -3799,7 +3799,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
         LibraryManufacturing.CreateOutputJournal(ItemJournalLine, ItemJournalTemplate, ItemJournalBatch, '', ProductionOrderNo);  // Use Blank Value for Item No.
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
     end;
 
     local procedure CreateProductionBOM(var ProductionBOMLine: Record "Production BOM Line"; ItemNo: Code[20]; BaseUnitofMeasure: Code[10])

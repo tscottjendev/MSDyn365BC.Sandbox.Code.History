@@ -119,6 +119,11 @@ page 99000813 "Planned Production Order"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies when the production order card was last modified.';
                 }
+                field("Manual Scheduling"; Rec."Manual Scheduling")
+                {
+                    ApplicationArea = Manufacturing;
+                    Importance = Additional;
+                }
             }
             part(ProdOrderLines; "Planned Prod. Order Lines")
             {
