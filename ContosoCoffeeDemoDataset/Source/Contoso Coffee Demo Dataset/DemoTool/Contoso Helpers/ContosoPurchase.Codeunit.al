@@ -31,7 +31,10 @@ codeunit 4781 "Contoso Purchase"
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Validate("Expected Receipt Date", ExpectedReceiptDate);
         PurchaseHeader.Validate("Payment Terms Code", PaymentTermsCode);
-        PurchaseHeader.Validate("Location Code", LocationCode);
+
+        if LocationCode <> '' then
+            PurchaseHeader.Validate("Location Code", LocationCode);
+
         PurchaseHeader.Validate("Vendor Order No.", VendorOrderNo);
 
         if VendorInvoiceNo <> '' then

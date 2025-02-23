@@ -21,6 +21,7 @@ codeunit 148189 "Sust. Water/Waste Int. Test"
         EmissionScopeNotSupportedErr: Label 'Emission Scope %1 is not supported With CO2,N2O,CH4.', Comment = '%1 = Emission Scope';
         CanBeUsedOnlyForWasteErr: Label '%1 can be only used for waste.', Comment = '%1 = Field Value';
         CanBeUsedOnlyForWaterErr: Label '%1 can be used only for water.', Comment = '%1 = Field Value';
+        ScopeTypeIsNotSupportedErr: Label 'Scope Type %1 is not supported in %2.', Comment = '%1 = Scope Type , %2 = Table Caption';
 
     [Test]
     procedure TestWaterIntensityCanBeOnlyBeEnableOnSustAccountCategory()
@@ -2149,6 +2150,22 @@ codeunit 148189 "Sust. Water/Waste Int. Test"
 
         // [VERIFY] Verify "Sust. Account No." should not selected in the purchase document with Intensity Setup.
         Assert.ExpectedError(StrSubstNo(NotAllowedToUseSustAccountForWaterOrWasteErr, AccountCode));
+    end;
+
+    [Test]
+    procedure ScopeTypeWaterWasteIsNotAllowedToSelectInEmissionFee()
+    var
+        EmissionFee: Record "Emission Fee";
+    begin
+        // [SCENARIO 566417] Verify "Scope Type" "Water/Waste" is not allowed to select in Emission Fee.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [WHEN] Create Emission Fee with "Scope Type" "Water/Waste".
+        EmissionFee.Init();
+        asserterror EmissionFee.Validate("Scope Type", EmissionFee."Scope Type"::"Water/Waste");
+
+        // [THEN] Verify "Scope Type" "Water/Waste" is not allowed to select in Emission Fee.
+        Assert.ExpectedError(StrSubstNo(ScopeTypeIsNotSupportedErr, EmissionFee."Scope Type"::"Water/Waste", EmissionFee.TableCaption()));
     end;
 
     local procedure CreateSustainabilityAccount(var AccountCode: Code[20]; var CategoryCode: Code[20]; var SubcategoryCode: Code[20]; i: Integer): Record "Sustainability Account"

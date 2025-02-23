@@ -198,6 +198,33 @@ page 6181 "E-Document Purchase Draft"
                     AnalyzeEDocument();
                 end;
             }
+            action(ViewFile)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'View source file';
+                ToolTip = 'View the source file.';
+                Image = ViewDetails;
+
+                trigger OnAction()
+                begin
+                    Rec.ViewSourceFile();
+                end;
+            }
+            action(ViewExtractedDocumentData)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'View extracted data';
+                ToolTip = 'View the extracted data from the source file.';
+                Image = ViewRegisteredOrder;
+
+                trigger OnAction()
+                var
+                    EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+                begin
+                    EDocumentPurchaseHeader.GetFromEDocument(Rec);
+                    Page.Run(Page::"E-Doc. Readable Purchase Doc.", EDocumentPurchaseHeader);
+                end;
+            }
         }
         area(Promoted)
         {
@@ -207,6 +234,9 @@ page 6181 "E-Document Purchase Draft"
                 {
                 }
                 actionref(Promoted_AnalyseDocument; AnalyzeDocument)
+                {
+                }
+                actionref(Promoted_ViewFile; ViewFile)
                 {
                 }
             }

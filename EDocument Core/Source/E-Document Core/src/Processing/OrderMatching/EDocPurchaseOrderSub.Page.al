@@ -87,10 +87,10 @@ page 6168 "E-Doc. Purchase Order Sub"
     trigger OnAfterGetRecord()
     begin
         IsMatched := Rec.HasEDocMatch(EDocumentBeingMatched."Entry No");
-        if Rec.Type = Enum::"Purchase Line Type"::"G/L Account" then
-            AvailableQuantity := Rec."Quantity" - Rec."Quantity Invoiced"
+        if Rec.Type = Enum::"Purchase Line Type"::Item then
+            AvailableQuantity := Rec."Quantity Received" - Rec."Quantity Invoiced"
         else
-            AvailableQuantity := Rec."Quantity Received" - Rec."Quantity Invoiced";
+            AvailableQuantity := Rec."Quantity" - Rec."Quantity Invoiced";
         SetUserInteractions();
     end;
 
@@ -132,7 +132,6 @@ page 6168 "E-Doc. Purchase Order Sub"
         Clear(TempPurchaseLine);
         PurchaseLine.SetRange("Document Type", Enum::"Purchase Document Type"::Order);
         PurchaseLine.SetRange("Document No.", EDocumentBeingMatched."Order No.");
-        PurchaseLine.SetFilter(Type, 'G/L Account|Item');
         if PurchaseLine.FindSet() then
             repeat
                 TempPurchaseLine.TransferFields(PurchaseLine);
@@ -160,7 +159,6 @@ page 6168 "E-Doc. Purchase Order Sub"
         Rec.Reset();
         Rec.SetRange("Document Type", Enum::"Purchase Document Type"::Order);
         Rec.SetRange("Document No.", EDocumentBeingMatched."Order No.");
-        Rec.SetFilter(Type, 'G/L Account|Item');
         Rec.SetLoadFields("Quantity Received", "Quantity Invoiced", "Qty. to Invoice");
         if Rec.FindSet() then
             repeat

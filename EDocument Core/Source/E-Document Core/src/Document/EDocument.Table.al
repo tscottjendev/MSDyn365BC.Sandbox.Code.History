@@ -232,6 +232,9 @@ table 6121 "E-Document"
         key(Key3; "Incoming E-Document No.", "Bill-to/Pay-to No.", "Document Date", "Entry No")
         {
         }
+        key(Key4; SystemCreatedAt)
+        {
+        }
     }
 
     trigger OnDelete()

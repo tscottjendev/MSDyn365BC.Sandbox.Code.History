@@ -10,6 +10,7 @@ using Microsoft.eServices.EDocument.Service;
 page 6106 "Outbound E-Documents"
 {
     ApplicationArea = Basic, Suite;
+    Extensible = false;
     SourceTable = "E-Document";
     CardPageId = "E-Document";
     PageType = List;

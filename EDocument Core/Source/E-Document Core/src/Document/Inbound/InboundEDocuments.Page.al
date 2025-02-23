@@ -16,7 +16,7 @@ page 6105 "Inbound E-Documents"
     Editable = false;
     DeleteAllowed = false;
     InsertAllowed = false;
-    SourceTableView = sorting("Entry No") order(descending) where(Direction = const("E-Document Direction"::Incoming));
+    SourceTableView = sorting(SystemCreatedAt) order(descending) where(Direction = const("E-Document Direction"::Incoming));
 
     layout
     {
@@ -26,8 +26,23 @@ page 6105 "Inbound E-Documents"
             repeater(DocumentList)
             {
                 ShowCaption = false;
+                field(SystemCreatedAt; Rec.SystemCreatedAt)
+                {
+                    Caption = 'Received At';
+                    ToolTip = 'Specifies the date and time when the electronic document was created.';
+                    trigger OnDrillDown()
+                    begin
+                        EDocumentHelper.OpenDraftPage(Rec);
+                    end;
+                }
+                field("Entry No"; Rec."Entry No")
+                {
+                    Caption = 'No.';
+                    ToolTip = 'Specifies the entry number.';
+                }
                 field("File Name"; Rec."File Name")
                 {
+                    Caption = 'Source File';
                     ToolTip = 'Specifies the name of the source file.';
 
                     trigger OnDrillDown()
@@ -40,16 +55,6 @@ page 6105 "Inbound E-Documents"
                     ToolTip = 'Specifies the type of the source file.';
                     Visible = false;
                 }
-                field("Entry No"; Rec."Entry No")
-                {
-                    Caption = 'No.';
-                    ToolTip = 'Specifies the entry number.';
-
-                    trigger OnDrillDown()
-                    begin
-                        EDocumentHelper.OpenDraftPage(Rec);
-                    end;
-                }
                 field("Vendor Name"; Rec."Bill-to/Pay-to Name")
                 {
                     Caption = 'Vendor Name';
@@ -57,8 +62,13 @@ page 6105 "Inbound E-Documents"
                 }
                 field("Status"; Rec.Status)
                 {
-                    Caption = 'Document Status';
+                    Caption = 'Status';
                     ToolTip = 'Specifies the status of the electronic document.';
+                }
+                field("Import Processing Status"; ImportProcessingStatus)
+                {
+                    Caption = 'Processing Status';
+                    ToolTip = 'Specifies the processing status of the inbound electronic document.';
                 }
                 field("Document Type"; Rec."Document Type")
                 {
@@ -134,17 +144,26 @@ page 6105 "Inbound E-Documents"
                     NewFromFile();
                 end;
             }
-            action(Process)
+            action(OpenDraftDocument)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Process';
+                Caption = 'Open draft document';
                 ToolTip = 'Process the selected electronic document.';
-                Image = Process;
+                Image = PurchaseInvoice;
                 Enabled = Rec."Entry No" <> 0;
 
                 trigger OnAction()
+                var
+                    EDocImportParameters: Record "E-Doc. Import Parameters";
+                    EDocImport: Codeunit "E-Doc. Import";
+                    ImportEDocumentProcess: Codeunit "Import E-Document Process";
                 begin
-                    ProcessEDocument(Rec);
+                    if ImportEDocumentProcess.IsEDocumentInStateGE(Rec, Enum::"Import E-Doc. Proc. Status"::"Ready for draft") then
+                        EDocumentHelper.OpenDraftPage(Rec)
+                    else begin
+                        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
+                        EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+                    end;
                 end;
             }
             action(EDocumentServices)
@@ -164,7 +183,7 @@ page 6105 "Inbound E-Documents"
             action(ViewFile)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'View file';
+                Caption = 'View source file';
                 ToolTip = 'View the source file.';
                 Image = ViewDetails;
 
@@ -203,7 +222,7 @@ page 6105 "Inbound E-Documents"
                 {
                 }
             }
-            actionref(Promoted_Process; Process) { }
+            actionref(Promoted_Process; OpenDraftDocument) { }
             actionref(Promoted_EDocumentServices; EDocumentServices) { }
             actionref(Promoted_ViewFile; ViewFile) { }
         }
@@ -211,6 +230,7 @@ page 6105 "Inbound E-Documents"
 
     var
         EDocumentHelper: Codeunit "E-Document Helper";
+        ImportProcessingStatus: Enum "Import E-Doc. Proc. Status";
         ProcessDialogMsg: Label 'Processing pdf...';
         RecordLinkTxt: Text;
 
@@ -218,6 +238,7 @@ page 6105 "Inbound E-Documents"
     var
         EDocumentProcessing: Codeunit "E-Document Processing";
     begin
+        ImportProcessingStatus := Rec.GetEDocumentImportProcessingStatus();
         RecordLinkTxt := EDocumentProcessing.GetRecordLinkText(Rec);
     end;
 
@@ -243,7 +264,6 @@ page 6105 "Inbound E-Documents"
     var
         EDocument: Record "E-Document";
         EDocumentService: Record "E-Document Service";
-        EDocImportParameters: Record "E-Doc. Import Parameters";
         EDocImport: Codeunit "E-Doc. Import";
         FileName: Text;
         InStr: InStream;
@@ -254,10 +274,6 @@ page 6105 "Inbound E-Documents"
         EDocumentService.GetPDFReaderService();
         EDocImport.CreateFromType(EDocument, EDocumentService, Enum::"E-Doc. Data Storage Blob Type"::PDF, FileName, InStr);
 
-        if EDocumentService."Automatic Import Processing" = Enum::"E-Doc. Automatic Processing"::No then
-            exit;
-
-        EDocImportParameters."Step to Run" := EDocImportParameters."Step to Run"::"Prepare draft";
         ProcessEDocument(EDocument);
     end;
 

@@ -96,13 +96,19 @@ codeunit 6104 "Import E-Document Process"
     begin
         EDocument.TestField("Unstructured Data Entry No.");
         EDocumentDataStorage.Get(Edocument."Unstructured Data Entry No.");
+        FromBlob.FromRecord(EDocumentDataStorage, EDocumentDataStorage.FieldNo("Data Storage"));
+
         IBlobType := EDocumentDataStorage."Data Type";
+
+        // Store unstructured data as attachment (pdfs)
+        if not IBlobType.IsStructured() and (EDocument."File Name" <> '') then
+            AttachUnstructuredDataAsAttachment(EDocument, FromBlob);
+
         if IBlobType.IsStructured() then begin
             EDocument."Structured Data Entry No." := EDocumentDataStorage."Entry No.";
             EDocument.Modify();
             exit;
         end;
-        FromBlob.FromRecord(EDocumentDataStorage, EDocumentDataStorage.FieldNo("Data Storage"));
 
         if not IBlobType.HasConverter() then
             Error(UnstructuredBlobTypeWithNoConverterErr);
@@ -198,6 +204,11 @@ codeunit 6104 "Import E-Document Process"
         this.EDocImportParameters := EDocImportParameters;
     end;
 
+    procedure IsEDocumentInStateGE(EDocument: Record "E-Document"; QueriedState: Enum "Import E-Doc. Proc. Status"): Boolean
+    begin
+        exit(StatusStepIndex(QueriedState) <= StatusStepIndex(EDocument.GetEDocumentImportProcessingStatus()));
+    end;
+
     procedure StatusStepIndex(Status: Enum "Import E-Doc. Proc. Status"): Integer
     begin
         case Status of
@@ -256,6 +267,15 @@ codeunit 6104 "Import E-Document Process"
             Step::"Finish draft":
                 exit(StepBefore ? Status::"Draft ready" : Status::Processed);
         end;
+    end;
+
+    local procedure AttachUnstructuredDataAsAttachment(EDocument: Record "E-Document"; FromBlob: Codeunit "Temp Blob")
+    var
+        EDocAttachmentProcessor: Codeunit "E-Doc. Attachment Processor";
+        InStream: InStream;
+    begin
+        FromBlob.CreateInStream(InStream);
+        EDocAttachmentProcessor.Insert(EDocument, InStream, EDocument."File Name");
     end;
 
     var

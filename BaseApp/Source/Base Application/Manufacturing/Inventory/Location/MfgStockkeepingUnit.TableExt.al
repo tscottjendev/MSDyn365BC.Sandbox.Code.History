@@ -220,7 +220,18 @@ tableextension 99000759 "Mfg. Stockkeeping Unit" extends "Stockkeeping Unit"
     }
 
     var
+        HideNonInventoryValidateOnStdCost: Boolean;
         NoActiveBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1', Comment = '%1 - Item No.';
+
+    procedure SetHideNonInventoryValidateOnStdCost(NewHideNonInventoryValidateOnStdCost: Boolean)
+    begin
+        HideNonInventoryValidateOnStdCost := NewHideNonInventoryValidateOnStdCost;
+    end;
+
+    procedure CanHideNonInventoryValidateOnStdCost(): Boolean
+    begin
+        exit(HideNonInventoryValidateOnStdCost);
+    end;
 
     internal procedure OpenProductionBOMForSKUItem(ProductionBOMNo: Code[20]; ItemNo: Code[20])
     var

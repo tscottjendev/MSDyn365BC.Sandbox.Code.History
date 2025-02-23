@@ -9,7 +9,6 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Inventory.Item;
 using System.Utilities;
 
-
 codeunit 6164 "E-Doc. Line Matching"
 {
     Access = Internal;
@@ -381,10 +380,10 @@ codeunit 6164 "E-Doc. Line Matching"
         RecordMatchMgt: Codeunit "Record Match Mgt.";
     begin
         // Match G/L Account lines that have remaining quantity
-        if (TempPurchaseLine.Type = Enum::"Purchase Line Type"::"G/L Account") and (TempPurchaseLine.Quantity - TempPurchaseLine."Quantity Invoiced" <= 0) then
+        if (TempPurchaseLine.Type <> Enum::"Purchase Line Type"::Item) and (TempPurchaseLine.Quantity - TempPurchaseLine."Quantity Invoiced" <= 0) then
             exit(false);
 
-        if (TempPurchaseLine.Type <> Enum::"Purchase Line Type"::"G/L Account") and (TempPurchaseLine.MaxQtyToInvoice() <= TempPurchaseLine."Qty. to Invoice") then
+        if (TempPurchaseLine.Type = Enum::"Purchase Line Type"::Item) and (TempPurchaseLine.MaxQtyToInvoice() <= TempPurchaseLine."Qty. to Invoice") then
             exit(false);
 
         if TempPurchaseLine.Type = Enum::"Purchase Line Type"::Item then begin
@@ -581,7 +580,7 @@ codeunit 6164 "E-Doc. Line Matching"
 
     local procedure CalculateAmountThatCanBeInvoiced(var TempPurchaseLine: Record "Purchase Line" temporary): Decimal
     begin
-        if TempPurchaseLine.Type = Enum::"Purchase Line Type"::"G/L Account" then
+        if TempPurchaseLine.Type <> Enum::"Purchase Line Type"::Item then
             exit((TempPurchaseLine.Quantity - TempPurchaseLine."Quantity Invoiced") - TempPurchaseLine."Qty. to Invoice");
         exit((TempPurchaseLine."Quantity Received" - TempPurchaseLine."Quantity Invoiced") - TempPurchaseLine."Qty. to Invoice");
     end;

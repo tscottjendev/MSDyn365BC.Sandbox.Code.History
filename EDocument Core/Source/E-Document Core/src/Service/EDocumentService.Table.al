@@ -306,7 +306,7 @@ table 6103 "E-Document Service"
         Rec.Code := AzureDocumentIntelligenceTok;
         Rec."Import Process" := "Import Process"::"Version 2.0";
         Rec.Description := AzureDocumentIntelligenceServiceTxt;
-        Rec."Automatic Import Processing" := "E-Doc. Automatic Processing"::Yes;
+        Rec."Automatic Import Processing" := "E-Doc. Automatic Processing"::No;
         Rec."E-Document Structured Format" := "E-Document Structured Format"::"Azure Document Intelligence";
         Rec.Insert(true);
     end;
