@@ -11,6 +11,7 @@ codeunit 265 "Feature Key Management"
 
     var
         FeatureManagementFacade: Codeunit "Feature Management Facade";
+        FeatureTelemetry: Codeunit System.Telemetry."Feature Telemetry";
         AutomaticAccountCodesTxt: Label 'AutomaticAccountCodes', Locked = true;
         SIEAuditFileExportTxt: Label 'SIEAuditFileExport', Locked = true;
 #if not CLEAN24
@@ -141,22 +142,38 @@ codeunit 265 "Feature Key Management"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management Facade", 'OnAfterFeatureEnableConfirmed', '', false, false)]
     local procedure HandleOnAfterFeatureEnableConfirmed(var FeatureKey: Record "Feature Key")
-#if not CLEAN26
-    var
-        FeatureTelemetry: Codeunit System.Telemetry."Feature Telemetry";
-#endif
     begin
-#if not CLEAN26
         // Log feature uptake
         case FeatureKey.ID of
 #if not CLEAN24
             GLCurrencyRevaluationTxt:
                 FeatureTelemetry.LogUptake('0000JRR', GLCurrencyRevaluationTxt, Enum::System.Telemetry."Feature Uptake Status"::Discovered);
 #endif
+#if not CLEAN26
             GetManufacturingFlushingMethodActivateManualWithoutPickFeatureKey():
                 FeatureTelemetry.LogUptake('0000OQS', ManufacturingFlushingMethodActivateManualWithoutPickLbl, Enum::System.Telemetry."Feature Uptake Status"::Discovered);
-        end;
 #endif
+            ConcurrentInventoryPostingLbl:
+                FeatureTelemetry.LogUptake('0000OSN', ConcurrentInventoryPostingLbl, Enum::System.Telemetry."Feature Uptake Status"::Discovered);
+            ConcurrentJobPostingLbl:
+                FeatureTelemetry.LogUptake('0000OSO', ConcurrentJobPostingLbl, Enum::System.Telemetry."Feature Uptake Status"::Discovered);
+            ConcurrentResourcePostingLbl:
+                FeatureTelemetry.LogUptake('0000OSP', ConcurrentResourcePostingLbl, Enum::System.Telemetry."Feature Uptake Status"::Discovered);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management Facade", 'OnAfterFeatureDisableConfirmed', '', false, false)]
+    local procedure HandleOnAfterFeatureDisableConfirmed(FeatureKey: Record "Feature Key")
+    begin
+        // Log feature
+        case FeatureKey.ID of
+            ConcurrentInventoryPostingLbl:
+                FeatureTelemetry.LogUptake('0000OSQ', ConcurrentInventoryPostingLbl, Enum::System.Telemetry."Feature Uptake Status"::Undiscovered);
+            ConcurrentJobPostingLbl:
+                FeatureTelemetry.LogUptake('0000OSR', ConcurrentJobPostingLbl, Enum::System.Telemetry."Feature Uptake Status"::Undiscovered);
+            ConcurrentResourcePostingLbl:
+                FeatureTelemetry.LogUptake('0000OSS', ConcurrentResourcePostingLbl, Enum::System.Telemetry."Feature Uptake Status"::Undiscovered);
+        end;
     end;
 
 #if not CLEAN25
