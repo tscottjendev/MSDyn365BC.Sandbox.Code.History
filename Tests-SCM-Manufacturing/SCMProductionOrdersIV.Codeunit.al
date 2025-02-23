@@ -16,6 +16,7 @@ using Microsoft.Manufacturing.Routing;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Purchases.History;
 using System.TestLibraries.Utilities;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Location;
@@ -83,6 +84,8 @@ codeunit 137083 "SCM Production Orders IV"
         DateConflictErr: Label 'The change leads to a date conflict with existing reservations.\Reserved quantity (Base): %1, Date %2\Cancel or change reservations and try again', Comment = '%1 - reserved quantity, %2 - date';
         FieldMustBeVisibleErr: Label '%1 must be visible in Page %2', Comment = '%1 = Field Caption , %2 = Page Caption';
         FieldMustBeEnabledErr: Label '%1 must be enabled in Page %2', Comment = '%1 = Field Caption , %2 = Page Caption';
+        NonInventoryItemInStandardCostCalcForSKUErr: Label 'You cannot modify %1 on SKU %2 = %3, %4 = %5, %6 = %7 as Production BOM %8 has a non-inventory Item %9.',
+                                                     Comment = '%1 = Field Caption, %2 = Field Caption, %3 = Location Code , %4 = Field Caption , %5 = Item No. , %6 = Field Caption , %7 = Variant Code , %8 =  Production BOM No. , %9 = Item No.';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
@@ -3301,6 +3304,259 @@ codeunit 137083 "SCM Production Orders IV"
             StrSubstNo(ValueMustBeEqualErr, Item.FieldCaption("Cost is Adjusted"), true, Item.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure VerifyCostFieldsMustBePopulatedInSKUFromProductionItem()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        CompItem: Record Item;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        Quantity: Decimal;
+        NonInvUnitCost: Decimal;
+        CompUnitCost: Decimal;
+        ExpectedStandardCost: Decimal;
+        ExpectedOvhdCost: Decimal;
+        IndirectCostPer: Decimal;
+    begin
+        // [SCENARIO 565590] Verify Cost Fields must be populated in SKU from production item.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create Component item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create Production Item, Non-Inventory, Component Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOMWithTwoComponent(OutputItem, NonInvItem, CompItem);
+
+        // [GIVEN] Save Quantity, Indirect%, Non-Inventory and Component Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+        CompUnitCost := LibraryRandom.RandIntInRange(20, 20);
+        IndirectCostPer := LibraryRandom.RandIntInRange(10, 10);
+        ExpectedOvhdCost := (NonInvUnitCost + CompUnitCost) * IndirectCostPer / 100;
+        ExpectedStandardCost := NonInvUnitCost + CompUnitCost + ExpectedOvhdCost;
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory and Component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, Quantity, NonInvUnitCost);
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem, Quantity, CompUnitCost);
+
+        // [GIVEN] Update "Costing Method" Standard in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Validate("Indirect Cost %", IndirectCostPer);
+        OutputItem.Modify();
+
+        // [WHEN] Calculate Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [THEN] Verify Cost fields in Output item.
+        OutputItem.Get(OutputItem."No.");
+        VerifyCostFieldsInItem(
+            OutputItem,
+            ExpectedStandardCost,
+            CompUnitCost,
+            CompUnitCost,
+            NonInvUnitCost,
+            NonInvUnitCost,
+            ExpectedOvhdCost,
+            ExpectedOvhdCost);
+
+        // [GIVEN] Create Semi-Stockkeeping Unit.
+        LibraryInventory.CreateStockKeepingUnit(OutputItem, Enum::"SKU Creation Method"::"Location & Variant", false, false);
+
+        // [WHEN] Find Semi-Stockkeeping Unit.
+        StockkeepingUnit.SetRange("Item No.", OutputItem."No.");
+        StockkeepingUnit.FindFirst();
+
+        // [THEN] Verify Cost Fields must be populated to SKU from production item.
+        VerifyCostFieldsInSKU(
+            StockkeepingUnit,
+            ExpectedStandardCost,
+            CompUnitCost,
+            CompUnitCost,
+            NonInvUnitCost,
+            NonInvUnitCost,
+            ExpectedOvhdCost,
+            ExpectedOvhdCost);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure VerifyCostFieldsMustBeUpdatedInSKUWhenRevaluationJournalIsPosted()
+    var
+        OutputItem: Record Item;
+        CompItem: Record Item;
+        Location: Record Location;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        ProductionBOMHeader: Record "Production BOM Header";
+        RevaluationItemJournalBatch: Record "Item Journal Batch";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        Quantity: Decimal;
+        CompUnitCost: Decimal;
+        ExpectedStandardCost: Decimal;
+        ExpectedOvhdCost: Decimal;
+        IndirectCostPer: Decimal;
+        RevaluedUnitCost: Decimal;
+    begin
+        // [SCENARIO 565590] Verify Cost Fields must be updated in SKU When Revaluation Journal is posted.
+        Initialize();
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Production Item, Component Item with Production BOM.
+        CreateProductionItemWithInvItemAndProductionBOM(OutputItem, CompItem, ProductionBOMHeader);
+
+        // [GIVEN] Save Quantity, Indirect%, Component Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        CompUnitCost := LibraryRandom.RandIntInRange(20, 20);
+        IndirectCostPer := LibraryRandom.RandIntInRange(10, 10);
+        ExpectedOvhdCost := (CompUnitCost * IndirectCostPer) / 100;
+        ExpectedStandardCost := CompUnitCost + ExpectedOvhdCost;
+        RevaluedUnitCost := ExpectedStandardCost + CompUnitCost;
+
+        // [GIVEN] Create and Post Purchase Document for Component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem, Quantity, CompUnitCost);
+
+        // [GIVEN] Update "Costing Method", "Indirect Cost %" in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Validate("Indirect Cost %", IndirectCostPer);
+        OutputItem.Modify();
+
+        // [GIVEN] Calculate Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [GIVEN] Create Semi-Stockkeeping Unit.
+        LibraryInventory.CreateStockKeepingUnit(OutputItem, Enum::"SKU Creation Method"::"Location & Variant", false, false);
+
+        // [GIVEN] Find Semi-Stockkeeping Unit.
+        StockkeepingUnit.SetRange("Item No.", OutputItem."No.");
+        StockkeepingUnit.SetRange("Location Code", Location.Code);
+        StockkeepingUnit.FindFirst();
+
+        // [GIVEN] Create and Post Item Journal with Location Code.
+        CreateAndPostItemJournalLine(OutputItem."No.", Quantity, '', '');
+        CreateAndPostItemJournalLine(OutputItem."No.", Quantity, '', Location.Code);
+
+        // [GIVEN] Revaluation Journal Setup.
+        RevaluationJournalSetup(RevaluationItemJournalBatch);
+
+        // [GIVEN] Calculate Inventory Value.
+        CalculateInventoryValue(RevaluationItemJournalBatch, OutputItem);
+
+        // [GIVEN] Update Revaluation Item Journal.
+        UpdateRevaluationJournalLine(OutputItem."No.", '', RevaluedUnitCost);
+        UpdateRevaluationJournalLine(OutputItem."No.", Location.Code, RevaluedUnitCost);
+
+        // [WHEN] Post Revaluation Item Journal.
+        LibraryInventory.PostItemJournalLine(RevaluationItemJournalBatch."Journal Template Name", RevaluationItemJournalBatch.Name);
+
+        // [THEN] Verify Cost fields in Output item.
+        OutputItem.Get(OutputItem."No.");
+        VerifyCostFieldsInItem(OutputItem, RevaluedUnitCost, RevaluedUnitCost, RevaluedUnitCost, 0, 0, 0, 0);
+
+        // [THEN] Verify Cost Fields must be updated in SKU When Revaluation Journal is posted.
+        StockkeepingUnit.Get(StockkeepingUnit."Location Code", StockkeepingUnit."Item No.", StockkeepingUnit."Variant Code");
+        VerifyCostFieldsInSKU(StockkeepingUnit, RevaluedUnitCost, RevaluedUnitCost, RevaluedUnitCost, 0, 0, 0, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure VerifyStandardCostMustNotBeUpdatedInSKUIfNonInventoryExistInProductionBOM()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        CompItem: Record Item;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        Quantity: Decimal;
+        NonInvUnitCost: Decimal;
+        CompUnitCost: Decimal;
+        ExpectedStandardCost: Decimal;
+        ExpectedOvhdCost: Decimal;
+        IndirectCostPer: Decimal;
+    begin
+        // [SCENARIO 565590] Verify "Standard Cost" must not be updated in SKU if Non-Inventory item must be exist in "Production BOM".
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create Component item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create Production Item, Non-Inventory, Component Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOMWithTwoComponent(OutputItem, NonInvItem, CompItem);
+
+        // [GIVEN] Save Quantity, Indirect%, Non-Inventory and Component Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+        CompUnitCost := LibraryRandom.RandIntInRange(20, 20);
+        IndirectCostPer := LibraryRandom.RandIntInRange(10, 10);
+        ExpectedOvhdCost := (NonInvUnitCost + CompUnitCost) * IndirectCostPer / 100;
+        ExpectedStandardCost := NonInvUnitCost + CompUnitCost + ExpectedOvhdCost;
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory and Component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, Quantity, NonInvUnitCost);
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem, Quantity, CompUnitCost);
+
+        // [GIVEN] Update "Costing Method" Standard in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Validate("Indirect Cost %", IndirectCostPer);
+        OutputItem.Modify();
+
+        // [WHEN] Calculate Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [THEN] Verify Cost fields in Output item.
+        OutputItem.Get(OutputItem."No.");
+        VerifyCostFieldsInItem(
+            OutputItem,
+            ExpectedStandardCost,
+            CompUnitCost,
+            CompUnitCost,
+            NonInvUnitCost,
+            NonInvUnitCost,
+            ExpectedOvhdCost,
+            ExpectedOvhdCost);
+
+        // [GIVEN] Create Semi-Stockkeeping Unit.
+        LibraryInventory.CreateStockKeepingUnit(OutputItem, Enum::"SKU Creation Method"::"Location & Variant", false, false);
+
+        // [GIVEN] Find Semi-Stockkeeping Unit.
+        StockkeepingUnit.SetRange("Item No.", OutputItem."No.");
+        StockkeepingUnit.FindFirst();
+
+        // [WHEN] Update "Standard Cost" in SKU.
+        asserterror StockkeepingUnit.Validate("Standard Cost", ExpectedStandardCost + NonInvUnitCost);
+
+        // [THEN] Verify "Standard Cost" must not be updated in SKU.
+        Assert.ExpectedError(
+            StrSubstNo(
+                NonInventoryItemInStandardCostCalcForSKUErr,
+                StockkeepingUnit.FieldCaption("Standard Cost"),
+                StockkeepingUnit.FieldCaption("Location Code"),
+                StockkeepingUnit."Location Code",
+                StockkeepingUnit.FieldCaption("Item No."),
+                StockkeepingUnit."Item No.",
+                StockkeepingUnit.FieldCaption("Variant Code"),
+                StockkeepingUnit."Variant Code",
+                OutputItem."Production BOM No.",
+                NonInvItem."No."));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Production Orders IV");
@@ -3468,7 +3724,7 @@ codeunit 137083 "SCM Production Orders IV"
     begin
         LibraryInventory.ClearItemJournal(OutputItemJournalTemplate, OutputItemJournalBatch);
         LibraryManufacturing.CreateOutputJournal(ItemJournalLine, OutputItemJournalTemplate, OutputItemJournalBatch, '', ProductionOrderNo);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
         SelectItemJournalLine(ItemJournalLine, OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
     end;
 
@@ -3920,6 +4176,57 @@ codeunit 137083 "SCM Production Orders IV"
         ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
         ProductionBOMLine.SetRange("No.", ItemNo);
         ProductionBOMLine.FindFirst();
+    end;
+
+    local procedure CreateProductionItemWithInvItemAndProductionBOM(var ProdItem: Record Item; var InvItem: Record Item; var ProductionBOMHeader: Record "Production BOM Header")
+    begin
+        LibraryInventory.CreateItem(ProdItem);
+        LibraryInventory.CreateItem(InvItem);
+
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, InvItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify();
+    end;
+
+    local procedure CalculateInventoryValue(var RevaluationItemJournalBatch: Record "Item Journal Batch"; Item: Record Item)
+    var
+        RevaluationItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalLine: Record "Item Journal Line";
+        NoSeries: Codeunit "No. Series";
+    begin
+        Item.SetRange("No.", Item."No.");
+        RevaluationItemJournalTemplate.Get(RevaluationItemJournalBatch."Journal Template Name");
+
+        LibraryInventory.ClearItemJournal(RevaluationItemJournalTemplate, RevaluationItemJournalBatch);
+        ItemJournalLine.Validate("Journal Template Name", RevaluationItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", RevaluationItemJournalBatch.Name);
+        LibraryCosting.CalculateInventoryValue(
+          ItemJournalLine, Item, WorkDate(), NoSeries.PeekNextNo(RevaluationItemJournalBatch."No. Series"),
+          "Inventory Value Calc. Per"::Item, true, false, true, "Inventory Value Calc. Base"::" ", false);
+    end;
+
+    local procedure RevaluationJournalSetup(var RevaluationItemJournalBatch: Record "Item Journal Batch")
+    var
+        RevaluationItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(RevaluationItemJournalTemplate, RevaluationItemJournalTemplate.Type::Revaluation);
+        LibraryInventory.SelectItemJournalBatchName(RevaluationItemJournalBatch, RevaluationItemJournalTemplate.Type, RevaluationItemJournalTemplate.Name);
+    end;
+
+    local procedure UpdateRevaluationJournalLine(ItemNo: Code[20]; LocationCode: Code[20]; UnitCostRevalued: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        RevaluationJournal: TestPage "Revaluation Journal";
+    begin
+        ItemJournalLine.SetRange("Item No.", ItemNo);
+        ItemJournalLine.SetRange("Location Code", LocationCode);
+        ItemJournalLine.FindFirst();
+
+        RevaluationJournal.OpenEdit();
+        RevaluationJournal.GoToRecord(ItemJournalLine);
+        RevaluationJournal."Unit Cost (Revalued)".SetValue(UnitCostRevalued);
+        RevaluationJournal.Close();
     end;
 
     [ConfirmHandler]

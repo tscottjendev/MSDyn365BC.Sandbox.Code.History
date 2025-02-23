@@ -224,6 +224,8 @@ report 5706 "Create Stockkeeping Unit"
         StockkeepingUnit."Location Code" := LocationCode;
         StockkeepingUnit."Variant Code" := VariantCode;
         StockkeepingUnit.CopyFromItem(Item2);
+        SetSKUSingleLevelCosts(StockkeepingUnit, Item2);
+        SetSKURolledUpCosts(StockkeepingUnit, Item2);
         StockkeepingUnit."Last Date Modified" := WorkDate();
         StockkeepingUnit."Special Equipment Code" := Item2."Special Equipment Code";
         StockkeepingUnit."Put-away Template Code" := Item2."Put-away Template Code";
@@ -235,6 +237,26 @@ report 5706 "Create Stockkeeping Unit"
         StockkeepingUnit.Insert(true);
 
         OnAfterCreateSKU(StockkeepingUnit, Item2);
+    end;
+
+    local procedure SetSKUSingleLevelCosts(var SKU: Record "Stockkeeping Unit"; Item: Record Item)
+    begin
+        SKU."Single-Level Material Cost" := Item."Single-Level Material Cost";
+        SKU."Single-Level Capacity Cost" := Item."Single-Level Capacity Cost";
+        SKU."Single-Level Subcontrd. Cost" := Item."Single-Level Subcontrd. Cost";
+        SKU."Single-Level Cap. Ovhd Cost" := Item."Single-Level Cap. Ovhd Cost";
+        SKU."Single-Level Mfg. Ovhd Cost" := Item."Single-Level Mfg. Ovhd Cost";
+        SKU."Single-Lvl Mat. Non-Invt. Cost" := Item."Single-Lvl Mat. Non-Invt. Cost";
+    end;
+
+    local procedure SetSKURolledUpCosts(var SKU: Record "Stockkeeping Unit"; Item: Record Item)
+    begin
+        SKU."Rolled-up Material Cost" := Item."Rolled-up Material Cost";
+        SKU."Rolled-up Capacity Cost" := Item."Rolled-up Capacity Cost";
+        SKU."Rolled-up Subcontracted Cost" := Item."Rolled-up Subcontracted Cost";
+        SKU."Rolled-up Mfg. Ovhd Cost" := Item."Rolled-up Mfg. Ovhd Cost";
+        SKU."Rolled-up Cap. Overhead Cost" := Item."Rolled-up Cap. Overhead Cost";
+        SKU."Rolled-up Mat. Non-Invt. Cost" := Item."Rolled-up Mat. Non-Invt. Cost";
     end;
 
     [IntegrationEvent(false, false)]

@@ -1898,7 +1898,7 @@ codeunit 137402 "SCM Costing Batch"
         ItemJournalLine: Record "Item Journal Line";
     begin
         LibraryManufacturing.CreateOutputJournal(ItemJournalLine, ItemJournalTemplate, ItemJournalBatch, ItemNo, ProdOrderNo);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
     end;
 
     local procedure CreateRouting(var RoutingHeader: Record "Routing Header"; WorkCenterNo: Code[20])

@@ -5061,7 +5061,7 @@ codeunit 137404 "SCM Manufacturing"
         ItemJournalLine: Record "Item Journal Line";
     begin
         CreateOutputJournal(ItemJournalBatch, ItemJournalLine, ProductionOrderNo);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         exit(ItemJournalLine."Document No.");
     end;
@@ -6136,7 +6136,7 @@ codeunit 137404 "SCM Manufacturing"
         ItemJournalLine: Record "Item Journal Line";
     begin
         CreateOutputJournal(ItemJournalBatch, ItemJournalLine, ProductionOrder."No.");
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
     end;
 
     local procedure PopulateRoutingOnOutputJournalLine(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
