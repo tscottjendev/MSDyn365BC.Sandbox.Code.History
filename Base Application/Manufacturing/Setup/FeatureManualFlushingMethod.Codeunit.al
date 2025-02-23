@@ -12,6 +12,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Setup;
+using Microsoft.Upgrade;
 using System.Upgrade;
 
 codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
@@ -279,20 +280,16 @@ codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
     local procedure SetUpgradeTag(DataUpgradeExecuted: Boolean)
     var
         UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
         // Set the upgrade tag to indicate that the data update is executed/skipped and the feature is enabled.
         // This is needed when the feature is enabled by default in a future version, to skip the data upgrade.
-        if UpgradeTag.HasUpgradeTag(GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag()) then
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag()) then
             exit;
 
-        UpgradeTag.SetUpgradeTag(GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag());
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag());
         if not DataUpgradeExecuted then
-            UpgradeTag.SetSkippedUpgrade(GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag(), true);
-    end;
-
-    internal procedure GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag(): Code[250]
-    begin
-        exit('MS-356273-ManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag-20250401');
+            UpgradeTag.SetSkippedUpgrade(UpgradeTagDefinitions.GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag(), true);
     end;
 }
 #endif
