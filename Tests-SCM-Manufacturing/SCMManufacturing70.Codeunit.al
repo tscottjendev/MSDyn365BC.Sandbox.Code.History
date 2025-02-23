@@ -4278,7 +4278,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ItemJournalLine: Record "Item Journal Line";
     begin
         CreateOutputJournal(ProductionOrder, ItemJournalLine, '');
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
     end;
 
     local procedure CreateOutputJournal(ProductionOrder: Record "Production Order"; var ItemJournalLine: Record "Item Journal Line"; OperationNo: Code[10])
@@ -4314,7 +4314,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ItemJournalLine.Validate("Order No.", ProductionOrder."No.");
         ItemJournalLine.Validate("Document No.", NoSeriesBatch.GetNextNo(ItemJournalBatch2."No. Series", ItemJournalLine."Posting Date"));
         ItemJournalLine.Modify(true);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch2."Journal Template Name", ItemJournalBatch2.Name);
     end;
 
