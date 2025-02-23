@@ -2102,6 +2102,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders II - NamedType ConfirmStatusFinishTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3590079757 - NamedType 88025839" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must not be 0 in %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Cost Amount (Non-Invtbl.) Caption, %2 = Item Ledger Entry Table]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders II - NamedType CostAmtNonInvtblMustNotBeZeroErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3590079757 - NamedType 2813712111" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The change leads to a date conflict with existing reservations.]]></Val>
@@ -2586,6 +2595,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Field caption, %2 = Table Caption]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType MissingAccountTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 1002667803" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot modify %1 on SKU %2 = %3, %4 = %5, %6 = %7 as Production BOM %8 has a non-inventory Item %9.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption, %2 = Field Caption, %3 = Location Code , %4 = Field Caption , %5 = Item No. , %6 = Field Caption , %7 = Variant Code , %8 =  Production BOM No. , %9 = Item No.]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType NonInventoryItemInStandardCostCalcForSKUErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2276747048 - NamedType 2346205153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

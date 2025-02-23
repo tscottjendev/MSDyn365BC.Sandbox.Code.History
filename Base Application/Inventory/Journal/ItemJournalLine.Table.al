@@ -1770,6 +1770,16 @@ table 83 "Item Journal Line"
             AutoFormatType = 1;
             Caption = 'Rolled-up Cap. Overhead Cost';
         }
+        field(99000766; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Single-Level Material Non-Inventory Cost';
+        }
+        field(99000767; "Rolled-up Mat. Non-Invt. Cost"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Rolled-up Material Non-Inventory Cost';
+        }
     }
 
     keys
@@ -2858,14 +2868,20 @@ table 83 "Item Journal Line"
     local procedure CalcUnitCost(ItemLedgEntry: Record "Item Ledger Entry"): Decimal
     var
         ValueEntry: Record "Value Entry";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         UnitCost: Decimal;
     begin
         ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-        ValueEntry.CalcSums("Cost Amount (Expected)", "Cost Amount (Actual)");
-        UnitCost :=
-          (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)") / ItemLedgEntry.Quantity;
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then begin
+            ValueEntry.CalcSums("Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
+            UnitCost := (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Non-Invtbl.)") / ItemLedgEntry.Quantity
+        end else begin
+            ValueEntry.CalcSums("Cost Amount (Expected)", "Cost Amount (Actual)");
+            UnitCost := (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)") / ItemLedgEntry.Quantity;
+        end;
+
         exit(Abs(UnitCost * "Qty. per Unit of Measure"));
     end;
 
@@ -2876,11 +2892,13 @@ table 83 "Item Journal Line"
         "Single-Level Subcontrd. Cost" := 0;
         "Single-Level Cap. Ovhd Cost" := 0;
         "Single-Level Mfg. Ovhd Cost" := 0;
+        "Single-Lvl Mat. Non-Invt. Cost" := 0;
         "Rolled-up Material Cost" := "Unit Cost (Revalued)";
         "Rolled-up Capacity Cost" := 0;
         "Rolled-up Subcontracted Cost" := 0;
         "Rolled-up Mfg. Ovhd Cost" := 0;
         "Rolled-up Cap. Overhead Cost" := 0;
+        "Rolled-up Mat. Non-Invt. Cost" := 0;
     end;
 
     /// <summary>
@@ -4389,7 +4407,7 @@ table 83 "Item Journal Line"
     begin
     end;
 
-     /// <summary>
+    /// <summary>
     /// Event triggered before checking the reserved quantity (base) during the valid.tion of quantity
     /// This event allows developers to override or enhance the logic for checking reserved quantities in base units.
     /// </summary>

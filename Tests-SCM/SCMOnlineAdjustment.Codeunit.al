@@ -894,7 +894,7 @@ codeunit 137001 "SCM Online Adjustment"
                 begin
                     LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
                     LibraryManufacturing.CreateOutputJournal(ItemJournalLine, ItemJournalTemplate, ItemJournalBatch, '', ProductionOrderNo);
-                    LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+                    LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
                 end;
         end;
 
