@@ -763,7 +763,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     begin
         LibraryInventory.ClearItemJournal(OutputItemJournalTemplate, OutputItemJournalBatch);
         LibraryManufacturing.CreateOutputJournal(ItemJournalLine, OutputItemJournalTemplate, OutputItemJournalBatch, '', ProductionOrderNo);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
     end;
 
     local procedure CreateProdOrderItemsSetup(var Item: Record Item) ChildItemNo: Code[20]
