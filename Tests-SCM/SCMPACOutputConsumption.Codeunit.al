@@ -104,10 +104,10 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // 2.2 Execute : Create, Calculate and Post Consumption Journal.
         // Create, Explode Routing, Update and Post Output Journal.
-        LibraryInventory.CreateItemJournal(
+        LibraryManufacturing.CreateProdItemJournal(
           ItemJournalBatch, ItemNos[1], ItemJournalBatch."Template Type"::Consumption, ReleasedProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNos[3], ItemJournalBatch."Template Type"::Output, ReleasedProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNos[3], ItemJournalBatch."Template Type"::Output, ReleasedProductionOrderNo);
         UpdateLessQtyOutputJournal(ReleasedProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
@@ -196,7 +196,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         // 2.1 Execute : Change Status of Production Order from Planned to Released.
         // Create, Explode Routing, Update and Post Output Journal.
         ProductionOrderNo := ChangeStatusPlannedToReleased(ProductionOrder."No.");
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNos[3], ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNos[3], ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         UpdateLessQtyOutputJournal(ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
@@ -285,7 +285,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         // 2. Execute : Change Status of Production Order from Planned to Released.
         // Create, Calculate and Post Consumption Journal,Explode Routing and Post Output Journal.
         ReleasedProductionOrderNo := ChangeStatusPlannedToReleased(ProductionOrder."No.");
-        LibraryInventory.CreateItemJournal(
+        LibraryManufacturing.CreateProdItemJournal(
           ItemJournalBatch, ItemNos[1], ItemJournalBatch."Template Type"::Consumption, ReleasedProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
