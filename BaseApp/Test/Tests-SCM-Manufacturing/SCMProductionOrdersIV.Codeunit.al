@@ -3557,6 +3557,277 @@ codeunit 137083 "SCM Production Orders IV"
                 NonInvItem."No."));
     end;
 
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure VerifyNonInventoryMaterialCostValueMustBeShownInProductionOrderStatistics()
+    var
+        OutputItem: Record Item;
+        CompItem: Record Item;
+        NonInvItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        ProductionOrderStatistics: TestPage "Production Order Statistics";
+        Quantity: Decimal;
+        CompUnitCost: Decimal;
+        NonInvUnitCost: Decimal;
+        BOMCompQuantityPer: Decimal;
+        BOMNonInvQuantityPer: Decimal;
+        ExpectedCompQuantityPer: Decimal;
+        ExpectedNonInvQuantityPer: Decimal;
+        ActualCompQuantityPer: Decimal;
+        ActualNonInvQuantityPer: Decimal;
+    begin
+        // [SCENARIO 565137] Verify "Non Inventory-Material Cost" must be shown in "Production Order Statistics" page for production item When Non-Inventory and Component item exist in Production BOM.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Save Quantity, Quantity Per, Component and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(100, 200);
+        CompUnitCost := LibraryRandom.RandIntInRange(100, 200);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(100, 200);
+        BOMCompQuantityPer := LibraryRandom.RandIntInRange(1, 5);
+        BOMNonInvQuantityPer := LibraryRandom.RandIntInRange(5, 10);
+        ExpectedCompQuantityPer := LibraryRandom.RandIntInRange(10, 20);
+        ExpectedNonInvQuantityPer := LibraryRandom.RandIntInRange(10, 20);
+        ActualCompQuantityPer := LibraryRandom.RandIntInRange(20, 30);
+        ActualNonInvQuantityPer := LibraryRandom.RandIntInRange(20, 30);
+
+        // [GIVEN] Create Component item with Unit Cost.
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Unit Cost", CompUnitCost);
+        CompItem.Modify();
+
+        // [GIVEN] Create Non-Inventory item with Unit Cost.
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvItem);
+        NonInvItem.Validate("Unit Cost", NonInvUnitCost);
+        NonInvItem.Modify();
+
+        // [GIVEN] Create Output item.
+        LibraryInventory.CreateItem(OutputItem);
+
+        // [GIVEN] Create Production BOM with component and non-inventory item.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, OutputItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, NonInvItem."No.", BOMNonInvQuantityPer);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", BOMCompQuantityPer);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Update "Production BOM No." in Output item.
+        OutputItem.Validate("Replenishment System", OutputItem."Replenishment System"::"Prod. Order");
+        OutputItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        OutputItem.Modify();
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, Quantity, NonInvUnitCost);
+
+        // [GIVEN] Create and Post Purchase Document for Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem, Quantity, CompUnitCost);
+
+        // [GIVEN] Update "Costing Method" Standard in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Modify();
+
+        // [GIVEN] Calculate Material Cost of Output Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", LibraryRandom.RandIntInRange(1, 1), '', '');
+
+        // [GIVEN] Update "Quantity Per" in Production Component for Non-inventory item.
+        UpdateQuantityPerInProductionOrderComponent(ProdOrderComponent, ProductionOrder, NonInvItem."No.", ExpectedNonInvQuantityPer);
+
+        // [GIVEN] Create and Post Consumption Journal for Non-inventory item.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, ActualNonInvQuantityPer);
+
+        // [GIVEN] Update "Quantity Per" in Production Component for Inventory item.
+        UpdateQuantityPerInProductionOrderComponent(ProdOrderComponent, ProductionOrder, CompItem."No.", ExpectedCompQuantityPer);
+
+        // [GIVEN] Create and Post Consumption Journal for Inventory item.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, ActualCompQuantityPer);
+
+        // [WHEN] Open Production Order Statistics.
+        ProductionOrderStatistics.OpenView();
+        ProductionOrderStatistics.GoToRecord(ProductionOrder);
+
+        // [THEN] Verify "Non Inventory-Material Cost" in "Production Order Statistics" page.
+        ProductionOrderStatistics.NonInventoryMaterialCost_StandardCost.AssertEquals(NonInvUnitCost * BOMNonInvQuantityPer);
+        ProductionOrderStatistics.NonInventoryMaterialCost_ExpectedCost.AssertEquals(NonInvUnitCost * ExpectedNonInvQuantityPer);
+        ProductionOrderStatistics.NonInventoryMaterialCost_ActualCost.AssertEquals(NonInvUnitCost * ActualNonInvQuantityPer);
+        ProductionOrderStatistics."NonInventoryVarPct".AssertEquals(CalcIndicatorPct(NonInvUnitCost * BOMNonInvQuantityPer, NonInvUnitCost * ActualNonInvQuantityPer));
+        ProductionOrderStatistics."NonInventoryVarAmt".AssertEquals((NonInvUnitCost * ActualNonInvQuantityPer) - (NonInvUnitCost * BOMNonInvQuantityPer));
+
+        // [THEN] Verify "Total Cost" in "Production Order Statistics" page.
+        ProductionOrderStatistics.TotalCost_StandardCost.AssertEquals((NonInvUnitCost * BOMNonInvQuantityPer) + (CompUnitCost * BOMCompQuantityPer));
+        ProductionOrderStatistics.TotalCost_ExpectedCost.AssertEquals((NonInvUnitCost * ExpectedNonInvQuantityPer) + (CompUnitCost * ExpectedCompQuantityPer));
+        ProductionOrderStatistics.TotalCost_ActualCost.AssertEquals((NonInvUnitCost * ActualNonInvQuantityPer) + (CompUnitCost * ActualCompQuantityPer));
+        ProductionOrderStatistics."VarPct[6]".AssertEquals(CalcIndicatorPct((NonInvUnitCost * BOMNonInvQuantityPer) + (CompUnitCost * BOMCompQuantityPer), (NonInvUnitCost * ActualNonInvQuantityPer) + (CompUnitCost * ActualCompQuantityPer)));
+        ProductionOrderStatistics."VarAmt[6]".AssertEquals(((NonInvUnitCost * ActualNonInvQuantityPer) + (CompUnitCost * ActualCompQuantityPer)) - ((NonInvUnitCost * BOMNonInvQuantityPer) + (CompUnitCost * BOMCompQuantityPer)));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure VerifyCostAmountFieldsInProductionOrderStatistics()
+    var
+        OutputItem: Record Item;
+        SemiOutputItem: Record Item;
+        NonInvItem1: Record Item;
+        NonInvItem2: Record Item;
+        CompItem: array[2] of Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        ProductionOrderStatistics: TestPage "Production Order Statistics";
+        MfgStandardOvhdCost: Decimal;
+        Quantity: Decimal;
+        NonInvUnitCost1: Decimal;
+        NonInvUnitCost2: Decimal;
+        CompUnitCost1: Decimal;
+        CompUnitCost2: Decimal;
+        IndirectCostPer: Decimal;
+        SLMatStandardCost: Decimal;
+        StandardTotalCost: Decimal;
+        ExpectedCompQuantityPer: Decimal;
+        ExpectedNonInvQuantityPer: Decimal;
+        ActualCompQuantityPer: Decimal;
+        ActualNonInvQuantityPer: Decimal;
+        ExpectedSemiOutputItemQuantityPer: Decimal;
+        ActualSemiOutputItemQuantityPer: Decimal;
+        MaterialExpectedCost: Decimal;
+        MaterialActualCost: Decimal;
+        VarianceMaterialAmt: Decimal;
+        MfgOverheadExpectedCost: Decimal;
+        MfgOverheadActualCost: Decimal;
+        VarianceMfgOverheadAmt: Decimal;
+    begin
+        // [SCENARIO 565137] Verify "Non-Inventory Material Cost", "Material Cost","Total Cost" in "Production Order Statistics" page for production item 
+        // When Semi-Output, Non-Inventory and Component item exist in Production BOM.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create component items.
+        LibraryInventory.CreateItem(CompItem[1]);
+        LibraryInventory.CreateItem(CompItem[2]);
+
+        // [GIVEN] Create Semi Production Item, Non-Inventory Item and Production BOM contains Non-Inventory item and component item.
+        CreateProductionItemWithNonInvItemAndProductionBOMWithTwoComponent(SemiOutputItem, NonInvItem1, CompItem[1]);
+
+        // [GIVEN] Save Quantity, Quantity Per, Component, Indirect% and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(100, 200);
+        NonInvUnitCost1 := LibraryRandom.RandIntInRange(100, 200);
+        NonInvUnitCost2 := LibraryRandom.RandIntInRange(100, 200);
+        CompUnitCost1 := LibraryRandom.RandIntInRange(100, 200);
+        CompUnitCost2 := LibraryRandom.RandIntInRange(100, 200);
+        IndirectCostPer := LibraryRandom.RandIntInRange(10, 20);
+        MfgStandardOvhdCost := (NonInvUnitCost1 + NonInvUnitCost2 + CompUnitCost1 + CompUnitCost2) * IndirectCostPer / 100;
+        SLMatStandardCost := CompUnitCost1 + CompUnitCost2 + NonInvUnitCost1;
+        StandardTotalCost := NonInvUnitCost1 + NonInvUnitCost2 + CompUnitCost1 + CompUnitCost2 + MfgStandardOvhdCost;
+        ExpectedCompQuantityPer := LibraryRandom.RandIntInRange(10, 20);
+        ExpectedNonInvQuantityPer := LibraryRandom.RandIntInRange(10, 20);
+        ExpectedSemiOutputItemQuantityPer := LibraryRandom.RandIntInRange(10, 20);
+        ActualCompQuantityPer := LibraryRandom.RandIntInRange(20, 30);
+        ActualNonInvQuantityPer := LibraryRandom.RandIntInRange(20, 30);
+        ActualSemiOutputItemQuantityPer := LibraryRandom.RandIntInRange(20, 30);
+        MaterialExpectedCost := CompUnitCost2 * ExpectedCompQuantityPer + (CompUnitCost1 + NonInvUnitCost1) * ExpectedSemiOutputItemQuantityPer;
+        MaterialActualCost := CompUnitCost2 * ActualCompQuantityPer + (CompUnitCost1 + NonInvUnitCost1) * ActualSemiOutputItemQuantityPer;
+        VarianceMaterialAmt := MaterialActualCost - SLMatStandardCost;
+        MfgOverheadExpectedCost := (MaterialExpectedCost + (NonInvUnitCost2 * ExpectedNonInvQuantityPer)) * IndirectCostPer / 100;
+        MfgOverheadActualCost := ((MaterialActualCost + (NonInvUnitCost2 * ActualNonInvQuantityPer)) * IndirectCostPer / 100);
+        VarianceMfgOverheadAmt := MfgOverheadActualCost - MfgStandardOvhdCost;
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory and component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem1, Quantity, NonInvUnitCost1);
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem[1], Quantity, CompUnitCost1);
+
+        // [GIVEN] Update "Costing Method" Standard in Production item.
+        SemiOutputItem.Validate("Costing Method", SemiOutputItem."Costing Method"::Standard);
+        SemiOutputItem.Modify();
+
+        // [GIVEN] Calculate Material Cost of Semi-Production Item.
+        CalculateStdCost.CalcItem(SemiOutputItem."No.", false);
+        SemiOutputItem.Get(SemiOutputItem."No.");
+
+        // [GIVEN] Create Production Item, Non-Inventory Item and Production BOM contains Non-Inventory item, Semi-Production and component item.
+        CreateProductionItemWithNonInvItemAndProductionBOMWithThreeComponent(OutputItem, NonInvItem2, SemiOutputItem, CompItem[2]);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory, component and Semi-Output item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem2, Quantity, NonInvUnitCost2);
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem[2], Quantity, CompUnitCost2);
+        CreateAndPostPurchaseDocumentWithNonInvItem(SemiOutputItem, Quantity, SemiOutputItem."Standard Cost");
+
+        // [GIVEN] Update "Costing Method" Standard and "Indirect Cost %" in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Validate("Indirect Cost %", IndirectCostPer);
+        OutputItem.Modify();
+
+        // [GIVEN] Calculate Material Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", LibraryRandom.RandIntInRange(1, 1), '', '');
+
+        // [GIVEN] Update "Quantity Per" in Production Component for Non-inventory item.
+        UpdateQuantityPerInProductionOrderComponent(ProdOrderComponent, ProductionOrder, NonInvItem2."No.", ExpectedNonInvQuantityPer);
+
+        // [GIVEN] Create and Post Consumption Journal for Non-inventory item.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, ActualNonInvQuantityPer);
+
+        // [GIVEN] Update "Quantity Per" in Production Component for Inventory item.
+        UpdateQuantityPerInProductionOrderComponent(ProdOrderComponent, ProductionOrder, CompItem[2]."No.", ExpectedCompQuantityPer);
+
+        // [GIVEN] Create and Post Consumption Journal for Inventory item.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, ActualCompQuantityPer);
+
+        // [GIVEN] Update "Quantity Per" in Production Component for Semi-Output item.
+        UpdateQuantityPerInProductionOrderComponent(ProdOrderComponent, ProductionOrder, SemiOutputItem."No.", ExpectedSemiOutputItemQuantityPer);
+
+        // [GIVEN] Create and Post Consumption Journal for Semi-Output item.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, ActualSemiOutputItemQuantityPer);
+
+        // [WHEN] Open Production Order Statistics.
+        ProductionOrderStatistics.OpenView();
+        ProductionOrderStatistics.GoToRecord(ProductionOrder);
+
+        // [THEN] Verify "Material Cost" in "Production Order Statistics" page.
+        ProductionOrderStatistics.MaterialCost_StandardCost.AssertEquals(SLMatStandardCost);
+        ProductionOrderStatistics.MaterialCost_ExpectedCost.AssertEquals(MaterialExpectedCost);
+        ProductionOrderStatistics.MaterialCost_ActualCost.AssertEquals(MaterialActualCost);
+        ProductionOrderStatistics."VarPct[1]".AssertEquals(CalcIndicatorPct(SLMatStandardCost, MaterialActualCost));
+        ProductionOrderStatistics."VarAmt[1]".AssertEquals(VarianceMaterialAmt);
+
+        // [THEN] Verify "Non Inventory-Material Cost" in "Production Order Statistics" page.
+        ProductionOrderStatistics.NonInventoryMaterialCost_StandardCost.AssertEquals(NonInvUnitCost2);
+        ProductionOrderStatistics.NonInventoryMaterialCost_ExpectedCost.AssertEquals(NonInvUnitCost2 * ExpectedNonInvQuantityPer);
+        ProductionOrderStatistics.NonInventoryMaterialCost_ActualCost.AssertEquals(NonInvUnitCost2 * ActualNonInvQuantityPer);
+        ProductionOrderStatistics."NonInventoryVarPct".AssertEquals(CalcIndicatorPct(NonInvUnitCost2, NonInvUnitCost2 * ActualNonInvQuantityPer));
+        ProductionOrderStatistics."NonInventoryVarAmt".AssertEquals((NonInvUnitCost2 * ActualNonInvQuantityPer) - (NonInvUnitCost2));
+
+        // [THEN] Verify "Mfg Overhead Cost" in "Production Order Statistics" page.
+        ProductionOrderStatistics."StdCost[5]".AssertEquals(MfgStandardOvhdCost);
+        ProductionOrderStatistics.MfgOverhead_ExpectedCost.AssertEquals(MfgOverheadExpectedCost);
+        ProductionOrderStatistics."ActCost[5]".AssertEquals(MfgOverheadActualCost);
+        ProductionOrderStatistics."VarPct[5]".AssertEquals(CalcIndicatorPct(MfgStandardOvhdCost, MfgOverheadActualCost));
+        ProductionOrderStatistics."VarAmt[5]".AssertEquals(VarianceMfgOverheadAmt);
+
+        // [THEN] Verify "Total Cost" in "Production Order Statistics" page.
+        ProductionOrderStatistics.TotalCost_StandardCost.AssertEquals(StandardTotalCost);
+        ProductionOrderStatistics.TotalCost_ExpectedCost.AssertEquals(MaterialExpectedCost + (NonInvUnitCost2 * ExpectedNonInvQuantityPer) + MfgOverheadExpectedCost);
+        ProductionOrderStatistics.TotalCost_ActualCost.AssertEquals(MaterialActualCost + (NonInvUnitCost2 * ActualNonInvQuantityPer) + MfgOverheadActualCost);
+        ProductionOrderStatistics."VarPct[6]".AssertEquals(CalcIndicatorPct(StandardTotalCost, MaterialActualCost + (NonInvUnitCost2 * ActualNonInvQuantityPer) + MfgOverheadActualCost));
+        ProductionOrderStatistics."VarAmt[6]".AssertEquals((MaterialActualCost + (NonInvUnitCost2 * ActualNonInvQuantityPer) + MfgOverheadActualCost) - StandardTotalCost);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Production Orders IV");
@@ -4227,6 +4498,25 @@ codeunit 137083 "SCM Production Orders IV"
         RevaluationJournal.GoToRecord(ItemJournalLine);
         RevaluationJournal."Unit Cost (Revalued)".SetValue(UnitCostRevalued);
         RevaluationJournal.Close();
+    end;
+
+    local procedure UpdateQuantityPerInProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrder: Record "Production Order"; ItemNo: Code[20]; QtyPer: Decimal)
+    begin
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", ItemNo);
+        ProdOrderComponent.FindFirst();
+
+        ProdOrderComponent.Validate("Quantity per", QtyPer);
+        ProdOrderComponent.Modify(true);
+    end;
+
+    local procedure CalcIndicatorPct(Value: Decimal; "Sum": Decimal): Decimal
+    begin
+        if Value = 0 then
+            exit(0);
+
+        exit(Round((Sum - Value) / Value * 100, 1));
     end;
 
     [ConfirmHandler]
