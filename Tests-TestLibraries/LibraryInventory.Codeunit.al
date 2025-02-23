@@ -12,7 +12,6 @@ codeunit 132201 "Library - Inventory"
     var
         InventorySetup: Record "Inventory Setup";
         LibraryERM: Codeunit "Library - ERM";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
@@ -527,22 +526,15 @@ codeunit 132201 "Library - Inventory"
         ItemChargeAssignmentPurch.Modify(true);
     end;
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure CreateItemJournal(var ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; ItemJournalTemplateType: Enum "Item Journal Template Type"; ProductionOrderNo: Code[20])
     var
-        ItemJournalLine: Record "Item Journal Line";
-        ItemJournalTemplate: Record "Item Journal Template";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        // Create Journals for Consumption and Output.
-        SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplateType);
-        SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplateType, ItemJournalTemplate.Name);
-        if ItemJournalTemplateType = ItemJournalTemplateType::Consumption then
-            LibraryManufacturing.CalculateConsumption(ProductionOrderNo, ItemJournalTemplate.Name, ItemJournalBatch.Name)
-        else begin
-            LibraryManufacturing.CreateOutputJournal(ItemJournalLine, ItemJournalTemplate, ItemJournalBatch, ItemNo, ProductionOrderNo);
-            OutputJnlExplRoute(ItemJournalLine);
-            LibraryManufacturing.UpdateOutputJournal(ProductionOrderNo);
-        end;
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo, ItemJournalTemplateType, ProductionOrderNo);
     end;
+#endif
 
     procedure CreateItemJournalTemplate(var ItemJournalTemplate: Record "Item Journal Template")
     begin
@@ -1360,13 +1352,15 @@ codeunit 132201 "Library - Inventory"
         ItemJournalLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, ItemJournalLine.FieldNo("Line No."));
     end;
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure OutputJnlExplRoute(var ItemJournalLine: Record "Item Journal Line")
     var
-        OutputJnlExplRouteCodeunit: Codeunit "Output Jnl.-Expl. Route";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        Clear(OutputJnlExplRouteCodeunit);
-        OutputJnlExplRouteCodeunit.Run(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
     end;
+#endif
 
     procedure PostDirectTransferOrder(var TransferHeader: Record "Transfer Header")
     var

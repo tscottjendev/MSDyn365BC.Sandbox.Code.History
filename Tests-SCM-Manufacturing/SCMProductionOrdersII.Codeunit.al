@@ -133,6 +133,7 @@ codeunit 137072 "SCM Production Orders II"
         RegPutAwayLinesActionMustBeVisibleErr: Label 'Registered Put-away Lines action must be Visible.';
         RegPutAwayLinesActionMustBeEnabledErr: Label 'Registered Put-away Lines action must be Enabled.';
         ThereIsNothingToCreateErr: Label 'There is nothing to create.';
+        CostAmtNonInvtblMustNotBeZeroErr: Label '%1 must not be 0 in %2', Comment = '%1 = Cost Amount (Non-Invtbl.) Caption, %2 = Item Ledger Entry Table';
 
     [Test]
     [Scope('OnPrem')]
@@ -6994,6 +6995,76 @@ codeunit 137072 "SCM Production Orders II"
         Assert.IsFalse(WarehouseActivityHeader.IsEmpty(), WhseActivityHeaderMustBeFoundErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJnlPageHandler2,ConfirmHandler,MessageHandlerNoText')]
+    procedure CostAmtNonInvtblIsNotZeroInReversedConsumpTypeILEHavingNonInvItem()
+    var
+        Item: array[2] of Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        UndoProdPostingMgmt: Codeunit "Undo Prod. Posting Mgmt.";
+    begin
+        // [SCENARIO 565139] Cost Amount (Non-Invtbl.) is not equal to 0 in Reversed 
+        // Item Ledger Entry of the posted Consumption Type Item Ledger Entry 
+        // Having Non - Inventory Type Item.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Create Item [1].
+        LibraryInventory.CreateItem(Item[1]);
+
+        // [GIVEN] Create Item [2] and Validate Type and Unit Cost.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Type", Item[2].Type::"Non-Inventory");
+        Item[2].Validate("Unit Cost", LibraryRandom.RandIntInRange(1, 1));
+        Item[2].Modify(true);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item[1]."No.", LibraryRandom.RandIntInRange(1, 1), '', '');
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(ProdOrderLine.Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Create Prod. Order Component and Validate Item No. and Quantity per.
+        LibraryManufacturing.CreateProductionOrderComponent(ProdOrderComponent, ProdOrderComponent.Status::Released, ProductionOrder."No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", Item[2]."No.");
+        ProdOrderComponent.Validate("Quantity per", LibraryRandom.RandIntInRange(10, 10));
+        ProdOrderComponent.Modify(true);
+
+        // [GIVEN] Create and Post Production Journal.
+        CreateAndPostProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Find Item Ledger Entry.
+        ItemLedgerEntry.SetRange("Item No.", Item[2]."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        ItemLedgerEntry.FindFirst();
+
+        // [GIVEN] Reverse Production Item Ledger Entry.
+        ItemLedgerEntry.SetRange("Entry No.", ItemLedgerEntry."Entry No.");
+        UndoProdPostingMgmt.ReverseProdItemLedgerEntry(ItemLedgerEntry);
+
+        // [WHEN] Find Item Ledger Entry.
+        ItemLedgerEntry.Reset();
+        ItemLedgerEntry.SetRange("Item No.", Item[2]."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        ItemLedgerEntry.FindLast();
+
+        // [THEN] Cost Amount (Non-Invtbl.) is not equal to 0 in Item Ledger Entry.
+        ItemLedgerEntry.CalcFields("Cost Amount (Non-Invtbl.)");
+        Assert.IsTrue(
+            ItemLedgerEntry."Cost Amount (Non-Invtbl.)" <> 0,
+            StrSubstNo(
+                CostAmtNonInvtblMustNotBeZeroErr,
+                ItemLedgerEntry.FieldCaption("Cost Amount (Non-Invtbl.)"),
+                ItemLedgerEntry.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -7471,7 +7542,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         LibraryInventory.ClearItemJournal(OutputItemJournalTemplate, OutputItemJournalBatch);
         LibraryManufacturing.CreateOutputJournal(ItemJournalLine, OutputItemJournalTemplate, OutputItemJournalBatch, '', ProductionOrderNo);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
         SelectItemJournalLine(ItemJournalLine, OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
     end;
 
@@ -7938,7 +8009,7 @@ codeunit 137072 "SCM Production Orders II"
         ItemJournalLine.Validate("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.Validate("Order No.", ProdOrderNo);
         ItemJournalLine.Modify(true);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
     end;
 
     local procedure FindProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderNo: Code[20])

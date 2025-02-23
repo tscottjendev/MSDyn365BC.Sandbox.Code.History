@@ -302,6 +302,23 @@ codeunit 132202 "Library - Manufacturing"
         FamilyLine.Modify(true);
     end;
 
+    procedure CreateProdItemJournal(var ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; ItemJournalTemplateType: Enum "Item Journal Template Type"; ProductionOrderNo: Code[20])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        // Create Journals for Consumption and Output.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplateType);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplateType, ItemJournalTemplate.Name);
+        if ItemJournalTemplateType = ItemJournalTemplateType::Consumption then
+            CalculateConsumption(ProductionOrderNo, ItemJournalTemplate.Name, ItemJournalBatch.Name)
+        else begin
+            CreateOutputJournal(ItemJournalLine, ItemJournalTemplate, ItemJournalBatch, ItemNo, ProductionOrderNo);
+            OutputJnlExplodeRoute(ItemJournalLine);
+            UpdateOutputJournal(ProductionOrderNo);
+        end;
+    end;
+
     procedure CreateItemManufacturing(var Item: Record Item; CostingMethod: Enum "Costing Method"; UnitCost: Decimal; ReorderPolicy: Enum "Reordering Policy"; FlushingMethod: Enum "Flushing Method"; RoutingNo: Code[20]; ProductionBOMNo: Code[20])
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
@@ -834,6 +851,14 @@ codeunit 132202 "Library - Manufacturing"
         CODEUNIT.Run(CODEUNIT::"Output Jnl.-Expl. Route", ItemJournalLine);
     end;
 
+    procedure OutputJnlExplodeRoute(var ItemJournalLine: Record "Item Journal Line")
+    var
+        OutputJnlExplRouteCodeunit: Codeunit "Output Jnl.-Expl. Route";
+    begin
+        Clear(OutputJnlExplRouteCodeunit);
+        OutputJnlExplRouteCodeunit.Run(ItemJournalLine);
+    end;
+
     procedure OutputJournalExplodeOrderLineRouting(var ItemJournalBatch: Record "Item Journal Batch"; ProdOrderLine: Record "Prod. Order Line"; PostingDate: Date)
     var
         ItemJournalLine: Record "Item Journal Line";
@@ -1277,6 +1302,15 @@ codeunit 132202 "Library - Manufacturing"
         ItemJournalLine.Modify();
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine, SerialNo, LotNo, Qty);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Assembly", 'OnCreateMultipleLvlTreeOnCreateBOM', '', false, false)]
+    local procedure OnCreateMultipleLvlTreeOnCreateBOM(var Item: Record Item; NoOfComps: Integer; var BOMCreated: Boolean)
+    begin
+        if Item."Replenishment System" = Item."Replenishment System"::"Prod. Order" then begin
+            CreateProductionBOM(Item, NoOfComps);
+            BOMCreated := true;
+        end;
     end;
 }
 
