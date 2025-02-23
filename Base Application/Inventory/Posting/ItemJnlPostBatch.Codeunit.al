@@ -671,10 +671,9 @@ codeunit 23 "Item Jnl.-Post Batch"
         if InventorySetup."Average Cost Calc. Type" = InventorySetup."Average Cost Calc. Type"::Item then
             UpdateItemStdCost()
         else
-            if SKU.Get(ItemJnlLine."Location Code", ItemJnlLine."Item No.", ItemJnlLine."Variant Code") then begin
-                SKU.Validate("Standard Cost", ItemJnlLine."Unit Cost (Revalued)");
-                SKU.Modify();
-            end else
+            if SKU.Get(ItemJnlLine."Location Code", ItemJnlLine."Item No.", ItemJnlLine."Variant Code") then
+                UpdateSKUStdCost(SKU)
+            else
                 UpdateItemStdCost();
     end;
 
@@ -688,6 +687,14 @@ codeunit 23 "Item Jnl.-Post Batch"
         SetItemRolledUpCosts(Item, ItemJnlLine);
         Item."Last Unit Cost Calc. Date" := ItemJnlLine."Posting Date";
         Item.Modify();
+    end;
+
+    local procedure UpdateSKUStdCost(var SKU: Record "Stockkeeping Unit")
+    begin
+        SKU.Validate("Standard Cost", ItemJnlLine."Unit Cost (Revalued)");
+        SetSKUSingleLevelCosts(SKU, ItemJnlLine);
+        SetSKURolledUpCosts(SKU, ItemJnlLine);
+        SKU.Modify();
     end;
 
     local procedure CheckRemainingQty(AppliesToEntryNo: Integer; PostingDate: Date)
@@ -936,6 +943,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         Item."Single-Level Subcontrd. Cost" := ItemJournalLine."Single-Level Subcontrd. Cost";
         Item."Single-Level Cap. Ovhd Cost" := ItemJournalLine."Single-Level Cap. Ovhd Cost";
         Item."Single-Level Mfg. Ovhd Cost" := ItemJournalLine."Single-Level Mfg. Ovhd Cost";
+        Item."Single-Lvl Mat. Non-Invt. Cost" := ItemJournalLine."Single-Lvl Mat. Non-Invt. Cost";
     end;
 
     local procedure SetItemRolledUpCosts(var Item: Record Item; ItemJournalLine: Record "Item Journal Line")
@@ -945,6 +953,27 @@ codeunit 23 "Item Jnl.-Post Batch"
         Item."Rolled-up Subcontracted Cost" := ItemJournalLine."Rolled-up Subcontracted Cost";
         Item."Rolled-up Mfg. Ovhd Cost" := ItemJournalLine."Rolled-up Mfg. Ovhd Cost";
         Item."Rolled-up Cap. Overhead Cost" := ItemJournalLine."Rolled-up Cap. Overhead Cost";
+        Item."Rolled-up Mat. Non-Invt. Cost" := ItemJournalLine."Rolled-up Mat. Non-Invt. Cost";
+    end;
+
+    local procedure SetSKUSingleLevelCosts(var SKU: Record "Stockkeeping Unit"; ItemJournalLine: Record "Item Journal Line")
+    begin
+        SKU."Single-Level Material Cost" := ItemJournalLine."Single-Level Material Cost";
+        SKU."Single-Level Capacity Cost" := ItemJournalLine."Single-Level Capacity Cost";
+        SKU."Single-Level Subcontrd. Cost" := ItemJournalLine."Single-Level Subcontrd. Cost";
+        SKU."Single-Level Cap. Ovhd Cost" := ItemJournalLine."Single-Level Cap. Ovhd Cost";
+        SKU."Single-Level Mfg. Ovhd Cost" := ItemJournalLine."Single-Level Mfg. Ovhd Cost";
+        SKU."Single-Lvl Mat. Non-Invt. Cost" := ItemJournalLine."Single-Lvl Mat. Non-Invt. Cost";
+    end;
+
+    local procedure SetSKURolledUpCosts(var SKU: Record "Stockkeeping Unit"; ItemJournalLine: Record "Item Journal Line")
+    begin
+        SKU."Rolled-up Material Cost" := ItemJournalLine."Rolled-up Material Cost";
+        SKU."Rolled-up Capacity Cost" := ItemJournalLine."Rolled-up Capacity Cost";
+        SKU."Rolled-up Subcontracted Cost" := ItemJournalLine."Rolled-up Subcontracted Cost";
+        SKU."Rolled-up Mfg. Ovhd Cost" := ItemJournalLine."Rolled-up Mfg. Ovhd Cost";
+        SKU."Rolled-up Cap. Overhead Cost" := ItemJournalLine."Rolled-up Cap. Overhead Cost";
+        SKU."Rolled-up Mat. Non-Invt. Cost" := ItemJournalLine."Rolled-up Mat. Non-Invt. Cost";
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)

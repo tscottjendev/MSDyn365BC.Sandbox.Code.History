@@ -860,14 +860,14 @@ codeunit 137004 "SCM WIP Costing Production-II"
 
         // Create, Calculate and Post Consumption Journal, Explode Routing and Post Output Journal.
         if FlushingMethod = Enum::"Flushing Method"::Manual then begin
-            LibraryInventory.CreateItemJournal(
+            LibraryManufacturing.CreateProdItemJournal(
               ItemJournalBatch, ComponentItemNos[1], ItemJournalBatch."Template Type"::Consumption, ProductionOrder."No.");
             if DeleteConsumptionJrnl then
                 RemoveProdOrderComponent(ProductionOrder."No.", ComponentItemNos[1]);
             if ConsumptionCostDiff then
                 UpdateQtyConsumptionJournal(ProductionOrder."No.", ComponentItemNos[2]);
             LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-            LibraryInventory.CreateItemJournal(ItemJournalBatch, ComponentItemNos[3], ItemJournalBatch."Template Type"::Output, ProductionOrder."No.");
+            LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ComponentItemNos[3], ItemJournalBatch."Template Type"::Output, ProductionOrder."No.");
             if OutputCostDiff then
                 UpdateLessQtyOutputJournal(ProductionOrder."No.", ProductionOrder.Quantity);
             if RunSetupTimeCostDiff then begin
@@ -1324,7 +1324,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
     begin
-        LibraryInventory.CreateItemJournal(
+        LibraryManufacturing.CreateProdItemJournal(
           ItemJournalBatch, ItemNo, ItemJournalBatch."Template Type"::Consumption, ProdOrderNo);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
@@ -1355,7 +1355,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
     begin
-        LibraryInventory.CreateItemJournal(
+        LibraryManufacturing.CreateProdItemJournal(
           ItemJournalBatch, ProductionOrder."Source No.", ItemJournalBatch."Template Type"::Output, ProductionOrder."No.");
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
