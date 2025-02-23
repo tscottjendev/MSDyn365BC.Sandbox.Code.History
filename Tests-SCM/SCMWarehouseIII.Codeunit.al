@@ -7410,7 +7410,7 @@ codeunit 137051 "SCM Warehouse - III"
         ItemJournalLine.Validate("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.Validate("Order No.", ProductionOrderNo);
         ItemJournalLine.Modify(true);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
         if UpdateItemJournalLine then begin
             ItemJournalLine.Validate("Output Quantity", Quantity);
             ItemJournalLine.Modify(true);
