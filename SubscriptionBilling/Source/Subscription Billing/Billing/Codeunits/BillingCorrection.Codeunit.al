@@ -111,6 +111,7 @@ codeunit 8061 "Billing Correction"
                         CreditMemoUsageDataBilling."Document Line No." := RRef.Field(4).Value;
                         CreditMemoUsageDataBilling."Entry No." := 0;
                         CreditMemoUsageDataBilling.Insert(true);
+                        CreditMemoUsageDataBilling.InsertMetadata();
                     until InvoiceUsageDataBilling.Next() = 0;
             end;
 

@@ -39,7 +39,7 @@ codeunit 139694 "Usage Based Rebilling Test"
 
         // [THEN] Metadata should be deleted as well
         UsageDataBillingMetadata.Reset();
-        UsageDataBillingMetadata.FilterOnUsageDataBilling(UsageDataBilling);
+        UsageDataBillingMetadata.SetRange("Usage Data Billing Entry No.", UsageDataBilling."Entry No.");
         Assert.RecordIsEmpty(UsageDataBillingMetadata);
     end;
 
@@ -72,7 +72,7 @@ codeunit 139694 "Usage Based Rebilling Test"
         // [THEN] Check that metadata exists after deleting the UsageDataBilling
         UsageDataBilling.Find();
         UsageDataBilling.Delete(true);
-        UsageDataBillingMetadata.FilterOnUsageDataBilling(UsageDataBilling);
+        UsageDataBillingMetadata.SetRange("Usage Data Billing Entry No.", UsageDataBilling."Entry No.");
         Assert.IsTrue(UsageDataBilling.IsInvoiced(), 'Should be invoiced');
         Assert.IsFalse(UsageDataBillingMetadata.IsEmpty, 'Metadata does still exist');
     end;
@@ -190,7 +190,7 @@ codeunit 139694 "Usage Based Rebilling Test"
         UsageDataBilling.FindFirst();
         // [THEN] Check Subscription Line
         ServiceCommitment.Get(UsageDataBilling."Subscription Line Entry No.");
-        Assert.AreEqual(CalcDate('<CY+1D>', WorkDate()), ServiceCommitment."Next Billing Date", 'Expected Next Billing Date to be the day after the end of the year, but it was different.');
+        Assert.AreEqual(CalcDate('<CY+1Y+1D>', WorkDate()), ServiceCommitment."Next Billing Date", 'Expected Next Billing Date to be the day after the end of the year, but it was different.');
     end;
 
     [Test]
@@ -265,7 +265,7 @@ codeunit 139694 "Usage Based Rebilling Test"
 
         // [THEN] Check Subscription Line
         ServiceCommitment.Get(UsageDataBilling."Subscription Line Entry No.");
-        Assert.AreEqual(CalcDate('<CY+1D>', WorkDate()), ServiceCommitment."Next Billing Date", 'Expected Next Billing Date to be the day after the end of the year, but it was different.');
+        Assert.AreEqual(CalcDate('<CY+1Y+1D>', WorkDate()), ServiceCommitment."Next Billing Date", 'Expected Next Billing Date to be the day after the end of the year, but it was different.');
 
         BillingLine.SetCurrentKey("Billing from");
         BillingLine.SetRange("Subscription Header No.", ServiceObject."No.");
@@ -591,7 +591,7 @@ codeunit 139694 "Usage Based Rebilling Test"
 
     local procedure TestUsageDataBillingMetadataForRebilling(var UsageDataBillingMetadata: Record "Usage Data Billing Metadata"; UsageDataBilling: Record "Usage Data Billing"; TestTrue: Boolean)
     begin
-        UsageDataBillingMetadata.FilterOnUsageDataBilling(UsageDataBilling); // Filter metadata based on the usage data billing
+        UsageDataBillingMetadata.SetRange("Usage Data Billing Entry No.", UsageDataBilling."Entry No.");
         UsageDataBillingMetadata.FindFirst(); // Find the first matching metadata record
         if not TestTrue then
             Assert.IsFalse(UsageDataBillingMetadata.Rebilling, 'Expected UsageDataBillingMetadata.Rebilling to be false for initial import, but it was true.') // Verify that the rebilling flag is false

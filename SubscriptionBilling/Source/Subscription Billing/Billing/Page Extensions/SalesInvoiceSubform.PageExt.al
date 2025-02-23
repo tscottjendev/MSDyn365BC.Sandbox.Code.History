@@ -46,6 +46,7 @@ pageextension 8062 "Sales Invoice Subform" extends "Sales Invoice Subform"
     var
         UsageDataBilling: Record "Usage Data Billing";
     begin
+        Rec.InitCachedVar();
         IsConnectedToBillingLine := Rec.IsLineAttachedToBillingLine();
         UsageDataEnabled := UsageDataBilling.ExistForSalesDocuments(Rec."Document Type", Rec."Document No.", Rec."Line No.");
     end;

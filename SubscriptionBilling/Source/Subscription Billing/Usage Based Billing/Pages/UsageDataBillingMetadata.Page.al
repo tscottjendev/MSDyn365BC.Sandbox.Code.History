@@ -18,12 +18,12 @@ page 8096 "Usage Data Billing Metadata"
         {
             repeater(General)
             {
-                field("Service Object No."; Rec."Service Object No.")
+                field("Service Object No."; Rec."Subscription No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Indicates the number of the related Subscription.';
                 }
-                field("Service Commitment Entry No."; Rec."Service Commitment Entry No.")
+                field("Service Commitment Entry No."; Rec."Subscription Line Entry No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Indicates the number of the related Subscription Line line.';
@@ -52,6 +52,16 @@ page 8096 "Usage Data Billing Metadata"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Indicates whether the related usage data billing comes out of a rebilling scenario.';
+                }
+                field("Billing Document Type"; Rec."Billing Document Type")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Indicates which document type was used to post the associated usage data.';
+                }
+                field("Billing Document No."; Rec."Billing Document No.")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Indicates which document no. was used to post the associated usage data.';
                 }
             }
         }

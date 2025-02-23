@@ -309,7 +309,7 @@ codeunit 8062 "Billing Proposal"
     local procedure UpdateBillingLine(var BillingLine: Record "Billing Line"; var ServiceCommitment: Record "Subscription Line"; BillingTemplate: Record "Billing Template"; BillingFrom: Date)
     var
         BillingLine2: Record "Billing Line";
-        NewBillingToDate, NewBillingToDate2, NewBillingFromDate2 : Date;
+        NewBillingToDate, NewBillingToDate2, NewBillingFromDate2, SupplierChargeEndDate : Date;
         ServiceCommitmentNotEnded: Boolean;
     begin
         BillingLine."Billing from" := BillingFrom;
@@ -325,6 +325,7 @@ codeunit 8062 "Billing Proposal"
         UpdateBillingLineFromServiceCommitment(BillingLine, ServiceCommitment);
         CalculateBillingLineUnitAmountsAndServiceAmount(BillingLine, ServiceCommitment);
         BillingLine."Billing Template Code" := BillingTemplate.Code;
+        BillingLine.Rebilling := BillingLine.RebillingUsageDataExist();
 
         OnBeforeInsertBillingLineUpdateBillingLine(BillingLine, ServiceCommitment);
         if not BillingLine.Insert(false) then
@@ -335,6 +336,12 @@ codeunit 8062 "Billing Proposal"
         ServiceCommitment.Modify(false);
 
         NewBillingFromDate2 := ServiceCommitment.CalculateNextToDate(ServiceCommitment."Billing Rhythm", BillingLine."Billing from") + 1;
+        if BillingLine.Rebilling then begin
+            SupplierChargeEndDate := ServiceCommitment.GetSupplierChargeEndDateIfRebillingMetadataExist(BillingLine."Billing from");
+            if SupplierChargeEndDate <> 0D then
+                NewBillingFromDate2 := SupplierChargeEndDate + 1;
+        end;
+
         NewBillingToDate2 := CalculateNextBillingToDateForServiceCommitment(ServiceCommitment, NewBillingFromDate2);
         if NewBillingToDate2 >= BillingPeriodEnd then
             NewBillingToDate2 := BillingPeriodEnd;
@@ -353,6 +360,8 @@ codeunit 8062 "Billing Proposal"
     local procedure SetBillingLineUnitPriceAndServiceAmountsFromUsageDataBilling(var BillingLine: Record "Billing Line"; ServiceCommitment: Record "Subscription Line"): Boolean
     var
         UsageDataBilling: Record "Usage Data Billing";
+        CurrExchRate: Record "Currency Exchange Rate";
+        Currency: Record Currency;
     begin
         if not ServiceCommitment.IsUsageBasedBillingValid() then
             exit(false);
@@ -368,8 +377,13 @@ codeunit 8062 "Billing Proposal"
                 BillingLine.Amount := UsageDataBilling.Amount;
         end;
         UsageDataBilling.FindLast();
-        BillingLine."Service Object Quantity" := UsageDataBilling.Quantity;
-        BillingLine."Unit Price" := BillingLine.Amount / UsageDataBilling.Quantity;
+        if UsageDataBilling.Rebilling or (UsageDataBilling."Usage Base Pricing" = Enum::"Usage Based Pricing"::"Usage Quantity") then
+            BillingLine."Service Object Quantity" := UsageDataBilling.Quantity;
+        BillingLine."Unit Price" := BillingLine.Amount / BillingLine."Service Object Quantity";
+        BillingLine."Unit Cost" := UsageDataBilling."Cost Amount" / UsageDataBilling.Quantity;
+        Currency.Initialize(ServiceCommitment."Currency Code");
+        Currency.TestField("Unit-Amount Rounding Precision");
+        BillingLine."Unit Cost (LCY)" := Round(CurrExchRate.ExchangeAmtFCYToLCY(ServiceCommitment."Currency Factor Date", ServiceCommitment."Currency Code", BillingLine."Unit Cost", ServiceCommitment."Currency Factor"), Currency."Unit-Amount Rounding Precision");
         exit(true);
     end;
 
@@ -483,17 +497,22 @@ codeunit 8062 "Billing Proposal"
     internal procedure CalculateNextBillingToDateForServiceCommitment(ServiceCommitment: Record "Subscription Line"; BillingFromDate: Date) NextBillingToDate: Date
     var
         CustomerContract: Record "Customer Subscription Contract";
+        SupplierChargeEndDate: Date;
     begin
         ServiceCommitment.TestField("Billing Rhythm");
         NextBillingToDate := ServiceCommitment.CalculateNextToDate(ServiceCommitment."Billing Rhythm", BillingFromDate);
         if (NextBillingToDate >= ServiceCommitment."Subscription Line End Date") and (ServiceCommitment."Subscription Line End Date" <> 0D) then
             NextBillingToDate := ServiceCommitment."Subscription Line End Date";
-        if ServiceCommitment.IsPartnerVendor() then
-            exit;
-        CustomerContract.Get(ServiceCommitment."Subscription Contract No.");
-        if CustomerContract.IsContractTypeSetAsHarmonizedBilling() then
-            HarmonizeNextBillingTo(CustomerContract."Next Billing To", NextBillingToDate, BillingFromDate);
-        ServiceCommitment.SetNextBillingDateFromUsageDataBillingMetadata(NextBillingToDate, BillingFromDate);
+        SupplierChargeEndDate := ServiceCommitment.GetSupplierChargeEndDateIfRebillingMetadataExist(BillingFromDate);
+        if SupplierChargeEndDate <> 0D then
+            NextBillingToDate := SupplierChargeEndDate;
+
+        if ServiceCommitment.IsPartnerCustomer() then begin
+            CustomerContract.Get(ServiceCommitment."Subscription Contract No.");
+            if CustomerContract.IsContractTypeSetAsHarmonizedBilling() then
+                HarmonizeNextBillingTo(CustomerContract."Next Billing To", NextBillingToDate, BillingFromDate);
+        end;
+
         OnAfterCalculateNextBillingToDateForSubscriptionLine(NextBillingToDate, ServiceCommitment, BillingFromDate);
     end;
 

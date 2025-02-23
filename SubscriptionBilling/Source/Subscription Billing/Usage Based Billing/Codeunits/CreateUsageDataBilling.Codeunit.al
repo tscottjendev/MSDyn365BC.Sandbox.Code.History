@@ -44,7 +44,11 @@ codeunit 8023 "Create Usage Data Billing"
     end;
 
     local procedure FindAndProcessUsageDataImport()
+    var
+        UsageDataSupplier: Record "Usage Data Supplier";
     begin
+        UsageDataSupplier.Get(UsageDataImport."Supplier No.");
+        UsageDataProcessing := UsageDataSupplier.Type;
         UsageDataProcessing.FindAndProcessUsageDataImport(UsageDataImport);
     end;
 

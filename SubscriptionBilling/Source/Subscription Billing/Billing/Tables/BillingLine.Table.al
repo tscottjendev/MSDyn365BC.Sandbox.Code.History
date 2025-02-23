@@ -198,6 +198,10 @@ table 8061 "Billing Line"
         {
             Caption = 'Detail Overview';
         }
+        field(202; Rebilling; Boolean)
+        {
+            Caption = 'Rebilling';
+        }
     }
 
     keys
@@ -257,6 +261,9 @@ table 8061 "Billing Line"
             ServiceCommitment.UpdateNextBillingDate("Billing to")
         else
             ServiceCommitment.UpdateNextBillingDate("Billing from" - 1);
+
+        //Update next billing to date to last invoiced date from metadata if the billing line being deleted is rebilling
+        UpdateNextBillingDateFromUsageDataMetadata(ServiceCommitment);
         ServiceCommitment.Modify(false);
     end;
 
@@ -476,5 +483,35 @@ table 8061 "Billing Line"
     local procedure GetServiceCommitment(var ServiceCommitment: Record "Subscription Line")
     begin
         ServiceCommitment.Get("Subscription Line Entry No.");
+    end;
+
+    local procedure UpdateNextBillingDateFromUsageDataMetadata(var ServiceCommitment: Record "Subscription Line")
+    var
+        UsageDataBilling: Record "Usage Data Billing";
+        UsageBasedDocTypeConv: Codeunit "Usage Based Doc. Type Conv.";
+        SupplierChargeEndDate: date;
+    begin
+        if not ServiceCommitment.IsUsageBasedBillingValid() then
+            exit;
+        UsageDataBilling.FilterOnDocumentTypeAndDocumentNo(Rec.Partner, UsageBasedDocTypeConv.ConvertRecurringBillingDocTypeToUsageBasedBillingDocType(Rec."Document Type"), Rec."Document No.");
+        if not UsageDataBilling.FindFirst() then
+            exit;
+        if UsageDataBilling.Rebilling then begin
+            SupplierChargeEndDate := ServiceCommitment.GetSupplierChargeStartDateIfRebillingMetadataExist(Rec."Billing from");
+            if SupplierChargeEndDate <> 0D then
+                ServiceCommitment."Next Billing Date" := SupplierChargeEndDate;
+        end;
+    end;
+
+    internal procedure RebillingUsageDataExist(): Boolean
+    var
+        UsageDataBilling: Record "Usage Data Billing";
+    begin
+        UsageDataBilling.SetRange("Subscription Header No.", Rec."Subscription Header No.");
+        UsageDataBilling.SetRange("Subscription Line Entry No.", Rec."Subscription Line Entry No.");
+        UsageDataBilling.SetRange("Charge Start Date", Rec."Billing from");
+        UsageDataBilling.SetRange("Document Type", "Usage Based Billing Doc. Type"::None);
+        UsageDataBilling.SetRange(Rebilling, true);
+        exit(not UsageDataBilling.IsEmpty());
     end;
 }

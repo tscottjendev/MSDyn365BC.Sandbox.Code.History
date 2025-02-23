@@ -275,6 +275,7 @@ codeunit 8060 "Create Billing Documents"
 
         BillingLine.SetRange("Subscription Header No.", TempBillingLine."Subscription Header No.");
         BillingLine.SetRange("Subscription Line Entry No.", TempBillingLine."Subscription Line Entry No.");
+        BillingLine.SetRange(Rebilling, TempBillingLine.Rebilling);
         if CreateContractInvoice then
             BillingLine.SetRange("Billing Template Code", '');
         BillingLine.ModifyAll("Document Type", BillingLine.GetBillingDocumentTypeFromSalesDocumentType(SalesLine."Document Type"), false);
@@ -303,6 +304,8 @@ codeunit 8060 "Create Billing Documents"
     var
         UsageDataBilling: Record "Usage Data Billing";
         ServiceCommitment: Record "Subscription Line";
+        NewSalesLineQuantity: Decimal;
+        NewSalesLineAmount: Decimal;
     begin
         if not ServiceCommitment.Get(BillingLine."Subscription Line Entry No.") then
             exit;
@@ -312,8 +315,15 @@ codeunit 8060 "Create Billing Documents"
         if not ServiceCommitment.IsUsageDataBillingFound(UsageDataBilling, BillingLine."Billing from", BillingLine."Billing to") then
             exit;
 
-        UsageDataBilling.CalcSums(Amount);
-        SalesLine.Validate("Unit Price", UsageDataBilling.Amount / SalesLine.Quantity);
+        UsageDataBilling.CalcSums(Amount, Quantity);
+        NewSalesLineQuantity := SalesLine.Quantity;
+        NewSalesLineAmount := UsageDataBilling.Amount;
+        UsageDataBilling.FindLast();
+        if UsageDataBilling.Rebilling then
+            NewSalesLineQuantity := UsageDataBilling.Quantity;
+
+        SalesLine.Validate(Quantity, NewSalesLineQuantity);
+        SalesLine.Validate("Unit Price", NewSalesLineAmount / NewSalesLineQuantity);
     end;
 
     local procedure InsertPurchaseLineFromTempBillingLine()
@@ -363,6 +373,7 @@ codeunit 8060 "Create Billing Documents"
             BillingLine.SetRange("Billing Template Code", '');
         BillingLine.SetRange("Subscription Header No.", TempBillingLine."Subscription Header No.");
         BillingLine.SetRange("Subscription Line Entry No.", TempBillingLine."Subscription Line Entry No.");
+        BillingLine.SetRange(Rebilling, TempBillingLine.Rebilling);
 
         BillingLine.ModifyAll("Document Type", BillingLine.GetBillingDocumentTypeFromSalesDocumentType(PurchaseLine."Document Type"), false);
         BillingLine.ModifyAll("Document No.", PurchaseLine."Document No.", false);
@@ -388,6 +399,8 @@ codeunit 8060 "Create Billing Documents"
     var
         UsageDataBilling: Record "Usage Data Billing";
         ServiceCommitment: Record "Subscription Line";
+        NewPurchaseLineQuantity: Decimal;
+        NewPurchaseLineAmount: Decimal;
     begin
         if not ServiceCommitment.Get(BillingLine."Subscription Line Entry No.") then
             exit;
@@ -397,8 +410,15 @@ codeunit 8060 "Create Billing Documents"
         if not ServiceCommitment.IsUsageDataBillingFound(UsageDataBilling, BillingLine."Billing from", BillingLine."Billing to") then
             exit;
 
-        UsageDataBilling.CalcSums("Cost Amount");
-        PurchLine.Validate("Unit Cost", UsageDataBilling."Cost Amount" / PurchLine.Quantity);
+        UsageDataBilling.CalcSums("Cost Amount", Quantity);
+        NewPurchaseLineQuantity := PurchLine.Quantity;
+        NewPurchaseLineAmount := UsageDataBilling."Cost Amount";
+        UsageDataBilling.FindLast();
+        if UsageDataBilling.Rebilling then
+            NewPurchaseLineQuantity := UsageDataBilling.Quantity;
+
+        PurchLine.Validate(Quantity, NewPurchaseLineQuantity);
+        PurchLine.Validate("Direct Unit Cost", NewPurchaseLineAmount / NewPurchaseLineQuantity);
     end;
 
     local procedure GetBillingLineNo(BillingDocumentType: Enum "Rec. Billing Document Type"; ServiceParner: Enum "Service Partner"; DocumentNo: Code[20]; ContractNo: Code[20]; ContractLineNo: Integer): Integer
@@ -700,6 +720,7 @@ codeunit 8060 "Create Billing Documents"
                 TempBillingLine.SetRange("Subscription Contract No.", BillingLine."Subscription Contract No.");
                 TempBillingLine.SetRange("Subscription Header No.", BillingLine."Subscription Header No.");
                 TempBillingLine.SetRange("Subscription Line Entry No.", BillingLine."Subscription Line Entry No.");
+                TempBillingLine.SetRange(Rebilling, BillingLine.Rebilling);
                 if not TempBillingLine.FindFirst() then begin
                     TempBillingLine.Init();
                     LineNo += 1;
@@ -714,6 +735,7 @@ codeunit 8060 "Create Billing Documents"
                     TempBillingLine."Subscription Line Entry No." := BillingLine."Subscription Line Entry No.";
                     TempBillingLine."Discount %" := BillingLine."Discount %";
                     TempBillingLine."Subscription Line Description" := BillingLine."Subscription Line Description";
+                    TempBillingLine.Rebilling := BillingLine.Rebilling;
                     OnBeforeInsertTempBillingLine(TempBillingLine, BillingLine);
                     TempBillingLine.Insert(false);
                 end;

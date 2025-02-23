@@ -18,14 +18,14 @@ table 8021 "Usage Data Billing Metadata"
             Caption = 'Entry No.';
             TableRelation = "Usage Data Billing";
         }
-        field(3; "Service Object No."; Code[20])
+        field(3; "Subscription No."; Code[20])
         {
             Caption = 'Subscription No.';
             TableRelation = "Subscription Header";
         }
-        field(4; "Service Commitment Entry No."; Integer)
+        field(4; "Subscription Line Entry No."; Integer)
         {
-            Caption = 'Subscription Line Line No.';
+            Caption = 'Subscription Line Entry No.';
             TableRelation = "Subscription Line";
         }
         field(5; "Supplier Charge Start Date"; Date)
@@ -48,6 +48,20 @@ table 8021 "Usage Data Billing Metadata"
         {
             Caption = 'Rebilling';
         }
+        field(10; "Billing Document Type"; Enum "Usage Based Billing Doc. Type")
+        {
+            Caption = 'Billing Document Type';
+            FieldClass = FlowField;
+            CalcFormula = lookup("Usage Data Billing"."Document Type" where("Entry No." = field("Usage Data Billing Entry No.")));
+            Editable = false;
+        }
+        field(11; "Billing Document No."; Code[20])
+        {
+            Caption = 'Billing Document No.';
+            FieldClass = FlowField;
+            CalcFormula = lookup("Usage Data Billing"."Document No." where("Entry No." = field("Usage Data Billing Entry No.")));
+            Editable = false;
+        }
     }
     keys
     {
@@ -57,42 +71,38 @@ table 8021 "Usage Data Billing Metadata"
         }
     }
 
-    internal procedure FilterOnUsageDataBilling(UsageDataBilling: Record "Usage Data Billing")
-    begin
-        Rec.SetRange("Service Object No.", UsageDataBilling."Subscription Header No.");
-        Rec.SetRange("Service Commitment Entry No.", UsageDataBilling."Subscription Line Entry No.");
-        Rec.SetRange("Supplier Charge Start Date", UsageDataBilling."Charge Start Date");
-        Rec.SetRange("Supplier Charge End Date", UsageDataBilling."Charge End Date");
-    end;
-
     internal procedure InsertFromUsageDataBilling(UsageDataBilling: Record "Usage Data Billing")
     var
         ServiceCommitment: Record "Subscription Line";
+        NewOriginalInvoicedToDate: Date;
+        NextBillingDate: Date;
     begin
         "Entry No." := 0;
         "Usage Data Billing Entry No." := UsageDataBilling."Entry No.";
-        "Service Object No." := UsageDataBilling."Subscription Header No.";
-        "Service Commitment Entry No." := UsageDataBilling."Subscription Line Entry No.";
+        "Subscription No." := UsageDataBilling."Subscription Header No.";
+        "Subscription Line Entry No." := UsageDataBilling."Subscription Line Entry No.";
         "Supplier Charge Start Date" := UsageDataBilling."Charge Start Date";
         "Supplier Charge End Date" := UsageDataBilling."Charge End Date";
         Rebilling := UsageDataBilling.Rebilling;
 
-        if ("Service Object No." <> '') and ("Service Commitment Entry No." <> 0) then begin
-            ServiceCommitment.Get("Service Commitment Entry No.");
-            "Original Invoiced to Date" := CalcDate('<-1D>', ServiceCommitment."Next Billing Date");
-            if UsageDataBilling.Rebilling then begin
-                ServiceCommitment."Next Billing Date" := UsageDataBilling."Charge Start Date";
-                ServiceCommitment.Modify(true);
+        if ("Subscription No." <> '') and ("Subscription Line Entry No." <> 0) then begin
+            ServiceCommitment.Get("Subscription Line Entry No.");
+            NewOriginalInvoicedToDate := ServiceCommitment.GetLastSupplierChargeEndDateIfMetadataExist();
+            if NewOriginalInvoicedToDate = 0D then
+                NewOriginalInvoicedToDate := ServiceCommitment."Subscription Line Start Date" - 1;
+            "Original Invoiced to Date" := NewOriginalInvoicedToDate;
+
+            NextBillingDate := ServiceCommitment.GetSupplierChargeStartDateIfRebillingMetadataExist(0D);
+            if NextBillingDate <> 0D then begin
+                ServiceCommitment."Next Billing Date" := NextBillingDate;
+                ServiceCommitment.Modify(false);
             end;
         end;
         Insert(true);
     end;
 
-    internal procedure DeleteFor(UsageDataBillingEntryNo: Integer)
-    var
-        UsageDataBillingMetadata: Record "Usage Data Billing Metadata";
+    internal procedure FilterOnServiceCommitment(ServiceCommitmentEntryNo: Integer)
     begin
-        UsageDataBillingMetadata.SetRange("Usage Data Billing Entry No.", UsageDataBillingEntryNo);
-        UsageDataBillingMetadata.DeleteAll();
+        Rec.SetRange("Subscription Line Entry No.", ServiceCommitmentEntryNo);
     end;
 }

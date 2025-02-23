@@ -124,6 +124,7 @@ codeunit 8028 "Usage Based Contr. Subscribers"
         NewUsageDataBilling."Billing Line Entry No." := 0;
         NewUsageDataBilling."Entry No." := 0;
         NewUsageDataBilling.Insert(true);
+        NewUsageDataBilling.InsertMetadata();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Invoice Header", 'OnAfterDeleteEvent', '', false, false)]
@@ -196,9 +197,9 @@ codeunit 8028 "Usage Based Contr. Subscribers"
             repeat
                 if SalesCrMemoHdrNo <> '' then begin
                     UsageDataBilling.SaveDocumentValues(Enum::"Usage Based Billing Doc. Type"::"Posted Credit Memo", SalesCrMemoHdrNo, UsageDataBilling."Document Line No.", UsageDataBilling."Billing Line Entry No.");
+                    UsageDataBilling.SetMetadataAsInvoiced();
                     CreateAdditionalUsageDataBilling(UsageDataBilling);
-                end
-                else begin
+                end else begin
                     UsageDataBilling.SaveDocumentValues(Enum::"Usage Based Billing Doc. Type"::"Posted Invoice", SalesInvHdrNo, UsageDataBilling."Document Line No.", UsageDataBilling."Billing Line Entry No.");
                     UsageDataBilling.SetMetadataAsInvoiced();
                 end;
@@ -218,10 +219,12 @@ codeunit 8028 "Usage Based Contr. Subscribers"
             repeat
                 if PurchCrMemoHdrNo <> '' then begin
                     UsageDataBilling.SaveDocumentValues(Enum::"Usage Based Billing Doc. Type"::"Posted Credit Memo", PurchCrMemoHdrNo, UsageDataBilling."Document Line No.", UsageDataBilling."Billing Line Entry No.");
+                    UsageDataBilling.SetMetadataAsInvoiced();
                     CreateAdditionalUsageDataBilling(UsageDataBilling);
-                end
-                else
+                end else begin
                     UsageDataBilling.SaveDocumentValues(Enum::"Usage Based Billing Doc. Type"::"Posted Invoice", PurchInvHdrNo, UsageDataBilling."Document Line No.", UsageDataBilling."Billing Line Entry No.");
+                    UsageDataBilling.SetMetadataAsInvoiced();
+                end;
             until UsageDataBilling.Next() = 0;
     end;
 

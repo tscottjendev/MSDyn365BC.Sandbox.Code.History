@@ -289,11 +289,33 @@ table 8006 "Usage Data Billing"
     end;
 
     trigger OnDelete()
+    begin
+        if not Rec.IsInvoiced() then begin
+            RevertServiceCommitmentNextBillingDateIfRebillingMetadataExist();
+            DeleteUsageDataBillingMetadata();
+        end;
+    end;
+
+    internal procedure DeleteUsageDataBillingMetadata()
     var
         UsageDataBillingMetadata: Record "Usage Data Billing Metadata";
     begin
-        if not Rec.IsInvoiced() then
-            UsageDataBillingMetadata.DeleteFor(Rec."Entry No.");
+        UsageDataBillingMetadata.SetRange("Usage Data Billing Entry No.", Rec."Entry No.");
+        UsageDataBillingMetadata.DeleteAll();
+    end;
+
+    internal procedure RevertServiceCommitmentNextBillingDateIfRebillingMetadataExist()
+    var
+        ServiceCommitment: Record "Subscription Line";
+        UsageDataBillingMetadata: Record "Usage Data Billing Metadata";
+    begin
+        UsageDataBillingMetadata.FilterOnServiceCommitment(Rec."Subscription Line Entry No.");
+        UsageDataBillingMetadata.SetRange(Rebilling, true);
+        if not UsageDataBillingMetadata.FindLast() then
+            exit;
+        ServiceCommitment.Get(UsageDataBillingMetadata."Subscription Line Entry No.");
+        ServiceCommitment."Next Billing Date" := UsageDataBillingMetadata."Original Invoiced to Date" + 1;
+        ServiceCommitment.Modify();
     end;
 
     internal procedure SetReason(ReasonText: Text)
@@ -621,9 +643,11 @@ table 8006 "Usage Data Billing"
     var
         UsageDataBillingMetadata: Record "Usage Data Billing Metadata";
     begin
-        UsageDataBillingMetadata.FilterOnUsageDataBilling(Rec);
-        UsageDataBillingMetadata.SetRange(Invoiced, true);
+        UsageDataBillingMetadata.SetRange("Subscription No.", Rec."Subscription Header No.");
+        UsageDataBillingMetadata.SetRange("Subscription Line Entry No.", Rec."Subscription Line Entry No.");
+        UsageDataBillingMetadata.SetRange("Supplier Charge End Date", Rec."Charge End Date");
         UsageDataBillingMetadata.SetFilter("Supplier Charge Start Date", '<=%1', Rec."Charge Start Date");
+        UsageDataBillingMetadata.SetRange(Invoiced, true);
         Rec.Rebilling := not UsageDataBillingMetadata.IsEmpty;
     end;
 
@@ -631,7 +655,7 @@ table 8006 "Usage Data Billing"
     var
         UsageDataBillingMetadata: Record "Usage Data Billing Metadata";
     begin
-        UsageDataBillingMetadata.FilterOnUsageDataBilling(Rec);
+        UsageDataBillingMetadata.SetRange("Usage Data Billing Entry No.", Rec."Entry No.");
         if UsageDataBillingMetadata.IsEmpty then
             UsageDataBillingMetadata.InsertFromUsageDataBilling(Rec)
         else
@@ -642,7 +666,8 @@ table 8006 "Usage Data Billing"
     var
         UsageDataBillingMetadata: Record "Usage Data Billing Metadata";
     begin
-        UsageDataBillingMetadata.FilterOnUsageDataBilling(Rec);
+        UsageDataBillingMetadata.SetRange("Billing Document Type", Rec."Document Type");
+        UsageDataBillingMetadata.SetRange("Billing Document No.", Rec."Document No.");
         if UsageDataBillingMetadata.IsEmpty then
             exit;
 
