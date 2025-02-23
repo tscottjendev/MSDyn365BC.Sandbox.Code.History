@@ -1175,4 +1175,9 @@ codeunit 9998 "Upgrade Tag Definitions"
     begin
         exit('MS-557872-ICOutboxTransactionSourceTypeUpgradeTag-20251202');
     end;
+
+    internal procedure GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag(): Code[250]
+    begin
+        exit('MS-356273-ManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag-20250401');
+    end;
 }
