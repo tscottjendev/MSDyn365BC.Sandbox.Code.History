@@ -25,40 +25,40 @@ codeunit 8114 "Create Sub. Bill. Supp. Ref."
     local procedure InsertItemVendors()
     var
         UsageDataSupplierReference: Record "Usage Data Supplier Reference";
-        CommonVendor: Codeunit "Create Common Customer/Vendor";
+        CreateVendor: Codeunit "Create Vendor";
         ContosoSubscriptionBilling: Codeunit "Contoso Subscription Billing";
         CreateSubBillItem: Codeunit "Create Sub. Bill. Item";
         CreateSubBillSupplier: Codeunit "Create Sub. Bill. Supplier";
     begin
         UsageDataSupplierReference.FindSupplierReference(CreateSubBillSupplier.Generic(), SB1105Reference(), UsageDataSupplierReference.Type::Product);
-        ContosoSubscriptionBilling.InsertItemVendor(CreateSubBillItem.SB1105(), CommonVendor.DomesticVendor3(), UsageDataSupplierReference."Entry No.");
+        ContosoSubscriptionBilling.InsertItemVendor(CreateSubBillItem.SB1105(), CreateVendor.DomesticWorldImporter(), UsageDataSupplierReference."Entry No.");
         UsageDataSupplierReference.FindSupplierReference(CreateSubBillSupplier.Generic(), SB1106Reference(), UsageDataSupplierReference.Type::Product);
-        ContosoSubscriptionBilling.InsertItemVendor(CreateSubBillItem.SB1106(), CommonVendor.DomesticVendor3(), UsageDataSupplierReference."Entry No.");
+        ContosoSubscriptionBilling.InsertItemVendor(CreateSubBillItem.SB1106(), CreateVendor.DomesticWorldImporter(), UsageDataSupplierReference."Entry No.");
         UsageDataSupplierReference.FindSupplierReference(CreateSubBillSupplier.Generic(), SB1107Reference(), UsageDataSupplierReference.Type::Product);
-        ContosoSubscriptionBilling.InsertItemVendor(CreateSubBillItem.SB1107(), CommonVendor.DomesticVendor3(), UsageDataSupplierReference."Entry No.");
+        ContosoSubscriptionBilling.InsertItemVendor(CreateSubBillItem.SB1107(), CreateVendor.DomesticWorldImporter(), UsageDataSupplierReference."Entry No.");
     end;
 
     local procedure InsertItemReferences()
     var
         UsageDataSupplierReference: Record "Usage Data Supplier Reference";
-        CommonVendor: Codeunit "Create Common Customer/Vendor";
+        CreateVendor: Codeunit "Create Vendor";
         ContosoSubscriptionBilling: Codeunit "Contoso Subscription Billing";
         CommonUOM: Codeunit "Create Common Unit Of Measure";
         CreateSubBillItem: Codeunit "Create Sub. Bill. Item";
         CreateSubBillSupplier: Codeunit "Create Sub. Bill. Supplier";
     begin
         UsageDataSupplierReference.FindSupplierReference(CreateSubBillSupplier.Generic(), SB1105Reference(), UsageDataSupplierReference.Type::Product);
-        ContosoSubscriptionBilling.InsertItemReference(CreateSubBillItem.SB1105(), CommonUOM.Piece(), CommonVendor.DomesticVendor3(), UsageDataSupplierReference."Entry No.");
+        ContosoSubscriptionBilling.InsertItemReference(CreateSubBillItem.SB1105(), CommonUOM.Piece(), CreateVendor.DomesticWorldImporter(), UsageDataSupplierReference."Entry No.");
         UsageDataSupplierReference.FindSupplierReference(CreateSubBillSupplier.Generic(), SB1106Reference(), UsageDataSupplierReference.Type::Product);
-        ContosoSubscriptionBilling.InsertItemReference(CreateSubBillItem.SB1106(), CommonUOM.Piece(), CommonVendor.DomesticVendor3(), UsageDataSupplierReference."Entry No.");
+        ContosoSubscriptionBilling.InsertItemReference(CreateSubBillItem.SB1106(), CommonUOM.Piece(), CreateVendor.DomesticWorldImporter(), UsageDataSupplierReference."Entry No.");
         UsageDataSupplierReference.FindSupplierReference(CreateSubBillSupplier.Generic(), SB1107Reference(), UsageDataSupplierReference.Type::Product);
-        ContosoSubscriptionBilling.InsertItemReference(CreateSubBillItem.SB1107(), CommonUOM.Piece(), CommonVendor.DomesticVendor3(), UsageDataSupplierReference."Entry No.");
+        ContosoSubscriptionBilling.InsertItemReference(CreateSubBillItem.SB1107(), CommonUOM.Piece(), CreateVendor.DomesticWorldImporter(), UsageDataSupplierReference."Entry No.");
     end;
 
     var
-        SB1105ReferenceTok: Label 'prd-gdi-1105-001', MaxLength = 20, Locked = true;
-        SB1106ReferenceTok: Label 'prd-gdi-1106-001', MaxLength = 20, Locked = true;
-        SB1107ReferenceTok: Label 'prd-gdi-1107-001', MaxLength = 20, Locked = true;
+        SB1105ReferenceTok: Label 'prd-wwi-1105-001', MaxLength = 20, Locked = true;
+        SB1106ReferenceTok: Label 'prd-wwi-1106-001', MaxLength = 20, Locked = true;
+        SB1107ReferenceTok: Label 'prd-wwi-1107-001', MaxLength = 20, Locked = true;
 
     procedure SB1105Reference(): Text[80]
     begin

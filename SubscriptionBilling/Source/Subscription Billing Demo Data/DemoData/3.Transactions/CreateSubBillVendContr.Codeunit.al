@@ -12,29 +12,29 @@ codeunit 8118 "Create Sub. Bill. Vend. Contr."
 
     local procedure CreateVendorContracts()
     var
-        CommonVendor: Codeunit "Create Common Customer/Vendor";
+        CreateVendor: Codeunit "Create Vendor";
         ContosoSubscriptionBilling: Codeunit "Contoso Subscription Billing";
         CreateSubBillContrTypes: Codeunit "Create Sub. Bill. Contr. Types";
         CreateSubBillServObj: Codeunit "Create Sub. Bill. Serv. Obj.";
     begin
-        ContosoSubscriptionBilling.InsertVendorContract(VEC100001(), HardwareMaintenanceLbl, CommonVendor.DomesticVendor2(), CreateSubBillContrTypes.MaintenanceCode());
-        ContosoSubscriptionBilling.InsertVendorContractLine(VEC100001(), CreateSubBillServObj.SOB100003());
+        ContosoSubscriptionBilling.InsertVendorContract(VSC100001(), HardwareMaintenanceLbl, CreateVendor.ExportFabrikam(), CreateSubBillContrTypes.MaintenanceCode());
+        ContosoSubscriptionBilling.InsertVendorContractLine(VSC100001(), CreateSubBillServObj.SUB100003());
 
-        ContosoSubscriptionBilling.InsertVendorContract(VEC100002(), UsageDataLbl, CommonVendor.DomesticVendor3(), CreateSubBillContrTypes.UsageDataCode());
-        ContosoSubscriptionBilling.InsertVendorContractLine(VEC100002(), CreateSubBillServObj.SOB100004());
+        ContosoSubscriptionBilling.InsertVendorContract(VSC100002(), UsageDataLbl, CreateVendor.DomesticWorldImporter(), CreateSubBillContrTypes.UsageDataCode());
+        ContosoSubscriptionBilling.InsertVendorContractLine(VSC100002(), CreateSubBillServObj.SUB100004());
     end;
 
     var
         HardwareMaintenanceLbl: Label 'Hardware Maintenance', MaxLength = 100;
         UsageDataLbl: Label 'Usage data', MaxLength = 100;
 
-    procedure VEC100001(): Code[20]
+    procedure VSC100001(): Code[20]
     begin
-        exit('VEC100001');
+        exit('VSC100001');
     end;
 
-    procedure VEC100002(): Code[20]
+    procedure VSC100002(): Code[20]
     begin
-        exit('VEC100002');
+        exit('VSC100002');
     end;
 }

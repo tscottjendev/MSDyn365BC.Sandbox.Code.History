@@ -28,6 +28,7 @@ codeunit 8102 "Sub. Billing Contoso Module" implements "Contoso Demo Data Module
         Codeunit.Run(Codeunit::"Create Sub. Bill. Templates");
         Codeunit.Run(Codeunit::"Create Sub. Bill. Pr. U. Temp.");
         Codeunit.Run(Codeunit::"Update Sub. Bill. Post. Setup");
+        Codeunit.Run(Codeunit::"Create Sub. Bill. Item Templ.");
     end;
 
     procedure CreateMasterData()

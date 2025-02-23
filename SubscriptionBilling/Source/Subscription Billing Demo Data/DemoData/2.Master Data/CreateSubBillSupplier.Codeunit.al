@@ -7,10 +7,10 @@ codeunit 8113 "Create Sub. Bill. Supplier"
 
     trigger OnRun()
     var
-        CommonVendor: Codeunit "Create Common Customer/Vendor";
+        CreateVendor: Codeunit "Create Vendor";
         ContosoSubscriptionBilling: Codeunit "Contoso Subscription Billing";
     begin
-        ContosoSubscriptionBilling.InsertUsageDataSupplier(Generic(), GenericLbl, Enum::"Usage Data Supplier Type"::Generic, false, Enum::"Vendor Invoice Per"::Import, CommonVendor.DomesticVendor3());
+        ContosoSubscriptionBilling.InsertUsageDataSupplier(Generic(), GenericLbl, Enum::"Usage Data Supplier Type"::Generic, false, Enum::"Vendor Invoice Per"::Import, CreateVendor.DomesticWorldImporter());
     end;
 
     var

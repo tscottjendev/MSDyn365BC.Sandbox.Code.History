@@ -6,6 +6,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Manufacturing.Setup;
+using Microsoft.Inventory.Tracking;
 
 codeunit 8105 "Contoso Subscription Billing"
 {
@@ -16,6 +17,7 @@ codeunit 8105 "Contoso Subscription Billing"
         tabledata "Billing Template" = rim,
         tabledata "Price Update Template" = rim,
         tabledata "General Posting Setup" = rm,
+        tabledata "Item Templ." = rim,
         tabledata Item = rim,
         tabledata "Item Vendor" = rim,
         tabledata "Item Reference" = rim,
@@ -165,6 +167,31 @@ codeunit 8105 "Contoso Subscription Billing"
         GeneralPostingSetup.Validate("Vend. Sub. Contr. Def. Account", VendContrDeferralAccount);
 
         GeneralPostingSetup.Modify(true);
+    end;
+
+    procedure InsertItemTemplateData(TemplateCode: Code[20]; Description: Text[100]; ServiceCommitmentOption: Enum "Item Service Commitment Type"; InventoryPostingGroup: Code[20]; GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
+    var
+        ItemTemplate: Record "Item Templ.";
+        ContosoInventory: Codeunit "Contoso Inventory";
+        CommonUOM: Codeunit "Create Common Unit Of Measure";
+        ItemType: Enum "Item Type";
+    begin
+        if ItemTemplate.Get(TemplateCode) then
+            if not OverwriteData then
+                exit;
+        case ServiceCommitmentOption of
+            ServiceCommitmentOption::"Invoicing Item",
+            ServiceCommitmentOption::"Service Commitment Item":
+                ItemType := Enum::"Item Type"::"Non-Inventory";
+            ServiceCommitmentOption::"Sales without Service Commitment",
+            ServiceCommitmentOption::"Sales with Service Commitment":
+                ItemType := Enum::"Item Type"::"Inventory";
+        end;
+        ContosoInventory.InsertItemTemplateData(TemplateCode, Description, CommonUOM.Piece(), ItemType, InventoryPostingGroup, GenProdPostingGroup, VATProdPostingGroup, Enum::"Reserve Method"::Never);
+
+        ItemTemplate.Get(TemplateCode);
+        ItemTemplate.Validate("Subscription Option", ServiceCommitmentOption);
+        ItemTemplate.Modify(true);
     end;
 
     procedure InsertItem(ItemNo: Code[20]; ItemType: Enum "Item Type"; ServiceCommitmentOption: Enum "Item Service Commitment Type"; Description: Text[100]; UnitPrice: Decimal; LastDirectCost: Decimal; GenProdPostingGroup: Code[20]; TaxGroup: Code[20]; InventoryPostingGroup: Code[20]; BaseUnitOfMeasure: code[10]; VendorNo: Code[20])

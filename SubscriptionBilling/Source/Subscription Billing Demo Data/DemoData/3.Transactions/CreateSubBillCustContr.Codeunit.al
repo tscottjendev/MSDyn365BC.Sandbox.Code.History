@@ -12,22 +12,22 @@ codeunit 8117 "Create Sub. Bill. Cust. Contr."
 
     local procedure CreateCustomerContracts()
     var
-        CommonCustomer: Codeunit "Create Common Customer/Vendor";
+        CreateCustomer: Codeunit "Create Customer";
         ContosoSubscriptionBilling: Codeunit "Contoso Subscription Billing";
         CreateSubBillContrTypes: Codeunit "Create Sub. Bill. Contr. Types";
         CreateSubBillServObj: Codeunit "Create Sub. Bill. Serv. Obj.";
     begin
-        ContosoSubscriptionBilling.InsertCustomerContract(CUC100001(), NewspaperLbl, CommonCustomer.DomesticCustomer1(), CreateSubBillContrTypes.MiscellaneousCode());
-        ContosoSubscriptionBilling.InsertCustomerContractLine(CUC100001(), CreateSubBillServObj.SOB100001());
+        ContosoSubscriptionBilling.InsertCustomerContract(CSC100001(), NewspaperLbl, CreateCustomer.DomesticAdatumCorporation(), CreateSubBillContrTypes.MiscellaneousCode());
+        ContosoSubscriptionBilling.InsertCustomerContractLine(CSC100001(), CreateSubBillServObj.SUB100001());
 
-        ContosoSubscriptionBilling.InsertCustomerContract(CUC100002(), SupportLbl, CommonCustomer.DomesticCustomer2(), CreateSubBillContrTypes.SupportCode());
-        ContosoSubscriptionBilling.InsertCustomerContractLine(CUC100002(), CreateSubBillServObj.SOB100002());
+        ContosoSubscriptionBilling.InsertCustomerContract(CSC100002(), SupportLbl, CreateCustomer.DomesticTreyResearch(), CreateSubBillContrTypes.SupportCode());
+        ContosoSubscriptionBilling.InsertCustomerContractLine(CSC100002(), CreateSubBillServObj.SUB100002());
 
-        ContosoSubscriptionBilling.InsertCustomerContract(CUC100003(), HardwareMaintenanceLbl, CommonCustomer.DomesticCustomer3(), CreateSubBillContrTypes.MaintenanceCode());
-        ContosoSubscriptionBilling.InsertCustomerContractLine(CUC100003(), CreateSubBillServObj.SOB100003());
+        ContosoSubscriptionBilling.InsertCustomerContract(CSC100003(), HardwareMaintenanceLbl, CreateCustomer.ExportSchoolofArt(), CreateSubBillContrTypes.MaintenanceCode());
+        ContosoSubscriptionBilling.InsertCustomerContractLine(CSC100003(), CreateSubBillServObj.SUB100003());
 
-        ContosoSubscriptionBilling.InsertCustomerContract(CUC100004(), UsageDataLbl, CommonCustomer.DomesticCustomer1(), CreateSubBillContrTypes.UsageDataCode());
-        ContosoSubscriptionBilling.InsertCustomerContractLine(CUC100004(), CreateSubBillServObj.SOB100004());
+        ContosoSubscriptionBilling.InsertCustomerContract(CSC100004(), UsageDataLbl, CreateCustomer.DomesticRelecloud(), CreateSubBillContrTypes.UsageDataCode());
+        ContosoSubscriptionBilling.InsertCustomerContractLine(CSC100004(), CreateSubBillServObj.SUB100004());
     end;
 
     var
@@ -36,23 +36,23 @@ codeunit 8117 "Create Sub. Bill. Cust. Contr."
         HardwareMaintenanceLbl: Label 'Hardware Maintenance', MaxLength = 100;
         UsageDataLbl: Label 'Usage data', MaxLength = 100;
 
-    procedure CUC100001(): Code[20]
+    procedure CSC100001(): Code[20]
     begin
-        exit('CUC100001');
+        exit('CSC100001');
     end;
 
-    procedure CUC100002(): Code[20]
+    procedure CSC100002(): Code[20]
     begin
-        exit('CUC100002');
+        exit('CSC100002');
     end;
 
-    procedure CUC100003(): Code[20]
+    procedure CSC100003(): Code[20]
     begin
-        exit('CUC100003');
+        exit('CSC100003');
     end;
 
-    procedure CUC100004(): Code[20]
+    procedure CSC100004(): Code[20]
     begin
-        exit('CUC100004');
+        exit('CSC100004');
     end;
 }

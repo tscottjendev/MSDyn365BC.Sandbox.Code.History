@@ -20,6 +20,6 @@ codeunit 8119 "Create Sub. Bill. UD Import"
     var
         SampleLbl: Label 'Sample', MaxLength = 80;
         GenericDataHeaderTxt: Label 'CustomerId;CustomerName;SubscriptionId;ProductId;ProductName;SubscriptionStartDate;SubscriptionEndDate;ChargeStartDate;ChargeEndDate;Quantity;UnitCost;UnitPrice;CostAmount;Amount;Currency';
-        GenericDataLineTxt: Label '5741f4d2-be5a-4fc7-a874-5822b152d568;Alpine Ski House;sub-1105-001;prd-gdi-1105-001;Usage data - Usage Qty.;01-01-2025;12-31-2025;01-01-2025;01-31-2025;3;10;0;30;0;USD';
+        GenericDataLineTxt: Label '5741f4d2-be5a-4fc7-a874-5822b152d568;Alpine Ski House;sub-1105-001;prd-wwi-1105-001;Usage data - Usage Qty.;01-01-2025;12-31-2025;01-01-2025;01-31-2025;3;10;0;30;0;USD';
         GenericFileNameLbl: Label 'ReconFile_Generic.csv', MaxLength = 250;
 }

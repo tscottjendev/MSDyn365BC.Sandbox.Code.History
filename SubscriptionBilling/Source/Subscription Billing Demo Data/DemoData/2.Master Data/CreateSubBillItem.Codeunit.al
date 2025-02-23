@@ -15,18 +15,18 @@ codeunit 8110 "Create Sub. Bill. Item"
     local procedure CreateItemsForSubscriptionBilling()
     var
         CommonPostingGroup: Codeunit "Create Common Posting Group";
-        CommonVendor: Codeunit "Create Common Customer/Vendor";
+        CreateVendor: Codeunit "Create Vendor";
         CommonUOM: Codeunit "Create Common Unit Of Measure";
         ContosoSubscriptionBilling: Codeunit "Contoso Subscription Billing";
     begin
         ContosoSubscriptionBilling.InsertItem(SB1100(), Enum::"Item Type"::"Non-Inventory", Enum::"Item Service Commitment Type"::"Service Commitment Item", DigitalNewspaperLbl, AdjustPrice(10), 5, CommonPostingGroup.Retail(), CommonPostingGroup.NonTaxable(), '', CommonUOM.Piece(),
-            CommonVendor.DomesticVendor1());
+            CreateVendor.DomesticNodPublisher());
         ContosoSubscriptionBilling.InsertItem(SB1101(), Enum::"Item Type"::"Non-Inventory", Enum::"Item Service Commitment Type"::"Service Commitment Item", SoftwareLicenceLbl, AdjustPrice(50), 35, CommonPostingGroup.Retail(), CommonPostingGroup.NonTaxable(), '', CommonUOM.Piece(),
-             CommonVendor.DomesticVendor2());
+             CreateVendor.ExportFabrikam());
         ContosoSubscriptionBilling.InsertItem(SB1102(), Enum::"Item Type"::"Non-Inventory", Enum::"Item Service Commitment Type"::"Service Commitment Item", SupportLbl, AdjustPrice(100), 70, CommonPostingGroup.Retail(), CommonPostingGroup.NonTaxable(), '', CommonUOM.Piece(),
              '');
         ContosoSubscriptionBilling.InsertItem(SB1103(), Enum::"Item Type"::Inventory, Enum::"Item Service Commitment Type"::"Sales with Service Commitment", HardwareLbl, AdjustPrice(800), 500, CommonPostingGroup.Retail(), CommonPostingGroup.NonTaxable(), CommonPostingGroup.Resale(), CommonUOM.Piece(),
-             CommonVendor.DomesticVendor3());
+             CreateVendor.DomesticWorldImporter());
         ContosoSubscriptionBilling.InsertItem(SB1104(), Enum::"Item Type"::"Non-Inventory", Enum::"Item Service Commitment Type"::"Invoicing Item", MaintenanceLbl, AdjustPrice(0), 0, CommonPostingGroup.Retail(), CommonPostingGroup.NonTaxable(), '', CommonUOM.Piece(),
              '');
         ContosoSubscriptionBilling.InsertItem(SB1105(), Enum::"Item Type"::"Non-Inventory", Enum::"Item Service Commitment Type"::"Service Commitment Item", UDUsageQtyLbl, AdjustPrice(20), 10, CommonPostingGroup.Retail(), CommonPostingGroup.NonTaxable(), '', CommonUOM.Piece(),
