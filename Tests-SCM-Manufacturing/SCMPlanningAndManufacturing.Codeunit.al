@@ -3351,7 +3351,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
         if HasItemTracking then
             LibraryVariableStorage.Enqueue(ConfirmDeleteItemTrackingQst); // Explode BOM - confirm delete if Item Tracking
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
         if HasItemTracking then
             LibraryVariableStorage.Dequeue(Variant);
     end;

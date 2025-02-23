@@ -1897,7 +1897,7 @@ codeunit 137079 "SCM Production Order III"
         // [GIVEN] Open the output journal and explode the routing.
         // [GIVEN] Define the item tracking on the journal line representing prod. order line "POL1". Lot No. = "L".
         CreateOutputJournal(ItemJournalLine, ProductionOrder."No.", Item."No.");
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
         SelectItemJournalLine(ItemJournalLine, OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
         ItemJournalLine.Validate(Quantity, ProductionOrder.Quantity / 2);
         ItemJournalLine.Modify(true);
@@ -2320,7 +2320,7 @@ codeunit 137079 "SCM Production Order III"
 
         // [GIVEN] Open Output Journal and add a line for "RPO" SourceNo Item "X1"
         CreateOutputJournal(ItemJournalLine, ProductionOrder."No.", Item."No.");
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
         SelectItemJournalLine(ItemJournalLine, OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
 
         // [GIVEN] Modify Output Journal's "Order Line No." to the line with item "X2"
@@ -7392,7 +7392,7 @@ codeunit 137079 "SCM Production Order III"
     local procedure CreateOutputJournalWithExplodeRouting(var ItemJournalLine: Record "Item Journal Line"; ProductionOrderNo: Code[20])
     begin
         CreateOutputJournal(ItemJournalLine, ProductionOrderNo, '');
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
         SelectItemJournalLine(ItemJournalLine, OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
     end;
 

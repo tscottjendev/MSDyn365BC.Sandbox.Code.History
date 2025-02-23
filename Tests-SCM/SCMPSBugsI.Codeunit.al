@@ -193,12 +193,12 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderNo := CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.", '');
 
         // Create Consumption Journal.Go to released production order delete prod order line.Post Consumption Journal.
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, '', ItemJournalBatch."Template Type"::Consumption, ProdOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, '', ItemJournalBatch."Template Type"::Consumption, ProdOrderNo);
         DeleteProdOrderLine(ProdOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // Create Output Journal and Post it.
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, Item."No.", ItemJournalBatch."Template Type"::Output, ProdOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, Item."No.", ItemJournalBatch."Template Type"::Output, ProdOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProdOrderNo);
 
@@ -317,7 +317,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderNo := CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.", '');
 
         // 2. Execute : Create Output Journal. Update Start Time and End time, End time must be less than Start time.Post it.
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, Item."No.", ItemJournalBatch."Template Type"::Output, ProdOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, Item."No.", ItemJournalBatch."Template Type"::Output, ProdOrderNo);
         UpdateOutputJrnl(ProdOrderNo, 000000T + LibraryRandom.RandInt(LibraryUtility.ConvertHoursToMilliSec(12)));
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
@@ -741,7 +741,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderNo := CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.", '');
 
         // Create Output Journal and Post it.
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, Item."No.", ItemJournalBatch."Template Type"::Output, ProdOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, Item."No.", ItemJournalBatch."Template Type"::Output, ProdOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // 2. Execute : Change Status from Released To Finished.
@@ -780,7 +780,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderNo := CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.", '');
 
         // Create Output Journal and Post it.
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, Item."No.", ItemJournalBatch."Template Type"::Output, ProdOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, Item."No.", ItemJournalBatch."Template Type"::Output, ProdOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // 2. Execute : Change Status from Released To Finished.
@@ -915,7 +915,7 @@ codeunit 137035 "SCM PS Bugs-I"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, true, true, false);
 
         // Create Output Journal and Post it.
-        // LibraryInventory.CreateItemJournal(ItemJournalBatch,Item."No.",ItemJournalBatch."Template Type"::Output,ProdOrderNo);
+        // LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch,Item."No.",ItemJournalBatch."Template Type"::Output,ProdOrderNo);
         OutputJournal.OpenEdit();
         OutputJournal."Order No.".SetValue(ProductionOrder."No.");
         OutputJournal."Order Line No.".SetValue(ProdOrderLine2."Line No.");
