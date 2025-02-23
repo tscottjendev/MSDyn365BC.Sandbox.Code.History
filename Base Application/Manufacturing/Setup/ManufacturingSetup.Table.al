@@ -223,7 +223,7 @@ table 99000765 "Manufacturing Setup"
         {
             Caption = 'Default Flushing Method';
             InitValue = "Pick + Manual";
-            ToolTip = 'Specifies default flushing method assigned to new items. A different costing method on item cards will override this default.';
+            ToolTip = 'Specifies default flushing method assigned to new items. A different flushing method on item cards will override this default.';
         }
         field(5500; "Preset Output Quantity"; Option)
         {
