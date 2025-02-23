@@ -5287,7 +5287,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnPostDtldVendLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(VendPostingGr, DetailedCVLedgEntryBuffer, GenJournalLine, TempDimensionPostingBuffer, AdjAmount, SaveEntryNo, LedgEntryInserted, IsHandled);
         if not IsHandled then
             CreateVendGLEntriesForTotalAmounts(
-                GenJournalLine, TempDimensionPostingBuffer, VendPostingGr, AdjAmount, SaveEntryNo, LedgEntryInserted);
+                GenJournalLine, TempDimensionPostingBuffer, VendPostingGr, AdjAmount, SaveEntryNo, LedgEntryInserted, GetVendorPayablesAccount2(DetailedCVLedgEntryBuffer, GenJournalLine, VendPostingGr));
 
         OnPostDtldVendLedgEntriesOnAfterCreateGLEntriesForTotalAmounts(TempGLEntryBuf, GlobalGLEntry, NextTransactionNo);
 
@@ -9767,7 +9767,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         InsertGSTReport(NextVATEntryNo, TempGenJnlLine);
     end;
 
-    local procedure CreateVendGLEntriesForTotalAmounts(GenJnlLine: Record "Gen. Journal Line"; var TempDimPostingBuffer: Record "Dimension Posting Buffer"; VendPostingGr: Record "Vendor Posting Group"; AdjAmountBuf: array[4] of Decimal; SavedEntryNo: Integer; LedgEntryInserted: Boolean)
+    local procedure CreateVendGLEntriesForTotalAmounts(GenJnlLine: Record "Gen. Journal Line"; var TempDimPostingBuffer: Record "Dimension Posting Buffer"; VendPostingGr: Record "Vendor Posting Group"; AdjAmountBuf: array[4] of Decimal; SavedEntryNo: Integer; LedgEntryInserted: Boolean; GLAccNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
         DimMgt: Codeunit DimensionManagement;
@@ -9779,7 +9779,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     UseVendExchRate := GenJnlLine."Amount Including VAT (ACY)" <> 0;
                     DimMgt.UpdateGenJnlLineDim(GenJnlLine, TempDimPostingBuffer."Dimension Set ID");
                     HandleDtldAdjustment(
-                      GenJnlLine, GLEntry, AdjAmountBuf, TempDimPostingBuffer.Amount, TempDimPostingBuffer."Amount (ACY)", VendPostingGr.GetPayablesAccount());
+                      GenJnlLine, GLEntry, AdjAmountBuf, TempDimPostingBuffer.Amount, TempDimPostingBuffer."Amount (ACY)", GLAccNo);
                     if (GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Settlement) and
                        GLSetup.GSTEnabled(GenJnlLine."Document Date")
                     then
@@ -10488,6 +10488,18 @@ codeunit 12 "Gen. Jnl.-Post Line"
             VATEntry."BAS Doc. No." := BASDocNo;
             VATEntry."BAS Version" := BASVersion;
         end;
+    end;
+
+    local procedure GetVendorPayablesAccount2(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var GenJournalLine: Record "Gen. Journal Line"; VendPostingGr: Record "Vendor Posting Group"): Code[20]
+    begin
+        if MultiplePostingGroups then begin
+            DetailedCVLedgEntryBuffer.Reset();
+            DetailedCVLedgEntryBuffer.SetFilter("Entry Type", '%1|%2', DetailedCVLedgEntryBuffer."Entry Type"::"Realized Gain", DetailedCVLedgEntryBuffer."Entry Type"::"Realized Loss");
+            if DetailedCVLedgEntryBuffer.FindFirst() then
+                exit(GetVendDtldCVLedgEntryBufferAccNo(GenJournalLine, DetailedCVLedgEntryBuffer));
+        end;
+
+        exit(GetVendorPayablesAccount(GenJournalLine, VendPostingGr));
     end;
 
     [IntegrationEvent(true, false)]
