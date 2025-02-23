@@ -246,7 +246,11 @@ table 6121 "E-Document"
             Error(this.DeleteLinkedNotAllowedErr);
 
         if (not Rec.IsDuplicate()) then
-            Error(this.DeleteUniqueNotAllowedErr);
+            if not GuiAllowed() then
+                Error(DeleteUniqueNotAllowedErr)
+            else
+                if not Confirm(this.DeleteConfirmQst) then
+                    Error('');
 
         this.DeleteRelatedRecords();
     end;
@@ -409,7 +413,8 @@ table 6121 "E-Document"
         ToStringLbl: Label '%1,%2,%3,%4', Locked = true;
         DeleteLinkedNotAllowedErr: Label 'The E-Document is linked to sales or purchase document and cannot be deleted.';
         DeleteProcessedNotAllowedErr: Label 'The E-Document has already been processed and cannot be deleted.';
-        DeleteUniqueNotAllowedErr: Label 'Only duplicate E-Documents can be deleted.';
+        DeleteUniqueNotAllowedErr: Label 'Only duplicate E-Documents can be deleted without a confirmation in the user interface.';
         NoFileErr: label 'No previewable attachment exists for this %2.', Comment = '%1 - a table caption';
         NoFileContentErr: label 'Previewing file %1 failed. The file was found in table %2, but it has no content.', Comment = '%1 - a file name; %2 - a table caption';
+        DeleteConfirmQst: label 'Are you sure? You may not be able to retrieve this E-Document again.\\ Do you want to continue?';
 }

@@ -135,6 +135,7 @@ codeunit 139883 "E-Doc Process Test"
         PurchaseHeader.Insert();
         EDocumentPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
         EDocumentPurchaseHeader."Purchase Order No." := PurchaseHeader."No.";
+        EDocumentPurchaseHeader."Vendor VAT Id" := '13124234';
         EDocumentPurchaseHeader.Insert();
 
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Ready for draft");

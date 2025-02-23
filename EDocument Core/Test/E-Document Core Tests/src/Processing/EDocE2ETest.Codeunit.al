@@ -21,7 +21,6 @@ codeunit 139624 "E-Doc E2E Test"
         SendingErrStateErr: Label 'E-document is Pending response and can not be sent in this state.';
         DeleteNotAllowedErr: Label 'Deletion of Purchase Header linked to E-Document is not allowed.';
         DeleteProcessedNotAllowedErr: Label 'The E-Document has already been processed and cannot be deleted.';
-        DeleteUniqueNotAllowedErr: Label 'Only duplicate E-Documents can be deleted.';
 
     [Test]
     procedure CreateEDocumentBeforeAfterEventsSuccessful()
@@ -1528,7 +1527,8 @@ codeunit 139624 "E-Doc E2E Test"
     end;
 
     [Test]
-    internal procedure DeleteNonDuplicateEDocumentNotAllowed()
+    [HandlerFunctions('ConfirmHandlerYes')]
+    internal procedure DeleteNonDuplicateEDocumentAllowedIfConfirming()
     var
         EDocument: Record "E-Document";
         VendorNo: Code[20];
@@ -1544,11 +1544,33 @@ codeunit 139624 "E-Doc E2E Test"
         // [GIVEN] Get last E-Document
         EDocument.FindLast();
 
-        // [WHEN] Delete not allowed
-        asserterror EDocument.Delete(true);
+        // [WHEN] Delete allowed if confirming
+        EDocument.Delete(true);
 
-        // [THEN] Check error message
-        Assert.ExpectedError(this.DeleteUniqueNotAllowedErr);
+        // [THEN] Check that E-Document no longer exists
+        CheckEDocumentDeleted(EDocument."Entry No");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
+    internal procedure DeleteNonDuplicateEDocumentNotAllowedIfDenying()
+    var
+        EDocument: Record "E-Document";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [E-Document] [Deleting] 
+        // [SCENARIO] 
+        Initialize(Enum::"Service Integration"::"Mock");
+
+        // [GIVEN] Create single e-document
+        VendorNo := this.LibraryPurchase.CreateVendorNo();
+        CreateIncomingEDocument(VendorNo, Enum::"E-Document Status"::"In Progress");
+
+        // [GIVEN] Get last E-Document
+        EDocument.FindLast();
+
+        // [WHEN] Delete not allowed if denying
+        asserterror EDocument.Delete(true);
     end;
 
     [Test]
@@ -1627,6 +1649,18 @@ codeunit 139624 "E-Doc E2E Test"
         TransformationRule.CreateDefaultTransformations();
 
         IsInitialized := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerYes(Message: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerNo(Message: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 
 #if not CLEAN26
