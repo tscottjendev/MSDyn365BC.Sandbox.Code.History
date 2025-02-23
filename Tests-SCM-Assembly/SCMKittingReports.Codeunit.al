@@ -2685,7 +2685,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
     begin
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo, ItemJournalTemplateType, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo, ItemJournalTemplateType, ProductionOrderNo);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
 

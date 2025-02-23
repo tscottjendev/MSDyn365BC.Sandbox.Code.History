@@ -1163,7 +1163,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     end;
 
 #if not CLEAN26
-			[Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsHandler,SalesTaxLinesSubformDynHandler')]
     [Scope('OnPrem')]
@@ -1532,7 +1532,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     end;
 
 #if not CLEAN26
-			[Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchOrderStatisticsPageHandler,SalesTaxLinesSubformDynPageHandler')]
     [Scope('OnPrem')]
@@ -1771,7 +1771,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         LibraryVariableStorage.Enqueue(TaxAmount);
         // [WHEN] Open Purchase Order Statistics
         OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader);
-        PurchaseOrder.PurchaseOrderStatistics.Invoke();
+        PurchaseOrder.PurchaseOrderStats.Invoke();
         // [THEN] "Tax Amount" field on statistics page = "Y"
     end;
 
@@ -2192,7 +2192,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         LibraryVariableStorage.Enqueue(Round(PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100));
         PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
-        PurchaseOrder.PurchaseOrderStatistics.Invoke();  // Opens Page Handler - PurchaseOrderStatsPageHandler
+        PurchaseOrder.PurchaseOrderStats.Invoke();  // Opens Page Handler - PurchaseOrderStatsPageHandler
         PurchaseOrder.Close();
 
         // [THEN] No error message appear
@@ -5921,7 +5921,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     end;
 
 #if not CLEAN26
-	[Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenPurchaseOrderStatistics(No: Code[20])
     var
         PurchaseOrder: TestPage "Purchase Order";
@@ -6805,7 +6805,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     end;
 
 #if not CLEAN26
-	[Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatsHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
@@ -7046,7 +7046,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     end;
 
 #if not CLEAN26
-			[Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchOrderStatisticsPageHandler(var PurchOrderStatistics: TestPage "Purchase Order Stats.")
