@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.eServices.EDocument.Processing.Import;
+namespace Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 using Microsoft.eServices.EDocument;
 
@@ -42,12 +42,14 @@ table 6101 "E-Document Purchase Line"
         field(5; "Description"; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the description.';
             DataClassification = CustomerContent;
             Editable = false;
         }
         field(6; "Quantity"; Decimal)
         {
             Caption = 'Quantity';
+            ToolTip = 'Specifies the quantity.';
             DataClassification = CustomerContent;
             Editable = false;
         }
@@ -60,6 +62,7 @@ table 6101 "E-Document Purchase Line"
         field(8; "Unit Price"; Decimal)
         {
             Caption = 'Unit Price';
+            ToolTip = 'Specifies the direct unit cost.';
             DataClassification = CustomerContent;
             Editable = false;
         }

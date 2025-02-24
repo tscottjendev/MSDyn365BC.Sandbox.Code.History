@@ -6,6 +6,7 @@ namespace Microsoft.eServices.EDocument.Processing.Interfaces;
 
 using Microsoft.Purchases.Document;
 using Microsoft.eServices.EDocument.Processing.Import;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 /// <summary>
 /// Interface for determining the account assignment for a purchase line in an E-Document.

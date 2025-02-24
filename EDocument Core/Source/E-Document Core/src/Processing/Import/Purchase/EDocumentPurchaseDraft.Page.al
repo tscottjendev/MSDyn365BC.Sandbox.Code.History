@@ -2,12 +2,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.eServices.EDocument;
+namespace Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 using System.Utilities;
+using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Import;
-using Microsoft.Purchases.Vendor;
 using Microsoft.Foundation.Attachment;
+using Microsoft.Purchases.Vendor;
 
 page 6181 "E-Document Purchase Draft"
 {

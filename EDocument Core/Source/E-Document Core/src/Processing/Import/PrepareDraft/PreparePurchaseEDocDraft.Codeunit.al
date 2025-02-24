@@ -6,9 +6,10 @@ namespace Microsoft.eServices.EDocument.Processing.Import;
 
 using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
+using Microsoft.Foundation.UOM;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Document;
-using Microsoft.Foundation.UOM;
 
 codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
 {

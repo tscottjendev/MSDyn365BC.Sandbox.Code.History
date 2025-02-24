@@ -7,6 +7,7 @@ namespace Microsoft.EServices.EDocument.Format;
 using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
 using Microsoft.eServices.EDocument.Processing.Import;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 using System.Utilities;
 using System.Text;
 using System.AI;

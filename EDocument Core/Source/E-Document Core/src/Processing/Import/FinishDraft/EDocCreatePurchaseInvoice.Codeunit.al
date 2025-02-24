@@ -7,6 +7,7 @@ namespace Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.eServices.EDocument;
 using Microsoft.Purchases.Document;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 /// <summary>
 /// Dealing with the creation of the purchase invoice after the draft has been populated.
@@ -73,6 +74,9 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
                 PurchaseLine.Description := EDocumentPurchaseLine.Description;
                 PurchaseLine.Validate(Quantity, EDocumentPurchaseLine.Quantity);
                 PurchaseLine.Validate("Direct Unit Cost", EDocumentPurchaseLine."Unit Price");
+                PurchaseLine.Validate("Deferral Code", EDocumentLineMapping."Deferral Code");
+                PurchaseLine.Validate("Shortcut Dimension 1 Code", EDocumentLineMapping."Shortcut Dimension 1 Code");
+                PurchaseLine.Validate("Shortcut Dimension 2 Code", EDocumentLineMapping."Shortcut Dimension 2 Code");
                 PurchaseLine.Insert();
             until EDocumentPurchaseLine.Next() = 0;
     end;
