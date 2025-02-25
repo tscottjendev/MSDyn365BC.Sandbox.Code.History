@@ -1377,12 +1377,10 @@ report 7305 "Whse.-Source - Create Document"
     var
         TempProdOrderLine: Record "Prod. Order Line" temporary;
         TempProdOrderLine2: Record "Prod. Order Line" temporary;
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
-        case SourceType of
-            Database::"Prod. Order Line":
-                ItemTrackingMgt.SplitInternalPutAwayLine(ProdOrderLine, TempProdOrderLine);
-        end;
+        TempProdOrderLine.Init();
+        TempProdOrderLine := ProdOrderLine;
+        TempProdOrderLine.Insert();
 
         CreatePutAway.SetCalledFromPutAwayWorksheet(true);
         TempProdOrderLine.Reset();
