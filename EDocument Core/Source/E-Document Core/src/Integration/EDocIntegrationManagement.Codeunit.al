@@ -144,7 +144,7 @@ codeunit 6134 "E-Doc. Integration Management"
 
                 EDocumentLog.InsertIntegrationLog(EDocument, EDocService, HttpRequest, HttpResponse);
                 EDocumentProcessing.InsertServiceStatus(EDocument, EDocService, EDocumentServiceStatus);
-                EDocumentProcessing.ModifyEDocumentStatus(EDocument, EDocumentServiceStatus);
+                EDocumentProcessing.ModifyEDocumentStatus(EDocument);
 
                 EDocImport.V1_AfterInsertImportedEdocument(EDocument, EDocService, TempBlob, EDocCount, HttpRequest, HttpResponse);
             end;
@@ -233,7 +233,7 @@ codeunit 6134 "E-Doc. Integration Management"
         EDocLog := EDocumentLog.InsertLog(ReceiveContext.Status().GetStatus());
 
         EDocumentProcessing.InsertServiceStatus(EDocument, EDocumentService, ReceiveContext.Status().GetStatus());
-        EDocumentProcessing.ModifyEDocumentStatus(EDocument, ReceiveContext.Status().GetStatus());
+        EDocumentProcessing.ModifyEDocumentStatus(EDocument);
         EDocumentLog.InsertIntegrationLog(EDocument, EDocumentService, ReceiveContext.Http().GetHttpRequestMessage(), ReceiveContext.Http().GetHttpResponseMessage());
 
         EDocument."Unstructured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
@@ -536,7 +536,7 @@ codeunit 6134 "E-Doc. Integration Management"
     begin
         EDocumentLog.InsertLog(EDocument, EDocumentService, EDocServiceStatus);
         EDocumentProcessing.ModifyServiceStatus(EDocument, EDocumentService, EDocServiceStatus);
-        EDocumentProcessing.ModifyEDocumentStatus(EDocument, EDocServiceStatus);
+        EDocumentProcessing.ModifyEDocumentStatus(EDocument);
     end;
 
     local procedure DetermineServiceStatus(SendContext: Codeunit SendContext; IsAsync: Boolean; SendingWasSuccessful: Boolean): Enum "E-Document Service Status"

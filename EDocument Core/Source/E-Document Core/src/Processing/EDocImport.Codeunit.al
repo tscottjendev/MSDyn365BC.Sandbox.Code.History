@@ -114,7 +114,8 @@ codeunit 6140 "E-Doc. Import"
 
             EDocErrorHelper.LogSimpleErrorMessage(EDocument, GetLastErrorText());
             EDocumentLog.InsertLog(Enum::"E-Document Service Status"::"Imported Document Processing Error", EDocument.GetEDocumentImportProcessingStatus());
-            EDocumentProcessing.ModifyEDocumentStatus(EDocument, Enum::"E-Document Service Status"::"Imported Document Processing Error");
+            EDocumentProcessing.ModifyServiceStatus(EDocument, EDocument.GetEDocumentService(), Enum::"E-Document Service Status"::"Imported Document Processing Error");
+            EDocumentProcessing.ModifyEDocumentStatus(EDocument);
             exit(false);
         end;
         exit(true);
@@ -475,7 +476,7 @@ codeunit 6140 "E-Doc. Import"
             EDocServiceStatus := Enum::"E-Document Service Status"::"Imported document processing error";
             EDocumentLog.InsertLog(EDocument, EDocService, EDocServiceStatus);
             EDocumentProcessing.ModifyServiceStatus(EDocument, EDocService, EDocServiceStatus);
-            EDocumentProcessing.ModifyEDocumentStatus(EDocument, EDocServiceStatus);
+            EDocumentProcessing.ModifyEDocumentStatus(EDocument);
             exit;
         end;
 
@@ -489,7 +490,7 @@ codeunit 6140 "E-Doc. Import"
             EDocServiceStatus := Enum::"E-Document Service Status"::"Imported document processing error";
             EDocumentLog.InsertLog(EDocument, EDocService, EDocServiceStatus);
             EDocumentProcessing.ModifyServiceStatus(EDocument, EDocService, EDocServiceStatus);
-            EDocumentProcessing.ModifyEDocumentStatus(EDocument, EDocServiceStatus);
+            EDocumentProcessing.ModifyEDocumentStatus(EDocument);
             exit;
         end;
 
@@ -510,7 +511,7 @@ codeunit 6140 "E-Doc. Import"
         EDocLog := EDocumentLog.InsertLog(EDocument, EDocService, EDocServiceStatus);
         EDocumentLog.InsertMappingLog(EDocLog, TempEDocMapping);
         EDocumentProcessing.ModifyServiceStatus(EDocument, EDocService, EDocServiceStatus);
-        EDocumentProcessing.ModifyEDocumentStatus(EDocument, EDocServiceStatus);
+        EDocumentProcessing.ModifyEDocumentStatus(EDocument);
 
         OnAfterProcessImportedDocument(EDocument, DocumentHeader);
     end;

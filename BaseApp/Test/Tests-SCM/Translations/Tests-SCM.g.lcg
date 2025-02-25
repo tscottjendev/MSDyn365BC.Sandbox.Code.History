@@ -7520,6 +7520,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - Table Caption (item/variant), %2 - Item No./Variant Code, %3 - Field Caption]D;]A;(LookupHint=Codeunit SCM Plan-Req. Wksht - NamedType BlockedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 901776604 - NamedType 1573880295" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[BOM Line Comment and Firm Prod. Order BOM Line Comment must match.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Plan-Req. Wksht - NamedType BOMLineCommnetAndFirmProdOrderBOMLineCommentMustMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 901776604 - NamedType 4265953260" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[BOM Line No. and Prod. Order BOM Line No. must not match.]]></Val>
