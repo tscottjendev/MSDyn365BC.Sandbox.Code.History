@@ -685,10 +685,11 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnBeforeGetSourceType', '', false, false)]
     local procedure WhseManagementOnBeforeGetSourceType(WhseWorksheetLine: Record "Whse. Worksheet Line"; var SourceType: Integer; var IsHandled: Boolean)
     begin
-        if WhseWorksheetLine."Whse. Document Type" = WhseWorksheetLine."Whse. Document Type"::Production then begin
-            SourceType := Database::"Prod. Order Component";
-            IsHandled := true;
-        end;
+        if WhseWorksheetLine."Whse. Document Type" = WhseWorksheetLine."Whse. Document Type"::Production then
+            if SourceType = 0 then begin
+                SourceType := Database::"Prod. Order Component";
+                IsHandled := true;
+            end;
     end;
 
     [EventSubscriber(ObjectType::Report, Report::"Create Pick", 'OnCheckSourceDocument', '', false, false)]

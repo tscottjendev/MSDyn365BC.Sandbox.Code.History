@@ -4,6 +4,7 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Warehouse.CrossDock;
 using Microsoft.Warehouse.History;
@@ -11,6 +12,7 @@ using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Tracking;
+using Microsoft.Warehouse.Worksheet;
 using System.Telemetry;
 
 codeunit 7313 "Create Put-away"
@@ -1041,9 +1043,31 @@ codeunit 7313 "Create Put-away"
     end;
 
     procedure CreateWhsePutAwayForProdOrderLine(ProdOrderLine: Record "Prod. Order Line")
+    var
+        TempProdOrderLine: Record "Prod. Order Line" temporary;
+        TempProdOrderLine2: Record "Prod. Order Line" temporary;
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
     begin
-        CreatePutAway(ProdOrderLine);
-        DeleteBlankBinContent(CurrWarehouseActivityHeader);
+        if ItemTrackingManagement.GetWhseItemTrkgSetup(ProdOrderLine."Item No.") then
+            ItemTrackingManagement.InitItemTrackingForTempWhseWorksheetLine(
+                  Enum::"Warehouse Worksheet Document Type"::Production,
+                  ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
+                  Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(),
+                  ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", 0);
+
+        if CalledFromPutAwayWorksheet then
+            ItemTrackingManagement.SplitProdOrderLineForOutputPutAway(ProdOrderLine, TempProdOrderLine, ProdOrderLine."Finished Qty. (Base)")
+        else
+            ItemTrackingManagement.SplitProdOrderLineForOutputPutAway(ProdOrderLine, TempProdOrderLine, 0);
+
+        TempProdOrderLine.Reset();
+        if TempProdOrderLine.FindSet() then
+            repeat
+                TempProdOrderLine2 := TempProdOrderLine;
+                TempProdOrderLine2."Line No." := ProdOrderLine."Line No.";
+                CreatePutAway(TempProdOrderLine2);
+                DeleteBlankBinContent(CurrWarehouseActivityHeader);
+            until TempProdOrderLine.Next() = 0;
     end;
 
     procedure CreateProdWhsePutAway()
@@ -1151,7 +1175,10 @@ codeunit 7313 "Create Put-away"
 
             AssignQtyToPutAwayForBinMandatory();
         end else
-            QtyToPutAwayBase := ProdOrderLine."Finished Qty. (Base)" - (ProdOrderLine."Put-away Qty. (Base)" + ProdOrderLine."Qty. Put Away (Base)");
+            if ProdOrderLine."Finished Qty. (Base)" >= (ProdOrderLine."Put-away Qty. (Base)" + ProdOrderLine."Qty. Put Away (Base)") then
+                QtyToPutAwayBase := ProdOrderLine."Finished Qty. (Base)" - (ProdOrderLine."Put-away Qty. (Base)" + ProdOrderLine."Qty. Put Away (Base)")
+            else
+                QtyToPutAwayBase := ProdOrderLine."Finished Qty. (Base)";
 
         QtyToPickBase := QtyToPickBase + QtyToPutAwayBase;
         if QtyToPutAwayBase <= 0 then
@@ -1382,10 +1409,13 @@ codeunit 7313 "Create Put-away"
 
     local procedure UpdateRemQtyToPutAwayBaseFromProdOrderLine(ProdOrderLine: Record "Prod. Order Line")
     begin
-        if CalledFromPutAwayWorksheet then
+        if (CalledFromPutAwayWorksheet) then
             RemQtyToPutAwayBase := ProdOrderLine."Finished Qty. (Base)"
         else
-            RemQtyToPutAwayBase := ProdOrderLine.GetRemainingPutAwayQty();
+            if (ProdOrderLine."Lot No." <> '') or (ProdOrderLine."Serial No." <> '') or (ProdOrderLine."Package No." <> '') then
+                RemQtyToPutAwayBase := ProdOrderLine."Finished Qty. (Base)"
+            else
+                RemQtyToPutAwayBase := ProdOrderLine.GetRemainingPutAwayQty();
     end;
 
     local procedure CreatePutAwayFromTemplate(ProdOrderLine: Record "Prod. Order Line")
@@ -1473,7 +1503,7 @@ codeunit 7313 "Create Put-away"
         if ProdOrderLine.FindSet() then
             repeat
                 if Location.RequirePutAwayForProdOutput(ProdOrderLine."Location Code") then
-                    CreatePutAway(ProdOrderLine);
+                    CreateWhsePutAwayForProdOrderLine(ProdOrderLine);
             until ProdOrderLine.Next() = 0;
     end;
 
@@ -1637,6 +1667,9 @@ codeunit 7313 "Create Put-away"
             WhseActivLine.Cubage := 0;
             WhseActivLine.Weight := 0;
         end;
+        WhseActivLine.CopyTrackingFromProdOrderLine(ProdOrderLine);
+        WhseActivLine."Warranty Date" := ProdOrderLine."Warranty Date";
+        WhseActivLine."Expiration Date" := ProdOrderLine."Expiration Date";
 
         WhseActivLine.Insert();
     end;
