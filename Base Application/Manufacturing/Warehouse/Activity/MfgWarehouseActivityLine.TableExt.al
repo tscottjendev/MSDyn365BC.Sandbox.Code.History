@@ -26,4 +26,11 @@ tableextension 99000771 "Mfg. Warehouse Activity Line" extends "Warehouse Activi
                                                                                                                "Line No." = field("Line No."));
         }
     }
+
+    procedure CopyTrackingFromProdOrderLine(ProdOrderLine: Record "Prod. Order Line")
+    begin
+        "Serial No." := ProdOrderLine."Serial No.";
+        "Lot No." := ProdOrderLine."Lot No.";
+        "Package No." := ProdOrderLine."Package No.";
+    end;
 }
