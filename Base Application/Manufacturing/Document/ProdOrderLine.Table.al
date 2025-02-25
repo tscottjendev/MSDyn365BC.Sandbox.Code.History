@@ -20,6 +20,7 @@ using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
+using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Structure;
 using System.Utilities;
@@ -771,7 +772,10 @@ table 5406 "Prod. Order Line"
                                                                                   "Whse. Document Line No." = field("Line No."),
                                                                                   "Unit of Measure Code" = field("Unit of Measure Code"),
                                                                                   "Action Type" = filter(" " | Take),
-                                                                                  "Original Breakbulk" = const(false)));
+                                                                                  "Original Breakbulk" = const(false),
+                                                                                  "Lot No." = field("Lot No. Filter"),
+                                                                                  "Package No." = field("Package No. Filter"),
+                                                                                  "Serial No." = field("Serial No. Filter")));
             Caption = 'Put-away Qty.';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -784,7 +788,10 @@ table 5406 "Prod. Order Line"
                                                                                          "Whse. Document No." = field("Prod. Order No."),
                                                                                          "Whse. Document Line No." = field("Line No."),
                                                                                          "Action Type" = filter(" " | Take),
-                                                                                         "Original Breakbulk" = const(false)));
+                                                                                         "Original Breakbulk" = const(false),
+                                                                                         "Lot No." = field("Lot No. Filter"),
+                                                                                         "Package No." = field("Package No. Filter"),
+                                                                                         "Serial No." = field("Serial No. Filter")));
             Caption = 'Put-away Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -796,6 +803,45 @@ table 5406 "Prod. Order Line"
             Editable = false;
             OptionCaption = ' ,Partially Put Away,Completely Put Away';
             OptionMembers = " ","Partially Put Away","Completely Put Away";
+        }
+        field(5854; "Lot No. Filter"; Code[50])
+        {
+            Caption = 'Lot No. Filter';
+            FieldClass = FlowFilter;
+        }
+        field(5855; "Serial No. Filter"; Code[50])
+        {
+            Caption = 'Serial No. Filter';
+            FieldClass = FlowFilter;
+        }
+        field(5856; "Package No. Filter"; Code[50])
+        {
+            Caption = 'Package No. Filter';
+            FieldClass = FlowFilter;
+        }
+        field(6500; "Serial No."; Code[50])
+        {
+            Caption = 'Serial No.';
+            Editable = false;
+        }
+        field(6501; "Lot No."; Code[50])
+        {
+            Caption = 'Lot No.';
+            Editable = false;
+        }
+        field(6502; "Warranty Date"; Date)
+        {
+            Caption = 'Warranty Date';
+        }
+        field(6503; "Expiration Date"; Date)
+        {
+            Caption = 'Expiration Date';
+        }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+            Editable = false;
         }
         field(99000750; "Production BOM Version Code"; Code[20])
         {
@@ -1718,6 +1764,52 @@ table 5406 "Prod. Order Line"
             Error('');
 
         exit(true);
+    end;
+
+    procedure GetUsedPutAwayQty(LotNo: Code[50]; SerialNo: Code[50]; PackageNo: Code[50]): Decimal
+    var
+        RegWhseActivityLine: Record "Registered Whse. Activity Line";
+    begin
+        RegWhseActivityLine.SetRange("Whse. Document Type", RegWhseActivityLine."Whse. Document Type"::Production);
+        RegWhseActivityLine.SetRange("Source Document", RegWhseActivityLine."Source Document"::"Prod. Output");
+        RegWhseActivityLine.Setrange("Whse. Document No.", Rec."Prod. Order No.");
+        RegWhseActivityLine.SetRange("Whse. Document Line No.", Rec."Line No.");
+        RegWhseActivityLine.SetRange("Activity Type", RegWhseActivityLine."Activity Type"::"Put-away");
+        RegWhseActivityLine.SetFilter("Action Type", '%1|%2', RegWhseActivityLine."Action Type"::Place, RegWhseActivityLine."Action Type"::" ");
+
+        if LotNo <> '' then begin
+            Rec.SetRange("Lot No. Filter", LotNo);
+            RegWhseActivityLine.SetRange("Lot No.", LotNo);
+        end;
+
+        if SerialNo <> '' then begin
+            Rec.SetRange("Serial No. Filter", SerialNo);
+            RegWhseActivityLine.SetRange("Serial No.", SerialNo);
+        end;
+
+        if PackageNo <> '' then begin
+            Rec.SetRange("Package No. Filter", PackageNo);
+            RegWhseActivityLine.SetRange("Package No.", PackageNo);
+        end;
+
+        if not RegWhseActivityLine.IsEmpty() then
+            RegWhseActivityLine.CalcSums("Qty. (Base)");
+        Rec.CalcFields("Put-away Qty. (Base)");
+        exit(Rec."Put-away Qty. (Base)" + RegWhseActivityLine."Qty. (Base)");
+    end;
+
+    procedure CopyTrackingFromWhseItemEntryRelation(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        "Serial No." := ItemLedgEntry."Serial No.";
+        "Lot No." := ItemLedgEntry."Lot No.";
+        "Package No." := ItemLedgEntry."Package No.";
+    end;
+
+    procedure SetTrackingFilterFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        SetRange("Serial No.", ItemLedgEntry."Serial No.");
+        SetRange("Lot No.", ItemLedgEntry."Lot No.");
+        SetRange("Package No.", ItemLedgEntry."Package No.");
     end;
 
     [IntegrationEvent(false, false)]
