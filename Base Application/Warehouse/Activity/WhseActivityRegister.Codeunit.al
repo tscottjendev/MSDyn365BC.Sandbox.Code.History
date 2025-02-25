@@ -1197,7 +1197,8 @@ codeunit 7307 "Whse.-Activity-Register"
             [WhseActivLine2."Whse. Document Type"::Shipment, WhseActivLine2."Whse. Document Type"::"Internal Pick",
             WhseActivLine2."Whse. Document Type"::Production, WhseActivLine2."Whse. Document Type"::Assembly, WhseActivLine2."Whse. Document Type"::"Internal Put-away", WhseActivLine2."Whse. Document Type"::Job]) and
             (WhseActivLine2."Action Type" <> WhseActivLine2."Action Type"::Take) and (WhseActivLine2."Breakbulk No." = 0)) or
-            ((WhseActivLine2."Whse. Document Type" = WhseActivLine2."Whse. Document Type"::Receipt) and (WhseActivLine2."Action Type" <> WhseActivLine2."Action Type"::Place) and (WhseActivLine2."Breakbulk No." = 0))
+            ((WhseActivLine2."Whse. Document Type" = WhseActivLine2."Whse. Document Type"::Receipt) and (WhseActivLine2."Action Type" <> WhseActivLine2."Action Type"::Place) and (WhseActivLine2."Breakbulk No." = 0)) or
+            ((WhseActivLine2."Source Document" = WhseActivLine2."Source Document"::"Prod. Output") and (WhseActivLine2."Action Type" <> WhseActivLine2."Action Type"::Place) and (WhseActivLine2."Breakbulk No." = 0))
         then
             NeedRegisterWhseItemTrkgLine := true;
 
@@ -1217,6 +1218,9 @@ codeunit 7307 "Whse.-Activity-Register"
         QtyToRegisterBase := InitTempTrackingSpecification(WhseActivLine2, TempTrackingSpecification);
 
         TempTrackingSpecification.Reset();
+
+        if WhseActivLine2."Source Document" = WhseActivLine2."Source Document"::"Prod. Output" then
+            exit;
 
         if QtyToRegisterBase > 0 then begin
             if (WhseActivLine2."Activity Type" = WhseActivLine2."Activity Type"::Pick) or
@@ -1247,7 +1251,7 @@ codeunit 7307 "Whse.-Activity-Register"
                             DueDate := WhseShptLine."Shipment Date";
                         end;
                     WhseActivLine2."Whse. Document Type"::Production:
-                        begin
+                        if WhseActivLine2."Source Document" <> WhseActivLine2."Source Document"::"Prod. Output" then begin
                             ProdOrderComp.Get(WhseActivLine2."Source Subtype", WhseActivLine2."Source No.",
                               WhseActivLine2."Source Line No.", WhseActivLine2."Source Subline No.");
                             DueDate := ProdOrderComp."Due Date";
