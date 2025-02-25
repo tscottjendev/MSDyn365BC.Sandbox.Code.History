@@ -49,10 +49,21 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
     local procedure OnAfterInitWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseDocType: Enum "Warehouse Worksheet Document Type"; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer)
     var
         ProdOrderComponent: Record "Prod. Order Component";
+        ProdOrderLine: Record "Prod. Order Line";
     begin
-        if WhseDocType = Enum::"Warehouse Worksheet Document Type"::Production then begin
-            ProdOrderComponent.Get(SourceSubtype, SourceNo, SourceLineNo, SourceSublineNo);
-            WhseWorksheetLine."Qty. Handled (Base)" := ProdOrderComponent."Qty. Picked (Base)";
+        if WhseDocType <> Enum::"Warehouse Worksheet Document Type"::Production then
+            exit;
+
+        case WhseWorksheetLine."Source Type" of
+            Database::"Prod. Order Line":
+                begin
+                    ProdOrderLine.Get(SourceSubtype, SourceNo, SourceLineNo);
+                    WhseWorksheetLine."Qty. Handled (Base)" := ProdOrderLine."Qty. Put Away (Base)";
+                end;
+            else begin
+                ProdOrderComponent.Get(SourceSubtype, SourceNo, SourceLineNo, SourceSublineNo);
+                WhseWorksheetLine."Qty. Handled (Base)" := ProdOrderComponent."Qty. Picked (Base)";
+            end;
         end;
     end;
 
