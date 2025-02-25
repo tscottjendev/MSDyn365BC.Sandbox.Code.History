@@ -3,6 +3,7 @@
 using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Purchases.Vendor;
@@ -465,6 +466,13 @@ table 5773 "Registered Whse. Activity Line"
         SetRange("Lot No.", WhseItemEntryRelation."Lot No.");
 
         OnAfterSetTrackingFilterFromRelation(Rec, WhseItemEntryRelation);
+    end;
+
+    procedure SetTrackingFilterFromRelation(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        SetRange("Serial No.", ItemLedgEntry."Serial No.");
+        SetRange("Lot No.", ItemLedgEntry."Lot No.");
+        SetRange("Package No.", ItemLedgEntry."Package No.");
     end;
 
     procedure SetTrackingFilterFromSpec(TrackingSpecification: Record "Tracking Specification")
