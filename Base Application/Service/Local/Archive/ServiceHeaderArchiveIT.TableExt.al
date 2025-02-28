@@ -62,13 +62,11 @@ tableextension 12140 "Service Header Archive IT" extends "Service Header Archive
         {
             Caption = 'First Name';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
         }
         field(12134; "Last Name"; Text[30])
         {
             Caption = 'Last Name';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
         }
         field(12135; "Date of Birth"; Date)
         {
@@ -84,7 +82,6 @@ tableextension 12140 "Service Header Archive IT" extends "Service Header Archive
         {
             Caption = 'Place of Birth';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
         }
         field(12171; "Applies-to Occurrence No."; Integer)
         {
@@ -121,25 +118,21 @@ tableextension 12140 "Service Header Archive IT" extends "Service Header Archive
         {
             Caption = 'Additional Information';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
         }
         field(12177; "Additional Notes"; Text[50])
         {
             Caption = 'Additional Notes';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
         }
         field(12178; "Additional Instructions"; Text[50])
         {
             Caption = 'Additional Instructions';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
         }
         field(12179; "TDD Prepared By"; Text[50])
         {
             Caption = 'TDD Prepared By';
             DataClassification = EndUserIdentifiableInformation;
-            OptimizeForTextSearch = true;
         }
         field(12180; "Tax Representative Type"; Option)
         {
@@ -172,7 +165,6 @@ tableextension 12140 "Service Header Archive IT" extends "Service Header Archive
         {
             Caption = 'Customer Purchase Order No.';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
         }
         field(12185; "Fattura Stamp"; Boolean)
         {
