@@ -807,7 +807,7 @@ table 901 "Assembly Line"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         AvailabilityPageTitleLbl: Label 'The available inventory for item %1 is lower than the entered quantity at this location.', Comment = '%1=Item No.';
-        ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = FieldCaption(Consumed Quantity), %4 = Consumed Quantity, %5 = TableCaption';
+        ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Any related item tracking information defined during the pick process will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = FieldCaption(Consumed Quantity), %4 = Consumed Quantity, %5 = TableCaption';
 
     protected var
         StatusCheckSuspended: Boolean;
@@ -2018,11 +2018,19 @@ table 901 "Assembly Line"
     end;
 
     local procedure ConfirmDeletion()
+    var
+        Location: Record Location;
     begin
         if CalledFromHeader then
             exit;
 
-        if "Consumed Quantity" < "Qty. Picked" then
+        if "Consumed Quantity" < "Qty. Picked" then begin
+            if "Location Code" <> '' then begin
+                GetLocation(Location, "Location Code");
+                if Location."Asm. Consump. Whse. Handling" = Location."Asm. Consump. Whse. Handling"::"No Warehouse Handling" then
+                    exit;
+            end;
+
             if not Confirm(
                 StrSubstNo(
                     ConfirmDeleteQst,
@@ -2034,6 +2042,7 @@ table 901 "Assembly Line"
                 false)
             then
                 Error('');
+        end;
     end;
 
     local procedure SetQtyPerUoMAndQtyRoundingPrecision()
