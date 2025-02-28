@@ -682,7 +682,6 @@ table 5405 "Production Order"
         RefreshRecord: Boolean;
     begin
         if Status = Status::Released then begin
-            ConfirmDeletion();
 
             ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
             ItemLedgEntry.SetRange("Order No.", "No.");
@@ -708,6 +707,9 @@ table 5405 "Production Order"
                   Text000,
                   Status, TableCaption(), "No.", PurchLine.TableCaption());
         end;
+
+        if Status = Status::Released then
+            ConfirmDeletion();
 
         if Status = Status::Finished then
             DeleteFinishedProdOrderRelations()
