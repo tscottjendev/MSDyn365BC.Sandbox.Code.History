@@ -24,7 +24,6 @@ tableextension 10602 "Service Header NO" extends "Service Header"
         {
             Caption = 'Account Code';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
