@@ -943,6 +943,8 @@ table 5407 "Prod. Order Component"
         if Status = Status::Finished then
             Error(Text000);
         if Status = Status::Released then begin
+            ConfirmDeletion();
+
             ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
             ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
             ItemLedgEntry.SetRange("Order No.", "Prod. Order No.");
@@ -951,8 +953,6 @@ table 5407 "Prod. Order Component"
             ItemLedgEntry.SetRange("Prod. Order Comp. Line No.", "Line No.");
             if not ItemLedgEntry.IsEmpty() then
                 Error(Text99000000, "Item No.", "Line No.");
-
-            ConfirmDeletion();
         end;
 
         ProdOrderWarehouseMgt.ProdComponentDelete(Rec);
@@ -1051,7 +1051,7 @@ table 5407 "Prod. Order Component"
 #pragma warning restore AA0470
         Text99000009: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
 #pragma warning restore AA0074
-        ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Any related item tracking information defined during the pick process will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = Qty. Posted, %4 = ("Expected Quantity" - "Remaining Quantity"), %5 = TableCaption';
+        ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = Qty. Posted, %4 = ("Expected Quantity" - "Remaining Quantity"), %5 = TableCaption';
         IgnoreErrors: Boolean;
         ErrorOccured: Boolean;
         WarningRaised: Boolean;
@@ -2091,13 +2091,7 @@ table 5407 "Prod. Order Component"
         if CalledFromHeader then
             exit;
 
-        if ("Expected Quantity" - "Remaining Quantity") < "Qty. Picked" then begin
-            if "Location Code" <> '' then begin
-                GetLocation("Location Code");
-                if Location."Prod. Output Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"No Warehouse Handling" then
-                    exit;
-            end;
-
+        if ("Expected Quantity" - "Remaining Quantity") < "Qty. Picked" then
             if not Confirm(
                 StrSubstNo(
                     ConfirmDeleteQst,
@@ -2109,7 +2103,6 @@ table 5407 "Prod. Order Component"
                 false)
             then
                 Error('');
-        end;
     end;
 
     procedure SuspendDeletionCheck(Suspend: Boolean)
