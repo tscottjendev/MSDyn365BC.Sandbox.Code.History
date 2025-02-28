@@ -42,6 +42,7 @@ table 21 "Cust. Ledger Entry"
         field(3; "Customer No."; Code[20])
         {
             Caption = 'Customer No.';
+            OptimizeForTextSearch = true;
             TableRelation = Customer;
             ToolTip = 'Specifies the customer account number that the entry is linked to.';
         }
@@ -58,6 +59,7 @@ table 21 "Cust. Ledger Entry"
         field(6; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            OptimizeForTextSearch = true;
             ToolTip = 'Specifies the entry''s document number.';
 
             trigger OnLookup()
@@ -70,16 +72,19 @@ table 21 "Cust. Ledger Entry"
         field(7; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
             ToolTip = 'Specifies a description of the customer entry.';
         }
         field(8; "Customer Name"; Text[100])
         {
             Caption = 'Customer Name';
+            OptimizeForTextSearch = true;
             ToolTip = 'Specifies the customer name that the entry is linked to.';
         }
         field(10; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+            OptimizeForTextSearch = true;
             DataClassification = CustomerContent;
             ToolTip = 'Specifies the customer''s reference.';
         }
@@ -427,6 +432,7 @@ table 21 "Cust. Ledger Entry"
         field(63; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            OptimizeForTextSearch = true;
             ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
         }
         field(64; "Calculate Interest"; Boolean)
@@ -634,6 +640,7 @@ table 21 "Cust. Ledger Entry"
         field(289; "Message to Recipient"; Text[140])
         {
             Caption = 'Message to Recipient';
+            OptimizeForTextSearch = true;
             ToolTip = 'Specifies the message exported to the payment file when you use the Export Payments to File function in the Payment Journal window.';
 
             trigger OnValidate()
@@ -760,10 +767,12 @@ table 21 "Cust. Ledger Entry"
         field(10015; "Tax Exemption No."; Text[30])
         {
             Caption = 'Tax Exemption No.';
+            OptimizeForTextSearch = true;
         }
         field(10018; "STE Transaction ID"; Text[20])
         {
             Caption = 'STE Transaction ID';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10019; "Electronic Document Sent"; Boolean)
@@ -791,6 +800,7 @@ table 21 "Cust. Ledger Entry"
         field(10024; "Certificate Serial No."; Text[250])
         {
             Caption = 'Certificate Serial No.';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10025; "Signed Document XML"; BLOB)
@@ -811,16 +821,19 @@ table 21 "Cust. Ledger Entry"
         field(10031; "Date/Time Stamped"; Text[50])
         {
             Caption = 'Date/Time Stamped';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10032; "Date/Time Sent"; Text[50])
         {
             Caption = 'Date/Time Sent';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10033; "Date/Time Canceled"; Text[50])
         {
             Caption = 'Date/Time Canceled';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10035; "Error Code"; Code[10])
@@ -831,6 +844,7 @@ table 21 "Cust. Ledger Entry"
         field(10036; "Error Description"; Text[250])
         {
             Caption = 'Error Description';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10037; "Date/Time Stamp Received"; DateTime)
@@ -846,6 +860,7 @@ table 21 "Cust. Ledger Entry"
         field(10040; "PAC Web Service Name"; Text[50])
         {
             Caption = 'PAC Web Service Name';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10041; "QR Code"; BLOB)
@@ -855,11 +870,13 @@ table 21 "Cust. Ledger Entry"
         field(10042; "Fiscal Invoice Number PAC"; Text[50])
         {
             Caption = 'Fiscal Invoice Number PAC';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10043; "Date/Time First Req. Sent"; Text[50])
         {
             Caption = 'Date/Time First Req. Sent';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(27002; "CFDI Cancellation Reason Code"; Code[10])
@@ -876,6 +893,7 @@ table 21 "Cust. Ledger Entry"
         field(27007; "CFDI Cancellation ID"; Text[50])
         {
             Caption = 'CFDI Cancellation ID';
+            OptimizeForTextSearch = true;
         }
         field(27008; "Marked as Canceled"; Boolean)
         {

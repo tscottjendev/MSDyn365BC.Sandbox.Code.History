@@ -7,6 +7,7 @@ namespace System.Environment.Configuration;
 
 using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Manufacturing.Document;
@@ -27,7 +28,7 @@ codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
         TempDocumentEntry: Record "Document Entry" temporary;
         FeatureDataUpdateMgt: Codeunit "Feature Data Update Mgt.";
         DescriptionTxt: Label 'If you enable Manufacturing %1 %2 without requiring pick, existing records from %3 tables will be updated from %1 to %4 %2.', Comment = '%1 = Manual option caption, %2 = Flushing Method caption, %3 = List of table captions, %4 = Pick + Manual option caption';
-        TableCaptionsTxt: Label '%1, %2, %3, %4, %5 and %6', Comment = '%1 = Item, %2 = Item Templ., %3 = Stockkeeping Unit, %4 = Prod. Order Component, %5 = Planning Component, %6 = Manufacturing Setup';
+        TableCaptionsTxt: Label '%1, %2, %3, %4, %5, %6 and %7', Comment = '%1 = Item, %2 = Item Templ., %3 = Stockkeeping Unit, %4 = Prod. Order Component, %5 = Planning Component, %6 = Item Journal Line. %7 = Manufacturing Setup';
 
     procedure IsDataUpdateRequired(): Boolean;
     begin
@@ -64,6 +65,7 @@ codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
         StockkeepingUnit: Record "Stockkeeping Unit";
         ProdOrderComponent: Record "Prod. Order Component";
         PlanningComponent: Record "Planning Component";
+        ItemJournalLine: Record "Item Journal Line";
         ManufacturingSetup: Record "Manufacturing Setup";
         StartDateTime: DateTime;
     begin
@@ -86,6 +88,10 @@ codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
         StartDateTime := CurrentDateTime;
         UpdateFromManualToPickPlusManualFlushingMethod_PlanningComponent();
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, PlanningComponent.TableCaption(), StartDateTime);
+
+        StartDateTime := CurrentDateTime;
+        UpdateFromManualToPickPlusManualFlushingMethod_ItemJournalLine();
+        FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, ItemJournalLine.TableCaption(), StartDateTime);
 
         StartDateTime := CurrentDateTime;
         UpdateFromManualToPickPlusManualFlushingMethod_ManufacturingSetup();
@@ -125,6 +131,7 @@ codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
         StockkeepingUnit: Record "Stockkeeping Unit";
         ProdOrderComponent: Record "Prod. Order Component";
         PlanningComponent: Record "Planning Component";
+        ItemJournalLine: Record "Item Journal Line";
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         TempDocumentEntry.Reset();
@@ -144,6 +151,11 @@ codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
 
         PlanningComponent.SetRange("Flushing Method", PlanningComponent."Flushing Method"::Manual);
         InsertDocumentEntry(Database::"Planning Component", PlanningComponent.TableCaption(), PlanningComponent.Count());
+
+        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Consumption);
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.SetRange("Flushing Method", ItemJournalLine."Flushing Method"::Manual);
+        InsertDocumentEntry(Database::"Item Journal Line", ItemJournalLine.TableCaption(), ItemJournalLine.Count());
 
         ManufacturingSetup.SetRange("Default Flushing Method", ManufacturingSetup."Default Flushing Method"::Manual);
         InsertDocumentEntry(Database::"Manufacturing Setup", ManufacturingSetup.TableCaption(), ManufacturingSetup.Count());
@@ -209,6 +221,20 @@ codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
             until PlanningComponent.Next() = 0;
     end;
 
+    local procedure UpdateFromManualToPickPlusManualFlushingMethod_ItemJournalLine()
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Consumption);
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.SetRange("Flushing Method", ItemJournalLine."Flushing Method"::Manual);
+        if ItemJournalLine.FindSet(true) then
+            repeat
+                ItemJournalLine."Flushing Method" := ItemJournalLine."Flushing Method"::"Pick + Manual";
+                ItemJournalLine.Modify();
+            until ItemJournalLine.Next() = 0;
+    end;
+
     local procedure UpdateFromManualToPickPlusManualFlushingMethod_ManufacturingSetup()
     var
         ManufacturingSetup: Record "Manufacturing Setup";
@@ -241,12 +267,13 @@ codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
         StockkeepingUnit: Record "Stockkeeping Unit";
         ProdOrderComponent: Record "Prod. Order Component";
         PlanningComponent: Record "Planning Component";
+        ItemJournalLine: Record "Item Journal Line";
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         Result := StrSubstNo(
                     TableCaptionsTxt,
                     Item.TableCaption(), ItemTempl.TableCaption(), StockkeepingUnit.TableCaption(),
-                    ProdOrderComponent.TableCaption(), PlanningComponent.TableCaption(),
+                    ProdOrderComponent.TableCaption(), PlanningComponent.TableCaption(), ItemJournalLine.TableCaption(),
                     ManufacturingSetup.TableCaption());
     end;
 
