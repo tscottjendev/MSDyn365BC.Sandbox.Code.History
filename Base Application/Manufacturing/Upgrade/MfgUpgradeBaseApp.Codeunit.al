@@ -6,7 +6,6 @@ namespace Microsoft.Upgrade;
 
 #if CLEAN26
 using Microsoft.Inventory.Item;
-using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Manufacturing.Document;
@@ -62,7 +61,6 @@ codeunit 104062 "Mfg. Upgrade BaseApp"
         UpdateFromManualToPickPlusManualFlushingMethod_StockkeepingUnit();
         UpdateFromManualToPickPlusManualFlushingMethod_ProdOrderComponent();
         UpdateFromManualToPickPlusManualFlushingMethod_PlanningComponent();
-        UpdateFromManualToPickPlusManualFlushingMethod_ItemJournalLine();
         UpdateFromManualToPickPlusManualFlushingMethod_ManufacturingSetup();
 
         SetUpgradeTag(true);
@@ -82,7 +80,6 @@ codeunit 104062 "Mfg. Upgrade BaseApp"
         StockkeepingUnit: Record "Stockkeeping Unit";
         ProdOrderComponent: Record "Prod. Order Component";
         PlanningComponent: Record "Planning Component";
-        ItemJournalLine: Record "Item Journal Line";
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         Item.SetRange("Flushing Method", Item."Flushing Method"::Manual);
@@ -103,12 +100,6 @@ codeunit 104062 "Mfg. Upgrade BaseApp"
 
         PlanningComponent.SetRange("Flushing Method", PlanningComponent."Flushing Method"::Manual);
         if not PlanningComponent.IsEmpty() then
-            exit(true);
-
-        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Consumption);
-        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
-        ItemJournalLine.SetRange("Flushing Method", ItemJournalLine."Flushing Method"::Manual);
-        if not ItemJournalLine.IsEmpty() then
             exit(true);
 
         ManufacturingSetup.SetRange("Default Flushing Method", ManufacturingSetup."Default Flushing Method"::Manual);
@@ -195,25 +186,6 @@ codeunit 104062 "Mfg. Upgrade BaseApp"
             PlanningComponentDataTransfer.AddConstantValue(PlanningComponent."Flushing Method"::"Pick + Manual", PlanningComponent.FieldNo("Flushing Method"));
             PlanningComponentDataTransfer.UpdateAuditFields := false;
             PlanningComponentDataTransfer.CopyFields();
-        end;
-    end;
-
-    local procedure UpdateFromManualToPickPlusManualFlushingMethod_ItemJournalLine()
-    var
-        ItemJournalLine: Record "Item Journal Line";
-        ItemJournalLineDataTransfer: DataTransfer;
-    begin
-        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Consumption);
-        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
-        ItemJournalLine.SetRange("Flushing Method", ItemJournalLine."Flushing Method"::Manual);
-        if not ItemJournalLine.IsEmpty() then begin
-            ItemJournalLineDataTransfer.SetTables(Database::"Item Journal Line", Database::"Item Journal Line");
-            ItemJournalLineDataTransfer.AddSourceFilter(ItemJournalLine.FieldNo("Entry Type"), '=%1', ItemJournalLine."Entry Type"::Consumption);
-            ItemJournalLineDataTransfer.AddSourceFilter(ItemJournalLine.FieldNo("Order Type"), '=%1', ItemJournalLine."Order Type"::Production);
-            ItemJournalLineDataTransfer.AddSourceFilter(ItemJournalLine.FieldNo("Flushing Method"), '=%1', ItemJournalLine."Flushing Method"::Manual);
-            ItemJournalLineDataTransfer.AddConstantValue(ItemJournalLine."Flushing Method"::"Pick + Manual", ItemJournalLine.FieldNo("Flushing Method"));
-            ItemJournalLineDataTransfer.UpdateAuditFields := false;
-            ItemJournalLineDataTransfer.CopyFields();
         end;
     end;
 

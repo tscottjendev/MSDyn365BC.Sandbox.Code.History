@@ -53,7 +53,6 @@ table 113 "Sales Invoice Line"
         field(3; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            OptimizeForTextSearch = true;
             TableRelation = "Sales Invoice Header";
         }
         field(4; "Line No."; Integer)
@@ -98,17 +97,14 @@ table 113 "Sales Invoice Line"
         field(11; Description; Text[100])
         {
             Caption = 'Description';
-            OptimizeForTextSearch = true;
         }
         field(12; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
-            OptimizeForTextSearch = true;
         }
         field(13; "Unit of Measure"; Text[50])
         {
             Caption = 'Unit of Measure';
-            OptimizeForTextSearch = true;
         }
         field(15; Quantity; Decimal)
         {
@@ -563,12 +559,10 @@ table 113 "Sales Invoice Line"
         field(7004; "Price description"; Text[80])
         {
             Caption = 'Price description';
-            OptimizeForTextSearch = true;
         }
         field(10000; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
-            OptimizeForTextSearch = true;
         }
         field(10001; "Retention Attached to Line No."; Integer)
         {
@@ -582,7 +576,6 @@ table 113 "Sales Invoice Line"
         field(10003; "Custom Transit Number"; Text[30])
         {
             Caption = 'Custom Transit Number';
-            OptimizeForTextSearch = true;
         }
     }
 
