@@ -12,7 +12,6 @@ tableextension 11300 "Service Header BE" extends "Service Header"
         {
             Caption = 'Enterprise No.';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
         }
     }
 }
