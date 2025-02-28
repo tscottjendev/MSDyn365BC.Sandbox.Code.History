@@ -34,7 +34,6 @@ table 203 "Res. Ledger Entry"
         field(3; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            OptimizeForTextSearch = true;
         }
         field(4; "Posting Date"; Date)
         {
@@ -53,7 +52,6 @@ table 203 "Res. Ledger Entry"
         field(7; Description; Text[100])
         {
             Caption = 'Description';
-            OptimizeForTextSearch = true;
         }
         field(8; "Work Type Code"; Code[10])
         {
@@ -154,7 +152,6 @@ table 203 "Res. Ledger Entry"
         field(28; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
-            OptimizeForTextSearch = true;
         }
         field(29; "No. Series"; Code[20])
         {
