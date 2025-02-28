@@ -56,6 +56,7 @@ table 121 "Purch. Rcpt. Line"
         field(3; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            OptimizeForTextSearch = true;
             TableRelation = "Purch. Rcpt. Header";
             trigger OnValidate()
             begin
@@ -104,14 +105,17 @@ table 121 "Purch. Rcpt. Line"
         field(11; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
         }
         field(12; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            OptimizeForTextSearch = true;
         }
         field(13; "Unit of Measure"; Text[50])
         {
             Caption = 'Unit of Measure';
+            OptimizeForTextSearch = true;
         }
         field(15; Quantity; Decimal)
         {
@@ -235,6 +239,7 @@ table 121 "Purch. Rcpt. Line"
         field(70; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
+            OptimizeForTextSearch = true;
         }
         field(71; "Sales Order No."; Code[20])
         {
