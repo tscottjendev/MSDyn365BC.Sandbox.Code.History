@@ -15,6 +15,5 @@ enum 5429 "Flushing Method Filter"
     value(3; "Pick + Forward") { Caption = 'Pick + Forward'; }
     value(4; "Pick + Backward") { Caption = 'Pick + Backward'; }
     value(6; "Pick + Manual") { Caption = 'Pick + Manual'; }
-    value(50; "Manual Methods") { Caption = 'Manual methods'; }
-    value(5; "All Methods") { Caption = 'All methods'; }
+    value(5; "All Methods") { Caption = 'All Methods'; }
 }
