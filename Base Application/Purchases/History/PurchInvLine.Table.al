@@ -52,6 +52,7 @@ table 123 "Purch. Inv. Line"
         field(3; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            OptimizeForTextSearch = true;
             TableRelation = "Purch. Inv. Header";
         }
         field(4; "Line No."; Integer)
@@ -95,14 +96,17 @@ table 123 "Purch. Inv. Line"
         field(11; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
         }
         field(12; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            OptimizeForTextSearch = true;
         }
         field(13; "Unit of Measure"; Text[50])
         {
             Caption = 'Unit of Measure';
+            OptimizeForTextSearch = true;
         }
         field(15; Quantity; Decimal)
         {
@@ -243,6 +247,7 @@ table 123 "Purch. Inv. Line"
         field(70; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
+            OptimizeForTextSearch = true;
         }
         field(74; "Gen. Bus. Posting Group"; Code[20])
         {
