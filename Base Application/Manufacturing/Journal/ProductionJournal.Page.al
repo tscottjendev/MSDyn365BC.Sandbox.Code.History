@@ -898,7 +898,7 @@ page 5510 "Production Journal"
         PostingDate := PostDate;
         xPostingDate := PostingDate;
 
-        FlushingFilter := FlushingFilter::"All Methods";
+        FlushingFilter := FlushingFilter::"Manual Methods";
     end;
 
     local procedure GetActTimeAndQtyBase()
@@ -1070,10 +1070,14 @@ page 5510 "Production Journal"
 
     procedure SetFlushingFilter()
     begin
-        if FlushingFilter <> FlushingFilter::"All Methods" then
-            Rec.SetRange("Flushing Method", FlushingFilter)
-        else
-            Rec.SetRange("Flushing Method");
+        case FlushingFilter of
+            FlushingFilter::"All Methods":
+                Rec.SetRange("Flushing Method");
+            FlushingFilter::"Manual Methods":
+                Rec.SetFilter("Flushing Method", '%1|%2', "Flushing Method"::Manual, "Flushing Method"::"Pick + Manual");
+            else
+                Rec.SetRange("Flushing Method", FlushingFilter);
+        end;
     end;
 
     local procedure GetCaption(): Text[250]
