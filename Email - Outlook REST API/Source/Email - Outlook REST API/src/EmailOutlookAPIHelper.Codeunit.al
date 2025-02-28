@@ -459,15 +459,29 @@ codeunit 4509 "Email - Outlook API Helper"
     /// <remarks>The last message is the message that is the reply to the email. The history of the email is removed.</remarks>
     local procedure KeepLastMessageOnly(Value: Text): Text
     begin
+        Value := RemoveOldOutlookHistory(Value);
         Value := RemoveOutlookHistory(Value);
         Value := RemoveGmailHistory(Value);
         Value := RemoveYahooHistory(Value);
         exit(Value);
     end;
 
+    /// <summary>
+    /// Removes the history from emails that are sent from new Outlook client.
+    /// </summary>
     local procedure RemoveOutlookHistory(Value: Text): Text
     var
         RemoveFromLbl: Label '<div id="appendonsend">', Locked = true;
+    begin
+        exit(RemoveHistory(Value, RemoveFromLbl));
+    end;
+
+    /// <summary>
+    /// Removes the history from emails that are sent from old Outlook client.
+    /// </summary>
+    local procedure RemoveOldOutlookHistory(Value: Text): Text
+    var
+        RemoveFromLbl: Label '<div style="border:none; border-top:solid #E1E1E1 1.0pt; padding:3.0pt 0in 0in 0in">', Locked = true;
     begin
         exit(RemoveHistory(Value, RemoveFromLbl));
     end;

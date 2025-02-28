@@ -568,7 +568,7 @@ table 7321 "Warehouse Shipment Line"
         Text003: Label 'must be greater than zero';
         Text005: Label 'The picked quantity is not enough to ship all lines.';
 #pragma warning disable AA0470
-        Text007: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the shipping area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the %5?', Comment = 'Qty. Picked = 2 is greater than Qty. Shipped = 0. If you delete the Warehouse Shipment Line, the items will remain in the shipping area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the Warehouse Shipment Line?';
+        Text007: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the shipping area until you put them away.\Any related item tracking information defined during the pick process will be deleted.\Do you still want to delete the %5?', Comment = 'Qty. Picked = 2 is greater than Qty. Shipped = 0. If you delete the Warehouse Shipment Line, the items will remain in the shipping area until you put them away.\Any related item tracking information defined during the pick process will be deleted.\Do you still want to delete the Warehouse Shipment Line?';
         Text008: Label 'You cannot rename a %1.';
         Text009: Label '%1 is set to %2. %3 should be %4.\\';
 #pragma warning restore AA0470
