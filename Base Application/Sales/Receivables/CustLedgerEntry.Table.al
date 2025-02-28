@@ -43,6 +43,7 @@ table 21 "Cust. Ledger Entry"
         field(3; "Customer No."; Code[20])
         {
             Caption = 'Customer No.';
+            OptimizeForTextSearch = true;
             TableRelation = Customer;
             ToolTip = 'Specifies the customer account number that the entry is linked to.';
         }
@@ -59,6 +60,7 @@ table 21 "Cust. Ledger Entry"
         field(6; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            OptimizeForTextSearch = true;
             ToolTip = 'Specifies the entry''s document number.';
 
             trigger OnLookup()
@@ -71,16 +73,19 @@ table 21 "Cust. Ledger Entry"
         field(7; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
             ToolTip = 'Specifies a description of the customer entry.';
         }
         field(8; "Customer Name"; Text[100])
         {
             Caption = 'Customer Name';
+            OptimizeForTextSearch = true;
             ToolTip = 'Specifies the customer name that the entry is linked to.';
         }
         field(10; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+            OptimizeForTextSearch = true;
             DataClassification = CustomerContent;
             ToolTip = 'Specifies the customer''s reference.';
         }
@@ -438,6 +443,7 @@ table 21 "Cust. Ledger Entry"
         field(63; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            OptimizeForTextSearch = true;
             ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
         }
         field(64; "Calculate Interest"; Boolean)
@@ -660,6 +666,7 @@ table 21 "Cust. Ledger Entry"
         field(289; "Message to Recipient"; Text[140])
         {
             Caption = 'Message to Recipient';
+            OptimizeForTextSearch = true;
             ToolTip = 'Specifies the message exported to the payment file when you use the Export Payments to File function in the Payment Journal window.';
 
             trigger OnValidate()
@@ -813,10 +820,12 @@ table 21 "Cust. Ledger Entry"
         field(10720; "Succeeded Company Name"; Text[250])
         {
             Caption = 'Succeeded Company Name';
+            OptimizeForTextSearch = true;
         }
         field(10721; "Succeeded VAT Registration No."; Text[20])
         {
             Caption = 'Succeeded VAT Registration No.';
+            OptimizeForTextSearch = true;
         }
         field(10722; "ID Type"; Enum "SII ID Type")
         {
