@@ -1,6 +1,5 @@
 ﻿namespace System.Security.AccessControl;
 
-using Microsoft.Finance.RoleCenters;
 using System.Azure.Identity;
 using System.Environment;
 using System.Environment.Configuration;
@@ -27,9 +26,11 @@ codeunit 9002 "Permission Manager"
         LocalTok: Label 'LOCAL', Locked = true;
         TestabilityIntelligentCloud: Boolean;
         CannotModifyOtherUsersErr: Label 'You cannot change settings for another user.';
+#if not CLEAN26
         FoundProfileFromPlanTxt: Label 'Found default profile from plan: %1.', Locked = true;
         NoProfileFromPlanTxt: Label 'No profile could be determined from user plans, picking system wide defaults.', Locked = true;
         TelemetryCategoryTxt: Label 'AL Perm Mgr', Locked = true;
+#endif
         PlanConfigurationFeatureNameTxt: Label 'Custom Permissions Assignment Per Plan', Locked = true;
 
     procedure AssignDefaultPermissionsToUser(UserSecurityID: Guid): Boolean
@@ -159,7 +160,7 @@ codeunit 9002 "Permission Manager"
         Plan.Open();
         Plan.Read();
 
-        if Plan.Role_Center_ID = Page::"Business Manager Role Center" then
+        if Plan.Role_Center_ID = 9022 then // 9022 = Page::"Business Manager Role Center"
             FilterProfileToBusinessManagerEvaluationForCronus(AllProfile, IsAllProfileFiltered)
         else
             AllProfile.SetRange("Role Center ID", Plan.Role_Center_ID);
@@ -184,6 +185,7 @@ codeunit 9002 "Permission Manager"
             end;
     end;
 
+#if not CLEAN26
     /// <summary>
     /// This procedure retrieves a Default Profile ID to be used for a user, in case there is no valid 
     /// custom profile set for them in their User Personalization. 
@@ -200,6 +202,7 @@ codeunit 9002 "Permission Manager"
     /// </list>
     /// </remarks>
     [Scope('OnPrem')]
+    [Obsolete('This procedure has been moved into codeunit "Conf./Personalization Mgt."', '26.0')]
     procedure GetDefaultProfileID(UserSecurityID: Guid; var AllProfile: Record "All Profile")
     var
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
@@ -231,6 +234,7 @@ codeunit 9002 "Permission Manager"
         if AllProfile.FindFirst() then
             exit;
     end;
+#endif
 
     procedure CanCurrentUserManagePlansAndGroups(): Boolean
     var

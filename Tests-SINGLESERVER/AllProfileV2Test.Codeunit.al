@@ -1015,7 +1015,7 @@ codeunit 138698 "AllProfile V2 Test"
         AllProfile: Record "All Profile";
         UserPersonalization: Record "User Personalization";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
-        PermissionManager: Codeunit "Permission Manager";
+        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         EmptyGuid: Guid;
     begin
         LibraryVariableStorage.AssertEmpty();
@@ -1046,7 +1046,7 @@ codeunit 138698 "AllProfile V2 Test"
         Clear(AllProfile);
         if UserPersonalization.FindSet(true, false) then
             repeat
-                PermissionManager.GetDefaultProfileID(UserPersonalization."User SID", AllProfile);
+                ConfPersonalizationMgt.GetDefaultProfileID(UserPersonalization."User SID", AllProfile);
                 UserPersonalization.Validate("Profile ID", AllProfile."Profile ID");
                 UserPersonalization.Validate(Scope, AllProfile.Scope);
                 UserPersonalization.Validate("App ID", AllProfile."App ID");
