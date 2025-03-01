@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 profile "O365 SALES"
 {
     Caption = 'O365 Sales Activities';
