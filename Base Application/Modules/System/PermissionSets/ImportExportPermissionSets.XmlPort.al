@@ -9,7 +9,9 @@ xmlport 9171 "Import/Export Permission Sets"
     {
         textelement(Root)
         {
+#pragma warning disable AL0432
             tableelement("Permission Set"; "Permission Set")
+#pragma warning restore AL0432
             {
                 XmlName = 'UserRole';
                 fieldelement(RoleID; "Permission Set"."Role ID")
