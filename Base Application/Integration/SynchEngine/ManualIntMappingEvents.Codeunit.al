@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 5369 "Manual Int Mapping Events"
 {
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CDS Setup Defaults", 'OnAfterResetConfiguration', '', true, true)]

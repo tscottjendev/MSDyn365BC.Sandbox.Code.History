@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 142 "EC Sales List Submit"
 {
     TableNo = "VAT Report Header";
