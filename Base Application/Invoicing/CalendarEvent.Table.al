@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 #if not CLEANSCHEMA27 
 table 2160 "Calendar Event"
 {
