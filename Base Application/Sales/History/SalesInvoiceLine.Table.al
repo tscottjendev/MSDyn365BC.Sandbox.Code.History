@@ -54,7 +54,6 @@ table 113 "Sales Invoice Line"
         field(3; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            OptimizeForTextSearch = true;
             TableRelation = "Sales Invoice Header";
         }
         field(4; "Line No."; Integer)
@@ -99,17 +98,14 @@ table 113 "Sales Invoice Line"
         field(11; Description; Text[100])
         {
             Caption = 'Description';
-            OptimizeForTextSearch = true;
         }
         field(12; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
-            OptimizeForTextSearch = true;
         }
         field(13; "Unit of Measure"; Text[50])
         {
             Caption = 'Unit of Measure';
-            OptimizeForTextSearch = true;
         }
         field(15; Quantity; Decimal)
         {
@@ -564,7 +560,6 @@ table 113 "Sales Invoice Line"
         field(7004; "Price description"; Text[80])
         {
             Caption = 'Price description';
-            OptimizeForTextSearch = true;
         }
 #if not CLEANSCHEMA26
         field(10604; "VAT Code"; Code[10])
@@ -579,7 +574,6 @@ table 113 "Sales Invoice Line"
         field(10605; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
-            OptimizeForTextSearch = true;
         }
         field(10610; "VAT Number"; Code[20])
         {

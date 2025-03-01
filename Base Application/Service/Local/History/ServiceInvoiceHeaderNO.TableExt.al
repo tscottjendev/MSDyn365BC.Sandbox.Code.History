@@ -17,7 +17,6 @@ tableextension 10612 "Service Invoice Header NO" extends "Service Invoice Header
         {
             Caption = 'Account Code';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
         }
         field(10604; "E-Invoice Created"; Boolean)
         {
