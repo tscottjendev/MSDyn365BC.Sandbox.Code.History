@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 enum 5226 "Employee Marital Status"
 {
     Extensible = true;

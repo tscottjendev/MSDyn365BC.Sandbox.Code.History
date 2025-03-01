@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 2119 "O365 Payment Service Logo"
 {
     Caption = 'O365 Payment Service Logo';
