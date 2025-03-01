@@ -9,7 +9,7 @@ using Microsoft.Foundation.Company;
 
 tableextension 4825 "Intrastat Report Country " extends "Country/Region"
 {
-    procedure IsIntrastat(CountryRegionCode: Code[10]; ShipTo: Boolean): Boolean
+    internal procedure IsIntrastat(CountryRegionCode: Code[10]; ShipTo: Boolean): Boolean
     var
         CompanyInformation: Record "Company Information";
     begin

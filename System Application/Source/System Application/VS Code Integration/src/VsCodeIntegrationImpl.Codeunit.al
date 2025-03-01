@@ -18,7 +18,6 @@ codeunit 8333 "VS Code Integration Impl."
         BaseApplicationIdTxt: Label '437dbf0e-84ff-417a-965d-ed2bb9650972', Locked = true;
         SystemApplicationIdTxt: Label '63ca2fa4-4f03-4f2b-a480-172fef340d3f', Locked = true;
         ApplicationIdTxt: Label 'c1335042-3002-4257-bf8a-75c898ccb1b8', Locked = true;
-        SystemIdTxt: Label '8874ed3a-0643-4247-9ced-7a7002f7135d', Locked = true;
         NotSufficientPermissionErr: Label 'You do not have sufficient permissions to interact with the source code of extensions. Please contact your administrator.';
 
     [Scope('OnPrem')]
@@ -138,7 +137,7 @@ codeunit 8333 "VS Code Integration Impl."
     begin
         // Skip System and Base app
         case NavAppInstalledApp."App ID" of
-            SystemApplicationIdTxt, BaseApplicationIdTxt, ApplicationIdTxt, SystemIdTxt:
+            SystemApplicationIdTxt, BaseApplicationIdTxt, ApplicationIdTxt:
                 exit('')
             else
                 AppVersion := FormatDependencyVersion(NavAppInstalledApp."Version Major", NavAppInstalledApp."Version Minor", NavAppInstalledApp."Version Build", NavAppInstalledApp."Version Revision");
@@ -203,10 +202,11 @@ codeunit 8333 "VS Code Integration Impl."
     var
         AllObjWithCaption: Record AllObjWithCaption;
         NavAppInstalledApp: Record "NAV App Installed App";
+        EmptyGuid: Guid;
     begin
         // Objects in the system app range
         if ObjectId >= 2000000000 then
-            exit(SystemIdTxt);
+            exit(EmptyGuid);
 
         if AllObjWithCaption.ReadPermission() then begin
             AllObjWithCaption.SetRange("Object Type", ObjectType);

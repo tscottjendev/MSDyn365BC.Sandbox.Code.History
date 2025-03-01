@@ -36,12 +36,6 @@ query 36994 "Job Tasks"
             column(indentation; Indentation)
             {
             }
-            column(startingDate; "Start Date")
-            {
-            }
-            column(endingDate; "End Date")
-            {
-            }
         }
     }
 }

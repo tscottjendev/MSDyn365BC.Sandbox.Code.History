@@ -28,7 +28,7 @@ tableextension 4815 "Intrastat Report Sales Head." extends "Sales Header"
         }
     }
 
-    procedure IsIntrastatTransaction(): Boolean
+    internal procedure IsIntrastatTransaction(): Boolean
     var
         CountryRegion: Record "Country/Region";
         IsHandled: Boolean;

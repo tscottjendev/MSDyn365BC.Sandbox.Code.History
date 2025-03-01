@@ -18,7 +18,7 @@ page 6181 "E-Document Purchase Draft"
     PageType = Card;
     SourceTable = "E-Document";
     InsertAllowed = false;
-    DeleteAllowed = true;
+    DeleteAllowed = false;
     ModifyAllowed = true;
     RefreshOnActivate = true;
 
@@ -250,10 +250,7 @@ page 6181 "E-Document Purchase Draft"
     begin
         if not EDocumentsSetup.IsNewEDocumentExperienceActive() then
             Error('');
-        if EDocumentPurchaseHeader.Get(Rec."Entry No") then begin
-            AIGeneratedContentNotification.Message(AIGeneratedContentMsg);
-            AIGeneratedContentNotification.Send();
-        end;
+        if EDocumentPurchaseHeader.Get(Rec."Entry No") then;
         if EDocumentHeaderMapping.Get(Rec."Entry No") then;
         EDocumentServiceStatus := Rec.GetEDocumentServiceStatus();
         HasErrorsOrWarnings := false;
@@ -360,12 +357,10 @@ page 6181 "E-Document Purchase Draft"
         EDocumentErrorHelper: Codeunit "E-Document Error Helper";
         EDocumentProcessing: Codeunit "E-Document Processing";
         ErrorsAndWarningsNotification: Notification;
-        AIGeneratedContentNotification: Notification;
         RecordLinkTxt, StyleStatusTxt, ServiceStatusStyleTxt, VendorName, DataCaption : Text;
         HasErrorsOrWarnings, HasErrors : Boolean;
         ShowFinalizeDraftAction: Boolean;
         ShowAnalyzeDocumentAction: Boolean;
         EDocHasErrorOrWarningMsg: Label 'Errors or warnings found for E-Document. Please review below in "Error Messages" section.';
-        AIGeneratedContentMsg: Label 'AI-generated content may be incorrect';
 
 }

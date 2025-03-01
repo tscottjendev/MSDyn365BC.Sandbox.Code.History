@@ -113,7 +113,7 @@ codeunit 5330 "CRM Integration Management"
         MicrosoftDynamicsFSIntegrationTxt: Label 'bcbi_FieldServiceIntegration', Locked = true;
 #endif
         AdminEmailPasswordWrongErr: Label 'Enter valid %1 administrator credentials.', Comment = '%1 = CRM product name';
-        OrganizationServiceFailureErr: Label 'The setup failed due to a generic error. Please sign in to the Dataverse organization with an account that has the System Administrator role. Ensure that no other import or deletion of a PowerApps solution is currently in progress. Additionally, verify that the solution file is not broken and that the specified administrator has sufficient privileges.';
+        OrganizationServiceFailureErr: Label 'The import of the integration solution failed. This may be because the solution file is broken, or because the solution upgrade failed or because the specified administrator does not have sufficient privileges. If you have upgraded to Business Central 16, follow this document to upgrade your integration solution: https://go.microsoft.com/fwlink/?linkid=2206171';
         InvalidUriErr: Label 'The value entered is not a valid URL.';
         MustUseHttpsErr: Label 'The application is set up to support secure connections (HTTPS) to %1 only. You cannot use HTTP.', Comment = '%1 = CRM product name';
         MustUseHttpOrHttpsErr: Label '%1 is not a valid URI scheme for %2 connections. You can only use HTTPS or HTTP as the scheme in the URL.', Comment = '%1 is a URI scheme, such as FTP, HTTP, chrome or file, %2 = CRM product name';
