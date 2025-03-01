@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 1309 "O365 Getting Started"
 {
     Caption = 'O365 Getting Started';

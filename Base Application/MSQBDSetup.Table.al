@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 7880 "MS-QBD Setup"
 {
     Caption = 'MS-QBD Setup';

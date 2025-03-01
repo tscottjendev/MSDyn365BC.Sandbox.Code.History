@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 6702 "O365 Contact Sync. Helper"
 {
     trigger OnRun()
