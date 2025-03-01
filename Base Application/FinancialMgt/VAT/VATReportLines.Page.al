@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 #if not CLEAN24
 page 742 "VAT Report Lines"
 #else

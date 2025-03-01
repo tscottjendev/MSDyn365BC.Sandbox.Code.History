@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 #if not CLEAN24
 codeunit 1062 "QBD Sync Proxy"
 {

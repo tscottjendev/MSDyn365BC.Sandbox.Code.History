@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 1311 "Last Used Chart"
 {
     Caption = 'Last Used Chart';

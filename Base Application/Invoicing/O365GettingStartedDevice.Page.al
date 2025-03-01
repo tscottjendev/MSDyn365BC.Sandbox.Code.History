@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 1307 "O365 Getting Started Device"
 {
     Caption = 'Getting Started';
