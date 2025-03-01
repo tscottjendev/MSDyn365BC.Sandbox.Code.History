@@ -14,7 +14,6 @@ tableextension 10013 "Service Invoice Header NA" extends "Service Invoice Header
         {
             Caption = 'STE Transaction ID';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10019; "Electronic Document Sent"; Boolean)
@@ -48,7 +47,6 @@ tableextension 10013 "Service Invoice Header NA" extends "Service Invoice Header
         {
             Caption = 'Certificate Serial No.';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10025; "Signed Document XML"; BLOB)
@@ -73,21 +71,18 @@ tableextension 10013 "Service Invoice Header NA" extends "Service Invoice Header
         {
             Caption = 'Date/Time Stamped';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10032; "Date/Time Sent"; Text[50])
         {
             Caption = 'Date/Time Sent';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10033; "Date/Time Canceled"; Text[50])
         {
             Caption = 'Date/Time Canceled';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10035; "Error Code"; Code[10])
@@ -100,7 +95,6 @@ tableextension 10013 "Service Invoice Header NA" extends "Service Invoice Header
         {
             Caption = 'Error Description';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10037; "Date/Time Stamp Received"; DateTime)
@@ -119,7 +113,6 @@ tableextension 10013 "Service Invoice Header NA" extends "Service Invoice Header
         {
             Caption = 'PAC Web Service Name';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10041; "QR Code"; BLOB)
@@ -131,14 +124,12 @@ tableextension 10013 "Service Invoice Header NA" extends "Service Invoice Header
         {
             Caption = 'Fiscal Invoice Number PAC';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10043; "Date/Time First Req. Sent"; Text[50])
         {
             Caption = 'Date/Time First Req. Sent';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(10050; "Foreign Trade"; Boolean)
@@ -180,7 +171,6 @@ tableextension 10013 "Service Invoice Header NA" extends "Service Invoice Header
         {
             Caption = 'Substitution Document No.';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
             TableRelation = "Service Invoice Header" where("Electronic Document Status" = filter("Stamp Received"));
         }
         field(27004; "CFDI Export Code"; Code[10])
@@ -200,7 +190,6 @@ tableextension 10013 "Service Invoice Header NA" extends "Service Invoice Header
         {
             Caption = 'CFDI Cancellation ID';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
         }
         field(27008; "Marked as Canceled"; Boolean)
         {
