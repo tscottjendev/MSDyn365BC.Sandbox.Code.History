@@ -66,4 +66,17 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         EDocumentPurchaseDraft.Run();
     end;
 
+    procedure CleanUpDraft(EDocument: Record "E-Document")
+    var
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+        EDocumentPurchaseLine: Record "E-Document Purchase Line";
+    begin
+        EDocumentPurchaseHeader.SetRange("E-Document Entry No.", EDocument."Entry No");
+        if not EDocumentPurchaseHeader.IsEmpty() then
+            EDocumentPurchaseHeader.DeleteAll(true);
+
+        EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
+        if not EDocumentPurchaseLine.IsEmpty() then
+            EDocumentPurchaseLine.DeleteAll(true);
+    end;
 }
