@@ -65,7 +65,6 @@ table 5405 "Production Order"
         field(3; Description; Text[100])
         {
             Caption = 'Description';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -79,7 +78,6 @@ table 5405 "Production Order"
         field(5; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
-            OptimizeForTextSearch = true;
         }
         field(6; "Creation Date"; Date)
         {
