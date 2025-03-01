@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 xmlport 11501 "SEPA DD pain.008.001.02.ch03"
 {
     Caption = 'SEPA DD pain.008.001.02.ch03';

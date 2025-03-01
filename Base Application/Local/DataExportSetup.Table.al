@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 11009 "Data Export Setup"
 {
     Caption = 'Data Export Setup';
