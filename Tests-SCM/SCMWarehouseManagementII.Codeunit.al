@@ -2331,7 +2331,7 @@ codeunit 137154 "SCM Warehouse Management II"
         LibraryWarehouse.CreateWarehouseSourceFilter(WhseSourceFilter, WhseSourceFilter.Type::Outbound);
         Commit(); // Make sure the created Warehouse Source Filter goes into the table
 
-        // Exercise: Create Warehouse Shipment and use Filters to Get Source Doucments Action
+        // Exercise: Create Warehouse Shipment and use Filters to Get Source documents Action
         CreateWarehouseShipmentHeaderWithLocation(WhseShipmentHeader, LocationWhite.Code);
         WhseShipment.OpenEdit();
         WhseShipment.FILTER.SetFilter("No.", WhseShipmentHeader."No.");

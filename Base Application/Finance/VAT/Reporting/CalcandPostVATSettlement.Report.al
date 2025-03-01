@@ -680,6 +680,7 @@ report 20 "Calc. and Post VAT Settlement"
                 end else
                     if PostSettlement then
                         UpdatePeriodicSettlementVATEntry();
+                    OnVATPostingSetupOnAfterOnPostDataItem(GenJnlLine, PostSettlement);
             end;
 
             trigger OnPreDataItem()
@@ -929,7 +930,7 @@ report 20 "Calc. and Post VAT Settlement"
         ConfirmManagement: Codeunit "Confirm Management";
         ITReportManagement: Codeunit "IT - Report Management";
     begin
-        OnBeforePreReport("VAT Posting Setup", PostSettlement, GLAccSettle);
+        OnBeforePreReport("VAT Posting Setup", PostSettlement, GLAccSettle, DocNo);
 
         GetGLSetup();
         if EndDateReq = 0D then
@@ -1383,7 +1384,7 @@ report 20 "Calc. and Post VAT Settlement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup"; PostSettlement: Boolean; GLAccountSettle: Record "G/L Account")
+    local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup"; PostSettlement: Boolean; GLAccountSettle: Record "G/L Account"; var DocNo: Code[20])
     begin
     end;
 
@@ -1419,6 +1420,11 @@ report 20 "Calc. and Post VAT Settlement"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyAmounts(var GenJournalLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVATPostingSetupOnAfterOnPostDataItem(GenJnlLine: Record "Gen. Journal Line"; PostSettlement: Boolean)
     begin
     end;
 }

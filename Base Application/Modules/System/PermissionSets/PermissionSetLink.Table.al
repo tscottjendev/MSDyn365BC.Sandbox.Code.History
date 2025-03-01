@@ -14,7 +14,9 @@ table 9802 "Permission Set Link"
         {
             Caption = 'Permission Set ID';
             DataClassification = SystemMetadata;
+#pragma warning disable AL0432
             TableRelation = "Permission Set"."Role ID";
+#pragma warning restore AL0432
         }
         field(2; "Linked Permission Set ID"; Code[20])
         {
