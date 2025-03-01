@@ -884,9 +884,6 @@ codeunit 9178 "Application Area Mgmt."
     procedure GetBasicExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
         TempApplicationAreaSetup.Basic := true;
-        TempApplicationAreaSetup.VAT := true;
-        TempApplicationAreaSetup."Basic EU" := true;
-        TempApplicationAreaSetup."Basic ES" := true;
         TempApplicationAreaSetup."Relationship Mgmt" := true;
         TempApplicationAreaSetup."Record Links" := true;
         TempApplicationAreaSetup.Notes := true;

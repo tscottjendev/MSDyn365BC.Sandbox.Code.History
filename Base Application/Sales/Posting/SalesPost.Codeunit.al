@@ -287,7 +287,7 @@ codeunit 80 "Sales-Post"
 
     /// <summary>
     /// Verifies and posts the sales document.
-    /// As a result, posted documents will be created, dependent on the type of the doucment, as well as any relevant posting to inventory and finance.
+    /// As a result, posted documents will be created, dependent on the type of the document, as well as any relevant posting to inventory and finance.
     /// A Quote cannot be posted - it has to be turned into an order or invoice first, which then can be posted.
     /// An Order can be shipped and/or invoiced.
     /// A Return order can be received and/or invoiced.
@@ -444,7 +444,7 @@ codeunit 80 "Sales-Post"
     end;
 
     /// <summary>
-    /// The main funciton that processes the document lines.
+    /// The main function that processes the document lines.
     /// Will update inventory, finance, resources, jobs, etc., dependent on what lines are in the document.
     /// </summary>
     /// <param name="SalesHeader">The sales header of the document that is being posted.</param>
@@ -1319,7 +1319,7 @@ codeunit 80 "Sales-Post"
     /// <param name="SalesHeader">The sales header of the document that is being posted.</param>
     /// <param name="SalesLine">The sales line of the document line that is being posted. A line with Type "Item" is expected.</param>
     /// <param name="TempDropShptPostBuffer">Return Variable: A temp table Set that will get an additional entry with Drop Shipment information.</param>
-    /// <param name="TempPostedATOLink">A temp table Set containg Posted Assemble-to-Order Links. If a link exists, it posts an item journal line with assembled quantity</param>
+    /// <param name="TempPostedATOLink">A temp table Set containing Posted Assemble-to-Order Links. If a link exists, it posts an item journal line with assembled quantity</param>
     procedure PostItemLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; var TempPostedATOLink: Record "Posted Assemble-to-Order Link" temporary)
     var
         DummyTrackingSpecification: Record "Tracking Specification";
