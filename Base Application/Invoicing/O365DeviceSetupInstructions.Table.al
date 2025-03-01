@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 1307 "O365 Device Setup Instructions"
 {
     Caption = 'O365 Device Setup Instructions';

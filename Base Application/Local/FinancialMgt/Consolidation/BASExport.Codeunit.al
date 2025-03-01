@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 11604 "BAS Export"
 {
     TableNo = "VAT Report Header";
