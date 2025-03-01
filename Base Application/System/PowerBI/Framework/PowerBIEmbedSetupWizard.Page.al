@@ -317,7 +317,8 @@ page 6327 "Power BI Embed Setup Wizard"
         IsDeploying: Boolean;
         ParentPageContext: Text[30];
         StepOutOfRangeErr: Label 'Wizard step out of range.';
-        NoLicenseErr: Label 'We could not check your license for Power BI. Make sure you have an active Power BI license for your user account.\\If you just activated a license, it might take a few minutes for Power BI to update.';
+        NoLicenseErrSaaS: Label 'We could not check your license for Power BI. Make sure you have an active Power BI license for your user account.\\If you just activated a license, it might take a few minutes for Power BI to update.';
+        NoLicenseErrOnPrem: Label 'We could not check your license for Power BI. This means you either don''t have an active Power BI license for your user account, or your Entra application is not set up correctly.\\Check that your user has an active Power BI license assigned, and make sure you follow the on-premises setup guide at https://aka.ms/bcpbi.';
 #pragma warning disable AA0470
         NoTokenForOnPremErr: Label 'We couldn''t connect to Power BI using your Microsoft Entra application. This typically happens when your Microsoft Entra application is not configured correctly to connect to %1. Run the "Set up Microsoft Entra ID" assisted setup again, and make sure your setup matches the documentation at https://aka.ms/bcpbi.';
 #pragma warning restore AA0470
@@ -391,7 +392,10 @@ page 6327 "Power BI Embed Setup Wizard"
                     FeatureTelemetry.LogUptake('0000L06', PowerBIServiceMgt.GetPowerBiFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
                     PowerBIContextSettings.CreateOrReadForCurrentUser(ParentPageContext);
                 end else
-                    Error(NoLicenseErr);
+                    if IsSaaS then
+                        Error(NoLicenseErrSaaS)
+                    else
+                        Error(NoLicenseErrOnPrem);
             CurrentStep::AutoDeployment:
                 StartAutoDeployment();
         end;
