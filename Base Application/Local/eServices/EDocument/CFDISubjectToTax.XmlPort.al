@@ -1,4 +1,5 @@
-﻿xmlport 27008 "CFDI Subject to Tax"
+#pragma warning disable AA0247
+xmlport 27008 "CFDI Subject to Tax"
 {
 
     schema

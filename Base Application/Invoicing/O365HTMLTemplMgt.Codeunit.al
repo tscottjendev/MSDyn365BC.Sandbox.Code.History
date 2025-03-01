@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 2114 "O365 HTML Templ. Mgt."
 {
     Permissions = TableData "Payment Reporting Argument" = rimd;

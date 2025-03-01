@@ -1,4 +1,5 @@
-﻿page 27008 "CFDI Subjects to Tax"
+#pragma warning disable AA0247
+page 27008 "CFDI Subjects to Tax"
 {
     Caption = 'CFDI Subject to Tax';
     PageType = List;
