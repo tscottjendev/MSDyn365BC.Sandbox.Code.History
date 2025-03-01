@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 2158 "O365 Brand Colors"
 {
     Caption = 'Email Color Schemas';

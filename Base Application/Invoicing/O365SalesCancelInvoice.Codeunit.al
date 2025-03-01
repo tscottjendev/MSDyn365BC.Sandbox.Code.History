@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 2103 "O365 Sales Cancel Invoice"
 {
     TableNo = "Job Queue Entry";
