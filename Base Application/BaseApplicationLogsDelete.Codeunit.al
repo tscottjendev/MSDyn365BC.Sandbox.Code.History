@@ -9,6 +9,7 @@ using Microsoft.Projects.Project.Archive;
 using System.Diagnostics;
 using System.Threading;
 using System.Automation;
+using System.Utilities;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.Sales.Archive;
 using Microsoft.Purchases.Archive;
@@ -26,6 +27,8 @@ codeunit 3995 "Base Application Logs Delete"
                 tabledata "Activity Log" = rd,
                 tabledata "Change Log Entry" = rd,
                 tabledata "Dataverse Entity Change" = rd,
+                tabledata "Error Message" = rd,
+                tabledata "Error Message Register" = rd,
                 tabledata "Integration Synch. Job" = rd,
                 tabledata "Integration Synch. Job Errors" = rd,
                 tabledata "Job Queue Log Entry" = rd,
@@ -66,7 +69,9 @@ codeunit 3995 "Base Application Logs Delete"
             Database::"Registered Whse. Activity Hdr.",
             Database::"Posted Whse. Receipt Header",
             Database::"Posted Whse. Shipment Header",
-            Database::"Activity Log"])
+            Database::"Activity Log",
+            Database::"Error Message",
+            Database::"Error Message Register"])
         then
             exit;
 
