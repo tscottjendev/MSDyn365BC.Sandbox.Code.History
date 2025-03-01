@@ -13,6 +13,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using Microsoft.eServices.EDocument.Processing.Import;
+using Microsoft.eServices.EDocument.Processing.Interfaces;
 
 table 6121 "E-Document"
 {
@@ -273,6 +274,9 @@ table 6121 "E-Document"
         EDocumentIntegrationLog: Record "E-Document Integration Log";
         EDocumentLog: Record "E-Document Log";
         EDocumentServiceStatus: Record "E-Document Service Status";
+        EDocumentHeaderMapping: Record "E-Document Header Mapping";
+        EDocumentLineMapping: Record "E-Document Line Mapping";
+        IProcessStructuredData: Interface IProcessStructuredData;
     begin
         EDocumentLog.SetRange("E-Doc. Entry No", Rec."Entry No");
         if not EDocumentLog.IsEmpty() then
@@ -294,6 +298,17 @@ table 6121 "E-Document"
         EDocMappingLog.SetRange("E-Doc Entry No.", Rec."Entry No");
         if not EDocMappingLog.IsEmpty() then
             EDocMappingLog.DeleteAll(true);
+
+        EDocumentHeaderMapping.SetRange("E-Document Entry No.", Rec."Entry No");
+        if not EDocumentHeaderMapping.IsEmpty() then
+            EDocumentHeaderMapping.DeleteAll(true);
+
+        EDocumentLineMapping.SetRange("E-Document Entry No.", Rec."Entry No");
+        if not EDocumentLineMapping.IsEmpty() then
+            EDocumentLineMapping.DeleteAll(true);
+
+        IProcessStructuredData := Rec."Structured Data Process";
+        IProcessStructuredData.CleanUpDraft(Rec);
     end;
 
     internal procedure PreviewContent()

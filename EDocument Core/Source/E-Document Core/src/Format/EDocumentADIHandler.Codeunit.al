@@ -108,11 +108,11 @@ codeunit 6174 "E-Document ADI Handler" implements IBlobType, IBlobToStructuredDa
         SetStringValueInField('billingAddressRecipient', MaxStrLen(EDocumentPurchaseHeader."Billing Address Recipient"), FieldsJsonObject, EDocumentPurchaseHeader."Billing Address Recipient");
         SetStringValueInField('shippingAddress', MaxStrLen(EDocumentPurchaseHeader."Shipping Address"), FieldsJsonObject, EDocumentPurchaseHeader."Shipping Address");
         SetStringValueInField('shippingAddressRecipient', MaxStrLen(EDocumentPurchaseHeader."Shipping Address Recipient"), FieldsJsonObject, EDocumentPurchaseHeader."Shipping Address Recipient");
-        SetNumberValueInField('subTotal', FieldsJsonObject, EDocumentPurchaseHeader."Sub Total");
-        SetNumberValueInField('totalTax', FieldsJsonObject, EDocumentPurchaseHeader."Total VAT");
+        SetCurrencyValueInField('subTotal', FieldsJsonObject, EDocumentPurchaseHeader."Sub Total", EDocumentPurchaseHeader."Currency Code");
+        SetCurrencyValueInField('totalTax', FieldsJsonObject, EDocumentPurchaseHeader."Total VAT", EDocumentPurchaseHeader."Currency Code");
         SetCurrencyValueInField('invoiceTotal', FieldsJsonObject, EDocumentPurchaseHeader.Total, EDocumentPurchaseHeader."Currency Code");
-        SetNumberValueInField('amountDue', FieldsJsonObject, EDocumentPurchaseHeader."Amount Due");
-        SetNumberValueInField('previousUnpaidBalance', FieldsJsonObject, EDocumentPurchaseHeader."Previous Unpaid Balance");
+        SetCurrencyValueInField('amountDue', FieldsJsonObject, EDocumentPurchaseHeader."Amount Due", EDocumentPurchaseHeader."Currency Code");
+        SetCurrencyValueInField('previousUnpaidBalance', FieldsJsonObject, EDocumentPurchaseHeader."Previous Unpaid Balance", EDocumentPurchaseHeader."Currency Code");
         SetStringValueInField('remittanceAddress', MaxStrLen(EDocumentPurchaseHeader."Remittance Address"), FieldsJsonObject, EDocumentPurchaseHeader."Remittance Address");
         SetStringValueInField('remittanceAddressRecipient', MaxStrLen(EDocumentPurchaseHeader."Remittance Address Recipient"), FieldsJsonObject, EDocumentPurchaseHeader."Remittance Address Recipient");
         SetDateValueInField('serviceStartDate', FieldsJsonObject, EDocumentPurchaseHeader."Service Start Date");
@@ -126,12 +126,12 @@ codeunit 6174 "E-Document ADI Handler" implements IBlobType, IBlobToStructuredDa
     begin
         SetCurrencyValueInField('amount', FieldsJsonObject, EDocumentPurchaseLine."Sub Total", EDocumentPurchaseLine."Currency Code");
         SetStringValueInField('description', MaxStrLen(EDocumentPurchaseLine.Description), FieldsJsonObject, EDocumentPurchaseLine.Description);
-        SetNumberValueInField('unitPrice', FieldsJsonObject, EDocumentPurchaseLine."Unit Price");
+        SetCurrencyValueInField('unitPrice', FieldsJsonObject, EDocumentPurchaseLine."Unit Price", EDocumentPurchaseLine."Currency Code");
         SetNumberValueInField('quantity', FieldsJsonObject, EDocumentPurchaseLine.Quantity);
         SetStringValueInField('productCode', MaxStrLen(EDocumentPurchaseLine."Product Code"), FieldsJsonObject, EDocumentPurchaseLine."Product Code");
         SetStringValueInField('unit', MaxStrLen(EDocumentPurchaseLine."Unit of Measure"), FieldsJsonObject, EDocumentPurchaseLine."Unit of Measure");
         SetDateValueInField('date', FieldsJsonObject, EDocumentPurchaseLine.Date);
-        SetNumberValueInField('tax', FieldsJsonObject, EDocumentPurchaseLine."VAT Rate");
+        SetCurrencyValueInField('tax', FieldsJsonObject, EDocumentPurchaseLine."VAT Rate", EDocumentPurchaseLine."Currency Code");
     end;
 #pragma warning restore AA0139
 
@@ -204,6 +204,7 @@ codeunit 6174 "E-Document ADI Handler" implements IBlobType, IBlobToStructuredDa
     internal procedure SetCurrencyValueInField(FieldName: Text; var FieldsJsonObject: JsonObject; var Amount: Decimal; var CurrencyCode: Code[10])
     var
         JsonToken: JsonToken;
+        FoundCurrency: Code[10];
     begin
         if not FieldsJsonObject.Contains(FieldName) then
             exit;
@@ -213,8 +214,13 @@ codeunit 6174 "E-Document ADI Handler" implements IBlobType, IBlobToStructuredDa
             exit;
 
         Amount := FieldsJsonObject.GetObject(FieldName).GetDecimal('value_number');
-        // We are missing the currency code in the JSON provided by CAPI
-        CurrencyCode := CopyStr(FieldsJsonObject.GetObject(FieldName).GetText('currency_symbol'), 1, MaxStrLen(CurrencyCode));
+        FoundCurrency := CopyStr(FieldsJsonObject.GetObject(FieldName).GetText('currency_code'), 1, MaxStrLen(CurrencyCode));
+        if FoundCurrency = '' then
+            exit;
+        if CurrencyCode = '' then begin
+            CurrencyCode := FoundCurrency;
+            exit;
+        end;
     end;
 
     internal procedure SetNumberValueInField(FieldName: Text; var FieldsJsonObject: JsonObject; var DecimalValue: Decimal)
