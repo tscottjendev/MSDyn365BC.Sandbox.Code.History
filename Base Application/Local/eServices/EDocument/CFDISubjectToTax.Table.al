@@ -1,4 +1,5 @@
-﻿table 27008 "CFDI Subject to Tax"
+#pragma warning disable AA0247
+table 27008 "CFDI Subject to Tax"
 {
     DrillDownPageID = "CFDI Subjects to Tax";
     LookupPageID = "CFDI Subjects to Tax";

@@ -4,6 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 #if CLEAN24
 namespace Microsoft.EServices.EDocument;
+#else
+#pragma warning disable AA0247
 #endif
 
 page 2123 "O365 Incoming Doc. Att. Pict."
