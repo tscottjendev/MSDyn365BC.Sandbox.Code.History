@@ -372,7 +372,7 @@ codeunit 6710 ODataUtility
 
         TempFileName := ServiceNameParm + '.xltm';
 
-        NavApp.GetResource('ExcelTemplates\' + TempFileName, NvInStream);
+        NavApp.GetResource('ExcelTemplates/' + TempFileName, NvInStream);
 
         TempBlob.CreateOutStream(NvOutStream);
         CopyStream(NvOutStream, NvInStream);
