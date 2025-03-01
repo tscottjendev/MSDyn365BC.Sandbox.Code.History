@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 1309 "O365 Getting Started Mgt."
 {
     trigger OnRun()
