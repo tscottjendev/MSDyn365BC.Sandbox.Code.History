@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 1308 "O365 Device Setup"
 {
     ApplicationArea = All;

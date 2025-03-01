@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 5376 "CDS BC Table Relation"
 {
     ExternalName = 'dyn365bc_syntheticrelation';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 
 codeunit 6700 "O365 Sync. Management"
 {
