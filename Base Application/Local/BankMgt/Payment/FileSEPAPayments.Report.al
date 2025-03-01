@@ -493,7 +493,8 @@ report 2000005 "File SEPA Payments"
         AddElement(XMLNodeCurr, 'FinInstnId', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
-        AddElement(XMLNodeCurr, 'BIC', CopyStr(DelChr(PmtJnlLine."SWIFT Code"), 1, 11), '', XMLNewChild);
+        if AddBICTag(PmtJnlLine."SWIFT Code") then
+            AddElement(XMLNodeCurr, 'BIC', CopyStr(DelChr(PmtJnlLine."SWIFT Code"), 1, 11), '', XMLNewChild);
         case PmtJnlLine."Account Type" of
             PmtJnlLine."Account Type"::Vendor:
                 begin

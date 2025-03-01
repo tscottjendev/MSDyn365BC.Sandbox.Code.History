@@ -1,3 +1,5 @@
+namespace System.Security.AccessControl;
+
 /// <summary>
 /// Specifies the type of license.
 /// </summary>
