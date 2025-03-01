@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 2161 "Calendar Event User Config."
 {
     Caption = 'Calendar Event User Config.';

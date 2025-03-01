@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 query 37015 "Inventory by Location"
 {
     QueryType = Normal;
