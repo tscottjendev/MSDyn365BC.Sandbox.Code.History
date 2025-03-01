@@ -12,7 +12,6 @@ tableextension 11305 "Service Shipment Header BE" extends "Service Shipment Head
         {
             Caption = 'Enterprise No.';
             DataClassification = CustomerContent;
-            OptimizeForTextSearch = true;
         }
     }
 }
