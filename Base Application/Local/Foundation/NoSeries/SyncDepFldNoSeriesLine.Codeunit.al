@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 #if not CLEAN24
 #pragma warning disable AL0432
 codeunit 12145 "Sync. Dep. Fld. - NoSeriesLine"

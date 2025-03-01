@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 pageextension 12145 NoSeriesIT extends "No. Series"
 {
     layout

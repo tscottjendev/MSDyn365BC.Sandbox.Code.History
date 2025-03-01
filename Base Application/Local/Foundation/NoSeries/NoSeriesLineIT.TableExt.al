@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 tableextension 12146 NoSeriesLineIT extends "No. Series Line"
 {
     fields

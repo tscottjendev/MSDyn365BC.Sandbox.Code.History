@@ -1,4 +1,5 @@
-﻿xmlport 12100 "CBI Payment Request.00.04.00"
+#pragma warning disable AA0247
+xmlport 12100 "CBI Payment Request.00.04.00"
 {
     Caption = 'CBI Payment Request.00.04.00';
     DefaultNamespace = 'urn:CBI:xsd:CBIPaymentRequest.00.04.00';

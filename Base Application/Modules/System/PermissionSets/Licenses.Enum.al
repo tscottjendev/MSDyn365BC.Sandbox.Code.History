@@ -3,6 +3,7 @@ namespace System.Security.AccessControl;
 /// <summary>
 /// Specifies the type of license.
 /// </summary>
+#pragma warning disable AA0247
 enum 5557 Licenses
 {
     Extensible = false;

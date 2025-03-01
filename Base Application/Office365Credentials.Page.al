@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 1312 "Office 365 Credentials"
 {
     Caption = 'Office 365 Credentials';
