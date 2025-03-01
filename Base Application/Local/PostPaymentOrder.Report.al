@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 
 report 7000080 "Post Payment Order"
 {

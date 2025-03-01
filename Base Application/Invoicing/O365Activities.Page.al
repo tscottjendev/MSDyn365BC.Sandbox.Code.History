@@ -1,4 +1,5 @@
-﻿page 1310 "O365 Activities"
+#pragma warning disable AA0247
+page 1310 "O365 Activities"
 {
     Caption = 'Activities';
     PageType = CardPart;

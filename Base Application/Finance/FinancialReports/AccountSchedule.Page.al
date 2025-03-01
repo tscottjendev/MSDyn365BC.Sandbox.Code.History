@@ -238,7 +238,6 @@ page 104 "Account Schedule"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to double underline the amounts in this row.';
-                    Visible = false;
                 }
                 field("New Page"; Rec."New Page")
                 {
