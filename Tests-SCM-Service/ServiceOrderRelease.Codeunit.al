@@ -3902,7 +3902,7 @@ codeunit 136140 "Service Order Release"
         // EXECUTE: Post the Service Header
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
-        // VERIFY: The Header has been posted and the posted doucments can be found
+        // VERIFY: The Header has been posted and the posted documents can be found
         if ServiceHeader."Document Type" = ServiceHeader."Document Type"::Invoice then
             FindServiceInvoiceHeader(ServiceInvoiceHeader, ServiceHeader."No.")
         else

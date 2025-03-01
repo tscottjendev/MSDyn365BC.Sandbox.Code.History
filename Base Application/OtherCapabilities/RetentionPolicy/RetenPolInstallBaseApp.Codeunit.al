@@ -12,6 +12,7 @@ using Microsoft.Warehouse.History;
 using System.Upgrade;
 using System.Diagnostics;
 using System.Automation;
+using System.Utilities;
 using System.Environment.Configuration;
 using System.Threading;
 using Microsoft.Projects.Project.Archive;
@@ -48,6 +49,8 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
             RetenPolAllowedTables.AddAllowedTable(Database::"Job Queue Log Entry", JobQueueLogEntry.FieldNo("End Date/Time"));
             RetenPolAllowedTables.AddAllowedTable(Database::"Workflow Step Instance Archive");
             RetenPolAllowedTables.AddAllowedTable(Database::"Report Inbox");
+            RetenPolAllowedTables.AddAllowedTable(Database::"Error Message");
+            RetenPolAllowedTables.AddAllowedTable(Database::"Error Message Register");
             if IsInitialSetup then
                 UpgradeTag.SetUpgradeTag(GetRetenPolBaseAppTablesUpgradeTag());
         end;
