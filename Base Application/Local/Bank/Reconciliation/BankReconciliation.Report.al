@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 10408 "Bank Reconciliation"
 {
     DefaultLayout = RDLC;

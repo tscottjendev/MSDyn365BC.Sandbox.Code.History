@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 10124 "BankRec-Printed"
 {
     Permissions = TableData "Posted Bank Rec. Header" = rm;
