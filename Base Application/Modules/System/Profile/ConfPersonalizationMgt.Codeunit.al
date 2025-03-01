@@ -1,13 +1,11 @@
 ﻿namespace System.Environment.Configuration;
 
-using Microsoft.Finance.RoleCenters;
 using System;
 using System.Azure.Identity;
 using System.Environment;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Security.AccessControl;
 using System.Utilities;
 
 codeunit 9170 "Conf./Personalization Mgt."
@@ -40,6 +38,8 @@ codeunit 9170 "Conf./Personalization Mgt."
         CouldNotCopyProfileErr: Label 'The profile could not be copied.';
         ConfigurationPersonalizationCategoryTxt: Label 'AL Conf/Pers', Locked = true;
         DefaultRoleCenterIdentifiedTxt: Label 'Returning role center %1 as default.', Locked = true;
+        FoundProfileFromPlanTxt: Label 'Found default profile from plan: %1.', Locked = true;
+        NoProfileFromPlanTxt: Label 'No profile could be determined from user plans, picking system wide defaults.', Locked = true;
 
     procedure DefaultRoleCenterID(): Integer
     var
@@ -51,7 +51,7 @@ codeunit 9170 "Conf./Personalization Mgt."
             if AzureADPlan.TryGetAzureUserPlanRoleCenterId(RoleCenterID, UserSecurityId()) then;
 
         if RoleCenterID = 0 then
-            RoleCenterID := PAGE::"Business Manager Role Center"; // BUSINESS MANAGER
+            RoleCenterID := 9022; // 9022 = Page::"Business Manager Role Center"
 
         OnAfterGetDefaultRoleCenter(RoleCenterID);
         Session.LogMessage('0000DUJ', StrSubstNo(DefaultRoleCenterIdentifiedTxt, RoleCenterID), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', ConfigurationPersonalizationCategoryTxt);
@@ -94,10 +94,56 @@ codeunit 9170 "Conf./Personalization Mgt."
 
     [TryFunction]
     procedure TryGetDefaultProfileForCurrentUser(var AllProfile: Record "All Profile")
-    var
-        PermissionManager: Codeunit "Permission Manager";
     begin
-        PermissionManager.GetDefaultProfileID(UserSecurityId(), AllProfile);
+        GetDefaultProfileID(UserSecurityId(), AllProfile);
+    end;
+
+    /// <summary>
+    /// This procedure retrieves a Default Profile ID to be used for a user, in case there is no valid 
+    /// custom profile set for them in their User Personalization. 
+    /// </summary>
+    /// <param name="UserSecurityID">The SID for the User to find a default profile for</param>
+    /// <param name="AllProfile">The returned AllProfile that is the default for the specified user</param>
+    /// <remarks>
+    /// <list type="number">
+    ///   <item><description>If we can provide a tailored default for the user (from the Plan/License), return that, otherwise</description></item>
+    ///   <item><description>If there is any system-wide default AllProfile in the table, return it, otherwise</description></item>
+    ///   <item><description>Find the default Role Center ID for the system (which checks the Plan/License again and has some additional 
+    ///   defaulting logic), and if there is a profile for it return it, otherwise</description></item>
+    ///   <item><description>Fall back to just return the first AllProfile available in the table</description></item>
+    /// </list>
+    /// </remarks>
+    [Scope('OnPrem')]
+    procedure GetDefaultProfileID(UserSecurityID: Guid; var AllProfile: Record "All Profile")
+    var
+        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
+        RoleCenterFromPlans: Query "Role Center from Plans";
+    begin
+        RoleCenterFromPlans.SetRange(User_Security_ID, UserSecurityID);
+        if RoleCenterFromPlans.Open() then
+            while RoleCenterFromPlans.Read() do begin
+                AllProfile.SetRange("Role Center ID", RoleCenterFromPlans.Role_Center_ID);
+                if AllProfile.FindFirst() then begin
+                    Session.LogMessage('0000DUK', StrSubstNo(FoundProfileFromPlanTxt, AllProfile."Profile ID"), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', ConfigurationPersonalizationCategoryTxt);
+                    exit;
+                end;
+            end;
+
+        Session.LogMessage('0000DUL', NoProfileFromPlanTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ConfigurationPersonalizationCategoryTxt);
+
+        AllProfile.Reset();
+        AllProfile.SetRange("Default Role Center", true);
+        if AllProfile.FindFirst() then
+            exit;
+
+        AllProfile.Reset();
+        AllProfile.SetRange("Role Center ID", ConfPersonalizationMgt.DefaultRoleCenterID());
+        if AllProfile.FindFirst() then
+            exit;
+
+        AllProfile.Reset();
+        if AllProfile.FindFirst() then
+            exit;
     end;
 
     procedure IsCurrentProfile(Scope: Option; AppID: Guid; ProfileID: Code[30]): Boolean
