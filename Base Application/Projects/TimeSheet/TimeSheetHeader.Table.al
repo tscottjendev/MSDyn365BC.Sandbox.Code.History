@@ -18,8 +18,7 @@ table 950 "Time Sheet Header"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
-            OptimizeForTextSearch = true;
-        }
+                    }
         field(3; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
@@ -77,8 +76,7 @@ table 950 "Time Sheet Header"
         field(10; Description; Text[100])
         {
             Caption = 'Description';
-            OptimizeForTextSearch = true;
-            DataClassification = CustomerContent;
+                        DataClassification = CustomerContent;
         }
         field(11; "Unit of Measure"; Code[10])
         {
