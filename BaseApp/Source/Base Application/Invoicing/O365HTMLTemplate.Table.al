@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 2114 "O365 HTML Template"
 {
     Caption = 'O365 HTML Template';

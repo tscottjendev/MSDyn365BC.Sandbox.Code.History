@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 5143 "Contoso Item"
 {
     InherentEntitlements = X;

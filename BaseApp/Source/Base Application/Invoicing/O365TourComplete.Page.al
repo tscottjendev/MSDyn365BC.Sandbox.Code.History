@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 1306 "O365 Tour Complete"
 {
     Caption = 'Tour Complete';

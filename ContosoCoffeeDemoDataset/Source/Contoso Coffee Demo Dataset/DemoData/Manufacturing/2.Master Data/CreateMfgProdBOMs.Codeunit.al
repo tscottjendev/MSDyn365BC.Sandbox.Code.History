@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 4771 "Create Mfg Prod. BOMs"
 {
     InherentEntitlements = X;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 4768 "Create Mfg Posting Setup"
 {
     InherentEntitlements = X;

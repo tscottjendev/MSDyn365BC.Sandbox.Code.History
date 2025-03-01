@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 1308 "O365 Getting Started Page Data"
 {
     Caption = 'O365 Getting Started Page Data';

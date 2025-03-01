@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 4781 "Contoso Purchase"
 {
     InherentEntitlements = X;
