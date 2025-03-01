@@ -9,7 +9,9 @@ xmlport 9172 "Import/Export Permissions"
     {
         textelement(Root)
         {
+#pragma warning disable AL0432
             tableelement(Permission; Permission)
+#pragma warning restore AL0432
             {
                 XmlName = 'Permission';
                 fieldelement(RoleID; Permission."Role ID")
@@ -83,7 +85,9 @@ xmlport 9172 "Import/Export Permissions"
     var
         RoleID: Code[20];
 
+#pragma warning disable AL0432
     local procedure InsertPermissionSet(Permission: Record Permission)
+#pragma warning restore AL0432
     var
         MetadataPermissionSet: Record "Metadata Permission Set";
     begin
