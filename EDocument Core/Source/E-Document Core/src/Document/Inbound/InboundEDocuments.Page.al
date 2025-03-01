@@ -14,7 +14,7 @@ page 6105 "Inbound E-Documents"
     PageType = List;
     RefreshOnActivate = true;
     Editable = false;
-    DeleteAllowed = false;
+    DeleteAllowed = true;
     InsertAllowed = false;
     SourceTableView = sorting(SystemCreatedAt) order(descending) where(Direction = const("E-Document Direction"::Incoming));
 
