@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 5050 "Opp. Bar Chart DrillDown"
 {
     TableNo = "Bar Chart Buffer";

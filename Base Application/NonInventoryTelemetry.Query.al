@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 query 9153 "Non-Inventory Telemetry"
 {
     QueryType = Normal;
