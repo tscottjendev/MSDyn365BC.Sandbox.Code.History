@@ -962,6 +962,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         TheDimCodeBuf.Totaling := TheGLAcc.Totaling;
         TheDimCodeBuf.Indentation := TheGLAcc.Indentation;
         TheDimCodeBuf."Show in Bold" := TheGLAcc."Account Type" <> TheGLAcc."Account Type"::Posting;
+        OnAfterCopyGLAccToBuf(TheGLAcc, TheDimCodeBuf);
     end;
 
     local procedure CopyPeriodToBuf(var ThePeriod: Record Date; var TheDimCodeBuf: Record "Dimension Code Buffer")
@@ -999,6 +1000,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         TheDimCodeBuf.Indentation := TheDimVal.Indentation;
         TheDimCodeBuf."Show in Bold" :=
           TheDimVal."Dimension Value Type" <> TheDimVal."Dimension Value Type"::Standard;
+        OnAfterCopyDimValueToBuf(TheDimVal, TheDimCodeBuf);
     end;
 
     local procedure FindPeriod(SearchText: Code[10])
@@ -1589,6 +1591,16 @@ page 9233 "G/L Balance by Dim. Matrix"
 
     [IntegrationEvent(true, false)]
     local procedure OnCalcAmountOnAfterAssignAmount(var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var GLAccount: record "G/L Account"; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyDimValueToBuf(var DimVal: Record "Dimension Value"; var DimCodeBuf: Record "Dimension Code Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyGLAccToBuf(GLAcc: Record "G/L Account"; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
     end;
 
