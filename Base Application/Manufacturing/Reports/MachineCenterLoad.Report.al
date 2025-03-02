@@ -152,7 +152,8 @@ report 99000784 "Machine Center Load"
 
     requestpage
     {
-
+        AboutTitle = 'About Machine Center Load';
+        AboutText = 'Analyze the load on a machine center.';
         layout
         {
             area(content)
