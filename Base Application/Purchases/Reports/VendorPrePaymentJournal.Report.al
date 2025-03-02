@@ -754,6 +754,8 @@ report 317 "Vendor Pre-Payment Journal"
 
     requestpage
     {
+        AboutTitle = 'About Vendor Pre-Payment Journal';
+        AboutText = 'Check payments before you create payment files and post the journal.';
         SaveValues = true;
 
         layout

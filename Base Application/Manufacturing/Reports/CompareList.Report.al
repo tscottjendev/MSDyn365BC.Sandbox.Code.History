@@ -145,7 +145,8 @@ report 99000758 "Compare List"
 
     requestpage
     {
-
+        AboutTitle = 'About Item BOM Compare List';
+        AboutText = 'Compare the costs of similar final products.';
         layout
         {
             area(content)
