@@ -541,6 +541,8 @@ report 99001048 "Planning Availability"
 
     requestpage
     {
+        AboutTitle = 'About Planning Availability';
+        AboutText = 'Helps you manage inventory levels and ensure that items are available when you need them.';
 
         layout
         {

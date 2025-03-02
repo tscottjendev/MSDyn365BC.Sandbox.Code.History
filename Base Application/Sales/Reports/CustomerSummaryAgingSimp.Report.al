@@ -176,6 +176,8 @@ report 109 "Customer - Summary Aging Simp."
 
     requestpage
     {
+        AboutTitle = 'About Customer - Summary Aging Simp.';
+        AboutText = 'This is a legacy version of an accounts receivables aging report. We recommend you use the Aged Accounts Receivables Excel report instead.';
         SaveValues = true;
 
         layout

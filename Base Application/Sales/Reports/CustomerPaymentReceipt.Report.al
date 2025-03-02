@@ -345,6 +345,8 @@ report 211 "Customer - Payment Receipt"
 
     requestpage
     {
+        AboutTitle = 'About Customer - Payment Receipt';
+        AboutText = 'Send a report to customers who want documentation for receipt of payment.';
 
         layout
         {
