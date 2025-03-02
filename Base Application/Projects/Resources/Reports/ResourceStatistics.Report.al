@@ -68,6 +68,8 @@ report 1105 "Resource Statistics"
 
     requestpage
     {
+        AboutTitle = 'About Resource Statistics';
+        AboutText = 'View detailed, historical information for the resource.';
 
         layout
         {
