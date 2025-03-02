@@ -197,7 +197,8 @@ report 99000789 "Subcontractor - Dispatch List"
 
     requestpage
     {
-
+        AboutTitle = 'About Subcontractor - Dispatch List';
+        AboutText = 'Helps you manage and track subcontracting activities efficiently.';
         layout
         {
         }
