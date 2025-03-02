@@ -123,7 +123,8 @@ report 99000767 "Prod. Order - Calculation"
 
     requestpage
     {
-
+        AboutTitle = 'About Prod. Order - Calculation';
+        AboutText = 'Get a list of your production orders and their costs.';
         layout
         {
         }

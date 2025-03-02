@@ -71,7 +71,8 @@ report 1101 "Resource - List"
 
     requestpage
     {
-
+        AboutTitle = 'About Resource - List';
+        AboutText = 'Get an overview of basic information for your resources.';
         layout
         {
         }
