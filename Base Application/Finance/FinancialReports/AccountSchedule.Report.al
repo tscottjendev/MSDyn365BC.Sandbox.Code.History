@@ -328,7 +328,7 @@ report 25 "Account Schedule"
 
     requestpage
     {
-        AboutTitle = 'Run Financial Report';
+        AboutTitle = 'About Run Financial Report';
         AboutText = 'Specify the Financial Report you want to run (to get a pdf or to print) and the date range for the data to be included. You can also Specifies additional display options and filters for dimensions and budgets (choose "Show more" in the Options pane to see all options).';
         SaveValues = true;
 

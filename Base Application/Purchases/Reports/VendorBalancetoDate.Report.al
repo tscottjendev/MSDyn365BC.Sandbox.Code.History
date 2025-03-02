@@ -308,6 +308,8 @@ report 321 "Vendor - Balance to Date"
 
     requestpage
     {
+        AboutTitle = 'About Vendor - Balance to Date';
+        AboutText = 'Track your outstanding payables and manage your vendor relationships';
         SaveValues = true;
 
         layout
