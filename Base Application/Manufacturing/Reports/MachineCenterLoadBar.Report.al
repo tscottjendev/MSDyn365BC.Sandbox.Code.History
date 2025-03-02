@@ -186,7 +186,8 @@ report 99000786 "Machine Center Load/Bar"
 
     requestpage
     {
-
+        AboutTitle = 'About Machine Center Load/Bar';
+        AboutText = 'Get a list of machine centers that are overloaded according to the plan.';
         layout
         {
             area(content)
