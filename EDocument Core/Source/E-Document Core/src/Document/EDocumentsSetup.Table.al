@@ -51,7 +51,7 @@ table 6107 "E-Documents Setup"
             exit(true);
         if not EnvironmentInformation.IsSandbox() then
             exit(false);
-        //exit(EnvironmentInformation.GetEnvironmentSetting('NewEDocumentExperience') <> '');
+        exit(EnvironmentInformation.GetEnvironmentSetting('EnableNewEDocumentExperience') <> '');
     end;
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"E-Documents Setup", 'I')]
