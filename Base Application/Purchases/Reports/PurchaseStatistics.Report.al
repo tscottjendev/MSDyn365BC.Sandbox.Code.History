@@ -244,6 +244,8 @@ report 312 "Purchase Statistics"
 
     requestpage
     {
+        AboutTitle = 'About Purchase Statistics';
+        AboutText = 'Track vendor performance and ensure that your company gets the best value for money.';
         SaveValues = true;
 
         layout
