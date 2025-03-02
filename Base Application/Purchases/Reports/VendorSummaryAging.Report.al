@@ -293,6 +293,8 @@ report 305 "Vendor - Summary Aging"
 
     requestpage
     {
+        AboutTitle = 'About Vendor - Summary Aging';
+        AboutText = 'This is a legacy report for aged accounts payable. See report documentation for alternatives.';
         SaveValues = true;
 
         layout

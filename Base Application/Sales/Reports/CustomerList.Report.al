@@ -148,6 +148,8 @@ report 101 "Customer - List"
 
     requestpage
     {
+        AboutTitle = 'About Customer List';
+        AboutText = 'Get an overview of basic information for your customers.';
         SaveValues = true;
 
         layout

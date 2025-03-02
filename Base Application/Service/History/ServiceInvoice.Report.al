@@ -797,6 +797,8 @@ report 5911 "Service - Invoice"
 
     requestpage
     {
+        AboutTitle = 'About Service - Invoice';
+        AboutText = 'Generate a service invoice that you can send to your customer.';
         SaveValues = true;
 
         layout
