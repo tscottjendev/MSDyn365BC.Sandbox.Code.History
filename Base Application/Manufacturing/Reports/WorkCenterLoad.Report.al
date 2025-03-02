@@ -166,7 +166,8 @@ report 99000783 "Work Center Load"
 
     requestpage
     {
-
+        AboutTitle = 'About Work Center Load';
+        AboutText = 'Analyze the load on a work center.';
         layout
         {
             area(content)

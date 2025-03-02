@@ -173,6 +173,8 @@ report 320 "Vendor Item Catalog"
 
     requestpage
     {
+        AboutTitle = 'About Vendor Item Catalog';
+        AboutText = 'Get a list of vendors by item or items per vendor.';
 
         layout
         {
