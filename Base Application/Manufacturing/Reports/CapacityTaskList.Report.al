@@ -104,6 +104,8 @@ report 99000780 "Capacity Task List"
 
     requestpage
     {
+        AboutTitle = 'About apacity Task List';
+        AboutText = 'Analyze the capacity of work centers or machine centers.';
 
         layout
         {

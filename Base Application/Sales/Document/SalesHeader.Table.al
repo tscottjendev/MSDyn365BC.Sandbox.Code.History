@@ -93,6 +93,7 @@ table 36 "Sales Header"
         field(2; "Sell-to Customer No."; Code[20])
         {
             Caption = 'Sell-to Customer No.';
+            ToolTip = 'Specifies the number of the customer that you''re selling to. By default, the same customer is suggested as the ship-to customer. If needed, you can specify a different ship-to customer on the document.';
             TableRelation = Customer;
 
             trigger OnValidate()
@@ -229,6 +230,7 @@ table 36 "Sales Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies a unique number that identifies the sales document. The number can be generated automatically from a number series, or you can number each of them manually.';
             OptimizeForTextSearch = true;
 
             trigger OnValidate()
@@ -245,6 +247,7 @@ table 36 "Sales Header"
         field(4; "Bill-to Customer No."; Code[20])
         {
             Caption = 'Bill-to Customer No.';
+            ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
             NotBlank = true;
             TableRelation = Customer;
 
@@ -326,6 +329,7 @@ table 36 "Sales Header"
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
+            ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
             OptimizeForTextSearch = true;
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
@@ -418,6 +422,7 @@ table 36 "Sales Header"
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
+            ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
             OptimizeForTextSearch = true;
 
             trigger OnLookup()
@@ -439,11 +444,13 @@ table 36 "Sales Header"
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+            ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
             OptimizeForTextSearch = true;
         }
         field(12; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
+            ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
             TableRelation = "Ship-to Address".Code where("Customer No." = field("Sell-to Customer No."));
 
             trigger OnValidate()
@@ -513,6 +520,7 @@ table 36 "Sales Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
+            ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
             OptimizeForTextSearch = true;
         }
         field(14; "Ship-to Name 2"; Text[50])
@@ -562,6 +570,7 @@ table 36 "Sales Header"
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
+            ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
             OptimizeForTextSearch = true;
         }
         field(19; "Order Date"; Date)
@@ -580,6 +589,7 @@ table 36 "Sales Header"
         field(20; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ToolTip = 'Specifies the date when the posting of the sales document will be recorded.';
 
             trigger OnValidate()
             var
@@ -631,6 +641,7 @@ table 36 "Sales Header"
         field(21; "Shipment Date"; Date)
         {
             Caption = 'Shipment Date';
+            ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
 
             trigger OnValidate()
             var
@@ -645,11 +656,13 @@ table 36 "Sales Header"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
+            ToolTip = 'Specifies additional posting information for the document. After you post the document, the description can add detail to vendor and customer ledger entries.';
             OptimizeForTextSearch = true;
         }
         field(23; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
+            ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
             TableRelation = "Payment Terms";
 
             trigger OnValidate()
@@ -709,10 +722,12 @@ table 36 "Sales Header"
         field(24; "Due Date"; Date)
         {
             Caption = 'Due Date';
+            ToolTip = 'Specifies when the sales invoice must be paid.';
         }
         field(25; "Payment Discount %"; Decimal)
         {
             Caption = 'Payment Discount %';
+            ToolTip = 'Specifies the payment discount percentage that is granted if the customer pays on or before the date entered in the Pmt. Discount Date field. The discount percentage is specified in the Payment Terms Code field.';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
@@ -743,6 +758,7 @@ table 36 "Sales Header"
         field(27; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
+            ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
             TableRelation = "Shipment Method";
 
             trigger OnValidate()
@@ -760,6 +776,7 @@ table 36 "Sales Header"
         field(28; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
@@ -787,6 +804,7 @@ table 36 "Sales Header"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -799,6 +817,7 @@ table 36 "Sales Header"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -820,6 +839,7 @@ table 36 "Sales Header"
         field(32; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the currency of amounts on the sales document.';
             TableRelation = Currency;
 
             trigger OnValidate()
@@ -1006,6 +1026,7 @@ table 36 "Sales Header"
         field(43; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
+            ToolTip = 'Specifies the name of the salesperson who is assigned to the customer.';
             TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
@@ -1168,6 +1189,7 @@ table 36 "Sales Header"
             CalcFormula = sum("Sales Line".Amount where("Document Type" = field("Document Type"),
                                                          "Document No." = field("No.")));
             Caption = 'Amount';
+            ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1178,6 +1200,7 @@ table 36 "Sales Header"
             CalcFormula = sum("Sales Line"."Amount Including VAT" where("Document Type" = field("Document Type"),
                                                                          "Document No." = field("No.")));
             Caption = 'Amount Including VAT';
+            ToolTip = 'Specifies the sum of amounts, including VAT, on all the lines in the document. This will include invoice discounts.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1358,6 +1381,7 @@ table 36 "Sales Header"
         field(79; "Sell-to Customer Name"; Text[100])
         {
             Caption = 'Sell-to Customer Name';
+            ToolTip = 'Specifies the name of the customer that you''re selling to. By default, the same customer is suggested as the ship-to customer. If needed, you can specify a different ship-to customer on the document.';
             OptimizeForTextSearch = true;
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
@@ -1466,6 +1490,7 @@ table 36 "Sales Header"
         field(84; "Sell-to Contact"; Text[100])
         {
             Caption = 'Sell-to Contact';
+            ToolTip = 'Specifies the name of the contact person at the customer''s main address.';
             OptimizeForTextSearch = true;
 
             trigger OnLookup()
@@ -1499,6 +1524,7 @@ table 36 "Sales Header"
         field(85; "Bill-to Post Code"; Code[20])
         {
             Caption = 'Bill-to Post Code';
+            ToolTip = 'Specifies the postal code of the customer''s billing address.';
             TableRelation = "Post Code";
             ValidateTableRelation = false;
 
@@ -1537,6 +1563,7 @@ table 36 "Sales Header"
         field(87; "Bill-to Country/Region Code"; Code[10])
         {
             Caption = 'Bill-to Country/Region Code';
+            ToolTip = 'Specifies the country/region code of the customer''s billing address.';
             TableRelation = "Country/Region";
 
             trigger OnValidate()
@@ -1551,6 +1578,7 @@ table 36 "Sales Header"
         field(88; "Sell-to Post Code"; Code[20])
         {
             Caption = 'Sell-to Post Code';
+            ToolTip = 'Specifies the postal code of the customer''s main address.';
             TableRelation = if ("Sell-to Country/Region Code" = const('')) "Post Code"
             else
             if ("Sell-to Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Sell-to Country/Region Code"));
@@ -1597,6 +1625,7 @@ table 36 "Sales Header"
         field(90; "Sell-to Country/Region Code"; Code[10])
         {
             Caption = 'Sell-to Country/Region Code';
+            ToolTip = 'Specifies the country/region code of the customer''s main address.';
             TableRelation = "Country/Region";
 
             trigger OnValidate()
@@ -1613,6 +1642,7 @@ table 36 "Sales Header"
         field(91; "Ship-to Post Code"; Code[20])
         {
             Caption = 'Ship-to Post Code';
+            ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
             TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code"
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Ship-to Country/Region Code"));
@@ -1647,6 +1677,7 @@ table 36 "Sales Header"
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
             Caption = 'Ship-to Country/Region Code';
+            ToolTip = 'Specifies the country/region code of the address that the items are shipped to.';
             TableRelation = "Country/Region";
 
             trigger OnValidate()
@@ -1675,6 +1706,7 @@ table 36 "Sales Header"
         field(99; "Document Date"; Date)
         {
             Caption = 'Document Date';
+            ToolTip = 'Specifies the date when the related document was created.';
 
             trigger OnValidate()
             var
@@ -1701,6 +1733,7 @@ table 36 "Sales Header"
         field(100; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
             OptimizeForTextSearch = true;
 
             trigger OnValidate()
@@ -1774,6 +1807,7 @@ table 36 "Sales Header"
         {
             AccessByPermission = TableData "Shipping Agent Services" = R;
             Caption = 'Shipping Agent Code';
+            ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
             TableRelation = "Shipping Agent";
 
             trigger OnValidate()
@@ -1800,6 +1834,7 @@ table 36 "Sales Header"
         field(106; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
+            ToolTip = 'Specifies the shipping agent''s package number.';
             OptimizeForTextSearch = true;
             ObsoleteReason = 'Field length will be increased to 50.';
             ObsoleteState = Pending;
@@ -1994,6 +2029,7 @@ table 36 "Sales Header"
         field(120; Status; Enum "Sales Document Status")
         {
             Caption = 'Status';
+            ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
             Editable = false;
         }
         field(121; "Invoice Discount Calculation"; Option)
@@ -2232,6 +2268,7 @@ table 36 "Sales Header"
         field(151; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
+            ToolTip = 'Specifies the number of the sales quote that the sales order was created from. You can track the number to sales quote documents that you have printed, saved, or emailed.';
             Editable = false;
         }
         field(152; "Quote Valid Until Date"; Date)
@@ -2264,6 +2301,7 @@ table 36 "Sales Header"
         field(160; "Job Queue Status"; Enum "Document Job Queue Status")
         {
             Caption = 'Job Queue Status';
+            ToolTip = 'Specifies the status of a job queue entry or task that handles the posting of sales orders.';
             Editable = false;
 
             trigger OnLookup()
@@ -2423,6 +2461,7 @@ table 36 "Sales Header"
             CalcFormula = sum("Sales Line"."Shipped Not Invoiced (LCY)" where("Document Type" = field("Document Type"),
                                                                                "Document No." = field("No.")));
             Caption = 'Amount Shipped Not Invoiced (LCY) Incl. VAT';
+            ToolTip = 'Specifies the sum, in LCY, for items that have been shipped but not yet been invoiced. The amount is calculated as Amount Including VAT x Qty. Shipped Not Invoiced / Quantity.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -2431,6 +2470,7 @@ table 36 "Sales Header"
             CalcFormula = sum("Sales Line"."Shipped Not Inv. (LCY) No VAT" where("Document Type" = field("Document Type"),
                                                                                   "Document No." = field("No.")));
             Caption = 'Amount Shipped Not Invoiced (LCY)';
+            ToolTip = 'Specifies the sum, in LCY, for items that have been shipped but not yet been invoiced. The amount is calculated as Amount Including VAT x Qty. Shipped Not Invoiced / Quantity.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -2468,6 +2508,7 @@ table 36 "Sales Header"
         {
             FieldClass = FlowField;
             Caption = 'Coupled to Dynamics 365 Sales';
+            ToolTip = 'Specifies that the sales order is coupled to an order in Dynamics 365 Sales.';
             Editable = false;
             CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::"Sales Header")));
         }
@@ -2503,6 +2544,7 @@ table 36 "Sales Header"
         field(5050; "Campaign No."; Code[20])
         {
             Caption = 'Campaign No.';
+            ToolTip = 'Specifies the campaign number the document is linked to.';
             TableRelation = Campaign;
 
             trigger OnValidate()
@@ -2784,6 +2826,7 @@ table 36 "Sales Header"
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Shipping Advice';
+            ToolTip = 'Specifies if the customer accepts partial shipment of orders.';
 
             trigger OnValidate()
             var
@@ -2814,6 +2857,7 @@ table 36 "Sales Header"
                                                                        Type = filter(<> " "),
                                                                        "Location Code" = field("Location Filter")));
             Caption = 'Completely Shipped';
+            ToolTip = 'Specifies whether all the items on the order have been shipped or, in the case of inbound items, completely received.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -2847,6 +2891,7 @@ table 36 "Sales Header"
         field(5790; "Requested Delivery Date"; Date)
         {
             Caption = 'Requested Delivery Date';
+            ToolTip = 'Specifies the date that the customer has asked for the order to be delivered.';
 
             trigger OnValidate()
             var
@@ -2912,6 +2957,7 @@ table 36 "Sales Header"
         field(5794; "Shipping Agent Service Code"; Code[10])
         {
             Caption = 'Shipping Agent Service Code';
+            ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
             TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
 
             trigger OnValidate()
@@ -3025,6 +3071,7 @@ table 36 "Sales Header"
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';
+            ToolTip = 'Specifies the ID of the user who is responsible for the document.';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
 
