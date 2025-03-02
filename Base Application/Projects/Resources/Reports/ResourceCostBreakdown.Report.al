@@ -117,7 +117,8 @@ report 1107 "Resource - Cost Breakdown"
 
     requestpage
     {
-
+        AboutTitle = 'About Resource - Cost Breakdown';
+        AboutText = 'View the direct unit costs and the total direct costs for each resource. Only usage postings are considered in this report. Resource usage can be posted in the resource journal or the project journal.';
         layout
         {
         }
