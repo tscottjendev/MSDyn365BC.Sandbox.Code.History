@@ -251,6 +251,8 @@ report 409 "Purchase Reservation Avail."
 
     requestpage
     {
+        AboutTitle = 'About Purchase Reservation Avail.';
+        AboutText = 'Explore the availability of items for shipment on purchase documents, such as return orders.';
         SaveValues = true;
 
         layout
