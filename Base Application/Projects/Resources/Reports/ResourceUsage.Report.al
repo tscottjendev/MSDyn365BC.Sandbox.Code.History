@@ -68,7 +68,8 @@ report 1106 "Resource Usage"
 
     requestpage
     {
-
+        AboutTitle = 'About Resource Utilization';
+        AboutText = 'View the resource utilization that has taken place. The report includes the resource capacity, quantity of usage, and the remaining balance.';
         layout
         {
         }
