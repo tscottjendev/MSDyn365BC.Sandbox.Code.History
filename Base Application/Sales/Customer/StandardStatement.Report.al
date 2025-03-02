@@ -774,6 +774,8 @@ report 1316 "Standard Statement"
 
     requestpage
     {
+        AboutTitle = 'About Customer Statement';
+        AboutText = 'Send customers an overview of outstanding amounts, and also use as a payment reminder about overdue amounts.';
         SaveValues = true;
 
         layout

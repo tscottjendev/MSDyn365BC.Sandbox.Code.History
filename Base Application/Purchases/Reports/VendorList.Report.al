@@ -132,6 +132,8 @@ report 301 "Vendor - List"
 
     requestpage
     {
+        AboutTitle = 'About Vendor List';
+        AboutText = 'This is a legacy report for vendor analysis. See report documentation for alternatives.';
         SaveValues = true;
 
         layout

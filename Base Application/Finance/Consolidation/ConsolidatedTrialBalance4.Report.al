@@ -288,6 +288,8 @@ report 10008 "Consolidated Trial Balance (4)"
 
     requestpage
     {
+        AboutTitle = 'About Consolidated Trial Balance (4)';
+        AboutText = 'Get a combined overview of general ledger entries for two or more companies in one consolidated company. This version of the report lets you display up to four business units as columns. Learn more at Set Up Company Consolidation. Use this report to analyze consolidated financial data from multiple companies.';
         SaveValues = true;
 
         layout
