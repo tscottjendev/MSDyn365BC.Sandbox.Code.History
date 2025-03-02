@@ -196,7 +196,8 @@ report 99000785 "Work Center Load/Bar"
 
     requestpage
     {
-
+        AboutTitle = 'About Work Center Load/Bar';
+        AboutText = 'Get a list of work centers that are overloaded according to the plan.';
         layout
         {
             area(content)
