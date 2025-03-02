@@ -175,6 +175,8 @@ report 1103 "Resource Register"
 
     requestpage
     {
+        AboutTitle = 'About Resource Register';
+        AboutText = 'Document a resource register''s contents for internal or external audits.';
 
         layout
         {

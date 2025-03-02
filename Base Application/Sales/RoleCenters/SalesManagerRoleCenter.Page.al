@@ -212,6 +212,14 @@ page 9005 "Sales Manager Role Center"
                 RunObject = Page "Analysis View List Sales";
                 ToolTip = 'View sales amounts in G/L accounts by their dimension values and other filters that you define in an analysis view and then show in a matrix window.';
             }
+            action("Sales Order Analysis")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Analyze Sales Orders';
+                Image = Sales;
+                RunObject = Query "Sales Order Analysis";
+                ToolTip = 'Analyze (group, summarize, pivot) your Sales Order performance against customers and goods/services sold, including outstanding vs. posted quantities and amounts.';
+            }
             action("Sales Budgets")
             {
                 ApplicationArea = SalesBudget;

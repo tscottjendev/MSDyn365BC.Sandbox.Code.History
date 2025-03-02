@@ -76,25 +76,30 @@ table 37 "Sales Line"
         field(1; "Document Type"; Enum "Sales Document Type")
         {
             Caption = 'Document Type';
+            ToolTip = 'Specifies the type of document that you are about to create.';
         }
         field(2; "Sell-to Customer No."; Code[20])
         {
             Caption = 'Sell-to Customer No.';
+            ToolTip = 'Specifies the number of the customer.';
             Editable = false;
             TableRelation = Customer;
         }
         field(3; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies the document number.';
             TableRelation = "Sales Header"."No." where("Document Type" = field("Document Type"));
         }
         field(4; "Line No."; Integer)
         {
             Caption = 'Line No.';
+            ToolTip = 'Specifies the line number.';
         }
         field(5; Type; Enum "Sales Line Type")
         {
             Caption = 'Type';
+            ToolTip = 'Specifies the type of entity that will be posted for this sales line, such as Item, Resource, or G/L Account. The type that you enter in this field determines what you can select in the No. field.';
 
             trigger OnValidate()
             var
@@ -178,6 +183,7 @@ table 37 "Sales Line"
         {
             CaptionClass = GetCaptionClass(FieldNo("No."));
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             TableRelation = if (Type = const(" ")) "Standard Text"
             else
             if (Type = const("G/L Account"), "System-Created Entry" = const(false)) "G/L Account" where("Direct Posting" = const(true), "Account Type" = const(Posting), Blocked = const(false))
@@ -364,6 +370,7 @@ table 37 "Sales Line"
         field(7; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies the inventory location from which the items sold should be picked and where the inventory decrease is registered.';
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
@@ -450,6 +457,7 @@ table 37 "Sales Line"
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Shipment Date';
+            ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
 
             trigger OnValidate()
             var
@@ -499,6 +507,7 @@ table 37 "Sales Line"
         field(11; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the entry of the product to be sold. To add a non-transactional text line, fill in the Description field only.';
             TableRelation = if (Type = const("G/L Account"),
                                 "System-Created Entry" = const(false)) "G/L Account".Name where("Direct Posting" = const(true),
                                 "Account Type" = const(Posting),
@@ -613,6 +622,7 @@ table 37 "Sales Line"
         field(12; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            ToolTip = 'Specifies information in addition to the description.';
         }
         field(13; "Unit of Measure"; Text[50])
         {
@@ -629,6 +639,7 @@ table 37 "Sales Line"
         field(15; Quantity; Decimal)
         {
             Caption = 'Quantity';
+            ToolTip = 'Specifies how many units are being sold.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -773,6 +784,7 @@ table 37 "Sales Line"
         field(16; "Outstanding Quantity"; Decimal)
         {
             Caption = 'Outstanding Quantity';
+            ToolTip = 'Specifies how many units on the order line have not yet been shipped.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
@@ -813,6 +825,7 @@ table 37 "Sales Line"
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Qty. to Ship';
+            ToolTip = 'Specifies the quantity of items that remain to be shipped.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -1142,6 +1155,7 @@ table 37 "Sales Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -1155,6 +1169,7 @@ table 37 "Sales Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -1182,12 +1197,14 @@ table 37 "Sales Line"
         field(45; "Job No."; Code[20])
         {
             Caption = 'Project No.';
+            ToolTip = 'Specifies the number of the related project. If you fill in this field and the Project Task No. field, then a project ledger entry will be posted together with the sales line.';
             Editable = false;
             TableRelation = Job;
         }
         field(52; "Work Type Code"; Code[10])
         {
             Caption = 'Work Type Code';
+            ToolTip = 'Specifies which work type the resource applies to when the sale is related to a project.';
             TableRelation = "Work Type";
 
             trigger OnValidate()
@@ -1627,6 +1644,7 @@ table 37 "Sales Line"
         {
             AccessByPermission = TableData Item = R;
             Caption = 'Reserve';
+            ToolTip = 'Specifies whether a reservation can be made for items on this line.';
 
             trigger OnValidate()
             var
@@ -1749,6 +1767,7 @@ table 37 "Sales Line"
             AutoFormatType = 1;
             CaptionClass = GetCaptionClass(FieldNo("Line Amount"));
             Caption = 'Line Amount';
+            ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
 
             trigger OnValidate()
             var
@@ -2333,6 +2352,7 @@ table 37 "Sales Line"
         field(2675; "Selected Alloc. Account No."; Code[20])
         {
             Caption = 'Allocation Account No.';
+            ToolTip = 'Specifies the allocation account number that will be used to distribute the amounts during the posting process.';
             DataClassification = CustomerContent;
             TableRelation = "Allocation Account";
         }
@@ -2351,6 +2371,7 @@ table 37 "Sales Line"
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = if (Type = const(Item), "Document Type" = filter(<> "Credit Memo" & <> "Return Order")) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false), "Sales Blocked" = const(false))
             else
             if (Type = const(Item), "Document Type" = filter("Credit Memo" | "Return Order")) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false));
@@ -2507,6 +2528,7 @@ table 37 "Sales Line"
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             TableRelation = if (Type = const(Item),
                                 "No." = filter(<> '')) "Item Unit of Measure".Code where("Item No." = field("No."))
             else
@@ -2688,6 +2710,7 @@ table 37 "Sales Line"
 #pragma warning restore
                                                                             "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Qty. (Base)';
+            ToolTip = 'Specifies the value in the Reserved Quantity field, expressed in the base unit of measure.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
