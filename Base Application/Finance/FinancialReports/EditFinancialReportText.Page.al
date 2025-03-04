@@ -2,7 +2,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-#pragma warning disable AA0247
+namespace Microsoft.Finance.FinancialReports;
+
 page 5787 "Edit Financial Report Text"
 {
     Caption = 'Edit Financial Report Introductory/Closing Paragraph';
