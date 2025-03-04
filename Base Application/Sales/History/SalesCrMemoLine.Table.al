@@ -681,6 +681,12 @@ table 115 "Sales Cr.Memo Line"
         exit(Round("Line Amount" * (1 + "VAT %" / 100), Currency."Amount Rounding Precision"));
     end;
 
+    procedure GetCreditMemoHeader(): Record "Sales Cr.Memo Header"
+    begin
+        GetHeader();
+        exit(SalesCrMemoHeader);
+    end;
+
     local procedure GetHeader()
     begin
         if SalesCrMemoHeader."No." = "Document No." then
