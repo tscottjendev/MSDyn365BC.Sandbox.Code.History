@@ -655,12 +655,12 @@ page 5801 "Cost Adjustment Overview"
 
     local procedure UpdateSummary()
     var
-        NonAdjustedItem: Record Item;
+        Item: Record Item;
         CostAdjustmentLog: Record "Cost Adjustment Log";
         CostAdjItemBucket: Record "Cost Adj. Item Bucket";
     begin
-        NonAdjustedItem.SetRange("Cost is Adjusted", false);
-        NonAdjustedItems := NonAdjustedItem.Count();
+        Item.SetRange("Cost is Adjusted", false);
+        NonAdjustedItems := Item.Count();
 
         LastCostAdjustmentRunStatus := LastCostAdjustmentRunStatus::"Not started";
         LastSuccessfulRunDateTime := 0DT;
@@ -725,10 +725,10 @@ page 5801 "Cost Adjustment Overview"
 
     local procedure SetExcludedFromCostAdjustment(Excluded: Boolean)
     var
-        ItemToModify: Record Item;
+        Item: Record Item;
     begin
-        CurrPage.SetSelectionFilter(ItemToModify);
-        ItemToModify.ModifyAll("Excluded from Cost Adjustment", Excluded);
+        CurrPage.SetSelectionFilter(Item);
+        Item.ModifyAll("Excluded from Cost Adjustment", Excluded, true);
         CurrPage.Update(false);
     end;
 
