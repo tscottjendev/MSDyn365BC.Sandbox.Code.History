@@ -1,8 +1,14 @@
-#pragma warning disable AA0247
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.VAT;
+
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Manufacturing.MachineCenter;
+
 codeunit 99000775 "Mfg. VAT Rate Change Mgt."
 {
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"VAT Rate Change Conversion", 'OnAfterUpdateTables', '', false, false)]
