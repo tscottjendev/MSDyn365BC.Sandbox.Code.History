@@ -1,7 +1,5 @@
 ﻿namespace System.Email;
 
-using Microsoft.CRM.Outlook;
-using Microsoft.Foundation.Reporting;
 using System;
 using System.Environment;
 using System.IO;
@@ -303,7 +301,6 @@ codeunit 9520 "Mail Management"
     procedure SendMailOrDownload(var TempEmailItem: Record "Email Item" temporary; HideMailDialog: Boolean; EmailScenario: Enum "Email Scenario"; Enqueue: Boolean)
     var
         MailManagement: Codeunit "Mail Management";
-        OfficeMgt: Codeunit "Office Management";
     begin
         MailManagement.InitializeFrom(HideMailDialog, not IsBackground());
         if MailManagement.IsEnabled() then
@@ -315,9 +312,6 @@ codeunit 9520 "Mail Management"
 
         if IsBackground() then
             exit;
-
-        if not TempEmailItem.HasAttachments() or not GuiAllowed or (OfficeMgt.IsAvailable() and not OfficeMgt.IsPopOut()) then
-            Error(CannotSendMailThenDownloadErr);
 
         if not Confirm(StrSubstNo('%1\\%2', CannotSendMailThenDownloadErr, CannotSendMailThenDownloadQst)) then
             exit;
@@ -454,16 +448,6 @@ codeunit 9520 "Mail Management"
     begin
         OnSetIsHandlingGetEmailBodyVendor(Result);
         exit(Result);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnAfterGetEmailBodyCustomer', '', false, false)]
-    local procedure HandleOnAfterGetEmailBodyCustomer(CustomerEmailAddress: Text[250]; ServerEmailBodyFilePath: Text[250])
-    begin
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnAfterGetEmailBodyVendor', '', false, false)]
-    local procedure HandleOnAfterGetEmailBodyVendor(VendorEmailAddress: Text[250]; ServerEmailBodyFilePath: Text[250])
-    begin
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnSetIsHandlingGetEmailBodyCustomer', '', false, false)]
