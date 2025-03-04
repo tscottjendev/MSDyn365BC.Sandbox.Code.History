@@ -13,6 +13,7 @@ using Microsoft.Service.Maintenance;
 using Microsoft.Service.Setup;
 using System.Automation;
 using System.Utilities;
+using Microsoft.Inventory.Availability;
 
 codeunit 5923 "Service-Quote to Order"
 {
