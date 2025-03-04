@@ -53,6 +53,10 @@ table 1833 "Consolidation Setup"
         }
 
     }
+
+    var
+        TelemetryCategoryTok: Label 'financial-consolidations', Locked = true;
+
     internal procedure GetOrCreateWithDefaults()
     begin
         Rec.Reset();
@@ -62,5 +66,10 @@ table 1833 "Consolidation Setup"
         Rec.WaitMsRetries := 1000;
         Rec.PageSize := 500;
         Rec.Insert();
+    end;
+
+    internal procedure GetTelemetryCategory(): Text
+    begin
+        exit(TelemetryCategoryTok);
     end;
 }
