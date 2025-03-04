@@ -29,7 +29,7 @@
         PeppolFormatNameTxt: Label 'PEPPOL', Locked = true;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestEmailFileFromStream()
@@ -76,7 +76,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestEmailFileWithBodyStreamAndPostedDocNo()
@@ -133,7 +133,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestEmailFileWithBodyStream()
@@ -192,6 +192,7 @@
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
+    [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure TestEmailHtmlFromStream()
     var
@@ -376,7 +377,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('SelectSendingOptionsOKModalPageHandler,EmailEditorCheckAndDiscardModalPageHandler,ConfirmHandlerTrue,KeepDraftOrDiscardStrMenuHandler')]
+    [HandlerFunctions('SelectSendingOptionsOKModalPageHandler,EmailEditorCheckAndDiscardModalPageHandler,ConfirmHandlerFalse,KeepDraftOrDiscardStrMenuHandler')]
     procedure SendPostedSalesInvoiceWhenBlankEmailInDocumentLayoutAndEmailUseDefaultSettings()
     var
         Customer: Record Customer;
@@ -464,7 +465,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('SelectSendingOptionsOKModalPageHandler,EmailEditorCheckAndDiscardModalPageHandler,ConfirmHandlerTrue,KeepDraftOrDiscardStrMenuHandler')]
+    [HandlerFunctions('SelectSendingOptionsOKModalPageHandler,EmailEditorCheckAndDiscardModalPageHandler,ConfirmHandlerFalse,KeepDraftOrDiscardStrMenuHandler')]
     procedure SendPurchaseOrderWhenBlankEmailInDocumentLayoutAndEmailUseDefaultSettings()
     var
         Vendor: Record Vendor;
@@ -508,7 +509,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('SelectSendingOptionsOKModalPageHandler,EmailEditorCheckAttachmentNameModalPageHandler,ConfirmHandlerTrue,KeepDraftOrDiscardStrMenuHandler')]
+    [HandlerFunctions('SelectSendingOptionsOKModalPageHandler,EmailEditorCheckAttachmentNameModalPageHandler,ConfirmHandlerFalse,KeepDraftOrDiscardStrMenuHandler')]
     procedure SendPostedSalesInvoiceWhenPdfAndElectronicDocAndCombineEmailsYes()
     var
         Customer: Record Customer;
@@ -557,7 +558,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('SelectSendingOptionsOKModalPageHandler,EmailEditorCheckAttachmentNameModalPageHandler,ConfirmHandlerTrue,KeepDraftOrDiscardStrMenuHandler')]
+    [HandlerFunctions('SelectSendingOptionsOKModalPageHandler,EmailEditorCheckAttachmentNameModalPageHandler,ConfirmHandlerFalse,KeepDraftOrDiscardStrMenuHandler')]
     procedure SendPostedSalesInvoiceWhenPdfAndElectronicDocAndCombineEmailsNo()
     var
         Customer: Record Customer;
@@ -821,9 +822,16 @@
 
     [ConfirmHandler]
     [Scope('OnPrem')]
-    procedure ConfirmHandlerTrue(Question: Text; var Reply: Boolean)
+    procedure ConfirmHandlerFalse(Question: Text; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [StrMenuHandler]
