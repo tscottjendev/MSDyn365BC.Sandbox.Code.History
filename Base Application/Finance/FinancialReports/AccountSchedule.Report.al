@@ -13,6 +13,7 @@ using Microsoft.Foundation.Period;
 using System.Telemetry;
 using System.Text;
 using System.Utilities;
+using Microsoft.Foundation.Enums;
 
 report 25 "Account Schedule"
 {
