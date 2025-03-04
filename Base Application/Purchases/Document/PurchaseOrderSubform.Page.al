@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.Finance.AllocationAccount;
 using Microsoft.Finance.AllocationAccount.Purchase;
@@ -437,7 +441,6 @@ page 54 "Purchase Order Subform"
                 field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -489,7 +492,6 @@ page 54 "Purchase Order Subform"
                 field("Inv. Discount Amount"; Rec."Inv. Discount Amount")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the total calculated invoice discount amount for the line.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -518,7 +520,6 @@ page 54 "Purchase Order Subform"
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
-                    ToolTip = 'Specifies how many units of the item on the line have been posted as received.';
 
                     trigger OnDrillDown()
                     var
@@ -535,7 +536,6 @@ page 54 "Purchase Order Subform"
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
-                    ToolTip = 'Specifies the quantity that remains to be invoiced. It is calculated as Quantity - Qty. Invoiced.';
 
                     trigger OnValidate()
                     begin
@@ -721,13 +721,11 @@ page 54 "Purchase Order Subform"
                 field("Requested Receipt Date"; Rec."Requested Receipt Date")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the date that you want the vendor to deliver to the ship-to address. The value in the field is used to calculate the latest date you can order the items to have them delivered on the requested receipt date. If you do not need delivery on a specific date, you can leave the field blank.';
                     Visible = false;
                 }
                 field("Promised Receipt Date"; Rec."Promised Receipt Date")
                 {
                     ApplicationArea = OrderPromising;
-                    ToolTip = 'Specifies the date that the vendor has promised to deliver the order.';
                     Visible = true;
                 }
                 field("Planned Receipt Date"; Rec."Planned Receipt Date")

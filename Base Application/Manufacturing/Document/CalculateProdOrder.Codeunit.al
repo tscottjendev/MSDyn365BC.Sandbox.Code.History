@@ -43,6 +43,7 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderComp: Record "Prod. Order Component";
         ProdOrderRoutingLine2: Record "Prod. Order Routing Line";
         ProdBOMLine: array[99] of Record "Production BOM Line";
+        ProdLineItem: Record Item;
         UOMMgt: Codeunit "Unit of Measure Management";
         MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         VersionMgt: Codeunit VersionManagement;
@@ -323,6 +324,7 @@ codeunit 99000773 "Calculate Prod. Order"
             ProdOrderComp.Validate("Unit of Measure Code", ProdBOMLine[Level]."Unit of Measure Code");
             if (ProdOrderComp."Item No." <> '') and Item2.Get(ProdOrderComp."Item No.") then
                 QtyRoundPrecision := UOMMgt.GetQtyRoundingPrecision(Item2, ProdBOMLine[Level]."Unit of Measure Code");
+            CheckingRoundingPrecision(Item2, ProdLineItem, QtyRoundPrecision, Level);
             if QtyRoundPrecision <> 0 then
                 ProdOrderComp."Quantity per" := Round(ProdBOMLine[Level]."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM, QtyRoundPrecision)
             else
@@ -999,6 +1001,21 @@ codeunit 99000773 "Calculate Prod. Order"
         OnBeforeCheckProdOrderLineQuantity(ProdOrderLineToCheck, IsHandled);
         if not IsHandled then
             ProdOrderLineToCheck.TestField(Quantity);
+    end;
+
+    local procedure CheckingRoundingPrecision(ChildItem: Record Item; ProdLineItem: Record Item; var QtyRoundPrecision: Decimal; Level: Integer)
+    begin
+        if (ChildItem."Rounding Precision" = 0) or (QtyRoundPrecision = 0) then
+            exit;
+
+        if (not ProdLineItem.Get(ProdOrderLine."Item No.")) or (ProdLineItem."Replenishment System" <> ProdLineItem."Replenishment System"::"Prod. Order") then
+            exit;
+
+        if (ChildItem."Base Unit of Measure" <> ProdBOMLine[Level]."Unit of Measure Code") then
+            exit;
+        QtyRoundPrecision := ChildItem."Rounding Precision";
+        ProdOrderComp."Qty. Rounding Precision" := ChildItem."Rounding Precision";
+        ProdOrderComp."Qty. Rounding Precision (Base)" := ChildItem."Rounding Precision";
     end;
 
     [IntegrationEvent(false, false)]

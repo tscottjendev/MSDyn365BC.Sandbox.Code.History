@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Document;
 
 using Microsoft.EServices.EDocument;
@@ -72,10 +76,12 @@ table 39 "Purchase Line"
         field(1; "Document Type"; Enum "Purchase Document Type")
         {
             Caption = 'Document Type';
+            ToolTip = 'Specifies the type of document that you are about to create.';
         }
         field(2; "Buy-from Vendor No."; Code[20])
         {
             Caption = 'Buy-from Vendor No.';
+            ToolTip = 'Specifies the name of the vendor who delivered the items.';
             Editable = false;
             TableRelation = Vendor;
 
@@ -87,15 +93,18 @@ table 39 "Purchase Line"
         field(3; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies the document number.';
             TableRelation = "Purchase Header"."No." where("Document Type" = field("Document Type"));
         }
         field(4; "Line No."; Integer)
         {
             Caption = 'Line No.';
+            ToolTip = 'Specifies the line''s number.';
         }
         field(5; Type; Enum "Purchase Line Type")
         {
             Caption = 'Type';
+            ToolTip = 'Specifies the line type.';
 
             trigger OnValidate()
             var
@@ -191,7 +200,7 @@ table 39 "Purchase Line"
             if (Type = const("Allocation Account")) "Allocation Account"
             else
             if (Type = const(Resource)) Resource;
-
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -351,6 +360,7 @@ table 39 "Purchase Line"
         {
             Caption = 'Location Code';
             TableRelation = Location where("Use As In-Transit" = const(false));
+            ToolTip = 'Specifies the code for the location where the items on the line will be located.';
 
             trigger OnValidate()
             var
@@ -441,6 +451,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Expected Receipt Date';
+            ToolTip = 'Specifies the date that you expect the items to be available in your warehouse.';
 
             trigger OnValidate()
             var
@@ -481,6 +492,7 @@ table 39 "Purchase Line"
             if (Type = const("Charge (Item)")) "Item Charge".Description
             else
             if (Type = const(Resource)) Resource.Name;
+            ToolTip = 'Specifies a description of the entry of the product to be purchased. To add a non-transactional text line, fill in the Description field only.';
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -523,6 +535,7 @@ table 39 "Purchase Line"
         field(12; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            ToolTip = 'Specifies information in addition to the description.';
         }
         field(13; "Unit of Measure"; Text[50])
         {
@@ -538,6 +551,7 @@ table 39 "Purchase Line"
         {
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
+            ToolTip = 'Specifies the number of units of the item specified on the line.';
 
             trigger OnValidate()
             var
@@ -678,6 +692,7 @@ table 39 "Purchase Line"
         field(16; "Outstanding Quantity"; Decimal)
         {
             Caption = 'Outstanding Quantity';
+            ToolTip = 'Specifies how many units on the order line have not yet been received.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
@@ -685,6 +700,7 @@ table 39 "Purchase Line"
         {
             Caption = 'Qty. to Invoice';
             DecimalPlaces = 0 : 5;
+            ToolTip = 'Specifies the quantity that remains to be invoiced. It is calculated as Quantity - Qty. Invoiced.';
 
             trigger OnValidate()
             var
@@ -779,6 +795,7 @@ table 39 "Purchase Line"
             AutoFormatType = 2;
             CaptionClass = GetCaptionClass(FieldNo("Direct Unit Cost"));
             Caption = 'Direct Unit Cost';
+            ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
 
             trigger OnValidate()
             var
@@ -798,6 +815,7 @@ table 39 "Purchase Line"
         {
             AutoFormatType = 2;
             Caption = 'Unit Cost (LCY)';
+            ToolTip = 'Specifies the cost, in LCY, of one unit of the item or resource on the line.';
 
             trigger OnValidate()
             var
@@ -872,6 +890,7 @@ table 39 "Purchase Line"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Line Discount Amount';
+            ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
 
             trigger OnValidate()
             var
@@ -1013,6 +1032,7 @@ table 39 "Purchase Line"
         {
             AutoFormatType = 2;
             Caption = 'Unit Price (LCY)';
+            ToolTip = 'Specifies the price, in LCY, of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
         }
         field(32; "Allow Invoice Disc."; Boolean)
         {
@@ -1075,6 +1095,7 @@ table 39 "Purchase Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -1087,6 +1108,7 @@ table 39 "Purchase Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -1098,6 +1120,7 @@ table 39 "Purchase Line"
         field(45; "Job No."; Code[20])
         {
             Caption = 'Project No.';
+            ToolTip = 'Specifies the number of the related project. If you fill in this field and the Project Task No. field, then a project ledger entry will be posted together with the purchase line.';
             TableRelation = Job;
 
             trigger OnValidate()
@@ -1155,6 +1178,7 @@ table 39 "Purchase Line"
         field(54; "Indirect Cost %"; Decimal)
         {
             Caption = 'Indirect Cost %';
+            ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -1255,6 +1279,8 @@ table 39 "Purchase Line"
             Caption = 'Quantity Received';
             DecimalPlaces = 0 : 5;
             Editable = false;
+            ToolTip = 'Specifies how many units of the item on the line have been posted as received.';
+
         }
         field(61; "Quantity Invoiced"; Decimal)
         {
@@ -1275,6 +1301,7 @@ table 39 "Purchase Line"
         field(65; "Order No."; Code[20])
         {
             Caption = 'Order No.';
+            ToolTip = 'Specifies the order number this line is associated with.';
         }
         field(66; "Order Line No."; Integer)
         {
@@ -1298,6 +1325,7 @@ table 39 "Purchase Line"
             AutoFormatType = 1;
             Caption = 'Inv. Discount Amount';
             Editable = false;
+            ToolTip = 'Specifies the total calculated invoice discount amount for the line.';
 
             trigger OnValidate()
             begin
@@ -1570,6 +1598,7 @@ table 39 "Purchase Line"
         {
             AutoFormatType = 1;
             Caption = 'Outstanding Amount (LCY)';
+            ToolTip = 'Specifies the amount for the items on the order that have not yet been received in LCY.';
             Editable = false;
         }
         field(93; "Amt. Rcd. Not Invoiced (LCY)"; Decimal)
@@ -1577,6 +1606,7 @@ table 39 "Purchase Line"
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             AutoFormatType = 1;
             Caption = 'Amt. Rcd. Not Invoiced (LCY)';
+            ToolTip = 'Specifies the sum, in LCY, for items that have been received but have not yet been invoiced. The value in the Amt. Rcd. Not Invoiced (LCY) field is used for entries in the Purchase Line table of document type Order to calculate and update the contents of this field.';
             Editable = false;
         }
         field(95; "Reserved Quantity"; Decimal)
@@ -1699,6 +1729,7 @@ table 39 "Purchase Line"
             AutoFormatType = 1;
             CaptionClass = GetCaptionClass(FieldNo("Line Amount"));
             Caption = 'Line Amount';
+            ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
 
             trigger OnValidate()
             var
@@ -2102,6 +2133,7 @@ table 39 "Purchase Line"
         field(1001; "Job Task No."; Code[20])
         {
             Caption = 'Project Task No.';
+            ToolTip = 'Specifies the number of the related project task.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
 
             trigger OnValidate()
@@ -2146,6 +2178,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Project Line Type';
+            ToolTip = 'Specifies a Project Planning Line together with the posting of a project ledger entry.';
 
             trigger OnValidate()
             var
@@ -2530,6 +2563,7 @@ table 39 "Purchase Line"
         field(2675; "Selected Alloc. Account No."; Code[20])
         {
             Caption = 'Allocation Account No.';
+            ToolTip = 'Specifies the allocation account number that will be used to distribute the amounts during the posting process.';
             DataClassification = CustomerContent;
             TableRelation = "Allocation Account";
         }
@@ -2711,6 +2745,7 @@ table 39 "Purchase Line"
             if (Type = const(Resource), "No." = filter(<> '')) "Resource Unit of Measure".Code where("Resource No." = field("No."))
             else
             if (Type = filter("Charge (Item)" | "Fixed Asset" | "G/L Account")) "Unit of Measure";
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
 
             trigger OnValidate()
             var
@@ -2872,6 +2907,7 @@ table 39 "Purchase Line"
                                                                            "Source Ref. No." = field("Line No."),
                                                                            "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Qty. (Base)';
+            ToolTip = 'Specifies the value in the Reserved Quantity field, expressed in the base unit of measure.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
@@ -3116,6 +3152,7 @@ table 39 "Purchase Line"
         field(5790; "Requested Receipt Date"; Date)
         {
             Caption = 'Requested Receipt Date';
+            ToolTip = 'Specifies the date that you want the vendor to deliver to the ship-to address. The value in the field is used to calculate the latest date you can order the items to have them delivered on the requested receipt date. If you do not need delivery on a specific date, you can leave the field blank.';
 
             trigger OnValidate()
             var
@@ -3148,6 +3185,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "Order Promising Line" = R;
             Caption = 'Promised Receipt Date';
+            ToolTip = 'Specifies the date that the vendor has promised to deliver the order.';
 
             trigger OnValidate()
             var
