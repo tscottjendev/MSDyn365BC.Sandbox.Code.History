@@ -2935,7 +2935,7 @@ codeunit 6620 "Copy Document Mgt."
     [Obsolete('Replaced by same procedure in codeunit CopyServiceContractMgt.', '24.0')]
     procedure CopyServContractLines(ToServContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; FromDocType: Option; FromDocNo: Code[20]; var FromServContractLine: Record Microsoft.Service.Contract."Service Contract Line") AllLinesCopied: Boolean
     var
-        CopyServiceContractMgt: Codeunit "Copy Service Contract Mgt.";
+        CopyServiceContractMgt: Codeunit Microsoft.Service.Contract."Copy Service Contract Mgt.";
     begin
         exit(CopyServiceContractMgt.CopyServiceContractLines(ToServContractHeader, Microsoft.Service.Contract."Service Contract Type From".FromInteger(FromDocType), FromDocNo, FromServContractLine));
     end;
