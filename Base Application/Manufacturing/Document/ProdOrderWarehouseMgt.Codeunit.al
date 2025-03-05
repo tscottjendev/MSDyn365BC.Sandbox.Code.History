@@ -6,6 +6,7 @@ namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.Routing;
@@ -21,7 +22,6 @@ using Microsoft.Warehouse.Tracking;
 using Microsoft.Warehouse.Worksheet;
 using Microsoft.Warehouse.Availability;
 using Microsoft.Warehouse.Activity.History;
-using Microsoft.Inventory.Tracking;
 using Microsoft.Warehouse.Ledger;
 
 codeunit 5996 "Prod. Order Warehouse Mgt."
@@ -554,7 +554,7 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         PutAwayProdOrderLine: Record "Prod. Order Line";
         LocationCode: Code[10];
     begin
-        if Location.RequirePutAwayForProdOutput(ProdOrderLine."Location Code") then
+        if Location.RequireWhsePutAwayForProdOutput(ProdOrderLine."Location Code") then
             LocationCode := ProdOrderLine."Location Code";
 
         PutAwayProdOrderLine.SetLoadFields(Status, "Prod. Order No.", "Location Code", "Line No.");
@@ -568,7 +568,7 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
 
         if PutAwayProdOrderLine.FindSet() then
             repeat
-                if Location.RequirePutAwayForProdOutput(PutAwayProdOrderLine."Location Code") then begin
+                if Location.RequireWhsePutAwayForProdOutput(PutAwayProdOrderLine."Location Code") then begin
                     LocationCode := PutAwayProdOrderLine."Location Code";
 
                     if LocationCode <> ProdOrderLine."Location Code" then
@@ -590,10 +590,10 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         if ProductionOrder."Location Code" = ProdOrderLine."Location Code" then
             exit;
 
-        if Location.RequirePutAwayForProdOutput(ProductionOrder."Location Code") then
+        if Location.RequireWhsePutAwayForProdOutput(ProductionOrder."Location Code") then
             ProdOrderLine.TestField("Location Code", ProductionOrder."Location Code");
 
-        if Location.RequirePutAwayForProdOutput(ProdOrderLine."Location Code") then
+        if Location.RequireWhsePutAwayForProdOutput(ProdOrderLine."Location Code") then
             ProdOrderLine.TestField("Location Code", ProductionOrder."Location Code");
     end;
 
