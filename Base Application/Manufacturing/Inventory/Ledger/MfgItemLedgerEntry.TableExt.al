@@ -17,11 +17,11 @@ tableextension 99000787 "Mfg. Item Ledger Entry" extends "Item Ledger Entry"
         SetRange("Entry Type", "Entry Type"::Output);
     end;
 
-    procedure SetSourceFilterForProdOutputPutAway(WhseWorksheetLine: Record "Whse. Worksheet Line")
+    procedure SetSourceFilterForProdOutputPutAway(WhseWkshLine: Record "Whse. Worksheet Line")
     begin
         SetRange("Order Type", "Order Type"::Production);
-        SetRange("Order No.", WhseWorksheetLine."Source No.");
-        SetRange("Order Line No.", WhseWorksheetLine."Source Line No.");
+        SetRange("Order No.", WhseWkshLine."Source No.");
+        SetRange("Order Line No.", WhseWkshLine."Source Line No.");
         SetRange("Entry Type", "Entry Type"::Output);
     end;
 }
