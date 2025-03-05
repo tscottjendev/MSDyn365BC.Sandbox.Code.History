@@ -1214,15 +1214,18 @@ codeunit 137025 "SCM Purchase Correct Invoice"
     var
         PurchHeader: Record "Purchase Header";
         VendLedgerEntry: Record "Vendor Ledger Entry";
+        ReasonCode: Record "Reason Code";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
         InvNo: Code[20];
     begin
-        PurchHeader.Init();
-        PurchHeader.Validate("Document Type", PurchHeader."Document Type"::"Credit Memo");
-        PurchHeader.Insert(true);
+        LibraryPurchase.CreatePurchHeader(
+            PurchHeader, PurchHeader."Document Type"::"Credit Memo", PurchInvHeader."Buy-from Vendor No.");
         CopyDocMgt.SetProperties(
           true, false, false, false, false, false, false);
         CopyDocMgt.CopyPurchDoc("Purchase Document Type From"::"Posted Invoice", PurchInvHeader."No.", PurchHeader);
+        LibraryERM.CreateReasonCode(ReasonCode);
+        PurchHeader.Validate("Reason Code", ReasonCode.Code);
+        PurchHeader.Modify();
         InvNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
         LibraryERM.FindVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::"Credit Memo", InvNo);
