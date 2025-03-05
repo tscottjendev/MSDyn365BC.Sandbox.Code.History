@@ -7,4 +7,8 @@ enum 103 "Import Consolidation Data" implements "Import Consolidation Data"
     {
         Implementation = "Import Consolidation Data" = "Import Consolidation from API";
     }
+    value(1; "Import Consolidation Data from DB")
+    {
+        Implementation = "Import Consolidation Data" = "Import Consolidation from DB";
+    }
 }
