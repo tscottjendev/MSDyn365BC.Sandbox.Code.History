@@ -10,7 +10,7 @@ page 5842 "Cost Adjmt. Action Messages"
     ApplicationArea = All;
     UsageCategory = ReportsAndAnalysis;
     SourceTable = "Cost Adjmt. Action Message";
-    Caption = 'Cost Adjustment Action Messages';
+    Caption = 'Cost Adjmt. Action Messages';
     AdditionalSearchTerms = 'cost adjustment,signal,action message';
     InsertAllowed = false;
     ModifyAllowed = false;
@@ -35,6 +35,7 @@ page 5842 "Cost Adjmt. Action Messages"
                 }
                 field(Type; Rec.Type)
                 {
+
                 }
                 field(Message; Rec.Message)
                 {
@@ -58,9 +59,9 @@ page 5842 "Cost Adjmt. Action Messages"
     {
         area(Processing)
         {
-            action("Run Checks")
+            action("Run Tests")
             {
-                Caption = 'Run Checks';
+                Caption = 'Run tests';
                 Image = Start;
                 ToolTip = 'Run all tests to identify potential problems with the cost adjustment.';
 
@@ -94,7 +95,7 @@ page 5842 "Cost Adjmt. Action Messages"
         }
         area(Promoted)
         {
-            actionref("Run Checks_Promoted"; "Run Checks") { }
+            actionref("Run Tests_Promoted"; "Run Tests") { }
             actionref(Snooze_Promoted; Snooze) { }
         }
     }

@@ -196,7 +196,7 @@ report 7305 "Whse.-Source - Create Document"
                 if "Whse. Document Type" <> "Whse. Document Type"::Production then
                     CreatePutAwayFromDiffSource(PostedWhseRcptLine, SourceType)
                 else
-                    CreatePutAwayFromProdOutput(ProdOrderLine);
+                    CreatePutAwayFromDiffSource(ProdOrderLine, SourceType);
 
                 if "Qty. to Handle" <> "Qty. Outstanding" then
                     EverythingHandled := false;
@@ -1373,12 +1373,25 @@ report 7305 "Whse.-Source - Create Document"
             until TempPostedWhseRcptLine.Next() = 0;
     end;
 
-    local procedure CreatePutAwayFromProdOutput(ProdOrderLine: Record "Prod. Order Line")
+    procedure CreatePutAwayFromDiffSource(ProdOrderLine: Record "Prod. Order Line"; SourceType: Integer)
+    var
+        TempProdOrderLine: Record "Prod. Order Line" temporary;
+        TempProdOrderLine2: Record "Prod. Order Line" temporary;
     begin
-        if ProdOrderLine."Finished Qty. (Base)" <= 0 then
-            exit;
+        TempProdOrderLine.Init();
+        TempProdOrderLine := ProdOrderLine;
+        TempProdOrderLine.Insert();
+
         CreatePutAway.SetCalledFromPutAwayWorksheet(true);
-        CreatePutAway.CreateWhsePutAwayForProdOrderOutputLine(ProdOrderLine);
+        TempProdOrderLine.Reset();
+        if TempProdOrderLine.FindSet() then
+            repeat
+                TempProdOrderLine2 := TempProdOrderLine;
+                TempProdOrderLine2."Line No." := ProdOrderLine."Line No.";
+                if TempProdOrderLine2."Finished Qty. (Base)" > 0 then
+                    CreatePutAway.CreateWhsePutAwayForProdOrderLine(TempProdOrderLine2);
+            until TempProdOrderLine.Next() = 0;
+
         CreatePutAway.SetCalledFromPutAwayWorksheet(false);
     end;
 
