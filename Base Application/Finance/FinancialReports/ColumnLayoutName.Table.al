@@ -178,7 +178,7 @@ table 333 "Column Layout Name"
             exit;
 
         TelemetryDimensions.Add('ColumnDefinitionCode', DefinitionName);
-        FeatureTelemetry.LogUsage('0000ONQ', 'Financial Report', StrSubstNo(TelemetryEventTxt, DefinitionName, Action), TelemetryDimensions);
+        FeatureTelemetry.LogUsage('0000ONQ', 'Financial Report', StrSubstNo(TelemetryEventTxt, Action, DefinitionName), TelemetryDimensions);
     end;
 
 }
