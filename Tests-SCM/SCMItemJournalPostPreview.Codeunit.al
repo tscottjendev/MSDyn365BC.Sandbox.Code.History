@@ -1,4 +1,4 @@
-codeunit 134777 "Test Item Journal Post Preview"
+codeunit 134777 "SCM Item Journal Post Preview"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -358,13 +358,13 @@ codeunit 134777 "Test Item Journal Post Preview"
         ItemJournalLine: Record "Item Journal Line";
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Item Journal Post Preview");
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Item Journal Post Preview");
         LibrarySetupStorage.Restore();
         ItemJournalLine.DeleteAll();
 
         if IsInitialized then
             exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Item Journal Post Preview");
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Item Journal Post Preview");
         IsInitialized := true;
 
         LibraryERMCountryData.UpdatePrepaymentAccounts();
@@ -378,7 +378,7 @@ codeunit 134777 "Test Item Journal Post Preview"
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.SaveGeneralLedgerSetup();
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Item Journal Post Preview");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Item Journal Post Preview");
     end;
 
     local procedure CreateGeneralPostingSetup(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
