@@ -1,4 +1,4 @@
-codeunit 134779 "Test Invt. PutAway Post Prev."
+codeunit 134779 "SCM Invt. PutAway Post Prev."
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -263,12 +263,12 @@ codeunit 134779 "Test Invt. PutAway Post Prev."
         WarehouseEmployee: Record "Warehouse Employee";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Invt. PutAway Post Prev.");
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Invt. PutAway Post Prev.");
         LibrarySetupStorage.Restore();
         WarehouseEmployee.DeleteAll();
         if isInitialized then
             exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Invt. PutAway Post Prev.");
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Invt. PutAway Post Prev.");
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
@@ -282,7 +282,7 @@ codeunit 134779 "Test Invt. PutAway Post Prev."
 
         isInitialized := true;
         Commit();
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Invt. PutAway Post Prev.");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Invt. PutAway Post Prev.");
     end;
 
     local procedure CreateLocationWMSWithWhseEmployee(var Location: Record Location; BinMandatory: Boolean; RequirePutAway: Boolean; RequirePick: Boolean; RequireReceive: Boolean; RequireShipment: Boolean)
@@ -291,17 +291,6 @@ codeunit 134779 "Test Invt. PutAway Post Prev."
     begin
         LibraryWarehouse.CreateLocationWMS(Location, BinMandatory, RequirePutAway, RequirePick, RequireReceive, RequireShipment);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
-    end;
-
-    local procedure CreateItem(var Item: Record Item; LocationCode: Code[10]; BinCode: Code[10]; UnitCost: Decimal; CostingMethod: Enum "Costing Method")
-    var
-        ItemJournalLine: Record "Item Journal Line";
-    begin
-        CreateItem(Item, UnitCost, CostingMethod);
-        LibraryInventory.CreateItemJournalLineInItemTemplate(
-          ItemJournalLine, Item."No.", LocationCode, BinCode, LibraryRandom.RandIntInRange(10, 20));
-        LibraryInventory.PostItemJournalLine(
-          ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     local procedure CreateItem(var Item: Record Item; UnitCost: Decimal; CostingMethod: Enum "Costing Method")
@@ -330,23 +319,13 @@ codeunit 134779 "Test Invt. PutAway Post Prev."
         exit(ItemTrackingCode.Code);
     end;
 
-    local procedure CreateAndPostInvtAdjustmentWithUnitCost(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal; UnitCost: Decimal)
-    var
-        ItemJournalLine: Record "Item Journal Line";
-    begin
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, BinCode, Qty);
-        ItemJournalLine.Validate("Unit Cost", UnitCost);
-        ItemJournalLine.Modify(true);
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
-    end;
-
     local procedure CreatePurchaseDocumentWithItem(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
     begin
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreatePurchaseDocumentWithLineLocation(var PurchaseHeader: Record "Purchase Header"; LocationCode: Code[10]; BinCode: Code[10]; ItemCode: Code[20])
+    local procedure CreatePurchaseDocumentWithLineLocation(var PurchaseHeader: Record "Purchase Header"; LocationCode: Code[10]; BinCode: Code[20]; ItemCode: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
         Item: Record Item;
@@ -386,9 +365,10 @@ codeunit 134779 "Test Invt. PutAway Post Prev."
 
     local procedure VerifyGLPostingPreviewLine(GLPostingPreview: TestPage "G/L Posting Preview"; TableName: Text; ExpectedEntryCount: Integer)
     begin
-        Assert.AreEqual(TableName, GLPostingPreview."Table Name".Value, StrSubstNo('A record for Table Name %1 was not found.', TableName));
-        Assert.AreEqual(ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger(),
-          StrSubstNo('Table Name %1 Unexpected number of records.', TableName));
+        Assert.AreEqual(
+            TableName, GLPostingPreview."Table Name".Value, StrSubstNo('A record for Table Name %1 was not found.', TableName));
+        Assert.AreEqual(
+            ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger(), StrSubstNo('Table Name %1 Unexpected number of records.', TableName));
     end;
 
     [RequestPageHandler]
