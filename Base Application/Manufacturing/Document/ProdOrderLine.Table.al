@@ -819,6 +819,30 @@ table 5406 "Prod. Order Line"
             Caption = 'Package No. Filter';
             FieldClass = FlowFilter;
         }
+        field(6500; "Serial No."; Code[50])
+        {
+            Caption = 'Serial No.';
+            Editable = false;
+        }
+        field(6501; "Lot No."; Code[50])
+        {
+            Caption = 'Lot No.';
+            Editable = false;
+        }
+        field(6502; "Warranty Date"; Date)
+        {
+            Caption = 'Warranty Date';
+        }
+        field(6503; "Expiration Date"; Date)
+        {
+            Caption = 'Expiration Date';
+        }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+            Editable = false;
+        }
         field(99000750; "Production BOM Version Code"; Code[20])
         {
             Caption = 'Production BOM Version Code';
@@ -1231,7 +1255,7 @@ table 5406 "Prod. Order Line"
         OnAfterGetItem(Item, Rec);
     end;
 
-    procedure GetLinePutAwayStatus(): Integer
+    procedure GetLineStatus(): Integer
     begin
         if "Qty. Put Away" > 0 then
             if "Qty. Put Away" < "Finished Quantity" then
@@ -1742,36 +1766,50 @@ table 5406 "Prod. Order Line"
         exit(true);
     end;
 
-    internal procedure GetUsedPutAwayQtyPerItemTracking(LotNo: Code[50]; SerialNo: Code[50]; PackageNo: Code[50]): Decimal
+    procedure GetUsedPutAwayQty(LotNo: Code[50]; SerialNo: Code[50]; PackageNo: Code[50]): Decimal
     var
-        RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
+        RegWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
-        RegisteredWhseActivityLine.SetRange("Whse. Document Type", RegisteredWhseActivityLine."Whse. Document Type"::Production);
-        RegisteredWhseActivityLine.SetRange("Source Document", RegisteredWhseActivityLine."Source Document"::"Prod. Output");
-        RegisteredWhseActivityLine.Setrange("Whse. Document No.", Rec."Prod. Order No.");
-        RegisteredWhseActivityLine.SetRange("Whse. Document Line No.", Rec."Line No.");
-        RegisteredWhseActivityLine.SetRange("Activity Type", RegisteredWhseActivityLine."Activity Type"::"Put-away");
-        RegisteredWhseActivityLine.SetFilter("Action Type", '%1|%2', RegisteredWhseActivityLine."Action Type"::Place, RegisteredWhseActivityLine."Action Type"::" ");
+        RegWhseActivityLine.SetRange("Whse. Document Type", RegWhseActivityLine."Whse. Document Type"::Production);
+        RegWhseActivityLine.SetRange("Source Document", RegWhseActivityLine."Source Document"::"Prod. Output");
+        RegWhseActivityLine.Setrange("Whse. Document No.", Rec."Prod. Order No.");
+        RegWhseActivityLine.SetRange("Whse. Document Line No.", Rec."Line No.");
+        RegWhseActivityLine.SetRange("Activity Type", RegWhseActivityLine."Activity Type"::"Put-away");
+        RegWhseActivityLine.SetFilter("Action Type", '%1|%2', RegWhseActivityLine."Action Type"::Place, RegWhseActivityLine."Action Type"::" ");
 
         if LotNo <> '' then begin
             Rec.SetRange("Lot No. Filter", LotNo);
-            RegisteredWhseActivityLine.SetRange("Lot No.", LotNo);
+            RegWhseActivityLine.SetRange("Lot No.", LotNo);
         end;
 
         if SerialNo <> '' then begin
             Rec.SetRange("Serial No. Filter", SerialNo);
-            RegisteredWhseActivityLine.SetRange("Serial No.", SerialNo);
+            RegWhseActivityLine.SetRange("Serial No.", SerialNo);
         end;
 
         if PackageNo <> '' then begin
             Rec.SetRange("Package No. Filter", PackageNo);
-            RegisteredWhseActivityLine.SetRange("Package No.", PackageNo);
+            RegWhseActivityLine.SetRange("Package No.", PackageNo);
         end;
 
-        if not RegisteredWhseActivityLine.IsEmpty() then
-            RegisteredWhseActivityLine.CalcSums("Qty. (Base)");
+        if not RegWhseActivityLine.IsEmpty() then
+            RegWhseActivityLine.CalcSums("Qty. (Base)");
         Rec.CalcFields("Put-away Qty. (Base)");
-        exit(Rec."Put-away Qty. (Base)" + RegisteredWhseActivityLine."Qty. (Base)");
+        exit(Rec."Put-away Qty. (Base)" + RegWhseActivityLine."Qty. (Base)");
+    end;
+
+    procedure CopyTrackingFromWhseItemEntryRelation(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        "Serial No." := ItemLedgEntry."Serial No.";
+        "Lot No." := ItemLedgEntry."Lot No.";
+        "Package No." := ItemLedgEntry."Package No.";
+    end;
+
+    procedure SetTrackingFilterFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        SetRange("Serial No.", ItemLedgEntry."Serial No.");
+        SetRange("Lot No.", ItemLedgEntry."Lot No.");
+        SetRange("Package No.", ItemLedgEntry."Package No.");
     end;
 
     [IntegrationEvent(false, false)]
