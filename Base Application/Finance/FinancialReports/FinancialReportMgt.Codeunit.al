@@ -411,7 +411,7 @@ codeunit 18 "Financial Report Mgt."
             exit;
 
         TelemetryDimensions.Add('ReportDefinitionCode', Name);
-        FeatureTelemetry.LogUsage('0000ONR', 'Financial Report', StrSubstNo(TelemetryEventTxt, Name, Action), TelemetryDimensions);
+        FeatureTelemetry.LogUsage('0000ONR', 'Financial Report', StrSubstNo(TelemetryEventTxt, Action, Name), TelemetryDimensions);
     end;
 
     procedure GetUpdateFinancialReportNotificationId(): Guid
