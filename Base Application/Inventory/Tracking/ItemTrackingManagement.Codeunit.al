@@ -1108,6 +1108,14 @@ codeunit 6500 "Item Tracking Management"
         end
     end;
 
+    procedure SplitInternalPutAwayLine(ProdOrderLine: Record "Prod. Order Line"; var TempProdOrderLine: Record "Prod. Order Line" temporary)
+    begin
+        TempProdOrderLine.DeleteAll();
+
+        TempProdOrderLine := ProdOrderLine;
+        TempProdOrderLine.Insert();
+    end;
+
     procedure DeleteWhseItemTrkgLines(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; LocationCode: Code[10]; RelatedToLine: Boolean)
     begin
         DeleteWhseItemTrkgLinesWithRunDeleteTrigger(
@@ -1139,105 +1147,81 @@ codeunit 6500 "Item Tracking Management"
             until WhseItemTrkgLine.Next() = 0;
     end;
 
-    internal procedure SplitProdOrderLineForOutputPutAway(ProdOrderLine: Record "Prod. Order Line"; var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary; SplitUpToQtyBase: Decimal)
+    procedure SplitProdOrderLineForOutputPutAway(ProdOrderLine: Record "Prod. Order Line"; var TempProdOrderLine: Record "Prod. Order Line" temporary; SplitUpToQty: Decimal)
     var
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        ItemTrackingSetup: Record "Item Tracking Setup";
-        BufferEntryNo: Integer;
-        RemainingHandledQtyBase: Decimal;
-        QtyBaseAvailableToPutAway: Decimal;
+        ItemLedgEntry: Record "Item Ledger Entry";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        LineNo: Integer;
+        HandledQty: Decimal;
+        QtyToApply: Decimal;
         ExitLoop: Boolean;
     begin
-        TempProdOrdLineTrackingBuff.Reset();
-        TempProdOrdLineTrackingBuff.DeleteAll();
-        RemainingHandledQtyBase := SplitUpToQtyBase;
+        TempProdOrderLine.Reset();
+        TempProdOrderLine.DeleteAll();
+        HandledQty := SplitUpToQty;
 
-        if not GetWhseItemTrkgSetup(ProdOrderLine."Item No.", ItemTrackingSetup) then begin
-            CopyProdOrderLineFieldsToTempProdOrdLineTrackingBuff(ProdOrderLine, TempProdOrdLineTrackingBuff);
-            TempProdOrdLineTrackingBuff."Buffer Entry No." := 1;
-            TempProdOrdLineTrackingBuff.Insert();
+        if not GetWhseItemTrkgSetup(ProdOrderLine."Item No.", WhseItemTrackingSetup) then begin
+            TempProdOrderLine := ProdOrderLine;
+            TempProdOrderLine.Insert();
             exit;
         end;
 
-        ItemLedgerEntry.SetLoadFields("Order Type", "Order No.", "Order No.", "Serial No.", "Lot No.", "Package No.", "Warranty Date", "Expiration Date", Quantity);
-        ItemLedgerEntry.SetSourceFilterForProdOutputPutAway(ProdOrderLine);
-        if ItemLedgerEntry.FindSet() then
+        ItemLedgEntry.SetLoadFields("Order Type", "Order No.", "Order No.", "Lot No.", "Serial No.", "Package No.", Quantity, "Warranty Date", "Expiration Date");
+        ItemLedgEntry.SetSourceFilterForProdOutputPutAway(ProdOrderLine);
+        if ItemLedgEntry.FindSet() then
             repeat
-                TempProdOrdLineTrackingBuff.SetTrackingFilterFromItemLedgerEntry(ItemLedgerEntry);
-                TempProdOrdLineTrackingBuff.SetRange("Warranty Date", ItemLedgerEntry."Warranty Date");
-                TempProdOrdLineTrackingBuff.SetRange("Expiration Date", ItemLedgerEntry."Expiration Date");
-                if TempProdOrdLineTrackingBuff.FindFirst() then begin
-                    UpdateQtySplitForPutAwayOnProdOrdLineTrackingBuffer(TempProdOrdLineTrackingBuff, ProdOrderLine, ItemLedgerEntry, QtyBaseAvailableToPutAway, RemainingHandledQtyBase);
-                    if QtyBaseAvailableToPutAway > 0 then
-                        TempProdOrdLineTrackingBuff.Modify();
+                TempProdOrderLine.SetTrackingFilterFromItemLedgEntry(ItemLedgEntry);
+                TempProdOrderLine.SetRange("Warranty Date", ItemLedgEntry."Warranty Date");
+                TempProdOrderLine.SetRange("Expiration Date", ItemLedgEntry."Expiration Date");
+                if TempProdOrderLine.FindFirst() then begin
+                    QtyToApply := ItemLedgEntry.Quantity - ProdOrderLine.GetUsedPutAwayQty(ItemLedgEntry."Lot No.", ItemLedgEntry."Serial No.", ItemLedgEntry."Package No.");
+                    if QtyToApply > 0 then begin
+                        TempProdOrderLine."Finished Qty. (Base)" += GetQtyToAdd(HandledQty, QtyToApply);
+                        TempProdOrderLine.Quantity :=
+                          Round(
+                            TempProdOrderLine."Finished Qty. (Base)" / TempProdOrderLine."Qty. per Unit of Measure",
+                            UOMMgt.QtyRndPrecision());
+                        TempProdOrderLine.Modify();
+                    end;
                 end else begin
-                    BufferEntryNo += 1;
-                    TempProdOrdLineTrackingBuff.Reset();
-                    CopyProdOrderLineFieldsToTempProdOrdLineTrackingBuff(ProdOrderLine, TempProdOrdLineTrackingBuff);
-                    TempProdOrdLineTrackingBuff."Buffer Entry No." := BufferEntryNo;
-                    TempProdOrdLineTrackingBuff.CopyTrackingFromItemLedgerEntry(ItemLedgerEntry);
-                    TempProdOrdLineTrackingBuff."Warranty Date" := ItemLedgerEntry."Warranty Date";
-                    TempProdOrdLineTrackingBuff."Expiration Date" := ItemLedgerEntry."Expiration Date";
-                    TempProdOrdLineTrackingBuff."Qty. split for Put Away (Base)" := 0;
-
-                    UpdateQtySplitForPutAwayOnProdOrdLineTrackingBuffer(TempProdOrdLineTrackingBuff, ProdOrderLine, ItemLedgerEntry, QtyBaseAvailableToPutAway, RemainingHandledQtyBase);
-                    if QtyBaseAvailableToPutAway > 0 then
-                        TempProdOrdLineTrackingBuff.Insert();
+                    LineNo += 10000;
+                    TempProdOrderLine.Reset();
+                    TempProdOrderLine := ProdOrderLine;
+                    TempProdOrderLine."Line No." := LineNo;
+                    TempProdOrderLine.CopyTrackingFromWhseItemEntryRelation(ItemLedgEntry);
+                    TempProdOrderLine."Warranty Date" := ItemLedgEntry."Warranty Date";
+                    TempProdOrderLine."Expiration Date" := ItemLedgEntry."Expiration Date";
+                    QtyToApply := ItemLedgEntry.Quantity - ProdOrderLine.GetUsedPutAwayQty(ItemLedgEntry."Lot No.", ItemLedgEntry."Serial No.", ItemLedgEntry."Package No.");
+                    if QtyToApply > 0 then begin
+                        TempProdOrderLine."Finished Qty. (Base)" := GetQtyToAdd(HandledQty, QtyToApply);
+                        TempProdOrderLine.Quantity :=
+                          Round(
+                            TempProdOrderLine."Finished Qty. (Base)" / TempProdOrderLine."Qty. per Unit of Measure",
+                            UOMMgt.QtyRndPrecision());
+                        TempProdOrderLine.Insert();
+                    end;
                 end;
 
-                if SplitUpToQtyBase <> 0 then
-                    ExitLoop := RemainingHandledQtyBase = 0;
-            until (ItemLedgerEntry.Next() = 0) or ExitLoop
+                if SplitUpToQty <> 0 then
+                    ExitLoop := HandledQty = 0;
+            until (ItemLedgEntry.Next() = 0) or ExitLoop
         else begin
-            CopyProdOrderLineFieldsToTempProdOrdLineTrackingBuff(ProdOrderLine, TempProdOrdLineTrackingBuff);
-            TempProdOrdLineTrackingBuff."Buffer Entry No." := 1;
-            TempProdOrdLineTrackingBuff.Insert();
+            TempProdOrderLine := ProdOrderLine;
+            TempProdOrderLine.Insert();
         end;
     end;
 
-    local procedure CopyProdOrderLineFieldsToTempProdOrdLineTrackingBuff(ProdOrderLine: Record "Prod. Order Line"; var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff.")
+    local procedure GetQtyToAdd(var RemHandledQty: Decimal; QtyToApply: Decimal) Qty: Decimal
     begin
-        Clear(TempProdOrdLineTrackingBuff);
-        TempProdOrdLineTrackingBuff."Prod. Order Status" := ProdOrderLine."Status";
-        TempProdOrdLineTrackingBuff."Prod. Order No." := ProdOrderLine."Prod. Order No.";
-        TempProdOrdLineTrackingBuff."Prod. Order Line No." := ProdOrderLine."Line No.";
-        TempProdOrdLineTrackingBuff."Item No." := ProdOrderLine."Item No.";
-        TempProdOrdLineTrackingBuff."Variant Code" := ProdOrderLine."Variant Code";
-        TempProdOrdLineTrackingBuff."Qty. Rounding Precision" := ProdOrderLine."Qty. Rounding Precision";
-        TempProdOrdLineTrackingBuff."Qty. Rounding Precision (Base)" := ProdOrderLine."Qty. Rounding Precision (Base)";
-        TempProdOrdLineTrackingBuff."Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
-        TempProdOrdLineTrackingBuff."Qty. per Unit of Measure" := ProdOrderLine."Qty. per Unit of Measure";
-        TempProdOrdLineTrackingBuff."Qty. split for Put Away (Base)" := ProdOrderLine."Finished Qty. (Base)";
-        TempProdOrdLineTrackingBuff."Qty. split for Put Away" :=
-          Round(
-            TempProdOrdLineTrackingBuff."Qty. split for Put Away (Base)" / TempProdOrdLineTrackingBuff."Qty. per Unit of Measure",
-            UOMMgt.QtyRndPrecision());
-    end;
-
-    local procedure UpdateQtySplitForPutAwayOnProdOrdLineTrackingBuffer(var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary; ProdOrderLine: Record "Prod. Order Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var QtyBaseAvailableToPutAway: Decimal; var RemainingHandledQtyBase: Decimal)
-    begin
-        QtyBaseAvailableToPutAway := ItemLedgerEntry.Quantity - ProdOrderLine.GetUsedPutAwayQtyPerItemTracking(ItemLedgerEntry."Lot No.", ItemLedgerEntry."Serial No.", ItemLedgerEntry."Package No.");
-        if QtyBaseAvailableToPutAway < 0 then
-            exit;
-
-        TempProdOrdLineTrackingBuff."Qty. split for Put Away (Base)" += CalcQtyBaseToPutAway(RemainingHandledQtyBase, QtyBaseAvailableToPutAway);
-        TempProdOrdLineTrackingBuff."Qty. split for Put Away" :=
-          Round(
-            TempProdOrdLineTrackingBuff."Qty. split for Put Away (Base)" / TempProdOrdLineTrackingBuff."Qty. per Unit of Measure",
-            UOMMgt.QtyRndPrecision());
-    end;
-
-    local procedure CalcQtyBaseToPutAway(var RemainingHandledQtyBase: Decimal; QtyBaseAvailableToPutAway: Decimal) Qty: Decimal
-    begin
-        if RemainingHandledQtyBase >= QtyBaseAvailableToPutAway then begin
-            RemainingHandledQtyBase := RemainingHandledQtyBase - QtyBaseAvailableToPutAway;
-            Qty := QtyBaseAvailableToPutAway;
+        if RemHandledQty >= QtyToApply then begin
+            RemHandledQty := RemHandledQty - QtyToApply;
+            Qty := QtyToApply;
         end else begin
-            if RemainingHandledQtyBase <> 0 then
-                Qty := RemainingHandledQtyBase
+            if RemHandledQty <> 0 then
+                Qty := RemHandledQty
             else
-                Qty := QtyBaseAvailableToPutAway;
-            RemainingHandledQtyBase := 0;
+                Qty := QtyToApply;
+            RemHandledQty := 0;
         end;
     end;
 
@@ -1304,7 +1288,7 @@ codeunit 6500 "Item Tracking Management"
                     ProdOrderLine.SetRange("Prod. Order No.", WhseWkshLine."Source No.");
                     ProdOrderLine.SetRange("Line No.", WhseWkshLine."Source Line No.");
                     if ProdOrderLine.FindFirst() then
-                        InsertWhseItemTrkgLinesForProdOrderLine(ProdOrderLine, SourceType);
+                        InsertWhseItemTrkgLines(ProdOrderLine, SourceType);
                 end;
             "Warehouse Worksheet Document Type"::Receipt:
                 begin
@@ -1391,7 +1375,7 @@ codeunit 6500 "Item Tracking Management"
 
     local procedure CreateWhseItemTrackingForProdOrderLine(WhseWkshLine: Record "Whse. Worksheet Line"; ProdOrderLine: Record "Prod. Order Line")
     var
-        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgEntry: Record "Item Ledger Entry";
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
         EntryNo: Integer;
         QtyToApply: Decimal;
@@ -1399,9 +1383,15 @@ codeunit 6500 "Item Tracking Management"
         WhseItemTrackingLine.Reset();
         EntryNo := WhseItemTrackingLine.GetLastEntryNo();
 
-        ItemLedgerEntry.SetSourceFilterForProdOutputPutAway(WhseWkshLine);
-        if ItemLedgerEntry.FindSet() then
+        ItemLedgEntry.SetSourceFilterForProdOutputPutAway(WhseWkshLine);
+        if ItemLedgEntry.FindSet() then
             repeat
+                ProdOrderLine."Lot No." := ItemLedgEntry."Lot No.";
+                ProdOrderLine."Serial No." := ItemLedgEntry."Serial No.";
+                ProdOrderLine."Package No." := ItemLedgEntry."Package No.";
+                ProdOrderLine."Warranty Date" := ItemLedgEntry."Warranty Date";
+                ProdOrderLine."Expiration Date" := ItemLedgEntry."Expiration Date";
+
                 WhseItemTrackingLine.Init();
                 EntryNo += 1;
                 WhseItemTrackingLine."Entry No." := EntryNo;
@@ -1412,10 +1402,10 @@ codeunit 6500 "Item Tracking Management"
                 WhseItemTrackingLine."Qty. per Unit of Measure" := WhseWkshLine."Qty. per From Unit of Measure";
                 WhseItemTrackingLine.SetSource(
                   Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), WhseWkshLine."Whse. Document No.", WhseWkshLine."Whse. Document Line No.", '', 0);
-                WhseItemTrackingLine.CopyTrackingFromItemLedgEntry(ItemLedgerEntry);
-                QtyToApply := ItemLedgerEntry.Quantity - ProdOrderLine.GetUsedPutAwayQtyPerItemTracking(ItemLedgerEntry."Lot No.", ItemLedgerEntry."Serial No.", ItemLedgerEntry."Package No.");
+                WhseItemTrackingLine.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
+                QtyToApply := ItemLedgEntry.Quantity - ProdOrderLine.GetUsedPutAwayQty(ProdOrderLine."Lot No.", ProdOrderLine."Serial No.", ProdOrderLine."Package No.");
                 if QtyToApply <> 0 then begin
-                    WhseItemTrackingLine."Quantity (Base)" := ItemLedgerEntry.Quantity - ProdOrderLine.GetUsedPutAwayQtyPerItemTracking(ItemLedgerEntry."Lot No.", ItemLedgerEntry."Serial No.", ItemLedgerEntry."Package No.");
+                    WhseItemTrackingLine."Quantity (Base)" := ItemLedgEntry.Quantity - ProdOrderLine.GetUsedPutAwayQty(ProdOrderLine."Lot No.", ProdOrderLine."Serial No.", ProdOrderLine."Package No.");
                     if WhseWkshLine."Qty. (Base)" = WhseWkshLine."Qty. to Handle (Base)" then
                         WhseItemTrackingLine."Qty. to Handle (Base)" := WhseItemTrackingLine."Quantity (Base)";
                     WhseItemTrackingLine."Qty. to Handle" :=
@@ -1424,7 +1414,7 @@ codeunit 6500 "Item Tracking Management"
                         UOMMgt.QtyRndPrecision());
                     WhseItemTrackingLine.Insert();
                 end;
-            until ItemLedgerEntry.Next() = 0;
+            until ItemLedgEntry.Next() = 0;
     end;
 
     local procedure CreateWhseItemTrackingBatch(WhseWkshLine: Record "Whse. Worksheet Line")
@@ -1708,59 +1698,59 @@ codeunit 6500 "Item Tracking Management"
         end;
     end;
 
-    local procedure InsertWhseItemTrkgLinesForProdOrderLine(ProdOrderLine: Record "Prod. Order Line"; SourceType: Integer)
+    local procedure InsertWhseItemTrkgLines(ProdOrderLine: Record "Prod. Order Line"; SourceType: Integer)
     var
-        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
-        ItemLedgerEntry: Record "Item Ledger Entry";
+        WhseItemTrkgLine: Record "Whse. Item Tracking Line";
+        ItemLedgEntry: Record "Item Ledger Entry";
         EntryNo: Integer;
         QtyHandledBase: Decimal;
         RemQtyHandledBase: Decimal;
     begin
-        EntryNo := WhseItemTrackingLine.GetLastEntryNo() + 1;
-        QtyHandledBase := 0;
+        EntryNo := WhseItemTrkgLine.GetLastEntryNo() + 1;
 
-        ItemLedgerEntry.SetSourceFilterForProdOutputPutAway(ProdOrderLine);
-        if ItemLedgerEntry.FindSet() then begin
-            WhseItemTrackingLine.SetSourceFilter(SourceType, ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", false);
-            WhseItemTrackingLine.DeleteAll();
-            WhseItemTrackingLine.Init();
-            WhseItemTrackingLine.SetTrackingKey();
+        ItemLedgEntry.Reset();
+        ItemLedgEntry.SetSourceFilterForProdOutputPutAway(ProdOrderLine);
+        if ItemLedgEntry.FindSet() then begin
+            WhseItemTrkgLine.SetSourceFilter(SourceType, ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", false);
+            WhseItemTrkgLine.DeleteAll();
+            WhseItemTrkgLine.Init();
+            WhseItemTrkgLine.SetTrackingKey();
             repeat
-                WhseItemTrackingLine.SetTrackingFilterFromItemLedgerEntry(ItemLedgerEntry);
-                if not WhseItemTrackingLine.HasSameTrackingWithItemLedgerEntry(ItemLedgerEntry) then
-                    RemQtyHandledBase := RegisteredPutAwayQtyBase(ProdOrderLine, ItemLedgerEntry)
+                WhseItemTrkgLine.SetTrackingFilterFromItemLedgerEntry(ItemLedgEntry);
+                if not WhseItemTrkgLine.HasSameTrackingWithItemEntryRelation(ItemLedgEntry) then
+                    RemQtyHandledBase := RegisteredPutAwayQtyBase(ProdOrderLine, ItemLedgEntry)
                 else
                     RemQtyHandledBase -= QtyHandledBase;
                 QtyHandledBase := RemQtyHandledBase;
-                if QtyHandledBase > ItemLedgerEntry.Quantity then
-                    QtyHandledBase := ItemLedgerEntry.Quantity;
+                if QtyHandledBase > ItemLedgEntry.Quantity then
+                    QtyHandledBase := ItemLedgEntry.Quantity;
 
-                if not WhseItemTrackingLine.FindFirst() then begin
-                    WhseItemTrackingLine.Init();
-                    WhseItemTrackingLine."Entry No." := EntryNo;
+                if not WhseItemTrkgLine.FindFirst() then begin
+                    WhseItemTrkgLine.Init();
+                    WhseItemTrkgLine."Entry No." := EntryNo;
                     EntryNo := EntryNo + 1;
 
-                    WhseItemTrackingLine."Item No." := ItemLedgerEntry."Item No.";
-                    WhseItemTrackingLine."Location Code" := ItemLedgerEntry."Location Code";
-                    WhseItemTrackingLine.Description := ItemLedgerEntry.Description;
-                    WhseItemTrackingLine.SetSource(
-                      Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ItemLedgerEntry."Order No.",
-                      ItemLedgerEntry."Order Line No.", '', ItemLedgerEntry."Order Line No.");
-                    WhseItemTrackingLine.CopyTrackingFromItemLedgEntry(ItemLedgerEntry);
-                    WhseItemTrackingLine."Warranty Date" := ItemLedgerEntry."Warranty Date";
-                    WhseItemTrackingLine."Expiration Date" := ItemLedgerEntry."Expiration Date";
-                    WhseItemTrackingLine."Qty. per Unit of Measure" := ItemLedgerEntry."Qty. per Unit of Measure";
-                    WhseItemTrackingLine."Quantity Handled (Base)" := QtyHandledBase;
-                    WhseItemTrackingLine."Qty. Registered (Base)" := QtyHandledBase;
-                    WhseItemTrackingLine.Validate("Quantity (Base)", ItemLedgerEntry.Quantity);
-                    WhseItemTrackingLine.Insert();
+                    WhseItemTrkgLine."Item No." := ItemLedgEntry."Item No.";
+                    WhseItemTrkgLine."Location Code" := ItemLedgEntry."Location Code";
+                    WhseItemTrkgLine.Description := ItemLedgEntry.Description;
+                    WhseItemTrkgLine.SetSource(
+                      Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ItemLedgEntry."Order No.",
+                      ItemLedgEntry."Order Line No.", '', ItemLedgEntry."Order Line No.");
+                    WhseItemTrkgLine.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
+                    WhseItemTrkgLine."Warranty Date" := ItemLedgEntry."Warranty Date";
+                    WhseItemTrkgLine."Expiration Date" := ItemLedgEntry."Expiration Date";
+                    WhseItemTrkgLine."Qty. per Unit of Measure" := ItemLedgEntry."Qty. per Unit of Measure";
+                    WhseItemTrkgLine."Quantity Handled (Base)" := QtyHandledBase;
+                    WhseItemTrkgLine."Qty. Registered (Base)" := QtyHandledBase;
+                    WhseItemTrkgLine.Validate("Quantity (Base)", ItemLedgEntry.Quantity);
+                    WhseItemTrkgLine.Insert();
                 end else begin
-                    WhseItemTrackingLine."Quantity Handled (Base)" += QtyHandledBase;
-                    WhseItemTrackingLine."Qty. Registered (Base)" += QtyHandledBase;
-                    WhseItemTrackingLine.Validate("Quantity (Base)", WhseItemTrackingLine."Quantity (Base)" + ItemLedgerEntry.Quantity);
-                    WhseItemTrackingLine.Modify();
+                    WhseItemTrkgLine."Quantity Handled (Base)" += QtyHandledBase;
+                    WhseItemTrkgLine."Qty. Registered (Base)" += QtyHandledBase;
+                    WhseItemTrkgLine.Validate("Quantity (Base)", WhseItemTrkgLine."Quantity (Base)" + ItemLedgEntry.Quantity);
+                    WhseItemTrkgLine.Modify();
                 end;
-            until ItemLedgerEntry.Next() = 0;
+            until ItemLedgEntry.Next() = 0;
         end;
     end;
 
@@ -1783,7 +1773,7 @@ codeunit 6500 "Item Tracking Management"
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
         RegisteredWhseActivityLine.SetSourceFilter(Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", -1, true);
-        RegisteredWhseActivityLine.SetTrackingFilterFromItemLedgerEntry(ItemLedgerEntry);
+        RegisteredWhseActivityLine.SetTrackingFilterFromRelation(ItemLedgerEntry);
         RegisteredWhseActivityLine.SetRange("Whse. Document No.", ProdOrderLine."Prod. Order No.");
         RegisteredWhseActivityLine.SetRange("Action Type", RegisteredWhseActivityLine."Action Type"::Take);
         RegisteredWhseActivityLine.CalcSums("Qty. (Base)");

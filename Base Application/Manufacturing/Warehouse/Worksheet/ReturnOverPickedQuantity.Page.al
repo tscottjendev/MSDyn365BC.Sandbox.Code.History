@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License. See License.txt in the project root for license information.
-// ------------------------------------------------------------------------------------------------
-namespace Microsoft.Warehouse.Worksheet;
-
-using Microsoft.Warehouse.Structure;
-using Microsoft.Inventory.Location;
-
 page 8370 "Return Overpicked Quantity"
 {
     PageType = StandardDialog;
