@@ -196,7 +196,7 @@ report 7305 "Whse.-Source - Create Document"
                 if "Whse. Document Type" <> "Whse. Document Type"::Production then
                     CreatePutAwayFromDiffSource(PostedWhseRcptLine, SourceType)
                 else
-                    CreatePutAwayFromDiffSource(ProdOrderLine, SourceType);
+                    CreatePutAwayFromProdOutput(ProdOrderLine);
 
                 if "Qty. to Handle" <> "Qty. Outstanding" then
                     EverythingHandled := false;
@@ -1373,25 +1373,12 @@ report 7305 "Whse.-Source - Create Document"
             until TempPostedWhseRcptLine.Next() = 0;
     end;
 
-    procedure CreatePutAwayFromDiffSource(ProdOrderLine: Record "Prod. Order Line"; SourceType: Integer)
-    var
-        TempProdOrderLine: Record "Prod. Order Line" temporary;
-        TempProdOrderLine2: Record "Prod. Order Line" temporary;
+    local procedure CreatePutAwayFromProdOutput(ProdOrderLine: Record "Prod. Order Line")
     begin
-        TempProdOrderLine.Init();
-        TempProdOrderLine := ProdOrderLine;
-        TempProdOrderLine.Insert();
-
+        if ProdOrderLine."Finished Qty. (Base)" <= 0 then
+            exit;
         CreatePutAway.SetCalledFromPutAwayWorksheet(true);
-        TempProdOrderLine.Reset();
-        if TempProdOrderLine.FindSet() then
-            repeat
-                TempProdOrderLine2 := TempProdOrderLine;
-                TempProdOrderLine2."Line No." := ProdOrderLine."Line No.";
-                if TempProdOrderLine2."Finished Qty. (Base)" > 0 then
-                    CreatePutAway.CreateWhsePutAwayForProdOrderLine(TempProdOrderLine2);
-            until TempProdOrderLine.Next() = 0;
-
+        CreatePutAway.CreateWhsePutAwayForProdOrderOutputLine(ProdOrderLine);
         CreatePutAway.SetCalledFromPutAwayWorksheet(false);
     end;
 
@@ -1455,6 +1442,13 @@ report 7305 "Whse.-Source - Create Document"
                 WarehouseDocumentPrint.PrintPutAwayHeader(WarehouseActivityHeader);
         end;
     end;
+
+#if not CLEAN27
+    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
+    procedure CreatePutAwayFromDiffSource(ProdOrderLine: Record "Prod. Order Line"; SourceType: Integer)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePutAwayDeleteBlankBinContent(var WarehouseActivityHeader: Record "Warehouse Activity Header")
