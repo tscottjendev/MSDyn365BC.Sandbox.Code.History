@@ -13,7 +13,7 @@ using Microsoft.ExcelReports;
 report 4407 "EXR Trial Bal. Prev Year Excel"
 {
     ApplicationArea = All;
-    Caption = 'Trial Balance/Previous Year Excel (Preview)';
+    Caption = 'Trial Balance/Previous Year Excel';
     DataAccessIntent = ReadOnly;
     DefaultRenderingLayout = TrialBalancePrevYearExcelLayout;
     ExcelLayoutMultipleDataSheets = true;

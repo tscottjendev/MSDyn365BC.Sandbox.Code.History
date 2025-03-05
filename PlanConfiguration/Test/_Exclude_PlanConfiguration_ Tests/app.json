@@ -2,7 +2,7 @@
   "id": "0253c250-e019-491f-adf4-e8fd8f10e6b9",
   "name": "_Exclude_PlanConfiguration_ Tests",
   "publisher": "Microsoft",
-  "version": "27.0.31029.0",
+  "version": "27.0.31042.0",
   "brief": "Tests for Plan Configuration",
   "description": "Tests for Plan Configuration",
   "privacyStatement": "https://go.microsoft.com/fwlink/?linkid=724009",
@@ -44,7 +44,7 @@
     }
   ],
   "screenshots": [],
-  "platform": "26.0.0.0",
+  "platform": "27.0.0.0",
   "application": "27.0.0.0",
   "idRanges": [
     {

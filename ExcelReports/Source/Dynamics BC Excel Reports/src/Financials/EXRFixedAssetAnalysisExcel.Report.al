@@ -10,7 +10,7 @@ report 4412 "EXR Fixed Asset Analysis Excel"
 {
     ApplicationArea = All;
     AdditionalSearchTerms = 'FA Analysis Excel,FA Analysis';
-    Caption = 'Fixed Asset Analysis Excel (Preview)';
+    Caption = 'Fixed Asset Analysis Excel';
     DataAccessIntent = ReadOnly;
     DefaultRenderingLayout = FixedAssetAnalysisExcel;
     ExcelLayoutMultipleDataSheets = true;

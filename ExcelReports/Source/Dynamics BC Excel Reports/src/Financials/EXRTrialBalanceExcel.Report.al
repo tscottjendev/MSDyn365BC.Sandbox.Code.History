@@ -14,7 +14,7 @@ report 4405 "EXR Trial Balance Excel"
 {
     AdditionalSearchTerms = 'year closing,close accounting period,close fiscal year';
     ApplicationArea = All;
-    Caption = 'Trial Balance Excel (Preview)';
+    Caption = 'Trial Balance Excel';
     DataAccessIntent = ReadOnly;
     DefaultRenderingLayout = TrialBalanceExcelLayout;
     ExcelLayoutMultipleDataSheets = true;

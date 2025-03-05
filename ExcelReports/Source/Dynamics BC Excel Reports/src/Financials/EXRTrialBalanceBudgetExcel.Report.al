@@ -13,7 +13,7 @@ using Microsoft.ExcelReports;
 report 4406 "EXR Trial BalanceBudgetExcel"
 {
     ApplicationArea = All;
-    Caption = 'Trial Balance/Budget Excel (Preview)';
+    Caption = 'Trial Balance/Budget Excel';
     DataAccessIntent = ReadOnly;
     DefaultRenderingLayout = TrialBalanceBudgetExcelLayout;
     ExcelLayoutMultipleDataSheets = true;

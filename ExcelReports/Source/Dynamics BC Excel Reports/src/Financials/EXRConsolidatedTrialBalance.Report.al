@@ -8,7 +8,7 @@ using Microsoft.ExcelReports;
 report 4410 "EXR Consolidated Trial Balance"
 {
     ApplicationArea = All;
-    Caption = 'Consolidated Trial Balance Excel (Preview)';
+    Caption = 'Consolidated Trial Balance Excel';
     DataAccessIntent = ReadOnly;
     DefaultRenderingLayout = ConsolidatedTrialBalanceExcel;
     ExcelLayoutMultipleDataSheets = true;

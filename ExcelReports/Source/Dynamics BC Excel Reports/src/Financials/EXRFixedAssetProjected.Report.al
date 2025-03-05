@@ -11,7 +11,7 @@ report 4413 "EXR Fixed Asset Projected"
 {
     ApplicationArea = All;
     AdditionalSearchTerms = 'FA Projected Value, FA Projected Value Excel';
-    Caption = 'Fixed Asset Projected Value Excel (Preview)';
+    Caption = 'Fixed Asset Projected Value Excel';
     DataAccessIntent = ReadOnly;
     DefaultRenderingLayout = FixedAssetProjectedValueExcel;
     ExcelLayoutMultipleDataSheets = true;

@@ -14,7 +14,7 @@ using Microsoft.ExcelReports;
 report 4403 "EXR Aged Acc Payable Excel"
 {
     ApplicationArea = All;
-    Caption = 'Aged Accounts Payable Excel (Preview)';
+    Caption = 'Aged Accounts Payable Excel';
     DataAccessIntent = ReadOnly;
     DefaultRenderingLayout = AgedAccountsPayableExcel;
     ExcelLayoutMultipleDataSheets = true;

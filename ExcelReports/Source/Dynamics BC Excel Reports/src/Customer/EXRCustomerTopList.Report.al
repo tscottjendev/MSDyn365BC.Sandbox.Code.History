@@ -11,7 +11,7 @@ using Microsoft.ExcelReports;
 report 4409 "EXR Customer Top List"
 {
     ApplicationArea = All;
-    Caption = 'Customer - Top List Excel (Preview)';
+    Caption = 'Customer - Top List Excel';
     DataAccessIntent = ReadOnly;
     DefaultRenderingLayout = CustomerTopTrendExcel;
     ExcelLayoutMultipleDataSheets = true;

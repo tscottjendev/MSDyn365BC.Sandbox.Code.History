@@ -10,7 +10,7 @@ report 4411 "EXR Fixed Asset Details Excel"
 {
     ApplicationArea = All;
     AdditionalSearchTerms = 'FA Details Excel,FA Details';
-    Caption = 'Fixed Asset Details Excel (Preview)';
+    Caption = 'Fixed Asset Details Excel';
     DataAccessIntent = ReadOnly;
     DefaultRenderingLayout = FixedAssetDetailsExcel;
     ExcelLayoutMultipleDataSheets = true;

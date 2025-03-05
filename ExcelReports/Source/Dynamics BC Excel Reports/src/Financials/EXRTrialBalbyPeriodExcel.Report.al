@@ -13,7 +13,7 @@ using Microsoft.ExcelReports;
 report 4408 "EXR Trial Bal by Period Excel"
 {
     ApplicationArea = All;
-    Caption = 'Trial Balance by Period Excel (Preview)';
+    Caption = 'Trial Balance by Period Excel';
     DataAccessIntent = ReadOnly;
     DefaultRenderingLayout = TrialBalancebyPeriodExcelLayout;
     ExcelLayoutMultipleDataSheets = true;

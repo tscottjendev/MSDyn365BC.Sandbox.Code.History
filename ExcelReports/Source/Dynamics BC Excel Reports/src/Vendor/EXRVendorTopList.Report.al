@@ -11,7 +11,7 @@ using Microsoft.ExcelReports;
 report 4404 "EXR Vendor Top List"
 {
     ApplicationArea = All;
-    Caption = 'Vendor - Top List Excel (Preview)';
+    Caption = 'Vendor - Top List Excel';
     DataAccessIntent = ReadOnly;
     DefaultRenderingLayout = VendorTopTrendExcel;
     ExcelLayoutMultipleDataSheets = true;
