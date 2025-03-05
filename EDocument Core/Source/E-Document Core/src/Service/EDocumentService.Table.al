@@ -190,22 +190,12 @@ table 6103 "E-Document Service"
             DataClassification = SystemMetadata;
             NotBlank = true;
             InitValue = 0T;
-
-            trigger OnValidate()
-            begin
-                EDocumentBackgroundJobs.HandleRecurrentImportJob(Rec);
-            end;
         }
         field(20; "Import Minutes between runs"; Integer)
         {
             Caption = 'Minutes between runs';
             DataClassification = SystemMetadata;
             InitValue = 1440;
-
-            trigger OnValidate()
-            begin
-                EDocumentBackgroundJobs.HandleRecurrentImportJob(Rec);
-            end;
         }
         field(21; "Batch Mode"; Enum "E-Document Batch Mode")
         {

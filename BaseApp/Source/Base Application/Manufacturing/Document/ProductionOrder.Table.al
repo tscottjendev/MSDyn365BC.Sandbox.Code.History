@@ -1139,7 +1139,7 @@ table 5405 "Production Order"
         NavigatePage.Run();
     end;
 
-    procedure GetHeaderPutAwayStatus(SkipLineNo: Integer): Integer
+    procedure GetHeaderStatus(SkipLineNo: Integer): Integer
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
