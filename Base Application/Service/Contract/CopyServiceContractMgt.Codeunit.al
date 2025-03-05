@@ -2,15 +2,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Service.Contract;
-
-using Microsoft.Service.Item;
-
 codeunit 5975 "Copy Service Contract Mgt."
 {
     var
 #if not CLEAN24
-        CopyDocumentMgt: Codeunit Microsoft.Utilities."Copy Document Mgt.";
+        CopyDocumentMgt: Codeunit "Copy Document Mgt.";
 #endif
         DocumentNoErr: Label 'Please enter a Contract No.';
 
