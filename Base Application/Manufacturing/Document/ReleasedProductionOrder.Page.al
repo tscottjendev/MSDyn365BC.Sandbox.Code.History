@@ -631,7 +631,7 @@ page 99000831 "Released Production Order"
                     var
                         CreatePutAway: Codeunit "Create Put-away";
                     begin
-                        CreatePutAway.CreateWhsePutAwayForProdOrder(Rec);
+                        CreatePutAway.CreateProdPutAwayFromProdOrder(Rec);
                     end;
                 }
             }
