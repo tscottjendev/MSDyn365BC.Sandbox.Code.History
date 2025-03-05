@@ -334,7 +334,7 @@ table 84 "Acc. Schedule Name"
             exit;
 
         TelemetryDimensions.Add('RowDefinitionCode', DefinitionName);
-        FeatureTelemetry.LogUsage('0000ONP', 'Financial Report', StrSubstNo(TelemetryEventTxt, DefinitionName, Action), TelemetryDimensions);
+        FeatureTelemetry.LogUsage('0000ONP', 'Financial Report', StrSubstNo(TelemetryEventTxt, Action, DefinitionName), TelemetryDimensions);
     end;
 }
 
