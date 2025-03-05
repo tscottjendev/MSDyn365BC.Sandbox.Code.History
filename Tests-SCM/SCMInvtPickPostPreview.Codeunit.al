@@ -1,4 +1,4 @@
-codeunit 134778 "Test Invt. Pick Post Preview"
+codeunit 134778 "SCM Invt. Pick Post Preview"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -456,12 +456,12 @@ codeunit 134778 "Test Invt. Pick Post Preview"
         WarehouseEmployee: Record "Warehouse Employee";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Invt. Pick Post Preview");
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Invt. Pick Post Preview");
         LibrarySetupStorage.Restore();
         WarehouseEmployee.DeleteAll();
         if isInitialized then
             exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Invt. Pick Post Preview");
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Invt. Pick Post Preview");
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
@@ -475,7 +475,7 @@ codeunit 134778 "Test Invt. Pick Post Preview"
 
         isInitialized := true;
         Commit();
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Invt. Pick Post Preview");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Invt. Pick Post Preview");
     end;
 
     local procedure CreateLocationWMSWithWhseEmployee(var Location: Record Location; BinMandatory: Boolean; RequirePutAway: Boolean; RequirePick: Boolean; RequireReceive: Boolean; RequireShipment: Boolean)
