@@ -1,4 +1,4 @@
-codeunit 134786 "Test Invty. Doc. Pst Preview"
+codeunit 134786 "SCM Invt. Doc. Pst Preview"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -663,13 +663,13 @@ codeunit 134786 "Test Invty. Doc. Pst Preview"
         ItemJournalLine: Record "Item Journal Line";
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        LibraryTestInitialize.OnTestInitialize(Codeunit::"Test Invty. Doc. Pst Preview");
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Invt. Doc. Pst Preview");
         LibrarySetupStorage.Restore();
         ItemJournalLine.DeleteAll();
 
         if IsInitialized then
             exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Test Invty. Doc. Pst Preview");
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"SCM Invt. Doc. Pst Preview");
         IsInitialized := true;
 
         LibraryERMCountryData.UpdatePrepaymentAccounts();
@@ -683,7 +683,7 @@ codeunit 134786 "Test Invty. Doc. Pst Preview"
 
         LibrarySetupStorage.Save(Database::"Inventory Setup");
         LibrarySetupStorage.SaveGeneralLedgerSetup();
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Test Invty. Doc. Pst Preview");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"SCM Invt. Doc. Pst Preview");
     end;
 
     local procedure VerifyGLPostingPreviewLine(GLPostingPreview: TestPage "G/L Posting Preview"; TableName: Text; ExpectedEntryCount: Integer)
