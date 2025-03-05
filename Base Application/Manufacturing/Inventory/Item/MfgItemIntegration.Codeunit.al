@@ -380,6 +380,16 @@ codeunit 99000795 "Mfg. Item Integration"
         StockkeepingUnit."Flushing Method" := Item."Flushing Method";
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Stockkeeping Unit", 'OnAfterValidateEvent', "Item No.", false, false)]
+    local procedure OnAfterValidateEventItemNo(var Rec: Record "Stockkeeping Unit"; var xRec: Record "Stockkeeping Unit")
+    var
+        Item: Record Item;
+    begin
+        if Rec."Item No." <> xRec."Item No." then
+            if Item.Get(Rec."Item No.") then
+                Rec.TransferManufCostsFromItem(Item);
+    end;
+
     // Catalog Item Management
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Catalog Item Management", 'OnCreateNewItemOnBeforeItemInsert', '', false, false)]
