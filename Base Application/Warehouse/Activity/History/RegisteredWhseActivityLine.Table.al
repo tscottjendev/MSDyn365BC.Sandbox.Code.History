@@ -468,7 +468,7 @@ table 5773 "Registered Whse. Activity Line"
         OnAfterSetTrackingFilterFromRelation(Rec, WhseItemEntryRelation);
     end;
 
-    procedure SetTrackingFilterFromRelation(ItemLedgEntry: Record "Item Ledger Entry")
+    procedure SetTrackingFilterFromItemLedgerEntry(ItemLedgEntry: Record "Item Ledger Entry")
     begin
         SetRange("Serial No.", ItemLedgEntry."Serial No.");
         SetRange("Lot No.", ItemLedgEntry."Lot No.");
@@ -498,6 +498,13 @@ table 5773 "Registered Whse. Activity Line"
 
         OnAfterSetTrackingFilterFromWhseSpec(Rec, WhseItemTrackingLine);
     end;
+
+#if not CLEAN26
+    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '26.0')]
+    procedure SetTrackingFilterFromRelation(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearTrackingFilter(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line")
