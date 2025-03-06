@@ -1123,10 +1123,10 @@ codeunit 5407 "Prod. Order Status Management"
 
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
         LatestProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
-        HandleProdOutputPutAway(LatestProdOrderLine, ItemJnlLine);
+        HandleWhsePutAwayForProdOutput(LatestProdOrderLine, ItemJnlLine);
     end;
 
-    local procedure HandleProdOutputPutAway(ProdOrderLine: Record "Prod. Order Line"; ItemJnlLine: Record "Item Journal Line")
+    local procedure HandleWhsePutAwayForProdOutput(ProdOrderLine: Record "Prod. Order Line"; ItemJnlLine: Record "Item Journal Line")
     begin
         if ItemJnlLine.OutputValuePosting() then
             exit;
@@ -1137,10 +1137,10 @@ codeunit 5407 "Prod. Order Status Management"
         if (ItemJnlLine."Order No." = '') or (ItemJnlLine."Order Line No." = 0) then
             exit;
 
-        if not CreatePutaway.ShouldCreateProdPutAway(ItemJnlLine) then
+        if not CreatePutaway.ShouldCreateWhsePutAwayForProdOutput(ItemJnlLine) then
             exit;
 
-        CreatePutaway.CreateWhsePutAwayForProdOrderLine(ProdOrderLine);
+        CreatePutaway.CreateWhsePutAwayForProdOrderOutputLine(ProdOrderLine);
     end;
 
     local procedure InitItemJnlLineFromProdOrderLine(var ItemJnlLine: Record "Item Journal Line"; ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; PostingDate: Date)
