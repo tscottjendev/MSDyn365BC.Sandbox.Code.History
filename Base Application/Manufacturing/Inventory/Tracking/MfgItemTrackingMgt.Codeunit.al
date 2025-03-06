@@ -57,10 +57,12 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
         case WhseWorksheetLine."Source Type" of
             Database::"Prod. Order Line":
                 begin
+                    ProdOrderLine.SetLoadFields("Qty. Put Away (Base)");
                     ProdOrderLine.Get(SourceSubtype, SourceNo, SourceLineNo);
                     WhseWorksheetLine."Qty. Handled (Base)" := ProdOrderLine."Qty. Put Away (Base)";
                 end;
             else begin
+                ProdOrderComponent.SetLoadFields("Qty. Picked (Base)");
                 ProdOrderComponent.Get(SourceSubtype, SourceNo, SourceLineNo, SourceSublineNo);
                 WhseWorksheetLine."Qty. Handled (Base)" := ProdOrderComponent."Qty. Picked (Base)";
             end;
