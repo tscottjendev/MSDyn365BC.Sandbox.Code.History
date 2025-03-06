@@ -1139,7 +1139,7 @@ table 5405 "Production Order"
         NavigatePage.Run();
     end;
 
-    procedure GetHeaderStatus(SkipLineNo: Integer): Integer
+    procedure GetHeaderPutAwayStatus(SkipLineNo: Integer): Integer
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
@@ -1658,6 +1658,13 @@ table 5405 "Production Order"
 
         Rec.Validate("Manual Scheduling", MfgSetup."Manual Scheduling");
     end;
+
+#if not CLEAN26
+    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '26.0')]
+    procedure GetHeaderStatus(SkipLineNo: Integer): Integer
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ProductionOrder: Record "Production Order"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CallingFieldNo: Integer)
