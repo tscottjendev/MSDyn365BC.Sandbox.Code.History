@@ -971,7 +971,6 @@
         ListOfTablesToMigrate.Add(Database::"Copy Item Parameters");
         ListOfTablesToMigrate.Add(Database::"Cost Accounting Setup");
         ListOfTablesToMigrate.Add(Database::"Cost Adj. Item Bucket");
-        ListOfTablesToMigrate.Add(Database::"Cost Adjmt. Action Message");
         ListOfTablesToMigrate.Add(Database::"Cost Adjustment Detailed Log");
         ListOfTablesToMigrate.Add(Database::"Cost Adjustment Log");
         ListOfTablesToMigrate.Add(Database::"Cost Adjustment Trace Log");
