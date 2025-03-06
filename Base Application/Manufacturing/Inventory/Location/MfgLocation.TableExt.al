@@ -36,7 +36,7 @@ tableextension 99000761 "Mfg. Location" extends Location
         }
     }
 
-    procedure RequirePutAwayForProdOutput(LocationCode: Code[10]): Boolean
+    procedure RequireWhsePutAwayForProdOutput(LocationCode: Code[10]): Boolean
     var
         Location: Record Location;
     begin
@@ -44,6 +44,13 @@ tableextension 99000761 "Mfg. Location" extends Location
         if Location.Get(LocationCode) then
             exit(Location."Prod. Output Whse. Handling" = Location."Prod. Output Whse. Handling"::"Warehouse Put-away");
     end;
+
+#if not CLEAN26
+    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '26.0')]
+    procedure RequirePutAwayForProdOutput(LocationCode: Code[10]): Boolean
+    begin
+    end;
+#endif
 
     var
         InvalidProdOutputHandlingErr: Label 'You cannot select %1 on %2 %3 when %4 is enabled.', Comment = '%1 = Inventory Put-away, %2 = Location Table Caption, %3 = Location Code, %4 =  Directed Put-away Field Caption';
