@@ -414,7 +414,7 @@ page 99000867 "Finished Production Order"
                 var
                     CreatePutAway: Codeunit "Create Put-away";
                 begin
-                    CreatePutAway.CreateWhsePutAwayForProdOrder(Rec);
+                    CreatePutAway.CreateProdPutAwayFromProdOrder(Rec);
                 end;
             }
         }
