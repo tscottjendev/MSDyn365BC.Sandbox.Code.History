@@ -336,7 +336,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                         if not ItemJnlPostLine.RunWithCheck(ItemJnlLine) then
                             ItemJnlPostLine.CheckItemTracking();
 
-                        HandleProdOutputPutAway(ItemJnlLine);
+                        HandleWhsePutAwayForProdOutput(ItemJnlLine);
 
                         if ItemJnlLine."Value Entry Type" <> ItemJnlLine."Value Entry Type"::Revaluation then begin
                             ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification);
@@ -359,22 +359,22 @@ codeunit 23 "Item Jnl.-Post Batch"
             end;
         until ItemJnlLineLoop.Next() = 0;
 
-        CreatePutaway.CreateProdWhsePutAway();
+        CreatePutaway.CreateWhsePutAwayForProdOutput();
         OnAfterPostLines(ItemJnlLine, ItemRegNo, WhseRegNo);
     end;
 
-    local procedure HandleProdOutputPutAway(ItemJnlLine: Record "Item Journal Line")
+    local procedure HandleWhsePutAwayForProdOutput(ItemJournalLine: Record "Item Journal Line")
     begin
-        if ItemJnlLine.OutputValuePosting() then
+        if ItemJournalLine.OutputValuePosting() then
             exit;
 
-        if ItemJnlLine."Entry Type" <> ItemJnlLine."Entry Type"::Output then
+        if ItemJournalLine."Entry Type" <> ItemJournalLine."Entry Type"::Output then
             exit;
 
-        if (ItemJnlLine."Order No." = '') or (ItemJnlLine."Order Line No." = 0) then
+        if (ItemJournalLine."Order No." = '') or (ItemJournalLine."Order Line No." = 0) then
             exit;
 
-        CreatePutaway.ParkProdOrderForPutaway(ItemJnlLine);
+        CreatePutaway.IncludeIntoWhsePutAwayForProdOrder(ItemJournalLine);
     end;
 
     local procedure HandleRecurringLine(var ItemJnlLine: Record "Item Journal Line")
