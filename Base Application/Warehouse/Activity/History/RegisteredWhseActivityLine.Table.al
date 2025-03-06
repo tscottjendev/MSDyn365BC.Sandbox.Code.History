@@ -468,7 +468,7 @@ table 5773 "Registered Whse. Activity Line"
         OnAfterSetTrackingFilterFromRelation(Rec, WhseItemEntryRelation);
     end;
 
-    procedure SetTrackingFilterFromRelation(ItemLedgEntry: Record "Item Ledger Entry")
+    procedure SetTrackingFilterFromItemLedgerEntry(ItemLedgEntry: Record "Item Ledger Entry")
     begin
         SetRange("Serial No.", ItemLedgEntry."Serial No.");
         SetRange("Lot No.", ItemLedgEntry."Lot No.");

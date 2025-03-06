@@ -614,7 +614,7 @@ codeunit 5821 "Cost Adjustment Subscribers"
         JObject.WriteTo(JsonAsText);
     end;
 
-    [IntegrationEvent(false, false)]
+    [InternalEvent(false, false)]
     local procedure OnCostAdjustmentDetailLogCreated(var CostAdjustmentDetailedLog: Record "Cost Adjustment Detailed Log")
     begin
     end;
