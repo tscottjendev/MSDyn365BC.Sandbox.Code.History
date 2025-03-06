@@ -8,7 +8,6 @@ enum 5842 "Cost Adjmt. Action Msg. Type"
 {
     Extensible = false;
     Caption = 'Cost Adjmt. Action Msg. Type';
-    Access = Internal;
 
     value(0; " ")
     {
