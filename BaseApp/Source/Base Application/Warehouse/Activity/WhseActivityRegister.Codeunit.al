@@ -626,11 +626,10 @@ codeunit 7307 "Whse.-Activity-Register"
                     if WhseActivLine."Source Document" = WhseActivLine."Source Document"::"Prod. Output" then
                         if WhseActivLine."Action Type" <> WhseActivLine."Action Type"::Place then begin
                             ProdOrder.Get(WhseActivLine."Source Subtype", WhseActivLine."Source No.");
-                            ProdOrder."Document Put-away Status" := ProdOrder.GetHeaderStatus(0);
+                            ProdOrder."Document Put-away Status" := ProdOrder.GetHeaderPutAwayStatus(0);
                             ProdOrder.Modify();
 
-                            if ProdOrder."Document Put-away Status" =
-                               ProdOrder."Document Put-away Status"::"Completely Put Away"
+                            if ProdOrder."Document Put-away Status" = ProdOrder."Document Put-away Status"::"Completely Put Away"
                             then begin
                                 WhsePutAwayRequest.SetRange("Document Type", WhsePutAwayRequest."Document Type"::Production);
                                 WhsePutAwayRequest.SetRange("Document No.", ProdOrder."No.");
@@ -799,17 +798,17 @@ codeunit 7307 "Whse.-Activity-Register"
         OnAfterProdCompLineModify(ProdCompLine);
     end;
 
-    local procedure UpdateProdOrderLine(WhseActivityLine: Record "Warehouse Activity Line")
+    local procedure UpdateProdOrderLine(WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
-        ProdOrderLine.Get(WhseActivityLine."Source Subtype", WhseActivityLine."Source No.", WhseActivityLine."Source Line No.");
+        ProdOrderLine.Get(WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.", WarehouseActivityLine."Source Line No.");
         ProdOrderLine."Qty. Put Away (Base)" :=
-          ProdOrderLine."Qty. Put Away (Base)" + WhseActivityLine."Qty. to Handle (Base)";
-        if WhseActivityLine."Qty. per Unit of Measure" = ProdOrderLine."Qty. per Unit of Measure" then
-            ProdOrderLine."Qty. Put Away" := ProdOrderLine."Qty. Put Away" + WhseActivityLine."Qty. to Handle"
+          ProdOrderLine."Qty. Put Away (Base)" + WarehouseActivityLine."Qty. to Handle (Base)";
+        if WarehouseActivityLine."Qty. per Unit of Measure" = ProdOrderLine."Qty. per Unit of Measure" then
+            ProdOrderLine."Qty. Put Away" := ProdOrderLine."Qty. Put Away" + WarehouseActivityLine."Qty. to Handle"
         else
             ProdOrderLine."Qty. Put Away" :=
-              Round(ProdOrderLine."Qty. Put Away" + WhseActivityLine."Qty. to Handle (Base)" / WhseActivityLine."Qty. per Unit of Measure");
-        ProdOrderLine."Put-away Status" := ProdOrderLine.GetLineStatus();
+              Round(ProdOrderLine."Qty. Put Away" + WarehouseActivityLine."Qty. to Handle (Base)" / WarehouseActivityLine."Qty. per Unit of Measure");
+        ProdOrderLine."Put-away Status" := ProdOrderLine.GetLinePutAwayStatus();
         ProdOrderLine.Modify();
     end;
 
@@ -1182,7 +1181,7 @@ codeunit 7307 "Whse.-Activity-Register"
 
     local procedure RegisterWhseItemTrkgLine(WhseActivLine2: Record "Warehouse Activity Line")
     var
-        ProdOrderComp: Record "Prod. Order Component";
+        ProdOrderComponent: Record "Prod. Order Component";
         AssemblyLine: Record "Assembly Line";
         JobPlanningLineRec: Record "Job Planning Line";
         WhseShptLine: Record "Warehouse Shipment Line";
@@ -1247,17 +1246,20 @@ codeunit 7307 "Whse.-Activity-Register"
                 case WhseDocType2 of
                     WhseActivLine2."Whse. Document Type"::Shipment:
                         begin
+                            WhseShptLine.SetLoadFields("Shipment Date");
                             WhseShptLine.Get(WhseActivLine2."Whse. Document No.", WhseActivLine2."Whse. Document Line No.");
                             DueDate := WhseShptLine."Shipment Date";
                         end;
                     WhseActivLine2."Whse. Document Type"::Production:
-                        if WhseActivLine2."Source Document" <> WhseActivLine2."Source Document"::"Prod. Output" then begin
-                            ProdOrderComp.Get(WhseActivLine2."Source Subtype", WhseActivLine2."Source No.",
+                        begin
+                            ProdOrderComponent.SetLoadFields("Due Date");
+                            ProdOrderComponent.Get(WhseActivLine2."Source Subtype", WhseActivLine2."Source No.",
                               WhseActivLine2."Source Line No.", WhseActivLine2."Source Subline No.");
-                            DueDate := ProdOrderComp."Due Date";
+                            DueDate := ProdOrderComponent."Due Date";
                         end;
                     WhseActivLine2."Whse. Document Type"::Assembly:
                         begin
+                            AssemblyLine.SetLoadFields("Due Date");
                             AssemblyLine.Get(WhseActivLine2."Source Subtype", WhseActivLine2."Source No.",
                               WhseActivLine2."Source Line No.");
                             DueDate := AssemblyLine."Due Date";
@@ -1277,12 +1279,14 @@ codeunit 7307 "Whse.-Activity-Register"
                     case WhseActivLine2."Source Type" of
                         Database::"Prod. Order Component":
                             begin
-                                ProdOrderComp.Get(WhseActivLine2."Source Subtype", WhseActivLine2."Source No.",
+                                ProdOrderComponent.SetLoadFields("Due Date");
+                                ProdOrderComponent.Get(WhseActivLine2."Source Subtype", WhseActivLine2."Source No.",
                                   WhseActivLine2."Source Line No.", WhseActivLine2."Source Subline No.");
-                                DueDate := ProdOrderComp."Due Date";
+                                DueDate := ProdOrderComponent."Due Date";
                             end;
                         Database::"Assembly Line":
                             begin
+                                AssemblyLine.SetLoadFields("Due Date");
                                 AssemblyLine.Get(WhseActivLine2."Source Subtype", WhseActivLine2."Source No.",
                                   WhseActivLine2."Source Line No.");
                                 DueDate := AssemblyLine."Due Date";
