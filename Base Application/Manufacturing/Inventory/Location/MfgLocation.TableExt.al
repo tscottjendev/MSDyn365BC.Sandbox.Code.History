@@ -36,7 +36,7 @@ tableextension 99000761 "Mfg. Location" extends Location
         }
     }
 
-    procedure RequirePutAwayForProdOutput(LocationCode: Code[10]): Boolean
+    procedure RequireWhsePutAwayForProdOutput(LocationCode: Code[10]): Boolean
     var
         Location: Record Location;
     begin

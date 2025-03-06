@@ -1062,6 +1062,176 @@ codeunit 137084 "SCM Production Orders V"
         LibraryVariableStorage.Clear();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLotPageHandler')]
+    procedure VerifyWarehousePutAwayMustBeCreatedForItemWithLotNoTrackingWithAdditionalQtyUsingPutAwayWorksheet()
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        Location: Record Location;
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionOrder: Record "Production Order";
+        ItemTrackingCode: Record "Item Tracking Code";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehousePutAwayRequest: Record "Whse. Put-away Request";
+        AddedProdOrderQty: Decimal;
+        LotNo1: Text;
+        LotNo2: Text;
+    begin
+        // [SCENARIO 566092] Verify Warehouse Put Away must be created and registered for Item with Lot No. tracking using Put Away Worksheet.
+        // When Quantity is increased after Production Order is completely posted.
+        Initialize();
+
+        // [GIVEN] Update "Prod. Output Whse. Handling" in Location.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Prod. Output Whse. Handling", Location."Prod. Output Whse. Handling"::"Warehouse Put-away");
+        Location.Validate("Use Put-away Worksheet", true);
+        Location.Modify(true);
+
+        // [GIVEN] Generate Random Quantity. 
+        AddedProdOrderQty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Create Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create Item Tracking Code and item with Lot No.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
+
+        // [GIVEN] Create a Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, '', '');
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(100), Location.Code, Bin.Code);
+
+        // [GIVEN] Create and post the Output Journal with Item Tracking.
+        CreateAndPostOutputJournalWithItemTracking(ProductionOrder."No.", true, false, ProductionOrder.Quantity);
+        LotNo1 := LibraryVariableStorage.DequeueText();
+
+        // [WHEN] Create Put-Away From Put-Away Worksheet.
+        CreatePutAwayFromPutAwayWorksheet(WhseWorksheetLine, Location.Code, Item."No.", Item."No.", ProductionOrder.Quantity, "Whse. Activity Sorting Method"::None, false);
+
+        // [THEN] Warehouse Activity must be created with Lot No. Lot1.
+        WarehouseActivityLine.SetRange("Lot No.", LotNo1);
+        WarehouseActivityLine.SetRange(Quantity, ProductionOrder.Quantity);
+        FindWarehouseActivityLine(WarehouseActivityLine, ProductionOrder."No.", WarehouseActivityLine."Source Document"::"Prod. Output", WarehouseActivityLine."Activity Type"::"Put-away");
+
+        // [GIVEN] Register Warehouse Activity.
+        RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Source Document"::"Prod. Output", WarehouseActivityLine."Activity Type"::"Put-away");
+
+        // [GIVEN] Find Prod Order Line.
+        FindProdOrderLine(ProdOrderLine, ProdOrderLine.Status::Released, ProductionOrder."No.");
+        ProdOrderLine.Validate(Quantity, ProdOrderLine.Quantity + AddedProdOrderQty);
+        ProdOrderLine.Modify();
+
+        // [GIVEN] Create and post the Output Journal with Item Tracking.
+        CreateAndPostOutputJournalWithItemTracking(ProductionOrder."No.", true, false, AddedProdOrderQty);
+        LotNo2 := LibraryVariableStorage.DequeueText();
+
+        // [WHEN] Create Put-Away From Put-Away Worksheet.
+        CreatePutAwayFromPutAwayWorksheet(WhseWorksheetLine, Location.Code, Item."No.", Item."No.", AddedProdOrderQty, "Whse. Activity Sorting Method"::None, false);
+
+        // [THEN] Warehouse Activity must be created with Lot No. Lot2.
+        WarehouseActivityLine.SetRange("Lot No.", LotNo2);
+        WarehouseActivityLine.SetRange(Quantity, AddedProdOrderQty);
+        FindWarehouseActivityLine(WarehouseActivityLine, ProductionOrder."No.", WarehouseActivityLine."Source Document"::"Prod. Output", WarehouseActivityLine."Activity Type"::"Put-away");
+
+        // [GIVEN] Register Warehouse Activity.
+        RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Source Document"::"Prod. Output", WarehouseActivityLine."Activity Type"::"Put-away");
+
+        // [THEN] Verify "Document Put-away Status" must be "Completely Put Away" in Production Order and Warehouse Put Away Request must be deleted.
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+        Assert.AreEqual(
+            ProductionOrder."Document Put-away Status"::"Completely Put Away",
+            ProductionOrder."Document Put-away Status",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrder.FieldCaption("Document Put-away Status"), ProductionOrder."Document Put-away Status"::"Completely Put Away", ProductionOrder.TableCaption()));
+
+        WarehousePutAwayRequest.SetRange("Document Type", WarehousePutAwayRequest."Document Type"::Production);
+        WarehousePutAwayRequest.SetRange("Document No.", ProductionOrder."No.");
+        Assert.RecordCount(WarehousePutAwayRequest, 0);
+        LibraryVariableStorage.Clear();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerNoText,ChangeStatusOnProdOrderOk')]
+    procedure VerifyWarehousePutAwayMustBeCreatedForFamilyAndFlushingMethodForwardWhenStatusIsChanged()
+    var
+        Bin: Record Bin;
+        Family: Record Family;
+        Item: array[3] of Record Item;
+        RoutingHeader: Record "Routing Header";
+        ProductionOrder: Record "Production Order";
+        FamilyLine: array[3] of Record "Family Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehousePutAwayRequest: Record "Whse. Put-away Request";
+        FirmPlannedProductionOrder: TestPage "Firm Planned Prod. Order";
+    begin
+        // [SCENARIO 566092] Verify "Document Put-away Status" must be "Completely Put Away" in Production Order When "Source Type" is Family and "Flushing Method" is "Forward".
+        // Warehouse Put Away must be created when Changing the status from Firm Planned to Released Production Order.
+        Initialize();
+
+        // [GIVEN] Update "Prod. Output Whse. Handling" in Location.
+        LocationRed.Validate("Prod. Output Whse. Handling", LocationRed."Prod. Output Whse. Handling"::"Warehouse Put-away");
+        LocationRed.Validate("Use Put-away Worksheet", false);
+        LocationRed.Modify();
+
+        // [GIVEN] Find Bin.
+        LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 1);
+
+        // [GIVEN] Create Routing with Flushing Method.
+        CreateRoutingWithFlushingMethodRouting(RoutingHeader, "Flushing Method Routing"::Forward);
+
+        // [GIVEN] Create three items.
+        LibraryInventory.CreateItem(Item[1]);
+        LibraryInventory.CreateItem(Item[2]);
+        LibraryInventory.CreateItem(Item[3]);
+
+        // [GIVEN] Create Family with three items.
+        LibraryManufacturing.CreateFamily(Family);
+        LibraryManufacturing.CreateFamilyLine(FamilyLine[1], Family."No.", Item[1]."No.", 1);
+        LibraryManufacturing.CreateFamilyLine(FamilyLine[2], Family."No.", Item[2]."No.", 1);
+        LibraryManufacturing.CreateFamilyLine(FamilyLine[3], Family."No.", Item[3]."No.", 1);
+
+        // [GIVEN] Update "Routing No." in Family. 
+        Family.Validate("Routing No.", RoutingHeader."No.");
+        Family.Modify(true);
+
+        // [WHEN] Create and Refresh Production Order with "Source Type" Family.
+        CreateAndRefreshProductionOrderWithSourceTypeFamily(ProductionOrder, ProductionOrder.Status::"Firm Planned", Family."No.", LibraryRandom.RandInt(100), LocationRed.Code, Bin.Code);
+
+        // [THEN] Verify Warehouse Put Away Request must not be created with Flushing Method Forward.
+        WarehousePutAwayRequest.SetRange("Document Type", WarehousePutAwayRequest."Document Type"::Production);
+        WarehousePutAwayRequest.SetRange("Document No.", ProductionOrder."No.");
+        Assert.RecordCount(WarehousePutAwayRequest, 0);
+
+        // [GIVEN] Open Firm Planned Production Order.
+        FirmPlannedProductionOrder.OpenEdit();
+        FirmPlannedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Invoke "Change Status" action.
+        FirmPlannedProductionOrder."Change &Status".Invoke();
+
+        // [GIVEN] Find Production Order.
+        FindProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Family, Family."No.");
+
+        // [WHEN] Register Warehouse Activity.
+        RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Source Document"::"Prod. Output", WarehouseActivityLine."Activity Type"::"Put-away");
+
+        // [THEN] Verify "Document Put-away Status" must be "Completely Put Away" in Production Order and Warehouse Put Away Request must be deleted.
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+        Assert.AreEqual(
+            ProductionOrder."Document Put-away Status"::"Completely Put Away",
+            ProductionOrder."Document Put-away Status",
+            StrSubstNo(ValueMustBeEqualErr, ProductionOrder.FieldCaption("Document Put-away Status"), ProductionOrder."Document Put-away Status"::"Completely Put Away", ProductionOrder.TableCaption()));
+
+        WarehousePutAwayRequest.SetRange("Document Type", WarehousePutAwayRequest."Document Type"::Production);
+        WarehousePutAwayRequest.SetRange("Document No.", ProductionOrder."No.");
+        Assert.RecordCount(WarehousePutAwayRequest, 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Production Orders V");
