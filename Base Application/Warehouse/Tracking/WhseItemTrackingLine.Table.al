@@ -712,7 +712,7 @@ table 6550 "Whse. Item Tracking Line"
         OnAfterHasSameTrackingWithItemEntryRelation(Rec, WhseItemEntryRelation, IsSameTracking);
     end;
 
-    procedure HasSameTrackingWithItemEntryRelation(ItemLedgerEntry: Record "Item Ledger Entry") IsSameTracking: Boolean
+    procedure HasSameTrackingWithItemLedgerEntry(ItemLedgerEntry: Record "Item Ledger Entry") IsSameTracking: Boolean
     begin
         IsSameTracking :=
             (ItemLedgerEntry."Lot No." = "Lot No.") and (ItemLedgerEntry."Serial No." = "Serial No.") and (ItemLedgerEntry."Package No." = "Package No.");
@@ -723,6 +723,13 @@ table 6550 "Whse. Item Tracking Line"
         IsTrackingExist := ("Lot No." <> '') or ("Serial No." <> '');
         OnAfterTrackingExists(Rec, IsTrackingExist);
     end;
+
+#if not CLEAN26
+    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '26.0')]
+    procedure HasSameTrackingWithItemEntryRelation(ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckTrackingIfRequired(WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseItemTrackingSetup: Record "Item Tracking Setup")
