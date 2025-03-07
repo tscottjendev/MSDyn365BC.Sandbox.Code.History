@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -634,13 +634,12 @@ codeunit 99000830 "Create Reserv. Entry"
 
     local procedure CheckSourceTypeSubtype(var ReservEntry: Record "Reservation Entry") IsError: Boolean
     begin
-        // This event used internally for base app source tables
         OnCheckSourceTypeSubtype(ReservEntry, IsError);
-        
-        // This event used for compatibility with previous versions
+        if IsError then
+            exit(true);
+
         OnAfterCheckValidity(ReservEntry, IsError);
 
-        // This event used for external extensions
         OnAfterCheckSourceTypeSubtype(ReservEntry, IsError);
     end;
 
