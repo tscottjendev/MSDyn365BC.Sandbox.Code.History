@@ -11,6 +11,7 @@ table 8068 "Sales Subscription Line"
     Caption = 'Sales Subscription Line';
     DrillDownPageId = "Sales Service Commitments";
     LookupPageId = "Sales Service Commitments";
+    Access = Internal;
 
     fields
     {
@@ -450,7 +451,7 @@ table 8068 "Sales Subscription Line"
         end;
     end;
 
-    internal procedure CalculateCalculationBaseAmount()
+    procedure CalculateCalculationBaseAmount()
     var
         IsHandled: Boolean;
     begin
@@ -554,7 +555,7 @@ table 8068 "Sales Subscription Line"
             CalculateUnitCost();
     end;
 
-    internal procedure GetSalesHeader(var OutSalesHeader: Record "Sales Header")
+    procedure GetSalesHeader(var OutSalesHeader: Record "Sales Header")
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -785,7 +786,7 @@ table 8068 "Sales Subscription Line"
         end;
     end;
 
-    internal procedure GetDate(): Date
+    procedure GetDate(): Date
     begin
         SalesLine.Get(Rec."Document Type", Rec."Document No.", Rec."Document Line No.");
         exit(SalesLine.GetDate());

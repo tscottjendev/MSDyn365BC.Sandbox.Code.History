@@ -7,6 +7,7 @@ using Microsoft.Finance.Currency;
 
 codeunit 8002 "Create Sub. Contract Renewal"
 {
+    Access = Internal;
     TableNo = "Sub. Contract Renewal Line";
     SingleInstance = true;
 
@@ -63,7 +64,7 @@ codeunit 8002 "Create Sub. Contract Renewal"
         OnAfterCheckSubContractRenewalLine(ContractRenewalLine);
     end;
 
-    internal procedure BatchCreateContractRenewal(var ContractRenewalLine: Record "Sub. Contract Renewal Line")
+    procedure BatchCreateContractRenewal(var ContractRenewalLine: Record "Sub. Contract Renewal Line")
     var
         ContractRenewalLine2: Record "Sub. Contract Renewal Line";
         TempContractRenewalLine: Record "Sub. Contract Renewal Line" temporary;
@@ -411,12 +412,12 @@ codeunit 8002 "Create Sub. Contract Renewal"
         OnAfterInsertSubscriptionContractDescriptionSalesLines(CustomerContract, CurrentSalesHeader);
     end;
 
-    internal procedure GetSalesQuoteNo(): Code[20]
+    procedure GetSalesQuoteNo(): Code[20]
     begin
         exit(CurrentSalesHeader."No.");
     end;
 
-    internal procedure ClearCollectedSalesQuotes()
+    procedure ClearCollectedSalesQuotes()
     begin
         Clear(CurrentSalesHeader);
     end;
@@ -436,7 +437,7 @@ codeunit 8002 "Create Sub. Contract Renewal"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [InternalEvent(false, false)]
     local procedure OnAfterInsertSalesQuoteLineFromSubContractRenewalLine(var SalesLine: Record "Sales Line"; var SubContractRenewalLine: Record "Sub. Contract Renewal Line")
     begin
     end;

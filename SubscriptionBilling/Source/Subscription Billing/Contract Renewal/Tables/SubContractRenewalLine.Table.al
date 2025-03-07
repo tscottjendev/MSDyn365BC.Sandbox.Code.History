@@ -6,12 +6,13 @@ table 8001 "Sub. Contract Renewal Line"
     DataClassification = CustomerContent;
     LookupPageId = "Contract Renewal Lines";
     DrillDownPageId = "Contract Renewal Lines";
+    Access = Internal;
 
     fields
     {
         field(1; "Subscription Header No."; Code[20])
         {
-            Caption = 'Subscription No.';
+            Caption = 'Subscription  No.';
             Editable = false;
             TableRelation = "Subscription Header";
 
@@ -185,7 +186,7 @@ table 8001 "Sub. Contract Renewal Line"
         OnAfterRefreshContractInfo(Rec);
     end;
 
-    internal procedure InitFromServiceCommitment(var ServiceCommitment: Record "Subscription Line"): Boolean
+    procedure InitFromServiceCommitment(var ServiceCommitment: Record "Subscription Line"): Boolean
     begin
         Clear(Rec);
         if ContractRenewalLineExists(ServiceCommitment) then
@@ -204,7 +205,7 @@ table 8001 "Sub. Contract Renewal Line"
         exit(true);
     end;
 
-    internal procedure ContractRenewalLineExists(ServiceCommitment: Record "Subscription Line"): Boolean
+    procedure ContractRenewalLineExists(ServiceCommitment: Record "Subscription Line"): Boolean
     var
         ContractRenewalLine: Record "Sub. Contract Renewal Line";
     begin

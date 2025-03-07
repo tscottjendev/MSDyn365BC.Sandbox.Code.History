@@ -9,6 +9,7 @@ using Microsoft.Inventory.Item;
 
 codeunit 8060 "Create Billing Documents"
 {
+    Access = Internal;
     TableNo = "Billing Line";
 
     trigger OnRun()
@@ -420,11 +421,11 @@ codeunit 8060 "Create Billing Documents"
         PurchLine.Validate("Direct Unit Cost", NewPurchaseLineAmount / NewPurchaseLineQuantity);
     end;
 
-    local procedure GetBillingLineNo(BillingDocumentType: Enum "Rec. Billing Document Type"; ServicePartner: Enum "Service Partner"; DocumentNo: Code[20]; ContractNo: Code[20]; ContractLineNo: Integer): Integer
+    local procedure GetBillingLineNo(BillingDocumentType: Enum "Rec. Billing Document Type"; ServiceParner: Enum "Service Partner"; DocumentNo: Code[20]; ContractNo: Code[20]; ContractLineNo: Integer): Integer
     var
         BillingLine: Record "Billing Line";
     begin
-        BillingLine.FilterBillingLineOnContractLine(ServicePartner, ContractNo, ContractLineNo);
+        BillingLine.FilterBillingLineOnContractLine(ServiceParner, ContractNo, ContractLineNo);
         BillingLine.SetRange("Document Type", BillingDocumentType);
         BillingLine.SetRange("Document No.", DocumentNo);
         if BillingLine.FindLast() then
@@ -908,19 +909,19 @@ codeunit 8060 "Create Billing Documents"
             CustomerRecurringBillingGrouping := "Customer Rec. Billing Grouping"::Contract;
     end;
 
-    internal procedure GetBillingPeriodDescriptionTxt() DescriptionText: Text
+    procedure GetBillingPeriodDescriptionTxt() DescriptionText: Text
     begin
         DescriptionText := ServicePeriodDescriptionTxt;
     end;
 
-    internal procedure GetBillingPeriodDescriptionTxt(LanguageCode: Code[10]) DescriptionText: Text
+    procedure GetBillingPeriodDescriptionTxt(LanguageCode: Code[10]) DescriptionText: Text
     begin
         TranslationHelper.SetGlobalLanguageByCode(LanguageCode);
         DescriptionText := GetBillingPeriodDescriptionTxt();
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
-    internal procedure CreateAdditionalInvoiceLine(ServiceContractSetupFieldNo: Integer; SalesHeader2: Record "Sales Header"; ParentSalesLine: Record "Sales Line"; ServiceObject: Record "Subscription Header"; ServiceCommitment: Record "Subscription Line")
+    procedure CreateAdditionalInvoiceLine(ServiceContractSetupFieldNo: Integer; SalesHeader2: Record "Sales Header"; ParentSalesLine: Record "Sales Line"; ServiceObject: Record "Subscription Header"; ServiceCommitment: Record "Subscription Line")
     var
         SalesLine: Record "Sales Line";
         DescriptionText: Text;
@@ -1046,7 +1047,7 @@ codeunit 8060 "Create Billing Documents"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [InternalEvent(false, false)]
     local procedure OnBeforeInsertSalesLineFromContractLine(var SalesLine: Record "Sales Line"; var TempBillingLine: Record "Billing Line" temporary)
     begin
     end;
