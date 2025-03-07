@@ -142,14 +142,27 @@ codeunit 1605 "PEPPOL Management"
             AdditionalDocumentReferenceID := DocumentAttachments."No.";
             EmbeddedDocumentBinaryObject := Base64Convert.ToBase64(InStream);
             case DocumentAttachments."File Type" of
+                "Document Attachment File Type"::"XML":
+                    MimeCode := 'application/xml';
                 "Document Attachment File Type"::Image:
-                    MimeCode := 'image/' + LowerCase(DocumentAttachments."File Extension");
+                    if DocumentAttachments."File Extension".ToLower() = 'png' then
+                        MimeCode := 'image/png'
+                    else
+                        if (DocumentAttachments."File Extension".ToLower() = 'jpeg') or (DocumentAttachments."File Extension".ToLower() = 'jpg') then
+                            MimeCode := 'image/jpeg';
                 "Document Attachment File Type"::PDF:
-                    MimeCode := 'application/' + LowerCase(DocumentAttachments."File Extension");
+                    MimeCode := 'application/pdf';
                 "Document Attachment File Type"::Excel:
                     MimeCode := 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-
+                "Document Attachment File Type"::Other:
+                    if DocumentAttachments."File Extension".ToLower() = 'txt' then
+                        MimeCode := 'text/csv';
             end;
+
+            // If no correct mime code can be set, we skip the attachment
+            if MimeCode = '' then
+                AdditionalDocumentReferenceID := '';
+
         end;
 
         OnAfterGetAdditionalDocRefInfo(
