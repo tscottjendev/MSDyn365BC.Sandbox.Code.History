@@ -102,11 +102,10 @@ codeunit 36961 "Setup Helper"
     procedure InitializeEmbeddedAddin(PowerBIManagement: ControlAddIn PowerBIManagement; ReportId: Guid; ReportPageTok: Text)
     var
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
-        Language: Codeunit Language;
         PowerBIEmbedReportUrlTemplateTxt: Label 'https://app.powerbi.com/reportEmbed?reportId=%1', Locked = true;
     begin
         PowerBiServiceMgt.InitializeAddinToken(PowerBIManagement);
-        PowerBIManagement.SetLocale(Language.GetCurrentCultureName());
+        PowerBiManagement.SetLocale(GetUserLanguageTag());
         PowerBIManagement.SetFiltersVisible(true);
         PowerBIManagement.SetPageSelectionVisible(ReportPageTok = '');
 
@@ -127,5 +126,15 @@ codeunit 36961 "Setup Helper"
         Notify.Message(StrSubstNo(ErrorNotificationMsg, ErrorCategory, ErrorMessage));
         Notify.Scope := NotificationScope::LocalScope;
         NotificationLifecycleMgt.SendNotification(Notify, PowerBIContextSettings.RecordId());
+    end;
+
+    local procedure GetUserLanguageTag(): Text
+    var
+        WindowsLanguage: Record "Windows Language";
+    begin
+        if WindowsLanguage.Get(GlobalLanguage()) then
+            exit(WindowsLanguage."Language Tag");
+
+        exit('en-US');
     end;
 }
