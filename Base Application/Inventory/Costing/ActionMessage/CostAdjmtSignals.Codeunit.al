@@ -11,12 +11,11 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Setup;
-using System.Telemetry;
 using System.Threading;
+using System.Telemetry;
 
 codeunit 5842 "Cost Adjmt. Signals"
 {
-    Access = Internal;
     InherentPermissions = X;
     Permissions = TableData "Cost Adjmt. Action Message" = RIMD;
 
@@ -34,7 +33,6 @@ codeunit 5842 "Cost Adjmt. Signals"
         ManyNonAdjustedEntryPointsTok: Label 'Many non-adjusted periods exist.';
         ManyNonAdjustedOrdersWithNumberTok: Label '%1 production and assembly orders require cost adjustment.', Comment = '%1 = count';
         ManyNonAdjustedOrdersTok: Label 'Many non-adjusted orders exist.';
-        ZeroInventoryResidualAmountMsg: Label 'Residual amount for zero inventory exists.';
         ItemsExcludedFromCostAdjustmentTok: Label 'Some items remain unadjusted and are excluded from the cost adjustment.';
         ItemsExcludedFromCostAdjustmentWithNumberTok: Label '%1 items remain unadjusted and are excluded from the cost adjustment.', Comment = '%1 = item count';
         OneItemExcludedFromCostAdjustmentWithTok: Label 'One item remains unadjusted and is excluded from the cost adjustment.';
@@ -47,7 +45,6 @@ codeunit 5842 "Cost Adjmt. Signals"
         AdjustCostItemDimensionTok: Label 'Item No.';
         AdjustCostDurationDimensionTok: Label 'Duration';
         AdjustCostRunIdDimensionTok: Label 'Run ID';
-        ResidualAmountsTelemetryMsg: Label 'Some data inconsistencies in inventory valuation was detected.';
 
     internal procedure RunAllTests()
     var
@@ -61,19 +58,9 @@ codeunit 5842 "Cost Adjmt. Signals"
         CheckAvgCostAdjmtEntryPoint();
         CheckInvtAdjmtEntryOrder();
         CheckIfItemsAreExcludedFromCostAdjustment();
-        CheckResidualAmountFor0Inventory();
     end;
 
-    internal procedure ShowActionMessages(ActionMessagesNotification: Notification)
-    var
-        CostAdjmtActionMessage: Record "Cost Adjmt. Action Message";
-    begin
-        CostAdjmtActionMessage.SetFilter("Next Check Date/Time", '>=%1', CurrentDateTime());
-        CostAdjmtActionMessage.SetRange(Active, true);
-        Page.Run(0, CostAdjmtActionMessage);
-    end;
-
-    local procedure CheckCostingEnabled()
+    internal procedure CheckCostingEnabled()
     var
         CustomDimensions: Dictionary of [Text, Text];
         Importance: Integer;
@@ -101,6 +88,15 @@ codeunit 5842 "Cost Adjmt. Signals"
             RaiseCostAdjmtSignal(
               "Cost Adjmt. Action Msg. Type"::"Cost Adjustment Not Running", NoIssuesFoundTok,
               NextCheckInDays, 5, Database::"Inventory Setup", '', false);
+    end;
+
+    internal procedure ShowActionMessages(ActionMessagesNotification: Notification)
+    var
+        CostAdjmtActionMessage: Record "Cost Adjmt. Action Message";
+    begin
+        CostAdjmtActionMessage.SetFilter("Next Check Date/Time", '>=%1', CurrentDateTime());
+        CostAdjmtActionMessage.SetRange(Active, true);
+        Page.Run(0, CostAdjmtActionMessage);
     end;
 
     local procedure CheckAdjustCostEnabledInInventorySetup(var Dimensions: Dictionary of [Text, Text]): Boolean
@@ -244,52 +240,6 @@ codeunit 5842 "Cost Adjmt. Signals"
             RaiseCostAdjmtSignal(
               "Cost Adjmt. Action Msg. Type"::"Many Non-Adjusted Orders", NoIssuesFoundTok,
               NextCheckInDays, 5, Database::"Inventory Adjmt. Entry (Order)", '', false);
-    end;
-
-    local procedure CheckResidualAmountFor0Inventory()
-    var
-        ResidualAmountItems: Query "Residual Amount - Items";
-        CustomDimensions: Dictionary of [Text, Text];
-        NoOfSignalsLogged: Integer;
-        Importance: Integer;
-        NextCheckInDays: Integer;
-    begin
-        if SignalAlreadyRaised("Cost Adjmt. Action Msg. Type"::"Data Discrepancy", 0) then
-            exit;
-
-        Importance := 2;
-        NextCheckInDays := GetMinDaysBetweenCostAdjmtSignals();
-
-        NoOfSignalsLogged := 0;
-        ResidualAmountItems.SetFilter(Cost_Amount_Actual, '<>0');
-        ResidualAmountItems.TopNumberOfRows(GetMaxNumberOfSignalsLogged());
-        ResidualAmountItems.Open();
-        while ResidualAmountItems.Read() and (NoOfSignalsLogged < GetMaxNumberOfSignalsLogged()) do begin
-            NoOfSignalsLogged += 1;
-            CustomDimensions.Add(ResidualAmountItems.ColumnCaption(Item_No), ResidualAmountItems.Item_No);
-            CustomDimensions.Add(ResidualAmountItems.ColumnCaption(Cost_Amount_Actual), Format(ResidualAmountItems.Cost_Amount_Actual));
-            CustomDimensions.Add(ResidualAmountItems.ColumnCaption(Cost_Amount_Expected), Format(ResidualAmountItems.Cost_Amount_Expected));
-        end;
-        ResidualAmountItems.Close();
-
-        if NoOfSignalsLogged < GetMaxNumberOfSignalsLogged() then begin
-            ResidualAmountItems.SetFilter(Cost_Amount_Expected, '<>0');
-            ResidualAmountItems.TopNumberOfRows(GetMaxNumberOfSignalsLogged());
-            ResidualAmountItems.Open();
-            while ResidualAmountItems.Read() and (NoOfSignalsLogged < GetMaxNumberOfSignalsLogged()) do begin
-                NoOfSignalsLogged += 1;
-                CustomDimensions.Add(ResidualAmountItems.ColumnCaption(Item_No), ResidualAmountItems.Item_No);
-                CustomDimensions.Add(ResidualAmountItems.ColumnCaption(Cost_Amount_Actual), Format(ResidualAmountItems.Cost_Amount_Actual));
-                CustomDimensions.Add(ResidualAmountItems.ColumnCaption(Cost_Amount_Expected), Format(ResidualAmountItems.Cost_Amount_Expected));
-            end;
-        end;
-
-        if NoOfSignalsLogged > 0 then begin
-            RaiseCostAdjmtSignal(
-                "Cost Adjmt. Action Msg. Type"::"Data Discrepancy", ZeroInventoryResidualAmountMsg, NextCheckInDays,
-                Importance, 0, CopyStr(DictionaryToJsonText(CustomDimensions), 1, 2048), true);
-            LogUsageInTelemetry(ResidualAmountsTelemetryMsg);
-        end;
     end;
 
     local procedure CheckInventorySetup()
@@ -456,11 +406,6 @@ codeunit 5842 "Cost Adjmt. Signals"
     local procedure GetMinDaysBetweenCostAdjmtSignals(): Integer
     begin
         exit(7);
-    end;
-
-    local procedure GetMaxNumberOfSignalsLogged(): Integer
-    begin
-        exit(20);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", OnAfterPostItem, '', true, true)]
