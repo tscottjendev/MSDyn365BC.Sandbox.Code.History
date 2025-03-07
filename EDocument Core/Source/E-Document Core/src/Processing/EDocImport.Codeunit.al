@@ -333,7 +333,7 @@ codeunit 6140 "E-Doc. Import"
                 end;
 
                 // Save Temp EDocument Import Line for matching to purchase order
-                TempEDocImportedLine.Insert(EDocument, SourceDocumentLine, TempEDocImportedLine);
+                TempEDocImportedLine.Insert(EDocument, SourceDocumentLine, TempEDocImportedLine, ItemFound);
             until SourceDocumentLine.Next() = 0;
 
         // Clear any error messages created while trying to resolve and reinsert stored.
