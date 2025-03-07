@@ -190,12 +190,6 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                 {
                     NamespacePrefix = 'cbc';
                     XmlName = 'DocumentType';
-
-                    trigger OnBeforePassVariable()
-                    begin
-                        if additionaldocrefdocumenttype = '' then
-                            currXMLport.Skip();
-                    end;
                 }
                 textelement(Attachment)
                 {
@@ -232,19 +226,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                         textelement(URI)
                         {
                             NamespacePrefix = 'cbc';
-
-                            trigger OnBeforePassVariable()
-                            begin
-                                if URI = '' then
-                                    currXMLport.Skip();
-                            end;
                         }
-
-                        trigger OnBeforePassVariable()
-                        begin
-                            if URI = '' then
-                                currXMLport.Skip();
-                        end;
                     }
                 }
 

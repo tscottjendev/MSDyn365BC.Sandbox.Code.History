@@ -1,4 +1,3 @@
-﻿
 namespace Microsoft.Sales.Peppol;
 
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -236,12 +235,6 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                 {
                     NamespacePrefix = 'cbc';
                     XmlName = 'DocumentType';
-
-                    trigger OnBeforePassVariable()
-                    begin
-                        if additionaldocrefdocumenttype = '' then
-                            currXMLport.Skip();
-                    end;
                 }
                 textelement(Attachment)
                 {
@@ -279,19 +272,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                         textelement(URI)
                         {
                             NamespacePrefix = 'cbc';
-
-                            trigger OnBeforePassVariable()
-                            begin
-                                if URI = '' then
-                                    currXMLport.Skip();
-                            end;
                         }
-
-                        trigger OnBeforePassVariable()
-                        begin
-                            if URI = '' then
-                                currXMLport.Skip();
-                        end;
                     }
                 }
 
