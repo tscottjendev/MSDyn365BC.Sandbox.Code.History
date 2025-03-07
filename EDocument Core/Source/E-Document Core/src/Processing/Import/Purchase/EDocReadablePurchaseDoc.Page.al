@@ -236,7 +236,18 @@ page 6182 "E-Doc. Readable Purchase Doc."
         DataCaption := 'Extracted Data - Purchase Document ' + Format(Rec."E-Document Entry No.");
     end;
 
+    trigger OnOpenPage()
     var
-        DataCaption: Text;
+        ImportEDocumentProcess: Codeunit "Import E-Document Process";
+    begin
+        if Rec."E-Document Entry No." <> 0 then begin
+            AIGeneratedContentNotification.Message(ImportEDocumentProcess.AIGeneratedContentText());
+            AIGeneratedContentNotification.AddAction(ImportEDocumentProcess.TermsAndConditionsText(), Codeunit::"Import E-Document Process", 'OpenTermsAndConditions');
+            AIGeneratedContentNotification.Send();
+        end;
+    end;
 
+    var
+        AIGeneratedContentNotification: Notification;
+        DataCaption: Text;
 }
