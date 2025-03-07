@@ -634,12 +634,13 @@ codeunit 99000830 "Create Reserv. Entry"
 
     local procedure CheckSourceTypeSubtype(var ReservEntry: Record "Reservation Entry") IsError: Boolean
     begin
+        // This event used internally for base app source tables
         OnCheckSourceTypeSubtype(ReservEntry, IsError);
-        if IsError then
-            exit(true);
-
+        
+        // This event used for compatibility with previous versions
         OnAfterCheckValidity(ReservEntry, IsError);
 
+        // This event used for external extensions
         OnAfterCheckSourceTypeSubtype(ReservEntry, IsError);
     end;
 
