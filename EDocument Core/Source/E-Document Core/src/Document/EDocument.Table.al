@@ -14,6 +14,7 @@ using System.Reflection;
 using System.Threading;
 using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 table 6121 "E-Document"
 {
@@ -265,6 +266,20 @@ table 6121 "E-Document"
         EDocument.SetRange("Document Date", Rec."Document Date");
         EDocument.SetFilter("Entry No", '<>%1', Rec."Entry No");
         exit(not EDocument.IsEmpty());
+    end;
+
+    internal procedure GetTotalAmountIncludingVAT(): Decimal
+    var
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+    begin
+        if Rec."Amount Incl. VAT" <> 0 then
+            exit(Rec."Amount Incl. VAT");
+        if Rec.Direction = Rec.Direction::Outgoing then
+            exit(-Rec."Amount Incl. VAT");
+        if GetEDocumentService()."Import Process" = "E-Document Import Process"::"Version 1.0" then
+            exit(Rec."Amount Incl. VAT");
+        EDocumentPurchaseHeader.GetFromEDocument(Rec);
+        exit(EDocumentPurchaseHeader.Total);
     end;
 
     local procedure DeleteRelatedRecords()
