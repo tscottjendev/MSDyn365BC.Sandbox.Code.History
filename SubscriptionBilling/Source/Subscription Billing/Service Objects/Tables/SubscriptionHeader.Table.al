@@ -1857,9 +1857,6 @@ table 8057 "Subscription Header"
     var
         ServiceCommitment: Record "Subscription Line";
     begin
-        if "No." = '' then
-            exit(false);
-
         FilterServiceCommitments(ServiceCommitment);
         exit(not ServiceCommitment.IsEmpty);
     end;
@@ -1876,7 +1873,6 @@ table 8057 "Subscription Header"
 
         if not ServiceCommitmentsExist() then
             exit;
-
         if IsGLAccount() then
             exit;
 
