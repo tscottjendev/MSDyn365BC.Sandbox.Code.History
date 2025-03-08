@@ -49,7 +49,7 @@ codeunit 139002 "Web Services Tests"
         WebServicesPage.OpenView();
 
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageServiceTxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PageServiceTxt);
+        VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageServiceTxt);
 
         WebServicesPage.GotoKey(WebService."Object Type"::Query, QueryServiceTxt);
         VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, QueryServiceTxt);
@@ -58,7 +58,7 @@ codeunit 139002 "Web Services Tests"
         VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, CodeunitServiceTxt);
 
         WebServicesPage.GotoKey(WebService."Object Type"::Page, UnpublishedPageTxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, UnpublishedPageTxt);
+        Assert.AreEqual('', WebServicesPage.SOAPUrl.Value, 'SOAP Url should be empty when not published: ' + CodeunitServiceTxt);
 
         WebServicesPage.Close();
     end;
@@ -81,8 +81,7 @@ codeunit 139002 "Web Services Tests"
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageATxt);
-
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PageATxt);
+        VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageATxt);
         Assert.IsTrue(WebServicesPage.Published.AsBoolean(), PageATxt + ' web service record "Published" field should be checked.');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageATxt + ' all tenants should be checked.');
 
@@ -107,7 +106,7 @@ codeunit 139002 "Web Services Tests"
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageBTxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PageBTxt);
+        VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageBTxt);
         Assert.IsTrue(WebServicesPage.Published.AsBoolean(), PageBTxt + ' web service record "Published" field should be checked.');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageBTxt + ' all tenants should be checked.');
 
@@ -132,7 +131,7 @@ codeunit 139002 "Web Services Tests"
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageCTxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PageCTxt);
+        Assert.AreEqual('', WebServicesPage.SOAPUrl.Value, PageCTxt + ' web service record "SOAP Url" should be empty.');
         Assert.IsFalse(WebServicesPage.Published.AsBoolean(), PageCTxt + ' web service record "Published" field should not be checked.');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageCTxt + ' all tenants should be checked.');
 
@@ -157,7 +156,7 @@ codeunit 139002 "Web Services Tests"
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageDTxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PageDTxt);
+        VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageDTxt);
         Assert.IsTrue(WebServicesPage.Published.AsBoolean(), PageDTxt + ' web service record "Published" field should be checked.');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageDTxt + ' all tenants should be checked.');
 
@@ -182,7 +181,7 @@ codeunit 139002 "Web Services Tests"
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageETxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PageFTxt);
+        VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageETxt);
         Assert.IsTrue(WebServicesPage.Published.AsBoolean(), PageETxt + ' web service record "Published" field should be checked.');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageETxt + ' all tenants should be checked.');
 
@@ -207,7 +206,7 @@ codeunit 139002 "Web Services Tests"
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageFTxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PageFTxt);
+        VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageFTxt);
         Assert.IsTrue(WebServicesPage.Published.AsBoolean(), PageFTxt + ' web service record "Published" field should be checked.');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageFTxt + ' all tenants should be checked.');
 
@@ -234,12 +233,12 @@ codeunit 139002 "Web Services Tests"
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageHTxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PageHTxt);
+        Assert.AreEqual('', WebServicesPage.SOAPUrl.Value, 'SOAP Url should be empty when not published: ' + PageHTxt);
         Assert.IsFalse(WebServicesPage.Published.AsBoolean(), PageHTxt + ' web service record "Published" field should not be checked.');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageHTxt + ' all tenants should be checked.');
 
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageITxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PageITxt);
+        Assert.AreEqual('', WebServicesPage.SOAPUrl.Value, 'SOAP Url should be empty when not published: ' + PageITxt);
         Assert.IsTrue(WebServicesPage.Published.AsBoolean(), PageITxt + ' web service record "Published" field should be checked.');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageITxt + ' all tenants should be checked.');
 
@@ -267,12 +266,12 @@ codeunit 139002 "Web Services Tests"
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageLTxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PageLTxt);
+        VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageLTxt);
         Assert.IsTrue(
           WebServicesPage.Published.AsBoolean(), PageLTxt + ' web service record "Published" field should be checked.');
 
         WebServicesPage.GotoKey(TenantWebService."Object Type"::Page, PageMTxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PageMTxt);
+        Assert.AreEqual('', WebServicesPage.SOAPUrl.Value, PageMTxt + ' web service record "SOAP Url" should be empty.');
         Assert.IsFalse(
           WebServicesPage.Published.AsBoolean(), PageMTxt + ' web service record "Published" field should not be checked.');
 
@@ -298,12 +297,12 @@ codeunit 139002 "Web Services Tests"
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageNTxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PageNTxt);
+        VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageNTxt);
         Assert.IsTrue(
           WebServicesPage.Published.AsBoolean(), PageNTxt + ' web service record "Published" field should be checked.');
 
         WebServicesPage.GotoKey(TenantWebService."Object Type"::Page, PageOTxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PageOTxt);
+        VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageOTxt);
         Assert.IsTrue(
           WebServicesPage.Published.AsBoolean(), PageOTxt + ' web service record "Published" field should be checked.');
 
@@ -329,12 +328,12 @@ codeunit 139002 "Web Services Tests"
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PagePTxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PagePTxt);
+        VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PagePTxt);
         Assert.IsTrue(
           WebServicesPage.Published.AsBoolean(), PagePTxt + ' web service record "Published" field should be checked.');
 
         WebServicesPage.GotoKey(TenantWebService."Object Type"::Page, PageQTxt);
-        VerifyUrlMissingServiceName(WebServicesPage.SOAPUrl.Value, PageQTxt);
+        Assert.AreEqual('', WebServicesPage.SOAPUrl.Value, PageQTxt + ' web service record "SOAP Url" should be empty.');
         Assert.IsFalse(
           WebServicesPage.Published.AsBoolean(), PageQTxt + ' web service record "Published" field should not be checked.');
 
