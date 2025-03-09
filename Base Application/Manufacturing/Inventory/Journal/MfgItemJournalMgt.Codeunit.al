@@ -18,6 +18,7 @@ using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Purchases.Setup;
+using Microsoft.Foundation.Enums;
 
 codeunit 99000762 "Mfg. Item Journal Mgt."
 {
@@ -389,6 +390,19 @@ codeunit 99000762 "Mfg. Item Journal Mgt."
             ItemJournalLine.CreateDimWithProdOrderLine();
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnGetOrderTypeProduction', '', false, false)]
+    local procedure OnGetOrderTypeProduction(var OrderType: Enum "Inventory Order Type")
+    begin
+        OrderType := "Inventory Order Type"::Production;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnAfterIsEntryTypeOutput', '', false, false)]
+    local procedure OnAfterIsEntryTypeOutput(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
+    begin
+        if ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Output then
+            Result := true;
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnAfterIsEntryTypeConsumption', '', false, false)]
     local procedure OnAfterIsEntryTypeConsumption(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
     begin
@@ -456,6 +470,32 @@ codeunit 99000762 "Mfg. Item Journal Mgt."
         DimMgt: Codeunit DimensionManagement;
     begin
         DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", StandardItemJournalLine."Work Center No.", FieldNo = StandardItemJournalLine.FieldNo("Work Center No."));
+    end;
+
+    // Table Item Journal Template
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Template", 'OnGetConsumptionTemplateType', '', false, false)]
+    local procedure OnGetConsumptionTemplateType(var Type: Enum "Item Journal Template Type")
+    begin
+        Type := "Item Journal Template Type"::Consumption;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Template", 'OnGetOutputTemplateType', '', false, false)]
+    local procedure OnGetOutputTemplateType(var Type: Enum "Item Journal Template Type")
+    begin
+        Type := "Item Journal Template Type"::Output;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Template", 'OnGetCapacityTemplateType', '', false, false)]
+    local procedure OnGetCapacityTemplateType(var Type: Enum "Item Journal Template Type")
+    begin
+        Type := "Item Journal Template Type"::Capacity;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Template", 'OnGetProdOrderTemplateType', '', false, false)]
+    local procedure OnGetProdOrderTemplateType(var Type: Enum "Item Journal Template Type")
+    begin
+        Type := "Item Journal Template Type"::"Prod. Order";
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Item Journal Template", 'OnAfterValidateType', '', false, false)]
