@@ -168,7 +168,9 @@ table 339 "Item Application Entry"
     var
         TempVisitedItemApplicationEntry: Record "Item Application Entry" temporary;
         TempItemLedgerEntryInChainNo: Record "Integer" temporary;
+#if not CLEAN27
         SearchedItemLedgerEntry: Record "Item Ledger Entry";
+#endif
         TrackChain: Boolean;
         MaxValuationDate: Date;
         AppliedFromEntryToAdjustErr: Label 'You have to run the %1 batch job, before you can revalue %2 %3.', Comment = '%1 = Report::"Adjust Cost - Item Entries", %2 = Item Ledger Entry table caption, %3 = Inbound Item Ledger Entry No.';
@@ -457,9 +459,6 @@ table 339 "Item Application Entry"
                 if TrackChain then begin
                     TempItemLedgerEntryInChainNo.Number := ItemLedgerEntry."Entry No.";
                     if TempItemLedgerEntryInChainNo.Insert() then;
-
-                    if SearchedItemLedgerEntryFound(ItemLedgerEntry) then
-                        exit(true);
                 end;
 
                 if ItemLedgerEntry."Entry No." = CheckItemLedgerEntry."Entry No." then
@@ -777,23 +776,13 @@ table 339 "Item Application Entry"
         exit(ValueEntry."Valuation Date" <= MaxDate);
     end;
 
+#if not CLEAN27
+    [Obsolete('The optimization that used this function was obsoleted.', '27.0')]
     procedure SetSearchedItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
         SearchedItemLedgerEntry.Copy(ItemLedgerEntry);
     end;
-
-    local procedure SearchedItemLedgerEntryFound(ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
-    var
-        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
-    begin
-        if SearchedItemLedgerEntry.GetFilters() = '' then
-            exit(false);
-
-        TempItemLedgerEntry := ItemLedgerEntry;
-        TempItemLedgerEntry.Insert();
-        TempItemLedgerEntry.CopyFilters(SearchedItemLedgerEntry);
-        exit(not TempItemLedgerEntry.IsEmpty())
-    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFixed(ItemApplicationEntry: Record "Item Application Entry"; var Result: Boolean; var IsHandled: Boolean)
