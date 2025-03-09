@@ -15,6 +15,7 @@ using Microsoft.Manufacturing.Setup;
 using Microsoft.Foundation.UOM;
 using Microsoft.Warehouse.Request;
 using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Inventory.Location;
 
 tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
 {
@@ -394,7 +395,7 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
     var
         UOMMgt: Codeunit "Unit of Measure Management";
 
-        DifferentBinCodeQst: Label 'The entered bin code %1 is different from the bin code %2 in production order component %3.\\Are you sure that you want to post the consumption from bin code %1?';
+        DifferentBinCodeQst: Label 'The entered bin code %1 is different from the bin code %2 in production order component %3.\\Are you sure that you want to post the consumption from bin code %1?', Comment = '%1, %2 - bin code, %3 - prod. order component';
         FinishedOutputQst: Label 'The operation has been finished. Do you want to post output for the finished operation?';
         ScrapCodeTypeErr: Label 'When using Scrap Code, Type must be Work Center or Machine Center.';
         SubcontractedErr: Label '%1 must be zero in line number %2 because it is linked to the subcontracted work center.', Comment = '%1 - Field Caption, %2 - Line No.';
@@ -852,6 +853,29 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
             exit;
 
         UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Output Quantity", "Output Quantity (Base)", 0, 0);
+    end;
+
+    /// <summary>
+    /// Checks warehouse settings for a provided location and adjusts the output quantity 
+    /// for an item journal line record based on these settings and the entry type of the record.
+    /// </summary>
+    /// <param name="LocationCode">Location to check warehouse settings for.</param>
+    /// <param name="QtyToPost">Return value: Output quantity to use.</param>
+    procedure CheckWhse(LocationCode: Code[20]; var QtyToPost: Decimal)
+    var
+        Location: Record Location;
+    begin
+        Location.Get(LocationCode);
+
+        if "Entry Type" = "Entry Type"::Output then begin
+            if Location."Prod. Output Whse. Handling" = Enum::Microsoft.Manufacturing.Setup."Prod. Output Whse. Handling"::"Inventory Put-away" then
+                QtyToPost := 0;
+        end else
+            if Location."Require Put-away" and
+               (not Location."Directed Put-away and Pick") and
+               (not Location."Require Receive")
+            then
+                QtyToPost := 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -649,8 +649,8 @@ report 702 "Inventory Posting - Test"
                     CheckDimValuePosting("Item Journal Line");
 
                     if (ItemJnlTemplate.Type in
-                        [ItemJnlTemplate.Type::Consumption, ItemJnlTemplate.Type::Transfer]) or
-                       ((ItemJnlTemplate.Type = ItemJnlTemplate.Type::"Prod. Order") and
+                        [ItemJnlTemplate.GetConsumptionTemplateType(), ItemJnlTemplate.Type::Transfer]) or
+                       ((ItemJnlTemplate.Type = ItemJnlTemplate.GetProdOrderTemplateType()) and
                         ("Entry Type" = "Entry Type"::Consumption))
                     then begin
                         ItemJnlLine4.Reset();

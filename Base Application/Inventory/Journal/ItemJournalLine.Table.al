@@ -139,7 +139,7 @@ table 83 "Item Journal Line"
                 OnValidateItemNoOnAfterCalcUnitCost(Rec, Item);
 
                 if ("Item No." <> xRec."Item No.") and
-                   ((("Entry Type" = "Entry Type"::Output) and ("No." = '')) or ("Entry Type" <> "Entry Type"::Output)) or
+                   ((IsEntryTypeOutput() and ("No." = '')) or (not IsEntryTypeOutput())) or
                    ("Value Entry Type" = "Value Entry Type"::Revaluation)
                 then
                     "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
@@ -248,7 +248,7 @@ table 83 "Item Journal Line"
                     "New Bin Code" := '';
                 end;
 
-                if "Entry Type" <> "Entry Type"::Output then
+                if not IsEntryTypeOutput() then
                     Type := Type::" ";
 
                 SetDefaultPriceCalculationMethod();
@@ -371,9 +371,7 @@ table 83 "Item Journal Line"
                 end;
 
                 "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
-                if ("Entry Type" = "Entry Type"::Output) and
-                   ("Value Entry Type" <> "Value Entry Type"::Revaluation)
-                then
+                if IsEntryTypeOutput() and ("Value Entry Type" <> "Value Entry Type"::Revaluation) then
                     "Invoiced Quantity" := 0
                 else
                     "Invoiced Quantity" := Quantity;
@@ -547,7 +545,7 @@ table 83 "Item Journal Line"
 
             trigger OnValidate()
             begin
-                if ("Order Type" <> "Order Type"::Production) or ("Order No." = '') then
+                if ("Order Type" <> GetOrderTypeProduction()) or ("Order No." = '') then
                     CreateDimFromDefaultDim(rec.FieldNo("Salespers./Purch. Code"));
             end;
         }
@@ -608,10 +606,10 @@ table 83 "Item Journal Line"
                         if not ItemLedgEntry.Open then
                             Message(Text032, "Applies-to Entry");
 
-                        ShouldCheckItemLedgEntryFieldsForOutput := "Entry Type" = "Entry Type"::Output;
+                        ShouldCheckItemLedgEntryFieldsForOutput := IsEntryTypeOutput();
                         OnValidateAppliestoEntryOnAfterCalcShouldCheckItemLedgEntryFieldsForOutput(Rec, ItemLedgEntry, ShouldCheckItemLedgEntryFieldsForOutput);
                         if ShouldCheckItemLedgEntryFieldsForOutput then begin
-                            ItemLedgEntry.TestField("Order Type", "Order Type"::Production);
+                            ItemLedgEntry.TestField("Order Type", GetOrderTypeProduction());
                             ItemLedgEntry.TestField("Order No.", "Order No.");
                             ItemLedgEntry.TestField("Order Line No.", "Order Line No.");
                             ItemLedgEntry.TestField("Entry Type", "Entry Type");
@@ -956,7 +954,7 @@ table 83 "Item Journal Line"
             trigger OnValidate()
             begin
                 case "Order Type" of
-                    "Order Type"::Transfer, "Order Type"::Service, "Order Type"::" ":
+                    "Order Type"::Transfer, GetOrderTypeService(), "Order Type"::" ":
                         Error(Text002, FieldCaption("Order No."), FieldCaption("Order Type"), "Order Type");
                     else
                         OnValidateOrderNoOnCaseOrderTypeElse(Rec, xRec);
@@ -1044,7 +1042,7 @@ table 83 "Item Journal Line"
                     WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
 
                 if "Variant Code" <> xRec."Variant Code" then begin
-                    if "Entry Type" <> "Entry Type"::Output then
+                    if not IsEntryTypeOutput() then
                         "Bin Code" := '';
                     if (CurrFieldNo <> 0) and Item.IsInventoriableType() then
                         WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Variant Code"));
@@ -1962,7 +1960,7 @@ table 83 "Item Journal Line"
     procedure IsValueEntryForDeletedItem(): Boolean
     begin
         exit(
-          (("Entry Type" = "Entry Type"::Output) or ("Value Entry Type" = "Value Entry Type"::Rounding)) and
+          (IsEntryTypeOutput() or ("Value Entry Type" = "Value Entry Type"::Rounding)) and
           ("Item No." = '') and ("Item Charge No." = '') and ("Invoiced Qty. (Base)" <> 0));
     end;
 
@@ -2121,7 +2119,7 @@ table 83 "Item Journal Line"
             "Posting Date" := LastItemJnlLine."Posting Date";
             "Document Date" := LastItemJnlLine."Posting Date";
             if (ItemJnlTemplate.Type in
-                [ItemJnlTemplate.Type::Consumption, ItemJnlTemplate.Type::Output])
+                [ItemJnlTemplate.GetConsumptionTemplateType(), ItemJnlTemplate.GetOutputTemplateType()])
             then begin
                 if not IsDocNoProdOrderNo() then
                     "Document No." := LastItemJnlLine."Document No."
@@ -2133,7 +2131,7 @@ table 83 "Item Journal Line"
             if ItemJnlBatch."No. Series" <> '' then
                 "Document No." := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", "Posting Date");
             if (ItemJnlTemplate.Type in
-                [ItemJnlTemplate.Type::Consumption, ItemJnlTemplate.Type::Output]) and
+                [ItemJnlTemplate.GetConsumptionTemplateType(), ItemJnlTemplate.GetOutputTemplateType()]) and
                not IsDocNoProdOrderNo()
             then
                 if ItemJnlBatch."No. Series" <> '' then
@@ -2157,9 +2155,10 @@ table 83 "Item Journal Line"
                 "Location Code" := UserMgt.GetLocation(1, '', UserMgt.GetPurchasesFilter());
             "Entry Type"::Sale:
                 "Location Code" := UserMgt.GetLocation(0, '', UserMgt.GetSalesFilter());
-            "Entry Type"::Output:
-                Clear(DimMgt);
         end;
+
+        if IsEntryTypeOutput() then
+            Clear(DimMgt);
 
         if Location.Get("Location Code") then
             if Location."Directed Put-away and Pick" then
@@ -2956,6 +2955,17 @@ table 83 "Item Journal Line"
         OnTimeIsEmpty(Rec, Result);
     end;
 
+    local procedure GetOrderTypeProduction() OrderType: Enum "Inventory Order Type"
+    begin
+        OnGetOrderTypeProduction(OrderType);
+
+    end;
+
+    local procedure GetOrderTypeService() OrderType: Enum "Inventory Order Type"
+    begin
+        OnGetOrderTypeService(OrderType);
+    end;
+
     /// <summary>
     /// Generates a unique identifier text for a item journal line record which is used for item tracking.
     /// </summary>
@@ -3164,29 +3174,6 @@ table 83 "Item Journal Line"
         then
             exit(true);
         exit(false);
-    end;
-
-    /// <summary>
-    /// Checks warehouse settings for a provided location and adjusts the output quantity 
-    /// for an item journal line record based on these settings and the entry type of the record.
-    /// </summary>
-    /// <param name="LocationCode">Location to check warehouse settings for.</param>
-    /// <param name="QtyToPost">Return value: Output quantity to use.</param>
-    procedure CheckWhse(LocationCode: Code[20]; var QtyToPost: Decimal)
-    var
-        Location: Record Location;
-    begin
-        Location.Get(LocationCode);
-
-        if "Entry Type" = "Entry Type"::Output then begin
-            if Location."Prod. Output Whse. Handling" = Enum::Microsoft.Manufacturing.Setup."Prod. Output Whse. Handling"::"Inventory Put-away" then
-                QtyToPost := 0;
-        end else
-            if Location."Require Put-away" and
-               (not Location."Directed Put-away and Pick") and
-               (not Location."Require Receive")
-            then
-                QtyToPost := 0;
     end;
 
     /// <summary>
@@ -3436,7 +3423,7 @@ table 83 "Item Journal Line"
                     Error(PurchasingBlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Purchasing Blocked"));
             "Entry Type"::Sale:
                 case "Order Type" of
-                    "Order Type"::Service:
+                    GetOrderTypeService():
                         if Item."Service Blocked" and
                            not ("Document Type" in ["Document Type"::"Service Credit Memo"])
                         then
@@ -3474,7 +3461,7 @@ table 83 "Item Journal Line"
                     Error(PurchasingBlockedErr, ItemVariant.TableCaption(), StrSubstNo(ItemVariantPrimaryKeyLbl, ItemVariant."Item No.", ItemVariant.Code), ItemVariant.FieldCaption("Purchasing Blocked"));
             "Entry Type"::Sale:
                 case "Order Type" of
-                    "Order Type"::Service:
+                    GetOrderTypeService():
                         if ItemVariant."Service Blocked" and not (Rec."Document Type" in [Rec."Document Type"::"Service Credit Memo"]) then
                             Error(ServiceSalesBlockedErr, ItemVariant.TableCaption(), StrSubstNo(ItemVariantPrimaryKeyLbl, ItemVariant."Item No.", ItemVariant.Code), ItemVariant.FieldCaption("Service Blocked"));
                     else
@@ -3661,6 +3648,11 @@ table 83 "Item Journal Line"
     local procedure IsEntryTypeConsumption() Result: Boolean
     begin
         OnAfterIsEntryTypeConsumption(Rec, Result);
+    end;
+
+    local procedure IsEntryTypeOutput() Result: Boolean
+    begin
+        OnAfterIsEntryTypeOutput(Rec, Result);
     end;
 
     local procedure IsEntryTypeProduction() Result: Boolean
@@ -5174,6 +5166,11 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterIsEntryTypeOutput(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterIsEntryTypeProduction(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
     begin
     end;
@@ -5225,6 +5222,16 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnTimeIsEmpty(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetOrderTypeProduction(var OrderType: Enum "Inventory Order Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetOrderTypeService(var OrderType: Enum "Inventory Order Type")
     begin
     end;
 }
