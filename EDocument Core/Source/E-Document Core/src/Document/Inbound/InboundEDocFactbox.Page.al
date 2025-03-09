@@ -4,6 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
 
+using System.Text;
+using System.Utilities;
+
 page 6108 "Inbound E-Doc. Factbox"
 {
     PageType = CardPart;
@@ -55,17 +58,98 @@ page 6108 "Inbound E-Doc. Factbox"
                     Rec.ShowIntegrationLogs();
                 end;
             }
+            group(PDF)
+            {
+                Visible = IsPdf;
+                ShowCaption = false;
+                usercontrol(PDFViewer; "PDF Viewer")
+                {
+                    ApplicationArea = All;
+
+                    trigger ControlAddinReady()
+                    begin
+                        ControlAddInReady := true;
+                        SetPDFDocument();
+                    end;
+                }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(NextPdfPage)
+            {
+                Caption = 'Next pdf page';
+                ApplicationArea = All;
+                Visible = IsPdf;
+
+                trigger OnAction()
+                begin
+                    CurrPage.PDFViewer.NextPage();
+                end;
+            }
+            action(PreviousPdfPage)
+            {
+                Caption = 'Previous pdf page';
+                ApplicationArea = All;
+                Visible = IsPdf;
+
+                trigger OnAction()
+                begin
+                    CurrPage.PDFViewer.PreviousPage();
+                end;
+            }
         }
     }
 
     var
-        ImportProcessingStatusVisible: Boolean;
+        EDocument: Record "E-Document";
+        IsPdf, ControlAddInReady : Boolean;
+        ImportProcessingStatusVisible, Visible, Loaded : Boolean;
 
     trigger OnOpenPage()
     var
         EDocumentsSetup: Record "E-Documents Setup";
     begin
         ImportProcessingStatusVisible := EDocumentsSetup.IsNewEDocumentExperienceActive();
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        if EDocument.Get(Rec."E-Document Entry No") then;
+        IsPdf := EDocument."File Type" = EDocument."File Type"::PDF;
+
+        // If new record is selected, then reload the PDF document
+        if Rec."E-Document Entry No" <> xRec."E-Document Entry No" then
+            SetPDFDocument();
+    end;
+
+    local procedure SetPDFDocument()
+    var
+        EDocumentDataStorage: Record "E-Doc. Data Storage";
+        Base64Convert: Codeunit "Base64 Convert";
+        TempBlob: Codeunit "Temp Blob";
+        InStreamVar: InStream;
+        PDFAsTxt: Text;
+    begin
+        if not ControlAddInReady then
+            exit;
+
+        if (EDocument."Unstructured Data Entry No." <> 0) and (not Loaded) then begin
+            Visible := true;
+            EDocumentDataStorage.Get(EDocument."Unstructured Data Entry No.");
+            EDocumentDataStorage.CalcFields("Data Storage");
+            TempBlob.FromRecord(EDocumentDataStorage, EDocumentDataStorage.FieldNo("Data Storage"));
+
+            TempBlob.CreateInStream(InStreamVar);
+            PDFAsTxt := Base64Convert.ToBase64(InStreamVar);
+            CurrPage.PDFViewer.LoadPDF(PDFAsTxt);
+            Loaded := true;
+        end;
+        CurrPage.PDFViewer.SetVisible(Visible);
     end;
 
 }

@@ -46,7 +46,9 @@ table 6107 "E-Documents Setup"
             '5d02776e-8cf2-4fae-8cac-a52cfdfbe90f',
             'f0ac72d1-c1b3-4c2a-a196-8fb82cac5934',
             '4cde9473-edc6-464d-98c9-921bb36bab03',
-            '1fe0f01e-1d4a-4e55-86d7-c45a5b9bf1a6'
+            '1fe0f01e-1d4a-4e55-86d7-c45a5b9bf1a6',
+            '62c3bd14-7298-4281-a12a-ec3a78c22957',
+            'e5afa896-1f57-4c74-b9cd-65638c0f77da'
         ] then
             exit(true);
         if not EnvironmentInformation.IsSandbox() then

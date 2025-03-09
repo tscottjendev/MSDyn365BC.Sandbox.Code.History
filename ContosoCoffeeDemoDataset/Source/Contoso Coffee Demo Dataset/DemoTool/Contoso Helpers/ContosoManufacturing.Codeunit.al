@@ -115,6 +115,11 @@ codeunit 4763 "Contoso Manufacturing"
     end;
 
     procedure InsertProductionBOMLine(BOMCode: Code[20]; VersionCode: Code[20]; Type: Option " ",Item,"Production BOM"; No: Code[20]; CalcFormula: Enum "Quantity Calculation Formula"; QuantityPer: Decimal; RoutingLinkCode: Code[10])
+    begin
+        InsertProductionBOMLineWithUOM(BOMCode, VersionCode, Type, No, CalcFormula, QuantityPer, RoutingLinkCode, '');
+    end;
+
+    procedure InsertProductionBOMLineWithUOM(BOMCode: Code[20]; VersionCode: Code[20]; Type: Option " ",Item,"Production BOM"; No: Code[20]; CalcFormula: Enum "Quantity Calculation Formula"; QuantityPer: Decimal; RoutingLinkCode: Code[10]; UOMCode: Code[10])
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
@@ -126,6 +131,8 @@ codeunit 4763 "Contoso Manufacturing"
         ProductionBOMLine.Validate("Quantity per", QuantityPer);
         ProductionBOMLine.Validate("Calculation Formula", CalcFormula);
         ProductionBOMLine.Validate("Routing Link Code", RoutingLinkCode);
+        if UOMCode <> '' then
+            ProductionBOMLine.Validate("Unit of Measure Code", UOMCode);
         ProductionBOMLine.Insert(true);
     end;
 
