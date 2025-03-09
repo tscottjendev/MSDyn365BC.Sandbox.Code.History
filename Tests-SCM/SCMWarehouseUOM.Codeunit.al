@@ -2795,7 +2795,7 @@ codeunit 137150 "SCM Warehouse UOM"
         UpdateProductionBomAndRoutingOnItem(TopParentItem, ProductionBOMHeader."No.", '');
 
         // [WHEN] Generate BOM Cost Shares
-        CalcBOMTree.GenerateTreeForItem(TopParentItem, BOMBuffer, 99981231D, 0);
+        CalcBOMTree.GenerateTreeForOneItem(TopParentItem, BOMBuffer, 99981231D, "BOM Tree Type"::" ");
 
         // [THEN] "Qty. per Top Item" in the component line is "Q"
         FindBOMBufferLine(BOMBuffer, ComponentItem."No.");
@@ -2839,7 +2839,7 @@ codeunit 137150 "SCM Warehouse UOM"
         UpdateProductionBomAndRoutingOnItem(ParentItem, ProductionBOMHeader."No.", '');
 
         // [WHEN] Generate BOM Cost Shares
-        CalcBOMTree.GenerateTreeForItem(ParentItem, BOMBuffer, 99981231D, 0);
+        CalcBOMTree.GenerateTreeForOneItem(ParentItem, BOMBuffer, 99981231D, "BOM Tree Type"::" ");
 
         FindBOMBufferLine(BOMBuffer, ComponentItem."No.");
 
