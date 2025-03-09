@@ -260,7 +260,7 @@ page 6323 "Power BI Element Card"
         end;
 
         CurrPage.PowerBIManagement.AddBottomPadding(true);
-        CurrPage.PowerBIManagement.SetLocale(Language.GetCurrentCultureName());
+        CurrPage.PowerBIManagement.SetLocale(Language.GetUserLanguageTag());
         PowerBiServiceMgt.InitializeAddinToken(CurrPage.PowerBIManagement);
 
         if PowerBIDisplayedElement.ElementEmbedUrl <> '' then

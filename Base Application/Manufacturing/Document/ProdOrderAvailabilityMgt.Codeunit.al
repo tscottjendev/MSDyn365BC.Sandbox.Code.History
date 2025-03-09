@@ -5,6 +5,7 @@
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
@@ -300,7 +301,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
         ItemAvailByBOMLevel: Page "Item Availability by BOM Level";
     begin
         Clear(ItemAvailByBOMLevel);
-        ItemAvailByBOMLevel.InitProdOrder(ProdOrderLine);
+        ItemAvailByBOMLevel.InitSource(ProdOrderLine, "BOM Structure Show By"::Production);
         ItemAvailByBOMLevel.InitDate(OldDate);
         if FieldCaption <> '' then
             ItemAvailByBOMLevel.LookupMode(true);
