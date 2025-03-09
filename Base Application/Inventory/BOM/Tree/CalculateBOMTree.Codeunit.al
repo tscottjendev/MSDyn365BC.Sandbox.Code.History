@@ -40,7 +40,7 @@ codeunit 5870 "Calculate BOM Tree"
         AvailToUse: Option UpdatedQtyOnItemAvail,QtyOnItemAvail,QtyAvail;
         MarkBottleneck: Boolean;
         ShowTotalAvailability: Boolean;
-        TreeType: Option " ",Availability,Cost;
+        GlobalTreeType: Enum "BOM Tree Type";
 
 #pragma warning disable AA0074
         Text000: Label 'Generating Tree @1@@@@@@@';
@@ -82,12 +82,20 @@ codeunit 5870 "Calculate BOM Tree"
         BOMBuffer.DeleteAll();
     end;
 
-    local procedure InitTreeType(NewTreeType: Option)
+    local procedure InitTreeType(NewTreeType: Enum "BOM Tree Type")
     begin
-        TreeType := NewTreeType;
+        GlobalTreeType := NewTreeType;
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by procedure GenerateTreeForManyItems', '27.0')]
     procedure GenerateTreeForItems(var ParentItem: Record Item; var BOMBuffer: Record "BOM Buffer"; TreeType: Option " ",Availability,Cost)
+    begin
+        GenerateTreeForManyItems(ParentItem, BOMBuffer, "BOM Tree Type".FromInteger(TreeType));
+    end;
+#endif
+
+    procedure GenerateTreeForManyItems(var ParentItem: Record Item; var BOMBuffer: Record "BOM Buffer"; TreeType: Enum "BOM Tree Type")
     var
         i: Integer;
         NoOfRecords: Integer;
@@ -123,7 +131,15 @@ codeunit 5870 "Calculate BOM Tree"
             Window.Close();
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by procedure GenerateTreeForOneItem()', '27.0')]
     procedure GenerateTreeForItem(var ParentItem: Record Item; var BOMBuffer: Record "BOM Buffer"; DemandDate: Date; TreeType: Option)
+    begin
+        GenerateTreeForOneItem(ParentItem, BOMBuffer, DemandDate, "BOM Tree Type".FromInteger(TreeType));
+    end;
+#endif
+
+    procedure GenerateTreeForOneItem(var ParentItem: Record Item; var BOMBuffer: Record "BOM Buffer"; DemandDate: Date; TreeType: Enum "BOM Tree Type")
     begin
         ItemFilter.Copy(ParentItem);
 
@@ -134,14 +150,15 @@ codeunit 5870 "Calculate BOM Tree"
         ParentItem.Copy(ItemFilter);
     end;
 
-    local procedure GenerateTreeForItemLocal(var ParentItem: Record Item; var BOMBuffer: Record "BOM Buffer"; DemandDate: Date; TreeType: Option)
+    local procedure GenerateTreeForItemLocal(var ParentItem: Record Item; var BOMBuffer: Record "BOM Buffer"; DemandDate: Date; TreeType: Enum "BOM Tree Type")
     var
         BOMComp: Record "BOM Component";
         ProdBOMLine: Record "Production BOM Line";
+        TreeTypeOption: Option;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGenerateTreeForItemLocal(ParentItem, DemandDate, TreeType, BOMBuffer, IsHandled);
+        OnBeforeGenerateTreeForItemLocal(ParentItem, DemandDate, TreeType.AsInteger(), BOMBuffer, IsHandled);
         if IsHandled then
             exit;
 
@@ -155,19 +172,50 @@ codeunit 5870 "Calculate BOM Tree"
 
         if ParentItem.HasBOM() or (ParentItem."Routing No." <> '') then begin
             IsHandled := false;
-            OnBeforeFilterBOMBuffer(ParentItem, BOMBuffer, DemandDate, TreeType, IsHandled);
+            OnBeforeFilterBOMBuffer(ParentItem, BOMBuffer, DemandDate, TreeType.AsInteger(), IsHandled);
             if not IsHandled then begin
                 BOMBuffer.SetLocationVariantFiltersFrom(ItemFilter);
                 BOMBuffer.TransferFromItem(EntryNo, ParentItem, DemandDate);
                 GenerateItemSubTree(ParentItem."No.", BOMBuffer);
-                OnGenerateTreeForItemLocalOnBeforeCalculateTreeType(ParentItem, BOMBuffer, TreeType, EntryNo);
+                TreeTypeOption := TreeType.AsInteger();
+                OnGenerateTreeForItemLocalOnBeforeCalculateTreeType(ParentItem, BOMBuffer, TreeTypeOption, EntryNo);
+                TreeType := "BOM Tree Type".FromInteger(TreeTypeOption);
                 CalculateTreeType(BOMBuffer, ShowTotalAvailability, TreeType);
-                OnAfterFilterBOMBuffer(ParentItem, BOMBuffer, DemandDate, TreeType);
+                OnAfterFilterBOMBuffer(ParentItem, BOMBuffer, DemandDate, TreeType.AsInteger());
             end;
         end;
     end;
 
+    procedure GenerateTreeForSource(SourceRecordVar: Variant; var BOMBuffer: Record "BOM Buffer"; BOMTreeType: Enum "BOM Tree Type"; ShowBy: Enum "BOM Structure Show By"; DemandDate: Date)
+    var
+        AssemblyHeader: Record "Assembly Header";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        case ShowBy of
+            ShowBy::Assembly:
+                begin
+                    AssemblyHeader := SourceRecordVar;
+                    AssemblyHeader."Due Date" := DemandDate;
+                    GenerateTreeForAssemblyHeader(AssemblyHeader, BOMBuffer, BOMTreeType);
+                end;
+            ShowBy::Production:
+                begin
+                    ProdOrderLine := SourceRecordVar;
+                    ProdOrderLine."Due Date" := DemandDate;
+                    GenerateTreeForProdOrderLine(ProdOrderLine, BOMBuffer, BOMTreeType);
+                end;
+        end;
+    end;
+
+#if not CLEAN27
+    [Obsolete('Replaced by procedure GenerateTreeForAssemblyHeader()', '27.0')]
     procedure GenerateTreeForAsm(AsmHeader: Record "Assembly Header"; var BOMBuffer: Record "BOM Buffer"; TreeType: Option)
+    begin
+        GenerateTreeForAssemblyHeader(AsmHeader, BOMBuffer, "BOM Tree Type".FromInteger(TreeType));
+    end;
+#endif
+
+    procedure GenerateTreeForAssemblyHeader(AsmHeader: Record "Assembly Header"; var BOMBuffer: Record "BOM Buffer"; TreeType: Enum "BOM Tree Type")
     begin
         InitBOMBuffer(BOMBuffer);
         InitTreeType(TreeType);
@@ -184,7 +232,15 @@ codeunit 5870 "Calculate BOM Tree"
         CalculateTreeType(BOMBuffer, ShowTotalAvailability, TreeType);
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by procedure GenerateTreeForProdOrderLine', '27.0')]
     procedure GenerateTreeForProdLine(ProdOrderLine: Record "Prod. Order Line"; var BOMBuffer: Record "BOM Buffer"; TreeType: Option)
+    begin
+        GenerateTreeForProdOrderLine(ProdOrderLine, BOMBuffer, "BOM Tree Type".FromInteger(TreeType));
+    end;
+#endif
+
+    procedure GenerateTreeForProdOrderLine(ProdOrderLine: Record "Prod. Order Line"; var BOMBuffer: Record "BOM Buffer"; TreeType: Enum "BOM Tree Type")
     begin
         InitBOMBuffer(BOMBuffer);
         InitTreeType(TreeType);
@@ -199,12 +255,12 @@ codeunit 5870 "Calculate BOM Tree"
         CalculateTreeType(BOMBuffer, ShowTotalAvailability, TreeType);
     end;
 
-    local procedure CalculateTreeType(var BOMBuffer: Record "BOM Buffer"; ShowTotalAvailability: Boolean; TreeType: Option " ",Availability,Cost)
+    local procedure CalculateTreeType(var BOMBuffer: Record "BOM Buffer"; ShowTotalAvailability2: Boolean; TreeType: Enum "BOM Tree Type")
     begin
         case TreeType of
-            TreeType::Availability:
-                UpdateAvailability(BOMBuffer, ShowTotalAvailability);
-            TreeType::Cost:
+            "BOM Tree Type"::Availability:
+                UpdateAvailability(BOMBuffer, ShowTotalAvailability2);
+            "BOM Tree Type"::Cost:
                 UpdateCost(BOMBuffer);
         end;
     end;
@@ -243,7 +299,6 @@ codeunit 5870 "Calculate BOM Tree"
     var
         BOMComp: Record "BOM Component";
         ParentBOMBuffer: Record "BOM Buffer";
-        UOMMgt: Codeunit "Unit of Measure Management";
         IsHandled: Boolean;
     begin
         ParentBOMBuffer := BOMBuffer;
@@ -257,7 +312,7 @@ codeunit 5870 "Calculate BOM Tree"
             if IsHandled then
                 exit(true);
             repeat
-                if (BOMComp."No." <> '') and ((BOMComp.Type = BOMComp.Type::Item) or (TreeType in [TreeType::" ", TreeType::Cost])) then begin
+                if (BOMComp."No." <> '') and ((BOMComp.Type = BOMComp.Type::Item) or (GlobalTreeType in [GlobalTreeType::" ", GlobalTreeType::Cost])) then begin
                     BOMBuffer.SetLocationVariantFiltersFrom(ItemFilter);
                     BOMBuffer.TransferFromBOMComp(
                       EntryNo, BOMComp, ParentBOMBuffer.Indentation + 1,
@@ -284,7 +339,6 @@ codeunit 5870 "Calculate BOM Tree"
         ProdBOMLine: Record "Production BOM Line";
         RoutingLine: Record "Routing Line";
         ParentBOMBuffer: Record "BOM Buffer";
-        UOMMgt: Codeunit "Unit of Measure Management";
         VersionMgt: Codeunit VersionManagement;
         LotSize: Decimal;
         BomQtyPerUom: Decimal;
@@ -301,7 +355,7 @@ codeunit 5870 "Calculate BOM Tree"
         IsHandled := false;
         OnBeforeFilterByQuantityPer(ProdBOMLine, IsHandled, ParentBOMBuffer);
         if not IsHandled then
-            if TreeType = TreeType::Availability then
+            if GlobalTreeType = GlobalTreeType::Availability then
                 ProdBOMLine.SetFilter("Quantity per", '>%1', 0);
         if ProdBOMLine.FindSet() then begin
             if ParentItem."Replenishment System" <> ParentItem."Replenishment System"::"Prod. Order" then begin
@@ -311,7 +365,7 @@ codeunit 5870 "Calculate BOM Tree"
             end;
             repeat
                 IsHandled := false;
-                OnBeforeTransferProdBOMLine(BOMBuffer, ProdBOMLine, ParentItem, ParentBOMBuffer, EntryNo, TreeType, IsHandled);
+                OnBeforeTransferProdBOMLine(BOMBuffer, ProdBOMLine, ParentItem, ParentBOMBuffer, EntryNo, GlobalTreeType.AsInteger(), IsHandled);
                 if not IsHandled then
                     if ProdBOMLine."No." <> '' then
                         case ProdBOMLine.Type of
@@ -346,7 +400,7 @@ codeunit 5870 "Calculate BOM Tree"
                                 end;
                             ProdBOMLine.Type::"Production BOM":
                                 begin
-                                    OnBeforeTransferFromProdBOM(BOMBuffer, ProdBOMLine, ParentItem, ParentBOMBuffer, EntryNo, TreeType);
+                                    OnBeforeTransferFromProdBOM(BOMBuffer, ProdBOMLine, ParentItem, ParentBOMBuffer, EntryNo, GlobalTreeType.AsInteger());
 
                                     BOMBuffer := ParentBOMBuffer;
                                     BOMBuffer."Qty. per Top Item" := Round(BOMBuffer."Qty. per Top Item" * ProdBOMLine."Quantity per", UOMMgt.QtyRndPrecision());
@@ -377,7 +431,7 @@ codeunit 5870 "Calculate BOM Tree"
         end;
 
         if RoutingLine.ReadPermission then
-            if (TreeType in [TreeType::" ", TreeType::Cost]) and
+            if (GlobalTreeType in [GlobalTreeType::" ", GlobalTreeType::Cost]) and
                    RoutingLine.CertifiedRoutingVersionExists(ParentItem."Routing No.", WorkDate())
             then begin
                 repeat
@@ -392,7 +446,7 @@ codeunit 5870 "Calculate BOM Tree"
                           ParentBOMBuffer."Needed by Date",
                           ParentBOMBuffer."Location Code");
                         OnAfterTransferFromProdRouting(BOMBuffer, RoutingLine);
-                        if TreeType = TreeType::Cost then begin
+                        if GlobalTreeType = GlobalTreeType::Cost then begin
                             LotSize := ParentBOMBuffer."Lot Size";
                             if LotSize = 0 then
                                 if ParentBOMBuffer."Qty. per Top Item" <> 0 then
@@ -406,7 +460,7 @@ codeunit 5870 "Calculate BOM Tree"
                             OnGenerateProdCompSubTreeOnBeforeBOMBufferModify(BOMBuffer, ParentBOMBuffer, ParentItem);
                             BOMBuffer.Modify();
                         end;
-                        OnGenerateProdCompSubTreeOnAfterBOMBufferModify(BOMBuffer, RoutingLine, LotSize, ParentItem, ParentBOMBuffer, TreeType);
+                        OnGenerateProdCompSubTreeOnAfterBOMBufferModify(BOMBuffer, RoutingLine, LotSize, ParentItem, ParentBOMBuffer, GlobalTreeType.AsInteger());
                     end;
                 until RoutingLine.Next() = 0;
                 FoundSubTree := true;
@@ -471,7 +525,7 @@ codeunit 5870 "Calculate BOM Tree"
         end;
     end;
 
-    local procedure UpdateMinAbleToMake(var BOMBuffer: Record "BOM Buffer"; AvailToUse: Option UpdatedQtyOnItemAvail,QtyOnItemAvail,QtyAvail): Decimal
+    local procedure UpdateMinAbleToMake(var BOMBuffer: Record "BOM Buffer"; AvailToUse2: Option UpdatedQtyOnItemAvail,QtyOnItemAvail,QtyAvail): Decimal
     var
         AvailQty: Decimal;
     begin
@@ -482,12 +536,12 @@ codeunit 5870 "Calculate BOM Tree"
         TempItemAvailByDate.SetRange(Date, BOMBuffer."Needed by Date");
         TempItemAvailByDate.FindFirst();
 
-        case AvailToUse of
-            AvailToUse::UpdatedQtyOnItemAvail:
+        case AvailToUse2 of
+            AvailToUse2::UpdatedQtyOnItemAvail:
                 AvailQty := TempItemAvailByDate."Updated Available Qty";
-            AvailToUse::QtyOnItemAvail:
+            AvailToUse2::QtyOnItemAvail:
                 AvailQty := TempItemAvailByDate."Available Qty";
-            AvailToUse::QtyAvail:
+            AvailToUse2::QtyAvail:
                 AvailQty := BOMBuffer."Available Quantity";
         end;
 
@@ -574,7 +628,7 @@ codeunit 5870 "Calculate BOM Tree"
         BOMBuffer.Find();
     end;
 
-    local procedure UpdateAvailability(var BOMBuffer: Record "BOM Buffer"; ShowTotalAvailability: Boolean)
+    local procedure UpdateAvailability(var BOMBuffer: Record "BOM Buffer"; ShowTotalAvailability2: Boolean)
     var
         CopyOfBOMBuffer: Record "BOM Buffer";
         SubOptimalQty: Decimal;
@@ -591,7 +645,7 @@ codeunit 5870 "Calculate BOM Tree"
                     OptimalQty := BinarySearchOptimal(BOMBuffer, UOMMgt.QtyRndPrecision(), SubOptimalQty);
                     MarkBottlenecks(BOMBuffer, OptimalQty);
                     CalcAvailability(BOMBuffer, OptimalQty, false);
-                    if ShowTotalAvailability then
+                    if ShowTotalAvailability2 then
                         DistributeRemainingAvail(BOMBuffer);
                     TraverseTree(BOMBuffer, AvailToUse::QtyAvail);
                 end;
@@ -600,7 +654,7 @@ codeunit 5870 "Calculate BOM Tree"
         BOMBuffer.Copy(CopyOfBOMBuffer);
     end;
 
-    local procedure TraverseTree(var BOMBuffer: Record "BOM Buffer"; AvailToUse: Option UpdatedQtyOnItemAvail,QtyOnItemAvail,QtyAvail): Decimal
+    local procedure TraverseTree(var BOMBuffer: Record "BOM Buffer"; AvailToUse2: Option UpdatedQtyOnItemAvail,QtyOnItemAvail,QtyAvail): Decimal
     var
         ParentBOMBuffer: Record "BOM Buffer";
         IsFirst: Boolean;
@@ -613,9 +667,9 @@ codeunit 5870 "Calculate BOM Tree"
         while (BOMBuffer.Next() <> 0) and (ParentBOMBuffer.Indentation < BOMBuffer.Indentation) do
             if ParentBOMBuffer.Indentation + 1 = BOMBuffer.Indentation then begin
                 if not BOMBuffer."Is Leaf" then
-                    TraverseTree(BOMBuffer, AvailToUse)
+                    TraverseTree(BOMBuffer, AvailToUse2)
                 else begin
-                    MinAbleToMakeQty := UpdateMinAbleToMake(BOMBuffer, AvailToUse);
+                    MinAbleToMakeQty := UpdateMinAbleToMake(BOMBuffer, AvailToUse2);
                     MinAbleToMakeTopItem := CalcMinAbleToMake(IsFirst, MinAbleToMakeTopItem, MinAbleToMakeQty);
                 end;
 
@@ -635,7 +689,7 @@ codeunit 5870 "Calculate BOM Tree"
             end;
 
         BOMBuffer := ParentBOMBuffer;
-        UpdateMinAbleToMake(BOMBuffer, AvailToUse);
+        UpdateMinAbleToMake(BOMBuffer, AvailToUse2);
         exit(MinAbleToMakeTopItem);
     end;
 
@@ -963,7 +1017,7 @@ codeunit 5870 "Calculate BOM Tree"
         ShowTotalAvailability := NewShowTotalAvailability;
     end;
 
-    local procedure CalcRoutingLineCosts(RoutingLine: Record "Routing Line"; LotSize: Decimal; ScrapPct: Decimal; var BOMBuffer: Record "BOM Buffer"; ParentItem: Record Item)
+    local procedure CalcRoutingLineCosts(RoutingLine: Record "Routing Line"; LotSize: Decimal; ScrapPct: Decimal; var BOMBuffer: Record "BOM Buffer"; var ParentItem: Record Item)
     var
         CalcStdCost: Codeunit "Calculate Standard Cost";
         CapCost: Decimal;
@@ -1031,8 +1085,6 @@ codeunit 5870 "Calculate BOM Tree"
     end;
 
     local procedure GetQtyPerBOMHeaderUnitOfMeasure(Item: Record Item; ProdBOMNo: Code[20]; ProdBOMVersionNo: Code[20]): Decimal
-    var
-        UOMMgt: Codeunit "Unit of Measure Management";
     begin
         if ProdBOMNo = '' then
             exit(1);
