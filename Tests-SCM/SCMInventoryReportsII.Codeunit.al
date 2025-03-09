@@ -2177,7 +2177,7 @@
     var
         CalcBOMTree: Codeunit "Calculate BOM Tree";
     begin
-        CalcBOMTree.GenerateTreeForItem(Item, TempBOMBuffer, WorkDate(), 2);
+        CalcBOMTree.GenerateTreeForOneItem(Item, TempBOMBuffer, WorkDate(), "BOM Tree Type"::Cost);
     end;
 
     local procedure OpenProductionJournal(ProductionOrder: Record "Production Order")
