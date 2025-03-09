@@ -55,7 +55,6 @@ codeunit 137392 "SCM - Able To Make Report"
         Location: Record Location;
         Item: Record Item;
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
-        TreeType: Option " ",Availability,Cost;
         GenProdPostingGroup: Code[20];
         InventoryPostingGroup: Code[20];
         AbleToMake: Decimal;
@@ -87,7 +86,7 @@ codeunit 137392 "SCM - Able To Make Report"
 
         // Exercise: Run Able To Make - Timeline.
         CalculateBOMTree.SetShowTotalAvailability(ShowTotalAvailability);
-        CalculateBOMTree.GenerateTreeForItems(Item, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForManyItems(Item, BOMBuffer, "BOM Tree Type"::Availability);
 
         // Verify: The Able To Make - Timeline report.
         VerifyAbleToMakeReport(BOMBuffer, CalcDate(DueDateDelayDateFormula, WorkDate()), DateInterval, Location.Code, '', '');
@@ -324,7 +323,6 @@ codeunit 137392 "SCM - Able To Make Report"
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
-        TreeType: Option " ",Availability,Cost;
         AbleToMake: Decimal;
         AssemblyQty: Decimal;
         DueDateDelayDateFormula: DateFormula;
@@ -358,7 +356,7 @@ codeunit 137392 "SCM - Able To Make Report"
 
         // Exercise: Run Able To Make codeunit.
         CalculateBOMTree.SetShowTotalAvailability(ShowTotalAvailability);
-        CalculateBOMTree.GenerateTreeForAsm(AssemblyHeader, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForSource(AssemblyHeader, BOMBuffer, "BOM Tree Type"::Availability, "BOM Structure Show By"::Assembly, AssemblyHeader."Due Date");
 
         // Verify: Able to make report.
         VerifyAbleToMakeReport(
@@ -425,7 +423,6 @@ codeunit 137392 "SCM - Able To Make Report"
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderComponent: Record "Prod. Order Component";
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
-        TreeType: Option " ",Availability,Cost;
         AbleToMake: Decimal;
         DueDateDelayDateFormula: DateFormula;
     begin
@@ -467,7 +464,7 @@ codeunit 137392 "SCM - Able To Make Report"
 
         // Exercise: Run Able To Make codeunit.
         CalculateBOMTree.SetShowTotalAvailability(true);
-        CalculateBOMTree.GenerateTreeForProdLine(ProdOrderLine, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForProdOrderLine(ProdOrderLine, BOMBuffer, "BOM Tree Type"::Availability);
 
         // Verify: Able to make report.
         VerifyAbleToMakeReport(BOMBuffer, WorkDate(), GLBDateInterval::Day, ProdOrderLine."Location Code", '', ProductionOrder."No.");
@@ -536,13 +533,13 @@ codeunit 137392 "SCM - Able To Make Report"
     begin
         Clear(ItemAbleToMakeTimeline);
         if (AssemblyHeaderNo <> '') and AsmHeader.Get(AsmHeader."Document Type"::Order, AssemblyHeaderNo) then
-            ItemAbleToMakeTimeline.InitAsmOrder(AsmHeader);
+            ItemAbleToMakeTimeline.InitSource(AsmHeader, "BOM Structure Show By"::Assembly);
 
         if ProdOrderNo <> '' then begin
             ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
             ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
             if ProdOrderLine.FindFirst() then
-                ItemAbleToMakeTimeline.InitProdOrder(ProdOrderLine);
+                ItemAbleToMakeTimeline.InitSource(ProdOrderLine, "BOM Structure Show By"::Production);
         end;
 
         Commit();
@@ -618,13 +615,13 @@ codeunit 137392 "SCM - Able To Make Report"
         ItemAvailabilityByBOMLevel.InitItem(Item);
 
         if (AsmHeaderNo <> '') and AsmHeader.Get(AsmHeader."Document Type"::Order, AsmHeaderNo) then
-            ItemAvailabilityByBOMLevel.InitAsmOrder(AsmHeader);
+            ItemAvailabilityByBOMLevel.InitSource(AsmHeader, "BOM Structure Show By"::Assembly);
 
         if ProdOrderNo <> '' then begin
             ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
             ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
             if ProdOrderLine.FindFirst() then
-                ItemAvailabilityByBOMLevel.InitProdOrder(ProdOrderLine);
+                ItemAvailabilityByBOMLevel.InitSource(ProdOrderLine, "BOM Structure Show By"::Production);
         end;
 
         ItemAvailabilityByBOMLevel.Run();
