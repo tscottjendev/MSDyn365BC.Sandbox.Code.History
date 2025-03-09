@@ -2123,11 +2123,10 @@ codeunit 137007 "SCM Inventory Costing"
     var
         BOMBuffer: Record "BOM Buffer";
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
-        TreeType: Option " ",Availability,Cost;
     begin
         Item.SetRange("Date Filter", 0D, WorkDate());
         CalculateBOMTree.SetShowTotalAvailability(true);
-        CalculateBOMTree.GenerateTreeForItems(Item, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForManyItems(Item, BOMBuffer, "BOM Tree Type"::Availability);
     end;
 
     local procedure RunBOMStructurePage(var Item: Record Item)
