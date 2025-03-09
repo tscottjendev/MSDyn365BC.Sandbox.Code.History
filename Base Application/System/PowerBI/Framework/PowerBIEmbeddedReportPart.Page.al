@@ -600,7 +600,7 @@ page 6325 "Power BI Embedded Report Part"
         end;
 
         CurrPage.PowerBIAddin.SetTransparentBackground(true);
-        CurrPage.PowerBIAddin.SetLocale(Language.GetCurrentCultureName());
+        CurrPage.PowerBIAddin.SetLocale(Language.GetUserLanguageTag());
         PowerBiServiceMgt.InitializeAddinToken(CurrPage.PowerBIAddin);
 
         case Rec.ElementType of
