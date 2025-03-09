@@ -5,7 +5,6 @@
 namespace Microsoft.Inventory.Location;
 
 using Microsoft.Finance.Dimension;
-using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Inventory.Item;
@@ -177,12 +176,6 @@ page 5703 "Location Card"
                         BlankZero = true;
                         Importance = Additional;
                         ToolTip = 'Specifies the SAT address that the goods or merchandise are moved to.';
-                    }
-                    field("SAT Certificate"; Rec."SAT Certificate")
-                    {
-                        ApplicationArea = BasicMX;
-                        ToolTip = 'Specifies the certificate issued by the tax authority to the company branch at this location for verifying its identity when sending electronic invoices. To enable this, set "Multiple SAT Certificates" option in the General Ledger Setup.';
-                        Enabled = SATCertInLocationEnabled;
                     }
                 }
             }
@@ -719,9 +712,6 @@ page 5703 "Location Card"
         InboundWhseHandlingTimeEnable := true;
         OutboundWhseHandlingTimeEnable := true;
         EditInTransit := true;
-
-        GLSetup.Get();
-        SATCertInLocationEnabled := GLSetup."Multiple SAT Certificates";
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -730,7 +720,6 @@ page 5703 "Location Card"
     end;
 
     var
-        GLSetup: Record "General Ledger Setup";
         CalendarManagement: Codeunit "Calendar Management";
         FormatAddress: Codeunit "Format Address";
         EditInTransit: Boolean;
@@ -777,7 +766,6 @@ page 5703 "Location Card"
         ShipmentBinCodeEnable: Boolean;
         UseADCSEnable: Boolean;
         UseCrossDockingEnable: Boolean;
-        SATCertInLocationEnabled: Boolean;
 
     procedure UpdateEnabled()
     begin
