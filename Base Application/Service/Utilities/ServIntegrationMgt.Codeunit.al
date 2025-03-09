@@ -24,6 +24,8 @@ using Microsoft.Service.Maintenance;
 using Microsoft.Service.Resources;
 using Microsoft.Service.Setup;
 using Microsoft.Projects.Resources.Analysis;
+using Microsoft.Foundation.Enums;
+using Microsoft.Inventory.Journal;
 using Microsoft.Projects.Resources.Resource;
 using System.DataAdministration;
 using System.Email;
@@ -228,6 +230,12 @@ codeunit 6450 "Serv. Integration Mgt."
         TroubleshootingSetup.DeleteAll();
 
         ResourceSkillMgt.DeleteItemResSkills(Item."No.");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnGetOrderTypeService', '', false, false)]
+    local procedure OnGetOrderTypeService(var OrderType: Enum "Inventory Order Type")
+    begin
+        OrderType := Microsoft.Foundation.Enums."Inventory Order Type"::Service;
     end;
 
     // Table Resource
