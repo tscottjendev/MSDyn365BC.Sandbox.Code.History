@@ -257,7 +257,11 @@ codeunit 139210 "JSON Buffer Tests"
 
         // [WHEN] A JSON string containing a DateTime with seconds and milliseconds is read
         DateTimeString := DateTime.UtcNow.ToString('yyyy-MM-ddTHH:mm:ss.fff', CultureInfo.InvariantCulture);
-        Assert.IsTrue(DateTimeString.Contains('.'), 'DateTime does not contain seconds and milliseconds in the input text');
+
+        // For unknown reasons, the DateTime.UtcNow.ToString method call above does not always return a string with seconds and milliseconds.
+        if not DateTimeString.Contains('.') then
+            DateTimeString := '2025-12-31T23:59:59.999';
+
         TempJSONBuffer.ReadFromText(StrSubstNo('{"Variable":"%1"}', DateTimeString));
 
         // [THEN] JSON Buffer contains formatted DateTime with seconds and milliseconds
