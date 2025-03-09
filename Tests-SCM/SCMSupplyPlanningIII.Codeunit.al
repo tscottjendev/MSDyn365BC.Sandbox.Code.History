@@ -4055,11 +4055,10 @@
     local procedure CreateBOMTree(var BOMBuffer: Record "BOM Buffer"; var Item: Record Item; EndDate: Date)
     var
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
-        TreeType: Option " ",Availability,Cost;
     begin
         Item.SetRange("Date Filter", 0D, EndDate);
         CalculateBOMTree.SetShowTotalAvailability(true);
-        CalculateBOMTree.GenerateTreeForItems(Item, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForManyItems(Item, BOMBuffer, "BOM Tree Type"::Availability);
         BOMBuffer.Find();
     end;
 

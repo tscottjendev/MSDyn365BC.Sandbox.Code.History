@@ -238,7 +238,7 @@ report 5872 "BOM Cost Share Distribution"
         IsHandled := false;
         OnGenerateAvailTrendOnBeforeGenerateTreeForItem(Item, TempBOMBuffer, IsHandled);
         if not IsHandled then
-            CalcBOMTree.GenerateTreeForItem(Item, TempBOMBuffer, WorkDate(), 2);
+            CalcBOMTree.GenerateTreeForOneItem(Item, TempBOMBuffer, WorkDate(), "BOM Tree Type"::Cost);
 
         if TempBOMBuffer.FindFirst() then
             repeat

@@ -187,7 +187,7 @@ page 6324 "Power BI Element Addin Host"
         end;
 
         CurrPage.PowerBIManagement.AddBottomPadding(true);
-        CurrPage.PowerBIManagement.SetLocale(Language.GetCurrentCultureName());
+        CurrPage.PowerBIManagement.SetLocale(Language.GetUserLanguageTag());
         PowerBiServiceMgt.InitializeAddinToken(CurrPage.PowerBIManagement);
 
         if PowerBIDisplayedElement.ElementEmbedUrl <> '' then
