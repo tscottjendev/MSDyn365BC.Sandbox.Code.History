@@ -4,11 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Requisition;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.Reporting;
-using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Setup;
@@ -49,7 +47,7 @@ codeunit 99000813 "Carry Out Action"
                         ProductionExist := CarryOutActionsFromProdOrder(Rec, Enum::"Planning Create Prod. Order".FromInteger(TryChoice), TryWkshTempl, TryWkshName);
                 end;
             TrySourceType::Assembly:
-                AssemblyExist := CarryOutActionsFromAssemblyOrder(Rec, Enum::"Planning Create Assembly Order".FromInteger(TryChoice));
+                OnTrySourceTypeForAssembly(Rec, TryChoice, AssemblyExist, TempDocumentEntry);
         end;
 
         if Rec."Action Message" = Rec."Action Message"::Cancel then
@@ -72,18 +70,20 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     var
-        TempProductionOrder, TempProductionOrderToPrint : Record "Production Order" temporary;
+        TempProductionOrder: Record "Production Order" temporary;
         LastTransferHeader: Record "Transfer Header";
         TempTransferHeaderToPrint: Record "Transfer Header" temporary;
         ReservationEntry: Record "Reservation Entry";
         TempDocumentEntry: Record "Document Entry" temporary;
-        TempAssemblyHeaderToPrint: Record "Assembly Header" temporary;
         CarryOutAction: Codeunit "Carry Out Action";
         CalculateProdOrder: Codeunit "Calculate Prod. Order";
         ReservationManagement: Codeunit "Reservation Management";
         ReqLineReserve: Codeunit "Req. Line-Reserve";
         PlngComponentReserve: Codeunit "Plng. Component-Reserve";
         ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
+#if not CLEAN27
+        AsmCarryOutAction: Codeunit "Asm. Carry Out Action";
+#endif
         PrintOrder: Boolean;
         SplitTransferOrders: Boolean;
         ProductionExist: Boolean;
@@ -168,23 +168,13 @@ codeunit 99000813 "Carry Out Action"
             end;
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by procedure in codeunit AsmCarryOutAction', '27.0')]
     procedure CarryOutActionsFromAssemblyOrder(RequisitionLine: Record "Requisition Line"; AsmOrderChoice: Enum "Planning Create Assembly Order"): Boolean
-    var
-        AssemblyHeader: Record "Assembly Header";
     begin
-        PrintOrder := AsmOrderChoice = AsmOrderChoice::"Make Assembly Orders & Print";
-        case RequisitionLine."Action Message" of
-            RequisitionLine."Action Message"::New:
-                InsertAsmHeader(RequisitionLine, AssemblyHeader);
-            RequisitionLine."Action Message"::"Change Qty.",
-          RequisitionLine."Action Message"::Reschedule,
-          RequisitionLine."Action Message"::"Resched. & Chg. Qty.":
-                exit(AsmOrderChgAndReshedule(RequisitionLine));
-            RequisitionLine."Action Message"::Cancel:
-                DeleteOrderLines(RequisitionLine);
-        end;
-        exit(true);
+        exit(AsmCarryOutAction.CarryOutActionsFromAssemblyOrder(RequisitionLine, AsmOrderChoice, TempDocumentEntry));
     end;
+#endif
 
     procedure CarryOutToReqWksh(RequisitionLine: Record "Requisition Line"; ReqWkshTempName: Code[10]; ReqJournalName: Code[10])
     var
@@ -420,53 +410,13 @@ codeunit 99000813 "Carry Out Action"
         end;
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by procedure in codeunit AsmCarryOutAction', '27.0')]
     procedure AsmOrderChgAndReshedule(RequisitionLine: Record "Requisition Line"): Boolean
-    var
-        AssemblyHeader: Record "Assembly Header";
-        PlanningComponent: Record "Planning Component";
-        AssemblyLine: Record "Assembly Line";
-        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
     begin
-        RequisitionLine.TestField("Ref. Order Type", RequisitionLine."Ref. Order Type"::Assembly);
-        AssemblyHeader.LockTable();
-        if AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, RequisitionLine."Ref. Order No.") then begin
-            AssemblyHeader.SetWarningsOff();
-            AssemblyHeader.Validate(Quantity, RequisitionLine.Quantity);
-            AssemblyHeader.Validate("Planning Flexibility", RequisitionLine."Planning Flexibility");
-            AssemblyHeader.Validate("Due Date", RequisitionLine."Due Date");
-            OnAsmOrderChgAndResheduleOnBeforeAsmHeaderModify(RequisitionLine, AssemblyHeader);
-            AssemblyHeader.Modify(true);
-            ReqLineReserve.TransferPlanningLineToAsmHdr(RequisitionLine, AssemblyHeader, 0, true);
-            ReqLineReserve.UpdateDerivedTracking(RequisitionLine);
-            ReservationManagement.SetReservSource(AssemblyHeader);
-            ReservationManagement.DeleteReservEntries(false, AssemblyHeader."Remaining Quantity (Base)");
-            ReservationManagement.ClearSurplus();
-            ReservationManagement.AutoTrack(AssemblyHeader."Remaining Quantity (Base)");
-
-            PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
-            PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
-            PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-            if PlanningComponent.Find('-') then
-                repeat
-                    if AssemblyLine.Get(AssemblyHeader."Document Type", AssemblyHeader."No.", PlanningComponent."Line No.") then begin
-                        AssemblyLineReserve.TransferPlanningCompToAsmLine(PlanningComponent, AssemblyLine, 0, true);
-                        PlngComponentReserve.UpdateDerivedTracking(PlanningComponent);
-                        ReservationManagement.SetReservSource(AssemblyLine);
-                        ReservationManagement.DeleteReservEntries(false, AssemblyLine."Remaining Quantity (Base)");
-                        ReservationManagement.ClearSurplus();
-                        ReservationManagement.AutoTrack(AssemblyLine."Remaining Quantity (Base)");
-                        ReservationCheckDateConfl.AssemblyLineCheck(AssemblyLine, false);
-                    end else
-                        PlanningComponent.Delete(true);
-                until PlanningComponent.Next() = 0;
-
-            CollectAsmOrderForPrinting(AssemblyHeader);
-        end else begin
-            Message(StrSubstNo(CouldNotChangeSupplyTxt, RequisitionLine."Ref. Order No.", RequisitionLine."Ref. Line No."));
-            exit(false);
-        end;
-        exit(true);
+        exit(AsmOrderChgAndReshedule(RequisitionLine));
     end;
+#endif
 
     procedure DeleteOrderLines(RequisitionLine: Record "Requisition Line")
     begin
@@ -479,8 +429,6 @@ codeunit 99000813 "Carry Out Action"
                 DeletePurchaseOrderLines(RequisitionLine);
             RequisitionLine."Ref. Order Type"::Transfer:
                 DeleteTransferOrderLines(RequisitionLine);
-            RequisitionLine."Ref. Order Type"::Assembly:
-                DeleteAssemblyOrderLines(RequisitionLine);
         end;
 
         OnAfterDeleteOrderLines(RequisitionLine);
@@ -557,20 +505,6 @@ codeunit 99000813 "Carry Out Action"
             if TransferLine.FindFirst() then
                 TransferLine.Delete(true);
         end;
-    end;
-
-    local procedure DeleteAssemblyOrderLines(RequisitionLine: Record "Requisition Line")
-    var
-        AssemblyHeader: Record "Assembly Header";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeDeleteAssemblyLines(RequisitionLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, RequisitionLine."Ref. Order No.");
-        AssemblyHeader.Delete(true);
     end;
 
     local procedure DeleteRequisitionLine(var RequisitionLine: Record "Requisition Line")
@@ -769,151 +703,22 @@ codeunit 99000813 "Carry Out Action"
         ProdOrderLine.Validate(Quantity, RequisitionLine.Quantity);
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by procedure in codeunit AsmCarryOutAction', '27.0')]
     [Scope('OnPrem')]
-    procedure InsertAsmHeader(RequisitionLine: Record "Requisition Line"; var AssemblyHeader: Record "Assembly Header")
-    var
-        Item: Record Item;
+    procedure InsertAsmHeader(RequisitionLine: Record "Requisition Line"; var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
-        Item.Get(RequisitionLine."No.");
-        AssemblyHeader.Init();
-        AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::Order;
-        OnInsertAsmHeaderOnBeforeAsmHeaderInsert(AssemblyHeader, RequisitionLine);
-        AssemblyHeader.Insert(true);
-        OnInsertAsmHeaderOnAfterAsmHeaderInsert(AssemblyHeader, RequisitionLine);
-        AssemblyHeader.SetWarningsOff();
-        AssemblyHeader.Validate("Item No.", RequisitionLine."No.");
-        AssemblyHeader.Validate("Unit of Measure Code", RequisitionLine."Unit of Measure Code");
-        AssemblyHeader.Description := RequisitionLine.Description;
-        AssemblyHeader."Description 2" := RequisitionLine."Description 2";
-        AssemblyHeader."Variant Code" := RequisitionLine."Variant Code";
-        AssemblyHeader."Location Code" := RequisitionLine."Location Code";
-        AssemblyHeader."Inventory Posting Group" := Item."Inventory Posting Group";
-        AssemblyHeader.Validate("Unit Cost", RequisitionLine."Unit Cost");
-        AssemblyHeader."Due Date" := RequisitionLine."Due Date";
-        AssemblyHeader."Starting Date" := RequisitionLine."Starting Date";
-        AssemblyHeader."Ending Date" := RequisitionLine."Ending Date";
-
-        AssemblyHeader.Quantity := RequisitionLine.Quantity;
-        AssemblyHeader."Quantity (Base)" := RequisitionLine."Quantity (Base)";
-        AssemblyHeader.InitRemainingQty();
-        AssemblyHeader.InitQtyToAssemble();
-        if RequisitionLine."Bin Code" <> '' then
-            AssemblyHeader."Bin Code" := RequisitionLine."Bin Code"
-        else
-            AssemblyHeader.GetDefaultBin();
-
-        AssemblyHeader."Planning Flexibility" := RequisitionLine."Planning Flexibility";
-        AssemblyHeader."Shortcut Dimension 1 Code" := RequisitionLine."Shortcut Dimension 1 Code";
-        AssemblyHeader."Shortcut Dimension 2 Code" := RequisitionLine."Shortcut Dimension 2 Code";
-        AssemblyHeader."Dimension Set ID" := RequisitionLine."Dimension Set ID";
-        ReqLineReserve.TransferPlanningLineToAsmHdr(RequisitionLine, AssemblyHeader, RequisitionLine."Net Quantity (Base)", false);
-        if RequisitionLine.Reserve then
-            ReserveBindingOrderToAsm(AssemblyHeader, RequisitionLine);
-        AssemblyHeader.Modify();
-
-        TransferAsmPlanningComp(RequisitionLine, AssemblyHeader);
-
-        AddResourceComponents(RequisitionLine, AssemblyHeader);
-
-        OnAfterInsertAsmHeader(RequisitionLine, AssemblyHeader);
-
-        CollectAsmOrderForPrinting(AssemblyHeader);
-
-        TempDocumentEntry.Init();
-        TempDocumentEntry."Table ID" := Database::"Assembly Header";
-        TempDocumentEntry."Document Type" := AssemblyHeader."Document Type"::Order;
-        TempDocumentEntry."Document No." := AssemblyHeader."No.";
-        TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
-        TempDocumentEntry.Insert();
+        AsmCarryOutAction.InsertAsmHeader(RequisitionLine, AssemblyHeader, TempDocumentEntry);
     end;
+#endif
 
-    local procedure CollectAsmOrderForPrinting(var AssemblyHeader: Record "Assembly Header")
+#if not CLEAN27
+    [Obsolete('Replaced by procedure in codeunit AsmCarryOutAction', '27.0')]
+    procedure TransferAsmPlanningComp(RequisitionLine: Record "Requisition Line"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
-        if PrintOrder then begin
-            TempAssemblyHeaderToPrint.Init();
-            TempAssemblyHeaderToPrint."Document Type" := AssemblyHeader."Document Type";
-            TempAssemblyHeaderToPrint."No." := AssemblyHeader."No.";
-            TempAssemblyHeaderToPrint."Item No." := AssemblyHeader."Item No.";
-            TempAssemblyHeaderToPrint.Insert(false);
-        end;
+        AsmCarryOutAction.TransferAsmPlanningComp(RequisitionLine, AssemblyHeader);
     end;
-
-    local procedure AddResourceComponents(RequisitionLine: Record "Requisition Line"; var AssemblyHeader: Record "Assembly Header")
-    var
-        BOMComponent: Record "BOM Component";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeAddResourceComponents(RequisitionLine, AssemblyHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        BOMComponent.SetRange("Parent Item No.", RequisitionLine."No.");
-        BOMComponent.SetRange(Type, BOMComponent.Type::Resource);
-        if BOMComponent.Find('-') then
-            repeat
-                AssemblyHeader.AddBOMLine(BOMComponent);
-            until BOMComponent.Next() = 0;
-    end;
-
-    procedure TransferAsmPlanningComp(RequisitionLine: Record "Requisition Line"; AssemblyHeader: Record "Assembly Header")
-    var
-        AssemblyLine: Record "Assembly Line";
-        PlanningComponent: Record "Planning Component";
-        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
-    begin
-        PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
-        PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
-        PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        if PlanningComponent.Find('-') then
-            repeat
-                AssemblyLine.Init();
-                AssemblyLine."Document Type" := AssemblyHeader."Document Type";
-                AssemblyLine."Document No." := AssemblyHeader."No.";
-                AssemblyLine."Line No." := PlanningComponent."Line No.";
-                AssemblyLine.Type := AssemblyLine.Type::Item;
-                AssemblyLine."Dimension Set ID" := PlanningComponent."Dimension Set ID";
-                AssemblyLine.Validate("No.", PlanningComponent."Item No.");
-                AssemblyLine.Description := PlanningComponent.Description;
-                AssemblyLine."Unit of Measure Code" := PlanningComponent."Unit of Measure Code";
-                AssemblyLine."Qty. Rounding Precision" := PlanningComponent."Qty. Rounding Precision";
-                AssemblyLine."Qty. Rounding Precision (Base)" := PlanningComponent."Qty. Rounding Precision (Base)";
-                AssemblyLine."Lead-Time Offset" := PlanningComponent."Lead-Time Offset";
-                AssemblyLine.Position := PlanningComponent.Position;
-                AssemblyLine."Position 2" := PlanningComponent."Position 2";
-                AssemblyLine."Position 3" := PlanningComponent."Position 3";
-                AssemblyLine."Variant Code" := PlanningComponent."Variant Code";
-                AssemblyLine."Location Code" := PlanningComponent."Location Code";
-
-                AssemblyLine."Quantity per" := PlanningComponent."Quantity per";
-                AssemblyLine."Qty. per Unit of Measure" := PlanningComponent."Qty. per Unit of Measure";
-                AssemblyLine.Quantity := PlanningComponent."Expected Quantity";
-                AssemblyLine."Quantity (Base)" := PlanningComponent."Expected Quantity (Base)";
-                AssemblyLine.InitRemainingQty();
-                AssemblyLine.InitQtyToConsume();
-                if PlanningComponent."Bin Code" <> '' then
-                    AssemblyLine."Bin Code" := PlanningComponent."Bin Code"
-                else
-                    AssemblyLine.GetDefaultBin();
-
-                AssemblyLine."Due Date" := PlanningComponent."Due Date";
-                AssemblyLine."Unit Cost" := PlanningComponent."Unit Cost";
-                AssemblyLine."Variant Code" := PlanningComponent."Variant Code";
-                AssemblyLine."Cost Amount" := PlanningComponent."Cost Amount";
-
-                AssemblyLine."Shortcut Dimension 1 Code" := PlanningComponent."Shortcut Dimension 1 Code";
-                AssemblyLine."Shortcut Dimension 2 Code" := PlanningComponent."Shortcut Dimension 2 Code";
-
-                OnAfterTransferAsmPlanningComp(PlanningComponent, AssemblyLine);
-
-                AssemblyLine.Insert();
-
-                AssemblyLineReserve.TransferPlanningCompToAsmLine(PlanningComponent, AssemblyLine, 0, true);
-                AssemblyLine.AutoReserve();
-                ReservationManagement.SetReservSource(AssemblyLine);
-                ReservationManagement.AutoTrack(AssemblyLine."Remaining Quantity (Base)");
-            until PlanningComponent.Next() = 0;
-    end;
+#endif
 
     procedure InsertTransHeader(RequisitionLine: Record "Requisition Line"; var TransferHeader: Record "Transfer Header")
     var
@@ -1134,84 +939,20 @@ codeunit 99000813 "Carry Out Action"
             ReportSelections.Usage::"P.Order", PurchaseHeader, false, PurchaseHeader.FieldNo("Buy-from Vendor No."));
     end;
 
-    procedure PrintAsmOrder(AssemblyHeader: Record "Assembly Header")
+#if not CLEAN27
+    [Obsolete('Moved to codeunit AsmCarryOutActionPrint', '27.0')]
+    procedure PrintAsmOrder(AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
     var
-        ReportSelections: Record "Report Selections";
-        AssemblyHeader2: Record "Assembly Header";
-    begin
-        if PrintOrder and (AssemblyHeader."Item No." <> '') then begin
-            AssemblyHeader2 := AssemblyHeader;
-            AssemblyHeader2.SetRecFilter();
-            ReportSelections.PrintWithDialogWithCheckForCust(ReportSelections.Usage::"Asm.Order", AssemblyHeader2, false, 0);
-        end;
-    end;
-
-    internal procedure PrintAsmOrders()
-    var
-        AssemblyHeader: Record "Assembly Header";
-        ReportSelections: Record "Report Selections";
-        SelectionFilterManagement: Codeunit SelectionFilterManagement;
-        RecordRefToPrint: RecordRef;
-        RecordRefToHeader: RecordRef;
-    begin
-        CarryOutAction.GetAllAssemblyOrderForPrinting(TempAssemblyHeaderToPrint);
-        if not TempAssemblyHeaderToPrint.IsEmpty() then begin
-            RecordRefToPrint.GetTable(TempAssemblyHeaderToPrint);
-            RecordRefToHeader.GetTable(AssemblyHeader);
-            AssemblyHeader.SetFilter("No.", SelectionFilterManagement.CreateFilterFromTempTable(RecordRefToPrint, RecordRefToHeader, AssemblyHeader.FieldNo("No.")));
-            AssemblyHeader.SetFilter("Item No.", '<>%1', '');
-            ReportSelections.PrintWithDialogWithCheckForCust(ReportSelections.Usage::"Asm.Order", AssemblyHeader, false, 0);
-            TempAssemblyHeaderToPrint.DeleteAll();
-        end;
-    end;
-
-    internal procedure GetAllAssemblyOrderForPrinting(var TempAssemblyHeader: Record "Assembly Header" temporary)
+        AsmCarryOutActionPrint: Codeunit "Asm. Carry Out Action Print";
     begin
         if PrintOrder then
-            if TempAssemblyHeaderToPrint.FindSet() then begin
-                repeat
-                    TempAssemblyHeader := TempAssemblyHeaderToPrint;
-                    if TempAssemblyHeader.Insert(false) then;
-                until TempAssemblyHeaderToPrint.Next() = 0;
-                TempAssemblyHeaderToPrint.DeleteAll();
-            end;
+            AsmCarryOutActionPrint.PrintAsmOrder(AssemblyHeader);
     end;
-
-    internal procedure PrintProductionOrders()
-    var
-        ProductionOrder: Record "Production Order";
-        ReportSelections: Record "Report Selections";
-        TempProductionOrderToPrint2: Record "Production Order" temporary;
-        SelectionFilterManagement: Codeunit SelectionFilterManagement;
-        RecordRefToPrint: RecordRef;
-        RecordRefToHeader: RecordRef;
-    begin
-        CarryOutAction.GetAllProductionOrdersForPrinting(TempProductionOrderToPrint2);
-        if not TempProductionOrderToPrint2.IsEmpty() then begin
-            RecordRefToPrint.GetTable(TempProductionOrderToPrint2);
-            RecordRefToHeader.GetTable(ProductionOrder);
-            ProductionOrder.SetFilter("No.", SelectionFilterManagement.CreateFilterFromTempTable(RecordRefToPrint, RecordRefToHeader, ProductionOrder.FieldNo("No.")));
-            ProductionOrder.SetFilter(Status, '%1|%2', ProductionOrder.Status::Planned, ProductionOrder.Status::"Firm Planned");
-            ReportSelections.PrintWithDialogWithCheckForCust(ReportSelections.Usage::"Prod.Order", ProductionOrder, false, 0);
-            TempProductionOrderToPrint2.DeleteAll();
-        end;
-    end;
-
-    internal procedure GetAllProductionOrdersForPrinting(var TempProductionOrder: Record "Production Order" temporary)
-    begin
-        if TempProductionOrderToPrint.FindSet() then begin
-            repeat
-                TempProductionOrder := TempProductionOrderToPrint;
-                if TempProductionOrder.Insert(false) then;
-            until TempProductionOrderToPrint.Next() = 0;
-            TempProductionOrderToPrint.DeleteAll();
-        end;
-    end;
+#endif
 
     local procedure FinalizeOrderHeader(ProductionOrder: Record "Production Order")
     var
-        ReportSelections: Record "Report Selections";
-        ProductionOrder2: Record "Production Order";
+        MfgCarryOutActionPrint: Codeunit "Mfg. Carry Out Action Print";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1219,11 +960,8 @@ codeunit 99000813 "Carry Out Action"
         if IsHandled then
             exit;
 
-        if PrintOrder and (ProductionOrder."No." <> '') then begin
-            ProductionOrder2 := ProductionOrder;
-            ProductionOrder2.SetRecFilter();
-            ReportSelections.PrintWithDialogWithCheckForCust(ReportSelections.Usage::"Prod.Order", ProductionOrder2, false, 0);
-        end;
+        if PrintOrder then
+            MfgCarryOutActionPrint.PrintProdOrder(ProductionOrder);
     end;
 
     procedure TransferRouting(RequisitionLine: Record "Requisition Line"; ProductionOrder: Record "Production Order"; RoutingNo: Code[20]; RoutingRefNo: Integer): Boolean
@@ -1399,11 +1137,8 @@ codeunit 99000813 "Carry Out Action"
         end;
 
         if PrintOrder then
-            if RequisitionLine."Ref. Order Status" in [RequisitionLine."Ref. Order Status"::Planned, RequisitionLine."Ref. Order Status"::"Firm Planned"] then begin
-                TempProductionOrderToPrint.Status := NewProductionOrder.Status;
-                TempProductionOrderToPrint."No." := NewProductionOrder."No.";
-                TempProductionOrderToPrint.Insert();
-            end;
+            if RequisitionLine."Ref. Order Status" in [RequisitionLine."Ref. Order Status"::Planned, RequisitionLine."Ref. Order Status"::"Firm Planned"] then
+                OnCollectProdOrderForPrinting(NewProductionOrder);
     end;
 
     local procedure FindTempProdOrder(var RequisitionLine: Record "Requisition Line"): Boolean
@@ -1476,32 +1211,13 @@ codeunit 99000813 "Carry Out Action"
         TransferLine.Modify();
     end;
 
-    procedure ReserveBindingOrderToAsm(var AssemblyHeader: Record "Assembly Header"; var RequisitionLine: Record "Requisition Line")
-    var
-        TrackingSpecification: Record "Tracking Specification";
-        ReservQty: Decimal;
-        ReservQtyBase: Decimal;
+#if not CLEAN27
+    [Obsolete('Replaced by procedure in codeunit AsmCarryOutAction', '27.0')]
+    procedure ReserveBindingOrderToAsm(var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; var RequisitionLine: Record "Requisition Line")
     begin
-        AssemblyHeader.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
-        if AssemblyHeader."Remaining Quantity (Base)" - AssemblyHeader."Reserved Qty. (Base)" >
-           RequisitionLine."Demand Quantity (Base)"
-        then begin
-            ReservQty := RequisitionLine."Demand Quantity";
-            ReservQtyBase := RequisitionLine."Demand Quantity (Base)";
-        end else begin
-            ReservQty := AssemblyHeader."Remaining Quantity" - AssemblyHeader."Reserved Quantity";
-            ReservQtyBase := AssemblyHeader."Remaining Quantity (Base)" - AssemblyHeader."Reserved Qty. (Base)";
-        end;
-
-        TrackingSpecification.InitTrackingSpecification(
-            Database::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", '', 0, 0,
-            AssemblyHeader."Variant Code", AssemblyHeader."Location Code", AssemblyHeader."Qty. per Unit of Measure");
-
-        RequisitionLine.ReserveBindingOrder(
-            TrackingSpecification, AssemblyHeader.Description, AssemblyHeader."Due Date", ReservQty, ReservQtyBase, true);
-
-        AssemblyHeader.Modify();
+        AsmCarryOutAction.ReserveBindingOrderToAsm(AssemblyHeader, RequisitionLine);
     end;
+#endif
 
     procedure ReserveBindingOrderToReqline(var DemandRequisitionLine: Record "Requisition Line"; var SupplyRequisitionLine: Record "Requisition Line")
     var
@@ -1581,20 +1297,36 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnAfterInsertAsmHeader(var ReqLine: Record "Requisition Line"; var AsmHeader: Record Microsoft.Assembly.Document."Assembly Header")
+    begin
+        OnAfterInsertAsmHeader(ReqLine, AsmHeader);
+    end;
+
+    [Obsolete('Moved to codeunit AsmCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertAsmHeader(var ReqLine: Record "Requisition Line"; var AsmHeader: Record "Assembly Header")
+    local procedure OnAfterInsertAsmHeader(var ReqLine: Record "Requisition Line"; var AsmHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertTransLine(var TransHeader: Record "Transfer Header"; var ReqLine: Record "Requisition Line"; var TransLine: Record "Transfer Line"; var NextLineNo: Integer);
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnAfterTransferAsmPlanningComp(var PlanningComponent: Record "Planning Component"; var AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    begin
+        OnAfterTransferAsmPlanningComp(PlanningComponent, AssemblyLine);
+    end;
+
+    [Obsolete('Moved to codeunit AsmCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferAsmPlanningComp(var PlanningComponent: Record "Planning Component"; var AssemblyLine: Record "Assembly Line")
+    local procedure OnAfterTransferAsmPlanningComp(var PlanningComponent: Record "Planning Component"; var AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransLineInsert(var TransferLine: Record "Transfer Line"; RequisitionLine: Record "Requisition Line")
@@ -1621,10 +1353,18 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnBeforeAddResourceComponents(RequisitionLine: Record "Requisition Line"; var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; var IsHandled: Boolean)
+    begin
+        OnBeforeAddResourceComponents(RequisitionLine, AssemblyHeader, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit AsmCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAddResourceComponents(RequisitionLine: Record "Requisition Line"; var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    local procedure OnBeforeAddResourceComponents(RequisitionLine: Record "Requisition Line"; var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyDimensionsFromReqToTransLine(var TransferLine: Record "Transfer Line"; RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
@@ -1636,10 +1376,18 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnBeforeDeleteAssemblyLines(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeDeleteAssemblyLines(RequisitionLine, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit AsmCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteAssemblyLines(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteProdOrderLines(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
@@ -1791,10 +1539,18 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnAsmOrderChgAndResheduleOnBeforeAsmHeaderModify(var ReqLine: Record "Requisition Line"; var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
+    begin
+        OnAsmOrderChgAndResheduleOnBeforeAsmHeaderModify(ReqLine, AssemblyHeader);
+    end;
+
+    [Obsolete('Moved to codeunit AsmCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAsmOrderChgAndResheduleOnBeforeAsmHeaderModify(var ReqLine: Record "Requisition Line"; var AssemblyHeader: Record "Assembly Header")
+    local procedure OnAsmOrderChgAndResheduleOnBeforeAsmHeaderModify(var ReqLine: Record "Requisition Line"; var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnProdOrderChgAndResheduleOnAfterValidateQuantity(var ProdOrderLine: Record "Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
@@ -1831,15 +1587,31 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnInsertAsmHeaderOnBeforeAsmHeaderInsert(var AsmHeader: Record "Assembly Header"; ReqLine: Record "Requisition Line");
+#if not CLEAN27
+    internal procedure RunOnInsertAsmHeaderOnBeforeAsmHeaderInsert(var AsmHeader: Record Microsoft.Assembly.Document."Assembly Header"; ReqLine: Record "Requisition Line");
     begin
+        OnInsertAsmHeaderOnBeforeAsmHeaderInsert(AsmHeader, ReqLine);
     end;
 
+    [Obsolete('Moved to codeunit AsmCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnInsertAsmHeaderOnAfterAsmHeaderInsert(var AsmHeader: Record "Assembly Header"; ReqLine: Record "Requisition Line");
+    local procedure OnInsertAsmHeaderOnBeforeAsmHeaderInsert(var AsmHeader: Record Microsoft.Assembly.Document."Assembly Header"; ReqLine: Record "Requisition Line");
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnInsertAsmHeaderOnAfterAsmHeaderInsert(var AsmHeader: Record Microsoft.Assembly.Document."Assembly Header"; ReqLine: Record "Requisition Line");
+    begin
+        OnInsertAsmHeaderOnAfterAsmHeaderInsert(AsmHeader, ReqLine);
+    end;
+
+    [Obsolete('Moved to codeunit AsmCarryOutAction', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertAsmHeaderOnAfterAsmHeaderInsert(var AsmHeader: Record Microsoft.Assembly.Document."Assembly Header"; ReqLine: Record "Requisition Line");
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPrintTransferOrderOnBeforePrintWithDialogWithCheckForCust(var ReportSelections: Record "Report Selections")
@@ -1850,6 +1622,19 @@ codeunit 99000813 "Carry Out Action"
     local procedure OnCarryOutActionsFromProdOrderOnAfterCalcPrintOrder(var PrintOrder: Boolean; ProdOrderChoice: Option)
     begin
     end;
+
+#if not CLEAN27
+    internal procedure RunOnCarryOutActionsFromAssemblyOrderOnAfterCalcPrintOrder(var PrintOrder2: Boolean; AsmOrderChoice: Enum "Planning Create Assembly Order")
+    begin
+        OnCarryOutActionsFromAssemblyOrderOnAfterCalcPrintOrder(PrintOrder2, AsmOrderChoice);
+    end;
+
+    [Obsolete('Moved to codeunit AsmCarryOutAction', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnCarryOutActionsFromAssemblyOrderOnAfterCalcPrintOrder(var PrintOrder: Boolean; AsmOrderChoice: Enum "Planning Create Assembly Order")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertProductionOrderOnProdOrderChoiceCaseElse(ProdOrderChoice: Enum "Planning Create Prod. Order")
@@ -1918,6 +1703,16 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(true, false)]
     local procedure OnInsertProdOrderLineOnBeforeModifyProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectProdOrderForPrinting(var ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTrySourceTypeForAssembly(var RequisitionLine: Record "Requisition Line"; TryChoice: Option; var AssemblyExist: Boolean; var TempDocumentEntry: Record "Document Entry" temporary)
     begin
     end;
 }
