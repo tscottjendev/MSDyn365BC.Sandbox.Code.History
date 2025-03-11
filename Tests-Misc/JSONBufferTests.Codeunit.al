@@ -266,7 +266,7 @@ codeunit 139210 "JSON Buffer Tests"
 
         // [THEN] JSON Buffer contains formatted DateTime with seconds and milliseconds
         TempJSONBuffer.GetPropertyValue(PropertyValue, 'Variable');
-        Assert.IsTrue(PropertyValue.Contains('.'), 'DateTime does not contain seconds and milliseconds');
+        Assert.IsTrue(PropertyValue.Contains('.'), StrSubstNo('DateTime does not contain seconds and milliseconds. DateTimeString: %1, PropertyValue: %2', DateTimeString, PropertyValue));
     end;
 
     local procedure VerifyJSONBuffer(var TempJSONBuffer: Record "JSON Buffer" temporary; Depth: Integer; TokenType: Option; Value: Text; ValueType: Text[250]; Path: Text[250])
