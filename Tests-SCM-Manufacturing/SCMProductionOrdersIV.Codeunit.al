@@ -4,28 +4,28 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Test;
 
-using Microsoft.Inventory.Item;
-using Microsoft.Inventory.Ledger;
-using Microsoft.Manufacturing.WorkCenter;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Inventory.Journal;
-using Microsoft.Purchases.Document;
+using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.Costing;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Reports;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Journal;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
-using Microsoft.Finance.GeneralLedger.Ledger;
-using Microsoft.Purchases.History;
-using System.TestLibraries.Utilities;
-using Microsoft.Foundation.NoSeries;
-using Microsoft.Manufacturing.StandardCost;
-using Microsoft.Inventory.BOM;
-using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Tracking;
-using Microsoft.Inventory.Reports;
 using Microsoft.Manufacturing.Setup;
-using Microsoft.Inventory.Costing;
-using Microsoft.Manufacturing.Journal;
+using Microsoft.Manufacturing.StandardCost;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
 using Microsoft.Sales.Document;
+using System.TestLibraries.Utilities;
 
 codeunit 137083 "SCM Production Orders IV"
 {
@@ -3826,6 +3826,64 @@ codeunit 137083 "SCM Production Orders IV"
         ProductionOrderStatistics.TotalCost_ActualCost.AssertEquals(MaterialActualCost + (NonInvUnitCost2 * ActualNonInvQuantityPer) + MfgOverheadActualCost);
         ProductionOrderStatistics."VarPct[6]".AssertEquals(CalcIndicatorPct(StandardTotalCost, MaterialActualCost + (NonInvUnitCost2 * ActualNonInvQuantityPer) + MfgOverheadActualCost));
         ProductionOrderStatistics."VarAmt[6]".AssertEquals((MaterialActualCost + (NonInvUnitCost2 * ActualNonInvQuantityPer) + MfgOverheadActualCost) - StandardTotalCost);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure VerifyCostFieldsMustBeUpdatedInSKUWhenStockKeepingUnitIsManuallyCreated()
+    var
+        OutputItem: Record Item;
+        CompItem: Record Item;
+        Location: Record Location;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        ProductionBOMHeader: Record "Production BOM Header";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        Quantity: Decimal;
+        CompUnitCost: Decimal;
+        ExpectedStandardCost: Decimal;
+        ExpectedOvhdCost: Decimal;
+        IndirectCostPer: Decimal;
+    begin
+        // [SCENARIO 567055] Verify Cost Fields must be updated in "Stockkeeping Unit" When "Stockkeeping Unit" is manually created.
+        Initialize();
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Production Item, Component Item with Production BOM.
+        CreateProductionItemWithInvItemAndProductionBOM(OutputItem, CompItem, ProductionBOMHeader);
+
+        // [GIVEN] Save Quantity, Indirect%, Component Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        CompUnitCost := LibraryRandom.RandIntInRange(20, 20);
+        IndirectCostPer := LibraryRandom.RandIntInRange(10, 10);
+        ExpectedOvhdCost := (CompUnitCost * IndirectCostPer) / 100;
+        ExpectedStandardCost := CompUnitCost + ExpectedOvhdCost;
+
+        // [GIVEN] Create and Post Purchase Document for Component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem, Quantity, CompUnitCost);
+
+        // [GIVEN] Update "Costing Method", "Indirect Cost %" in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Validate("Indirect Cost %", IndirectCostPer);
+        OutputItem.Modify();
+
+        // [GIVEN] Calculate Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [WHEN] Create Semi-Stockkeeping Unit.
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, OutputItem."No.", '');
+
+        // [THEN] Verify Cost fields in Output item.
+        OutputItem.Get(OutputItem."No.");
+        VerifyCostFieldsInItem(OutputItem, ExpectedStandardCost, CompUnitCost, CompUnitCost, 0, 0, ExpectedOvhdCost, ExpectedOvhdCost);
+
+        // [THEN] Verify Cost Fields must be updated in SKU.
+        StockkeepingUnit.Get(StockkeepingUnit."Location Code", StockkeepingUnit."Item No.", StockkeepingUnit."Variant Code");
+        VerifyCostFieldsInSKU(StockkeepingUnit, ExpectedStandardCost, CompUnitCost, CompUnitCost, 0, 0, ExpectedOvhdCost, ExpectedOvhdCost);
     end;
 
     local procedure Initialize()
