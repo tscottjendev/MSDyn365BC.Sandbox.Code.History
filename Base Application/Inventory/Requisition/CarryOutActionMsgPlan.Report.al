@@ -46,10 +46,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
                     Window.Close();
 
                 CarryOutAction.PrintTransferOrders();
-
-                CarryOutAction.PrintAsmOrders();
-
-                CarryOutAction.PrintProductionOrders();
+                OnPostDataItemOnPrintOrders();
 
                 if PurchOrderChoice in [PurchOrderChoice::"Make Purch. Orders",
                                         PurchOrderChoice::"Make Purch. Orders & Print"]
@@ -666,6 +663,11 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckDemandType(RequisitionLine: Record "Requisition Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDataItemOnPrintOrders()
     begin
     end;
 }
