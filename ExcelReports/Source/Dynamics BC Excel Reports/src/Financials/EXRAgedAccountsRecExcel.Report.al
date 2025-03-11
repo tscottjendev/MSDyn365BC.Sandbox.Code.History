@@ -14,7 +14,7 @@ using Microsoft.ExcelReports;
 report 4402 "EXR Aged Accounts Rec Excel"
 {
     ApplicationArea = All;
-    Caption = 'Aged Accounts Receivable Excel';
+    Caption = 'Aged Accounts Receivable Excel (Preview)';
     DataAccessIntent = ReadOnly;
     DefaultRenderingLayout = AgedAccountsReceivableExcel;
     ExcelLayoutMultipleDataSheets = true;
@@ -242,11 +242,11 @@ report 4402 "EXR Aged Accounts Rec Excel"
     }
     labels
     {
-        ByPeriodLCY = 'By Period (LCY)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        ByPeriodLCY = 'By period (LCY)';
         BalanceLCY = 'Balance (LCY)';
         AgedAccountsReceivableByPeriodLCY = 'Aged Accounts Receivable by Period (LCY)';
         OpenAmountsInLCY = 'Open amounts in LCY';
-        ByPeriodFCY = 'By Period (FCY)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        ByPeriodFCY = 'By Period (FCY)';
         BalanceFCY = 'Balance (FCY)';
         AgedAccountsReceivableByPeriodFCY = 'Aged Accounts Receivable by Period (FCY)';
         OpenAmountsInFCY = 'Open amounts in FCY';
@@ -260,22 +260,10 @@ report 4402 "EXR Aged Accounts Rec Excel"
         DocumentDateMonth = 'Document Date (Month)';
         DocumentDateQuarter = 'Document Date (Quarter)';
         DocumentDateYear = 'Document Date (Year)';
-        DueByCurrencies = 'Due by Currencies', MaxLength = 31, Comment = 'Excel worksheet name.';
+        DueByCurrencies = 'Due by Currencies';
         OpenByFCY = 'Open by (FCY)';
         DataRetrieved = 'Data retrieved:';
         CurrencyCodeDisplay = 'Currency Code';
-        AgedAsOf = 'Aged as of:';
-        AgedAccountsReceivable = 'Aged Accounts Receivable';
-        AgedAccountsReceivablePrint = 'Aged Accounts Rec. (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
-        AgedBy = 'Aged by:';
-        // About the report labels
-        AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
-        EnvironmentLabel = 'Environment';
-        CompanyLabel = 'Company';
-        UserLabel = 'User';
-        RunOnLabel = 'Run on';
-        ReportNameLabel = 'Report name';
-        DocumentationLabel = 'Documentation';
     }
 
     var
