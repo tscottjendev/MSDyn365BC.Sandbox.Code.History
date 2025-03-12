@@ -123,14 +123,6 @@ page 6181 "E-Document Purchase Draft"
                     SubPageLink = "E-Document Entry No." = field("Entry No");
                     UpdatePropagation = Both;
                 }
-                part(controlAddin; "E-Document Draft PDF Viewer")
-                {
-                    ApplicationArea = All;
-                    SubPageLink = "Entry No" = field("Entry No");
-                    Visible = ShowControlAddIn;
-                    UpdatePropagation = Both;
-                }
-
             }
             group("E-Document Details")
             {
@@ -214,14 +206,14 @@ page 6181 "E-Document Purchase Draft"
             action(ViewFile)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Toggle source file view';
-                ToolTip = 'View the source file.';
+                Caption = 'View pdf';
+                ToolTip = 'View pdf.';
                 Image = ViewDetails;
                 Visible = Rec."File Type" = Rec."File Type"::PDF;
 
                 trigger OnAction()
                 begin
-                    ShowControlAddIn := not ShowControlAddIn;
+                    Rec.ViewSourceFile();
                 end;
             }
             action(ViewExtractedDocumentData)
@@ -262,7 +254,6 @@ page 6181 "E-Document Purchase Draft"
         EDocumentsSetup: Record "E-Documents Setup";
         ImportEDocumentProcess: Codeunit "Import E-Document Process";
     begin
-        ShowControlAddIn := Rec."File Type" = Rec."File Type"::PDF;
         if not EDocumentsSetup.IsNewEDocumentExperienceActive() then
             Error('');
         if EDocumentPurchaseHeader.Get(Rec."Entry No") then begin
@@ -381,6 +372,5 @@ page 6181 "E-Document Purchase Draft"
         HasErrorsOrWarnings, HasErrors : Boolean;
         ShowFinalizeDraftAction: Boolean;
         ShowAnalyzeDocumentAction: Boolean;
-        ShowControlAddIn: Boolean;
         EDocHasErrorOrWarningMsg: Label 'Errors or warnings found for E-Document. Please review below in "Error Messages" section.';
 }
