@@ -191,14 +191,27 @@ report 5405 "Calc. Consumption"
         ProdOrdRoutLine: Record "Prod. Order Routing Line";
         QtyToPost: Decimal;
         ShouldModifyItemJnlLine: Boolean;
+        ShouldAdjustQty: Boolean;
+#if not CLEAN26
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
     begin
         QtyToPost := OriginalQtyToPost;
         OnBeforeCreateConsumpJnlLine(LocationCode, BinCode, QtyToPost);
 
         Window.Update(3, QtyToPost);
 
-        if Location.Get(LocationCode) and (Location."Prod. Consump. Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then
-            "Prod. Order Component".AdjustQtyToQtyPicked(QtyToPost);
+#if not CLEAN26
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+            ShouldAdjustQty := "Prod. Order Component"."Flushing Method" in ["Prod. Order Component"."Flushing Method"::Manual, "Prod. Order Component"."Flushing Method"::"Pick + Manual", "Prod. Order Component"."Flushing Method"::Forward, "Prod. Order Component"."Flushing Method"::"Pick + Forward"]
+        else
+#endif
+            ShouldAdjustQty := "Prod. Order Component"."Flushing Method" in ["Prod. Order Component"."Flushing Method"::"Pick + Manual", "Prod. Order Component"."Flushing Method"::Forward, "Prod. Order Component"."Flushing Method"::"Pick + Forward"];
+        if ShouldAdjustQty then begin
+            Location.SetLoadFields("Prod. Consump. Whse. Handling");
+            if Location.Get(LocationCode) and (Location."Prod. Consump. Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then
+                "Prod. Order Component".AdjustQtyToQtyPicked(QtyToPost);
+        end;
 
         ShouldModifyItemJnlLine :=
             (ItemJnlLine."Item No." = "Prod. Order Component"."Item No.") and
