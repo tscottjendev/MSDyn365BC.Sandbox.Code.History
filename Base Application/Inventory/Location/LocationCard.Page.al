@@ -272,7 +272,7 @@ page 5703 "Location Card"
                     {
                         ApplicationArea = Warehouse;
                         Enabled = UsePutAwayWorksheetEnable;
-                        ToolTip = 'Specifies if put-aways for posted warehouse receipts must be created with the put-away worksheet. If the check box is not selected, put-aways are created directly when you post a warehouse receipt or production output.';
+                        ToolTip = 'Specifies if put-aways for posted warehouse receipts must be created with the put-away worksheet. If the check box is not selected, put-aways are created directly when you post a warehouse receipt.';
                     }
                     field("Use ADCS"; Rec."Use ADCS")
                     {
