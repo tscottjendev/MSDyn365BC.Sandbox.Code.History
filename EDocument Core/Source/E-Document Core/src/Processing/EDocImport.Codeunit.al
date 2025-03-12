@@ -727,6 +727,7 @@ codeunit 6140 "E-Doc. Import"
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        LineNo: Integer;
     begin
         EDocumentPurchaseHeader.InsertForEDocument(EDocument);
 
@@ -738,14 +739,17 @@ codeunit 6140 "E-Doc. Import"
 
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
         EDocumentPurchaseLine.DeleteAll();
+        LineNo := 10000;
         if SourceDocumentLine.FindSet() then
             repeat
                 Clear(EDocumentPurchaseLine);
                 EDocumentPurchaseLine."E-Document Entry No." := EDocument."Entry No";
+                EDocumentPurchaseLine."Line No." := LineNo;
                 EDocumentPurchaseLine.Insert();
 
                 SourceDocumentLine.SetTable(PurchaseLine);
                 V1_CopyFromPurchaseLine(PurchaseLine, EDocumentPurchaseLine);
+                LineNo := LineNo + 10000;
             until SourceDocumentLine.Next() = 0;
 
     end;

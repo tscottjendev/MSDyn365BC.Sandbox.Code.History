@@ -63,7 +63,7 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
         if EDocumentPurchaseLine.FindSet() then
             repeat
-                if EDocumentLineMapping.Get(EDocumentPurchaseLine."E-Document Line Id") then;
+                if EDocumentLineMapping.Get(EDocument."Entry No", EDocumentPurchaseLine."Line No.") then;
                 PurchaseLine."Document Type" := PurchaseHeader."Document Type";
                 PurchaseLine."Document No." := PurchaseHeader."No.";
                 PurchaseLine."Line No." += 10000;

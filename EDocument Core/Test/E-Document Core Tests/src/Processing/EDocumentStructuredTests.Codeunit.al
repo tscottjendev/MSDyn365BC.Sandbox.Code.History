@@ -77,10 +77,8 @@ codeunit 139891 "E-Document Structured Tests"
         Assert.AreEqual(DMY2Date(14, 10, 2019), EDocumentPurchaseHeader."Service Start Date", 'The service start date does not allign with the mock data.');
         Assert.AreEqual(DMY2Date(14, 11, 2019), EDocumentPurchaseHeader."Service End Date", 'The service end date does not allign with the mock data.');
 
-#pragma warning disable AA0210
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocumentEntryNo);
-#pragma warning restore AA0210
-        EDocumentPurchaseLine.FindFirst();
+        EDocumentPurchaseLine.FindSet();
         Assert.AreEqual(60, EDocumentPurchaseLine."Sub Total", 'The amount in the purchase line does not allign with the mock data.');
         Assert.AreEqual('Consulting Services', EDocumentPurchaseLine.Description, 'The description in the purchase line does not allign with the mock data.');
         Assert.AreEqual(30, EDocumentPurchaseLine."Unit Price", 'The unit price in the purchase line does not allign with the mock data.');
@@ -91,11 +89,7 @@ codeunit 139891 "E-Document Structured Tests"
         Assert.AreEqual(DMY2Date(4, 3, 2021), EDocumentPurchaseLine.Date, 'The date in the purchase line does not allign with the mock data.');
         Assert.AreEqual(6, EDocumentPurchaseLine."VAT Rate", 'The amount in the purchase line does not allign with the mock data.');
 
-#pragma warning disable AA0210
-        EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocumentEntryNo);
-#pragma warning restore AA0210
-        EDocumentPurchaseLine.SetRange("E-Document Line Id", EDocumentPurchaseLine."E-Document Line Id" + 1);
-        EDocumentPurchaseLine.FindFirst();
+        EDocumentPurchaseLine.Next();
         Assert.AreEqual(30, EDocumentPurchaseLine."Sub Total", 'The amount in the purchase line does not allign with the mock data.');
         Assert.AreEqual('Document Fee', EDocumentPurchaseLine.Description, 'The description in the purchase line does not allign with the mock data.');
         Assert.AreEqual(10, EDocumentPurchaseLine."Unit Price", 'The unit price in the purchase line does not allign with the mock data.');
@@ -106,11 +100,7 @@ codeunit 139891 "E-Document Structured Tests"
         Assert.AreEqual(DMY2Date(5, 3, 2021), EDocumentPurchaseLine.Date, 'The date in the purchase line does not allign with the mock data.');
         Assert.AreEqual(3, EDocumentPurchaseLine."VAT Rate", 'The amount in the purchase line does not allign with the mock data.');
 
-#pragma warning disable AA0210
-        EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocumentEntryNo);
-#pragma warning restore AA0210
-        EDocumentPurchaseLine.SetRange("E-Document Line Id", EDocumentPurchaseLine."E-Document Line Id" + 1);
-        EDocumentPurchaseLine.FindFirst();
+        EDocumentPurchaseLine.Next();
         Assert.AreEqual(10, EDocumentPurchaseLine."Sub Total", 'The amount does not allign with the mock data.');
         Assert.AreEqual('Printing Fee', EDocumentPurchaseLine.Description, 'The description does not allign with the mock data.');
         Assert.AreEqual(1, EDocumentPurchaseLine."Unit Price", 'The unit price does not allign with the mock data.');
@@ -176,10 +166,8 @@ codeunit 139891 "E-Document Structured Tests"
         Assert.AreEqual('GB789456278', EDocumentPurchaseHeader."Customer VAT Id", 'The customer VAT id does not allign with the mock data.');
         Assert.AreEqual('192 Market Square', EDocumentPurchaseHeader."Customer Address", 'The customer address does not allign with the mock data.');
 
-#pragma warning disable AA0210
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocumentEntryNo);
-#pragma warning restore AA0210
-        EDocumentPurchaseLine.FindFirst();
+        EDocumentPurchaseLine.FindSet();
         Assert.AreEqual(1, EDocumentPurchaseLine."Quantity", 'The quantity in the purchase line does not allign with the mock data.');
         Assert.AreEqual('PCS', EDocumentPurchaseLine."Unit of Measure", 'The unit of measure in the purchase line does not allign with the mock data.');
         Assert.AreEqual(4000, EDocumentPurchaseLine."Sub Total", 'The total amount before taxes in the purchase line does not allign with the mock data.');
@@ -190,8 +178,7 @@ codeunit 139891 "E-Document Structured Tests"
         Assert.AreEqual(25, EDocumentPurchaseLine."VAT Rate", 'The VAT rate in the purchase line does not allign with the mock data.');
         Assert.AreEqual(4000, EDocumentPurchaseLine."Unit Price", 'The unit price in the purchase line does not allign with the mock data.');
 
-        EDocumentPurchaseLine.SetRange("E-Document Line Id", EDocumentPurchaseLine."E-Document Line Id" + 1);
-        EDocumentPurchaseLine.FindFirst();
+        EDocumentPurchaseLine.Next();
         Assert.AreEqual(2, EDocumentPurchaseLine."Quantity", 'The quantity in the purchase line does not allign with the mock data.');
         Assert.AreEqual('PCS', EDocumentPurchaseLine."Unit of Measure", 'The unit of measure in the purchase line does not allign with the mock data.');
         Assert.AreEqual(10000, EDocumentPurchaseLine."Sub Total", 'The total amount before taxes in the purchase line does not allign with the mock data.');
