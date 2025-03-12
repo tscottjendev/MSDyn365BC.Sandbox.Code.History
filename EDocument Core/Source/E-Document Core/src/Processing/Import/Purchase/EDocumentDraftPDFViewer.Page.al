@@ -8,6 +8,7 @@ using Microsoft.eServices.EDocument;
 using System.Text;
 using System.Utilities;
 
+
 page 6140 "E-Document Draft PDF Viewer"
 {
 
@@ -18,6 +19,9 @@ page 6140 "E-Document Draft PDF Viewer"
     ModifyAllowed = false;
     PageType = ListPart;
     SourceTable = "E-Document";
+    ObsoleteReason = 'Will be removed';
+    ObsoleteState = Pending;
+    ObsoleteTag = '26.0';
 
     layout
     {
