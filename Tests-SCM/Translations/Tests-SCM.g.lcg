@@ -1481,6 +1481,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Costing Rollup Sev 4 - NamedType CloseFiscalYearQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 938348942 - NamedType 28734841" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot combine shipments from orders which have different values of Tax Liable.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Costing Rollup Sev 4 - NamedType TaxLiableErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 938348942 - NamedType 3535663031" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[value entries have been posted to the general ledger.]]></Val>
