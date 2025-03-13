@@ -12,6 +12,7 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Comment;
 using Microsoft.HumanResources.Payables;
+using Microsoft.Foundation.Period;
 using Microsoft.HumanResources.Setup;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Setup;
@@ -527,7 +528,16 @@ table 5200 Employee
     }
 
     trigger OnDelete()
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
+        EmployeeLedgerEntry.Reset();
+        EmployeeLedgerEntry.SetCurrentKey("Employee No.", "Posting Date");
+        EmployeeLedgerEntry.SetRange("Employee No.", Rec."No.");
+        SetEmplLedgEntryFilterByAccPeriod(EmployeeLedgerEntry);
+        if not EmployeeLedgerEntry.IsEmpty() then
+            Error(EmployeeHasLedgerDeleteErr, Rec."No.");
+
         AlternativeAddr.SetRange("Employee No.", "No.");
         AlternativeAddr.DeleteAll();
 
@@ -664,6 +674,7 @@ table 5200 Employee
         BlockedEmplForJnrlErr: Label 'You cannot create this document because employee %1 is blocked due to privacy.', Comment = '%1 = employee no.';
         BlockedEmplForJnrlPostingErr: Label 'You cannot post this document because employee %1 is blocked due to privacy.', Comment = '%1 = employee no.';
         EmployeeLinkedToResourceErr: Label 'You cannot link multiple employees to the same resource. Employee %1 is already linked to that resource.', Comment = '%1 = employee no.';
+        EmployeeHasLedgerDeleteErr: Label 'You cannot delete Employee %1 because it has ledger entries in a fiscal year that has not been closed yet.', Comment = '%1 = employee no.';
 
     procedure AssistEdit() Result: Boolean
     var
@@ -784,6 +795,21 @@ table 5200 Employee
             Error(EmployeeLinkedToResourceErr, Employee."No.");
     end;
 
+    local procedure SetEmplLedgEntryFilterByAccPeriod(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    var
+        AccountingPeriod: Record "Accounting Period";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetEmployeeLedgEntryFilterByAccPeriod(EmployeeLedgerEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        AccountingPeriod.SetRange(Closed, false);
+        if AccountingPeriod.FindFirst() then
+            EmployeeLedgerEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
+    end;
+
     local procedure IsOnBeforeCheckBlockedEmployeeHandled(IsPosting: Boolean) IsHandled: Boolean
     begin
         OnBeforeCheckBlockedEmployee(Rec, IsPosting, IsHandled);
@@ -831,6 +857,11 @@ table 5200 Employee
 
     [IntegrationEvent(false, false)]
     local procedure OnModifyOnBeforeEmployeeResourceUpdate(var Employee: Record "Employee"; xEmployee: Record "Employee"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetEmployeeLedgEntryFilterByAccPeriod(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }
