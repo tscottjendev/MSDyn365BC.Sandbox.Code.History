@@ -27,6 +27,7 @@ codeunit 139624 "E-Doc E2E Test"
     var
         SalesInvHeader: Record "Sales Invoice Header";
         EDocument: Record "E-Document";
+        DocumentSendingProfile: Record "Document Sending Profile";
         Variant: Variant;
     begin
         // [FEATURE] [E-Document] [Processing] 
@@ -58,6 +59,8 @@ codeunit 139624 "E-Doc E2E Test"
         Assert.AreEqual(SalesInvHeader."Document Date", EDocument."Document Date", IncorrectValueErr);
         Assert.AreEqual(EDocument."Source Type"::Customer, EDocument."Source Type", IncorrectValueErr);
         Assert.AreEqual(EDocument.Status::"In Progress", EDocument.Status, IncorrectValueErr);
+        DocumentSendingProfile.GetDefaultForCustomer(Customer."No.", DocumentSendingProfile);
+        Assert.AreEqual(EDocument."Document Sending Profile", DocumentSendingProfile.Code, IncorrectValueErr);
 
         UnbindSubscription(EDocImplState);
     end;
