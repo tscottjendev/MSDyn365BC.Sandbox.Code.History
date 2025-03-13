@@ -128,4 +128,18 @@ codeunit 36961 "Setup Helper"
         Notify.Scope := NotificationScope::LocalScope;
         NotificationLifecycleMgt.SendNotification(Notify, PowerBIContextSettings.RecordId());
     end;
+
+    procedure LogReportLoaded(CorrelationId: Guid)
+    var
+        PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
+    begin
+        PowerBIServiceMgt.LogVisualLoaded(CorrelationId, Enum::"Power BI Element Type"::Report);
+    end;
+
+    procedure LogError(Operation: Text; ErrorText: Text)
+    var
+        PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
+    begin
+        PowerBIServiceMgt.LogEmbedError(Operation);
+    end;
 }

@@ -13,7 +13,7 @@ pageextension 4405 EXRARRoleCenter extends "Account Receivables"
                 action(EXRTrialBalanceBudgetExcel)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Trial Balance/Budget';
+                    Caption = 'Trial Balance/Budget (Excel)';
                     Image = "Report";
                     RunObject = report "EXR Trial BalanceBudgetExcel";
                     ToolTip = 'Open a spreadsheet that shows Trial Balance/Budget data.';
@@ -21,7 +21,11 @@ pageextension 4405 EXRARRoleCenter extends "Account Receivables"
                 action(EXRTrialBalanceExcel)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Trial Balance';
+#if not CLEAN25
+                    Caption = 'Trial Balance (Preview)';
+#else
+                    Caption = 'Trial Balance (Excel)';
+#endif
                     Image = "Report";
                     RunObject = report "EXR Trial Balance Excel";
                     ToolTip = 'Open a spreadsheet that shows Trial Balance Excel data.';
@@ -29,7 +33,7 @@ pageextension 4405 EXRARRoleCenter extends "Account Receivables"
                 action(EXRTrialBalbyPeriodExcel)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Trial Balance by Period';
+                    Caption = 'Trial Balance by Period (Excel)';
                     Image = "Report";
                     RunObject = report "EXR Trial Bal by Period Excel";
                     ToolTip = 'Open a spreadsheet that shows Trial Balance by Period data.';
@@ -37,7 +41,7 @@ pageextension 4405 EXRARRoleCenter extends "Account Receivables"
                 action(EXRTrialBalPrevYearExcel)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Trial Balance/Previous Year';
+                    Caption = 'Trial Balance/Previous Year (Excel)';
                     Image = "Report";
                     RunObject = report "EXR Trial Bal. Prev Year Excel";
                     ToolTip = 'Open a spreadsheet that shows Trial Balance/Previous Year data';
@@ -45,7 +49,11 @@ pageextension 4405 EXRARRoleCenter extends "Account Receivables"
                 action(EXRAgedAccountsRecExcel)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Aged Accounts Receivable';
+#if not CLEAN25
+                    Caption = 'Aged Accounts Receivable (Preview)';
+#else
+                    Caption = 'Aged Accounts Receivable (Excel)';
+#endif
                     Image = "Report";
                     RunObject = report "EXR Aged Accounts Rec Excel";
                     ToolTip = 'Open a spreadsheet that shows the Aged Accounts Receivable data.';
@@ -53,7 +61,7 @@ pageextension 4405 EXRARRoleCenter extends "Account Receivables"
                 action(EXRCustomerTopListExcel)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Customer - Top List';
+                    Caption = 'Customer - Top List (Excel)';
                     Image = "Report";
                     RunObject = report "EXR Customer Top List";
                     ToolTip = 'Open a spreadsheet that shows a list of top customers.';
