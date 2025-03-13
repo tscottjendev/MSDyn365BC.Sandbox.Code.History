@@ -48,6 +48,8 @@ codeunit 99000766 "Mfg. Whse. Activity Post"
         PostedSourceType := TempWhseActivLine."Source Type";
         PostedSourceSubType := TempWhseActivLine."Source Subtype";
         PostedSourceNo := TempWhseActivLine."Source No.";
+
+        OnAfterPostConsumption(ProdOrder, WarehouseActivityHeader, TempWhseActivLine, PostedSourceType, PostedSourceSubType, PostedSourceNo);
     end;
 
     local procedure PostConsumptionLine(ProdOrder: Record "Production Order"; ProdOrderComp: Record "Prod. Order Component"; var WarehouseActivityLine: Record "Warehouse Activity Line" temporary; var WarehouseActivityHeader: Record "Warehouse Activity Header")
@@ -119,6 +121,8 @@ codeunit 99000766 "Mfg. Whse. Activity Post"
         PostedSourceType := TempWhseActivLine."Source Type";
         PostedSourceSubType := TempWhseActivLine."Source Subtype";
         PostedSourceNo := TempWhseActivLine."Source No.";
+
+        OnAfterPostOutput(ProdOrder, WarehouseActivityHeader, TempWhseActivLine, PostedSourceType, PostedSourceSubType, PostedSourceNo);
     end;
 
     local procedure PostOutputLine(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line")
@@ -223,6 +227,16 @@ codeunit 99000766 "Mfg. Whse. Activity Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostConsumption(var ProductionOrder: Record "Production Order"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; PostedSourceType: Integer; PostedSourceSubType: Integer; PostedSourceNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostOutput(var ProductionOrder: Record "Production Order"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; PostedSourceType: Integer; PostedSourceSubType: Integer; PostedSourceNo: Code[20])
     begin
     end;
 }
