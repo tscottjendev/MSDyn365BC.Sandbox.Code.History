@@ -75,7 +75,7 @@ page 490 "Acc. Schedule Overview"
                     ApplicationArea = Basic, Suite;
                     Editable = (not ViewOnlyMode or (ViewLayout = "Financial Report View Layout"::"Show All"));
                     Caption = 'Row Definition';
-                    Importance = Promoted;
+                    Importance = Additional;
                     Lookup = true;
                     LookupPageID = "Account Schedule Names";
                     ToolTip = 'Specifies the name (code) of the row definition to be used for the report.';
@@ -105,7 +105,7 @@ page 490 "Acc. Schedule Overview"
                     ApplicationArea = Basic, Suite;
                     Editable = (not ViewOnlyMode or (ViewLayout = "Financial Report View Layout"::"Show All"));
                     Caption = 'Column Definition';
-                    Importance = Promoted;
+                    Importance = Additional;
                     Lookup = true;
                     LookupPageId = "Column Layout Names";
                     ToolTip = 'Specifies the name (code) of the column definition to be used for the report.';
@@ -153,6 +153,7 @@ page 490 "Acc. Schedule Overview"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Negative Amount Format';
+                    Importance = Additional;
                     ToolTip = 'Specifies how negative amounts are displayed on the financial report.';
 
                     trigger OnValidate()
@@ -196,7 +197,7 @@ page 490 "Acc. Schedule Overview"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show All Lines';
-                    Importance = Promoted;
+                    Importance = Additional;
                     ToolTip = 'Specifies whether the page should display all lines, including lines where No is chosen in the Show field, as well as lines with values outside the range to be displayed. Those lines are still not included in the printed report.';
 
                     trigger OnValidate()
@@ -209,6 +210,7 @@ page 490 "Acc. Schedule Overview"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Default Excel Layout';
+                    Importance = Additional;
                     ToolTip = 'Specifies the Excel layout that will be used when exporting to Excel.';
 
                     trigger OnLookup(var Text: Text): Boolean
