@@ -3072,7 +3072,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnHandlePostAdjmtOnBeforePostAdjmt(var TempExchRateAdjmtBuffer2: Record "Exch. Rate Adjmt. Buffer"; var Currency: Record Currency; var DimensionSetEntry: Record "Dimension Set Entry"; var AdjustAccType: Enum "Exch. Rate Adjmt. Account Type")
+    local procedure OnHandlePostAdjmtOnBeforePostAdjmt(var TempExchRateAdjmtBuffer2: Record "Exch. Rate Adjmt. Buffer" temporary; var Currency: Record Currency; var DimensionSetEntry: Record "Dimension Set Entry"; var AdjustAccType: Enum "Exch. Rate Adjmt. Account Type")
     begin
     end;
 }
