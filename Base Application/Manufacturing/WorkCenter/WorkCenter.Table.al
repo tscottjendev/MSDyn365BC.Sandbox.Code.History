@@ -796,14 +796,14 @@ table 99000754 "Work Center"
     procedure GetBinCodeForFlushingMethod(UseFlushingMethod: Boolean; FlushingMethod: Enum "Flushing Method") Result: Code[20]
 #if not CLEAN26
     var
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+        ManufacturingSetup: Record "Manufacturing Setup";
 #endif
     begin
         if not UseFlushingMethod then
             exit("From-Production Bin Code");
 
 #if not CLEAN26
-        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
             case FlushingMethod of
                 FlushingMethod::Manual,
                 FlushingMethod::"Pick + Manual",
