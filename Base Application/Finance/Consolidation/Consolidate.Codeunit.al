@@ -1695,7 +1695,7 @@ codeunit 432 Consolidate
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnTestGLAccountsOnBeforeTestForConflicts(TempSubsidGLAcc: Record "G/L Account" temporary)
+    local procedure OnTestGLAccountsOnBeforeTestForConflicts(var TempSubsidGLAcc: Record "G/L Account" temporary)
     begin
     end;
 }
