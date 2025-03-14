@@ -329,7 +329,7 @@ page 1651 "Curr. Exch. Rate Service Card"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateBasedOnEnableOnBeforeSetShowEnableWarning(var Rec: Record "Curr. Exch. Rate Update Setup")
+    local procedure OnUpdateBasedOnEnableOnBeforeSetShowEnableWarning(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup")
     begin
     end;
 }
