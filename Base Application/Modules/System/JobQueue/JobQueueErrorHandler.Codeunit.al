@@ -10,7 +10,7 @@ codeunit 450 "Job Queue Error Handler"
 
     trigger OnRun()
     begin
-        if Rec."Job Queue Category Code" <> '' then 
+        if Rec."Job Queue Category Code" <> '' then
             Rec.ActivateNextJobInCategoryIfAny();
         if Rec.GetRecLockedExtendedTimeout() then begin
             Rec.Status := Rec.Status::Error;
@@ -58,12 +58,14 @@ codeunit 450 "Job Queue Error Handler"
 #if CLEAN24
         end;
 #else
+#pragma warning disable AL0432
             OnLogErrorOnAfterJobQueueLogEntryModify(JobQueueEntry);
         end else begin
             JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
             JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry, GetLastErrorCallStack());
             OnLogErrorOnAfterJobQueueLogEntryFinalizeLogEntry(JobQueueEntry);
         end;
+#pragma warning restore AL0432
 #endif
 
         OnAfterLogError(JobQueueEntry, JobQueueLogEntry);

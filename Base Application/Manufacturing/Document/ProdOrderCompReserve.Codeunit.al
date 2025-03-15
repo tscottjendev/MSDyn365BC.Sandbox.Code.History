@@ -432,12 +432,12 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     procedure CallItemTracking(var ProdOrderComponent: Record "Prod. Order Component")
     var
         TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingDocManagement: Codeunit "Item Tracking Doc. Management";
+        MfgItemTrackingMgt: Codeunit "Mfg. Item Tracking Mgt.";
         ItemTrackingLines: Page "Item Tracking Lines";
     begin
         if ProdOrderComponent.Status = ProdOrderComponent.Status::Finished then
-            ItemTrackingDocManagement.ShowItemTrackingForProdOrderComp(Database::"Prod. Order Component",
-              ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.")
+            MfgItemTrackingMgt.ShowItemTrackingForProdOrderComp(
+                Database::"Prod. Order Component", ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.")
         else begin
             ProdOrderComponent.TestField("Item No.");
             InitFromProdOrderComp(TrackingSpecification, ProdOrderComponent);
