@@ -67,7 +67,6 @@ page 682 "Schedule a Report"
             field("Printer Name"; Rec."Printer Name")
             {
                 ApplicationArea = Basic, Suite;
-                Enabled = Rec."Report Output Type" = Rec."Report Output Type"::Print;
                 Importance = Additional;
                 ToolTip = 'Specifies the printer to use to print the scheduled report.';
             }
@@ -130,8 +129,6 @@ page 682 "Schedule a Report"
             JobQueueEntry.Description := CopyStr(Rec."Object Caption to Run", 1, MaxStrLen(JobQueueEntry.Description));
         OnOnQueryClosePageOnBeforeJobQueueEnqueue(Rec, JobQueueEntry);
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
-        if JobQueueEntry.IsToReportInbox() then
-            Message(ReportScheduledMsg);
         exit(true);
     end;
 
@@ -140,7 +137,6 @@ page 682 "Schedule a Report"
         NoIdMsg: Label 'You must specify a report number.';
         ReportEditable: Boolean;
         OutPutEditable: Boolean;
-        ReportScheduledMsg: Label 'The report has been scheduled. It will appear in the Report Inbox part when it is completed.';
 
     procedure ScheduleAReport(ReportId: Integer; RequestPageXml: Text): Boolean
     var

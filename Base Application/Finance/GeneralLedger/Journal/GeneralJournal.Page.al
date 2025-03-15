@@ -2016,7 +2016,7 @@ page 39 "General Journal"
 
         GeneralLedgerSetup.Get();
 
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
 
         SetJobQueueVisibility();
     end;
@@ -2097,7 +2097,7 @@ page 39 "General Journal"
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         ApprovalMgmt: Codeunit "Approvals Mgmt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;

@@ -1946,7 +1946,7 @@ page 43 "Sales Invoice"
         SetExtDocNoMandatoryCondition();
         SellToCustomerUsesEInvoicing := CustomerUsesEInvoicing(Rec."Sell-to Customer No.");
 
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -2027,7 +2027,7 @@ page 43 "Sales Invoice"
         CustomerMgt: Codeunit "Customer Mgt.";
         FormatAddress: Codeunit "Format Address";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         ChangeExchangeRate: Page "Change Exchange Rate";
         WorkDescription: Text;
         StatusStyleTxt: Text;
