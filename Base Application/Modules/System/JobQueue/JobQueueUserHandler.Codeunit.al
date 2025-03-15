@@ -42,7 +42,7 @@ codeunit 455 "Job Queue User Handler"
     local procedure Reschedule(var JobQueueEntry: Record "Job Queue Entry")
     var
         Telemetry: Codeunit Telemetry;
-        TelemetrySubscribers: Codeunit "Telemetry Subscribers";
+        JobQueueTelemetry: Codeunit "Job Queue Telemetry";
         Dimensions: Dictionary of [Text, Text];
     begin
         if TaskScheduler.TaskExists(JobQueueEntry."System Task ID") then
@@ -61,7 +61,7 @@ codeunit 455 "Job Queue User Handler"
             JobQueueEntry.Modify();
             Dimensions.Add('JobQueueRescheduledNewTask', Format(true, 9));
         end;
-        TelemetrySubscribers.SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        JobQueueTelemetry.SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
 
         Telemetry.LogMessage('0000I49', StrSubstNo(JobQueueRescheduledTxt, Format(JobQueueEntry.ID, 0, 4)),
                                 Verbosity::Normal,
@@ -85,7 +85,7 @@ codeunit 455 "Job Queue User Handler"
         exit(true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::LogInManagement, 'OnAfterCompanyClose', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company Triggers", 'OnCompanyClose', '', false, false)]
     local procedure RescheduleJobQueueEntriesOnCompanyOpen()
     var
         JobQueueEntry: Record "Job Queue Entry";

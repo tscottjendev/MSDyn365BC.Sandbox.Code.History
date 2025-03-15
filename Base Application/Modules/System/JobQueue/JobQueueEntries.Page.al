@@ -1,9 +1,9 @@
 namespace System.Threading;
 
-using System.Azure.Identity;
 using System.Environment;
 using System.Privacy;
 using System.Security.AccessControl;
+using System.Automation;
 
 page 672 "Job Queue Entries"
 {
@@ -183,7 +183,7 @@ page 672 "Job Queue Entries"
             {
                 Caption = 'Job &Queue';
                 Image = CheckList;
-                action(ResetStatus)
+                action(ResetStatusWithoutApproval)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Set Status to Ready';
@@ -192,10 +192,7 @@ page 672 "Job Queue Entries"
 
                     trigger OnAction()
                     begin
-                        if IsUserDelegated then
-                            JobQueueManagement.SendForApproval(Rec)
-                        else
-                            Rec.SetStatus(Rec.Status::Ready);
+                        Rec.SetStatus(Rec.Status::Ready);
                     end;
                 }
                 action(Suspend)
@@ -222,7 +219,7 @@ page 672 "Job Queue Entries"
                         Rec.ShowErrorMessage();
                     end;
                 }
-                action(Restart)
+                action(RestartWithoutApproval)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Restart';
@@ -231,10 +228,7 @@ page 672 "Job Queue Entries"
 
                     trigger OnAction()
                     begin
-                        if IsUserDelegated then
-                            JobQueueManagement.SendForApproval(Rec)
-                        else
-                            Rec.Restart();
+                        Rec.Restart();
                     end;
                 }
                 group(SetPriority)
@@ -378,10 +372,10 @@ page 672 "Job Queue Entries"
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
-                actionref(ResetStatus_Promoted; ResetStatus)
+                actionref(ResetStatusWithoutApproval_Promoted; ResetStatusWithoutApproval)
                 {
                 }
-                actionref(Restart_Promoted; Restart)
+                actionref(RestartWithoutApproval_Promoted; RestartWithoutApproval)
                 {
                 }
                 actionref(LogEntries_Promoted; LogEntries)
@@ -405,15 +399,13 @@ page 672 "Job Queue Entries"
 
     trigger OnOpenPage()
     var
-        AzureADGraphUser: Codeunit "Azure AD Graph User";
         EnvironmentInfo: Codeunit "Environment Information";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
     begin
         JobQueueManagement.TooManyScheduledTasksNotification();
-        IsUserDelegated := AzureADGraphUser.IsUserDelegatedAdmin() or AzureADGraphUser.IsUserDelegatedHelpdesk();
         IsSaaS := EnvironmentInfo.IsSaaS();
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
     end;
 
     trigger OnAfterGetRecord()
@@ -431,7 +423,6 @@ page 672 "Job Queue Entries"
 
     var
         JobQueueManagement: Codeunit "Job Queue Management";
-        IsUserDelegated: Boolean;
         UserDoesNotExist: Boolean;
         IsSaaS: Boolean;
         IsPowerAutomatePrivacyNoticeApproved: Boolean;

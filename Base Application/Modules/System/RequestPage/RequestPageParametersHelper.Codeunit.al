@@ -7,11 +7,6 @@ using System.Xml;
 
 codeunit 1530 "Request Page Parameters Helper"
 {
-
-    trigger OnRun()
-    begin
-    end;
-
     var
         DataItemPathTxt: Label '/ReportParameters/DataItems/DataItem', Locked = true;
         OptionPathTxt: Label '/ReportParameters/Options/Field', Locked = true;
