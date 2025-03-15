@@ -238,12 +238,31 @@ table 474 "Job Queue Log Entry"
 
     procedure GetErrorCallStack(): Text
     var
-        TypeHelper: Codeunit "Type Helper";
         TempBlob: Codeunit "Temp Blob";
         InStream: InStream;
     begin
         TempBlob.FromRecord(Rec, FieldNo("Error Call Stack"));
         TempBlob.CreateInStream(InStream, TEXTENCODING::Windows);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
+        exit(ReadAsTextWithSeparator(InStream));
+    end;
+
+    local procedure ReadAsTextWithSeparator(InStream: InStream): Text
+    var
+        Tb: TextBuilder;
+        ContentLine: Text;
+        LineSeparator: Text;
+        CRLF: Text[2];
+    begin
+        CRLF[1] := 13; // Carriage return, '\r'
+        CRLF[2] := 10; // Line feed, '\n'
+        InStream.ReadText(ContentLine);
+        Tb.Append(ContentLine);
+        while not InStream.EOS do begin
+            InStream.ReadText(ContentLine);
+            Tb.Append(LineSeparator);
+            Tb.Append(ContentLine);
+        end;
+
+        exit(Tb.ToText());
     end;
 }

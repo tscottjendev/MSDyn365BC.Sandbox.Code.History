@@ -10,6 +10,7 @@ using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Assembly.History;
 using Microsoft.Inventory.Item;
+using Microsoft.Sales.History;
 
 codeunit 935 "Asm. Item Tracking Mgt."
 {
@@ -232,5 +233,31 @@ codeunit 935 "Asm. Item Tracking Mgt."
                 Result := false;
             IsHandled := true;
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Doc. Management", 'OnRetrieveTrackingSalesShipmentForAssembly', '', false, false)]
+    local procedure OnRetrieveTrackingSalesShipmentForAssembly(SalesShipmentLine: Record "Sales Shipment Line"; var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; sender: Codeunit "Item Tracking Doc. Management")
+    var
+        PostedAsmHeader: Record "Posted Assembly Header";
+        PostedAsmLine: Record "Posted Assembly Line";
+        Descr: Text[100];
+    begin
+        if SalesShipmentLine.AsmToShipmentExists(PostedAsmHeader) then begin
+            PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
+            if PostedAsmLine.FindSet() then
+                repeat
+                    Descr := PostedAsmLine.Description;
+                    sender.FindShptRcptEntries(
+                        TempTrackingSpecBuffer,
+                        Database::"Posted Assembly Line", 0, PostedAsmLine."Document No.", '', 0, PostedAsmLine."Line No.", Descr);
+                until PostedAsmLine.Next() = 0;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Doc. Management", 'OnAfterTableSignFactor', '', false, false)]
+    local procedure OnAfterTableSignFactor(TableNo: Integer; var Sign: Integer);
+    begin
+        if TableNo = Database::"Posted Assembly Line" then
+            Sign := -1;
     end;
 }
