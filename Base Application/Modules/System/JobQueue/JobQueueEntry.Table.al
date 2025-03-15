@@ -2,7 +2,6 @@ namespace System.Threading;
 
 using Microsoft.Foundation.Reporting;
 using System.DateTime;
-using System.Telemetry;
 using System.Device;
 using System.Environment;
 using System.Globalization;
@@ -102,9 +101,7 @@ table 472 "Job Queue Entry"
 
             trigger OnValidate()
             var
-                SelectedLayoutType: ReportLayoutType;
                 AllObj: Record AllObj;
-                ReportManagementHelper: Codeunit "Report Management Helper";
             begin
                 if "Object ID to Run" <> xRec."Object ID to Run" then begin
                     Clear(XML);
@@ -124,16 +121,7 @@ table 472 "Job Queue Entry"
                 if "Object Type to Run" <> "Object Type to Run"::Report then
                     exit;
 
-                "Report Output Type" := "Report Output Type"::PDF;
-                if ReportManagementHelper.IsProcessingOnly("Object ID to Run") then
-                    "Report Output Type" := "Report Output Type"::"None (Processing only)"
-                else begin
-                    SelectedLayoutType := ReportManagementHelper.SelectedLayoutType("Object ID to Run");
-                    if SelectedLayoutType in [ReportLayoutType::Rdlc, ReportLayoutType::Word, ReportLayoutType::Custom] then
-                        "Report Output Type" := "Report Output Type"::Pdf
-                    else
-                        "Report Output Type" := "Report Output Type"::Excel;
-                end;
+                "Report Output Type" := "Report Output Type"::"None (Processing only)";
             end;
         }
         field(9; "Object Caption to Run"; Text[250])
@@ -150,51 +138,12 @@ table 472 "Job Queue Entry"
 
             trigger OnValidate()
             var
-                InitServerPrinterTable: Codeunit "Init. Server Printer Table";
-                EnvironmentInfo: Codeunit "Environment Information";
                 ReportManagementHelper: Codeunit "Report Management Helper";
-                ReportLayoutType: ReportLayoutType;
-                IsHandled: Boolean;
             begin
                 TestField("Object Type to Run", "Object Type to Run"::Report);
 
                 if ReportManagementHelper.IsProcessingOnly("Object ID to Run") then
-                    TestField("Report Output Type", "Report Output Type"::"None (Processing only)")
-                else begin
-                    if "Report Output Type" = "Report Output Type"::"None (Processing only)" then
-                        Error(ReportOutputTypeCannotBeNoneErr);
-
-                    ReportLayoutType := ReportManagementHelper.SelectedLayoutType("Object ID to Run");
-
-                    if ReportLayoutType = ReportLayoutType::Custom then
-                        if not ("Report Output Type" in ["Report Output Type"::Print, "Report Output Type"::Word, "Report Output Type"::PDF]) then
-                            Error(CustomLayoutReportCanHaveLimitedOutputTypeErr);
-
-                    case "Report Output Type" of
-                        "Job Queue Report Output Type"::PDF:
-                            if ReportLayoutType in [ReportLayoutType::Excel] then
-                                Error(UnsupportedOutputForSelectedLayoutErr, ReportLayoutType, "Report Output Type");
-                        "Job Queue Report Output Type"::Print:
-                            if ReportLayoutType in [ReportLayoutType::Excel] then
-                                Error(UnsupportedOutputForSelectedLayoutErr, ReportLayoutType, "Report Output Type");
-                        "Job Queue Report Output Type"::Word:
-                            if not (ReportLayoutType in [ReportLayoutType::Word, ReportLayoutType::RDLC]) then
-                                Error(UnsupportedOutputForSelectedLayoutErr, ReportLayoutType, "Report Output Type");
-                    end;
-                end;
-
-                if "Report Output Type" = "Report Output Type"::Print then begin
-                    if EnvironmentInfo.IsSaaS() then begin
-                        IsHandled := false;
-                        OnValidateReportOutputTypeOnBeforeShowPrintNotAllowedInSaaS(Rec, IsHandled);
-                        if not IsHandled then begin
-                            "Report Output Type" := "Report Output Type"::PDF;
-                            Message(NoPrintOnSaaSMsg);
-                        end;
-                    end else
-                        "Printer Name" := InitServerPrinterTable.FindClosestMatchToClientDefaultPrinter("Object ID to Run");
-                end else
-                    "Printer Name" := '';
+                    TestField("Report Output Type", "Report Output Type"::"None (Processing only)");
             end;
         }
         field(11; "Maximum No. of Attempts to Run"; Integer)
@@ -417,7 +366,6 @@ table 472 "Job Queue Entry"
             var
                 InitServerPrinterTable: Codeunit "Init. Server Printer Table";
             begin
-                TestField("Report Output Type", "Report Output Type"::Print);
                 if "Printer Name" = '' then
                     exit;
                 InitServerPrinterTable.ValidatePrinterName("Printer Name");
@@ -566,13 +514,9 @@ table 472 "Job Queue Entry"
         RequestPagesOptionsDeletedMsg: Label 'You have cleared the report parameters. Select the check box in the field to show the report request page again.';
         ExpiresBeforeStartErr: Label '%1 must be later than %2.', Comment = '%1 = Expiration Date, %2=Start date';
         UserSessionJobsCannotBeRecurringErr: Label 'You cannot set up recurring user session job queue entries.';
-        NoPrintOnSaaSMsg: Label 'You cannot select a printer from this online product. Instead, save as PDF, or another format, which you can print later.\\The output type has been set to PDF.';
         LastJobQueueLogEntryNo: Integer;
         ObjNotFoundErr: Label 'There is no Object with ID %1.', Comment = '%1=Object Id.';
         NoPermissionsErr: Label 'You are not allowed to schedule background tasks. Ask your system administrator to give you permission to do so. Specifically, you need Insert, Modify and Delete Permissions for the %1 table.', Comment = '%1 Table Name';
-        ReportOutputTypeCannotBeNoneErr: Label 'You cannot set the report output to None because users can view the report. Use the None option when the report does something in the background. For example, when it is part of a batch job.';
-        CustomLayoutReportCanHaveLimitedOutputTypeErr: Label 'This report uses a custom layout. To view the report you can open it in Word, print it, or save it as PDF.';
-        UnsupportedOutputForSelectedLayoutErr: Label 'The selected layout type %1 does not support the selected output format %2.', Comment = '%1=Layout Type, %2=Output Format';
 
     procedure DoesExistLocked(): Boolean
     begin
@@ -859,14 +803,14 @@ table 472 "Job Queue Entry"
     internal procedure CancelTask(EmitTelemetry: Boolean)
     var
         ScheduledTask: Record "Scheduled Task";
-        TelemetrySubscribers: Codeunit "Telemetry Subscribers";
+        JobQueueTelemetry: Codeunit "Job Queue Telemetry";
         Success: Boolean;
     begin
         if not IsNullGuid("System Task ID") then begin
             if ScheduledTask.Get("System Task ID") then begin
                 Success := TASKSCHEDULER.CancelTask("System Task ID");
                 if EmitTelemetry then
-                    TelemetrySubscribers.SendTraceOnJobQueueEntryScheduledTaskCancelled(Rec, Success);
+                    JobQueueTelemetry.SendTraceOnJobQueueEntryScheduledTaskCancelled(Rec, Success);
             end;
             Clear("System Task ID");
         end;
@@ -890,7 +834,9 @@ table 472 "Job Queue Entry"
             exit(TaskGUID);
 
 #if not CLEAN25
+#pragma warning disable AL0432
         OnScheduleTaskOnAfterCalcShouldChangeUserID(Rec, ShouldChangeUserID);
+#pragma warning restore AL0432
 #endif
         if Rec."Job Timeout" <> 0 then
             JobTimeout := Rec."Job Timeout"
@@ -1056,7 +1002,7 @@ table 472 "Job Queue Entry"
     local procedure HandleExecutionError()
     var
         JobQueueLogEntry: Record "Job Queue Log Entry";
-        TelemetrySubscribers: Codeunit "Telemetry Subscribers";
+        JobQueueTelemetry: Codeunit "Job Queue Telemetry";
         IsHandled: Boolean;
         ExtraWaitTimeInMs: Integer;
     begin
@@ -1079,7 +1025,7 @@ table 472 "Job Queue Entry"
             TryRunJobQueueSendNotification();
 
             JobQueueLogEntry.SetErrorCallStack(GetLastErrorCallStack());
-            TelemetrySubscribers.SendTraceOnJobQueueEntryFinalRunErrored(JobQueueLogEntry, Rec);
+            JobQueueTelemetry.SendTraceOnJobQueueEntryFinalRunErrored(JobQueueLogEntry, Rec);
         end;
     end;
 
@@ -1486,14 +1432,6 @@ table 472 "Job Queue Entry"
         exit(DefaultDescription);
     end;
 
-    procedure IsToReportInbox(): Boolean
-    begin
-        exit(
-          ("Object Type to Run" = "Object Type to Run"::Report) and
-          ("Report Output Type" in ["Report Output Type"::PDF, "Report Output Type"::Word,
-                                    "Report Output Type"::Excel]));
-    end;
-
     procedure FilterInactiveOnHoldEntries()
     begin
         Reset();
@@ -1760,11 +1698,6 @@ table 472 "Job Queue Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsReadyToStart(var JobQueueEntry: Record "Job Queue Entry"; var ReadyToStart: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateReportOutputTypeOnBeforeShowPrintNotAllowedInSaaS(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
     begin
     end;
 
