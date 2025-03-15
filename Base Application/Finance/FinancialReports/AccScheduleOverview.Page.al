@@ -1544,6 +1544,7 @@ page 490 "Acc. Schedule Overview"
         LoadPageState();
     end;
 
+#if not CLEAN26
     local procedure AddSummaryPart(var SummaryTxt: Text; PartTxt: Text)
     begin
         if PartTxt = '' then
@@ -1552,6 +1553,7 @@ page 490 "Acc. Schedule Overview"
             SummaryTxt += ' - ';
         SummaryTxt += PartTxt;
     end;
+#endif
 
     local procedure SetFinancialReportTxt()
     var

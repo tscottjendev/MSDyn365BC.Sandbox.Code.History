@@ -5750,6 +5750,7 @@ table 38 "Purchase Header"
 
         exit(PAGE::"Purchase Statistics");
     end;
+
 #endif
 
     [IntegrationEvent(true, false)]
@@ -9222,7 +9223,7 @@ table 38 "Purchase Header"
     begin
     end;
 
-    [IntegrationEvent(false, false)] 
+    [IntegrationEvent(false, false)]
     local procedure OnValidateBuyFromVendorNoOnBeforeCheckVendorRegistered(var PurchaseHeader: Record "Purchase Header"; var SkipCheckVendorRegistered: Boolean)
     begin
     end;

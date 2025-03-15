@@ -10,7 +10,7 @@ page 6416 "Flow User Env. Selection"
     SourceTable = "Flow User Environment Buffer";
     SourceTableTemporary = true;
     ObsoleteState = Pending;
-    ObsoleteReason = 'This funcionality has been moved to Automate Environment Picker.';
+    ObsoleteReason = 'This functionality has been moved to Automate Environment Picker.';
     ObsoleteTag = '25.0';
 
     layout

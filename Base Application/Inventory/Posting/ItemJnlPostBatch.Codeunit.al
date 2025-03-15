@@ -312,7 +312,10 @@ codeunit 23 "Item Jnl.-Post Batch"
             MakeRecurringTexts(ItemJnlLine);
             ConstructPostingNumber(ItemJnlLine);
 
-            UpdateItemTracking(ItemJnlLine);
+            IsHandled := false;
+            OnBeforeOnPostLinesOnBeforePostLineUpdateItemTracking(ItemJnlLine, IsHandled);
+            if not IsHandled then
+                UpdateItemTracking(ItemJnlLine);
 
             OnPostLinesOnBeforePostLine(ItemJnlLine, SuppressCommit, WindowIsOpen);
 
@@ -694,6 +697,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         SKU.Validate("Standard Cost", ItemJnlLine."Unit Cost (Revalued)");
         SetSKUSingleLevelCosts(SKU, ItemJnlLine);
         SetSKURolledUpCosts(SKU, ItemJnlLine);
+        OnAfterUpdateStdCostSKUValidate(ItemJnlLine, SKU);
         SKU.Modify();
     end;
 
@@ -701,7 +705,11 @@ codeunit 23 "Item Jnl.-Post Batch"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         RemainingQty: Decimal;
+        IsHandled: Boolean;
     begin
+        OnBeforeCheckRemainingQty(ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
         RemainingQty := ItemLedgerEntry.CalculateRemQuantity(AppliesToEntryNo, PostingDate);
 
         if RemainingQty <> ItemJnlLine.Quantity then
@@ -1292,6 +1300,21 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPostLinesOnBeforePostLineUpdateItemTracking(var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateStdCostSKUValidate(var ItemJnlLine: Record "Item Journal Line"; var SKU: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRemainingQty(var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }
