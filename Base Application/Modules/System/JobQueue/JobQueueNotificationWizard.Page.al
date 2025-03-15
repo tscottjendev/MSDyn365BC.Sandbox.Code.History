@@ -4,9 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.System.Threading;
 
-#if not CLEAN26
-using Microsoft.Integration.Dataverse;
-#endif
 using System.Environment;
 using System.Telemetry;
 using System.Environment.Configuration;
@@ -133,22 +130,6 @@ page 1179 "Job Queue Notification Wizard"
                     ObsoleteState = Pending;
                     ObsoleteTag = '26.0';
                     ShowCaption = false;
-                    field(SetupDataVerse; SetupDataVerseLbl)
-                    {
-                        ApplicationArea = All;
-                        Editable = false;
-                        ShowCaption = false;
-                        Visible = false;
-                        ToolTip = 'Set up connection to DataVerse';
-                        ObsoleteReason = 'This field is not used.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '26.0';
-
-                        trigger OnDrillDown()
-                        begin
-                            Page.RunModal(Page::"CDS Connection Setup Wizard");
-                        end;
-                    }
                     field(VTAndBEEnabled; VTAndBEEnabledLbl)
                     {
                         ApplicationArea = All;
@@ -376,7 +357,6 @@ page 1179 "Job Queue Notification Wizard"
         Threshold1: Integer;
         Threshold2: Integer;
 #if not CLEAN26
-        SetupDataVerseLbl: Label 'Open the Set up a connection to DataVerse assisted setup guide';
         VTAndBEEnabledLbl: Label 'Virtual tables and Business Events are enabled.';
         VTAndBEDisabledLbl: Label 'Virtual tables and Business Events are disabled.';
 #endif
