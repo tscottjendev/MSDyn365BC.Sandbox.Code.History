@@ -5698,15 +5698,15 @@ table 38 "Purchase Header"
     begin
         if IsOrderDocument() then begin
             if "Tax Area Code" <> '' then
-                exit(PAGE::"Purchase Order Stats.");
+                exit(Page::"Purchase Order Stats.");
 
-            exit(PAGE::"Purchase Order Statistics");
+            exit(Page::"Purchase Order Statistics");
         end;
 
         if "Tax Area Code" <> '' then
-            exit(PAGE::"Purchase Stats.");
+            exit(Page::"Purchase Stats.");
 
-        exit(PAGE::"Purchase Statistics");
+        exit(Page::"Purchase Statistics");
     end;
 
     [IntegrationEvent(true, false)]
