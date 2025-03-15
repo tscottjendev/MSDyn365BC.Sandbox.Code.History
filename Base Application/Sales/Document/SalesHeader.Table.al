@@ -1843,6 +1843,7 @@ table 36 "Sales Header"
         field(106; "Package Tracking No."; Text[50])
         {
             Caption = 'Package Tracking No.';
+            ToolTip = 'Specifies the shipping agent''s package number.';
             OptimizeForTextSearch = true;
         }
 #pragma warning restore AS0086

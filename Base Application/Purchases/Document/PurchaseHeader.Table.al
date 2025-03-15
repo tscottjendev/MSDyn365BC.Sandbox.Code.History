@@ -5530,6 +5530,7 @@ table 38 "Purchase Header"
 
         exit(PAGE::"Purchase Statistics");
     end;
+
 #endif
 
     [IntegrationEvent(true, false)]
