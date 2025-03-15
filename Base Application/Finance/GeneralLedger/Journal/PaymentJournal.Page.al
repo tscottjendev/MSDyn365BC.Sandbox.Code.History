@@ -1860,13 +1860,13 @@ page 256 "Payment Journal"
     trigger OnInit()
     var
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
     begin
         TotalBalanceVisible := true;
         BalanceVisible := true;
         AmountVisible := true;
         GeneralLedgerSetup.Get();
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
 
         SetJobQueueVisibility();
     end;

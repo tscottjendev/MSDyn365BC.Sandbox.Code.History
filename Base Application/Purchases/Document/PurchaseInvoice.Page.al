@@ -1924,7 +1924,7 @@ page 51 "Purchase Invoice"
 
         SetIsActivityCodeMandatory();
 
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
         DocAmountEnable := PurchSetup."Check Doc. Total Amounts";
     end;
 
@@ -2012,7 +2012,7 @@ page 51 "Purchase Invoice"
         OfficeMgt: Codeunit "Office Management";
         FormatAddress: Codeunit "Format Address";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         ChangeExchangeRate: Page "Change Exchange Rate";
         StatusStyleTxt: Text;
         HasIncomingDocument: Boolean;

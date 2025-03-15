@@ -2454,7 +2454,7 @@ page 21 "Customer Card"
         SetCaption(CaptionTxt);
         CurrPage.Caption(CaptionTxt);
 
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -2658,7 +2658,7 @@ page 21 "Customer Card"
         CustomerMgt: Codeunit "Customer Mgt.";
         FormatAddress: Codeunit "Format Address";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         LinkedVendorNo: Code[20];
         BalanceAsVendor: Decimal;
         StyleTxt: Text;

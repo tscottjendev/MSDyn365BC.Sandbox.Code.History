@@ -36,6 +36,7 @@ codeunit 6400 "Flow Service Management"
         EmptyAccessTokenTelemetryMsg: Label 'Encountered an empty access token for Power Automate services.', Locked = true;
         NullGuidReceivedMsg: Label 'Encountered an null GUID value as Power Automate Environment ID.', Locked = true;
         PowerAutomatePickerTelemetryCategoryLbl: Label 'AL Power Automate Environment Picker', Locked = true;
+        MicrosoftPowerAutomatePrivacyIdTxt: Label 'Power Automate', Locked = true;
 
 #if not CLEAN25
         FlowSearchTemplatesUrlTxt: Label 'https://make.powerautomate.com/templates/?q=%1', Locked = true, Comment = '%1: a query string to use for template search';
@@ -98,6 +99,11 @@ codeunit 6400 "Flow Service Management"
         FlowUserEnvironmentConfig: Record "Flow User Environment Config";
     begin
         exit(FlowUserEnvironmentConfig.WritePermission());
+    end;
+
+    procedure GetPowerAutomatePrivacyNoticeId(): Code[50]
+    begin
+        exit(MicrosoftPowerAutomatePrivacyIdTxt);
     end;
 
     procedure GetFlowEnvironmentID() FlowEnvironmentId: Text
@@ -396,8 +402,9 @@ codeunit 6400 "Flow Service Management"
     begin
         if not AzureAdMgt.IsAzureADAppSetupDone() then
             exit(false);
-
+#pragma warning disable AL0432
         exit(not DotNetString.IsNullOrWhiteSpace(AzureAdMgt.GetAccessTokenAsSecretText(GetFlowARMResourceUrl(), GetFlowResourceName(), false).Unwrap()));
+#pragma warning restore AL0432
     end;
 
     [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
@@ -473,7 +480,9 @@ codeunit 6400 "Flow Service Management"
         AccessToken: SecretText;
     begin
         Handled := false;
+#pragma warning disable AL0432
         OnBeforeSetDefaultEnvironmentRequest(ResponseText, Handled);
+#pragma warning restore AL0432
         if not Handled then begin
             GetEnvironments(TempFlowUserEnvironmentBuffer);
             TempFlowUserEnvironmentBuffer.SetRange(Default, true);
