@@ -16,7 +16,6 @@ codeunit 30385 "Shpfy Payments API"
     var
         GraphQLType: Enum "Shpfy GraphQL Type";
         JTransactions: JsonArray;
-        JPaymentsAccount: JsonObject;
         JNode: JsonObject;
         JItem: JsonToken;
         JResponse: JsonToken;
@@ -28,19 +27,18 @@ codeunit 30385 "Shpfy Payments API"
         Clear(SinceId);
         repeat
             JResponse := CommunicationMgt.ExecuteGraphQL(GraphQLType, Parameters);
-            if JsonHelper.GetJsonObject(JResponse, JPaymentsAccount, 'data.shopifyPaymentsAccount') then
-                if JsonHelper.GetJsonArray(JResponse, JTransactions, 'data.shopifyPaymentsAccount.balanceTransactions.edges') then begin
-                    foreach JItem in JTransactions do begin
-                        Cursor := JsonHelper.GetValueAsText(JItem.AsObject(), 'cursor');
-                        if JsonHelper.GetJsonObject(JItem.AsObject(), JNode, 'node') then
-                            ImportPaymentTransaction(JNode, SinceId);
-                    end;
-                    if Parameters.ContainsKey('After') then
-                        Parameters.Set('After', Cursor)
-                    else
-                        Parameters.Add('After', Cursor);
-                    GraphQLType := GraphQLType::GetNextPaymentTransactions;
+            if JsonHelper.GetJsonArray(JResponse, JTransactions, 'data.shopifyPaymentsAccount.balanceTransactions.edges') then begin
+                foreach JItem in JTransactions do begin
+                    Cursor := JsonHelper.GetValueAsText(JItem.AsObject(), 'cursor');
+                    if JsonHelper.GetJsonObject(JItem.AsObject(), JNode, 'node') then
+                        ImportPaymentTransaction(JNode, SinceId);
                 end;
+                if Parameters.ContainsKey('After') then
+                    Parameters.Set('After', Cursor)
+                else
+                    Parameters.Add('After', Cursor);
+                GraphQLType := GraphQLType::GetNextPaymentTransactions;
+            end;
         until not JsonHelper.GetValueAsBoolean(JResponse, 'data.shopifyPaymentsAccount.balanceTransactions.pageInfo.hasNextPage');
     end;
 
@@ -98,7 +96,6 @@ codeunit 30385 "Shpfy Payments API"
     var
         GraphQLType: Enum "Shpfy GraphQL Type";
         JPayouts: JsonArray;
-        JPaymentsAccount: JsonObject;
         JNode: JsonObject;
         JItem: JsonToken;
         JResponse: JsonToken;
@@ -109,19 +106,18 @@ codeunit 30385 "Shpfy Payments API"
         Parameters.Add('SinceId', Format(SinceId));
         repeat
             JResponse := CommunicationMgt.ExecuteGraphQL(GraphQLType, Parameters);
-            if JsonHelper.GetJsonObject(JResponse, JPaymentsAccount, 'data.shopifyPaymentsAccount') then
-                if JsonHelper.GetJsonArray(JResponse, JPayouts, 'data.shopifyPaymentsAccount.payouts.edges') then begin
-                    foreach JItem in JPayouts do begin
-                        Cursor := JsonHelper.GetValueAsText(JItem.AsObject(), 'cursor');
-                        if JsonHelper.GetJsonObject(JItem.AsObject(), JNode, 'node') then
-                            ImportPayout(JNode);
-                    end;
-                    if Parameters.ContainsKey('After') then
-                        Parameters.Set('After', Cursor)
-                    else
-                        Parameters.Add('After', Cursor);
-                    GraphQLType := GraphQLType::GetNextPayouts;
+            if JsonHelper.GetJsonArray(JResponse, JPayouts, 'data.shopifyPaymentsAccount.payouts.edges') then begin
+                foreach JItem in JPayouts do begin
+                    Cursor := JsonHelper.GetValueAsText(JItem.AsObject(), 'cursor');
+                    if JsonHelper.GetJsonObject(JItem.AsObject(), JNode, 'node') then
+                        ImportPayout(JNode);
                 end;
+                if Parameters.ContainsKey('After') then
+                    Parameters.Set('After', Cursor)
+                else
+                    Parameters.Add('After', Cursor);
+                GraphQLType := GraphQLType::GetNextPayouts;
+            end;
         until not JsonHelper.GetValueAsBoolean(JResponse, 'data.shopifyPaymentsAccount.payouts.pageInfo.hasNextPage');
     end;
 
@@ -165,7 +161,6 @@ codeunit 30385 "Shpfy Payments API"
     var
         GraphQLType: Enum "Shpfy GraphQL Type";
         JDisputes: JsonArray;
-        JPaymentsAccount: JsonObject;
         JNode: JsonObject;
         JItem: JsonToken;
         JResponse: JsonToken;
@@ -176,19 +171,18 @@ codeunit 30385 "Shpfy Payments API"
         Parameters.Add('SinceId', Format(SinceId));
         repeat
             JResponse := CommunicationMgt.ExecuteGraphQL(GraphQLType, Parameters);
-            if JsonHelper.GetJsonObject(JResponse, JPaymentsAccount, 'data.shopifyPaymentsAccount') then
-                if JsonHelper.GetJsonArray(JResponse, JDisputes, 'data.shopifyPaymentsAccount.disputes.edges') then begin
-                    foreach JItem in JDisputes do begin
-                        Cursor := JsonHelper.GetValueAsText(JItem.AsObject(), 'cursor');
-                        if JsonHelper.GetJsonObject(JItem.AsObject(), JNode, 'node') then
-                            ImportDispute(JNode);
-                    end;
-                    if Parameters.ContainsKey('After') then
-                        Parameters.Set('After', Cursor)
-                    else
-                        Parameters.Add('After', Cursor);
-                    GraphQLType := GraphQLType::GetNextDisputes;
+            if JsonHelper.GetJsonArray(JResponse, JDisputes, 'data.shopifyPaymentsAccount.disputes.edges') then begin
+                foreach JItem in JDisputes do begin
+                    Cursor := JsonHelper.GetValueAsText(JItem.AsObject(), 'cursor');
+                    if JsonHelper.GetJsonObject(JItem.AsObject(), JNode, 'node') then
+                        ImportDispute(JNode);
                 end;
+                if Parameters.ContainsKey('After') then
+                    Parameters.Set('After', Cursor)
+                else
+                    Parameters.Add('After', Cursor);
+                GraphQLType := GraphQLType::GetNextDisputes;
+            end;
         until not JsonHelper.GetValueAsBoolean(JResponse, 'data.shopifyPaymentsAccount.disputes.pageInfo.hasNextPage');
     end;
 
@@ -196,7 +190,6 @@ codeunit 30385 "Shpfy Payments API"
     var
         GraphQLType: Enum "Shpfy GraphQL Type";
         JDisputes: JsonArray;
-        JPaymentsAccount: JsonObject;
         JNode: JsonObject;
         JDispute: JsonToken;
         JResponse: JsonToken;
@@ -205,13 +198,12 @@ codeunit 30385 "Shpfy Payments API"
         GraphQLType := GraphQLType::GetDisputeById;
         Parameters.Add('Id', Format(Id));
         JResponse := CommunicationMgt.ExecuteGraphQL(GraphQLType, Parameters);
-        if JsonHelper.GetJsonObject(JResponse, JPaymentsAccount, 'data.shopifyPaymentsAccount') then
-            if JsonHelper.GetJsonArray(JResponse, JDisputes, 'data.shopifyPaymentsAccount.disputes.nodes') then
-                if JDisputes.Count = 1 then begin
-                    JDisputes.Get(0, JDispute);
-                    if JsonHelper.GetJsonObject(JDispute.AsObject(), JNode, 'node') then
-                        ImportDispute(JNode);
-                end;
+        if JsonHelper.GetJsonArray(JResponse, JDisputes, 'data.shopifyPaymentsAccount.disputes.nodes') then
+            if JDisputes.Count = 1 then begin
+                JDisputes.Get(0, JDispute);
+                if JsonHelper.GetJsonObject(JDispute.AsObject(), JNode, 'node') then
+                    ImportDispute(JNode);
+            end;
     end;
 
     internal procedure ImportDispute(JDispute: JsonObject)
