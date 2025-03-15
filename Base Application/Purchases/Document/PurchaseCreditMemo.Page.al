@@ -1700,7 +1700,7 @@ page 52 "Purchase Credit Memo"
         SetExtDocNoMandatoryCondition();
         VendorExchangeRateACYEditable := true;
 
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
         DocAmountEnable := PurchSetup."Check Doc. Total Amounts";
     end;
 
@@ -1765,7 +1765,7 @@ page 52 "Purchase Credit Memo"
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         FormatAddress: Codeunit "Format Address";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         ChangeExchangeRate: Page "Change Exchange Rate";
         JobQueueVisible: Boolean;
         JobQueueUsed: Boolean;

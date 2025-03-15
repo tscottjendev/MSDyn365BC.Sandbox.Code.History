@@ -62,7 +62,7 @@ codeunit 449 "Job Queue Start Codeunit"
         if IsHandled then
             exit(true);
 
-        exit(Codeunit.Run(Codeunit::"Job Queue Start Report", JobQueueEntry));
+        exit(Codeunit.Run(Codeunit::"Job Queue Start Report Base", JobQueueEntry));
     end;
 
     [IntegrationEvent(false, false)]
