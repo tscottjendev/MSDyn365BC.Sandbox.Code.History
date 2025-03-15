@@ -1,40 +1,21 @@
 namespace Microsoft.SubscriptionBilling;
 
-using Microsoft.Finance.GeneralLedger.Account;
-
 codeunit 8108 "Create Sub. Bill. GL Account"
 {
     InherentEntitlements = X;
     InherentPermissions = X;
 
     trigger OnRun()
-    var
-        GLAccountIndent: Codeunit "G/L Account-Indent";
     begin
         AddGLAccountsForLocalization();
-
-        ContosoGLAccount.InsertGLAccount(CustomerContractsRevenue(), CustomerContractsRevenueName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::Income, Enum::"G/L Account Type"::Posting);
-        ContosoGLAccount.InsertGLAccount(CustomerContractsDeferrals(), CustomerContractsDeferralsName(), Enum::"G/L Account Income/Balance"::"Balance Sheet", Enum::"G/L Account Category"::Assets, Enum::"G/L Account Type"::Posting);
-
-        ContosoGLAccount.InsertGLAccount(VendorContractsCost(), VendorContractsCostName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::"Cost of Goods Sold", Enum::"G/L Account Type"::Posting);
-        ContosoGLAccount.InsertGLAccount(VendorContractsDeferrals(), VendorContractsDeferralsName(), Enum::"G/L Account Income/Balance"::"Balance Sheet", Enum::"G/L Account Category"::Assets, Enum::"G/L Account Type"::Posting);
-
-        GLAccountIndent.Indent();
     end;
 
     local procedure AddGLAccountsForLocalization()
     begin
-        ContosoGLAccount.AddAccountForLocalization(CustomerContractsRevenueName(), '6160');
-        ContosoGLAccount.AddAccountForLocalization(CustomerContractsDeferralsName(), '2360');
-
-        ContosoGLAccount.AddAccountForLocalization(VendorContractsCostName(), '7160');
-        ContosoGLAccount.AddAccountForLocalization(VendorContractsDeferralsName(), '5460');
-
         OnAfterAddGLAccountsForLocalization();
     end;
 
     var
-        ContosoGLAccount: Codeunit "Contoso GL Account";
         CustomerContractsRevenueLbl: Label 'Customer Subscription Contracts Revenue', MaxLength = 100;
         CustomerContractsDeferralsLbl: Label 'Customer Subscription Contract Deferrals', MaxLength = 100;
         VendorContractsCostLbl: Label 'Vendor Subscription Contracts Cost', MaxLength = 100;
@@ -42,7 +23,7 @@ codeunit 8108 "Create Sub. Bill. GL Account"
 
     procedure CustomerContractsRevenue(): Code[20]
     begin
-        exit(ContosoGLAccount.GetAccountNo(CustomerContractsRevenueName()));
+        exit;
     end;
 
     procedure CustomerContractsRevenueName(): Text[100]
@@ -52,7 +33,7 @@ codeunit 8108 "Create Sub. Bill. GL Account"
 
     procedure CustomerContractsDeferrals(): Code[20]
     begin
-        exit(ContosoGLAccount.GetAccountNo(CustomerContractsDeferralsName()));
+        exit;
     end;
 
     procedure CustomerContractsDeferralsName(): Text[100]
@@ -62,7 +43,7 @@ codeunit 8108 "Create Sub. Bill. GL Account"
 
     procedure VendorContractsCost(): Code[20]
     begin
-        exit(ContosoGLAccount.GetAccountNo(VendorContractsCostName()));
+        exit;
     end;
 
     procedure VendorContractsCostName(): Text[100]
@@ -72,7 +53,7 @@ codeunit 8108 "Create Sub. Bill. GL Account"
 
     procedure VendorContractsDeferrals(): Code[20]
     begin
-        exit(ContosoGLAccount.GetAccountNo(VendorContractsDeferralsName()));
+        exit;
     end;
 
     procedure VendorContractsDeferralsName(): Text[100]
