@@ -1849,7 +1849,6 @@ codeunit 80 "Sales-Post"
     var
         TempWhseJnlLine2: Record "Warehouse Journal Line" temporary;
     begin
-        OnBeforePostItemJournalLineWarehouseLine(TempWhseJnlLine, TempWhseTrackingSpecification);
         ItemTrackingMgt.SplitWhseJnlLine(TempWhseJnlLine, TempWhseJnlLine2, TempWhseTrackingSpecification, false);
         if TempWhseJnlLine2.FindSet() then
             repeat
@@ -1857,7 +1856,6 @@ codeunit 80 "Sales-Post"
                 WhseJnlPostLine.Run(TempWhseJnlLine2);
             until TempWhseJnlLine2.Next() = 0;
         TempWhseTrackingSpecification.DeleteAll();
-        OnAfterPostItemJournalLineWarehouseLine(TempWhseJnlLine, TempWhseTrackingSpecification);
     end;
 
     /// <summary>
@@ -5445,7 +5443,6 @@ codeunit 80 "Sales-Post"
 
     local procedure CalcPrepmtAmtToDeduct(SalesLine: Record "Sales Line"; Ship: Boolean): Decimal
     begin
-        OnBeforeCalcPrepmtAmtToDeduct(SalesLine, Ship);
         SalesLine."Qty. to Invoice" := GetQtyToInvoice(SalesLine, Ship);
         SalesLine.CalcPrepaymentToDeduct();
         exit(SalesLine."Prepmt Amt to Deduct");
@@ -11996,21 +11993,6 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDistributeItemChargeOnAfterSetFactor(TempItemLedgerEntry: Record "Item Ledger Entry"; var Factor: Decimal)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcPrepmtAmtToDeduct(var SalesLine: Record "Sales Line"; Ship: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePostItemJournalLineWarehouseLine(var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; var TempWhseTrackingSpecification: Record "Tracking Specification" temporary)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterPostItemJournalLineWarehouseLine(var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; var TempWhseTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 }
