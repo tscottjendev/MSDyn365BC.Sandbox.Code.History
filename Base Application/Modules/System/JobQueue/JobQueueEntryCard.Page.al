@@ -1,8 +1,5 @@
 namespace System.Threading;
 
-using System.Automation;
-using System.Azure.Identity;
-
 page 673 "Job Queue Entry Card"
 {
     Caption = 'Job Queue Entry Card';
@@ -249,25 +246,19 @@ page 673 "Job Queue Entry Card"
             {
                 Caption = 'Job &Queue';
                 Image = CheckList;
-                action("Set Status to Ready")
+                action("Set Status to Ready Without Approval")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Set Status to Ready';
                     Image = ResetStatus;
                     ToolTip = 'Change the status of the entry.';
-                    Enabled = not IsPendingApproval;
 
                     trigger OnAction()
                     var
                         SetStatustoReadyActivatedLbl: Label 'UserSecurityId %1 set the Status of the job queue entry %2 to Ready.', Locked = true;
                     begin
-                        if IsUserDelegated then begin
-                            JobQueueManagement.SendForApproval(Rec);
-                            CurrPage.Update(false);
-                        end else begin
-                            Rec.SetStatus(Rec.Status::Ready);
-                            Session.LogAuditMessage(StrSubstNo(SetStatustoReadyActivatedLbl, UserSecurityId(), Rec."Entry No."), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
-                        end;
+                        Rec.SetStatus(Rec.Status::Ready);
+                        Session.LogAuditMessage(StrSubstNo(SetStatustoReadyActivatedLbl, UserSecurityId(), Rec."Entry No."), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
                     end;
                 }
                 action("Set On Hold")
@@ -322,46 +313,6 @@ page 673 "Job Queue Entry Card"
                     end;
                 }
             }
-            group("Request Approval")
-            {
-                Caption = 'Request Approval';
-                Image = SendApprovalRequest;
-                Visible = IsUserDelegated;
-
-                action(SendApprovalRequest)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Send A&pproval Request';
-                    Enabled = not IsPendingApproval and IsUserDelegated;
-                    Visible = IsUserDelegated;
-                    Image = SendApprovalRequest;
-                    ToolTip = 'Request approval of the job queue entry.';
-
-                    trigger OnAction()
-                    begin
-                        JobQueueManagement.SendForApproval(Rec);
-                        CurrPage.Update(false);
-                    end;
-                }
-                action(CancelApprovalRequest)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Cancel Approval Re&quest';
-                    Enabled = IsPendingApproval and IsUserDelegated;
-                    Visible = IsUserDelegated;
-                    Image = CancelApprovalRequest;
-                    ToolTip = 'Cancel the approval request.';
-
-                    trigger OnAction()
-                    var
-                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
-                        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
-                    begin
-                        ApprovalsMgmt.OnCancelJobQueueEntryApprovalRequest(Rec);
-                        WorkflowWebhookManagement.FindAndCancel(Rec.RecordId);
-                    end;
-                }
-            }
         }
         area(navigation)
         {
@@ -411,7 +362,7 @@ page 673 "Job Queue Entry Card"
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
-                actionref("Set Status to Ready_Promoted"; "Set Status to Ready")
+                actionref("Set Status to Ready Without Approval_Promoted"; "Set Status to Ready Without Approval")
                 {
                 }
                 actionref("Set On Hold_Promoted"; "Set On Hold")
@@ -446,29 +397,13 @@ page 673 "Job Queue Entry Card"
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
 
             }
-            group(Category_Approvals)
-            {
-                Caption = 'Approvals';
-
-                actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
-                {
-                }
-                actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
-                {
-                }
-            }
         }
     }
 
     trigger OnAfterGetCurrRecord()
-    var
-        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         if CurrPage.Editable and not (Rec.Status in [Rec.Status::"On Hold", Rec.Status::"On Hold with Inactivity Timeout"]) then
             ShowModifyOnlyWhenReadOnlyNotification();
-
-        if IsUserDelegated then
-            IsPendingApproval := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId());
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -480,20 +415,10 @@ page 673 "Job Queue Entry Card"
         Rec."Job Timeout" := Rec.DefaultJobTimeout();
     end;
 
-    trigger OnOpenPage()
     var
-        AzureADGraphUser: Codeunit "Azure AD Graph User";
-    begin
-        IsUserDelegated := AzureADGraphUser.IsUserDelegatedAdmin() or AzureADGraphUser.IsUserDelegatedHelpdesk();
-    end;
-
-    var
-        JobQueueManagement: Codeunit "Job Queue Management";
         ChooseSetOnHoldMsg: Label 'To edit the job queue entry, you must first choose the Set On Hold action.';
         SetOnHoldLbl: Label 'Set On Hold';
         ModifyOnlyWhenReadOnlyNotificationIdTxt: Label 'dfc885c0-9960-411a-b96f-5deeedc712dc', Locked = true;
-        IsUserDelegated: Boolean;
-        IsPendingApproval: Boolean;
 
     procedure GetChooseSetOnHoldMsg(): Text
     begin

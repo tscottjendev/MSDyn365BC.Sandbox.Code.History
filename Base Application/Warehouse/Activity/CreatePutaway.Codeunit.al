@@ -1102,6 +1102,7 @@ codeunit 7313 "Create Put-away"
     var
         TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary;
         ItemTrackingManagement: Codeunit "Item Tracking Management";
+        MfgItemTrackingMgt: Codeunit "Mfg. Item Tracking Mgt.";
     begin
         if ItemTrackingManagement.GetWhseItemTrkgSetup(ProdOrderLine."Item No.") then
             ItemTrackingManagement.InitItemTrackingForTempWhseWorksheetLine(
@@ -1111,9 +1112,9 @@ codeunit 7313 "Create Put-away"
                   ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", 0);
 
         if CalledFromPutAwayWorksheet then
-            ItemTrackingManagement.SplitProdOrderLineForOutputPutAway(ProdOrderLine, TempProdOrdLineTrackingBuff, ProdOrderLine."Finished Qty. (Base)")
+            MfgItemTrackingMgt.SplitProdOrderLineForOutputPutAway(ProdOrderLine, TempProdOrdLineTrackingBuff, ProdOrderLine."Finished Qty. (Base)")
         else
-            ItemTrackingManagement.SplitProdOrderLineForOutputPutAway(ProdOrderLine, TempProdOrdLineTrackingBuff, 0);
+            MfgItemTrackingMgt.SplitProdOrderLineForOutputPutAway(ProdOrderLine, TempProdOrdLineTrackingBuff, 0);
 
         TempProdOrdLineTrackingBuff.Reset();
         if TempProdOrdLineTrackingBuff.FindSet() then
