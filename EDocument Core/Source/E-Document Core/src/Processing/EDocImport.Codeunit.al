@@ -128,13 +128,15 @@ codeunit 6140 "E-Doc. Import"
         IBlobType: Interface IBlobType;
     begin
         IBlobType := Type;
-        EDocument.Direction := EDocument.Direction::Incoming;
-        EDocument."Document Type" := Enum::"E-Document Type"::None;
-        EDocument.Service := EDocumentService.Code;
+        EDocument.Create(
+            EDocument.Direction::Incoming,
+            EDocument."Document Type"::None,
+            EDocumentService
+        );
 
         EDocument."File Name" := CopyStr(FileName, 1, 256);
         EDocument."File Type" := Type;
-        EDocument.Insert(true);
+        EDocument.Modify(true);
 
         EDocumentLog.SetFields(EDocument, EDocumentService);
         EDocumentLog.SetBlob(CopyStr(FileName, 1, 256), Type, InStr);
