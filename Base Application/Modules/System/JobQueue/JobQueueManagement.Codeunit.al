@@ -1,27 +1,22 @@
 ﻿namespace System.Threading;
 
-using System.Automation;
 using System.Utilities;
 using System.Environment;
 using System.Security.User;
-using System.Telemetry;
 
 codeunit 456 "Job Queue Management"
 {
     var
-        TelemetrySubscribers: Codeunit "Telemetry Subscribers";
+        JobQueueTelemetry: Codeunit "Job Queue Telemetry";
         RunOnceQst: label 'This will create a temporary non-recurrent copy of this job and will run it once in the foreground.\Do you want to continue?';
         ExecuteBeginMsg: label 'Executing job queue entry...';
         ExecuteEndSuccessMsg: label 'Job finished executing.\Status: %1', Comment = '%1 is a status value, e.g. Success';
         ExecuteEndErrorMsg: label 'Job finished executing.\Status: %1\Error: %2', Comment = '%1 is a status value, e.g. Success, %2=Error message';
         JobSomethingWentWrongMsg: Label 'Something went wrong and the job has stopped. Likely causes are system updates or routine maintenance processes. To restart the job, set the status to Ready.';
-        JobQueueDelegatedAdminCategoryTxt: Label 'AL JobQueueEntries Delegated Admin', Locked = true;
         JobQueueStatusChangeTxt: Label 'The status for Job Queue Entry: %1 has changed.', Comment = '%1 is the Job Queue Entry Id', Locked = true;
         TelemetryStaleJobQueueEntryTxt: Label 'Updated Job Queue Entry status to error as it is stale. Please investigate associated Task Id for error.', Locked = true;
         TelemetryStaleJobQueueLogEntryTxt: Label 'Updated Job Queue Log Entry status to error as it is stale. Please investigate associated Task Id for error.', Locked = true;
         RunJobQueueOnceTxt: Label 'Running job queue once.', Locked = true;
-        JobQueueWorkflowSetupErr: Label 'The Job Queue approval workflow has not been setup.';
-        DelegatedAdminSendingApprovalLbl: Label 'Delegated admin sending approval', Locked = true;
         TooManyScheduledTasksLinkTxt: Label 'Learn more';
         TooManyScheduledTasksNotificationMsg: Label 'There are more than 100,000 scheduled tasks in the system. This can prevent Job Queues and tasks from running in a timely manner. Please contact your system administrator.';
         TooManyScheduledTasksNotificationGuidLbl: Label 'cedc5167-e04c-4127-b7dd-114d1749700a', Locked = true;
@@ -190,7 +185,7 @@ codeunit 456 "Job Queue Management"
         CurrentLanguage := GlobalLanguage();
         GlobalLanguage(1033);
 
-        TelemetrySubscribers.SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        JobQueueTelemetry.SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
 
         Session.LogMessage('0000FMG', RunJobQueueOnceTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, Dimensions);
         GlobalLanguage(CurrentLanguage);
@@ -221,22 +216,6 @@ codeunit 456 "Job Queue Management"
                 Message(ExecuteEndSuccessMsg, JobQueueLogEntry.Status)
             else
                 Message(ExecuteEndErrorMsg, JobQueueLogEntry.Status, JobQueueLogEntry."Error Message");
-    end;
-
-    internal procedure SendForApproval(var JobQueueEntry: Record "Job Queue Entry")
-    var
-        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
-        FeatureTelemetry: Codeunit "Feature Telemetry";
-    begin
-        if ApprovalsMgmt.CheckJobQueueEntryApprovalEnabled() then begin
-            JobQueueEntry.SetStatus(JobQueueEntry.Status::"On Hold");
-            Commit();
-            ApprovalsMgmt.OnSendJobQueueEntryForApproval(JobQueueEntry);
-            FeatureTelemetry.LogUsage('0000JQE', JobQueueDelegatedAdminCategoryTxt, DelegatedAdminSendingApprovalLbl);
-        end else begin
-            FeatureTelemetry.LogError('0000JQD', JobQueueDelegatedAdminCategoryTxt, DelegatedAdminSendingApprovalLbl, JobQueueWorkflowSetupErr);
-            Error(JobQueueWorkflowSetupErr);
-        end;
     end;
 
     procedure CheckAndRefreshCategoryRecoveryTasks()
@@ -379,7 +358,7 @@ codeunit 456 "Job Queue Management"
         CurrentLanguage := GlobalLanguage();
         GlobalLanguage(1033);
 
-        TelemetrySubscribers.SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        JobQueueTelemetry.SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
 
         Session.LogMessage('0000FMH', TelemetryStaleJobQueueEntryTxt, Verbosity::Warning, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
 
@@ -394,7 +373,7 @@ codeunit 456 "Job Queue Management"
         CurrentLanguage := GlobalLanguage();
         GlobalLanguage(1033);
 
-        TelemetrySubscribers.SetJobQueueTelemetryDimensions(JobQueueLogEntry, Dimensions);
+        JobQueueTelemetry.SetJobQueueTelemetryDimensions(JobQueueLogEntry, Dimensions);
 
         Session.LogMessage('0000FMI', TelemetryStaleJobQueueLogEntryTxt, Verbosity::Warning, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
 
@@ -491,7 +470,7 @@ codeunit 456 "Job Queue Management"
         CurrentLanguage := GlobalLanguage();
         GlobalLanguage(1033);
 
-        TelemetrySubscribers.SetJobQueueTelemetryDimensions(Rec, Dimensions);
+        JobQueueTelemetry.SetJobQueueTelemetryDimensions(Rec, Dimensions);
         Dimensions.Add('JobQueueOldStatus', Format(xRec.Status));
 
         Session.LogMessage('0000FNM', JobQueueStatusChangeTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);

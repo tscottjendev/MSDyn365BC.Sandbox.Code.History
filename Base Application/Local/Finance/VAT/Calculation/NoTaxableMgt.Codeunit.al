@@ -24,6 +24,10 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using Microsoft.Service.Posting;
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Posting;
+using Microsoft.Purchases.Posting;
 
 codeunit 10740 "No Taxable Mgt."
 {
@@ -1052,6 +1056,49 @@ codeunit 10740 "No Taxable Mgt."
         DummyNoTaxableEntry.Reverse(
           "General Posting Type"::Sale.AsInteger(), CustLedgerEntry."Customer No.",
           CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterTestPurchLine', '', false, false)]
+    local procedure TestPurchLineOnPurchPost(PurchLine: Record "Purchase Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        if VATPostingSetup.Get(PurchLine."VAT Bus. Posting Group", PurchLine."VAT Prod. Posting Group") and
+            (VATPostingSetup."No Taxable Type" <> VATPostingSetup."No Taxable Type"::" ") then
+            VATPostingSetup.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterTestSalesLine', '', false, false)]
+    local procedure TestSalesLineOnSalesPost(SalesLine: Record "Sales Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        if VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") and
+            (VATPostingSetup."No Taxable Type" <> VATPostingSetup."No Taxable Type"::" ") then
+            VATPostingSetup.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnTestMandatoryFieldsOnBeforePassedServLineFind', '', false, false)]
+    local procedure TestServiceLineOnServicePost(var ServiceLine: Record "Service Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        if ServiceLine.FindSet() then
+            repeat
+                if VATPostingSetup.Get(ServiceLine."VAT Bus. Posting Group", ServiceLine."VAT Prod. Posting Group") and
+                    (VATPostingSetup."No Taxable Type" <> VATPostingSetup."No Taxable Type"::" ") then
+                    VATPostingSetup.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
+            until ServiceLine.Next() = 0;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnAfterCheckGenJnlLine', '', false, false)]
+    local procedure TestGenJnlLineOnGenJnlPost(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        if VATPostingSetup.Get(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group") and
+            (VATPostingSetup."No Taxable Type" <> VATPostingSetup."No Taxable Type"::" ") then
+            VATPostingSetup.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
     end;
 }
 
