@@ -128,13 +128,15 @@ codeunit 6140 "E-Doc. Import"
         IBlobType: Interface IBlobType;
     begin
         IBlobType := Type;
-        EDocument.Direction := EDocument.Direction::Incoming;
-        EDocument."Document Type" := Enum::"E-Document Type"::None;
-        EDocument.Service := EDocumentService.Code;
+        EDocument.Create(
+            EDocument.Direction::Incoming,
+            EDocument."Document Type"::None,
+            EDocumentService
+        );
 
         EDocument."File Name" := CopyStr(FileName, 1, 256);
         EDocument."File Type" := Type;
-        EDocument.Insert(true);
+        EDocument.Modify(true);
 
         EDocumentLog.SetFields(EDocument, EDocumentService);
         EDocumentLog.SetBlob(CopyStr(FileName, 1, 256), Type, InStr);
@@ -727,6 +729,7 @@ codeunit 6140 "E-Doc. Import"
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        LineNo: Integer;
     begin
         EDocumentPurchaseHeader.InsertForEDocument(EDocument);
 
@@ -738,14 +741,17 @@ codeunit 6140 "E-Doc. Import"
 
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
         EDocumentPurchaseLine.DeleteAll();
+        LineNo := 10000;
         if SourceDocumentLine.FindSet() then
             repeat
                 Clear(EDocumentPurchaseLine);
                 EDocumentPurchaseLine."E-Document Entry No." := EDocument."Entry No";
+                EDocumentPurchaseLine."Line No." := LineNo;
                 EDocumentPurchaseLine.Insert();
 
                 SourceDocumentLine.SetTable(PurchaseLine);
                 V1_CopyFromPurchaseLine(PurchaseLine, EDocumentPurchaseLine);
+                LineNo := LineNo + 10000;
             until SourceDocumentLine.Next() = 0;
 
     end;

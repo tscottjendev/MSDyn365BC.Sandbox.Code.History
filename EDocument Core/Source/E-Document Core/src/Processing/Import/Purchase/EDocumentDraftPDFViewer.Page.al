@@ -1,3 +1,4 @@
+#pragma warning disable AS0050
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -17,6 +18,7 @@ page 6140 "E-Document Draft PDF Viewer"
     LinksAllowed = false;
     DeleteAllowed = false;
     ModifyAllowed = false;
+    Extensible = false;
     PageType = ListPart;
     SourceTable = "E-Document";
     ObsoleteReason = 'Will be removed';
@@ -101,3 +103,4 @@ page 6140 "E-Document Draft PDF Viewer"
     end;
 
 }
+#pragma warning restore AS0050
