@@ -198,6 +198,18 @@ page 6271 "Service Order Archive"
                     Importance = Promoted;
                     ToolTip = 'Specifies if items in the Service Lines window are ready to be handled in warehouse activities.';
                 }
+                group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(WorkDescription; WorkDescription)
+                    {
+                        ApplicationArea = Service;
+                        Importance = Additional;
+                        MultiLine = true;
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or service being offered.';
+                    }
+                }
             }
             part(ServItemLines; "Service Order Archive Subform")
             {
@@ -831,11 +843,17 @@ page 6271 "Service Order Archive"
         ActivateFields();
     end;
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        WorkDescription := Rec.GetWorkDescription();
+    end;
+
     var
         BillToContact: Record Contact;
         SellToContact: Record Contact;
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
+        WorkDescription: Text;
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
