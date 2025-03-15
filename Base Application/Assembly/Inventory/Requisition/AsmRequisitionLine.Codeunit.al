@@ -5,6 +5,7 @@
 namespace Microsoft.Inventory.Requisition;
 
 using Microsoft.Assembly.Document;
+using Microsoft.Inventory.Location;
 
 codeunit 923 "Asm. Requisition Line"
 {
@@ -46,5 +47,21 @@ codeunit 923 "Asm. Requisition Line"
             RequisitionLine."Replenishment System"::Assembly:
                 RequisitionLine.SetReplenishmentSystemFromAssembly();
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnSetFromBinCodeOnSetBinCode', '', false, false)]
+    local procedure OnSetFromBinCodeOnSetBinCode(var RequisitionLine: Record "Requisition Line"; Location: Record Location)
+    begin
+        case RequisitionLine."Ref. Order Type" of
+            RequisitionLine."Ref. Order Type"::Assembly:
+                if RequisitionLine."Bin Code" = '' then
+                    RequisitionLine."Bin Code" := Location."From-Assembly Bin Code";
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnAfterShouldUpdateEndingDateForSourceType', '', false, false)]
+    local procedure OnAfterShouldUpdateEndingDateForSourceType(SourceType: Integer; var ShouldUpdate: Boolean)
+    begin
+        ShouldUpdate := ShouldUpdate or (SourceType = Database::"Assembly Header");
     end;
 }

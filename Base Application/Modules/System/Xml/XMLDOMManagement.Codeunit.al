@@ -2,7 +2,6 @@
 
 using System;
 using System.IO;
-using System.Reflection;
 using System.Utilities;
 
 codeunit 6224 "XML DOM Management"
@@ -113,6 +112,22 @@ codeunit 6224 "XML DOM Management"
     procedure AddAttribute(var ParentXmlNode: XmlNode; Name: Text; NodeValue: Text)
     begin
         ParentXmlNode.AsXmlElement().SetAttribute(Name, NodeValue);
+    end;
+
+    [Scope('OnPrem')]
+    procedure AddNameSpacePrefixedAttribute(XMLDomDocParam: DotNet XmlDocument; XMLDomNode: DotNet XmlNode; NameSpace: Text; AttribName: Text; AttribValue: Text): Boolean
+    var
+        XMLDomAttribute: DotNet XmlAttribute;
+    begin
+        XMLDomAttribute := XMLDomDocParam.CreateAttribute(AttribName, NameSpace);
+        if IsNull(XMLDomAttribute) then
+            exit(false);
+
+        if AttribValue <> '' then
+            XMLDomAttribute.Value := AttribValue;
+        XMLDomNode.Attributes.SetNamedItem(XMLDomAttribute);
+        Clear(XMLDomAttribute);
+        exit(true);
     end;
 
     [Scope('OnPrem')]
@@ -832,7 +847,6 @@ codeunit 6224 "XML DOM Management"
     procedure XMLTextIndent(InputXMLText: Text): Text
     var
         TempBlob: Codeunit "Temp Blob";
-        TypeHelper: Codeunit "Type Helper";
         XMLDocument: DotNet XmlDocument;
         OutStream: OutStream;
         InStream: InStream;
@@ -842,10 +856,30 @@ codeunit 6224 "XML DOM Management"
             TempBlob.CreateOutStream(OutStream, TEXTENCODING::UTF8);
             XMLDocument.Save(OutStream);
             TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
-            exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.CRLFSeparator()));
+            exit(ReadAsTextWithSeparator(InStream));
         end;
         ClearLastError();
         exit(InputXMLText);
+    end;
+
+    local procedure ReadAsTextWithSeparator(InStream: InStream): Text
+    var
+        Tb: TextBuilder;
+        ContentLine: Text;
+        LineSeparator: Text;
+        CRLF: Text[2];
+    begin
+        CRLF[1] := 13; // Carriage return, '\r'
+        CRLF[2] := 10; // Line feed, '\n'
+        InStream.ReadText(ContentLine);
+        Tb.Append(ContentLine);
+        while not InStream.EOS do begin
+            InStream.ReadText(ContentLine);
+            Tb.Append(LineSeparator);
+            Tb.Append(ContentLine);
+        end;
+
+        exit(Tb.ToText());
     end;
 
     [IntegrationEvent(false, false)]

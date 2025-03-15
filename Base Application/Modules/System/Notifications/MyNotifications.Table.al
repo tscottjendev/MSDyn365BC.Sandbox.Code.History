@@ -1,6 +1,5 @@
 ﻿namespace System.Environment.Configuration;
 
-using Microsoft.Utilities;
 using System;
 using System.Automation;
 using System.Reflection;
@@ -290,18 +289,6 @@ table 1518 "My Notifications"
         FiltersSet := true;
     end;
 
-    [Scope('OnPrem')]
-    procedure InsertNotificationWithDefaultFilter(NotificationId: Guid)
-    var
-        InstructionMgt: Codeunit "Instruction Mgt.";
-    begin
-        if Rec.WritePermission then
-            if NotificationId = InstructionMgt.GetClosingUnpostedDocumentNotificationId() then begin
-                InstructionMgt.InsertDefaultUnpostedDoucumentNotification();
-                Get(UserId, NotificationId);
-            end;
-    end;
-
     procedure IsEnabledForRecord(NotificationId: Guid; "Record": Variant): Boolean
     var
         RecordRef: RecordRef;
@@ -319,8 +306,7 @@ table 1518 "My Notifications"
         RecordRefPassed.SetRecFilter();
         RecordRefPassed.FilterGroup(0);
 
-        if not Get(UserId, NotificationId) then
-            InsertNotificationWithDefaultFilter(NotificationId);
+        if Get(UserId, NotificationId) then;
 
         Filters := GetFiltersAsText();
         if Filters = '' then

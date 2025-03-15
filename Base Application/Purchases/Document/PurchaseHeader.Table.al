@@ -5504,6 +5504,7 @@ table 38 "Purchase Header"
         exit(false);
     end;
 
+#if not CLEAN26
     local procedure GetStatisticsPageID(): Integer
     begin
         if IsOrderDocument() then
@@ -5511,6 +5512,8 @@ table 38 "Purchase Header"
 
         exit(PAGE::"Purchase Statistics");
     end;
+
+#endif
 
     [IntegrationEvent(true, false)]
     procedure OnCheckPurchasePostRestrictions()
