@@ -226,6 +226,19 @@ page 5975 "Posted Service Shipment"
                     Editable = false;
                     ToolTip = 'Specifies how many times the document has been printed.';
                 }
+                group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(GetWorkDescription; Rec.GetWorkDescription())
+                    {
+                        ApplicationArea = Service;
+                        Editable = false;
+                        Importance = Additional;
+                        MultiLine = true;
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or services being offered.';
+                    }
+                }
             }
             part(ServShipmentItemLines; "Posted Service Shpt. Subform")
             {
