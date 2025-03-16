@@ -26,7 +26,7 @@ codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
     var
         TempDocumentEntry: Record "Document Entry" temporary;
         FeatureDataUpdateMgt: Codeunit "Feature Data Update Mgt.";
-        DescriptionTxt: Label 'If you enable Manufacturing %1 %2 without requiring pick, existing records from %3 tables will be updated from %1 to %4 %2.', Comment = '%1 = Manual option caption, %2 = Flushing Method caption, %3 = List of table captions, %4 = Pick + Manual option caption';
+        DescriptionTxt: Label 'If you enable Manufacturing %1 %2 without requiring pick, existing records from %3 tables will be updated from %1 to %4 %2.\Please be aware that the update process may take some time, depending on the volume of records.\It is advised to perform the update outside of working hours and ensure that no other users are changing data during this time.', Comment = '%1 = Manual option caption, %2 = Flushing Method caption, %3 = List of table captions, %4 = Pick + Manual option caption';
         TableCaptionsTxt: Label '%1, %2, %3, %4, %5 and %6', Comment = '%1 = Item, %2 = Item Templ., %3 = Stockkeeping Unit, %4 = Prod. Order Component, %5 = Planning Component, %6 = Manufacturing Setup';
 
     procedure IsDataUpdateRequired(): Boolean;
@@ -152,60 +152,70 @@ codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
     local procedure UpdateFromManualToPickPlusManualFlushingMethod_Item()
     var
         Item: Record Item;
+        ItemToUpdate: Record Item;
     begin
         Item.SetRange("Flushing Method", Item."Flushing Method"::Manual);
         if Item.FindSet(true) then
             repeat
-                Item."Flushing Method" := Item."Flushing Method"::"Pick + Manual";
-                Item.Modify();
+                ItemToUpdate.Copy(Item);
+                ItemToUpdate."Flushing Method" := ItemToUpdate."Flushing Method"::"Pick + Manual";
+                ItemToUpdate.Modify();
             until Item.Next() = 0;
     end;
 
     local procedure UpdateFromManualToPickPlusManualFlushingMethod_ItemTemplate()
     var
         ItemTempl: Record "Item Templ.";
+        ItemTemplToUpdate: Record "Item Templ.";
     begin
         ItemTempl.SetRange("Flushing Method", ItemTempl."Flushing Method"::Manual);
         if ItemTempl.FindSet(true) then
             repeat
-                ItemTempl."Flushing Method" := ItemTempl."Flushing Method"::"Pick + Manual";
-                ItemTempl.Modify();
+                ItemTemplToUpdate.Copy(ItemTempl);
+                ItemTemplToUpdate."Flushing Method" := ItemTemplToUpdate."Flushing Method"::"Pick + Manual";
+                ItemTemplToUpdate.Modify();
             until ItemTempl.Next() = 0;
     end;
 
     local procedure UpdateFromManualToPickPlusManualFlushingMethod_StockkeepingUnit()
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
+        StockkeepingUnitToUpdate: Record "Stockkeeping Unit";
     begin
         StockkeepingUnit.SetRange("Flushing Method", StockkeepingUnit."Flushing Method"::Manual);
         if StockkeepingUnit.FindSet(true) then
             repeat
-                StockkeepingUnit."Flushing Method" := StockkeepingUnit."Flushing Method"::"Pick + Manual";
-                StockkeepingUnit.Modify();
+                StockkeepingUnitToUpdate.Copy(StockkeepingUnit);
+                StockkeepingUnitToUpdate."Flushing Method" := StockkeepingUnitToUpdate."Flushing Method"::"Pick + Manual";
+                StockkeepingUnitToUpdate.Modify();
             until StockkeepingUnit.Next() = 0;
     end;
 
     local procedure UpdateFromManualToPickPlusManualFlushingMethod_ProdOrderComponent()
     var
         ProdOrderComponent: Record "Prod. Order Component";
+        ProdOrderComponentToUpdate: Record "Prod. Order Component";
     begin
         ProdOrderComponent.SetRange("Flushing Method", ProdOrderComponent."Flushing Method"::Manual);
         if ProdOrderComponent.FindSet(true) then
             repeat
-                ProdOrderComponent."Flushing Method" := ProdOrderComponent."Flushing Method"::"Pick + Manual";
-                ProdOrderComponent.Modify();
+                ProdOrderComponentToUpdate.Copy(ProdOrderComponent);
+                ProdOrderComponentToUpdate."Flushing Method" := ProdOrderComponentToUpdate."Flushing Method"::"Pick + Manual";
+                ProdOrderComponentToUpdate.Modify();
             until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure UpdateFromManualToPickPlusManualFlushingMethod_PlanningComponent()
     var
         PlanningComponent: Record "Planning Component";
+        PlanningComponentToUpdate: Record "Planning Component";
     begin
         PlanningComponent.SetRange("Flushing Method", PlanningComponent."Flushing Method"::Manual);
         if PlanningComponent.FindSet(true) then
             repeat
-                PlanningComponent."Flushing Method" := PlanningComponent."Flushing Method"::"Pick + Manual";
-                PlanningComponent.Modify();
+                PlanningComponentToUpdate.Copy(PlanningComponent);
+                PlanningComponentToUpdate."Flushing Method" := PlanningComponentToUpdate."Flushing Method"::"Pick + Manual";
+                PlanningComponentToUpdate.Modify();
             until PlanningComponent.Next() = 0;
     end;
 
