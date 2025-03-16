@@ -387,8 +387,6 @@ table 1003 "Job Planning Line"
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
-            var
-                SkipValidateQuantity: Boolean;
             begin
                 ValidateModification(xRec."Location Code" <> "Location Code", Rec.FieldNo("Location Code"));
 
@@ -397,9 +395,7 @@ table 1003 "Job Planning Line"
                     GetLocation("Location Code");
                     CheckItemAvailable(FieldNo("Location Code"));
                     UpdateReservation(FieldNo("Location Code"));
-                    OnBeforeValidateQuantity(Rec, xRec, SkipValidateQuantity);
-                    if not SkipValidateQuantity then
-                        Validate(Quantity);
+                    Validate(Quantity);
                     SetDefaultBin();
                     JobWarehouseMgt.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("Location Code"));
                     InitQtyToAsm();
@@ -3755,11 +3751,6 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateQtyToTransfer(var JobPlanningLine: Record "Job Planning Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateQuantity(JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var SkipValidateQuantity: Boolean)
     begin
     end;
 }
