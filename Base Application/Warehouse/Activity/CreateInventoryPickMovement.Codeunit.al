@@ -776,7 +776,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     local procedure SetFilterProductionLine(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrder: Record "Production Order"): Boolean
 #if not CLEAN26
     var
-        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
 #endif
     begin
         ProdOrderComponent.SetRange(ProdOrderComponent.Status, ProductionOrder.Status);
@@ -787,7 +787,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         if IsInvtMovement then begin
             ProdOrderComponent.SetFilter(ProdOrderComponent."Bin Code", '<>%1', '');
 #if not CLEAN26
-            if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+            if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
                 ProdOrderComponent.SetFilter(ProdOrderComponent."Flushing Method", '%1|%2|%3|%4',
                   ProdOrderComponent."Flushing Method"::Manual,
                   ProdOrderComponent."Flushing Method"::"Pick + Manual",
@@ -801,7 +801,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                   ProdOrderComponent."Flushing Method"::"Pick + Backward");
         end else
 #if not CLEAN26
-            if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+            if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
                 ProdOrderComponent.SetFilter(ProdOrderComponent."Flushing Method", '%1|%2', ProdOrderComponent."Flushing Method"::Manual, ProdOrderComponent."Flushing Method"::"Pick + Manual")
             else
 #endif
