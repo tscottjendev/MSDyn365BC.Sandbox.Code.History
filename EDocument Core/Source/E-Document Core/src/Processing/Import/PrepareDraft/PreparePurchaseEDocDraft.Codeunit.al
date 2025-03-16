@@ -1,3 +1,4 @@
+#pragma warning disable AS0049
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -13,6 +14,8 @@ using Microsoft.Purchases.Document;
 
 codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
 {
+    Access = Internal;
+
     procedure PrepareDraft(EDocument: Record "E-Document"; EDocImportParameters: Record "E-Doc. Import Parameters"): Enum "E-Document Type"
     var
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
@@ -49,8 +52,8 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
         if EDocumentPurchaseLine.FindSet() then
             repeat
-                EDocumentLineMapping.InsertForEDocumentLine(EDocument, EDocumentPurchaseLine."E-Document Line Id");
-                UnitOfMeasure := IUnitOfMeasureProvider.GetUnitOfMeasure(EDocument, EDocumentPurchaseLine."E-Document Line Id", EDocumentPurchaseLine."Unit of Measure");
+                EDocumentLineMapping.InsertForEDocumentLine(EDocument, EDocumentPurchaseLine."Line No.");
+                UnitOfMeasure := IUnitOfMeasureProvider.GetUnitOfMeasure(EDocument, EDocumentPurchaseLine."Line No.", EDocumentPurchaseLine."Unit of Measure");
                 EDocumentLineMapping."Unit of Measure" := UnitOfMeasure.Code;
                 IPurchaseLineAccountProvider.GetPurchaseLineAccount(EDocumentPurchaseLine, EDocumentLineMapping, EDocumentLineMapping."Purchase Line Type", EDocumentLineMapping."Purchase Type No.");
                 EDocumentLineMapping.Modify();
@@ -80,3 +83,4 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
             EDocumentPurchaseLine.DeleteAll(true);
     end;
 }
+#pragma warning restore AS0049
