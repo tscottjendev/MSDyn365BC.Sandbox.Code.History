@@ -836,7 +836,7 @@ codeunit 7321 "Create Inventory Put-away"
     local procedure SetFilterProdCompLine(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrder: Record "Production Order"): Boolean
 #if not CLEAN26
     var
-        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
 #endif
     begin
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
@@ -844,7 +844,7 @@ codeunit 7321 "Create Inventory Put-away"
         if not CheckLineExist then
             ProdOrderComponent.SetRange("Location Code", CurrWarehouseActivityHeader."Location Code");
 #if not CLEAN26
-        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
             ProdOrderComponent.SetFilter(ProdOrderComponent."Flushing Method", '%1|%2', ProdOrderComponent."Flushing Method"::Manual, ProdOrderComponent."Flushing Method"::"Pick + Manual")
         else
 #endif        
