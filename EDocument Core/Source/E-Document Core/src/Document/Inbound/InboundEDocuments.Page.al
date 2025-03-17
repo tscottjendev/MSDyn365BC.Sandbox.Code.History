@@ -87,6 +87,10 @@ page 6105 "Inbound E-Documents"
                 {
                     ToolTip = 'Specifies the service code of the electronic document.';
                 }
+                field("Service Integration"; Rec."Service Integration")
+                {
+                    ToolTip = 'Specifies the integration code of the electronic document.';
+                }
             }
         }
         area(FactBoxes)
