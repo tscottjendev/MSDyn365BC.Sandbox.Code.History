@@ -363,7 +363,7 @@ table 5407 "Prod. Order Component"
                 ItemLedgEntry: Record "Item Ledger Entry";
                 PickWhseWorksheetLine: Record "Whse. Worksheet Line";
 #if not CLEAN26
-                ManufacturingSetup: Record "Manufacturing Setup";
+                FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
 #endif
                 PickQtyCheckNeeded, WhseWorksheetLineExistCheckNeeded : Boolean;
             begin
@@ -380,7 +380,7 @@ table 5407 "Prod. Order Component"
                 end;
 
 #if not CLEAN26
-                if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then begin
+                if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then begin
                     PickQtyCheckNeeded :=
                         ("Flushing Method" <> xRec."Flushing Method") and
                         (xRec."Flushing Method" in
@@ -1668,11 +1668,11 @@ table 5407 "Prod. Order Component"
     local procedure GetBinCodeFromRtngLine(ProdOrderRtngLine: Record "Prod. Order Routing Line") BinCode: Code[20]
 #if not CLEAN26
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
 #endif
     begin
 #if not CLEAN26
-        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
             case "Flushing Method" of
                 "Flushing Method"::Manual,
                 "Flushing Method"::"Pick + Manual",
@@ -1700,12 +1700,12 @@ table 5407 "Prod. Order Component"
     local procedure GetBinCodeFromLocation(LocationCode: Code[10]) BinCode: Code[20]
 #if not CLEAN26
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
 #endif
     begin
         GetLocation(LocationCode);
 #if not CLEAN26
-        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
             case "Flushing Method" of
                 "Flushing Method"::Manual,
                 "Flushing Method"::"Pick + Manual",

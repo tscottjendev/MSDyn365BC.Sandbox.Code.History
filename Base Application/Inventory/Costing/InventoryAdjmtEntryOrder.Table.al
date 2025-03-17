@@ -351,6 +351,9 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         "Single-Level Cap. Ovhd Cost" := SKU."Single-Level Cap. Ovhd Cost";
         "Single-Level Mfg. Ovhd Cost" := SKU."Single-Level Mfg. Ovhd Cost";
 
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            "Single-Lvl Mat. Non-Invt. Cost" := SKU."Single-Lvl Mat. Non-Invt. Cost";
+
         exit(true);
     end;
 
