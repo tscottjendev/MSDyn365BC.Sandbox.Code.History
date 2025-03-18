@@ -4337,7 +4337,7 @@ codeunit 7312 "Create Pick"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateTempActivityLine(BinCode: Code[20]; QtyToPick: Decimal; QtyToPickBase: Decimal; ActionType: Integer; LocationCode: Code[10]; UOMCode: Code[10]; QtyPerUOM: Decimal; WarehouseShipmentLine: Record "Warehouse Shipment Line"; CreatePickParameters: Record "Create Pick Parameters"; TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var Bin: Record Bin; WhseItemTrkgExists: Boolean)
+    local procedure OnBeforeCreateTempActivityLine(BinCode: Code[20]; QtyToPick: Decimal; QtyToPickBase: Decimal; ActionType: Integer; LocationCode: Code[10]; UOMCode: Code[10]; QtyPerUOM: Decimal; WarehouseShipmentLine: Record "Warehouse Shipment Line"; CreatePickParameters: Record "Create Pick Parameters"; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var Bin: Record Bin; WhseItemTrkgExists: Boolean)
     begin
     end;
 
