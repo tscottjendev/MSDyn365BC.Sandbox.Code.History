@@ -3796,8 +3796,8 @@ table 81 "Gen. Journal Line"
         TestField("Check Printed", false);
 
         GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        if GenJnlBatch."No. Series" = '' then
-            exit;
+        GenJnlBatch.TestField("No. Series");
+
         if GetFilter("Document No.") <> '' then
             Error(DocNoFilterErr);
         FirstDocNo := NoSeries.PeekNextNo(GenJnlBatch."No. Series", "Posting Date");
