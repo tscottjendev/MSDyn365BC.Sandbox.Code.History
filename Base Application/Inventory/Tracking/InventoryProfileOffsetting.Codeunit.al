@@ -162,7 +162,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         LineNo := 0; // Global variable
         PlanningTransparency.SetTemplAndWorksheet(CurrTemplateName, CurrWorksheetName);
 
-        OnAfterInitVariables(InventoryProfile);
+        OnAfterInitVariables(InventoryProfile, Item);
     end;
 
     procedure CreateTempSKUForLocation(ItemNo: Code[20]; LocationCode: Code[10])
@@ -5605,7 +5605,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitVariables(var InventoryProfile: Record "Inventory Profile")
+    local procedure OnAfterInitVariables(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
     begin
     end;
 
