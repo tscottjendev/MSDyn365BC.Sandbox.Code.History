@@ -2316,8 +2316,8 @@ table 210 "Job Journal Line"
             exit;
 
         JobJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        if JobJnlBatch."No. Series" = '' then
-            exit;
+        JobJnlBatch.TestField("No. Series");
+
         if GetFilter("Document No.") <> '' then
             Error(DocNoFilterErr);
         FirstDocNo := NoSeries.PeekNextNo(JobJnlBatch."No. Series", "Posting Date");
