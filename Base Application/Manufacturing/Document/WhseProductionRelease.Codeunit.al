@@ -24,7 +24,7 @@ codeunit 5774 "Whse.-Production Release"
     procedure Release(ProdOrder: Record "Production Order")
     var
 #if not CLEAN26
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+        ManufacturingSetup: Record "Manufacturing Setup";
 #endif
         LocationCode2: Code[10];
         CurrentSignFactor: Integer;
@@ -41,7 +41,7 @@ codeunit 5774 "Whse.-Production Release"
         ProdOrderComp.SetRange(Status, ProdOrder.Status);
         ProdOrderComp.SetRange("Prod. Order No.", ProdOrder."No.");
 #if not CLEAN26
-        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
             ProdOrderComp.SetFilter(
               "Flushing Method",
               '%1|%2|%3|%4',
@@ -196,7 +196,7 @@ codeunit 5774 "Whse.-Production Release"
     var
         ProdOrderComp2: Record "Prod. Order Component";
 #if not CLEAN26
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+        ManufacturingSetup: Record "Manufacturing Setup";
 #endif
         KeepWarehouseRequest: Boolean;
     begin
@@ -207,7 +207,7 @@ codeunit 5774 "Whse.-Production Release"
         ProdOrderComp2.SetRange("Prod. Order No.", ProdOrderComponent."Prod. Order No.");
         ProdOrderComp2.SetRange("Location Code", ProdOrderComponent."Location Code");
 #if not CLEAN26
-        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
             ProdOrderComp2.SetFilter(
               "Flushing Method", '%1|%2|%3|%4',
               ProdOrderComp2."Flushing Method"::Manual,
@@ -296,7 +296,7 @@ codeunit 5774 "Whse.-Production Release"
     var
         ProdOrderComp2: Record "Prod. Order Component";
 #if not CLEAN26
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+        ManufacturingSetup: Record "Manufacturing Setup";
 #endif
     begin
         ProdOrderComp2.SetCurrentKey(Status, "Prod. Order No.", "Location Code");
@@ -305,7 +305,7 @@ codeunit 5774 "Whse.-Production Release"
         ProdOrderComp2.SetRange("Location Code", LocationCode);
         ProdOrderComp2.SetFilter("Line No.", '<>%1', CompLineNo);
 #if not CLEAN26
-        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
             ProdOrderComp2.SetFilter("Flushing Method", '%1|%2', ProdOrderComp."Flushing Method"::Manual, ProdOrderComp."Flushing Method"::"Pick + Manual")
         else
 #endif
@@ -319,7 +319,7 @@ codeunit 5774 "Whse.-Production Release"
     var
         ProdOrderComponent: Record "Prod. Order Component";
 #if not CLEAN26
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+        ManufacturingSetup: Record "Manufacturing Setup";
 #endif
     begin
         ProdOrderComponent.SetCurrentKey(Status, "Prod. Order No.", "Location Code");
@@ -327,7 +327,7 @@ codeunit 5774 "Whse.-Production Release"
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderComponent.SetRange("Location Code", LocationCode);
 #if not CLEAN26
-        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
             ProdOrderComponent.SetFilter(
               "Flushing Method", '%1|%2|%3|%4',
               ProdOrderComponent."Flushing Method"::Manual,
