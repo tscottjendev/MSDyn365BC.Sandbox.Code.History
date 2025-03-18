@@ -3759,8 +3759,8 @@ table 83 "Item Journal Line"
             exit;
 
         ItemJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        if ItemJnlBatch."No. Series" = '' then
-            exit;
+        ItemJnlBatch.TestField("No. Series");
+
         if GetFilter("Document No.") <> '' then
             Error(DocNoFilterErr);
         FirstDocNo := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", "Posting Date");
