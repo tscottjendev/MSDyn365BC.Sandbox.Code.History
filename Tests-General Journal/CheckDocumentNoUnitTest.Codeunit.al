@@ -332,7 +332,7 @@ codeunit 134073 "Check Document No. Unit Test"
         GenJournalLine.CheckDocNoBasedOnNoSeries('', NoSeriesCode, NoSeriesMgt);
 
         // [THEN] Last No. Used was not incremented, so the next No that is gotten from No. Series is 'A002'.
-        NoSeriesMgt.IncrementNoText(LastNoUsed, 1);
+        LastNoUsed := IncStr(LastNoUsed);
         Assert.AreEqual(LastNoUsed, NoSeriesMgt.GetNextNo(NoSeriesCode, WorkDate(), false), '');
     end;
 
@@ -373,21 +373,21 @@ codeunit 134073 "Check Document No. Unit Test"
         DocumentNo: Code[20];
     begin
         // [FEATURE] [No. Series]
-        // [SCENARIO 376013] Run CheckDocNoBasedOnNoSeries funcion of table Gen. Journal Line for No. Series with Manual Nos = true when Document No. is equal to the next No from No. Series.
+        // [SCENARIO 376013] Run CheckDocNoBasedOnNoSeries function of table Gen. Journal Line for No. Series with Manual Nos = true when Document No. is equal to the next No from No. Series.
 
         // [GIVEN] No. Series with Manual Nos. = true.
         // [GIVEN] No. Series Line with Last No. Used = 'A001'.
         // [GIVEN] General Journal Line with Document No. = 'A002', i.e. number is the next No from No Series.
         NoSeriesCode := CreateNoSeriesWithManualNos(true);
         DocumentNo := GetLastNoUsedFromNoSeries(NoSeriesCode);
-        NoSeriesMgt.IncrementNoText(DocumentNo, 1);
+        DocumentNo := IncStr(DocumentNo);
         GenJournalLine.Validate("Document No.", DocumentNo);
 
         // [WHEN] Run CheckDocNoBasedOnNoSeries function of Gen. Journal Line table on General Journal Line with No Series as a parameter.
         GenJournalLine.CheckDocNoBasedOnNoSeries('', NoSeriesCode, NoSeriesMgt);
 
         // [THEN] Last No. Used was incremented, so the next No that is gotten from No. Series is 'A003'.
-        NoSeriesMgt.IncrementNoText(DocumentNo, 1);
+        DocumentNo := IncStr(DocumentNo);
         Assert.AreEqual(DocumentNo, NoSeriesMgt.GetNextNo(NoSeriesCode, WorkDate(), false), '');
     end;
 #pragma warning restore AL0432
