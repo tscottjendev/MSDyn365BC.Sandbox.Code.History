@@ -12,6 +12,8 @@ table 6102 "E-Document Header Mapping"
 {
     InherentEntitlements = X;
     InherentPermissions = X;
+    Access = Internal;
+
     fields
     {
         field(1; "E-Document Entry No."; Integer)

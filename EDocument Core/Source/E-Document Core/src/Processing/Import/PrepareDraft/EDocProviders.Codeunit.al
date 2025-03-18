@@ -18,6 +18,7 @@ using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 codeunit 6124 "E-Doc. Providers" implements IPurchaseLineAccountProvider, IUnitOfMeasureProvider, IVendorProvider, IPurchaseOrderProvider
 {
+    Access = Internal;
 
     procedure GetVendor(EDocument: Record "E-Document") Vendor: Record Vendor
     var

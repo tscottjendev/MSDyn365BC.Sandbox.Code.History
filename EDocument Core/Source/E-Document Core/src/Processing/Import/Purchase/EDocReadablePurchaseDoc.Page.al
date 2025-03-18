@@ -12,6 +12,7 @@ page 6182 "E-Doc. Readable Purchase Doc."
     Caption = 'Received purchase document data';
     SourceTable = "E-Document Purchase Header";
     Editable = false;
+    Extensible = false;
     DataCaptionExpression = DataCaption;
 
     layout

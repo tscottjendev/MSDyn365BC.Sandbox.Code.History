@@ -10,6 +10,7 @@ table 6100 "E-Document Purchase Header"
 {
     InherentEntitlements = X;
     InherentPermissions = X;
+    Access = Internal;
 
     fields
     {

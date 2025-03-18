@@ -12,6 +12,7 @@ page 6184 "E-Doc. Read. Purch. Lines"
     Caption = 'Lines';
     SourceTable = "E-Document Purchase Line";
     Editable = false;
+    Extensible = false;
     PageType = ListPart;
 
     layout
