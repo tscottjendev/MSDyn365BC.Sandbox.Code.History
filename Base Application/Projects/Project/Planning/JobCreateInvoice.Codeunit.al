@@ -66,7 +66,6 @@ codeunit 1002 "Job Create-Invoice"
         JobPlanningLine2: Record "Job Planning Line";
         GetSalesInvoiceNo: Report "Job Transfer to Sales Invoice";
         GetSalesCrMemoNo: Report "Job Transfer to Credit Memo";
-        JobTaskNoFilter: Text;
         Done: Boolean;
         NewInvoice: Boolean;
         PostingDate: Date;
@@ -108,20 +107,17 @@ codeunit 1002 "Job Create-Invoice"
                     JobPlanningLine."Job No.", JobPlanningLine, InvoiceNo, NewInvoice, PostingDate, DocumentDate, CrMemo)
             else begin
                 JobPlanningLine2.Copy(JobPlanningLine);
-                JobTaskNoFilter := JobPlanningLine.GetFilter(JobPlanningLine."Job Task No.");
                 JobPlanningLine2.SetCurrentKey("Job No.", "Job Task No.", "Line No.");
                 JobPlanningLine2.FindSet();
                 JobPlanningLine.Reset();
                 repeat
-                    if CheckJobTaskNoFilter(JobTaskNoFilter, JobPlanningLine2) then begin
-                        JobPlanningLine.SetFilter("Job No.", JobPlanningLine2."Job No.");
-                        JobPlanningLine.SetFilter("Job Task No.", JobPlanningLine2."Job Task No.");
-                        JobPlanningLine.FindFirst();
-                        CreateSalesInvoiceLines(JobPlanningLine."Job No.", JobPlanningLine, InvoiceNo, NewInvoice, PostingDate, DocumentDate, CrMemo);
-                        JobPlanningLine2.SetRange("Job Task No.", JobPlanningLine2."Job Task No.");
-                        JobPlanningLine2.FindLast();
-                        JobPlanningLine2.SetRange("Job Task No.");
-                    end
+                    JobPlanningLine.SetFilter("Job No.", JobPlanningLine2."Job No.");
+                    JobPlanningLine.SetFilter("Job Task No.", JobPlanningLine2."Job Task No.");
+                    JobPlanningLine.FindFirst();
+                    CreateSalesInvoiceLines(JobPlanningLine."Job No.", JobPlanningLine, InvoiceNo, NewInvoice, PostingDate, DocumentDate, CrMemo);
+                    JobPlanningLine2.SetRange("Job Task No.", JobPlanningLine2."Job Task No.");
+                    JobPlanningLine2.FindLast();
+                    JobPlanningLine2.SetRange("Job Task No.");
                 until JobPlanningLine2.Next() = 0;
             end;
 
@@ -1245,20 +1241,6 @@ codeunit 1002 "Job Create-Invoice"
             exit;
     end;
 #endif
-
-    local procedure CheckJobTaskNoFilter(JobTaskNoFilter: Text; JobPlanningLine2: Record "Job Planning Line"): Boolean
-    var
-        Pos: Integer;
-    begin
-        Pos := StrPos(JobTaskNoFilter, JobPlanningLine2."Job Task No.");
-        if JobTaskNoFilter = '' then
-            exit(true);
-
-        if Pos <> 0 then
-            exit(true)
-        else
-            exit(false)
-    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesInvoiceLines(var SalesHeader: Record "Sales Header"; NewInvoice: Boolean)
