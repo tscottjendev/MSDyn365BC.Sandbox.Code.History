@@ -32,7 +32,6 @@ codeunit 10860 "Payment Management"
     end;
 
     var
-        Text001: Label 'Number %1 cannot be extended to more than 20 characters.';
         Text002: Label 'One or more acceptation codes are No.';
         Text003: Label 'One or more lines have an incorrect RIB code.';
         Text004: Label 'There is no Payment Header to create.';
@@ -76,7 +75,6 @@ codeunit 10860 "Payment Management"
         Text018: Label 'You must specify a debit account number for step %1 of payment type %2.';
         Text019: Label 'You must specify a credit account number for step %1 of payment type %2.';
         Text020: Label 'You must specify an account number in the payment header.';
-        Text021: Label 'Code %1 does not contain a number.';
         Text022: Label 'The status of document %1 does not authorize archiving.';
         CheckDimVauePostingLineErr: Label 'A dimension used in %1 %2 %3 has caused an error. %4', Comment = '%1=Payment Header No., %2=tablecaption, %3=Payment Line No., %4=Error text';
         CheckDimVauePostingHeaderErr: Label 'A dimension used in %1 has caused an error. %2', Comment = '%1=Payment Header No., %2=Error text';
@@ -722,67 +720,6 @@ codeunit 10860 "Payment Management"
         end;
 
         InvPostingBuffer[1].DeleteAll();
-    end;
-
-    local procedure GetIntegerPos(No: Code[20]; var StartPos: Integer; var EndPos: Integer)
-    var
-        IsDigit: Boolean;
-        i: Integer;
-    begin
-        StartPos := 0;
-        EndPos := 0;
-        if No <> '' then begin
-            i := StrLen(No);
-            repeat
-                IsDigit := No[i] in ['0' .. '9'];
-                if IsDigit then begin
-                    if EndPos = 0 then
-                        EndPos := i;
-                    StartPos := i;
-                end;
-                i := i - 1;
-            until (i = 0) or (StartPos <> 0) and not IsDigit;
-        end;
-        if (StartPos = 0) and (EndPos = 0) then
-            Error(Text021, No);
-    end;
-
-    [Scope('OnPrem')]
-    procedure IncrementNoText(var No: Code[20]; IncrementByNo: Decimal)
-    var
-        DecimalNo: Decimal;
-        StartPos: Integer;
-        EndPos: Integer;
-        NewNo: Text[30];
-    begin
-        GetIntegerPos(No, StartPos, EndPos);
-        Evaluate(DecimalNo, CopyStr(No, StartPos, EndPos - StartPos + 1));
-        NewNo := Format(DecimalNo + IncrementByNo, 0, 1);
-        ReplaceNoText(No, NewNo, 0, StartPos, EndPos);
-    end;
-
-    local procedure ReplaceNoText(var No: Code[20]; NewNo: Code[30]; FixedLength: Integer; StartPos: Integer; EndPos: Integer)
-    var
-        StartNo: Code[20];
-        EndNo: Code[20];
-        ZeroNo: Code[20];
-        NewLength: Integer;
-        OldLength: Integer;
-    begin
-        if StartPos > 1 then
-            StartNo := CopyStr(No, 1, StartPos - 1);
-        if EndPos < StrLen(No) then
-            EndNo := CopyStr(No, EndPos + 1);
-        NewLength := StrLen(NewNo);
-        OldLength := EndPos - StartPos + 1;
-        if FixedLength > OldLength then
-            OldLength := FixedLength;
-        if OldLength > NewLength then
-            ZeroNo := PadStr('', OldLength - NewLength, '0');
-        if StrLen(StartNo) + StrLen(ZeroNo) + StrLen(NewNo) + StrLen(EndNo) > 20 then
-            Error(Text001, No);
-
-        No := CopyStr(StartNo + ZeroNo + NewNo + EndNo, 1, MaxStrLen(No));
     end;
 
     [Scope('OnPrem')]
