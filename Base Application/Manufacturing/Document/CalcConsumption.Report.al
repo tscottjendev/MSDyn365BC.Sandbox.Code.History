@@ -189,12 +189,12 @@ report 5405 "Calc. Consumption"
         SubcontractingMgt: Codeunit SubcontractingManagement;
         WorkCenter: Record "Work Center";
         ProdOrdRoutLine: Record "Prod. Order Routing Line";
+#if not CLEAN26
+        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+#endif
         QtyToPost: Decimal;
         ShouldModifyItemJnlLine: Boolean;
         ShouldAdjustQty: Boolean;
-#if not CLEAN26
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
-#endif
     begin
         QtyToPost := OriginalQtyToPost;
         OnBeforeCreateConsumpJnlLine(LocationCode, BinCode, QtyToPost);
@@ -202,7 +202,7 @@ report 5405 "Calc. Consumption"
         Window.Update(3, QtyToPost);
 
 #if not CLEAN26
-        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
             ShouldAdjustQty := "Prod. Order Component"."Flushing Method" in ["Prod. Order Component"."Flushing Method"::Manual, "Prod. Order Component"."Flushing Method"::"Pick + Manual", "Prod. Order Component"."Flushing Method"::Forward, "Prod. Order Component"."Flushing Method"::"Pick + Forward"]
         else
 #endif
