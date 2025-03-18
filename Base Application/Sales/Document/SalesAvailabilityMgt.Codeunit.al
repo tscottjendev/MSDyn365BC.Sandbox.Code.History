@@ -45,6 +45,7 @@ codeunit 99000872 "Sales Availability Mgt."
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetFilter("Outstanding Quantity", '>0');
+        OnSetSalesHeaderOnAfterFilterSalesLine(SalesLine, SalesHeader);
         if SalesLine.FindSet() then
             repeat
                 if SalesLine.IsInventoriableItem() then begin
@@ -817,6 +818,11 @@ codeunit 99000872 "Sales Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearDatesCalcCTP(var OrderPromisingLine: Record "Order Promising Line"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSalesHeaderOnAfterFilterSalesLine(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
     begin
     end;
 }
