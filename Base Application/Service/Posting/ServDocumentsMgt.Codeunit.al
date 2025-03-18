@@ -853,7 +853,6 @@ codeunit 5988 "Serv-Documents Mgt."
             ServiceShipmentLine2.LockTable();
 
             ServShptHeader.Init();
-            ServHeader.CalcFields("Work Description");
             ServShptHeader.TransferFields(ServHeader);
             ServShptHeader."No." := ServHeader."Shipping No.";
             if ServHeader."Document Type" = ServHeader."Document Type"::Order then begin
@@ -1005,7 +1004,6 @@ codeunit 5988 "Serv-Documents Mgt."
         UseAsExternalDocumentNo: Code[35];
     begin
         ServInvHeader.Init();
-        ServHeader.CalcFields("Work Description");
         ServInvHeader.TransferFields(ServHeader);
         OnPrepareInvoiceHeaderOnAfterServInvHeaderTransferFields(ServHeader, ServInvHeader);
         if ServHeader."Document Type" = ServHeader."Document Type"::Order then begin
@@ -1088,7 +1086,6 @@ codeunit 5988 "Serv-Documents Mgt."
         UseAsExternalDocumentNo: Code[35];
     begin
         ServCrMemoHeader.Init();
-        ServHeader.CalcFields("Work Description");
         ServCrMemoHeader.TransferFields(ServHeader);
         ServCrMemoHeader."Pre-Assigned No. Series" := ServHeader."No. Series";
         ServCrMemoHeader."Pre-Assigned No." := ServHeader."No.";
@@ -1152,9 +1149,9 @@ codeunit 5988 "Serv-Documents Mgt."
         ServPostingJnlsMgt.Finalize();
 
         // finalize posted documents
-        FinalizeShipmentDocument(PassedServHeader);
-        FinalizeInvoiceDocument(PassedServHeader);
-        FinalizeCrMemoDocument(PassedServHeader);
+        FinalizeShipmentDocument();
+        FinalizeInvoiceDocument();
+        FinalizeCrMemoDocument();
         FinalizeWarrantyLedgerEntries(PassedServHeader, CloseCondition);
 
         IsHandled := false;
@@ -1284,7 +1281,7 @@ codeunit 5988 "Serv-Documents Mgt."
         ServItemLine.DeleteAll();
     end;
 
-    local procedure FinalizeShipmentDocument(var PassedServHeader: Record "Service Header")
+    local procedure FinalizeShipmentDocument()
     var
         ServiceShipmentHeader2: Record "Service Shipment Header";
         ServiceShipmentItemLine2: Record "Service Shipment Item Line";
@@ -1298,8 +1295,6 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServShptHeader.FindFirst() then begin
                 ServiceShipmentHeader2.Init();
                 ServiceShipmentHeader2.Copy(ServShptHeader);
-                PassedServHeader.CalcFields("Work Description");
-                ServiceShipmentHeader2."Work Description" := PassedServHeader."Work Description";
                 OnFinalizeShipmentDocumentOnBeforeServiceShipmentHeaderInsert(ServiceShipmentHeader2, ServShptHeader, ServHeader);
                 ServiceShipmentHeader2.Insert();
             end;
@@ -1329,7 +1324,7 @@ codeunit 5988 "Serv-Documents Mgt."
         OnAfterFinalizeShipmentDocument(ServShptHeader, ServHeader, ServiceShipmentHeader2);
     end;
 
-    local procedure FinalizeInvoiceDocument(var PassedServHeader: Record "Service Header")
+    local procedure FinalizeInvoiceDocument()
     var
         ServiceInvoiceHeader2: Record "Service Invoice Header";
         ServiceInvoiceLine2: Record "Service Invoice Line";
@@ -1342,8 +1337,6 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServInvHeader.FindFirst() then begin
                 ServiceInvoiceHeader2.Init();
                 ServiceInvoiceHeader2.Copy(ServInvHeader);
-                PassedServHeader.CalcFields("Work Description");
-                ServiceInvoiceHeader2."Work Description" := PassedServHeader."Work Description";
                 OnFinalizeInvoiceDocumentOnBeforeServiceInvoiceHeaderInsert(ServiceInvoiceHeader2, ServInvHeader, ServHeader);
                 ServiceInvoiceHeader2.Insert();
             end;
@@ -1391,7 +1384,7 @@ codeunit 5988 "Serv-Documents Mgt."
         end;
     end;
 
-    local procedure FinalizeCrMemoDocument(var PassedServHeader: Record "Service Header")
+    local procedure FinalizeCrMemoDocument()
     var
         PServCrMemoHeader: Record "Service Cr.Memo Header";
         PServCrMemoLine: Record "Service Cr.Memo Line";
@@ -1404,8 +1397,6 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServCrMemoHeader.FindFirst() then begin
                 PServCrMemoHeader.Init();
                 PServCrMemoHeader.Copy(ServCrMemoHeader);
-                PassedServHeader.CalcFields("Work Description");
-                PServCrMemoHeader."Work Description" := PassedServHeader."Work Description";
                 OnFinalizeCrMemoDocumentOnBeforeServiceCreditMemoHeaderInsert(PServCrMemoHeader, ServCrMemoHeader, ServHeader);
                 PServCrMemoHeader.Insert();
             end;
