@@ -1168,10 +1168,10 @@ table 5405 "Production Order"
     procedure CreatePick(AssignedUserID: Code[50]; SortingMethod: Option; SetBreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean; PrintDocument: Boolean)
     var
         ProdOrderCompLine: Record "Prod. Order Component";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
 #if not CLEAN26
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+        ManufacturingSetup: Record "Manufacturing Setup";
 #endif
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         ProdOrderCompLine.Reset();
         ProdOrderCompLine.SetRange(Status, Status);
@@ -1196,7 +1196,7 @@ table 5405 "Production Order"
         ProdOrderCompLine.SetRange("Prod. Order No.", "No.");
 
 #if not CLEAN26
-        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
             ProdOrderCompLine.SetFilter(
               "Flushing Method", '%1|%2|%3|%4',
               ProdOrderCompLine."Flushing Method"::Manual,

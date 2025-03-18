@@ -16,6 +16,7 @@ using Microsoft.eServices.EDocument.Integration;
 using System.IO;
 using System.Utilities;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 codeunit 6140 "E-Doc. Import"
 {
@@ -127,13 +128,15 @@ codeunit 6140 "E-Doc. Import"
         IBlobType: Interface IBlobType;
     begin
         IBlobType := Type;
-        EDocument.Direction := EDocument.Direction::Incoming;
-        EDocument."Document Type" := Enum::"E-Document Type"::None;
-        EDocument.Service := EDocumentService.Code;
+        EDocument.Create(
+            EDocument.Direction::Incoming,
+            EDocument."Document Type"::None,
+            EDocumentService
+        );
 
         EDocument."File Name" := CopyStr(FileName, 1, 256);
         EDocument."File Type" := Type;
-        EDocument.Insert(true);
+        EDocument.Modify(true);
 
         EDocumentLog.SetFields(EDocument, EDocumentService);
         EDocumentLog.SetBlob(CopyStr(FileName, 1, 256), Type, InStr);
@@ -665,6 +668,8 @@ codeunit 6140 "E-Doc. Import"
         SourceDocumentHeader.Copy(SourceDocumentHeaderMapped, true);
         SourceDocumentLine.Copy(SourceDocumentLineMapped, true);
 
+        V1_PopulateEDocumentPrecview(EDocument, SourceDocumentHeader, SourceDocumentLine);
+
         OnAfterPrepareReceivedDoc(EDocument, TempBlob, SourceDocumentHeader, SourceDocumentLine, TempEDocMapping);
     end;
 
@@ -716,6 +721,71 @@ codeunit 6140 "E-Doc. Import"
         end;
 
         OnAfterCreateJournalLine(EDocument, JnlLine);
+    end;
+
+    local procedure V1_PopulateEDocumentPrecview(EDocument: Record "E-Document"; SourceDocumentHeader: RecordRef; SourceDocumentLine: RecordRef)
+    var
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+        EDocumentPurchaseLine: Record "E-Document Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        LineNo: Integer;
+    begin
+        EDocumentPurchaseHeader.InsertForEDocument(EDocument);
+
+        if (EDocument."Document Type" <> EDocument."Document Type"::"Purchase Invoice") and (EDocument."Document Type" <> EDocument."Document Type"::"Purchase Credit Memo") then
+            exit;
+
+        SourceDocumentHeader.SetTable(PurchaseHeader);
+        V1_CopyFromPurchaseHeader(PurchaseHeader, EDocumentPurchaseHeader);
+
+        EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
+        EDocumentPurchaseLine.DeleteAll();
+        LineNo := 10000;
+        if SourceDocumentLine.FindSet() then
+            repeat
+                Clear(EDocumentPurchaseLine);
+                EDocumentPurchaseLine."E-Document Entry No." := EDocument."Entry No";
+                EDocumentPurchaseLine."Line No." := LineNo;
+                EDocumentPurchaseLine.Insert();
+
+                SourceDocumentLine.SetTable(PurchaseLine);
+                V1_CopyFromPurchaseLine(PurchaseLine, EDocumentPurchaseLine);
+                LineNo := LineNo + 10000;
+            until SourceDocumentLine.Next() = 0;
+
+    end;
+
+    local procedure V1_CopyFromPurchaseHeader(PurchaseHeader: Record "Purchase Header"; var EDocumentPurchaseHeader: Record "E-Document Purchase Header")
+    var
+        Vendor: Record Vendor;
+    begin
+        if Vendor.Get(PurchaseHeader."Buy-from Vendor No.") then;
+        EDocumentPurchaseHeader."Vendor Company Name" := PurchaseHeader."Pay-to Name";
+        EDocumentPurchaseHeader."Purchase Order No." := PurchaseHeader."Vendor Order No.";
+        EDocumentPurchaseHeader."Sales Invoice No." := PurchaseHeader."Vendor Invoice No.";
+        EDocumentPurchaseHeader."Invoice Date" := PurchaseHeader."Posting Date";
+        EDocumentPurchaseHeader."Due Date" := PurchaseHeader."Due Date";
+        EDocumentPurchaseHeader."Currency Code" := PurchaseHeader."Currency Code";
+        EDocumentPurchaseHeader."Document Date" := PurchaseHeader."Document Date";
+        EDocumentPurchaseHeader."Vendor Address" := PurchaseHeader."Pay-to Address";
+        EDocumentPurchaseHeader."Total Discount" := PurchaseHeader."Invoice Discount Amount";
+        EDocumentPurchaseHeader."Total" := PurchaseHeader."Amount Including VAT";
+        EDocumentPurchaseHeader.Modify();
+    end;
+
+    local procedure V1_CopyFromPurchaseLine(PurchaseLine: Record "Purchase Line"; var EDocumentPurchaseLine: Record "E-Document Purchase Line")
+    begin
+        EDocumentPurchaseLine."Product Code" := PurchaseLine."No.";
+        EDocumentPurchaseLine."Description" := PurchaseLine.Description;
+        EDocumentPurchaseLine.Quantity := PurchaseLine.Quantity;
+        EDocumentPurchaseLine."Unit Price" := PurchaseLine."Unit Cost";
+        EDocumentPurchaseLine."Unit of Measure" := PurchaseLine."Unit of Measure Code";
+        EDocumentPurchaseLine."Sub Total" := PurchaseLine."Line Amount";
+        EDocumentPurchaseLine."Total Discount" := PurchaseLine."Line Discount Amount";
+        EDocumentPurchaseLine."VAT Rate" := PurchaseLine."VAT %";
+        EDocumentPurchaseLine."Currency Code" := PurchaseLine."Currency Code";
+        EDocumentPurchaseLine.Modify();
     end;
 
     local procedure OrderExists(EDocument: Record "E-Document"; Vendor: Record Vendor; var DocumentHeader: RecordRef): Boolean
