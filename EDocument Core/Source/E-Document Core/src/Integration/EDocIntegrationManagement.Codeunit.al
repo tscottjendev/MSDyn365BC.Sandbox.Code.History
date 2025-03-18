@@ -180,14 +180,11 @@ codeunit 6134 "E-Doc. Integration Management"
 
         for Index := 1 to DocumentsMetadata.Count() do begin
 
-            EDocument.Create(
-                Enum::"E-Document Direction"::Incoming,
-                Enum::"E-Document Type"::None,
-                EDocumentService
-            );
-
+            EDocument."Entry No" := 0;
             EDocument."Index In Batch" := Index;
-            EDocument.Modify();
+            EDocument.Direction := EDocument.Direction::Incoming;
+            EDocument.Service := EDocumentService.Code;
+            EDocument.Insert();
 
             EDocumentLog.SetFields(EDocument, EDocumentService);
 

@@ -1,4 +1,3 @@
-#pragma warning disable AS0032, AS0050
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -21,7 +20,6 @@ page 6181 "E-Document Purchase Draft"
     InsertAllowed = false;
     DeleteAllowed = true;
     ModifyAllowed = true;
-    Extensible = false;
     RefreshOnActivate = true;
 
     layout
@@ -376,4 +374,3 @@ page 6181 "E-Document Purchase Draft"
         ShowAnalyzeDocumentAction: Boolean;
         EDocHasErrorOrWarningMsg: Label 'Errors or warnings found for E-Document. Please review below in "Error Messages" section.';
 }
-#pragma warning restore AS0050, AS0032

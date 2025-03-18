@@ -1,4 +1,3 @@
-#pragma warning disable AS0049, AS0009, AS0005, AS0125
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -25,15 +24,15 @@ table 6105 "E-Document Line Mapping"
 
     fields
     {
-        field(1; "E-Document Entry No."; Integer)
-        {
-            TableRelation = "E-Document"."Entry No";
-            DataClassification = SystemMetadata;
-        }
-        field(2; "Line No."; Integer)
+        field(1; "E-Document Line Id"; Integer)
         {
             DataClassification = SystemMetadata;
             ToolTip = 'Specifies the line number.';
+        }
+        field(2; "E-Document Entry No."; Integer)
+        {
+            TableRelation = "E-Document"."Entry No";
+            DataClassification = SystemMetadata;
         }
         field(3; "Purchase Line Type"; Enum "Purchase Line Type")
         {
@@ -95,24 +94,23 @@ table 6105 "E-Document Line Mapping"
     }
     keys
     {
-        key(PK; "E-Document Entry No.", "Line No.")
+        key(PK; "E-Document Line Id")
         {
             Clustered = true;
         }
     }
 
-    procedure InsertForEDocumentLine(EDocument: Record "E-Document"; LineNo: Integer)
+    procedure InsertForEDocumentLine(EDocument: Record "E-Document"; EDocumentLineId: Integer)
     begin
-        Clear(Rec);
-        if Rec.Get(EDocument."Entry No", LineNo) then begin
-            Rec."Line No." := LineNo;
-            Rec.Validate("E-Document Entry No.", EDocument."Entry No");
+        if Rec.Get(EDocumentLineId) then begin
+            Clear(Rec);
+            Rec."E-Document Line Id" := EDocumentLineId;
+            Rec."E-Document Entry No." := EDocument."Entry No";
             Rec.Modify();
         end;
-        Rec."Line No." := LineNo;
-        Rec.Validate("E-Document Entry No.", EDocument."Entry No");
+        Rec."E-Document Entry No." := EDocument."Entry No";
+        Rec."E-Document Line Id" := EDocumentLineId;
         Rec.Insert();
     end;
 
 }
-#pragma warning restore AS0049, AS0009, AS0005, AS0125

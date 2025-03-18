@@ -79,19 +79,15 @@ codeunit 6174 "E-Document ADI Handler" implements IBlobType, IBlobToStructuredDa
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
         JsonTokenTemp, ItemToken : JsonToken;
         ItemObject, LineObject : JsonObject;
-        Count: Integer;
     begin
-        Count := 1;
         foreach ItemToken in ItemsArray do begin
             Clear(EDocumentPurchaseLine);
-            EDocumentPurchaseLine.Validate("E-Document Entry No.", EDocumentEntryNo);
-            EDocumentPurchaseLine."Line No." := (Count * 10000);
+            EDocumentPurchaseLine."E-Document Entry No." := EDocumentEntryNo;
             ItemObject := ItemToken.AsObject();
             ItemObject.Get('fields', JsonTokenTemp);
             LineObject := JsonTokenTemp.AsObject();
             PopulateEDocumentPurchaseLine(LineObject, EDocumentPurchaseLine);
             EDocumentPurchaseLine.Insert();
-            Count := Count + 1;
         end;
     end;
 

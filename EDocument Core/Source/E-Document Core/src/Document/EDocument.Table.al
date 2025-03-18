@@ -6,7 +6,6 @@ namespace Microsoft.eServices.EDocument;
 
 using Microsoft.Foundation.Reporting;
 using Microsoft.Finance.Currency;
-using Microsoft.eServices.EDocument.Integration;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Utilities;
 using System.Automation;
@@ -222,12 +221,6 @@ table 6121 "E-Document"
             Caption = 'Structured Data Process';
             ToolTip = 'Specifies the structured data process to run on the E-Document data.';
         }
-        field(38; "Service Integration"; Enum "Service Integration")
-        {
-            Caption = 'Service Integration';
-            ToolTip = 'Specifies the service integration to use for the E-Document.';
-            Editable = false;
-        }
     }
     keys
     {
@@ -262,23 +255,6 @@ table 6121 "E-Document"
                     Error('');
 
         this.DeleteRelatedRecords();
-    end;
-
-    /// <summary>
-    /// Inserts a new E-Document record with the specified parameters.
-    /// </summary>
-    internal procedure Create(
-        EDocumentDirection: Enum "E-Document Direction";
-        EDocumentType: Enum "E-Document Type";
-        EDocumentService: Record "E-Document Service"
-    )
-    begin
-        Rec."Entry No" := 0;
-        Rec.Direction := EDocumentDirection;
-        Rec."Document Type" := EDocumentType;
-        Rec.Service := EDocumentService.Code;
-        Rec."Service Integration" := EDocumentService."Service Integration V2";
-        Rec.Insert(true);
     end;
 
     internal procedure IsDuplicate(): Boolean
