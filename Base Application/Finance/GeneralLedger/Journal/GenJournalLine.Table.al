@@ -6454,9 +6454,6 @@ table 81 "Gen. Journal Line"
             "Pmt. Discount Date" := PurchHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := PurchHeader."Prepmt. Payment Discount %";
         end;
-        "Message Type" := PurchHeader."Message Type";
-        "Invoice Message" := PurchHeader."Invoice Message";
-        "Invoice Message 2" := PurchHeader."Invoice Message 2";
 
         OnAfterCopyGenJnlLineFromPurchHeaderPrepmtPost(PurchHeader, Rec, UsePmtDisc);
     end;
