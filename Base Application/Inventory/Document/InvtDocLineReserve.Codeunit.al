@@ -294,7 +294,12 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
     var
         InvtDocumentHeader: Record "Invt. Document Header";
         RedStorno: Boolean;
+        IsHandled: Boolean;
     begin
+        OnBeforeDeleteLine(InvtDocumentLine, DeleteItemTracking, Blocked, IsHandled);
+        if IsHandled then
+            exit;
+
         if Blocked then
             exit;
 
@@ -802,6 +807,11 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyChange(var NewInvtDocumentLine: Record "Invt. Document Line"; var OldInvtDocumentLine: Record "Invt. Document Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteLine(var InvtDocumentLine: Record "Invt. Document Line"; DeleteItemTracking: Boolean; Blocked: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
