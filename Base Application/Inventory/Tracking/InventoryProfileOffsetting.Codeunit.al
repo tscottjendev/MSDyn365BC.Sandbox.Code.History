@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Foundation.UOM;
@@ -581,7 +580,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                             if ComponentForecast then begin
                                 DemandInvtProfile.SetSourceTypeFilter(Database::"Prod. Order Component");
                                 DemandInvtProfile.SetSourceTypeFilter(Database::"Planning Component");
-                                DemandInvtProfile.SetSourceTypeFilter(Database::"Assembly Line");
+                                OnForecastConsumptionOnAfterSetPlanningSourceTypeFilter(DemandInvtProfile);
                             end else begin
                                 DemandInvtProfile.SetSourceTypeFilter(Database::"Sales Line");
                                 OnForecastConsumptionOnAfterSetSalesSourceTypeFilter(DemandInvtProfile);
@@ -2458,7 +2457,6 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         PurchaseLine: Record "Purchase Line";
         ProdOrderLine: Record "Prod. Order Line";
-        AsmHeader: Record "Assembly Header";
         TransLine: Record "Transfer Line";
         CurrentSupplyInvtProfile: Record "Inventory Profile";
         PlanLineNo: Integer;
@@ -2508,8 +2506,6 @@ codeunit 99000854 "Inventory Profile Offsetting"
                                     ReqLine."Ref. Order No." := SupplyInvtProfile."Primary Order No.";
                                 end;
                             end;
-                        TempSKU."Replenishment System"::Assembly:
-                            ReqLine."Ref. Order Type" := ReqLine."Ref. Order Type"::Assembly;
                         TempSKU."Replenishment System"::Transfer:
                             ReqLine."Ref. Order Type" := ReqLine."Ref. Order Type"::Transfer;
                     end;
@@ -2525,10 +2521,10 @@ codeunit 99000854 "Inventory Profile Offsetting"
                             SetPurchase(PurchaseLine, SupplyInvtProfile);
                         Database::"Prod. Order Line":
                             SetProdOrder(ProdOrderLine, SupplyInvtProfile);
-                        Database::"Assembly Header":
-                            SetAssembly(AsmHeader, SupplyInvtProfile);
                         Database::"Transfer Line":
                             SetTransfer(TransLine, SupplyInvtProfile);
+                        else
+                            OnMaintainPlanningLineOnAfterSetSourceForNotNewReqLine(ReqLine, SupplyInvtProfile);
                     end;
 
                 if ReqLine."Ref. Order Type" <> ReqLine."Ref. Order Type"::"Prod. Order" then
@@ -3822,8 +3818,6 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 end;
             TempSKU."Replenishment System"::"Prod. Order":
                 SupplyInvtProfile."Source Type" := Database::"Prod. Order Line";
-            TempSKU."Replenishment System"::Assembly:
-                SupplyInvtProfile."Source Type" := Database::"Assembly Header";
             TempSKU."Replenishment System"::Transfer:
                 SupplyInvtProfile."Source Type" := Database::"Transfer Line";
         end;
@@ -4177,7 +4171,6 @@ codeunit 99000854 "Inventory Profile Offsetting"
         PurchHeader: Record "Purchase Header";
         ProdOrder: Record "Production Order";
         TransHeader: Record "Transfer Header";
-        AsmHeader: Record "Assembly Header";
         ReqWkshTempl: Record "Req. Wksh. Template";
         AcceptActionMsg: Boolean;
         IsHandled: Boolean;
@@ -4222,17 +4215,6 @@ codeunit 99000854 "Inventory Profile Offsetting"
                                     DummyInventoryProfileTrackBuffer."Warning Level", ProdOrder.FieldCaption(Status), ReqLine."Ref. Order Type",
                                     ReqLine."Ref. Order No.", ReqLine."Ref. Order Status"));
                             end;
-                        ReqLine."Ref. Order Type"::Assembly:
-                            if AsmHeader.Get(ReqLine."Ref. Order Status", ReqLine."Ref. Order No.") and
-                               (AsmHeader.Status = AsmHeader.Status::Released)
-                            then begin
-                                AcceptActionMsg := false;
-                                PlanningTransparency.LogWarning(
-                                  0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
-                                  StrSubstNo(Text009,
-                                    DummyInventoryProfileTrackBuffer."Warning Level", AsmHeader.FieldCaption(Status), ReqLine."Ref. Order Type",
-                                    ReqLine."Ref. Order No.", AsmHeader.Status));
-                            end;
                         ReqLine."Ref. Order Type"::Transfer:
                             begin
                                 IsHandled := false;
@@ -4249,7 +4231,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                             end;
                     end;
 
-                OnSetAcceptActionOnBeforeAcceptActionMsg(ReqLine, AcceptActionMsg);
+                OnSetAcceptActionOnBeforeAcceptActionMsg(ReqLine, AcceptActionMsg, PlanningTransparency);
 
                 if AcceptActionMsg then
                     AcceptActionMsg := PlanningTransparency.ReqLineWarningLevel(ReqLine) = 0;
@@ -4306,7 +4288,6 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         PlanComponent: Record "Planning Component";
         ProdOrderComp: Record "Prod. Order Component";
-        AsmLine: Record "Assembly Line";
         VersionMgt: Codeunit VersionManagement;
     begin
         ReqLine.BlockDynamicTracking(true);
@@ -4332,18 +4313,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
                                 InsertPlanningComponent(PlanComponent);
                             until ProdOrderComp.Next() = 0;
                     end;
-                ReqLine."Ref. Order Type"::Assembly:
-                    begin
-                        AsmLine.SetRange("Document Type", AsmLine."Document Type"::Order);
-                        AsmLine.SetRange("Document No.", ReqLine."Ref. Order No.");
-                        AsmLine.SetRange(Type, AsmLine.Type::Item);
-                        if AsmLine.Find('-') then
-                            repeat
-                                PlanComponent.InitFromRequisitionLine(ReqLine);
-                                PlanComponent.TransferFromAsmLine(AsmLine);
-                                InsertPlanningComponent(PlanComponent);
-                            until AsmLine.Next() = 0;
-                    end;
+                else
+                    OnGetComponentsOnUpdateForActionMessage(ReqLine);
             end;
         OnAfterGetComponents(ReqLine);
     end;
@@ -4801,15 +4772,6 @@ codeunit 99000854 "Inventory Profile Offsetting"
         OnAfterSetProdOrder(ReqLine, ProdOrderLine, InventoryProfile);
     end;
 
-    local procedure SetAssembly(var AsmHeader: Record "Assembly Header"; var InventoryProfile: Record "Inventory Profile")
-    begin
-        ReqLine."Ref. Order Type" := ReqLine."Ref. Order Type"::Assembly;
-        ReqLine."Ref. Order No." := InventoryProfile."Source ID";
-        ReqLine."Ref. Line No." := 0;
-        AsmHeader.Get(AsmHeader."Document Type"::Order, ReqLine."Ref. Order No.");
-        ReqLine.TransferFromAsmHeader(AsmHeader);
-    end;
-
     local procedure SetTransfer(var TransLine: Record "Transfer Line"; var InventoryProfile: Record "Inventory Profile")
     var
         IsHandled: Boolean;
@@ -4847,7 +4809,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
           (SKU."Reordering Policy" in [SKU."Reordering Policy"::"Maximum Qty.", SKU."Reordering Policy"::"Fixed Reorder Qty."]));
     end;
 
-    local procedure InsertPlanningComponent(var PlanningComponent: Record "Planning Component");
+    procedure InsertPlanningComponent(var PlanningComponent: Record "Planning Component");
     begin
         OnBeforeInsertPlanningComponent(PlanningComponent);
 
@@ -5470,6 +5432,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnForecastConsumptionOnAfterSetPlanningSourceTypeFilter(var DemandInventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFindReplishmentLocationOnBeforeFindSKU(var StockkeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
@@ -5495,12 +5462,17 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnMaintainPlanningLineOnAfterSetSourceForNotNewReqLine(var RequisitionLine: Record "Requisition Line"; var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPrepareTempTrackingOnBeforeInsertTempTracking(var FromReservEntry: Record "Reservation Entry"; var ToReservEntry: Record "Reservation Entry"; IsSurplus: Boolean);
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetAcceptActionOnBeforeAcceptActionMsg(var RequisitionLine: Record "Requisition Line"; var AcceptActionMsg: Boolean)
+    local procedure OnSetAcceptActionOnBeforeAcceptActionMsg(var RequisitionLine: Record "Requisition Line"; var AcceptActionMsg: Boolean; var PlanningTransparency: Codeunit "Planning Transparency")
     begin
     end;
 
@@ -6098,6 +6070,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransProdOrderToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; ToDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnGetComponentsOnUpdateForActionMessage(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

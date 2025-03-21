@@ -12,8 +12,7 @@ using System.Utilities;
 
 report 5871 "Item - Able to Make (Timeline)"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Reports/ItemAbletoMakeTimeline.rdlc';
+    DefaultRenderingLayout = ExcelLayout;
     AdditionalSearchTerms = 'assembly availability';
     ApplicationArea = Planning;
     Caption = 'Item - Able to Make (Timeline)';
@@ -154,6 +153,22 @@ report 5871 "Item - Able to Make (Timeline)"
         end;
     }
 
+    rendering
+    {
+        layout(ExcelLayout)
+        {
+            Caption = 'Item - Able to Make (Timeline)';
+            Type = Excel;
+            LayoutFile = './Inventory/Reports/ItemAbletoMakeTimeline.xlsx';
+        }
+        layout(RDLCLayout)
+        {
+            Caption = 'Item - Able to Make (Timeline) (Obsolete)';
+            Type = RDLC;
+            LayoutFile = './Inventory/Reports/ItemAbletoMakeTimeline.rdlc';
+        }
+    }
+
     labels
     {
         ItemAbleToMakeProjectionCaption = 'Item - Able to Make (Timeline)';
@@ -164,6 +179,17 @@ report 5871 "Item - Able to Make (Timeline)"
         SchRcptQtyCaption = 'Scheduled Receipts';
         InvtQtyCaption = 'Inventory';
         AbleToMakeQtyCaption = 'Able to Make';
+        StartDateCaption = 'Starting Date:';
+        ItemAbleToMakePrintLabel = 'Item Able to Make - (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        ItemAbleToMakeAnalysisLabel = 'Item Able to Make - (Analysis)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        // About the report labels
+        AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
+        EnvironmentLabel = 'Environment';
+        CompanyLabel = 'Company';
+        UserLabel = 'User';
+        RunOnLabel = 'Run on';
+        ReportNameLabel = 'Report name';
+        DocumentationLabel = 'Documentation';
     }
 
     trigger OnInitReport()

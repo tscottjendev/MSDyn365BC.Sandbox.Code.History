@@ -1661,13 +1661,6 @@ table 5405 "Production Order"
         Rec.Validate("Manual Scheduling", MfgSetup."Manual Scheduling");
     end;
 
-#if not CLEAN27
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure GetHeaderStatus(SkipLineNo: Integer): Integer
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ProductionOrder: Record "Production Order"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CallingFieldNo: Integer)
     begin
