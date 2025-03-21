@@ -401,7 +401,7 @@ page 9325 "Firm Planned Prod. Orders"
             action("Production Order List")
             {
                 ApplicationArea = Manufacturing;
-                Caption = 'Production Order List';
+                Caption = 'Production Order - List';
                 Image = "Report";
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
