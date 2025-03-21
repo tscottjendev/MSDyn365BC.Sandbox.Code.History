@@ -50,7 +50,7 @@ codeunit 99000816 "Mfg. Carry Out Action Print"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Carry Out Action", 'OnCollectProdOrderForPrinting', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mfg. Carry Out Action", 'OnCollectProdOrderForPrinting', '', false, false)]
     local procedure OnCollectProdOrderForPrinting(var ProductionOrder: Record "Production Order")
     begin
         CollectProdOrderForPrinting(ProductionOrder);
