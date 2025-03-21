@@ -819,51 +819,6 @@ table 5406 "Prod. Order Line"
             Caption = 'Package No. Filter';
             FieldClass = FlowFilter;
         }
-#pragma warning disable AS0115
-#if not CLEAN27
-        field(6500; "Serial No."; Code[50])
-        {
-            Caption = 'Serial No.';
-            Editable = false;
-            ObsoleteReason = 'Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table';
-            ObsoleteState = Removed;
-            ObsoleteTag = '27.0';
-        }
-        field(6501; "Lot No."; Code[50])
-        {
-            Caption = 'Lot No.';
-            Editable = false;
-            ObsoleteReason = 'Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table';
-            ObsoleteState = Removed;
-            ObsoleteTag = '27.0';
-        }
-        field(6502; "Warranty Date"; Date)
-        {
-            Caption = 'Warranty Date';
-            Editable = false;
-            ObsoleteReason = 'Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table';
-            ObsoleteState = Removed;
-            ObsoleteTag = '27.0';
-        }
-        field(6503; "Expiration Date"; Date)
-        {
-            Caption = 'Expiration Date';
-            Editable = false;
-            ObsoleteReason = 'Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table';
-            ObsoleteState = Removed;
-            ObsoleteTag = '27.0';
-        }
-        field(6515; "Package No."; Code[50])
-        {
-            Caption = 'Package No.';
-            CaptionClass = '6,1';
-            Editable = false;
-            ObsoleteReason = 'Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table';
-            ObsoleteState = Removed;
-            ObsoleteTag = '27.0';
-        }
-#endif
-#pragma warning restore AS0115
         field(99000750; "Production BOM Version Code"; Code[20])
         {
             Caption = 'Production BOM Version Code';
@@ -1818,28 +1773,6 @@ table 5406 "Prod. Order Line"
         Rec.CalcFields("Put-away Qty. (Base)");
         exit(Rec."Put-away Qty. (Base)" + RegisteredWhseActivityLine."Qty. (Base)");
     end;
-
-#if not CLEAN27
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure GetLineStatus(): Integer
-    begin
-    end;
-
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure CopyTrackingFromWhseItemEntryRelation(ItemLedgEntry: Record "Item Ledger Entry")
-    begin
-    end;
-
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure SetTrackingFilterFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
-    begin
-    end;
-
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure GetUsedPutAwayQty(LotNo: Code[50]; SerialNo: Code[50]; PackageNo: Code[50]): Decimal
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ProdOrderLine: Record "Prod. Order Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CallingFieldNo: Integer)

@@ -416,19 +416,19 @@ page 5872 "BOM Cost Shares"
 
     local procedure UpdatePage()
     var
-#if not CLEAN26
+#if not CLEAN27
         AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header";
         ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line";
 #endif   
         CalcBOMTree: Codeunit "Calculate BOM Tree";
         HasBOM: Boolean;
         IsHandled: Boolean;
-#if not CLEAN26
+#if not CLEAN27
         ShowByOption: Option;
 #endif
     begin
         IsHandled := false;
-#if not CLEAN26
+#if not CLEAN27
         ShowByOption := ShowBy.AsInteger();
         case ShowBy of
             ShowBy::Assembly:
