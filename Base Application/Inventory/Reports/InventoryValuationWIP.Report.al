@@ -7,14 +7,14 @@ namespace Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Manufacturing.Document;
+using System.Utilities;
 
 report 5802 "Inventory Valuation - WIP"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Reports/InventoryValuationWIP.rdlc';
     ApplicationArea = Manufacturing;
     Caption = 'Production Order - WIP';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = WordLayout;
 
     dataset
     {
@@ -32,6 +32,12 @@ report 5802 "Inventory Valuation - WIP"
             column(ProdOrderFilter; ProdOrderFilter)
             {
             }
+            column(StartDate; StartDateText)
+            {
+            }
+            column(EndDate; EndDate)
+            {
+            }
             column(AsOfStartDateText; StrSubstNo(Text005, StartDateText))
             {
             }
@@ -40,18 +46,23 @@ report 5802 "Inventory Valuation - WIP"
             }
             column(No_ProductionOrder; "No.")
             {
+                IncludeCaption = true;
             }
             column(SourceNo_ProductionOrder; "Source No.")
             {
+                IncludeCaption = true;
             }
             column(SrcType_ProductionOrder; "Source Type")
             {
+                IncludeCaption = true;
             }
             column(Desc_ProductionOrder; Description)
             {
+                IncludeCaption = true;
             }
             column(Status_ProductionOrder; Status)
             {
+                IncludeCaption = true;
             }
             column(InventoryValuationWIPCptn; InventoryValuationWIPCptnLbl)
             {
@@ -121,7 +132,6 @@ report 5802 "Inventory Valuation - WIP"
                 column(LastWIP; TotalLastWIP)
                 {
                 }
-
                 trigger OnAfterGetRecord()
                 var
                     IsHandled: Boolean;
@@ -249,6 +259,13 @@ report 5802 "Inventory Valuation - WIP"
                     TotalAtLastDate := TotalAtLastDate + AtLastDate;
                     TotalLastWIP := TotalLastWIP + LastWIP;
 
+                    LastWipSum += ValueOfWIP;
+                    ValueOfMatConsumptionSum += ValueOfMatConsump;
+                    ValueOfCapSum += ValueOfCap;
+                    ValueOfOutputSum += LastOutput;
+                    AtLastDateSum += AtLastDate;
+                    ValueEntryCostPostedToGLSum += ValueOfCostPstdToGL;
+
                     if CountRecord <> LengthRecord then
                         CurrReport.Skip();
                 end;
@@ -285,13 +302,34 @@ report 5802 "Inventory Valuation - WIP"
                         until Next() = 0;
                 end;
             }
-
             trigger OnAfterGetRecord()
             begin
                 if FinishedProdOrderIsCompletelyInvoiced() then
                     CurrReport.Skip();
                 EntryFound := ValueEntryExist("Production Order", StartDate, EndDate);
             end;
+        }
+        dataitem(Totals; "Integer")
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+            column(LastWipSum; LastWipSum)
+            {
+            }
+            column(ValueOfMatConsumptionSum; ValueOfMatConsumptionSum)
+            {
+            }
+            column(ValueOfCapSum; ValueOfCapSum)
+            {
+            }
+            column(ValueOfOutputSum; ValueOfOutputSum)
+            {
+            }
+            column(AtLastDateSum; AtLastDateSum)
+            {
+            }
+            column(ValueEntryCostPostedToGLSum; ValueEntryCostPostedToGLSum)
+            {
+            }
         }
     }
 
@@ -335,8 +373,48 @@ report 5802 "Inventory Valuation - WIP"
         end;
     }
 
+    rendering
+    {
+        layout(ExcelLayout)
+        {
+            Type = Excel;
+            LayoutFile = '.\Inventory\Reports\InventoryValuationWIP.xlsx';
+        }
+        layout(WordLayout)
+        {
+            Type = Word;
+            LayoutFile = '.\Inventory\Reports\InventoryValuationWIP.docx';
+        }
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = '.\Inventory\Reports\InventoryValuationWIP.rdlc';
+        }
+    }
+
     labels
     {
+        ProdOrderWIP = 'Prod. Order - WIP';
+        CurrReportPageNo = 'Page';
+        Capacity = 'Capacity ';
+        Output = 'Output ';
+        CostPostedToGL = 'Cost Posted to G/L';
+        Consumption = 'Consumption ';
+        Total = 'Total';
+        PeriodCaption = 'Period:';
+        UntilCaption = 'Until:';
+        StartDateHeader = 'As of Start Date';
+        EndDateHeader = 'As of End Date';
+        ProdOrderWipPrintLabel = 'Prod. Order - WIP (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        ProdOrderWipAnalysisLabel = 'Prod. Order - WIP (Analysis)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        // About the report labels
+        AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
+        EnvironmentLabel = 'Environment';
+        CompanyLabel = 'Company';
+        UserLabel = 'User';
+        RunOnLabel = 'Run on';
+        ReportNameLabel = 'Report name';
+        DocumentationLabel = 'Documentation';
     }
 
     trigger OnPreReport()
@@ -407,6 +485,13 @@ report 5802 "Inventory Valuation - WIP"
         ProdOrderSourceNoCaptionLbl: Label 'Source No.';
         TotalCaptionLbl: Label 'Total';
         EntryFound: Boolean;
+        LastWipSum: Decimal;
+        ValueOfMatConsumptionSum: Decimal;
+        ValueOfCapSum: Decimal;
+        ValueOfOutputSum: Decimal;
+        AtLastDateSum: Decimal;
+        ValueEntryCostPostedToGLSum: Decimal;
+
 
     local procedure ValueEntryOnPostDataItem()
     begin
@@ -475,4 +560,3 @@ report 5802 "Inventory Valuation - WIP"
     begin
     end;
 }
-

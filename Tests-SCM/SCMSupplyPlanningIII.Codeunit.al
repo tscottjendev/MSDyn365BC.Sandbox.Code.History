@@ -2331,7 +2331,8 @@
     var
         RequisitionLine: Record "Requisition Line";
         ProductionOrder: Record "Production Order";
-        CarryOutAction: Codeunit "Carry Out Action";
+        TempDocumentEntry: Record "Document Entry" temporary;
+        MfgCarryOutAction: Codeunit "Mfg. Carry Out Action";
     begin
         // [FEATURE] [UT] [Production Order]
         // [SCENARIO 277381] Codeunit 99000813 InsertProductionOrder() on Reqisition Line with "Gen. Business Posting Group" <> '' doesn't fill "Gen. Business Posting Group" in Production Order
@@ -2342,7 +2343,7 @@
         RequisitionLine.TestField("Gen. Business Posting Group");
 
         // [WHEN] Call CarryOutAction.InsertProductionOrder()
-        CarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned);
+        MfgCarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned, TempDocumentEntry);
 
         // [THEN] "Gen. Bus. Posting Group" = blank in created Production order
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Planned);
@@ -2357,7 +2358,8 @@
     var
         RequisitionLine: Record "Requisition Line";
         ProductionOrder: Record "Production Order";
-        CarryOutAction: Codeunit "Carry Out Action";
+        TempDocumentEntry: Record "Document Entry" temporary;
+        MfgCarryOutAction: Codeunit "Mfg. Carry Out Action";
     begin
         // [FEATURE] [Production Order] [Item Variant]
         // [SCENARIO 388994] Codeunit 99000813 InsertProductrionOrder() on Reqisition Line with Variant Code fill "Variant Code" in Production Order
@@ -2368,7 +2370,7 @@
         RequisitionLine.TestField("Gen. Business Posting Group");
 
         // [WHEN] Call CarryOutAction.InsertProductionOrder()
-        CarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned);
+        MfgCarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned, TempDocumentEntry);
 
         // [THEN] "Gen. Bus. Posting Group" = blank in created Production order
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Planned);
@@ -2948,7 +2950,8 @@
     var
         Item: Record Item;
         RequisitionLine: Record "Requisition Line";
-        CarryOutAction: Codeunit "Carry Out Action";
+        TempDocumentEntry: Record "Document Entry" temporary;
+        MfgCarryOutAction: Codeunit "Mfg. Carry Out Action";
     begin
         // [SCENARIO 382546] Verify "Carry Out Action" should throw error if "Production Blocked" is Output on "Item".
         Initialize();
@@ -2962,7 +2965,7 @@
         Item.Modify(true);
 
         // [WHEN] Call CarryOutAction.InsertProductionOrder().
-        asserterror CarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned);
+        asserterror MfgCarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned, TempDocumentEntry);
 
         // [VERIFY] Verify error message if "Production Blocked" is Output on Item.
         Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked"), Item."Production Blocked"));
@@ -2975,7 +2978,8 @@
         Item: Record Item;
         ItemVariant: Record "Item Variant";
         RequisitionLine: Record "Requisition Line";
-        CarryOutAction: Codeunit "Carry Out Action";
+        TempDocumentEntry: Record "Document Entry" temporary;
+        MfgCarryOutAction: Codeunit "Mfg. Carry Out Action";
     begin
         // [SCENARIO 382546] Verify "Carry Out Action" should throw error if "Production Blocked" is Output on "Item Variant".
         Initialize();
@@ -2989,7 +2993,7 @@
         ItemVariant.Modify(true);
 
         // [WHEN] Call CarryOutAction.InsertProductionOrder().
-        asserterror CarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned);
+        asserterror MfgCarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned, TempDocumentEntry);
 
         // [VERIFY] Verify error message if "Production Blocked" is Output on "Item Variant".
         Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemVariantErr, ItemVariant.Code, Item.TableCaption(), ItemVariant."Item No."));

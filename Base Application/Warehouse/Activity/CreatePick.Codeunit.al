@@ -837,7 +837,6 @@ codeunit 7312 "Create Pick"
         BinContent: Record "Bin Content";
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
     begin
-        BinContent.SetCurrentKey("Location Code", "Item No.", "Variant Code", "Cross-Dock Bin", "Qty. per Unit of Measure", "Bin Ranking");
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Item No.", ItemNo);
         BinContent.SetRange("Variant Code", VariantCode);
@@ -3159,8 +3158,6 @@ codeunit 7312 "Create Pick"
         QtyPlaced: Decimal;
         QtyTaken: Decimal;
     begin
-        WhseEntry.SetCurrentKey(
-            "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.");
         WhseEntry.SetRange("Location Code", BinContent."Location Code");
         WhseEntry.SetRange("Bin Code", BinContent."Bin Code");
         WhseEntry.SetRange("Item No.", BinContent."Item No.");
@@ -3192,8 +3189,6 @@ codeunit 7312 "Create Pick"
 
         TempWhseActivLine.Reset();
 
-        WhseJournalLine.SetCurrentKey(
-            "Item No.", "From Bin Code", "Location Code", "Entry Type", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.");
         WhseJournalLine.SetRange("Location Code", BinContent."Location Code");
         WhseJournalLine.SetRange("From Bin Code", BinContent."Bin Code");
         WhseJournalLine.SetRange("Item No.", BinContent."Item No.");

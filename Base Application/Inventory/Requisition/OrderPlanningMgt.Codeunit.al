@@ -12,7 +12,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
-using Microsoft.Manufacturing.Document;
 
 codeunit 5522 "Order Planning Mgt."
 {
@@ -22,7 +21,7 @@ codeunit 5522 "Order Planning Mgt."
 
     var
         TempUnplannedDemand: Record "Unplanned Demand";
-        ProdOrderComp: Record "Prod. Order Component";
+        ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component";
         CompanyInfo: Record "Company Information";
         UOMMgt: Codeunit "Unit of Measure Management";
         DemandType: Enum "Unplanned Demand Type";
@@ -426,7 +425,7 @@ codeunit 5522 "Order Planning Mgt."
         Item: Record Item;
     begin
         if (ReqLine.Type <> ReqLine.Type::Item) or
-           (ReqLine."Demand Type" <> Database::"Prod. Order Component")
+           (ReqLine."Demand Type" <> Database::Microsoft.Manufacturing.Document."Prod. Order Component")
         then
             exit(false);
 
@@ -593,7 +592,7 @@ codeunit 5522 "Order Planning Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReqLineModify(var RequisitionLine: Record "Requisition Line"; RequisitionLine2: Record "Requisition Line"; ProdOrderComponent: Record "Prod. Order Component")
+    local procedure OnBeforeReqLineModify(var RequisitionLine: Record "Requisition Line"; RequisitionLine2: Record "Requisition Line"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
     end;
 

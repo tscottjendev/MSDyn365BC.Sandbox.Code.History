@@ -150,6 +150,36 @@ codeunit 928 "Assembly Line Invt. Profile"
             InventoryProfile."Order Priority" := 470;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", 'OnForecastConsumptionOnAfterSetPlanningSourceTypeFilter', '', false, false)]
+    local procedure OnForecastConsumptionOnAfterSetPlanningSourceTypeFilter(var DemandInventoryProfile: Record "Inventory Profile")
+    begin
+        DemandInventoryProfile.SetSourceTypeFilter(Database::"Assembly Line");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", 'OnGetComponentsOnUpdateForActionMessage', '', false, false)]
+    local procedure OnGetComponentsOnUpdateForActionMessage(var RequisitionLine: Record "Requisition Line"; sender: Codeunit "Inventory Profile Offsetting")
+    var
+        AssemblyLine: Record "Assembly Line";
+        PlanningComponent: Record "Planning Component";
+    begin
+        if RequisitionLine."Action Message" <> RequisitionLine."Action Message"::New then
+            case RequisitionLine."Ref. Order Type" of
+                RequisitionLine."Ref. Order Type"::Assembly:
+                    begin
+                        AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
+                        AssemblyLine.SetRange("Document No.", RequisitionLine."Ref. Order No.");
+                        AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
+                        if AssemblyLine.Find('-') then
+                            repeat
+                                PlanningComponent.InitFromRequisitionLine(RequisitionLine);
+                                PlanningComponent.TransferFromAsmLine(AssemblyLine);
+                                sender.InsertPlanningComponent(PlanningComponent);
+                            until AssemblyLine.Next() = 0;
+                    end;
+                else
+            end;
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Plng. Component Invt. Profile", 'OnTransferInventoryProfileFromPlamComponentByRefOrderType', '', false, false)]
     local procedure OnTransferInventoryProfileFromPlamComponentByRefOrderType(var InventoryProfile: Record "Inventory Profile"; PlanningComponent: Record "Planning Component")
     var

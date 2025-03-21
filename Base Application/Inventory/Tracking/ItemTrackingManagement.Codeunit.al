@@ -3580,18 +3580,6 @@ codeunit 6500 "Item Tracking Management"
         exit(5407);
     end;
 
-#if not CLEAN27
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure SplitInternalPutAwayLine(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var TempProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line" temporary)
-    begin
-    end;
-
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure SplitProdOrderLineForOutputPutAway(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var TempProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line" temporary; SplitUpToQty: Decimal)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyHandledItemTrkgToInvLine(FromSalesLine: Record "Sales Line"; var ToSalesLine: Record "Sales Line")
     begin
