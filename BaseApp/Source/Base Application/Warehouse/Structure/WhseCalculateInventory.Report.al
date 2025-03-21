@@ -83,7 +83,7 @@ report 7390 "Whse. Calculate Inventory"
                 SkipRecord: Boolean;
             begin
                 this.GetLocation("Location Code");
-                SkipRecord := ("Bin Code" = Location."Adjustment Bin Code") or SkipCycleSKU("Location Code", "Item No.", "Variant Code");
+                SkipRecord := ("Bin Code" = Location."Adjustment Bin Code") or SkipCycleSKU("Location Code", "Item No.", "Variant Code") or SkipIfItemNotExist("Item No.");
                 OnWarehouseEntryOnAfterGetRecordOnAfterCalcSkipRecord("Warehouse Entry", SkipRecord);
                 if SkipRecord then
                     CurrReport.Skip();
@@ -383,6 +383,15 @@ report 7390 "Whse. Calculate Inventory"
             if SKU.ReadPermission then
                 if SKU.Get(LocationCode, ItemNo, VariantCode) then
                     exit(true);
+        exit(false);
+    end;
+
+    local procedure SkipIfItemNotExist(ItemNo: Code[20]): Boolean
+    var
+        Item: Record Item;
+    begin
+        if not Item.Get(ItemNo) then
+            exit(true);
         exit(false);
     end;
 

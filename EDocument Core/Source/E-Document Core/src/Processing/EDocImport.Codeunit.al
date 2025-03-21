@@ -44,7 +44,7 @@ codeunit 6140 "E-Doc. Import"
         AllEDocumentsProcessed := true;
         EDocumentServiceStatus.SetRange("E-Document Service Code", EDocumentService.Code);
         EDocumentServiceStatus.SetRange(Status, "E-Document Service Status"::Imported);
-        EDocumentServiceStatus.SetFilter("Import Processing Status", '<> %1', "Import E-Doc. Proc. Status"::Processed);
+        EDocumentServiceStatus.SetRange("Import Processing Status", "Import E-Doc. Proc. Status"::Unprocessed);
         if EDocumentServiceStatus.FindSet() then
             repeat
                 EDocument.Get(EDocumentServiceStatus."E-Document Entry No");

@@ -280,7 +280,7 @@ page 6181 "E-Document Purchase Draft"
             ClearErrorsAndWarnings();
 
         SetStyle();
-        DataCaption := 'Purchase Document Draft ' + Format(Rec."Entry No");
+        DataCaption := 'Draft ' + Format(Rec."Entry No");
 
         ShowFinalizeDraftAction := Rec.GetEDocumentImportProcessingStatus() = Enum::"Import E-Doc. Proc. Status"::"Draft Ready";
         ShowAnalyzeDocumentAction :=
