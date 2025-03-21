@@ -240,6 +240,24 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service order status, which reflects the repair or maintenance status of all service items on the service order.';
                 }
+                group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(WorkDescription; WorkDescription)
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Work Description';
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or service being offered.';
+                        MultiLine = true;
+                        Importance = Additional;
+
+                        trigger OnValidate()
+                        begin
+                            Rec.SetWorkDescription(WorkDescription);
+                        end;
+                    }
+                }
                 field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
@@ -1494,6 +1512,7 @@ page 5900 "Service Order"
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
         SellToContact.GetOrClear(Rec."Contact No.");
         ActivateFields();
+        WorkDescription := Rec.GetWorkDescription();
         CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
@@ -1516,6 +1535,7 @@ page 5900 "Service Order"
         SellToContact: Record Contact;
         ServiceMgtSetup: Record "Service Mgt. Setup";
         ChangeExchangeRate: Page "Change Exchange Rate";
+        WorkDescription: Text;
         DocumentIsPosted: Boolean;
         OpenPostedServiceOrderQst: Label 'The order is posted as number %1 and moved to the Posted Service Invoices window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
         IsBillToCountyVisible: Boolean;
