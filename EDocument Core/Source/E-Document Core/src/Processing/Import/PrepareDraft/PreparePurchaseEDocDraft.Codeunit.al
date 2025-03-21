@@ -1,3 +1,4 @@
+#pragma warning disable AS0049
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -82,3 +83,4 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
             EDocumentPurchaseLine.DeleteAll(true);
     end;
 }
+#pragma warning restore AS0049
