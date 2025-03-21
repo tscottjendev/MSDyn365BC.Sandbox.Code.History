@@ -11,8 +11,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Planning;
-using Microsoft.Manufacturing.Routing;
 using Microsoft.Purchases.Document;
 using Microsoft.Warehouse.Setup;
 using System.Environment;
@@ -581,18 +579,6 @@ page 99000852 "Planning Worksheet"
                     ToolTip = 'View or edit the production order components of the parent item on the line.';
                     ShortCutKey = 'Ctrl+Alt+C';
                 }
-                action("Ro&uting")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Ro&uting';
-                    Image = Route;
-                    RunObject = Page "Planning Routing";
-                    RunPageLink = "Worksheet Template Name" = field("Worksheet Template Name"),
-                                  "Worksheet Batch Name" = field("Journal Batch Name"),
-                                  "Worksheet Line No." = field("Line No.");
-                    ToolTip = 'View or edit the operations list of the parent item on the line.';
-                    ShortCutKey = 'Ctrl+Alt+R';
-                }
                 group("&Item Availability by")
                 {
                     Caption = '&Item Availability by';
@@ -704,7 +690,7 @@ page 99000852 "Planning Worksheet"
 
                     trigger OnAction()
                     var
-                        CalcPlan: Report "Calculate Plan - Plan. Wksh.";
+                        CalcPlan: Report Microsoft.Manufacturing.Planning."Calculate Plan - Plan. Wksh.";
                         IsHandled: Boolean;
                     begin
                         IsHandled := false;
@@ -731,7 +717,7 @@ page 99000852 "Planning Worksheet"
 
                     trigger OnAction()
                     var
-                        CalcPlan: Report "Calculate Plan - Plan. Wksh.";
+                        CalcPlan: Report Microsoft.Manufacturing.Planning."Calculate Plan - Plan. Wksh.";
                         IsHandled: Boolean;
                     begin
                         IsHandled := false;
@@ -918,9 +904,6 @@ page 99000852 "Planning Worksheet"
                 {
                 }
                 actionref(Components_Promoted; Components)
-                {
-                }
-                actionref("Ro&uting_Promoted"; "Ro&uting")
                 {
                 }
             }
