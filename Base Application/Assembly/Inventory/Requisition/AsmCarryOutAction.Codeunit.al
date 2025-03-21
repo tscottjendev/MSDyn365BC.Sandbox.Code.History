@@ -17,8 +17,8 @@ codeunit 945 "Asm. Carry Out Action"
         PlngComponentReserve: Codeunit "Plng. Component-Reserve";
         ReqLineReserve: Codeunit "Req. Line-Reserve";
         ReservationManagement: Codeunit "Reservation Management";
-        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
-#if not CLEAN26
+        AsmReservCheckDateConfl: Codeunit "Asm. ReservCheckDateConfl";
+#if not CLEAN27
         CarryOutAction: Codeunit "Carry Out Action";
 #endif
         PrintOrder: Boolean;
@@ -36,7 +36,7 @@ codeunit 945 "Asm. Carry Out Action"
     begin
         PrintOrder := AsmOrderChoice = AsmOrderChoice::"Make Assembly Orders & Print";
         OnCarryOutActionsFromAssemblyOrderOnAfterCalcPrintOrder(PrintOrder, AsmOrderChoice);
-#if not CLEAN26
+#if not CLEAN27
         CarryOutAction.RunOnCarryOutActionsFromAssemblyOrderOnAfterCalcPrintOrder(PrintOrder, AsmOrderChoice);
 #endif
         case RequisitionLine."Action Message" of
@@ -60,12 +60,12 @@ codeunit 945 "Asm. Carry Out Action"
         AssemblyHeader.Init();
         AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::Order;
         OnInsertAsmHeaderOnBeforeAsmHeaderInsert(AssemblyHeader, RequisitionLine);
-#if not CLEAN26
+#if not CLEAN27
         CarryOutAction.RunOnInsertAsmHeaderOnBeforeAsmHeaderInsert(AssemblyHeader, RequisitionLine);
 #endif        
         AssemblyHeader.Insert(true);
         OnInsertAsmHeaderOnAfterAsmHeaderInsert(AssemblyHeader, RequisitionLine);
-#if not CLEAN26
+#if not CLEAN27
         CarryOutAction.RunOnInsertAsmHeaderOnAfterAsmHeaderInsert(AssemblyHeader, RequisitionLine);
 #endif
         AssemblyHeader.SetWarningsOff();
@@ -104,7 +104,7 @@ codeunit 945 "Asm. Carry Out Action"
         AddResourceComponents(RequisitionLine, AssemblyHeader);
 
         OnAfterInsertAsmHeader(RequisitionLine, AssemblyHeader);
-#if not CLEAN26
+#if not CLEAN27
         CarryOutAction.RunOnAfterInsertAsmHeader(RequisitionLine, AssemblyHeader);
 #endif
         CollectAsmOrderForPrinting(AssemblyHeader);
@@ -132,7 +132,7 @@ codeunit 945 "Asm. Carry Out Action"
             AssemblyHeader.Validate("Planning Flexibility", RequisitionLine."Planning Flexibility");
             AssemblyHeader.Validate("Due Date", RequisitionLine."Due Date");
             OnAsmOrderChgAndResheduleOnBeforeAsmHeaderModify(RequisitionLine, AssemblyHeader);
-#if not CLEAN26
+#if not CLEAN27
             CarryOutAction.RunOnAsmOrderChgAndResheduleOnBeforeAsmHeaderModify(RequisitionLine, AssemblyHeader);
 #endif
             AssemblyHeader.Modify(true);
@@ -155,7 +155,7 @@ codeunit 945 "Asm. Carry Out Action"
                         ReservationManagement.DeleteReservEntries(false, AssemblyLine."Remaining Quantity (Base)");
                         ReservationManagement.ClearSurplus();
                         ReservationManagement.AutoTrack(AssemblyLine."Remaining Quantity (Base)");
-                        ReservationCheckDateConfl.AssemblyLineCheck(AssemblyLine, false);
+                        AsmReservCheckDateConfl.AssemblyLineCheck(AssemblyLine, false);
                     end else
                         PlanningComponent.Delete(true);
                 until PlanningComponent.Next() = 0;
@@ -228,7 +228,7 @@ codeunit 945 "Asm. Carry Out Action"
                 AssemblyLine."Shortcut Dimension 2 Code" := PlanningComponent."Shortcut Dimension 2 Code";
 
                 OnAfterTransferAsmPlanningComp(PlanningComponent, AssemblyLine);
-#if not CLEAN26
+#if not CLEAN27
                 CarryOutAction.RunOnAfterTransferAsmPlanningComp(PlanningComponent, AssemblyLine);
 #endif
                 AssemblyLine.Insert();
@@ -274,7 +274,7 @@ codeunit 945 "Asm. Carry Out Action"
     begin
         IsHandled := false;
         OnBeforeAddResourceComponents(RequisitionLine, AssemblyHeader, IsHandled);
-#if not CLEAN26
+#if not CLEAN27
         CarryOutAction.RunOnBeforeAddResourceComponents(RequisitionLine, AssemblyHeader, IsHandled);
 #endif
         if IsHandled then
@@ -295,7 +295,7 @@ codeunit 945 "Asm. Carry Out Action"
     begin
         IsHandled := false;
         OnBeforeDeleteAssemblyLines(RequisitionLine, IsHandled);
-#if not CLEAN26
+#if not CLEAN27
         CarryOutAction.RunOnBeforeDeleteAssemblyLines(RequisitionLine, IsHandled);
 #endif
         if IsHandled then

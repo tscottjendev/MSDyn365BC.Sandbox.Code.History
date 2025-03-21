@@ -1741,53 +1741,6 @@ codeunit 7313 "Create Put-away"
         TempWarehouseActivityLine.DeleteAll();
     end;
 
-#if not CLEAN27
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure CreateProdWhsePutAway()
-    begin
-    end;
-
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure ParkProdOrderForPutaway(ItemJnlLine: Record "Item Journal Line")
-    begin
-    end;
-
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure ShouldCreateProdPutAway(ItemJnlLine: Record "Item Journal Line"): Boolean
-    begin
-    end;
-
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure InitiateMasters(ProdOrderLine: Record "Prod. Order Line")
-    begin
-    end;
-
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure CalcQtyToProdOutputPutAway(EmptyZoneBin: Boolean; NewBinContent: Boolean; ProdOrderLine: Record "Prod. Order Line")
-    begin
-    end;
-
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure AssignPlaceBinZone(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderLine: Record "Prod. Order Line"; Location: Record Location; Bin: Record Bin)
-    begin
-    end;
-
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure CreateWhsePutAwayForProdOrderLine(ProdOrderLine: Record "Prod. Order Line")
-    begin
-    end;
-
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure CreateBinContentForProdOrderLine(ProdOrderLine: Record "Prod. Order Line")
-    begin
-    end;
-
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure CreateProdPutAwayFromProdOrder(var ProductionOrder: Record "Production Order")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignPlaceBinZone(var WarehouseActivityLine: Record "Warehouse Activity Line");
     begin
