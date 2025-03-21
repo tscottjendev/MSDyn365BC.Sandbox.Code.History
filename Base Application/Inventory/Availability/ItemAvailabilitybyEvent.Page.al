@@ -6,8 +6,6 @@ namespace Microsoft.Inventory.Availability;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.Setup;
 
 page 5530 "Item Availability by Event"
 {
@@ -133,7 +131,7 @@ page 5530 "Item Availability by Event"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Forecast Name';
                     Importance = Promoted;
-                    TableRelation = "Production Forecast Name";
+                    TableRelation = Microsoft.Manufacturing.Forecast."Production Forecast Name";
                     ToolTip = 'Specifies a demand forecast you want to include as demand, when showing the item''s availability figures.';
 
                     trigger OnValidate()
@@ -467,7 +465,7 @@ page 5530 "Item Availability by Event"
 
     trigger OnOpenPage()
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
     begin
         OnBeforeOnOpenPage(IncludeBlanketOrders, PeriodType, Item, LocationFilter);
         if ItemIsSet() then

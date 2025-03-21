@@ -356,7 +356,7 @@ page 5870 "BOM Structure"
 
     procedure RefreshPage()
     var
-#if not CLEAN26
+#if not CLEAN27
         AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header";
         ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line";
 #endif
@@ -366,7 +366,7 @@ page 5870 "BOM Structure"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN26
+#if not CLEAN27
         case ShowBy of
             ShowBy::Assembly:
                 AssemblyHeader := SourceRecordVar;
