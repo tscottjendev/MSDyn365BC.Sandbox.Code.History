@@ -338,6 +338,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM - Movement - NamedType LinesExistErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 20771605 - NamedType 374431739" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There is nothing to replenish.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM - Movement - NamedType NothingToReplenishErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 20771605 - NamedType 1144510249" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Item tracking defined for line %1, lot number %2, serial number %3, package number %4 cannot be applied.]]></Val>
