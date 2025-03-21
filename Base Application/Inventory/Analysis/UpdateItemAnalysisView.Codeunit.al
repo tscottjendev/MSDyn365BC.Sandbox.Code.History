@@ -89,12 +89,17 @@ codeunit 7150 "Update Item Analysis View"
     var
         ItemAnalysisView2: Record "Item Analysis View";
         IsHandled: Boolean;
+        SessionNo: integer;
     begin
+        if not ItemAnalysisView2.WritePermission() then
+            exit;
+
         IsHandled := false;
         OnBeforeUpdateAll(IsHandled);
         if IsHandled then
             exit;
 
+        ItemAnalysisView2.ReadIsolation(IsolationLevel::ReadUncommitted);
         ItemAnalysisView2.SetRange(Blocked, false);
         if DirectlyFromPosting then
             ItemAnalysisView2.SetRange("Update on Posting", true);
@@ -102,6 +107,15 @@ codeunit 7150 "Update Item Analysis View"
         if ItemAnalysisView2.IsEmpty() then
             exit;
 
+        if GuiAllowed() and DirectlyFromPosting and TaskScheduler.CanCreateTask() then
+            StartSession(SessionNo, Codeunit::"Update Item Analysis View Bck.")
+        else
+            UpdateAll(ItemAnalysisView2, Which, DirectlyFromPosting);
+
+    end;
+
+    procedure UpdateAll(var ItemAnalysisView2: Record "Item Analysis View"; Which: Option "Ledger Entries","Budget Entries",Both; DirectlyFromPosting: Boolean)
+    begin
         InitLastEntryNo();
 
         if DirectlyFromPosting then
@@ -426,7 +440,13 @@ codeunit 7150 "Update Item Analysis View"
     end;
 
     local procedure FlushAnalysisViewBudgetEntry()
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeFlushAnalysisViewBudgetEntry(TempItemAnalysisViewBudgEntry, ShowProgressWindow, IsHandled);
+        if IsHandled then
+            exit;
+
         if ShowProgressWindow then
             Window.Update(6, Text011);
         if TempItemAnalysisViewBudgEntry.FindSet() then
@@ -618,6 +638,11 @@ codeunit 7150 "Update Item Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateOne(var NewItemAnalysisView: Record "Item Analysis View"; var ItemAnalysisView: Record "Item Analysis View"; Which: Option "Ledger Entries","Budget Entries",Both; var ShowWindow: Boolean; var LastValueEntryEntryNo: Integer; var LastItemBudgetEntryNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFlushAnalysisViewBudgetEntry(var TempItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry" temporary; ShowProgressWindow: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
