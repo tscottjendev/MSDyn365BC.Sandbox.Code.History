@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Document;
 using Microsoft.Inventory.Journal;
@@ -193,52 +192,25 @@ codeunit 99000815 "Reservation-Check Date Confl."
         exit(ForceRequest);
     end;
 
-    procedure AssemblyHeaderCheck(AssemblyHeader: Record "Assembly Header"; ForceRequest: Boolean)
+#if not CLEAN27
+    [Obsolete('Moved to codeunit "Asm. ReservCheckDateConfl"', '27.0')]
+    procedure AssemblyHeaderCheck(AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; ForceRequest: Boolean)
     var
-        AssemblyHeaderReserve: Codeunit "Assembly Header-Reserve";
-        IsHandled: Boolean;
+        AsmReservCheckDateConfl: Codeunit "Asm. ReservCheckDateConfl";
     begin
-        if not AssemblyHeaderReserve.FindReservEntry(AssemblyHeader, ReservationEntry) then
-            exit;
-
-        IsHandled := false;
-        OnAssemblyHeaderCheckOnBeforeIssueError(ReservationEntry, AssemblyHeader, ForceRequest, IsHandled);
-        if not IsHandled then
-            if DateConflict(AssemblyHeader."Due Date", ForceRequest, ReservationEntry) then
-                if ForceRequest then
-                    IssueError(AssemblyHeader."Due Date");
-
-        IsHandled := false;
-        OnAssemblyHeaderCheckOnBeforeUpdateDate(ReservationEntry, AssemblyHeader, IsHandled);
-        if not IsHandled then
-            UpdateDate(ReservationEntry, AssemblyHeader."Due Date");
-
-        ReservMgt.SetReservSource(AssemblyHeader);
-        ReservMgt.ClearSurplus();
-        ReservMgt.AutoTrack(AssemblyHeader."Remaining Quantity (Base)");
+        AsmReservCheckDateConfl.AssemblyHeaderCheck(AssemblyHeader, ForceRequest);
     end;
+#endif
 
-    procedure AssemblyLineCheck(AssemblyLine: Record "Assembly Line"; ForceRequest: Boolean)
+#if not CLEAN27
+    [Obsolete('Moved to codeunit "Asm. ReservCheckDateConfl"', '27.0')]
+    procedure AssemblyLineCheck(AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line"; ForceRequest: Boolean)
     var
-        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
-        IsHandled: Boolean;
+        AsmReservCheckDateConfl: Codeunit "Asm. ReservCheckDateConfl";
     begin
-        if not AssemblyLineReserve.FindReservEntry(AssemblyLine, ReservationEntry) then
-            exit;
-
-        if DateConflict(AssemblyLine."Due Date", ForceRequest, ReservationEntry) then
-            if ForceRequest then
-                IssueError(AssemblyLine."Due Date");
-
-        IsHandled := false;
-        OnAssemblyLineCheckOnBeforeUpdateDate(ReservationEntry, AssemblyLine, IsHandled);
-        if not IsHandled then
-            UpdateDate(ReservationEntry, AssemblyLine."Due Date");
-
-        ReservMgt.SetReservSource(AssemblyLine);
-        ReservMgt.ClearSurplus();
-        ReservMgt.AutoTrack(AssemblyLine."Remaining Quantity (Base)");
+        AsmReservCheckDateConfl.AssemblyLineCheck(AssemblyLine, ForceRequest);
     end;
+#endif
 
     procedure PlanningComponentCheck(PlanningComponent: Record "Planning Component"; ForceRequest: Boolean)
     var
@@ -443,6 +415,14 @@ codeunit 99000815 "Reservation-Check Date Confl."
         Error(DateConflictErr, ReservQty, NewDate);
     end;
 
+    procedure IssueError(var CalcReservEntry: Record "Reservation Entry"; NewDate: Date)
+    var
+        ReservQty: Decimal;
+    begin
+        ReservQty := CalcReservQty(CalcReservEntry, NewDate);
+        Error(DateConflictErr, ReservQty, NewDate);
+    end;
+
     procedure IssueWarning(NewDate: Date)
     var
         ReservQty: Decimal;
@@ -452,6 +432,11 @@ codeunit 99000815 "Reservation-Check Date Confl."
     end;
 
     local procedure CalcReservQty(NewDate: Date): Decimal
+    begin
+        exit(CalcReservQty(ReservationEntry, NewDate));
+    end;
+
+    internal procedure CalcReservQty(var CalcReservEntry: Record "Reservation Entry"; NewDate: Date): Decimal
     var
         ReservationEntry2: Record "Reservation Entry";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
@@ -459,7 +444,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
         ReservExpectDate: Date;
         SumValue: Decimal;
     begin
-        ReservationEntry2.Copy(ReservationEntry);
+        ReservationEntry2.Copy(CalcReservEntry);
         ReservDueDate := NewDate;
         ReservExpectDate := NewDate;
 
@@ -553,15 +538,31 @@ codeunit 99000815 "Reservation-Check Date Confl."
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAssemblyHeaderCheckOnBeforeUpdateDate(var ReservationEntry: Record "Reservation Entry"; AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+#if not CLEAN27
+    internal procedure RunOnAssemblyHeaderCheckOnBeforeUpdateDate(var ReservationEntry: Record "Reservation Entry"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; var IsHandled: Boolean)
     begin
+        OnAssemblyHeaderCheckOnBeforeUpdateDate(ReservationEntry, AssemblyHeader, IsHandled);
     end;
 
+    [Obsolete('Moved to codeunit AsmReservCheckDateConfl', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAssemblyLineCheckOnBeforeUpdateDate(var ReservationEntry: Record "Reservation Entry"; AssemblyLine: Record "Assembly Line"; var IsHandled: Boolean)
+    local procedure OnAssemblyHeaderCheckOnBeforeUpdateDate(var ReservationEntry: Record "Reservation Entry"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnAssemblyLineCheckOnBeforeUpdateDate(var ReservationEntry: Record "Reservation Entry"; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line"; var IsHandled: Boolean)
+    begin
+        OnAssemblyLineCheckOnBeforeUpdateDate(ReservationEntry, AssemblyLine, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit AsmReservCheckDateConfl', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAssemblyLineCheckOnBeforeUpdateDate(var ReservationEntry: Record "Reservation Entry"; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDateConflict(var ReservationEntry: Record "Reservation Entry"; var Date: Date; var IsConflict: Boolean; var ForceRequest: Boolean)
@@ -608,10 +609,18 @@ codeunit 99000815 "Reservation-Check Date Confl."
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnAssemblyHeaderCheckOnBeforeIssueError(var ReservationEntry: Record "Reservation Entry"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; var ForceRequest: Boolean; var IsHandled: Boolean)
+    begin
+        OnAssemblyHeaderCheckOnBeforeIssueError(ReservationEntry, AssemblyHeader, ForceRequest, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit AsmReservCheckDateConfl', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAssemblyHeaderCheckOnBeforeIssueError(var ReservationEntry: Record "Reservation Entry"; AssemblyHeader: Record "Assembly Header"; var ForceRequest: Boolean; var IsHandled: Boolean)
+    local procedure OnAssemblyHeaderCheckOnBeforeIssueError(var ReservationEntry: Record "Reservation Entry"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; var ForceRequest: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferLineCheckOutboundOnBeforeIssueError(var ReservationEntry: Record "Reservation Entry"; TransferLine: Record "Transfer Line"; var ForceRequest: Boolean; var IsHandled: Boolean)
