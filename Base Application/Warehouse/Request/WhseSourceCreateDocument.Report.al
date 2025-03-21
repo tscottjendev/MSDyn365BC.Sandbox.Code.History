@@ -1443,13 +1443,6 @@ report 7305 "Whse.-Source - Create Document"
         end;
     end;
 
-#if not CLEAN27
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure CreatePutAwayFromDiffSource(ProdOrderLine: Record "Prod. Order Line"; SourceType: Integer)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePutAwayDeleteBlankBinContent(var WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin

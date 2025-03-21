@@ -10,10 +10,15 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Forecast;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Foundation.NoSeries;
 
 codeunit 99000875 "Prod. Order Availability Mgt."
 {
     var
+#if not CLEAN27
+        CalcItemAvailability: Codeunit "Calc. Item Availability";
+#endif
         ProductionTxt: Label 'Production';
         ProdCompTxt: Label 'Prod. Comp.';
         ProdDocumentTxt: Label 'Production %1', Comment = '%1 - status';
@@ -252,6 +257,159 @@ codeunit 99000875 "Prod. Order Availability Mgt."
             ),
             "Reservation Date Filter"::"Expected Receipt Date"
         );
+    end;
+
+    // Codeunit "Calc. Item Availability"
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Item Availability", 'OnAfterGetDocumentEntries', '', false, false)]
+    local procedure OnAfterGetDocumentEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; var sender: Codeunit "Calc. Item Availability")
+    begin
+        TryGetProdOrderCompDemandEntries(InvtEventBuf, Item, sender);
+        TryGetProdOrderSupplyEntries(InvtEventBuf, Item, sender);
+    end;
+
+    local procedure TryGetProdOrderCompDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; var sender: Codeunit "Calc. Item Availability"): Boolean
+    var
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        ProdOrderComp: Record "Prod. Order Component";
+        ProdOrderAvailabilityMgt: Codeunit "Prod. Order Availability Mgt.";
+    begin
+        if not ProdOrderComp.ReadPermission then
+            exit(false);
+
+        if ProdOrderComp.FindLinesWithItemToPlan(Item, true) then
+            repeat
+                ProdOrderAvailabilityMgt.TransferFromProdComp(InvtEventBuf, ProdOrderComp);
+                sender.InsertEntry(InvtEventBuf);
+            until ProdOrderComp.Next() = 0;
+
+        exit(true);
+    end;
+
+    local procedure TryGetProdOrderSupplyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; var sender: Codeunit "Calc. Item Availability"): Boolean
+    var
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderAvailabilityMgt: Codeunit "Prod. Order Availability Mgt.";
+    begin
+        if not ProdOrderLine.ReadPermission then
+            exit(false);
+
+        if ProdOrderLine.FindLinesWithItemToPlan(Item, true) then
+            repeat
+                ProdOrderAvailabilityMgt.TransferFromProdOrder(InvtEventBuf, ProdOrderLine);
+                sender.InsertEntry(InvtEventBuf);
+            until ProdOrderLine.Next() = 0;
+
+        exit(true);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Item Availability", 'OnAfterShowDocument', '', false, false)]
+    local procedure OnAfterShowDocument(RecordID: RecordId; RecRef: RecordRef; var IsHandled: Boolean)
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        case RecordID.TableNo() of
+            Database::"Production Order":
+                begin
+                    RecRef.SetTable(ProductionOrder);
+                    RunProductionOrderPage(ProductionOrder);
+                end;
+        end;
+    end;
+
+    local procedure RunProductionOrderPage(var ProductionOrder: Record "Production Order")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunProductionOrderPage(ProductionOrder, IsHandled);
+#if not CLEAN27
+        CalcItemAvailability.RunOnBeforeRunProductionOrderPage(ProductionOrder, IsHandled);
+#endif
+        if IsHandled then
+            exit;
+
+        case ProductionOrder.Status of
+            ProductionOrder.Status::Planned:
+                PAGE.RunModal(Page::"Planned Production Order", ProductionOrder);
+            ProductionOrder.Status::"Firm Planned":
+                PAGE.RunModal(Page::"Firm Planned Prod. Order", ProductionOrder);
+            ProductionOrder.Status::Released:
+                PAGE.RunModal(Page::"Released Production Order", ProductionOrder);
+            ProductionOrder.Status::Finished:
+                PAGE.RunModal(Page::"Finished Production Order", ProductionOrder);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Item Availability", 'OnAfterGetSourceReferences', '', false, false)]
+    local procedure OnAfterGetSourceReferences(FromRecordID: RecordId; var SourceType: Integer; var SourceSubtype: Integer; var SourceID: Code[20]; var SourceRefNo: Integer; var IsHandled: Boolean; RecRef: RecordRef; var SourceProdOrderLine: Integer)
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComp: Record "Prod. Order Component";
+    begin
+        case RecRef.Number of
+            Database::"Prod. Order Line":
+                begin
+                    RecRef.SetTable(ProdOrderLine);
+                    SourceType := Database::"Prod. Order Line";
+                    SourceSubtype := ProdOrderLine.Status.AsInteger();
+                    SourceID := ProdOrderLine."Prod. Order No.";
+                    SourceProdOrderLine := ProdOrderLine."Line No.";
+                end;
+            Database::"Prod. Order Component":
+                begin
+                    RecRef.SetTable(ProdOrderComp);
+                    SourceType := Database::"Prod. Order Component";
+                    SourceSubtype := ProdOrderComp.Status.AsInteger();
+                    SourceID := ProdOrderComp."Prod. Order No.";
+                    SourceProdOrderLine := ProdOrderComp."Prod. Order Line No.";
+                    SourceRefNo := ProdOrderComp."Line No.";
+                end;
+        end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunProductionOrderPage(var ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Item Availability", 'OnParentIsInPlanning', '', false, false)]
+    local procedure OnParentIsInPlanning(InvtEventBuf: Record "Inventory Event Buffer"; var ParentActionMessage: Enum "Action Message Type"; var Result: Boolean)
+    begin
+        Result := ParentIsInPlanning(InvtEventBuf, ParentActionMessage);
+    end;
+
+    local procedure ParentIsInPlanning(InvtEventBuf: Record "Inventory Event Buffer"; var ParentActionMessage: Enum "Action Message Type"): Boolean
+    var
+        ReqLine: Record "Requisition Line";
+        ProdOrderComp: Record "Prod. Order Component";
+        RecRef: RecordRef;
+        RecordID: RecordID;
+    begin
+        // Check if the parent of a component line is represented with a planning suggestion
+        RecordID := InvtEventBuf."Source Line ID";
+        RecRef := RecordID.GetRecord();
+        RecRef.SetTable(ProdOrderComp);
+        ReqLine.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
+        ReqLine.SetRange("Ref. Order Type", ReqLine."Ref. Order Type"::"Prod. Order");
+        ReqLine.SetRange("Ref. Order Status", ProdOrderComp.Status);
+        ReqLine.SetRange("Ref. Order No.", ProdOrderComp."Prod. Order No.");
+        ReqLine.SetRange("Ref. Line No.", ProdOrderComp."Prod. Order Line No.");
+        ReqLine.SetRange("Operation No.", '');
+        OnParentIsInPlanningOnAfterReqLineSetFilters(ReqLine, ProdOrderComp);
+#if not CLEAN27
+        CalcItemAvailability.RunOnParentIsInPlanningOnAfterReqLineSetFilters(ReqLine, ProdOrderComp);
+#endif
+        if ReqLine.FindFirst() then begin
+            ParentActionMessage := ReqLine."Action Message";
+            exit(true);
+        end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnParentIsInPlanningOnAfterReqLineSetFilters(var RequisitionLine: Record "Requisition Line"; var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    begin
     end;
 
     // Codeunit "Item Availability Forms Mgt"
@@ -743,6 +901,83 @@ codeunit 99000875 "Prod. Order Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSchedRcptAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"AvailabilityManagement", 'OnAfterCalcCapableToPromise', '', false, false)]
+    local procedure OnAfterCalcCapableToPromise(OrderPromisingID: Code[20])
+    begin
+        ReassignRefOrderNos(OrderPromisingID);
+    end;
+
+    procedure ReassignRefOrderNos(OrderPromisingID: Code[20])
+    var
+        MfgSetup: Record "Manufacturing Setup";
+        RequisitionLine: Record "Requisition Line";
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+#endif
+#if not CLEAN27
+        CapableToPromise: Codeunit "Capable to Promise";
+#endif
+        NewRefOrderNo: Code[20];
+        LastRefOrderNo: Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeReassignRefOrderNos(OrderPromisingID, IsHandled);
+#if not CLEAN27
+        CapableToPromise.RunOnBeforeReassignRefOrderNos(OrderPromisingID, IsHandled);
+#endif
+        if IsHandled then
+            exit;
+
+        RequisitionLine.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
+        RequisitionLine.SetRange("Order Promising ID", OrderPromisingID);
+        RequisitionLine.SetRange("Ref. Order Type", RequisitionLine."Ref. Order Type"::"Prod. Order");
+        RequisitionLine.SetRange("Ref. Order Status", RequisitionLine."Ref. Order Status"::Planned);
+        RequisitionLine.SetFilter("Ref. Order No.", '<>%1', '');
+        if not RequisitionLine.FindLast() then
+            exit;
+        LastRefOrderNo := RequisitionLine."Ref. Order No.";
+
+        MfgSetup.Get();
+        MfgSetup.TestField("Planned Order Nos.");
+
+        RequisitionLine.SetFilter("Ref. Order No.", '<>%1&<=%2', '', LastRefOrderNo);
+        RequisitionLine.Find('-');
+        repeat
+            RequisitionLine.SetRange("Ref. Order No.", RequisitionLine."Ref. Order No.");
+            RequisitionLine.FindLast();
+            NewRefOrderNo := '';
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(MfgSetup."Planned Order Nos.", RequisitionLine."No. Series", RequisitionLine."Due Date", NewRefOrderNo, RequisitionLine."No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                if not NoSeries.AreRelated(MfgSetup."Planned Order Nos.", RequisitionLine."No. Series") then
+                    RequisitionLine."No. Series" := MfgSetup."Planned Order Nos.";
+                NewRefOrderNo := NoSeries.GetNextNo(RequisitionLine."No. Series", RequisitionLine."Due Date");
+#if not CLEAN24
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(RequisitionLine."No. Series", MfgSetup."Planned Order Nos.", RequisitionLine."Due Date", NewRefOrderNo);
+            end;
+#endif
+            RequisitionLine.ModifyAll("Ref. Order No.", NewRefOrderNo);
+            OnReassignRefOrderNosOnAfterRequisitionLineModifyAll(RequisitionLine);
+#if not CLEAN27
+            CapableToPromise.RunOnReassignRefOrderNosOnAfterRequisitionLineModifyAll(RequisitionLine);
+#endif
+            RequisitionLine.SetFilter("Ref. Order No.", '<>%1&<=%2', '', LastRefOrderNo);
+        until RequisitionLine.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReassignRefOrderNos(OrderPromisingID: Code[20]; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReassignRefOrderNosOnAfterRequisitionLineModifyAll(var RequisitionLine: Record "Requisition Line");
     begin
     end;
 }
