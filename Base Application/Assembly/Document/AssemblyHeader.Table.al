@@ -1077,7 +1077,7 @@ table 900 "Assembly Header"
             repeat
                 OldDimSetID := AssemblyOrderLine."Dimension Set ID";
                 NewDimSetID := DimMgt.GetDeltaDimSetID(AssemblyOrderLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
-                if AssemblyOrderLine."Dimension Set ID" <> NewDimSetID then begin
+                if OldDimSetID <> NewDimSetID then begin
                     AssemblyOrderLine."Dimension Set ID" := NewDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       AssemblyOrderLine."Dimension Set ID", AssemblyOrderLine."Shortcut Dimension 1 Code", AssemblyOrderLine."Shortcut Dimension 2 Code");
@@ -1156,32 +1156,32 @@ table 900 "Assembly Header"
         exit(not ReservEntry.IsEmpty);
     end;
 
-    procedure SetItemToPlanFilters(var Item: Record Item; DocumentType: Enum "Assembly Document Type")
+    procedure SetItemToPlanFilters(var Item2: Record Item; DocumentType: Enum "Assembly Document Type")
     begin
         Reset();
         SetCurrentKey("Document Type", "Item No.", "Variant Code", "Location Code");
         SetRange("Document Type", DocumentType);
-        SetRange("Item No.", Item."No.");
-        SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-        SetFilter("Location Code", Item.GetFilter("Location Filter"));
-        SetFilter("Due Date", Item.GetFilter("Date Filter"));
-        SetFilter("Shortcut Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
-        SetFilter("Shortcut Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
+        SetRange("Item No.", Item2."No.");
+        SetFilter("Variant Code", Item2.GetFilter("Variant Filter"));
+        SetFilter("Location Code", Item2.GetFilter("Location Filter"));
+        SetFilter("Due Date", Item2.GetFilter("Date Filter"));
+        SetFilter("Shortcut Dimension 1 Code", Item2.GetFilter("Global Dimension 1 Filter"));
+        SetFilter("Shortcut Dimension 2 Code", Item2.GetFilter("Global Dimension 2 Filter"));
         SetFilter("Remaining Quantity (Base)", '<>0');
-        SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
+        SetFilter("Unit of Measure Code", Item2.GetFilter("Unit of Measure Filter"));
 
-        OnAfterSetItemToPlanFilters(Rec, Item, DocumentType);
+        OnAfterSetItemToPlanFilters(Rec, Item2, DocumentType);
     end;
 
-    procedure FindItemToPlanLines(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
+    procedure FindItemToPlanLines(var Item2: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
     begin
-        SetItemToPlanFilters(Item, DocumentType);
+        SetItemToPlanFilters(Item2, DocumentType);
         exit(Find('-'));
     end;
 
-    procedure ItemToPlanLinesExist(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
+    procedure ItemToPlanLinesExist(var Item2: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
     begin
-        SetItemToPlanFilters(Item, DocumentType);
+        SetItemToPlanFilters(Item2, DocumentType);
         exit(not IsEmpty);
     end;
 
@@ -1267,13 +1267,13 @@ table 900 "Assembly Header"
                     Validate("Gen. Bus. Posting Group", AssemblySetup."Default Gen. Bus. Post. Group");
     end;
 
-    procedure SetItemFilter(var Item: Record Item)
+    procedure SetItemFilter(var Item2: Record Item)
     begin
         if "Due Date" = 0D then
             "Due Date" := WorkDate();
-        Item.SetRange("Date Filter", 0D, "Due Date");
-        Item.SetRange("Location Filter", "Location Code");
-        Item.SetRange("Variant Filter", "Variant Code");
+        Item2.SetRange("Date Filter", 0D, "Due Date");
+        Item2.SetRange("Location Filter", "Location Code");
+        Item2.SetRange("Variant Filter", "Variant Code");
     end;
 
     procedure ShowAssemblyList()
@@ -1565,7 +1565,7 @@ table 900 "Assembly Header"
 
     procedure ValidateDueDate(NewDueDate: Date; CallValidateOnOtherDates: Boolean)
     var
-        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
+        AsmReservCheckDateConfl: Codeunit "Asm. ReservCheckDateConfl";
     begin
         OnBeforeValidateDueDate(Rec, NewDueDate);
         "Due Date" := NewDueDate;
@@ -1575,7 +1575,7 @@ table 900 "Assembly Header"
         if CallValidateOnOtherDates then
             ValidateDates(FieldNo("Due Date"), false);
         if (xRec."Due Date" <> "Due Date") and (Quantity <> 0) then
-            ReservationCheckDateConfl.AssemblyHeaderCheck(Rec, (CurrFieldNo <> 0) or TestReservationDateConflict);
+            AsmReservCheckDateConfl.AssemblyHeaderCheck(Rec, (CurrFieldNo <> 0) or TestReservationDateConflict);
     end;
 
     procedure ValidateEndDate(NewEndDate: Date; CallValidateOnOtherDates: Boolean)

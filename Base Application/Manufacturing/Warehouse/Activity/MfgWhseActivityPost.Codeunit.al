@@ -8,7 +8,7 @@ using Microsoft.Manufacturing.Document;
 
 codeunit 99000766 "Mfg. Whse. Activity Post"
 {
-#if not CLEAN26
+#if not CLEAN27
     var
         WhseActivityPost: Codeunit "Whse.-Activity-Post";
 #endif
@@ -65,7 +65,7 @@ codeunit 99000766 "Mfg. Whse. Activity Post"
         ItemJnlLine.Init();
         SourceCodeSetup.Get();
         OnPostConsumptionLineOnAfterInitItemJournalLine(ItemJnlLine, SourceCodeSetup);
-#if not CLEAN26
+#if not CLEAN27
         WhseActivityPost.RunOnPostConsumptionLineOnAfterInitItemJournalLine(ItemJnlLine, SourceCodeSetup);
 #endif
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Consumption);
@@ -97,7 +97,7 @@ codeunit 99000766 "Mfg. Whse. Activity Post"
         Item.Get(WarehouseActivityLine."Item No.");
         ItemJnlLine."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
         OnPostConsumptionLineOnAfterCreateItemJnlLine(ItemJnlLine, ProdOrderLine, WarehouseActivityLine, SourceCodeSetup);
-#if not CLEAN26
+#if not CLEAN27
         WhseActivityPost.RunOnPostConsumptionLineOnAfterCreateItemJnlLine(ItemJnlLine, ProdOrderLine, WarehouseActivityLine, SourceCodeSetup);
 #endif
         ProdOrderCompReserve.TransferPOCompToItemJnlLineCheckILE(ProdOrderComp, ItemJnlLine, ItemJnlLine."Quantity (Base)", true);
@@ -134,7 +134,7 @@ codeunit 99000766 "Mfg. Whse. Activity Post"
     begin
         ItemJnlLine.Init();
         OnPostOutputLineOnAfterItemJournalLineInit(ItemJnlLine, SourceCodeSetup);
-#if not CLEAN26
+#if not CLEAN27
         WhseActivityPost.RunOnPostOutputLineOnAfterItemJournalLineInit(ItemJnlLine, SourceCodeSetup);
 #endif
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Output);
@@ -161,7 +161,7 @@ codeunit 99000766 "Mfg. Whse. Activity Post"
         ItemJnlLine."Source Code" := SourceCodeSetup."Output Journal";
         ItemJnlLine."Dimension Set ID" := ProdOrderLine."Dimension Set ID";
         OnPostOutputLineOnAfterCreateItemJnlLine(ItemJnlLine, ProdOrderLine, WarehouseActivityLine, SourceCodeSetup);
-#if not CLEAN26
+#if not CLEAN27
         WhseActivityPost.RunOnPostOutputLineOnAfterCreateItemJnlLine(ItemJnlLine, ProdOrderLine, WarehouseActivityLine, SourceCodeSetup);
 #endif
         ReservProdOrderLine.TransferPOLineToItemJnlLine(
@@ -196,7 +196,7 @@ codeunit 99000766 "Mfg. Whse. Activity Post"
     begin
         IsHandled := false;
         OnBeforeCheckProdOrderLine(ProdOrderLine, IsHandled);
-#if not CLEAN26
+#if not CLEAN27
         WhseActivityPost.RunOnBeforeCheckProdOrderLine(ProdOrderLine, IsHandled);
 #endif
         if IsHandled then
