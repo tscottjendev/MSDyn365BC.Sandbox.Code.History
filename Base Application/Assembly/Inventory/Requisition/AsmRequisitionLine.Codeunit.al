@@ -6,6 +6,7 @@ namespace Microsoft.Inventory.Requisition;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Tracking;
 
 codeunit 923 "Asm. Requisition Line"
 {
@@ -63,5 +64,22 @@ codeunit 923 "Asm. Requisition Line"
     local procedure OnAfterShouldUpdateEndingDateForSourceType(SourceType: Integer; var ShouldUpdate: Boolean)
     begin
         ShouldUpdate := ShouldUpdate or (SourceType = Database::"Assembly Header");
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Get Action Messages", 'OnInitReqFromSourceBySource', '', false, false)]
+    local procedure OnInitReqFromSourceBySource(var ReqLine: Record "Requisition Line"; ActionMessageEntry: Record "Action Message Entry"; var IsHandled: Boolean; var ShouldExit: Boolean)
+    var
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        case ActionMessageEntry."Source Type" of
+            Database::"Assembly Header":
+                begin
+                    if AssemblyHeader.Get(ActionMessageEntry."Source Subtype", ActionMessageEntry."Source ID") then begin
+                        ReqLine.GetAsmHeader(AssemblyHeader);
+                        ShouldExit := true;
+                    end;
+                    IsHandled := true;
+                end;
+        end;
     end;
 }
