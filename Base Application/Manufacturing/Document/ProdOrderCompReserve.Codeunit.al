@@ -11,6 +11,7 @@ using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Purchases.Document;
 
 codeunit 99000838 "Prod. Order Comp.-Reserve"
 {
@@ -1192,5 +1193,26 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     local procedure OnSetProdOrderCompOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ProdOrderComp: Record "Prod. Order Component")
     begin
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Req. Wksh.-Make Order", 'OnReserveBindingOrderToPurch', '', false, false)]
+    local procedure OnReserveBindingOrderToPurch(var RequisitionLine: Record "Requisition Line"; var PurchaseLine: Record "Purchase Line"; ReservQty: Decimal; ReservQtyBase: Decimal)
+    var
+        ProdOrderComp: Record "Prod. Order Component";
+        TrackingSpecification: Record "Tracking Specification";
+    begin
+        case RequisitionLine."Demand Type" of
+            Database::"Prod. Order Component":
+                begin
+                    ProdOrderComp.Get(
+                      RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.", RequisitionLine."Demand Ref. No.");
+                    TrackingSpecification.InitTrackingSpecification(
+                        Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", '', 0, PurchaseLine."Line No.",
+                        PurchaseLine."Variant Code", PurchaseLine."Location Code", PurchaseLine."Qty. per Unit of Measure");
+                    BindToTracking(
+                        ProdOrderComp, TrackingSpecification, PurchaseLine.Description, PurchaseLine."Expected Receipt Date", ReservQty, ReservQtyBase);
+                end;
+        end;
+    end;
+
 }
 

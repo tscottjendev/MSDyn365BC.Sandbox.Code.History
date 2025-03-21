@@ -724,13 +724,6 @@ table 6550 "Whse. Item Tracking Line"
         OnAfterTrackingExists(Rec, IsTrackingExist);
     end;
 
-#if not CLEAN27
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure HasSameTrackingWithItemEntryRelation(ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckTrackingIfRequired(WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin

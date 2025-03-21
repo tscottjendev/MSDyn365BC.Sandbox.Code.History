@@ -6,9 +6,11 @@ namespace Microsoft.Inventory.Requisition;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.Routing;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Journal;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Purchases.Document;
 
 codeunit 99000866 "Mfg. Requisition Line"
@@ -260,6 +262,47 @@ codeunit 99000866 "Mfg. Requisition Line"
         if (RequisitionLine."Replenishment System" = "Replenishment System"::"Prod. Order") and (RequisitionLine."Starting Time" = 0T) then begin
             ManufacturingSetup.Get();
             RequisitionLine."Starting Time" := ManufacturingSetup."Normal Starting Time";
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Req. Wksh. Template", 'OnAfterValidateEvent', 'Recurring', false, false)]
+    local procedure ReqWkshTemplateOnAfterValidateRecurring(var Rec: Record "Req. Wksh. Template")
+    begin
+        if not Rec.Recurring then
+            case Rec.Type of
+                Rec.Type::"For. Labor":
+                    Rec."Page ID" := Page::"Subcontracting Worksheet";
+            end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::PlanningWkshManagement, 'OnGetRoutingDescription', '', false, false)]
+    local procedure OnGetRoutingDescription(var ReqLine: Record "Requisition Line"; var RoutingDescription: Text[100])
+    var
+        RoutingHeader: Record "Routing Header";
+    begin
+        if ReqLine."Routing No." = '' then
+            RoutingDescription := ''
+        else
+            if RoutingHeader.Get(ReqLine."Routing No.") then
+                RoutingDescription := RoutingHeader.Description
+            else
+                RoutingDescription := '';
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Get Action Messages", 'OnInitReqFromSourceBySource', '', false, false)]
+    local procedure OnInitReqFromSourceBySource(var ReqLine: Record "Requisition Line"; ActionMessageEntry: Record "Action Message Entry"; var IsHandled: Boolean; var ShouldExit: Boolean)
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        case ActionMessageEntry."Source Type" of
+            Database::"Prod. Order Line":
+                begin
+                    if ProdOrderLine.Get(ActionMessageEntry."Source Subtype", ActionMessageEntry."Source ID", ActionMessageEntry."Source Prod. Order Line") then begin
+                        ReqLine.GetProdOrderLine(ProdOrderLine);
+                        ShouldExit := true;
+                    end;
+                    IsHandled := true;
+                end;
         end;
     end;
 }
