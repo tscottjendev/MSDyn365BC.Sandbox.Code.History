@@ -10,11 +10,13 @@ using Microsoft.Inventory.Setup;
 
 table 5842 "Cost Adjmt. Action Message"
 {
-    Caption = 'Cost Adjmt. Action Message';
+    Caption = 'Cost Adjustment Action Message';
     DataClassification = SystemMetadata;
     InherentPermissions = RIMDX;
     LookupPageId = "Cost Adjmt. Action Messages";
+    Access = Internal;
     Extensible = false;
+    ReplicateData = false;
 
     fields
     {

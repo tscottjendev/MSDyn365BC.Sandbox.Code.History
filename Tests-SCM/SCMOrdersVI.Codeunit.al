@@ -1443,7 +1443,8 @@
         ProductionOrder: Record "Production Order";
         ReqWkshTemplate: Record "Req. Wksh. Template";
         RequisitionWkshName: Record "Requisition Wksh. Name";
-        CarryOutAction: Codeunit "Carry Out Action";
+        TempDocumentEntry: Record "Document Entry" temporary;
+        MfgCarryOutAction: Codeunit "Mfg. Carry Out Action";
         DocumentNo: Code[20];
         ItemNo: Code[20];
         "Count": Integer;
@@ -1472,7 +1473,8 @@
 
         // [WHEN] InsertProductionOrder is called for all 3 lines (2 = Firm Production Order)
         for Count := 1 to ArrayLen(RequisitionLine) do
-            CarryOutAction.InsertProductionOrder(RequisitionLine[Count], "Planning Create Prod. Order"::"Firm Planned");
+            MfgCarryOutAction.InsertProductionOrder(
+                RequisitionLine[Count], "Planning Create Prod. Order"::"Firm Planned", TempDocumentEntry);
 
         // [THEN] Production order is created
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
