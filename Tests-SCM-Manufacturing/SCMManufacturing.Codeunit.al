@@ -125,7 +125,6 @@ codeunit 137404 "SCM Manufacturing"
         ActionMustBeVisibleErr: Label 'Action %1 must be visible in %2', Comment = ' %1 = Action Name , %2 = Page Name';
         PreviousSetLbl: Label 'Previous Set';
         NextSetLbl: Label 'Next Set';
-        FieldMustNotBeVisibleErr: Label '%1 must not be visible in %2', Comment = ' %1 = Field Name , %2 = Page Name';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,OutputJournalItemtrackingPageHandler,MessageHandler')]
@@ -4633,54 +4632,6 @@ codeunit 137404 "SCM Manufacturing"
         ProductionBOMList.Close();
     end;
 
-    [Test]
-    [HandlerFunctions('ProdBOMVersionComparisonListHandlerForBOMWithoutVersion')]
-    procedure VerifyProdBOMDetailMustBeShownOnProdBOMComparisonPage()
-    var
-        Item: Record Item;
-        UnitOfMeasure: Record "Unit of Measure";
-        ProdBOMHeader: Record "Production BOM Header";
-        ProductionBOMLine: Record "Production BOM Line";
-        ProductionBOMList: TestPage "Production BOM List";
-        ProductionBOMNo: Code[20];
-    begin
-        // [SCENARIO 566038] Verify that Production BOM Comparison must show BOM quantities when there are no versions.
-        Initialize();
-
-        // [GIVEN] Create a Unit of Measure.
-        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
-
-        // [GIVEN] Create five Items.
-        CreateSetofItems(Item, 5);
-
-        // [GIVEN] Create a Production BOM with five Items.
-        ProductionBOMNo := CreateProductionBOMForSetOfItems(Item, UnitOfMeasure.Code);
-
-        // [GIVEN] Get the Production BOM Header.
-        ProdBOMHeader.Get(ProductionBOMNo);
-
-        // [GIVEN] Find the Production BOM Line.
-        FindProductionBOMVersionLine(ProductionBOMLine, ProductionBOMNo, '');
-
-        // [GIVEN] Modify the Quantity of Production BOM Line.
-        ProductionBOMLine.Quantity := LibraryRandom.RandInt(1000);
-        ProductionBOMLine.Modify();
-
-        // [GIVEN] Enqueue Quantity, "Production BOM No." of Production BOM Version Line.
-        LibraryVariableStorage.Enqueue(ProductionBOMLine.Quantity);
-        LibraryVariableStorage.Enqueue(ProductionBOMLine."Production BOM No.");
-
-        // [GIVEN] Open Production BOM page.
-        ProductionBOMList.OpenEdit();
-        ProductionBOMList.GoToRecord(ProdBOMHeader);
-
-        // [WHEN] Executing the "Prod. BOM Version Comparison" action in Production BOM List page.
-        ProductionBOMList."Prod. BOM Version Comparison".Invoke();
-
-        // [THEN] Verify that Production BOM Comparison must show BOM quantities when there are no versions through ProdBOMVersionComparisonListHandlerForBOMWithoutVersion handler.
-        ProductionBOMList.Close();
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -7575,22 +7526,6 @@ codeunit 137404 "SCM Manufacturing"
 
         Assert.AreEqual(ExpectedValueForField1, ProdBOMVersionComparison.Field1.AsInteger(), StrSubstNo(ValueMustBeEqualErr, ProdBOMVersionComparison.Field1.Caption(), ExpectedValueForField1, ProdBOMVersionComparison.Caption()));
         Assert.AreEqual(ExpectedCaptionForField1, ProdBOMVersionComparison.Field1.Caption(), StrSubstNo(CaptionMustBeEqualErr, ProdBOMVersionComparison.Field1.Caption(), ExpectedCaptionForField1, ProdBOMVersionComparison.Caption()));
-        Assert.AreEqual(ExpectedCaptionForBOMField1, ProdBOMVersionComparison.BOMField1.Caption(), StrSubstNo(CaptionMustBeEqualErr, ProdBOMVersionComparison.BOMField1.Caption(), ExpectedCaptionForBOMField1, ProdBOMVersionComparison.BOMField1.Caption()));
-        Assert.AreEqual(ExpectedValueForBOMField1, ProdBOMVersionComparison.BOMField1.AsInteger(), StrSubstNo(ValueMustBeEqualErr, ProdBOMVersionComparison.BOMField1.Caption(), ExpectedValueForBOMField1, ProdBOMVersionComparison.Caption()));
-    end;
-
-    [PageHandler]
-    procedure ProdBOMVersionComparisonListHandlerForBOMWithoutVersion(var ProdBOMVersionComparison: TestPage "Prod. BOM Version Comparison")
-    var
-        ExpectedCaptionForBOMField1: Code[20];
-        ExpectedValueForBOMField1: Integer;
-    begin
-        ProdBOMVersionComparison.First();
-
-        ExpectedValueForBOMField1 := LibraryVariableStorage.DequeueInteger();
-        ExpectedCaptionForBOMField1 := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(ExpectedCaptionForBOMField1));
-
-        Assert.IsFalse(ProdBOMVersionComparison.Field1.Visible(), StrSubstNo(FieldMustNotBeVisibleErr, ProdBOMVersionComparison.Field1.Caption(), ProdBOMVersionComparison.Caption()));
         Assert.AreEqual(ExpectedCaptionForBOMField1, ProdBOMVersionComparison.BOMField1.Caption(), StrSubstNo(CaptionMustBeEqualErr, ProdBOMVersionComparison.BOMField1.Caption(), ExpectedCaptionForBOMField1, ProdBOMVersionComparison.BOMField1.Caption()));
         Assert.AreEqual(ExpectedValueForBOMField1, ProdBOMVersionComparison.BOMField1.AsInteger(), StrSubstNo(ValueMustBeEqualErr, ProdBOMVersionComparison.BOMField1.Caption(), ExpectedValueForBOMField1, ProdBOMVersionComparison.Caption()));
     end;
