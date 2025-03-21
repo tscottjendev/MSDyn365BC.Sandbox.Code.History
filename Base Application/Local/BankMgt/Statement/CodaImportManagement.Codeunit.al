@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -30,7 +30,6 @@ codeunit 2000040 "Coda Import Management"
         Text010: Label '%1 in %2.';
         Text012: Label '%1 on line %2 cannot be %3.';
         Text013: Label '%1 records read\%2 total debit amount\%3 total credit amount\%4 lines skipped (before first or after last record).';
-        Text017: Label 'You cannot import CODA files for foreign bank accounts.';
         CompanyInfo: Record "Company Information";
         BankAcc: Record "Bank Account";
         CodBankStmtSrcLine: Record "CODA Statement Source Line";
@@ -144,7 +143,7 @@ codeunit 2000040 "Coda Import Management"
     procedure CheckOldBalance(var CodedBankStmtSrcLine: Record "CODA Statement Source Line") OK: Boolean
     var
         IBANSrcLine: Text;
-        BankAccountNo: Text[30];
+        BankAccountNo: Text[34];
         IBANNumber: Text[34];
         IsHandled: Boolean;
     begin
@@ -169,6 +168,15 @@ codeunit 2000040 "Coda Import Management"
                       BankAcc."No.",
                       CopyStr(CodBankStmtSrcLine.Data, 6, 12),
                       CodBankStmtSrcLine.ID);
+            '1':
+                if BankAccountNo <> CopyStr(CodBankStmtSrcLine.Data, 6, 34).Trim() then
+                    Error(Text003,
+                      BankAcc.FieldCaption("Bank Account No."),
+                      BankAcc."Bank Account No.",
+                      BankAcc.TableCaption(),
+                      BankAcc."No.",
+                      CopyStr(CodBankStmtSrcLine.Data, 6, 34).Trim(),
+                      CodBankStmtSrcLine.ID);
             '2':
                 if IBANNumber <> CopyStr(CodBankStmtSrcLine.Data, 6, 16) then
                     Error(Text003,
@@ -191,8 +199,6 @@ codeunit 2000040 "Coda Import Management"
                           IBANSrcLine,
                           CodBankStmtSrcLine.ID);
                 end;
-            else
-                Error(Text017);
         end;
         if CodBankStmtSrcLine.Data[43] = '0' then
             Evaluate(CodBankStmtSrcLine.Amount, CopyStr(CodBankStmtSrcLine.Data, 44, 15))
@@ -212,7 +218,7 @@ codeunit 2000040 "Coda Import Management"
     procedure CheckNewBalance(var CodedBankStmtSrcLine: Record "CODA Statement Source Line"; AccountType2: Text[1]): Boolean
     var
         IBANSrcLine: Text;
-        BankAccountNo: Text[30];
+        BankAccountNo: Text[34];
         IBANNumber: Text[34];
     begin
         CodBankStmtSrcLine := CodedBankStmtSrcLine;
@@ -226,6 +232,13 @@ codeunit 2000040 "Coda Import Management"
         case AccountType of
             ' ', '0':
                 if BankAccountNo <> CopyStr(CodBankStmtSrcLine.Data, 5, 12) then
+                    Error(Text005,
+                      BankAcc.FieldCaption("Bank Account No."),
+                      BankAcc.TableCaption(),
+                      BankAcc."No.",
+                      CodBankStmtSrcLine.ID);
+            '1':
+                if BankAccountNo <> CopyStr(CodBankStmtSrcLine.Data, 5, 34).Trim() then
                     Error(Text005,
                       BankAcc.FieldCaption("Bank Account No."),
                       BankAcc.TableCaption(),
@@ -249,8 +262,6 @@ codeunit 2000040 "Coda Import Management"
                           BankAcc."No.",
                           CodBankStmtSrcLine.ID);
                 end;
-            else
-                Error(Text017);
         end;
         if CodBankStmtSrcLine.Data[42] = '0' then
             Evaluate(CodBankStmtSrcLine.Amount, CopyStr(CodBankStmtSrcLine.Data, 43, 15))
