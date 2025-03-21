@@ -508,7 +508,7 @@ page 8903 "Manufacturing Manager RC"
                         action("Prod. Order - List")
                         {
                             ApplicationArea = Manufacturing;
-                            Caption = 'Prod. Order - List';
+                            Caption = 'Production Order - List';
                             RunObject = report "Prod. Order - List";
                         }
                         action("Prod. Order - Job Card")
