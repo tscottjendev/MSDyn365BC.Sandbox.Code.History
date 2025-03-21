@@ -75,7 +75,7 @@ codeunit 5894 "Inventory Adjustment Handler"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [InternalEvent(false, false)]
     local procedure OnAfterMakeInventoryAdjustment(var CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.")
     begin
     end;
