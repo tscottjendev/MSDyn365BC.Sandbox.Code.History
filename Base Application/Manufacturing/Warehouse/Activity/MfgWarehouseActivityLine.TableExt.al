@@ -34,11 +34,4 @@ tableextension 99000771 "Mfg. Warehouse Activity Line" extends "Warehouse Activi
         "Lot No." := TempProdOrdLineTrackingBuff."Lot No.";
         "Package No." := TempProdOrdLineTrackingBuff."Package No.";
     end;
-
-#if not CLEAN27
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure CopyTrackingFromProdOrderLine(ProdOrderLine: Record "Prod. Order Line")
-    begin
-    end;
-#endif
 }

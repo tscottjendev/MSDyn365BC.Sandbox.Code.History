@@ -13,6 +13,7 @@ using Microsoft.Inventory.Setup;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Archive;
 using Microsoft.Sales.Document;
+using Microsoft.Service.Document;
 using System.Security.AccessControl;
 
 codeunit 5703 "Catalog Item Management"
@@ -377,6 +378,7 @@ codeunit 5703 "Catalog Item Management"
         PurchLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
         SalesLineArch: Record "Sales Line Archive";
+        ServiceLine: Record "Service Line";
         IsHandled: Boolean;
         ShouldExit: Boolean;
     begin
@@ -412,6 +414,12 @@ codeunit 5703 "Catalog Item Management"
         SalesLineArch.SetRange(Type, SalesLineArch.Type::Item);
         SalesLineArch.SetRange("No.", Item."No.");
         if not SalesLineArch.IsEmpty() then
+            exit;
+
+        ServiceLine.SetCurrentKey(Type, "No.");
+        ServiceLine.SetRange(Type, ServiceLine.Type::Item);
+        ServiceLine.SetRange("No.", Item."No.");
+        if not ServiceLine.IsEmpty() then
             exit;
 
         OnDelNonStockItemOnAfterCheckRelations(Item, ShouldExit);
