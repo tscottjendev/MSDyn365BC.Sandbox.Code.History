@@ -2425,7 +2425,6 @@ table 1003 "Job Planning Line"
 
     local procedure UpdateRemainingQuantity()
     var
-        Delta: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2433,11 +2432,8 @@ table 1003 "Job Planning Line"
         if IsHandled then
             exit;
 
-        if "Usage Link" and (xRec."No." = "No.") then begin
-            Delta := Quantity - xRec.Quantity;
-            Validate("Remaining Qty.", "Remaining Qty." + Delta);
-            Validate("Qty. to Transfer to Journal", "Qty. to Transfer to Journal" + Delta);
-        end;
+        if "Usage Link" then
+            ControlUsageLink();
     end;
 
     procedure UpdateQtyToTransfer()

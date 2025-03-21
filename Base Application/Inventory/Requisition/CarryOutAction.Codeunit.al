@@ -7,24 +7,20 @@ namespace Microsoft.Inventory.Requisition;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.Reporting;
+#if not CLEAN27
 using Microsoft.Inventory.Item;
+#endif
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Setup;
 using System.Text;
 
 codeunit 99000813 "Carry Out Action"
 {
-    Permissions = TableData "Prod. Order Capacity Need" = rid;
+    Permissions = TableData Microsoft.Manufacturing.Document."Prod. Order Capacity Need" = rid;
     TableNo = "Requisition Line";
 
     trigger OnRun()
@@ -44,7 +40,7 @@ codeunit 99000813 "Carry Out Action"
                     IsHandled := false;
                     OnRunOnBeforeCalcProductionExist(Rec, TryChoice, TryWkshTempl, TryWkshName, ProductionExist, IsHandled);
                     if not IsHandled then
-                        ProductionExist := CarryOutActionsFromProdOrder(Rec, Enum::"Planning Create Prod. Order".FromInteger(TryChoice), TryWkshTempl, TryWkshName);
+                        OnTrySourceTypeForProduction(Rec, TryChoice, TryWkshTempl, TryWkshName, ProductionExist, TempDocumentEntry);
                 end;
             TrySourceType::Assembly:
                 OnTrySourceTypeForAssembly(Rec, TryChoice, AssemblyExist, TempDocumentEntry);
@@ -70,19 +66,16 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     var
-        TempProductionOrder: Record "Production Order" temporary;
         LastTransferHeader: Record "Transfer Header";
         TempTransferHeaderToPrint: Record "Transfer Header" temporary;
         ReservationEntry: Record "Reservation Entry";
         TempDocumentEntry: Record "Document Entry" temporary;
         CarryOutAction: Codeunit "Carry Out Action";
-        CalculateProdOrder: Codeunit "Calculate Prod. Order";
         ReservationManagement: Codeunit "Reservation Management";
         ReqLineReserve: Codeunit "Req. Line-Reserve";
-        PlngComponentReserve: Codeunit "Plng. Component-Reserve";
-        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
 #if not CLEAN27
         AsmCarryOutAction: Codeunit "Asm. Carry Out Action";
+        MfgCarryOutAction: Codeunit "Mfg. Carry Out Action";
 #endif
         PrintOrder: Boolean;
         SplitTransferOrders: Boolean;
@@ -113,26 +106,13 @@ codeunit 99000813 "Carry Out Action"
         TryWkshName := WkshName;
     end;
 
-    procedure CarryOutActionsFromProdOrder(RequisitionLine: Record "Requisition Line"; ProdOrderChoice: Enum "Planning Create Prod. Order"; ProdWkshTempl: Code[10]; ProdWkshName: Code[10]): Boolean
+#if not CLEAN27
+    [Obsolete('Replaced by procedure in codeunit MfgCarryOutAction', '27.0')]
+    procedure CarryOutActionsFromProdOrder(RequisitionLine: Record "Requisition Line"; ProdOrderChoice: Enum Microsoft.Manufacturing.Document."Planning Create Prod. Order"; ProdWkshTempl: Code[10]; ProdWkshName: Code[10]) Result: Boolean
     begin
-        PrintOrder := ProdOrderChoice = ProdOrderChoice::"Firm Planned & Print";
-        OnCarryOutActionsFromProdOrderOnAfterCalcPrintOrder(PrintOrder, ProdOrderChoice.AsInteger());
-
-        case RequisitionLine."Action Message" of
-            RequisitionLine."Action Message"::New:
-                if ProdOrderChoice = ProdOrderChoice::"Copy to Req. Wksh" then
-                    CarryOutToReqWksh(RequisitionLine, ProdWkshTempl, ProdWkshName)
-                else
-                    InsertProductionOrder(RequisitionLine, ProdOrderChoice);
-            RequisitionLine."Action Message"::"Change Qty.",
-          RequisitionLine."Action Message"::Reschedule,
-          RequisitionLine."Action Message"::"Resched. & Chg. Qty.":
-                exit(ProdOrderChgAndReshedule(RequisitionLine));
-            RequisitionLine."Action Message"::Cancel:
-                DeleteOrderLines(RequisitionLine);
-        end;
-        exit(true);
+        OnTrySourceTypeForProduction(RequisitionLine, ProdOrderChoice.AsInteger(), ProdWkshTempl, ProdWkshName, Result, TempDocumentEntry);
     end;
+#endif
 
     procedure CarryOutActionsFromTransOrder(RequisitionLine: Record "Requisition Line"; TransOrderChoice: Enum "Planning Create Transfer Order"; TransWkshTempName: Code[10];
                                                                                                               TransJournalName: Code[10])
@@ -183,19 +163,18 @@ codeunit 99000813 "Carry Out Action"
     var
         RequisitionLine2: Record "Requisition Line";
         PlanningComponent: Record "Planning Component";
-        PlanningRoutingLine: Record "Planning Routing Line";
-        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        PlanningRoutingLine: Record Microsoft.Manufacturing.Routing."Planning Routing Line";
+        ProdOrderCapacityNeed: Record Microsoft.Manufacturing.Document."Prod. Order Capacity Need";
         PlanningComponent2: Record "Planning Component";
-        PlanningRoutingLine2: Record "Planning Routing Line";
-        ProdOrderCapacityNeed2: Record "Prod. Order Capacity Need";
+        PlanningRoutingLine2: Record Microsoft.Manufacturing.Routing."Planning Routing Line";
+        ProdOrderCapacityNeed2: Record Microsoft.Manufacturing.Document."Prod. Order Capacity Need";
         RequisitionLine3: Record "Requisition Line";
     begin
         RequisitionLine2 := RequisitionLine;
         RequisitionLine2."Worksheet Template Name" := ReqWkshTempName;
         RequisitionLine2."Journal Batch Name" := ReqJournalName;
 
-        if LineNo = 0 then begin
-            // we need to find the last line in worksheet
+        if LineNo = 0 then begin // we need to find the last line in worksheet
             RequisitionLine3.SetCurrentKey("Worksheet Template Name", "Journal Batch Name", "Line No.");
             RequisitionLine3.SetRange("Worksheet Template Name", ReqWkshTempName);
             RequisitionLine3.SetRange("Journal Batch Name", ReqJournalName);
@@ -284,75 +263,13 @@ codeunit 99000813 "Carry Out Action"
             until TempTransferHeaderToPrint.Next() = 0;
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by procedure in codeunit MfgCarryOutAction', '27.0')]
     procedure ProdOrderChgAndReshedule(RequisitionLine: Record "Requisition Line"): Boolean
-    var
-        ProdOrderLine: Record "Prod. Order Line";
-        PlanningComponent: Record "Planning Component";
-        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
-        ProdOrderComponent: Record "Prod. Order Component";
-        ProductionOrder: Record "Production Order";
-        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
     begin
-        RequisitionLine.TestField(RequisitionLine."Ref. Order Type", RequisitionLine."Ref. Order Type"::"Prod. Order");
-        ProdOrderLine.LockTable();
-        if ProdOrderLine.Get(RequisitionLine."Ref. Order Status", RequisitionLine."Ref. Order No.", RequisitionLine."Ref. Line No.") then begin
-            ProdOrderCapacityNeed.SetCurrentKey("Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.");
-            ProdOrderCapacityNeed.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
-            ProdOrderCapacityNeed.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
-            ProdOrderCapacityNeed.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-            ProdOrderCapacityNeed.DeleteAll();
-            ProdOrderLine.BlockDynamicTracking(true);
-            ProdOrderLine.Validate(Quantity, RequisitionLine.Quantity);
-            OnProdOrderChgAndResheduleOnAfterValidateQuantity(ProdOrderLine, RequisitionLine);
-            ProdOrderLine."Ending Time" := RequisitionLine."Ending Time";
-            ProdOrderLine.Validate("Planning Flexibility", RequisitionLine."Planning Flexibility");
-            ProdOrderLine.Validate("Ending Date", RequisitionLine."Ending Date");
-            ProdOrderLine."Due Date" := RequisitionLine."Due Date";
-            ProdOrderLine.Modify();
-            ReqLineReserve.TransferPlanningLineToPOLine(RequisitionLine, ProdOrderLine, 0, true);
-            ReqLineReserve.UpdateDerivedTracking(RequisitionLine);
-            ReservationManagement.SetReservSource(ProdOrderLine);
-            ReservationManagement.DeleteReservEntries(false, ProdOrderLine."Remaining Qty. (Base)");
-            ReservationManagement.ClearSurplus();
-            ReservationManagement.AutoTrack(ProdOrderLine."Remaining Qty. (Base)");
-            PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
-            PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
-            PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-            if PlanningComponent.Find('-') then
-                repeat
-                    if ProdOrderComponent.Get(
-                            ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", PlanningComponent."Line No.")
-                    then begin
-                        ProdOrderCompReserve.TransferPlanningCompToPOComp(PlanningComponent, ProdOrderComponent, 0, true);
-                        PlngComponentReserve.UpdateDerivedTracking(PlanningComponent);
-                        ReservationManagement.SetReservSource(ProdOrderComponent);
-                        ReservationManagement.DeleteReservEntries(false, ProdOrderComponent."Remaining Qty. (Base)");
-                        ReservationManagement.ClearSurplus();
-                        ReservationManagement.AutoTrack(ProdOrderComponent."Remaining Qty. (Base)");
-                        ReservationCheckDateConfl.ProdOrderComponentCheck(ProdOrderComponent, false, false);
-                    end else
-                        PlanningComponent.Delete(true);
-                until PlanningComponent.Next() = 0;
-
-            if RequisitionLine."Planning Level" = 0 then
-                if ProductionOrder.Get(RequisitionLine."Ref. Order Status", RequisitionLine."Ref. Order No.") then begin
-                    ProductionOrder.Quantity := RequisitionLine.Quantity;
-                    ProductionOrder."Starting Time" := RequisitionLine."Starting Time";
-                    ProductionOrder."Starting Date" := RequisitionLine."Starting Date";
-                    ProductionOrder."Ending Time" := RequisitionLine."Ending Time";
-                    ProductionOrder."Ending Date" := RequisitionLine."Ending Date";
-                    ProductionOrder."Due Date" := RequisitionLine."Due Date";
-                    OnProdOrderChgAndResheduleOnBeforeProdOrderModify(ProductionOrder, ProdOrderLine, RequisitionLine);
-                    ProductionOrder.Modify();
-                    FinalizeOrderHeader(ProductionOrder);
-                end;
-            OnAfterProdOrderChgAndReshedule(RequisitionLine, ProdOrderLine);
-        end else begin
-            Message(StrSubstNo(CouldNotChangeSupplyTxt, RequisitionLine."Ref. Order No.", RequisitionLine."Ref. Line No."));
-            exit(false);
-        end;
-        exit(true);
+        exit(MfgCarryOutAction.ProdOrderChgAndReshedule(RequisitionLine));
     end;
+#endif
 
     procedure PurchOrderChgAndReshedule(RequisitionLine: Record "Requisition Line")
     var
@@ -426,8 +343,6 @@ codeunit 99000813 "Carry Out Action"
         OnBeforeDeleteOrderLines(RequisitionLine);
 
         case RequisitionLine."Ref. Order Type" of
-            RequisitionLine."Ref. Order Type"::"Prod. Order":
-                DeleteProdOrderLines(RequisitionLine);
             RequisitionLine."Ref. Order Type"::Purchase:
                 DeletePurchaseOrderLines(RequisitionLine);
             RequisitionLine."Ref. Order Type"::Transfer:
@@ -435,31 +350,6 @@ codeunit 99000813 "Carry Out Action"
         end;
 
         OnAfterDeleteOrderLines(RequisitionLine);
-    end;
-
-    local procedure DeleteProdOrderLines(RequisitionLine: Record "Requisition Line")
-    var
-        ProductionOrder: Record "Production Order";
-        ProdOrderLine: Record "Prod. Order Line";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeDeleteProdOrderLines(RequisitionLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        ProdOrderLine.SetCurrentKey(Status, "Prod. Order No.", "Line No.");
-        ProdOrderLine.SetFilter("Item No.", '<>%1', '');
-        ProdOrderLine.SetRange(Status, RequisitionLine."Ref. Order Status");
-        ProdOrderLine.SetRange("Prod. Order No.", RequisitionLine."Ref. Order No.");
-        if ProdOrderLine.Count in [0, 1] then begin
-            if ProductionOrder.Get(RequisitionLine."Ref. Order Status", RequisitionLine."Ref. Order No.") then
-                ProductionOrder.Delete(true);
-        end else begin
-            ProdOrderLine.SetRange("Line No.", RequisitionLine."Ref. Line No.");
-            if ProdOrderLine.FindFirst() then
-                ProdOrderLine.Delete(true);
-        end;
     end;
 
     local procedure DeletePurchaseOrderLines(RequisitionLine: Record "Requisition Line")
@@ -517,194 +407,21 @@ codeunit 99000813 "Carry Out Action"
         OnAfterDeleteRequisitionLine(RequisitionLine);
     end;
 
-    procedure InsertProductionOrder(RequisitionLine: Record "Requisition Line"; ProdOrderChoice: Enum "Planning Create Prod. Order")
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-        Item: Record Item;
-        ProductionOrder: Record "Production Order";
-        HeaderExist: Boolean;
-        IsHandled: Boolean;
+#if not CLEAN27
+    [Obsolete('Replaced by procedure in codeunit MfgCarryOutAction', '27.0')]
+    procedure InsertProductionOrder(RequisitionLine: Record "Requisition Line"; ProdOrderChoice: Enum Microsoft.Manufacturing.Document."Planning Create Prod. Order")
     begin
-        Item.Get(RequisitionLine."No.");
-        ManufacturingSetup.Get();
-        if FindTempProdOrder(RequisitionLine) then
-            HeaderExist := ProductionOrder.Get(TempProductionOrder.Status, TempProductionOrder."No.");
-
-        OnInsertProdOrderOnAfterFindTempProdOrder(RequisitionLine, ProductionOrder, HeaderExist, Item);
-
-        if not HeaderExist then begin
-            case ProdOrderChoice of
-                ProdOrderChoice::Planned:
-                    ManufacturingSetup.TestField("Planned Order Nos.");
-                ProdOrderChoice::"Firm Planned",
-                ProdOrderChoice::"Firm Planned & Print":
-                    ManufacturingSetup.TestField("Firm Planned Order Nos.");
-                else
-                    OnInsertProductionOrderOnProdOrderChoiceCaseElse(ProdOrderChoice);
-            end;
-
-            OnInsertProdOrderOnBeforeProdOrderInit(RequisitionLine);
-
-            Item.CheckItemAndVariantForProdBlocked(RequisitionLine."No.", RequisitionLine."Variant Code", Item."Production Blocked"::Output);
-            ProductionOrder.Init();
-            if ProdOrderChoice = ProdOrderChoice::"Firm Planned & Print" then
-                ProductionOrder.Status := ProductionOrder.Status::"Firm Planned"
-            else begin
-                IsHandled := false;
-                OnInsertProdOrderOnProdOrderChoiceNotFirmPlannedPrint(ProductionOrder, ProdOrderChoice, IsHandled);
-                if not IsHandled then
-                    ProductionOrder.Status := Enum::"Production Order Status".FromInteger(ProdOrderChoice.AsInteger());
-            end;
-            ProductionOrder."No. Series" := ProductionOrder.GetNoSeriesCode();
-            if ProductionOrder."No. Series" = RequisitionLine."No. Series" then
-                ProductionOrder."No." := RequisitionLine."Ref. Order No.";
-            OnInsertProdOrderOnBeforeProdOrderInsert(ProductionOrder, RequisitionLine);
-            ProductionOrder.Insert(true);
-            OnInsertProdOrderOnAfterProdOrderInsert(ProductionOrder, RequisitionLine);
-            ProductionOrder."Source Type" := ProductionOrder."Source Type"::Item;
-            ProductionOrder."Source No." := RequisitionLine."No.";
-            ProductionOrder.Validate(Description, RequisitionLine.Description);
-            ProductionOrder."Description 2" := RequisitionLine."Description 2";
-            ProductionOrder."Variant Code" := RequisitionLine."Variant Code";
-            ProductionOrder."Creation Date" := Today;
-            ProductionOrder."Last Date Modified" := Today;
-            ProductionOrder."Inventory Posting Group" := Item."Inventory Posting Group";
-            ProductionOrder."Gen. Prod. Posting Group" := RequisitionLine."Gen. Prod. Posting Group";
-            ProductionOrder."Due Date" := RequisitionLine."Due Date";
-            ProductionOrder."Starting Time" := RequisitionLine."Starting Time";
-            ProductionOrder."Starting Date" := RequisitionLine."Starting Date";
-            ProductionOrder."Ending Time" := RequisitionLine."Ending Time";
-            ProductionOrder."Ending Date" := RequisitionLine."Ending Date";
-            ProductionOrder."Location Code" := RequisitionLine."Location Code";
-            ProductionOrder."Bin Code" := RequisitionLine."Bin Code";
-            ProductionOrder."Low-Level Code" := RequisitionLine."Low-Level Code";
-            ProductionOrder."Routing No." := RequisitionLine."Routing No.";
-            ProductionOrder.Quantity := RequisitionLine.Quantity;
-            ProductionOrder."Unit Cost" := RequisitionLine."Unit Cost";
-            ProductionOrder."Cost Amount" := RequisitionLine."Cost Amount";
-            ProductionOrder."Shortcut Dimension 1 Code" := RequisitionLine."Shortcut Dimension 1 Code";
-            ProductionOrder."Shortcut Dimension 2 Code" := RequisitionLine."Shortcut Dimension 2 Code";
-            ProductionOrder."Dimension Set ID" := RequisitionLine."Dimension Set ID";
-            ProductionOrder.UpdateDatetime();
-            OnInsertProdOrderWithReqLine(ProductionOrder, RequisitionLine);
-            ProductionOrder.Modify();
-            InsertTempProdOrder(RequisitionLine, ProductionOrder);
-        end;
-        InsertProdOrderLine(RequisitionLine, ProductionOrder, Item);
-
-        OnAfterInsertProdOrder(ProductionOrder, ProdOrderChoice.AsInteger(), RequisitionLine);
+        MfgCarryOutAction.InsertProductionOrder(RequisitionLine, ProdOrderChoice, TempDocumentEntry);
     end;
+#endif
 
-    procedure InsertProdOrderLine(RequisitionLine: Record "Requisition Line"; ProductionOrder: Record "Production Order"; Item: Record Item)
-    var
-        ProdOrderLine: Record "Prod. Order Line";
-        NextLineNo: Integer;
+#if not CLEAN27
+    [Obsolete('Replaced by procedure in codeunit MfgCarryOutAction', '27.0')]
+    procedure InsertProdOrderLine(RequisitionLine: Record "Requisition Line"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; Item: Record Item)
     begin
-        Item.CheckItemAndVariantForProdBlocked(RequisitionLine."No.", RequisitionLine."Variant Code", Item."Production Blocked"::Output);
-
-        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
-        ProdOrderLine.LockTable();
-        if ProdOrderLine.FindLast() then
-            NextLineNo := ProdOrderLine."Line No." + 10000
-        else
-            NextLineNo := 10000;
-
-        OnInsertProdOrderLineOnBeforeProdOrderLineInit(RequisitionLine, Item);
-        ProdOrderLine.Init();
-        ProdOrderLine.BlockDynamicTracking(true);
-        ProdOrderLine.Status := ProductionOrder.Status;
-        ProdOrderLine."Prod. Order No." := ProductionOrder."No.";
-        ProdOrderLine."Line No." := NextLineNo;
-        ProdOrderLine."Item No." := RequisitionLine."No.";
-        ProdOrderLine.Validate("Unit of Measure Code", RequisitionLine."Unit of Measure Code");
-        ProdOrderLine."Production BOM Version Code" := RequisitionLine."Production BOM Version Code";
-        ProdOrderLine."Routing Version Code" := RequisitionLine."Routing Version Code";
-        ProdOrderLine."Routing Type" := RequisitionLine."Routing Type";
-        ProdOrderLine."Routing Reference No." := ProdOrderLine."Line No.";
-        ProdOrderLine.Description := RequisitionLine.Description;
-        ProdOrderLine."Description 2" := RequisitionLine."Description 2";
-        ProdOrderLine."Variant Code" := RequisitionLine."Variant Code";
-        ProdOrderLine."Location Code" := RequisitionLine."Location Code";
-        OnInsertProdOrderLineOnBeforeGetBinCode(ProdOrderLine, RequisitionLine);
-        if RequisitionLine."Bin Code" <> '' then
-            ProdOrderLine.Validate("Bin Code", RequisitionLine."Bin Code")
-        else
-            CalculateProdOrder.SetProdOrderLineBinCodeFromRoute(ProdOrderLine, ProductionOrder."Location Code", ProductionOrder."Routing No.");
-        ProdOrderLine."Scrap %" := RequisitionLine."Scrap %";
-        ProdOrderLine."Production BOM No." := RequisitionLine."Production BOM No.";
-        ProdOrderLine."Inventory Posting Group" := Item."Inventory Posting Group";
-        OnInsertProdOrderLineOnBeforeValidateUnitCost(RequisitionLine, ProductionOrder, ProdOrderLine, Item);
-        ProdOrderLine.Validate("Unit Cost", RequisitionLine."Unit Cost");
-        ProdOrderLine."Routing No." := RequisitionLine."Routing No.";
-        ProdOrderLine."Starting Time" := RequisitionLine."Starting Time";
-        ProdOrderLine."Starting Date" := RequisitionLine."Starting Date";
-        ProdOrderLine."Ending Time" := RequisitionLine."Ending Time";
-        ProdOrderLine."Ending Date" := RequisitionLine."Ending Date";
-        ProdOrderLine."Due Date" := RequisitionLine."Due Date";
-        ProdOrderLine.Status := ProductionOrder.Status;
-        ProdOrderLine."Planning Level Code" := RequisitionLine."Planning Level";
-        ProdOrderLine."Indirect Cost %" := RequisitionLine."Indirect Cost %";
-        ProdOrderLine."Overhead Rate" := RequisitionLine."Overhead Rate";
-        UpdateProdOrderLineQuantity(ProdOrderLine, RequisitionLine, Item);
-        if not (ProductionOrder.Status = ProductionOrder.Status::Planned) then
-            ProdOrderLine."Planning Flexibility" := RequisitionLine."Planning Flexibility";
-        ProdOrderLine.UpdateDatetime();
-        ProdOrderLine."Shortcut Dimension 1 Code" := RequisitionLine."Shortcut Dimension 1 Code";
-        ProdOrderLine."Shortcut Dimension 2 Code" := RequisitionLine."Shortcut Dimension 2 Code";
-        ProdOrderLine."Dimension Set ID" := RequisitionLine."Dimension Set ID";
-        OnInsertProdOrderLineWithReqLine(ProdOrderLine, RequisitionLine);
-        ProdOrderLine.Insert();
-        OnInsertProdOrderLineOnAfterProdOrderLineInsert(ProdOrderLine, RequisitionLine);
-        CalculateProdOrder.CalculateProdOrderDates(ProdOrderLine, false);
-
-        ReqLineReserve.TransferPlanningLineToPOLine(RequisitionLine, ProdOrderLine, RequisitionLine."Net Quantity (Base)", false);
-        if RequisitionLine.Reserve and not (ProdOrderLine.Status = ProdOrderLine.Status::Planned) then
-            ReserveBindingOrderToProd(ProdOrderLine, RequisitionLine);
-
-        OnInsertProdOrderLineOnBeforeModifyProdOrderLine(ProdOrderLine, RequisitionLine);
-        ProdOrderLine.Modify();
-        SetProdOrderLineBinCodeFromPlanningRtngLines(ProductionOrder, ProdOrderLine, RequisitionLine, Item);
-        TransferBOM(RequisitionLine, ProductionOrder, ProdOrderLine."Line No.");
-        TransferCapNeed(RequisitionLine, ProductionOrder, ProdOrderLine."Routing No.", ProdOrderLine."Routing Reference No.");
-
-        if ProdOrderLine."Planning Level Code" > 0 then
-            UpdateComponentLink(ProdOrderLine);
-
-        OnAfterInsertProdOrderLine(RequisitionLine, ProductionOrder, ProdOrderLine, Item);
+        MfgCarryOutAction.InsertProdOrderLine(RequisitionLine, ProductionOrder, Item);
     end;
-
-    local procedure SetProdOrderLineBinCodeFromPlanningRtngLines(ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; RequisitionLine: Record "Requisition Line"; Item: Record Item)
-    var
-        RefreshProdOrderLine: Boolean;
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeSetProdOrderLineBinCodeFromPlanningRtngLines(ProductionOrder, ProdOrderLine, RequisitionLine, Item, IsHandled);
-        if IsHandled then
-            exit;
-
-        if TransferRouting(RequisitionLine, ProductionOrder, ProdOrderLine."Routing No.", ProdOrderLine."Routing Reference No.") then begin
-            RefreshProdOrderLine := false;
-            OnInsertProdOrderLineOnAfterTransferRouting(ProdOrderLine, RefreshProdOrderLine);
-            if RefreshProdOrderLine then
-                ProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
-            CalculateProdOrder.SetProdOrderLineBinCodeFromPlanningRtngLines(ProdOrderLine, RequisitionLine);
-            ProdOrderLine.Modify();
-        end;
-    end;
-
-    local procedure UpdateProdOrderLineQuantity(var ProdOrderLine: Record "Prod. Order Line"; RequisitionLine: Record "Requisition Line"; Item: Record Item)
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeUpdateProdOrderLineQuantity(ProdOrderLine, RequisitionLine, Item, IsHandled);
-        if IsHandled then
-            exit;
-
-        ProdOrderLine.Validate(Quantity, RequisitionLine.Quantity);
-    end;
+#endif
 
 #if not CLEAN27
     [Obsolete('Replaced by procedure in codeunit AsmCarryOutAction', '27.0')]
@@ -964,203 +681,41 @@ codeunit 99000813 "Carry Out Action"
     end;
 #endif
 
-    local procedure FinalizeOrderHeader(ProductionOrder: Record "Production Order")
-    var
-        MfgCarryOutActionPrint: Codeunit "Mfg. Carry Out Action Print";
-        IsHandled: Boolean;
+#if not CLEAN27
+    [Obsolete('Replaced by procedure in codeunit MfgCarryOutAction', '27.0')]
+    procedure TransferRouting(RequisitionLine: Record "Requisition Line"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; RoutingNo: Code[20]; RoutingRefNo: Integer): Boolean
     begin
-        IsHandled := false;
-        OnBeforeFinalizeOrderHeader(ProductionOrder, PrintOrder, IsHandled);
-        if IsHandled then
-            exit;
-
-        if PrintOrder then
-            MfgCarryOutActionPrint.PrintProdOrder(ProductionOrder);
+        exit(MfgCarryOutAction.TransferRouting(RequisitionLine, ProductionOrder, RoutingNo, RoutingRefNo));
     end;
+#endif
 
-    procedure TransferRouting(RequisitionLine: Record "Requisition Line"; ProductionOrder: Record "Production Order"; RoutingNo: Code[20]; RoutingRefNo: Integer): Boolean
-    var
-        WorkCenter: Record "Work Center";
-        MachineCenter: Record "Machine Center";
-        PlanningRoutingLine: Record "Planning Routing Line";
-        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
-        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
-        FlushingMethod: Enum "Flushing Method Routing";
+#if not CLEAN27
+    [Obsolete('Replaced by procedure in codeunit MfgCarryOutAction', '27.0')]
+    procedure TransferBOM(RequisitionLine: Record "Requisition Line"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; ProdOrderLineNo: Integer)
     begin
-        PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
-        PlanningRoutingLine.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
-        PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        if PlanningRoutingLine.Find('-') then
-            repeat
-                ProdOrderRoutingLine.Init();
-                ProdOrderRoutingLine.Status := ProductionOrder.Status;
-                ProdOrderRoutingLine."Prod. Order No." := ProductionOrder."No.";
-                ProdOrderRoutingLine."Routing No." := RoutingNo;
-                ProdOrderRoutingLine."Routing Reference No." := RoutingRefNo;
-                ProdOrderRoutingLine.CopyFromPlanningRoutingLine(PlanningRoutingLine);
-                case ProdOrderRoutingLine.Type of
-                    ProdOrderRoutingLine.Type::"Work Center":
-                        begin
-                            WorkCenter.Get(PlanningRoutingLine."No.");
-                            ProdOrderRoutingLine."Flushing Method" := WorkCenter."Flushing Method";
-                        end;
-                    ProdOrderRoutingLine.Type::"Machine Center":
-                        begin
-                            MachineCenter.Get(ProdOrderRoutingLine."No.");
-                            ProdOrderRoutingLine."Flushing Method" := MachineCenter."Flushing Method";
-                        end;
-                end;
-                ProdOrderRoutingLine."Location Code" := RequisitionLine."Location Code";
-                ProdOrderRoutingLine."From-Production Bin Code" :=
-                  ProdOrderWarehouseMgt.GetProdCenterBinCode(
-                    PlanningRoutingLine.Type, PlanningRoutingLine."No.", RequisitionLine."Location Code", false, Enum::"Flushing Method"::Manual);
-
-                FlushingMethod := ProdOrderRoutingLine."Flushing Method";
-                if ProdOrderRoutingLine."Flushing Method" = ProdOrderRoutingLine."Flushing Method"::Manual then
-                    ProdOrderRoutingLine."To-Production Bin Code" :=
-                        ProdOrderWarehouseMgt.GetProdCenterBinCode(
-                            PlanningRoutingLine.Type, PlanningRoutingLine."No.", RequisitionLine."Location Code", true,
-                            FlushingMethod)
-                else
-                    ProdOrderRoutingLine."Open Shop Floor Bin Code" :=
-                        ProdOrderWarehouseMgt.GetProdCenterBinCode(
-                            PlanningRoutingLine.Type, PlanningRoutingLine."No.", RequisitionLine."Location Code", true,
-                            FlushingMethod);
-
-                ProdOrderRoutingLine.UpdateDatetime();
-                OnAfterTransferPlanningRtngLine(PlanningRoutingLine, ProdOrderRoutingLine);
-                ProdOrderRoutingLine.Insert();
-                OnAfterProdOrderRtngLineInsert(ProdOrderRoutingLine, PlanningRoutingLine, ProductionOrder, RequisitionLine);
-                CalculateProdOrder.TransferTaskInfo(ProdOrderRoutingLine, RequisitionLine."Routing Version Code");
-            until PlanningRoutingLine.Next() = 0;
-
-        exit(not PlanningRoutingLine.IsEmpty);
+        MfgCarryOutAction.TransferBOM(RequisitionLine, ProductionOrder, ProdOrderLineNo);
     end;
+#endif
 
-    procedure TransferBOM(RequisitionLine: Record "Requisition Line"; ProductionOrder: Record "Production Order"; ProdOrderLineNo: Integer)
-    var
-        PlanningComponent: Record "Planning Component";
-        ProdOrderComponent2: Record "Prod. Order Component";
-        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
-        IsHandled: Boolean;
+#if not CLEAN27
+    [Obsolete('Replaced by procedure in codeunit MfgCarryOutAction', '27.0')]
+    procedure TransferCapNeed(RequisitionLine: Record "Requisition Line"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; RoutingNo: Code[20]; RoutingRefNo: Integer)
     begin
-        IsHandled := false;
-        OnBeforeTransferBOM(RequisitionLine, ProductionOrder, ProdOrderLineNo, IsHandled);
-        if IsHandled then
-            exit;
-
-        PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
-        PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
-        PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        if PlanningComponent.Find('-') then
-            repeat
-                OnTransferBOMOnBeforeProdOrderComp2Init(PlanningComponent);
-                ProdOrderComponent2.Init();
-                ProdOrderComponent2.Status := ProductionOrder.Status;
-                ProdOrderComponent2."Prod. Order No." := ProductionOrder."No.";
-                ProdOrderComponent2."Prod. Order Line No." := ProdOrderLineNo;
-                ProdOrderComponent2.CopyFromPlanningComp(PlanningComponent);
-                ProdOrderComponent2.UpdateDatetime();
-                OnAfterTransferPlanningComp(PlanningComponent, ProdOrderComponent2);
-                ProdOrderComponent2.Insert();
-                CopyProdBOMComments(ProdOrderComponent2);
-                OnTransferBOMOnAfterCopyProdBOMComments(PlanningComponent, ProdOrderComponent2);
-                ProdOrderCompReserve.TransferPlanningCompToPOComp(PlanningComponent, ProdOrderComponent2, 0, true);
-                if ProdOrderComponent2.Status in [ProdOrderComponent2.Status::"Firm Planned", ProdOrderComponent2.Status::Released] then
-                    ProdOrderComponent2.AutoReserve();
-
-                ReservationManagement.SetReservSource(ProdOrderComponent2);
-                ReservationManagement.AutoTrack(ProdOrderComponent2."Remaining Qty. (Base)");
-            until PlanningComponent.Next() = 0;
+        MfgCarryOutAction.TransferCapNeed(RequisitionLine, ProductionOrder, RoutingNo, RoutingRefNo);
     end;
+#endif
 
-    procedure TransferCapNeed(RequisitionLine: Record "Requisition Line"; ProductionOrder: Record "Production Order"; RoutingNo: Code[20]; RoutingRefNo: Integer)
-    var
-        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
-        NewProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
-        IsHandled: Boolean;
+#if not CLEAN27
+    [Obsolete('Replaced by procedure in codeunit MfgCarryOutAction', '27.0')]
+    procedure UpdateComponentLink(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
-        IsHandled := false;
-        OnBeforeTransferCapNeed(RequisitionLine, ProductionOrder, RoutingNo, RoutingRefNo, IsHandled);
-        if IsHandled then
-            exit;
-
-        ProdOrderCapacityNeed.SetCurrentKey("Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.");
-        ProdOrderCapacityNeed.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
-        ProdOrderCapacityNeed.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
-        ProdOrderCapacityNeed.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        if ProdOrderCapacityNeed.Find('-') then
-            repeat
-                NewProdOrderCapacityNeed.Init();
-                NewProdOrderCapacityNeed := ProdOrderCapacityNeed;
-                NewProdOrderCapacityNeed."Requested Only" := false;
-                NewProdOrderCapacityNeed.Status := ProductionOrder.Status;
-                NewProdOrderCapacityNeed."Prod. Order No." := ProductionOrder."No.";
-                NewProdOrderCapacityNeed."Routing No." := RoutingNo;
-                NewProdOrderCapacityNeed."Routing Reference No." := RoutingRefNo;
-                NewProdOrderCapacityNeed."Worksheet Template Name" := '';
-                NewProdOrderCapacityNeed."Worksheet Batch Name" := '';
-                NewProdOrderCapacityNeed."Worksheet Line No." := 0;
-                NewProdOrderCapacityNeed.UpdateDatetime();
-                NewProdOrderCapacityNeed.Insert();
-            until ProdOrderCapacityNeed.Next() = 0;
+        MfgCarryOutAction.UpdateComponentLink(ProdOrderLine);
     end;
-
-    procedure UpdateComponentLink(ProdOrderLine: Record "Prod. Order Line")
-    var
-        ProdOrderComponent: Record "Prod. Order Component";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeUpdateComponentLink(ProdOrderLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        ProdOrderComponent.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.", "Item No.");
-        ProdOrderComponent.SetRange(Status, ProdOrderLine.Status);
-        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-        ProdOrderComponent.SetRange("Item No.", ProdOrderLine."Item No.");
-        if ProdOrderComponent.Find('-') then
-            repeat
-                ProdOrderComponent."Supplied-by Line No." := ProdOrderLine."Line No.";
-                ProdOrderComponent.Modify();
-            until ProdOrderComponent.Next() = 0;
-    end;
+#endif
 
     procedure SetCreatedDocumentBuffer(var TempDocumentEntryNew: Record "Document Entry" temporary)
     begin
         TempDocumentEntry.Copy(TempDocumentEntryNew, true);
-    end;
-
-    local procedure InsertTempProdOrder(var RequisitionLine: Record "Requisition Line"; var NewProductionOrder: Record "Production Order")
-    begin
-        if TempProductionOrder.Get(NewProductionOrder.Status, NewProductionOrder."No.") then
-            exit;
-
-        TempDocumentEntry.Init();
-        TempDocumentEntry."Table ID" := Database::"Production Order";
-        TempDocumentEntry."Document Type" := NewProductionOrder.Status;
-        TempDocumentEntry."Document No." := NewProductionOrder."No.";
-        TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
-        TempDocumentEntry.Insert();
-
-        TempProductionOrder := NewProductionOrder;
-        if RequisitionLine."Ref. Order Status" = RequisitionLine."Ref. Order Status"::Planned then begin
-            TempProductionOrder."Planned Order No." := RequisitionLine."Ref. Order No.";
-            TempProductionOrder.Insert();
-        end;
-
-        if PrintOrder then
-            if RequisitionLine."Ref. Order Status" in [RequisitionLine."Ref. Order Status"::Planned, RequisitionLine."Ref. Order Status"::"Firm Planned"] then
-                OnCollectProdOrderForPrinting(NewProductionOrder);
-    end;
-
-    local procedure FindTempProdOrder(var RequisitionLine: Record "Requisition Line"): Boolean
-    begin
-        if RequisitionLine."Ref. Order Status" = RequisitionLine."Ref. Order Status"::Planned then begin
-            TempProductionOrder.SetRange("Planned Order No.", RequisitionLine."Ref. Order No.");
-            exit(TempProductionOrder.FindFirst())
-        end;
     end;
 
     procedure SetPrintOrder(OrderPrinting: Boolean)
@@ -1173,32 +728,13 @@ codeunit 99000813 "Carry Out Action"
         SplitTransferOrders := Split;
     end;
 
-    procedure ReserveBindingOrderToProd(var ProdOrderLine: Record "Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
-    var
-        TrackingSpecification: Record "Tracking Specification";
-        ReservQty: Decimal;
-        ReservQtyBase: Decimal;
+#if not CLEAN27
+    [Obsolete('Replaced by procedure in codeunit MfgCarryOutAction', '27.0')]
+    procedure ReserveBindingOrderToProd(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
     begin
-        ProdOrderLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
-        if ProdOrderLine."Remaining Qty. (Base)" - ProdOrderLine."Reserved Qty. (Base)" >
-           RequisitionLine."Demand Quantity (Base)"
-        then begin
-            ReservQty := RequisitionLine."Demand Quantity";
-            ReservQtyBase := RequisitionLine."Demand Quantity (Base)";
-        end else begin
-            ReservQty := ProdOrderLine."Remaining Quantity" - ProdOrderLine."Reserved Quantity";
-            ReservQtyBase := ProdOrderLine."Remaining Qty. (Base)" - ProdOrderLine."Reserved Qty. (Base)";
-        end;
-
-        TrackingSpecification.InitTrackingSpecification(
-            Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
-            ProdOrderLine."Variant Code", ProdOrderLine."Location Code", ProdOrderLine."Qty. per Unit of Measure");
-
-        RequisitionLine.ReserveBindingOrder(
-            TrackingSpecification, ProdOrderLine.Description, ProdOrderLine."Ending Date", ReservQty, ReservQtyBase, true);
-
-        ProdOrderLine.Modify();
+        MfgCarryOutAction.ReserveBindingOrderToProd(ProdOrderLine, RequisitionLine);
     end;
+#endif
 
     procedure ReserveBindingOrderToTrans(var TransferLine: Record "Transfer Line"; var RequisitionLine: Record "Requisition Line")
     var
@@ -1233,7 +769,7 @@ codeunit 99000813 "Carry Out Action"
     end;
 #endif
 
-    procedure ReserveBindingOrderToReqline(var DemandRequisitionLine: Record "Requisition Line"; var SupplyRequisitionLine: Record "Requisition Line")
+    procedure ReserveBindingOrderToReqLine(var DemandRequisitionLine: Record "Requisition Line"; var SupplyRequisitionLine: Record "Requisition Line")
     var
         TrackingSpecification: Record "Tracking Specification";
         ReservQty: Decimal;
@@ -1251,41 +787,6 @@ codeunit 99000813 "Carry Out Action"
             TrackingSpecification, DemandRequisitionLine.Description, DemandRequisitionLine."Due Date", ReservQty, ReservQtyBase, true);
     end;
 
-    local procedure CopyProdBOMComments(ProdOrderComponent: Record "Prod. Order Component")
-    var
-        ProductionBOMCommentLine: Record "Production BOM Comment Line";
-        ProductionBOMHeader: Record "Production BOM Header";
-        ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderCompCmtLine: Record "Prod. Order Comp. Cmt Line";
-        ProductionBOMLine: Record "Production BOM Line";
-        VersionManagement: Codeunit VersionManagement;
-        ActiveVersionCode: Code[20];
-    begin
-        ProdOrderLine.Get(ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.");
-
-        if not ProductionBOMHeader.Get(ProdOrderLine."Production BOM No.") then
-            exit;
-
-        ActiveVersionCode := VersionManagement.GetBOMVersion(ProductionBOMHeader."No.", WorkDate(), true);
-
-        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
-        ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
-        ProductionBOMLine.SetRange("No.", ProdOrderComponent."Item No.");
-        ProductionBOMLine.SetRange(Position, ProdOrderComponent.Position);
-        if ProductionBOMLine.FindSet() then
-            repeat
-                ProductionBOMCommentLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
-                ProductionBOMCommentLine.SetRange("BOM Line No.", ProductionBOMLine."Line No.");
-                ProductionBOMCommentLine.SetRange("Version Code", ActiveVersionCode);
-                if ProductionBOMCommentLine.FindSet() then
-                    repeat
-                        ProdOrderCompCmtLine.CopyFromProdBOMComponent(ProductionBOMCommentLine, ProdOrderComponent);
-                        if not ProdOrderCompCmtLine.Insert() then
-                            ProdOrderCompCmtLine.Modify();
-                    until ProductionBOMCommentLine.Next() = 0;
-            until ProductionBOMLine.Next() = 0;
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterCarryOutToReqWksh(var RequisitionLine: Record "Requisition Line"; RequisitionLine2: Record "Requisition Line")
     begin
@@ -1301,15 +802,31 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertProdOrder(var ProductionOrder: Record "Production Order"; ProdOrderChoice: Integer; var RequisitionLine: Record "Requisition Line")
+#if not CLEAN27
+    internal procedure RunOnAfterInsertProdOrder(var ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; ProdOrderChoice: Integer; var RequisitionLine: Record "Requisition Line")
     begin
+        OnAfterInsertProdOrder(ProductionOrder, ProdOrderChoice, RequisitionLine);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertProdOrderLine(ReqLine: Record "Requisition Line"; ProdOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; Item: Record Item)
+    local procedure OnAfterInsertProdOrder(var ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; ProdOrderChoice: Integer; var RequisitionLine: Record "Requisition Line")
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnAfterInsertProdOrderLine(ReqLine: Record "Requisition Line"; ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; Item: Record Item)
+    begin
+        OnAfterInsertProdOrderLine(ReqLine, ProdOrder, ProdOrderLine, Item);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertProdOrderLine(ReqLine: Record "Requisition Line"; ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; Item: Record Item)
+    begin
+    end;
+#endif
 
 #if not CLEAN27
     internal procedure RunOnAfterInsertAsmHeader(var ReqLine: Record "Requisition Line"; var AsmHeader: Record Microsoft.Assembly.Document."Assembly Header")
@@ -1347,25 +864,57 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferPlanningRtngLine(var PlanningRtngLine: Record "Planning Routing Line"; var ProdOrderRtngLine: Record "Prod. Order Routing Line")
+#if not CLEAN27
+    internal procedure RunOnAfterTransferPlanningRtngLine(var PlanningRtngLine: Record Microsoft.Manufacturing.Routing."Planning Routing Line"; var ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line")
     begin
+        OnAfterTransferPlanningRtngLine(PlanningRtngLine, ProdOrderRtngLine);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferPlanningComp(var PlanningComponent: Record "Planning Component"; var ProdOrderComponent: Record "Prod. Order Component")
+    local procedure OnAfterTransferPlanningRtngLine(var PlanningRtngLine: Record Microsoft.Manufacturing.Routing."Planning Routing Line"; var ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line")
     begin
+    end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnAfterTransferPlanningComp(var PlanningComponent: Record "Planning Component"; var ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    begin
+        OnAfterTransferPlanningComp(PlanningComponent, ProdOrderComponent);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterProdOrderRtngLineInsert(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; PlanningRoutingLine: Record "Planning Routing Line"; ProdOrder: Record "Production Order"; RequisitionLine: Record "Requisition Line")
+    local procedure OnAfterTransferPlanningComp(var PlanningComponent: Record "Planning Component"; var ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
+    end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnAfterProdOrderRtngLineInsert(var ProdOrderRoutingLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line"; PlanningRoutingLine: Record Microsoft.Manufacturing.Routing."Planning Routing Line"; ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; RequisitionLine: Record "Requisition Line")
+    begin
+        OnAfterProdOrderRtngLineInsert(ProdOrderRoutingLine, PlanningRoutingLine, ProdOrder, RequisitionLine);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterProdOrderChgAndReshedule(var RequisitionLine: Record "Requisition Line"; var ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnAfterProdOrderRtngLineInsert(var ProdOrderRoutingLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line"; PlanningRoutingLine: Record Microsoft.Manufacturing.Routing."Planning Routing Line"; ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; RequisitionLine: Record "Requisition Line")
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnAfterProdOrderChgAndReshedule(var RequisitionLine: Record "Requisition Line"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+        OnAfterProdOrderChgAndReshedule(RequisitionLine, ProdOrderLine);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterProdOrderChgAndReshedule(var RequisitionLine: Record "Requisition Line"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+    end;
+#endif
 
 #if not CLEAN27
     internal procedure RunOnBeforeAddResourceComponents(RequisitionLine: Record "Requisition Line"; var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; var IsHandled: Boolean)
@@ -1403,10 +952,18 @@ codeunit 99000813 "Carry Out Action"
     end;
 #endif
 
+#if not CLEAN27
+    internal procedure RunOnBeforeDeleteProdOrderLines(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeDeleteProdOrderLines(RequisitionLine, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteProdOrderLines(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeletePurchaseLines(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
@@ -1423,10 +980,18 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnBeforeFinalizeOrderHeader(ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; PrintOrder2: Boolean; var IsHandled: Boolean)
+    begin
+        OnBeforeFinalizeOrderHeader(ProdOrder, PrintOrder2, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFinalizeOrderHeader(ProdOrder: Record "Production Order"; PrintOrder: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeFinalizeOrderHeader(ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; PrintOrder: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTransHeader(ReqLine: Record "Requisition Line"; var TransHeader: Record "Transfer Header"; var IsHandled: Boolean)
@@ -1438,30 +1003,70 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransferBOM(ReqLine: Record "Requisition Line"; ProdOrder: Record "Production Order"; ProdOrderLineNo: Integer; var IsHandled: Boolean)
+#if not CLEAN27
+    internal procedure RunOnBeforeTransferBOM(ReqLine: Record "Requisition Line"; ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; ProdOrderLineNo: Integer; var IsHandled: Boolean)
     begin
+        OnBeforeTransferBOM(ReqLine, ProdOrder, ProdOrderLineNo, IsHandled);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransferCapNeed(ReqLine: Record "Requisition Line"; ProdOrder: Record "Production Order"; RoutingNo: Code[20]; RoutingRefNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeTransferBOM(ReqLine: Record "Requisition Line"; ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; ProdOrderLineNo: Integer; var IsHandled: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnBeforeTransferCapNeed(ReqLine: Record "Requisition Line"; ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; RoutingNo: Code[20]; RoutingRefNo: Integer; var IsHandled: Boolean)
+    begin
+        OnBeforeTransferCapNeed(ReqLine, ProdOrder, RoutingNo, RoutingRefNo, IsHandled);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateProdOrderLineQuantity(var ProdOrderLine: Record "Prod. Order Line"; ReqLine: Record "Requisition Line"; Item: Record Item; var IsHandled: Boolean)
+    local procedure OnBeforeTransferCapNeed(ReqLine: Record "Requisition Line"; ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; RoutingNo: Code[20]; RoutingRefNo: Integer; var IsHandled: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnBeforeUpdateProdOrderLineQuantity(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ReqLine: Record "Requisition Line"; Item: Record Item; var IsHandled: Boolean)
+    begin
+        OnBeforeUpdateProdOrderLineQuantity(ProdOrderLine, ReqLine, Item, IsHandled);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetProdOrderLineBinCodeFromPlanningRtngLines(ProdOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; ReqLine: Record "Requisition Line"; Item: Record Item; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateProdOrderLineQuantity(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ReqLine: Record "Requisition Line"; Item: Record Item; var IsHandled: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnBeforeSetProdOrderLineBinCodeFromPlanningRtngLines(ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ReqLine: Record "Requisition Line"; Item: Record Item; var IsHandled: Boolean)
+    begin
+        OnBeforeSetProdOrderLineBinCodeFromPlanningRtngLines(ProdOrder, ProdOrderLine, ReqLine, Item, IsHandled);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateComponentLink(ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    local procedure OnBeforeSetProdOrderLineBinCodeFromPlanningRtngLines(ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ReqLine: Record "Requisition Line"; Item: Record Item; var IsHandled: Boolean)
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnBeforeUpdateComponentLink(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeUpdateComponentLink(ProdOrderLine, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateComponentLink(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCarryOutToReqWkshOnAfterPlanningCompInsert(var PlanningComponent: Record "Planning Component"; PlanningComponent2: Record "Planning Component")
@@ -1469,7 +1074,7 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCarryOutToReqWkshOnAfterPlanningRoutingLineInsert(var PlanningRoutingLine: Record "Planning Routing Line"; PlanningRoutingLine2: Record "Planning Routing Line")
+    local procedure OnCarryOutToReqWkshOnAfterPlanningRoutingLineInsert(var PlanningRoutingLine: Record Microsoft.Manufacturing.Routing."Planning Routing Line"; PlanningRoutingLine2: Record Microsoft.Manufacturing.Routing."Planning Routing Line")
     begin
     end;
 
@@ -1478,55 +1083,127 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnInsertProdOrderWithReqLine(var ProductionOrder: Record "Production Order"; var RequisitionLine: Record "Requisition Line")
+#if not CLEAN27
+    internal procedure RunOnInsertProdOrderWithReqLine(var ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var RequisitionLine: Record "Requisition Line")
     begin
+        OnInsertProdOrderWithReqLine(ProductionOrder, RequisitionLine);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnInsertProdOrderLineWithReqLine(var ProdOrderLine: Record "Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
+    local procedure OnInsertProdOrderWithReqLine(var ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var RequisitionLine: Record "Requisition Line")
     begin
     end;
+#endif
 
+#if not CLEAN27
+    internal procedure RunOnInsertProdOrderLineWithReqLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
+    begin
+        OnInsertProdOrderLineWithReqLine(ProdOrderLine, RequisitionLine);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderLineWithReqLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnInsertProdOrderLineOnBeforeProdOrderLineInit(var ReqLine: Record "Requisition Line"; var Item: Record Item)
+    begin
+        OnInsertProdOrderLineOnBeforeProdOrderLineInit(ReqLine, Item);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnInsertProdOrderLineOnBeforeProdOrderLineInit(var ReqLine: Record "Requisition Line"; var Item: Record Item)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTransLineWithReqLine(var TransferLine: Record "Transfer Line"; var RequisitionLine: Record "Requisition Line"; var NextLineNo: Integer)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnInsertProdOrderLineOnAfterTransferRouting(var ProdOrderLine: Record "Prod. Order Line"; var RefreshProdOrderLine: Boolean)
+#if not CLEAN27
+    internal procedure RunOnInsertProdOrderLineOnAfterTransferRouting(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var RefreshProdOrderLine: Boolean)
     begin
+        OnInsertProdOrderLineOnAfterTransferRouting(ProdOrderLine, RefreshProdOrderLine);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnInsertProdOrderLineOnAfterProdOrderLineInsert(var ProdOrderLine: Record "Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
+    local procedure OnInsertProdOrderLineOnAfterTransferRouting(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var RefreshProdOrderLine: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN27
+    internal procedure RunOnInsertProdOrderLineOnAfterProdOrderLineInsert(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
+    begin
+        OnInsertProdOrderLineOnAfterProdOrderLineInsert(ProdOrderLine, RequisitionLine);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderLineOnAfterProdOrderLineInsert(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnInsertProdOrderOnBeforeProdOrderInit(var ReqLine: Record "Requisition Line")
+    begin
+        OnInsertProdOrderOnBeforeProdOrderInit(ReqLine);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnInsertProdOrderOnBeforeProdOrderInit(var ReqLine: Record "Requisition Line")
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnInsertProdOrderOnAfterFindTempProdOrder(var ReqLine: Record "Requisition Line"; var ProdOrder: Record "Production Order"; var HeaderExists: Boolean; var Item: Record Item)
+#if not CLEAN27
+    internal procedure RunOnInsertProdOrderOnAfterFindTempProdOrder(var ReqLine: Record "Requisition Line"; var ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; var HeaderExists: Boolean; var Item: Record Item)
     begin
+        OnInsertProdOrderOnAfterFindTempProdOrder(ReqLine, ProdOrder, HeaderExists, Item);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnInsertProdOrderOnAfterProdOrderInsert(var ProdOrder: Record "Production Order"; ReqLine: Record "Requisition Line")
+    local procedure OnInsertProdOrderOnAfterFindTempProdOrder(var ReqLine: Record "Requisition Line"; var ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; var HeaderExists: Boolean; var Item: Record Item)
     begin
+    end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnInsertProdOrderOnAfterProdOrderInsert(var ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; ReqLine: Record "Requisition Line")
+    begin
+        OnInsertProdOrderOnAfterProdOrderInsert(ProdOrder, ReqLine);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnInsertProdOrderOnBeforeProdOrderInsert(var ProdOrder: Record "Production Order"; ReqLine: Record "Requisition Line")
+    local procedure OnInsertProdOrderOnAfterProdOrderInsert(var ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; ReqLine: Record "Requisition Line")
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnInsertProdOrderOnBeforeProdOrderInsert(var ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; ReqLine: Record "Requisition Line")
+    begin
+        OnInsertProdOrderOnBeforeProdOrderInsert(ProdOrder, ReqLine);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderOnBeforeProdOrderInsert(var ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; ReqLine: Record "Requisition Line")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPurchOrderChgAndResheduleOnAfterGetPurchHeader(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var RequisitionLine: Record "Requisition Line")
@@ -1548,10 +1225,18 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnTransferBOMOnBeforeProdOrderComp2Init(var PlanningComponent: Record "Planning Component")
+    begin
+        OnTransferBOMOnBeforeProdOrderComp2Init(PlanningComponent);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnTransferBOMOnBeforeProdOrderComp2Init(var PlanningComponent: Record "Planning Component")
     begin
     end;
+#endif
 
 #if not CLEAN27
     internal procedure RunOnAsmOrderChgAndResheduleOnBeforeAsmHeaderModify(var ReqLine: Record "Requisition Line"; var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
@@ -1566,15 +1251,31 @@ codeunit 99000813 "Carry Out Action"
     end;
 #endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnProdOrderChgAndResheduleOnAfterValidateQuantity(var ProdOrderLine: Record "Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
+#if not CLEAN27
+    internal procedure RunOnProdOrderChgAndResheduleOnAfterValidateQuantity(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
     begin
+        OnProdOrderChgAndResheduleOnAfterValidateQuantity(ProdOrderLine, RequisitionLine);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnProdOrderChgAndResheduleOnBeforeProdOrderModify(var ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; RequisitionLine: Record "Requisition Line")
+    local procedure OnProdOrderChgAndResheduleOnAfterValidateQuantity(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnProdOrderChgAndResheduleOnBeforeProdOrderModify(var ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; RequisitionLine: Record "Requisition Line")
+    begin
+        OnProdOrderChgAndResheduleOnBeforeProdOrderModify(ProductionOrder, ProdOrderLine, RequisitionLine);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnProdOrderChgAndResheduleOnBeforeProdOrderModify(var ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTransHeaderOnBeforeTransHeaderInsert(var TransHeader: Record "Transfer Header"; ReqLine: Record "Requisition Line")
@@ -1632,10 +1333,18 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnCarryOutActionsFromProdOrderOnAfterCalcPrintOrder(var PrintOrder2: Boolean; ProdOrderChoice: Option)
+    begin
+        OnCarryOutActionsFromProdOrderOnAfterCalcPrintOrder(PrintOrder2, ProdOrderChoice);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCarryOutActionsFromProdOrderOnAfterCalcPrintOrder(var PrintOrder: Boolean; ProdOrderChoice: Option)
     begin
     end;
+#endif
 
 #if not CLEAN27
     internal procedure RunOnCarryOutActionsFromAssemblyOrderOnAfterCalcPrintOrder(var PrintOrder2: Boolean; AsmOrderChoice: Enum "Planning Create Assembly Order")
@@ -1650,25 +1359,49 @@ codeunit 99000813 "Carry Out Action"
     end;
 #endif
 
+#if not CLEAN27
+    internal procedure RunOnInsertProductionOrderOnProdOrderChoiceCaseElse(ProdOrderChoice: Enum Microsoft.Manufacturing.Document."Planning Create Prod. Order")
+    begin
+        OnInsertProductionOrderOnProdOrderChoiceCaseElse(ProdOrderChoice);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnInsertProductionOrderOnProdOrderChoiceCaseElse(ProdOrderChoice: Enum "Planning Create Prod. Order")
+    local procedure OnInsertProductionOrderOnProdOrderChoiceCaseElse(ProdOrderChoice: Enum Microsoft.Manufacturing.Document."Planning Create Prod. Order")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCarryOutActionsFromTransOrderOnBeforeTransOrderChgAndReshedule(ReqLine: Record "Requisition Line"; PrintOrder: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnInsertProdOrderLineOnBeforeGetBinCode(var ProdOrderLine: Record "Prod. Order Line"; ReqLine: Record "Requisition Line")
+#if not CLEAN27
+    internal procedure RunOnInsertProdOrderLineOnBeforeGetBinCode(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ReqLine: Record "Requisition Line")
     begin
+        OnInsertProdOrderLineOnBeforeGetBinCode(ProdOrderLine, ReqLine);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnInsertProdOrderOnProdOrderChoiceNotFirmPlannedPrint(var ProdOrder: Record "Production Order"; ProdOrderChoice: Enum "Planning Create Prod. Order"; var IsHandled: Boolean)
+    local procedure OnInsertProdOrderLineOnBeforeGetBinCode(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ReqLine: Record "Requisition Line")
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnInsertProdOrderOnProdOrderChoiceNotFirmPlannedPrint(var ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; ProdOrderChoice: Enum Microsoft.Manufacturing.Document."Planning Create Prod. Order"; var IsHandled: Boolean)
+    begin
+        OnInsertProdOrderOnProdOrderChoiceNotFirmPlannedPrint(ProdOrder, ProdOrderChoice, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderOnProdOrderChoiceNotFirmPlannedPrint(var ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; ProdOrderChoice: Enum Microsoft.Manufacturing.Document."Planning Create Prod. Order"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCarryOutActionsFromTransOrderOnBeforeInsertTransLine(ReqLine: Record "Requisition Line"; PrintOrder: Boolean; var IsHandled: Boolean)
@@ -1700,33 +1433,70 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnTransferBOMOnAfterCopyProdBOMComments(var PlanningComponent: Record "Planning Component"; var ProdOrderComponent: Record "Prod. Order Component")
+#if not CLEAN27
+    internal procedure RunOnTransferBOMOnAfterCopyProdBOMComments(var PlanningComponent: Record "Planning Component"; var ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
+        OnTransferBOMOnAfterCopyProdBOMComments(PlanningComponent, ProdOrderComponent);
     end;
 
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnInsertProdOrderLineOnBeforeValidateUnitCost(var RequisitionLine: Record "Requisition Line"; ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; Item: Record Item)
+    local procedure OnTransferBOMOnAfterCopyProdBOMComments(var PlanningComponent: Record "Planning Component"; var ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnInsertProdOrderLineOnBeforeValidateUnitCost(var RequisitionLine: Record "Requisition Line"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; Item: Record Item)
+    begin
+        OnInsertProdOrderLineOnBeforeValidateUnitCost(RequisitionLine, ProductionOrder, ProdOrderLine, Item);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderLineOnBeforeValidateUnitCost(var RequisitionLine: Record "Requisition Line"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; Item: Record Item)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var Rec: Record "Requisition Line")
     begin
     end;
 
-    [IntegrationEvent(true, false)]
-    local procedure OnInsertProdOrderLineOnBeforeModifyProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
+#if not CLEAN27
+    internal procedure RunOnInsertProdOrderLineOnBeforeModifyProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
     begin
+        OnInsertProdOrderLineOnBeforeModifyProdOrderLine(ProdOrderLine, RequisitionLine);
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnCollectProdOrderForPrinting(var ProductionOrder: Record "Production Order")
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
+    [IntegrationEvent(true, false)]
+    local procedure OnInsertProdOrderLineOnBeforeModifyProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnCollectProdOrderForPrinting(var ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order")
+    begin
+        OnCollectProdOrderForPrinting(ProductionOrder);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectProdOrderForPrinting(var ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnTrySourceTypeForAssembly(var RequisitionLine: Record "Requisition Line"; TryChoice: Option; var AssemblyExist: Boolean; var TempDocumentEntry: Record "Document Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnTrySourceTypeForProduction(var RequisitionLine: Record "Requisition Line"; TryChoice: Option; TryWkshTempl: Code[10]; TryWkshName: Code[10]; var ProductionExist: Boolean; var TempDocumentEntry: Record "Document Entry" temporary)
     begin
     end;
 }

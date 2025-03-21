@@ -11,6 +11,7 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Purchases.Document;
 
 codeunit 926 "Assembly Line-Reserve"
 {
@@ -1060,6 +1061,29 @@ codeunit 926 "Assembly Line-Reserve"
     [IntegrationEvent(false, false)]
     local procedure OnTransferAsmLineToAsmLineOnBeforeTransferReservationEntry(var OldAssemblyLine: Record "Assembly Line"; var NewAssemblyLine: Record "Assembly Line"; var OldReservationEntry: Record "Reservation Entry")
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Req. Wksh.-Make Order", 'OnReserveBindingOrderToPurch', '', false, false)]
+    local procedure OnReserveBindingOrderToPurch(var RequisitionLine: Record "Requisition Line"; var PurchaseLine: Record "Purchase Line"; ReservQty: Decimal; ReservQtyBase: Decimal)
+    var
+        AssemblyLine: Record "Assembly Line";
+        TrackingSpecification: Record "Tracking Specification";
+    begin
+        case RequisitionLine."Demand Type" of
+            Database::"Assembly Line":
+                begin
+                    AssemblyLine.Get(RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.");
+                    TrackingSpecification.InitTrackingSpecification(
+                        Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", '', 0, PurchaseLine."Line No.",
+                        PurchaseLine."Variant Code", PurchaseLine."Location Code", PurchaseLine."Qty. per Unit of Measure");
+                    BindToTracking(
+                        AssemblyLine, TrackingSpecification, PurchaseLine.Description, PurchaseLine."Expected Receipt Date", ReservQty, ReservQtyBase);
+                    if AssemblyLine.Reserve = AssemblyLine.Reserve::Never then begin
+                        AssemblyLine.Reserve := AssemblyLine.Reserve::Optional;
+                        AssemblyLine.Modify();
+                    end;
+                end;
+        end;
     end;
 }
 
