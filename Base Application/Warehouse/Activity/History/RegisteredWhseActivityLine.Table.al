@@ -499,13 +499,6 @@ table 5773 "Registered Whse. Activity Line"
         OnAfterSetTrackingFilterFromWhseSpec(Rec, WhseItemTrackingLine);
     end;
 
-#if not CLEAN27
-    [Obsolete('Replaced with new implementation with introduction of "Prod. Ord. Line Tracking Buff." table', '27.0')]
-    procedure SetTrackingFilterFromRelation(ItemLedgEntry: Record "Item Ledger Entry")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearTrackingFilter(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line")
     begin
