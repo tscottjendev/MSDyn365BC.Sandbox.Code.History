@@ -1091,7 +1091,6 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                         end;
                 until TempExchRateAdjmtBuffer.Next() = 0;
 
-                OnHandlePostAdjmtOnBeforePostAdjmt(TempExchRateAdjmtBuffer2, TempCurrencyToAdjust, TempDimSetEntry, AdjustAccType);
                 TempCurrencyToAdjust.Get(TempExchRateAdjmtBuffer2."Currency Code");
                 if TempExchRateAdjmtBuffer2."Gains Amount" <> 0 then
                     PostAdjmt(
@@ -3068,11 +3067,6 @@ codeunit 699 "Exch. Rate Adjmt. Process"
 
     [IntegrationEvent(false, false)]
     local procedure OnAdjustVendorLedgerEntryOnAfterCalcFields(var VendorLedgerEntry: Record "Vendor Ledger Entry")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnHandlePostAdjmtOnBeforePostAdjmt(var TempExchRateAdjmtBuffer2: Record "Exch. Rate Adjmt. Buffer" temporary; var Currency: Record Currency; var DimensionSetEntry: Record "Dimension Set Entry"; var AdjustAccType: Enum "Exch. Rate Adjmt. Account Type")
     begin
     end;
 }
