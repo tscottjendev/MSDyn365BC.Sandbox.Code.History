@@ -284,7 +284,6 @@ codeunit 5817 "Undo Posting Management"
         if IsHandled then
             exit;
 
-        WarehouseActivityLine.SetCurrentKey("Whse. Document No.", "Whse. Document Type", "Activity Type", "Whse. Document Line No.");
         WarehouseActivityLine.SetRange("Whse. Document No.", PostedWhseReceiptLine."No.");
         WarehouseActivityLine.SetRange("Whse. Document Type", WarehouseActivityLine."Whse. Document Type"::Receipt);
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Put-away");
@@ -303,7 +302,6 @@ codeunit 5817 "Undo Posting Management"
         if IsHandled then
             exit;
 
-        RegisteredWhseActivityLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
         RegisteredWhseActivityLine.SetRange("Whse. Document Type", RegisteredWhseActivityLine."Whse. Document Type"::Receipt);
         RegisteredWhseActivityLine.SetRange("Whse. Document No.", PostedWhseReceiptLine."No.");
         RegisteredWhseActivityLine.SetRange("Whse. Document Line No.", PostedWhseReceiptLine."Line No.");
@@ -315,7 +313,6 @@ codeunit 5817 "Undo Posting Management"
     var
         WhseWorksheetLine: Record "Whse. Worksheet Line";
     begin
-        WhseWorksheetLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
         WhseWorksheetLine.SetRange("Whse. Document Type", WhseWorksheetLine."Whse. Document Type"::Receipt);
         WhseWorksheetLine.SetRange("Whse. Document No.", PostedWhseReceiptLine."No.");
         WhseWorksheetLine.SetRange("Whse. Document Line No.", PostedWhseReceiptLine."Line No.");
@@ -615,15 +612,15 @@ codeunit 5817 "Undo Posting Management"
         if IsHandled then
             exit;
 
-        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", TempItemLedgEntry."Entry No.");
-        if ValueEntry.FindSet() then
-            repeat
-                if ValueEntry."Item Charge No." <> '' then
-                    Error(Text012, LineRef);
-                if ValueEntry."Entry Type" = ValueEntry."Entry Type"::Revaluation then
-                    Error(Text014, LineRef);
-            until ValueEntry.Next() = 0;
+        ValueEntry.SetFilter("Item Charge No.", '<> %1', '');
+        if not ValueEntry.IsEmpty() then
+            Error(Text012, LineRef);
+
+        ValueEntry.SetRange("Item Charge No.");
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
+        if not ValueEntry.IsEmpty() then
+            Error(Text014, LineRef);
     end;
 
     procedure PostItemJnlLineAppliedToList(ItemJnlLine: Record "Item Journal Line"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary; UndoQty: Decimal; UndoQtyBase: Decimal; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var TempItemEntryRelation: Record "Item Entry Relation" temporary)
@@ -965,6 +962,7 @@ codeunit 5817 "Undo Posting Management"
 
         // Move tracking information from the derived line to the original line
         TransferTracking(DerivedTransferLine, TransferLine, TransferShptLine);
+        OnUpdateDerivedTransferLineOnAfterTransferTracking(TransferLine, TransferShptLine, DerivedTransferLine);
 
         // Update any Transfer Shipment Lines that are pointing to this Derived Transfer Order Line
         TransferShipmentLine.SetRange("Transfer Order No.", DerivedTransferLine."Document No.");
@@ -1245,12 +1243,11 @@ codeunit 5817 "Undo Posting Management"
         if not TrackingSpecification."Prohibit Cancellation" then
             exit(false);
 
-        ATOLink.SetCurrentKey(Type, "Document Type", "Document No.", "Document Line No.");
         ATOLink.SetRange(Type, ATOLink.Type::Sale);
         ATOLink.SetRange("Document Type", TrackingSpecification."Source Subtype");
         ATOLink.SetRange("Document No.", TrackingSpecification."Source ID");
         ATOLink.SetRange("Document Line No.", TrackingSpecification."Source Ref. No.");
-        exit(not ATOLink.IsEmpty);
+        exit(not ATOLink.IsEmpty());
     end;
 
     procedure TransferSourceValues(var ItemJnlLine: Record "Item Journal Line"; EntryNo: Integer)
@@ -1654,6 +1651,11 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnRevertPostedItemTrackingOnBeforeGetTrackingSpecification(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateDerivedTransferLineOnAfterTransferTracking(var TransferLine: Record "Transfer Line"; var TransferShipmentLine: Record "Transfer Shipment Line"; var DerivedTransferLine: Record "Transfer Line")
     begin
     end;
 }
