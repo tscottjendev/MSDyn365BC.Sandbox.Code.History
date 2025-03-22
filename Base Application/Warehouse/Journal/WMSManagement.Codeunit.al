@@ -931,7 +931,7 @@ codeunit 7302 "WMS Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetWrongPickPutAwayQtyErrorText(WarehouseActivityLine3, QtyToPick, QtyToPutAway, ErrorText, IsHandled, WarehouseActivityLine);
+        OnBeforeGetWrongPickPutAwayQtyErrorText(WarehouseActivityLine3, QtyToPick, QtyToPutAway, ErrorText, IsHandled);
         if IsHandled then
             exit(ErrorText);
 
@@ -2008,7 +2008,7 @@ codeunit 7302 "WMS Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetWrongPickPutAwayQtyErrorText(var WhseActivLine: Record "Warehouse Activity Line"; QtyToPick: Decimal; QtyToPutAway: Decimal; var ErrorTxt: Text[250]; var IsHandled: Boolean; var WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnBeforeGetWrongPickPutAwayQtyErrorText(var WhseActivLine: Record "Warehouse Activity Line"; QtyToPick: Decimal; QtyToPutAway: Decimal; var ErrorTxt: Text[250]; var IsHandled: Boolean)
     begin
     end;
 
