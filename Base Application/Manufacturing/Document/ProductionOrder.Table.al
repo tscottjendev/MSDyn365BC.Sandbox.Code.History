@@ -75,6 +75,7 @@ table 5405 "Production Order"
         field(4; "Search Description"; Code[100])
         {
             Caption = 'Search Description';
+            OptimizeForTextSearch = true;
         }
         field(5; "Description 2"; Text[50])
         {

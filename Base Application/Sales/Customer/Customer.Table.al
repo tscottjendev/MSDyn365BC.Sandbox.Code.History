@@ -115,6 +115,7 @@ table 18 Customer
         field(3; "Search Name"; Code[100])
         {
             Caption = 'Search Name';
+            OptimizeForTextSearch = true;
             ToolTip = 'Specifies an alternate name that you can use to search for a customer.';
         }
         field(4; "Name 2"; Text[50])

@@ -312,7 +312,7 @@ report 5802 "Inventory Valuation - WIP"
         dataitem(Totals; "Integer")
         {
             DataItemTableView = sorting(Number) where(Number = const(1));
-            column(LastWipSum; LastWipSum)
+            column(LatWipSum; LastWipSum)
             {
             }
             column(ValueOfMatConsumptionSum; ValueOfMatConsumptionSum)
