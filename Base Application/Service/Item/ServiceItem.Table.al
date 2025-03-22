@@ -980,6 +980,7 @@ table 5940 "Service Item"
         field(88; "Search Description"; Code[100])
         {
             Caption = 'Search Description';
+            OptimizeForTextSearch = true;
         }
         field(89; "Service Contracts"; Boolean)
         {

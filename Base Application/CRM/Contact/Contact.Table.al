@@ -105,6 +105,7 @@ table 5050 Contact
         field(3; "Search Name"; Code[100])
         {
             Caption = 'Search Name';
+            OptimizeForTextSearch = true;
         }
         field(4; "Name 2"; Text[50])
         {
