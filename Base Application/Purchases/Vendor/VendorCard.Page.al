@@ -1820,15 +1820,14 @@ page 26 "Vendor Card"
     trigger OnAfterGetCurrRecord()
     begin
         if GuiAllowed() then
-            OnAfterGetCurrRecordFunc()
-        else
-            StartBackgroundCalculations();
+            OnAfterGetCurrRecordFunc();
     end;
 
     local procedure OnAfterGetCurrRecordFunc()
     var
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
+        OnBeforeOnAfterGetCurrRecordFunc(Rec);
         if NewMode then
             CreateVendorFromTemplate()
         else
@@ -2117,4 +2116,10 @@ page 26 "Vendor Card"
     local procedure OnCreateVendorFromTemplateOnBeforeCurrPageUpdate(var Vendor: Record Vendor)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterGetCurrRecordFunc(var Vendor: Record Vendor)
+    begin
+    end;
 }
+
