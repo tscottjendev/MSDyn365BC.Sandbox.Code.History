@@ -1086,8 +1086,6 @@ table 7302 "Bin Content"
         WhseEntry: Record "Warehouse Entry";
     begin
         GetLocation("Location Code");
-        WhseEntry.SetCurrentKey(
-          "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code");
         WhseEntry.SetRange("Item No.", "Item No.");
         WhseEntry.SetRange("Bin Code", Location."Adjustment Bin Code");
         WhseEntry.SetRange("Location Code", "Location Code");
