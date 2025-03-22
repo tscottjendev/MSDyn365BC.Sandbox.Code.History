@@ -163,7 +163,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 OnCheckTransLine(TransLine, TransHeader, Location, WhseReceive);
 
                 InsertTransRcptLine(TransRcptHeader, TransRcptLine, TransLine);
-                OnAfterInsertTransRcptLineOnBeforePostDeferredValue(TransLine, TransHeader, TransRcptHeader, TransRcptLine, ItemJnlPostLine);
             until TransLine.Next() = 0;
         TransLine.SetCurrentKey("Document No.", "Line No.");
         UnBindSubscription(this); // Stop collecting value entries for GLPosting
@@ -347,6 +346,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         ItemJnlLine."Prod. Order Comp. Line No." := TransRcptLine2."Prod. Order Comp. Line No.";
         ItemJnlLine."Subcontr. Purch. Order No." := TransRcptLine."Subcontr. Purch. Order No.";
         ItemJnlLine."Subcontr. Purch. Order Line" := TransRcptLine."Subcontr. Purch. Order Line";
+        OnPostItemJnlLineOnBeforeWriteDownDerivedLines(ItemJnlLine, TransLine3, TransRcptHeader2, TransRcptLine2);
         WriteDownDerivedLines(TransLine3);
         ItemJnlPostLine.SetPostponeReservationHandling(true);
 
@@ -486,6 +486,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                         TransLine4."Qty. to Receive" := 0;
                     end;
                 end;
+                OnWriteDownDerivedLinesOnAfterAssignTracking(TransLine4, TempDerivedSpecification, TrackingSpecificationExists);
                 if TransLine4."Qty. to Receive (Base)" <= BaseQtyToReceive then begin
                     ReserveTransLine.TransferTransferToItemJnlLine(
                       TransLine4, ItemJnlLine, TransLine4."Qty. to Receive (Base)", Enum::"Transfer Direction"::Inbound);
@@ -1061,12 +1062,18 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunWithCheckOnBeforeModifyTransferHeader(var TransferHeader: Record "Transfer Header");
+    local procedure OnRunWithCheckOnBeforeModifyTransferHeader(var TransferHeader: Record "Transfer Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertTransRcptLineOnBeforePostDeferredValue(var TransLine: Record "Transfer Line"; TransHeader: Record "Transfer Header"; TransRcptHeader: Record "Transfer Receipt Header"; TransRcptLine: Record "Transfer Receipt Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
+    local procedure OnPostItemJnlLineOnBeforeWriteDownDerivedLines(var ItemJournalLine: Record "Item Journal Line"; var TransferLine: Record "Transfer Line"; var TransferReceiptHeader: Record "Transfer Receipt Header"; var TransferReceiptLine: Record "Transfer Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWriteDownDerivedLinesOnAfterAssignTracking(var TransferLine: Record "Transfer Line"; var TrackingSpecification: Record "Tracking Specification"; TrackingSpecificationExists: boolean)
     begin
     end;
 }
+

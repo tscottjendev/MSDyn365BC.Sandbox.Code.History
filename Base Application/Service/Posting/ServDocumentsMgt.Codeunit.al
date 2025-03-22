@@ -784,7 +784,6 @@ codeunit 5988 "Serv-Documents Mgt."
             ServiceShipmentLine2.LockTable();
 
             ServShptHeader.Init();
-            ServHeader.CalcFields("Work Description");
             ServShptHeader.TransferFields(ServHeader);
             ServShptHeader."No." := ServHeader."Shipping No.";
             if ServHeader."Document Type" = ServHeader."Document Type"::Order then begin
@@ -938,7 +937,6 @@ codeunit 5988 "Serv-Documents Mgt."
         UseAsExternalDocumentNo: Code[35];
     begin
         ServInvHeader.Init();
-        ServHeader.CalcFields("Work Description");
         ServInvHeader.TransferFields(ServHeader);
         OnPrepareInvoiceHeaderOnAfterServInvHeaderTransferFields(ServHeader, ServInvHeader);
         if ServHeader."Document Type" = ServHeader."Document Type"::Order then begin
@@ -1021,7 +1019,6 @@ codeunit 5988 "Serv-Documents Mgt."
         UseAsExternalDocumentNo: Code[35];
     begin
         ServCrMemoHeader.Init();
-        ServHeader.CalcFields("Work Description");
         ServCrMemoHeader.TransferFields(ServHeader);
         ServCrMemoHeader."Pre-Assigned No. Series" := ServHeader."No. Series";
         ServCrMemoHeader."Pre-Assigned No." := ServHeader."No.";
@@ -1085,9 +1082,9 @@ codeunit 5988 "Serv-Documents Mgt."
         ServPostingJnlsMgt.Finalize();
 
         // finalize posted documents
-        FinalizeShipmentDocument(PassedServHeader);
-        FinalizeInvoiceDocument(PassedServHeader);
-        FinalizeCrMemoDocument(PassedServHeader);
+        FinalizeShipmentDocument();
+        FinalizeInvoiceDocument();
+        FinalizeCrMemoDocument();
         FinalizeWarrantyLedgerEntries(PassedServHeader, CloseCondition);
 
         IsHandled := false;
@@ -1221,7 +1218,7 @@ codeunit 5988 "Serv-Documents Mgt."
         ServItemLine.DeleteAll();
     end;
 
-    local procedure FinalizeShipmentDocument(var PassedServHeader: Record "Service Header")
+    local procedure FinalizeShipmentDocument()
     var
         ServiceShipmentHeader2: Record "Service Shipment Header";
         ServiceShipmentItemLine2: Record "Service Shipment Item Line";
@@ -1235,8 +1232,6 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServShptHeader.FindFirst() then begin
                 ServiceShipmentHeader2.Init();
                 ServiceShipmentHeader2.Copy(ServShptHeader);
-                PassedServHeader.CalcFields("Work Description");
-                ServiceShipmentHeader2."Work Description" := PassedServHeader."Work Description";
                 OnFinalizeShipmentDocumentOnBeforeServiceShipmentHeaderInsert(ServiceShipmentHeader2, ServShptHeader, ServHeader);
                 ServiceShipmentHeader2.Insert();
             end;
@@ -1266,7 +1261,7 @@ codeunit 5988 "Serv-Documents Mgt."
         OnAfterFinalizeShipmentDocument(ServShptHeader, ServHeader, ServiceShipmentHeader2);
     end;
 
-    local procedure FinalizeInvoiceDocument(var PassedServHeader: Record "Service Header")
+    local procedure FinalizeInvoiceDocument()
     var
         ServiceInvoiceHeader2: Record "Service Invoice Header";
         ServiceInvoiceLine2: Record "Service Invoice Line";
@@ -1279,8 +1274,6 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServInvHeader.FindFirst() then begin
                 ServiceInvoiceHeader2.Init();
                 ServiceInvoiceHeader2.Copy(ServInvHeader);
-                PassedServHeader.CalcFields("Work Description");
-                ServiceInvoiceHeader2."Work Description" := PassedServHeader."Work Description";
                 OnFinalizeInvoiceDocumentOnBeforeServiceInvoiceHeaderInsert(ServiceInvoiceHeader2, ServInvHeader, ServHeader);
                 ServiceInvoiceHeader2.Insert();
             end;
@@ -1328,7 +1321,7 @@ codeunit 5988 "Serv-Documents Mgt."
         end;
     end;
 
-    local procedure FinalizeCrMemoDocument(var PassedServHeader: Record "Service Header")
+    local procedure FinalizeCrMemoDocument()
     var
         PServCrMemoHeader: Record "Service Cr.Memo Header";
         PServCrMemoLine: Record "Service Cr.Memo Line";
@@ -1341,8 +1334,6 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServCrMemoHeader.FindFirst() then begin
                 PServCrMemoHeader.Init();
                 PServCrMemoHeader.Copy(ServCrMemoHeader);
-                PassedServHeader.CalcFields("Work Description");
-                PServCrMemoHeader."Work Description" := PassedServHeader."Work Description";
                 OnFinalizeCrMemoDocumentOnBeforeServiceCreditMemoHeaderInsert(PServCrMemoHeader, ServCrMemoHeader, ServHeader);
                 PServCrMemoHeader.Insert();
             end;
@@ -1928,16 +1919,8 @@ codeunit 5988 "Serv-Documents Mgt."
                         ServiceShptLine.Get(ItemEntryRelation."Source ID", ItemEntryRelation."Source Ref. No.");
                     end else
                         ItemEntryRelation."Item Entry No." := ServiceShptLine."Item Shpt. Entry No.";
-                    ServiceShptLine.TestField("Customer No.", ServiceLine."Customer No.");
-                    ServiceShptLine.TestField(Type, ServiceLine.Type);
-                    ServiceShptLine.TestField("No.", ServiceLine."No.");
-                    ServiceShptLine.TestField("Gen. Bus. Posting Group", ServiceLine."Gen. Bus. Posting Group");
-                    ServiceShptLine.TestField("Gen. Prod. Posting Group", ServiceLine."Gen. Prod. Posting Group");
 
-                    ServiceShptLine.TestField("Unit of Measure Code", ServiceLine."Unit of Measure Code");
-                    ServiceShptLine.TestField("Variant Code", ServiceLine."Variant Code");
-                    if -ServiceLine."Qty. to Invoice" * ServiceShptLine.Quantity < 0 then
-                        ServiceLine.FieldError("Qty. to Invoice", Text011);
+                    CheckServiceShipmentLineValues(ServiceShptLine, ServiceLine);
 
                     if TrackingSpecificationExists then begin
                         if Invoice then begin
@@ -2060,6 +2043,26 @@ codeunit 5988 "Serv-Documents Mgt."
                 Error(Text027, ServiceShptLine."Document No.");
             Error(Text013);
         end;
+    end;
+
+    local procedure CheckServiceShipmentLineValues(var ServiceShptLine: Record "Service Shipment Line"; var ServiceLine: Record "Service Line")
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeCheckServiceShipmentLineValues(ServiceShptLine, ServiceLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ServiceShptLine.TestField("Customer No.", ServiceLine."Customer No.");
+        ServiceShptLine.TestField(Type, ServiceLine.Type);
+        ServiceShptLine.TestField("No.", ServiceLine."No.");
+        ServiceShptLine.TestField("Gen. Bus. Posting Group", ServiceLine."Gen. Bus. Posting Group");
+        ServiceShptLine.TestField("Gen. Prod. Posting Group", ServiceLine."Gen. Prod. Posting Group");
+
+        ServiceShptLine.TestField("Unit of Measure Code", ServiceLine."Unit of Measure Code");
+        ServiceShptLine.TestField("Variant Code", ServiceLine."Variant Code");
+        if -ServiceLine."Qty. to Invoice" * ServiceShptLine.Quantity < 0 then
+            ServiceLine.FieldError("Qty. to Invoice", Text011);
     end;
 
     local procedure UpdateServLinesOnPostOrder()
@@ -3025,6 +3028,11 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnFinalizeCrMemoDocumentOnBeforeServiceCreditMemoHeaderInsert(var ServiceCrMemoHeaderToInsert: Record "Service Cr.Memo Header"; var TempServiceCrMemoHeader: Record "Service Cr.Memo Header" temporary; var TempServiceHeader: Record "Service Header" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckServiceShipmentLineValues(var ServiceShipmentLine: Record "Service Shipment Line"; var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 }
