@@ -52,10 +52,26 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     var
+#pragma warning disable AA0074
+        Text000: Label 'Please enter a Document No.';
+#pragma warning disable AA0470
+        Text001: Label '%1 %2 cannot be copied onto itself.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+        DeleteLinesQst: Label 'The existing lines for %1 %2 will be deleted.\\Do you want to continue?', Comment = '%1=Document type, e.g. Invoice. %2=Document No., e.g. 001';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
+        Text006: Label 'NOTE: A Payment Discount was Granted by %1 %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Currency: Record Currency;
+        Item: Record Item;
+        AsmHeader: Record "Assembly Header";
+        PostedAsmHeader: Record "Posted Assembly Header";
         TempAsmHeader: Record "Assembly Header" temporary;
         TempAsmLine: Record "Assembly Line" temporary;
         TempSalesInvLine: Record "Sales Invoice Line" temporary;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
         GLSetup: Record "General Ledger Setup";
         TempLineNumberBuffer: Record "Line Number Buffer" temporary;
         TranslationHelper: Codeunit "Translation Helper";
@@ -145,18 +161,6 @@ codeunit 6620 "Copy Document Mgt."
         DirectPostingErr: Label 'G/L account %1 does not allow direct posting.', Comment = '%1 - g/l account no.';
         SalesErrorContextMsg: Label 'Copying sales document %1', Comment = '%1 - document no.';
         PurchErrorContextMsg: Label 'Copying purchase document %1', Comment = '%1 - document no.';
-#pragma warning disable AA0074
-        Text000: Label 'Please enter a Document No.';
-#pragma warning disable AA0470
-        Text001: Label '%1 %2 cannot be copied onto itself.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-        DeleteLinesQst: Label 'The existing lines for %1 %2 will be deleted.\\Do you want to continue?', Comment = '%1=Document type, e.g. Invoice. %2=Document No., e.g. 001';
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text006: Label 'NOTE: A Payment Discount was Granted by %1 %2.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
 
     procedure SetProperties(NewIncludeHeader: Boolean; NewRecalculateLines: Boolean; NewMoveNegLines: Boolean; NewCreateToHeader: Boolean; NewHideDialog: Boolean; NewExactCostRevMandatory: Boolean; NewApplyFully: Boolean)
     begin
@@ -451,7 +455,6 @@ codeunit 6620 "Copy Document Mgt."
 
     procedure CopySalesDocSalesLine(FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; var LinesNotCopied: Integer; NextLineNo: Integer)
     var
-        AssemblyHeader: Record "Assembly Header";
         ToSalesLine: Record "Sales Line";
         FromSalesLine: Record "Sales Line";
         ItemChargeAssgntNextLineNo: Integer;
@@ -468,12 +471,12 @@ codeunit 6620 "Copy Document Mgt."
         OnCopySalesDocSalesLineOnAfterSetFilters(FromSalesHeader, FromSalesLine, ToSalesHeader, RecalculateLines);
         if FromSalesLine.Find('-') then
             repeat
-                ShouldRunIteration := not ExtTxtAttachedToPosSalesLine(FromSalesHeader, FromSalesLine);
+                ShouldRunIteration := not ExtTxtAttachedToPosSalesLine(FromSalesHeader, MoveNegLines, FromSalesLine);
                 OnCopySalesDocSalesLineOnAfterCalcShouldRunIteration(FromSalesHeader, ToSalesHeader, FromSalesLine, ShouldRunIteration);
                 if ShouldRunIteration then begin
                     InitAsmCopyHandling(true);
                     ToSalesLine."Document Type" := ToSalesHeader."Document Type";
-                    AsmHdrExistsForFromDocLine := FromSalesLine.AsmToOrderExists(AssemblyHeader);
+                    AsmHdrExistsForFromDocLine := FromSalesLine.AsmToOrderExists(AsmHeader);
                     if AsmHdrExistsForFromDocLine then begin
                         case ToSalesLine."Document Type" of
                             ToSalesLine."Document Type"::Order:
@@ -488,7 +491,7 @@ codeunit 6620 "Copy Document Mgt."
                                     QtyToAsmToOrderBase := FromSalesLine."Quantity (Base)";
                                 end;
                         end;
-                        GenerateAsmDataFromNonPosted(AssemblyHeader);
+                        GenerateAsmDataFromNonPosted(AsmHeader);
                     end;
                     if CopySalesDocLine(
                          ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine,
@@ -1088,7 +1091,7 @@ codeunit 6620 "Copy Document Mgt."
         OnCopyPurchDocPurchLineOnAfterSetFilters(FromPurchHeader, FromPurchLine, ToPurchHeader, RecalculateLines);
         if FromPurchLine.Find('-') then
             repeat
-                if not ExtTxtAttachedToPosPurchLine(FromPurchHeader, FromPurchLine) then
+                if not ExtTxtAttachedToPosPurchLine(FromPurchHeader, MoveNegLines, FromPurchLine) then
                     if CopyPurchDocLine(
                          ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine, NextLineNo, LinesNotCopied, false,
                          ConvertToPurchaseDocumentTypeFrom(FromPurchHeader."Document Type"),
@@ -1726,7 +1729,7 @@ codeunit 6620 "Copy Document Mgt."
            not MoveNegLines
         then begin
             if RecalculateAmount then
-                RecalculateSalesLineAmounts(FromSalesLine, ToSalesLine);
+                RecalculateSalesLineAmounts(FromSalesLine, ToSalesLine, Currency);
             ToSalesLine.Validate("Appl.-from Item Entry", FromSalesLine."Appl.-from Item Entry");
             if not CreateToHeader then
                 if ToSalesLine."Shipment Date" = 0D then
@@ -1734,7 +1737,7 @@ codeunit 6620 "Copy Document Mgt."
         end;
     end;
 
-    local procedure RecalculateSalesLineAmounts(FromSalesLine: Record "Sales Line"; var ToSalesLine: Record "Sales Line")
+    local procedure RecalculateSalesLineAmounts(FromSalesLine: Record "Sales Line"; var ToSalesLine: Record "Sales Line"; Currency: Record Currency)
     var
         IsHandled: Boolean;
     begin
@@ -1793,9 +1796,8 @@ codeunit 6620 "Copy Document Mgt."
         SalesHeader."Last Return Receipt No." := '';
     end;
 
-    local procedure UpdateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromSalesDocType: Enum "Sales Document Type From"; var DoCopyPostedDeferral: Boolean)
+    local procedure UpdateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromSalesDocType: Enum "Sales Document Type From"; var CopyPostedDeferral: Boolean)
     var
-        SalesItem: Record Item;
         VATPostingSetup: Record "VAT Posting Setup";
         FromSalesCommentDocTypeInt: Integer;
         ShouldGetUnitCost: Boolean;
@@ -1804,10 +1806,10 @@ codeunit 6620 "Copy Document Mgt."
     begin
         OnBeforeUpdateSalesLine(
           ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine,
-          CopyThisLine, RecalculateAmount, FromSalesDocType.AsInteger(), DoCopyPostedDeferral);
+          CopyThisLine, RecalculateAmount, FromSalesDocType.AsInteger(), CopyPostedDeferral);
 
         FromSalesCommentDocTypeInt := DeferralTypeForSalesDoc(FromSalesDocType.AsInteger());
-        DoCopyPostedDeferral := false;
+        CopyPostedDeferral := false;
         ShouldRecalculateSalesLine := RecalculateLines and not FromSalesLine."System-Created Entry";
         OnUpdateSalesLineOnBeforeValidateToSalesLine(ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine, ShouldRecalculateSalesLine);
         if ShouldRecalculateSalesLine then begin
@@ -1824,7 +1826,7 @@ codeunit 6620 "Copy Document Mgt."
                 "Deferral Document Type"::Sales, ToSalesLine."Document Type".AsInteger(), FromSalesCommentDocTypeInt)
             then
                 if IsDeferralPosted("Deferral Document Type"::Sales, FromSalesCommentDocTypeInt) then
-                    DoCopyPostedDeferral := true
+                    CopyPostedDeferral := true
                 else
                     ToSalesLine."Returns Deferral Start Date" :=
                       CopyDeferrals("Deferral Document Type"::Sales, FromSalesLine."Document Type".AsInteger(), FromSalesLine."Document No.",
@@ -1857,16 +1859,16 @@ codeunit 6620 "Copy Document Mgt."
 
             ToSalesLine.UpdateWithWarehouseShip();
             if (ToSalesLine.Type = ToSalesLine.Type::Item) and (ToSalesLine."No." <> '') then begin
-                SalesItem.Get(ToSalesLine."No.");
-                ShouldGetUnitCost := (SalesItem."Costing Method" = SalesItem."Costing Method"::Standard) and not ToSalesLine.IsShipment() and not IsCreatedFromJob(FromSalesLine);
-                OnUpdateSalesLineOnAfterCalcShouldGetUnitCost(SalesItem, ShouldGetUnitCost);
+                GetItem(ToSalesLine."No.");
+                ShouldGetUnitCost := (Item."Costing Method" = Item."Costing Method"::Standard) and not ToSalesLine.IsShipment() and not IsCreatedFromJob(FromSalesLine);
+                OnUpdateSalesLineOnAfterCalcShouldGetUnitCost(Item, ShouldGetUnitCost);
                 if ShouldGetUnitCost then
                     ToSalesLine.GetUnitCost();
 
-                if SalesItem.Reserve = SalesItem.Reserve::Optional then
+                if Item.Reserve = Item.Reserve::Optional then
                     ToSalesLine.Reserve := ToSalesHeader.Reserve
                 else
-                    ToSalesLine.Reserve := SalesItem.Reserve;
+                    ToSalesLine.Reserve := Item.Reserve;
                 OnUpdateSalesLineOnAfterSetReserve(ToSalesLine, FromSalesLine, FromSalesDocType);
                 if ToSalesLine.Reserve = ToSalesLine.Reserve::Always then
                     InitShipmentDateInLine(ToSalesHeader, ToSalesLine);
@@ -1876,7 +1878,7 @@ codeunit 6620 "Copy Document Mgt."
 
         OnAfterUpdateSalesLine(
           ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine,
-          CopyThisLine, RecalculateAmount, FromSalesDocType.AsInteger(), DoCopyPostedDeferral,
+          CopyThisLine, RecalculateAmount, FromSalesDocType.AsInteger(), CopyPostedDeferral,
           ExactCostRevMandatory, MoveNegLines, RecalculateLines);
     end;
 
@@ -1956,7 +1958,7 @@ codeunit 6620 "Copy Document Mgt."
 
     procedure HandleAsmAttachedToSalesLine(var ToSalesLine: Record "Sales Line")
     var
-        AssemblyItem: Record Item;
+        Item: Record Item;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1975,9 +1977,9 @@ codeunit 6620 "Copy Document Mgt."
             CopyAsmOrderToAsmOrder(
                 TempAsmHeader, TempAsmLine, ToSalesLine, GetAsmOrderType(ToSalesLine."Document Type"), '', true);
         end else begin
-            AssemblyItem.Get(ToSalesLine."No.");
-            if (AssemblyItem."Assembly Policy" = AssemblyItem."Assembly Policy"::"Assemble-to-Order") and
-               (AssemblyItem."Replenishment System" = AssemblyItem."Replenishment System"::Assembly) and
+            Item.Get(ToSalesLine."No.");
+            if (Item."Assembly Policy" = Item."Assembly Policy"::"Assemble-to-Order") and
+               (Item."Replenishment System" = Item."Replenishment System"::Assembly) and
                ToSalesLine.IsAsmToOrderAllowed()
             then begin
                 ToSalesLine.Validate("Qty. to Assemble to Order", ToSalesLine.Quantity);
@@ -2193,17 +2195,17 @@ codeunit 6620 "Copy Document Mgt."
         PurchaseHeader."Last Return Shipment No." := '';
     end;
 
-    local procedure UpdatePurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromPurchDocType: Enum "Purchase Document Type From"; var DoCopyPostedDeferral: Boolean)
+    local procedure UpdatePurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromPurchDocType: Enum "Purchase Document Type From"; var CopyPostedDeferral: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         FromPurchCommentDocTypeInt: Integer;
     begin
         OnBeforeUpdatePurchLine(
           ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine,
-          CopyThisLine, RecalculateAmount, FromPurchDocType.AsInteger(), DoCopyPostedDeferral);
+          CopyThisLine, RecalculateAmount, FromPurchDocType.AsInteger(), CopyPostedDeferral);
 
         FromPurchCommentDocTypeInt := DeferralTypeForPurchDoc(FromPurchDocType.AsInteger());
-        DoCopyPostedDeferral := false;
+        CopyPostedDeferral := false;
         if RecalculateLines and not FromPurchLine."System-Created Entry" then begin
             RecalculatePurchLine(ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine, CopyThisLine);
             if IsDeferralToBeCopied("Deferral Document Type"::Purchase, ToPurchLine."Document Type".AsInteger(), FromPurchCommentDocTypeInt) then
@@ -2212,7 +2214,7 @@ codeunit 6620 "Copy Document Mgt."
             SetDefaultValuesToPurchLine(ToPurchLine, ToPurchHeader, FromPurchLine."VAT Difference");
             if IsDeferralToBeCopied("Deferral Document Type"::Purchase, ToPurchLine."Document Type".AsInteger(), FromPurchCommentDocTypeInt) then
                 if IsDeferralPosted("Deferral Document Type"::Purchase, FromPurchCommentDocTypeInt) then
-                    DoCopyPostedDeferral := true
+                    CopyPostedDeferral := true
                 else
                     ToPurchLine."Returns Deferral Start Date" :=
                       CopyDeferrals("Deferral Document Type"::Purchase, FromPurchLine."Document Type".AsInteger(), FromPurchLine."Document No.",
@@ -2241,7 +2243,7 @@ codeunit 6620 "Copy Document Mgt."
 
         OnAfterUpdatePurchLine(
           ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine,
-          CopyThisLine, RecalculateAmount, FromPurchDocType.AsInteger(), DoCopyPostedDeferral, RecalculateLines);
+          CopyThisLine, RecalculateAmount, FromPurchDocType.AsInteger(), CopyPostedDeferral, RecalculateLines);
     end;
 
     local procedure RecalculatePurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var CopyThisLine: Boolean)
@@ -2425,8 +2427,8 @@ codeunit 6620 "Copy Document Mgt."
         ToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
         ValueEntry: Record "Value Entry";
         ItemLedgerEntry: Record "Item Ledger Entry";
-        PurchaseItem: Record Item;
-        PurchaseCurrency: Record Currency;
+        Item: Record Item;
+        Currency: Record Currency;
         ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
         CurrencyFactor: Decimal;
         QtyToAssign: Decimal;
@@ -2451,12 +2453,12 @@ codeunit 6620 "Copy Document Mgt."
             repeat
                 if ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.") then
                     if ItemLedgerEntry."Document Type" = ItemLedgerEntry."Document Type"::"Purchase Receipt" then begin
-                        PurchaseItem.Get(ItemLedgerEntry."Item No.");
+                        Item.Get(ItemLedgerEntry."Item No.");
                         CurrencyFactor := FromPurchHeader."Currency Factor";
 
-                        if not PurchaseCurrency.Get(FromPurchHeader."Currency Code") then begin
+                        if not Currency.Get(FromPurchHeader."Currency Code") then begin
                             CurrencyFactor := 1;
-                            PurchaseCurrency.InitRoundingPrecision();
+                            Currency.InitRoundingPrecision();
                         end;
 
                         if ToPurchLine."Unit Cost" = 0 then
@@ -2468,7 +2470,7 @@ codeunit 6620 "Copy Document Mgt."
 
                         ItemChargeAssgntPurch.InsertItemChargeAssignmentWithValuesTo(
                             ToItemChargeAssignmentPurch, ToItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt,
-                            ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.", ItemLedgerEntry."Item No.", PurchaseItem.Description,
+                            ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.", ItemLedgerEntry."Item No.", Item.Description,
                             QtyToAssign, 0, ItemChargeAssgntNextLineNo, TempToItemChargeAssignmentPurch);
                     end;
                 OnCopyFromPurchLineItemChargeAssignOnAfterValueEntryLoop(
@@ -2499,11 +2501,11 @@ codeunit 6620 "Copy Document Mgt."
     local procedure CopyFromSalesLineItemChargeAssign(FromSalesLine: Record "Sales Line"; ToSalesLine: Record "Sales Line"; FromSalesHeader: Record "Sales Header"; var ItemChargeAssgntNextLineNo: Integer)
     var
         ValueEntry: Record "Value Entry";
-        SalesCurrency: Record Currency;
+        Currency: Record Currency;
         TempToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary;
         ToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
         ItemLedgerEntry: Record "Item Ledger Entry";
-        SalesItem: Record Item;
+        Item: Record Item;
         ItemChargeAssgntSales: Codeunit "Item Charge Assgnt. (Sales)";
         CurrencyFactor: Decimal;
         QtyToAssign: Decimal;
@@ -2534,12 +2536,12 @@ codeunit 6620 "Copy Document Mgt."
             repeat
                 if ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.") then
                     if ItemLedgerEntry."Document Type" = ItemLedgerEntry."Document Type"::"Sales Shipment" then begin
-                        SalesItem.Get(ItemLedgerEntry."Item No.");
+                        Item.Get(ItemLedgerEntry."Item No.");
                         CurrencyFactor := FromSalesHeader."Currency Factor";
 
-                        if not SalesCurrency.Get(FromSalesHeader."Currency Code") then begin
+                        if not Currency.Get(FromSalesHeader."Currency Code") then begin
                             CurrencyFactor := 1;
-                            SalesCurrency.InitRoundingPrecision();
+                            Currency.InitRoundingPrecision();
                         end;
 
                         QtyToAssign :=
@@ -2548,7 +2550,7 @@ codeunit 6620 "Copy Document Mgt."
 
                         ItemChargeAssgntSales.InsertItemChargeAssignmentWithValuesTo(
                           ToItemChargeAssignmentSales, ToItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
-                          ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.", ItemLedgerEntry."Item No.", SalesItem.Description,
+                          ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.", ItemLedgerEntry."Item No.", Item.Description,
                           QtyToAssign, 0, ItemChargeAssgntNextLineNo, TempToItemChargeAssignmentSales);
                     end;
                 OnCopyFromSalesLineItemChargeAssignOnAfterValueEntryLoop(
@@ -2906,36 +2908,36 @@ codeunit 6620 "Copy Document Mgt."
     local procedure CheckATOItemAvailable(var FromSalesLine: Record "Sales Line"; ToSalesLine: Record "Sales Line")
     var
         ATOLink: Record "Assemble-to-Order Link";
-        AssemblyHeader: Record "Assembly Header";
-        TempAssemblyHeader: Record "Assembly Header" temporary;
-        TempAssemblyLine: Record "Assembly Line" temporary;
+        AsmHeader: Record "Assembly Header";
+        TempAsmHeader: Record "Assembly Header" temporary;
+        TempAsmLine: Record "Assembly Line" temporary;
     begin
         if HideDialog then
             exit;
 
         if ATOLink.ATOCopyCheckAvailShowWarning(
-             AssemblyHeader, ToSalesLine, TempAssemblyHeader, TempAssemblyLine,
-             not FromSalesLine.AsmToOrderExists(AssemblyHeader))
+             AsmHeader, ToSalesLine, TempAsmHeader, TempAsmLine,
+             not FromSalesLine.AsmToOrderExists(AsmHeader))
         then
-            if ItemCheckAvail.ShowAsmWarningYesNo(TempAssemblyHeader, TempAssemblyLine) then
+            if ItemCheckAvail.ShowAsmWarningYesNo(TempAsmHeader, TempAsmLine) then
                 ItemCheckAvail.RaiseUpdateInterruptedError();
     end;
 
     local procedure CheckPostedATOItemAvailable(var FromSalesShptLine: Record "Sales Shipment Line"; ToSalesLine: Record "Sales Line")
     var
         ATOLink: Record "Assemble-to-Order Link";
-        PostedAssemblyHeader: Record "Posted Assembly Header";
-        TempAssemblyHeader: Record "Assembly Header" temporary;
-        TempAssemblyLine: Record "Assembly Line" temporary;
+        PostedAsmHeader: Record "Posted Assembly Header";
+        TempAsmHeader: Record "Assembly Header" temporary;
+        TempAsmLine: Record "Assembly Line" temporary;
     begin
         if HideDialog then
             exit;
 
         if ATOLink.PstdATOCopyCheckAvailShowWarn(
-             PostedAssemblyHeader, ToSalesLine, TempAssemblyHeader, TempAssemblyLine,
-             not FromSalesShptLine.AsmToShipmentExists(PostedAssemblyHeader))
+             PostedAsmHeader, ToSalesLine, TempAsmHeader, TempAsmLine,
+             not FromSalesShptLine.AsmToShipmentExists(PostedAsmHeader))
         then
-            if ItemCheckAvail.ShowAsmWarningYesNo(TempAssemblyHeader, TempAssemblyLine) then
+            if ItemCheckAvail.ShowAsmWarningYesNo(TempAsmHeader, TempAsmLine) then
                 ItemCheckAvail.RaiseUpdateInterruptedError();
     end;
 
@@ -2976,7 +2978,6 @@ codeunit 6620 "Copy Document Mgt."
         FromSalesShptHeader: Record "Sales Shipment Header";
         TempItemTrkgEntry: Record "Reservation Entry" temporary;
         TempDocSalesLine: Record "Sales Line" temporary;
-        PostedAssemblyHeader: Record "Posted Assembly Header";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         OldDocNo: Code[20];
         NextLineNo: Integer;
@@ -3052,12 +3053,12 @@ codeunit 6620 "Copy Document Mgt."
                 if CopyLine then begin
                     NextLineNo := GetLastToSalesLineNo(ToSalesHeader);
                     OnCopySalesShptLinesToDocOnAfterCalcNextLineNo(ToSalesHeader, FromSalesShptLine, FromSalesHeader, NextLineNo, InsertDocNoLine, FromLineCounter, TempFromSalesLineBuf);
-                    AsmHdrExistsForFromDocLine := FromSalesShptLine.AsmToShipmentExists(PostedAssemblyHeader);
+                    AsmHdrExistsForFromDocLine := FromSalesShptLine.AsmToShipmentExists(PostedAsmHeader);
                     InitAsmCopyHandling(true);
                     if AsmHdrExistsForFromDocLine then begin
                         QtyToAsmToOrder := FromSalesShptLine.Quantity;
                         QtyToAsmToOrderBase := FromSalesShptLine."Quantity (Base)";
-                        GenerateAsmDataFromPosted(PostedAssemblyHeader, ToSalesHeader."Document Type");
+                        GenerateAsmDataFromPosted(PostedAsmHeader, ToSalesHeader."Document Type");
                     end;
                     if InsertDocNoLine then begin
                         InsertOldSalesDocNoLine(ToSalesHeader, FromSalesShptLine."Document No.", 1, NextLineNo);
@@ -3246,8 +3247,6 @@ codeunit 6620 "Copy Document Mgt."
             OnCopySalesInvLinesToDocOnBeforeGetNextLineNo(ToSalesHeader, TempSalesLineBuf, ShouldGetNextLineNo, NextLineNo);
             if ShouldGetNextLineNo then
                 NextLineNo := GetLastToSalesLineNo(ToSalesHeader);
-            Clear(OldInvDocNo);
-            Clear(OldBufDocNo);
             repeat
                 ToLineCounter := ToLineCounter + 1;
                 if IsTimeForUpdate() then
@@ -3431,8 +3430,6 @@ codeunit 6620 "Copy Document Mgt."
             OnCopySalesCrMemoLinesToDocOnBeforeGetNextLineNo(ToSalesHeader, TempFromSalesLineBuf, ShouldGetNextLineNo, NextLineNo);
             if ShouldGetNextLineNo then
                 NextLineNo := GetLastToSalesLineNo(ToSalesHeader);
-            Clear(OldCrMemoDocNo);
-            Clear(OldBufDocNo);
             repeat
                 ToLineCounter := ToLineCounter + 1;
                 if IsTimeForUpdate() then
@@ -4156,7 +4153,6 @@ codeunit 6620 "Copy Document Mgt."
         TempFromPurchLineBuf.SetCurrentKey("Line No.");
         if TempFromPurchLineBuf.FindSet() then begin
             NextLineNo := GetLastToPurchLineNo(ToPurchHeader);
-            Clear(OldBufDocNo);
             repeat
                 ToLineCounter := ToLineCounter + 1;
                 if IsTimeForUpdate() then
@@ -4336,8 +4332,6 @@ codeunit 6620 "Copy Document Mgt."
         TempFromPurchLineBuf.SetCurrentKey("Document Type", "Document No.", "Line No.");
         if TempFromPurchLineBuf.FindSet() then begin
             NextLineNo := GetLastToPurchLineNo(ToPurchHeader);
-            Clear(OldBufDocNo);
-            Clear(OldCrMemoDocNo);
             repeat
                 ToLineCounter := ToLineCounter + 1;
                 if IsTimeForUpdate() then
@@ -4593,7 +4587,7 @@ codeunit 6620 "Copy Document Mgt."
         JobPlanningLine.SetRange("Job Contract Entry No.", JobContractEntryNo);
         if JobPlanningLine.FindFirst() then begin
             NewJobPlanningLine.InitFromJobPlanningLine(JobPlanningLine, SalesLine.Quantity);
-            OnCreateJobPlanningLineOnAfterInitFromJobPlanningLine(NewJobPlanningLine, JobPlanningLine, SalesLine);
+
             JobPlanningLineInvoice.InitFromJobPlanningLine(NewJobPlanningLine);
             JobPlanningLineInvoice.InitFromSales(SalesHeader, SalesHeader."Posting Date", SalesLine."Line No.");
             JobPlanningLineInvoice.Insert();
@@ -4607,7 +4601,7 @@ codeunit 6620 "Copy Document Mgt."
 
     local procedure SplitPstdPurchLinesPerILE(ToPurchHeader: Record "Purchase Header"; FromPurchHeader: Record "Purchase Header"; var ItemLedgEntry: Record "Item Ledger Entry"; var FromPurchLineBuf: Record "Purchase Line"; FromPurchLine: Record "Purchase Line"; var TempDocPurchaseLine: Record "Purchase Line" temporary; var NextLineNo: Integer; var CopyItemTrkg: Boolean; var MissingExCostRevLink: Boolean; FillExactCostRevLink: Boolean; FromShptOrRcpt: Boolean) Result: Boolean
     var
-        PurchaseItem: Record Item;
+        Item: Record Item;
         ApplyRec: Record "Item Application Entry";
         OrgQtyBase: Decimal;
         OneRecord: Boolean;
@@ -4625,8 +4619,8 @@ codeunit 6620 "Copy Document Mgt."
         then
             exit(false);
 
-        PurchaseItem.Get(FromPurchLine."No.");
-        if PurchaseItem.IsNonInventoriableType() then
+        Item.Get(FromPurchLine."No.");
+        if Item.IsNonInventoriableType() then
             exit(false);
 
         if IsCopyItemTrkg(ItemLedgEntry, CopyItemTrkg, FillExactCostRevLink) or
@@ -5310,6 +5304,13 @@ codeunit 6620 "Copy Document Mgt."
         end;
     end;
 
+    local procedure GetItem(ItemNo: Code[20])
+    begin
+        if ItemNo <> Item."No." then
+            if not Item.Get(ItemNo) then
+                Item.Init();
+    end;
+
     local procedure CalcVAT(var Value: Decimal; VATPercentage: Decimal; FromPricesInclVAT: Boolean; ToPricesInclVAT: Boolean; RndgPrecision: Decimal)
     begin
         if (ToPricesInclVAT = FromPricesInclVAT) or (Value = 0) then
@@ -5817,16 +5818,16 @@ codeunit 6620 "Copy Document Mgt."
             until AsmLine.Next() = 0;
     end;
 
-    local procedure GenerateAsmDataFromPosted(PostedAssemblyHeader: Record "Posted Assembly Header"; DocType: Enum "Assembly Document Type")
+    local procedure GenerateAsmDataFromPosted(PostedAsmHeader: Record "Posted Assembly Header"; DocType: Enum "Assembly Document Type")
     var
         PostedAsmLine: Record "Posted Assembly Line";
     begin
         InitAsmCopyHandling(false);
-        TempAsmHeader.TransferFields(PostedAssemblyHeader);
-        OnAfterTransferTempAsmHeader(TempAsmHeader, PostedAssemblyHeader);
+        TempAsmHeader.TransferFields(PostedAsmHeader);
+        OnAfterTransferTempAsmHeader(TempAsmHeader, PostedAsmHeader);
         TempAsmHeader."Document Type" := DocType;
         TempAsmHeader.Insert();
-        PostedAsmLine.SetRange("Document No.", PostedAssemblyHeader."No.");
+        PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
         if PostedAsmLine.FindSet() then
             repeat
                 TempAsmLine.TransferFields(PostedAsmLine);
@@ -5843,8 +5844,8 @@ codeunit 6620 "Copy Document Mgt."
         ItemLedgerEntry: Record "Item Ledger Entry";
         ItemLedgerEntry2: Record "Item Ledger Entry";
         SalesShipmentLine: Record "Sales Shipment Line";
-        PostedAssemblyHeader: Record "Posted Assembly Header";
     begin
+        Clear(PostedAsmHeader);
         if TempSalesInvLine.Type <> TempSalesInvLine.Type::Item then
             exit(false);
         ValueEntry.SetCurrentKey("Document No.");
@@ -5858,7 +5859,7 @@ codeunit 6620 "Copy Document Mgt."
         if ItemLedgerEntry."Document Type" <> ItemLedgerEntry."Document Type"::"Sales Shipment" then
             exit(false);
         SalesShipmentLine.Get(ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.");
-        if not SalesShipmentLine.AsmToShipmentExists(PostedAssemblyHeader) then
+        if not SalesShipmentLine.AsmToShipmentExists(PostedAsmHeader) then
             exit(false);
         if ValueEntry.Count > 1 then begin
             ValueEntry2.Copy(ValueEntry);
@@ -5873,7 +5874,7 @@ codeunit 6620 "Copy Document Mgt."
                         Error(Text032, TempSalesInvLine."Document No.");
                 until ValueEntry2.Next() = 0;
         end;
-        GenerateAsmDataFromPosted(PostedAssemblyHeader, DocType);
+        GenerateAsmDataFromPosted(PostedAsmHeader, DocType);
         exit(true);
     end;
 
@@ -5960,6 +5961,7 @@ codeunit 6620 "Copy Document Mgt."
     local procedure CreateToAsmLines(ToAsmHeader: Record "Assembly Header"; var FromAsmLine: Record "Assembly Line"; var ToAssemblyLine: Record "Assembly Line"; ToSalesLine: Record "Sales Line"; BasicAsmOrderCopy: Boolean; AvailabilityCheck: Boolean)
     var
         AssemblyLineMgt: Codeunit "Assembly Line Management";
+        UOMMgt: Codeunit "Unit of Measure Management";
     begin
         if FromAsmLine.FindSet() then
             repeat
@@ -6030,6 +6032,7 @@ codeunit 6620 "Copy Document Mgt."
         TempToAsmLine: Record "Assembly Line" temporary;
         AsmLineOnDestinationOrder: Record "Assembly Line";
         AssemblyLineMgt: Codeunit "Assembly Line Management";
+        ItemCheckAvail: Codeunit "Item-Check Avail.";
         LineNo: Integer;
     begin
         TempToAsmHeader := ToAsmHeader;
@@ -6136,7 +6139,6 @@ codeunit 6620 "Copy Document Mgt."
 
     procedure CopyArchSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeaderArchive: Record "Sales Header Archive"; var FromSalesLineArchive: Record "Sales Line Archive"; var NextLineNo: Integer; var LinesNotCopied: Integer; RecalculateAmount: Boolean): Boolean
     var
-        SalesItem: Record Item;
         LastInsertedSalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
         FromSalesHeader: Record "Sales Header";
@@ -6206,8 +6208,8 @@ codeunit 6620 "Copy Document Mgt."
 
             ToSalesLine.UpdateWithWarehouseShip();
             if (ToSalesLine.Type = ToSalesLine.Type::Item) and (ToSalesLine."No." <> '') then begin
-                SalesItem.Get(ToSalesLine."No.");
-                if (SalesItem."Costing Method" = SalesItem."Costing Method"::Standard) and not ToSalesLine.IsShipment() then
+                GetItem(ToSalesLine."No.");
+                if (Item."Costing Method" = Item."Costing Method"::Standard) and not ToSalesLine.IsShipment() then
                     ToSalesLine.GetUnitCost();
             end;
         end;
@@ -6430,17 +6432,17 @@ codeunit 6620 "Copy Document Mgt."
             CustCheckCreditLimit.SalesHeaderCheck(ToSalesHeader);
     end;
 
-    local procedure CheckUnappliedLines(IsSkippedLine: Boolean; var MissingExCostRevLink: Boolean)
+    local procedure CheckUnappliedLines(SkippedLine: Boolean; var MissingExCostRevLink: Boolean)
     var
         IsHandled: Boolean;
 
     begin
         IsHandled := false;
-        OnBeforeCheckUnappliedLines(IsSkippedLine, MissingExCostRevLink, WarningDone, IsHandled);
+        OnBeforeCheckUnappliedLines(SkippedLine, MissingExCostRevLink, WarningDone, IsHandled);
         if IsHandled then
             exit;
 
-        if IsSkippedLine and MissingExCostRevLink then begin
+        if SkippedLine and MissingExCostRevLink then begin
             if not WarningDone then
                 Message(Text030);
             MissingExCostRevLink := false;
@@ -7427,7 +7429,7 @@ codeunit 6620 "Copy Document Mgt."
         end;
     end;
 
-    local procedure ExtTxtAttachedToPosSalesLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"): Boolean
+    local procedure ExtTxtAttachedToPosSalesLine(SalesHeader: Record "Sales Header"; MoveNegLines: Boolean; SalesLine: Record "Sales Line"): Boolean
     var
         AttachedToSalesLine: Record "Sales Line";
     begin
@@ -7440,7 +7442,7 @@ codeunit 6620 "Copy Document Mgt."
         exit(false);
     end;
 
-    local procedure ExtTxtAttachedToPosPurchLine(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"): Boolean
+    local procedure ExtTxtAttachedToPosPurchLine(PurchHeader: Record "Purchase Header"; MoveNegLines: Boolean; PurchLine: Record "Purchase Line"): Boolean
     var
         AttachedToPurchLine: Record "Purchase Line";
     begin
@@ -7893,9 +7895,7 @@ codeunit 6620 "Copy Document Mgt."
 
         ToSalesLine."Job No." := FromSalesLine."Job No.";
         ToSalesLine."Job Task No." := FromSalesLine."Job Task No.";
-        if (ToSalesHeader."Document Type" = ToSalesHeader."Document Type"::Invoice) and
-           (FromSalesLine."Job Contract Entry No." <> 0)
-        then
+        if ToSalesHeader."Document Type" = ToSalesHeader."Document Type"::Invoice then
             ToSalesLine."Job Contract Entry No." :=
               CreateJobPlanningLine(ToSalesHeader, ToSalesLine, FromSalesLine."Job Contract Entry No.")
         else
@@ -8065,8 +8065,6 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     local procedure SetSalespersonPurchaserCode(var SalespersonPurchaserCode: Code[20])
-    var
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
         if SalespersonPurchaserCode <> '' then
             if SalespersonPurchaser.Get(SalespersonPurchaserCode) then
@@ -8388,11 +8386,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     local procedure GetItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code"; ItemNo: Code[20]): Boolean
-    var
-        Item: Record Item;
     begin
-        Item.SetLoadFields("Item Tracking Code");
-
         if not Item.Get(ItemNo) then
             exit(false);
 
@@ -12574,11 +12568,6 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyArchSalesLineOnBeforeIncrementLinesNotCopied(FromSalesLineArchive: Record "Sales Line Archive"; var ShouldIncrementLinesNotCopied: Boolean; var LinesNotCopied: Integer)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateJobPlanningLineOnAfterInitFromJobPlanningLine(var NewJobPlanningLine: Record "Job Planning Line"; JobPlanningLine: Record "Job Planning Line"; SalesLine: Record "Sales Line")
     begin
     end;
 }
