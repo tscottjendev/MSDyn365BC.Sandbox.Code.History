@@ -72,7 +72,7 @@
         RtngLineBinCodeErr: Label 'Wrong %1 in %2.', Comment = '%1: Field(To-Production Bin Code), %2: TableCaption(Prod. Order Routing Line)';
         QuantityImbalanceErr: Label 'out of balance';
         InvalidPrecisionErr: Label 'field to be incorrect';
-        ReservationEntryMustExistErr: Label '%1 must be exist', Comment = '%1 is Table Caption';
+        ReservationEntryMustExistErr: Label '%1 must exist.', Comment = '%1 is Table Caption';
 
     [Test]
     [Scope('OnPrem')]
