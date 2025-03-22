@@ -1036,7 +1036,7 @@ table 5409 "Prod. Order Routing Line"
             "Run Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
             "Wait Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
             "Move Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
-            if not SkipUpdateDescription then
+            if (not SkipUpdateDescription) and ("Standard Task Code" = '') then
                 Description := WorkCenter.Name;
             "Flushing Method" := WorkCenter."Flushing Method";
             "Unit Cost per" := WorkCenter."Unit Cost";
