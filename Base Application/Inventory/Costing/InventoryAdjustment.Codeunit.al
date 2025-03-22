@@ -1600,7 +1600,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         exit(false);
     end;
 
-    local procedure IsExcludeFromAvgCostForRevalPoint(var RevaluationCheckValueEntry: Record "Value Entry"; var OutbndValueEntry: Record "Value Entry"): Boolean
+    local procedure IsExcludeFromAvgCostForRevalPoint(RevaluationCheckValueEntry: Record "Value Entry"; var OutbndValueEntry: Record "Value Entry"): Boolean
     var
         FirstDirectCostValueEntry: Record "Value Entry";
     begin
