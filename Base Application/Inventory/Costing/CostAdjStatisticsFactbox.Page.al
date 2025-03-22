@@ -132,12 +132,15 @@ page 5812 "Cost Adj. Statistics Factbox"
     local procedure GetItemLedgerEntries(ShowEntries: Boolean)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntries: Page "Item Ledger Entries";
     begin
         ItemLedgerEntry.SetCurrentKey("Item No.");
         ItemLedgerEntry.Ascending(false);
         ItemLedgerEntry.SetRange("Item No.", Rec."No.");
         if ShowEntries then begin
-            Page.RunModal(0, ItemLedgerEntry);
+            ItemLedgerEntries.SetTableView(ItemLedgerEntry);
+            ItemLedgerEntries.ShowCostAdjustmentActions();
+            ItemLedgerEntries.Run();
             exit;
         end;
         ItemEntries := ItemLedgerEntry.Count();
@@ -146,13 +149,16 @@ page 5812 "Cost Adj. Statistics Factbox"
     local procedure GetEntriesMarkedToAdjust(ShowEntries: Boolean)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntries: Page "Item Ledger Entries";
     begin
         ItemLedgerEntry.SetCurrentKey("Item No.", "Applied Entry to Adjust");
         ItemLedgerEntry.Ascending(false);
         ItemLedgerEntry.SetRange("Item No.", Rec."No.");
         ItemLedgerEntry.SetRange("Applied Entry to Adjust", true);
         if ShowEntries then begin
-            Page.RunModal(0, ItemLedgerEntry);
+            ItemLedgerEntries.SetTableView(ItemLedgerEntry);
+            ItemLedgerEntries.ShowCostAdjustmentActions();
+            ItemLedgerEntries.Run();
             exit;
         end;
         EntriesMarkedToAdjust := ItemLedgerEntry.Count();
@@ -181,6 +187,7 @@ page 5812 "Cost Adj. Statistics Factbox"
         InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
     begin
         InventoryAdjmtEntryOrder.SetRange("Order Type", InventoryAdjmtEntryOrder."Order Type"::Production);
+        InventoryAdjmtEntryOrder.SetRange("Is Finished", true);
         InventoryAdjmtEntryOrder.SetRange("Cost is Adjusted", false);
         InventoryAdjmtEntryOrder.SetRange("Item No.", Rec."No.");
         if ShowEntries then begin
