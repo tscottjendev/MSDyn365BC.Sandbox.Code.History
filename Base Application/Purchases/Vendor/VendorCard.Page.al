@@ -2002,7 +2002,9 @@ page 26 "Vendor Card"
     trigger OnAfterGetCurrRecord()
     begin
         if GuiAllowed() then
-            OnAfterGetCurrRecordFunc();
+            OnAfterGetCurrRecordFunc()
+        else
+            StartBackgroundCalculations();
     end;
 
     local procedure OnAfterGetCurrRecordFunc()
@@ -2309,4 +2311,3 @@ page 26 "Vendor Card"
     begin
     end;
 }
-
