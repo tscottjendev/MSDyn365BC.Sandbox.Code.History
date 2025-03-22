@@ -1205,13 +1205,9 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
 
                 OnAdjustItemAvgCostOnBeforeAdjustValueEntries();
 
-                while true do begin
-                    if Restart or EndOfValuationDateReached then
-                        break;
-
-                    if not FindOutboundEntriesToAdjust(TempOutbndValueEntry, TempExcludedValueEntry, AvgCostAdjmtEntryPoint) then
-                        break;
-
+                while not Restart and AvgValueEntriesToAdjustExist(
+                        TempOutbndValueEntry, TempExcludedValueEntry, AvgCostAdjmtEntryPoint) and not EndOfValuationDateReached
+                do begin
                     RemainingOutbnd := TempOutbndValueEntry.Count();
                     TempOutbndValueEntry.SetCurrentKey("Item Ledger Entry No.");
                     TempOutbndValueEntry.FindSet();
@@ -1257,29 +1253,13 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         exit(ToAvgCostAdjmtEntryPoint.FindFirst())
     end;
 
-    local procedure FindOutboundEntriesToAdjust(var OutbndValueEntry: Record "Value Entry"; var ExcludedValueEntry: Record "Value Entry"; var AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point") EntriesFound: Boolean
-    var
-        FindNextRange: Boolean;
-    begin
-        EntriesFound := false;
-        repeat
-            if AvgValueEntriesToAdjustExist(OutbndValueEntry, ExcludedValueEntry, AvgCostAdjmtEntryPoint, FindNextRange) then
-                EntriesFound := true;
-
-            if FindNextRange and (AvgCostAdjmtEntryPoint."Valuation Date" < AdjustTillDate) then begin
-                AvgCostAdjmtEntryPoint."Valuation Date" := GetNextDate(AvgCostAdjmtEntryPoint."Valuation Date");
-                OnAvgValueEntriesToAdjustExistOnFindNextRangeOnBeforeAvgValueEntriesToAdjustExist(OutbndValueEntry, ExcludedValueEntry, AvgCostAdjmtEntryPoint);
-            end else
-                FindNextRange := false;
-        until not FindNextRange;
-    end;
-
-    local procedure AvgValueEntriesToAdjustExist(var OutbndValueEntry: Record "Value Entry"; var ExcludedValueEntry: Record "Value Entry"; var AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point"; var FindNextRange: Boolean): Boolean
+    local procedure AvgValueEntriesToAdjustExist(var OutbndValueEntry: Record "Value Entry"; var ExcludedValueEntry: Record "Value Entry"; var AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point"): Boolean
     var
         ValueEntry: Record "Value Entry";
         CalendarPeriod: Record Date;
         NextFiscalYearAccPeriod: Record "Accounting Period";
         ItemApplicationEntry: Record "Item Application Entry";
+        FindNextRange: Boolean;
         DoInsertTempRevaluationPoint: Boolean;
     begin
         FindNextRange := false;
@@ -1318,7 +1298,6 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
                ((ConsumpAdjmtInPeriodWithOutput <> 0D) and (ConsumpAdjmtInPeriodWithOutput <= AvgCostAdjmtEntryPoint."Valuation Date"))
             then begin
                 AvgCostAdjmtEntryPoint.UpdateValuationDate(ValueEntry);
-                FindNextRange := false;
                 exit(false);
             end;
 
@@ -1328,7 +1307,6 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
             OutbndValueEntry.Copy(ValueEntry);
             if not OutbndValueEntry.IsEmpty() then begin
                 OutbndValueEntry.SetCurrentKey("Item Ledger Entry No.");
-                FindNextRange := false;
                 exit(true);
             end;
 
@@ -1368,6 +1346,12 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
             FetchOpenOutboundItemEntriesToExclude(AvgCostAdjmtEntryPoint, ExcludedValueEntry, OpenOutboundEntryNos, CalendarPeriod);
         end;
 
+        if FindNextRange then
+            if AvgCostAdjmtEntryPoint."Valuation Date" < AdjustTillDate then begin
+                AvgCostAdjmtEntryPoint."Valuation Date" := GetNextDate(AvgCostAdjmtEntryPoint."Valuation Date");
+                OnAvgValueEntriesToAdjustExistOnFindNextRangeOnBeforeAvgValueEntriesToAdjustExist(OutbndValueEntry, ExcludedValueEntry, AvgCostAdjmtEntryPoint);
+                AvgValueEntriesToAdjustExist(OutbndValueEntry, ExcludedValueEntry, AvgCostAdjmtEntryPoint);
+            end;
         exit(not OutbndValueEntry.IsEmpty() and not ValueEntry.IsEmpty());
     end;
 
@@ -2345,13 +2329,13 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         TempInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)" temporary;
         AdjustSpecificOrders: Boolean;
     begin
-        AdjustSpecificOrders := InventoryAdjmtEntryOrderToAdjust.GetFilters() <> '';
-        if AdjustSpecificOrders then
-            if InventoryAdjmtEntryOrderToAdjust.FindSet() then
-                repeat
-                    TempInvtAdjmtEntryOrder := InventoryAdjmtEntryOrderToAdjust;
-                    TempInvtAdjmtEntryOrder.Insert();
-                until InventoryAdjmtEntryOrderToAdjust.Next() = 0;
+        if InventoryAdjmtEntryOrderToAdjust.GetFilters() <> '' then
+            repeat
+                TempInvtAdjmtEntryOrder := InventoryAdjmtEntryOrderToAdjust;
+                TempInvtAdjmtEntryOrder.Insert();
+            until InventoryAdjmtEntryOrderToAdjust.Next() = 0;
+
+        AdjustSpecificOrders := not TempInvtAdjmtEntryOrder.IsEmpty();
 
         ToInventoryAdjmtEntryOrder.Reset();
         ToInventoryAdjmtEntryOrder.DeleteAll();
