@@ -79,6 +79,7 @@ table 167 Job
         field(2; "Search Description"; Code[100])
         {
             Caption = 'Search Description';
+            OptimizeForTextSearch = true;
         }
         field(3; Description; Text[100])
         {
