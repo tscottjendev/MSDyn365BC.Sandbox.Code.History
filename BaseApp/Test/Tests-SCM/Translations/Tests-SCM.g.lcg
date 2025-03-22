@@ -11626,7 +11626,7 @@
   </Item>
   <Item ItemId=";Codeunit 191131963 - NamedType 1180007151" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be exist]]></Val>
+      <Val><![CDATA[%1 must exist.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
