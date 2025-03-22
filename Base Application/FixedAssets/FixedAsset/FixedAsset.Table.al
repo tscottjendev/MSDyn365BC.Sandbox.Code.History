@@ -69,6 +69,7 @@ table 5600 "Fixed Asset"
         field(3; "Search Description"; Code[100])
         {
             Caption = 'Search Description';
+            OptimizeForTextSearch = true;
         }
         field(4; "Description 2"; Text[50])
         {
