@@ -2340,7 +2340,15 @@ table 5901 "Service Item Line"
         exit(true);
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by namesake procedure with Enum parameter', '27.0')]
     procedure ShowComments(Type: Option General,Fault,Resolution,Accessory,Internal,"Service Item Loaner")
+    begin
+        ShowComments("Service Comment Line Type".FromInteger(Type));
+    end;
+#endif
+
+    procedure ShowComments(ServiceCommentLineType: Enum "Service Comment Line Type")
     begin
         ServHeader.Get(Rec."Document Type", Rec."Document No.");
         ServHeader.TestField("Customer No.");
@@ -2350,21 +2358,23 @@ table 5901 "Service Item Line"
         ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Header");
         ServCommentLine.SetRange("Table Subtype", "Document Type");
         ServCommentLine.SetRange("No.", "Document No.");
-        case Type of
-            Type::Fault:
+        case ServiceCommentLineType of
+            ServiceCommentLineType::Fault:
                 ServCommentLine.SetRange(Type, ServCommentLine.Type::Fault);
-            Type::Resolution:
+            ServiceCommentLineType::Resolution:
                 ServCommentLine.SetRange(Type, ServCommentLine.Type::Resolution);
-            Type::Accessory:
+            ServiceCommentLineType::Accessory:
                 ServCommentLine.SetRange(Type, ServCommentLine.Type::Accessory);
-            Type::Internal:
+            ServiceCommentLineType::Internal:
                 ServCommentLine.SetRange(Type, ServCommentLine.Type::Internal);
-            Type::"Service Item Loaner":
+            ServiceCommentLineType::"Service Item Loaner":
                 ServCommentLine.SetRange(Type, ServCommentLine.Type::"Service Item Loaner");
+            else
+                OnShowCommentsOnCaseElse(ServCommentLine, ServiceCommentLineType);
         end;
         ServCommentLine.SetRange("Table Line No.", "Line No.");
         OnShowCommentsOnBeforeRunPageServiceCommentSheet(Rec, ServCommentLine);
-        PAGE.RunModal(PAGE::"Service Comment Sheet", ServCommentLine);
+        Page.RunModal(Page::"Service Comment Sheet", ServCommentLine);
     end;
 
     local procedure CheckRecreateServLines()
@@ -3232,6 +3242,11 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckWarranty(var ServiceItemLine: Record "Service Item Line"; var xServiceItemLine: Record "Service Item Line"; Date: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowCommentsOnCaseElse(var ServiceCommentLine: Record "Service Comment Line"; ServiceCommentLineType: Enum "Service Comment Line Type")
     begin
     end;
 }
