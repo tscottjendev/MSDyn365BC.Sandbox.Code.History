@@ -2308,7 +2308,7 @@ page 21 "Customer Card"
         if GuiAllowed() then
             OnAfterGetCurrRecordFunc()
         else
-            StartBackgroundCalculations();
+            OnAfterGetCurrRecordFuncBackground();
     end;
 
     local procedure OnAfterGetCurrRecordFunc()
@@ -2340,7 +2340,13 @@ page 21 "Customer Card"
             OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
             if OpenApprovalEntriesExist then
                 OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
+
         end;
+    end;
+
+    local procedure OnAfterGetCurrRecordFuncBackground()
+    begin
+        CustomerMgt.CalculateStatistic(Rec, AdjmtCostLCY, AdjCustProfit, AdjProfitPct, CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY, CustProfit);
     end;
 
     trigger OnInit()
