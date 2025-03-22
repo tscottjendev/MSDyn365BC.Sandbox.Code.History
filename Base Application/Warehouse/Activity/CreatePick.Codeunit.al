@@ -988,14 +988,14 @@ codeunit 7312 "Create Pick"
                             UpdateQuantitiesToPick(
                                 AvailableQtyBase,
                                 FromBinContent."Qty. per Unit of Measure", FromQtyToPick, FromQtyToPickBase,
-                                FromBinContent."Qty. per Unit of Measure", ToQtyToPick, ToQtyToPickBase,
+                                ToQtyPerUOM, ToQtyToPick, ToQtyToPickBase,
                                 TotalQtytoPick, TotalQtytoPickBase);
 
                             CreateTempActivityLine(
-                                LocationCode, FromBinContent."Bin Code", UnitofMeasureCode, FromBinContent."Qty. per Unit of Measure",
+                                LocationCode, FromBinContent."Bin Code", FromBinContent."Unit of Measure Code", FromBinContent."Qty. per Unit of Measure",
                                 FromQtyToPick, FromQtyToPickBase, 1, 0, QtyRndPrec, QtyRndPrecBase);
                             CreateTempActivityLine(
-                                LocationCode, ToBinCode, UnitofMeasureCode, FromBinContent."Qty. per Unit of Measure",
+                                LocationCode, ToBinCode, UnitofMeasureCode, ToQtyPerUOM,
                                 ToQtyToPick, ToQtyToPickBase, 2, 0, QtyRndPrec, QtyRndPrecBase);
                         end;
 
