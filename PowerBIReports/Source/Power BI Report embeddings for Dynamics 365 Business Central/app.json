@@ -1,10 +1,10 @@
 {
   "id": "e4e86220-cac0-4ec3-b853-7c2fa610399d",
-  "name": "PowerBI Reports",
+  "name": "Power BI Report embeddings for Dynamics 365 Business Central",
   "publisher": "Microsoft",
   "brief": "Analyse Business Central data in Power BI",
   "description": "Core Connector for Power BI allows you to easily integrate Business Central data with Power BI.",
-  "version": "27.0.31897.0",
+  "version": "27.0.31987.0",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
   "help": "https://go.microsoft.com/fwlink/?linkid=2104024",

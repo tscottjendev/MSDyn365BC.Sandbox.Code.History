@@ -67,7 +67,7 @@ codeunit 6104 "Import E-Document Process"
                     EDocImportParameters."Purch. Journal V1 Behavior"::"Create purchase document":
                         CreateJournalLineV1 := false;
                 end;
-                EDocImport.V1_ProcessEDocument(EDocument, CreateJournalLineV1)
+                EDocImport.V1_ProcessEDocument(EDocument, CreateJournalLineV1, EDocImportParameters."Create Document V1 Behavior");
             end
         end
         else begin

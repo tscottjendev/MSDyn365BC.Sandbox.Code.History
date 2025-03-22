@@ -2,7 +2,7 @@
   "id": "b4e48c9c-0deb-49a4-ae70-662b33565b1b",
   "name": "PowerBI Reports Test Library",
   "publisher": "Microsoft",
-  "version": "27.0.31897.0",
+  "version": "27.0.31987.0",
   "brief": "Test library for PowerBI Reports",
   "description": "Test library for PowerBI Reports",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -14,7 +14,7 @@
   "dependencies": [
     {
       "id": "e4e86220-cac0-4ec3-b853-7c2fa610399d",
-      "name": "PowerBI Reports",
+      "name": "Power BI Report embeddings for Dynamics 365 Business Central",
       "publisher": "Microsoft",
       "version": "27.0.0.0"
     },

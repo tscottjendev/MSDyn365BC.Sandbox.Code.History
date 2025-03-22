@@ -149,8 +149,8 @@ codeunit 6134 "E-Doc. Integration Management"
                 EDocImport.V1_AfterInsertImportedEdocument(EDocument, EDocService, TempBlob, EDocCount, HttpRequest, HttpResponse);
             end;
 
-            if (not IsProcessed) and EDocService.IsAutomaticProcessingEnabled() then
-                EDocImport.V1_ProcessImportedDocument(EDocument, EDocService, TempBlob, EDocService."Create Journal Lines");
+            if (not IsProcessed) then
+                EDocImport.V1_ProcessImportedDocument(EDocument, EDocService, TempBlob, EDocService."Create Journal Lines", EDocService.IsAutomaticProcessingEnabled());
 
             if EDocErrorHelper.HasErrors(EDocument) then begin
                 EDocumentLog.SetFields(EDocument, EDocService);
