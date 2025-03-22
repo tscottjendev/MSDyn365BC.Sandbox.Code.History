@@ -132,7 +132,7 @@ codeunit 137079 "SCM Production Order III"
         EntryMustBeEqualErr: Label '%1 must be equal to %2 for Entry No. %3 in the %4.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Entry No., %4 = Table Caption';
         MissingAccountTxt: Label '%1 is missing in %2.', Comment = '%1 = Field Caption, %2 = Table Caption';
         ProductionOrderHasAlreadyBeenReopenedErr: Label 'This production order has already been reopened before. This can only be done once.';
-        ReservationEntryMustExistErr: Label '%1 must be exist', Comment = '%1 is Table Caption';
+        ReservationEntryMustExistErr: Label '%1 must exist.', Comment = '%1 is Table Caption';
         ItemMustBeEqualErr: Label '%1 must be equal to %2 for Item No. %3 in the %4.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Item No., %4 = Table Caption';
 
     [Test]
