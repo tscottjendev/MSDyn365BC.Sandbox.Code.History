@@ -635,6 +635,7 @@ page 1 "Company Information"
             }
             action("Account Identifier")
             {
+                ApplicationArea = Advanced;
                 Caption = 'Account Identifier';
                 Image = Description;
                 RunObject = Page "Account Identifiers";
