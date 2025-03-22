@@ -1,4 +1,3 @@
-#pragma warning disable AS0032, AS0050
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -280,7 +279,7 @@ page 6181 "E-Document Purchase Draft"
             ClearErrorsAndWarnings();
 
         SetStyle();
-        DataCaption := 'Purchase Invoice Draft' + Format(Rec."Entry No");
+        DataCaption := 'Purchase Document Draft ' + Format(Rec."Entry No");
 
         ShowFinalizeDraftAction := Rec.GetEDocumentImportProcessingStatus() = Enum::"Import E-Doc. Proc. Status"::"Draft Ready";
         ShowAnalyzeDocumentAction :=
@@ -376,4 +375,3 @@ page 6181 "E-Document Purchase Draft"
         ShowAnalyzeDocumentAction: Boolean;
         EDocHasErrorOrWarningMsg: Label 'Errors or warnings found for E-Document. Please review below in "Error Messages" section.';
 }
-#pragma warning restore AS0050, AS0032
