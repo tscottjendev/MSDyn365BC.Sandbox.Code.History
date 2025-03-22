@@ -10242,7 +10242,6 @@ codeunit 80 "Sales-Post"
         TempExtendedTextLine: Record "Extended Text Line" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
         LineNo: Integer;
-        IsHandled: Boolean;
     begin
         if not CheckApplicationExistForCreditMemo(SalesHeader) then
             exit;
@@ -10259,11 +10258,8 @@ codeunit 80 "Sales-Post"
         SalesInvoiceLine.SetRange("Prepayment Line", true);
         if SalesInvoiceLine.FindSet() then
             repeat
-                IsHandled := false;
                 GeneralPostingSetup.Get(SalesInvoiceLine."Gen. Bus. Posting Group", SalesInvoiceLine."Gen. Prod. Posting Group");
-                OnCreatePrepaymentLineForCreditMemoOnBeforeGetSalesPrepmtAccount(GLAccount, SalesInvoiceLine, IsHandled);
-                if not IsHandled then
-                    GLAccount.Get(GeneralPostingSetup.GetSalesPrepmtAccount());
+                GLAccount.Get(GeneralPostingSetup.GetSalesPrepmtAccount());
 
                 TempPrepmtSalesLine.Init();
                 TempPrepmtSalesLine."Document Type" := SalesHeader."Document Type";
@@ -12010,11 +12006,6 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostItemJournalLineWarehouseLine(var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; var TempWhseTrackingSpecification: Record "Tracking Specification" temporary)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCreatePrepaymentLineForCreditMemoOnBeforeGetSalesPrepmtAccount(var GLAccount: Record "G/L Account"; var SalesInvoiceLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
     begin
     end;
 }
