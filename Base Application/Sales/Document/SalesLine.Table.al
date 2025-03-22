@@ -8844,12 +8844,8 @@ table 37 "Sales Line"
     procedure ValidateLineDiscountPercent(DropInvoiceDiscountAmount: Boolean)
     var
         InvDiscountAmount: Decimal;
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnValidateLineDiscountPercentOnBeforeTestJobPlanningLine(Rec, xRec, IsHandled);
-        if not IsHandled then
-            TestJobPlanningLine();
+        TestJobPlanningLine();
         TestStatusOpen();
         OnValidateLineDiscountPercentOnAfterTestStatusOpen(Rec, xRec, CurrFieldNo);
         "Line Discount Amount" :=
@@ -12382,11 +12378,6 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitDeferralCodeOnBeforeUpdateDeferralCode(var SalesLine: Record "Sales Line"; var ShouldUpdateDeferralCode: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(true, false)]
-    local procedure OnValidateLineDiscountPercentOnBeforeTestJobPlanningLine(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }
