@@ -9,9 +9,11 @@ using Microsoft.eServices.EDocument;
 
 table 6101 "E-Document Purchase Line"
 {
-    InherentEntitlements = X;
-    InherentPermissions = X;
     Access = Internal;
+#pragma warning disable AS0034
+    InherentEntitlements = RIMDX;
+    InherentPermissions = RIMDX;
+#pragma warning restore AS0034
 
     fields
     {

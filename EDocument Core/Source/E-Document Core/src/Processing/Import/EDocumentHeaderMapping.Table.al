@@ -11,9 +11,11 @@ using Microsoft.Purchases.Document;
 
 table 6102 "E-Document Header Mapping"
 {
-    InherentEntitlements = X;
-    InherentPermissions = X;
     Access = Internal;
+#pragma warning disable AS0034
+    InherentEntitlements = RIMDX;
+    InherentPermissions = RIMDX;
+#pragma warning restore AS0034
 
     fields
     {
