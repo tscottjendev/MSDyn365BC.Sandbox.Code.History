@@ -348,6 +348,7 @@ page 6121 "E-Document"
                     begin
                         EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
                         EDocImportParameters."Purch. Journal V1 Behavior" := EDocImportParameters."Purch. Journal V1 Behavior"::"Create purchase document";
+                        EDocImportParameters."Create Document V1 Behavior" := true;
                         EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
                         if EDocumentErrorHelper.HasErrors(Rec) then
                             Message(DocNotCreatedMsg, Rec."Document Type");
@@ -366,6 +367,7 @@ page 6121 "E-Document"
                     begin
                         EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
                         EDocImportParameters."Purch. Journal V1 Behavior" := EDocImportParameters."Purch. Journal V1 Behavior"::"Create journal line";
+                        EDocImportParameters."Create Document V1 Behavior" := true;
                         EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
                         if EDocumentErrorHelper.HasErrors(Rec) then
                             Message(DocNotCreatedMsg, Rec."Document Type");

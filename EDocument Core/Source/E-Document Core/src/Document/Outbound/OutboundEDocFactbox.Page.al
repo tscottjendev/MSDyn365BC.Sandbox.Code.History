@@ -1,3 +1,4 @@
+#pragma warning disable AS0032
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -34,12 +35,6 @@ page 6110 "Outbound E-Doc. Factbox"
                 {
                     Caption = 'Service Status';
                     ToolTip = 'Specifies the status of an E-Dcoument';
-                }
-                field("Processing Status"; Format(EDocumentServiceStatus."Import Processing Status"))
-                {
-                    Caption = 'Processing Status';
-                    ToolTip = 'Specifies the processing status of an E-Dcoument';
-                    Editable = false;
                 }
                 field(Log; EDocumentServiceStatus.Logs())
                 {
@@ -85,11 +80,6 @@ page 6110 "Outbound E-Doc. Factbox"
                     Caption = 'Service Status';
                     ToolTip = 'Specifies the status of an E-Dcoument';
                 }
-                field(ImportProcessingStatus; Rec."Import Processing Status")
-                {
-                    Caption = 'Processing Status';
-                    ToolTip = 'Specifies the processing status of an E-Dcoument';
-                }
             }
         }
     }
@@ -126,5 +116,5 @@ page 6110 "Outbound E-Doc. Factbox"
         EDocSystemCreatedAt: DateTime;
         EDocSystemCreatedBy: Text;
 }
-
+#pragma warning restore AS0032
 
