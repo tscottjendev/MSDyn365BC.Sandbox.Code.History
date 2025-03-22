@@ -4681,6 +4681,110 @@ codeunit 137404 "SCM Manufacturing"
         ProductionBOMList.Close();
     end;
 
+    [Test]
+    procedure RoutingLineDescRemainSameWithStandardCodeWhenChangeWorkCenter()
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        StandardTask: Record "Standard Task";
+        WorkCenter: array[2] of Record "Work Center";
+    begin
+        // [SCENARIO 335050] Verify that Routing Line desc don't change when update Work Center if Standard Code is not blank.
+        Initialize();
+
+        // [GIVEN] Create Standard Task.
+        CreateStandardTasks(StandardTask);
+
+        // [GIVEN] Create Work Center.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter[1]);
+        LibraryManufacturing.CreateWorkCenter(WorkCenter[2]);
+
+        // [GIVEN] Create Routing Header.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        // [GIVEN] Create Routing Line.
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenter[1]."No.");
+
+        // [GIVEN] Update Standard Task on Routing Line.
+        UpdateRoutingLineWithStandardTask(RoutingLine, StandardTask);
+
+        //[WHEN] Change Work Center on Routing Line.
+        ModifyRoutingLineWorkCenter(RoutingLine, WorkCenter[2]."No.");
+
+        // [THEN] Verify that Routing Line desc same as Standard Code desciption.
+        Assert.IsTrue((StandardTask.Description = RoutingLine.Description), '');
+    end;
+
+    [Test]
+    procedure RoutingLineDescRemainSameWithStandardCodeWhenChangeWorkCenterOnProductionOrder()
+    var
+        Item, CompItem : Record Item;
+        productionBomHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        StandardTask: Record "Standard Task";
+        WorkCenter: array[2] of Record "Work Center";
+    begin
+        // [SCENARIO 335050] Verify that Routing Line desc don't change when update Work Center if Standard Code is not blank on Released Production Order.
+        Initialize();
+
+        // [GIVEN] Create Standard Task.   
+        CreateStandardTasks(StandardTask);
+
+        // [GIVEN] Create Work Center and Work Center Calendar.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter[1]);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter[1], CalcDate('<-1Y>', WorkDate()), CalcDate('<1Y>', WorkDate()));
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter[2], CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
+
+        // // [GIVEN] Production BOM with 1 component "I1"
+        LibraryInventory.CreateItem(CompItem);
+        LibraryManufacturing.CreateCertifiedProductionBOM(productionBOmHeader, CompItem."No.", 1);
+
+        // [GIVEN] Create Routing Header and Line.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLineSetup(
+            RoutingLine, RoutingHeader,
+            WorkCenter[1]."No.", LibraryUtility.GenerateRandomCode(RoutingLine.FieldNo("Operation No."), DATABASE::"Routing Line"),
+            1, 1);
+
+        // [GIVEN] Update Standard Task on Routing Line.
+        UpdateRoutingLineWithStandardTask(RoutingLine, StandardTask);
+
+        // [GIVEN] Certify Routing.
+        ChangeRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Create Item with Production BOM and Routing.
+        LibraryManufacturing.CreateItemManufacturing(
+            Item,
+            Item."Costing Method"::Standard,
+            LibraryRandom.RandDec(100, 2),
+            Item."Reordering Policy"::Order,
+            Item."Flushing Method"::Backward,
+            RoutingHeader."No.",
+            productionBomHeader."No.");
+
+        // [GIVEN] Create and Refresh Production Order.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProductionOrder."Source Type"::Item,
+            Item."No.",
+            LibraryRandom.RandInt(5));
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Find Production Order Routing Line.
+        FindProdOrderRoutingLine(ProdOrderRoutingLine, RoutingLine."Work Center No.", RoutingLine."Operation No.");
+
+        //[WHEN] Change Work Center on Production Order Routing Line.
+        ModifyWorkCenterOnProdOrderRtngLn(ProdOrderRoutingLine, WorkCenter[2]."No.");
+
+        //[THEN] Verify that Routing Line desc same as Standard Code desciption.
+        Assert.IsTrue((StandardTask.Description = ProdOrderRoutingLine.Description), '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -7517,6 +7621,42 @@ codeunit 137404 "SCM Manufacturing"
         ProductionOrder.Modify(true);
 
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure ModifyWorkCenterOnProdOrderRtngLn(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenterNo: Code[20])
+    begin
+        ProdOrderRoutingLine.Validate("Work Center No.", WorkCenterNo);
+        ProdOrderRoutingLine.Modify(true);
+    end;
+
+    local procedure ChangeRoutingStatus(var RoutingHeader: Record "Routing Header"; NewStatus: Enum "Routing Status")
+    begin
+        RoutingHeader.Validate(Status, NewStatus);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure UpdateRoutingLineWithStandardTask(var RoutingLine: Record "Routing Line"; StandardTask: Record "Standard Task")
+    begin
+        RoutingLine.Validate("Standard Task Code", StandardTask."Code");
+        RoutingLine.Modify(true);
+    end;
+
+    local procedure ModifyRoutingLineWorkCenter(var RoutingLine: Record "Routing Line"; WorkCenterNo: Code[20])
+    begin
+        RoutingLine.Validate("Work Center No.", WorkCenterNo);
+        RoutingLine.Modify(true);
+    end;
+
+    local procedure CreateStandardTasks(var StandardTask: Record "Standard Task")
+    begin
+        LibraryManufacturing.CreateStandardTask(StandardTask);
+        UpdateStandardTaskDesc(StandardTask);
+    end;
+
+    local procedure UpdateStandardTaskDesc(var StandardTask: Record "Standard Task")
+    begin
+        standardTask.Validate("Description", Format(LibraryRandom.RandText(50)));
+        standardTask.Modify(true);
     end;
 
     [ModalPageHandler]
