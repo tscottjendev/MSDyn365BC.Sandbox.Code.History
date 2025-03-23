@@ -250,11 +250,11 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
     local procedure GetFlushingMethodBin(): Code[20]
 #if not CLEAN26
     var
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+        ManufacturingSetup: Record "Manufacturing Setup";
 #endif
     begin
 #if not CLEAN26
-        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
             case "Flushing Method" of
                 "Flushing Method"::Manual,
                 "Flushing Method"::"Pick + Manual",
