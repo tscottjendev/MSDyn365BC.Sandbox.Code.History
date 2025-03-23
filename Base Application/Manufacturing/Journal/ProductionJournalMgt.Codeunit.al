@@ -208,10 +208,10 @@ codeunit 5510 "Production Journal Mgt"
         Item: Record Item;
         ItemVariant: Record "Item Variant";
         Location: Record Location;
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
 #if not CLEAN26
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+        ManufacturingSetup: Record "Manufacturing Setup";
 #endif
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
         NeededQty: Decimal;
         OriginalNeededQty: Decimal;
         IsHandled: Boolean;
@@ -246,7 +246,7 @@ codeunit 5510 "Production Journal Mgt"
         OriginalNeededQty := NeededQty;
 
 #if not CLEAN26
-        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
             ShouldAdjustQty := ProdOrderComp."Flushing Method" in [ProdOrderComp."Flushing Method"::Manual, ProdOrderComp."Flushing Method"::"Pick + Manual"]
         else
 #endif
