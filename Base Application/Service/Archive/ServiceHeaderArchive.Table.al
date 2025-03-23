@@ -35,7 +35,6 @@ using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using Microsoft.Service.Setup;
 using System.Globalization;
-using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.User;
 
@@ -538,11 +537,6 @@ table 6010 "Service Header Archive"
             Caption = 'Journal Template Name';
             TableRelation = "Gen. Journal Template" where(Type = filter(Sales));
         }
-        field(200; "Work Description"; BLOB)
-        {
-            Caption = 'Work Description';
-            DataClassification = CustomerContent;
-        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -935,13 +929,4 @@ table 6010 "Service Header Archive"
         end;
     end;
 
-    procedure GetWorkDescription(): Text
-    var
-        TypeHelper: Codeunit "Type Helper";
-        InStream: InStream;
-    begin
-        CalcFields("Work Description");
-        "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
-    end;
 }
