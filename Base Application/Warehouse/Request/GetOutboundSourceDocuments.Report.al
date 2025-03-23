@@ -147,11 +147,11 @@ report 7304 "Get Outbound Source Documents"
                     trigger OnPreDataItem()
 #if not CLEAN26
                     var
-                        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+                        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
 #endif
                     begin
 #if not CLEAN26
-                        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+                        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
                             SetFilter(
                               "Flushing Method", '%1|%2|%3|%4',
                               "Flushing Method"::Manual,
