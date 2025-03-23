@@ -398,9 +398,7 @@ tableextension 99000750 "Mfg. Item" extends Item
     var
         InventorySetup: Record "Inventory Setup";
         ManufacturingSetup: Record "Manufacturing Setup";
-#if not CLEAN26
         HideNonInventoryValidateOnStdCost: Boolean;
-#endif
         NoActiveBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1.', Comment = '%1 - Item No.';
         ProductionBlockedOutputItemErr: Label 'You cannot produce %1 %2 because the %3 is %4 on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value';
         ProductionBlockedOutputItemVariantErr: Label 'You cannot produce variant %1 for %2 %3 because it is blocked for production output.', Comment = '%1 - Item Variant Code, %2 - Table Caption (Item), %3 - Item No.';
@@ -450,19 +448,15 @@ tableextension 99000750 "Mfg. Item" extends Item
     begin
     end;
 
-#if not CLEAN26
-    [Obsolete('Unused', '26.0')]
     procedure SetHideNonInventoryValidateOnStdCost(NewHideNonInventoryValidateOnStdCost: Boolean)
     begin
         HideNonInventoryValidateOnStdCost := NewHideNonInventoryValidateOnStdCost;
     end;
 
-    [Obsolete('Unused', '26.0')]
     procedure CanHideNonInventoryValidateOnStdCost(): Boolean
     begin
         exit(HideNonInventoryValidateOnStdCost);
     end;
-#endif
 
     internal procedure OpenActiveProdBOMForItem(ProdBOMNo: Code[20]; ItemNo: Code[20])
     var
