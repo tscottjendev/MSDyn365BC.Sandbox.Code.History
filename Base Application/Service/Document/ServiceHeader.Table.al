@@ -1678,11 +1678,6 @@ table 5900 "Service Header"
                 Validate("Posting No. Series", GenJournalTemplate."Posting No. Series");
             end;
         }
-        field(200; "Work Description"; BLOB)
-        {
-            Caption = 'Work Description';
-            DataClassification = CustomerContent;
-        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -5478,26 +5473,6 @@ table 5900 "Service Header"
 #if not CLEAN25
         ResJournalLine.RunOnAfterCopyResJnlLineFromServHeader(Rec, ResJournalLine);
 #endif
-    end;
-
-    procedure SetWorkDescription(NewWorkDescription: Text)
-    var
-        OutStream: OutStream;
-    begin
-        Clear("Work Description");
-        Rec."Work Description".CreateOutStream(OutStream, TextEncoding::UTF8);
-        OutStream.WriteText(NewWorkDescription);
-        Modify();
-    end;
-
-    procedure GetWorkDescription() WorkDescription: Text
-    var
-        TypeHelper: Codeunit "Type Helper";
-        InStream: InStream;
-    begin
-        Rec.CalcFields("Work Description");
-        Rec."Work Description".CreateInStream(InStream, TextEncoding::UTF8);
-        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), Rec.FieldName("Work Description")));
     end;
 
     [IntegrationEvent(false, false)]
