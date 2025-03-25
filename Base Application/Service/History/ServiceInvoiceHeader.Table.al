@@ -39,6 +39,7 @@ using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
+using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.User;
 
@@ -62,7 +63,7 @@ table 5992 "Service Invoice Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
-                    }
+        }
         field(4; "Bill-to Customer No."; Code[20])
         {
             Caption = 'Bill-to Customer No.';
@@ -72,33 +73,33 @@ table 5992 "Service Invoice Header"
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
-                    }
+        }
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
-                    }
+        }
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
-                    }
+        }
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
-                    }
+        }
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
-                        TableRelation = "Post Code".City;
+            TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
-                    }
+        }
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
-                    }
+        }
         field(12; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
@@ -107,29 +108,29 @@ table 5992 "Service Invoice Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
-                    }
+        }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
-                    }
+        }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-                    }
+        }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-                    }
+        }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
-                        TableRelation = "Post Code".City;
+            TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
-                    }
+        }
         field(19; "Order Date"; Date)
         {
             Caption = 'Order Date';
@@ -142,7 +143,7 @@ table 5992 "Service Invoice Header"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
-                    }
+        }
         field(23; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
@@ -229,7 +230,7 @@ table 5992 "Service Invoice Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
-                        TableRelation = "Language Selection"."Language Tag";
+            TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Salesperson Code"; Code[20])
         {
@@ -318,7 +319,7 @@ table 5992 "Service Invoice Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
-                    }
+        }
         field(73; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
@@ -351,29 +352,29 @@ table 5992 "Service Invoice Header"
         field(79; Name; Text[100])
         {
             Caption = 'Name';
-                    }
+        }
         field(80; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
-                    }
+        }
         field(81; Address; Text[100])
         {
             Caption = 'Address';
-                    }
+        }
         field(82; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-                    }
+        }
         field(83; City; Text[30])
         {
             Caption = 'City';
-                        TableRelation = "Post Code".City;
+            TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(84; "Contact Name"; Text[100])
         {
             Caption = 'Contact Name';
-                    }
+        }
         field(85; "Bill-to Post Code"; Code[20])
         {
             Caption = 'Bill-to Post Code';
@@ -384,7 +385,7 @@ table 5992 "Service Invoice Header"
         {
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
-                    }
+        }
         field(87; "Bill-to Country/Region Code"; Code[10])
         {
             Caption = 'Bill-to Country/Region Code';
@@ -400,7 +401,7 @@ table 5992 "Service Invoice Header"
         {
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
-                    }
+        }
         field(90; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
@@ -416,7 +417,7 @@ table 5992 "Service Invoice Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
-                    }
+        }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
             Caption = 'Ship-to Country/Region Code';
@@ -442,7 +443,7 @@ table 5992 "Service Invoice Header"
         field(100; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
-                    }
+        }
         field(101; "Area"; Code[10])
         {
             Caption = 'Area';
@@ -534,6 +535,11 @@ table 5992 "Service Invoice Header"
         {
             Caption = 'Payment Reference';
         }
+        field(200; "Work Description"; BLOB)
+        {
+            Caption = 'Work Description';
+            DataClassification = CustomerContent;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -548,7 +554,7 @@ table 5992 "Service Invoice Header"
         field(710; "Document Exchange Identifier"; Text[50])
         {
             Caption = 'Document Exchange Identifier';
-                    }
+        }
         field(711; "Document Exchange Status"; Enum "Service Document Exchange Status")
         {
             Caption = 'Document Exchange Status';
@@ -556,7 +562,7 @@ table 5992 "Service Invoice Header"
         field(712; "Doc. Exch. Original Identifier"; Text[50])
         {
             Caption = 'Doc. Exch. Original Identifier';
-                    }
+        }
         field(1200; "Direct Debit Mandate ID"; Code[35])
         {
             Caption = 'Direct Debit Mandate ID';
@@ -586,7 +592,7 @@ table 5992 "Service Invoice Header"
         field(5902; Description; Text[100])
         {
             Caption = 'Description';
-                    }
+        }
         field(5904; "Service Order Type"; Code[10])
         {
             Caption = 'Service Order Type';
@@ -618,12 +624,12 @@ table 5992 "Service Invoice Header"
         field(5915; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
-                        ExtendedDatatype = PhoneNo;
+            ExtendedDatatype = PhoneNo;
         }
         field(5916; "E-Mail"; Text[80])
         {
             Caption = 'Email';
-                        ExtendedDatatype = EMail;
+            ExtendedDatatype = EMail;
 
             trigger OnValidate()
             var
@@ -635,12 +641,12 @@ table 5992 "Service Invoice Header"
         field(5917; "Phone No. 2"; Text[30])
         {
             Caption = 'Phone No. 2';
-                        ExtendedDatatype = PhoneNo;
+            ExtendedDatatype = PhoneNo;
         }
         field(5918; "Fax No."; Text[30])
         {
             Caption = 'Fax No.';
-                    }
+        }
         field(5921; "No. of Unallocated Items"; Integer)
         {
             CalcFormula = count("Service Item Line" where("Document Type" = const(Order),
@@ -784,11 +790,11 @@ table 5992 "Service Invoice Header"
         field(5955; "Ship-to Fax No."; Text[30])
         {
             Caption = 'Ship-to Fax No.';
-                    }
+        }
         field(5956; "Ship-to E-Mail"; Text[80])
         {
             Caption = 'Ship-to Email';
-                        ExtendedDatatype = EMail;
+            ExtendedDatatype = EMail;
 
             trigger OnValidate()
             var
@@ -806,12 +812,12 @@ table 5992 "Service Invoice Header"
         field(5958; "Ship-to Phone"; Text[30])
         {
             Caption = 'Ship-to Phone';
-                        ExtendedDatatype = PhoneNo;
+            ExtendedDatatype = PhoneNo;
         }
         field(5959; "Ship-to Phone 2"; Text[30])
         {
             Caption = 'Ship-to Phone 2';
-                        ExtendedDatatype = PhoneNo;
+            ExtendedDatatype = PhoneNo;
         }
         field(5966; "Service Zone Filter"; Code[10])
         {
@@ -1042,6 +1048,16 @@ table 5992 "Service Invoice Header"
 
         ReportSelections.SaveAsDocumentAttachment(
             ReportSelections.Usage::"SM.Invoice".AsInteger(), ServiceInvoiceHeader, ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Bill-to Customer No.", ShowNotificationAction);
+    end;
+
+    procedure GetWorkDescription(): Text
+    var
+        TypeHelper: Codeunit "Type Helper";
+        InStream: InStream;
+    begin
+        CalcFields("Work Description");
+        "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
+        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
     end;
 
     [IntegrationEvent(false, false)]
