@@ -338,7 +338,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
         ItemJnlLine."Transaction Specification" := TransRcptHeader2."Transaction Specification";
         ItemJnlLine."Shpt. Method Code" := TransRcptHeader2."Shipment Method Code";
         ItemJnlLine."Direct Transfer" := TransLine."Direct Transfer";
-        OnPostItemJnlLineOnBeforeWriteDownDerivedLines(ItemJnlLine, TransLine3, TransRcptHeader2, TransRcptLine2);
         WriteDownDerivedLines(TransLine3);
         ItemJnlPostLine.SetPostponeReservationHandling(true);
 
@@ -478,7 +477,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
                         TransLine4."Qty. to Receive" := 0;
                     end;
                 end;
-                OnWriteDownDerivedLinesOnAfterAssignTracking(TransLine4, TempDerivedSpecification, TrackingSpecificationExists);
                 if TransLine4."Qty. to Receive (Base)" <= BaseQtyToReceive then begin
                     ReserveTransLine.TransferTransferToItemJnlLine(
                       TransLine4, ItemJnlLine, TransLine4."Qty. to Receive (Base)", Enum::"Transfer Direction"::Inbound);
@@ -1019,17 +1017,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunWithCheckOnBeforeModifyTransferHeader(var TransferHeader: Record "Transfer Header")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnBeforeWriteDownDerivedLines(var ItemJournalLine: Record "Item Journal Line"; var TransferLine: Record "Transfer Line"; var TransferReceiptHeader: Record "Transfer Receipt Header"; var TransferReceiptLine: Record "Transfer Receipt Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnWriteDownDerivedLinesOnAfterAssignTracking(var TransferLine: Record "Transfer Line"; var TrackingSpecification: Record "Tracking Specification"; TrackingSpecificationExists: boolean)
+    local procedure OnRunWithCheckOnBeforeModifyTransferHeader(var TransferHeader: Record "Transfer Header");
     begin
     end;
 
