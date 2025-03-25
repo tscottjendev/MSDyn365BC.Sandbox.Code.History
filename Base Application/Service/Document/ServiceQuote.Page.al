@@ -220,23 +220,6 @@ page 5964 "Service Quote"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                group("Work Description")
-                {
-                    Caption = 'Work Description';
-                    field(WorkDescription; WorkDescription)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Importance = Additional;
-                        MultiLine = true;
-                        ShowCaption = false;
-                        ToolTip = 'Specifies the products or service being offered';
-
-                        trigger OnValidate()
-                        begin
-                            Rec.SetWorkDescription(WorkDescription);
-                        end;
-                    }
-                }
             }
             part(ServItemLine; "Service Quote Subform")
             {
@@ -993,7 +976,6 @@ page 5964 "Service Quote"
     trigger OnAfterGetCurrRecord()
     begin
         ActivateFields();
-        WorkDescription := Rec.GetWorkDescription();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1026,7 +1008,6 @@ page 5964 "Service Quote"
 
     var
         ChangeExchangeRate: Page "Change Exchange Rate";
-        WorkDescription: Text;
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
