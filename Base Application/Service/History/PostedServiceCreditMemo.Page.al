@@ -206,6 +206,19 @@ page 5972 "Posted Service Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the customer''s reference. The content will be printed on the related document.';
                 }
+                group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(GetWorkDescription; Rec.GetWorkDescription())
+                    {
+                        ApplicationArea = Service;
+                        Editable = false;
+                        Importance = Additional;
+                        MultiLine = true;
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or services being offered.';
+                    }
+                }
             }
             part(ServCrMemoLines; "Posted Serv. Cr. Memo Subform")
             {
