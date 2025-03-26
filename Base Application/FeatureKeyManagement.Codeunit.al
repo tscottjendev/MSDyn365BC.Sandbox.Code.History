@@ -15,9 +15,6 @@ codeunit 265 "Feature Key Management"
         AutomaticAccountCodesTxt: Label 'AutomaticAccountCodes', Locked = true;
         SIEAuditFileExportTxt: Label 'SIEAuditFileExport', Locked = true;
 #if not CLEAN24
-        PhysInvtOrderPackageTrackingTxt: Label 'PhysInvtOrderPackageTracking', Locked = true;
-#endif
-#if not CLEAN24
         GLCurrencyRevaluationTxt: Label 'GLCurrencyRevaluation', Locked = true;
 #endif
 #if not CLEAN26
@@ -36,13 +33,6 @@ codeunit 265 "Feature Key Management"
         ConcurrentResourcePostingLbl: Label 'ConcurrentResourcePosting', Locked = true;
         ConcurrentResourcePosting: Boolean;
         ConcurrentResourcePostingRead: Boolean;
-
-#if not CLEAN24
-    procedure IsPhysInvtOrderPackageTrackingEnabled(): Boolean
-    begin
-        exit(FeatureManagementFacade.IsEnabled(GetPhysInvtOrderPackageTrackingFeatureKey()));
-    end;
-#endif
 
 #if not CLEAN24
     procedure IsGLCurrencyRevaluationEnabled(): Boolean
@@ -113,13 +103,6 @@ codeunit 265 "Feature Key Management"
     procedure SetMockEnabledManufacturingFlushingMethodActivateManualWithoutPick(SetMockEnabled: Boolean)
     begin
         MockEnabledManufacturingFlushingMethodActivateManualWithoutPick := SetMockEnabled;
-    end;
-#endif
-
-#if not CLEAN24
-    local procedure GetPhysInvtOrderPackageTrackingFeatureKey(): Text[50]
-    begin
-        exit(PhysInvtOrderPackageTrackingTxt);
     end;
 #endif
 

@@ -1938,6 +1938,7 @@ table 81 "Gen. Journal Line"
         field(100; "Source Currency Amount"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
+            AutoFormatExpression = Rec."Source Currency Code";
             AutoFormatType = 1;
             Caption = 'Source Currency Amount';
             Editable = false;
@@ -1945,6 +1946,7 @@ table 81 "Gen. Journal Line"
         field(101; "Source Curr. VAT Base Amount"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
+            AutoFormatExpression = Rec."Source Currency Code";
             AutoFormatType = 1;
             Caption = 'Source Curr. VAT Base Amount';
             Editable = false;
@@ -1952,6 +1954,7 @@ table 81 "Gen. Journal Line"
         field(102; "Source Curr. VAT Amount"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
+            AutoFormatExpression = Rec."Source Currency Code";
             AutoFormatType = 1;
             Caption = 'Source Curr. VAT Amount';
             Editable = false;
@@ -2344,7 +2347,6 @@ table 81 "Gen. Journal Line"
         field(1006; "Job Line Discount %"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatType = 1;
             Caption = 'Project Line Discount %';
 
             trigger OnValidate()
@@ -2390,7 +2392,7 @@ table 81 "Gen. Journal Line"
         field(1010; "Job Unit Price"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatExpression = "Job Currency Code";
+            AutoFormatExpression = Rec."Job Currency Code";
             AutoFormatType = 2;
             Caption = 'Project Unit Price';
 
@@ -2406,7 +2408,7 @@ table 81 "Gen. Journal Line"
         field(1011; "Job Total Price"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatExpression = "Job Currency Code";
+            AutoFormatExpression = Rec."Job Currency Code";
             AutoFormatType = 1;
             Caption = 'Project Total Price';
             Editable = false;
@@ -2414,7 +2416,7 @@ table 81 "Gen. Journal Line"
         field(1012; "Job Unit Cost"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatExpression = "Job Currency Code";
+            AutoFormatExpression = Rec."Job Currency Code";
             AutoFormatType = 2;
             Caption = 'Project Unit Cost';
             Editable = false;
@@ -2422,7 +2424,7 @@ table 81 "Gen. Journal Line"
         field(1013; "Job Total Cost"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatExpression = "Job Currency Code";
+            AutoFormatExpression = Rec."Job Currency Code";
             AutoFormatType = 1;
             Caption = 'Project Total Cost';
             Editable = false;
@@ -2430,7 +2432,7 @@ table 81 "Gen. Journal Line"
         field(1014; "Job Line Discount Amount"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatExpression = "Job Currency Code";
+            AutoFormatExpression = Rec."Job Currency Code";
             AutoFormatType = 1;
             Caption = 'Project Line Discount Amount';
 
@@ -2446,7 +2448,7 @@ table 81 "Gen. Journal Line"
         field(1015; "Job Line Amount"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatExpression = "Job Currency Code";
+            AutoFormatExpression = Rec."Job Currency Code";
             AutoFormatType = 1;
             Caption = 'Project Line Amount';
 
@@ -2904,36 +2906,40 @@ table 81 "Gen. Journal Line"
         field(6201; "Non-Deductible VAT Base"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Base';
             Editable = false;
         }
         field(6202; "Non-Deductible VAT Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Amount';
             Editable = false;
         }
         field(6203; "Non-Deductible VAT Base LCY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Base LCY';
             Editable = false;
         }
         field(6204; "Non-Deductible VAT Amount LCY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Amount LCY';
             Editable = false;
         }
         field(6205; "Non-Deductible VAT Base ACY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Base ACY';
             Editable = false;
         }
         field(6206; "Non-Deductible VAT Amount ACY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Amount ACY';
             Editable = false;
         }
@@ -2973,18 +2979,20 @@ table 81 "Gen. Journal Line"
         }
         field(6212; "Bal. Non-Ded. VAT Base LCY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Bal. Non-Deductible VAT Base LCY';
             Editable = false;
         }
         field(6213; "Bal. Non-Ded. VAT Amount LCY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Bal. Non-Deductible VAT Amount LCY';
             Editable = false;
         }
         field(6230; "Non-Ded. VAT FA Cost"; Boolean)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Ded. VAT FA Cost';
         }
         field(8001; "Account Id"; Guid)
@@ -3472,8 +3480,19 @@ table 81 "Gen. Journal Line"
     protected var
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
         HideValidationDialog: Boolean;
         SkipTaxCalculation: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[20]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
 
     /// <summary>
     /// Determines if the general journal line is empty. It is considered empty if
@@ -4025,7 +4044,7 @@ table 81 "Gen. Journal Line"
     /// </summary>
     /// <param name="AccType2">
     /// Current general journal account type.
-    /// This parameter is used to determine if the account type is bank account. 
+    /// This parameter is used to determine if the account type is bank account.
     /// If it is not bank account the currency code will not be updated.
     /// </param>
     /// <param name="AccNo2">Current general journal account number. Used to retrieve bank account.</param>
@@ -7616,7 +7635,7 @@ table 81 "Gen. Journal Line"
     end;
 
     /// <summary>
-    /// Runs a report that voids electronic payments associated with a general journal line. 
+    /// Runs a report that voids electronic payments associated with a general journal line.
     /// </summary>
     /// <remarks>
     /// The report voids or transmits electronic payments, ensuring accurate and efficient payment processing.
@@ -7688,7 +7707,7 @@ table 81 "Gen. Journal Line"
     end;
 
     /// <summary>
-    /// Tests if the salesperson/purchaser privacy is not blocked of the provided general journal line. 
+    /// Tests if the salesperson/purchaser privacy is not blocked of the provided general journal line.
     /// If privacy is blocked, an error is raised.
     /// </summary>
     /// <param name="GenJournalLine2">General journal line to check.</param>

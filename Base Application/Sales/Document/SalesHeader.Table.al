@@ -2271,6 +2271,7 @@ table 36 "Sales Header"
         {
             Caption = 'Quote No.';
             ToolTip = 'Specifies the number of the sales quote that the sales order was created from. You can track the number to sales quote documents that you have printed, saved, or emailed.';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(152; "Quote Valid Until Date"; Date)
@@ -2466,6 +2467,7 @@ table 36 "Sales Header"
             ToolTip = 'Specifies the sum, in LCY, for items that have been shipped but not yet been invoiced. The amount is calculated as Amount Including VAT x Qty. Shipped Not Invoiced / Quantity.';
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 1;
         }
         field(301; "Amt. Ship. Not Inv. (LCY) Base"; Decimal)
         {

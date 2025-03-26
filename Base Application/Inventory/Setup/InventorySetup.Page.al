@@ -9,9 +9,6 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
-#if not CLEAN24
-using System.Environment.Configuration;
-#endif
 
 page 461 "Inventory Setup"
 {
@@ -274,18 +271,6 @@ page 461 "Inventory Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
-#if not CLEAN24
-                field("Invt. Orders Package Tracking"; Rec."Invt. Orders Package Tracking")
-                {
-                    ApplicationArea = ItemTracking;
-                    Importance = Additional;
-                    ToolTip = 'Specifies if package tracking for inventory counting orders is enabled.';
-                    ObsoleteReason = 'Temporary setup to enable/disable package tracking in Phys. Inventory Orders';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                    Visible = IsInvtOrdersPackageTrackingVisible;
-                }
-#endif
                 field("Package Nos."; Rec."Package Nos.")
                 {
                     ApplicationArea = ItemTracking;
@@ -468,18 +453,11 @@ page 461 "Inventory Setup"
 
         GLSetup.Get();
         IsJournalTemplatesVisible := GLSetup."Journal Templ. Name Mandatory";
-#if not CLEAN24
-        IsInvtOrdersPackageTrackingVisible := FeatureKeyManagement.IsPhysInvtOrderPackageTrackingEnabled();
-#endif        
     end;
 
     var
         GLSetup: Record "General Ledger Setup";
         SchedulingManager: Codeunit "Cost Adj. Scheduling Manager";
-#if not CLEAN24
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-        IsInvtOrdersPackageTrackingVisible: Boolean;
-#endif
         AdjustCostWizardVisible: Boolean;
         IsJournalTemplatesVisible: Boolean;
 
