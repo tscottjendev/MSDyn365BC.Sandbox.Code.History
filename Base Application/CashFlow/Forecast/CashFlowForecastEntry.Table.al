@@ -116,6 +116,7 @@ table 847 "Cash Flow Forecast Entry"
         field(29; "Amount (LCY)"; Decimal)
         {
             Caption = 'Amount (LCY)';
+            AutoFormatType = 1;
 
             trigger OnValidate()
             begin
@@ -294,4 +295,3 @@ table 847 "Cash Flow Forecast Entry"
             CFManagement.ShowSource(Rec);
     end;
 }
-
