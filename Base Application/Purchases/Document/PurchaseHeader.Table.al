@@ -2220,6 +2220,7 @@ table 38 "Purchase Header"
             Caption = 'Amount Received Not Invoiced (LCY)';
             ToolTip = 'Specifies the amount excluding VAT for the items on the order that have been received but are not yet invoiced.';
             FieldClass = FlowField;
+            AutoFormatType = 1;
         }
         field(301; "Amt. Rcd. Not Invoiced (LCY)"; Decimal)
         {
@@ -2228,6 +2229,7 @@ table 38 "Purchase Header"
             Caption = 'Amount Received Not Invoiced (LCY) Incl. VAT';
             ToolTip = 'Specifies the sum, in LCY, for items that have been received but have not yet been invoiced. The value in the Amt. Rcd. Not Invoiced (LCY) field is used for entries in the Purchase Line table of document type Order to calculate and update the contents of this field.';
             FieldClass = FlowField;
+            AutoFormatType = 1;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -3021,7 +3023,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Initializes a new purchase header with default values. 
+    /// Initializes a new purchase header with default values.
     /// </summary>
     procedure InitRecord()
     var
@@ -3385,7 +3387,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Returns document status field style expression based on the status of the purchase header. 
+    /// Returns document status field style expression based on the status of the purchase header.
     /// </summary>
     /// <returns>Status style expression.</returns>
     procedure GetStatusStyleText() StatusStyleText: Text
@@ -3488,7 +3490,7 @@ table 38 "Purchase Header"
     /// Recreates purchase lines for a purchase document when the provided field in the purchase header is changed.
     /// </summary>
     /// <remarks>
-    /// Opens confirmation dialog to confirm the deletion of existing purchase lines 
+    /// Opens confirmation dialog to confirm the deletion of existing purchase lines
     /// and then recreates the purchase lines based on the new information in the purchase header.
     /// It also handles item charge assignments and extended text lines.
     /// </remarks>
@@ -3758,7 +3760,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Updates certain fields from a source purchase line to a destination purchase line for a drop shipment scenario. 
+    /// Updates certain fields from a source purchase line to a destination purchase line for a drop shipment scenario.
     /// It also updates the corresponding sales order line.
     /// </summary>
     /// <param name="DestinationPurchaseLine">Purchase line that will be updated.</param>
@@ -3851,7 +3853,7 @@ table 38 "Purchase Header"
     /// which might affect the prices and discounts on the purchase lines.
     /// </summary>
     /// <remarks>
-    /// The message informs the user that the lines have not been updated and must be updated manually. 
+    /// The message informs the user that the lines have not been updated and must be updated manually.
     /// If the changed field is the order date, it offers to update the order dates of the purchase lines automatically.
     /// </remarks>
     /// <param name="ChangedFieldName">Changed purchase header field caption.</param>
@@ -4687,7 +4689,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Opens a page for editing dimensions for the purchase header. 
+    /// Opens a page for editing dimensions for the purchase header.
     /// If dimensions are changed, they're updated on the purchase lines as well.
     /// </summary>
     procedure ShowDocDim()
@@ -4867,7 +4869,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Opens a page with posted document lines that can be reversed. After the user selects the lines, 
+    /// Opens a page with posted document lines that can be reversed. After the user selects the lines,
     /// they're copied to the current document.
     /// </summary>
     procedure GetPstdDocLinesToReverse()
@@ -4893,11 +4895,11 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Filters the purchase header for responsibility center set in the user setup or company information. 
+    /// Filters the purchase header for responsibility center set in the user setup or company information.
     /// The filter is set in filter group 2 and is hidden from the user.
     /// </summary>
     /// <remarks>
-    /// Responsibility filter is set from user setup purchase responsibility control filter field if this field is filled, 
+    /// Responsibility filter is set from user setup purchase responsibility control filter field if this field is filled,
     /// otherwise it is set from the company information responsibility center field.
     /// </remarks>
     procedure SetSecurityFilterOnRespCenter()
@@ -4935,7 +4937,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Updates ship-to information of a purchase header based on the provided sales header. 
+    /// Updates ship-to information of a purchase header based on the provided sales header.
     /// If purchase lines exist, it compares the shipping information between the purchase and sales header
     /// and throws an error in case of a mismatch.
     /// </summary>
@@ -5083,7 +5085,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Determines if a purchase document is approved for posting. 
+    /// Determines if a purchase document is approved for posting.
     /// For orders, it additionally checks if the payment and prepayment conditions are met.
     /// </summary>
     /// <returns>True if a purchase document is approved for posting, otherwise false.</returns>
@@ -5107,7 +5109,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Determines if a purchase document is approved for posting. 
+    /// Determines if a purchase document is approved for posting.
     /// It checks if the prepayment and payment conditions are met.
     /// </summary>
     /// <returns>True if a purchase document is approved for posting, otherwise false.</returns>
@@ -5241,7 +5243,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Adds the shipping information from a special order. If lines exist, it compares the current shipping information 
+    /// Adds the shipping information from a special order. If lines exist, it compares the current shipping information
     /// with the information on the special order and throws an error if there's a mismatch.
     /// </summary>
     /// <param name="SalesHeader">Sales header to which ship-to information is compared.</param>
@@ -5298,7 +5300,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Creates a dimension set for the purchase lines that have a prepayment amount. 
+    /// Creates a dimension set for the purchase lines that have a prepayment amount.
     /// </summary>
     procedure CreateDimSetForPrepmtAccDefaultDim()
     var
@@ -5393,7 +5395,7 @@ table 38 "Purchase Header"
     /// Transfers item charge assignments to the temporary record set and deletes them from the original record.
     /// </summary>
     /// <param name="ItemChargeAssgntPurch">Item charge assignment record set to transfer.</param>
-    /// <param name="TempItemChargeAssgntPurch">Return value: Temporary item charge assignment record set to transfer to.</param> 
+    /// <param name="TempItemChargeAssgntPurch">Return value: Temporary item charge assignment record set to transfer to.</param>
     procedure TransferItemChargeAssgntPurchToTemp(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
     var
         IsHandled: Boolean;
@@ -5448,7 +5450,7 @@ table 38 "Purchase Header"
 #endif
 
     /// <summary>
-    /// Prepares the opening document statistics for a purchase document. It checks the user's permissions, 
+    /// Prepares the opening document statistics for a purchase document. It checks the user's permissions,
     /// calculates the invoice discount, creates a dimension set for order documents, and commits any changes made.
     /// </summary>
     procedure PrepareOpeningDocumentStatistics()
@@ -5473,7 +5475,7 @@ table 38 "Purchase Header"
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
-    /// Opens a purchase document statistics page based on the document type. 
+    /// Opens a purchase document statistics page based on the document type.
     /// After the page is closed, the recalculate invoice discount field is set to false on all purchase document lines.
     /// </summary>
     procedure ShowDocumentStatisticsPage()
@@ -5517,7 +5519,7 @@ table 38 "Purchase Header"
         PrepareOpeningDocumentStatistics();
         ShowDocumentStatisticsPage();
     end;
-#endif    
+#endif
 
     local procedure IsOrderDocument(): Boolean
     begin
@@ -5677,7 +5679,7 @@ table 38 "Purchase Header"
     /// Updates the buy-from vendor no. of a purchase header based on a single-value filter applied to the buy-from vendor no. field.
     /// </summary>
     /// <remarks>
-    /// Single-value filter is retrieved from the current filter group or filter group 2. 
+    /// Single-value filter is retrieved from the current filter group or filter group 2.
     /// If it exists, it's used to update the buy-from vendor no.
     /// </remarks>
     procedure SetBuyFromVendorFromFilter()
@@ -5947,7 +5949,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Copies the buy-from information to pay-to information for a purchase document if the pay-to vendor no. 
+    /// Copies the buy-from information to pay-to information for a purchase document if the pay-to vendor no.
     /// is the same as the buy-from vendor no.
     /// </summary>
     procedure CopyBuyFromAddressToPayToAddress()
@@ -6131,7 +6133,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Sends selected purchase document reports to the vendors. Before this procedure is called, 
+    /// Sends selected purchase document reports to the vendors. Before this procedure is called,
     /// purchase documents are selected on the page and then selection filter is used to filter the selected documents.
     /// </summary>
     /// <remarks>
@@ -6164,7 +6166,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Prints selected purchase document reports. Before this procedure is called, 
+    /// Prints selected purchase document reports. Before this procedure is called,
     /// purchase documents are selected on the page and then selection filter is used to filter the selected documents.
     /// </summary>
     /// <param name="ShowRequestForm">
@@ -6319,7 +6321,7 @@ table 38 "Purchase Header"
         case "Document Type" of
             "Document Type"::Quote, "Document Type"::Order:
                 begin
-#if CLEAN24                    
+#if CLEAN24
                     if NoSeries.IsAutomatic(PostingNoSeries) then
                         "Posting No. Series" := PostingNoSeries;
                     if NoSeries.IsAutomatic(PurchSetup."Posted Receipt Nos.") then
@@ -6605,7 +6607,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Returns a GUID for a notification that warns the user if the buy-from address on purchase documents is different 
+    /// Returns a GUID for a notification that warns the user if the buy-from address on purchase documents is different
     /// from the vendor's existing address.
     /// </summary>
     /// <returns>Notification GUID.</returns>
@@ -6615,7 +6617,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Returns a GUID for a notification that warns if the pay-to address on purchase documents is different 
+    /// Returns a GUID for a notification that warns if the pay-to address on purchase documents is different
     /// from the vendor's existing address.
     /// </summary>
     /// <returns>Notification GUID.</returns>
@@ -6652,7 +6654,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Inserts the default notification to warn if the buy-from address on purchase documents is different 
+    /// Inserts the default notification to warn if the buy-from address on purchase documents is different
     /// from the vendor's existing address.
     /// </summary>
     /// <remarks>
@@ -6667,7 +6669,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Inserts the default notification to warn if pay-to address on purchase documents is different 
+    /// Inserts the default notification to warn if pay-to address on purchase documents is different
     /// from the vendor's existing address.
     /// </summary>
     /// <remarks>
@@ -6903,7 +6905,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Determines if the notification which warns if purchase document with same external document number 
+    /// Determines if the notification which warns if purchase document with same external document number
     /// already exists is enabled.
     /// </summary>
     /// <returns>True if the notification is enabled, otherwise false.</returns>
@@ -6915,7 +6917,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Determines if the ship-to information in the purchase header record matches the ship-to information 
+    /// Determines if the ship-to information in the purchase header record matches the ship-to information
     /// in the company information.
     /// </summary>
     /// <returns>True if ship-to information is equal, otherwise false.</returns>
@@ -7068,7 +7070,7 @@ table 38 "Purchase Header"
     /// from the global Vend record on the purchase header.
     /// </summary>
     /// <remarks>
-    /// Updates the global Vend with buy-from vendor no. of the purchase header. 
+    /// Updates the global Vend with buy-from vendor no. of the purchase header.
     /// </remarks>
     procedure ValidateEmptySellToCustomerAndLocation()
     var
@@ -7196,7 +7198,7 @@ table 38 "Purchase Header"
     /// Updates the inbound warehouse handling time of the purchase header.
     /// </summary>
     /// <remarks>
-    /// If the purchase header's location code is empty, 
+    /// If the purchase header's location code is empty,
     /// the inbound warehouse handling time is updated using the handling time from inventory setup.
     /// </remarks>
     procedure UpdateInboundWhseHandlingTime()
@@ -7316,7 +7318,7 @@ table 38 "Purchase Header"
 
     /// <summary>
     /// Opens vendor lookup page to select a vendor. Pay-to name field is updated with the selected vendor name.
-    /// </summary> 
+    /// </summary>
     /// <param name="VendorName">Return value: Selected vendor name.</param>
     /// <returns>True if vendor is selected, otherwise false.</returns>
     procedure LookupPayToVendorName(var VendorName: Text): Boolean
@@ -7562,7 +7564,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Determines if the purchase lines of the purchase header are editable 
+    /// Determines if the purchase lines of the purchase header are editable
     /// based on whether a buy-from vendor no. has been specified.
     /// </summary>
     /// <returns>True if purchase lines are editable, otherwise false.</returns>

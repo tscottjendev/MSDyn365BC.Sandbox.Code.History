@@ -788,9 +788,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Exchange Object" = RM,
                   tabledata "Exchange Service Setup" = RM,
                   tabledata "Exchange Sync" = RM,
-#if not CLEAN24
-                  tabledata "Exp. Phys. Invt. Tracking" = RM,
-#endif
                   tabledata "Exp. Invt. Order Tracking" = RM,
                   tabledata "Experience Tier Buffer" = RM,
                   tabledata "Experience Tier Setup" = RM,
@@ -1171,9 +1168,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Phys. Invt. Order Line" = RM,
                   tabledata "Phys. Invt. Record Header" = RM,
                   tabledata "Phys. Invt. Record Line" = RM,
-#if not CLEAN24
-                  tabledata "Phys. Invt. Tracking" = RM,
-#endif
                   tabledata "Invt. Order Tracking" = RM,
                   tabledata "Picture Entity" = RIMD,
                   tabledata "Planning Assignment" = Rim,
@@ -1228,9 +1222,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Production Forecast Name" = RM,
                   tabledata "Profile Questionnaire Header" = RM,
                   tabledata "Profile Questionnaire Line" = RM,
-#if not CLEAN24
-                  tabledata "Pstd. Exp. Phys. Invt. Track" = RM,
-#endif
                   tabledata "Pstd.Exp.Invt.Order.Tracking" = RM,
                   tabledata "Pstd. Phys. Invt. Order Hdr" = RM,
                   tabledata "Pstd. Phys. Invt. Order Line" = RM,

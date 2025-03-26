@@ -1214,5 +1214,39 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         end;
     end;
 
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Req. Line-Reserve", 'OnAfterDeleteLine', '', false, false)]
+    local procedure OnAfterDeleteLine(var RequisitionLine: Record "Requisition Line")
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+        ReservationEntry: Record "Reservation Entry";
+        QtyTracked: Decimal;
+    begin
+        if (RequisitionLine."Action Message" = RequisitionLine."Action Message"::Cancel) and
+           (RequisitionLine."Planning Line Origin" = RequisitionLine."Planning Line Origin"::Planning) and
+           (RequisitionLine."Ref. Order Type" = RequisitionLine."Ref. Order Type"::"Prod. Order")
+        then begin
+            ProdOrderComponent.SetAutoCalcFields("Reserved Qty. (Base)");
+            ProdOrderComponent.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.");
+            ProdOrderComponent.SetRange(Status, RequisitionLine."Ref. Order Status");
+            ProdOrderComponent.SetRange("Prod. Order No.", RequisitionLine."Ref. Order No.");
+            ProdOrderComponent.SetRange("Prod. Order Line No.", RequisitionLine."Ref. Line No.");
+            if ProdOrderComponent.FindSet() then
+                repeat
+                    QtyTracked := ProdOrderComponent."Reserved Qty. (Base)";
+                    ReservationEntry.Reset();
+                    ReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
+                    ProdOrderComponent.SetReservationFilters(ReservationEntry);
+                    ReservationEntry.SetFilter("Reservation Status", '<>%1', ReservationEntry."Reservation Status"::Reservation);
+                    if ReservationEntry.FindSet() then
+                        repeat
+                            QtyTracked := QtyTracked - ReservationEntry."Quantity (Base)";
+                        until ReservationEntry.Next() = 0;
+                    ReservationManagement.SetReservSource(ProdOrderComponent);
+                    ReservationManagement.DeleteReservEntries(QtyTracked = 0, QtyTracked);
+                    ReservationManagement.AutoTrack(ProdOrderComponent."Remaining Qty. (Base)");
+                until ProdOrderComponent.Next() = 0;
+        end;
+    end;
 }
 

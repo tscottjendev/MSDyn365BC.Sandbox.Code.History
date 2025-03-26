@@ -1277,6 +1277,7 @@ table 18 Customer
             Caption = 'Refunds (LCY)';
             FieldClass = FlowField;
             ToolTip = 'Specifies the sum of refunds received from the customer.';
+            AutoFormatType = 1;
         }
         field(122; "Other Amounts"; Decimal)
         {
@@ -1301,6 +1302,7 @@ table 18 Customer
                                                                                  "Currency Code" = field("Currency Filter")));
             Caption = 'Other Amounts (LCY)';
             FieldClass = FlowField;
+            AutoFormatType = 1;
         }
         field(124; "Prepayment %"; Decimal)
         {
