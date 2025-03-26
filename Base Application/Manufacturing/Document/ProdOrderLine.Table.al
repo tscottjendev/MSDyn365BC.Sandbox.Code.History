@@ -740,14 +740,14 @@ table 5406 "Prod. Order Line"
         }
         field(5831; "Cost Amount (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Cost Amount (ACY)';
             Editable = false;
         }
         field(5832; "Unit Cost (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Unit Cost (ACY)';
             Editable = false;
@@ -1337,7 +1337,7 @@ table 5406 "Prod. Order Line"
         GLSetupRead := true;
     end;
 
-    local procedure GetCurrencyCode(): Code[10]
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
             GLSetup.Get();
@@ -1989,4 +1989,3 @@ table 5406 "Prod. Order Line"
     begin
     end;
 }
-
