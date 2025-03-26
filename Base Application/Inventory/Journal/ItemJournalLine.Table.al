@@ -911,7 +911,8 @@ table 83 "Item Journal Line"
         }
         field(72; "Unit Cost (ACY)"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 2;
             Caption = 'Unit Cost (ACY)';
             Editable = false;
         }
@@ -1510,6 +1511,7 @@ table 83 "Item Journal Line"
         }
         field(5813; "Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount (ACY)';
         }
@@ -1907,12 +1909,23 @@ table 83 "Item Journal Line"
 
     protected var
         ItemJnlLine: Record "Item Journal Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
         DimMgt: Codeunit DimensionManagement;
         PhysInvtEntered: Boolean;
         UnitCost: Decimal;
 
+    local procedure GetAdditionalReportingCurrencyCode(): Code[20]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
+
     /// <summary>
-    /// Determines if the current item journal line is considered empty based on its quantity, time, item number, 
+    /// Determines if the current item journal line is considered empty based on its quantity, time, item number,
     /// and value entry type.
     /// </summary>
     /// <returns>True if the item journal line is considered empty, otherwise false.</returns>
@@ -1926,7 +1939,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Determines if the current item journal line is for a deleted item based on its entry type, value entry type, 
+    /// Determines if the current item journal line is for a deleted item based on its entry type, value entry type,
     /// item number, item charge number, and invoiced quantity.
     /// </summary>
     /// <returns>True if the item journal line is for a deleted item, otherwise false.</returns>
@@ -2015,7 +2028,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Checks if the item is available based on the current item journal line. 
+    /// Checks if the item is available based on the current item journal line.
     /// </summary>
     /// <remarks>
     /// An error or a notification is raised if the item is out of stock.
@@ -2321,18 +2334,18 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Creates dimensions for the item journal line based on the provided default dimension sources, 
+    /// Creates dimensions for the item journal line based on the provided default dimension sources,
     /// an inherited dimension set ID and an inherited table number.
     /// </summary>
     /// <remarks>
-    /// Also updates the shortcut dimension codes and sets the new dimension set ID and new shortcut dimension codes 
+    /// Also updates the shortcut dimension codes and sets the new dimension set ID and new shortcut dimension codes
     /// if the entry type is transfer.
     /// </remarks>
     /// <param name="DefaultDimSource">The list of default dimension sources.</param>
     /// <param name="InheritFromDimSetID">Dimension set ID to inherit.</param>
     /// <param name="InheritFromTableNo">
-    /// Table number to inherit from. This parameter is used to specify the table number for the new temporary 
-    /// dimension buffer that are created based on the dimension set entries associated with InheritFromDimSetID. 
+    /// Table number to inherit from. This parameter is used to specify the table number for the new temporary
+    /// dimension buffer that are created based on the dimension set entries associated with InheritFromDimSetID.
     /// These temporary records are used later in the procedure to determine the default dimension set ID.
     /// </param>
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
@@ -2433,8 +2446,8 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Opens a page for selecting a dimension code, then assigns the selected value to the provided number 
-    /// of the shortcut dimension. 
+    /// Opens a page for selecting a dimension code, then assigns the selected value to the provided number
+    /// of the shortcut dimension.
     /// </summary>
     /// <param name="FieldNumber">Number of the shortcut dimension.</param>
     /// <param name="ShortcutDimCode">Return value: Value of the selected shortcut dimension.</param>
@@ -2464,8 +2477,8 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Opens a page for selecting a dimension code, then assigns the selected value to the presented number of 
-    /// the new shortcut dimension. 
+    /// Opens a page for selecting a dimension code, then assigns the selected value to the presented number of
+    /// the new shortcut dimension.
     /// </summary>
     /// <param name="FieldNumber">Number of the shortcut dimension.</param>
     /// <param name="NewShortcutDimCode">Return value: Value of the selected new shortcut dimension.</param>
@@ -3074,7 +3087,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Updates the unit amount for an item journal line record based on various factors such as the item's 
+    /// Updates the unit amount for an item journal line record based on various factors such as the item's
     /// indirect cost percentage, overhead rate, quantity per unit of measure, and entry type.
     /// </summary>
     procedure RecalculateUnitAmount()
@@ -3143,7 +3156,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Opens a page for editing dimensions for the item journal line. 
+    /// Opens a page for editing dimensions for the item journal line.
     /// </summary>
     procedure ShowDimensions()
     begin
@@ -3166,10 +3179,10 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Toggles the visibility of item journal lines based on whether they have associated error messages. 
+    /// Toggles the visibility of item journal lines based on whether they have associated error messages.
     /// </summary>
     /// <remarks>
-    /// When the ShowAllLinesEnabled flag is true, all item journal lines are shown. 
+    /// When the ShowAllLinesEnabled flag is true, all item journal lines are shown.
     /// When the flag is false, only item journal lines with associated error messages are shown.
     /// </remarks>
     /// <param name="ShowAllLinesEnabled">Return value: Flag to enable or disable item journal lines with errors.</param>
@@ -3454,7 +3467,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Determines whether the current item journal line record was opened from a batch. 
+    /// Determines whether the current item journal line record was opened from a batch.
     /// </summary>
     /// <remarks>
     /// It checks the filters applied to the journal batch name and journal template name fields.
@@ -3479,7 +3492,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Triggers the OnCheckItemJournalLinePostRestrictions event to check any additional restrictions 
+    /// Triggers the OnCheckItemJournalLinePostRestrictions event to check any additional restrictions
     /// before posting item journal line.
     /// </summary>
     procedure CheckItemJournalLineRestriction()
@@ -3515,7 +3528,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Tests if the tracking information (serial, lot and package number) in the item journal line is equal to the 
+    /// Tests if the tracking information (serial, lot and package number) in the item journal line is equal to the
     /// tracking information in the provided item ledger entry.
     /// </summary>
     /// <param name="ItemLedgerEntry">Item ledger entry to test the tracking information from.</param>
@@ -3528,7 +3541,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Tests if the tracking information (serial, lot and package number) in the item journal line is equal to the 
+    /// Tests if the tracking information (serial, lot and package number) in the item journal line is equal to the
     /// tracking information in the provided tracking specifiation.
     /// </summary>
     /// <param name="TrackingSpecification">Tracking specification to test the tracking information from.</param>
@@ -3541,7 +3554,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Tests if the tracking information (serial, lot and package number) of the item journal line are filled if 
+    /// Tests if the tracking information (serial, lot and package number) of the item journal line are filled if
     /// required by the item tracking setup.
     /// </summary>
     /// <param name="ItemTrackingSetup">Item tracking setup to use.</param>
@@ -3556,7 +3569,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Tests if the new tracking information (new serial number and new lot number) of the item journal line are filled 
+    /// Tests if the new tracking information (new serial number and new lot number) of the item journal line are filled
     /// if required by the item tracking setup.
     /// </summary>
     /// <param name="ItemTrackingSetup">Item tracking setup to use.</param>
@@ -3571,7 +3584,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Tests if the new tracking information (new serial number and new lot number) of the item journal line 
+    /// Tests if the new tracking information (new serial number and new lot number) of the item journal line
     /// is required and not empty. If the tracking information is required and empty, an error message is raised.
     /// </summary>
     /// <param name="ItemTrackingSetup">Item tracking setup to use.</param>
@@ -3651,8 +3664,8 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Runs the inventory movement report for the item journal lines that have the same journal template name and 
-    /// journal batch name as the current item journal line. 
+    /// Runs the inventory movement report for the item journal lines that have the same journal template name and
+    /// journal batch name as the current item journal line.
     /// </summary>
     procedure PrintInventoryMovement()
     begin
@@ -3739,7 +3752,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Renumbers the document number of the current item journal line based on the number series specified in the 
+    /// Renumbers the document number of the current item journal line based on the number series specified in the
     /// associated item journal batch.
     /// </summary>
     /// <remarks>
@@ -3968,7 +3981,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Opens the item tracking summary page to update the tracking information for an item journal line 
+    /// Opens the item tracking summary page to update the tracking information for an item journal line
     /// based on the specified tracking type.
     /// </summary>
     /// <param name="TrackingType">Item tracking type on which tracking information should be assigned.</param>
@@ -4374,7 +4387,7 @@ table 83 "Item Journal Line"
 
     /// <summary>
     /// Event triggered after updating the "Amount" field in the current item journal line record.
-    /// This event allows developers to add custom logic after the "Amount" field has been updated. 
+    /// This event allows developers to add custom logic after the "Amount" field has been updated.
     /// For example, additional calculations or validations can be performed at this stage
     /// </summary>
     /// <param name="ItemJournalLine">The record containing the updated "Amount" field.</param>
@@ -4484,7 +4497,7 @@ table 83 "Item Journal Line"
 
     /// <summary>
     /// Event triggered before initializing the selection of an "Item Ledger Entry" in the "SelectItemEntry" procedure.
-    /// This event allows developers to add custom logic or modify the behavior before the selection process begins. 
+    /// This event allows developers to add custom logic or modify the behavior before the selection process begins.
     /// For example, additional filters or setup logic can be applied to the record or process.
     /// </summary>
     /// <param name="ItemJournalLine">The current record being processed in the "SelectItemEntry" procedure.</param>
@@ -4533,7 +4546,7 @@ table 83 "Item Journal Line"
 
     /// <summary>
     /// Event triggered before validating the direct cost "Unit Amount" for the current item journal line record.
-    /// This event allows developers to implement custom logic or override the default validation process. 
+    /// This event allows developers to implement custom logic or override the default validation process.
     /// </summary>
     /// <param name="ItemJournalLine">The current item journal line record for which the direct cost "Unit Amount" is being validated.</param>
     /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default validation logic should be skipped.</param>
@@ -4598,7 +4611,7 @@ table 83 "Item Journal Line"
 
     /// <summary>
     /// Event triggered before opening the "Item Ledger Entries" page in the "SelectItemEntry" procedure.
-    /// This event allows developers to customize or apply additional logic to the "Item Ledger Entry" record 
+    /// This event allows developers to customize or apply additional logic to the "Item Ledger Entry" record
     /// before it is displayed on the "Item Ledger Entries" page.
     /// </summary>
     /// <param name="ItemLedgerEntry">The "Item Ledger Entry" record being prepared for display.</param>
@@ -4763,7 +4776,7 @@ table 83 "Item Journal Line"
 
     /// <summary>
     /// Event triggered before updating the "Amount" field incurrent item journal line.
-    /// This event allows developers to add custom logic or override the standard "Amount" calculation logic. 
+    /// This event allows developers to add custom logic or override the standard "Amount" calculation logic.
     /// </summary>
     /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
     /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default logic should be skipped.</param>
@@ -5078,7 +5091,7 @@ table 83 "Item Journal Line"
 
     /// <summary>
     /// Event triggered after evaluating whether a current line is considered empty based on values of Quantity, 'Item No.' and 'Value Entry Type'.
-    /// This event allows developers to add custom logic or modify the result of the empty line evaluation. 
+    /// This event allows developers to add custom logic or modify the result of the empty line evaluation.
     /// For example, additional conditions can be checked or the result can be overridden based on specific business requirements.
     /// </summary>
     /// <param name="ItemJournalLine">The record being evaluated to determine if it qualifies as an empty line.</param>
