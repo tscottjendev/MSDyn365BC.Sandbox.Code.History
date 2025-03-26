@@ -128,6 +128,7 @@ table 840 "Cash Flow Forecast"
                                                                                Positive = field("Positive Filter")));
             Caption = 'Amount (LCY)';
             FieldClass = FlowField;
+            AutoFormatType = 1;
         }
         field(21; "Positive Filter"; Boolean)
         {
@@ -399,4 +400,3 @@ table 840 "Cash Flow Forecast"
     begin
     end;
 }
-

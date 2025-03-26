@@ -795,6 +795,7 @@ table 1003 "Job Planning Line"
             Caption = 'Invoiced Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 1;
         }
         field(1036; "Invoiced Cost Amount (LCY)"; Decimal)
         {
@@ -804,18 +805,25 @@ table 1003 "Job Planning Line"
             Caption = 'Invoiced Cost Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 1;
         }
         field(1037; "VAT Unit Price"; Decimal)
         {
             Caption = 'VAT Unit Price';
+            AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(1038; "VAT Line Discount Amount"; Decimal)
         {
             Caption = 'VAT Line Discount Amount';
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(1039; "VAT Line Amount"; Decimal)
         {
             Caption = 'VAT Line Amount';
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(1041; "VAT %"; Decimal)
         {
@@ -2300,7 +2308,7 @@ table 1003 "Job Planning Line"
         IsHandled := false;
         OnBeforeUpdateAmountsAndDiscounts(Rec, xRec, IsHandled);
         if not IsHandled then begin
-            // Patch for fixing Edit-in-Excel issues due to dependency on xRec. 
+            // Patch for fixing Edit-in-Excel issues due to dependency on xRec.
             if not GuiAllowed() then
                 if xRec.Get(xRec.RecordId()) then;
 
@@ -3759,4 +3767,3 @@ table 1003 "Job Planning Line"
     begin
     end;
 }
-
