@@ -56,6 +56,11 @@ page 9657 "Customer Report Selections"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Report ID';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.SaveRecord();
+                    end;
                 }
                 field(ReportCaption; Rec."Report Caption")
                 {

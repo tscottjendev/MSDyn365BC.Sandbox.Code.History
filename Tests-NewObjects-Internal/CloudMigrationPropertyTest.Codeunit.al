@@ -199,9 +199,6 @@
         ListOfTablesToMigrate.Add(Database::"Phys. Invt. Order Line");
         ListOfTablesToMigrate.Add(Database::"Phys. Invt. Record Header");
         ListOfTablesToMigrate.Add(Database::"Phys. Invt. Record Line");
-#if not CLEAN24
-        ListOfTablesToMigrate.Add(Database::"Phys. Invt. Tracking");
-#endif
         ListOfTablesToMigrate.Add(Database::"Invt. Order Tracking");
         ListOfTablesToMigrate.Add(Database::"Picture Entity");
         ListOfTablesToMigrate.Add(Database::"Planning Assignment");
@@ -262,9 +259,6 @@
         ListOfTablesToMigrate.Add(Database::"Profile Import");
         ListOfTablesToMigrate.Add(Database::"Profile Questionnaire Header");
         ListOfTablesToMigrate.Add(Database::"Profile Questionnaire Line");
-#if not CLEAN24
-        ListOfTablesToMigrate.Add(Database::"Pstd. Exp. Phys. Invt. Track");
-#endif
         ListOfTablesToMigrate.Add(Database::"Pstd.Exp.Invt.Order.Tracking");
         ListOfTablesToMigrate.Add(Database::"Pstd. Phys. Invt. Order Hdr");
         ListOfTablesToMigrate.Add(Database::"Pstd. Phys. Invt. Order Line");
@@ -1112,9 +1106,6 @@
         ListOfTablesToMigrate.Add(Database::"Exchange Folder");
         ListOfTablesToMigrate.Add(Database::"Exchange Service Setup");
         ListOfTablesToMigrate.Add(Database::"Exchange Sync");
-#if not CLEAN24
-        ListOfTablesToMigrate.Add(Database::"Exp. Phys. Invt. Tracking");
-#endif
         ListOfTablesToMigrate.Add(Database::"Exp. Invt. Order Tracking");
         ListOfTablesToMigrate.Add(Database::"Extended Text Header");
         ListOfTablesToMigrate.Add(Database::"Extended Text Line");
