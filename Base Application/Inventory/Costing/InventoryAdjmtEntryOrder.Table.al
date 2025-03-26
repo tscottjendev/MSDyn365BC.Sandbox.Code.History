@@ -101,34 +101,43 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         }
         field(52; "Direct Cost (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 1;
             Caption = 'Direct Cost (ACY)';
         }
         field(53; "Indirect Cost (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 1;
             Caption = 'Indirect Cost (ACY)';
         }
         field(54; "Single-Lvl Material Cost (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 2;
             Caption = 'Single-Lvl Material Cost (ACY)';
         }
         field(55; "Single-Lvl Capacity Cost (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 2;
             Caption = 'Single-Lvl Capacity Cost (ACY)';
         }
         field(56; "Single-Lvl Subcontrd Cost(ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 2;
             Caption = 'Single-Lvl Subcontrd Cost(ACY)';
         }
         field(57; "Single-Lvl Cap. Ovhd Cost(ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 2;
             Caption = 'Single-Lvl Cap. Ovhd Cost(ACY)';
         }
         field(58; "Single-Lvl Mfg. Ovhd Cost(ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 2;
             Caption = 'Single-Lvl Mfg. Ovhd Cost(ACY)';
         }
@@ -147,6 +156,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         }
         field(71; "Direct Cost Non-Inv. (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 2;
             Caption = 'Direct Cost Non-Inventory (ACY)';
         }
@@ -160,6 +170,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         }
         field(73; "Single-Lvl Mat.NonInvCost(ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 2;
             Caption = 'Single-Level Material Non-Inventory Cost (ACY)';
             DataClassification = CustomerContent;
@@ -191,6 +202,19 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         AmtRndgPrecACY: Decimal;
         UnitAmtRndgPrec: Decimal;
         UnitAmtRndgPrecACY: Decimal;
+
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[20]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
 
     procedure RoundCosts(ShareOfTotalCost: Decimal)
     begin
@@ -684,4 +708,3 @@ table 5896 "Inventory Adjmt. Entry (Order)"
     begin
     end;
 }
-
