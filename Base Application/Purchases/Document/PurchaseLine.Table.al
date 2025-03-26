@@ -2273,6 +2273,7 @@ table 39 "Purchase Line"
             BlankZero = true;
             Caption = 'Project Unit Price (LCY)';
             Editable = false;
+            AutoFormatType = 2;
 
             trigger OnValidate()
             var
@@ -2300,6 +2301,7 @@ table 39 "Purchase Line"
             BlankZero = true;
             Caption = 'Project Total Price (LCY)';
             Editable = false;
+            AutoFormatType = 1;
         }
         field(1010; "Job Line Amount (LCY)"; Decimal)
         {
@@ -5704,7 +5706,7 @@ table 39 "Purchase Line"
     /// Opens a selection of items page. After that, selected items are added to purchase lines.
     /// </summary>
     /// <remarks>
-    /// If document type is not return order or credit memo, selection shows only items that have purchasing blocked field set to false. 
+    /// If document type is not return order or credit memo, selection shows only items that have purchasing blocked field set to false.
     /// </remarks>
     procedure SelectMultipleItems()
     var
@@ -5962,7 +5964,7 @@ table 39 "Purchase Line"
     end;
 
     /// <summary>
-    /// Opens a page for editing dimensions for the purchase line. 
+    /// Opens a page for editing dimensions for the purchase line.
     /// Upon closing the page, it updates the dimensions on the purcahse line.
     /// </summary>
     /// <returns>True if the dimensions were changed, otherwise false.</returns>
@@ -6195,7 +6197,7 @@ table 39 "Purchase Line"
     end;
 
     /// <summary>
-    /// Opens a page for selecting a dimension code, then assigns the selected value to the presented number of the shortcut dimension. 
+    /// Opens a page for selecting a dimension code, then assigns the selected value to the presented number of the shortcut dimension.
     /// </summary>
     /// <param name="FieldNumber">Number of the shortcut dimension.</param>
     /// <param name="ShortcutDimCode">Return value: Value of the selected shortcut dimension.</param>
@@ -6418,7 +6420,7 @@ table 39 "Purchase Line"
     /// The provided parameters filter out item charge assignments to delete.
     /// </summary>
     /// <remarks>
-    /// If document type is not a blanket order and quantity invoiced is not 0, 
+    /// If document type is not a blanket order and quantity invoiced is not 0,
     /// the procedure tests if qty. assigned and quantity invoiced are not zero.
     ///</remarks>
     /// <param name="DocType">Purchase document type.</param>
@@ -7339,7 +7341,7 @@ table 39 "Purchase Line"
     end;
 
     /// <summary>
-    /// Gets the translation of an item's description based on the language code of the purchase header 
+    /// Gets the translation of an item's description based on the language code of the purchase header
     /// and updates the description fields of the purchase line.
     /// </summary>
     procedure GetItemTranslation()
@@ -7527,7 +7529,7 @@ table 39 "Purchase Line"
     end;
 
     /// <summary>
-    /// Returns smaller absolute value between QtyToHandle and QtyHandled to ensure that the quantity being handled 
+    /// Returns smaller absolute value between QtyToHandle and QtyHandled to ensure that the quantity being handled
     /// does not exceed the quantity that is available to handle.
     /// </summary>
     /// <param name="QtyToHandle">Quantity to handle value.</param>
@@ -7735,7 +7737,7 @@ table 39 "Purchase Line"
     /// Creates a temporary global job journal line based on the purchase line.
     /// </summary>
     /// <param name="GetPrices">
-    /// If true, it recalculates amounts from unit cost of the purchase line, 
+    /// If true, it recalculates amounts from unit cost of the purchase line,
     /// otherwise it sets the amounts directly from the purchase line.
     /// </param>
     procedure CreateTempJobJnlLine(GetPrices: Boolean)
@@ -7888,7 +7890,7 @@ table 39 "Purchase Line"
     /// Toggles the filter for lines with errors between displaying all lines and only lines with errors.
     /// </summary>
     /// <param name="ShowAllLinesEnabled">
-    /// Return value: A toggle for showing all lines or just lines with errors. After switching the filter, 
+    /// Return value: A toggle for showing all lines or just lines with errors. After switching the filter,
     /// the toggle is returned with the opposite value.
     /// </param>
     procedure SwitchLinesWithErrorsFilter(var ShowAllLinesEnabled: Boolean)
@@ -8112,8 +8114,8 @@ table 39 "Purchase Line"
     /// <summary>
     /// Determines if the line has a zero amount. It always returns true for a line with a blank type.
     /// </summary>
-    /// <param name="QtyType">   
-    /// The type of quantity to check. 
+    /// <param name="QtyType">
+    /// The type of quantity to check.
     /// Only Invoicing option makes a difference by checking if quantity to invoice is zero, other options are ignored.
     /// </param>
     /// <returns>True if the line has a zero amount, otherwise false.</returns>
@@ -8314,7 +8316,7 @@ table 39 "Purchase Line"
     end;
 
     /// <summary>
-    /// Raises a confirmation dialog to confirm the change of dimensions on an already received or shipped item line. 
+    /// Raises a confirmation dialog to confirm the change of dimensions on an already received or shipped item line.
     /// </summary>
     /// <returns>True if the user confirms the change, otherwise an error is thrown.</returns>
     procedure ConfirmReceivedShippedItemDimChange() Result: Boolean
@@ -8535,7 +8537,7 @@ table 39 "Purchase Line"
     end;
 
     /// <summary>
-    /// Updates the line discount percentage for the purchase line. 
+    /// Updates the line discount percentage for the purchase line.
     /// Additionally, updates line, vat, prepayment and deferral amounts, initializes outstanding amounts and updates the unit cost.
     /// </summary>
     /// <param name="DropInvoiceDiscountAmount">If true, invoice discount amounts will be set to 0.</param>
@@ -9071,7 +9073,7 @@ table 39 "Purchase Line"
     end;
 
     /// <summary>
-    /// Gets the formated text of the line type for the purchase line. 
+    /// Gets the formated text of the line type for the purchase line.
     /// </summary>
     /// <remarks>
     /// If line type is blank, comment label is returned.
@@ -9093,7 +9095,7 @@ table 39 "Purchase Line"
     end;
 
     /// <summary>
-    /// Renames the number of all purchase lines corresponding to the specified line type and number. 
+    /// Renames the number of all purchase lines corresponding to the specified line type and number.
     /// </summary>
     /// <remarks>
     /// Used when related entities are renamed.

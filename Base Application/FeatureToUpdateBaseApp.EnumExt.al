@@ -25,15 +25,6 @@ enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
     }
 #endif
 #if not CLEAN24
-    value(5877; PhysInvtOrderPackageTracking)
-    {
-        Implementation = "Feature Data Update" = "Feature - Invt. Orders Package";
-        ObsoleteState = Pending;
-        ObsoleteReason = 'Feature Phys. Invt. Orders Package Tracking will be enabled by default in version 27.0.';
-        ObsoleteTag = '24.0';
-    }
-#endif
-#if not CLEAN24
     value(5878; GLCurrencyRevaluation)
     {
         Implementation = "Feature Data Update" = "Feature-GLCurrencyRevaluation";

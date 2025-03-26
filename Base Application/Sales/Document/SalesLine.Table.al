@@ -2075,6 +2075,7 @@ table 37 "Sales Line"
         {
             Caption = 'Prepmt. VAT Amount Inv. (LCY)';
             Editable = false;
+            AutoFormatType = 1;
         }
         field(135; "Prepayment VAT Difference"; Decimal)
         {
@@ -4507,7 +4508,7 @@ table 37 "Sales Line"
     /// Plans for a price calculation triggered by a specific field, ensuring that the calculation is performed only once.
     /// </summary>
     /// <remarks>
-    /// This field no. is checked in IsPriceCalcCalledByField to determine if price calculation should be performed .   
+    /// This field no. is checked in IsPriceCalcCalledByField to determine if price calculation should be performed .
     /// </remarks>
     /// <param name="CurrPriceFieldNo">The field number of the field that can cause price calculation.</param>
     procedure PlanPriceCalcByField(CurrPriceFieldNo: Integer)
@@ -4537,7 +4538,7 @@ table 37 "Sales Line"
     end;
 
     /// <summary>
-    /// Updates the unit price on the sales line.    
+    /// Updates the unit price on the sales line.
     /// </summary>
     /// <param name="CalledByFieldNo">The field number of the field that triggered the price calculation.</param>
     procedure UpdateUnitPrice(CalledByFieldNo: Integer)
@@ -5041,7 +5042,7 @@ table 37 "Sales Line"
     end;
 
     /// <summary>
-    /// Updates line, prepayment, deferral, and VAT amounts for the sales line 
+    /// Updates line, prepayment, deferral, and VAT amounts for the sales line
     /// to account for any changes of the sales line that affect the amounts.
     /// </summary>
     procedure UpdateAmounts()
@@ -5426,7 +5427,7 @@ table 37 "Sales Line"
     /// <summary>
     /// Opens a reservation entries page for the current sales line.
     /// </summary>
-    /// <param name="Modal">If true, execution is paused until the page is closed.</param> 
+    /// <param name="Modal">If true, execution is paused until the page is closed.</param>
     procedure ShowReservationEntries(Modal: Boolean)
     var
         ReservEntry: Record "Reservation Entry";
@@ -5459,7 +5460,7 @@ table 37 "Sales Line"
     /// <summary>
     /// Attempts to automatically reserve the quantity of the current sales line based on the item availability.
     /// </summary>
-    /// <param name="ShowReservationForm">If true, when the quantity cannot be reserved automatically, a message is shown and the user is prompted to reserve manually.</param> 
+    /// <param name="ShowReservationForm">If true, when the quantity cannot be reserved automatically, a message is shown and the user is prompted to reserve manually.</param>
     procedure AutoReserve(ShowReservationForm: Boolean)
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -5521,7 +5522,7 @@ table 37 "Sales Line"
     /// <summary>
     /// Retrieves the date to be used for operations on the sales line, which is the associated sales header's posting date or the work date if the posting date is not set.
     /// </summary>
-    /// <returns>The date to be used for operations on the sales line.</returns> 
+    /// <returns>The date to be used for operations on the sales line.</returns>
     procedure GetDate(): Date
     var
         ResultDate: Date;
@@ -5540,7 +5541,7 @@ table 37 "Sales Line"
     end;
 
     /// <summary>
-    /// Calculates the planned delivery date based on the shipping agent, planned shipment date 
+    /// Calculates the planned delivery date based on the shipping agent, planned shipment date
     /// and the field that initiated the calculation.
     /// </summary>
     /// <param name="CurrFieldNo">The field number of the field that initiated the calculation.</param>
@@ -5709,7 +5710,7 @@ table 37 "Sales Line"
     /// After the page closes, updates the dimensions on the sales line and assembly orders.
     /// </summary>
     /// <remarks>
-    /// If the dimensions are changed for a line that is already shipped, a confirmation is raised. 
+    /// If the dimensions are changed for a line that is already shipped, a confirmation is raised.
     /// If not confirmed, and error is raised to stop the update.
     /// </remarks>
     /// <returns>True if the dimensions were changed, otherwise, false.</returns>
@@ -5821,7 +5822,7 @@ table 37 "Sales Line"
     /// Opens a page for looking up a shortcut dimension code value.
     /// </summary>
     /// <remarks>
-    /// If the dimensions are changed for a line that is already shipped, a confirmation is raised. 
+    /// If the dimensions are changed for a line that is already shipped, a confirmation is raised.
     /// If not confirmed, and error is raised to stop the update.
     /// </remarks>
     /// <param name="FieldNumber">The number of the shortcut dimension.</param>
@@ -6662,7 +6663,7 @@ table 37 "Sales Line"
     /// </summary>
     /// <remarks>
     /// VATAmountLine parameter must be temporary as DeleteAll is called on it.
-    /// </remarks>    
+    /// </remarks>
     /// <param name="QtyType">The type of quantity to consider for the calculation (Qty, QtyToInvoice, QtyToShip).</param>
     /// <param name="SalesHeader">The sales header of the document. The sales lines are filtered for this document.</param>
     /// <param name="SalesLine">The sales line record set that is looped through. Pre-existing filters will narrow down the lines to consider.</param>
@@ -6988,7 +6989,7 @@ table 37 "Sales Line"
     /// Updates the quantities to ship or receive based on the document type, quantity, and location/warehouse requirements.
     /// </summary>
     /// <remarks>
-    /// If the default quantity to ship in sales setup is set to blank, 
+    /// If the default quantity to ship in sales setup is set to blank,
     /// the quantity to ship, recieve and invoice are always set to zero.
     /// </remarks>
     procedure UpdateWithWarehouseShip()
@@ -7366,7 +7367,7 @@ table 37 "Sales Line"
     /// Raises an error if the sales line is associated with a purchase order to ensure no changes are made to the line.
     /// </summary>
     /// <param name="TheFieldCaption">
-    /// The caption of the field that is being changed. 
+    /// The caption of the field that is being changed.
     /// Used to determine if the check is executed for a field change or a line deletion.
     /// </param>
     procedure CheckAssocPurchOrder(TheFieldCaption: Text[250])
@@ -7846,7 +7847,7 @@ table 37 "Sales Line"
     end;
 
     /// <summary>
-    /// Sets the reservation method for the sales line from the item. 
+    /// Sets the reservation method for the sales line from the item.
     /// If item's reservation method is optional, the sales header's reservation method is used.
     /// </summary>
     protected procedure SetReserveWithoutPurchasingCode()
@@ -7968,7 +7969,7 @@ table 37 "Sales Line"
     /// Determines if the line has a zero amount. It always returns true for a line with a blank type.
     /// </summary>
     /// <param name="QtyType">
-    /// The type of quantity to check. 
+    /// The type of quantity to check.
     /// Only Invoicing option makes a difference by checking if quantity to invoice is zero, other options are ignored.
     /// </param>
     /// <returns>True if the line has a zero amount, otherwise false.</returns>
@@ -8527,7 +8528,7 @@ table 37 "Sales Line"
     end;
 
     /// <summary>
-    /// Raises a confirmation dialog to confirm the change of dimensions on an already shipped or received item line. 
+    /// Raises a confirmation dialog to confirm the change of dimensions on an already shipped or received item line.
     /// </summary>
     /// <returns>True if the user confirms the change, otherwise an error is thrown.</returns>
     procedure ConfirmShippedReceivedItemDimChange(): Boolean
@@ -8727,7 +8728,7 @@ table 37 "Sales Line"
 
     /// <summary>
     /// Recalculates line discount amount and updates other line amounts.
-    /// Additionally, if specified, removes the invoice discount amount from the line 
+    /// Additionally, if specified, removes the invoice discount amount from the line
     /// and reduces the invoice discount on the header for the same amount.
     /// </summary>
     /// <param name="DropInvoiceDiscountAmount">
@@ -9224,7 +9225,7 @@ table 37 "Sales Line"
     end;
 
     /// <summary>
-    /// Determines if additional lookup for item description is required. 
+    /// Determines if additional lookup for item description is required.
     /// Used for integration purposes when the default item description lookup is not sufficient.
     /// </summary>
     /// <remarks>
@@ -9332,7 +9333,7 @@ table 37 "Sales Line"
     end;
 
     /// <summary>
-    /// Gets the text representation of the line type for the sales line. 
+    /// Gets the text representation of the line type for the sales line.
     /// </summary>
     /// <remarks>
     /// Blank line type is represented by the comment label.
@@ -9766,7 +9767,7 @@ table 37 "Sales Line"
     end;
 
     /// <summary>
-    /// Collects default dimension sources for the sales line 
+    /// Collects default dimension sources for the sales line
     /// with the dimension source for the specified field added in the first place.
     /// </summary>
     /// <param name="DefaultDimSource">Return value: The list of default dimension sources.</param>
@@ -9849,7 +9850,7 @@ table 37 "Sales Line"
     end;
 
     /// <summary>
-    /// Opens a page with inventory item lines and attaches the selected line 
+    /// Opens a page with inventory item lines and attaches the selected line
     /// to all non-inventoriable sales lines in the passed SelectedSalesLine record set.
     /// </summary>
     /// <param name="SelectedSalesLine">The record set of sales lines to attach the inventory item line to.</param>

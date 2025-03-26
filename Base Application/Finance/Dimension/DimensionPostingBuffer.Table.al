@@ -1,5 +1,7 @@
 namespace Microsoft.Finance.Dimension;
 
+using Microsoft.Finance.GeneralLedger.Setup;
+
 table 385 "Dimension Posting Buffer"
 {
     Caption = 'Dimension Posting Buffer';
@@ -28,6 +30,7 @@ table 385 "Dimension Posting Buffer"
         }
         field(4; "Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount (ACY)';
             DataClassification = SystemMetadata;
@@ -45,5 +48,17 @@ table 385 "Dimension Posting Buffer"
     fieldgroups
     {
     }
-}
 
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[20]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
+}
