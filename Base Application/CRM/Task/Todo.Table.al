@@ -630,6 +630,7 @@ table 5080 "To-do"
         {
             Caption = 'Unit Cost (LCY)';
             DecimalPlaces = 2 : 2;
+            AutoFormatType = 2;
 
             trigger OnValidate()
             begin

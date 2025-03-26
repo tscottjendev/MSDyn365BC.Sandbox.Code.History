@@ -417,6 +417,7 @@ table 382 "CV Ledger Entry Buffer"
         field(83; "Pmt. Tolerance (LCY)"; Decimal)
         {
             Caption = 'Pmt. Tolerance (LCY)';
+            AutoFormatType = 1;
             DataClassification = SystemMetadata;
         }
         field(84; "Amount to Apply"; Decimal)
@@ -682,4 +683,3 @@ table 382 "CV Ledger Entry Buffer"
     begin
     end;
 }
-

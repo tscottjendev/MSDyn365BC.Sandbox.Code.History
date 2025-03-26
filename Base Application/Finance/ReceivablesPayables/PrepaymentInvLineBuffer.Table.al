@@ -85,18 +85,21 @@ table 461 "Prepayment Inv. Line Buffer"
         }
         field(12; "Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount (ACY)';
             DataClassification = SystemMetadata;
         }
         field(13; "VAT Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Amount (ACY)';
             DataClassification = SystemMetadata;
         }
         field(14; "VAT Base Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Base Amount (ACY)';
             DataClassification = SystemMetadata;
@@ -243,6 +246,19 @@ table 461 "Prepayment Inv. Line Buffer"
     fieldgroups
     {
     }
+
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[20]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
 
     procedure IncrAmounts(PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer")
     begin
@@ -505,4 +521,3 @@ table 461 "Prepayment Inv. Line Buffer"
     begin
     end;
 }
-

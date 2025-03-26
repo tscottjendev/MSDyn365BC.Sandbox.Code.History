@@ -23,6 +23,7 @@ codeunit 99000818 "Mfg. Carry Out Action"
 #endif
         CalculateProdOrder: Codeunit "Calculate Prod. Order";
         PlngComponentReserve: Codeunit "Plng. Component-Reserve";
+        ProdOrderLineReserve: Codeunit "Prod. Order Line-Reserve";
         ReservationManagement: Codeunit "Reservation Management";
         ReqLineReserve: Codeunit "Req. Line-Reserve";
         ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
@@ -87,7 +88,7 @@ codeunit 99000818 "Mfg. Carry Out Action"
             ProdOrderLine.Validate("Ending Date", RequisitionLine."Ending Date");
             ProdOrderLine."Due Date" := RequisitionLine."Due Date";
             ProdOrderLine.Modify();
-            ReqLineReserve.TransferPlanningLineToPOLine(RequisitionLine, ProdOrderLine, 0, true);
+            ProdOrderLineReserve.TransferPlanningLineToPOLine(RequisitionLine, ProdOrderLine, 0, true);
             ReqLineReserve.UpdateDerivedTracking(RequisitionLine);
             ReservationManagement.SetReservSource(ProdOrderLine);
             ReservationManagement.DeleteReservEntries(false, ProdOrderLine."Remaining Qty. (Base)");
@@ -315,7 +316,7 @@ codeunit 99000818 "Mfg. Carry Out Action"
 #endif
         CalculateProdOrder.CalculateProdOrderDates(ProdOrderLine, false);
 
-        ReqLineReserve.TransferPlanningLineToPOLine(RequisitionLine, ProdOrderLine, RequisitionLine."Net Quantity (Base)", false);
+        ProdOrderLineReserve.TransferPlanningLineToPOLine(RequisitionLine, ProdOrderLine, RequisitionLine."Net Quantity (Base)", false);
         if RequisitionLine.Reserve and not (ProdOrderLine.Status = ProdOrderLine.Status::Planned) then
             ReserveBindingOrderToProd(ProdOrderLine, RequisitionLine);
 

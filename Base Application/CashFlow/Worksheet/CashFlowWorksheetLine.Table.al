@@ -155,6 +155,7 @@ table 846 "Cash Flow Worksheet Line"
         field(30; "Amount (LCY)"; Decimal)
         {
             Caption = 'Amount (LCY)';
+            AutoFormatType = 1;
         }
         field(34; "Source No."; Code[20])
         {
@@ -622,4 +623,3 @@ table 846 "Cash Flow Worksheet Line"
     begin
     end;
 }
-

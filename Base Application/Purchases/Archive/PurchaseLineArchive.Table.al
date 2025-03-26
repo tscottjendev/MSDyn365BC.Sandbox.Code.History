@@ -631,21 +631,25 @@ table 5110 "Purchase Line Archive"
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Project Unit Price (LCY)';
+            AutoFormatType = 2;
         }
         field(1009; "Job Total Price (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Project Total Price (LCY)';
+            AutoFormatType = 1;
         }
         field(1010; "Job Line Amount (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Project Line Amount (LCY)';
+            AutoFormatType = 1;
         }
         field(1011; "Job Line Disc. Amount (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Project Line Disc. Amount (LCY)';
+            AutoFormatType = 1;
         }
         field(1012; "Job Currency Factor"; Decimal)
         {
