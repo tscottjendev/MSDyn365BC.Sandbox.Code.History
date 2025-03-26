@@ -420,7 +420,7 @@ report 7305 "Whse.-Source - Create Document"
             trigger OnPreDataItem()
 #if not CLEAN26
             var
-                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+                FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
 #endif
             begin
                 if WhseDoc <> WhseDoc::Production then
@@ -445,7 +445,7 @@ report 7305 "Whse.-Source - Create Document"
                 SetRange("Prod. Order No.", ProdOrderHeader."No.");
                 SetRange(Status, Status::Released);
 #if not CLEAN26
-                if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+                if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
                     SetFilter(
                       "Flushing Method", '%1|%2|%3|%4',
                       "Flushing Method"::Manual,
