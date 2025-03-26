@@ -65,11 +65,13 @@ table 1022 "Job Planning Line Invoice"
         {
             Caption = 'Invoiced Amount (LCY)';
             Editable = false;
+            AutoFormatType = 1;
         }
         field(11; "Invoiced Cost Amount (LCY)"; Decimal)
         {
             Caption = 'Invoiced Cost Amount (LCY)';
             Editable = false;
+            AutoFormatType = 1;
         }
         field(12; "Job Ledger Entry No."; Integer)
         {
@@ -126,4 +128,3 @@ table 1022 "Job Planning Line Invoice"
     begin
     end;
 }
-

@@ -31,16 +31,19 @@ table 923 "Customer Sales Buffer"
         {
             Caption = 'Balance Due (LCY)';
             DataClassification = SystemMetadata;
+            AutoFormatType = 1;
         }
         field(11; "Sales (LCY)"; Decimal)
         {
             Caption = 'Sales (LCY)';
             DataClassification = SystemMetadata;
+            AutoFormatType = 1;
         }
         field(12; "Profit (LCY)"; Decimal)
         {
             Caption = 'Profit (LCY)';
             DataClassification = SystemMetadata;
+            AutoFormatType = 1;
         }
     }
 
