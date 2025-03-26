@@ -40,6 +40,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryPatterns: Codeunit "Library - Patterns";
         Counter: Integer;
         IsInitialized: Boolean;
         TrackingAction: Option SerialNo,LotNo,All,SelectEntries,AssignLotNo,UpdateAndAssignNew,CheckQtyToHandleBase,AssignPackageNo;
@@ -5068,9 +5069,11 @@ codeunit 137051 "SCM Warehouse - III"
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
         WarehouseEntry: Record "Warehouse Entry";
+        ItemJournalBatchConsumptionJnl: Record "Item Journal Batch";
         ProductionJournalMgt: Codeunit "Production Journal Mgt";
     begin
         // [SCENARIO 481027] Zone is missing in warehouse entries created via for production posting
+        // [SCENARIO 566206] Zone is missing in warehouse entries created via for negative consumption posting
         Initialize();
 
         // [GIVEN] Create Item.
@@ -5110,6 +5113,14 @@ codeunit 137051 "SCM Warehouse - III"
         // [GIVEN] Post Production Journal.
         ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
 
+        // [WHEN] Find Warehouse Entry for Source Document Output Jnl.
+        WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"Output Jnl.");
+        WarehouseEntry.SetRange("Bin Code", Bin.Code);
+        WarehouseEntry.FindFirst();
+
+        // [VERIFY] Verify Warehouse Entry Zone Code & Zone Code are same.
+        Assert.AreEqual(Zone.Code, WarehouseEntry."Zone Code", ZoneCodeMustMatchErr);
+
         // [WHEN] Find Warehouse Entry for Source Document Consumption Jnl.
         WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"Consumption Jnl.");
         WarehouseEntry.SetRange("Bin Code", Bin.Code);
@@ -5118,12 +5129,22 @@ codeunit 137051 "SCM Warehouse - III"
         // [VERIFY] Verify Warehouse Entry Zone Code & Zone Code are same.
         Assert.AreEqual(Zone.Code, WarehouseEntry."Zone Code", ZoneCodeMustMatchErr);
 
-        // [WHEN] Find Warehouse Entry for Source Document Output Jnl.
-        WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"Output Jnl.");
-        WarehouseEntry.SetRange("Bin Code", Bin.Code);
-        WarehouseEntry.FindFirst();
+        // [GIVEN] Create Consumption Journal for negative consumption.
+        LibraryPatterns.MAKEConsumptionJournalLine(
+            ItemJournalBatchConsumptionJnl, ProdOrderLine, Item, WorkDate(), Location.Code, '', -WarehouseEntry.Quantity, Item."Unit Cost");
+        ItemJnlLine.SetRange("Journal Template Name", ItemJournalBatchConsumptionJnl."Journal Template Name");
+        ItemJnlLine.SetRange("Journal Batch Name", ItemJournalBatchConsumptionJnl.Name);
+        ItemJnlLine.FindFirst();
+        ItemJnlLine.Validate("Bin Code", Bin.Code);
+        ItemJnlLine.Modify(true);
 
-        // [VERIFY] Verify Warehouse Entry Zone Code & Zone Code are same.
+        // [WHEN] Post Consumption Journal for negative consumption.
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatchConsumptionJnl);
+
+        // [THEN] Find Warehouse Entry for Source Document Consumption Jnl. Verify Warehouse Entry Zone Code & Zone Code are same.
+        WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"Consumption Jnl.");
+        WarehouseEntry.SetRange("Bin Code", Bin.Code);
+        WarehouseEntry.FindLast();
         Assert.AreEqual(Zone.Code, WarehouseEntry."Zone Code", ZoneCodeMustMatchErr);
     end;
 
