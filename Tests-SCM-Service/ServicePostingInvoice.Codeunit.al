@@ -2882,6 +2882,94 @@ codeunit 136108 "Service Posting - Invoice"
         LibraryVariableStorage.Clear();
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure TestPostedServiceInvoiceWorkDescription()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        WorkDescription: Text;
+    begin
+        // [SCCENARIO 568647] Verify "Work Description" is copied to Service Invoice Header
+        Initialize();
+
+        // [GIVEN] Create Service Order
+        CreateServiceHeaderWithMultipleLines(ServiceHeader);
+
+        // [GIVEN] Service Order with non-empty "Work Description"
+        ServiceHeader.Find('=');
+        WorkDescription := LibraryRandom.RandText(10);
+        ServiceHeader.SetWorkDescription(WorkDescription);
+        Assert.AreEqual(WorkDescription, ServiceHeader.GetWorkDescription(), '');
+        Commit();
+
+        // [WHEN] Batch Post Service order report is invoked
+        BatchPostServiceOrder(ServiceHeader, WorkDate(), true, false, false);
+
+        // [THEN] Verify "Work Description" is copied to Service Invoice Header
+        FindServiceInvoiceFromOrder(ServiceInvoiceHeader, ServiceHeader."No.");
+        Assert.AreEqual(WorkDescription, ServiceInvoiceHeader.GetWorkDescription(), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure TestPostedServiceShipmentWorkDescription()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceShipmentHeader: Record "Service Shipment Header";
+        WorkDescription: Text;
+    begin
+        // [SCCENARIO 568647] Verify "Work Description" is copied to Service Shipment Header
+        Initialize();
+
+        // [GIVEN] Create Service Order
+        CreateServiceHeaderWithMultipleLines(ServiceHeader);
+
+        // [GIVEN] Service Order with non-empty "Work Description"
+        ServiceHeader.Find('=');
+        WorkDescription := LibraryRandom.RandText(10);
+        ServiceHeader.SetWorkDescription(WorkDescription);
+        Assert.AreEqual(WorkDescription, ServiceHeader.GetWorkDescription(), '');
+        Commit();
+
+        // [WHEN] Batch Post Service order report is invoked
+        BatchPostServiceOrder(ServiceHeader, WorkDate(), true, false, false);
+
+        // [THEN] Verify "Work Description" is copied to Service Shipment Header
+        FindServiceShipmentHeader(ServiceShipmentHeader, ServiceHeader."No.");
+        Assert.AreEqual(WorkDescription, ServiceShipmentHeader.GetWorkDescription(), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure TestPostedServiceCrMemoWorkDescription()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        WorkDescription: Text;
+    begin
+        // [SCCENARIO 568647] Verify "Work Description" is copied to Service Cr.Memo Header
+        Initialize();
+
+        // [GIVEN] Create Service Cr.Memo
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
+        CreateMultipleServiceLines(ServiceHeader, '');
+
+        // [GIVEN] Service Order with non-empty "Work Description"
+        ServiceHeader.Find('=');
+        WorkDescription := LibraryRandom.RandText(10);
+        ServiceHeader.SetWorkDescription(WorkDescription);
+        Assert.AreEqual(WorkDescription, ServiceHeader.GetWorkDescription(), '');
+        Commit();
+
+        // [WHEN] Batch Post Service Cr.Memo report is invoked
+        BatchPostServiceCreditMemos(ServiceHeader, WorkDate(), false, false, false);
+
+        // [THEN] Verify "Work Description" is copied to Service Cr.Memo Header
+        FindServiceCreditMemoHeader(ServiceCrMemoHeader, ServiceHeader."No.");
+        Assert.AreEqual(WorkDescription, ServiceCrMemoHeader.GetWorkDescription(), '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
