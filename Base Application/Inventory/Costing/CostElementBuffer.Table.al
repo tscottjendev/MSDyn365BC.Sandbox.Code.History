@@ -5,6 +5,7 @@
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Inventory.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
 
 table 5820 "Cost Element Buffer"
 {
@@ -32,6 +33,7 @@ table 5820 "Cost Element Buffer"
         }
         field(4; "Actual Cost (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Actual Cost (ACY)';
             DataClassification = SystemMetadata;
@@ -44,6 +46,7 @@ table 5820 "Cost Element Buffer"
         }
         field(6; "Rounding Residual (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Rounding Residual (ACY)';
             DataClassification = SystemMetadata;
@@ -56,6 +59,7 @@ table 5820 "Cost Element Buffer"
         }
         field(8; "Expected Cost (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Expected Cost (ACY)';
             DataClassification = SystemMetadata;
@@ -93,6 +97,19 @@ table 5820 "Cost Element Buffer"
     fieldgroups
     {
     }
+
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[20]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
 
     procedure Initialize(KeepRoundingResidual: Boolean)
     var
@@ -325,4 +342,3 @@ table 5820 "Cost Element Buffer"
     begin
     end;
 }
-
