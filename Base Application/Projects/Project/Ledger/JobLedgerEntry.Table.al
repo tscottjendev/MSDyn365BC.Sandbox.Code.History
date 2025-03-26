@@ -450,7 +450,7 @@ table 169 "Job Ledger Entry"
         }
         field(1027; "Original Total Cost (ACY)"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Original Total Cost (ACY)';
         }
@@ -563,6 +563,19 @@ table 169 "Job Ledger Entry"
         Job: Record Job;
         DimMgt: Codeunit DimensionManagement;
 
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[20]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
+
     [InherentPermissions(PermissionObjectType::TableData, Database::"Job Ledger Entry", 'r')]
     procedure GetNextEntryNo(): Integer
     var
@@ -597,4 +610,3 @@ table 169 "Job Ledger Entry"
     begin
     end;
 }
-

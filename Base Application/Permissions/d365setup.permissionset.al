@@ -321,9 +321,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Exch. Rate Adjmt. Ledg. Entry" = d,
                   tabledata "Exchange Folder" = D,
                   tabledata "Exchange Service Setup" = RIMD,
-#if not CLEAN24
-                  tabledata "Exp. Phys. Invt. Tracking" = RIMD,
-#endif
                   tabledata "Exp. Invt. Order Tracking" = RIMD,
                   tabledata "FA Setup" = Rimd,
                   tabledata "Fin. Charge Comment Line" = D,
@@ -438,9 +435,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Phys. Invt. Order Line" = RIMD,
                   tabledata "Phys. Invt. Record Header" = RIMD,
                   tabledata "Phys. Invt. Record Line" = RIMD,
-#if not CLEAN24
-                  tabledata "Phys. Invt. Tracking" = RIMD,
-#endif
                   tabledata "Invt. Order Tracking" = RIMD,
                   tabledata "Planning Assignment" = D,
                   tabledata "Planning Component" = D,
@@ -464,9 +458,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Price Source" = RIMD,
                   tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Profile Questionnaire Line" = D,
-#if not CLEAN24
-                  tabledata "Pstd. Exp. Phys. Invt. Track" = RIMD,
-#endif
                   tabledata "Pstd.Exp.Invt.Order.Tracking" = RIMD,
                   tabledata "Pstd. Phys. Invt. Order Hdr" = RIMD,
                   tabledata "Pstd. Phys. Invt. Order Line" = RIMD,
