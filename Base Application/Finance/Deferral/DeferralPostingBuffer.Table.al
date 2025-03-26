@@ -106,6 +106,7 @@ table 1706 "Deferral Posting Buffer"
         field(15; "Amount (LCY)"; Decimal)
         {
             Caption = 'Amount (LCY)';
+            AutoFormatType = 1;
             DataClassification = SystemMetadata;
         }
         field(16; "System-Created Entry"; Boolean)
@@ -160,6 +161,7 @@ table 1706 "Deferral Posting Buffer"
         field(25; "Sales/Purch Amount (LCY)"; Decimal)
         {
             Caption = 'Sales/Purch Amount (LCY)';
+            AutoFormatType = 1;
             DataClassification = SystemMetadata;
         }
         field(26; "Gen. Posting Type"; Enum "General Posting Type")
@@ -423,4 +425,3 @@ table 1706 "Deferral Posting Buffer"
     begin
     end;
 }
-

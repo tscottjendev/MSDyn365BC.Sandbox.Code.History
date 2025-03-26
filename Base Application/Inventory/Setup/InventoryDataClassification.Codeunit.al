@@ -207,11 +207,6 @@ codeunit 1764 "Inventory-Data Classification"
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Availability Info. Buffer");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Unplanned Demand");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Timeline Event Change");
-#if not CLEAN24
-        DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Phys. Invt. Tracking");
-        DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Exp. Phys. Invt. Tracking");
-        DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Pstd. Exp. Phys. Invt. Track");
-#endif
     end;
 
     local procedure ClassifyInventoryEventBuffer()

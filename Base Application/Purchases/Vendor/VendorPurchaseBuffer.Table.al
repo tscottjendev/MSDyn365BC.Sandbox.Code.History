@@ -35,11 +35,13 @@ table 924 "Vendor Purchase Buffer"
         {
             Caption = 'Balance Due (LCY)';
             DataClassification = SystemMetadata;
+            AutoFormatType = 1;
         }
         field(11; "Purchases (LCY)"; Decimal)
         {
             Caption = 'Purchases (LCY)';
             DataClassification = SystemMetadata;
+            AutoFormatType = 1;
         }
     }
 
