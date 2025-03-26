@@ -459,6 +459,7 @@ table 17 "G/L Entry"
         field(6201; "Non-Deductible VAT Amount ACY"; Decimal)
         {
             Caption = 'Non-Deductible VAT Amount ACY';
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
         }
         field(8001; "Account Id"; Guid)
@@ -573,6 +574,19 @@ table 17 "G/L Entry"
     var
         GLSetup: Record "General Ledger Setup";
         GLSetupRead: Boolean;
+
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[20]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -851,4 +865,3 @@ table 17 "G/L Entry"
     begin
     end;
 }
-
