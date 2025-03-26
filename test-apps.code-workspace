@@ -280,9 +280,6 @@
       "path": "./EDocumentConnectors/SignUp/Test/E-Document Connector - SignUp Tests"
     },
     {
-      "path": "./EDocumentConnectors/Pagero/Test/E-Document Connector - Pagero Tests"
-    },
-    {
       "path": "./EDocumentConnectors/Logiq/Test/E-Document Connector - Logiq Tests"
     },
     {
@@ -296,6 +293,9 @@
     },
     {
       "path": "./Email - Outlook REST API/Test"
+    },
+    {
+      "path": "./EDocumentsConnector/Test/E-Documents Connector Tests"
     },
     {
       "path": "./LatePaymentPredictor/Test/Late Payment Prediction Tests"
@@ -321,10 +321,10 @@
   ],
   "settings": {
     "al.enableCodeActions": false,
-    "allint.enabled": false,
     "al.enableCodeAnalysis": false,
     "search.exclude": {
       "**.xlf": true
-    }
+    },
+    "allint.enabled": false
   }
 }

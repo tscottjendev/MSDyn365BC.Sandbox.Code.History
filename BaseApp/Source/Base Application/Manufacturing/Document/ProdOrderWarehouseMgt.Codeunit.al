@@ -187,6 +187,8 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
                     GetBin(ItemJournalLine."Location Code", WarehouseJournalLine."To Bin Code");
                     WarehouseJournalLine."To Zone Code" := Bin."Zone Code";
                 end;
+                if WarehouseJournalLine."To Zone Code" = '' then
+                    WarehouseJournalLine."To Zone Code" := GetZoneCode(ItemJournalLine."Location Code", WarehouseJournalLine."To Bin Code");
             end
         else
             if ItemJournalLine.Quantity > 0 then begin
@@ -197,6 +199,10 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
                     WarehouseJournalLine."From Zone Code" := Bin."Zone Code";
                     WarehouseJournalLine."From Bin Type Code" := Bin."Bin Type Code";
                 end;
+                if WarehouseJournalLine."From Zone Code" = '' then
+                    WarehouseJournalLine."From Zone Code" := GetZoneCode(ItemJournalLine."Location Code", WarehouseJournalLine."From Bin Code");
+                if WarehouseJournalLine."From Bin Type Code" = '' then
+                    WarehouseJournalLine."From Bin Type Code" := GetBinTypeCode(ItemJournalLine."Location Code", WarehouseJournalLine."From Bin Code");
             end else begin
                 WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Positive Adjmt.";
                 WarehouseJournalLine."To Bin Code" := ItemJournalLine."Bin Code";
@@ -204,6 +210,8 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
                     GetBin(ItemJournalLine."Location Code", WarehouseJournalLine."To Bin Code");
                     WarehouseJournalLine."To Zone Code" := Bin."Zone Code";
                 end;
+                if WarehouseJournalLine."To Zone Code" = '' then
+                    WarehouseJournalLine."To Zone Code" := GetZoneCode(ItemJournalLine."Location Code", WarehouseJournalLine."To Bin Code");
             end;
     end;
 
@@ -1374,11 +1382,11 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
     local procedure FlushingMethodRequiresPick(FlushingMethod: Enum "Flushing Method"): Boolean
 #if not CLEAN26
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
 #endif
     begin
 #if not CLEAN26
-        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
             exit(FlushingMethod in [FlushingMethod::Manual, FlushingMethod::"Pick + Manual", FlushingMethod::"Pick + Backward", FlushingMethod::"Pick + Forward"])
         else
 #endif
@@ -1388,11 +1396,11 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
     local procedure FlushingMethodRequiresManualPick(FlushingMethod: Enum "Flushing Method"): Boolean
 #if not CLEAN26
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
 #endif
     begin
 #if not CLEAN26
-        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
             exit(FlushingMethod in [FlushingMethod::Manual, FlushingMethod::"Pick + Manual"])
         else
 #endif

@@ -16,6 +16,7 @@ codeunit 8108 "Create Sub. Bill. GL Account"
     end;
 
     var
+        CreateGLAccount: Codeunit "Create G/L Account";
         CustomerContractsRevenueLbl: Label 'Customer Subscription Contracts Revenue', MaxLength = 100;
         CustomerContractsDeferralsLbl: Label 'Customer Subscription Contract Deferrals', MaxLength = 100;
         VendorContractsCostLbl: Label 'Vendor Subscription Contracts Cost', MaxLength = 100;
@@ -23,7 +24,7 @@ codeunit 8108 "Create Sub. Bill. GL Account"
 
     procedure CustomerContractsRevenue(): Code[20]
     begin
-        exit;
+        exit(CreateGLAccount.JobSales());
     end;
 
     procedure CustomerContractsRevenueName(): Text[100]
@@ -33,7 +34,7 @@ codeunit 8108 "Create Sub. Bill. GL Account"
 
     procedure CustomerContractsDeferrals(): Code[20]
     begin
-        exit;
+        exit(CreateGLAccount.WIPJobSales());
     end;
 
     procedure CustomerContractsDeferralsName(): Text[100]
@@ -43,7 +44,7 @@ codeunit 8108 "Create Sub. Bill. GL Account"
 
     procedure VendorContractsCost(): Code[20]
     begin
-        exit;
+        exit(CreateGLAccount.CostofResourcesUsed());
     end;
 
     procedure VendorContractsCostName(): Text[100]
@@ -53,7 +54,7 @@ codeunit 8108 "Create Sub. Bill. GL Account"
 
     procedure VendorContractsDeferrals(): Code[20]
     begin
-        exit;
+        exit(CreateGLAccount.WIPJobCosts());
     end;
 
     procedure VendorContractsDeferralsName(): Text[100]

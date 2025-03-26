@@ -90,29 +90,6 @@ codeunit 4763 "Contoso Manufacturing"
             ProductionBOMHeader.Insert(true);
     end;
 
-    procedure InsertProductionBOMVersion(BOMCode: Code[20]; VersionCode: Code[20]; Description: Text[30]; UnitOfMeasureCode: Text[10])
-    var
-        ProductionBOMVersion: Record "Production BOM Version";
-        Exists: Boolean;
-    begin
-        if ProductionBOMVersion.Get(BOMCode, VersionCode) then begin
-            Exists := true;
-
-            if not OverwriteData then
-                exit;
-        end;
-
-        ProductionBOMVersion.Validate("Production BOM No.", BOMCode);
-        ProductionBOMVersion.Validate("Version Code", VersionCode);
-        ProductionBOMVersion.Validate(Description, Description);
-        ProductionBOMVersion.Validate("Unit of Measure Code", UnitOfMeasureCode);
-
-        if Exists then
-            ProductionBOMVersion.Modify(true)
-        else
-            ProductionBOMVersion.Insert(true);
-    end;
-
     procedure InsertProductionBOMLine(BOMCode: Code[20]; VersionCode: Code[20]; Type: Option " ",Item,"Production BOM"; No: Code[20]; CalcFormula: Enum "Quantity Calculation Formula"; QuantityPer: Decimal; RoutingLinkCode: Code[10])
     var
         ProductionBOMLine: Record "Production BOM Line";
