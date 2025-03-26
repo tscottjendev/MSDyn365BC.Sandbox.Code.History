@@ -14,6 +14,7 @@ using Microsoft.Foundation.Navigate;
 codeunit 945 "Asm. Carry Out Action"
 {
     var
+        AssemblyHeaderReserve: Codeunit "Assembly Header-Reserve";
         PlngComponentReserve: Codeunit "Plng. Component-Reserve";
         ReqLineReserve: Codeunit "Req. Line-Reserve";
         ReservationManagement: Codeunit "Reservation Management";
@@ -94,7 +95,7 @@ codeunit 945 "Asm. Carry Out Action"
         AssemblyHeader."Shortcut Dimension 1 Code" := RequisitionLine."Shortcut Dimension 1 Code";
         AssemblyHeader."Shortcut Dimension 2 Code" := RequisitionLine."Shortcut Dimension 2 Code";
         AssemblyHeader."Dimension Set ID" := RequisitionLine."Dimension Set ID";
-        ReqLineReserve.TransferPlanningLineToAsmHdr(RequisitionLine, AssemblyHeader, RequisitionLine."Net Quantity (Base)", false);
+        AssemblyHeaderReserve.TransferPlanningLineToAsmHdr(RequisitionLine, AssemblyHeader, RequisitionLine."Net Quantity (Base)", false);
         if RequisitionLine.Reserve then
             ReserveBindingOrderToAsm(AssemblyHeader, RequisitionLine);
         AssemblyHeader.Modify();
@@ -136,7 +137,7 @@ codeunit 945 "Asm. Carry Out Action"
             CarryOutAction.RunOnAsmOrderChgAndResheduleOnBeforeAsmHeaderModify(RequisitionLine, AssemblyHeader);
 #endif
             AssemblyHeader.Modify(true);
-            ReqLineReserve.TransferPlanningLineToAsmHdr(RequisitionLine, AssemblyHeader, 0, true);
+            AssemblyHeaderReserve.TransferPlanningLineToAsmHdr(RequisitionLine, AssemblyHeader, 0, true);
             ReqLineReserve.UpdateDerivedTracking(RequisitionLine);
             ReservationManagement.SetReservSource(AssemblyHeader);
             ReservationManagement.DeleteReservEntries(false, AssemblyHeader."Remaining Quantity (Base)");
