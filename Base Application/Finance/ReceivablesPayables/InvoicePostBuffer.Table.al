@@ -1,4 +1,4 @@
-#if not CLEANSCHEMA26 
+#if not CLEANSCHEMA26
 namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Finance.Deferral;
@@ -147,18 +147,21 @@ table 49 "Invoice Post. Buffer"
         }
         field(25; "Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount (ACY)';
             DataClassification = SystemMetadata;
         }
         field(26; "VAT Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Amount (ACY)';
             DataClassification = SystemMetadata;
         }
         field(29; "VAT Base Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Base Amount (ACY)';
             DataClassification = SystemMetadata;
@@ -295,12 +298,14 @@ table 49 "Invoice Post. Buffer"
         }
         field(6203; "Non-Deductible VAT Base ACY"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Base ACY';
             DataClassification = SystemMetadata;
         }
         field(6204; "Non-Deductible VAT Amount ACY"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Amount ACY';
             DataClassification = SystemMetadata;
@@ -323,6 +328,19 @@ table 49 "Invoice Post. Buffer"
     fieldgroups
     {
     }
+
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[20]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
 
 #if not CLEAN24
     var

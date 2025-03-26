@@ -792,9 +792,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Exchange Object" = R,
                   tabledata "Exchange Service Setup" = R,
                   tabledata "Exchange Sync" = R,
-#if not CLEAN24
-                  tabledata "Exp. Phys. Invt. Tracking" = R,
-#endif
                   tabledata "Exp. Invt. Order Tracking" = R,
                   tabledata "Experience Tier Buffer" = R,
                   tabledata "Experience Tier Setup" = R,
@@ -1181,9 +1178,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Phys. Invt. Order Line" = R,
                   tabledata "Phys. Invt. Record Header" = R,
                   tabledata "Phys. Invt. Record Line" = R,
-#if not CLEAN24
-                  tabledata "Phys. Invt. Tracking" = R,
-#endif
                   tabledata "Invt. Order Tracking" = R,
                   tabledata "Picture Entity" = R,
                   tabledata "Planning Assignment" = R,
@@ -1258,9 +1252,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Profile Import" = RIMD,
                   tabledata "Profile Questionnaire Header" = R,
                   tabledata "Profile Questionnaire Line" = R,
-#if not CLEAN24
-                  tabledata "Pstd. Exp. Phys. Invt. Track" = R,
-#endif
                   tabledata "Pstd.Exp.Invt.Order.Tracking" = R,
                   tabledata "Pstd. Phys. Invt. Order Hdr" = R,
                   tabledata "Pstd. Phys. Invt. Order Line" = R,
