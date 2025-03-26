@@ -61,12 +61,11 @@ codeunit 1002 "Job Create-Invoice"
 
     procedure CreateSalesInvoice(var JobPlanningLine: Record "Job Planning Line"; CrMemo: Boolean)
     var
-        SalesHeader: Record "Sales Header";
         Job: Record Job;
         JobPlanningLine2: Record "Job Planning Line";
+        TempJobTask: Record "Job Task" temporary;
         GetSalesInvoiceNo: Report "Job Transfer to Sales Invoice";
         GetSalesCrMemoNo: Report "Job Transfer to Credit Memo";
-        JobTaskNoFilter: Text;
         Done: Boolean;
         NewInvoice: Boolean;
         PostingDate: Date;
@@ -107,22 +106,26 @@ codeunit 1002 "Job Create-Invoice"
                 CreateSalesInvoiceLines(
                     JobPlanningLine."Job No.", JobPlanningLine, InvoiceNo, NewInvoice, PostingDate, DocumentDate, CrMemo)
             else begin
+                TempJobTask.DeleteAll();
                 JobPlanningLine2.Copy(JobPlanningLine);
-                JobTaskNoFilter := JobPlanningLine.GetFilter(JobPlanningLine."Job Task No.");
-                JobPlanningLine2.SetCurrentKey("Job No.", "Job Task No.", "Line No.");
-                JobPlanningLine2.FindSet();
-                JobPlanningLine.Reset();
-                repeat
-                    if CheckJobTaskNoFilter(JobTaskNoFilter, JobPlanningLine2) then begin
-                        JobPlanningLine.SetFilter("Job No.", JobPlanningLine2."Job No.");
-                        JobPlanningLine.SetFilter("Job Task No.", JobPlanningLine2."Job Task No.");
+                JobPlanningLine2.SetCurrentKey("Job No.", "Job Task No.");
+                if JobPlanningLine2.FindSet() then
+                    repeat
+                        if not TempJobTask.Get(JobPlanningLine2."Job No.", JobPlanningLine2."Job Task No.") then begin
+                            TempJobTask.Init();
+                            TempJobTask."Job No." := JobPlanningLine2."Job No.";
+                            TempJobTask."Job Task No." := JobPlanningLine2."Job Task No.";
+                            TempJobTask.Insert();
+                        end;
+                    until JobPlanningLine2.Next() = 0;
+
+                if TempJobTask.FindSet() then
+                    repeat
+                        JobPlanningLine.SetRange("Job No.", TempJobTask."Job No.");
+                        JobPlanningLine.SetRange("Job Task No.", TempJobTask."Job Task No.");
                         JobPlanningLine.FindFirst();
                         CreateSalesInvoiceLines(JobPlanningLine."Job No.", JobPlanningLine, InvoiceNo, NewInvoice, PostingDate, DocumentDate, CrMemo);
-                        JobPlanningLine2.SetRange("Job Task No.", JobPlanningLine2."Job Task No.");
-                        JobPlanningLine2.FindLast();
-                        JobPlanningLine2.SetRange("Job Task No.");
-                    end
-                until JobPlanningLine2.Next() = 0;
+                    until TempJobTask.Next() = 0;
             end;
 
             Commit();
@@ -1262,20 +1265,6 @@ codeunit 1002 "Job Create-Invoice"
             exit;
     end;
 #endif
-
-    local procedure CheckJobTaskNoFilter(JobTaskNoFilter: Text; JobPlanningLine2: Record "Job Planning Line"): Boolean
-    var
-        Pos: Integer;
-    begin
-        Pos := StrPos(JobTaskNoFilter, JobPlanningLine2."Job Task No.");
-        if JobTaskNoFilter = '' then
-            exit(true);
-
-        if Pos <> 0 then
-            exit(true)
-        else
-            exit(false)
-    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesInvoiceLines(var SalesHeader: Record "Sales Header"; NewInvoice: Boolean)
