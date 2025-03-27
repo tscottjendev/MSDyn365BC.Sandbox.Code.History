@@ -742,13 +742,15 @@ codeunit 442 "Sales-Post Prepayments"
         PrepmtInvLineBuf := SavedPrepmtInvLineBuf;
     end;
 
-    local procedure GetPrepmtAccNo(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]): Code[20]
+    local procedure GetPrepmtAccNo(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]) PrepmtAccNo: Code[20]
     begin
         if (GenBusPostingGroup <> GenPostingSetup."Gen. Bus. Posting Group") or
            (GenProdPostingGroup <> GenPostingSetup."Gen. Prod. Posting Group")
         then
             GenPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        exit(GenPostingSetup.GetSalesPrepmtAccount());
+        PrepmtAccNo := GenPostingSetup.GetSalesPrepmtAccount();
+        OnAfterGetPrepmtAccNo(GenPostingSetup, PrepmtAccNo);
+        exit(PrepmtAccNo);
     end;
 
     procedure GetCorrBalAccNo(SalesHeader: Record "Sales Header"; PositiveAmount: Boolean): Code[20]
@@ -2157,6 +2159,11 @@ codeunit 442 "Sales-Post Prepayments"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeCheckPrepmtDoc(var SalesHeader: Record "Sales Header"; var DocumentType: Option Invoice,"Credit Memo")
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPrepmtAccNo(GenPostingSetup: Record "General Posting Setup"; var PrepmtAccNo: Code[20])
     begin
     end;
 }
