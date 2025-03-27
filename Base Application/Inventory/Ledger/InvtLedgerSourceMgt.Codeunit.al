@@ -6,7 +6,7 @@ namespace Microsoft.Inventory.Ledger;
 
 using Microsoft.Foundation.Enums;
 
-codeunit 99000995 "Invt. Ledger Source Mgt."
+codeunit 5861 "Invt. Ledger Source Mgt."
 {
     procedure GetSourceDescription(SourceType: Enum "Analysis Source Type"; SourceNo: Code[20]) SourceDescription: Text
     var
