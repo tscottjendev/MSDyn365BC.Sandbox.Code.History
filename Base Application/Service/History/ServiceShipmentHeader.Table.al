@@ -38,7 +38,6 @@ using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
-using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.User;
 
@@ -472,11 +471,6 @@ table 5990 "Service Shipment Header"
         {
             Caption = 'Company Bank Account Code';
             TableRelation = "Bank Account" where("Currency Code" = field("Currency Code"));
-        }
-        field(200; "Work Description"; BLOB)
-        {
-            Caption = 'Work Description';
-            DataClassification = CustomerContent;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -973,16 +967,6 @@ table 5990 "Service Shipment Header"
         ServiceShipmentLine.SetRange("Document No.", "No.");
         ServiceShipmentLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
         exit(ServiceShipmentLine.IsEmpty());
-    end;
-
-    procedure GetWorkDescription(): Text
-    var
-        TypeHelper: Codeunit "Type Helper";
-        InStream: InStream;
-    begin
-        CalcFields("Work Description");
-        "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
     end;
 
     [IntegrationEvent(false, false)]
