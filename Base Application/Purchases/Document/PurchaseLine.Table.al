@@ -3637,6 +3637,13 @@ table 39 "Purchase Line"
         {
             Caption = 'Over-Receipt Approval Status';
         }
+        field(8512; "Buy-from Vendor Name"; Text[100])
+        {
+            CalcFormula = lookup(Vendor.Name where("No." = field("Buy-from Vendor No.")));
+            Caption = 'Buy-from Vendor Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(28006; "Prepmt. VAT Amount Deducted"; Decimal)
         {
             Caption = 'Prepmt. VAT Amount Deducted';
@@ -9235,7 +9242,7 @@ table 39 "Purchase Line"
     procedure IsSubcontractingCreditMemo() Result: Boolean
     begin
         OnIsSubcontractingCreditMemo(Rec, Result);
-    end;    
+    end;
 
     /// <summary>
     /// Retrieves the journal template name if g/l setup has a journal template name mandatory field set to true.
