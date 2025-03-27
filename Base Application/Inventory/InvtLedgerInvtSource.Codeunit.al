@@ -10,13 +10,16 @@ using Microsoft.Inventory.History;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Transfer;
 
-codeunit 99000998 "Invt. Ledger Invt. Source"
+codeunit 5858 "Invt. Ledger Invt. Source"
 {
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Invt. Ledger Source Mgt.", OnGetSourceDescription, '', false, false)]
     local procedure OnGetSourceDescription(SourceType: Enum "Analysis Source Type"; SourceNo: Code[20]; var SourceDescription: Text)
     var
         Item: Record Item;
     begin
+        if SourceNo = '' then
+            exit;
+
         if SourceType = SourceType::Item then begin
             Item.SetLoadFields(Description);
             if Item.Get(SourceNo) then
@@ -33,6 +36,9 @@ codeunit 99000998 "Invt. Ledger Invt. Source"
         TransShptHdr: Record "Transfer Shipment Header";
         TransRcptHdr: Record "Transfer Receipt Header";
     begin
+        if DocNo = '' then
+            exit;
+
         case DocType of
             DocType::"Transfer Shipment":
                 begin
