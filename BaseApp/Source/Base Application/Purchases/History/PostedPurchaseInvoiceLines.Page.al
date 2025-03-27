@@ -26,6 +26,11 @@ page 529 "Posted Purchase Invoice Lines"
                 field("Buy-from Vendor No."; Rec."Buy-from Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the no. of the vendor who delivered the items.';
+                }
+                field("Buy-from Vendor Name"; Rec."Buy-from Vendor Name")
+                {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the vendor who delivered the items.';
                 }
                 field(Type; Rec.Type)
