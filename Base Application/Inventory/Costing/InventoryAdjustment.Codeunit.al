@@ -2329,13 +2329,13 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         TempInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)" temporary;
         AdjustSpecificOrders: Boolean;
     begin
-        if InventoryAdjmtEntryOrderToAdjust.GetFilters() <> '' then
-            repeat
-                TempInvtAdjmtEntryOrder := InventoryAdjmtEntryOrderToAdjust;
-                TempInvtAdjmtEntryOrder.Insert();
-            until InventoryAdjmtEntryOrderToAdjust.Next() = 0;
-
-        AdjustSpecificOrders := not TempInvtAdjmtEntryOrder.IsEmpty();
+        AdjustSpecificOrders := InventoryAdjmtEntryOrderToAdjust.GetFilters() <> '';
+        if AdjustSpecificOrders then
+            if InventoryAdjmtEntryOrderToAdjust.FindSet() then
+                repeat
+                    TempInvtAdjmtEntryOrder := InventoryAdjmtEntryOrderToAdjust;
+                    TempInvtAdjmtEntryOrder.Insert();
+                until InventoryAdjmtEntryOrderToAdjust.Next() = 0;
 
         ToInventoryAdjmtEntryOrder.Reset();
         ToInventoryAdjmtEntryOrder.DeleteAll();
