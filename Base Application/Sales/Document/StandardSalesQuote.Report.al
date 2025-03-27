@@ -1072,7 +1072,6 @@ report 1304 "Standard Sales - Quote"
     end;
 
     var
-        CompanyBankAccount: Record "Bank Account";
         DummyCompanyInfo: Record "Company Information";
         Cust: Record Customer;
         LanguageMgt: Codeunit Language;
@@ -1157,6 +1156,7 @@ report 1304 "Standard Sales - Quote"
         SellToContact: Record Contact;
         BillToContact: Record Contact;
         VATClause: Record "VAT Clause";
+        CompanyBankAccount: Record "Bank Account";
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
