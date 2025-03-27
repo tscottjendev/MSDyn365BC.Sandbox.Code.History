@@ -3620,6 +3620,13 @@ table 39 "Purchase Line"
         {
             Caption = 'Over-Receipt Approval Status';
         }
+        field(8512; "Buy-from Vendor Name"; Text[100])
+        {
+            CalcFormula = lookup(Vendor.Name where("No." = field("Buy-from Vendor No.")));
+            Caption = 'Buy-from Vendor Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(10701; "EC %"; Decimal)
         {
             Caption = 'EC %';
