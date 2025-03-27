@@ -2504,7 +2504,7 @@ codeunit 137404 "SCM Manufacturing"
     var
         ProductionOrder: Record "Production Order";
         ProdOrderComponent: Record "Prod. Order Component";
-        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
+        MfgReservCheckDateConfl: Codeunit "Mfg. ReservCheckDateConfl";
     begin
         // [FEATURE] [Manufacturing] [Production Order]
         // [SCENARIO 361467] Error is raised when Ending Date on Prod. Order Component is explicitly set earlier than the date on which it is reserved for a parent Prod. Order Line.
@@ -2518,7 +2518,7 @@ codeunit 137404 "SCM Manufacturing"
         // [WHEN] Due Date for the component item is shifted one day earlier.
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.");
         ProdOrderComponent."Due Date" := CalcDate('<-1D>', ProdOrderComponent."Due Date");
-        asserterror ReservationCheckDateConfl.ProdOrderComponentCheck(ProdOrderComponent, true, true);
+        asserterror MfgReservCheckDateConfl.ProdOrderComponentCheck(ProdOrderComponent, true, true);
 
         // [THEN] Error message is raised.
         Assert.ExpectedError(ReservDateConflictErr);
