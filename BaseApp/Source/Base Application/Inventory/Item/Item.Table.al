@@ -3137,10 +3137,8 @@ table 27 Item
         FoundRecordCount :=
             FindRecordMgt.FindRecordByDescriptionAndView(ReturnValue, SalesLine.Type::Item.AsInteger(), ItemText, View);
 
-        if FoundRecordCount = 1 then begin
-            ReturnValue := DelChr(ReturnValue, '<>', '''');
+        if FoundRecordCount = 1 then
             exit(true);
-        end;
 
         if FoundRecordCount = 0 then begin
             ReturnValue := CopyStr(ItemText, 1, MaxStrLen(ReturnValue));
