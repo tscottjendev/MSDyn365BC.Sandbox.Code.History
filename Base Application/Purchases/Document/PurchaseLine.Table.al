@@ -401,46 +401,46 @@ table 39 "Purchase Line"
                 else
                     if not VendorLocation.Get("Buy-from Vendor No.", "Location Code") then
                         VendorLocation."Business Presence" := true;
-		        IsHandled := false;
+                IsHandled := false;
                 OnValidateLocationCodeOnBeforeSetInboundWhseHandlingTime(CurrFieldNo, Rec, xRec, IsHandled);
                 if not IsHandled then
-	                if "Location Code" = '' then begin
-	                    if InvtSetup.Get() then
-	                        "Inbound Whse. Handling Time" := InvtSetup."Inbound Whse. Handling Time";
-	                    GetPurchHeader();
-	                    if PurchSetup."Use Vendor's Tax Area Code" and ("Tax Area Code" <> '') then begin
-	                        Validate("Tax Area Code");
-	                        VendorLocation."Business Presence" := true;
-	                    end else
-	                        if VendorLocation."Business Presence" then
-	                            Validate("Tax Area Code", PurchHeader."Tax Area Code")
-	                        else
-	                            Validate("Tax Area Code", VendorLocation."Alt. Tax Area Code");
-	                    if (TaxArea."Country/Region" = TaxArea."Country/Region"::CA) and not VendorLocation."Business Presence" then
-	                        "Provincial Tax Area Code" := PurchHeader."Provincial Tax Area Code"
-	                    else
-	                        "Provincial Tax Area Code" := '';
-	                end else
-	                    if Location.Get("Location Code") then begin
-	                        "Inbound Whse. Handling Time" := Location."Inbound Whse. Handling Time";
-	                        if Location."Do Not Use For Tax Calculation" then begin
-	                            GetPurchHeader();
-	                            Location."Tax Area Code" := PurchHeader."Tax Area Code";
-	                            Location."Provincial Tax Area Code" := PurchHeader."Provincial Tax Area Code";
-	                        end;
-	                        if PurchSetup."Use Vendor's Tax Area Code" and ("Tax Area Code" <> '') then begin
-	                            Validate("Tax Area Code");
-	                            VendorLocation."Business Presence" := true;
-	                        end else
-	                            if VendorLocation."Business Presence" then
-	                                Validate("Tax Area Code", Location."Tax Area Code")
-	                            else
-	                                Validate("Tax Area Code", VendorLocation."Alt. Tax Area Code");
-	                        if (TaxArea."Country/Region" = TaxArea."Country/Region"::CA) and not VendorLocation."Business Presence" then
-	                            "Provincial Tax Area Code" := Location."Provincial Tax Area Code"
-	                        else
-	                            "Provincial Tax Area Code" := '';
-	                    end;
+                    if "Location Code" = '' then begin
+                        if InvtSetup.Get() then
+                            "Inbound Whse. Handling Time" := InvtSetup."Inbound Whse. Handling Time";
+                        GetPurchHeader();
+                        if PurchSetup."Use Vendor's Tax Area Code" and ("Tax Area Code" <> '') then begin
+                            Validate("Tax Area Code");
+                            VendorLocation."Business Presence" := true;
+                        end else
+                            if VendorLocation."Business Presence" then
+                                Validate("Tax Area Code", PurchHeader."Tax Area Code")
+                            else
+                                Validate("Tax Area Code", VendorLocation."Alt. Tax Area Code");
+                        if (TaxArea."Country/Region" = TaxArea."Country/Region"::CA) and not VendorLocation."Business Presence" then
+                            "Provincial Tax Area Code" := PurchHeader."Provincial Tax Area Code"
+                        else
+                            "Provincial Tax Area Code" := '';
+                    end else
+                        if Location.Get("Location Code") then begin
+                            "Inbound Whse. Handling Time" := Location."Inbound Whse. Handling Time";
+                            if Location."Do Not Use For Tax Calculation" then begin
+                                GetPurchHeader();
+                                Location."Tax Area Code" := PurchHeader."Tax Area Code";
+                                Location."Provincial Tax Area Code" := PurchHeader."Provincial Tax Area Code";
+                            end;
+                            if PurchSetup."Use Vendor's Tax Area Code" and ("Tax Area Code" <> '') then begin
+                                Validate("Tax Area Code");
+                                VendorLocation."Business Presence" := true;
+                            end else
+                                if VendorLocation."Business Presence" then
+                                    Validate("Tax Area Code", Location."Tax Area Code")
+                                else
+                                    Validate("Tax Area Code", VendorLocation."Alt. Tax Area Code");
+                            if (TaxArea."Country/Region" = TaxArea."Country/Region"::CA) and not VendorLocation."Business Presence" then
+                                "Provincial Tax Area Code" := Location."Provincial Tax Area Code"
+                            else
+                                "Provincial Tax Area Code" := '';
+                        end;
 
                 UpdateLeadTimeFields();
                 UpdateDates();
@@ -3665,6 +3665,13 @@ table 39 "Purchase Line"
         field(8511; "Over-Receipt Approval Status"; Enum "Over-Receipt Approval Status")
         {
             Caption = 'Over-Receipt Approval Status';
+        }
+        field(8512; "Buy-from Vendor Name"; Text[100])
+        {
+            CalcFormula = lookup(Vendor.Name where("No." = field("Buy-from Vendor No.")));
+            Caption = 'Buy-from Vendor Name';
+            Editable = false;
+            FieldClass = FlowField;
         }
         field(10001; "Tax To Be Expensed"; Decimal)
         {
@@ -8701,7 +8708,7 @@ table 39 "Purchase Line"
     procedure IsSubcontractingCreditMemo() Result: Boolean
     begin
         OnIsSubcontractingCreditMemo(Rec, Result);
-    end;    
+    end;
 
     /// <summary>
     /// Retrieves the journal template name if g/l setup has a journal template name mandatory field set to true.
