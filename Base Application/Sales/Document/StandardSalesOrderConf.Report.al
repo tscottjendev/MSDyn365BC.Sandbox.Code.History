@@ -1158,7 +1158,6 @@ report 1305 "Standard Sales - Order Conf."
 
     var
         GLSetup: Record "General Ledger Setup";
-        CompanyBankAccount: Record "Bank Account";
         DummyCompanyInfo: Record "Company Information";
         SalesSetup: Record "Sales & Receivables Setup";
         Cust: Record Customer;
@@ -1236,6 +1235,7 @@ report 1305 "Standard Sales - Order Conf."
         PaymentMethod: Record "Payment Method";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         ShipmentMethod: Record "Shipment Method";
+        CompanyBankAccount: Record "Bank Account";
         VATClause: Record "VAT Clause";
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
