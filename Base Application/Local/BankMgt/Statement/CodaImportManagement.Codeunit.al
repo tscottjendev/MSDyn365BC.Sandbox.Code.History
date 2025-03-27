@@ -143,7 +143,6 @@ codeunit 2000040 "Coda Import Management"
 
     procedure CheckOldBalance(var CodedBankStmtSrcLine: Record "CODA Statement Source Line") OK: Boolean
     var
-        IBANSrcLine: Text;
         BankAccountNo: Text[30];
         IBANNumber: Text[34];
         IsHandled: Boolean;
@@ -178,19 +177,6 @@ codeunit 2000040 "Coda Import Management"
                       BankAcc."No.",
                       CopyStr(CodBankStmtSrcLine.Data, 6, 16),
                       CodBankStmtSrcLine.ID);
-            // Support non-Belgian IBAN's
-            '3':
-                begin
-                    IBANSrcLine := CopyStr(CodBankStmtSrcLine.Data, 6, CodBankStmtSrcLine.Data.IndexOf(' ') - 6);
-                    if IBANNumber <> IBANSrcLine then
-                        Error(Text003,
-                          BankAcc.FieldCaption(IBAN),
-                          BankAcc.IBAN,
-                          BankAcc.TableCaption(),
-                          BankAcc."No.",
-                          IBANSrcLine,
-                          CodBankStmtSrcLine.ID);
-                end;
             else
                 Error(Text017);
         end;
@@ -211,7 +197,6 @@ codeunit 2000040 "Coda Import Management"
 
     procedure CheckNewBalance(var CodedBankStmtSrcLine: Record "CODA Statement Source Line"; AccountType2: Text[1]): Boolean
     var
-        IBANSrcLine: Text;
         BankAccountNo: Text[30];
         IBANNumber: Text[34];
     begin
@@ -238,17 +223,6 @@ codeunit 2000040 "Coda Import Management"
                       BankAcc.TableCaption(),
                       BankAcc."No.",
                       CodBankStmtSrcLine.ID);
-            // Support non-Belgian IBAN's
-            '3':
-                begin
-                    IBANSrcLine := CopyStr(CodBankStmtSrcLine.Data, 5, CodBankStmtSrcLine.Data.IndexOf(' ') - 5);
-                    if IBANNumber <> IBANSrcLine then
-                        Error(Text005,
-                          BankAcc.FieldCaption(IBAN),
-                          BankAcc.TableCaption(),
-                          BankAcc."No.",
-                          CodBankStmtSrcLine.ID);
-                end;
             else
                 Error(Text017);
         end;
