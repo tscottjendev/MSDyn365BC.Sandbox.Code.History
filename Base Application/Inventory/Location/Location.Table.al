@@ -366,10 +366,12 @@ table 14 Location
                 if not WhseActivHeader.IsEmpty() then
                     Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseActivHeader.TableCaption());
 
+                WhseRcptHeader.SetCurrentKey("Location Code");
                 WhseRcptHeader.SetRange("Location Code", Code);
                 if not WhseRcptHeader.IsEmpty() then
                     Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseRcptHeader.TableCaption());
 
+                WhseShptHeader.SetCurrentKey("Location Code");
                 WhseShptHeader.SetRange("Location Code", Code);
                 if not WhseShptHeader.IsEmpty() then
                     Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseShptHeader.TableCaption());
@@ -416,10 +418,12 @@ table 14 Location
                 if not WhseActivHeader.IsEmpty() then
                     Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseActivHeader.TableCaption());
 
+                WhseRcptHeader.SetCurrentKey("Location Code");
                 WhseRcptHeader.SetRange("Location Code", Code);
                 if not WhseRcptHeader.IsEmpty() then
                     Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseRcptHeader.TableCaption());
 
+                WhseShptHeader.SetCurrentKey("Location Code");
                 WhseShptHeader.SetRange("Location Code", Code);
                 if not WhseShptHeader.IsEmpty() then
                     Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseShptHeader.TableCaption());
@@ -920,6 +924,7 @@ table 14 Location
             repeat
                 WarehouseEntry.SetRange("Item No.", WarehouseEntry."Item No.");
 
+                WhseEntry2.SetCurrentKey("Item No.", "Bin Code", "Location Code");
                 WhseEntry2.CopyFilters(WarehouseEntry);
                 WhseEntry2.CalcSums("Qty. (Base)");
                 if WhseEntry2."Qty. (Base)" <> 0 then begin
