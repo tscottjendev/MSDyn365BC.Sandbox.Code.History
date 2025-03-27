@@ -4025,7 +4025,7 @@ codeunit 10145 "E-Invoice Mgt."
                 exit('1')
             else
                 exit('1.0000000000'); // 10 decimal places
-        exit(FormatDecimal(ExchangeRate, 6));
+        exit(FormatDecimal(ExchangeRate, 10));
     end;
 
     local procedure FilterDocumentLines(var TempDocumentLine: Record "Document Line" temporary; DocumentNo: Code[20])
@@ -5734,7 +5734,7 @@ codeunit 10145 "E-Invoice Mgt."
                     if ConvertCurrency(DetailedCustLedgEntryPmt."Currency Code") = ConvertCurrency(CustLedgerEntry2."Currency Code") then
                         EquivalenciaDR := 1
                     else
-                        EquivalenciaDR := Round(CurrencyFactorInvoice / CurrencyFactorPayment, 0.000001);
+                        EquivalenciaDR := Round(CurrencyFactorInvoice / CurrencyFactorPayment, 0.0000000001);
 
                 TempDetailedCustLedgEntry."Remaining Pmt. Disc. Possible" := EquivalenciaDR;
                 TempDetailedCustLedgEntry.Modify();
@@ -5752,7 +5752,7 @@ codeunit 10145 "E-Invoice Mgt."
         if TempDetailedCustLedgEntry.FindSet(true) then
             repeat
                 if TempDetailedCustLedgEntry."Remaining Pmt. Disc. Possible" <> 1 then begin // EquivalenciaDR
-                    TempDetailedCustLedgEntry."Remaining Pmt. Disc. Possible" += 0.000001;
+                    TempDetailedCustLedgEntry."Remaining Pmt. Disc. Possible" += 0.0000000001;
                     TempDetailedCustLedgEntry.Modify();
                 end;
             until TempDetailedCustLedgEntry.Next() = 0;
