@@ -37,7 +37,6 @@ using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
-using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.User;
 
@@ -490,11 +489,6 @@ table 5994 "Service Cr.Memo Header"
         {
             Caption = 'VAT Date';
             Editable = false;
-        }
-        field(200; "Work Description"; BLOB)
-        {
-            Caption = 'Work Description';
-            DataClassification = CustomerContent;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -993,16 +987,6 @@ table 5994 "Service Cr.Memo Header"
 
         ReportSelections.SaveAsDocumentAttachment(
             ReportSelections.Usage::"SM.Credit Memo".AsInteger(), ServiceCrMemoHeader, ServiceCrMemoHeader."No.", ServiceCrMemoHeader."Bill-to Customer No.", ShowNotificationAction);
-    end;
-
-    procedure GetWorkDescription(): Text
-    var
-        TypeHelper: Codeunit "Type Helper";
-        InStream: InStream;
-    begin
-        CalcFields("Work Description");
-        "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
     end;
 
     [IntegrationEvent(false, false)]
