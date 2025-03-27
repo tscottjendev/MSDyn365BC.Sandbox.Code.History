@@ -2,7 +2,7 @@
   "id": "9bf23d52-8194-4857-8896-5e48b24493f6",
   "name": "Tests-Job",
   "publisher": "Microsoft",
-  "version": "27.0.32215.0",
+  "version": "27.0.32230.0",
   "platform": "27.0.0.0",
   "dependencies": [
     {
