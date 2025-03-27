@@ -1,1 +1,1 @@
-coreartifact-27.0.32241.0
+coreartifact-27.0.32247.0
