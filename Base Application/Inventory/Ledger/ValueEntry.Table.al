@@ -757,8 +757,6 @@ table 5802 "Value Entry"
         PAGE.RunModal(0, TempGLEntry);
     end;
 
-#if not CLEAN27
-    [Obsolete('Moved to the Inventory Adjustment codeunit', '27.0')]
     procedure IsAvgCostException(IsAvgCostCalcTypeItem: Boolean): Boolean
     var
         ItemApplnEntry: Record "Item Application Entry";
@@ -786,7 +784,6 @@ table 5802 "Value Entry"
         TempItemLedgEntry.CopyFilters(SearchedItemLedgerEntry);
         exit(not TempItemLedgEntry.IsEmpty());
     end;
-#endif
 
     procedure ShowDimensions()
     var
