@@ -26,7 +26,6 @@ codeunit 99000818 "Mfg. Carry Out Action"
         ProdOrderLineReserve: Codeunit "Prod. Order Line-Reserve";
         ReservationManagement: Codeunit "Reservation Management";
         ReqLineReserve: Codeunit "Req. Line-Reserve";
-        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
         PrintOrder: Boolean;
         CouldNotChangeSupplyTxt: Label 'The supply type could not be changed in order %1, order line %2.', Comment = '%1 - Production Order No. or Assembly Header No. or Purchase Header No., %2 - Production Order Line or Assembly Line No. or Purchase Line No.';
 
@@ -68,6 +67,7 @@ codeunit 99000818 "Mfg. Carry Out Action"
         ProdOrderComponent: Record "Prod. Order Component";
         ProductionOrder: Record "Production Order";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
+        MfgReservCheckDateConfl: Codeunit "Mfg. ReservCheckDateConfl";
     begin
         RequisitionLine.TestField(RequisitionLine."Ref. Order Type", RequisitionLine."Ref. Order Type"::"Prod. Order");
         ProdOrderLine.LockTable();
@@ -108,7 +108,7 @@ codeunit 99000818 "Mfg. Carry Out Action"
                         ReservationManagement.DeleteReservEntries(false, ProdOrderComponent."Remaining Qty. (Base)");
                         ReservationManagement.ClearSurplus();
                         ReservationManagement.AutoTrack(ProdOrderComponent."Remaining Qty. (Base)");
-                        ReservationCheckDateConfl.ProdOrderComponentCheck(ProdOrderComponent, false, false);
+                        MfgReservCheckDateConfl.ProdOrderComponentCheck(ProdOrderComponent, false, false);
                     end else
                         PlanningComponent.Delete(true);
                 until PlanningComponent.Next() = 0;

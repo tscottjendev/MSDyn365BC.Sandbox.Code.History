@@ -1149,11 +1149,11 @@ table 5406 "Prod. Order Line"
 
     procedure CheckEndingDate(ShowWarning: Boolean)
     var
-        CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
+        MfgReserveCheckDateConfl: Codeunit "Mfg. ReservCheckDateConfl";
     begin
         OnBeforeCheckEndingDate(Rec, ShowWarning);
         if not Blocked then begin
-            CheckDateConflict.ProdOrderLineCheck(Rec, ShowWarning);
+            MfgReserveCheckDateConfl.ProdOrderLineCheck(Rec, ShowWarning);
             ProdOrderLineReserve.AssignForPlanning(Rec);
         end;
 

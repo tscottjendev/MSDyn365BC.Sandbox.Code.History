@@ -363,15 +363,15 @@ table 5407 "Prod. Order Component"
                             ["Flushing Method"::Forward, "Flushing Method"::Backward]);
                 end else begin
 #endif
-                    PickQtyCheckNeeded :=
-                        ("Flushing Method" <> xRec."Flushing Method") and
-                        (xRec."Flushing Method" in
-                            [xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]);
-                    WhseWorksheetLineExistCheckNeeded :=
-                        (xRec."Flushing Method" in
-                            [xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]) and
-                        ("Flushing Method" in
-                            ["Flushing Method"::Manual, "Flushing Method"::Forward, "Flushing Method"::Backward]);
+                PickQtyCheckNeeded :=
+                    ("Flushing Method" <> xRec."Flushing Method") and
+                    (xRec."Flushing Method" in
+                        [xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]);
+                WhseWorksheetLineExistCheckNeeded :=
+                    (xRec."Flushing Method" in
+                        [xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]) and
+                    ("Flushing Method" in
+                        ["Flushing Method"::Manual, "Flushing Method"::Forward, "Flushing Method"::Backward]);
 #if not CLEAN26
                 end;
 #endif
@@ -621,14 +621,14 @@ table 5407 "Prod. Order Component"
 
             trigger OnValidate()
             var
-                CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
+                MfgReservCheckDateConfl: Codeunit "Mfg. ReservCheckDateConfl";
             begin
                 ProdOrderWarehouseMgt.ProdComponentVerifyChange(Rec, xRec);
                 if not Blocked then
                     if CurrFieldNo <> 0 then
-                        CheckDateConflict.ProdOrderComponentCheck(Rec, true, true)
+                        MfgReservCheckDateConfl.ProdOrderComponentCheck(Rec, true, true)
                     else
-                        if CheckDateConflict.ProdOrderComponentCheck(Rec, not WarningRaised, false) then
+                        if MfgReservCheckDateConfl.ProdOrderComponentCheck(Rec, not WarningRaised, false) then
                             WarningRaised := true;
                 UpdateDatetime();
             end;
@@ -1597,16 +1597,16 @@ table 5407 "Prod. Order Component"
             end
         else
 #endif
-            case "Flushing Method" of
-                "Flushing Method"::"Pick + Manual",
-                "Flushing Method"::"Pick + Forward",
-                "Flushing Method"::"Pick + Backward":
-                    BinCode := ProdOrderRtngLine."To-Production Bin Code";
-                "Flushing Method"::Manual,
-                "Flushing Method"::Forward,
-                "Flushing Method"::Backward:
-                    BinCode := ProdOrderRtngLine."Open Shop Floor Bin Code";
-            end;
+        case "Flushing Method" of
+            "Flushing Method"::"Pick + Manual",
+            "Flushing Method"::"Pick + Forward",
+            "Flushing Method"::"Pick + Backward":
+                BinCode := ProdOrderRtngLine."To-Production Bin Code";
+            "Flushing Method"::Manual,
+            "Flushing Method"::Forward,
+            "Flushing Method"::Backward:
+                BinCode := ProdOrderRtngLine."Open Shop Floor Bin Code";
+        end;
     end;
 
     local procedure GetBinCodeFromLocation(LocationCode: Code[10]) BinCode: Code[20]
@@ -1630,16 +1630,16 @@ table 5407 "Prod. Order Component"
             end
         else
 #endif
-            case "Flushing Method" of
-                "Flushing Method"::"Pick + Manual",
-                "Flushing Method"::"Pick + Forward",
-                "Flushing Method"::"Pick + Backward":
-                    BinCode := Location."To-Production Bin Code";
-                "Flushing Method"::Manual,
-                "Flushing Method"::Forward,
-                "Flushing Method"::Backward:
-                    BinCode := Location."Open Shop Floor Bin Code";
-            end;
+        case "Flushing Method" of
+            "Flushing Method"::"Pick + Manual",
+            "Flushing Method"::"Pick + Forward",
+            "Flushing Method"::"Pick + Backward":
+                BinCode := Location."To-Production Bin Code";
+            "Flushing Method"::Manual,
+            "Flushing Method"::Forward,
+            "Flushing Method"::Backward:
+                BinCode := Location."Open Shop Floor Bin Code";
+        end;
 
         OnAfterGetBinCodeFromLocation(Rec, Location, BinCode);
     end;
