@@ -8,13 +8,16 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Sales.Customer;
 
-codeunit 99000996 "Invt. Ledger Sales Source"
+codeunit 5860 "Invt. Ledger Sales Source"
 {
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Invt. Ledger Source Mgt.", OnGetSourceDescription, '', false, false)]
     local procedure OnGetSourceDescription(SourceType: Enum "Analysis Source Type"; SourceNo: Code[20]; var SourceDescription: Text)
     var
         Customer: Record Customer;
     begin
+        if SourceNo = '' then
+            exit;
+
         if SourceType = SourceType::Customer then begin
             Customer.SetLoadFields(Name);
             if Customer.Get(SourceNo) then
@@ -30,6 +33,9 @@ codeunit 99000996 "Invt. Ledger Sales Source"
         SalesCrMemoHdr: Record "Sales Cr.Memo Header";
         ReturnRcptHdr: Record "Return Receipt Header";
     begin
+        if DocNo = '' then
+            exit;
+
         case DocType of
             DocType::"Sales Shipment":
                 begin
