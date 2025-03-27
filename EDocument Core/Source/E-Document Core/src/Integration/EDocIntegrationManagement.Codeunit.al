@@ -149,8 +149,8 @@ codeunit 6134 "E-Doc. Integration Management"
                 EDocImport.V1_AfterInsertImportedEdocument(EDocument, EDocService, TempBlob, EDocCount, HttpRequest, HttpResponse);
             end;
 
-            if (not IsProcessed) then
-                EDocImport.V1_ProcessImportedDocument(EDocument, EDocService, TempBlob, EDocService."Create Journal Lines", EDocService.IsAutomaticProcessingEnabled());
+            if (not IsProcessed) and EDocService.IsAutomaticProcessingEnabled() then
+                EDocImport.V1_ProcessImportedDocument(EDocument, EDocService, TempBlob, EDocService."Create Journal Lines");
 
             if EDocErrorHelper.HasErrors(EDocument) then begin
                 EDocumentLog.SetFields(EDocument, EDocService);
@@ -180,14 +180,11 @@ codeunit 6134 "E-Doc. Integration Management"
 
         for Index := 1 to DocumentsMetadata.Count() do begin
 
-            EDocument.Create(
-                Enum::"E-Document Direction"::Incoming,
-                Enum::"E-Document Type"::None,
-                EDocumentService
-            );
-
+            EDocument."Entry No" := 0;
             EDocument."Index In Batch" := Index;
-            EDocument.Modify();
+            EDocument.Direction := EDocument.Direction::Incoming;
+            EDocument.Service := EDocumentService.Code;
+            EDocument.Insert();
 
             EDocumentLog.SetFields(EDocument, EDocumentService);
 

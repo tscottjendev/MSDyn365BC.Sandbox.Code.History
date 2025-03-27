@@ -1,4 +1,3 @@
-#pragma warning disable AS0049, AS0009, AS0005, AS0125
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -19,11 +18,8 @@ using Microsoft.Finance.Dimension;
 
 table 6105 "E-Document Line Mapping"
 {
-#pragma warning disable AS0034
-    Access = Internal;
-    InherentEntitlements = RIMDX;
-    InherentPermissions = RIMDX;
-#pragma warning restore AS0034
+    InherentEntitlements = X;
+    InherentPermissions = X;
     DataClassification = CustomerContent;
 
     fields
@@ -118,4 +114,3 @@ table 6105 "E-Document Line Mapping"
     end;
 
 }
-#pragma warning restore AS0049, AS0009, AS0005, AS0125
