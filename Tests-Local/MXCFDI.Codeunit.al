@@ -1400,7 +1400,7 @@
             OriginalStr,
             DetailedCustLedgEntry."Amount (LCY)", 'MXN', '1',
             DetailedCustLedgEntry.Amount, Customer."Currency Code",
-            FormatDecimal(SalesInvoiceHeader."Amount Including VAT" / DetailedCustLedgEntry.Amount, 6),
+            FormatDecimal(SalesInvoiceHeader."Amount Including VAT" / DetailedCustLedgEntry.Amount, 10),
             SalesInvoiceHeader."Amount Including VAT", 29);
     end;
 
@@ -2230,14 +2230,14 @@
 
         // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' = 5540.00
         // [THEN] 'Complemento' node created with attribute 'MonedaP' = 'USD', 'TipoCambioP' = 8.999058
-        // [THEN] 'DoctoRelacionado' node has attribute 'Monto' = 407.51 , 'MonedaDR' = 'MXN', 'EquivalenciaDR' = 8.999058
-        // [THEN] TrasladoP nose has attributes BaseP = 444.490967, ImporteP = 71.118554
+        // [THEN] 'DoctoRelacionado' node has attribute 'Monto' = 407.51 , 'MonedaDR' = 'MXN', 'EquivalenciaDR' = 8.9990578604
+        // [THEN] TrasladoP nose has attributes BaseP = 444.490974, ImporteP = 71.118555
         VerifyComplementoPagoAmountWithCurrency(
           OriginalStr,
           5540.0, CustLedgerEntry."Currency Code", '8.999058',
-          615.62, 'MXN', '8.999058', 5540.0, 30);
-        VerifyComplementoPagoTrasladoP(OriginalStr, 56, 444.490967, 71.118554, 0.16, 1);
-        VerifyComplementoPagoTrasladoPExempt(OriginalStr, 53, 100.010467, 0);
+          615.62, 'MXN', '8.9990578604', 5540.0, 30);
+        VerifyComplementoPagoTrasladoP(OriginalStr, 56, 444.490974, 71.118555, 0.16, 1);
+        VerifyComplementoPagoTrasladoPExempt(OriginalStr, 53, 100.010469, 0);
     end;
 
     [Test]
@@ -2460,16 +2460,16 @@
 
         // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' = 2925.97
         // [THEN] 'Pagos/Pago' node created with attribute 'MonedaP' = 'MXN', 'TipoCambioP' = 1
-        // [THEN] 'Pagos/Pago/DoctoRelacionado' node has attributes 'Monto' = 2925.97, 'MonedaDR' = 'USD', 'EquivalenciaDR' = 0.111122
-        // [THEN] TrasladoP nose has attributes BaseP = 2522.362808, ImpuestoP = 403.610446
+        // [THEN] 'Pagos/Pago/DoctoRelacionado' node has attributes 'Monto' = 2925.97, 'MonedaDR' = 'USD', 'EquivalenciaDR' = 0.1111221236
+        // [THEN] TrasladoP nose has attributes BaseP = 2522.360002, ImpuestoP = 403.609997
         InitXMLReaderForPagos20(FileName);
         InitOriginalStringFromCustLedgerEntry(CustLedgerEntry, OriginalStr);
 
         VerifyComplementoPagoAmountWithCurrency(
           OriginalStr,
           2925.97, 'MXN', '1',
-          2925.97, SalesInvoiceHeader."Currency Code", '0.111122', 325.14, 29);
-        VerifyComplementoPagoTrasladoP(OriginalStr, 49, 2522.362808, 403.610446, 0.16, 0);
+          2925.97, SalesInvoiceHeader."Currency Code", '0.1111221236', 325.14, 29);
+        VerifyComplementoPagoTrasladoP(OriginalStr, 49, 2522.360002, 403.609997, 0.16, 0);
     end;
 
     [Test]
@@ -2522,16 +2522,16 @@
 
         // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' = 161040.35
         // [THEN] 'Pagos/Pago' node created with attribute 'MonedaP' = 'MXN', 'TipoCambioP' = 1
-        // [THEN] 'Pagos/Pago/DoctoRelacionado' node has attributes 'Monto' = 161040.35, 'MonedaDR' = 'USD', 'EquivalenciaDR' = 0.046850
-        // [THEN] TrasladoP nose has attributes BaseP = 138826.040554, ImpuestoP = 22212.166488
+        // [THEN] 'Pagos/Pago/DoctoRelacionado' node has attributes 'Monto' = 161040.35, 'MonedaDR' = 'USD', 'EquivalenciaDR' = 0.0468493740
+        // [THEN] TrasladoP nose has attributes BaseP = 138827.887926, ImpuestoP = 22212.462068
         InitXMLReaderForPagos20(FileName);
         InitOriginalStringFromCustLedgerEntry(CustLedgerEntry, OriginalStr);
 
         VerifyComplementoPagoAmountWithCurrency(
           OriginalStr,
           161040.35, 'MXN', '1',
-          161040.35, Customer."Currency Code", '0.046850', 1258.6, 29);
-        VerifyComplementoPagoTrasladoP(OriginalStr, 77, 138826.040554, 22212.166488, 0.16, 0);
+          161040.35, Customer."Currency Code", '0.0468493740', 1258.6, 29);
+        VerifyComplementoPagoTrasladoP(OriginalStr, 77, 138827.887926, 22212.462068, 0.16, 0);
     end;
 
     [Test]
