@@ -3390,6 +3390,13 @@ table 37 "Sales Line"
             FieldClass = FlowField;
             BlankZero = true;
         }
+        field(7012; "Sell-to Customer Name"; Text[100])
+        {
+            CalcFormula = lookup(Customer.Name where("No." = field("Sell-to Customer No.")));
+            Caption = 'Sell-to Customer Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
     }
 
     keys
