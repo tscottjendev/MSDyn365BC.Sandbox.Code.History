@@ -2103,7 +2103,6 @@ page 256 "Payment Journal"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        CurrPage.SaveRecord();
         OnBeforeCheckAmountMatchedToAppliedLines(Rec, IsHandled);
         if isHandled then
             exit;
