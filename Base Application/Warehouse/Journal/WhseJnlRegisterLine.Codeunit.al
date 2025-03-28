@@ -12,7 +12,6 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 {
     Permissions = TableData "Warehouse Entry" = rimd,
                   TableData "Warehouse Register" = rimd,
-                  TableData Bin = m,
                   TableData "Bin Content" = rimd;
     TableNo = "Warehouse Journal Line";
 
