@@ -321,6 +321,11 @@ codeunit 703 "Find Record Management"
                 RecordsCount += 1;
             until ((RecRef.Next() = 0) or (RecordsCount > GetMaxRecordCountToReturn()));
 
+        if RecordsCount = 1 then begin //to avoid adding single quotes
+            Result := Format(FieldRef.Value);
+            exit;
+        end;
+
         Result += TextBuilder.ToText();
         Result := DelChr(Result, '<>', '|');
     end;
