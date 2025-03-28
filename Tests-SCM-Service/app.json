@@ -2,7 +2,7 @@
   "id": "e737590a-fede-4692-ac4e-d1d4849dd043",
   "name": "Tests-SCM-Service",
   "publisher": "Microsoft",
-  "version": "27.0.32288.0",
+  "version": "27.0.32296.0",
   "platform": "27.0.0.0",
   "dependencies": [
     {
