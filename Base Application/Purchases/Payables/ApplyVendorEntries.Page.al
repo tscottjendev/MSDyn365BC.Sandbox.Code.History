@@ -1520,6 +1520,7 @@ page 233 "Apply Vendor Entries"
     protected procedure ExchangeLedgerEntryAmounts(Type: Enum "Vendor Apply Calculation Type"; CurrencyCode: Code[10]; var CalcVendLedgEntry: Record "Vendor Ledger Entry"; PostingDate: Date)
     var
         CalculateCurrency: Boolean;
+        IsHandled: Boolean;
     begin
         CalcVendLedgEntry.CalcFields("Remaining Amount");
 
@@ -1527,6 +1528,10 @@ page 233 "Apply Vendor Entries"
             CalculateCurrency := TempApplyingVendLedgEntry."Entry No." <> 0
         else
             CalculateCurrency := true;
+
+        OnExchangeLedgerEntryAmountsOnBeforeCalculateAmounts(CalcVendLedgEntry, VendLedgEntry, CurrencyCode, CalculateCurrency, IsHandled);
+        if IsHandled then
+            exit;
 
         if (CurrencyCode <> CalcVendLedgEntry."Currency Code") and CalculateCurrency then begin
             CalcVendLedgEntry."Remaining Amount" :=
@@ -1767,6 +1772,11 @@ page 233 "Apply Vendor Entries"
 
     [IntegrationEvent(true, false)]
     local procedure OnPostDirectApplicationOnBeforeCheckApplicationDate(VendorLedgerEntry: Record "Vendor Ledger Entry"; NewApplyUnapplyParameters: Record "Apply Unapply Parameters"; ApplicationDate: Date; PreviewMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExchangeLedgerEntryAmountsOnBeforeCalculateAmounts(var CalcVendLedgEntry: Record "Vendor Ledger Entry"; VendLedgEntry: Record "Vendor Ledger Entry"; CurrencyCode: Code[10]; CalculateCurrency: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
