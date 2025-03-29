@@ -464,13 +464,6 @@ table 5802 "Value Entry"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
-        field(6603; "Item Description"; Text[100])
-        {
-            CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
-            Caption = 'Item Description';
-            Editable = false;
-            FieldClass = FlowField;
-        }
     }
 
     keys
