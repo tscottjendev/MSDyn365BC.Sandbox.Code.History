@@ -12551,6 +12551,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse IV - NamedType QuantityError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3694926601 - NamedType 1986397622" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reorder Policy must be visible]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse IV - NamedType ReorderPolicyVisibleErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3694926601 - NamedType 886257002" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 should be %2]]></Val>
@@ -12558,6 +12567,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Field, %2 = Expected availability]D;]A;(LookupHint=Codeunit SCM Warehouse IV - NamedType ShouldBeTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3694926601 - NamedType 908732871" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Special Equipment Code should be visible.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse IV - NamedType SpecialEquipmentCodeVisibleErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3694926601 - NamedType 115540444" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
