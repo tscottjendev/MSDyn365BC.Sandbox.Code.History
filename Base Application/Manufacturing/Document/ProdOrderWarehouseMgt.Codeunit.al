@@ -1382,11 +1382,11 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
     local procedure FlushingMethodRequiresPick(FlushingMethod: Enum "Flushing Method"): Boolean
 #if not CLEAN26
     var
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+        ManufacturingSetup: Record "Manufacturing Setup";
 #endif
     begin
 #if not CLEAN26
-        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
             exit(FlushingMethod in [FlushingMethod::Manual, FlushingMethod::"Pick + Manual", FlushingMethod::"Pick + Backward", FlushingMethod::"Pick + Forward"])
         else
 #endif
@@ -1396,11 +1396,11 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
     local procedure FlushingMethodRequiresManualPick(FlushingMethod: Enum "Flushing Method"): Boolean
 #if not CLEAN26
     var
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+        ManufacturingSetup: Record "Manufacturing Setup";
 #endif
     begin
 #if not CLEAN26
-        if not FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled() then
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
             exit(FlushingMethod in [FlushingMethod::Manual, FlushingMethod::"Pick + Manual"])
         else
 #endif
