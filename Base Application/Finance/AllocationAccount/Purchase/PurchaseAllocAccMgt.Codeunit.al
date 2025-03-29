@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.AllocationAccount.Purchase;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.AllocationAccount.Purchase;
 
 using Microsoft.Finance.AllocationAccount;
 using Microsoft.Finance.Deferral;
