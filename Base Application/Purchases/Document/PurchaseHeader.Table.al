@@ -583,7 +583,7 @@ table 38 "Purchase Header"
                 Validate("VAT Reporting Date");
 
                 PurchasesPayablesSetup.SetLoadFields("Link Doc. Date To Posting Date");
-                PurchasesPayablesSetup.GetRecordOnce();
+                PurchasesPayablesSetup.Get();
 
                 if ("Incoming Document Entry No." = 0) and PurchasesPayablesSetup."Link Doc. Date To Posting Date" then
                     ValidateDocumentDateWithPostingDate();
