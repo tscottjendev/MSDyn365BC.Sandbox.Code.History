@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 // this Page should always be the same as W1 version, except for action "Balance Sheet" and "Income Statement"
 // it will be replaced with W1 version after CLEAN23, we keep it in SE because GDL view is created before CLEAN tags are processed
 // no breaking changes will be introduced as the page is exactly the same as W1 version
