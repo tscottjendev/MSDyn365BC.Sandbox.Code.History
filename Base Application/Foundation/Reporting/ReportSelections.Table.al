@@ -366,7 +366,7 @@ table 77 "Report Selections"
         end;
     end;
 
-    procedure DrillDownToSelectLayout(var SelectedLayoutName: Text[250]; var SelectedLayoutAppID: Guid)
+    internal procedure DrillDownToSelectLayout(var SelectedLayoutName: Text[250]; var SelectedLayoutAppID: Guid)
     var
         ReportLayoutListSelection: Record "Report Layout List";
         ReportManagementCodeunit: Codeunit ReportManagement;
