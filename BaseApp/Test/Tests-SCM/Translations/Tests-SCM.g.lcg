@@ -3209,6 +3209,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Documents - NamedType SpecialEquipmentCodeShouldBeVisibleErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 917041221 - NamedType 975099284" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Transfer Order has not been posted successfully.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Documents - NamedType TransferOrderErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 917041221 - NamedType 3041014380" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unit Cost are not equal]]></Val>
@@ -9966,6 +9975,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Shipping Agent Service Code]D;]A;(LookupHint=Codeunit SCM Sales Order Management - NamedType AgentServiceCodeValidationErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1136628140 - NamedType 1822650553" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be calculated in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Field Caption; %2 Page Caption.]D;]A;(LookupHint=Codeunit SCM Sales Order Management - NamedType GrossWeightErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1136628140 - NamedType 3828303654" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
