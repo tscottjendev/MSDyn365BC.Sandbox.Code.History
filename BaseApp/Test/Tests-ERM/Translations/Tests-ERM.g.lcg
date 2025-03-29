@@ -6764,6 +6764,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Blanket Order - NamedType QuantityShippedMustNotBeGreaterErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3058997361 - NamedType 1785547107" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Total record count must be equal to %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Record Count.]D;]A;(LookupHint=Codeunit ERM Sales Blanket Order - NamedType TotalRecordCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3058997361 - NamedType 1353928866" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unit Price is changed on Quantity update.]]></Val>

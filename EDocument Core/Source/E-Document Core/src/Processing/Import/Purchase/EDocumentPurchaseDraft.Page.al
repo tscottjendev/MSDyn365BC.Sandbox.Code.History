@@ -53,7 +53,7 @@ page 6181 "E-Document Purchase Draft"
                         Importance = Promoted;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the number of the vendor who delivers the products.';
-                        Editable = true;
+                        Editable = PageEditable;
                         Lookup = true;
 
                         trigger OnLookup(var Text: Text): Boolean
@@ -121,7 +121,7 @@ page 6181 "E-Document Purchase Draft"
                 part(Lines; "E-Doc. Purchase Draft Subform")
                 {
                     ApplicationArea = Suite;
-                    Editable = true;
+                    Editable = PageEditable;
                     SubPageLink = "E-Document Entry No." = field("Entry No");
                     UpdatePropagation = Both;
                 }
@@ -190,6 +190,9 @@ page 6181 "E-Document Purchase Draft"
                 trigger OnAction()
                 begin
                     ProcessEDocument();
+                    PageEditable := ConditionallyEditable();
+                    CurrPage.Lines.Page.Update();
+                    CurrPage.Update();
                 end;
             }
             action(AnalyzeDocument)
@@ -267,6 +270,26 @@ page 6181 "E-Document Purchase Draft"
         EDocumentServiceStatus := Rec.GetEDocumentServiceStatus();
         HasErrorsOrWarnings := false;
         HasErrors := false;
+        PageEditable := ConditionallyEditable();
+    end;
+
+    local procedure ConditionallyEditable(): Boolean
+    var
+        RecRef: RecordRef;
+    begin
+        if Rec."Document Record ID".TableNo() = 0 then
+            exit(true);
+
+        if not TryOpen(RecRef, Rec."Document Record ID".TableNo()) then
+            exit(true);
+
+        exit(not RecRef.Get(Rec."Document Record ID"));
+    end;
+
+    [TryFunction]
+    local procedure TryOpen(var RecRef: RecordRef; TableNo: Integer)
+    begin
+        RecRef.Open(TableNo);
     end;
 
     trigger OnAfterGetRecord()
@@ -375,5 +398,6 @@ page 6181 "E-Document Purchase Draft"
         ShowFinalizeDraftAction: Boolean;
         ShowAnalyzeDocumentAction: Boolean;
         EDocHasErrorOrWarningMsg: Label 'Errors or warnings found for E-Document. Please review below in "Error Messages" section.';
+        PageEditable: Boolean;
 }
 #pragma warning restore AS0050
