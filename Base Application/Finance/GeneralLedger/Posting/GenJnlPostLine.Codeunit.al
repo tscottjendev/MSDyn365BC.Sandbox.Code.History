@@ -6117,10 +6117,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             UpdateEmplLedgEntry(DetailedEmployeeLedgerEntry2);
         until DetailedEmployeeLedgerEntry2.Next() = 0;
 
-        IsHandled := false;
-        OnBeforeCreateGLEntriesForTotalAmountsUnapplyEmployee(DetailedEmployeeLedgerEntry, EmployeePostingGroup, GenJournalLineToPost, TempDimensionPostingBuffer, IsHandled);
-        if not IsHandled then
-            CreateGLEntriesForTotalAmountsUnapply(GenJournalLineToPost, TempDimensionPostingBuffer, EmployeePostingGroup.GetPayablesAccount());
+        CreateGLEntriesForTotalAmountsUnapply(GenJournalLineToPost, TempDimensionPostingBuffer, EmployeePostingGroup.GetPayablesAccount());
 
         if IsTempGLEntryBufEmpty() then
             DetailedEmployeeLedgerEntry.SetZeroTransNo(NextTransactionNo);
@@ -10549,11 +10546,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnCodeOnAfterCheckGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; CheckLine: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(true, false)]
-    local procedure OnBeforeCreateGLEntriesForTotalAmountsUnapplyEmployee(DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry"; var EmployeePostingGroup: Record "Employee Posting Group"; GenJournalLine: Record "Gen. Journal Line"; var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
 }
