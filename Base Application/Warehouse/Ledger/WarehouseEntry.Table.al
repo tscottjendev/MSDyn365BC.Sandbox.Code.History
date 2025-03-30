@@ -268,7 +268,7 @@ table 7312 "Warehouse Entry"
         {
             IncludedFields = "Qty. (Base)";
         }
-        key(Key5; "Item No.", "Bin Code", "Bin Type Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type", Dedicated, "Package No.", "SIFT Bucket No.")
+        key(Key5; "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type", Dedicated, "Package No.", "Bin Type Code", "SIFT Bucket No.")
         {
             SumIndexFields = "Qty. (Base)", Cubage, Weight, Quantity;
         }
