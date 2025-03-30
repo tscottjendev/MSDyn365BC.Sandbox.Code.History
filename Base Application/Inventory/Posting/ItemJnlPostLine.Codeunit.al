@@ -2077,9 +2077,9 @@ codeunit 22 "Item Jnl.-Post Line"
                 if TempTrackingSpecification.IsEmpty() then
                     if ItemJnlLine."Document Type" = ItemJnlLine."Document Type"::"Direct Transfer" then
                         if ItemLedgEntry.Quantity < 0 then
-                            ReservEntry.SetRange(Positive, false)
+                            ReservEntry.SetRange("Source Subtype", 0)
                         else
-                            ReservEntry.SetRange(Positive, true);
+                            ReservEntry.SetRange("Source Subtype", 1);
 
                 if not SkipReservationCheck then
                     UseReservationApplication := FindReservationEntryWithAdditionalCheckForAssemblyItem(ReservEntry);
