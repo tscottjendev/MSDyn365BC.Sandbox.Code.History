@@ -3,7 +3,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Ledger;
- 
+
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Address;
@@ -520,6 +520,13 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
+        }
+        field(6603; "Item Description"; Text[100])
+        {
+            CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
+            Caption = 'Item Description';
+            Editable = false;
+            FieldClass = FlowField;
         }
 #if not CLEANSCHEMA25
         field(10700; "Shipment Method Code"; Code[10])
