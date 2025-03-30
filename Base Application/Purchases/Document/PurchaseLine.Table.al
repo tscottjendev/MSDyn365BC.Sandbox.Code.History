@@ -134,9 +134,6 @@ table 39 "Purchase Line"
                                 PurchHeader.TestField(Status, PurchHeader.Status::Open);
                         Type::"Charge (Item)":
                             DeleteChargeChargeAssgnt("Document Type", "Document No.", "Line No.");
-                        Type::" ":
-                            if ("Attached to Line No." <> 0) and (Quantity = 0) then
-                                Error(ChangeExtendedTextErr, FieldCaption(Type));
                     end;
                     if xRec."Deferral Code" <> '' then
                         DeferralUtilities.RemoveOrSetDeferralSchedule('',
@@ -3597,13 +3594,6 @@ table 39 "Purchase Line"
         {
             Caption = 'Over-Receipt Approval Status';
         }
-        field(8512; "Buy-from Vendor Name"; Text[100])
-        {
-            CalcFormula = lookup(Vendor.Name where("No." = field("Buy-from Vendor No.")));
-            Caption = 'Buy-from Vendor Name';
-            Editable = false;
-            FieldClass = FlowField;
-        }
         field(28006; "Prepmt. VAT Amount Deducted"; Decimal)
         {
             Caption = 'Prepmt. VAT Amount Deducted';
@@ -4098,7 +4088,6 @@ table 39 "Purchase Line"
         CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
         LineAmountInvalidErr: Label 'You have set the line amount to a value that results in a discount that is not valid. Consider increasing the unit cost instead.';
-        ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
 
     protected var
         HideValidationDialog: Boolean;
@@ -9201,7 +9190,7 @@ table 39 "Purchase Line"
     procedure IsSubcontractingCreditMemo() Result: Boolean
     begin
         OnIsSubcontractingCreditMemo(Rec, Result);
-    end;
+    end;    
 
     /// <summary>
     /// Retrieves the journal template name if g/l setup has a journal template name mandatory field set to true.
