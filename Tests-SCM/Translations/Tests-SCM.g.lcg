@@ -338,15 +338,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM - Movement - NamedType LinesExistErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 20771605 - NamedType 374431739" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to replenish.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM - Movement - NamedType NothingToReplenishErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 20771605 - NamedType 1144510249" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Item tracking defined for line %1, lot number %2, serial number %3, package number %4 cannot be applied.]]></Val>
@@ -1407,15 +1398,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Costing Rollup Sev 2 - NamedType UnexpectedValueMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1407136536 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(LookupHint=Codeunit SCM Costing Rollup Sev 2 - NamedType ValueMustBeEqualErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 769439919 - NamedType 3606840782" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3144,15 +3126,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Documents - NamedType SpecialEquipmentCodeShouldBeVisibleErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 917041221 - NamedType 975099284" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Transfer Order has not been posted successfully.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Documents - NamedType TransferOrderErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 917041221 - NamedType 3041014380" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5736,24 +5709,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - III - NamedType QuantityError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2531980374 - NamedType 1062522654" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Relesed Production Order Item Component Expected Quantity %1 Not Match With Expected Result %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - III - NamedType RelesedProdOrderComponentExpQtyRoundingErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2531980374 - NamedType 628339252" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Relesed Production Order Item Component Quantity per %1 Not Match With Expected Result %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - III - NamedType RelesedProdOrderComponentQtyPerRoundingErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2531980374 - NamedType 1063772298" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -9381,15 +9336,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Shipping Agent Service Code]D;]A;(LookupHint=Codeunit SCM Sales Order Management - NamedType AgentServiceCodeValidationErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1136628140 - NamedType 1822650553" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be calculated in %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Field Caption; %2 Page Caption.]D;]A;(LookupHint=Codeunit SCM Sales Order Management - NamedType GrossWeightErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1136628140 - NamedType 3828303654" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
