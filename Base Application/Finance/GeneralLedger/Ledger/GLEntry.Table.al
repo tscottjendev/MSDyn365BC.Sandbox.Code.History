@@ -555,6 +555,10 @@ table 17 "G/L Entry"
         key(Key18; "Dimension Set ID")
         {
         }
+        key(Key19; "Transaction No.", "G/L Account No.", "Document No.", Positive, "Source Type", "Source No.", "Posting Date")
+        {
+            SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount";
+        }
     }
 
     fieldgroups
