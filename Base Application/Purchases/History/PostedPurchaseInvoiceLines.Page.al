@@ -1,7 +1,6 @@
 namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Dimension;
-using Microsoft.Utilities;
 
 page 529 "Posted Purchase Invoice Lines"
 {
@@ -216,11 +215,9 @@ page 529 "Posted Purchase Invoice Lines"
                     ToolTip = 'Open the document that the selected line exists on.';
 
                     trigger OnAction()
-                    var
-                        PageManagement: Codeunit "Page Management";
                     begin
                         PurchInvHeader.Get(Rec."Document No.");
-                        PageManagement.PageRun(PurchInvHeader);
+                        PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
                     end;
                 }
                 action(Dimensions)
