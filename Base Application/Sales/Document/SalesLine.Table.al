@@ -8760,7 +8760,12 @@ table 37 "Sales Line"
     var
         PosBefore: Integer;
         PosAfter: Integer;
+        IsHandled: Boolean;
     begin
+        OnBeforeCalcPosition(Rec, Position, IsHandled);
+        if IsHandled then
+            exit;
+
         if not (CheckQuoteMgtPermission() or (CopyStr(SerialNumber, 7, 3) = '000')) then
             exit;
 
@@ -12413,6 +12418,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnValidateLineDiscountPercentOnBeforeTestJobPlanningLine(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcPosition(var SalesLine: Record "Sales Line"; var Position: Integer; var IsHandled: Boolean)
     begin
     end;
 }
