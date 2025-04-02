@@ -7,7 +7,7 @@ namespace Microsoft.Warehouse.Activity;
 using Microsoft.Finance.GeneralLedger.Preview;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Inventory.Item;
-#if not CLEAN26
+#if not CLEAN27
 using Microsoft.Inventory.Journal;
 #endif
 using Microsoft.Inventory.Location;
