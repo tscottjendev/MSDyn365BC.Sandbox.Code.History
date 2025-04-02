@@ -547,6 +547,11 @@ codeunit 5804 ItemCostManagement
         ItemApplicationEntry: Record "Item Application Entry";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculatePreciseCostAmounts(Item, NeedCalcPreciseAmt, NeedCalcPreciseAmtACY, PreciseAmt, PreciseAmtACY, IsHandled);
+        if IsHandled then
+            exit;
+
         // Collect precise (not rounded) remaining cost on:
         // 1. open inbound item ledger entries;
         // 2. closed inbound item ledger entries the open outbound item entries are applied to.
@@ -859,6 +864,11 @@ codeunit 5804 ItemCostManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculatePreciseCostAmountsOnOnBeforeProcessTempItemLedgerEntry(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var PreciseAmt: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculatePreciseCostAmounts(var Item: Record Item; NeedCalcPreciseAmt: Boolean; NeedCalcPreciseAmtACY: Boolean; var PreciseAmt: Decimal; var PreciseAmtACY: Decimal; var IsHandled: Boolean)
     begin
     end;
 }
