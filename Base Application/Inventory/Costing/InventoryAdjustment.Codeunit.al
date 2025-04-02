@@ -1492,6 +1492,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         OutbndItemLedgEntry.Get(OutbndValueEntry."Item Ledger Entry No.");
         GetChainOfAppliedEntries(ItemApplicationTrace, OutbndItemLedgEntry, true);
         OutbndEntryItemApplicationTrace.AddChain(OutbndValueEntry."Item Ledger Entry No.", ItemApplicationTrace);
+        OnExcludeAvgCostOnValuationDateOnAfterGetItemApplicationTrace(OutbndValueEntry, OutbndEntryItemApplicationTrace);
 
         PreviousILENo := 0;
         if ExcludedValueEntry.FindSet() then
@@ -2752,6 +2753,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
             ConsumpItemLedgEntry.SetBaseLoadFields();
             ConsumpItemLedgEntry.Get(ConsumpValueEntry."Item Ledger Entry No.");
             if GetChainOfAppliedEntries(ItemApplicationTrace, ConsumpItemLedgEntry, true) then begin
+                OnIsOutputWithSelfConsumptionOnAfterGetItemApplicationTrace(ItemApplicationTrace);
                 ConsumpValueEntry.CopyFilter("Item No.", ItemApplicationTrace."Item No.");
                 ConsumpValueEntry.CopyFilter("Variant Code", ItemApplicationTrace."Variant Code");
                 ConsumpValueEntry.CopyFilter("Location Code", ItemApplicationTrace."Location Code");
@@ -3093,7 +3095,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     end;
 
 #if not CLEAN26    
-    [Obsolete('The event is no longer used.', '26.0')]
+    [Obsolete('Replaced by OnExcludeAvgCostOnValuationDateOnAfterGetItemApplicationTrace event', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetVisitedEntries(var ExcludedValueEntry: Record "Value Entry"; OutbndValueEntry: Record "Value Entry"; var ItemLedgEntryInChain: Record "Item Ledger Entry")
     begin
@@ -3194,7 +3196,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     end;
 
 #if not CLEAN26    
-    [Obsolete('The event is no longer used.', '26.0')]
+    [Obsolete('Use OnExcludeAvgCostOnValuationDateOnAfterGetItemApplicationTrace instead.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnExcludeAvgCostOnValuationDateOnAfterSetItemLedgEntryInChainFilters(var ItemLedgerEntryInChain: Record "Item Ledger Entry" temporary)
     begin
@@ -3212,7 +3214,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     end;
 
 #if not CLEAN26    
-    [Obsolete('The event is no longer used.', '26.0')]
+    [Obsolete('Replaced by OnIsOutputWithSelfConsumptionOnAfterGetItemApplicationTrace', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnIsOutputWithSelfConsumptionOnAfterSetTempItemLedgEntryFilter(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
     begin
@@ -3497,6 +3499,16 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetParameters(var CostAdjustmentParameter: Record "Cost Adjustment Parameter")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExcludeAvgCostOnValuationDateOnAfterGetItemApplicationTrace(var OutbndValueEntry: Record "Value Entry"; var OutbndEntryItemApplicationTrace: Record "Item Application Trace")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsOutputWithSelfConsumptionOnAfterGetItemApplicationTrace(var ItemApplicationTrace: Record "Item Application Trace")
     begin
     end;
 }
