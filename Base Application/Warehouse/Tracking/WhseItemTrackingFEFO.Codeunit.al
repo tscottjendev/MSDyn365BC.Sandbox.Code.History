@@ -53,6 +53,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
     local procedure SummarizeInventoryFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; HasExpirationDate: Boolean)
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
         SummarizedStockByItemTrkg: Query "Summarized Stock By Item Trkg.";
         QtyReservedFromItemLedger: Query "Qty. Reserved From Item Ledger";
         NonReservedQtyLotSN: Decimal;
@@ -77,20 +78,29 @@ codeunit 7326 "Whse. Item Tracking FEFO"
 
         SummarizedStockByItemTrkg.Open();
         while SummarizedStockByItemTrkg.Read() do begin
-            SummarizedStockByItemTrkg.GetItemTrackingSetup(ItemTrackingSetup);
-            if not IsItemTrackingBlocked(ItemNo, VariantCode, ItemTrackingSetup) then begin
-                NonReservedQtyLotSN := SummarizedStockByItemTrkg.Remaining_Quantity;
+            WarehouseActivityLine.SetLoadFields("Activity Type", "Item No.", "Location Code", "Serial No.", "Lot No.", "Package No.");
+            WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Movement");
+            WarehouseActivityLine.SetRange("Item No.", ItemNo);
+            WarehouseActivityLine.SetRange("Location Code", Location.Code);
+            WarehouseActivityLine.SetRange("Serial No.", SummarizedStockByItemTrkg.Serial_No_);
+            WarehouseActivityLine.SetRange("Lot No.", SummarizedStockByItemTrkg.Lot_No_);
+            WarehouseActivityLine.SetRange("Package No.", SummarizedStockByItemTrkg.Package_No_);
+            if WarehouseActivityLine.IsEmpty() then begin
+                SummarizedStockByItemTrkg.GetItemTrackingSetup(ItemTrackingSetup);
+                if not IsItemTrackingBlocked(ItemNo, VariantCode, ItemTrackingSetup) then begin
+                    NonReservedQtyLotSN := SummarizedStockByItemTrkg.Remaining_Quantity;
 
-                QtyReservedFromItemLedger.SetSKUFilters(ItemNo, VariantCode, Location.Code);
-                QtyReservedFromItemLedger.SetTrackingFilters(ItemTrackingSetup);
-                QtyReservedFromItemLedger.Open();
-                if QtyReservedFromItemLedger.Read() then
-                    NonReservedQtyLotSN -= QtyReservedFromItemLedger.Quantity__Base_;
+                    QtyReservedFromItemLedger.SetSKUFilters(ItemNo, VariantCode, Location.Code);
+                    QtyReservedFromItemLedger.SetTrackingFilters(ItemTrackingSetup);
+                    QtyReservedFromItemLedger.Open();
+                    if QtyReservedFromItemLedger.Read() then
+                        NonReservedQtyLotSN -= QtyReservedFromItemLedger.Quantity__Base_;
 
-                DoInsertEntrySummary := NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(ItemNo, VariantCode, Location.Code, ItemTrackingSetup, HasExpirationDate) > 0;
-                OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(Location, ItemNo, VariantCode, HasExpirationDate, NonReservedQtyLotSN, ItemTrackingSetup, SummarizedStockByItemTrkg.Expiration_Date, DoInsertEntrySummary);
-                if DoInsertEntrySummary then
-                    InsertEntrySummaryFEFO(ItemTrackingSetup, SummarizedStockByItemTrkg.Expiration_Date);
+                    DoInsertEntrySummary := NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(ItemNo, VariantCode, Location.Code, ItemTrackingSetup, HasExpirationDate) > 0;
+                    OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(Location, ItemNo, VariantCode, HasExpirationDate, NonReservedQtyLotSN, ItemTrackingSetup, SummarizedStockByItemTrkg.Expiration_Date, DoInsertEntrySummary);
+                    if DoInsertEntrySummary then
+                        InsertEntrySummaryFEFO(ItemTrackingSetup, SummarizedStockByItemTrkg.Expiration_Date);
+                end;
             end;
         end;
     end;
