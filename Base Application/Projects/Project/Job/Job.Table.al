@@ -2146,7 +2146,13 @@ table 167 Job
     local procedure AddToMyJobs(ProjectManager: Code[50])
     var
         MyJob: Record "My Job";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddToMyJobs(Rec, MyJob, ProjectManager, IsHandled);
+        if IsHandled then
+            exit;
+
         if Status <> Status::Open then
             exit;
 
@@ -3356,6 +3362,11 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnInitJobNoOnAfterAssignNoSeries(var Job: Record Job; var xJob: Record Job; var JobsSetup: Record "Jobs Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddToMyJobs(var Job: Record Job; var MyJob: Record "My Job"; ProjectManager: Code[50]; var IsHandled: Boolean)
     begin
     end;
 }
