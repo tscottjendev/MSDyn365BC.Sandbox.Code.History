@@ -1,4 +1,8 @@
-﻿namespace Microsoft.HumanResources.Employee;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.HumanResources.Employee;
 
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Contact;
@@ -132,7 +136,6 @@ page 5201 "Employee List"
                 field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the value of the the employee''s balance.';
                 }
                 field(Comment; Rec.Comment)
                 {
