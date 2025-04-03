@@ -18,7 +18,7 @@ using Microsoft.Manufacturing.Routing;
 codeunit 99000818 "Mfg. Carry Out Action"
 {
     var
-#if not CLEAN26
+#if not CLEAN27
         CarryOutAction: Codeunit "Carry Out Action";
 #endif
         CalculateProdOrder: Codeunit "Calculate Prod. Order";
