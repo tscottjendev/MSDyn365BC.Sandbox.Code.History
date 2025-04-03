@@ -400,13 +400,13 @@ table 99000830 "Planning Routing Line"
                   "Worksheet Template Name",
                   "Worksheet Batch Name", "Worksheet Line No.", "Operation No.");
 
-                PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 0, ReqLine);
+                PlanningRoutingManagement.CalcSequenceFromActual(PlanningRtngLine, 0, ReqLine);
                 PlanningRtngLine.SetCurrentKey(
                   "Worksheet Template Name",
                   "Worksheet Batch Name",
                   "Worksheet Line No.", "Sequence No. (Actual)");
 
-                PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 0, false);
+                PlanningRoutingManagement.CalculateRoutingFromActual(ReqLine, PlanningRtngLine, 0, false, false);
 
                 CalculateRoutingBack();
                 CalculateRoutingForward();
@@ -439,12 +439,12 @@ table 99000830 "Planning Routing Line"
                   "Worksheet Template Name",
                   "Worksheet Batch Name", "Worksheet Line No.", "Operation No.");
 
-                PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 1, ReqLine);
+                PlanningRoutingManagement.CalcSequenceFromActual(PlanningRtngLine, 1, ReqLine);
                 PlanningRtngLine.SetCurrentKey(
                   "Worksheet Template Name",
                   "Worksheet Batch Name",
                   "Worksheet Line No.", "Sequence No. (Actual)");
-                PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 1, false);
+                PlanningRoutingManagement.CalculateRoutingFromActual(ReqLine, PlanningRtngLine, 1, false, false);
 
                 CalculateRoutingBack();
                 CalculateRoutingForward();
@@ -580,20 +580,20 @@ table 99000830 "Planning Routing Line"
     end;
 
     var
-#pragma warning disable AA0074
-        Text000: Label 'This routing line cannot be moved because of critical work centers in previous operations';
-        Text001: Label 'This routing line cannot be moved because of critical work centers in next operations';
-#pragma warning restore AA0074
-        WorkCenter: Record "Work Center";
+        GLSetup: Record "General Ledger Setup";
         MachineCenter: Record "Machine Center";
         ReqLine: Record "Requisition Line";
         PlanningRtngLine: Record "Planning Routing Line";
         ProdOrderCapNeed: Record "Prod. Order Capacity Need";
-        GLSetup: Record "General Ledger Setup";
-        PlngLnMgt: Codeunit "Planning Line Management";
-        PlanningRoutingMgt: Codeunit PlanningRoutingManagement;
+        WorkCenter: Record "Work Center";
+        PlanningRoutingManagement: Codeunit PlanningRoutingManagement;
         UOMMgt: Codeunit "Unit of Measure Management";
         HasGLSetup: Boolean;
+
+#pragma warning disable AA0074
+        Text000: Label 'This routing line cannot be moved because of critical work centers in previous operations';
+        Text001: Label 'This routing line cannot be moved because of critical work centers in next operations';
+#pragma warning restore AA0074
 
     procedure Caption(): Text
     var
@@ -704,13 +704,13 @@ table 99000830 "Planning Routing Line"
           "Worksheet Template Name",
           "Worksheet Batch Name", "Worksheet Line No.", "Operation No.");
 
-        PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 0, ReqLine);
+        PlanningRoutingManagement.CalcSequenceFromActual(PlanningRtngLine, 0, ReqLine);
         PlanningRtngLine.SetCurrentKey(
           "Worksheet Template Name",
           "Worksheet Batch Name",
           "Worksheet Line No.", "Sequence No. (Actual)");
 
-        PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 0, false);
+        PlanningRoutingManagement.CalculateRoutingFromActual(ReqLine, PlanningRtngLine, 0, false, false);
 
         CalculateRoutingBack();
         CalculateRoutingForward();
@@ -742,16 +742,16 @@ table 99000830 "Planning Routing Line"
                     case WorkCenter."Simulation Type" of
                         WorkCenter."Simulation Type"::Moves:
                             begin
-                                PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 1, ReqLine);
-                                PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 1, true);
+                                PlanningRoutingManagement.CalcSequenceFromActual(PlanningRtngLine, 1, ReqLine);
+                                PlanningRoutingManagement.CalculateRoutingFromActual(ReqLine, PlanningRtngLine, 1, true, false);
                             end;
                         WorkCenter."Simulation Type"::"Moves When Necessary":
                             if (PlanningRtngLine."Ending Date" > "Starting Date") or
                                ((PlanningRtngLine."Ending Date" = "Starting Date") and
                                 (PlanningRtngLine."Ending Time" > "Starting Time"))
                             then begin
-                                PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 1, ReqLine);
-                                PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 1, true);
+                                PlanningRoutingManagement.CalcSequenceFromActual(PlanningRtngLine, 1, ReqLine);
+                                PlanningRoutingManagement.CalculateRoutingFromActual(ReqLine, PlanningRtngLine, 1, true, false);
                             end;
                         WorkCenter."Simulation Type"::Critical:
                             if (PlanningRtngLine."Ending Date" > "Starting Date") or
@@ -766,7 +766,7 @@ table 99000830 "Planning Routing Line"
                 until PlanningRtngLine.Next() = 0;
         end;
 
-        PlngLnMgt.CalculatePlanningLineDates(ReqLine);
+        PlanningRoutingManagement.CalculatePlanningLineDates(ReqLine);
         AdjustComponents(ReqLine);
     end;
 
@@ -791,16 +791,16 @@ table 99000830 "Planning Routing Line"
                     case WorkCenter."Simulation Type" of
                         WorkCenter."Simulation Type"::Moves:
                             begin
-                                PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 0, ReqLine);
-                                PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 0, true);
+                                PlanningRoutingManagement.CalcSequenceFromActual(PlanningRtngLine, 0, ReqLine);
+                                PlanningRoutingManagement.CalculateRoutingFromActual(ReqLine, PlanningRtngLine, 0, true, false);
                             end;
                         WorkCenter."Simulation Type"::"Moves When Necessary":
                             if (PlanningRtngLine."Starting Date" < "Ending Date") or
                                ((PlanningRtngLine."Starting Date" = "Ending Date") and
                                 (PlanningRtngLine."Starting Time" < "Ending Time"))
                             then begin
-                                PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 0, ReqLine);
-                                PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 0, true);
+                                PlanningRoutingManagement.CalcSequenceFromActual(PlanningRtngLine, 0, ReqLine);
+                                PlanningRoutingManagement.CalculateRoutingFromActual(ReqLine, PlanningRtngLine, 0, true, false);
                             end;
                         WorkCenter."Simulation Type"::Critical:
                             if (PlanningRtngLine."Starting Date" < "Ending Date") or
@@ -815,7 +815,7 @@ table 99000830 "Planning Routing Line"
                 until PlanningRtngLine.Next() = 0;
         end;
 
-        PlngLnMgt.CalculatePlanningLineDates(ReqLine);
+        PlanningRoutingManagement.CalculatePlanningLineDates(ReqLine);
         AdjustComponents(ReqLine);
     end;
 
@@ -1055,6 +1055,5 @@ table 99000830 "Planning Routing Line"
     local procedure OnBeforeWorkCenterTransferFields(var PlanningRoutingLine: Record "Planning Routing Line"; xPlanningRoutingLine: Record "Planning Routing Line"; WorkCenter: Record "Work Center"; var IsHandled: Boolean)
     begin
     end;
-
 }
 
