@@ -107,8 +107,8 @@ codeunit 6173 "E-Document PEPPOL Handler" implements IStructuredFormatReader
         SetStringValueInField(PeppolXML, XmlNamespaces, '/inv:Invoice/cac:AccountingCustomerParty/cac:Party/cbc:EndpointID', MaxStrLen(EDocumentPurchaseHeader."Customer GLN"), EDocumentPurchaseHeader."Customer GLN");
         SetStringValueInField(PeppolXML, XmlNamespaces, '/inv:Invoice/cac:AccountingCustomerParty/cac:Party/cbc:EndpointID/@schemeID', MaxStrLen(EDocumentPurchaseHeader."Customer Company Id"), EDocumentPurchaseHeader."Customer Company Id");
 
-        if PeppolXML.SelectSingleNode('/inv:Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointId/@schemeID', XmlNamespaces, XMLNode) then
-            if XMLNode.AsXmlElement().InnerText() = '0088' then // GLN
+        if PeppolXML.SelectSingleNode('/inv:Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID/@schemeID', XmlNamespaces, XMLNode) then
+            if XMLNode.AsXmlAttribute().Value() = '0088' then // GLN
                 SetStringValueInField(PeppolXML, XmlNamespaces, '/inv:Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID', MaxStrLen(EDocumentPurchaseHeader."Vendor GLN"), EDocumentPurchaseHeader."Vendor GLN");
     end;
 

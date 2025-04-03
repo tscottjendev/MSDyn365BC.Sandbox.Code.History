@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument.Helpers;
 
-codeunit 6120 "EDocument Json Helper"
+codeunit 6121 "EDocument Json Helper"
 {
     Access = Internal;
 
