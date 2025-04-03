@@ -477,10 +477,20 @@ table 18 Customer
                         Error(CanNotChangeBlockedDueToPrivacyBlockedErr);
             end;
         }
+#if not CLEANSCHEMA30
         field(40; "Invoice Copies"; Integer)
         {
             Caption = 'Invoice Copies';
+            ObsoleteReason = 'This field is not used consequently and hence does not work as expected. It should be retired.';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#endif
         field(41; "Last Statement No."; Integer)
         {
             Caption = 'Last Statement No.';
