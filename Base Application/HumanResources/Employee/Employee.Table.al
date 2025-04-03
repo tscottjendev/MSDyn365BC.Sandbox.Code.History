@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.HumanResources.Employee;
 
 using Microsoft.Bank.Setup;
@@ -429,6 +433,7 @@ table 5200 Employee
             Caption = 'Balance';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the amount the employee owes the company, or the company owes them. For example, for an overpayment, or for expenses, respectively. The word "balance" indicates the amount can be positive (employee owes the company) or negative (the company owes the employee).';
         }
         field(60; "SWIFT Code"; Code[20])
         {
@@ -447,6 +452,7 @@ table 5200 Employee
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the amount the employee owes the company, or the company owes them in local currency. For example, for an overpayment, or for expenses, respectively. The word "balance" indicates the amount can be positive (employee owes the company) or negative (the company owes the employee).';
         }
         field(75; "Currency Code"; Code[10])
         {
