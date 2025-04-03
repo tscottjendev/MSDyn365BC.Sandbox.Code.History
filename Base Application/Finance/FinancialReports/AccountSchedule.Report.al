@@ -767,14 +767,14 @@ report 25 "Account Schedule"
     {
         layout(LandscapeLayout)
         {
-            Caption = 'Financial Report Landscape (RDLC)';
+            Caption = 'Financial Report Landscape';
             LayoutFile = './Finance/FinancialReports/AccountSchedule.rdlc';
             Summary = 'Use this layout for financial reports that fit a landscape paper orientation.';
             Type = RDLC;
         }
         layout(PortraitLayout)
         {
-            Caption = 'Financial Report Portrait (RDLC)';
+            Caption = 'Financial Report Portrait';
             LayoutFile = './Finance/FinancialReports/AccountSchedulePortrait.rdlc';
             Summary = 'Use this layout for financial reports that fit a portrait paper orientation.';
             Type = RDLC;
