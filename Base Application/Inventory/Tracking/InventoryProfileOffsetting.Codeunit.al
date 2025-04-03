@@ -292,7 +292,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeTransItemLedgEntryToProfile(InventoryProfile, Item, ItemLedgEntry, IsHandled);
+        OnBeforeTransItemLedgEntryToProfile(InventoryProfile, Item, ItemLedgEntry, IsHandled, LineNo);
         if IsHandled then
             exit;
         if ItemLedgEntry.FindLinesWithItemToPlan(Item, false) then
@@ -1198,6 +1198,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         IsHandled: Boolean;
         DemandForAdditionalProfile: Boolean;
         ProcessSupplyBeforeStartDate: Boolean;
+        DoUpdatePriorities, DoInsertInsertSupplyForEmergencyOrder, DoCheckSupplyWithinLeadtime : Boolean;
     begin
         ReqLine.Reset();
         ReqLine.SetRange("Worksheet Template Name", CurrTemplateName);
@@ -1239,9 +1240,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 if not TempSKU."Include Inventory" then
                     RemoveOrdinaryInventory(SupplyInvtProfile);
 
-                OnPlanItemOnBeforeInsertSafetyStockDemands(DemandInvtProfile, TempSKU);
+                DoUpdatePriorities := true;
+                OnPlanItemOnBeforeInsertSafetyStockDemands(DemandInvtProfile, TempSKU, DoUpdatePriorities);
                 InsertSafetyStockDemands(DemandInvtProfile, PlanningStartDate);
-                UpdatePriorities(SupplyInvtProfile, IsReorderPointPlanning, ToDate);
+                if DoUpdatePriorities then
+                    UpdatePriorities(SupplyInvtProfile, IsReorderPointPlanning, ToDate);
 
                 DemandExists := DemandInvtProfile.FindSet();
                 DemandForAdditionalProfile := DemandForAdditionalLine(DemandInvtProfile, SupplyInvtProfile);
@@ -1293,10 +1296,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         SupplyInvtProfile.Modify();
                         SupplyExists := SupplyInvtProfile.Next() <> 0;
                     end;
-                    OnAfterPrePlanDateSupplyProc(SupplyInvtProfile, DemandInvtProfile, SupplyExists, DemandExists, TempSKU, TempTrkgReservEntry, ReqLine);
+                    DoInsertInsertSupplyForEmergencyOrder := LastAvailableInventory < 0;
+                    OnAfterPrePlanDateSupplyProc(SupplyInvtProfile, DemandInvtProfile, SupplyExists, DemandExists, TempSKU, TempTrkgReservEntry, ReqLine, DoInsertInsertSupplyForEmergencyOrder);
 
                     // Insert supply for emergency order
-                    if LastAvailableInventory < 0 then
+                    if DoInsertInsertSupplyForEmergencyOrder then
                         InsertEmergencyOrderSupply(SupplyInvtProfile, DemandInvtProfile, LastAvailableInventory, LastProjectedInventory, PlanningStartDate);
 
                     if not DemandInvtProfile.IsEmpty() then
@@ -1306,7 +1310,10 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     if LastAvailableInventory < TempSKU."Safety Stock Quantity" then
                         InsertInitialSafetyStockWarningSupply(SupplyInvtProfile, LastAvailableInventory, LastProjectedInventory, PlanningStartDate, RespectPlanningParm, IsReorderPointPlanning);
 
-                    if IsReorderPointPlanning then begin
+                    DoCheckSupplyWithinLeadtime := IsReorderPointPlanning;
+                    OnPlanItemOnBeforeCheckSupplyWithinLeadtime(SupplyInvtProfile, DemandInvtProfile, SupplyExists, DemandExists, TempSKU, TempTrkgReservEntry, ReqLine, DoCheckSupplyWithinLeadtime);
+
+                    if DoCheckSupplyWithinLeadtime then begin
                         SupplyWithinLeadtime :=
                           SumUpProjectedSupply(SupplyInvtProfile, PlanningStartDate, PlanningStartDate + BucketSizeInDays - 1);
 
@@ -2491,7 +2498,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 ReqLine."Bin Code" := SupplyInvtProfile."Bin Code";
                 ReqLine."Planning Line Origin" := ReqLine."Planning Line Origin"::Planning;
                 SetPriceCalculationMethod(ReqLine);
-                OnMaintainPlanningLineOnAfterPopulateReqLineFields(ReqLine, SupplyInvtProfile, DemandInvtProfile, NewPhase, Direction, TempSKU);
+                OnMaintainPlanningLineOnAfterPopulateReqLineFields(ReqLine, SupplyInvtProfile, DemandInvtProfile, NewPhase, Direction, TempSKU, CurrTemplateName, CurrWorksheetName);
                 if SupplyInvtProfile."Action Message" = SupplyInvtProfile."Action Message"::New then begin
                     ReqLine."Order Date" := SupplyInvtProfile."Due Date";
                     ReqLine."Planning Level" := SupplyInvtProfile."Planning Level Code";
@@ -3501,7 +3508,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         IsHandled: Boolean;
         Result: Boolean;
     begin
-        OnBeforeCheckScheduleOut(SupplyInvtProfile, TempSKU, BucketSize);
+        OnBeforeCheckScheduleOut(SupplyInvtProfile, TempSKU, BucketSize, DampenersDays);
 
         if SupplyInvtProfile."Planning Flexibility" <> SupplyInvtProfile."Planning Flexibility"::Unlimited then
             exit(false);
@@ -4558,7 +4565,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             ReservEntry."Appl.-to Item Entry" := TempItemTrkgEntry."Appl.-to Item Entry";
         end;
 
-        OnAfterUpdateAppliedItemEntry(ReservEntry, TempItemTrkgEntry);
+        OnAfterUpdateAppliedItemEntry(ReservEntry, TempItemTrkgEntry, ReqLine);
     end;
 
     local procedure CheckSupplyAndTrack(InventoryProfileFromDemand: Record "Inventory Profile"; InventoryProfileFromSupply: Record "Inventory Profile")
@@ -4972,7 +4979,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateAppliedItemEntry(var ReservationEntry: Record "Reservation Entry"; var TempItemTrackingEntry: Record "Reservation Entry")
+    local procedure OnAfterUpdateAppliedItemEntry(var ReservationEntry: Record "Reservation Entry"; var TempItemTrackingEntry: Record "Reservation Entry"; RequisitionLine: Record "Requisition Line")
     begin
     end;
 
@@ -5083,7 +5090,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckScheduleOut(var InventoryProfile: Record "Inventory Profile"; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; BucketSize: DateFormula)
+    local procedure OnBeforeCheckScheduleOut(var InventoryProfile: Record "Inventory Profile"; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; BucketSize: DateFormula; var DampenersDays: Integer)
     begin
     end;
 
@@ -5158,7 +5165,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransItemLedgEntryToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeTransItemLedgEntryToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean; var LineNo: Integer)
     begin
     end;
 
@@ -5269,7 +5276,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPrePlanDateSupplyProc(var SupplyInventoryProfile: Record "Inventory Profile"; var DemandInventoryProfile: Record "Inventory Profile"; var SupplyExists: Boolean; var DemandExists: Boolean; var TempSKU: Record "Stockkeeping Unit" temporary; var TempTrkgReservEntry: Record "Reservation Entry" temporary; var ReqLine: Record "Requisition Line")
+    local procedure OnAfterPrePlanDateSupplyProc(var SupplyInventoryProfile: Record "Inventory Profile"; var DemandInventoryProfile: Record "Inventory Profile"; var SupplyExists: Boolean; var DemandExists: Boolean; var TempSKU: Record "Stockkeeping Unit" temporary; var TempTrkgReservEntry: Record "Reservation Entry" temporary; var ReqLine: Record "Requisition Line"; var DoInsertInsertSupplyForEmergencyOrder: Boolean)
     begin
     end;
 
@@ -5602,7 +5609,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMaintainPlanningLineOnAfterPopulateReqLineFields(var ReqLine: Record "Requisition Line"; var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; NewPhase: Option " ","Line Created","Routing Created",Exploded,Obsolete; Direction: Option Forward,Backward; var TempSKU: Record "Stockkeeping Unit")
+    local procedure OnMaintainPlanningLineOnAfterPopulateReqLineFields(var ReqLine: Record "Requisition Line"; var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; NewPhase: Option " ","Line Created","Routing Created",Exploded,Obsolete; Direction: Option Forward,Backward; var TempSKU: Record "Stockkeeping Unit"; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10])
     begin
     end;
 
@@ -5994,7 +6001,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPlanItemOnBeforeInsertSafetyStockDemands(var InventoryProfile: Record "Inventory Profile"; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary)
+    local procedure OnPlanItemOnBeforeInsertSafetyStockDemands(var InventoryProfile: Record "Inventory Profile"; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var DoUpdatePriorities: Boolean)
     begin
     end;
 
@@ -6075,6 +6082,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(true, false)]
     local procedure OnGetComponentsOnUpdateForActionMessage(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPlanItemOnBeforeCheckSupplyWithinLeadtime(var SupplyInventoryProfile: Record "Inventory Profile"; var DemandInventoryProfile: Record "Inventory Profile"; var SupplyExists: Boolean; var DemandExists: Boolean; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var TempTrkgReservationEntry: Record "Reservation Entry" temporary; var RequisitionLine: Record "Requisition Line"; var DoCheckSupplyWithinLeadtime: Boolean)
     begin
     end;
 }
