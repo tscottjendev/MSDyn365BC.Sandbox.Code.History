@@ -803,7 +803,7 @@ codeunit 137008 "SCM Planning Options"
         RequisitionLine: Record "Requisition Line";
         PlanningRoutingLine: Record "Planning Routing Line";
         RequisitionWkshName: Record "Requisition Wksh. Name";
-        PlanningLineManagement: Codeunit "Planning Line Management";
+        PlanningRoutingManagement: Codeunit PlanningRoutingManagement;
     begin
         // [FEATURE] [UT] [Planning Worksheet]
         // [SCENARIO 257194] Function CalculatePlanningLineDates in codeunit 99000809 "Planning Line Management" updates fields "Starting Date-Time" and "Ending Date-Time" of the requisition line
@@ -813,7 +813,7 @@ codeunit 137008 "SCM Planning Options"
 
         MockPlanningRoutingLine(PlanningRoutingLine, RequisitionLine);
 
-        PlanningLineManagement.CalculatePlanningLineDates(RequisitionLine);
+        PlanningRoutingManagement.CalculatePlanningLineDates(RequisitionLine);
 
         Assert.AreEqual(
             CreateDateTime(PlanningRoutingLine."Starting Date", PlanningRoutingLine."Starting Time"), RequisitionLine."Starting Date-Time",
