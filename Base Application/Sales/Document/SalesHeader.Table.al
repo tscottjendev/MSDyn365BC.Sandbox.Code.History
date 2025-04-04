@@ -7661,6 +7661,7 @@ table 36 "Sales Header"
 
     local procedure UpdateShipToContact()
     var
+        ShipToAddress: Record "Ship-to Address";
         IsHandled: Boolean;
     begin
         if not (CurrFieldNo in [FieldNo("Sell-to Contact"), FieldNo("Sell-to Contact No.")]) then
@@ -7668,6 +7669,11 @@ table 36 "Sales Header"
 
         if IsCreditDocType() then
             exit;
+
+        if "Ship-to Code" <> '' then
+            if ShipToAddress.Get("Sell-to Customer No.", "Ship-to Code") then
+                if ShipToAddress.Contact <> '' then
+                    exit;
 
         IsHandled := false;
         OnUpdateShipToContactOnBeforeValidateShipToContact(Rec, xRec, CurrFieldNo, IsHandled);
