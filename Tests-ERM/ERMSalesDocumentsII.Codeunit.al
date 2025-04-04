@@ -4481,6 +4481,51 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.ExpectedError(StrSubstNo(ChangeExtendedTextErr, SalesLine.FieldCaption(Type)));
     end;
 
+    [HandlerFunctions('CustomerLookupHandler,ConfirmHandlerYes')]
+    [Test]
+    procedure UpdateEmailAndPhoneNoWhenChangeBillToOfSalesInvoice()
+    var
+        Contact: array[2] of Record Contact;
+        Customer: array[2] of Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [SCENARIO 564632] The Email and Phone No. should update when selecting Another Customer in the "Bill-to" field of a Sales Invoice
+        Initialize();
+
+        // [GIVEN] Create First Customer with First Contact with Phone = "111111111", Mobile Phone = "222222222" and Email = "contact1@mail.com"
+        LibraryMarketing.CreateContactWithCustomer(Contact[1], Customer[1]);
+        UpdateContactInfo(Contact[1], '111111111', '222222222', 'contact1@mail.com');
+        Contact[1].Modify(true);
+
+        // [GIVEN] Create Second Customer with Second Contact with Phone = "333333333", Mobile Phone = "444444444" and Email = "contact2@mail.com"
+        LibraryMarketing.CreateContactWithCustomer(Contact[2], Customer[2]);
+        UpdateContactInfo(Contact[2], '333333333', '444444444', 'contact2@mail.com');
+        Contact[2].Modify(true);
+
+        // [GIVEN] Create Sales Invoice with First Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer[1]."No.");
+
+        // [GIVEN] Sales Invoice Card is opened
+        LibraryVariableStorage.Enqueue(Customer[2]."No.");
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue(true); // yes to change "Bill-to Customer No."
+        SalesInvoice.OpenEdit();
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        // [WHEN] Select Second Customer when lookup "Bill-to Customer Name"
+        SalesInvoice."Bill-to Name".Lookup();
+
+        // [THEN] Verify Sales Invoice "Phone No." = "333333333"
+        SalesInvoice.BillToContactPhoneNo.AssertEquals(Contact[2]."Phone No.");
+
+        // [THEN] Verify Sales Invoice "Mobile Phone No." = "444444444"
+        SalesInvoice.BillToContactMobilePhoneNo.AssertEquals(Contact[2]."Mobile Phone No.");
+
+        // [THEN] Verify Sales Invoice "Email" = "contact2@mail.com"
+        SalesInvoice.BillToContactEmail.AssertEquals(Contact[2]."E-Mail");
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";
@@ -6539,6 +6584,15 @@ codeunit 134386 "ERM Sales Documents II"
     procedure CustomerLookupPageHandler(var CustomerLookup: TestPage "Customer Lookup")
     begin
         CustomerLookup.Filter.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        CustomerLookup.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure CustomerLookupHandler(var CustomerLookup: TestPage "Customer Lookup")
+    begin
+        CustomerLookup.GotoKey(LibraryVariableStorage.DequeueText());
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(),
+            CustomerLookup.Filter.GetFilter("Date Filter"), 'Wrong Date Filter.');
         CustomerLookup.OK().Invoke();
     end;
 }
