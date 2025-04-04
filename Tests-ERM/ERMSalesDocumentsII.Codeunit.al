@@ -4611,6 +4611,82 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.ExpectedError(StrSubstNo(ChangeExtendedTextErr, SalesLine.FieldCaption(Type)));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure UpdateEmailAndPhoneNoAfterChangeSelltoContactfieldinSalesQuote()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        Contact2: Record Contact;
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [SCENARIO 564179] Email and Phone No. must be updated when change sell-to contact on sales Quote. 
+        Initialize();
+
+        // [GIVEN] Create Two Contacts with Customer
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        UpdateContactInfo(Contact, '111111111', '222222222', 'contact1@mail.com');
+        Contact.Modify(true);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+        LibraryMarketing.CreatePersonContact(Contact2);
+        UpdateContactInfo(Contact2, '333333333', '444444444', 'contact2@mail.com');
+        Contact2.Validate("Company No.", Contact."Company No.");
+        Contact2.Modify(true);
+
+        // [GIVEN] Create Sales Quote
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
+        SalesQuote.Trap();
+        Page.Run(Page::"Sales Quote", SalesHeader);
+
+        // [WHEN] Update "Sell-to Contact"
+        SalesQuote."Sell-to Contact No.".SetValue(Contact2."No.");
+        SalesQuote."Sell-to Contact".SetValue(Contact2.Name);
+
+        // [THEN] Verify Email and Phone No auto update from Contact
+        SalesQuote.SellToPhoneNo.AssertEquals(Contact2."Phone No.");
+        SalesQuote.SellToEmail.AssertEquals(Contact2."E-Mail");
+    end;
+
+    [Test]
+    [HandlerFunctions('ContactListModalPageHandler')]
+    procedure CompanyNoAndCompanyNameAutomaticallyFilledOnContactCardWhenCreateNewFromSellToContactNoLookup()
+    var
+        Contact: Record Contact;
+        Contact2: Record Contact;
+        Customer: Record Customer;
+        Salesheader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [SCENARIO 564179] "Company No." and "Company Name" auto filled from contacts when create new contact from "Sell-to Contact No." lookup
+        Initialize();
+
+        // [GIVEN] Create Contact with Customer
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+        Contact.Validate("Contact Business Relation", Contact."Contact Business Relation"::Customer);
+        Contact.Modify(true);
+
+        // [GIVEN] Create Person Contact
+        LibraryMarketing.CreatePersonContact(Contact2);
+        Contact2.Validate("Company No.", Contact."Company No.");
+        Contact2.Validate("Contact Business Relation", Contact2."Contact Business Relation"::Customer);
+        Contact2.Modify(true);
+
+        // [GIVEN] Create Sales Quote
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
+
+        // [GIVEN] Lookup "Contact list" page.
+        SalesQuote.OpenView();
+        SalesQuote.GoToRecord(SalesHeader);
+        LibraryVariableStorage.Enqueue(Contact2."Company No.");
+        SalesQuote."Sell-to Contact No.".Lookup();
+
+        // [THEN] Verify Company No. and Company Name after create new from "Sell-to Contact No." lookup.
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";
@@ -6747,6 +6823,13 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.AreEqual(LibraryVariableStorage.DequeueText(),
             CustomerLookup.Filter.GetFilter("Date Filter"), 'Wrong Date Filter.');
         CustomerLookup.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ContactListModalPageHandler(var ContactList: TestPage "Contact List")
+    begin
+        ContactList.FILTER.SetFilter("Company No.", LibraryVariableStorage.DequeueText());
+        ContactList.New();
     end;
 }
 
