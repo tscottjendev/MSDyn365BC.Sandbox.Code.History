@@ -4407,6 +4407,42 @@ codeunit 134386 "ERM Sales Documents II"
     end;
 
     [Test]
+    [HandlerFunctions('ContactListPageHandler,ConfirmHandlerYes')]
+    procedure ShipToContactUpdateFromAlternateShippingAddressContact()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ContactNew: Record Contact;
+        SalesHeader: Record "Sales Header";
+        ShipToAddress: Record "Ship-to Address";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO 562670] Alternate shipping address contact on a Sales Order is changed when changing the contact person on the General FastTab
+        Initialize();
+
+        // [GIVEN] Create Customer and ShipToAddress with Contact
+        CreateCustomerWithTwoContacts(Customer, Contact, ContactNew);
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        ShipToAddress.Validate(Contact, 'London');
+        ShipToAddress.Modify(true);
+
+        // [GIVEN] Sales Order with default Contact
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        SalesHeader.Modify(true);
+
+        // [WHEN] Open Sales Order page and change Contact on General Tab
+        SalesOrder.OpenEdit();
+        SalesOrder.GotoRecord(SalesHeader);
+        LibraryVariableStorage.Enqueue(ContactNew."No.");
+        SalesOrder."Sell-to Contact".Lookup();
+        SalesOrder.OK().Invoke();
+
+        // [THEN] Ship-to Option is "Alternate Shipping Address" in Sales Order
+        Assert.AreEqual(ShipToAddress.Contact, SalesHeader."Ship-to Contact", ' ');
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure UpdateExtendedTextTypeNotAllowed()
     var
