@@ -371,8 +371,6 @@ codeunit 361 MoveEntries
         OnAfterMoveItemEntries(Item, ItemLedgEntry, ValueEntry, ServiceLedgerEntry, WarrantyLedgerEntry, InvtAdjmtEntryOrder);
 #endif
 
-        WarehouseEntry.Reset();
-        WarehouseEntry.SetCurrentKey("Item No.");
         WarehouseEntry.SetRange("Item No.", Item."No.");
         WarehouseEntry.ModifyAll("Item No.", NewItemNo);
     end;
