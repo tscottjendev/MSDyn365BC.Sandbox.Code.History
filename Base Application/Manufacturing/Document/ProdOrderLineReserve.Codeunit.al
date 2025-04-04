@@ -719,7 +719,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
 #endif
         IsReserved := false;
         OnBeforeAutoReserveProdOrderLine(
-          ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserve, Description, AvailabilityDate, IsReserved, Search, NextStep, CalcReservEntry);
+          ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate, IsReserved, Search, NextStep, CalcReservEntry);
         if IsReserved then
             exit;
 
