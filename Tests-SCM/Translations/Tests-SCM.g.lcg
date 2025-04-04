@@ -16394,6 +16394,15 @@
       <Cmt Name="Dev"><![CDATA[%1, %2 - Tables Names.]D;]A;(LookupHint=Codeunit SCM Warehouse Pick - NamedType QtyMismErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3064124675 - NamedType 923029193" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The value in the %1 field in the %2 does not match.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 :FieldCaption, %2:Table Caption]D;]A;(LookupHint=Codeunit SCM Warehouse Pick - NamedType ReturnQtyMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3064124675 - NamedType 3441096511" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Transfer order must be shipped.]]></Val>
