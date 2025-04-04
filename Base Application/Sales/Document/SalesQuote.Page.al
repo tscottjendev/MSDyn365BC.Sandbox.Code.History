@@ -219,6 +219,23 @@ page 41 "Sales Quote"
                     Caption = 'Contact';
                     Editable = Rec."Sell-to Customer No." <> '';
                     ToolTip = 'Specifies the name of the person to contact at the customer.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Contact: Record Contact;
+                    begin
+                        Contact.FilterGroup(2);
+                        Rec.LookupContact(Rec."Sell-to Customer No.", Rec."Sell-to Contact No.", Contact);
+                        if PAGE.RunModal(0, Contact) = ACTION::LookupOK then
+                            Rec.Validate("Sell-to Contact No.", Contact."No.");
+
+                        if ShipToOptions = ShipToOptions::"Default (Sell-to Address)" then
+                            Rec.Validate("Ship-to Contact", Rec."Sell-to Contact");
+                        Contact.FilterGroup(0);
+
+                        Text := Rec."Sell-to Contact";
+                        CurrPage.Update();
+                    end;
                 }
                 field("Sell-to Customer Templ. Code"; Rec."Sell-to Customer Templ. Code")
                 {
