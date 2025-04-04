@@ -4785,6 +4785,17 @@ codeunit 137404 "SCM Manufacturing"
         Assert.IsTrue((StandardTask.Description = ProdOrderRoutingLine.Description), '');
     end;
 
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMRequestPageDefaultValueCheckHandler')]
+    procedure ExchangeProductionBOMRequestPageDefaultValueCheck()
+    begin
+        // [SCENARIO 563372] UX improvement for Tooltips and Setting Request Page fields(Exchange Type,With Type) Default Value.
+        Initialize();
+
+        // [WHEN] Run Exchange Production BOM Item report with blank Starting Date.
+        RunExchangeProductionBOMItemReport();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -7733,6 +7744,20 @@ codeunit 137404 "SCM Manufacturing"
         Assert.IsFalse(ProdBOMVersionComparison.Field1.Visible(), StrSubstNo(FieldMustNotBeVisibleErr, ProdBOMVersionComparison.Field1.Caption(), ProdBOMVersionComparison.Caption()));
         Assert.AreEqual(ExpectedCaptionForBOMField1, ProdBOMVersionComparison.BOMField1.Caption(), StrSubstNo(CaptionMustBeEqualErr, ProdBOMVersionComparison.BOMField1.Caption(), ExpectedCaptionForBOMField1, ProdBOMVersionComparison.BOMField1.Caption()));
         Assert.AreEqual(ExpectedValueForBOMField1, ProdBOMVersionComparison.BOMField1.AsInteger(), StrSubstNo(ValueMustBeEqualErr, ProdBOMVersionComparison.BOMField1.Caption(), ExpectedValueForBOMField1, ProdBOMVersionComparison.Caption()));
+    end;
+
+    [RequestPageHandler]
+    procedure ExchangeProductionBOMRequestPageDefaultValueCheckHandler(var ExchangeProductionBOMItem: TestRequestPage "Exchange Production BOM Item")
+    var
+        Item: Record Item;
+        ProductionBOMLineType: Enum "Production BOM Line Type";
+    begin
+        ExchangeProductionBOMItem.ExchangeType.AssertEquals(ProductionBOMLineType::Item);// [THEN] Verify ExchangeType Default Type is ITEM
+        Item.Reset();
+        if Item.FindFirst() then;
+        ExchangeProductionBOMItem.ExchangeNo.SetValue(Item."No.");
+        ExchangeProductionBOMItem.WithType.AssertEquals(ProductionBOMLineType::Item);// [THEN] Verify WithType Default Type is ITEM
+        ExchangeProductionBOMItem.OK().Invoke();
     end;
 }
 
