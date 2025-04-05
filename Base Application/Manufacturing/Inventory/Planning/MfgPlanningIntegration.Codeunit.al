@@ -26,11 +26,9 @@ codeunit 99000861 "Mfg. Planning Integration"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         if PlanningAssignment.PlanningParametersChanged(NewItem, OldItem) then begin
-            ManufacturingSetup.Get();
             InventorySetup.Get();
-            if (ManufacturingSetup."Components at Location" <> '') or
-                not InventorySetup."Location Mandatory"
-            then
+            ManufacturingSetup.Get();
+            if (ManufacturingSetup."Components at Location" <> '') or not InventorySetup."Location Mandatory" then
                 PlanningAssignment.AssignOne(NewItem."No.", '', ManufacturingSetup."Components at Location", WorkDate());
         end;
     end;
