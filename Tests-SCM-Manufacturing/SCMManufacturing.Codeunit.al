@@ -1884,7 +1884,7 @@ codeunit 137404 "SCM Manufacturing"
         ProductionOrder: Record "Production Order";
         RoutingLine: Record "Routing Line";
         ProdOrderLine: Record "Prod. Order Line";
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         DueDate: Date;
         StartingTime: Time;
         EndingTime: Time;
@@ -1906,7 +1906,7 @@ codeunit 137404 "SCM Manufacturing"
         ShopCalendarCode := CreateShopCalendar(StartingTime, EndingTime);
 
         // Create working days in weekend so that after Forward refreshing Prod. Order, the Starting Date on Prod. Orde Line plus
-        // ManufacturingSetup."Default Safety Lead Time" will equal the original Due Date of Prod. Order
+        // InventorySetup."Default Safety Lead Time" will equal the original Due Date of Prod. Order
         CreateShopCalendarWeekendWorkingDays(ShopCalendarCode, StartingTime, EndingTime);
         CreateWorkCenterWithCalendarCodeAndRoundingPrecision(WorkCenter, ShopCalendarCode, Precision);
 
@@ -1926,11 +1926,11 @@ codeunit 137404 "SCM Manufacturing"
 
         // Find the Prod. Order Line calculated by refreshing the production order
         FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status::Released, ProductionOrder."No.", Item."No.");
-        ManufacturingSetup.Get();
+        InventorySetup.Get();
 
         // Verify: The Starting Date on Prod. Orde Line should be ahead of the original Due Date of Prod. Order by Default Safety Lead Time
         Assert.AreEqual(
-          DueDate, CalcDate(ManufacturingSetup."Default Safety Lead Time", ProdOrderLine."Starting Date"),
+          DueDate, CalcDate(InventorySetup."Default Safety Lead Time", ProdOrderLine."Starting Date"),
           ProdOrderStartingDateErr);
     end;
 
@@ -4829,6 +4829,7 @@ codeunit 137404 "SCM Manufacturing"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
+        LibrarySetupStorage.SaveInventorySetup();
         LibrarySetupStorage.SaveManufacturingSetup();
 
         isInitialized := true;
@@ -6533,7 +6534,7 @@ codeunit 137404 "SCM Manufacturing"
         RoutingLine: Record "Routing Line";
         RoutingLine2: Record "Routing Line";
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
-        MfgSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         StartingDate: Date;
     begin
         // Create Work Center with all days working Calender
@@ -6577,8 +6578,8 @@ codeunit 137404 "SCM Manufacturing"
         // Calculate the due date of prod. order, since the ending date - starting date = WaitTime + 1 for the last routing line,
         // the ending date of the last routing line + Default Safety Lead Time = the prod. order due date
         // so use below formula to calculate prod. due date
-        MfgSetup.Get();
-        exit(CalcDate(MfgSetup."Default Safety Lead Time", CalcDate('<+' + Format(WaitTime + 1) + 'D>', StartingDate)));
+        InventorySetup.Get();
+        exit(CalcDate(InventorySetup."Default Safety Lead Time", CalcDate('<+' + Format(WaitTime + 1) + 'D>', StartingDate)));
     end;
 
     local procedure SetupWaitTimeOnProdOrderRtngLnWithoutCapactityConstrained(var RoutingLine: Record "Routing Line"; var RoutingLine2: Record "Routing Line")
@@ -7252,39 +7253,6 @@ codeunit 137404 "SCM Manufacturing"
         ProductionJournal.Post.Invoke();
     end;
 
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ItemTrackingAssignLotNoPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
-    var
-        DequeueVariable: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(DequeueVariable);
-        ItemTrackingMode := DequeueVariable;
-        case ItemTrackingMode of
-            ItemTrackingMode::"Assign Lot No.":
-                begin
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
-                    LibraryVariableStorage.Dequeue(DequeueVariable);
-                    ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
-                end;
-        end;
-        ItemTrackingLines.OK().Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ProductionJournalPageHandlerOnlyConsumption(var ProductionJournal: TestPage "Production Journal")
-    var
-        EntryType: Enum "Item Ledger Entry Type";
-    begin
-        Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Output), '');
-        ProductionJournal."Output Quantity".SetValue(0);
-        Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Consumption), '');
-        ProductionJournal.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
-        ProductionJournal.ItemTrackingLines.Invoke();
-        ProductionJournal.Post.Invoke();
-    end;
-
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CopyProductionForecastHandler(var CopyProductionForecast: TestRequestPage "Copy Production Forecast")
@@ -7498,6 +7466,39 @@ codeunit 137404 "SCM Manufacturing"
         ReservationPage.First();
         ReservationPage."Auto Reserve".Invoke();
         ReservationPage.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingAssignLotNoPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        DequeueVariable: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        ItemTrackingMode := DequeueVariable;
+        case ItemTrackingMode of
+            ItemTrackingMode::"Assign Lot No.":
+                begin
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    LibraryVariableStorage.Dequeue(DequeueVariable);
+                    ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
+                end;
+        end;
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageHandlerOnlyConsumption(var ProductionJournal: TestPage "Production Journal")
+    var
+        EntryType: Enum "Item Ledger Entry Type";
+    begin
+        Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Output), '');
+        ProductionJournal."Output Quantity".SetValue(0);
+        Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Consumption), '');
+        ProductionJournal.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        ProductionJournal.ItemTrackingLines.Invoke();
+        ProductionJournal.Post.Invoke();
     end;
 
     [PageHandler]

@@ -50,6 +50,7 @@ codeunit 57 "Document Totals"
         TotalSalesLine2: Record "Sales Line";
     begin
         TotalSalesLine2 := TotalSalesLine;
+        TotalSalesLine2.ReadIsolation(IsolationLevel::ReadUncommitted);
         TotalSalesLine2.SetRange("Document Type", SalesLine."Document Type");
         TotalSalesLine2.SetRange("Document No.", SalesLine."Document No.");
         OnAfterSalesLineSetFilters(TotalSalesLine2, SalesLine);
@@ -642,6 +643,7 @@ codeunit 57 "Document Totals"
         TotalPurchaseLine2: Record "Purchase Line";
     begin
         TotalPurchaseLine2 := TotalPurchaseLine;
+        TotalPurchaseLine2.ReadIsolation(IsolationLevel::ReadUncommitted);
         TotalPurchaseLine2.SetRange("Document Type", PurchaseLine."Document Type");
         TotalPurchaseLine2.SetRange("Document No.", PurchaseLine."Document No.");
         OnAfterPurchaseLineSetFilters(TotalPurchaseLine2, PurchaseLine);

@@ -1901,6 +1901,8 @@
         VendorLedgerEntry.TestField(Amount, -PurchaseLine."Amount Including VAT");
         VendorLedgerEntry.TestField("Purchase (LCY)", -AmountToPost);
         VendorLedgerEntry.TestField("Inv. Discount (LCY)", -InvDiscAmount);
+
+        LibraryVariableStorage.Clear();
     end;
 #endif
 
@@ -1969,6 +1971,7 @@
         VendorLedgerEntry.TestField(Amount, -PurchaseLine."Amount Including VAT");
         VendorLedgerEntry.TestField("Purchase (LCY)", -AmountToPost);
         VendorLedgerEntry.TestField("Inv. Discount (LCY)", -InvDiscAmount);
+        LibraryVariableStorage.Clear();
     end;
 
 #if not CLEAN25
@@ -2980,6 +2983,9 @@
         // [SCENARIO 549246] Unrealized Gain / Loss is cleared during applicaiton when using multiple vendor posting groups. 
         Initialize();
 
+        // [GIVEN] Set Journal Templ Name mandatory to false.
+        SetJournalTemplNameMandatoryFalse();
+
         // [GIVEN] Generate Posting Date.
         GeneratePostingDate(PostingDate);
 
@@ -3202,6 +3208,9 @@
         Initialize();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
 
+        // [GIVEN] Set Journal Templ Name mandatory to false.
+        SetJournalTemplNameMandatoryFalse();
+
         // [GIVEN] Generate Posting Date.
         PostingDate[1] := CalcDate('<1M>', WorkDate());
         PostingDate[2] := WorkDate();
@@ -3386,11 +3395,11 @@
 
     local procedure UpdateDefaultSafetyLeadTimeOnManufacturingSetup(DefaultSafetyLeadTime: DateFormula)
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
-        ManufacturingSetup.Modify(true);
+        InventorySetup.Get();
+        InventorySetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
+        InventorySetup.Modify(true);
     end;
 
     local procedure ModifyPurchasesPayablesSetup(AllowVATDifference: Boolean) OldAllowVATDifference: Boolean
@@ -4330,6 +4339,15 @@
         AllocAccountDistribution."Destination Account Number" := GLAccount."No.";
         AllocAccountDistribution.Validate(Share, Shape);
         AllocAccountDistribution.Insert();
+    end;
+
+    local procedure SetJournalTemplNameMandatoryFalse()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Journal Templ. Name Mandatory" := false;
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure GeneratePostingDate(var PostingDate: array[3] of Date)

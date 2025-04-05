@@ -245,20 +245,24 @@ codeunit 137021 "SCM Planning - NTF tests"
         LibraryWarehouse.CreateTransferRoute(TransferRoute, Location2.Code, Location1.Code);
     end;
 
-    local procedure ManufacturingSetup()
+    local procedure UpdatePlanningSetup()
     var
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetupRec.Get();
-        ManufacturingSetupRec.Validate("Components at Location", '');
-        ManufacturingSetupRec.Validate("Current Production Forecast", '');
-        ManufacturingSetupRec.Validate("Use Forecast on Locations", true);
-        ManufacturingSetupRec.Validate("Combined MPS/MRP Calculation", true);
-        Evaluate(ManufacturingSetupRec."Default Safety Lead Time", '<1D>');
-        Evaluate(ManufacturingSetupRec."Default Dampener Period", '');
-        ManufacturingSetupRec.Validate("Default Dampener %", 0);
-        ManufacturingSetupRec.Validate("Blank Overflow Level", ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
-        ManufacturingSetupRec.Modify(true);
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", '');
+        ManufacturingSetup.Modify(true);
+
+        InventorySetup.Get();
+        InventorySetup.Validate("Current Demand Forecast", '');
+        InventorySetup.Validate("Use Forecast on Locations", true);
+        InventorySetup.Validate("Combined MPS/MRP Calculation", true);
+        Evaluate(InventorySetup."Default Safety Lead Time", '<1D>');
+        Evaluate(InventorySetup."Default Dampener Period", '');
+        InventorySetup.Validate("Default Dampener %", 0);
+        InventorySetup.Validate("Blank Overflow Level", InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
+        InventorySetup.Modify(true);
     end;
 
     local procedure DisableWarnings()
@@ -644,7 +648,7 @@ codeunit 137021 "SCM Planning - NTF tests"
     local procedure TestSetup()
     begin
         ErrorMessageCounter := 0;
-        ManufacturingSetup();
+        UpdatePlanningSetup();
         ClearDefaultLocation();
     end;
 
@@ -3490,7 +3494,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         InventoryPostingSetup."Inventory Account" := AccNo;
         InventoryPostingSetup."WIP Account" := AccNo;
         InventoryPostingSetup.Modify();
-        LibraryInventory.UpdateInventoryPostingSetup(Location); // NAVCZ
+        LibraryInventory.UpdateInventoryPostingSetup(Location);
         LibraryItemTracking.AddSerialNoTrackingInfo(Item);
         ManufacturingSetup.Get();
         ManufacturingSetup."Preset Output Quantity" := ManufacturingSetup."Preset Output Quantity"::"Zero on All Operations";

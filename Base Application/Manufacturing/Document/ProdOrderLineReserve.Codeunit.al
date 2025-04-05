@@ -4,14 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
+using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Foundation.Navigate;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Inventory.Requisition;
+using Microsoft.Inventory.Setup;
 
 codeunit 99000837 "Prod. Order Line-Reserve"
 {
@@ -1150,10 +1150,10 @@ codeunit 99000837 "Prod. Order Line-Reserve"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnGetDefaultDampenerPeriod', '', false, false)]
     local procedure OnGetDefaultDampenerPeriod(var DampenerPeriod: DateFormula)
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        DampenerPeriod := ManufacturingSetup."Default Dampener Period";
+        InventorySetup.Get();
+        DampenerPeriod := InventorySetup."Default Dampener Period";
     end;
 
     local procedure NeedUpdateReservationStatusForProdOrderLine(SourceType: Integer; SourceSubtype: Option; ReservationStatus: Enum "Reservation Status"): Boolean
