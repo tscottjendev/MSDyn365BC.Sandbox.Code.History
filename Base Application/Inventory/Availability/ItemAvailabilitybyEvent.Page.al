@@ -6,6 +6,7 @@ namespace Microsoft.Inventory.Availability;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Setup;
 
 page 5530 "Item Availability by Event"
 {
@@ -465,16 +466,16 @@ page 5530 "Item Availability by Event"
 
     trigger OnOpenPage()
     var
-        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         OnBeforeOnOpenPage(IncludeBlanketOrders, PeriodType, Item, LocationFilter);
         if ItemIsSet() then
             InitAndCalculatePeriodEntries()
         else
             InitItemRequestFields();
-        if ManufacturingSetup.ReadPermission then begin
-            ManufacturingSetup.Get();
-            ForecastName := ManufacturingSetup."Current Production Forecast";
+        if InventorySetup.ReadPermission then begin
+            InventorySetup.Get();
+            ForecastName := InventorySetup."Current Demand Forecast";
         end;
     end;
 
