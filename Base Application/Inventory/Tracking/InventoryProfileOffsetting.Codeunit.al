@@ -41,10 +41,10 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         ReqLine: Record "Requisition Line";
         ItemLedgEntry: Record "Item Ledger Entry";
+        InventorySetup: Record "Inventory Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         TempSKU: Record "Stockkeeping Unit" temporary;
         TempTransferSKU: Record "Stockkeeping Unit" temporary;
-        ManufacturingSetup: Record "Manufacturing Setup";
-        InvtSetup: Record "Inventory Setup";
         ReservEntry: Record "Reservation Entry";
         TempTrkgReservEntry: Record "Reservation Entry" temporary;
         TempItemTrkgEntry: Record "Reservation Entry" temporary;
@@ -105,15 +105,28 @@ codeunit 99000854 "Inventory Profile Offsetting"
         NextState: Option StartOver,MatchDates,MatchQty,CreateSupply,ReduceSupply,CloseDemand,CloseSupply,CloseLoop;
         LotAccumulationPeriodStartDate: Date;
 
+#if not CLEAN27
+    [Obsolete('Replaced by same procedure without parameter Manufacturing Setup', '27.0')]
     procedure CalculatePlanFromWorksheet(var Item: Record Item; ManufacturingSetup2: Record "Manufacturing Setup"; TemplateName: Code[10]; WorksheetName: Code[10]; OrderDate: Date; ToDate: Date; MRPPlanning: Boolean; RespectPlanningParm: Boolean)
+    begin
+        CalculatePlanFromWorksheet(Item, TemplateName, WorksheetName, OrderDate, ToDate, MRPPlanning, RespectPlanningParm);
+    end;
+#endif
+
+    procedure CalculatePlanFromWorksheet(var Item: Record Item; TemplateName: Code[10]; WorksheetName: Code[10]; OrderDate: Date; ToDate: Date; MRPPlanning: Boolean; RespectPlanningParm: Boolean)
     var
         InventoryProfile: array[2] of Record "Inventory Profile" temporary;
     begin
+#if not CLEAN27
+        ManufacturingSetup.GetRecordOnce();
         OnBeforeCalculatePlanFromWorksheet(
-          Item, ManufacturingSetup2, TemplateName, WorksheetName, OrderDate, ToDate, MRPPlanning, RespectPlanningParm);
+          Item, ManufacturingSetup, TemplateName, WorksheetName, OrderDate, ToDate, MRPPlanning, RespectPlanningParm);
+#endif
+        OnBeforeCalculatePlanFromWorksheet2(
+          Item, TemplateName, WorksheetName, OrderDate, ToDate, MRPPlanning, RespectPlanningParm);
 
         PlanToDate := ToDate;
-        InitVariables(InventoryProfile[1], ManufacturingSetup2, Item, TemplateName, WorksheetName, MRPPlanning);
+        InitVariables(InventoryProfile[1], Item, TemplateName, WorksheetName, MRPPlanning);
         DemandToInvtProfile(InventoryProfile[1], Item, ToDate);
         OrderDate := ForecastConsumption(InventoryProfile[1], Item, OrderDate, ToDate);
         OnCalculatePlanFromWorksheetOnAfterForecastConsumption(InventoryProfile[1], Item, OrderDate, ToDate, LineNo);
@@ -129,12 +142,12 @@ codeunit 99000854 "Inventory Profile Offsetting"
         OnAfterCalculatePlanFromWorksheet(Item);
     end;
 
-    local procedure InitVariables(var InventoryProfile: Record "Inventory Profile"; ManufacturingSetup2: Record "Manufacturing Setup"; Item: Record Item; TemplateName: Code[10]; WorksheetName: Code[10]; MRPPlanning: Boolean)
+    local procedure InitVariables(var InventoryProfile: Record "Inventory Profile"; Item: Record Item; TemplateName: Code[10]; WorksheetName: Code[10]; MRPPlanning: Boolean)
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
-        ManufacturingSetup := ManufacturingSetup2;
-        InvtSetup.Get();
+        InventorySetup.GetRecordOnce();
+        ManufacturingSetup.GetRecordOnce();
         CurrTemplateName := TemplateName;
         CurrWorksheetName := WorksheetName;
         InventoryProfile.Reset();
@@ -446,12 +459,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
         UpdatedOrderDate := OrderDate;
         ComponentForecastFrom := false;
-        ByLocations := ManufacturingSetup."Use Forecast on Locations";
-        ByVariants := ManufacturingSetup."Use Forecast on Variants";
+        InventorySetup.GetRecordOnce();
+        ByLocations := InventorySetup."Use Forecast on Locations";
+        ByVariants := InventorySetup."Use Forecast on Variants";
 
         if not ByLocations then begin
             ReplenishmentLocationFound := FindReplishmentLocation(ReplenishmentLocation, Item);
-            if InvtSetup."Location Mandatory" and not ReplenishmentLocationFound then
+            if InventorySetup."Location Mandatory" and not ReplenishmentLocationFound then
                 ComponentForecastFrom := true;
         end;
 
@@ -477,8 +491,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
         NextForecast.Copy(ForecastEntry);
 
+        InventorySetup.GetRecordOnce();
+        ManufacturingSetup.GetRecordOnce();
+
         if not UseParm then
-            CurrForecast := ManufacturingSetup."Current Production Forecast";
+            CurrForecast := InventorySetup."Current Demand Forecast";
 
         ForecastEntry.SetRange("Production Forecast Name", CurrForecast);
         ForecastEntry.SetRange("Forecast Date", ExcludeForecastBefore, ToDate);
@@ -488,11 +505,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
         Item.CopyFilter("Location Filter", ForecastEntry2."Location Code");
 
         for ComponentForecast := ComponentForecastFrom to true do begin
-            if not ManufacturingSetup."Use Forecast on Locations" then
+            if not InventorySetup."Use Forecast on Locations" then
                 if ComponentForecast then begin
                     if not FindReplishmentLocation(ReplenishmentLocation, Item) then
                         ReplenishmentLocation := ManufacturingSetup."Components at Location";
-                    if InvtSetup."Location Mandatory" and (ReplenishmentLocation = '') then
+                    if InventorySetup."Location Mandatory" and (ReplenishmentLocation = '') then
                         exit;
                 end;
             ForecastEntry.SetRange("Component Forecast", ComponentForecast);
@@ -710,6 +727,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
         TransitLocation: Boolean;
         IsHandled: Boolean;
     begin
+        InventorySetup.GetRecordOnce();
+        ManufacturingSetup.GetRecordOnce();
         CreateTempSKUForComponentsLocation(Item);
 
         SKU.SetCurrentKey("Item No.", "Location Code", "Variant Code");
@@ -721,7 +740,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if SKU.FindSet() then
             FillSkUBuffer(SKU)
         else
-            if (not InvtSetup."Location Mandatory") and (ManufacturingSetup."Components at Location" = '') then begin
+            if (not InventorySetup."Location Mandatory") and (ManufacturingSetup."Components at Location" = '') then begin
                 IsHandled := false;
                 OnFindCombinationOnBeforeCreateTempSKUForLocation(Item, IsHandled);
                 if not IsHandled then
@@ -2519,6 +2538,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     OnMaintainPlanningLineOnBeforeValidateNo(ReqLine, SupplyInvtProfile, TempSKU);
                     ReqLine.Validate(ReqLine."No.");
                     ValidateUOMFromInventoryProfile(ReqLine, SupplyInvtProfile);
+                    ManufacturingSetup.GetRecordOnce();
                     ReqLine."Starting Time" := ManufacturingSetup."Normal Starting Time";
                     ReqLine."Ending Time" := ManufacturingSetup."Normal Ending Time";
                     OnMaintainPlanningLineOnAfterValidateFieldsForNewReqLine(ReqLine, SupplyInvtProfile, TempSKU);
@@ -2877,9 +2897,10 @@ codeunit 99000854 "Inventory Profile Offsetting"
             ReqLine."Ending Date" :=
               LeadTimeMgt.GetPlannedEndingDate(
                 SupplyInventoryProfile."Item No.", SupplyInventoryProfile."Location Code", SupplyInventoryProfile."Variant Code", SupplyInventoryProfile."Due Date", '', ReqLine."Ref. Order Type");
+            InventorySetup.GetRecordOnce();
             if not IsSKUSetUpForReorderPointPlanning(TempSKU) then
                 if CalcDate(TempSKU."Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
-                    if CalcDate(ManufacturingSetup."Default Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
+                    if CalcDate(InventorySetup."Default Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
                         ReqLine."Ending Time" := SupplyInventoryProfile."Due Time";
         end else begin
             ReqLine."Ending Date" := SupplyInventoryProfile."Due Date";
@@ -4720,6 +4741,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if IsHandled then
             exit;
 
+        ManufacturingSetup.GetRecordOnce();
         if ManufacturingSetup."Components at Location" = '' then
             exit;
 
@@ -4743,11 +4765,12 @@ codeunit 99000854 "Inventory Profile Offsetting"
         InventoryProfile."MPS Order" := true;
         InventoryProfile."Source ID" := ProductionForecastEntry."Production Forecast Name";
         InventoryProfile."Item No." := ItemNo;
-        if ManufacturingSetup."Use Forecast on Locations" then
+        InventorySetup.GetRecordOnce();
+        if InventorySetup."Use Forecast on Locations" then
             InventoryProfile."Location Code" := ProductionForecastEntry."Location Code"
         else
             InventoryProfile."Location Code" := LocationCode;
-        if ManufacturingSetup."Use Forecast on Variants" then
+        if InventorySetup."Use Forecast on Variants" then
             InventoryProfile."Variant Code" := ProductionForecastEntry."Variant Code"
         else
             InventoryProfile."Variant Code" := '';
@@ -5290,8 +5313,16 @@ codeunit 99000854 "Inventory Profile Offsetting"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by event OnBeforeCalculatePlanFromWorksheet2', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculatePlanFromWorksheet(var Item: Record Item; ManufacturingSetup2: Record "Manufacturing Setup"; TemplateName: Code[10]; WorksheetName: Code[10]; OrderDate: Date; ToDate: Date; MRPPlanning: Boolean; RespectPlanningParm: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculatePlanFromWorksheet2(var Item: Record Item; TemplateName: Code[10]; WorksheetName: Code[10]; OrderDate: Date; ToDate: Date; MRPPlanning: Boolean; RespectPlanningParm: Boolean)
     begin
     end;
 

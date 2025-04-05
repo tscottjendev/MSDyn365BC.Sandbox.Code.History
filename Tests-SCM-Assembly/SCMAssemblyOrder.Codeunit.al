@@ -6,7 +6,6 @@ namespace Microsoft.Assembly.Test;
 
 using Microsoft.Assembly.History;
 using Microsoft.Warehouse.Ledger;
-using Microsoft.Manufacturing.Setup;
 using System.Environment.Configuration;
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Item;
@@ -31,12 +30,9 @@ codeunit 137908 "SCM Assembly Order"
     TestPermissions = Disabled;
 
     trigger OnRun()
-    var
-        MfgSetup: Record "Manufacturing Setup";
     begin
         // [FEATURE] [Assembly] [SCM]
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate();
     end;
 
     var
@@ -52,6 +48,7 @@ codeunit 137908 "SCM Assembly Order"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryPlanning: Codeunit "Library - Planning";
         WorkDate2: Date;
         Initialized: Boolean;
         CnfmRefreshLinesQst: Label 'This assembly order may have customized lines. Are you sure that you want to reset the lines according to the assembly BOM?';
