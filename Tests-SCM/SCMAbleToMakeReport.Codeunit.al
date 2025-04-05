@@ -10,11 +10,11 @@ codeunit 137392 "SCM - Able To Make Report"
     end;
 
     var
-        MfgSetup: Record "Manufacturing Setup";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryTrees: Codeunit "Library - Trees";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
@@ -42,8 +42,7 @@ codeunit 137392 "SCM - Able To Make Report"
         isInitialized := true;
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        MfgSetup.Get();
-        UpdateMfgSetup('<1D>');
+        LibraryPlanning.SetDefaultSafetyLeadTime('1D');
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM - Able To Make Report");
     end;
@@ -509,18 +508,6 @@ codeunit 137392 "SCM - Able To Make Report"
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst();
-    end;
-
-    [Normal]
-    local procedure UpdateMfgSetup(MfgLeadTime: Text)
-    var
-        LeadTimeFormula: DateFormula;
-    begin
-        if Format(MfgSetup."Default Safety Lead Time") <> MfgLeadTime then begin
-            Evaluate(LeadTimeFormula, MfgLeadTime);
-            MfgSetup.Validate("Default Safety Lead Time", LeadTimeFormula);
-            MfgSetup.Modify(true);
-        end;
     end;
 
     [Normal]

@@ -77,6 +77,7 @@ codeunit 137101 "SCM Kitting"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryPlanning: Codeunit "Library - Planning";
         isInitialized: Boolean;
         ItemNotBOMError: Label 'Item %1 is not a BOM.';
         ItemNotOnInventoryError: Label 'You have insufficient quantity of Item %1 on inventory.';
@@ -2794,11 +2795,8 @@ codeunit 137101 "SCM Kitting"
 #endif
 
     local procedure CalculateDateUsingDefaultSafetyLeadTime(): Date
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get();
-        exit(CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
+        exit(LibraryPlanning.SetSafetyWorkDate());
     end;
 
     local procedure CalculateStandardCostOnAssemblyBOM(var AssemblyBOM: TestPage "Assembly BOM"; ItemNo: Code[20])
