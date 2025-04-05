@@ -29,6 +29,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPlanning: Codeunit "Library - Planning";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ErrorNothingToHandle: Label 'Nothing to handle.';
@@ -660,15 +661,13 @@ codeunit 137016 "SCM Create Pick Data Driven"
         ProductionBOMLine: Record "Production BOM Line";
         Item: Record Item;
         ProdOrderComponent: Record "Prod. Order Component";
-        ManufacturingSetup: Record "Manufacturing Setup";
         ReservationManagement: Codeunit "Reservation Management";
         FullReservation: Boolean;
     begin
         if Qty <= 0 then
             exit;
-        ManufacturingSetup.Get();
-        ManufacturingSetup."Components at Location" := LocationCode;
-        ManufacturingSetup.Modify(true);
+
+        LibraryPlanning.SetComponentsAtLocation(LocationCode);
 
         LibraryInventory.CreateItem(Item);
         ProductionBOMLine.SetCurrentKey(Type, "No.");
@@ -1152,7 +1151,6 @@ codeunit 137016 "SCM Create Pick Data Driven"
     local procedure TearDown()
     var
         Location: Record Location;
-        ManufacturingSetup: Record "Manufacturing Setup";
     begin
         TempLocation.SetRange("Directed Put-away and Pick", true);
         if TempLocation.FindFirst() then begin
@@ -1161,9 +1159,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
             Location."Bin Capacity Policy" := TempLocation."Bin Capacity Policy";
             Location.Modify(true);
         end;
-        ManufacturingSetup.Get();
-        ManufacturingSetup."Components at Location" := '';
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetComponentsAtLocation('');
     end;
 }
 
