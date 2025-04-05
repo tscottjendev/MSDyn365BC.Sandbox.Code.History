@@ -39,9 +39,11 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
+        LibraryPlanning: Codeunit "Library - Planning";
         Counter: Integer;
         IsInitialized: Boolean;
         TrackingAction: Option SerialNo,LotNo,All,SelectEntries,AssignLotNo,UpdateAndAssignNew,CheckQtyToHandleBase,AssignPackageNo;
@@ -5353,7 +5355,6 @@ codeunit 137051 "SCM Warehouse - III"
         Bin: Record Bin;
         Bin2: Record Bin;
         WarehouseEmployee: Record "Warehouse Employee";
-        ManufacturingSetup: Record "Manufacturing Setup";
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBOMLine: Record "Production BOM Line";
         ItemJnlTemplate: Record "Item Journal Template";
@@ -5391,9 +5392,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
 
         // [GIVEN] Validate Components at Location in Manufacturing Setup.
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", Location.Code);
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetComponentsAtLocation(Location.Code);
 
         // [GIVEN] Create Item Journal Line & Validate Location Code & Bin Code.
         CreateItemJournalLine(ItemJnlTemplate, ItemJnlBatch, ItemJnlLine, Item);
@@ -6100,6 +6099,7 @@ codeunit 137051 "SCM Warehouse - III"
 
     [Test]
     [HandlerFunctions('ItemTrackingPageHandler')]
+    [Scope('OnPrem')]
     Procedure CreatePickAccToFEFOandLotNo()
     var
         Item: Record Item;
@@ -6110,7 +6110,8 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         SaleQuantity: Decimal;
     begin
-        // [SCENARIO 563367] Pick Created with FEFO Picking and disabled Breakbulk where item with no expiration with a different UOM on the Sales Order        Initialize();
+        //[SCENARIO 563367] Nothing to Handle error with FEFO Picking where item with no expiration or an earlier expiration with a different UOM than what is on the Sales Order, and does not want to breakbulk.]
+        Initialize();
 
         // [GIVEN] Create Location with Pick According To FEFO and Allow BreakBulk as False.
         CreateFullWMSLocation(Location, 2);
@@ -6235,6 +6236,7 @@ codeunit 137051 "SCM Warehouse - III"
         Clear(LocationCode);
         Clear(Counter);
         LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if IsInitialized then
@@ -6247,6 +6249,8 @@ codeunit 137051 "SCM Warehouse - III"
         NoSeriesSetup();
         ItemJournalSetup();
         OutputJournalSetup();
+        LibrarySetupStorage.SaveInventorySetup();
+
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse - III");

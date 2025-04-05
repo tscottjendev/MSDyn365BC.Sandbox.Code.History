@@ -165,6 +165,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetPopulateUserSetupEmailUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPurchaseCreditMemoVendorCrMemoNoUpgradeTag());
         PerCompanyUpgradeTags.Add(GetICOutboxTransactionSourceTypeUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetInventoryPlanningSetupUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -1179,5 +1180,10 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag(): Code[250]
     begin
         exit('MS-356273-ManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag-20250401');
+    end;
+
+    internal procedure GetInventoryPlanningSetupUpgradeTag(): Code[250]
+    begin
+        exit('MS-556824-InventoryPlanningSetupUpgradeTag-20250401');
     end;
 }
