@@ -247,7 +247,8 @@ codeunit 5530 "Calc. Item Availability"
     local procedure GetRemainingForecast(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; ForecastName: Code[10]; ExcludeForecastBefore: Date)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
-        MfgSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
+        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
         ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
         ProdForecastEntry2: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
         CopyOfInvtEventBuf: Record "Inventory Event Buffer";
@@ -272,10 +273,11 @@ codeunit 5530 "Calc. Item Availability"
         if ToDate = 0D then
             ToDate := DMY2Date(30, 12, 9999);
 
-        MfgSetup.Get();
-        if not MfgSetup."Use Forecast on Locations" then begin
+        ManufacturingSetup.Get();
+        InventorySetup.Get();
+        if not InventorySetup."Use Forecast on Locations" then begin
             if not FindReplishmentLocation(ReplenishmentLocation, Item, LocationMandatory) then
-                ReplenishmentLocation := MfgSetup."Components at Location";
+                ReplenishmentLocation := ManufacturingSetup."Components at Location";
             if LocationMandatory and
                (ReplenishmentLocation = '')
             then
@@ -305,7 +307,7 @@ codeunit 5530 "Calc. Item Availability"
             ProdForecastEntry2.SetRange("Component Forecast", Module);
             if ProdForecastEntry2.FindSet() then
                 repeat
-                    if MfgSetup."Use Forecast on Locations" then begin
+                    if InventorySetup."Use Forecast on Locations" then begin
                         ProdForecastEntry2.SetRange("Location Code", ProdForecastEntry2."Location Code");
                         ItemLedgEntry.SetRange("Location Code", ProdForecastEntry2."Location Code");
                         InvtEventBuf.SetRange("Location Code", ProdForecastEntry2."Location Code");
@@ -314,7 +316,7 @@ codeunit 5530 "Calc. Item Availability"
                         Item.CopyFilter("Location Filter", ItemLedgEntry."Location Code");
                         Item.CopyFilter("Location Filter", InvtEventBuf."Location Code");
                     end;
-                    if MfgSetup."Use Forecast on Variants" then begin
+                    if InventorySetup."Use Forecast on Variants" then begin
                         ProdForecastEntry2.SetRange("Variant Code", ProdForecastEntry2."Variant Code");
                         ItemLedgEntry.SetRange("Variant Code", ProdForecastEntry2."Variant Code");
                         InvtEventBuf.SetRange("Variant Code", ProdForecastEntry2."Variant Code");
@@ -383,7 +385,7 @@ codeunit 5530 "Calc. Item Availability"
 
                             ProdOrderAvailabilityMgt.TransferFromForecast(
                                 InvtEventBuf, ProdForecastEntry, RemainingForecastQty,
-                                MfgSetup."Use Forecast on Locations", MfgSetup."Use Forecast on Variants");
+                                InventorySetup."Use Forecast on Locations", InventorySetup."Use Forecast on Variants");
                             InsertEntry(InvtEventBuf);
                             OnGetRemainingForecastOAfterInsertEntry(InvtEventBuf, Item, ProdForecastEntry);
 

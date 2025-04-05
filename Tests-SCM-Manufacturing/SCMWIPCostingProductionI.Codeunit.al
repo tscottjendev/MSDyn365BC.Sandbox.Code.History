@@ -1788,6 +1788,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryERMCountryData.UpdateInventoryPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.SaveGeneralLedgerSetup();
