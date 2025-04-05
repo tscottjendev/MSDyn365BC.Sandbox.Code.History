@@ -39,9 +39,11 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
+        LibraryPlanning: Codeunit "Library - Planning";
         Counter: Integer;
         IsInitialized: Boolean;
         TrackingAction: Option SerialNo,LotNo,All,SelectEntries,AssignLotNo,UpdateAndAssignNew,CheckQtyToHandleBase,AssignPackageNo;
@@ -3515,7 +3517,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [THEN] Warehouse pick is created.
         FilterWarehouseActivityLine(
-              WarehouseActivityLine, Item."No.", Location.Code, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, '', '');
+            WarehouseActivityLine, Item."No.", Location.Code, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, '', '');
         Assert.RecordIsNotEmpty(WarehouseActivityLine);
 
         // [THEN] The resulting message does not have a warning about excluded expired lots.
@@ -5382,7 +5384,6 @@ codeunit 137051 "SCM Warehouse - III"
         Bin: Record Bin;
         Bin2: Record Bin;
         WarehouseEmployee: Record "Warehouse Employee";
-        ManufacturingSetup: Record "Manufacturing Setup";
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBOMLine: Record "Production BOM Line";
         ItemJnlTemplate: Record "Item Journal Template";
@@ -5420,9 +5421,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
 
         // [GIVEN] Validate Components at Location in Manufacturing Setup.
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", Location.Code);
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetComponentsAtLocation(Location.Code);
 
         // [GIVEN] Create Item Journal Line & Validate Location Code & Bin Code.
         CreateItemJournalLine(ItemJnlTemplate, ItemJnlBatch, ItemJnlLine, Item);
@@ -6038,7 +6037,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [THEN] Do Not Fill Qty. to Handle in Warehouse Activity Header is false.
         Assert.IsFalse(WarehouseActivityHeader."Do Not Fill Qty. to Handle", DoNotFillQtyToHandleMustBeFalseErr);
     end;
-    
+
     [Test]
     [HandlerFunctions('WhseItemTrackingLinesMultipleModalPageHandler,ItemTrackingPageHandler')]
     procedure WhsePickHasLotNoWhenRegisteredPickDeletedAndCreateNewPick()
@@ -6170,7 +6169,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [THEN] Verify Pick Created and values on Whse Activity Line.
         VerifyWhseActivityLine(WarehouseActivityLine, SaleQuantity, SalesHeader."No.", Location.Code);
     end;
-    
+
     [Test]
     [HandlerFunctions('WhseCalculateInventoryIncludeItemWithoutTransactionHandler')]
     procedure WhseCalculateInventoryShouldRunWithoutAnyErrorForDeletedItem()
@@ -6266,6 +6265,7 @@ codeunit 137051 "SCM Warehouse - III"
         Clear(LocationCode);
         Clear(Counter);
         LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if IsInitialized then
@@ -6278,6 +6278,8 @@ codeunit 137051 "SCM Warehouse - III"
         NoSeriesSetup();
         ItemJournalSetup();
         OutputJournalSetup();
+        LibrarySetupStorage.SaveInventorySetup();
+
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse - III");

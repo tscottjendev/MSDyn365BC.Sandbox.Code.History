@@ -10,6 +10,7 @@ codeunit 132203 "Library - Planning"
     end;
 
     var
+        InventorySetup: Record "Inventory Setup";
         LibraryUtility: Codeunit "Library - Utility";
 
     procedure CreateProdOrderUsingPlanning(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; DocumentNo: Code[20]; SourceNo: Code[20])
@@ -367,6 +368,84 @@ codeunit 132203 "Library - Planning"
         RequisitionWkshName.SetRange(Recurring, false);
         if not RequisitionWkshName.FindFirst() then
             CreateRequisitionWkshName(RequisitionWkshName, SelectRequisitionTemplateName());
+    end;
+
+    procedure SetDemandForecast(CurrentDemandForecast: Code[10])
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Current Demand Forecast", CurrentDemandForecast);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetUseForecastOnVariants(UseForecastOnVariants: Boolean)
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Use Forecast on Variants", UseForecastOnVariants);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetUseForecastOnLocations(UseForecastOnLocations: Boolean)
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetDefaultDampenerPercent(DampenerPercent: Decimal)
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Default Dampener %", DampenerPercent);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetDefaultDampenerPeriod(DampenerPeriod: Text)
+    begin
+        InventorySetup.Get();
+        Evaluate(InventorySetup."Default Dampener Period", DampenerPeriod);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetDefaultSafetyLeadTime(SafetyLeadTime: DateFormula)
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Default Safety Lead Time", SafetyLeadTime);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetDefaultSafetyLeadTime(SafetyLeadTime: Text)
+    begin
+        InventorySetup.Get();
+        Evaluate(InventorySetup."Default Safety Lead Time", SafetyLeadTime);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetSafetyWorkDate(): Date
+    begin
+        InventorySetup.Get();
+        exit(CalcDate(InventorySetup."Default Safety Lead Time", WorkDate()));
+    end;
+
+    procedure SetBlankOverflowLevel(BlankOverflowLevel: Option)
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Blank Overflow Level", BlankOverflowLevel);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetCombinedMPSMRPCalculation(CombinedMPSMRPCalculation: Boolean)
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Combined MPS/MRP Calculation", CombinedMPSMRPCalculation);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetComponentsAtLocation(LocationCode: Code[10])
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", LocationCode);
+        ManufacturingSetup.Modify();
     end;
 }
 

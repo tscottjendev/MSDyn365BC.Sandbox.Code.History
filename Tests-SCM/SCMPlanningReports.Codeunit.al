@@ -21,6 +21,7 @@ codeunit 137308 "SCM Planning Reports"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         ReservationEngineMgt: Codeunit "Reservation Engine Mgt.";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
@@ -933,14 +934,10 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
         ProductionForecastEntry: Record "Production Forecast Entry";
         ProductionForecastName: Record "Production Forecast Name";
-        ManufacturingSetup: Record "Manufacturing Setup";
         EventDate: Date;
-        CurrentProductionForecast: Code[10];
     begin
         // 1) Setup: Create a production forecast entry for an item with a Production BOM
         Initialize();
-        ManufacturingSetup.Get();
-        CurrentProductionForecast := ManufacturingSetup."Current Production Forecast";
         CreateItemWithProductionBOM(Item);
         CreateForecastEntry(ProductionForecastEntry, ProductionForecastName, Item, EventDate);
 
@@ -949,11 +946,6 @@ codeunit 137308 "SCM Planning Reports"
 
         // 3) Verify
         VerifyProductionForecastGrossRequirement(ProductionForecastEntry);
-
-        // 4) Cleanup
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
-        ManufacturingSetup.Modify(true);
     end;
 
     [Test]
@@ -1297,9 +1289,8 @@ codeunit 137308 "SCM Planning Reports"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning Reports");
         RequisitionWkshName.DeleteAll();
-
         LibraryVariableStorage.Clear();
-
+        LibrarySetupStorage.Restore();
         LibraryApplicationArea.EnableEssentialSetup();
 
         if isInitialized then
@@ -1310,6 +1301,7 @@ codeunit 137308 "SCM Planning Reports"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         NoSeriesSetup();
         ItemJournalSetup();
+        LibrarySetupStorage.SaveInventorySetup();
 
         isInitialized := true;
         Commit();
@@ -1942,15 +1934,9 @@ codeunit 137308 "SCM Planning Reports"
     end;
 
     local procedure CreateForecastEntry(var ProductionForecastEntry: Record "Production Forecast Entry"; var ProductionForecastName: Record "Production Forecast Name"; Item: Record Item; var EventDate: Date)
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
     begin
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Current Production Forecast", ProductionForecastName.Name);
-        ManufacturingSetup.Modify(true);
-
+        LibraryPlanning.SetDemandForecast(ProductionForecastName.Name);
         EventDate := GenerateRandomDateNextYear();
         LibraryManufacturing.CreateProductionForecastEntry(
           ProductionForecastEntry, ProductionForecastName.Name, Item."No.", '', EventDate, false);
