@@ -153,47 +153,42 @@ codeunit 137020 "SCM Planning"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
     end;
 
-    local procedure ManufacturingSetup()
+    local procedure UpdatePlanningSetup()
     var
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetupRec.Get();
-        ManufacturingSetupRec.Validate("Components at Location", '');
-        ManufacturingSetupRec.Validate("Current Production Forecast", '');
-        ManufacturingSetupRec.Validate("Use Forecast on Locations", true);
-        ManufacturingSetupRec.Validate("Combined MPS/MRP Calculation", true);
-        Evaluate(ManufacturingSetupRec."Default Safety Lead Time", '<1D>');
-        Evaluate(ManufacturingSetupRec."Default Dampener Period", '');
-        ManufacturingSetupRec.Validate("Default Dampener %", 0);
-        ManufacturingSetupRec.Validate("Blank Overflow Level", ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
-        ManufacturingSetupRec.Modify(true);
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", '');
+        ManufacturingSetup.Modify(true);
+
+        InventorySetup.Get();
+        InventorySetup.Validate("Current Demand Forecast", '');
+        InventorySetup.Validate("Use Forecast on Locations", true);
+        InventorySetup.Validate("Combined MPS/MRP Calculation", true);
+        Evaluate(InventorySetup."Default Safety Lead Time", '<1D>');
+        Evaluate(InventorySetup."Default Dampener Period", '');
+        InventorySetup.Validate("Default Dampener %", 0);
+        InventorySetup.Validate("Blank Overflow Level", InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
+        InventorySetup.Modify(true);
     end;
 
     local procedure SetDampenerTime(DampenerTime: Text[30])
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        Evaluate(ManufacturingSetup."Default Dampener Period", DampenerTime);
-        ManufacturingSetup.Modify(true);
-    end;
-
-    local procedure SetDampenerLotSize(DampenerPercentage: Decimal)
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Default Dampener %", DampenerPercentage);
-        ManufacturingSetup.Modify(true);
+        InventorySetup.Get();
+        Evaluate(InventorySetup."Default Dampener Period", DampenerTime);
+        InventorySetup.Modify(true);
     end;
 
     local procedure SetBlankOverflowLevel(DampenerOption: Option)
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Blank Overflow Level", DampenerOption);
-        ManufacturingSetup.Modify(true);
+        InventorySetup.Get();
+        InventorySetup.Validate("Blank Overflow Level", DampenerOption);
+        InventorySetup.Modify(true);
     end;
 
     local procedure DisableWarnings()
@@ -325,7 +320,7 @@ codeunit 137020 "SCM Planning"
 
     local procedure TestSetup()
     begin
-        ManufacturingSetup();
+        UpdatePlanningSetup();
     end;
 
     local procedure AssertPlanningLine(Item: Record Item; ActionMsg: Enum "Action Message Type"; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; RefOrderType: Enum "Requisition Ref. Order Type"; NoOfLines: Integer)
@@ -2548,7 +2543,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(10);
+        LibraryPlanning.SetDefaultDampenerPercent(10);
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 0, '<5D>', 4, 5, '<1D>', 40);
 
@@ -2593,7 +2588,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(10);
+        LibraryPlanning.SetDefaultDampenerPercent(10);
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 0, '<5D>', 4, 5, '<1D>', 40);
 
@@ -2643,7 +2638,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(10);
+        LibraryPlanning.SetDefaultDampenerPercent(10);
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 0, '<5D>', 0, 5, '<1D>', 40);
 
@@ -2688,7 +2683,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(10);
+        LibraryPlanning.SetDefaultDampenerPercent(10);
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 0, '<5D>', 0, 5, '<1D>', 40);
 
@@ -2738,7 +2733,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 0, '<5D>', 0, 5, '<1D>', 40);
 
@@ -2788,7 +2783,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(10);
+        LibraryPlanning.SetDefaultDampenerPercent(10);
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 0, '<5D>', 4, 5, '<1D>', 40);
 
@@ -2833,7 +2828,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(10);
+        LibraryPlanning.SetDefaultDampenerPercent(10);
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 0, '<5D>', 4, 5, '<1D>', 40);
 
@@ -2883,7 +2878,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(10);
+        LibraryPlanning.SetDefaultDampenerPercent(10);
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 0, '<5D>', 0, 5, '<1D>', 40);
 
@@ -2928,7 +2923,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(10);
+        LibraryPlanning.SetDefaultDampenerPercent(10);
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 0, '<5D>', 0, 5, '<1D>', 40);
 
@@ -2978,7 +2973,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 0, '<5D>', 0, 5, '<1D>', 40);
 
@@ -3028,7 +3023,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(10);
+        LibraryPlanning.SetDefaultDampenerPercent(10);
         LFLItemSetup(Item, true, '', '<10D>', '', 4, 0, 40);
 
         // Create demand
@@ -3069,7 +3064,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(10);
+        LibraryPlanning.SetDefaultDampenerPercent(10);
         LFLItemSetup(Item, true, '', '<10D>', '', 4, 0, 40);
 
         // Create demand
@@ -3115,7 +3110,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(10);
+        LibraryPlanning.SetDefaultDampenerPercent(10);
         LFLItemSetup(Item, true, '', '<10D>', '', 0, 0, 40);
 
         // Create demand
@@ -3156,7 +3151,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(10);
+        LibraryPlanning.SetDefaultDampenerPercent(10);
         LFLItemSetup(Item, true, '', '<10D>', '', 0, 0, 40);
 
         // Create demand
@@ -3202,7 +3197,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(10);
+        LibraryPlanning.SetDefaultDampenerPercent(10);
         LFLItemSetup(Item, true, '', '<10D>', '', 0, 0, 0);
 
         // Create demand
@@ -3249,7 +3244,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 101, '<5D>', 0, 5, '<1D>', 0);
 
@@ -3300,7 +3295,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 101, '<5D>', 0, 5, '<1D>', 0);
 
@@ -3339,7 +3334,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -3347,9 +3342,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetup."Blank Overflow Level"::"Use Item/SKU Values Only");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Use Item/SKU Values Only");
         MaxQtyItemSetup(Item, 20, 100, 0, '<5D>', 0, 5, '<1D>', 0);
 
         // Create inventory
@@ -3387,7 +3382,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -3395,9 +3390,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetup."Blank Overflow Level"::"Allow Default Calculation");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
         MaxQtyItemSetup(Item, 20, 100, 0, '<5D>', 0, 5, '<1D>', 0);
 
         // Create inventory
@@ -3440,7 +3435,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -3448,9 +3443,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetup."Blank Overflow Level"::"Allow Default Calculation");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
         MaxQtyItemSetup(Item, 20, 100, 101, '<5D>', 0, 5, '<1D>', 0);
 
         // Create inventory
@@ -3488,7 +3483,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -3496,9 +3491,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetup."Blank Overflow Level"::"Allow Default Calculation");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
         MaxQtyItemSetup(Item, 20, 100, 101, '<5D>', 5, 5, '<1D>', 0);
 
         // Create inventory
@@ -3536,7 +3531,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -3544,9 +3539,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetup."Blank Overflow Level"::"Allow Default Calculation");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
         MaxQtyItemSetup(Item, 20, 100, 101, '<5D>', 5, 5, '<1D>', 0);
 
         // Create inventory
@@ -3596,7 +3591,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 80, 101, '<5D>', 0, 5, '<1D>', 0);
 
@@ -3647,7 +3642,7 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 80, 101, '<5D>', 0, 5, '<1D>', 0);
 
@@ -3686,7 +3681,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -3694,9 +3689,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Use Item/SKU Values Only");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Use Item/SKU Values Only");
         FixedReorderQtyItemSetup(Item, 20, 80, 0, '<5D>', 0, 5, '<1D>', 0);
 
         // Create inventory
@@ -3734,7 +3729,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -3742,9 +3737,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
         FixedReorderQtyItemSetup(Item, 20, 80, 0, '<5D>', 0, 5, '<1D>', 0);
 
         // Create inventory
@@ -3787,7 +3782,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -3795,9 +3790,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
         FixedReorderQtyItemSetup(Item, 20, 80, 101, '<5D>', 0, 5, '<1D>', 0);
 
         // Create inventory
@@ -3835,7 +3830,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -3843,9 +3838,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
         FixedReorderQtyItemSetup(Item, 20, 80, 101, '<5D>', 5, 5, '<1D>', 0);
 
         // Create inventory
@@ -3883,7 +3878,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -3891,9 +3886,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
         FixedReorderQtyItemSetup(Item, 20, 80, 101, '<5D>', 5, 5, '<1D>', 0);
 
         // Create inventory
@@ -3936,7 +3931,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -3944,9 +3939,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
         MaxQtyItemSetup(Item, 20, 100, 5, '<5D>', 0, 5, '<1D>', 0);
 
         // Create inventory
@@ -3989,7 +3984,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -3997,9 +3992,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Use Item/SKU Values Only");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Use Item/SKU Values Only");
         MaxQtyItemSetup(Item, 20, 100, 5, '<5D>', 0, 5, '<1D>', 0);
 
         // Create inventory
@@ -4042,7 +4037,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -4050,9 +4045,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
         FixedReorderQtyItemSetup(Item, 20, 80, 5, '<5D>', 0, 5, '<1D>', 0);
 
         // Create inventory
@@ -4095,7 +4090,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -4103,9 +4098,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
         FixedReorderQtyItemSetup(Item, 20, 80, 5, '<5D>', 0, 5, '<1D>', 0);
 
         // Create inventory
@@ -4143,7 +4138,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -4151,9 +4146,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Use Item/SKU Values Only");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Use Item/SKU Values Only");
         FixedReorderQtyItemSetup(Item, 20, 80, 5, '<5D>', 0, 5, '<1D>', 0);
 
         // Create inventory
@@ -4196,7 +4191,7 @@ codeunit 137020 "SCM Planning"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // [FEATURE] [Overflow]
         // Setup
@@ -4204,9 +4199,9 @@ codeunit 137020 "SCM Planning"
 
         // Test setup
         TestSetup();
-        SetDampenerLotSize(0);
+        LibraryPlanning.SetDefaultDampenerPercent(0);
         SetDampenerTime('<0D>');
-        SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Use Item/SKU Values Only");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Use Item/SKU Values Only");
         FixedReorderQtyItemSetup(Item, 20, 80, 5, '<5D>', 0, 5, '<1D>', 0);
 
         // Create inventory
@@ -4240,7 +4235,7 @@ codeunit 137020 "SCM Planning"
     [Scope('OnPrem')]
     procedure PurchaseBringingInventoryAboveOverflowLevelSuggestedCanceled()
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         Item: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -4253,7 +4248,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // [GIVEN] Overflow level by default is equal to "Reorder Point" + "Minimum Order Quantity".
-        SetBlankOverflowLevel(ManufacturingSetup."Blank Overflow Level"::"Allow Default Calculation");
+        SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
 
         // [GIVEN] Item with "Reorder Point" = 10 pcs, "Minimum Order Quantity" = 20 pcs, the overflow level is hence = 30 pcs.
         FixedReorderQtyItemSetup(Item, 10, 1, 0, '', 0, 0, '', 0);
@@ -4883,7 +4878,6 @@ codeunit 137020 "SCM Planning"
         ItemJournalLine: Record "Item Journal Line";
         ItemJournalTemplate: Record "Item Journal Template";
         Location: Record Location;
-        ManufacturingSetup: Record "Manufacturing Setup";
         RequisitionLine: Record "Requisition Line";
         RequisitionWkshName: Record "Requisition Wksh. Name";
         SalesHeader: array[2] of Record "Sales Header";
@@ -4910,9 +4904,7 @@ codeunit 137020 "SCM Planning"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
         // [GIVEN] Validate Component at Location in Manufacturing Setup.
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", Location.Code);
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetComponentsAtLocation(Location.Code);
 
         // [GIVEN] Select Item Journal Template.
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
