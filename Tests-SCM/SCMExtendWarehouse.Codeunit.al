@@ -21,6 +21,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -131,20 +132,24 @@ codeunit 137030 "SCM Extend Warehouse"
         PurchasesPayablesSetup.Modify(true);
     end;
 
-    local procedure ManufacturingSetup()
+    local procedure UpdatePlanningSetup()
     var
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetupRec.Get();
-        ManufacturingSetupRec.Validate("Components at Location", '');
-        ManufacturingSetupRec.Validate("Current Production Forecast", '');
-        ManufacturingSetupRec.Validate("Use Forecast on Locations", true);
-        ManufacturingSetupRec.Validate("Combined MPS/MRP Calculation", true);
-        Evaluate(ManufacturingSetupRec."Default Safety Lead Time", '<1D>');
-        Evaluate(ManufacturingSetupRec."Default Dampener Period", '');
-        ManufacturingSetupRec.Validate("Default Dampener %", 0);
-        ManufacturingSetupRec.Validate("Blank Overflow Level", ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
-        ManufacturingSetupRec.Modify(true);
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", '');
+        ManufacturingSetup.Modify(true);
+
+        InventorySetup.Get();
+        InventorySetup.Validate("Current Demand Forecast", '');
+        InventorySetup.Validate("Use Forecast on Locations", true);
+        InventorySetup.Validate("Combined MPS/MRP Calculation", true);
+        Evaluate(InventorySetup."Default Safety Lead Time", '<1D>');
+        Evaluate(InventorySetup."Default Dampener Period", '');
+        InventorySetup.Validate("Default Dampener %", 0);
+        InventorySetup.Validate("Blank Overflow Level", InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
+        InventorySetup.Modify(true);
     end;
 
     local procedure ItemSetup(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; FlushingMethod: Enum "Flushing Method")
@@ -1108,7 +1113,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
     local procedure TestSetup()
     begin
-        ManufacturingSetup();
+        UpdatePlanningSetup();
         ErrorMessageCounter := 0;
     end;
 
@@ -5406,7 +5411,6 @@ codeunit 137030 "SCM Extend Warehouse"
         ToBin: array[2] of Record Bin;
         FromBin: array[2] of Record Bin;
         OSFBBin: array[2] of Record Bin;
-        ManufacturingSetup: Record "Manufacturing Setup";
     begin
         // Test setup
         DedicatedBinTestSetup(ParentItem, Location, WorkCenter, MachineCenter, ToBin, FromBin, OSFBBin);
@@ -5430,9 +5434,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.CreateFullWMSLocation(LocationW, 10);
 
         // Set components at location
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", LocationSilv.Code);
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetComponentsAtLocation(LocationSilv.Code);
 
         // Create and refresh production order on WHITE like location
         CreateRelProdOrderAndRefresh(ProductionOrder, ParentItem."No.", 10, LocationW.Code, LocationW."From-Production Bin Code");
@@ -5491,7 +5493,6 @@ codeunit 137030 "SCM Extend Warehouse"
         ToBin: array[2] of Record Bin;
         FromBin: array[2] of Record Bin;
         OSFBBin: array[2] of Record Bin;
-        ManufacturingSetup: Record "Manufacturing Setup";
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         // Test setup
@@ -5516,9 +5517,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.CreateFullWMSLocation(LocationW, 10);
 
         // Set components at location
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", LocationSilv.Code);
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetComponentsAtLocation(LocationSilv.Code);
 
         // Create and refresh production order on WHITE like location
         CreateRelProdOrderAndRefresh(ProductionOrder, ParentItem."No.", 10, LocationW.Code, LocationW."From-Production Bin Code");
@@ -5586,7 +5585,6 @@ codeunit 137030 "SCM Extend Warehouse"
         ToBin: array[2] of Record Bin;
         FromBin: array[2] of Record Bin;
         OSFBBin: array[2] of Record Bin;
-        ManufacturingSetup: Record "Manufacturing Setup";
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         // Test setup
@@ -5613,9 +5611,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.CreateFullWMSLocation(LocationW, 10);
 
         // Set components at location
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", LocationSilv.Code);
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetComponentsAtLocation(LocationSilv.Code);
 
         // Create and refresh production order on WHITE like location
         CreateRelProdOrderAndRefresh(ProductionOrder, ParentItem."No.", 10, LocationW.Code, LocationW."From-Production Bin Code");
@@ -7407,7 +7403,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Initialize();
 
         // [GIVEN] Get Manufacturing Setup.
-        ManufacturingSetup();
+        UpdatePlanningSetup();
 
         // [GIVEN] Create an Item with Setup.
         ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::"Pick + Manual");
