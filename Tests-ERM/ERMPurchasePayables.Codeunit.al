@@ -3395,11 +3395,11 @@ codeunit 134331 "ERM Purchase Payables"
 
     local procedure UpdateDefaultSafetyLeadTimeOnManufacturingSetup(DefaultSafetyLeadTime: DateFormula)
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
-        ManufacturingSetup.Modify(true);
+        InventorySetup.Get();
+        InventorySetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
+        InventorySetup.Modify(true);
     end;
 
     local procedure ModifyPurchasesPayablesSetup(AllowVATDifference: Boolean) OldAllowVATDifference: Boolean

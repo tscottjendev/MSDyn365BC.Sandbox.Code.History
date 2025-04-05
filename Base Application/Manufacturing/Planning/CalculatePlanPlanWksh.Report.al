@@ -7,8 +7,8 @@ namespace Microsoft.Manufacturing.Planning;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
+using Microsoft.Inventory.Setup;
 using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.Setup;
 
 report 99001017 "Calculate Plan - Plan. Wksh."
 {
@@ -131,7 +131,8 @@ report 99001017 "Calculate Plan - Plan. Wksh."
 
                             trigger OnValidate()
                             begin
-                                if not MfgSetup."Combined MPS/MRP Calculation" then
+                                InventorySetup.GetRecordOnce();
+                                if not InventorySetup."Combined MPS/MRP Calculation" then
                                     MRP := not MPS
                                 else
                                     if not MPS then
@@ -146,7 +147,8 @@ report 99001017 "Calculate Plan - Plan. Wksh."
 
                             trigger OnValidate()
                             begin
-                                if not MfgSetup."Combined MPS/MRP Calculation" then
+                                InventorySetup.GetRecordOnce();
+                                if not InventorySetup."Combined MPS/MRP Calculation" then
                                     MPS := not MRP
                                 else
                                     if not MRP then
@@ -203,7 +205,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
 
         trigger OnOpenPage()
         begin
-            InitializeFromMfgSetup();
+            InitializeFromSetup();
 
             OnAfterOnOpenPage(FromDate, ToDate);
         end;
@@ -214,7 +216,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
     }
 
     var
-        MfgSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         PlanningErrorLog: Record "Planning Error Log";
         ReqLine: Record "Requisition Line";
         CalcItemPlan: Codeunit "Calc. Item Plan - Plan Wksh.";
@@ -264,13 +266,13 @@ report 99001017 "Calculate Plan - Plan. Wksh."
         ToDate := NewToDate;
         RespectPlanningParm := NewRespectPlanningParm;
 
-        MfgSetup.Get();
-        if MfgSetup."Combined MPS/MRP Calculation" then begin
+        InventorySetup.GetRecordOnce();
+        if InventorySetup."Combined MPS/MRP Calculation" then begin
             MPS := true;
             MRP := true;
         end else
             MRP := not MPS;
-        UseForecast := MfgSetup."Current Production Forecast";
+        UseForecast := InventorySetup."Current Demand Forecast";
     end;
 
     procedure InitializeRequest(NewFromDate: Date; NewToDate: Date; NewRespectPlanningParm: Boolean; NewMPS: Boolean; NewMRP: Boolean; NewUseForecast: Code[10]; NewExcludeForecastBefore: Date; NewNoPlanningResiliency: Boolean)
@@ -337,7 +339,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
         end;
     end;
 
-    local procedure InitializeFromMfgSetup()
+    local procedure InitializeFromSetup()
     var
         IsHandled: Boolean;
     begin
@@ -346,9 +348,9 @@ report 99001017 "Calculate Plan - Plan. Wksh."
         if IsHandled then
             exit;
 
-        MfgSetup.Get();
-        UseForecast := MfgSetup."Current Production Forecast";
-        if MfgSetup."Combined MPS/MRP Calculation" then begin
+        InventorySetup.GetRecordOnce();
+        UseForecast := InventorySetup."Current Demand Forecast";
+        if InventorySetup."Combined MPS/MRP Calculation" then begin
             MPS := true;
             MRP := true;
         end else

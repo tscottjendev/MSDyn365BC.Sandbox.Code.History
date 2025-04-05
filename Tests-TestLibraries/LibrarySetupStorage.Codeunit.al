@@ -62,6 +62,12 @@ codeunit 131009 "Library - Setup Storage"
     end;
 
     [Scope('OnPrem')]
+    procedure SaveInventorySetup()
+    begin
+        Save(DATABASE::"Inventory Setup");
+    end;
+
+    [Scope('OnPrem')]
     procedure SaveVATSetup()
     begin
         Save(Database::"VAT Setup");

@@ -920,8 +920,8 @@ codeunit 137045 "SCM Bugfixes"
         // [GIVEN] Find Production Order Component Line and Update "Quantity per".
         UpdateProductionOrderComponentLine(ProdOrderLine);
 
-        // [GIVEN] Update Component at Location in Manufacturing Setup.
-        UpdateComponentAtLocation(LocationCode);
+        // [GIVEN] Update Component at Location
+        LibraryPlanning.SetComponentsAtLocation(LocationCode);
 
         // [WHEN]  Create Sales Order.
         CreateSalesOrder(SalesHeader, Item[2]."No.", LocationCode, LibraryRandom.RandIntInRange(80, 80), SalesHeader."Document Type"::Order);
@@ -1575,15 +1575,6 @@ codeunit 137045 "SCM Bugfixes"
         ProdOrderComponent.FindFirst();
         ProdOrderComponent.Validate("Quantity per", 1);
         ProdOrderComponent.Modify(true);
-    end;
-
-    local procedure UpdateComponentAtLocation(LocationCode: Code[10])
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", LocationCode);
-        ManufacturingSetup.Modify(true);
     end;
 
     local procedure OpenOrderPromisingPage(SalesHeaderNo: Code[20])
