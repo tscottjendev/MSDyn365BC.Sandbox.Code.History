@@ -2928,7 +2928,9 @@ codeunit 137065 "SCM Reservation II"
         IsInitialized := true;
         Commit();
 
-        LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
+        LibrarySetupStorage.SaveInventorySetup();
+        LibrarySetupStorage.SaveManufacturingSetup();
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Reservation II");
     end;
 
@@ -3373,6 +3375,7 @@ codeunit 137065 "SCM Reservation II"
         WorkCenter: Record "Work Center";
     begin
         ManufacturingSetup.Get();
+
         CreateWorkCenter(WorkCenter);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.");

@@ -77,6 +77,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     trigger OnRun()
     begin
+        TempBalanceCheck.Reset();
+        TempBalanceCheck2.Reset();
+        TempBalanceCheckAddCurr.Reset();
+        TempBalanceCheckAddCurr2.Reset();
+
         GetGLSetup();
         RunWithCheck(Rec);
     end;
@@ -102,6 +107,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
         PaymentTermsLine: Record "Payment Lines";
         VATBookEntry: Record "VAT Book Entry";
         GLBookEntry: Record "GL Book Entry";
+        TempBalanceCheck: Record "G/L Account Net Change" temporary;
+        TempBalanceCheck2: Record "G/L Account Net Change" temporary;
+        TempBalanceCheckAddCurr: Record "G/L Account Net Change" temporary;
+        TempBalanceCheckAddCurr2: Record "G/L Account Net Change" temporary;
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         DeferralUtilities: Codeunit "Deferral Utilities";
@@ -2218,7 +2227,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         IsTransactionConsistentExternal := IsTransactionConsistent;
         GlobalGLEntry.Consistent(IsTransactionConsistent);
 
-        OnAfterSettingIsTransactionConsistent(GenJournalLine, IsTransactionConsistentExternal);
+        OnAfterSettingIsTransactionConsistent(GenJournalLine, IsTransactionConsistentExternal, TempBalanceCheck, TempBalanceCheck2, TempBalanceCheckAddCurr, TempBalanceCheckAddCurr2);
 
         IsTransactionConsistent := IsTransactionConsistent and IsTransactionConsistentExternal;
 
@@ -2549,7 +2558,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 if GLEntry.Amount <> Round(GLEntry.Amount) then
                     GLEntry.FieldError(GLEntry.Amount, StrSubstNo(NeedsRoundingErr, GLEntry.Amount));
 
-            OnInsertGLEntryOnBeforeUpdateCheckAmounts(GLSetup, GLEntry, BalanceCheckAmount, BalanceCheckAmount2, BalanceCheckAddCurrAmount, BalanceCheckAddCurrAmount2);
+            OnInsertGLEntryOnBeforeUpdateCheckAmounts(GLSetup, GLEntry, BalanceCheckAmount, BalanceCheckAmount2, BalanceCheckAddCurrAmount, BalanceCheckAddCurrAmount2, TempBalanceCheck, TempBalanceCheck2, TempBalanceCheckAddCurr, TempBalanceCheckAddCurr2);
             UpdateCheckAmounts(
               GLEntry."Posting Date", GLEntry.Amount, GLEntry."Additional-Currency Amount",
               BalanceCheckAmount, BalanceCheckAmount2, BalanceCheckAddCurrAmount, BalanceCheckAddCurrAmount2);
@@ -9874,7 +9883,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterSettingIsTransactionConsistent(GenJournalLine: Record "Gen. Journal Line"; var IsTransactionConsistent: Boolean)
+    local procedure OnAfterSettingIsTransactionConsistent(GenJournalLine: Record "Gen. Journal Line"; var IsTransactionConsistent: Boolean; var TempBalanceCheck: Record "G/L Account Net Change" temporary; var TempBalanceCheck2: Record "G/L Account Net Change" temporary; var TempBalanceCheckAddCurr: Record "G/L Account Net Change" temporary; var TempBalanceCheckAddCurr2: Record "G/L Account Net Change" temporary)
     begin
     end;
 
@@ -11454,7 +11463,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertGLEntryOnBeforeUpdateCheckAmounts(GeneralLedgerSetup: Record "General Ledger Setup"; var GLEntry: Record "G/L Entry"; var BalanceCheckAmount: Decimal; var BalanceCheckAmount2: Decimal; var BalanceCheckAddCurrAmount: Decimal; var BalanceCheckAddCurrAmount2: Decimal);
+    local procedure OnInsertGLEntryOnBeforeUpdateCheckAmounts(GeneralLedgerSetup: Record "General Ledger Setup"; var GLEntry: Record "G/L Entry"; var BalanceCheckAmount: Decimal; var BalanceCheckAmount2: Decimal; var BalanceCheckAddCurrAmount: Decimal; var BalanceCheckAddCurrAmount2: Decimal; var TempBalanceCheck: Record "G/L Account Net Change" temporary; var TempBalanceCheck2: Record "G/L Account Net Change" temporary; var TempBalanceCheckAddCurr: Record "G/L Account Net Change" temporary; var TempBalanceCheckAddCurr2: Record "G/L Account Net Change" temporary);
     begin
     end;
 

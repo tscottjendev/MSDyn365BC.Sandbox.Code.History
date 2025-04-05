@@ -339,7 +339,7 @@ codeunit 137079 "SCM Production Order III"
         Item: Record Item;
         RequisitionLine: Record "Requisition Line";
         PurchaseHeader: Record "Purchase Header";
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // Create item with Reordering Policy. Create and post Purchase Order. Create and post Sales Order with Item Maximum Quantity.
         CreateMaximumQtyItem(Item, LibraryRandom.RandDec(100, 2) + 100);  // Large Quantity required for Item Maximum Inventory.
@@ -355,10 +355,10 @@ codeunit 137079 "SCM Production Order III"
         if AcceptAndCarryOutAction then
             VerifyPurchaseLine(Item."No.", Item."Maximum Inventory")
         else begin
-            ManufacturingSetup.Get();
+            InventorySetup.Get();
             VerifyRequisitionLine(
               Item."No.", RequisitionLine."Action Message"::New, Item."Maximum Inventory",
-              CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
+              CalcDate(InventorySetup."Default Safety Lead Time", WorkDate()));
         end;
     end;
 

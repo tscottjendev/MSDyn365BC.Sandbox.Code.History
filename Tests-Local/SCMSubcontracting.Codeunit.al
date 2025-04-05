@@ -993,7 +993,7 @@ codeunit 144081 "SCM Subcontracting"
     var
         OutputItem: Record Item;
         CompItem: Record Item;
-        MfgSetup: Record "Manufacturing Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         TransferRoute: Record "Transfer Route";
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
@@ -1006,8 +1006,8 @@ codeunit 144081 "SCM Subcontracting"
         // if there is production order with Routing with subcontracting.
         Initialize();
 
-        // [GIVEN] Get "Manufacturing Setup".
-        MfgSetup.Get();
+        // [GIVEN] Get "Inventory Setup".
+        ManufacturingSetup.Get();
 
         // [GIVEN] Create Subcontracting Location with Transfer Route.
         CreateSubconLocationWithTransferRoute(TransferRoute);
@@ -1025,7 +1025,7 @@ codeunit 144081 "SCM Subcontracting"
         CreateItemsSetup(OutputItem, CompItem, LibraryRandom.RandIntInRange(1, 10));
 
         // [GIVEN] Create and Post Item Journal Line for Component item.
-        CreateAndPostItemJournalLine(CompItem."No.", LibraryRandom.RandIntInRange(100, 200), '', MfgSetup."Components at Location");
+        CreateAndPostItemJournalLine(CompItem."No.", LibraryRandom.RandIntInRange(100, 200), '', ManufacturingSetup."Components at Location");
 
         // [GIVEN] Create and refresh Released Production Order.
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", LibraryRandom.RandIntInRange(1, 10), '', '');
