@@ -6,8 +6,8 @@ namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Setup;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.Tracking;
 using Microsoft.Foundation.UOM;
@@ -556,15 +556,15 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnModifyActionMessageDatingOnGetDampenerPeriod', '', false, false)]
     local procedure OnModifyActionMessageDatingOnGetDampenerPeriod(ReservEntry: Record "Reservation Entry"; var DampenerPeriod: Dateformula)
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        if (Format(ManufacturingSetup."Default Dampener Period") = '') or
+        InventorySetup.Get();
+        if (Format(InventorySetup."Default Dampener Period") = '') or
            ((ReservEntry.Binding = ReservEntry.Binding::"Order-to-Order") and
             (ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Reservation))
         then
-            Evaluate(ManufacturingSetup."Default Dampener Period", '<0D>');
-        DampenerPeriod := ManufacturingSetup."Default Dampener Period";
+            Evaluate(InventorySetup."Default Dampener Period", '<0D>');
+        DampenerPeriod := InventorySetup."Default Dampener Period";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnAfterShouldModifyActionMessageDating', '', false, false)]

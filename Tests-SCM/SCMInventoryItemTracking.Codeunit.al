@@ -2519,12 +2519,10 @@ codeunit 137260 "SCM Inventory Item Tracking"
         Item: Record Item;
         Item2: Record Item;
         Item3: Record Item;
-        ManufacturingSetup: Record "Manufacturing Setup";
         ProductionBOMHeader: Record "Production BOM Header";
         TrackingOption: Option AssignSerialNo,AssignLotNo,VerifyLotNo;
     begin
         // Create tracked Items for Production Order Component, create Production BOM, attach it to Item, create and refresh Production Order and assign Item Tracking and find Production Order Component.
-        ManufacturingSetup.Get();
         LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode(),
           CreateItemTrackingCode(false, false, false, true, false));
         LibraryInventory.CreateTrackedItem(Item2, '', LibraryUtility.GetGlobalNoSeriesCode(),

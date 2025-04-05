@@ -16,6 +16,7 @@ codeunit 137502 "SCM Dedicated Bins"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
@@ -31,7 +32,7 @@ codeunit 137502 "SCM Dedicated Bins"
     [Normal]
     local procedure Initialize()
     var
-        MfgSetup: Record "Manufacturing Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Dedicated Bins");
@@ -43,10 +44,10 @@ codeunit 137502 "SCM Dedicated Bins"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         // set Manufacturing Setup Component @ Location = blank
-        MfgSetup.Get();
-        MfgSetup.Validate("Components at Location", '');
-        MfgSetup.Validate("Default Flushing Method", MfgSetup."Default Flushing Method"::"Pick + Manual");
-        MfgSetup.Modify(true);
+        LibraryPlanning.SetComponentsAtLocation('');
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Default Flushing Method", ManufacturingSetup."Default Flushing Method"::"Pick + Manual");
+        ManufacturingSetup.Modify(true);
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Dedicated Bins");

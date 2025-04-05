@@ -64,7 +64,6 @@ pageextension 9807 "User Card Perf. Factboxes" extends "User Card"
     trigger OnAfterGetCurrRecord()
     var
         Parameters: Dictionary of [Text, Text];
-        TaskId: Integer;
         Skip: Boolean;
     begin
         IsOwnUser := Rec."User Security ID" = UserSecurityId();
@@ -79,11 +78,14 @@ pageextension 9807 "User Card Perf. Factboxes" extends "User Card"
         if Skip then
             exit;
 
-        CurrPage.EnqueueBackgroundTask(TaskId, Codeunit::"User Security Groups PBT", Parameters);
+        CurrPage.EnqueueBackgroundTask(SecurityGroupTaskId, Codeunit::"User Security Groups PBT", Parameters);
     end;
 
     trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
     begin
+        if SecurityGroupTaskId <> TaskId then
+            exit;
+
         RefreshFactboxes(Results);
     end;
 
@@ -113,4 +115,5 @@ pageextension 9807 "User Card Perf. Factboxes" extends "User Card"
         IsOwnUser: Boolean;
         AreFactboxesVisible: Boolean;
         AreLoadingFactboxesVisible: Boolean;
+        SecurityGroupTaskId: Integer;
 }
