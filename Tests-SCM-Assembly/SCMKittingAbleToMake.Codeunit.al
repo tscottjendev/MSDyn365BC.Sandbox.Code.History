@@ -5,7 +5,6 @@
 namespace Microsoft.Assembly.Test;
 
 using Microsoft.Inventory.BOM;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.BOM.Tree;
@@ -30,7 +29,6 @@ codeunit 137107 "SCM Kitting - Able To Make"
 
     var
         BOMBuffer: Record "BOM Buffer";
-        MfgSetup: Record "Manufacturing Setup";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -38,6 +36,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         LibraryTrees: Codeunit "Library - Trees";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryPlanning: Codeunit "Library - Planning";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
@@ -61,8 +60,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         isInitialized := true;
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        MfgSetup.Get();
-        UpdateMfgSetup('<1D>');
+        LibraryPlanning.SetDefaultSafetyLeadTime('<1D>');
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - Able To Make");
     end;
@@ -1026,18 +1024,6 @@ codeunit 137107 "SCM Kitting - Able To Make"
         BOMBuffer.SetRange(Type, BOMBuffer.Type::Item);
         BOMBuffer.SetRange("No.", ItemNo);
         Assert.IsTrue(BOMBuffer.IsEmpty, StrSubstNo(ItemNotExistErr, ItemNo))
-    end;
-
-    [Normal]
-    local procedure UpdateMfgSetup(MfgLeadTime: Text)
-    var
-        LeadTimeFormula: DateFormula;
-    begin
-        if Format(MfgSetup."Default Safety Lead Time") <> MfgLeadTime then begin
-            Evaluate(LeadTimeFormula, MfgLeadTime);
-            MfgSetup.Validate("Default Safety Lead Time", LeadTimeFormula);
-            MfgSetup.Modify(true);
-        end;
     end;
 
     local procedure UpdateParentItemWithProdBomNo(var ParentItem: Record Item; ProductionBOMHeaderNo: Code[20])

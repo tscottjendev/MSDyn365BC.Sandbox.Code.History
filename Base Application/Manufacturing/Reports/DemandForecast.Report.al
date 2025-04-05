@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Reports;
 
+using Microsoft.Inventory.Setup;
 using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Sales.Document;
 using System.Utilities;
 
@@ -116,9 +116,9 @@ report 99003804 "Demand Forecast"
                     SetRange(Type, Type::Item);
                     SetRange("No.", "Production Forecast Entry"."Item No.");
                     SetRange("Document Type", "Document Type"::Order);
-                    if MfgSetup."Use Forecast on Locations" then
+                    if InventorySetup."Use Forecast on Locations" then
                         SetRange("Location Code", "Production Forecast Entry"."Location Code");
-                    if MfgSetup."Use Forecast on Variants" then
+                    if InventorySetup."Use Forecast on Variants" then
                         SetRange("Variant Code", "Production Forecast Entry"."Variant Code");
                 end;
             }
@@ -141,9 +141,9 @@ report 99003804 "Demand Forecast"
                 ProdForecastEntry.SetRange("Production Forecast Name", "Production Forecast Name");
                 ProdForecastEntry.SetRange("Item No.", "Item No.");
                 ProdForecastEntry.SetRange("Forecast Date", "Forecast Date");
-                if MfgSetup."Use Forecast on Locations" then
+                if InventorySetup."Use Forecast on Locations" then
                     ProdForecastEntry.SetRange("Location Code", "Location Code");
-                if MfgSetup."Use Forecast on Variants" then
+                if InventorySetup."Use Forecast on Variants" then
                     ProdForecastEntry.SetRange("Variant Code", "Variant Code");
                 Total := 0;
                 repeat
@@ -159,7 +159,7 @@ report 99003804 "Demand Forecast"
             trigger OnPreDataItem()
             begin
                 ProdForecastEntry2.Copy("Production Forecast Entry");
-                MfgSetup.Get();
+                InventorySetup.Get();
             end;
         }
     }
@@ -189,7 +189,7 @@ report 99003804 "Demand Forecast"
     var
         ProdForecastEntry: Record "Production Forecast Entry";
         ProdForecastEntry2: Record "Production Forecast Entry";
-        MfgSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         Total: Decimal;
         ForecastFilter: Text;
         ProductionForecastCaptionLbl: Label 'Demand Forecast';
