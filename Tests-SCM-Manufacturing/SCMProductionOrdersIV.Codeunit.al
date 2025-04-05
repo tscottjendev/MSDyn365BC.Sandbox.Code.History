@@ -44,6 +44,7 @@ codeunit 137083 "SCM Production Orders IV"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -2442,8 +2443,9 @@ codeunit 137083 "SCM Production Orders IV"
         // [GIVEN] Validate Manual Scheduling and Safety Lead Time for Man. Sch. in Manufacturing Setup.
         ManufacturingSetup.Validate("Manual Scheduling", true);
         Evaluate(ManufacturingSetup."Safety Lead Time for Man. Sch.", '<2D>');
-        Evaluate(ManufacturingSetup."Default Safety Lead Time", '<5D>');
         ManufacturingSetup.Modify(true);
+
+        LibraryPlanning.SetDefaultSafetyLeadTime('<5D>');
 
         // [GIVEN] Create Item [1] and Validate Replenishment System.
         LibraryInventory.CreateItem(Item[1]);
@@ -3199,7 +3201,6 @@ codeunit 137083 "SCM Production Orders IV"
         ChildItem: Record Item;
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
-        ManufacturingSetup: Record "Manufacturing Setup";
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
         InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
@@ -3209,9 +3210,7 @@ codeunit 137083 "SCM Production Orders IV"
         Initialize();
 
         // [GIVEN] Set location code in Manufacturing Setup.
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", '');
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetComponentsAtLocation('');
 
         // [GIVEN] Create an Item with BOM and Routing.
         CreateItemWithBOMAndRouting(Item, ChildItem, LibraryRandom.RandIntInRange(2, 5));
@@ -4066,6 +4065,7 @@ codeunit 137083 "SCM Production Orders IV"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibrarySetupStorage.SaveInventorySetup();
         LibrarySetupStorage.SaveManufacturingSetup();
 
         IsInitialized := true;
