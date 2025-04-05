@@ -4819,9 +4819,11 @@ codeunit 137262 "SCM Invt Item Tracking III"
     local procedure SelectApplyToItemEntry(ItemTrackingLines: TestPage "Item Tracking Lines")
     var
         ItemLedgEntry: Record "Item Ledger Entry";
-        EntryNo: Variant;
+        EntryNo: Integer;
+        EntryNoVar: Variant;
     begin
-        LibraryVariableStorage.Dequeue(EntryNo);
+        LibraryVariableStorage.Dequeue(EntryNoVar);
+        EntryNo := EntryNoVar;
         ItemLedgEntry.Get(EntryNo);
         ItemTrackingLines."Lot No.".SetValue(ItemLedgEntry."Lot No.");
         ItemTrackingLines."Quantity (Base)".SetValue(ItemLedgEntry.Quantity);

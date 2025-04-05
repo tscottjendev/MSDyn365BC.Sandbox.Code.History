@@ -131,51 +131,79 @@ page 99000768 "Manufacturing Setup"
             group(Planning)
             {
                 Caption = 'Planning';
+#if not CLEAN27
                 field("Current Production Forecast"; Rec."Current Production Forecast")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the name of the relevant demand forecast to use to calculate a plan.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Use Forecast on Locations"; Rec."Use Forecast on Locations")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies that actual demand for the selected demand forecast is nettet for the specified location only. If you leave the check box empty, the program regards the demand forecast as valid for all locations.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Use Forecast on Variants"; Rec."Use Forecast on Variants")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies that actual demand for the selected demand forecast is nettet for the specified item variant. If you leave the check box empty, the program regards the demand forecast as valid for all variants.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Default Safety Lead Time"; Rec."Default Safety Lead Time")
                 {
                     ApplicationArea = Manufacturing, Planning;
                     ToolTip = 'Specifies a time period that is added to the lead time of all items that do not have another value specified in the Safety Lead Time field.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Blank Overflow Level"; Rec."Blank Overflow Level")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies how the planning system should react if the Overflow Level field on the item or SKU card is empty.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Combined MPS/MRP Calculation"; Rec."Combined MPS/MRP Calculation")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies if both master production schedule and material requirements plan are run when you choose the Calc. Regenerative Plan action in the planning worksheet.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 field("Components at Location"; Rec."Components at Location")
                 {
                     ApplicationArea = Manufacturing, Planning;
                     ToolTip = 'Specifies the inventory location from where the production order components are to be taken.';
                 }
+#if not CLEAN27
                 field("Default Dampener Period"; Rec."Default Dampener Period")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a period of time during which you do not want the planning system to propose to reschedule existing supply order''s forward. This value in this field applies to all items except for items that have a different value in the Dampener Period field on the item card. When a dampener time is set, an order is only rescheduled when the defined dampener time has passed since the order s original due date. Note: The dampener time that is applied to an item can never be higher than the value in the item''s Lot Accumulation Period field. This is because the inventory build-up time that occurs during a dampener period would conflict with the build-up period defined by the item''s lot accumulation period. Accordingly, the default dampener period generally applies to all items. However, if an item''s lot accumulation period is shorter than the default dampener period, then the item''s dampener time equals its lot accumulation period.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Default Dampener %"; Rec."Default Dampener %")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a percentage of an item''s lot size by which an existing supply must change before a planning suggestion is made.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 field("Manual Scheduling"; Rec."Manual Scheduling")
                 {
                     ApplicationArea = Manufacturing;
