@@ -12,7 +12,6 @@ codeunit 137201 "SCM Sales Price Wksht"
     var
         InventorySetup: Record "Inventory Setup";
         GeneralLedgerSetup: Record "General Ledger Setup";
-        ManufacturingSetup: Record "Manufacturing Setup";
         LibraryInventory: Codeunit "Library - Inventory";
 #if not CLEAN25
         LibraryERM: Codeunit "Library - ERM";
@@ -255,7 +254,6 @@ codeunit 137201 "SCM Sales Price Wksht"
     begin
         // Setup: Create Item, Vendor and Item Vendor with Lead Time Calculation value.
         Initialize();
-        ManufacturingSetup.Get();
         InventorySetup.Get();
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreateVendor(Vendor);
@@ -265,7 +263,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         // Exercise: Create Purchase Order with quantity not required on Purchase Line.
         CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", 0);
         DateWithLeadTimeCalc := CalcDate(ItemVendor."Lead Time Calculation", PurchaseLine."Order Date");
-        DateWithSafetyLeadTime := CalcDate(ManufacturingSetup."Default Safety Lead Time", DateWithLeadTimeCalc);
+        DateWithSafetyLeadTime := CalcDate(InventorySetup."Default Safety Lead Time", DateWithLeadTimeCalc);
         ExpectedReceiptDate := CalcDate(InventorySetup."Inbound Whse. Handling Time", DateWithSafetyLeadTime);
 
         // Verify: Verify Expected Receipt Date on Purchase Line.
