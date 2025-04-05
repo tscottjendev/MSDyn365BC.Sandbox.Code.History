@@ -8,9 +8,9 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Transfer;
+using Microsoft.Inventory.Setup;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
@@ -49,10 +49,10 @@ report 99001048 "Planning Availability"
 
             trigger OnPreDataItem()
             var
-                MfgSetup: Record "Manufacturing Setup";
+                InventorySetup: Record "Inventory Setup";
             begin
-                MfgSetup.Get();
-                SetRange("Production Forecast Name", MfgSetup."Current Production Forecast");
+                InventorySetup.Get();
+                SetRange("Production Forecast Name", InventorySetup."Current Demand Forecast");
             end;
         }
         dataitem("Sales Line"; "Sales Line")

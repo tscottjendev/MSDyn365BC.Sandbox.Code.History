@@ -11,10 +11,10 @@ using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Setup;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.StandardCost;
 
 codeunit 5870 "Calculate BOM Tree"
@@ -988,7 +988,7 @@ codeunit 5870 "Calculate BOM Tree"
 
     local procedure CalcCompDueDate(DemandDate: Date; ParentItem: Record Item; LeadTimeOffset: DateFormula) DueDate: Date
     var
-        MfgSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         EndDate: Date;
         StartDate: Date;
     begin
@@ -999,8 +999,8 @@ codeunit 5870 "Calculate BOM Tree"
         if Format(ParentItem."Safety Lead Time") <> '' then
             EndDate := DemandDate - (CalcDate(ParentItem."Safety Lead Time", DemandDate) - DemandDate)
         else
-            if MfgSetup.Get() and (Format(MfgSetup."Default Safety Lead Time") <> '') then
-                EndDate := DemandDate - (CalcDate(MfgSetup."Default Safety Lead Time", DemandDate) - DemandDate);
+            if InventorySetup.Get() and (Format(InventorySetup."Default Safety Lead Time") <> '') then
+                EndDate := DemandDate - (CalcDate(InventorySetup."Default Safety Lead Time", DemandDate) - DemandDate);
 
         if Format(ParentItem."Lead Time Calculation") = '' then
             StartDate := EndDate
