@@ -10,6 +10,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
+using Microsoft.Inventory.Setup;
 using Microsoft.Purchases.Document;
 
 
@@ -148,7 +149,7 @@ report 99001023 "Get Action Messages"
                 TempReqLineList.DeleteAll();
                 TempPlanningCompList.DeleteAll();
 
-                ManufacturingSetup.Get();
+                InventorySetup.Get();
             end;
         }
     }
@@ -185,7 +186,7 @@ report 99001023 "Get Action Messages"
         TempNewActionMsgEntry: Record "Action Message Entry" temporary;
         ActionMessageEntry: Record "Action Message Entry";
         ActionMessageEntry2: Record "Action Message Entry";
-        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         TempPlanningCompList: Record "Planning Component" temporary;
         TempReqLineList: Record "Requisition Line" temporary;
         SKU: Record "Stockkeeping Unit";
@@ -288,8 +289,8 @@ report 99001023 "Get Action Messages"
 
         if ActionMessageEntry.Quantity < 0 then
             if SKU."Lot Size" > 0 then
-                if ManufacturingSetup."Default Dampener %" > 0 then
-                    if ManufacturingSetup."Default Dampener %" * SKU."Lot Size" / 100 >= Abs(ActionMessageEntry.Quantity) then
+                if InventorySetup."Default Dampener %" > 0 then
+                    if InventorySetup."Default Dampener %" * SKU."Lot Size" / 100 >= Abs(ActionMessageEntry.Quantity) then
                         ActionMessageEntry.Quantity := 0;
         if (ActionMessageEntry.Quantity = 0) and (ActionMessageEntry."New Date" = 0D) then
             exit;

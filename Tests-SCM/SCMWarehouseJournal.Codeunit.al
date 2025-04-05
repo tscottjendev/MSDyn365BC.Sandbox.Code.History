@@ -31,6 +31,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryERM: Codeunit "Library - ERM";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryPlanning: Codeunit "Library - Planning";
         isInitialized: Boolean;
         RegisterJournalLines: Label 'Do you want to register the journal lines?';
         HandlingError: Label 'There is nothing to register.';
@@ -4446,7 +4447,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         CreateWMSLocationWithProductionBin(Location);
         LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
-        UpdateManufacturingSetup(Location.Code);
+        LibraryPlanning.SetComponentsAtLocation(Location.Code);
     end;
 
     local procedure CreateDimensionSet() DimSetID: Integer
@@ -6173,15 +6174,6 @@ codeunit 137153 "SCM Warehouse - Journal"
         ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
         ItemTrackingLines."Quantity (Base)".SetValue(TrackingQuantity / 2);
         LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);
-    end;
-
-    local procedure UpdateManufacturingSetup(LocationCode: Code[10])
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", LocationCode);
-        ManufacturingSetup.Modify(true);
     end;
 
     local procedure UpdatePhysicalInventoryAndRegister(var WarehouseJournalLine: Record "Warehouse Journal Line"; ItemNo: Code[20])
