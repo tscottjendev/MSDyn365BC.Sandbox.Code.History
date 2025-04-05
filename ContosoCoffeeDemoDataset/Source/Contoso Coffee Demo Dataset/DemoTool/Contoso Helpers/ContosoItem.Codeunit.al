@@ -433,6 +433,8 @@ codeunit 5143 "Contoso Item"
         InventorySetup.Validate("Posted Direct Trans. Nos.", PostedDirectTransNos);
         InventorySetup.Validate("Phys. Invt. Order Nos.", PhysInvtOrderNos);
         InventorySetup.Validate("Posted Phys. Invt. Order Nos.", PostedPhysInvtOrderNos);
+        InventorySetup.Validate("Combined MPS/MRP Calculation", true);
+        Evaluate(InventorySetup."Default Safety Lead Time", '<1D>');
         InventorySetup.Modify(true)
     end;
 

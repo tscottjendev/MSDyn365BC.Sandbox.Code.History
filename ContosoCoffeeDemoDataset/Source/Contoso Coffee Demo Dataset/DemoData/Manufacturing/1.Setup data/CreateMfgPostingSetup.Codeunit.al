@@ -71,9 +71,6 @@ codeunit 4768 "Create Mfg Posting Setup"
 
         ManufacturingSetup.Validate("Show Capacity In", MfgCapUnitOfMeasure.Minutes());
 
-        ManufacturingSetup.Validate("Combined MPS/MRP Calculation", true);
-        Evaluate(ManufacturingSetup."Default Safety Lead Time", '<1D>');
-
         if ManufacturingSetup."Work Center Nos." = '' then
             ManufacturingSetup.Validate("Work Center Nos.", MfgNoSeries.WorkCenter());
         if ManufacturingSetup."Machine Center Nos." = '' then
