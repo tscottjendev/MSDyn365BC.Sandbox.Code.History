@@ -451,13 +451,13 @@ tableextension 99000750 "Mfg. Item" extends Item
     end;
 
 #if not CLEAN27
-    [Obsolete('Unused', '27.0')]
+    [Obsolete('procedure that was implemented to bypass the error has now been identified as unnecessary', '27.0')]
     procedure SetHideNonInventoryValidateOnStdCost(NewHideNonInventoryValidateOnStdCost: Boolean)
     begin
         HideNonInventoryValidateOnStdCost := NewHideNonInventoryValidateOnStdCost;
     end;
 
-    [Obsolete('Unused', '27.0')]
+    [Obsolete('procedure that was implemented to bypass the error has now been identified as unnecessary', '27.0')]
     procedure CanHideNonInventoryValidateOnStdCost(): Boolean
     begin
         exit(HideNonInventoryValidateOnStdCost);
