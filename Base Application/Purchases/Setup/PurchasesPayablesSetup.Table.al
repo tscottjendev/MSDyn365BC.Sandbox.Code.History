@@ -460,6 +460,10 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
+        field(10500; "Posting Date Check on Posting"; Boolean)
+        {
+            Caption = 'Posting Date Check on Posting';
+        }
         field(11320; "Check Doc. Total Amounts"; Boolean)
         {
             Caption = 'Check Doc. Total Amounts';
