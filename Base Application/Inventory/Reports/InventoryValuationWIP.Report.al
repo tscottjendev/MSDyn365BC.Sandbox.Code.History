@@ -377,16 +377,19 @@ report 5802 "Inventory Valuation - WIP"
     {
         layout(ExcelLayout)
         {
+            Caption = 'Production Order - WIP Excel';
             Type = Excel;
             LayoutFile = '.\Inventory\Reports\InventoryValuationWIP.xlsx';
         }
         layout(WordLayout)
         {
+            Caption = 'Production Order - WIP Word';
             Type = Word;
             LayoutFile = '.\Inventory\Reports\InventoryValuationWIP.docx';
         }
         layout(RDLCLayout)
         {
+            Caption = 'Production Order - WIP RDLC';
             Type = RDLC;
             LayoutFile = '.\Inventory\Reports\InventoryValuationWIP.rdlc';
         }
@@ -407,6 +410,7 @@ report 5802 "Inventory Valuation - WIP"
         EndDateHeader = 'As of End Date';
         ProdOrderWipPrintLabel = 'Prod. Order - WIP (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
         ProdOrderWipAnalysisLabel = 'Prod. Order - WIP (Analysis)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        DataRetrieved = 'Data retrieved:';
         // About the report labels
         AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
         EnvironmentLabel = 'Environment';
@@ -415,6 +419,7 @@ report 5802 "Inventory Valuation - WIP"
         RunOnLabel = 'Run on';
         ReportNameLabel = 'Report name';
         DocumentationLabel = 'Documentation';
+        TimezoneLabel = 'UTC';
     }
 
     trigger OnPreReport()
