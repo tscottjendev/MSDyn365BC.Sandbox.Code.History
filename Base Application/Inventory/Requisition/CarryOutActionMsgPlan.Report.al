@@ -6,7 +6,6 @@ namespace Microsoft.Inventory.Requisition;
 
 using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Planning;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Document;
 
 report 99001020 "Carry Out Action Msg. - Plan."
@@ -335,7 +334,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
 #pragma warning restore AA0074
 
     protected var
-        ProdOrderChoice: Enum "Planning Create Prod. Order";
+        ProdOrderChoice: Enum Microsoft.Manufacturing.Document."Planning Create Prod. Order";
         PurchOrderChoice: Enum "Planning Create Purchase Order";
         TransOrderChoice: Enum "Planning Create Transfer Order";
         AsmOrderChoice: Enum "Planning Create Assembly Order";
@@ -442,7 +441,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
     procedure InitializeRequest(NewProdOrderChoice: Option; NewPurchOrderChoice: Option; NewTransOrderChoice: Option; NewAsmOrderChoice: Option)
     begin
-        ProdOrderChoice := Enum::"Planning Create Prod. Order".FromInteger(NewProdOrderChoice);
+        ProdOrderChoice := Enum::Microsoft.Manufacturing.Document."Planning Create Prod. Order".FromInteger(NewProdOrderChoice);
         PurchOrderChoice := Enum::"Planning Create Purchase Order".FromInteger(NewPurchOrderChoice);
         TransOrderChoice := Enum::"Planning Create Transfer Order".FromInteger(NewTransOrderChoice);
         AsmOrderChoice := Enum::"Planning Create Assembly Order".FromInteger(NewAsmOrderChoice);
