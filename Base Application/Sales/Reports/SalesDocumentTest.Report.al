@@ -1505,6 +1505,11 @@ report 202 "Sales Document - Test"
 
                 VerifyPostingDate("Sales Header");
 
+                if SalesSetup."Posting Date Check on Posting" then
+                    if "Posting Date" <> WorkDate() then
+                        AddError(
+                          StrSubstNo(DifferentPostingDateToWorkDateTxt, FieldCaption("Posting Date"), "Posting Date", WorkDate()));
+
                 if "Document Date" <> 0D then
                     if "Document Date" <> NormalDate("Document Date") then
                         AddError(StrSubstNo(Text009, FieldCaption("Document Date")));
@@ -1908,6 +1913,7 @@ report 202 "Sales Document - Test"
         Currency: Code[10];
         Text1100000: Label 'Total %1 Incl. VAT+EC';
         Text1100001: Label 'Total %1 Excl. VAT+EC';
+        DifferentPostingDateToWorkDateTxt: Label '%1 %2 is different to Work Date %3.', Comment = '%1 = Posting Date Field Caption %2=Posting Date Field Value %3=WorkDate value';
         SumPmtDiscGivenAmount: Decimal;
         Sales_Document___TestCaptionLbl: Label 'Sales Document - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
