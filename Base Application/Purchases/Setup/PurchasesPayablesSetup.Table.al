@@ -458,6 +458,10 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
+        field(10500; "Posting Date Check on Posting"; Boolean)
+        {
+            Caption = 'Posting Date Check on Posting';
+        }
 #pragma warning disable AS0005
         field(11320; "Check Doc. Total Amounts"; Boolean)
         {
