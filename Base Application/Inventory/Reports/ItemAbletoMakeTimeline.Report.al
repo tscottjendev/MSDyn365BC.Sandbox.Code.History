@@ -157,13 +157,13 @@ report 5871 "Item - Able to Make (Timeline)"
     {
         layout(ExcelLayout)
         {
-            Caption = 'Item - Able to Make (Timeline)';
+            Caption = 'Item - Able to Make (Timeline) Excel';
             Type = Excel;
             LayoutFile = './Inventory/Reports/ItemAbletoMakeTimeline.xlsx';
         }
         layout(RDLCLayout)
         {
-            Caption = 'Item - Able to Make (Timeline) (Obsolete)';
+            Caption = 'Item - Able to Make (Timeline) RDLC';
             Type = RDLC;
             LayoutFile = './Inventory/Reports/ItemAbletoMakeTimeline.rdlc';
         }
@@ -182,6 +182,7 @@ report 5871 "Item - Able to Make (Timeline)"
         StartDateCaption = 'Starting Date:';
         ItemAbleToMakePrintLabel = 'Item Able to Make - (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
         ItemAbleToMakeAnalysisLabel = 'Item Able to Make - (Analysis)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        DataRetrieved = 'Data retrieved:';
         // About the report labels
         AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
         EnvironmentLabel = 'Environment';
@@ -189,7 +190,7 @@ report 5871 "Item - Able to Make (Timeline)"
         UserLabel = 'User';
         RunOnLabel = 'Run on';
         ReportNameLabel = 'Report name';
-        DocumentationLabel = 'Documentation';
+        TimezoneLabel = 'UTC';
     }
 
     trigger OnInitReport()
