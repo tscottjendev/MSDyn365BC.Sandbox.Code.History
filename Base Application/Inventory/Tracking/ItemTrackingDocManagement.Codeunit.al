@@ -609,7 +609,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         ShowItemTrackingForEntity(SourceType, SourceNo, ItemNo, VariantCode, LocationCode, DummyItemTrackingSetup);
     end;
 
-#if not CLEAN26
+#if not CLEAN27
     [Obsolete('Moved to codeunit Mfg. Item Tracking Mgt.', '27.0')]
     procedure ShowItemTrackingForProdOrderComp(Type: Integer; ID: Code[20]; ProdOrderLine: Integer; RefNo: Integer): Boolean
     var
