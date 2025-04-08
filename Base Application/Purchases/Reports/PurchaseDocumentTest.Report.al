@@ -1454,6 +1454,12 @@ report 402 "Purchase Document - Test"
 
                 VerifyPostingDate("Purchase Header");
 
+                if PurchSetup."Posting Date Check on Posting" then
+                    if "Posting Date" <> WorkDate() then
+                        AddError(
+                          StrSubstNo(
+                            DifferentPostingDateToWorkDateTxt, FieldCaption("Posting Date"), "Posting Date", WorkDate()));
+
                 if "Document Date" <> 0D then
                     if "Document Date" <> NormalDate("Document Date") then
                         AddError(StrSubstNo(Text009, FieldCaption("Document Date")));
@@ -1899,6 +1905,7 @@ report 402 "Purchase Document - Test"
         AllowInvDisctxt: Text[30];
         SumLineAmount: Decimal;
         SumInvDiscountAmount: Decimal;
+        DifferentPostingDateToWorkDateTxt: Label '%1 %2 is different to Work Date %3.', Comment = '%1 = Posting Date Field Caption %2=Posting Date Field Value %3=WorkDate value';
         Text12100: Label '%1 must be specified on header.';
         InclInVATReportErrorLogTemp: Record "Incl. in VAT Report Error Log" temporary;
         Purchase_Document___TestCaptionLbl: Label 'Purchase Document - Test';

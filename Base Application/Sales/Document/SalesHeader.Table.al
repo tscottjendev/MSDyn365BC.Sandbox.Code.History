@@ -3709,6 +3709,8 @@ table 36 "Sales Header"
         Text12100: Label ' %1 %2 must be Vendor/Contact for %3 %4 3rd-Party Loader.';
         Text12101: Label 'The customer has an active VAT exemption and VAT Bus. Posting Group hasn''t "Check VAT Exemption". Do you want to continue?';
         Text12102: Label 'It is not possible to insert a customer with VAT exemption if an active VAT exemption doesn''t exist.';
+       	DifferentDatesQst: Label 'Posting Date %1 is different from Work Date %2.\\Do you want to continue?', Comment = '%1 - Posting Date, %2 - work date';
+        DifferentDatesErr: Label 'Posting Date %1 is different from Work Date %2.\\Batch posting cannot be used.', Comment = '%1 - Posting Date, %2 - work date';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         DeferralLineQst: Label 'Do you want to update the deferral schedules for the lines?';
@@ -5402,6 +5404,21 @@ table 36 "Sales Header"
         RecreateReqLine(TempReqLine, OldSalesLine, NewSourceRefNo, ToTemp);
     end;
 #endif
+
+    procedure TestPostingDate(BatchPost: Boolean)
+    begin
+        SalesSetup.Get();
+        if not SalesSetup."Posting Date Check on Posting" then
+            exit;
+        if not GuiAllowed then
+            exit;
+        if "Posting Date" <> WorkDate() then begin
+            if BatchPost then
+                Error(DifferentDatesErr, "Posting Date", WorkDate());
+            if not Confirm(DifferentDatesQst, false, "Posting Date", WorkDate()) then
+                Error('');
+        end;
+    end;
 
     /// <summary>
     /// Updates the sell-to contact details of a sales header based on the provided customer number.

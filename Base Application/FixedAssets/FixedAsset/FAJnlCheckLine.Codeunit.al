@@ -616,7 +616,11 @@ codeunit 5631 "FA Jnl.-Check Line"
            (GenJnlLine."No. of Depreciation Days" <> 0) and
            (FADeprBook."Depreciation Method" = FADeprBook."Depreciation Method"::"Declining-Balance 1")
         then begin
-            EndingDate := DepreciationCalculation.ToMorrow(GenJnlLine."FA Posting Date", DeprBook."Fiscal Year 365 Days");
+            EndingDate :=
+               DepreciationCalculation.ToMorrow(
+                 GenJnlLine."FA Posting Date",
+                 DeprBook."Fiscal Year 365 Days",
+                 DeprBook."Use Accounting Period");
             if DeprBook."Fiscal Year 365 Days" then
                 StartingDate := CalcDate(StrSubstNo('<-%1D>', GenJnlLine."No. of Depreciation Days"), EndingDate)
             else begin
