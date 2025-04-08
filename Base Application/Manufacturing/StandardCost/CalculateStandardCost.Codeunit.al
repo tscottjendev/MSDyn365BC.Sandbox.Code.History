@@ -259,17 +259,13 @@ codeunit 5812 "Calculate Standard Cost"
             until TempItem.Next() = 0;
     end;
 
-#if not CLEAN26
-    [Obsolete('Unused', '26.0')]
     procedure CalcItemForNonInventoryValue(var Item: Record Item)
     begin
     end;
 
-    [Obsolete('Unused', '26.0')]
     procedure CalcSKUForNonInventoryValue(var SKU: Record "Stockkeeping Unit")
     begin
     end;
-#endif
 
     procedure CalcItemSKU(ItemNo: Code[20]; LocationCode: Code[20]; VariantCode: Code[20])
     var
