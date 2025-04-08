@@ -17,7 +17,6 @@ using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Forecast;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
@@ -435,9 +434,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     local procedure ForecastConsumption(var DemandInvtProfile: Record "Inventory Profile"; var Item: Record Item; OrderDate: Date; ToDate: Date) UpdatedOrderDate: Date
     var
-        ForecastEntry: Record "Production Forecast Entry";
-        ForecastEntry2: Record "Production Forecast Entry";
-        NextForecast: Record "Production Forecast Entry";
+        ForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
+        ForecastEntry2: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
+        NextForecast: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
         CustomCalendarChange: array[2] of Record "Customized Calendar Change";
         TotalForecastQty: Decimal;
         ReplenishmentLocation: Code[10];
@@ -662,7 +661,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             until BlanketSalesLine.Next() = 0;
     end;
 
-    procedure CheckForecastExist(var ForecastEntry: Record "Production Forecast Entry"; OrderDate: Date; ToDate: Date): Boolean
+    procedure CheckForecastExist(var ForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry"; OrderDate: Date; ToDate: Date): Boolean
     var
         ForecastExist: Boolean;
     begin
@@ -3997,7 +3996,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 InventoryProfile."Order Priority" := 100;
             Database::"Transfer Line":
                 InventoryProfile."Order Priority" := 600;
-            Database::"Production Forecast Entry":
+            Database::Microsoft.Manufacturing.Forecast."Production Forecast Entry":
                 InventoryProfile."Order Priority" := 800;
         end;
 
@@ -4168,7 +4167,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if InventoryProfile.FindSet(true) then
             repeat
                 if not InventoryProfile.IsSupply and
-                    (not (InventoryProfile."Source Type" = Database::"Production Forecast Entry")) and
+                    (not (InventoryProfile."Source Type" = Database::Microsoft.Manufacturing.Forecast."Production Forecast Entry")) and
                     (not ((InventoryProfile."Source Type" = Database::"Sales Line") and (InventoryProfile."Source Order Status" = 4))) and
                     ((TempSKU."Reordering Policy" = TempSKU."Reordering Policy"::Order) or (InventoryProfile."Planning Level Code" <> 0))
                 then begin
@@ -4755,11 +4754,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
             CreateTempSKUForLocation(Item."No.", ManufacturingSetup."Components at Location");
     end;
 
-    procedure ForecastInitDemand(var InventoryProfile: Record "Inventory Profile"; ProductionForecastEntry: Record "Production Forecast Entry"; ItemNo: Code[20]; LocationCode: Code[10]; TotalForecastQty: Decimal)
+    procedure ForecastInitDemand(var InventoryProfile: Record "Inventory Profile"; ProductionForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry"; ItemNo: Code[20]; LocationCode: Code[10]; TotalForecastQty: Decimal)
     begin
         InventoryProfile.Init();
         InventoryProfile."Line No." := GetNextLineNo();
-        InventoryProfile."Source Type" := Database::"Production Forecast Entry";
+        InventoryProfile."Source Type" := Database::Microsoft.Manufacturing.Forecast."Production Forecast Entry";
         InventoryProfile."Planning Flexibility" := InventoryProfile."Planning Flexibility"::None;
         InventoryProfile."Qty. per Unit of Measure" := 1;
         InventoryProfile."MPS Order" := true;
@@ -4967,7 +4966,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterForecastInitDemand(var InventoryProfile: Record "Inventory Profile"; ProductionForecastEntry: Record "Production Forecast Entry"; ItemNo: Code[20]; LocationCode: Code[10]; TotalForecastQty: Decimal)
+    local procedure OnAfterForecastInitDemand(var InventoryProfile: Record "Inventory Profile"; ProductionForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry"; ItemNo: Code[20]; LocationCode: Code[10]; TotalForecastQty: Decimal)
     begin
     end;
 
@@ -5460,7 +5459,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnForecastConsumptionOnAfterCalcDueDate(var DemandInventoryProfile: Record "Inventory Profile"; TotalForecastQty: Decimal; ForecastEntry: Record "Production Forecast Entry"; NextForecastEntry: Record "Production Forecast Entry"; var Item: Record Item; OrderDate: Date; ToDate: Date)
+    local procedure OnForecastConsumptionOnAfterCalcDueDate(var DemandInventoryProfile: Record "Inventory Profile"; TotalForecastQty: Decimal; ForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry"; NextForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry"; var Item: Record Item; OrderDate: Date; ToDate: Date)
     begin
     end;
 
@@ -6072,7 +6071,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckForecastExist(var ProductionForecastEntry: Record "Production Forecast Entry"; ExcludeForecastBefore: Date; OrderDate: Date; ToDate: Date; var ForecastExist: Boolean);
+    local procedure OnAfterCheckForecastExist(var ProductionForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry"; ExcludeForecastBefore: Date; OrderDate: Date; ToDate: Date; var ForecastExist: Boolean);
     begin
     end;
 
