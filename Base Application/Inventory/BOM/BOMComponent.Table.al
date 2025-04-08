@@ -5,7 +5,6 @@
 namespace Microsoft.Inventory.BOM;
 
 using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Projects.Resources.Resource;
 
 table 90 "BOM Component"
@@ -296,7 +295,7 @@ table 90 "BOM Component"
 
     local procedure CopyFromItem()
     var
-        CalcLowLevelCode: Codeunit "Calculate Low-Level Code";
+        CalcLowLevelCode: Codeunit Microsoft.Manufacturing.ProductionBOM."Calculate Low-Level Code";
         IsHandled: Boolean;
     begin
         Item.Get("No.");
