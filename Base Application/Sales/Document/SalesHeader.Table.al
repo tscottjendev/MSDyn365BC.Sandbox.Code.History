@@ -3346,6 +3346,8 @@ table 36 "Sales Header"
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text072: Label 'There are unpaid prepayment invoices related to the document of type %1 with the number %2.';
+        DifferentDatesQst: Label 'Posting Date %1 is different from Work Date %2.\\Do you want to continue?', Comment = '%1 - Posting Date, %2 - work date';
+        DifferentDatesErr: Label 'Posting Date %1 is different from Work Date %2.\\Batch posting cannot be used.', Comment = '%1 - Posting Date, %2 - work date';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         DeferralLineQst: Label 'Do you want to update the deferral schedules for the lines?';
@@ -5008,6 +5010,21 @@ table 36 "Sales Header"
         RecreateReqLine(TempReqLine, OldSalesLine, NewSourceRefNo, ToTemp);
     end;
 #endif
+
+    procedure TestPostingDate(BatchPost: Boolean)
+    begin
+        SalesSetup.Get();
+        if not SalesSetup."Posting Date Check on Posting" then
+            exit;
+        if not GuiAllowed then
+            exit;
+        if "Posting Date" <> WorkDate() then begin
+            if BatchPost then
+                Error(DifferentDatesErr, "Posting Date", WorkDate());
+            if not Confirm(DifferentDatesQst, false, "Posting Date", WorkDate()) then
+                Error('');
+        end;
+    end;
 
     /// <summary>
     /// Updates the sell-to contact details of a sales header based on the provided customer number.
