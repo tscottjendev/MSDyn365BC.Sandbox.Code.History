@@ -470,6 +470,7 @@ report 7305 "Whse.-Source - Create Document"
                 WhseWkshLine.SetRange("Source Type", Database::"Prod. Order Component");
                 WhseWkshLine.SetRange("Source Subtype", ProdOrderHeader.Status);
                 WhseWkshLine.SetRange("Source No.", ProdOrderHeader."No.");
+                OnAfterProdOrderComponentOnPreDataItem("Prod. Order Component");
             end;
         }
         dataitem("Assembly Line"; "Assembly Line")
@@ -1616,6 +1617,11 @@ report 7305 "Whse.-Source - Create Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePutAwayFromDiffSourceOnBeforeProcessCreatePutAway(WhseSourceCreateDocument: Report "Whse.-Source - Create Document"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var TempPostedWhseReceiptLine: Record "Posted Whse. Receipt Line" temporary; var CreatePutAway: Codeunit "Create Put-away"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterProdOrderComponentOnPreDataItem(var ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
 }
