@@ -146,15 +146,22 @@ page 460 "Purchases & Payables Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies the default value for the Qty. to Receive field on purchase order lines and the Return Qty. to Ship field on purchase return order lines. If you choose Blank, the quantity to invoice is not automatically calculated.';
                 }
+                field("Posting Date Check on Posting"; Rec."Posting Date Check on Posting")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if you want to see a warning when you post a purchase document with a posting date that is different from the Work Date.';
+                }
                 field("Combine Special Orders Default"; Rec."Combine Special Orders Default")
                 {
                     ToolTip = 'Specifies if special orders for purchases and payables should be combined.';
                 }
+
                 field("Use Vendor's Tax Area Code"; Rec."Use Vendor's Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies where the tax area code for purchase sales tax calculations will come from. The tax area code combines with the tax group to determine how sales taxes are calculated and posted.';
                 }
+
                 field("Auto Post Non-Invt. via Whse."; Rec."Auto Post Non-Invt. via Whse.")
                 {
                     ApplicationArea = Warehouse;
