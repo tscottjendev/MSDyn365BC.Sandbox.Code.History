@@ -2440,6 +2440,82 @@
     end;
 
     [Test]
+    procedure BinCodeInSalesInvoiceViaGetShipmentLines()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        ItemJournalLine: Record "Item Journal Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+        BinCode1: Code[20];
+        BinCode2: Code[20];
+    begin
+        // [FEATURE] [Sales] [Order] [Invoice] [Bin Code] [Get Shipment Lines]
+        // [SCENARIO 573407] BinCode in sales invoice created via "Get Shipment Lines".
+        Initialize();
+
+        // [GIVEN] Item and location with required receive and ship and with Bin mandatory.
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, true, true);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 2, false);
+        Bin.SetRange("Location Code", Location.Code);
+        Bin.FindFirst();
+        BinCode1 := Bin.Code;
+        Bin.FindLast();
+        BinCode2 := Bin.Code;
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Item on stock in the location "L" with Bin Code "B1" and B2.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, BinCode1, LibraryRandom.RandInt(10) + 10);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, BinCode2, LibraryRandom.RandInt(10) + 10);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order for Item and created Warehouse Shipment.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate());
+        SalesLine.TestField("Bin Code", BinCode1);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Update warehouse shipment line Bin Code from "B1" to "B2".
+        WarehouseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WarehouseShipmentLine.SetRange("Item No.", Item."No.");
+        WarehouseShipmentLine.SetRange("Location Code", Location.Code);
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentLine.TestField("Bin Code", BinCode1);
+        WarehouseShipmentLine.Validate("Bin Code", BinCode2);
+        WarehouseShipmentLine.Modify(true);
+
+        // [GIVEN] Post the warehouse shipment.
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [WHEN] Create sales invoice via "Get Shipment Lines".
+        LibrarySales.CreateSalesHeader(SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
+        SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
+        SalesGetShipment.SetSalesHeader(SalesHeaderInvoice);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine);
+
+        // [THEN] The sales invoice is created with Bin Code "B2".
+        SalesLine.Reset();
+        SalesLine.SetRange("Document Type", SalesHeaderInvoice."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeaderInvoice."No.");
+        SalesLine.SetRange("No.", Item."No.");
+        SalesLine.FindFirst();
+        SalesLine.TestField("Bin Code", BinCode2);
+
+        // [THEN] Post the sales invoice.
+        LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true);
+    end;
+
+    [Test]
     procedure CannotCarryOutPlanningForDropShipWithLocationMandatory()
     var
         Item: Record Item;
