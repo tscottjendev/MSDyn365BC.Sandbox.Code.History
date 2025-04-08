@@ -830,6 +830,7 @@ table 111 "Sales Shipment Line"
                 SalesOrderLine."Line No.",
                 NextLineNo,
                 "Attached to Line No.");
+            SalesLine."Bin Code" := "Bin Code";
             SalesLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
             SalesLine."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
             SalesLine."Dimension Set ID" := "Dimension Set ID";
