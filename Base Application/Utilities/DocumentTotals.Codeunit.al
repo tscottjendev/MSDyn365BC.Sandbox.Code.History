@@ -56,6 +56,7 @@ codeunit 57 "Document Totals"
 
     procedure CalculateSalesTotals(var TotalSalesLine: Record "Sales Line"; var VATAmount: Decimal; var SalesLine: Record "Sales Line")
     begin
+        OnBeforeCalculateSalesTotals(TotalSalesLine);
         CalculateSalesPageTotals(TotalSalesLine, VATAmount, SalesLine);
     end;
 
@@ -186,6 +187,7 @@ codeunit 57 "Document Totals"
     var
         TotalSalesLine: Record "Sales Line";
     begin
+        OnBeforeCalcTotalSalesAmountOnlyDiscountAllowed(TotalSalesLine);
         TotalSalesLine.SetRange("Document Type", SalesLine."Document Type");
         TotalSalesLine.SetRange("Document No.", SalesLine."Document No.");
         TotalSalesLine.SetRange("Allow Invoice Disc.", true);
@@ -1166,6 +1168,16 @@ codeunit 57 "Document Totals"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesCalculateTotalsWithInvoiceRounding(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateSalesTotals(var TotalSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcTotalSalesAmountOnlyDiscountAllowed(var TotalSalesLine: Record "Sales Line")
     begin
     end;
 }
