@@ -10095,7 +10095,14 @@ table 39 "Purchase Line"
     end;
 
     internal procedure TestPurchaseJobFields()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestPurchaseJobFields(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Rec."Job No." = '' then
             exit;
 
@@ -12124,6 +12131,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnBeforeModifyPurchLine(var PurchaseLine: Record "Purchase Line"; VATAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestPurchaseJobFields(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean);
     begin
     end;
 }
