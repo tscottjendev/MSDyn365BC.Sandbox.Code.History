@@ -1475,7 +1475,7 @@ report 202 "Sales Document - Test"
                 if SalesSetup."Posting Date Check on Posting" then
                     if "Posting Date" <> WorkDate() then
                         AddError(
-                          StrSubstNo(Text1041000, FieldCaption("Posting Date"), "Posting Date", WorkDate()));
+                          StrSubstNo(DifferentPostingDateToWorkDateTxt, FieldCaption("Posting Date"), "Posting Date", WorkDate()));
 
                 if "Document Date" <> 0D then
                     if "Document Date" <> NormalDate("Document Date") then
@@ -1884,7 +1884,7 @@ report 202 "Sales Document - Test"
 #pragma warning restore AA0074
         SumLineAmount: Decimal;
         SumInvDiscountAmount: Decimal;
-        Text1041000: Label '%1 %2 is different to Work Date %3.';
+        DifferentPostingDateToWorkDateTxt: Label '%1 %2 is different to Work Date %3.', Comment = '%1 = Posting Date Field Caption %2=Posting Date Field Value %3=WorkDate value';
         ReverseChargeApplies: Boolean;
         TotalReverseCharge: Decimal;
         Sales_Document___TestCaptionLbl: Label 'Sales Document - Test';

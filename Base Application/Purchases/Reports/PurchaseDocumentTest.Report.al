@@ -1458,7 +1458,7 @@ report 402 "Purchase Document - Test"
                     if "Posting Date" <> WorkDate() then
                         AddError(
                           StrSubstNo(
-                            Text1041000, FieldCaption("Posting Date"), "Posting Date", WorkDate()));
+                            DifferentPostingDateToWorkDateTxt, FieldCaption("Posting Date"), "Posting Date", WorkDate()));
 
                 if "Document Date" <> 0D then
                     if "Document Date" <> NormalDate("Document Date") then
@@ -1899,7 +1899,7 @@ report 402 "Purchase Document - Test"
         AllowInvDisctxt: Text[30];
         SumLineAmount: Decimal;
         SumInvDiscountAmount: Decimal;
-        Text1041000: Label '%1 %2 is different to Work Date %3.';
+        DifferentPostingDateToWorkDateTxt: Label '%1 %2 is different to Work Date %3.', Comment = '%1 = Posting Date Field Caption %2=Posting Date Field Value %3=WorkDate value';
         Text10500: Label 'Reverse charge item - please check correct VAT rate is entered. Reverse Charge %1';
         TempPurchLine2: Record "Purchase Line";
         ReverseCharge: Decimal;

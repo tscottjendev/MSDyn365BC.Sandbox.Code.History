@@ -5007,7 +5007,6 @@ table 36 "Sales Header"
     end;
 #endif
 
-    [Scope('OnPrem')]
     procedure TestPostingDate(BatchPost: Boolean)
     begin
         SalesSetup.Get();

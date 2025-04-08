@@ -4546,7 +4546,6 @@ table 38 "Purchase Header"
         OnAfterUpdateBuyFromCont(Rec, Vend, OfficeContact);
     end;
 
-    [Scope('OnPrem')]
     procedure TestPostingDate(BatchPost: Boolean)
     begin
         PurchSetup.Get();
