@@ -943,42 +943,9 @@ codeunit 137304 "SCM Manufacturing Reports"
     end;
 
     [Test]
-    [HandlerFunctions('MachineCenterLoadRequestPageHandler')]
+    [HandlerFunctions('WorkMachineCenterLoadRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure MachineCenterLoadReport()
-    var
-        ProductionOrder: Record "Production Order";
-        RoutingLine: Record "Routing Line";
-        WorkCenter: Record "Work Center";
-        MachineCenterLoad: Report "Machine Center Load";
-        PeriodLength: DateFormula;
-    begin
-        // Setup: Create Production Order Setup.
-        Initialize();
-        CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);
-
-        // Exercise: Generate the Machine Center Load report.
-        Commit();
-        RoutingLine.SetRange("Routing No.", ProductionOrder."Routing No.");
-        RoutingLine.FindFirst();
-        WorkCenter.SetRange("No.", RoutingLine."Work Center No.");
-        Evaluate(PeriodLength, StrSubstNo('<%1D>', LibraryRandom.RandInt(5)));  // Random values not important
-        MachineCenterLoad.InitializeRequest(WorkDate(), LibraryRandom.RandInt(5), PeriodLength, 0);  // Min. Cap. Efficiency important.
-        LibraryVariableStorage.Enqueue(WorkDate());
-        LibraryVariableStorage.Enqueue(LibraryRandom.RandInt(5));
-        LibraryVariableStorage.Enqueue(PeriodLength);
-        LibraryVariableStorage.Enqueue(0);
-        REPORT.Run(REPORT::"Machine Center Load", true, false, WorkCenter);
-
-        // Verify: Check Routinf details.
-        LibraryReportDataset.LoadDataSetFile();
-        VerifyLoadReport(ProductionOrder."Routing No.", 'No_MachineCenter', RoutingLine.Type::"Machine Center");
-    end;
-
-    [Test]
-    [HandlerFunctions('WorkCenterLoadRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure WorkCenterLoadReport()
+    procedure WorkMachineCenterLoadReport()
     var
         ProductionOrder: Record "Production Order";
         RoutingLine: Record "Routing Line";
@@ -990,7 +957,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);
 
-        // Exercise: Generate the Work Center Load report.
+        // Exercise: Generate the Work/Machine Center Load report.
         Commit();
         RoutingLine.SetRange("Routing No.", ProductionOrder."Routing No.");
         RoutingLine.FindFirst();
@@ -1002,11 +969,14 @@ codeunit 137304 "SCM Manufacturing Reports"
         LibraryVariableStorage.Enqueue(LibraryRandom.RandInt(5));
         LibraryVariableStorage.Enqueue(PeriodLength);
         LibraryVariableStorage.Enqueue(0);
-        REPORT.Run(REPORT::"Work Center Load", true, false, WorkCenterGroup);
+        Report.Run(Report::"Work/Machine Center Load", true, false, WorkCenterGroup);
 
-        // Verify: Check Work Center Group details.
+        // Verify: Check Work Center details.
         LibraryReportDataset.LoadDataSetFile();
-        VerifyLoadReport(ProductionOrder."Routing No.", 'No_WorkCntr', RoutingLine.Type::"Work Center");
+        VerifyLoadReport(ProductionOrder."Routing No.", 'WorkCenterNo', RoutingLine.Type::"Work Center");
+
+        // Verify: Check Machine Center details.
+        VerifyLoadReport(ProductionOrder."Routing No.", 'MachineCenterNo', RoutingLine.Type::"Machine Center");
     end;
 
     [Test]
@@ -1761,7 +1731,7 @@ codeunit 137304 "SCM Manufacturing Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure MachineCenterLoadRequestPageHandler(var MachineCenterLoad: TestRequestPage "Machine Center Load")
+    procedure WorkMachineCenterLoadRequestPageHandler(var WorkMachineCenterLoad: TestRequestPage "Work/Machine Center Load")
     var
         StartingDate: Variant;
         NoOfPeriods: Variant;
@@ -1773,32 +1743,11 @@ codeunit 137304 "SCM Manufacturing Reports"
         LibraryVariableStorage.Dequeue(PeriodLength);
         LibraryVariableStorage.Dequeue(MinCapEfficToPrint);
 
-        MachineCenterLoad.StartingDate.SetValue(StartingDate);
-        MachineCenterLoad.NoOfPeriods.SetValue(NoOfPeriods);
-        MachineCenterLoad.PeriodLength.SetValue(PeriodLength);
-        MachineCenterLoad.MinCapEfficToPrint.SetValue(MinCapEfficToPrint);
-        MachineCenterLoad.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure WorkCenterLoadRequestPageHandler(var WorkCenterLoad: TestRequestPage "Work Center Load")
-    var
-        StartingDate: Variant;
-        NoOfPeriods: Variant;
-        PeriodLength: Variant;
-        MinCapEfficToPrint: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(StartingDate);
-        LibraryVariableStorage.Dequeue(NoOfPeriods);
-        LibraryVariableStorage.Dequeue(PeriodLength);
-        LibraryVariableStorage.Dequeue(MinCapEfficToPrint);
-
-        WorkCenterLoad.StartingDate.SetValue(StartingDate);
-        WorkCenterLoad.NoOfPeriods.SetValue(NoOfPeriods);
-        WorkCenterLoad.PeriodLength.SetValue(PeriodLength);
-        WorkCenterLoad.MinCapEfficToPrint.SetValue(MinCapEfficToPrint);
-        WorkCenterLoad.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+        WorkMachineCenterLoad.StartingDate.SetValue(StartingDate);
+        WorkMachineCenterLoad.NoOfPeriods.SetValue(NoOfPeriods);
+        WorkMachineCenterLoad.PeriodLength.SetValue(PeriodLength);
+        WorkMachineCenterLoad.MinCapEfficToPrint.SetValue(MinCapEfficToPrint);
+        WorkMachineCenterLoad.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1820,4 +1769,3 @@ codeunit 137304 "SCM Manufacturing Reports"
     begin
     end;
 }
-
