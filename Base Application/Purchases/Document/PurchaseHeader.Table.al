@@ -2908,6 +2908,8 @@ table 38 "Purchase Header"
 #pragma warning restore AA0074
         ReviewLinesManuallyMsg: Label 'You should review the lines and manually update prices and discounts if needed.';
         UpdateLinesOrderDateAutomaticallyQst: Label 'Do you want to update the order date for existing lines?';
+        DifferentDatesQst: Label 'Posting Date %1 is different from Work Date %2.\\Do you want to continue?', Comment = '%1 - Posting Date, %2 - work date';
+        DifferentDatesErr: Label 'Posting Date %1 is different from Work Date %2.\\Batch posting cannot be used.', Comment = '%1 - Posting Date, %2 - work date';
         GLSetup: Record "General Ledger Setup";
         GLAcc: Record "G/L Account";
         xPurchLine: Record "Purchase Line";
@@ -4585,6 +4587,21 @@ table 38 "Purchase Header"
                 OfficeContact.CheckIfPrivacyBlockedGeneric();
 
         OnAfterUpdateBuyFromCont(Rec, Vend, OfficeContact);
+    end;
+
+    procedure TestPostingDate(BatchPost: Boolean)
+    begin
+        PurchSetup.Get();
+        if not PurchSetup."Posting Date Check on Posting" then
+            exit;
+        if not GuiAllowed then
+            exit;
+        if "Posting Date" <> WorkDate() then begin
+            if BatchPost then
+                Error(DifferentDatesErr, "Posting Date", WorkDate());
+            if not Confirm(DifferentDatesQst, false, "Posting Date", WorkDate()) then
+                Error('');
+        end;
     end;
 
     local procedure UpdatePayToCont(VendorNo: Code[20])

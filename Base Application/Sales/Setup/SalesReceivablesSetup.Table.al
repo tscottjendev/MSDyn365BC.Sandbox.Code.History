@@ -711,6 +711,10 @@ table 311 "Sales & Receivables Setup"
             InitValue = true;
             ToolTip = 'Specifies whether the document date changes when the posting date is modified.';
         }
+	field(10500; "Posting Date Check on Posting"; Boolean)
+        {
+            Caption = 'Posting Date Check on Posting';
+        }
         field(32000000; "Invoice No."; Boolean)
         {
             Caption = 'Invoice No.';
