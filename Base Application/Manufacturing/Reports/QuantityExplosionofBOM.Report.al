@@ -263,17 +263,20 @@ report 99000753 "Quantity Explosion of BOM"
     {
         layout(WordLayout)
         {
+            Caption = 'Quantity Explosion of BOM Word';
             Type = Word;
             LayoutFile = './Manufacturing/Reports/QuantityExplosionofBOM.docx';
         }
         layout(ExcelLayout)
         {
+            Caption = 'Quantity Explosion of BOM Excel';
             Type = Excel;
             LayoutFile = './Manufacturing/Reports/QuantityExplosionOfBOM.xlsx';
         }
 #if not CLEAN27
         layout(RDLCLayout)
         {
+            Caption = 'Quantity Explosion of BOM RDLC';
             Type = RDLC;
             LayoutFile = './Manufacturing/Reports/QuantityExplosionofBOM.rdlc';
             ObsoleteState = Pending;
@@ -295,6 +298,7 @@ report 99000753 "Quantity Explosion of BOM"
         Level = 'Level';
         BOMQtyCapt = 'Total Quantity';
         CalculationDateLabel = 'Calculation Date:';
+        DataRetrieved = 'Data retrieved:';
         // About the report labels
         AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
         EnvironmentLabel = 'Environment';
@@ -303,6 +307,7 @@ report 99000753 "Quantity Explosion of BOM"
         RunOnLabel = 'Run on';
         ReportNameLabel = 'Report name';
         DocumentationLabel = 'Documentation';
+        TimezoneLabel = 'UTC';
     }
 
     trigger OnPreReport()
