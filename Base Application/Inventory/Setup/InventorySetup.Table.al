@@ -9,22 +9,18 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Costing;
-#if not CLEAN27
-using Microsoft.Manufacturing.Setup;
-#endif
 using Microsoft.Inventory.Counting.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Upgrade;
 using Microsoft.Warehouse.InternalDocument;
 using Microsoft.Warehouse.InventoryDocument;
 using System.Globalization;
 using System.Utilities;
-using Microsoft.Inventory.Planning;
-using Microsoft.Manufacturing.Forecast;
 
 table 313 "Inventory Setup"
 {
@@ -87,11 +83,11 @@ table 313 "Inventory Setup"
         field(35; "Current Demand Forecast"; Code[10])
         {
             Caption = 'Current Demand Forecast';
-            TableRelation = "Production Forecast Name".Name;
+            TableRelation = Microsoft.Manufacturing.Forecast."Production Forecast Name".Name;
 #if not CLEAN27
             trigger OnValidate()
             var
-                ManufacturingSetup: Record "Manufacturing Setup";
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
             begin
                 if "Current Demand Forecast" <> xRec."Current Demand Forecast" then begin
                     ManufacturingSetup.Get();
@@ -107,7 +103,7 @@ table 313 "Inventory Setup"
 #if not CLEAN27
             trigger OnValidate()
             var
-                ManufacturingSetup: Record "Manufacturing Setup";
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
             begin
                 if "Use Forecast on Variants" <> xRec."Use Forecast on Variants" then begin
                     ManufacturingSetup.Get();
@@ -123,7 +119,7 @@ table 313 "Inventory Setup"
 #if not CLEAN27
             trigger OnValidate()
             var
-                ManufacturingSetup: Record "Manufacturing Setup";
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
             begin
                 if "Use Forecast on Locations" <> xRec."Use Forecast on Locations" then begin
                     ManufacturingSetup.Get();
@@ -141,7 +137,7 @@ table 313 "Inventory Setup"
 #if not CLEAN27
             trigger OnValidate()
             var
-                ManufacturingSetup: Record "Manufacturing Setup";
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
             begin
                 if "Combined MPS/MRP Calculation" <> xRec."Combined MPS/MRP Calculation" then begin
                     ManufacturingSetup.Get();
@@ -163,7 +159,7 @@ table 313 "Inventory Setup"
 #if not CLEAN27
             trigger OnValidate()
             var
-                ManufacturingSetup: Record "Manufacturing Setup";
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
             begin
                 if "Default Dampener %" <> xRec."Default Dampener %" then begin
                     ManufacturingSetup.Get();
@@ -179,7 +175,7 @@ table 313 "Inventory Setup"
 #if not CLEAN27
             trigger OnValidate()
             var
-                ManufacturingSetup: Record "Manufacturing Setup";
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
             begin
                 if "Default Safety Lead Time" <> xRec."Default Safety Lead Time" then begin
                     ManufacturingSetup.Get();
@@ -197,7 +193,7 @@ table 313 "Inventory Setup"
 #if not CLEAN27
             trigger OnValidate()
             var
-                ManufacturingSetup: Record "Manufacturing Setup";
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
             begin
                 if "Blank Overflow Level" <> xRec."Blank Overflow Level" then begin
                     ManufacturingSetup.Get();
@@ -214,15 +210,15 @@ table 313 "Inventory Setup"
             trigger OnValidate()
             var
 #if not CLEAN27
-                ManufacturingSetup: Record "Manufacturing Setup";
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
 #endif
                 CalendarMgt: Codeunit "Calendar Management";
             begin
                 CalendarMgt.CheckDateFormulaPositive("Default Dampener Period");
 #if not CLEAN27
-                if "Blank Overflow Level" <> xRec."Blank Overflow Level" then begin
+                if "Default Dampener Period" <> xRec."Default Dampener Period" then begin
                     ManufacturingSetup.Get();
-                    ManufacturingSetup.Validate("Blank Overflow Level", "Blank Overflow Level");
+                    ManufacturingSetup.Validate("Default Dampener Period", "Default Dampener Period");
                     ManufacturingSetup.Modify();
                 end;
 #endif
