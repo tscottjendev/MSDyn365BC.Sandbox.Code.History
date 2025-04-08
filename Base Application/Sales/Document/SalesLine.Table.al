@@ -31,7 +31,6 @@ using Microsoft.Foundation.Shipping;
 using Microsoft.Foundation.UOM;
 using Microsoft.Intercompany.GLAccount;
 using Microsoft.Intercompany.Partner;
-using Microsoft.Inventory;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Intrastat;
@@ -168,7 +167,7 @@ table 37 "Sales Line"
 
                     OnValidateTypeOnAfterVerifyChange(Rec, xRec);
                 end;
-                AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
+                CheckReceiptOrderStatus();
 
                 OnValidateTypeOnBeforeInitRec(Rec, xRec, CurrFieldNo);
                 TempSalesLine := Rec;
@@ -256,7 +255,7 @@ table 37 "Sales Line"
                 if "No." = '' then
                     ATOLink.DeleteAsmFromSalesLine(Rec);
                 CheckAssocPurchOrder(FieldCaption("No."));
-                AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
+                CheckReceiptOrderStatus();
 
                 OnValidateNoOnBeforeInitRec(Rec, xRec, CurrFieldNo);
                 TempSalesLine := Rec;
@@ -493,7 +492,7 @@ table 37 "Sales Line"
                 DoCheckReceiptOrderStatus := CurrFieldNo <> 0;
                 OnValidateShipmentDateOnAfterSalesLineVerifyChange(Rec, CurrFieldNo, DoCheckReceiptOrderStatus);
                 if DoCheckReceiptOrderStatus then
-                    AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
+                    CheckReceiptOrderStatus();
 
                 if "Shipment Date" <> 0D then begin
                     if CurrFieldNo in [
@@ -729,7 +728,7 @@ table 37 "Sales Line"
                 IsHandled := false;
                 OnValidateQuantityOnBeforeCheckReceiptOrderStatus(Rec, StatusCheckSuspended, IsHandled);
                 if not IsHandled then
-                    AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
+                    CheckReceiptOrderStatus();
 
                 InitQty();
 
@@ -1150,7 +1149,7 @@ table 37 "Sales Line"
                 IsHandled: Boolean;
             begin
                 if "Appl.-to Item Entry" <> 0 then begin
-                    AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
+                    CheckReceiptOrderStatus();
 
                     TestField(Type, Type::Item);
                     TestField(Quantity);
@@ -1438,7 +1437,8 @@ table 37 "Sales Line"
 
                 CheckItemAvailable(FieldNo("Drop Shipment"));
 
-                AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
+                CheckReceiptOrderStatus();
+
                 if (xRec."Drop Shipment" <> "Drop Shipment") and (Quantity <> 0) then begin
                     if not "Drop Shipment" then begin
                         InitQtyToAsm();
@@ -3729,7 +3729,6 @@ table 37 "Sales Line"
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
-        AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         DimMgt: Codeunit DimensionManagement;
         ItemSubstitutionMgt: Codeunit "Item Subst.";
         ItemReferenceMgt: Codeunit "Item Reference Management";
@@ -10387,6 +10386,11 @@ table 37 "Sales Line"
         OnAfterCopyPrepaymentFromVATPostingSetup(Rec, VATPostingSetupFrom);
     end;
 
+    local procedure CheckReceiptOrderStatus()
+    begin
+        OnCheckReceiptOrderStatus(Rec);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var SalesLine: Record "Sales Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
@@ -12412,6 +12416,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnValidateLineDiscountPercentOnBeforeTestJobPlanningLine(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckReceiptOrderStatus(var SalesLine: Record "Sales Line")
     begin
     end;
 }

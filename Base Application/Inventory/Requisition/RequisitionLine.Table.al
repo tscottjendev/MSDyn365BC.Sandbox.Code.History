@@ -75,7 +75,7 @@ table 246 "Requisition Line"
                     "Location Code" := '';
                     CleanProdOrderNo();
                     ReqLineReserve.VerifyChange(Rec, xRec);
-                    AddOnIntegrMgt.ResetReqLineFields(Rec);
+                    OnResetReqLineFields(Rec);
                     Init();
                     Type := NewType;
                 end;
@@ -106,7 +106,7 @@ table 246 "Requisition Line"
                 if "No." <> xRec."No." then begin
                     "Variant Code" := '';
                     CleanProdOrderNo();
-                    AddOnIntegrMgt.ResetReqLineFields(Rec);
+                    OnResetReqLineFields(Rec);
                 end;
 
                 TestField(Type);
@@ -1455,7 +1455,6 @@ table 246 "Requisition Line"
         Bin: Record Bin;
         ReqLineReserve: Codeunit "Req. Line-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
-        AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         DimMgt: Codeunit DimensionManagement;
         LeadTimeMgt: Codeunit "Lead-Time Management";
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
@@ -3330,6 +3329,11 @@ table 246 "Requisition Line"
         OnIsProdDemand(Rec, Result);
     end;
 
+    procedure ResetReqLineFields()
+    begin
+        OnResetReqLineFields(Rec);
+    end;
+
     local procedure TestProdOrderNo()
     begin
         OnTestProdOrderNo(Rec);
@@ -3947,6 +3951,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVendorNoOnAfterSetSupplyFrom(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResetReqLineFields(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

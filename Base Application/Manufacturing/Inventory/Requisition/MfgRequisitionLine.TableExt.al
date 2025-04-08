@@ -28,7 +28,7 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
 
             trigger OnValidate()
             begin
-                AddOnIntegrMgt.ValidateProdOrderOnReqLine(Rec);
+                ValidateProdOrderOnReqLine(Rec);
                 Validate("Unit of Measure Code");
             end;
         }
@@ -346,9 +346,8 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
     }
 
     var
-        WorkCenter: Record "Work Center";
         ManufacturingSetup: Record "Manufacturing Setup";
-        AddOnIntegrMgt: Codeunit Microsoft.Inventory.AddOnIntegrManagement;
+        WorkCenter: Record "Work Center";
         VersionMgt: Codeunit VersionManagement;
 
         ReplenishmentErr: Label 'Requisition Worksheet cannot be used to create Prod. Order replenishment.';
@@ -621,6 +620,30 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
     begin
         ItemUOM.Get("No.", "Unit of Measure Code");
         exit(Round(Quantity * ItemUOM."Qty. per Unit of Measure", 0.00001));
+    end;
+
+    procedure ValidateProdOrderOnReqLine(var ReqLine: Record "Requisition Line")
+    var
+        Item: Record Item;
+        ProdOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ReqLine.TestField(Type, ReqLine.Type::Item);
+
+        if ProdOrder.Get(ProdOrder.Status::Released, ReqLine."Prod. Order No.") then begin
+            ProdOrder.TestField(Blocked, false);
+            ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
+            ProdOrderLine.SetRange("Prod. Order No.", ReqLine."Prod. Order No.");
+            ProdOrderLine.SetRange("Item No.", ReqLine."No.");
+            if ProdOrderLine.FindFirst() then begin
+                ReqLine."Routing No." := ProdOrderLine."Routing No.";
+                ReqLine."Routing Reference No." := ProdOrderLine."Line No.";
+                ReqLine."Prod. Order Line No." := ProdOrderLine."Line No.";
+                ReqLine."Requester ID" := CopyStr(UserId(), 1, MaxStrLen(ReqLine."Requester ID"));
+            end;
+            Item.Get(ReqLine."No.");
+            ReqLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        end;
     end;
 
     [IntegrationEvent(false, false)]

@@ -10,7 +10,6 @@ using Microsoft.Foundation.ExtendedText;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.Period;
 using Microsoft.Foundation.UOM;
-using Microsoft.Inventory;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Location;
@@ -636,7 +635,6 @@ codeunit 333 "Req. Wksh.-Make Order"
     procedure InsertPurchOrderLine(var ReqLine2: Record "Requisition Line"; var PurchOrderHeader: Record "Purchase Header")
     var
         PurchOrderLine2: Record "Purchase Line";
-        AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         DimensionSetIDArr: array[10] of Integer;
         IsHandled: Boolean;
     begin
@@ -673,7 +671,7 @@ codeunit 333 "Req. Wksh.-Make Order"
 
         InitPurchOrderLine(PurchOrderLine, PurchOrderHeader, ReqLine2);
 
-        AddOnIntegrMgt.TransferFromReqLineToPurchLine(PurchOrderLine, ReqLine2);
+        PurchOrderLine.TransferFromReqLineToPurchLine(PurchOrderLine, ReqLine2);
         OnInsertPurchOrderLineOnAfterTransferFromReqLineToPurchLine(PurchOrderLine, ReqLine2);
 
         PurchOrderLine."Drop Shipment" := ReqLine2."Sales Order Line No." <> 0;

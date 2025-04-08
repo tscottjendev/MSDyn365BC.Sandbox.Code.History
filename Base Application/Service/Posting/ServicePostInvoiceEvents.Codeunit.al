@@ -57,6 +57,16 @@ codeunit 827 "Service Post Invoice Events"
     begin
     end;
 
+    procedure RunOnBeforePostLines(ServiceHeader: Record "Service Header"; var TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary)
+    begin
+        OnBeforePostLines(ServiceHeader, TempInvoicePostingBuffer);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostLines(ServiceHeader: Record "Service Header"; var TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary)
+    begin
+    end;
+
     procedure RunOnBeforeCalcInvoiceDiscountPosting(ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line"; ServiceLineACY: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var IsHandled: Boolean)
     begin
         OnBeforeCalcInvoiceDiscountPosting(ServiceHeader, ServiceLine, ServiceLineACY, InvoicePostingBuffer, IsHandled);
