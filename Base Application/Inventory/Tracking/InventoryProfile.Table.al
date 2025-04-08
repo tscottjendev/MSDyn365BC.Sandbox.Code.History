@@ -12,7 +12,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Forecast;
 using Microsoft.Sales.Customer;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Structure;
@@ -725,11 +724,11 @@ table 99000853 "Inventory Profile"
                     TrackingReservationEntry."Suppressed Action Msg." := true;
                     exit;
                 end;
-            Database::"Production Forecast Entry":
+            Database::Microsoft.Manufacturing.Forecast."Production Forecast Entry":
                 begin
                     // Will be marked as Surplus
                     TrackingReservationEntry."Reservation Status" := TrackingReservationEntry."Reservation Status"::Surplus;
-                    TrackingReservationEntry.SetSource(Database::"Production Forecast Entry", 0, "Source ID", 0, '', 0);
+                    TrackingReservationEntry.SetSource(Database::Microsoft.Manufacturing.Forecast."Production Forecast Entry", 0, "Source ID", 0, '', 0);
                     TrackingReservationEntry."Suppressed Action Msg." := true;
                 end;
             Database::"Item Ledger Entry":

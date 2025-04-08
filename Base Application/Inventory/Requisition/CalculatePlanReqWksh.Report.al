@@ -9,7 +9,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Forecast;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Purchases.Vendor;
 
@@ -135,7 +134,7 @@ report 699 "Calculate Plan - Req. Wksh."
                     {
                         ApplicationArea = Planning;
                         Caption = 'Use Forecast';
-                        TableRelation = "Production Forecast Name".Name;
+                        TableRelation = Microsoft.Manufacturing.Forecast."Production Forecast Name".Name;
                         ToolTip = 'Specifies a forecast that should be included as demand when running the planning batch job.';
                     }
                     field(ExcludeForecastBefore; ExcludeForecastBefore)
@@ -187,7 +186,7 @@ report 699 "Calculate Plan - Req. Wksh."
 
     trigger OnPreReport()
     var
-        ProductionForecastEntry: Record "Production Forecast Entry";
+        ProductionForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
         IsHandled: Boolean;
     begin
         IsHandled := false;
