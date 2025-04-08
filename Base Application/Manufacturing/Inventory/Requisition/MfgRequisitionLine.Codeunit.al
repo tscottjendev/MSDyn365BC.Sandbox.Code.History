@@ -305,4 +305,26 @@ codeunit 99000866 "Mfg. Requisition Line"
                 end;
         end;
     end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnResetReqLineFields', '', false, false)]
+    local procedure OnResetReqLineFields(var RequisitionLine: Record "Requisition Line")
+    begin
+        ResetReqLineFields(RequisitionLine);
+    end;
+
+    procedure ResetReqLineFields(var RequisitionLine: Record "Requisition Line")
+    begin
+        RequisitionLine."Prod. Order Line No." := 0;
+        RequisitionLine."Routing No." := '';
+        RequisitionLine."Routing Reference No." := 0;
+        RequisitionLine."Operation No." := '';
+        RequisitionLine."Work Center No." := '';
+
+        OnAfterResetReqLineFields(RequisitionLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterResetReqLineFields(var ReqLine: Record "Requisition Line")
+    begin
+    end;
 }
