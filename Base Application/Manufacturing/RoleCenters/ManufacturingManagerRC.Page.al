@@ -454,29 +454,49 @@ page 8903 "Manufacturing Manager RC"
                         Caption = 'Capacity Task List';
                         RunObject = report "Capacity Task List";
                     }
+#if not CLEAN27
                     action("Machine Center Load/Bar")
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Machine Center Load/Bar';
                         RunObject = report "Machine Center Load/Bar";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the "Work/Machine Center Load" report and will be removed in a future release.';
+                        ObsoleteTag = '27.0';
                     }
                     action("Work Center Load/Bar")
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Work Center Load/Bar';
                         RunObject = report "Work Center Load/Bar";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the "Work/Machine Center Load" report and will be removed in a future release.';
+                        ObsoleteTag = '27.0';
                     }
                     action("Machine Center Load")
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Machine Center Load';
                         RunObject = report "Machine Center Load";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the "Work/Machine Center Load" report and will be removed in a future release.';
+                        ObsoleteTag = '27.0';
                     }
                     action("Work Center Load")
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Work Center Load';
                         RunObject = report "Work Center Load";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the "Work/Machine Center Load" report and will be removed in a future release.';
+                        ObsoleteTag = '27.0';
+                    }
+#endif
+                    action("Work/Machine Center Load")
+                    {
+                        ApplicationArea = Manufacturing;
+                        Caption = 'Work/Machine Center Load';
+                        RunObject = Report "Work/Machine Center Load";
                     }
                     action("Subcontractor Dispatch List")
                     {
