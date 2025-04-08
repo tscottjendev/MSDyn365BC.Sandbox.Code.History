@@ -258,6 +258,7 @@ report 99000763 "Prod. Order - List"
         RunOnLabel = 'Run on';
         ReportNameLabel = 'Report name';
         DocumentationLabel = 'Documentation';
+        TimezoneLabel = 'UTC';
     }
 
     var
