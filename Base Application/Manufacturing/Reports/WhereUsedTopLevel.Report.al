@@ -189,6 +189,7 @@ report 99000757 "Where-Used (Top Level)"
         ItemNoLabel = 'BOM Item No.';
         DescLabel = 'BOM Item Description';
         QtyNeededLabel = 'Exploded Quantity';
+        DataRetrieved = 'Data retrieved:';
         // About the report labels
         AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
         EnvironmentLabel = 'Environment';
@@ -197,6 +198,7 @@ report 99000757 "Where-Used (Top Level)"
         RunOnLabel = 'Run on';
         ReportNameLabel = 'Report name';
         DocumentationLabel = 'Documentation';
+        TimezoneLabel = 'UTC';
     }
 
     var
