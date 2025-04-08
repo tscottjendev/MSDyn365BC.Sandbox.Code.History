@@ -168,9 +168,9 @@ codeunit 30250 "Shpfy Returns API"
 
         if ReturnLocations.ContainsKey(OrderLineId) then begin
             if LocationId <> ReturnLocations.Get(OrderLineId) then begin
+                Session.LogMessage('0000P74', StrSubstNo(OrderLineMultipleLocMsg, OrderLineId, LocationId, ReturnLocations.Get(OrderLineId)), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 // If the location is different, we cannot determine the return location for the line (same item from different return lines stocked to different locations)
                 ReturnLocations.Remove(OrderLineId);
-                Session.LogMessage('0000P74', StrSubstNo(OrderLineMultipleLocMsg, OrderLineId, LocationId, ReturnLocations.Get(OrderLineId)), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             end;
             exit;
         end;
