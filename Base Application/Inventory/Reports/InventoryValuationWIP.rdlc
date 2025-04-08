@@ -2832,6 +2832,251 @@
       </Page>
     </ReportSection>
   </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="ProdOrderWIP">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderWIP</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderWIP</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CurrReportPageNo">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CurrReportPageNo</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CurrReportPageNo</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Capacity">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Capacity</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Capacity</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Output">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Output</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Output</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CostPostedToGL">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CostPostedToGL</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CostPostedToGL</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Consumption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Consumption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Consumption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Total">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Total</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Total</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PeriodCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>PeriodCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>PeriodCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UntilCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UntilCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UntilCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="StartDateHeader">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>StartDateHeader</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>StartDateHeader</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EndDateHeader">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EndDateHeader</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EndDateHeader</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderWipPrintLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderWipPrintLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderWipPrintLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderWipAnalysisLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderWipAnalysisLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderWipAnalysisLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DataRetrieved">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DataRetrieved</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DataRetrieved</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="AboutTheReportLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AboutTheReportLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AboutTheReportLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EnvironmentLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EnvironmentLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EnvironmentLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompanyLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompanyLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompanyLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UserLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UserLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UserLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RunOnLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RunOnLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RunOnLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ReportNameLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ReportNameLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ReportNameLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DocumentationLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DocumentationLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DocumentationLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="TimezoneLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>TimezoneLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>TimezoneLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="No_ProductionOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>No_ProductionOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>No_ProductionOrderCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SourceNo_ProductionOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SourceNo_ProductionOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SourceNo_ProductionOrderCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SrcType_ProductionOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SrcType_ProductionOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SrcType_ProductionOrderCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Desc_ProductionOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Desc_ProductionOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Desc_ProductionOrderCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Status_ProductionOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Status_ProductionOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Status_ProductionOrderCaption</Prompt>
+    </ReportParameter>
+  </ReportParameters>
   <Code>Public Function BlankZero(ByVal Value As Decimal)
     if Value = 0 then
         Return ""
@@ -2909,6 +3154,12 @@ End Function
         </Field>
         <Field Name="ProdOrderFilter">
           <DataField>ProdOrderFilter</DataField>
+        </Field>
+        <Field Name="StartDate">
+          <DataField>StartDate</DataField>
+        </Field>
+        <Field Name="EndDate">
+          <DataField>EndDate</DataField>
         </Field>
         <Field Name="AsOfStartDateText">
           <DataField>AsOfStartDateText</DataField>
@@ -3014,6 +3265,42 @@ End Function
         </Field>
         <Field Name="LastWIPFormat">
           <DataField>LastWIPFormat</DataField>
+        </Field>
+        <Field Name="LatWipSum">
+          <DataField>LatWipSum</DataField>
+        </Field>
+        <Field Name="LatWipSumFormat">
+          <DataField>LatWipSumFormat</DataField>
+        </Field>
+        <Field Name="ValueOfMatConsumptionSum">
+          <DataField>ValueOfMatConsumptionSum</DataField>
+        </Field>
+        <Field Name="ValueOfMatConsumptionSumFormat">
+          <DataField>ValueOfMatConsumptionSumFormat</DataField>
+        </Field>
+        <Field Name="ValueOfCapSum">
+          <DataField>ValueOfCapSum</DataField>
+        </Field>
+        <Field Name="ValueOfCapSumFormat">
+          <DataField>ValueOfCapSumFormat</DataField>
+        </Field>
+        <Field Name="ValueOfOutputSum">
+          <DataField>ValueOfOutputSum</DataField>
+        </Field>
+        <Field Name="ValueOfOutputSumFormat">
+          <DataField>ValueOfOutputSumFormat</DataField>
+        </Field>
+        <Field Name="AtLastDateSum">
+          <DataField>AtLastDateSum</DataField>
+        </Field>
+        <Field Name="AtLastDateSumFormat">
+          <DataField>AtLastDateSumFormat</DataField>
+        </Field>
+        <Field Name="ValueEntryCostPostedToGLSum">
+          <DataField>ValueEntryCostPostedToGLSum</DataField>
+        </Field>
+        <Field Name="ValueEntryCostPostedToGLSumFormat">
+          <DataField>ValueEntryCostPostedToGLSumFormat</DataField>
         </Field>
       </Fields>
       <Query>
