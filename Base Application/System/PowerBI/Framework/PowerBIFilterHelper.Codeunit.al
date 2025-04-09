@@ -12,20 +12,6 @@ codeunit 6320 "Power BI Filter Helper"
         SelectionTooLargeTelemetryMsg: Label 'Power BI filter skipped. %1 records selected.', Locked = true;
         NoFilterDefinedTelemetryMsg: Label 'There is no filter defined in the Power BI report.', Locked = true;
 
-#if not CLEAN24
-    [Obsolete('Use the other overload of MergeValuesIntoFirstFilter instead, which uses JsonArray data types.', '24.0')]
-    procedure MergeValuesIntoFirstFilter(ReportFiltersInfo: Text; FilterValuesJsonArray: JsonArray) ReportFiltersToSet: Text
-    var
-        ReportFilterInfoJsonArray: JsonArray;
-        OutputReportFilters: JsonArray;
-    begin
-        ReportFilterInfoJsonArray.ReadFrom(ReportFiltersInfo);
-
-        OutputReportFilters := MergeValuesIntoFirstFilter(ReportFilterInfoJsonArray, FilterValuesJsonArray);
-
-        ReportFilterInfoJsonArray.WriteTo(ReportFiltersToSet);
-    end;
-#endif
 
 #if not CLEAN25
     [Obsolete('Use MergeIntoFirstFilter instead.', '25.0')]

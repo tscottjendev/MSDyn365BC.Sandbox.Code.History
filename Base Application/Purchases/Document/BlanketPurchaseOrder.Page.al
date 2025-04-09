@@ -97,14 +97,6 @@ page 509 "Blanket Purchase Order"
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Buy-from Post Code"; Rec."Buy-from Post Code")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'Post Code';
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the postal code.';
-                    }
                     field("Buy-from City"; Rec."Buy-from City")
                     {
                         ApplicationArea = Suite;
@@ -120,11 +112,19 @@ page 509 "Blanket Purchase Order"
                         field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the state, province or county of the address.';
                         }
+                    }
+                    field("Buy-from Post Code"; Rec."Buy-from Post Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Post Code';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the postal code.';
                     }
                     field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
                     {
@@ -456,14 +456,6 @@ page 509 "Blanket Purchase Order"
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Ship-to Post Code"; Rec."Ship-to Post Code")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'Post Code';
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the postal code.';
-                    }
                     field("Ship-to City"; Rec."Ship-to City")
                     {
                         ApplicationArea = Suite;
@@ -479,11 +471,19 @@ page 509 "Blanket Purchase Order"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the state, province or county of the address.';
                         }
+                    }
+                    field("Ship-to Post Code"; Rec."Ship-to Post Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Post Code';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the postal code.';
                     }
                     field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
@@ -553,16 +553,6 @@ page 509 "Blanket Purchase Order"
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Pay-to Post Code"; Rec."Pay-to Post Code")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'Post Code';
-                        Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
-                        Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the postal code.';
-                    }
                     field("Pay-to City"; Rec."Pay-to City")
                     {
                         ApplicationArea = Suite;
@@ -580,13 +570,23 @@ page 509 "Blanket Purchase Order"
                         field("Pay-to County"; Rec."Pay-to County")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                             Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
                             Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the state, province or county of the address.';
                         }
+                    }
+                    field("Pay-to Post Code"; Rec."Pay-to Post Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Post Code';
+                        Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
+                        Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the postal code.';
                     }
                     field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
                     {

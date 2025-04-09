@@ -424,13 +424,8 @@ table 313 "Inventory Setup"
         {
             Caption = 'Invt. Orders Package Tracking';
             ObsoleteReason = 'Temporary setup to enable/disable package tracking in Phys. Inventory Orders';
-#if not CLEAN24
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#endif
         }
 #endif
         field(6500; "Package Caption"; Text[30])
