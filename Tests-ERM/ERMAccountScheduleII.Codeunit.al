@@ -35,6 +35,7 @@ codeunit 134994 "ERM Account Schedule II"
         TargetNameMissingErr: Label 'You must specify a name for the new rows definition.';
         InvalidRowErr: Label 'Row %1 with is visible with the value %2.';
         RowNotFoundErr: Label 'Row %1 is not visible.';
+        WrongValueErr: Label 'Wrong value of the field %1 in table %2.', Comment = '%1 = Field name, %2 = Table name';
         IsInitialized: Boolean;
 
     [Test]
@@ -244,6 +245,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
         AccountSchedule: TestPage "Account Schedule";
+        AccScheduleNames: TestPage "Account Schedule Names";
     begin
         // [SCENARIO] Account schedule lines can be indented (individually) to provide a nicer layout.
         Initialize();
@@ -255,9 +257,10 @@ codeunit 134994 "ERM Account Schedule II"
 
         // [WHEN] User clicks Indent / Outdent,
         // [THEN] Indentation value on the line increases/decreases by 1 and cannot become negative
-        AccountSchedule.OpenEdit();
-        AccountSchedule.CurrentSchedName.SetValue(AccScheduleName.Name);
-        AccountSchedule.First();
+        AccScheduleNames.OpenView();
+        AccScheduleNames.GoToKey(AccScheduleName.Name);
+        AccountSchedule.Trap();
+        AccScheduleNames.EditAccountSchedule.Invoke();
 
         AccountSchedule.Indent.Invoke();
         AccScheduleLine.Find();
@@ -1315,6 +1318,7 @@ codeunit 134994 "ERM Account Schedule II"
     var
         ColumnLayoutName: Record "Column Layout Name";
         ColumnLayout: Record "Column Layout";
+        ColumnLayoutNames: TestPage "Column Layout Names";
         ColumnLayoutPage: TestPage "Column Layout";
     begin
         // [FEATURE] [UI]
@@ -1323,8 +1327,10 @@ codeunit 134994 "ERM Account Schedule II"
         LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
 
         // [WHEN] Opened page ColumnLayoutPage and set Show = "When Negative"
-        ColumnLayoutPage.OpenEdit();
-        ColumnLayoutPage.CurrentColumnName.SetValue(ColumnLayoutName.Name);
+        ColumnLayoutNames.OpenView();
+        ColumnLayoutNames.GoToKey(ColumnLayoutName.Name);
+        ColumnLayoutPage.Trap();
+        ColumnLayoutNames.EditColumnLayoutSetup.Invoke();
         ColumnLayoutPage.Show.SetValue(ColumnLayout.Show::"When Negative");
 
         // [WHEN] Set Show = Always
@@ -2168,7 +2174,7 @@ codeunit 134994 "ERM Account Schedule II"
         FinancialReports.EditRowGroup.Invoke();
 
         // [THEN] "Account Schedule" page for "Financial Report Row Group" is opened
-        AccountSchedule.CurrentSchedName.AssertEquals(FinancialReports."Financial Report Row Group".Value());
+        Assert.AreEqual(FinancialReports."Financial Report Row Group".Value(), AccountSchedule.Filter.GetFilter("Schedule Name"), StrSubstNo(WrongValueErr, AccScheduleName.FieldCaption(Name), AccScheduleName.TableCaption()));
         AccountSchedule.Close();
     end;
 
@@ -2458,11 +2464,14 @@ codeunit 134994 "ERM Account Schedule II"
 
     local procedure CopyColumnLayoutFromColumnLayoutPage(SourceColumnLayoutName: Code[10])
     var
+        ColumnLayoutNames: TestPage "Column Layout Names";
         ColumnLayout: TestPage "Column Layout";
     begin
         Commit();
-        ColumnLayout.OpenView();
-        ColumnLayout.CurrentColumnName.SetValue(SourceColumnLayoutName);
+        ColumnLayoutNames.OpenView();
+        ColumnLayoutNames.GoToKey(SourceColumnLayoutName);
+        ColumnLayout.Trap();
+        ColumnLayoutNames.EditColumnLayoutSetup.Invoke();
         ColumnLayout.CopyColumnLayout.Invoke();
     end;
 
@@ -2850,7 +2859,7 @@ codeunit 134994 "ERM Account Schedule II"
     var
         AccScheduleName: Record "Acc. Schedule Name";
     begin
-        AccountSchedule.CurrentSchedName.AssertEquals(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(AccScheduleName.Name)));
+        Assert.AreEqual(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(AccScheduleName.Name)), AccountSchedule.Filter.GetFilter("Schedule Name"), StrSubstNo(WrongValueErr, AccScheduleName.FieldCaption(Name), AccScheduleName.TableCaption()));
     end;
 
     [PageHandler]
@@ -2859,7 +2868,7 @@ codeunit 134994 "ERM Account Schedule II"
     var
         AccScheduleName: Record "Acc. Schedule Name";
     begin
-        AccountSchedule.CurrentSchedName.AssertEquals(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(AccScheduleName.Name)));
+        Assert.AreEqual(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(AccScheduleName.Name)), AccountSchedule.Filter.GetFilter("Schedule Name"), StrSubstNo(WrongValueErr, AccScheduleName.FieldCaption(Name), AccScheduleName.TableCaption()));
     end;
 
     [PageHandler]
@@ -2869,7 +2878,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleLine: Record "Acc. Schedule Line";
         AccScheduleName: Record "Acc. Schedule Name";
     begin
-        AccountSchedule.CurrentSchedName.AssertEquals(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(AccScheduleName.Name)));
+        Assert.AreEqual(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(AccScheduleName.Name)), AccountSchedule.Filter.GetFilter("Schedule Name"), StrSubstNo(WrongValueErr, AccScheduleName.FieldCaption(Name), AccScheduleName.TableCaption()));
         AccountSchedule.Show.SetValue(AccScheduleLine.Show::No);
     end;
 
@@ -3016,4 +3025,3 @@ codeunit 134994 "ERM Account Schedule II"
         Assert.ExpectedMessage(CopyColumnLayoutSuccessMsg, Message);
     end;
 }
-
