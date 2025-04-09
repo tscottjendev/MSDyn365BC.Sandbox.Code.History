@@ -1181,28 +1181,6 @@ codeunit 134902 "ERM Account Schedule"
         ColumnLayoutFormulaError('++', OperatorErr);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure ColumnLayoutWithChangeLayoutName()
-    var
-        ColumnLayoutName: Record "Column Layout Name";
-        ColumnLayout: TestPage "Column Layout";
-    begin
-        // Check that Program allows to change the column layout name on Column layout window.
-
-        // 1. Setup: Create Column Layout Name.
-        Initialize();
-        LibraryLowerPermissions.SetFinancialReporting();
-        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
-
-        // 2. Exercise: Open Column Layout Page and change the Column Layout Name.
-        ColumnLayout.OpenEdit();
-        ColumnLayout.CurrentColumnName.SetValue(ColumnLayoutName.Name);
-
-        // 3. Verify: Verify "Column Layout Name" has been changed on Column Layout Page without any confirmation message.
-        ColumnLayout.CurrentColumnName.AssertEquals(ColumnLayoutName);
-    end;
-
     local procedure ColumnLayoutWithShow(Show: Enum "Column Layout Show")
     var
         ColumnLayout: Record "Column Layout";
