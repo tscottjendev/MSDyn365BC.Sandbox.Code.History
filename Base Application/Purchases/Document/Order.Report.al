@@ -8,9 +8,6 @@ using Microsoft.CRM.Contact;
 using Microsoft.CRM.Interaction;
 using Microsoft.CRM.Segment;
 using Microsoft.CRM.Team;
-#if not CLEAN24
-using Microsoft.Finance;
-#endif
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -346,12 +343,6 @@ report 405 "Order"
 
                         trigger OnAfterGetRecord()
                         begin
-#if not CLEAN24
-                            if LastVATCode = '' then
-                                LastVATCode := "VAT Identifier";
-                            if LastVATCode <> "VAT Identifier" then
-                                MoreThan1VATCode := true;
-#endif
                         end;
 
                         trigger OnPreDataItem()
@@ -623,10 +614,6 @@ report 405 "Order"
                         begin
                             if VATAmount = 0 then
                                 CurrReport.Break();
-#if not CLEAN24
-                            if not MoreThan1VATCode and not AlwShowVATSum then
-                                CurrReport.Break();
-#endif
                             SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
@@ -666,10 +653,6 @@ report 405 "Order"
                                (TempVATAmountLine.GetTotalVATAmount() = 0)
                             then
                                 CurrReport.Break();
-#if not CLEAN24
-                            if not MoreThan1VATCode and not AlwShowVATSum then
-                                CurrReport.Break();
-#endif
                             SetRange(Number, 1, TempVATAmountLine.Count);
                             Clear(VALVATBaseLCY);
                             Clear(VALVATAmountLCY);
@@ -1012,10 +995,6 @@ report 405 "Order"
                 if not IsReportInPreviewMode() then
                     if ArchiveDocument then
                         ArchiveManagement.StorePurchDocument("Purchase Header", LogInteraction);
-#if not CLEAN24
-                MoreThan1VATCode := false;
-                LastVATCode := '';
-#endif
             end;
 
             trigger OnPostDataItem()
@@ -1073,16 +1052,6 @@ report 405 "Order"
                                 ArchiveDocument := ArchiveDocumentEnable;
                         end;
                     }
-#if not CLEAN24
-                    field(AlwShowVATSum; AlwShowVATSum)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Visible = IsISCoreAppEnabled;
-                        Enabled = IsISCoreAppEnabled;
-                        Caption = 'Always Show VAT Summary';
-                        ToolTip = 'Specifies that you want the document to include VAT information.';
-                    }
-#endif
                 }
             }
         }
@@ -1096,9 +1065,6 @@ report 405 "Order"
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
             ArchiveDocument := PurchSetup."Archive Orders";
-#if not CLEAN24
-            IsISCoreAppEnabled := ISCoreAppSetup.IsEnabled();
-#endif
         end;
     }
 
@@ -1246,18 +1212,6 @@ report 405 "Order"
 
     protected var
         CompanyInfo: Record "Company Information";
-#if not CLEAN24
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        ISCoreAppSetup: Record "IS Core App Setup";
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        AlwShowVATSum: Boolean;
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        MoreThan1VATCode: Boolean;
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        LastVATCode: Code[20];
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        IsISCoreAppEnabled: Boolean;
-#endif
         ArchiveDocument: Boolean;
         ArchiveDocumentEnable: Boolean;
         LogInteraction: Boolean;
@@ -1315,4 +1269,3 @@ report 405 "Order"
     begin
     end;
 }
-

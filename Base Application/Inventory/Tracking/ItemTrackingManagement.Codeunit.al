@@ -2817,11 +2817,6 @@ codeunit 6500 "Item Tracking Management"
                 QtyToHandleOnSourceDocLine := ReservMgt.GetSourceRecordValue(ReservEntry, false, 0);
 
                 IsHandled := false;
-#if not CLEAN24
-                // Please use next event OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError instead
-                OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingErr(
-                    TempTrackingSpec, QtyToHandleToNewRegister, QtyToHandleInItemTracking, QtyToHandleOnSourceDocLine, IsHandled);
-#endif
                 OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError(
                     TempTrackingSpec, QtyToHandleToNewRegister, QtyToHandleInItemTracking, QtyToHandleOnSourceDocLine, IsHandled);
                 if not IsHandled then
@@ -4202,13 +4197,6 @@ codeunit 6500 "Item Tracking Management"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by event OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError with corrected parameters', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingErr(var empTrackingSpecification: Record "Tracking Specification" temporary; var tyToHandleToNewRegister: Decimal; var QtyToHandleInItemTrackin: Decimal; varQtyToHandleOnSourceDocLine: Decimal; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError(var TempTrackingSpecification: Record "Tracking Specification" temporary; var QtyToHandleToNewRegister: Decimal; var QtyToHandleInItemTracking: Decimal; var QtyToHandleOnSourceDocLine: Decimal; var IsHandled: Boolean)

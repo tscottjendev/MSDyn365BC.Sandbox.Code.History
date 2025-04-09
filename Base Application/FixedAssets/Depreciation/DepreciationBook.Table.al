@@ -288,13 +288,8 @@ table 5611 "Depreciation Book"
         {
             Caption = 'Revalue in Year Purch.';
             ObsoleteReason = 'The field has been moved to the IS Core App.';
-#if CLEAN24
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#endif
         }
 #endif
 #if not CLEANSCHEMA27
@@ -303,13 +298,8 @@ table 5611 "Depreciation Book"
             Caption = 'Residual Value %';
             DecimalPlaces = 0 : 0;
             ObsoleteReason = 'The field has been moved to the IS Core App.';
-#if CLEAN24
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#endif
         }
 #endif
     }
@@ -412,4 +402,3 @@ table 5611 "Depreciation Book"
         GLIntegration[9] := false; // Salvage Value
     end;
 }
-

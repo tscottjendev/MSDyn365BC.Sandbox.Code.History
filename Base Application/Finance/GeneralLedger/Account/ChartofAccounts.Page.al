@@ -1,13 +1,10 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Account;
 
 using Microsoft.EServices.EDocument;
-#if not CLEAN24
-using Microsoft.Finance;
-#endif
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -18,10 +15,6 @@ using Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Comment;
 using Microsoft.Foundation.ExtendedText;
-#if not CLEAN24
-using System.Environment.Configuration;
-using System.Environment;
-#endif
 
 page 16 "Chart of Accounts"
 {
@@ -139,18 +132,6 @@ page 16 "Chart of Accounts"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
-#if not CLEAN24
-                field("IRS Number"; Rec."IRS Number")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Internal Revenue Service (IRS) tax numbers for the account.';
-                    ObsoleteReason = 'The field has been moved to the IS Core App.';
-                    Visible = not IsISCoreAppEnabled;
-                    Enabled = not IsISCoreAppEnabled;
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                }
-#endif
                 field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -219,17 +200,11 @@ page 16 "Chart of Accounts"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how amounts in foreign currencies should be posted to this account.';
-#if not CLEAN24
-                    Visible = SourceCurrencyVisible;
-#endif
                 }
                 field("Source Currency Code"; Rec."Source Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the allowed source currency code if Source Currency Posting value is Same Currency.';
-#if not CLEAN24
-                    Visible = SourceCurrencyVisible;
-#endif
                 }
                 field("Source Currency Balance"; Rec."Source Currency Balance")
                 {
@@ -292,9 +267,6 @@ page 16 "Chart of Accounts"
                               "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
                               "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"),
                               "Date Filter" = field("Date Filter");
-#if not CLEAN24
-                Visible = SourceCurrencyVisible;
-#endif
             }
             systempart(Control1900383207; Links)
             {
@@ -532,9 +504,6 @@ page 16 "Chart of Accounts"
                     Image = CurrencyExchangeRates;
                     RunObject = Report "G/L Currency Revaluation";
                     ToolTip = 'Create general journal lines with currency revaluation for G/L accounts with posting in source currency.';
-#if not CLEAN24
-                    Visible = SourceCurrencyVisible;
-#endif
                 }
                 action("Close Income Statement")
                 {
@@ -732,10 +701,6 @@ page 16 "Chart of Accounts"
     }
 
     protected var
-#if not CLEAN24     
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        IsISCoreAppEnabled: Boolean;
-#endif 
     trigger OnAfterGetRecord()
     begin
         NoEmphasize := Rec."Account Type" <> Rec."Account Type"::Posting;
@@ -772,31 +737,13 @@ page 16 "Chart of Accounts"
         NameIndent: Integer;
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
-#if not CLEAN24
-        SourceCurrencyVisible: Boolean;
-#endif
 
     local procedure SetControlVisibility()
     var
         GLSetup: Record "General Ledger Setup";
-#if not CLEAN24
-        ISCoreAppSetup: Record "IS Core App Setup";
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-        ClientTypeManagement: Codeunit "Client Type Management";
-#endif
     begin
         GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
-#if not CLEAN24
-        IsISCoreAppEnabled := ISCoreAppSetup.IsEnabled();
-        SourceCurrencyVisible := FeatureKeyManagement.IsGLCurrencyRevaluationEnabled();
-        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4, ClientType::Api]
-        then
-            SourceCurrencyVisible := false
-        else
-            SourceCurrencyVisible := FeatureKeyManagement.IsGLCurrencyRevaluationEnabled();
-#endif
     end;
 }
-

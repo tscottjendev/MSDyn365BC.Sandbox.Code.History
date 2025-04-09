@@ -132,9 +132,6 @@ page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
-#if not CLEAN24
-                    Visible = false;
-#endif
                 }
                 field("Industrial Classification"; Rec."Industrial Classification")
                 {
@@ -785,4 +782,3 @@ page 1 "Company Information"
         SessionSetting.RequestSessionUpdate(false);
     end;
 }
-

@@ -6,9 +6,6 @@ namespace Microsoft.Sales.Setup;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
-#if not CLEAN24
-using Microsoft.Finance;
-#endif
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Integration.Dataverse;
@@ -374,18 +371,6 @@ page 459 "Sales & Receivables Setup"
                 group(Control1050005)
                 {
                     ShowCaption = false;
-#if not CLEAN24
-                    field("Electronic Invoicing"; Rec."Electronic Invoicing")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies if the company complies with the requirement of tracking invoicing electronically, when printing invoices in single copy.';
-                        Visible = not IsISCoreAppEnabled;
-                        Enabled = not IsISCoreAppEnabled;
-                        ObsoleteReason = 'Moved to the Iceland-Core App.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '24.0';
-                    }
-#endif
                     label(NotificationPart1)
                     {
                         ApplicationArea = Basic, Suite;
@@ -656,10 +641,6 @@ page 459 "Sales & Receivables Setup"
     trigger OnOpenPage()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
-#if not CLEAN24
-        [Obsolete('The table used to enable IS Core App.', '24.0')]
-        ISCoreAppSetup: Record "IS Core App Setup";
-#endif
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
@@ -674,9 +655,6 @@ page 459 "Sales & Receivables Setup"
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         GeneralLedgerSetup.Get();
         JnlTemplateNameVisible := GeneralLedgerSetup."Journal Templ. Name Mandatory";
-#if not CLEAN24
-        IsISCoreAppEnabled := ISCoreAppSetup.IsEnabled();
-#endif
     end;
 
     var
@@ -685,9 +663,4 @@ page 459 "Sales & Receivables Setup"
         JnlTemplateNameVisible: Boolean;
 
     protected var
-#if not CLEAN24
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        IsISCoreAppEnabled: Boolean;
-#endif
 }
-

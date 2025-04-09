@@ -223,27 +223,14 @@ table 7333 "Whse. Internal Pick Header"
     end;
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         WhseSetup.Get();
         if "No." = '' then begin
             WhseSetup.TestField("Whse. Internal Pick Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(WhseSetup."Whse. Internal Pick Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := WhseSetup."Whse. Internal Pick Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", WhseSetup."Whse. Internal Pick Nos.", 0D, "No.");
-            end;
-#endif
         end;
     end;
 
@@ -432,4 +419,3 @@ table 7333 "Whse. Internal Pick Header"
     begin
     end;
 }
-

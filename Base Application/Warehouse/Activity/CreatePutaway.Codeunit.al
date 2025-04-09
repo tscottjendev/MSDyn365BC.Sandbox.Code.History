@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -848,30 +848,11 @@ codeunit 7313 "Create Put-away"
         exit(Found);
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced with GetMessageText that is without Text length limit', '24.0')]
-    procedure GetMessage(var ErrText000: Text[80])
-    begin
-        ErrText000 := CopyStr(MessageText, 1, MaxStrLen(ErrText000));
-
-        OnAfterGetMessage(ErrText000);
-    end;
-#endif
 
     procedure GetMessageText(var ErrorText: Text)
-#if not CLEAN24
-    var
-        ErrorText80: Text[80];
-#endif
     begin
         ErrorText := MessageText;
 
-#if not CLEAN24
-        ErrorText80 := CopyStr(ErrorText, 1, MaxStrLen(ErrorText80));
-        OnAfterGetMessage(ErrorText80);
-        if CopyStr(ErrorText, 1, MaxStrLen(ErrorText80)) <> ErrorText80 then
-            ErrorText := ErrorText80;
-#endif
         OnAfterGetMessageText(ErrorText);
     end;
 
@@ -1764,13 +1745,6 @@ codeunit 7313 "Create Put-away"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced with OnAfterGetMessageText as parent procedure GetMessage is replaced GetMessageText', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetMessage(var MessageText: Text[80])
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetMessageText(var MessageText: Text)
@@ -2002,4 +1976,3 @@ codeunit 7313 "Create Put-away"
     begin
     end;
 }
-
