@@ -4497,7 +4497,8 @@ table 36 "Sales Header"
                             end;
                         FieldNo("Currency Factor"):
                             if SalesLine.Type <> SalesLine.Type::" " then begin
-                                SalesLine.Validate("Unit Price");
+                                if SalesLine."Line Discount %" <> 0 then
+                                    SalesLine.Validate("Unit Price");
                                 SalesLine.Validate("Unit Cost (LCY)");
                                 if SalesLine."Job No." <> '' then
                                     JobTransferLine.FromSalesHeaderToPlanningLine(SalesLine, "Currency Factor");
