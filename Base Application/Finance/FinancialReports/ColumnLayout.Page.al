@@ -23,6 +23,7 @@ page 489 "Column Layout"
     {
         area(content)
         {
+#if not CLEAN27
             field(CurrentColumnName; CurrentColumnName)
             {
                 ApplicationArea = Basic, Suite;
@@ -31,6 +32,10 @@ page 489 "Column Layout"
                 Lookup = true;
                 TableRelation = "Column Layout Name".Name;
                 ToolTip = 'Specifies the unique name (code) of the column definition.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This field is no longer required and will be removed in a future release.';
+                ObsoleteTag = '27.0';
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
@@ -41,6 +46,22 @@ page 489 "Column Layout"
                 begin
                     AccSchedManagement.CheckColumnName(CurrentColumnName);
                     CurrentColumnNameOnAfterValida();
+                end;
+            }
+#endif
+            field(CurrentDescription; CurrentDescription)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Description';
+                ToolTip = 'Specifies the description of the column definition. The description is not shown on the final report but is used to provide more context when using the definition.';
+
+                trigger OnValidate()
+                var
+                    ColumnLayoutName: Record "Column Layout Name";
+                begin
+                    ColumnLayoutName.Get(CurrentColumnName);
+                    ColumnLayoutName.Description := CurrentDescription;
+                    ColumnLayoutName.Modify();
                 end;
             }
             field(InternalDescription; InternalDescription)
@@ -299,13 +320,16 @@ page 489 "Column Layout"
     begin
         FinancialReportMgt.LaunchEditColumnsWarningNotification();
         AccSchedManagement.OpenColumns(CurrentColumnName, Rec);
-        GetInternalDescription();
+        if CurrentColumnName <> '' then
+            CurrPage.Caption(CurrentColumnName);
+        GetDescriptions();
     end;
 
     var
         AccSchedManagement: Codeunit AccSchedManagement;
         CurrentColumnName: Code[10];
         DimCaptionsInitialized: Boolean;
+        CurrentDescription: Text[80];
         InternalDescription: Text[250];
 
     local procedure CurrentColumnNameOnAfterValida()
@@ -315,13 +339,16 @@ page 489 "Column Layout"
         CurrPage.Update(false);
     end;
 
-    local procedure GetInternalDescription()
+    local procedure GetDescriptions()
     var
         ColumnLayoutName: Record "Column Layout Name";
     begin
+        CurrentDescription := '';
         InternalDescription := '';
-        if ColumnLayoutName.Get(CurrentColumnName) then
+        if ColumnLayoutName.Get(CurrentColumnName) then begin
+            CurrentDescription := ColumnLayoutName.Description;
             InternalDescription := ColumnLayoutName."Internal Description";
+        end;
     end;
 
     procedure SetColumnLayoutName(NewColumnName: Code[10])
