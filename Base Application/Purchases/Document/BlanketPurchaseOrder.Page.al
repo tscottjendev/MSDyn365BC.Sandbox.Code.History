@@ -96,10 +96,18 @@ page 509 "Blanket Purchase Order"
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
+                    field("Buy-from City"; Rec."Buy-from City")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'City';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the vendor who ships the items.';
+                    }
                     field("Buy-from County"; Rec."Buy-from County")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                         ToolTip = 'Specifies the county of the vendor related to the blanket purchase order.';
                     }
                     field("Buy-from Post Code"; Rec."Buy-from Post Code")
@@ -109,14 +117,6 @@ page 509 "Blanket Purchase Order"
                         Importance = Additional;
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code.';
-                    }
-                    field("Buy-from City"; Rec."Buy-from City")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'City';
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the vendor who ships the items.';
                     }
                     field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
                     {
@@ -448,10 +448,18 @@ page 509 "Blanket Purchase Order"
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'City';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city the items in the purchase order will be shipped to.';
+                    }
                     field("Ship-to County"; Rec."Ship-to County")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                         ToolTip = 'Specifies the county of the vendor related to the blanket purchase order.';
                     }
                     field("Ship-to Post Code"; Rec."Ship-to Post Code")
@@ -462,13 +470,13 @@ page 509 "Blanket Purchase Order"
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Ship-to City"; Rec."Ship-to City")
+                    field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
-                        ApplicationArea = Suite;
-                        Caption = 'City';
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Country/Region';
                         Importance = Additional;
                         QuickEntry = false;
-                        ToolTip = 'Specifies the city the items in the purchase order will be shipped to.';
+                        ToolTip = 'Specifies the country/region code of the address that you want the items on the purchase document to be shipped to.';
                     }
                     field("Ship-to Phone No."; Rec."Ship-to Phone No.")
                     {
@@ -525,10 +533,20 @@ page 509 "Blanket Purchase Order"
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
+                    field("Pay-to City"; Rec."Pay-to City")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'City';
+                        Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
+                        Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the vendor sending the invoice.';
+                    }
                     field("Pay-to County"; Rec."Pay-to County")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                         ToolTip = 'Specifies the county of the vendor related to the blanket purchase order.';
                     }
                     field("Pay-to Post Code"; Rec."Pay-to Post Code")
@@ -540,16 +558,6 @@ page 509 "Blanket Purchase Order"
                         Importance = Additional;
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code.';
-                    }
-                    field("Pay-to City"; Rec."Pay-to City")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'City';
-                        Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
-                        Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the vendor sending the invoice.';
                     }
                     field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
                     {

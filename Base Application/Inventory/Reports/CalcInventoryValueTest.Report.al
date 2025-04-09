@@ -426,17 +426,6 @@ report 5811 "Calc. Inventory Value - Test"
         ValidateCalcLevel();
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by procedure SetParameters()', '24.0')]
-    procedure InitializeRequest(NewPostingDate: Date; NewCalculatePer: Option; NewByLocation: Boolean; NewByVariant: Boolean; NewCalcBase: Option)
-    begin
-        PostingDate := NewPostingDate;
-        CalculatePer := "Inventory Value Calc. Per".FromInteger(NewCalculatePer);
-        ByLocation := NewByLocation;
-        ByVariant := NewByVariant;
-        CalcBase := "Inventory Value Calc. Base".FromInteger(NewCalcBase);
-    end;
-#endif
 
     procedure SetParameters(NewPostingDate: Date; NewCalculatePer: Enum "Inventory Value Calc. Per"; NewByLocation: Boolean; NewByVariant: Boolean; NewCalcBase: Enum "Inventory Value Calc. Base")
     begin
@@ -447,4 +436,3 @@ report 5811 "Calc. Inventory Value - Test"
         CalcBase := NewCalcBase;
     end;
 }
-

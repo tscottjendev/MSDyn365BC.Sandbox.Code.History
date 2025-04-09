@@ -99,10 +99,18 @@ page 507 "Blanket Sales Order"
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional part of the customer''s address.';
                     }
+                    field("Sell-to City"; Rec."Sell-to City")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'City';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the customer''s address.';
+                    }
                     field("Sell-to County"; Rec."Sell-to County")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                         ToolTip = 'Specifies the county for the customer whom you provide with the sales item.';
                     }
                     field("Sell-to Post Code"; Rec."Sell-to Post Code")
@@ -112,14 +120,6 @@ page 507 "Blanket Sales Order"
                         Importance = Additional;
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the customer''s address.';
-                    }
-                    field("Sell-to City"; Rec."Sell-to City")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'City';
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the customer''s address.';
                     }
                     field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
                     {
@@ -499,10 +499,18 @@ page 507 "Blanket Sales Order"
                                 QuickEntry = false;
                                 ToolTip = 'Specifies an additional part of the shipping address.';
                             }
+                            field("Ship-to City"; Rec."Ship-to City")
+                            {
+                                ApplicationArea = Suite;
+                                Caption = 'City';
+                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                                QuickEntry = false;
+                                ToolTip = 'Specifies the city of the shipping address.';
+                            }
                             field("Ship-to County"; Rec."Ship-to County")
                             {
                                 ApplicationArea = Basic, Suite;
-                                Caption = 'County';
+                                CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 ToolTip = 'Specifies the county for the customer whom you provide with the sales item.';
                             }
@@ -513,14 +521,6 @@ page 507 "Blanket Sales Order"
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 QuickEntry = false;
                                 ToolTip = 'Specifies the postal code of the shipping address.';
-                            }
-                            field("Ship-to City"; Rec."Ship-to City")
-                            {
-                                ApplicationArea = Suite;
-                                Caption = 'City';
-                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
-                                QuickEntry = false;
-                                ToolTip = 'Specifies the city of the shipping address.';
                             }
                             field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                             {
@@ -654,10 +654,20 @@ page 507 "Blanket Sales Order"
                             QuickEntry = false;
                             ToolTip = 'Specifies an additional part of the billing address.';
                         }
+                        field("Bill-to City"; Rec."Bill-to City")
+                        {
+                            ApplicationArea = Suite;
+                            Caption = 'City';
+                            Editable = (BillToOptions = BillToOptions::"Custom Address") or (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
+                            Enabled = (BillToOptions = BillToOptions::"Custom Address") or (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the city of the billing address.';
+                        }
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             ToolTip = 'Specifies the county for the customer whom you provide with the sales item.';
                         }
                         field("Bill-to Post Code"; Rec."Bill-to Post Code")
@@ -669,16 +679,6 @@ page 507 "Blanket Sales Order"
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the postal code of the billing address.';
-                        }
-                        field("Bill-to City"; Rec."Bill-to City")
-                        {
-                            ApplicationArea = Suite;
-                            Caption = 'City';
-                            Editable = (BillToOptions = BillToOptions::"Custom Address") or (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
-                            Enabled = (BillToOptions = BillToOptions::"Custom Address") or (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
-                            Importance = Additional;
-                            QuickEntry = false;
-                            ToolTip = 'Specifies the city of the billing address.';
                         }
                         field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                         {

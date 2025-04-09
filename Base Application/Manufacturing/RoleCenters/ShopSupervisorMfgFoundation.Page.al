@@ -37,48 +37,6 @@ page 9011 "Shop Supervisor Mfg Foundation"
     {
         area(rolecenter)
         {
-#if not CLEAN24
-            group(Control1900724808)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Control1907234908; "Shop Super. basic Activities")
-                {
-                    ApplicationArea = Manufacturing;
-                }
-                part("User Tasks Activities"; "User Tasks Activities")
-                {
-                    ApplicationArea = Suite;
-                }
-                part(Control1905989608; "My Items")
-                {
-                    ApplicationArea = Manufacturing;
-                }
-            }
-            group(Control1900724708)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Control21; "My Job Queue")
-                {
-                    ApplicationArea = Manufacturing;
-                    Visible = false;
-                }
-                part(Control27; "Report Inbox Part")
-                {
-                    ApplicationArea = Manufacturing;
-                    Visible = false;
-                }
-                systempart(Control1901377608; MyNotes)
-                {
-                    ApplicationArea = Manufacturing;
-                }
-            }
-#else
             part(Control1907234908; "Shop Super. basic Activities")
             {
                 ApplicationArea = Manufacturing;
@@ -109,7 +67,6 @@ page 9011 "Shop Supervisor Mfg Foundation"
             {
                 ApplicationArea = Manufacturing;
             }
-#endif
         }
     }
 
@@ -557,4 +514,3 @@ page 9011 "Shop Supervisor Mfg Foundation"
         }
     }
 }
-
