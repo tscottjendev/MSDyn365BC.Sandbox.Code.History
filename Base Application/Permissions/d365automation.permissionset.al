@@ -488,10 +488,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "CAL Test Suite" = RIMD,
                   tabledata "Calendar Absence Entry" = RIMD,
                   tabledata "Calendar Entry" = RIMD,
-#if not CLEAN24
-                  tabledata "Calendar Event" = Rimd,
-                  tabledata "Calendar Event User Config." = Rimd,
-#endif
                   tabledata Campaign = RIMD,
                   tabledata "Campaign Entry" = RIMD,
                   tabledata "Campaign Status" = RIMD,
@@ -1087,9 +1083,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Logged Segment" = RIMd,
                   tabledata "Lot Bin Buffer" = RIMD,
                   tabledata "Lot No. Information" = RIMD,
-#if not CLEAN24
-                  tabledata "Man. Integration Field Mapping" = RIMD,
-#endif
                   tabledata "Man. Integration Table Mapping" = RIMD,
                   tabledata "Man. Int. Field Mapping" = RIMD,
                   tabledata "Machine Center" = RIMD,

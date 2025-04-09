@@ -16,9 +16,10 @@ codeunit 131920 "Library - Job"
         LibraryService: Codeunit "Library - Service";
         LibraryInventory: Codeunit "Library - Inventory";
         ConsumptionSource: Option Job,Service,GenJournal,Purchase;
-        Prefix: Label 'ZZZ';
-        TemplateName: Label 'T';
-        NoSeriesCode: Label 'JOBTEST';
+        PrefixTxt: Label 'ZZZ';
+        TemplateNameTxt: Label 'T';
+        NoSeriesCodeTxt: Label 'JOBTEST';
+        JobNosTok: Label 'JOB NOS', Locked = true;
         ErrorMsg: Label 'Unsupported type.';
         JobNoErr: Label 'GLEntry."Job No."';
 
@@ -34,7 +35,7 @@ codeunit 131920 "Library - Job"
         // create a (LCY) job for a random customer
 
         // Find the next available job no.
-        JobNo := Prefix + 'J000';
+        JobNo := PrefixTxt + 'J000';
         repeat
             JobNo := IncStr(JobNo);
         until not Job.Get(JobNo);
@@ -54,7 +55,7 @@ codeunit 131920 "Library - Job"
     begin
         // Create a (posting) task for a job
 
-        JobTaskNo := Prefix + 'JT001';
+        JobTaskNo := PrefixTxt + 'JT001';
 
         // Find the last task no. (as an integer)
         JobTaskLocal.SetRange("Job No.", Job."No.");
@@ -303,7 +304,7 @@ codeunit 131920 "Library - Job"
         Clear(JobJournalBatch);
 
         // Find a unique batch name (wrt existing and previously posted batches)
-        BatchName := Prefix + 'B000';
+        BatchName := PrefixTxt + 'B000';
         repeat
             BatchName := IncStr(BatchName);
         until not JobJournalBatch.Get(JobJournalTemplateName, BatchName);
@@ -347,8 +348,8 @@ codeunit 131920 "Library - Job"
     procedure GetJobJournalTemplate(var JobJournalTemplate: Record "Job Journal Template"): Code[10]
     begin
         Clear(JobJournalTemplate);
-        if not JobJournalTemplate.Get(Prefix + TemplateName) then begin
-            JobJournalTemplate.Validate(Name, Prefix + TemplateName);
+        if not JobJournalTemplate.Get(PrefixTxt + TemplateNameTxt) then begin
+            JobJournalTemplate.Validate(Name, PrefixTxt + TemplateNameTxt);
             JobJournalTemplate.Insert(true)
         end;
 
@@ -361,7 +362,7 @@ codeunit 131920 "Library - Job"
     var
         JobJournalTemplate: Record "Job Journal Template";
     begin
-        if JobJournalTemplate.Get(Prefix + TemplateName) then
+        if JobJournalTemplate.Get(PrefixTxt + TemplateNameTxt) then
             JobJournalTemplate.Delete(true);
     end;
 
@@ -418,7 +419,7 @@ codeunit 131920 "Library - Job"
         Clear(GenJournalBatch);
 
         // Find a unique name (wrt existing and previously posted batches)
-        BatchName := Prefix + 'B000';
+        BatchName := PrefixTxt + 'B000';
         repeat
             BatchName := IncStr(BatchName);
             GLEntry.SetRange("Journal Batch Name", BatchName);
@@ -436,8 +437,8 @@ codeunit 131920 "Library - Job"
         // In this test codeunit we always use the same gen. journal template
 
         Clear(GenJournalTemplate);
-        if not GenJournalTemplate.Get(Prefix + TemplateName) then begin
-            GenJournalTemplate.Validate(Name, Prefix + TemplateName);
+        if not GenJournalTemplate.Get(PrefixTxt + TemplateNameTxt) then begin
+            GenJournalTemplate.Validate(Name, PrefixTxt + TemplateNameTxt);
             GenJournalTemplate.Insert(true)
         end;
 
@@ -452,13 +453,26 @@ codeunit 131920 "Library - Job"
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
     begin
-        if not NoSeries.Get(NoSeriesCode) then begin
-            LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
-            NoSeries.Rename(NoSeriesCode);
-            LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '')
+        if not NoSeries.Get(NoSeriesCodeTxt) then begin
+            LibraryUtility.CreateNoSeries(NoSeriesCodeTxt, true, false, false);
+            LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeriesCodeTxt, '', '')
         end;
 
-        exit(NoSeries.Code)
+        exit(NoSeriesCodeTxt)
+    end;
+
+    procedure SetJobNoSeriesCode()
+    var
+        JobsSetup: Record "Jobs Setup";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        JobsSetup.Get();
+        if JobsSetup."Job Nos." = '' then begin
+            LibraryUtility.CreateNoSeries(JobNosTok, true, true, false);
+            LibraryUtility.CreateNoSeriesLine(NoSeriesLine, JobNosTok, 'J0000001', 'J9999991');
+            JobsSetup.Validate("Job Nos.", JobNosTok);
+            JobsSetup.Modify(true);
+        end;
     end;
 
     procedure CreateConsumable(Type: Enum "Job Planning Line Type"): Code[20]
@@ -747,9 +761,7 @@ codeunit 131920 "Library - Job"
 
         Assert.AreEqual(
           1, JobLedgerEntry.Count(),
-          StrSubstNo(
-            'Invalid Job Ledger Entry for Batch %1 Document %2', JobJournalLine."Journal Batch Name",
-            JobJournalLine."Document No."));
+          StrSubstNo('Invalid Job Ledger Entry for Batch %1 Document %2', JobJournalLine."Journal Batch Name", JobJournalLine."Document No."));
 
         JobLedgerEntry.FindFirst();
         Precision := max(GetAmountRoundingPrecision(''), GetAmountRoundingPrecision(JobJournalLine."Currency Code"));
@@ -1332,4 +1344,3 @@ codeunit 131920 "Library - Job"
         UpdateJobItemCost.Run();
     end;
 }
-

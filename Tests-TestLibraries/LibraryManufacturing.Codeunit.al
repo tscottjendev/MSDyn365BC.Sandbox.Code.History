@@ -210,15 +210,6 @@ codeunit 132202 "Library - Manufacturing"
         exit(ProductionOrder."No.");
     end;
 
-#if not CLEAN24
-    [Obsolete('Moved implementation to ChangeProuctionOrderStatus method.', '24.0')]
-    procedure ChangeStatusFirmPlanToReleased(ProductionOrderNo: Code[20]; FromStatus: Enum "Production Order Status"; ToStatus: Enum "Production Order Status"): Code[20]
-    var
-        ProductionOrder: Record "Production Order";
-    begin
-        exit(ChangeProuctionOrderStatus(ProductionOrderNo, FromStatus, ToStatus));
-    end;
-#endif
     procedure ChangeStatusFirmPlanToReleased(ProductionOrderNo: Code[20]): Code[20]
     var
         ProductionOrder: Record "Production Order";
@@ -1313,4 +1304,3 @@ codeunit 132202 "Library - Manufacturing"
         end;
     end;
 }
-

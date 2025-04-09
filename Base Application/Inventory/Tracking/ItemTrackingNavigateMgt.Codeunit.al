@@ -72,17 +72,6 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         RecRef: RecordRef;
         LastEntryNo: Integer;
 
-#if not CLEAN24
-    [Obsolete('Replaced by same procedure with PackageNoFilter parameter', '24.0')]
-    procedure FindTrackingRecords(SerialNoFilter: Text; LotNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
-    begin
-        GlobalItemFilters.SetFilter("No.", ItemNoFilter);
-        GlobalItemFilters.SetFilter("Variant Filter", VariantFilter);
-        GlobalItemFilters.SetFilter("Serial No. Filter", SerialNoFilter);
-        GlobalItemFilters.SetFilter("Lot No. Filter", LotNoFilter);
-        FindTrackingRecords(GlobalItemFilters);
-    end;
-#endif
 
     procedure FindTrackingRecords(SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
     begin
@@ -1161,4 +1150,3 @@ codeunit 6529 "Item Tracking Navigate Mgt."
     begin
     end;
 }
-

@@ -516,16 +516,6 @@ table 270 "Bank Account"
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
-#if not CLEAN24
-        field(103; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
 #pragma warning disable AS0086
         field(103; "Home Page"; Text[255])
         {
@@ -533,7 +523,6 @@ table 270 "Bank Account"
             ExtendedDatatype = URL;
         }
 #pragma warning restore AS0086
-#endif
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -798,29 +787,10 @@ table 270 "Bank Account"
     trigger OnInsert()
     var
         BankAccount: Record "Bank Account";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "No." = '' then begin
             GLSetup.Get();
             GLSetup.TestField("Bank Account Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(GLSetup."Bank Account Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(GLSetup."Bank Account Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := GLSetup."Bank Account Nos.";
-                "No." := NoSeries.GetNextNo("No. Series");
-                BankAccount.ReadIsolation(IsolationLevel::ReadUncommitted);
-                BankAccount.SetLoadFields("No.");
-                while BankAccount.Get("No.") do
-                    "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", GLSetup."Bank Account Nos.", 0D, "No.");
-            end;
-#else
 			if NoSeries.AreRelated(GLSetup."Bank Account Nos.", xRec."No. Series") then
 				"No. Series" := xRec."No. Series"
 			else
@@ -830,7 +800,6 @@ table 270 "Bank Account"
             BankAccount.SetLoadFields("No.");
             while BankAccount.Get("No.") do
                 "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
 
         if not InsertFromContact then

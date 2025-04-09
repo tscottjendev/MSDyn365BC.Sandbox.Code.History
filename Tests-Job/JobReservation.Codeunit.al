@@ -1175,6 +1175,7 @@ codeunit 136312 "Job Reservation"
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup.Modify();
+        LibraryJob.SetJobNoSeriesCode();
 
         IsInitialized := true;
         Commit();
@@ -1589,4 +1590,3 @@ codeunit 136312 "Job Reservation"
         Reply := false;
     end;
 }
-

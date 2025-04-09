@@ -1,4 +1,4 @@
-﻿namespace System.AI;
+namespace System.AI;
 
 using Microsoft.CashFlow.Setup;
 using Microsoft.Foundation.Period;
@@ -39,17 +39,6 @@ codeunit 2000 "Time Series Management"
         UseStandardCredentials: Boolean;
         ForecastSecretNameTxt: Label 'ml-forecast', Locked = true;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [Obsolete('Use Initialize(Uri: SecretText; "Key": SecretText; TimeOutSeconds: Integer; UseStdCredentials: Boolean) instead.', '24.0')]
-    [TryFunction]
-    procedure Initialize(Uri: Text; "Key": Text; TimeOutSeconds: Integer; UseStdCredentials: Boolean)
-    var
-        SecretKey: SecretText;
-    begin
-        Initialize(Uri, SecretKey, TimeOutSeconds, UseStdCredentials);
-    end;
-#endif
     [TryFunction]
     procedure Initialize(Uri: Text; "Key": SecretText; TimeOutSeconds: Integer; UseStdCredentials: Boolean)
     var
@@ -475,19 +464,6 @@ codeunit 2000 "Time Series Management"
         exit(TimeSeriesModelOption);
     end;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [TryFunction]
-    [Scope('OnPrem')]
-    [Obsolete('Use GetMLForecastCredentials(var Uri: Text[250]; var "Key": SecretText; var LimitType: Option; var Limit: Decimal) instead.', '24.0')]
-    procedure GetMLForecastCredentials(var LocalApiUri: Text[250]; var "Key": Text[200]; var LimitType: Option; var Limit: Decimal)
-    var
-        MachineLearningKeyVaultMgmt: Codeunit "Machine Learning KeyVaultMgmt.";
-    begin
-        MachineLearningKeyVaultMgmt.GetMachineLearningCredentials(ForecastSecretNameTxt, LocalApiUri, "Key", LimitType, Limit);
-        LocalApiUri += '/execute?api-version=2.0&details=true';
-    end;
-#endif
     [NonDebuggable]
     [TryFunction]
     [Scope('OnPrem')]
@@ -499,4 +475,3 @@ codeunit 2000 "Time Series Management"
         LocalApiUri += '/execute?api-version=2.0&details=true';
     end;
 }
-

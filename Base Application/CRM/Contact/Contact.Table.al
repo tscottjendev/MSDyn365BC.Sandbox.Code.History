@@ -342,17 +342,6 @@ table 5050 Contact
                 SetSearchEmail();
             end;
         }
-#if not CLEAN24
-        field(103; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            OptimizeForTextSearch = true;
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
 #pragma warning disable AS0086
         field(103; "Home Page"; Text[255])
         {
@@ -361,7 +350,6 @@ table 5050 Contact
             ExtendedDatatype = URL;
         }
 #pragma warning restore AS0086
-#endif
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -1169,9 +1157,6 @@ table 5050 Contact
     trigger OnInsert()
     var
         Contact: Record Contact;
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1183,21 +1168,6 @@ table 5050 Contact
 
         if "No." = '' then begin
             RMSetup.TestField("Contact Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RMSetup."Contact Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(RMSetup."Contact Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := RMSetup."Contact Nos.";
-                "No." := NoSeries.GetNextNo("No. Series");
-                Contact.ReadIsolation(IsolationLevel::ReadUncommitted);
-                Contact.SetLoadFields("No.");
-                while Contact.Get("No.") do
-                    "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", RMSetup."Contact Nos.", 0D, "No.");
-            end;
-#else
 			if NoSeries.AreRelated(RMSetup."Contact Nos.", xRec."No. Series") then
 				"No. Series" := xRec."No. Series"
 			else
@@ -1207,7 +1177,6 @@ table 5050 Contact
             Contact.SetLoadFields("No.");
             while Contact.Get("No.") do
                 "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
 
         if not SkipDefaults then begin
