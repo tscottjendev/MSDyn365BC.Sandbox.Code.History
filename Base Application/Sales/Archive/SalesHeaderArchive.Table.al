@@ -579,17 +579,6 @@ table 5107 "Sales Header Archive"
             TableRelation = "Shipping Agent";
             ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
         }
-#if not CLEAN24
-        field(106; "Package Tracking No."; Text[30])
-        {
-            Caption = 'Package Tracking No.';
-            OptimizeForTextSearch = true;
-            ObsoleteReason = 'Field length will be increased to 50.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-            ToolTip = 'Specifies the shipping agent''s package number.';
-        }
-#else
 #pragma warning disable AS0086
         field(106; "Package Tracking No."; Text[50])
         {
@@ -598,7 +587,6 @@ table 5107 "Sales Header Archive"
             ToolTip = 'Specifies the shipping agent''s package number.';
         }
 #pragma warning restore AS0086
-#endif
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
