@@ -180,16 +180,6 @@ table 288 "Vendor Bank Account"
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
-#if not CLEAN24
-        field(23; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
 #pragma warning disable AS0086
         field(23; "Home Page"; Text[255])
         {
@@ -197,7 +187,6 @@ table 288 "Vendor Bank Account"
             ExtendedDatatype = URL;
         }
 #pragma warning restore AS0086
-#endif
         field(24; IBAN; Code[50])
         {
             Caption = 'IBAN';
@@ -338,4 +327,3 @@ table 288 "Vendor Bank Account"
     begin
     end;
 }
-

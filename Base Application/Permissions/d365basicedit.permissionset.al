@@ -256,10 +256,6 @@ permissionset 208 "D365 Basic - Edit"
                   tabledata "Business Chart Buffer" = IMD,
                   tabledata "Business Chart Map" = IMD,
                   tabledata "Business Chart User Setup" = IMD,
-#if not CLEAN24
-                  tabledata "Calendar Event" = imd,
-                  tabledata "Calendar Event User Config." = imd,
-#endif
                   tabledata "Cash Flow Availability Buffer" = IMD,
                   tabledata "Cash Flow Azure AI Buffer" = imd,
                   tabledata "Cash Flow Setup" = i,

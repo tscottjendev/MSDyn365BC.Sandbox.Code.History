@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -425,10 +425,16 @@ table 28071 "Sales Tax Invoice Header"
             Caption = 'Shipping Agent Code';
             TableRelation = "Shipping Agent";
         }
-        field(106; "Package Tracking No."; Text[30])
+#if not CLEAN25
+#pragma warning disable AS0086
+#endif
+        field(106; "Package Tracking No."; Text[50])
         {
             Caption = 'Package Tracking No.';
         }
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         field(107; "Pre-Assigned No. Series"; Code[20])
         {
             Caption = 'Pre-Assigned No. Series';
@@ -623,41 +629,21 @@ table 28071 "Sales Tax Invoice Header"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         SalesSetup.Get();
         if "No." = '' then
             if TaxInvoiceManagement.CheckTaxableNoSeries("Sell-to Customer No.", 1) then begin
                 SalesSetup.TestField("Posted Non Tax Invoice Nos.");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(SalesSetup."Posted Non Tax Invoice Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-                if not IsHandled then begin
-#endif
-                    "No. Series" := SalesSetup."Posted Non Tax Invoice Nos.";
-                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                        "No. Series" := xRec."No. Series";
-                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#if not CLEAN24
-                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", SalesSetup."Posted Non Tax Invoice Nos.", "Posting Date", "No.");
-                end;
-#endif
+                "No. Series" := SalesSetup."Posted Non Tax Invoice Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
             end else begin
                 TestNoSeries();
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(SalesSetup."Posted Tax Invoice Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-                if not IsHandled then begin
-#endif
-                    "No. Series" := SalesSetup."Posted Tax Invoice Nos.";
-                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                        "No. Series" := xRec."No. Series";
-                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#if not CLEAN24
-                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", SalesSetup."Posted Tax Invoice Nos.", "Posting Date", "No.");
-                end;
-#endif
+                "No. Series" := SalesSetup."Posted Tax Invoice Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
             end;
     end;
 
@@ -703,4 +689,3 @@ table 28071 "Sales Tax Invoice Header"
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 }
-

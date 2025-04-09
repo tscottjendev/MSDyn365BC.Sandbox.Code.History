@@ -1149,9 +1149,6 @@ table 254 "VAT Entry"
         "Add.-Curr. Realized Amount" := Sign * "Add.-Curr. Realized Amount";
         "Add.-Curr. Realized Base" := Sign * "Add.-Curr. Realized Base";
 
-#if not CLEAN24
-        OnAfterCopyAmountsFromVATEntry(VATEntry, WithOppositeSign);
-#endif
         OnAfterOnCopyAmountsFromVATEntry(VATEntry, WithOppositeSign, Rec);
     end;
 
@@ -1176,13 +1173,6 @@ table 254 "VAT Entry"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Use the OnAfterOnCopyAmountsFromVATEntry method instead', '24.0')]
-    [IntegrationEvent(false, false)]
-    procedure OnAfterCopyAmountsFromVATEntry(var VATEntry: Record "VAT Entry"; WithOppositeSign: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnCopyAmountsFromVATEntry(var VATEntry: Record "VAT Entry"; WithOppositeSign: Boolean; var RecVATEntry: Record "VAT Entry")
@@ -1199,4 +1189,3 @@ table 254 "VAT Entry"
     begin
     end;
 }
-

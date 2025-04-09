@@ -182,17 +182,6 @@ table 1140 "OAuth 2.0 Setup"
                 value := '/' + value;
     end;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [Obsolete('Use SetToken with paramaters declared as SecretText instead.', '24.0')]
-    procedure SetToken(var TokenKey: Guid; TokenValue: Text)
-    var
-        TokenValueSecretText: SecretText;
-    begin
-        TokenValueSecretText := TokenValue;
-        SetToken(TokenKey, TokenValueSecretText);
-    end;
-#endif
 
     procedure SetToken(var TokenKey: Guid; TokenValue: SecretText)
     begin
@@ -205,17 +194,6 @@ table 1140 "OAuth 2.0 Setup"
             IsolatedStorage.Set(TokenKey, TokenValue, GetTokenDataScope());
     end;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [Obsolete('Use GetToken with paramaters declared as SecretText instead.', '24.0')]
-    procedure GetToken(TokenKey: Guid) TokenValue: Text
-    var
-        TokenValueSecretText: SecretText;
-    begin
-        TokenValueSecretText := GetTokenAsSecretText(TokenKey);
-        TokenValue := TokenValueSecretText.Unwrap();
-    end;
-#endif
 
     procedure GetTokenAsSecretText(TokenKey: Guid) TokenValue: SecretText
     begin
@@ -341,4 +319,3 @@ table 1140 "OAuth 2.0 Setup"
     begin
     end;
 }
-

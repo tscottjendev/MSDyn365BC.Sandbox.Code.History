@@ -3832,55 +3832,6 @@ table 81 "Gen. Journal Line"
         until GenJnlLineLocal.Next() = 0;
     end;
 
-#if not CLEAN24
-#pragma warning disable AL0432
-    [Obsolete('Do not use this procedure. It is for compatibility only.', '24.0')]
-    procedure ObsoleteCheckDocNoBasedOnNoSeries(PrevDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement)
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckDocNoBasedOnNoSeries(Rec, PrevDocNo, NoSeriesCode, NoSeriesMgtInstance, IsHandled);
-        if IsHandled then
-            NoSeriesMgtInstance.SaveNoSeries();
-    end;
-
-    [Obsolete('This method is no longer used. Do the check directly in code instead.', '24.0')]
-    procedure CheckDocNoBasedOnNoSeries(PrevDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement)
-    var
-        NoSeries: Record "No. Series";
-        NoSeriesLine: Record "No. Series Line";
-        IsHandled: Boolean;
-        DoDocumentNoTest: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckDocNoBasedOnNoSeries(Rec, PrevDocNo, NoSeriesCode, NoSeriesMgtInstance, IsHandled);
-        if IsHandled then
-            exit;
-
-        if NoSeriesCode = '' then
-            exit;
-
-        if (PrevDocNo = '') or ("Document No." <> PrevDocNo) then begin
-            if NoSeriesMgtInstance.FindNoSeriesLine(NoSeriesLine, NoSeriesCode, "Posting Date") then
-                if not NoSeriesMgtInstance.IsCurrentNoSeriesLine(NoSeriesLine) then
-                    NoSeriesMgtInstance.SaveNoSeries();
-
-            DoDocumentNoTest := "Document No." <> NoSeriesMgtInstance.GetNextNo(NoSeriesCode, "Posting Date", false);
-            if not DoDocumentNoTest then begin
-                if NoSeries.Get(NoSeriesCode) then;
-                if (NoSeriesMgtInstance.FindNoSeriesLine(NoSeriesLine, NoSeriesCode, "Posting Date")) then
-                    DoDocumentNoTest := not NoSeries."Manual Nos." and not NoSeriesMgtInstance.IsCurrentNoSeriesLine(NoSeriesLine);
-            end;
-
-            if DoDocumentNoTest then begin
-                NoSeriesMgtInstance.TestManualWithDocumentNo(NoSeriesCode, "Document No.");  // allow use of manual document numbers.
-                NoSeriesMgtInstance.ClearNoSeriesLine();
-            end;
-        end;
-    end;
-#pragma warning restore AL0432
-#endif
 
     /// <summary>
     /// Updates the document numbers on general journal lines to ensure correct sequence
@@ -7295,13 +7246,6 @@ table 81 "Gen. Journal Line"
         end;
     end;
 
-#if not CLEAN24
-    [Obsolete('Use SimulateGetNextNo from "No. Series - Batch" instead', '24.0')]
-    procedure IncrementDocumentNo(LocGenJnlBatch: Record "Gen. Journal Batch"; var LastDocNumber: Code[20])
-    begin
-        LastDocNumber := NoSeriesBatch.SimulateGetNextNo(LocGenJnlBatch."No. Series", Rec."Posting Date", LastDocNumber);
-    end;
-#endif
 
     procedure NeedCheckZeroAmount(): Boolean
     begin
@@ -9408,13 +9352,6 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Subscribe to OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries in Gen. Jnl.-Post Batch instead.', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDocNoBasedOnNoSeries(var GenJournalLine: Record "Gen. Journal Line"; LastDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     /// <summary>
     /// Event triggered before copying dimensions from the job task line.
@@ -11941,13 +11878,6 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('Currency posting for employee is now allowed, so check was removed', '24.0')]
-    local procedure OnBeforeCheckCurrencyForEmployee(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var Condition: Boolean)
-    begin
-    end;
-#endif
 
     /// <summary>
     /// Event triggered before default validation for the "Job No." field has been executed.
