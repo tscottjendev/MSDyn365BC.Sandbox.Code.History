@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -363,22 +363,6 @@ codeunit 1302 "Customer Mgt."
         exit(Totals);
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by procedure CalculateShipBillToOptions()', '24.0')]
-    procedure CalculateShipToBillToOptions(var ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address"; var BillToOptions: Option "Default (Customer)","Another Customer","Custom Address"; var SalesHeader: Record "Sales Header")
-    var
-        ShipToOptionsEnum: Enum "Sales Ship-to Options";
-        BillToOptionsEnum: Enum "Sales Bill-to Options";
-    begin
-        ShipToOptionsEnum := "Sales Ship-to Options".FromInteger(ShipToOptions);
-        BillToOptionsEnum := "Sales Bill-to Options".FromInteger(BillToOptions);
-        CalculateShipBillToOptions(ShipToOptionsEnum, BillToOptionsEnum, SalesHeader);
-        ShipToOptions := ShipToOptionsEnum.AsInteger();
-        BillToOptions := BillToOptionsEnum.AsInteger();
-
-        OnAfterCalculateShipToBillToOptions(ShipToOptions, BillToOptions, SalesHeader);
-    end;
-#endif
 
     procedure SearchForExternalDocNo(var OriginalSalesHeader: Record "Sales Header"): Boolean
     var
@@ -476,17 +460,9 @@ codeunit 1302 "Customer Mgt."
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by event OnAfterCalculateShipBillToOptions()', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCalculateShipToBillToOptions(var ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address"; var BillToOptions: Option "Default (Customer)","Another Customer","Custom Address"; SalesHeader: Record "Sales Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateStatisticsWithCurrentCustomerValues(var Customer: Record Customer; var AdjmtCostLCY: Decimal; var AdjCustProfit: Decimal; var AdjProfitPct: Decimal; var CustInvDiscAmountLCY: Decimal; var CustPaymentsLCY: Decimal; var CustSalesLCY: Decimal; var CustProfit: Decimal; var IsHandled: Boolean)
     begin
     end;
 }
-

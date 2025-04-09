@@ -721,11 +721,6 @@ table 900 "Assembly Header"
     var
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        DefaultNoSeriesCode: Code[20];
-        IsHandled: Boolean;
-#endif
     begin
         CheckIsNotAsmToOrder();
 
@@ -733,24 +728,11 @@ table 900 "Assembly Header"
 
         if "No." = '' then begin
             TestNoSeries();
-#if not CLEAN24
-            DefaultNoSeriesCode := GetNoSeriesCode();
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(DefaultNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(DefaultNoSeriesCode, xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := DefaultNoSeriesCode;
-                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", DefaultNoSeriesCode, "Posting Date", "No.");
-            end;
-#else
             if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
                 "No. Series" := xRec."No. Series"
             else
                 "No. Series" := GetNoSeriesCode();
             "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#endif
         end;
 
         if "Document Type" = "Document Type"::Order then begin
@@ -2322,4 +2304,3 @@ table 900 "Assembly Header"
     begin
     end;
 }
-

@@ -617,32 +617,15 @@ table 5092 Opportunity
     end;
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "No." = '' then begin
             RMSetup.Get();
             RMSetup.TestField("Opportunity Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RMSetup."Opportunity Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(RMSetup."Opportunity Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := RMSetup."Opportunity Nos.";
-                "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", RMSetup."Opportunity Nos.", 0D, "No.");
-            end;
-#else
 			if NoSeries.AreRelated(RMSetup."Opportunity Nos.", xRec."No. Series") then
 				"No. Series" := xRec."No. Series"
 			else
 				"No. Series" := RMSetup."Opportunity Nos.";
             "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
 
         if "Salesperson Code" = '' then
@@ -1401,4 +1384,3 @@ table 5092 Opportunity
     begin
     end;
 }
-

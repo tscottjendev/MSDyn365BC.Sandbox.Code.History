@@ -1026,18 +1026,6 @@ table 18 Customer
                 ValidateEmail();
             end;
         }
-#if not CLEAN24
-        field(103; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            OptimizeForTextSearch = true;
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-            ToolTip = 'Specifies the customer''s home page address.';
-        }
-#else
 #pragma warning disable AS0086
         field(103; "Home Page"; Text[255])
         {
@@ -1047,7 +1035,6 @@ table 18 Customer
             ToolTip = 'Specifies the customer''s home page address.';
         }
 #pragma warning restore AS0086
-#endif
         field(104; "Reminder Terms Code"; Code[10])
         {
             Caption = 'Reminder Terms Code';
@@ -1922,9 +1909,6 @@ table 18 Customer
     trigger OnInsert()
     var
         Customer: Record Customer;
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1935,10 +1919,6 @@ table 18 Customer
         if "No." = '' then begin
             SalesSetup.Get();
             SalesSetup.TestField("Customer Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(SalesSetup."Customer Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := SalesSetup."Customer Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
@@ -1947,10 +1927,6 @@ table 18 Customer
                 Customer.SetLoadFields("No.");
                 while Customer.Get("No.") do
                     "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", SalesSetup."Customer Nos.", 0D, "No.");
-            end;
-#endif
         end;
 
         if "Invoice Disc. Code" = '' then
@@ -2891,14 +2867,6 @@ table 18 Customer
         exit(Result);
     end;
 
-#if not CLEAN24
-    [Scope('OnPrem')]
-    [Obsolete('Use SelectCustomer(var Customer: Record Customer): Boolean instead.', '24.0')]
-    procedure LookupCustomer(var Customer: Record Customer): Boolean
-    begin
-        exit(SelectCustomer(Customer));
-    end;
-#endif
 
     local procedure MarkCustomersByFilters(var Customer: Record Customer)
     begin

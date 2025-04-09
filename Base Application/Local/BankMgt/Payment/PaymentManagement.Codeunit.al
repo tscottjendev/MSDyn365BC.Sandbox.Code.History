@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -265,10 +265,6 @@ codeunit 10860 "Payment Management"
         Process: Record "Payment Class";
         PaymentStatus: Record "Payment Status";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
         i: Integer;
     begin
         if FromPaymentLine.Find('-') then begin
@@ -276,16 +272,8 @@ codeunit 10860 "Payment Management"
             Process.Get(FromPaymentLine."Payment Class");
             if PayNum = '' then begin
                 i := 10000;
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(Step."Header Nos. Series", '', 0D, ToBord."No.", ToBord."No. Series", IsHandled);
-                if not IsHandled then begin
-#endif
                     ToBord."No. Series" := Step."Header Nos. Series";
                     ToBord."No." := NoSeries.GetNextNo(ToBord."No. Series");
-#if not CLEAN24
-                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries(ToBord."No. Series", Step."Header Nos. Series", 0D, ToBord."No.");
-                end;
-#endif
                 ToBord."Payment Class" := FromPaymentLine."Payment Class";
                 ToBord."Status No." := Step."Next Status";
                 PaymentStatus.Get(ToBord."Payment Class", ToBord."Status No.");
@@ -1190,4 +1178,3 @@ codeunit 10860 "Payment Management"
     begin
     end;
 }
-

@@ -818,32 +818,15 @@ table 5080 "To-do"
     end;
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "No." = '' then begin
             RMSetup.Get();
             RMSetup.TestField("To-do Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RMSetup."To-do Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(RMSetup."To-do Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := RMSetup."To-do Nos.";
-                "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", RMSetup."To-do Nos.", 0D, "No.");
-            end;
-#else
 			if NoSeries.AreRelated(RMSetup."To-do Nos.", xRec."No. Series") then
 				"No. Series" := xRec."No. Series"
 			else
 				"No. Series" := RMSetup."To-do Nos.";
             "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
         if (("System To-do Type" = "System To-do Type"::Organizer) and
             ("Team Code" = '')) or

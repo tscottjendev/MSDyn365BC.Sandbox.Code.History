@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -1828,17 +1828,6 @@ table 36 "Sales Header"
                 UpdateSalesLinesByFieldNo(FieldNo("Shipping Agent Code"), CurrFieldNo <> 0);
             end;
         }
-#if not CLEAN24
-        field(106; "Package Tracking No."; Text[30])
-        {
-            Caption = 'Package Tracking No.';
-            ToolTip = 'Specifies the shipping agent''s package number.';
-            OptimizeForTextSearch = true;
-            ObsoleteReason = 'Field length will be increased to 50.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
 #pragma warning disable AS0086
         field(106; "Package Tracking No."; Text[50])
         {
@@ -1847,7 +1836,6 @@ table 36 "Sales Header"
             OptimizeForTextSearch = true;
         }
 #pragma warning restore AS0086
-#endif
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -3392,12 +3380,6 @@ table 36 "Sales Header"
         SalesSetup: Record "Sales & Receivables Setup";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-#if not CLEAN24
-#pragma warning disable AA0137, AL0432
-        [Obsolete('This variable is no longer used. Please us codeunit "No. Series" instead.', '24.0')]
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#pragma warning restore AA0137, AL0432
-#endif
         HideCreditCheckDialogue: Boolean;
         HideValidationDialog: Boolean;
         InsertMode: Boolean;
@@ -3414,9 +3396,6 @@ table 36 "Sales Header"
     var
         SalesHeader2: Record "Sales Header";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt2: Codeunit NoSeriesManagement;
-#endif
         NoSeriesCode: Code[20];
         IsHandled: Boolean;
     begin
@@ -3426,10 +3405,6 @@ table 36 "Sales Header"
             if "No." = '' then begin
                 TestNoSeries();
                 NoSeriesCode := GetNoSeriesCode();
-#if not CLEAN24
-                NoSeriesMgt2.RaiseObsoleteOnBeforeInitSeries(NoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-                if not IsHandled then begin
-#endif
                     "No. Series" := NoSeriesCode;
                     if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                         "No. Series" := xRec."No. Series";
@@ -3438,10 +3413,6 @@ table 36 "Sales Header"
                     SalesHeader2.SetLoadFields("No.");
                     while SalesHeader2.Get("Document Type", "No.") do
                         "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#if not CLEAN24
-                    NoSeriesMgt2.RaiseObsoleteOnAfterInitSeries("No. Series", NoSeriesCode, "Posting Date", "No.");
-                end;
-#endif
             end;
 
         OnInitInsertOnBeforeInitRecord(Rec, xRec);
@@ -8977,11 +8948,7 @@ table 36 "Sales Header"
     /// </summary>
     procedure InitPostingNoSeries()
     var
-#if CLEAN24
         NoSeries: Codeunit "No. Series";
-#else
-        NoSeriesMgt2: Codeunit NoSeriesManagement;
-#endif
         PostingNoSeries: Code[20];
     begin
         GLSetup.GetRecordOnce();
@@ -9004,7 +8971,6 @@ table 36 "Sales Header"
         case "Document Type" of
             "Document Type"::Quote, "Document Type"::Order:
                 begin
-#if CLEAN24
                     if NoSeries.IsAutomatic(PostingNoSeries) then
                         "Posting No. Series" := PostingNoSeries;
                     if NoSeries.IsAutomatic(SalesSetup."Posted Shipment Nos.") then
@@ -9013,77 +8979,36 @@ table 36 "Sales Header"
                         "Prepayment No. Series" := SalesSetup."Posted Prepmt. Inv. Nos.";
                     if NoSeries.IsAutomatic(SalesSetup."Posted Prepmt. Cr. Memo Nos.") then
                         "Prepmt. Cr. Memo No. Series" := SalesSetup."Posted Prepmt. Cr. Memo Nos.";
-#else
-#pragma warning disable AL0432
-                    NoSeriesMgt2.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-                    NoSeriesMgt2.SetDefaultSeries("Shipping No. Series", SalesSetup."Posted Shipment Nos.");
-                    if "Document Type" = "Document Type"::Order then begin
-                        NoSeriesMgt2.SetDefaultSeries("Prepayment No. Series", SalesSetup."Posted Prepmt. Inv. Nos.");
-                        NoSeriesMgt2.SetDefaultSeries("Prepmt. Cr. Memo No. Series", SalesSetup."Posted Prepmt. Cr. Memo Nos.");
-                    end;
-#pragma warning restore AL0432
-#endif
                 end;
             "Document Type"::Invoice:
                 begin
                     if ("No. Series" <> '') and (SalesSetup."Invoice Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
-#if CLEAN24
                         if NoSeries.IsAutomatic(PostingNoSeries) then
                             "Posting No. Series" := PostingNoSeries;
 
-#else
-#pragma warning disable AL0432
-                        NoSeriesMgt2.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-#pragma warning restore AL0432
-#endif
                     if SalesSetup."Shipment on Invoice" then
-#if CLEAN24
                     if NoSeries.IsAutomatic(SalesSetup."Posted Shipment Nos.") then
                             "Shipping No. Series" := SalesSetup."Posted Shipment Nos.";
-#else
-#pragma warning disable AL0432
-                        NoSeriesMgt2.SetDefaultSeries("Shipping No. Series", SalesSetup."Posted Shipment Nos.");
-#pragma warning restore AL0432
-#endif
                 end;
             "Document Type"::"Return Order":
                 begin
-#if CLEAN24
                     if NoSeries.IsAutomatic(PostingNoSeries) then
                         "Posting No. Series" := PostingNoSeries;
                     if NoSeries.IsAutomatic(SalesSetup."Posted Return Receipt Nos.") then
                         "Return Receipt No. Series" := SalesSetup."Posted Return Receipt Nos.";
-#else
-#pragma warning disable AL0432
-                    NoSeriesMgt2.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-                    NoSeriesMgt2.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
-#pragma warning restore AL0432
-#endif
                 end;
             "Document Type"::"Credit Memo":
                 begin
                     if ("No. Series" <> '') and (SalesSetup."Credit Memo Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
-#if CLEAN24
                         if NoSeries.IsAutomatic(PostingNoSeries) then
                             "Posting No. Series" := PostingNoSeries;
-#else
-#pragma warning disable AL0432
-                        NoSeriesMgt2.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-#pragma warning restore AL0432
-#endif
                     if SalesSetup."Return Receipt on Credit Memo" then
-#if CLEAN24
                     if NoSeries.IsAutomatic(SalesSetup."Posted Return Receipt Nos.") then
                             "Return Receipt No. Series" := SalesSetup."Posted Return Receipt Nos."
-#else
-#pragma warning disable AL0432
-                        NoSeriesMgt2.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
-#pragma warning restore AL0432
-#endif
                 end;
         end;
 
@@ -9196,64 +9121,6 @@ table 36 "Sales Header"
         OnAfterSalesLinesEditable(Rec, IsEditable);
     end;
 
-#if not CLEAN24
-    [Obsolete('SetTrackInfoForCancellation procedure is planned to be removed.', '24.0')]
-    internal procedure SetTrackInfoForCancellation()
-    var
-        CancelledDocument: Record "Cancelled Document";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
-        IsHandled: Boolean;
-    begin
-        if (Rec."Applies-to Doc. Type" = Rec."Applies-to Doc. Type"::" ") and (Rec."Applies-to Doc. No." = '')
-            and (Rec."Applies-to ID" <> '') and (Rec."Document Type" = Rec."Document Type"::"Credit Memo") then
-            if SetTrackInfoForCancellDocumentsWithAppliesToID() then
-                exit;
-        if Rec."Applies-to Doc. Type" <> Rec."Applies-to Doc. Type"::Invoice then
-            exit;
-        SalesInvoiceHeader.SetLoadFields("No.");
-        if not SalesInvoiceHeader.Get(Rec."Applies-to Doc. No.") then
-            exit;
-        SalesCreditMemoHeader.SetLoadFields("Pre-Assigned No.", "Cust. Ledger Entry No.");
-        SalesCreditMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
-        if not SalesCreditMemoHeader.FindFirst() then
-            exit;
-        if IsNotFullyCancelled(SalesCreditMemoHeader) then
-            exit;
-        IsHandled := false;
-        OnSetTrackInfoForCancellationOnBeforeInsertCancelledDocument(SalesCreditMemoHeader, IsHandled);
-        if not IsHandled then
-            CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(SalesInvoiceHeader."No.", SalesCreditMemoHeader."No.");
-    end;
-
-    local procedure SetTrackInfoForCancellDocumentsWithAppliesToID() Connected: Boolean
-    var
-        CancelledDocument: Record "Cancelled Document";
-        CustLedgerEntry, ClosedCustLedgerEntry : Record "Cust. Ledger Entry";
-        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
-    begin
-        Connected := false;
-        SalesCreditMemoHeader.SetLoadFields("Pre-Assigned No.");
-        SalesCreditMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
-        if SalesCreditMemoHeader.FindFirst() then begin
-            CustLedgerEntry.SetLoadFields("Entry No.", "Document No.");
-            CustLedgerEntry.Setrange("Document Type", CustLedgerEntry."Document Type"::"Credit Memo");
-            CustLedgerEntry.Setrange("Document No.", SalesCreditMemoHeader."No.");
-            if CustLedgerEntry.FindFirst() then begin
-                ClosedCustLedgerEntry.SetLoadFields("Document No.");
-                ClosedCustLedgerEntry.SetRange("Document Type", ClosedCustLedgerEntry."Document Type"::"Invoice");
-                ClosedCustLedgerEntry.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
-                ClosedCustLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)", "Remaining Amount");
-                if ClosedCustLedgerEntry.FindFirst() then
-                    if (ClosedCustLedgerEntry."Remaining Amt. (LCY)" = 0) and (ClosedCustLedgerEntry."Remaining Amount" = 0) then begin
-                        CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(ClosedCustLedgerEntry."Document No.", CustLedgerEntry."Document No.");
-                        Connected := true;
-                    end;
-            end;
-        end;
-        exit(Connected);
-    end;
-#endif
 
     local procedure FindDocumentWithSameExternalDocNo(): Boolean
     var
@@ -11129,13 +10996,6 @@ table 36 "Sales Header"
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('This event is obsolete. SetTrackInfoForCancellation procedure is planned to be removed.', '24.0')]
-    local procedure OnSetTrackInfoForCancellationOnBeforeInsertCancelledDocument(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateSelltoContactNoOnBeforeValidateSalespersonCode(var SalesHeader: Record "Sales Header"; Contact: Record Contact; var IsHandled: Boolean)

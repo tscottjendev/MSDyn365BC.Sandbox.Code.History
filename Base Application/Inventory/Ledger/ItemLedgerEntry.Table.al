@@ -718,17 +718,6 @@ table 32 "Item Ledger Entry"
         end;
     end;
 
-#if not CLEAN24
-    [Obsolete('Unused', '24.0')]
-    procedure AppliedEntryToAdjustExists(ItemNo: Code[20]): Boolean
-    begin
-        Reset();
-        SetCurrentKey("Item No.", "Applied Entry to Adjust");
-        SetRange("Item No.", ItemNo);
-        SetRange("Applied Entry to Adjust", true);
-        exit(Find('-'));
-    end;
-#endif
 
     procedure IsOutbndConsump(): Boolean
     begin

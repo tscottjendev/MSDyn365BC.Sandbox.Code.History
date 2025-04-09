@@ -76,6 +76,13 @@ page 6660 "Posted Return Receipt"
                         Editable = false;
                         ToolTip = 'Specifies an additional part of the address.';
                     }
+                    field("Sell-to City"; Rec."Sell-to City")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'City';
+                        Editable = false;
+                        ToolTip = 'Specifies the city of the customer''s main address.';
+                    }
                     group(Control19)
                     {
                         ShowCaption = false;
@@ -83,7 +90,7 @@ page 6660 "Posted Return Receipt"
                         field("Sell-to County"; Rec."Sell-to County")
                         {
                             ApplicationArea = SalesReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                             Editable = false;
                         }
                     }
@@ -93,13 +100,6 @@ page 6660 "Posted Return Receipt"
                         Caption = 'Post Code';
                         Editable = false;
                         ToolTip = 'Specifies the postal code of the customer''s main address.';
-                    }
-                    field("Sell-to City"; Rec."Sell-to City")
-                    {
-                        ApplicationArea = SalesReturnOrder;
-                        Caption = 'City';
-                        Editable = false;
-                        ToolTip = 'Specifies the city of the customer''s main address.';
                     }
                     field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
                     {
@@ -232,6 +232,13 @@ page 6660 "Posted Return Receipt"
                         Editable = false;
                         ToolTip = 'Specifies an additional line of the address.';
                     }
+                    field("Bill-to City"; Rec."Bill-to City")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'City';
+                        Editable = false;
+                        ToolTip = 'Specifies the city of the address.';
+                    }
                     group(Control29)
                     {
                         ShowCaption = false;
@@ -239,7 +246,7 @@ page 6660 "Posted Return Receipt"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = SalesReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             Editable = false;
                         }
                     }
@@ -249,13 +256,6 @@ page 6660 "Posted Return Receipt"
                         Caption = 'Post Code';
                         Editable = false;
                         ToolTip = 'Specifies the postal code of the customer''s billing address.';
-                    }
-                    field("Bill-to City"; Rec."Bill-to City")
-                    {
-                        ApplicationArea = SalesReturnOrder;
-                        Caption = 'City';
-                        Editable = false;
-                        ToolTip = 'Specifies the city of the address.';
                     }
                     field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                     {
@@ -353,6 +353,13 @@ page 6660 "Posted Return Receipt"
                         Editable = false;
                         ToolTip = 'Specifies an additional part of the ship-to address, in case it is a long address.';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'City';
+                        Editable = false;
+                        ToolTip = 'Specifies the city of the address that the items are shipped to.';
+                    }
                     group(Control37)
                     {
                         ShowCaption = false;
@@ -360,7 +367,7 @@ page 6660 "Posted Return Receipt"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = SalesReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             Editable = false;
                         }
                     }
@@ -370,13 +377,6 @@ page 6660 "Posted Return Receipt"
                         Caption = 'Post Code';
                         Editable = false;
                         ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
-                    }
-                    field("Ship-to City"; Rec."Ship-to City")
-                    {
-                        ApplicationArea = SalesReturnOrder;
-                        Caption = 'City';
-                        Editable = false;
-                        ToolTip = 'Specifies the city of the address that the items are shipped to.';
                     }
                     field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
