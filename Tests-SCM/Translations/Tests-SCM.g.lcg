@@ -17744,6 +17744,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Cubage Caption, %2 = Total Value, %3 = Capacity Value, %4 = Bin Table, %5 = Bin Value]D;]A;(LookupHint=Codeunit SCM Warehouse VI - NamedType CubageExceed)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2738410769 - NamedType 3048912552" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Number of Invt. Pick activities created]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse VI - NamedType InvtPickCreatedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2738410769 - NamedType 93700135" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Lot No. %1 is not available in inventory, it has already been reserved for another document, or the quantity available is lower than the quantity to handle specified on the line.]]></Val>
