@@ -348,26 +348,14 @@ table 7000 "Price List Header"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "Source Group" = "Source Group"::All then
             TestField(Code);
         if Code = '' then begin
             "No. Series" := GetNoSeries();
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", 0D, Code, "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 Code := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeries(), 0D, Code);
-            end;
-#endif
         end;
         if "Amount Type" = "Amount Type"::Any then begin
             CopyTo(PriceSource);

@@ -109,7 +109,7 @@ page 507 "Blanket Sales Order"
                     }
                     field("Sell-to County"; Rec."Sell-to County")
                     {
-                        Caption = 'State';
+                        CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                         ToolTip = 'Specifies the state that is used to calculate and post sales tax.';
                     }
                     field("Sell-to Post Code"; Rec."Sell-to Post Code")
@@ -514,7 +514,7 @@ page 507 "Blanket Sales Order"
                             field("Ship-to County"; Rec."Ship-to County")
                             {
                                 ApplicationArea = Suite;
-                                Caption = 'State';
+                                CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 QuickEntry = false;
                                 ToolTip = 'Specifies the state that is used to calculate and post sales tax.';
@@ -675,7 +675,7 @@ page 507 "Blanket Sales Order"
                         }
                         field("Bill-to County"; Rec."Bill-to County")
                         {
-                            Caption = 'State';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             Editable = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
                             Enabled = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
                             QuickEntry = false;

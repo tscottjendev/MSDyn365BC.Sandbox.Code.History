@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -2939,31 +2939,7 @@ codeunit 6620 "Copy Document Mgt."
                 ItemCheckAvail.RaiseUpdateInterruptedError();
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by same procedure in codeunit CopyServiceContractMgt.', '24.0')]
-    procedure CopyServContractLines(ToServContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; FromDocType: Option; FromDocNo: Code[20]; var FromServContractLine: Record Microsoft.Service.Contract."Service Contract Line") AllLinesCopied: Boolean
-    var
-        CopyServiceContractMgt: Codeunit Microsoft.Service.Contract."Copy Service Contract Mgt.";
-    begin
-        exit(CopyServiceContractMgt.CopyServiceContractLines(ToServContractHeader, Microsoft.Service.Contract."Service Contract Type From".FromInteger(FromDocType), FromDocNo, FromServContractLine));
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('Replaced by procedure GetServiceContractType() in codeunit CopyServiceContractMgt.', '24.0')]
-    procedure ServContractHeaderDocType(DocType: Option): Integer
-    var
-        ServContractHeader: Record Microsoft.Service.Contract."Service Contract Header";
-        ServDocType: Option Quote,Contract;
-    begin
-        case DocType of
-            ServDocType::Quote:
-                exit(ServContractHeader."Contract Type"::Quote.AsInteger());
-            ServDocType::Contract:
-                exit(ServContractHeader."Contract Type"::Contract.AsInteger());
-        end;
-    end;
-#endif
 
     procedure CopySalesShptLinesToDoc(ToSalesHeader: Record "Sales Header"; var FromSalesShptLine: Record "Sales Shipment Line"; var LinesNotCopied: Integer; var MissingExCostRevLink: Boolean)
     var
@@ -9471,18 +9447,6 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
-#if not CLEAN24
-    internal procedure RunOnAfterCopyServContractLines(ToServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; FromDocType: Option; FromDocNo: Code[20]; var FormServiceContractLine: Record Microsoft.Service.Contract."Service Contract Line")
-    begin
-        OnAfterCopyServContractLines(ToServiceContractHeader, FromDocType, FromDocNo, FormServiceContractLine);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnAfterCopyServiceContractLines in codeunit Copy Service Contract Mgt.', '24.0')]
-    local procedure OnAfterCopyServContractLines(ToServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; FromDocType: Option; FromDocNo: Code[20]; var FormServiceContractLine: Record Microsoft.Service.Contract."Service Contract Line")
-    begin
-    end;
-#endif
 
     /// <summary>
     /// Event triggered after copying data from a posted purchase credit memo header to a purchase header.
@@ -9684,18 +9648,6 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
-#if not CLEAN24
-    internal procedure RunOnAfterProcessServContractLine(var ToServContractLine: Record Microsoft.Service.Contract."Service Contract Line"; FromServContractLine: Record Microsoft.Service.Contract."Service Contract Line")
-    begin
-        OnAfterProcessServContractLine(ToServContractLine, FromServContractLine);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnAfterProcessServiceContractLine in codeunit Copy Service Contract Mgt.', '24.0')]
-    local procedure OnAfterProcessServContractLine(var ToServContractLine: Record Microsoft.Service.Contract."Service Contract Line"; FromServContractLine: Record Microsoft.Service.Contract."Service Contract Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterProcessToAsmHeader(var ToAsmHeader: Record "Assembly Header"; TempFromAsmHeader: Record "Assembly Header" temporary; ToSalesLine: Record "Sales Line"; BasicAsmOrderCopy: Boolean; AvailabilityCheck: Boolean)
@@ -12582,4 +12534,3 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 }
-

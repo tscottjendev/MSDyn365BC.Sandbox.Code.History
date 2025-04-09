@@ -727,10 +727,6 @@ table 5405 "Production Order"
     var
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        DefaultNoSeriesCode: Code[20];
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -741,24 +737,11 @@ table 5405 "Production Order"
         MfgSetup.Get();
         if "No." = '' then begin
             TestNoSeries();
-#if not CLEAN24
-            DefaultNoSeriesCode := GetNoSeriesCode();
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(DefaultNoSeriesCode, xRec."No. Series", "Due Date", "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(DefaultNoSeriesCode, xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := DefaultNoSeriesCode;
-                "No." := NoSeries.GetNextNo("No. Series", "Due Date");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", DefaultNoSeriesCode, "Due Date", "No.");
-            end;
-#else
             if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
                 "No. Series" := xRec."No. Series"
             else
                 "No. Series" := GetNoSeriesCode();
             "No." := NoSeries.GetNextNo("No. Series", "Due Date");
-#endif
         end;
 
         IsHandled := false;
@@ -1847,4 +1830,3 @@ table 5405 "Production Order"
     begin
     end;
 }
-

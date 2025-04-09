@@ -191,33 +191,15 @@ table 1230 "SEPA Direct Debit Mandate"
     var
         SalesSetup: Record "Sales & Receivables Setup";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        NewNo: Code[20];
-        IsHandled: Boolean;
-#endif
     begin
         if ID = '' then begin
             SalesSetup.Get();
             SalesSetup.TestField("Direct Debit Mandate Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(SalesSetup."Direct Debit Mandate Nos.", xRec."No. Series", 0D, NewNo, "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(SalesSetup."Direct Debit Mandate Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := SalesSetup."Direct Debit Mandate Nos.";
-                NewNo := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", SalesSetup."Direct Debit Mandate Nos.", 0D, NewNo);
-            end;
-            ID := NewNo;
-#else
 			if NoSeries.AreRelated(SalesSetup."Direct Debit Mandate Nos.", xRec."No. Series") then
 				"No. Series" := xRec."No. Series"
 			else
 				"No. Series" := SalesSetup."Direct Debit Mandate Nos.";
             ID := NoSeries.GetNextNo("No. Series");
-#endif
         end;
     end;
 
@@ -315,4 +297,3 @@ table 1230 "SEPA Direct Debit Mandate"
     begin
     end;
 }
-

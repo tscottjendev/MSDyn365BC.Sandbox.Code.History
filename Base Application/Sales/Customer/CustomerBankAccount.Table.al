@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -192,17 +192,6 @@ table 287 "Customer Bank Account"
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
-#if not CLEAN24
-        field(23; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-            ToolTip = 'Specifies the bank web site.';
-        }
-#else
 #pragma warning disable AS0086
         field(23; "Home Page"; Text[255])
         {
@@ -211,7 +200,6 @@ table 287 "Customer Bank Account"
             ToolTip = 'Specifies the bank web site.';
         }
 #pragma warning restore AS0086
-#endif
         field(24; IBAN; Code[50])
         {
             Caption = 'IBAN';
@@ -366,4 +354,3 @@ table 287 "Customer Bank Account"
     begin
     end;
 }
-

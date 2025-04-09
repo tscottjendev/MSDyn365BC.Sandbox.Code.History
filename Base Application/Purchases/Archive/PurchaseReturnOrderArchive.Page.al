@@ -62,6 +62,13 @@ page 6644 "Purchase Return Order Archive"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the vendor''s buy-from address.';
                     }
+                    field("Buy-from City"; Rec."Buy-from City")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'City';
+                        Importance = Additional;
+                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
+                    }
                     group(BuyFromCounty)
                     {
                         ShowCaption = false;
@@ -69,7 +76,7 @@ page 6644 "Purchase Return Order Archive"
                         field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = Advanced;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                             Importance = Additional;
                         }
                     }
@@ -79,13 +86,6 @@ page 6644 "Purchase Return Order Archive"
                         Caption = 'Post Code';
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
-                    }
-                    field("Buy-from City"; Rec."Buy-from City")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'City';
-                        Importance = Additional;
-                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
                     }
                     field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
                     {
@@ -291,6 +291,13 @@ page 6644 "Purchase Return Order Archive"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the vendor''s buy-from address.';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'City';
+                        Importance = Additional;
+                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
+                    }
                     group(ShipToCounty)
                     {
                         ShowCaption = false;
@@ -298,7 +305,7 @@ page 6644 "Purchase Return Order Archive"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Advanced;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             Importance = Additional;
                         }
                     }
@@ -308,13 +315,6 @@ page 6644 "Purchase Return Order Archive"
                         Caption = 'Post Code';
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
-                    }
-                    field("Ship-to City"; Rec."Ship-to City")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'City';
-                        Importance = Additional;
-                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
                     }
                     field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
@@ -361,6 +361,13 @@ page 6644 "Purchase Return Order Archive"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the vendor''s buy-from address.';
                     }
+                    field("Pay-to City"; Rec."Pay-to City")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'City';
+                        Importance = Additional;
+                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
+                    }
                     group(PayToCounty)
                     {
                         ShowCaption = false;
@@ -368,7 +375,7 @@ page 6644 "Purchase Return Order Archive"
                         field("Pay-to County"; Rec."Pay-to County")
                         {
                             ApplicationArea = Advanced;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                             Importance = Additional;
                         }
                     }
@@ -378,13 +385,6 @@ page 6644 "Purchase Return Order Archive"
                         Caption = 'Post Code';
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
-                    }
-                    field("Pay-to City"; Rec."Pay-to City")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'City';
-                        Importance = Additional;
-                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
                     }
                     field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
                     {
