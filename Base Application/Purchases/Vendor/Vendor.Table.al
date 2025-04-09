@@ -867,17 +867,6 @@ table 23 Vendor
                 MailManagement.CheckValidEmailAddresses("E-Mail");
             end;
         }
-#if not CLEAN24
-        field(103; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            OptimizeForTextSearch = true;
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
 #pragma warning disable AS0086
         field(103; "Home Page"; Text[255])
         {
@@ -886,7 +875,6 @@ table 23 Vendor
             ExtendedDatatype = URL;
         }
 #pragma warning restore AS0086
-#endif
         field(104; "Reminder Amounts"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -1905,9 +1893,6 @@ table 23 Vendor
     trigger OnInsert()
     var
         Vendor: Record Vendor;
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1918,10 +1903,6 @@ table 23 Vendor
         if "No." = '' then begin
             PurchSetup.Get();
             PurchSetup.TestField("Vendor Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(PurchSetup."Vendor Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := PurchSetup."Vendor Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
@@ -1930,10 +1911,6 @@ table 23 Vendor
                 Vendor.SetLoadFields("No.");
                 while Vendor.Get("No.") do
                     "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", PurchSetup."Vendor Nos.", 0D, "No.");
-            end;
-#endif
         end;
 
         if "Invoice Disc. Code" = '' then
@@ -2547,14 +2524,6 @@ table 23 Vendor
         exit(Result);
     end;
 
-#if not CLEAN24
-    [Scope('OnPrem')]
-    [Obsolete('Use SelectVendor(var Vendor: Record Vendor): Boolean instead.', '24.0')]
-    procedure LookupVendor(var Vendor: Record Vendor): Boolean
-    begin
-        exit(SelectVendor(Vendor));
-    end;
-#endif
 
     local procedure MarkVendorsByFilters(var Vendor: Record Vendor)
     begin

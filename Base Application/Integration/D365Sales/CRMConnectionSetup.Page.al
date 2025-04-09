@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -155,20 +155,6 @@ page 5330 "CRM Connection Setup"
             {
                 Caption = 'Dynamics 365 Sales Settings';
                 Visible = Rec."Is Enabled";
-#if not CLEAN24
-                field("CRM Version"; Rec."CRM Version")
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Version';
-                    Editable = false;
-                    StyleExpr = CRMVersionStyleExpr;
-                    ToolTip = 'Specifies the version of Dynamics 365 Sales.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with field Dynamics 365 Sales Version checked';
-                    ObsoleteTag = '24.0';
-                }
-#endif
                 field("CRM Version Status"; CRMVersionStatus)
                 {
                     ApplicationArea = Suite;
@@ -850,4 +836,3 @@ page 5330 "CRM Connection Setup"
         Rec.Validate("Proxy Version", CRMIntegrationManagement.GetLastProxyVersionItem());
     end;
 }
-

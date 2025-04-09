@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -594,9 +594,6 @@ table 295 "Reminder Header"
 
     trigger OnInsert()
     var
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         SalesSetup.Get();
@@ -610,14 +607,8 @@ table 295 "Reminder Header"
             then
                 "Issuing No. Series" := "No. Series"
             else
-#if CLEAN24
                 if NoSeries.IsAutomatic(GetIssuingNoSeriesCode()) then
                     "Issuing No. Series" := GetIssuingNoSeriesCode();
-#else
-#pragma warning disable AL0432
-                NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
-#pragma warning restore AL0432
-#endif
 
         if "Posting Date" = 0D then
             "Posting Date" := WorkDate();
@@ -1334,26 +1325,13 @@ table 295 "Reminder Header"
 
     [Scope('OnPrem')]
     procedure SetReminderNo()
-#if not CLEAN24
-    var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "No." = '' then begin
             TestNoSeries();
             "No. Series" := GetNoSeriesCode();
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), "Posting Date", "No.");
-            end;
-#endif
         end;
     end;
 
@@ -1608,4 +1586,3 @@ table 295 "Reminder Header"
     begin
     end;
 }
-
