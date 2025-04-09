@@ -13,10 +13,10 @@ codeunit 132532 "Test Granules"
         TableDataNotInAnyPermissionSetTxt: Label 'Table %1 "%2" does not exist in any permission set.', Comment = '%1=Table No.,%2=Table Name';
         TableDataNotInFullPermissionSetTxt: Label 'Table %1 "%2" does not exist in the O365 Full Access permission set.', Comment = '%1=Table No.,%2=Table Name';
         TableDataOnlyInFullPermissionSetTxt: Label 'Table %1 "%2" exists in the O365 Full Access permission set, but not in any other O365 permission set. Each object has to be added to at least one non-O365 FULL ACCESS PS.', Comment = '%1=Table No.,%2=Table Name';
-#pragma warning disable AA0470        
+#pragma warning disable AA0470
         PermissionDoesNotExistsTxt: Label 'Table Data with ID %1 exists in permission set %2 but not as an application table (read test for resolution).';
         PermissionNotInPSWithSufficientPermissionsErr: Label 'Insufficient permissions (read test for resolution). Permission %1 "%2" (%3) Role ID %4 and Permissions: Read %5, Insert %6, Modify %7, Delete %8, Execute %9 does not exist with sufficient permissions in Permission Set Role ID %10.';
-#pragma warning restore AA0470        
+#pragma warning restore AA0470
         XO365FULLTxt: Label 'D365 FULL ACCESS';
         XO365BUSFULLTxt: Label 'D365 BUS FULL ACCESS';
         XO365EXTENSIONMGTTxt: Label 'D365 EXTENSION MGT';
@@ -469,7 +469,6 @@ codeunit 132532 "Test Granules"
 
         // Add all tabledata into the TempTableDataAllObj
         AllObj.SetRange("Object Type", AllObj."Object Type"::TableData);
-        AllObj.SetFilter("Object ID", '<>%1', 5105); // Skip table 5105 Customer Template
         AllObj.FindSet();
         repeat
             TableMetadata.Get(AllObj."Object ID");
@@ -660,7 +659,7 @@ codeunit 132532 "Test Granules"
         TablesWithInherentEntitlements.Add(4593, true); // SOA KPI
         TablesWithInherentEntitlements.Add(4594, true); // SOA Task
         TablesWithInherentEntitlements.Add(4690, true); // Recurrence Schedule
-        TablesWithInherentEntitlements.Add(5490, true); // Onboarding Signal 
+        TablesWithInherentEntitlements.Add(5490, true); // Onboarding Signal
         TablesWithInherentEntitlements.Add(7775, true); // Copilot Settings
         TablesWithInherentEntitlements.Add(8703, true); // Feature Uptake
         TablesWithInherentEntitlements.Add(9008, true); // User Login

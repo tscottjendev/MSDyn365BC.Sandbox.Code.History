@@ -346,13 +346,6 @@ codeunit 7110 "Analysis Report Management"
         SetSourceNo(AnalysisLine, CurrentSourceTypeNoFilter);
     end;
 
-#if not CLEAN24
-    [Obsolete('Use "DoLookupSourceNo" with Enum parameter instead.', '24.0')]
-    procedure LookupSourceNo(var AnalysisLine: Record "Analysis Line"; CurrentSourceTypeFilter: Option " ",Customer,Vendor,Item; var CurrentSourceTypeNoFilter: Text)
-    begin
-        DoLookupSourceNo(AnalysisLine, Enum::"Analysis Source Type".FromInteger(CurrentSourceTypeFilter), CurrentSourceTypeNoFilter);
-    end;
-#endif
 
     local procedure AccPeriodStartEnd(Formula: Code[20]; Date: Date; var StartDate: Date; var EndDate: Date)
     var
@@ -1887,4 +1880,3 @@ codeunit 7110 "Analysis Report Management"
     begin
     end;
 }
-

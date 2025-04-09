@@ -11,9 +11,6 @@ using Microsoft.Assembly.Reports;
 using Microsoft.Assembly.Setup;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
-#if not CLEAN24
-using Microsoft.Bank.Deposit;
-#endif
 using Microsoft.Bank.DirectDebit;
 using Microsoft.Bank.Ledger;
 using Microsoft.Bank.Payment;
@@ -296,9 +293,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "CodeUnit Metadata" = m,
                   tabledata "Data Sensitivity" = RM,
                   tabledata Date = m,
-#if not CLEAN24
-                  tabledata "Deposits Page Setup" = R,
-#endif
                   tabledata "Dispute Status" = R,
                   tabledata Device = Rm,
                   tabledata "Document Service" = m,
@@ -471,10 +465,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Business Unit" = RM,
                   tabledata "Business Unit Information" = RM,
                   tabledata "Business Unit Setup" = RM,
-#if not CLEAN24
-                  tabledata "Calendar Event" = Rm,
-                  tabledata "Calendar Event User Config." = Rm,
-#endif
                   tabledata Campaign = RM,
                   tabledata "Campaign Entry" = RM,
                   tabledata "Campaign Status" = RM,
@@ -1067,9 +1057,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata Maintenance = RM,
                   tabledata "Maintenance Ledger Entry" = Rm,
                   tabledata "Maintenance Registration" = RM,
-#if not CLEAN24
-                  tabledata "Man. Integration Field Mapping" = RIMD,
-#endif
                   tabledata "Man. Integration Table Mapping" = RIMD,
                   tabledata "Man. Int. Field Mapping" = RIMD,
                   tabledata Manufacturer = RM,

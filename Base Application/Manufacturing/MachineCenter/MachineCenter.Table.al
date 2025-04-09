@@ -633,31 +633,15 @@ table 99000758 "Machine Center"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         MfgSetup.Get();
         if "No." = '' then begin
             MfgSetup.TestField("Machine Center Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(MfgSetup."Machine Center Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(MfgSetup."Machine Center Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := MfgSetup."Machine Center Nos.";
-                "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", MfgSetup."Machine Center Nos.", 0D, "No.");
-            end;
-#else
             if NoSeries.AreRelated(MfgSetup."Machine Center Nos.", xRec."No. Series") then
                 "No. Series" := xRec."No. Series"
             else
                 "No. Series" := MfgSetup."Machine Center Nos.";
             "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
     end;
 
@@ -836,4 +820,3 @@ table 99000758 "Machine Center"
     begin
     end;
 }
-

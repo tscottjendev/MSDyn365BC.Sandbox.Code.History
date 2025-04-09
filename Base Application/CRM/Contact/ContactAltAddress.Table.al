@@ -161,16 +161,6 @@ table 5051 "Contact Alt. Address"
                 SetSearchEmail();
             end;
         }
-#if not CLEAN24
-        field(18; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
 #pragma warning disable AS0086
         field(18; "Home Page"; Text[255])
         {
@@ -178,7 +168,6 @@ table 5051 "Contact Alt. Address"
             ExtendedDatatype = URL;
         }
 #pragma warning restore AS0086
-#endif
         field(19; "Fax No."; Text[30])
         {
             Caption = 'Fax No.';
@@ -287,4 +276,3 @@ table 5051 "Contact Alt. Address"
     begin
     end;
 }
-
