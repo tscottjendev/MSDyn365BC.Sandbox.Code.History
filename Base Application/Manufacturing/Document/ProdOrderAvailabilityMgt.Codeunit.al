@@ -915,9 +915,6 @@ codeunit 99000875 "Prod. Order Availability Mgt."
         MfgSetup: Record "Manufacturing Setup";
         RequisitionLine: Record "Requisition Line";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-#endif
 #if not CLEAN27
         CapableToPromise: Codeunit "Capable to Promise";
 #endif
@@ -951,17 +948,9 @@ codeunit 99000875 "Prod. Order Availability Mgt."
             RequisitionLine.SetRange("Ref. Order No.", RequisitionLine."Ref. Order No.");
             RequisitionLine.FindLast();
             NewRefOrderNo := '';
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(MfgSetup."Planned Order Nos.", RequisitionLine."No. Series", RequisitionLine."Due Date", NewRefOrderNo, RequisitionLine."No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 if not NoSeries.AreRelated(MfgSetup."Planned Order Nos.", RequisitionLine."No. Series") then
                     RequisitionLine."No. Series" := MfgSetup."Planned Order Nos.";
                 NewRefOrderNo := NoSeries.GetNextNo(RequisitionLine."No. Series", RequisitionLine."Due Date");
-#if not CLEAN24
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(RequisitionLine."No. Series", MfgSetup."Planned Order Nos.", RequisitionLine."Due Date", NewRefOrderNo);
-            end;
-#endif
             RequisitionLine.ModifyAll("Ref. Order No.", NewRefOrderNo);
             OnReassignRefOrderNosOnAfterRequisitionLineModifyAll(RequisitionLine);
 #if not CLEAN27

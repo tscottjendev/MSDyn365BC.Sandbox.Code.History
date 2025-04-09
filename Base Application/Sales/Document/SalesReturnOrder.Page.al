@@ -113,6 +113,13 @@ page 6630 "Sales Return Order"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the customer''s address.';
                     }
+                    field("Sell-to City"; Rec."Sell-to City")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'City';
+                        Importance = Additional;
+                        ToolTip = 'Specifies the city of the customer''s address.';
+                    }
                     group(Control170)
                     {
                         ShowCaption = false;
@@ -120,17 +127,10 @@ page 6630 "Sales Return Order"
                         field("Sell-to County"; Rec."Sell-to County")
                         {
                             ApplicationArea = SalesReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                             Importance = Additional;
                             ToolTip = 'Specifies the county of the address.';
                         }
-                    }
-                    field("Sell-to City"; Rec."Sell-to City")
-                    {
-                        ApplicationArea = SalesReturnOrder;
-                        Caption = 'City';
-                        Importance = Additional;
-                        ToolTip = 'Specifies the city of the customer''s address.';
                     }
                     field("Sell-to Post Code"; Rec."Sell-to Post Code")
                     {
@@ -569,6 +569,12 @@ page 6630 "Sales Return Order"
                         Caption = 'Address 2';
                         ToolTip = 'Specifies an additional part of the shipping address.';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'City';
+                        ToolTip = 'Specifies the city of the shipping address.';
+                    }
                     group(Control76)
                     {
                         ShowCaption = false;
@@ -576,15 +582,9 @@ page 6630 "Sales Return Order"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = SalesReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             ToolTip = 'Specifies the county of the address.';
                         }
-                    }
-                    field("Ship-to City"; Rec."Ship-to City")
-                    {
-                        ApplicationArea = SalesReturnOrder;
-                        Caption = 'City';
-                        ToolTip = 'Specifies the city of the shipping address.';
                     }
                     field("Ship-to Post Code"; Rec."Ship-to Post Code")
                     {
@@ -670,20 +670,6 @@ page 6630 "Sales Return Order"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the billing address.';
                     }
-                    group(Control80)
-                    {
-                        ShowCaption = false;
-                        Visible = IsBillToCountyVisible;
-                        field("Bill-to County"; Rec."Bill-to County")
-                        {
-                            ApplicationArea = SalesReturnOrder;
-                            Caption = 'County';
-                            Editable = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
-                            Enabled = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
-                            Importance = Additional;
-                            ToolTip = 'Specifies the county of the address.';
-                        }
-                    }
                     field("Bill-to City"; Rec."Bill-to City")
                     {
                         ApplicationArea = SalesReturnOrder;
@@ -692,6 +678,20 @@ page 6630 "Sales Return Order"
                         Enabled = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
                         Importance = Additional;
                         ToolTip = 'Specifies the city of the billing address.';
+                    }
+                    group(Control80)
+                    {
+                        ShowCaption = false;
+                        Visible = IsBillToCountyVisible;
+                        field("Bill-to County"; Rec."Bill-to County")
+                        {
+                            ApplicationArea = SalesReturnOrder;
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
+                            Editable = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
+                            Enabled = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
+                            Importance = Additional;
+                            ToolTip = 'Specifies the county of the address.';
+                        }
                     }
                     field("Bill-to Post Code"; Rec."Bill-to Post Code")
                     {

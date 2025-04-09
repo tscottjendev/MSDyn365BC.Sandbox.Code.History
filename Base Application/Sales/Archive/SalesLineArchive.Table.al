@@ -990,10 +990,16 @@ table 5108 "Sales Line Archive"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
-        field(10000; "Package Tracking No."; Text[30])
+#if not CLEAN25
+#pragma warning disable AS0086
+#endif
+        field(10000; "Package Tracking No."; Text[50])
         {
             Caption = 'Package Tracking No.';
         }
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
     }
 
     keys

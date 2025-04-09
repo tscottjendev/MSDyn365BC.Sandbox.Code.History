@@ -496,10 +496,16 @@ table 6661 "Return Receipt Line"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(10000; "Package Tracking No."; Text[30])
+#if not CLEAN25
+#pragma warning disable AS0086
+#endif
+        field(10000; "Package Tracking No."; Text[50])
         {
             Caption = 'Package Tracking No.';
         }
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
     }
 
     keys

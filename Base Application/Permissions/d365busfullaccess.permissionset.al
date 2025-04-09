@@ -1,4 +1,4 @@
-﻿namespace System.Security.AccessControl;
+namespace System.Security.AccessControl;
 
 using Microsoft;
 using Microsoft.AccountantPortal;
@@ -10,9 +10,6 @@ using Microsoft.Booking;
 using Microsoft.Bank.Payment;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
-#if not CLEAN24
-using Microsoft.Bank.Deposit;
-#endif
 using Microsoft.Bank.DirectDebit;
 using Microsoft.Bank.PositivePay;
 using Microsoft.Bank.Reconciliation;
@@ -324,10 +321,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "CAL Test Method" = RIMD,
                   tabledata "CAL Test Result" = RIMD,
                   tabledata "CAL Test Suite" = RIMD,
-#if not CLEAN24
-                  tabledata "Calendar Event" = Rimd,
-                  tabledata "Calendar Event User Config." = Rimd,
-#endif
                   tabledata Campaign = RIM,
                   tabledata "Campaign Entry" = IM,
                   tabledata "Campaign Status" = RIM,
@@ -404,9 +397,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Deferral Line Archive" = RIM,
                   tabledata "Deferral Posting Buffer" = RIMD,
                   tabledata "Deferral Template" = RIMD,
-#if not CLEAN24
-                  tabledata "Deposits Page Setup" = RIMD,
-#endif
                   tabledata "Detailed CV Ledg. Entry Buffer" = RIMD,
                   tabledata "Dim Correct Selection Criteria" = R,
                   tabledata "Dim Correction Blocked Setup" = R,

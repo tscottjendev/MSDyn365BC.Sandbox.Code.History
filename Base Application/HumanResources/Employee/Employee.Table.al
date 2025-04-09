@@ -574,9 +574,6 @@ table 5200 Employee
         Employee: Record Employee;
         ResourcesSetup: Record "Resources Setup";
         Resource: Record Resource;
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -588,21 +585,6 @@ table 5200 Employee
         HumanResSetup.Get();
         if "No." = '' then begin
             HumanResSetup.TestField("Employee Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(HumanResSetup."Employee Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(HumanResSetup."Employee Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := HumanResSetup."Employee Nos.";
-                "No." := NoSeries.GetNextNo("No. Series");
-                Employee.ReadIsolation(IsolationLevel::ReadUncommitted);
-                Employee.SetLoadFields("No.");
-                while Employee.Get("No.") do
-                    "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", HumanResSetup."Employee Nos.", 0D, "No.");
-            end;
-#else
 			if NoSeries.AreRelated(HumanResSetup."Employee Nos.", xRec."No. Series") then
 				"No. Series" := xRec."No. Series"
 			else
@@ -612,7 +594,6 @@ table 5200 Employee
             Employee.SetLoadFields("No.");
             while Employee.Get("No.") do
                 "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
         if HumanResSetup."Automatically Create Resource" then begin
             ResourcesSetup.Get();

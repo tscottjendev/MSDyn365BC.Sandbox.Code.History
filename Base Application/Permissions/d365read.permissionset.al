@@ -45,9 +45,6 @@ using Microsoft.Assembly.Reports;
 using Microsoft.Assembly.Setup;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
-#if not CLEAN24
-using Microsoft.Bank.Deposit;
-#endif
 using Microsoft.Bank.DirectDebit;
 using Microsoft.Bank.Ledger;
 using Microsoft.Bank.PositivePay;
@@ -289,9 +286,6 @@ permissionset 1044 "D365 READ"
                   tabledata AllObjWithCaption = R,
                   tabledata "Code Coverage" = R,
                   tabledata "Data Sensitivity" = R,
-#if not CLEAN24
-                  tabledata "Deposits Page Setup" = R,
-#endif
                   tabledata Device = R,
                   tabledata Drive = R,
                   tabledata "Event Subscription" = R,
@@ -445,10 +439,6 @@ permissionset 1044 "D365 READ"
                   tabledata "Business Unit Setup" = R,
                   tabledata "Calendar Absence Entry" = R,
                   tabledata "Calendar Entry" = R,
-#if not CLEAN24
-                  tabledata "Calendar Event" = R,
-                  tabledata "Calendar Event User Config." = R,
-#endif
                   tabledata Campaign = R,
                   tabledata "Campaign Entry" = R,
                   tabledata "Campaign Status" = R,
@@ -1050,9 +1040,6 @@ permissionset 1044 "D365 READ"
                   tabledata Maintenance = R,
                   tabledata "Maintenance Ledger Entry" = R,
                   tabledata "Maintenance Registration" = R,
-#if not CLEAN24
-                  tabledata "Man. Integration Field Mapping" = R,
-#endif
                   tabledata "Man. Integration Table Mapping" = R,
                   tabledata "Man. Int. Field Mapping" = R,
                   tabledata Manufacturer = R,

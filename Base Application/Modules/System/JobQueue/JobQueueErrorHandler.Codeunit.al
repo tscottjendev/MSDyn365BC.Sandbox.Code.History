@@ -55,18 +55,7 @@ codeunit 450 "Job Queue Error Handler"
             if JobQueueLogEntry."End Date/Time" = 0DT then
                 JobQueueLogEntry."End Date/Time" := CurrentDateTime();
             JobQueueLogEntry.Modify();
-#if CLEAN24
         end;
-#else
-#pragma warning disable AL0432
-            OnLogErrorOnAfterJobQueueLogEntryModify(JobQueueEntry);
-        end else begin
-            JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
-            JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry, GetLastErrorCallStack());
-            OnLogErrorOnAfterJobQueueLogEntryFinalizeLogEntry(JobQueueEntry);
-        end;
-#pragma warning restore AL0432
-#endif
 
         OnAfterLogError(JobQueueEntry, JobQueueLogEntry);
 
@@ -84,18 +73,4 @@ codeunit 450 "Job Queue Error Handler"
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('Event no longer relevant, it does the exact same as OnAfterLogError() and OnLogErrorOnAfterJobQueueLogEntryFinalizeLogEntry() is obsoleted.', '24.0')]
-    local procedure OnLogErrorOnAfterJobQueueLogEntryModify(var JobQueueEntry: Record "Job Queue Entry")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Event no longer relevant. Log entries should not be inserted if the job queue dispatcher did not manage to run the job.', '24.0')]
-    local procedure OnLogErrorOnAfterJobQueueLogEntryFinalizeLogEntry(var JobQueueEntry: Record "Job Queue Entry")
-    begin
-    end;
-#endif
 }
-

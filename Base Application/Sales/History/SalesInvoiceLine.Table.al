@@ -576,11 +576,17 @@ table 113 "Sales Invoice Line"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(10000; "Package Tracking No."; Text[30])
+#if not CLEAN25
+#pragma warning disable AS0086
+#endif
+        field(10000; "Package Tracking No."; Text[50])
         {
             Caption = 'Package Tracking No.';
             OptimizeForTextSearch = true;
         }
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         field(10001; "Retention Attached to Line No."; Integer)
         {
             Caption = 'Retention Attached to Line No.';

@@ -28,11 +28,7 @@ report 10046 "Customer Register"
         {
             DataItemTableView = sorting("No.");
             PrintOnlyIfDetail = true;
-#if not CLEAN24
-            RequestFilterFields = "No.", "Creation Date", "Source Code", "Journal Batch Name";
-#else
             RequestFilterFields = "No.", "Source Code", "Journal Batch Name";
-#endif
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -257,4 +253,3 @@ report 10046 "Customer Register"
         Number_of_Customer_entries__this_posting__CaptionLbl: Label 'Number of Customer entries (this posting):';
 
 }
-
