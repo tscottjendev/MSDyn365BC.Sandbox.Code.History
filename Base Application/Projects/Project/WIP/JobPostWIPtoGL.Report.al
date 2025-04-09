@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -118,10 +118,6 @@ report 1085 "Job Post WIP to G/L"
         trigger OnOpenPage()
         var
             NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-            NoSeriesManagement: Codeunit NoSeriesManagement;
-            IsHandled: Boolean;
-#endif
             NewNoSeriesCode: Code[20];
         begin
             GLSetup.Get();
@@ -139,16 +135,8 @@ report 1085 "Job Post WIP to G/L"
             JobsSetup.Get();
 
             JobsSetup.TestField("Job Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(JobsSetup."Job WIP Nos.", '', 0D, DocNo, NewNoSeriesCode, IsHandled);
-            if not IsHandled then begin
-#endif
                 NewNoSeriesCode := JobsSetup."Job WIP Nos.";
                 DocNo := NoSeries.GetNextNo(NewNoSeriesCode);
-#if not CLEAN24
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(NewNoSeriesCode, JobsSetup."Job WIP Nos.", 0D, DocNo);
-            end;
-#endif
 
             ReplacePostDate := false;
             JustReverse := false;
@@ -168,26 +156,14 @@ report 1085 "Job Post WIP to G/L"
     trigger OnPreReport()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
         NewNoSeriesCode: Code[20];
     begin
         JobsSetup.Get();
 
         if DocNo = '' then begin
             JobsSetup.TestField("Job Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(JobsSetup."Job WIP Nos.", '', 0D, DocNo, NewNoSeriesCode, IsHandled);
-            if not IsHandled then begin
-#endif
                 NewNoSeriesCode := JobsSetup."Job WIP Nos.";
                 DocNo := NoSeries.GetNextNo(NewNoSeriesCode);
-#if not CLEAN24
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(NewNoSeriesCode, JobsSetup."Job WIP Nos.", 0D, DocNo);
-            end;
-#endif
         end;
 
         if PostingDate = 0D then
@@ -224,4 +200,3 @@ report 1085 "Job Post WIP to G/L"
         PostingDate := WorkDate();
     end;
 }
-

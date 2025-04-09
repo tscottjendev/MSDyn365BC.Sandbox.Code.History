@@ -145,16 +145,6 @@ table 224 "Order Address"
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
-#if not CLEAN24
-        field(103; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
 #pragma warning disable AS0086
         field(103; "Home Page"; Text[255])
         {
@@ -162,7 +152,6 @@ table 224 "Order Address"
             ExtendedDatatype = URL;
         }
 #pragma warning restore AS0086
-#endif
     }
 
     keys
@@ -239,4 +228,3 @@ table 224 "Order Address"
     begin
     end;
 }
-

@@ -3002,9 +3002,6 @@ table 38 "Purchase Header"
     procedure InitInsert()
     var
         PurchaseHeader2: Record "Purchase Header";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         NoSeriesCode: Code[20];
         IsHandled: Boolean;
     begin
@@ -3014,10 +3011,6 @@ table 38 "Purchase Header"
             if "No." = '' then begin
                 TestNoSeries();
                 NoSeriesCode := GetNoSeriesCode();
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(NoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-                if not IsHandled then begin
-#endif
                     "No. Series" := NoSeriesCode;
                     if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                         "No. Series" := xRec."No. Series";
@@ -3026,10 +3019,6 @@ table 38 "Purchase Header"
                     PurchaseHeader2.SetLoadFields("No.");
                     while PurchaseHeader2.Get("Document Type", "No.") do
                         "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#if not CLEAN24
-                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", NoSeriesCode, "Posting Date", "No.");
-                end;
-#endif
             end;
 
         OnInitInsertOnBeforeInitRecord(Rec, xRec);
@@ -6324,9 +6313,6 @@ table 38 "Purchase Header"
 
     procedure InitPostingNoSeries()
     var
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         PostingNoSeries: Code[20];
     begin
         GLSetup.GetRecordOnce();
@@ -6350,7 +6336,6 @@ table 38 "Purchase Header"
         case "Document Type" of
             "Document Type"::Quote, "Document Type"::Order:
                 begin
-#if CLEAN24
                     if NoSeries.IsAutomatic(PostingNoSeries) then
                         "Posting No. Series" := PostingNoSeries;
                     if NoSeries.IsAutomatic(PurchSetup."Posted Receipt Nos.") then
@@ -6361,76 +6346,35 @@ table 38 "Purchase Header"
                         if NoSeries.IsAutomatic(PurchSetup."Posted Prepmt. Cr. Memo Nos.") then
                             "Prepmt. Cr. Memo No. Series" := PurchSetup."Posted Prepmt. Cr. Memo Nos.";
                     end;
-#else
-#pragma warning disable AL0432
-                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-                    NoSeriesMgt.SetDefaultSeries("Receiving No. Series", PurchSetup."Posted Receipt Nos.");
-                    if "Document Type" = "Document Type"::Order then begin
-                        NoSeriesMgt.SetDefaultSeries("Prepayment No. Series", PurchSetup."Posted Prepmt. Inv. Nos.");
-                        NoSeriesMgt.SetDefaultSeries("Prepmt. Cr. Memo No. Series", PurchSetup."Posted Prepmt. Cr. Memo Nos.");
-                    end;
-#pragma warning restore AL0432
-#endif
                 end;
             "Document Type"::Invoice:
                 begin
                     if ("No. Series" <> '') and (PurchSetup."Invoice Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
-#if CLEAN24
                     if NoSeries.IsAutomatic(PostingNoSeries) then
                         "Posting No. Series" := PostingNoSeries;
-#else
-#pragma warning disable AL0432
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-#pragma warning restore AL0432
-#endif
                     if PurchSetup."Receipt on Invoice" then
-#if CLEAN24
                     if NoSeries.IsAutomatic(PurchSetup."Posted Receipt Nos.") then
                         "Receiving No. Series" := PurchSetup."Posted Receipt Nos.";
-#else
-#pragma warning disable AL0432
-                        NoSeriesMgt.SetDefaultSeries("Receiving No. Series", PurchSetup."Posted Receipt Nos.");
-#pragma warning restore AL0432
-#endif
                 end;
             "Document Type"::"Return Order":
                 begin
-#if CLEAN24
                     if NoSeries.IsAutomatic(PostingNoSeries) then
                         "Posting No. Series" := PostingNoSeries;
                     if NoSeries.IsAutomatic(PurchSetup."Posted Return Shpt. Nos.") then
                         "Return Shipment No. Series" := PurchSetup."Posted Return Shpt. Nos.";
-#else
-#pragma warning disable AL0432
-                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-                    NoSeriesMgt.SetDefaultSeries("Return Shipment No. Series", PurchSetup."Posted Return Shpt. Nos.");
-#pragma warning restore AL0432
-#endif
                 end;
             "Document Type"::"Credit Memo":
                 begin
                     if ("No. Series" <> '') and (PurchSetup."Credit Memo Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
-#if CLEAN24
                     if NoSeries.IsAutomatic(PostingNoSeries) then
                         "Posting No. Series" := PostingNoSeries;
-#else
-#pragma warning disable AL0432
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-#pragma warning restore AL0432
-#endif
                     if PurchSetup."Return Shipment on Credit Memo" then
-#if CLEAN24
                     if NoSeries.IsAutomatic(PurchSetup."Posted Return Shpt. Nos.") then
                         "Return Shipment No. Series" := PurchSetup."Posted Return Shpt. Nos.";
-#else
-#pragma warning disable AL0432
-                        NoSeriesMgt.SetDefaultSeries("Return Shipment No. Series", PurchSetup."Posted Return Shpt. Nos.");
-#pragma warning restore AL0432
-#endif
                 end;
         end;
 

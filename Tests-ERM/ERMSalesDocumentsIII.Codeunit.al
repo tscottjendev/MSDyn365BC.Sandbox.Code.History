@@ -4151,7 +4151,7 @@ codeunit 134387 "ERM Sales Documents III"
         RequestPageXML: Text;
         AdjustedProfitLCY: Decimal;
     begin
-        // [SCENARIO 422598] Report "Salesperson - Commission" should correctly calculate Adjusted Profit 
+        // [SCENARIO 422598] Report "Salesperson - Commission" should correctly calculate Adjusted Profit
         Initialize();
 
         // [GIVEN] Item "I" with "Type" = "Service", Unit Cost = 60, Unit Price = 100
@@ -4175,7 +4175,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, Resource."No.", 1);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        // [GIVEN] Open statistics for customer "CUST" is being opened, Adjusted Profit (LCY) = 110 
+        // [GIVEN] Open statistics for customer "CUST" is being opened, Adjusted Profit (LCY) = 110
         CustomerList.OpenView();
         CustomerList.FILTER.SetFilter("No.", SalesHeader."Sell-to Customer No.");
         CustomerStatistics.Trap();
@@ -4838,7 +4838,7 @@ codeunit 134387 "ERM Sales Documents III"
     procedure TestPackageNoIsIncludedInInternetAddressLink()
     var
         ShippingAgent: Record "Shipping Agent";
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         // [FEATURE] [Shipping Agent] [UT]
         // [SCENARIO 328798] GetTrackingInternetAddr returns text containing "Package Tracking No." if ShippingAgent."Internet Address" consists only from placeholder %1
@@ -4854,7 +4854,7 @@ codeunit 134387 "ERM Sales Documents III"
     procedure TestInternetAddressWithoutHttp()
     var
         ShippingAgent: Record "Shipping Agent";
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         // [FEATURE] [Shipping Agent] [UT]
         // [SCENARIO 328798] GetTrackingInternetAddr returns text containing "Package Tracking No." if ShippingAgent."Internet Address" does not contains Http
@@ -4868,7 +4868,7 @@ codeunit 134387 "ERM Sales Documents III"
     procedure TestInternetAddressWithHttp()
     var
         ShippingAgent: Record "Shipping Agent";
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         // [FEATURE] [Shipping Agent] [UT]
         // [SCENARIO 328798] GetTrackingInternetAddr returns text containing "Package Tracking No." if ShippingAgent."Internet Address" contains Http
@@ -4882,7 +4882,7 @@ codeunit 134387 "ERM Sales Documents III"
     procedure TestNoPackageNoExistIfNoPlaceHolderExistInURL()
     var
         ShippingAgent: Record "Shipping Agent";
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         // [FEATURE] [Shipping Agent] [UT]
         // [SCENARIO 328798] GetTrackingInternetAddr returns text without "Package Tracking No." if ShippingAgent."Internet Address" does not contain placeholder %1
@@ -4898,7 +4898,7 @@ codeunit 134387 "ERM Sales Documents III"
     var
         ShippingAgent: Record "Shipping Agent";
         InternetAddress: Text;
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         // [FEATURE] [Shipping Agent] [UT]
         // [SCENARIO 386459] GetTrackingInternetAddr doesn't add "http://" if address already contains "https://"
@@ -6395,7 +6395,7 @@ codeunit 134387 "ERM Sales Documents III"
         PaymentDocNo: Code[20];
         VATCalculationType: Enum "Tax Calculation Type";
     begin
-        // [SCENARIO 563207] Unrealized Gain / Loss is cleared during applicaiton when using multiple customer posting groups. 
+        // [SCENARIO 563207] Unrealized Gain / Loss is cleared during applicaiton when using multiple customer posting groups.
         Initialize();
 
         // [GIVEN] Set Journal Templ Name mandatory to false.
@@ -6421,7 +6421,7 @@ codeunit 134387 "ERM Sales Documents III"
             Customer, CustomerPostingGroup[1].Code,
             Currency.Code, VATPostingSetup."VAT Bus. Posting Group");
 
-        // [GIVEN] Create Alternative Customer Posting Group. 
+        // [GIVEN] Create Alternative Customer Posting Group.
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[2]);
         LibrarySales.CreateAltCustomerPostingGroup(CustomerPostingGroup[1].Code, CustomerPostingGroup[2].Code);
 
@@ -6746,7 +6746,7 @@ codeunit 134387 "ERM Sales Documents III"
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
     end;
 #endif
-    local procedure CreateShippingAgent(var ShippingAgent: Record "Shipping Agent"; ShippingInternetAddress: Text[250]; var PackageTrackingNo: Text[30])
+    local procedure CreateShippingAgent(var ShippingAgent: Record "Shipping Agent"; ShippingInternetAddress: Text[250]; var PackageTrackingNo: Text[50])
     begin
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         ShippingAgent."Internet Address" := ShippingInternetAddress;

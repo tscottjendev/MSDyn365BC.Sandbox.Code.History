@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -1808,10 +1808,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
         GLReg.Init();
         GLReg."From Entry No." := NextEntryNo;
         GLReg."From VAT Entry No." := NextVATEntryNo;
-#if not CLEAN24   
-        GLReg."Creation Date" := Today();
-        GLReg."Creation Time" := Time();
-#endif
         GLReg."Source Code" := GenJnlLine."Source Code";
         GLReg."Journal Templ. Name" := GenJnlTemplate.Name;
         GLReg."Journal Batch Name" := GenJnlLine."Journal Batch Name";
@@ -10557,4 +10553,3 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
     end;
 }
-
