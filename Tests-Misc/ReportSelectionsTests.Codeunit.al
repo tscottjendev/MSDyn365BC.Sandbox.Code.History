@@ -738,13 +738,17 @@ codeunit 134421 "Report Selections Tests"
     procedure UT_RestrictEmptyReportID_OnModify()
     var
         ReportSelections: Record "Report Selections";
+        AllObj: Record AllObj;
     begin
         // [FEATURE] [UT]
         // [SCENARIO 270795] User is unable to change "Report ID" to blank in the "Report Selection2" table.
         Initialize();
+        AllObj.SetRange("Object Type", AllObj."Object Type"::Report);
+        AllObj.FindSet();
+        AllObj.Next(LibraryRandom.RandIntInRange(20, 30));
 
         ReportSelections.Init();
-        ReportSelections.Validate("Report ID", LibraryRandom.RandIntInRange(20, 30));
+        ReportSelections.Validate("Report ID", AllObj."Object ID");
         ReportSelections.Insert(true);
 
         ReportSelections.Validate("Report ID", 0);
@@ -1179,7 +1183,7 @@ codeunit 134421 "Report Selections Tests"
         i: Integer;
     begin
         // [FEATURE] [Custom Report Selection]
-        // [SCENARIO 275947] Clear "Send To Email" clears also selected contacts filter 
+        // [SCENARIO 275947] Clear "Send To Email" clears also selected contacts filter
         Initialize();
 
         // [GIVEN] Company contact "CC1" with person contacts "CP1".."CP3" with emails "E1".."E3"
@@ -1817,7 +1821,7 @@ codeunit 134421 "Report Selections Tests"
         LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID(), CustomReportLayout.Type::RDLC.AsInteger());
         CustomReportLayout.Get(LayoutCode);
 
-        // [THEN] Create report layout selection with new custom layout 
+        // [THEN] Create report layout selection with new custom layout
         ReportLayoutSelection.Init();
         ReportLayoutSelection."Report ID" := StandardSalesInvoiceReportID();
         ReportLayoutSelection.Type := ReportLayoutSelection.Type::"Custom Layout";
@@ -1875,7 +1879,7 @@ codeunit 134421 "Report Selections Tests"
         Customer: Record Customer;
         CustomerCard: TestPage "Customer Card";
     begin
-        // [SCENARIO 565404] Verify Customer Document Layout - Entry of new record 
+        // [SCENARIO 565404] Verify Customer Document Layout - Entry of new record
         Initialize();
 
         // [GIVEN] Create Customer with Custom Report Selection.
@@ -2304,7 +2308,7 @@ codeunit 134421 "Report Selections Tests"
         UpdateCustomReportSelections(SalesInvoiceHeader."Bill-to Customer No.", true, UseCustomForEmailBody, EmailAddress);
     end;
 
-    local procedure GenerateRandomPackageTrackingNo(): Text[30]
+    local procedure GenerateRandomPackageTrackingNo(): Text[50]
     var
         DummySalesHeader: Record "Sales Header";
     begin
@@ -2731,4 +2735,3 @@ codeunit 134421 "Report Selections Tests"
         ReportLayouts.OK().Invoke();
     end;
 }
-

@@ -471,10 +471,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Business Unit Setup" = R,
                   tabledata "Calendar Absence Entry" = R,
                   tabledata "Calendar Entry" = R,
-#if not CLEAN24
-                  tabledata "Calendar Event" = R,
-                  tabledata "Calendar Event User Config." = R,
-#endif
                   tabledata Campaign = R,
                   tabledata "Campaign Entry" = R,
                   tabledata "Campaign Status" = R,
@@ -1070,9 +1066,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata Maintenance = R,
                   tabledata "Maintenance Ledger Entry" = R,
                   tabledata "Maintenance Registration" = R,
-#if not CLEAN24
-                  tabledata "Man. Integration Field Mapping" = R,
-#endif
                   tabledata "Man. Integration Table Mapping" = R,
                   tabledata "Man. Int. Field Mapping" = R,
                   tabledata Manufacturer = R,
