@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -352,12 +352,6 @@ report 12 "VAT Statement"
         EndDate: Date;
         StartDate: Date;
         EndDateReq: Date;
-#if not CLEAN24
-#pragma warning disable AA0137
-        [Obsolete('Unused variable', '24.0')]
-        HeaderText: Text[50];
-#pragma warning restore AA0137
-#endif
         PrintInIntegers: Boolean;
         PeriodSelection: Enum "VAT Statement Report Period Selection";
         Selection: Enum "VAT Statement Report Selection";
@@ -924,4 +918,3 @@ report 12 "VAT Statement"
     begin
     end;
 }
-

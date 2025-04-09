@@ -99,14 +99,6 @@ page 507 "Blanket Sales Order"
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional part of the customer''s address.';
                     }
-                    field("Sell-to Post Code"; Rec."Sell-to Post Code")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'Post Code';
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the postal code of the customer''s address.';
-                    }
                     field("Sell-to City"; Rec."Sell-to City")
                     {
                         ApplicationArea = Suite;
@@ -118,8 +110,16 @@ page 507 "Blanket Sales Order"
                     field("Sell-to County"; Rec."Sell-to County")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                         ToolTip = 'Specifies the county of the address.';
+                    }
+                    field("Sell-to Post Code"; Rec."Sell-to Post Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Post Code';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the postal code of the customer''s address.';
                     }
                     field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
                     {
@@ -508,14 +508,6 @@ page 507 "Blanket Sales Order"
                                 QuickEntry = false;
                                 ToolTip = 'Specifies an additional part of the shipping address.';
                             }
-                            field("Ship-to Post Code"; Rec."Ship-to Post Code")
-                            {
-                                ApplicationArea = Suite;
-                                Caption = 'Post Code';
-                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
-                                QuickEntry = false;
-                                ToolTip = 'Specifies the postal code of the shipping address.';
-                            }
                             field("Ship-to City"; Rec."Ship-to City")
                             {
                                 ApplicationArea = Suite;
@@ -527,9 +519,17 @@ page 507 "Blanket Sales Order"
                             field("Ship-to County"; Rec."Ship-to County")
                             {
                                 ApplicationArea = Basic, Suite;
-                                Caption = 'County';
+                                CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 ToolTip = 'Specifies the county of the address.';
+                            }
+                            field("Ship-to Post Code"; Rec."Ship-to Post Code")
+                            {
+                                ApplicationArea = Suite;
+                                Caption = 'Post Code';
+                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                                QuickEntry = false;
+                                ToolTip = 'Specifies the postal code of the shipping address.';
                             }
                             field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                             {
@@ -663,16 +663,6 @@ page 507 "Blanket Sales Order"
                             QuickEntry = false;
                             ToolTip = 'Specifies an additional part of the billing address.';
                         }
-                        field("Bill-to Post Code"; Rec."Bill-to Post Code")
-                        {
-                            ApplicationArea = Suite;
-                            Caption = 'Post Code';
-                            Editable = (BillToOptions = BillToOptions::"Custom Address") or (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
-                            Enabled = (BillToOptions = BillToOptions::"Custom Address") or (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
-                            Importance = Additional;
-                            QuickEntry = false;
-                            ToolTip = 'Specifies the postal code of the billing address.';
-                        }
                         field("Bill-to City"; Rec."Bill-to City")
                         {
                             ApplicationArea = Suite;
@@ -686,8 +676,18 @@ page 507 "Blanket Sales Order"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             ToolTip = 'Specifies the county of the address.';
+                        }
+                        field("Bill-to Post Code"; Rec."Bill-to Post Code")
+                        {
+                            ApplicationArea = Suite;
+                            Caption = 'Post Code';
+                            Editable = (BillToOptions = BillToOptions::"Custom Address") or (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
+                            Enabled = (BillToOptions = BillToOptions::"Custom Address") or (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the postal code of the billing address.';
                         }
                         field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                         {

@@ -151,9 +151,6 @@ codeunit 5900 ServOrderManagement
         NewServItem: Record "Service Item";
         ResSkill: Record "Resource Skill";
         ServLogMgt: Codeunit ServLogManagement;
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         ResSkillMgt: Codeunit "Resource Skill Mgt.";
         NoSeries: Codeunit "No. Series";
         SerialNo: Code[50];
@@ -196,16 +193,8 @@ codeunit 5900 ServOrderManagement
             ServMgtSetup.Get();
             NewServItem := FromServItem;
             NewServItem."No." := '';
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(ServMgtSetup."Service Item Nos.", NewServItem."No. Series", 0D, NewServItem."No.", NewServItem."No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 NewServItem."No. Series" := ServMgtSetup."Service Item Nos.";
                 NewServItem."No." := NoSeries.GetNextNo(NewServItem."No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries(NewServItem."No. Series", ServMgtSetup."Service Item Nos.", 0D, NewServItem."No.");
-            end;
-#endif
             NewServItem."Serial No." := SerialNo;
             NewServItem."Variant Code" := ServiceLine."Variant Code";
             NewServItem."Shipment Type" := NewServItem."Shipment Type"::Service;
@@ -935,4 +924,3 @@ codeunit 5900 ServOrderManagement
     begin
     end;
 }
-

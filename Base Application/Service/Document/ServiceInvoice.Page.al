@@ -89,6 +89,12 @@ page 5933 "Service Invoice"
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
+                    field(City; Rec.City)
+                    {
+                        ApplicationArea = Service;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address.';
+                    }
                     group(Control13)
                     {
                         ShowCaption = false;
@@ -104,12 +110,6 @@ page 5933 "Service Invoice"
                     {
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the postal code.';
-                    }
-                    field(City; Rec.City)
-                    {
-                        ApplicationArea = Service;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the address.';
                     }
                     field("Country/Region Code"; Rec."Country/Region Code")
                     {
@@ -253,6 +253,13 @@ page 5933 "Service Invoice"
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional line of the address.';
                     }
+                    field("Bill-to City"; Rec."Bill-to City")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'City';
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address.';
+                    }
                     group(Control21)
                     {
                         ShowCaption = false;
@@ -260,7 +267,7 @@ page 5933 "Service Invoice"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             QuickEntry = false;
                             ToolTip = 'Specifies the county in the customer''s address.';
                         }
@@ -271,13 +278,6 @@ page 5933 "Service Invoice"
                         Caption = 'Post Code';
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the customer''s billing address.';
-                    }
-                    field("Bill-to City"; Rec."Bill-to City")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'City';
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the address.';
                     }
                     field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                     {
@@ -583,6 +583,13 @@ page 5933 "Service Invoice"
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional part of the ship-to address, in case it is a long address.';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'City';
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address that the items are shipped to.';
+                    }
                     group(Control29)
                     {
                         ShowCaption = false;
@@ -590,7 +597,7 @@ page 5933 "Service Invoice"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             QuickEntry = false;
                             ToolTip = 'Specifies the county in the customer''s address.';
                         }
@@ -601,13 +608,6 @@ page 5933 "Service Invoice"
                         Caption = 'Post Code';
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
-                    }
-                    field("Ship-to City"; Rec."Ship-to City")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'City';
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the address that the items are shipped to.';
                     }
                     field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {

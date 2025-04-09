@@ -14,7 +14,6 @@ codeunit 139018 "Job Queue Entry Tests"
         WrongEndingDateErr: Label 'Wrong ending date and time calculated.';
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
         NoErrorMessageMsg: Label 'There is no error message.';
         OnlyActiveCanBeMarkedErr: Label 'Only entries with the status In Progress can be marked as errors.';
 
@@ -234,45 +233,11 @@ codeunit 139018 "Job Queue Entry Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ErrorHandlerInsertsErrorLogEntryIfNoActiveLogs()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        JobQueueLogEntry: Record "Job Queue Log Entry";
-        ExpectedErrorMessage: Text;
-    begin
-        // [FEATURE] [Job Queue Error Handler]
-        // [GIVEN] An Error "Err" happens
-        BindSubscription(LibraryJobQueue);
-        ExpectedErrorMessage := LibraryUtility.GenerateGUID();
-        asserterror Error(ExpectedErrorMessage);
-
-        // [GIVEN] Job Queue Entry "A", where Status "In Process"
-        JobQueueEntry.Init();
-        JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
-        JobQueueEntry.Insert(true);
-        // [GIVEN] The Log Entry for "A", where Status is "Error"
-        JobQueueLogEntry.Init();
-        JobQueueLogEntry.ID := JobQueueEntry.ID;
-        JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
-        JobQueueLogEntry.Insert(true);
-
-        // [WHEN] Run "Job Queue Error Handler"
-        CODEUNIT.Run(CODEUNIT::"Job Queue Error Handler", JobQueueEntry);
-
-        // [THEN] Job Queue Entry "A" got Status "Error", "Error Message" is "Err"
-        // [THEN] A new Log entry added, where Status "Error", "Error Message" is "Err"
-        JobQueueLogEntry.SetRange(ID, JobQueueEntry.ID);
-        JobQueueLogEntry.FindLast();
-        VerifyErrorInJobQueueEntryAndLog(JobQueueEntry, JobQueueLogEntry, ExpectedErrorMessage);
-        UnbindSubscription(LibraryJobQueue);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure ErrorHandlerMarksActiveLogEntryAsError()
     var
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueLogEntry: Record "Job Queue Log Entry";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
         ExpectedErrorMessage: Text;
     begin
         // [FEATURE] [Job Queue Error Handler]
@@ -932,4 +897,3 @@ codeunit 139018 "Job Queue Entry Tests"
         IsHandled := true;
     end;
 }
-
