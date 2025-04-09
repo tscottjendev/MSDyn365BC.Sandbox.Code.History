@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -654,10 +654,6 @@ page 6550 "Whse. Item Tracking Lines"
         NewPackageNoEditable: Boolean;
         NewExpirationDateEditable: Boolean;
         ExpirationDateEditable: Boolean;
-#if not CLEAN24
-        [Obsolete('Package Tracking enabled by default.', '24.0')]
-        PackageTrackingVisible: Boolean;
-#endif
 
     local procedure GetTextCaption(): Text[30]
     var
@@ -1011,14 +1007,6 @@ page 6550 "Whse. Item Tracking Lines"
         OnAfterSetSourceSpecification(SourceSpecification, TempSourceWhseItemTrackingLine);
     end;
 
-#if not CLEAN24
-#pragma warning disable AA0228
-    local procedure SetPackageTrackingVisibility()
-    begin
-        PackageTrackingVisible := true;
-    end;
-#pragma warning restore AA0228
-#endif
 
     local procedure CountLinesWithQtyZero(): Integer
     var
@@ -1079,4 +1067,3 @@ page 6550 "Whse. Item Tracking Lines"
     begin
     end;
 }
-

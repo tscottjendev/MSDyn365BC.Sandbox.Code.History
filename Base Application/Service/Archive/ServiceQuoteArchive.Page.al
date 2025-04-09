@@ -73,6 +73,12 @@ page 6268 "Service Quote Archive"
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
+                    field(City; Rec.City)
+                    {
+                        ApplicationArea = Service;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address.';
+                    }
                     group(CountyGroup)
                     {
                         ShowCaption = false;
@@ -113,12 +119,6 @@ page 6268 "Service Quote Archive"
                     ApplicationArea = Service;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the email address of the customer in this service order.';
-                }
-                field(City; Rec.City)
-                {
-                    ApplicationArea = Service;
-                    QuickEntry = false;
-                    ToolTip = 'Specifies the city of the address.';
                 }
                 field("Phone No. 2"; Rec."Phone No. 2")
                 {
@@ -219,6 +219,13 @@ page 6268 "Service Quote Archive"
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional line of the address.';
                     }
+                    field("Bill-to City"; Rec."Bill-to City")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'City';
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address.';
+                    }
                     group(BillCounty)
                     {
                         ShowCaption = false;
@@ -226,7 +233,7 @@ page 6268 "Service Quote Archive"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             QuickEntry = false;
                             ToolTip = 'Specifies the county of the customer on the service document.';
                         }
@@ -237,13 +244,6 @@ page 6268 "Service Quote Archive"
                         Caption = 'Post Code';
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the customer''s billing address.';
-                    }
-                    field("Bill-to City"; Rec."Bill-to City")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'City';
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the address.';
                     }
                     field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                     {
@@ -362,6 +362,13 @@ page 6268 "Service Quote Archive"
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional part of the ship-to address, in case it is a long address.';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'City';
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address that the items are shipped to.';
+                    }
                     group(ShipCounty)
                     {
                         ShowCaption = false;
@@ -369,7 +376,7 @@ page 6268 "Service Quote Archive"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             QuickEntry = false;
                             ToolTip = 'Specifies the county of the ship-to address.';
                         }
@@ -381,13 +388,6 @@ page 6268 "Service Quote Archive"
                         Importance = Promoted;
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
-                    }
-                    field("Ship-to City"; Rec."Ship-to City")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'City';
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the address that the items are shipped to.';
                     }
                     field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {

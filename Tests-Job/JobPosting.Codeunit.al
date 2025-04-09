@@ -29,6 +29,8 @@ codeunit 136309 "Job Posting"
 #if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
+        LibraryNoSeries: Codeunit "Library - No. Series";
+        Any: Codeunit Any;
         TargetJobNo: Code[20];
         JournalTemplateName: Code[10];
         SerialNo: array[15] of Code[50];
@@ -2403,6 +2405,7 @@ codeunit 136309 "Job Posting"
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup."Job Nos." := LibraryJob.GetJobTestNoSeries();
         DummyJobsSetup.Modify();
+        LibraryJob.SetJobNoSeriesCode();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -2546,10 +2549,21 @@ codeunit 136309 "Job Posting"
         Item: Record Item;
     begin
         Item.Get(CreateItem());
+        Item."Serial Nos." := CreateNoSeries();
         Item.Validate("Item Tracking Code", CreateTrackingCodeWithLotSpecific(LotSpecificTracking, SNSpecificTracking));
         Item.Validate("Last Direct Cost", LibraryRandom.RandDec(100, 2));  // Take Random value for Last Direct Cost.
         Item.Modify(true);
         exit(Item."No.");
+    end;
+
+    local procedure CreateNoSeries(): Code[20]
+    var
+        NoSeriesCode: Code[20];
+    begin
+        Any.SetDefaultSeed();
+        NoSeriesCode := CopyStr(Any.AlphabeticText(10), 1, 10);
+        LibraryNoSeries.CreateNoSeries(NoSeriesCode, true, true, false);
+        exit(NoSeriesCode)
     end;
 
     local procedure CreateItemUnitOfMeasure(var ItemUnitOfMeasure: Record "Item Unit of Measure"; ItemNo: Code[20])
@@ -3986,4 +4000,3 @@ codeunit 136309 "Job Posting"
         LibraryJob.CreateJobPlanningLine(LibraryJob.UsageLineTypeSchedule(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
     end;
 }
-

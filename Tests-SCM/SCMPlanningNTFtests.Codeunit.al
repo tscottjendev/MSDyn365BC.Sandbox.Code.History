@@ -82,6 +82,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup.Modify();
+        LibraryJob.SetJobNoSeriesCode();
 
         IsInitialized := true;
         Commit();
@@ -3670,4 +3671,3 @@ codeunit 137021 "SCM Planning - NTF tests"
         Reply := true;
     end;
 }
-

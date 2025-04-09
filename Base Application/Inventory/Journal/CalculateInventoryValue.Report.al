@@ -615,21 +615,6 @@ report 5899 "Calculate Inventory Value"
         OnAfterInitItemJnlLine(ItemJnlLine, ItemJnlBatch);
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by procedure SetParameters()', '24.0')]
-    procedure InitializeRequest(NewPostingDate: Date; NewDocNo: Code[20]; NewHideDuplWarning: Boolean; NewCalculatePer: Option; NewByLocation: Boolean; NewByVariant: Boolean; NewUpdStdCost: Boolean; NewCalcBase: Option; NewShowDialog: Boolean)
-    begin
-        PostingDate := NewPostingDate;
-        NextDocNo := NewDocNo;
-        CalculatePer := "Inventory Value Calc. Base".FromInteger(NewCalculatePer);
-        ByLocation := NewByLocation;
-        ByVariant := NewByVariant;
-        UpdStdCost := NewUpdStdCost;
-        CalcBase := "Inventory Value Calc. Base".FromInteger(NewCalcBase);
-        ShowDialog := NewShowDialog;
-        HideDuplWarning := NewHideDuplWarning;
-    end;
-#endif
 
     procedure SetParameters(NewPostingDate: Date; NewDocNo: Code[20]; NewHideDuplWarning: Boolean; NewCalculatePer: Enum "Inventory Value Calc. Per"; NewByLocation: Boolean; NewByVariant: Boolean; NewUpdStdCost: Boolean; NewCalcBase: Enum "Inventory Value Calc. Base"; NewShowDialog: Boolean)
     begin
@@ -779,4 +764,3 @@ report 5899 "Calculate Inventory Value"
     begin
     end;
 }
-
