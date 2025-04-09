@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -373,17 +373,6 @@ table 1381 "Customer Templ."
             ExtendedDatatype = EMail;
             ToolTip = 'Specifies the customer''s email address.';
         }
-#if not CLEAN24
-        field(103; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-            ToolTip = 'Specifies the customer''s home page address.';
-        }
-#else
 #pragma warning disable AS0086
         field(103; "Home Page"; Text[255])
         {
@@ -392,7 +381,6 @@ table 1381 "Customer Templ."
             ToolTip = 'Specifies the customer''s home page address.';
         }
 #pragma warning restore AS0086
-#endif
         field(104; "Reminder Terms Code"; Code[10])
         {
             Caption = 'Reminder Terms Code';

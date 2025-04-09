@@ -165,15 +165,9 @@ table 272 "Check Ledger Entry"
         {
             Caption = 'Record ID to Print';
             DataClassification = SystemMetadata;
-#if not CLEAN24            
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by Print Gen Jnl Line SystemId field';
-            ObsoleteTag = '24.0';
-#else
             ObsoleteState = Removed;
             ObsoleteReason = 'Replaced by Print Gen Jnl Line SystemId field';
             ObsoleteTag = '27.0';
-#endif
         }
 #endif
         field(27; "Print Gen Jnl Line SystemId"; Guid)
@@ -394,4 +388,3 @@ table 272 "Check Ledger Entry"
     begin
     end;
 }
-

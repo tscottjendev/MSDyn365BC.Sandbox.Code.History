@@ -105,6 +105,14 @@ page 49 "Purchase Quote"
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional part of the address of the vendor who delivered the items.';
                     }
+                    field("Buy-from City"; Rec."Buy-from City")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'City';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the vendor who delivered the items.';
+                    }
                     group(Control79)
                     {
                         ShowCaption = false;
@@ -112,7 +120,7 @@ page 49 "Purchase Quote"
                         field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the county in the vendor''s address.';
@@ -125,14 +133,6 @@ page 49 "Purchase Quote"
                         Importance = Additional;
                         QuickEntry = false;
                         ToolTip = 'Specifies the post code of the vendor who delivered the items.';
-                    }
-                    field("Buy-from City"; Rec."Buy-from City")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'City';
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the vendor who delivered the items.';
                     }
                     field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
                     {
@@ -530,6 +530,15 @@ page 49 "Purchase Quote"
                                 QuickEntry = false;
                                 ToolTip = 'Specifies an additional part of the address that items on the purchase order were shipped to, as a drop shipment.';
                             }
+                            field("Ship-to City"; Rec."Ship-to City")
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'City';
+                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                                Importance = Additional;
+                                QuickEntry = false;
+                                ToolTip = 'Specifies the city that items on the purchase order were shipped to, as a drop shipment.';
+                            }
                             group(Control90)
                             {
                                 ShowCaption = false;
@@ -537,7 +546,7 @@ page 49 "Purchase Quote"
                                 field("Ship-to County"; Rec."Ship-to County")
                                 {
                                     ApplicationArea = Basic, Suite;
-                                    Caption = 'County';
+                                    CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                                     Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                     Importance = Additional;
                                     QuickEntry = false;
@@ -552,15 +561,6 @@ page 49 "Purchase Quote"
                                 Importance = Additional;
                                 QuickEntry = false;
                                 ToolTip = 'Specifies the post code that items on the purchase order were shipped to, as a drop shipment.';
-                            }
-                            field("Ship-to City"; Rec."Ship-to City")
-                            {
-                                ApplicationArea = Basic, Suite;
-                                Caption = 'City';
-                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
-                                Importance = Additional;
-                                QuickEntry = false;
-                                ToolTip = 'Specifies the city that items on the purchase order were shipped to, as a drop shipment.';
                             }
                             field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                             {
@@ -653,6 +653,16 @@ page 49 "Purchase Quote"
                             QuickEntry = false;
                             ToolTip = 'Specifies an additional part of the address of the vendor that the invoice was received from.';
                         }
+                        field("Pay-to City"; Rec."Pay-to City")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'City';
+                            Editable = (PayToOptions = PayToOptions::"Custom Address") or (Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.");
+                            Enabled = (PayToOptions = PayToOptions::"Custom Address") or (Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.");
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the city of the vendor that you received the invoice from.';
+                        }
                         group(Control84)
                         {
                             ShowCaption = false;
@@ -660,7 +670,7 @@ page 49 "Purchase Quote"
                             field("Pay-to County"; Rec."Pay-to County")
                             {
                                 ApplicationArea = Basic, Suite;
-                                Caption = 'County';
+                                CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                                 Editable = (PayToOptions = PayToOptions::"Custom Address") or (Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.");
                                 Enabled = (PayToOptions = PayToOptions::"Custom Address") or (Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.");
                                 Importance = Additional;
@@ -677,16 +687,6 @@ page 49 "Purchase Quote"
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the post code of the vendor that you received the invoice from.';
-                        }
-                        field("Pay-to City"; Rec."Pay-to City")
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'City';
-                            Editable = (PayToOptions = PayToOptions::"Custom Address") or (Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.");
-                            Enabled = (PayToOptions = PayToOptions::"Custom Address") or (Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.");
-                            Importance = Additional;
-                            QuickEntry = false;
-                            ToolTip = 'Specifies the city of the vendor that you received the invoice from.';
                         }
                         field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
                         {

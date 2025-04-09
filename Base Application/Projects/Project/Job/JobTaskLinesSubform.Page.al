@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -582,9 +582,6 @@ page 1001 "Job Task Lines Subform"
         DescriptionIndent: Integer;
         StyleIsStrong: Boolean;
         PostingTypeRow: Boolean;
-#if not CLEAN24
-        RefreshCustomerControl: Boolean;
-#endif
 
     protected var
         PerTaskBillingFieldsVisible: Boolean;
@@ -595,13 +592,6 @@ page 1001 "Job Task Lines Subform"
         CurrPage.Update(false);
     end;
 
-#if not CLEAN24
-    [Obsolete('Procedure is not used.', '24.0')]
-    procedure SetRefreshCustomerControl(Refresh: Boolean)
-    begin
-        RefreshCustomerControl := Refresh;
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnActionJobPlanningLines(var JobTask: Record "Job Task"; var IsHandled: Boolean);
@@ -618,4 +608,3 @@ page 1001 "Job Task Lines Subform"
     begin
     end;
 }
-

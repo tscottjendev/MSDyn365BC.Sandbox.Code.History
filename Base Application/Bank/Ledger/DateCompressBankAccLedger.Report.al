@@ -318,10 +318,6 @@ report 1498 "Date Compress Bank Acc. Ledger"
         if GLReg.Find('+') then;
         GLReg.Init();
         GLReg."No." := GLReg."No." + 1;
-#if not CLEAN24
-        GLReg."Creation Date" := Today;
-        GLReg."Creation Time" := Time;
-#endif
         GLReg."Source Code" := SourceCodeSetup."Compress Bank Acc. Ledger";
         GLReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(GLReg."User ID"));
         GLReg."From Entry No." := LastEntryNo + 1;
@@ -548,4 +544,3 @@ report 1498 "Date Compress Bank Acc. Ledger"
     begin
     end;
 }
-

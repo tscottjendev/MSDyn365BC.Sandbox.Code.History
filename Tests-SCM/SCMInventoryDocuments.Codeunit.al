@@ -40,7 +40,7 @@ codeunit 137140 "SCM Inventory Documents"
         ReorderingPolicyShouldBeVisibleErr: Label 'Reordering Policy should be visible.';
         SpecialEquipmentCodeShouldBeVisibleErr: Label 'Special Equipment Code should be visible.';
         DueDateBeforeWorkDateMsg: Label 'is before work date';
-        TransferOrderErr: Label 'Transfer Order not posted successfully.';
+        TransferOrderErr: Label 'Transfer Order has not been posted successfully.';
 
     [Test]
     [Scope('OnPrem')]

@@ -107,7 +107,7 @@ page 509 "Blanket Purchase Order"
                     field("Buy-from County"; Rec."Buy-from County")
                     {
                         ApplicationArea = Suite;
-                        Caption = 'State';
+                        CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                         Importance = Additional;
                         QuickEntry = false;
                         ToolTip = 'Specifies the state where the vendor sending the invoice is located.';
@@ -471,7 +471,7 @@ page 509 "Blanket Purchase Order"
                     field("Ship-to County"; Rec."Ship-to County")
                     {
                         ApplicationArea = Suite;
-                        Caption = 'State';
+                        CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                         Importance = Additional;
                         QuickEntry = false;
                         ToolTip = 'Specifies the state where the vendor sending the invoice is located.';
@@ -483,6 +483,14 @@ page 509 "Blanket Purchase Order"
                         Importance = Additional;
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code.';
+                    }
+                    field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Country/Region';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the country or region of the address.';
                     }
                     field("Ship-to Phone No."; Rec."Ship-to Phone No.")
                     {
@@ -552,7 +560,7 @@ page 509 "Blanket Purchase Order"
                     field("Pay-to County"; Rec."Pay-to County")
                     {
                         ApplicationArea = Suite;
-                        Caption = 'State';
+                        CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                         Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
                         Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
                         Importance = Additional;
