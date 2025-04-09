@@ -372,32 +372,15 @@ table 5071 Campaign
     end;
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "No." = '' then begin
             RMSetup.Get();
             RMSetup.TestField("Campaign Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RMSetup."Campaign Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(RMSetup."Campaign Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := RMSetup."Campaign Nos.";
-                "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", RMSetup."Campaign Nos.", 0D, "No.");
-            end;
-#else
 			if NoSeries.AreRelated(RMSetup."Campaign Nos.", xRec."No. Series") then
 				"No. Series" := xRec."No. Series"
 			else
 				"No. Series" := RMSetup."Campaign Nos.";
             "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
 
         if "Salesperson Code" = '' then
@@ -491,4 +474,3 @@ table 5071 Campaign
     begin
     end;
 }
-

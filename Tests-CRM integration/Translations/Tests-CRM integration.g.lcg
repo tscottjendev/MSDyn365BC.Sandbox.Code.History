@@ -599,24 +599,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Integration Mapping - NamedType ExpectedRecordNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1239683370 - NamedType 1849075734" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The field %1 must have the field class set to "Normal"]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = field name]D;]A;(LookupHint=Codeunit CRM Integration Mapping - NamedType FieldClassNormalErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1239683370 - NamedType 2121129405" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The field %1 must not have a relationship with another table.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - a field name]D;]A;(LookupHint=Codeunit CRM Integration Mapping - NamedType FieldRelationShipErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1239683370 - NamedType 1364040855" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[New method failed because Insert is not allowed.]]></Val>

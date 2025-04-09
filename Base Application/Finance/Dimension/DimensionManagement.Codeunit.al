@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -7,9 +7,6 @@ namespace Microsoft.Finance.Dimension;
 using Microsoft.Assembly.Document;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Reconciliation;
-#if not CLEAN24
-using Microsoft.Bank.Payment;
-#endif
 using Microsoft.CostAccounting.Setup;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -2411,33 +2408,6 @@ codeunit 408 DimensionManagement
                 CostAccMgt.UpdateCostTypeFromDefaultDimension(DefaultDimension, GLAccount, CallingTrigger);
     end;
 
-#if not CLEAN24
-    [Obsolete('Moved to Payment Journal Line (table 2000001)', '24.0')]
-    procedure TypeToTableID2000001(Type: Option " ",Customer,Vendor): Integer
-    begin
-        case Type of
-            Type::" ":
-                exit(0);
-            Type::Customer:
-                exit(Database::Customer);
-            Type::Vendor:
-                exit(Database::Vendor);
-        end;
-    end;
-
-    [Obsolete('Unused public function. Will be removed.', '24.0')]
-    procedure UpdatePmtJnlLineDim(PaymentJnlLine: Record "Payment Journal Line"; LineNo: Integer; BatchName: Code[10])
-    var
-        SavedDimensionSetID: Integer;
-    begin
-        SavedDimensionSetID := PaymentJnlLine."Dimension Set ID";
-        PaymentJnlLine."Journal Batch Name" := BatchName;
-        PaymentJnlLine."Line No." := LineNo;
-        PaymentJnlLine.Find();
-        PaymentJnlLine."Dimension Set ID" := SavedDimensionSetID;
-        PaymentJnlLine.Modify();
-    end;
-#endif
 
     procedure CreateDimSetFromJobTaskDim(JobNo: Code[20]; JobTaskNo: Code[20]; var GlobalDimVal1: Code[20]; var GlobalDimVal2: Code[20]) NewDimSetID: Integer
     var
@@ -3442,4 +3412,3 @@ codeunit 408 DimensionManagement
     begin
     end;
 }
-

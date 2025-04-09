@@ -1420,10 +1420,6 @@ table 167 Job
         ConfirmDeleteQst: Label 'The items have been picked. If you delete the Job, then the items will remain in the operation area until you put them away.\Related item tracking information that is defined during the pick will be deleted.\Are you sure that you want to delete the Job?';
 
     protected var
-#if not CLEAN24
-        [Obsolete('Variable NoSeriesMgt is obsolete and will be removed. Please refer to No. Series codeunit instead.', '24.0')]
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         NoSeries: Codeunit "No. Series";
         DimMgt: Codeunit DimensionManagement;
         SkipSellToContact: Boolean;
@@ -1433,11 +1429,7 @@ table 167 Job
         IsHandled: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN24
-        OnBeforeAssistEdit(Rec, OldJob, Result, IsHandled, NoSeriesMgt);
-#else
         OnBeforeAssistEdit(Rec, OldJob, Result, IsHandled);
-#endif
         if IsHandled then
             exit(Result);
 
@@ -1512,10 +1504,6 @@ table 167 Job
 
         if "No." = '' then begin
             JobsSetup.TestField("Job Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(JobsSetup."Job Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := JobsSetup."Job Nos.";
                 OnInitJobNoOnAfterAssignNoSeries(Rec, xRec, JobsSetup);
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
@@ -1525,10 +1513,6 @@ table 167 Job
                 Job2.SetLoadFields("No.");
                 while Job2.Get("No.") do
                     "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", JobsSetup."Job Nos.", 0D, "No.");
-            end;
-#endif
         end;
     end;
 
@@ -3129,18 +3113,10 @@ table 167 Job
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('Parameter NoSeriesMgt is obsolete and will be removed, update your subscriber accordingly.', '24.0')]
-    local procedure OnBeforeAssistEdit(var Job: Record Job; var OldJob: Record Job; var Result: Boolean; var IsHandled: Boolean; var NoSeriesManagement: Codeunit NoSeriesManagement)
-    begin
-    end;
-#else
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAssistEdit(var Job: Record Job; var OldJob: Record Job; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckContactBillToCustomerBusRelation(var Job: Record Job; Contact: Record Contact; var IsHandled: Boolean)
