@@ -59,6 +59,12 @@ page 6627 "Sales Return Order Archive"
                         Caption = 'Address 2';
                         Importance = Additional;
                     }
+                    field("Sell-to City"; Rec."Sell-to City")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'City';
+                        Importance = Additional;
+                    }
                     group(SellToCounty)
                     {
                         ShowCaption = false;
@@ -66,7 +72,7 @@ page 6627 "Sales Return Order Archive"
                         field("Sell-to County"; Rec."Sell-to County")
                         {
                             ApplicationArea = Advanced;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                             Importance = Additional;
                         }
                     }
@@ -74,12 +80,6 @@ page 6627 "Sales Return Order Archive"
                     {
                         ApplicationArea = Suite;
                         Caption = 'Post Code';
-                        Importance = Additional;
-                    }
-                    field("Sell-to City"; Rec."Sell-to City")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'City';
                         Importance = Additional;
                     }
                     field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
@@ -246,6 +246,11 @@ page 6627 "Sales Return Order Archive"
                         ApplicationArea = Suite;
                         Caption = 'Address 2';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'City';
+                    }
                     group(ShipToCounty)
                     {
                         ShowCaption = false;
@@ -253,18 +258,13 @@ page 6627 "Sales Return Order Archive"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Advanced;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                         }
                     }
                     field("Ship-to Post Code"; Rec."Ship-to Post Code")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Post Code';
-                    }
-                    field("Ship-to City"; Rec."Ship-to City")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'City';
                     }
                     field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
@@ -303,6 +303,12 @@ page 6627 "Sales Return Order Archive"
                         Caption = 'Address 2';
                         Importance = Additional;
                     }
+                    field("Bill-to City"; Rec."Bill-to City")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'City';
+                        Importance = Additional;
+                    }
                     group(BillToCounty)
                     {
                         ShowCaption = false;
@@ -310,15 +316,9 @@ page 6627 "Sales Return Order Archive"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             Importance = Additional;
                         }
-                    }
-                    field("Bill-to City"; Rec."Bill-to City")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'City';
-                        Importance = Additional;
                     }
                     field("Bill-to Post Code"; Rec."Bill-to Post Code")
                     {
