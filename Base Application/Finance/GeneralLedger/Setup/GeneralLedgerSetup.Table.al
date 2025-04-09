@@ -29,7 +29,6 @@ using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Receivables;
 using System.Environment;
-using System.Globalization;
 using System.IO;
 using System.Security.User;
 using System.Telemetry;
@@ -96,10 +95,8 @@ table 98 "General Ledger Setup"
             Caption = 'VAT Date Usage';
 
             trigger OnValidate()
-            var
-                Language: Codeunit Language;
             begin
-                FeatureTelemetry.LogUsage('0000J2U', VATDateFeatureTok, StrSubstNo(VATDateFeatureUsageMsg, Language.ToDefaultLanguage("VAT Reporting Date Usage")));
+                FeatureTelemetry.LogUsage('0000J2U', VATDateFeatureTok, VATDateFeatureUsageMsg);
             end;
         }
         field(28; "Pmt. Disc. Excl. VAT"; Boolean)
@@ -836,10 +833,8 @@ table 98 "General Ledger Setup"
             Caption = 'Control VAT Period';
 
             trigger OnValidate()
-            var
-                Language: Codeunit Language;
             begin
-                FeatureTelemetry.LogUsage('0000JWC', VATDateFeatureTok, StrSubstNo(VATPeriodControlUsageMsg, Language.ToDefaultLanguage("Control VAT Period")));
+                FeatureTelemetry.LogUsage('0000JWC', VATDateFeatureTok, VATPeriodControlUsageMsg);
             end;
         }
         field(189; "Allow Query From Consolid."; Boolean)
@@ -953,8 +948,8 @@ table 98 "General Ledger Setup"
 #pragma warning restore AA0470
         AccSchedObsoleteErr: Label 'This field is obsolete and it has been replaced by Table 88 Financial Report';
         VATDateFeatureTok: Label 'VAT Date', Locked = true;
-        VATPeriodControlUsageMsg: Label 'Control VAT Period set to %1', Locked = true;
-        VATDateFeatureUsageMsg: Label 'VAT Reporting Date Usage set to %1', Locked = true;
+        VATPeriodControlUsageMsg: Label 'Control VAT Period is changed', Locked = true;
+        VATDateFeatureUsageMsg: Label 'VAT Reporting Date Usage is changed', Locked = true;
         PrivacyStatementAckErr: Label 'Enabling requires privacy statement acknowledgement.';
 
     procedure CheckDecimalPlacesFormat(var DecimalPlaces: Text[5])

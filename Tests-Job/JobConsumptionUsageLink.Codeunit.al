@@ -1810,7 +1810,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         CreateJob(true, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
-        // [GIVEN] Job planning line 
+        // [GIVEN] Job planning line
         LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine);
         JobPlanningLine.Validate(Quantity, 2 * PL_Qty);
         JobPlanningLine.Validate("Usage Link", true);
@@ -1866,6 +1866,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup.Modify();
+        LibraryJob.SetJobNoSeriesCode();
 
         Initialized := true;
 
@@ -2698,4 +2699,3 @@ codeunit 136303 "Job Consumption - Usage Link"
         SalesSetup.Modify(true);
     end;
 }
-

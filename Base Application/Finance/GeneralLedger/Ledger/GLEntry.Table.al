@@ -488,13 +488,8 @@ table 17 "G/L Entry"
         {
             Caption = 'Amount (FCY)';
             ObsoleteReason = 'Replaced by W1 field Source Currency Amount';
-#if CLEAN24
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#endif
         }
 #endif
     }

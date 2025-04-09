@@ -77,17 +77,10 @@ table 27 Item
 
             trigger OnValidate()
             var
-#if not CLEAN24
-                NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-#if not CLEAN24
-                OnBeforeValidateNo(IsHandled, Rec, xRec, InventorySetup, NoSeriesMgt);
-#else
                 OnBeforeValidateNo(IsHandled, Rec, xRec, InventorySetup);
-#endif
                 if IsHandled then
                     exit;
                 if "No." <> xRec."No." then begin
@@ -2316,9 +2309,6 @@ table 27 Item
     trigger OnInsert()
     var
         Item: Record Item;
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2327,21 +2317,6 @@ table 27 Item
             if "No." = '' then begin
                 GetInvtSetup();
                 InventorySetup.TestField("Item Nos.");
-#if not CLEAN24
-                NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(InventorySetup."Item Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-                if not IsHandled then begin
-                    if NoSeries.AreRelated(InventorySetup."Item Nos.", xRec."No. Series") then
-                        "No. Series" := xRec."No. Series"
-                    else
-                        "No. Series" := InventorySetup."Item Nos.";
-                    "No." := NoSeries.GetNextNo("No. Series");
-                    Item.ReadIsolation(IsolationLevel::ReadUncommitted);
-                    Item.SetLoadFields("No.");
-                    while Item.Get("No.") do
-                        "No." := NoSeries.GetNextNo("No. Series");
-                    NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", InventorySetup."Item Nos.", 0D, "No.");
-                end;
-#else
                 if NoSeries.AreRelated(InventorySetup."Item Nos.", xRec."No. Series") then
                     "No. Series" := xRec."No. Series"
                 else
@@ -2351,7 +2326,6 @@ table 27 Item
                 Item.SetLoadFields("No.");
                 while Item.Get("No.") do
                     "No." := NoSeries.GetNextNo("No. Series");
-#endif
                 "Costing Method" := InventorySetup."Default Costing Method";
                 OnInsertOnAfterAssignNo(Rec, xRec);
             end;
@@ -4097,18 +4071,10 @@ table 27 Item
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Parameter NoSeriesMgt is obsolete and will be removed, update your subscriber accordingly.', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateNo(var IsHandled: Boolean; var Item: Record Item; xItem: Record Item; InventorySetup: Record "Inventory Setup"; var NoSeriesMgt: Codeunit NoSeriesManagement)
-    begin
-    end;
-#else
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateNo(var IsHandled: Boolean; var Item: Record Item; xItem: Record Item; InventorySetup: Record "Inventory Setup")
     begin
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindItemVend(var Item: Record Item; var ItemVendor: Record "Item Vendor"; LocationCode: Code[10]; var IsHandled: Boolean)

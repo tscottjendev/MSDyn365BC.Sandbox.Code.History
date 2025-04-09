@@ -2245,13 +2245,6 @@ table 246 "Requisition Line"
         exit(not ReservEntry.IsEmpty);
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by procedure SetRefOrderFilters', '25.0')]
-    procedure SetRefFilter(RefOrderType: Option; RefOrderStatus: Option; RefOrderNo: Code[20]; RefLineNo: Integer)
-    begin
-        SetRefOrderFilters("Requisition Ref. Order Type".FromInteger(RefOrderType), RefOrderStatus, RefOrderNo, RefLineNo);
-    end;
-#endif
 
     /// <summary>
     /// Sets filters from provided reference document line to the current requisition line.

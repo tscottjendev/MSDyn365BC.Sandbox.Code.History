@@ -2697,17 +2697,17 @@ page 8901 "Finance Manager Role Center"
                         RunObject = report "Swiss VAT Statement";
                     }
 #if not CLEAN25
+#pragma warning disable AA0194
                     action("Adjust Exchange Rates G/L")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Adjust Exchange Rates G/L';
-#if not CLEAN24
-                        RunObject = report "Adjust Exchange Rates G/L";
-#endif
                         ObsoleteReason = 'Replaced by new report G/L Currency Revaluation in Chart of Accounts page.';
                         ObsoleteState = Pending;
                         ObsoleteTag = '25.0';
+                        Visible = false;
                     }
+#pragma warning restore AA0194
 #endif
                     action("Account Interest")
                     {

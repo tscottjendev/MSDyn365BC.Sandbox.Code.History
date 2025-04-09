@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -11,9 +11,6 @@ using Microsoft.CRM.Team;
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
-#if not CLEAN24
-using Microsoft.Finance.Currency;
-#endif
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
@@ -29,9 +26,6 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
-#if not CLEAN24
-using System.Security.AccessControl;
-#endif
 using System.Environment.Configuration;
 using System.Security.User;
 using System.Utilities;
@@ -58,10 +52,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
         CostAccMgt: Codeunit "Cost Account Mgt";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         ErrorMessageMgt: Codeunit "Error Message Management";
-#if not CLEAN24
-        GLForeignCurrMgt: Codeunit GlForeignCurrMgt;
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
         SkipFiscalYearCheck: Boolean;
         GenJnlTemplateFound: Boolean;
         OverrideDimErr: Boolean;
@@ -207,15 +197,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if not OverrideDimErr then
             CheckDimensions(GenJnlLine);
 
-#if not CLEAN24
-        if FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then
-            CheckCurrencyCode(GenJnlLine)
-        else
-            if CheckGLForeignCurrMgtPermission() or (CopyStr(SerialNumber, 7, 3) = '000') then
-                GLForeignCurrMgt.CheckCurrCode(GenJnlLine);
-#else
         CheckCurrencyCode(GenJnlLine);
-#endif
 
         if CostAccSetup.Get() then
             CostAccMgt.CheckValidCCAndCOInGLEntry(GenJnlLine."Dimension Set ID");
@@ -709,16 +691,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
                     GenJournalLine));
     end;
 
-#if not CLEAN24
-    local procedure CheckGLForeignCurrMgtPermission(): Boolean
-    var
-        LicensePermission: Record "License Permission";
-    begin
-        exit(
-          (LicensePermission.Get(LicensePermission."Object Type"::Codeunit, CODEUNIT::GlForeignCurrMgt) and
-          (LicensePermission."Read Permission" = LicensePermission."Read Permission"::Yes)));
-    end;
-#endif
 
     procedure CheckDocType(GenJnlLine: Record "Gen. Journal Line")
     var
@@ -1350,4 +1322,3 @@ codeunit 11 "Gen. Jnl.-Check Line"
     begin
     end;
 }
-

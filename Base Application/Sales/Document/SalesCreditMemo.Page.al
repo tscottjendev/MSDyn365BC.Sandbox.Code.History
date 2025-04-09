@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -139,7 +139,7 @@ page 44 "Sales Credit Memo"
                         field("Sell-to County"; Rec."Sell-to County")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the state, province or county of the address.';
@@ -605,7 +605,7 @@ page 44 "Sales Credit Memo"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the state, province or county of the address.';
@@ -1688,9 +1688,6 @@ page 44 "Sales Credit Memo"
         xLastPostingNo: Code[20];
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
-#if not CLEAN24
-        NotSkipped: Boolean;
-#endif
     begin
         CheckSalesCheckAllLinesHaveQuantityAssigned();
         PreAssignedNo := Rec."No.";
@@ -1714,12 +1711,6 @@ page 44 "Sales Credit Memo"
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
 
-#if not CLEAN24
-        NotSkipped := false;
-        OnPostDocumentOnBeforeSetTrackInfoForCancellation(Rec, NotSkipped);
-        if NotSkipped then
-            Rec.SetTrackInfoForCancellation();
-#endif
         Rec.UpdateSalesOrderLineIfExist();
 
         if OfficeMgt.IsAvailable() then begin
@@ -1905,11 +1896,4 @@ page 44 "Sales Credit Memo"
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('This event is obsolete. SetTrackInfoForCancellation procedure is planned to be removed.', '24.0')]
-    local procedure OnPostDocumentOnBeforeSetTrackInfoForCancellation(var SalesHeader: Record "Sales Header"; var NotSkipped: Boolean)
-    begin
-    end;
-#endif
 }
