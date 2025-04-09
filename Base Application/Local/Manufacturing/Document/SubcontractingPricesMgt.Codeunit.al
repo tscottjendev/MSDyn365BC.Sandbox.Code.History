@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -28,19 +28,6 @@ codeunit 12153 SubcontractingPricesMgt
         PricelistCost: Decimal;
         DirectCost: Decimal;
 
-#if not CLEAN24
-    [Obsolete('Replaced by procedure GetRoutingPricelistCost()', '24.0')]
-    procedure RoutingPricelistCost(var InSubcPrices: Record "Subcontractor Prices"; WorkCenter: Record "Work Center"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; QtyUoM: Decimal; ProdQtyPerUom: Decimal; QtyBase: Decimal)
-    var
-        UnitCostCalculationType: Enum "Unit Cost Calculation Type";
-    begin
-        UnitCostCalculationType := "Unit Cost Calculation Type".FromInteger(UnitCostCalculation);
-        GetRoutingPricelistCost(
-            InSubcPrices, WorkCenter, DirUnitCost, IndirCostPct, OvhdRate, UnitCost,
-            UnitCostCalculationType, QtyUoM, ProdQtyPerUom, QtyBase);
-        UnitCostCalculation := UnitCostCalculationType.AsInteger();
-    end;
-#endif
 
     procedure GetRoutingPricelistCost(var InSubcPrices: Record "Subcontractor Prices"; WorkCenter: Record "Work Center"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type"; QtyUoM: Decimal; ProdQtyPerUom: Decimal; QtyBase: Decimal)
     begin
@@ -242,4 +229,3 @@ codeunit 12153 SubcontractingPricesMgt
     begin
     end;
 }
-

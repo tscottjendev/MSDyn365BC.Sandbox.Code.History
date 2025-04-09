@@ -493,16 +493,6 @@ table 110 "Sales Shipment Header"
                 UpdateTDDPreparedBy();
             end;
         }
-#if not CLEAN24
-        field(106; "Package Tracking No."; Text[30])
-        {
-            Caption = 'Package Tracking No.';
-            OptimizeForTextSearch = true;
-            ObsoleteReason = 'Field length will be increased to 50.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
 #pragma warning disable AS0086
         field(106; "Package Tracking No."; Text[50])
         {
@@ -510,7 +500,6 @@ table 110 "Sales Shipment Header"
             OptimizeForTextSearch = true;
         }
 #pragma warning restore AS0086
-#endif
         field(109; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -1132,4 +1121,3 @@ table 110 "Sales Shipment Header"
     begin
     end;
 }
-

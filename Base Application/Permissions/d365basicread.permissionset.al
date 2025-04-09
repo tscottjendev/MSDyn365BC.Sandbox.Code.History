@@ -33,9 +33,6 @@ using Microsoft.Purchases.Vendor;
 using System.Tooling;
 using System.Privacy;
 using System.Utilities;
-#if not CLEAN24
-using Microsoft.Bank.Deposit;
-#endif
 using Microsoft.Inventory.Transfer;
 using System.Integration;
 using System.IO;
@@ -193,9 +190,6 @@ permissionset 209 "D365 Basic - Read"
                   tabledata "IC Outgoing Notification" = R,
                   tabledata "Code Coverage" = R,
                   tabledata "Data Sensitivity" = R,
-#if not CLEAN24
-                  tabledata "Deposits Page Setup" = R,
-#endif
                   tabledata "Dispute Status" = R,
                   tabledata Device = R,
                   tabledata "Direct Trans. Header" = R,
@@ -294,10 +288,6 @@ permissionset 209 "D365 Basic - Read"
                   tabledata "Business Unit" = R,
                   tabledata "Business Unit Information" = R,
                   tabledata "Business Unit Setup" = R,
-#if not CLEAN24
-                  tabledata "Calendar Event" = R,
-                  tabledata "Calendar Event User Config." = R,
-#endif
                   tabledata Campaign = R,
                   tabledata "Cancelled Document" = R,
                   tabledata "Cash Flow Availability Buffer" = R,

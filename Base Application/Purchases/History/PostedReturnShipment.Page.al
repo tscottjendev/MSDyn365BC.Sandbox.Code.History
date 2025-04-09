@@ -86,7 +86,7 @@ page 6650 "Posted Return Shipment"
                         field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = PurchReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                             Editable = false;
                         }
                     }
@@ -249,7 +249,7 @@ page 6650 "Posted Return Shipment"
                         field("Pay-to County"; Rec."Pay-to County")
                         {
                             ApplicationArea = PurchReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                             Editable = false;
                         }
                     }
@@ -378,7 +378,7 @@ page 6650 "Posted Return Shipment"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = PurchReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             Editable = false;
                         }
                     }

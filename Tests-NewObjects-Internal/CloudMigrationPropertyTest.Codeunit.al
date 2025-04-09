@@ -1,4 +1,4 @@
-﻿codeunit 135160 "Cloud Migration Property Test"
+codeunit 135160 "Cloud Migration Property Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -112,9 +112,6 @@
         ListOfTablesToMigrate.Add(Database::"Maintenance Ledger Entry");
         ListOfTablesToMigrate.Add(Database::"Maintenance Registration");
         ListOfTablesToMigrate.Add(Database::"Maintenance");
-#if not CLEAN24
-        ListOfTablesToMigrate.Add(Database::"Man. Integration Field Mapping");
-#endif
         ListOfTablesToMigrate.Add(Database::"Man. Integration Table Mapping");
         ListOfTablesToMigrate.Add(Database::"Man. Int. Field Mapping");
         ListOfTablesToMigrate.Add(Database::"Manufacturer");
@@ -139,10 +136,6 @@
         ListOfTablesToMigrate.Add(Database::"My Vendor");
         ListOfTablesToMigrate.Add(Database::"Named Forward Link");
         ListOfTablesToMigrate.Add(Database::"No. Series Line");
-#if not CLEAN24
-        ListOfTablesToMigrate.Add(Database::"No. Series Line Sales");
-        ListOfTablesToMigrate.Add(Database::"No. Series Line Purchase");
-#endif
         ListOfTablesToMigrate.Add(Database::"No. Series Relationship");
         ListOfTablesToMigrate.Add(Database::"No. Series");
         ListOfTablesToMigrate.Add(Database::"Nonstock Item Setup");
@@ -688,26 +681,28 @@
         ListOfTablesToMigrate.Add(Database::"Tenant Media Set");
         ListOfTablesToMigrate.Add(Database::"Tenant Media Thumbnails");
 
-        // Obsoleted tables
-        ListOfTablesToMigrate.Add(5481); // Database::"Account Entity Setup"
-        ListOfTablesToMigrate.Add(1259); // Database::"Bank Data Conv. Bank"
-        ListOfTablesToMigrate.Add(1260); // Database::"Bank Data Conv. Service Setup"
-        ListOfTablesToMigrate.Add(1281); // Database::"Bank Data Conversion Pmt. Type"
-        ListOfTablesToMigrate.Add(53);   // Database::"Batch Processing Parameter Map"
-        ListOfTablesToMigrate.Add(5105); // Database::"Customer Template"
-        ListOfTablesToMigrate.Add(9501); // Database::"Email Attachment"
-        ListOfTablesToMigrate.Add(5377); // Database::"Ext Txt ID Integration Record"
+        // internal tables
         ListOfTablesToMigrate.Add(8703); // Database::"Feature Uptake"
-        ListOfTablesToMigrate.Add(5515); // Database::"Integration Management Setup"
-        ListOfTablesToMigrate.Add(5152); // Database::"Integration Record Archive"
-        ListOfTablesToMigrate.Add(5151); //Database::"Integration Record"
-        ListOfTablesToMigrate.Add(5717); // Database::"Item Cross Reference"
-        ListOfTablesToMigrate.Add(1301); // Database::"Item Template"
+
+        // Obsoleted tables
+#if not CLEANSCHEMA25
+        ListOfTablesToMigrate.Add(8452); // Database::"Advanced Intrastat Checklist"
+        ListOfTablesToMigrate.Add(5358); // Database::"CDS Failed Option Mapping"
+        ListOfTablesToMigrate.Add(262); // Database::"Intrastat Jnl. Batch"
+        ListOfTablesToMigrate.Add(263); // Database::"Intrastat Jnl. Line"
+        ListOfTablesToMigrate.Add(261); // Database::"Intrastat Jnl. Template"
+        ListOfTablesToMigrate.Add(247); // Database::"Intrastat Setup"
+#endif
+#if not CLEANSCHEMA27
+        ListOfTablesToMigrate.Add(5381); // Database::"Man. Integration Field Mapping"
+        ListOfTablesToMigrate.Add(12145); // Database::"No. Series Line Sales"
+        ListOfTablesToMigrate.Add(12146); // Database::"No. Series Line Purchase"
+        ListOfTablesToMigrate.Add(500); // Database::"Deposits Page Setup"
+#endif
+#if not CLEANSCHEMA28
         ListOfTablesToMigrate.Add(1012); // Database::"Job Resource Price"
         ListOfTablesToMigrate.Add(1014); // Database::"Job G/L Account Price"
         ListOfTablesToMigrate.Add(1013); // Database::"Job Item Price"
-        ListOfTablesToMigrate.Add(1625); // Database::"Office Contact Associations"
-        ListOfTablesToMigrate.Add(5723); // Database::"Product Group"
         ListOfTablesToMigrate.Add(1315); // Database::"Purch. Price Line Disc. Buff."
         ListOfTablesToMigrate.Add(7014); // Database::"Purchase Line Discount"
         ListOfTablesToMigrate.Add(7012); // Database::"Purchase Price"
@@ -718,17 +713,10 @@
         ListOfTablesToMigrate.Add(1304); // Database::"Sales Price and Line Disc Buff"
         ListOfTablesToMigrate.Add(7023); // Database::"Sales Price Worksheet"
         ListOfTablesToMigrate.Add(7002); // Database::"Sales Price"
-        ListOfTablesToMigrate.Add(4800); // Database::"VATGroup Approved Member");
-        ListOfTablesToMigrate.Add(4801); // Database::"VATGroup Calculation");
-        ListOfTablesToMigrate.Add(4802); // Database::"VATGroup Submission Header");
-        ListOfTablesToMigrate.Add(4803); // Database::"VATGroup Submission Line");
-        ListOfTablesToMigrate.Add(8452); // Database::"Advanced Intrastat Checklist"
-        ListOfTablesToMigrate.Add(5358); // Database::"CDS Failed Option Mapping"
-        ListOfTablesToMigrate.Add(262); // Database::"Intrastat Jnl. Batch"
-        ListOfTablesToMigrate.Add(263); // Database::"Intrastat Jnl. Line"
-        ListOfTablesToMigrate.Add(261); // Database::"Intrastat Jnl. Template"
-        ListOfTablesToMigrate.Add(247); // Database::"Intrastat Setup"
-
+#if CLEAN25
+        ListOfTablesToMigrate.Add(6418); // Database::"FS Connection Setup"
+#endif
+#endif
         // AL Costing
         ListOfTablesToMigrate.Add(103405); // Database::"Required Input Data");
         ListOfTablesToMigrate.Add(103336); // Database::"BW Bin Content Ref"
@@ -785,7 +773,7 @@
 
         // Internal tables
         ListOfTablesToMigrate.Add(7201); // Database::"CDS Coupled Business Unit"
-        ListOfTablesToMigrate.Add(7202); // Database::"CDS Environment" 
+        ListOfTablesToMigrate.Add(7202); // Database::"CDS Environment"
         ListOfTablesToMigrate.Add(1992); // Database::"Checklist Item Role"
         ListOfTablesToMigrate.Add(1993); // Database::"Checklist Item User"
         ListOfTablesToMigrate.Add(9701); // Database::"Cue Setup"
@@ -1042,9 +1030,6 @@
         ListOfTablesToMigrate.Add(Database::"Deferral Posting Buffer");
         ListOfTablesToMigrate.Add(Database::"Deferral Template");
         ListOfTablesToMigrate.Add(Database::"Delivery Sorter");
-#if not CLEAN24
-        ListOfTablesToMigrate.Add(Database::"Deposits Page Setup");
-#endif
         ListOfTablesToMigrate.Add(Database::"Depreciation Book");
         ListOfTablesToMigrate.Add(Database::"Depreciation Table Header");
         ListOfTablesToMigrate.Add(Database::"Depreciation Table Line");

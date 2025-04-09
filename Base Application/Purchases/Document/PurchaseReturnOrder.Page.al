@@ -109,6 +109,13 @@ page 6640 "Purchase Return Order"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the vendor''s buy-from address.';
                     }
+                    field("Buy-from City"; Rec."Buy-from City")
+                    {
+                        ApplicationArea = PurchReturnOrder;
+                        Caption = 'City';
+                        Importance = Additional;
+                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
+                    }
                     group(Control69)
                     {
                         ShowCaption = false;
@@ -116,7 +123,7 @@ page 6640 "Purchase Return Order"
                         field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = PurchReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                             Importance = Additional;
                             ToolTip = 'Specifies the county of the address.';
                         }
@@ -127,13 +134,6 @@ page 6640 "Purchase Return Order"
                         Caption = 'Post Code';
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
-                    }
-                    field("Buy-from City"; Rec."Buy-from City")
-                    {
-                        ApplicationArea = PurchReturnOrder;
-                        Caption = 'City';
-                        Importance = Additional;
-                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
                     }
                     field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
                     {
@@ -578,6 +578,14 @@ page 6640 "Purchase Return Order"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the vendor''s buy-from address.';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = PurchReturnOrder;
+                        Caption = 'City';
+                        Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                        Importance = Additional;
+                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
+                    }
                     group(Control174)
                     {
                         ShowCaption = false;
@@ -585,7 +593,7 @@ page 6640 "Purchase Return Order"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = PurchReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             Editable = ShipToOptions = ShipToOptions::"Custom Address";
                             Importance = Additional;
                             ToolTip = 'Specifies the county of the address.';
@@ -598,14 +606,6 @@ page 6640 "Purchase Return Order"
                         Editable = ShipToOptions = ShipToOptions::"Custom Address";
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
-                    }
-                    field("Ship-to City"; Rec."Ship-to City")
-                    {
-                        ApplicationArea = PurchReturnOrder;
-                        Caption = 'City';
-                        Editable = ShipToOptions = ShipToOptions::"Custom Address";
-                        Importance = Additional;
-                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
                     }
                     field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
@@ -694,6 +694,15 @@ page 6640 "Purchase Return Order"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the vendor''s buy-from address.';
                     }
+                    field("Pay-to City"; Rec."Pay-to City")
+                    {
+                        ApplicationArea = PurchReturnOrder;
+                        Caption = 'City';
+                        Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
+                        Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
+                        Importance = Additional;
+                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
+                    }
                     group(Control79)
                     {
                         ShowCaption = false;
@@ -701,7 +710,7 @@ page 6640 "Purchase Return Order"
                         field("Pay-to County"; Rec."Pay-to County")
                         {
                             ApplicationArea = PurchReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                             Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
                             Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
                             Importance = Additional;
@@ -716,15 +725,6 @@ page 6640 "Purchase Return Order"
                         Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
-                    }
-                    field("Pay-to City"; Rec."Pay-to City")
-                    {
-                        ApplicationArea = PurchReturnOrder;
-                        Caption = 'City';
-                        Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
-                        Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
-                        Importance = Additional;
-                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
                     }
                     field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
                     {

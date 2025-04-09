@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -3378,9 +3378,6 @@ codeunit 104000 "Upgrade - BaseApp"
 
     local procedure UpgradeNoSeriesIT()
     var
-#if not CLEAN24
-        GeneralLedgerSetup: Record "General Ledger Setup";
-#endif
         NoSeriesLine: Record "No. Series Line";
         NoSeriesLineSales: Record "No. Series Line Sales";
         NoSeriesLinePurchase: Record "No. Series Line Purchase";
@@ -3392,12 +3389,6 @@ codeunit 104000 "Upgrade - BaseApp"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetNoSeriesITUpgradeTag()) then
             exit;
 
-#if not CLEAN24
-        if GeneralLedgerSetup.Get() then begin
-            GeneralLedgerSetup."Use Legacy No. Series Lines" := true;
-            GeneralLedgerSetup.Modify();
-        end;
-#endif
 
         SyncLoopingHelper.SkipFieldSynchronization(SyncLoopingHelper, Database::"No. Series");
 

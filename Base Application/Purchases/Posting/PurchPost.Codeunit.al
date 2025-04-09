@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -3026,22 +3026,13 @@ codeunit 90 "Purch.-Post"
     local procedure UpdatePostingNos(var PurchHeader: Record "Purchase Header"; ReverseChargeVAT: Boolean) ModifyHeader: Boolean
     var
         NoSeries: Record "No. Series";
-#if not CLEAN24
-#pragma warning disable AL0432
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#pragma warning restore AL0432
-#endif
         VendorMgt: Codeunit "Vendor Mgt.";
         NoSeriesCodeunit: Codeunit "No. Series";
         IsHandled: Boolean;
         ShouldUpdateReceivingNo: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN24
-        OnBeforeUpdatePostingNos(PurchHeader, NoSeriesMgt, ModifyHeader, SuppressCommit, IsHandled);
-#else
         OnBeforeUpdatePostingNos(PurchHeader, ModifyHeader, SuppressCommit, IsHandled);
-#endif
         if IsHandled then
             exit;
 
@@ -3163,11 +3154,7 @@ codeunit 90 "Purch.-Post"
                 end else
                     PurchHeader."Reverse Sales VAT No." := '***';
 
-#if not CLEAN24
-        OnAfterUpdatePostingNos(PurchHeader, NoSeriesMgt, SuppressCommit, PreviewMode, ModifyHeader);
-#else
         OnAfterUpdatePostingNos(PurchHeader, SuppressCommit, PreviewMode, ModifyHeader);
-#endif
     end;
 
     local procedure ResetPostingNoSeriesFromSetup(var PostingNoSeries: Code[20]; SetupNoSeries: Code[20])
@@ -9103,13 +9090,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnAfterCalcInvoiceDiscountPosting in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcInvoiceDiscountPosting(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var PurchLineACY: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckPurchDoc(var PurchHeader: Record "Purchase Header"; CommitIsSupressed: Boolean; WhseShip: Boolean; WhseReceive: Boolean; PreviewMode: Boolean; var ErrorMessageMgt: Codeunit "Error Message Management")
@@ -9146,13 +9126,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnAfterCreatePostedDeferralSchedule in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    local procedure OnAfterCreatePostedDeferralScheduleFromPurchDoc(var PurchaseLine: Record "Purchase Line"; var PostedDeferralHeader: Record "Posted Deferral Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateWhseJnlLine(PurchaseLine: Record "Purchase Line"; var TempWhseJnlLine: record "Warehouse Journal Line" temporary)
@@ -9209,31 +9182,16 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('Parameter NoSeriesManagement is obsolete and will be removed, update your subscriber accordingly.', '24.0')]
-    local procedure OnAfterUpdatePostingNos(var PurchaseHeader: Record "Purchase Header"; var NoSeriesMgt: Codeunit NoSeriesManagement; CommitIsSupressed: Boolean; PreviewMode: Boolean; var ModifyHeader: Boolean)
-    begin
-    end;
-#else
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdatePostingNos(var PurchaseHeader: Record "Purchase Header"; CommitIsSupressed: Boolean; PreviewMode: Boolean; var ModifyHeader: Boolean)
     begin
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckMandatoryFields(var PurchaseHeader: Record "Purchase Header"; CommitIsSupressed: Boolean)
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPrepareLineOnAfterFillInvoicePostingBuffer in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterFillInvoicePostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer"; PurchLine: Record "Purchase Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; CommitIsSupressed: Boolean; var PurchHeader: Record "Purchase Header"; var GenJnlLineDocNo: Code[20]; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinalizePosting(var PurchHeader: Record "Purchase Header"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var ReturnShptHeader: Record "Return Shipment Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean; CommitIsSupressed: Boolean)
@@ -9255,21 +9213,7 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnAfterInitTotalAmounts in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitVATAmounts(PurchaseLine: Record "Purchase Line"; PurchaseLineACY: Record "Purchase Line"; var TotalVAT: Decimal; var TotalVATACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal)
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnAfterInitTotalAmounts in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitVATBase(PurchaseLine: Record "Purchase Line"; PurchaseLineACY: Record "Purchase Line"; var TotalVATBase: Decimal; var TotalVATBaseACY: Decimal)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertCombinedSalesShipment(var SalesShipmentHeader: Record "Sales Shipment Header")
@@ -9406,29 +9350,8 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPostLedgerEntryOnAfterGenJnlPostLine in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterPostVendorEntry(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line"; CommitIsSupressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPostBalancingEntryOnAfterGenJnlPostLine in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterPostBalancingEntry(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line"; CommitIsSupressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPostLinesOnAfterGenJnlLinePost in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterPostInvPostBuffer(var GenJnlLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; PurchHeader: Record "Purchase Header"; GLEntryNo: Integer; CommitIsSupressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line")
@@ -9500,13 +9423,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnAfterSetApplyToDocNo in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetApplyToDocNo(var GenJournalLine: Record "Gen. Journal Line"; PurchaseHeader: Record "Purchase Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPostingFlags(var PurchHeader: Record "Purchase Header")
@@ -9593,13 +9509,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnBeforeCalcLineDiscountPosting in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcLineDiscountPosting(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; PurchLineACY: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateAmountsInclVAT(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; Currency: Record Currency; var IsHandled: Boolean)
@@ -9611,13 +9520,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnBeforeCalculateVATAmounts in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateVATAmountInBuffer(PurchHeader: Record "Purchase Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCalcLineAmountAndLineDiscountAmount(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; PurchLineQty: Decimal; var IsHandled: Boolean; Currency: Record Currency)
@@ -9764,13 +9666,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnBeforePrepareLine in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeFillInvoicePostBuffer(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; PurchLineACY: Record "Purchase Line"; InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFinalizePosting(var PurchaseHeader: Record "Purchase Header"; var TempPurchLineGlobal: Record "Purchase Line" temporary; var EverythingInvoiced: Boolean; CommitIsSupressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
@@ -9787,21 +9682,7 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnBeforeInitGenJnlLine in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitNewGenJnlLineFromPostInvoicePostBufferLine(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnBeforeInitGenJnlLineAmountFieldsFromTotalLines in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitGenJnlLineAmountFieldsFromTotalPurchLine(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine2: Record "Purchase Line"; var TotalPurchLineLCY2: Record "Purchase Line"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInvoiceRoundingAmount(PurchHeader: Record "Purchase Header"; TotalAmountIncludingVAT: Decimal; UseTempData: Boolean; var InvoiceRoundingAmount: Decimal; CommitIsSupressed: Boolean; var PurchaseLine: Record "Purchase Line")
@@ -9828,13 +9709,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPrepareLineOnBeforeSetAmounts in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeInvoicePostingBufferSetAmounts(PurchaseLine: Record "Purchase Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TotalVAT: Decimal; var TotalVATACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal; var TotalVATBase: Decimal; var TotalVATBaseACY: Decimal; var IsHandled: Boolean; var PurchLineACY: Record "Purchase Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertReceiptLine(var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchLine: Record "Purchase Line"; var CostBaseAmount: Decimal; var IsHandled: Boolean);
@@ -9921,13 +9795,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnBeforeInitGenJnlLine in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePostInvoicePostBufferLine(var PurchaseHeader: Record "Purchase Header"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeProcessAssocItemJnlLine(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; var TempTrackingSpecification: Record "Tracking Specification" temporary; ItemLedgShptEntryNo: Integer)
@@ -10009,42 +9876,14 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPostLedgerEntryOnBeforeGenJnlPostLine in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePostVendorEntry(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line"; PreviewMode: Boolean; CommitIsSupressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPostBalancingEntryOnBeforeGenJnlPostLine in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePostBalancingEntry(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line"; PreviewMode: Boolean; CommitIsSupressed: Boolean; var VendLedgEntry: Record "Vendor Ledger Entry")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforePostCombineSalesOrderShipment(var PurchaseHeader: Record "Purchase Header"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; var SalesShipmentHeader: Record "Sales Shipment Header"; var ItemLedgShptEntryNo: Integer; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempHandlingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPostLinesOnBeforeGenJnlLinePost in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePostInvPostBuffer(var GenJnlLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var PurchHeader: Record "Purchase Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean; CommitIsSupressed: Boolean; var GenJnlLineDocNo: code[20])
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnBeforePostLines in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePostInvoicePostBuffer(PurchaseHeader: Record "Purchase Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostItemJnlLine(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var QtyToBeReceived: Decimal; var QtyToBeReceivedBase: Decimal; var QtyToBeInvoiced: Decimal; var QtyToBeInvoicedBase: Decimal; var ItemLedgShptEntryNo: Integer; var ItemChargeNo: Code[20]; var TrackingSpecification: Record "Tracking Specification"; CommitIsSupressed: Boolean; var IsHandled: Boolean; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var Result: Integer; var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
@@ -10151,13 +9990,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnBeforeTempDeferralLineInsert in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeTempDeferralLineInsert(var TempDeferralLine: Record "Deferral Line" temporary; DeferralLine: Record "Deferral Line"; PurchaseLine: Record "Purchase Line"; var DeferralCount: Integer; var TotalDeferralCount: Integer)
-    begin
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempDropShptPostBufferInsert(var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; PurchaseLine: Record "Purchase Line"; var ItemLedgShptEntryNo: Integer)
     begin
@@ -10188,18 +10020,10 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('Parameter NoSeriesManagement is obsolete and will be removed, update your subscriber accordingly.', '24.0')]
-    local procedure OnBeforeUpdatePostingNos(var PurchHeader: Record "Purchase Header"; var NoSeriesMgt: Codeunit NoSeriesManagement; var ModifyHeader: Boolean; SuppressCommit: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-#else
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePostingNos(var PurchHeader: Record "Purchase Header"; var ModifyHeader: Boolean; SuppressCommit: Boolean; var IsHandled: Boolean)
     begin
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePurchaseHeader(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; GenJnlLineDocType: Option; var IsHandled: Boolean; var PurchaseHeader: Record "Purchase Header"; GenJnlLineDocNo: Code[20]; PreviewMode: Boolean)
@@ -10301,21 +10125,7 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPrepareLineOnBeforePrepareDeferralLine in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeFillDeferralPostingBuffer(var PurchLine: Record "Purchase Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer"; UseDate: Date; InvDefLineNo: Integer; DeferralLineNo: Integer; CommitIsSupressed: Boolean)
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnBeforePrepareLineFADiscount in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeFillInvoicePostBufferFADiscount(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetCountryCode(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var CountryRegionCode: Code[10]; var IsHandled: Boolean)
@@ -10327,13 +10137,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnCalcDeferralAmountsOnBeforeTempDeferralHeaderInsert in codeunit 826 "Purch. Post Invoice Events". The publisher is raised before the insert.', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcDeferralAmountsOnAfterTempDeferralHeaderInsert(var TempDeferralHeader: Record "Deferral Header"; DeferralHeader: Record "Deferral Header"; PurchHeader: Record "Purchase Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcInvDiscountSetFilter(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
@@ -10465,47 +10268,10 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnAfterInitTotalAmounts in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnFillInvoicePostBufferOnAfterInitAmounts(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var PurchLineACY: Record "Purchase Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TotalAmount: Decimal; var TotalAmountACY: Decimal)
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPrepareLineOnAfterSetInvoiceDiscAccount in codeunit 826 "Purch. Post Invoice Events". The publisher is part of the else clause only.', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnFillInvoicePostingBufferOnAfterSetLineDiscAccount(var PurchaseLine: Record "Purchase Line"; var GenPostingSetup: Record "General Posting Setup"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-#pragma warning disable AS0072
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPrepareLineOnAfterUpdateInvoicePostingBuffer in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var GenJnlLineDocNo: Code[20]; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
-    begin
-    end;
-#pragma warning restore AS0072
-#endif
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPrepareLineOnAfterSetLineDiscountPosting in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnFillInvoicePostBufferOnAfterSetShouldCalcDiscounts(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var ShouldCalcDiscounts: Boolean)
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPrepareLineOnBeforeSetAccount in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    local procedure OnFillInvoicePostingBufferOnBeforeSetAccount(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var PurchAccount: Code[20]; GenJnlLineDocNo: Code[20])
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnGetItemChargeLineOnAfterGet(var ItemChargePurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
@@ -10567,13 +10333,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Event is currently missing. Check out GitHub Issue: https://github.com/microsoft/ALAppExtensions/issues/22117', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnPostBalancingEntryOnAfterInitNewLine(PurchHeader: Record "Purchase Header"; var GenJnlLine: Record "Gen. Journal Line")
-    begin
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnPostCombineSalesOrderShipmentOnAfterUpdateBlanketOrderLine(var PurchaseHeader: Record "Purchase Header"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer"; var SalesOrderLine: Record "Sales Line"; var SalesOrderHeader: record "Sales Header"; var SalesShptLine: record "Sales Shipment Line"; SalesShptHeader: Record "Sales Shipment Header"; SrcCode: Code[10]; Currency: Record Currency)
     begin
@@ -10594,13 +10353,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnPostInvoicePostingBufferOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnPostItemChargeOnAfterPostItemJnlLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
@@ -10920,21 +10672,7 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Event is currently missing. Check out GitHub Issue: https://github.com/microsoft/ALAppExtensions/issues/22117', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnPostVendorEntryOnAfterInitNewLine(var PurchaseHeader: Record "Purchase Header"; var GenJnlLine: Record "Gen. Journal Line")
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnBeforePostLedgerEntry in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnPostVendorEntryOnBeforeInitNewLine(var PurchHeader: Record "Purchase Header"; TotalPurchLine: Record "Purchase Line"; TotalPurchLineLCY: Record "Purchase Line"; GenJnlLineDocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Code[35]; SourceCode: Code[10]; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessAssocItemJnlLineOnAfterInitTempDropShptPostBuffer(var PurchLine: Record "Purchase Line"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
@@ -11051,13 +10789,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnBeforeRunGenJnlPostLine in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    local procedure OnBeforeRunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line");
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnCheckAndUpdateOnAfterCopyAndCheckItemCharge(var PurchHeader: Record "Purchase Header")
@@ -11220,29 +10951,8 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPrepareLineOnBeforePreparePurchase in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnFillInvoicePostBufferOnBeforePreparePurchase(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; PurchLineACY: Record "Purchase Line"; var GenPostingSetup: Record "General Posting Setup")
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPrepareDeferralLineOnAfterInitFromDeferralLine in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnFillDeferralPostingBufferOnAfterInitFromDeferralLine(var DeferralPostBuffer: Record "Deferral Posting Buffer"; DeferralLine: Record "Deferral Line"; PurchLine: Record "Purchase Line"; DeferralTemplate: Record "Deferral Template");
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new events OnPrepareLineOnAfterSetInvoiceDiscountPosting or OnPrepareLineOnBeforeCalcInvoiceDiscountPosting in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnFillInvoicePostBufferOnBeforeProcessInvoiceDiscounts(var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnFinalizePostingOnBeforeCommit(PreviewMode: Boolean; var IsHandled: Boolean)
@@ -11264,13 +10974,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPrepareGenJnlLineOnAfterCopyToGenJnlLine in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnPostInvoicePostBufferLineOnAfterCopyFromInvoicePostBuffer(var GenJnlLine: Record "Gen. Journal Line"; PurchHeader: Record "Purchase Header"; var TempPurchLineGlobal: Record "Purchase Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckAndUpdateOnBeforeArchiveUnpostedOrder(var PurchHeader: Record "Purchase Header"; PreviewMode: Boolean; var IsHandled: Boolean)
@@ -11347,13 +11050,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by event OnPostInvoiceOnBeforePostBalancingEntry()', '19.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnPostGLAndVendorOnBeforePostBalancingEntry(var PurchHeader: Record "Purchase Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostInvoiceOnBeforePostBalancingEntry(var PurchHeader: Record "Purchase Header"; var LineCount: Integer)
@@ -11675,13 +11371,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnBeforeRunGenJnlPostLine in codeunit 826 "Purch. Post Invoice Events".', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckItemQuantityPurchCredit(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostItemChargePerITTransfer(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; TransRcptLine: Record "Transfer Receipt Line"; var TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var IsHandled: Boolean)
@@ -11793,19 +11482,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnPostBalancingEntryOnBeforeFindVendLedgEntry in codeunit 826 "Purch. Post Invoice Events".', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnPostBalancingEntryOnBeforeFindVendLedgEntry(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; DocType: Option; DocNo: Code[20]; ExtDocNo: Code[35]; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var EntryFound: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [Obsolete('This integration event is no longer invoked. Moved to Purchase Invoice Posting implementation. Use the new event OnCalculateVATAmountInBufferOnBeforeTempInvoicePostingBufferAssign in codeunit 826 "Purch. Post Invoice Events".', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCalculateVATAmountInBufferOnBeforeTempInvoicePostBufferAssign(var VATAmount: Decimal; var VATAmountACY: Decimal; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAfterPosting(var PurchaseHeader: Record "Purchase Header"; SuppressCommit: Boolean; var IsHandled: Boolean)

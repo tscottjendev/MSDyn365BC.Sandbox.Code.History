@@ -80,7 +80,7 @@ page 130 "Posted Sales Shipment"
                         field("Sell-to County"; Rec."Sell-to County")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                             Editable = false;
                             Importance = Additional;
                             ToolTip = 'Specifies the state, province or county as a part of the address.';
@@ -286,7 +286,7 @@ page 130 "Posted Sales Shipment"
                     field("Ship-to County"; Rec."Ship-to County")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                         Editable = false;
                         ToolTip = 'Specifies the state, province or county as a part of the address.';
                     }
@@ -465,7 +465,7 @@ page 130 "Posted Sales Shipment"
                     field("Bill-to County"; Rec."Bill-to County")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                         Editable = false;
                         Importance = Additional;
                         ToolTip = 'Specifies the state, province or county as a part of the address.';

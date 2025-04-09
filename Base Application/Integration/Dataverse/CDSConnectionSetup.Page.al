@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -198,20 +198,6 @@ page 7200 "CDS Connection Setup"
             {
                 Caption = 'Integration Solution Settings';
                 Visible = Rec."Is Enabled";
-#if not CLEAN24
-                field("CDS Version"; CDSVersion)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Dataverse Version';
-                    Editable = false;
-                    StyleExpr = CDSVersionStatusStyleExpr;
-                    ToolTip = 'Specifies the version of Dataverse that you are connected to.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with field Dataverse Version checked';
-                    ObsoleteTag = '24.0';
-                }
-#endif
                 field("Solution Version"; SolutionVersion)
                 {
                     ApplicationArea = Suite;

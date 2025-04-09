@@ -460,9 +460,6 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
     procedure SetReplenishmentSystemFromProdOrder(StockkeepingUnit: Record "Stockkeeping Unit")
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
         ProductionBOMNo: Code[20];
         RoutingNo: Code[20];
@@ -493,23 +490,11 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
                 if PlanningResiliency then
                     NoSeries.PeekNextNo(ManufacturingSetup."Planned Order Nos.", "Due Date");
                 if not Subcontracting then begin
-#if not CLEAN24
-                    NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(ManufacturingSetup."Planned Order Nos.", xRec."No. Series", "Due Date", "Ref. Order No.", "No. Series", IsHandled);
-                    if not IsHandled then begin
-                        if NoSeries.AreRelated(ManufacturingSetup."Planned Order Nos.", xRec."No. Series") then
-                            "No. Series" := xRec."No. Series"
-                        else
-                            "No. Series" := ManufacturingSetup."Planned Order Nos.";
-                        "Ref. Order No." := NoSeries.GetNextNo("No. Series", "Due Date");
-                        NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", ManufacturingSetup."Planned Order Nos.", "Due Date", "Ref. Order No.");
-                    end;
-#else
                     if NoSeries.AreRelated(ManufacturingSetup."Planned Order Nos.", xRec."No. Series") then
                         "No. Series" := xRec."No. Series"
                     else
                         "No. Series" := ManufacturingSetup."Planned Order Nos.";
                     "Ref. Order No." := NoSeries.GetNextNo("No. Series", "Due Date");
-#endif
                 end;
             end;
         Validate("Vendor No.", '');
