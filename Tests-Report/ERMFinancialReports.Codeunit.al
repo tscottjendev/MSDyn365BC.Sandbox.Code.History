@@ -31,9 +31,6 @@ codeunit 134982 "ERM Financial Reports"
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         ReportErr: Label '%1 must be %2 in Report.', Locked = true;
-#if not CLEAN24
-        RelatedNoSeriesTok: Label 'Related No. Series', Locked = true;
-#endif
         RowNotFoundErr: Label 'There is no dataset row corresponding to Element Name %1 with value %2.', Comment = '%1=Field Caption,%2=Field Value;';
         RowMustNotExistErr: Label 'Row Must Not Exist';
         FiscalYearStartingDateErr: Label 'Enter the starting date for the fiscal year.';
@@ -543,33 +540,6 @@ codeunit 134982 "ERM Financial Reports"
         VerifyChartOfAccountReport(GLAccount);
     end;
 
-#if not CLEAN24
-    [Test]
-    [HandlerFunctions('RHNoSeriesCheck')]
-    [Scope('OnPrem')]
-    procedure NoSeriesCheck()
-    var
-        NoSeriesLine: Record "No. Series Line";
-        NoSeriesCode: Code[20];
-    begin
-        // Verify No. Series Check Report.
-
-        // Setup: Create No. Series.
-        Initialize();
-        NoSeriesCode := LibraryUtility.GetGlobalNoSeriesCode();
-        FindNoSeriesLine(NoSeriesLine, NoSeriesCode);
-
-        // Exercise. Save No. Series Check Report.
-        NoSeriesCodeReport(NoSeriesCode);
-
-        // Verify: Verify No. Series Check Report.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange('No__Series_Line__Series_Code_', NoSeriesLine."Series Code");
-        if not LibraryReportDataset.GetNextRow() then
-            Error(RowNotFoundErr, 'No__Series_Line__Series_Code_', NoSeriesLine."Series Code");
-        LibraryReportDataset.AssertCurrentRowValueEquals('No__Series_Line__Starting_No__', NoSeriesLine."Starting No.");
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('RHGLDocumentNos')]
@@ -696,62 +666,6 @@ codeunit 134982 "ERM Financial Reports"
         VerifyTrialBalanceBudgetReport(GenJournalLine, BudgetAtDate);
     end;
 
-#if not CLEAN24
-    [Test]
-    [HandlerFunctions('RHNoSeriesReport')]
-    [Scope('OnPrem')]
-    procedure NoSeries()
-    var
-        NoSeriesLine: Record "No. Series Line";
-        NoSeriesCode: Code[20];
-    begin
-        // Check No. Series Report.
-
-        // Setup.
-        Initialize();
-        NoSeriesCode := CreateNoSeries();
-
-        // Exercise.
-        SaveNoSeriesReport(NoSeriesCode);
-
-        // Verify: Verify Report Data.
-        LibraryReportDataset.LoadDataSetFile();
-        FindNoSeriesLine(NoSeriesLine, NoSeriesCode);
-        LibraryReportDataset.SetRange('No__Series_Line_Series_Code', NoSeriesLine."Series Code");
-        if not LibraryReportDataset.GetNextRow() then
-            Error(RowNotFoundErr, 'No__Series_Line_Series_Code', NoSeriesLine."Series Code");
-        LibraryReportDataset.AssertCurrentRowValueEquals('No__Series_Line__Starting_No__', NoSeriesLine."Starting No.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('No__Series_Line__Ending_No__', NoSeriesLine."Ending No.");
-    end;
-
-    [Test]
-    [HandlerFunctions('RHNoSeriesReport')]
-    [Scope('OnPrem')]
-    procedure NoSeriesWithRelationship()
-    var
-        LibraryNoSeries: Codeunit "Library - No. Series";
-        NoSeriesCode: Code[20];
-        RelatedNoSeriesCode: Code[20];
-    begin
-        // Check No. Series Report with Related No. Series.
-
-        // Setup: Create Two new No. Series and create relation in them.
-        Initialize();
-        NoSeriesCode := CreateNoSeries();
-        RelatedNoSeriesCode := CreateNoSeries();
-        LibraryNoSeries.CreateNoSeriesRelationship(NoSeriesCode, RelatedNoSeriesCode);
-
-        // Exercise.
-        SaveNoSeriesReport(NoSeriesCode);
-
-        // Verify: Verify Related No. Series Code in Report.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange('Related_No__SeriesCaption', RelatedNoSeriesTok);
-        if not LibraryReportDataset.GetNextRow() then
-            Error(RowNotFoundErr, 'Related_No__SeriesCaption', RelatedNoSeriesTok);
-        LibraryReportDataset.AssertCurrentRowValueEquals('NoSeriesLine2_Series_Code', RelatedNoSeriesCode);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('RHClosingTrialBalance')]
@@ -1873,19 +1787,6 @@ codeunit 134982 "ERM Financial Reports"
         exit(CustAccAmount);
     end;
 
-#if not CLEAN24
-    local procedure NoSeriesCodeReport(SeriesCode: Code[20])
-    var
-        NoSeries: Record "No. Series";
-        NoSeriesCheck: Report "No. Series Check";
-    begin
-        Clear(NoSeriesCheck);
-        NoSeries.SetRange(Code, SeriesCode);
-        NoSeriesCheck.SetTableView(NoSeries);
-        Commit();
-        NoSeriesCheck.Run();
-    end;
-#endif
 
     local procedure GLDocumentNosReport(DocumentNo: Code[20])
     var
@@ -2181,19 +2082,6 @@ codeunit 134982 "ERM Financial Reports"
             Format(CalcDate('<30D+11M>', GenJournalLine."Posting Date"))));
     end;
 
-#if not CLEAN24
-    local procedure SaveNoSeriesReport(NoSeriesCode: Code[20])
-    var
-        NoSeries: Record "No. Series";
-        NoSeriesReport: Report "No. Series";
-    begin
-        Clear(NoSeriesReport);
-        NoSeries.SetRange(Code, NoSeriesCode);
-        NoSeriesReport.SetTableView(NoSeries);
-        Commit();
-        NoSeriesReport.Run();
-    end;
-#endif
 
     local procedure SuggestBankRecLines(BankAccReconciliation: Record "Bank Acc. Reconciliation")
     var
@@ -2574,23 +2462,6 @@ codeunit 134982 "ERM Financial Reports"
         Sleep(200);
     end;
 
-#if not CLEAN24
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure RHNoSeriesReport(var NoSeriesReport: TestRequestPage "No. Series")
-    begin
-        CurrentSaveValuesId := REPORT::"No. Series";
-        NoSeriesReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure RHNoSeriesCheck(var NoSeriesCheck: TestRequestPage "No. Series Check")
-    begin
-        CurrentSaveValuesId := REPORT::"No. Series Check";
-        NoSeriesCheck.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -2734,4 +2605,3 @@ codeunit 134982 "ERM Financial Reports"
         CloseIncomeStatement.OK().Invoke();
     end;
 }
-

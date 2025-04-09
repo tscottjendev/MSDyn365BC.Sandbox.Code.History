@@ -178,32 +178,15 @@ table 840 "Cash Flow Forecast"
     end;
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "No." = '' then begin
             CFSetup.Get();
             CFSetup.TestField("Cash Flow Forecast No. Series");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(CFSetup."Cash Flow Forecast No. Series", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(CFSetup."Cash Flow Forecast No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := CFSetup."Cash Flow Forecast No. Series";
-                "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", CFSetup."Cash Flow Forecast No. Series", 0D, "No.");
-            end;
-#else
 			if NoSeries.AreRelated(CFSetup."Cash Flow Forecast No. Series", xRec."No. Series") then
 				"No. Series" := xRec."No. Series"
 			else
 				"No. Series" := CFSetup."Cash Flow Forecast No. Series";
             "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
 
         "Creation Date" := WorkDate();

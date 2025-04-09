@@ -3085,7 +3085,7 @@
   </Item>
   <Item ItemId=";Codeunit 917041221 - NamedType 975099284" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Transfer Order not posted successfully.]]></Val>
+      <Val><![CDATA[Transfer Order has not been posted successfully.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
