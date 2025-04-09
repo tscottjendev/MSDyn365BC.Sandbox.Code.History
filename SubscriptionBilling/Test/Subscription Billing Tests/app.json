@@ -2,7 +2,7 @@
   "id": "2ac317ef-11a5-4753-92f4-31c84b520c7b",
   "name": "Subscription Billing Test",
   "publisher": "Microsoft",
-  "version": "27.0.32838.0",
+  "version": "27.0.32846.0",
   "brief": "Test for Subscription Billing",
   "description": "The app enables the selling of recurring subscriptions and provides accurate billing for a wide range of pricing models.",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -12,6 +12,18 @@
   "contextSensitiveHelpUrl": "https://go.microsoft.com/fwlink/?linkid=2104024",
   "logo": "ExtensionLogo.png",
   "dependencies": [
+    {
+      "id": "e7320ebb-08b3-4406-b1ec-b4927d3e280b",
+      "name": "Any",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    },
+    {
+      "id": "bee8cf2f-494a-42f4-aabd-650e87934d39",
+      "name": "Business Foundation Test Libraries",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    },
     {
       "id": "5d86850b-0d76-4eca-bd7b-951ad998e997",
       "name": "Tests-TestLibraries",

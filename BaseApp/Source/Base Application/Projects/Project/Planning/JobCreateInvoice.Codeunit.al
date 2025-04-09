@@ -225,10 +225,6 @@ codeunit 1002 "Job Create-Invoice"
 
                     OnCreateSalesInvoiceLinesOnBeforeCreateSalesLine(
                       JobPlanningLine, SalesHeader, SalesHeader2, NewInvoice, NoOfSalesLinesCreated);
-#if not CLEAN24
-                    if not CreditMemo then
-                        CheckJobPlanningLineIsNegative(JobPlanningLine);
-#endif
 
                     CreateSalesLine(JobPlanningLine);
 
@@ -1242,16 +1238,6 @@ codeunit 1002 "Job Create-Invoice"
         end;
     end;
 
-#if not CLEAN24
-    local procedure CheckJobPlanningLineIsNegative(JobPlanningLine: Record "Job Planning Line")
-    var
-        IsHandled: Boolean;
-    begin
-        OnBeforeCheckJobPlanningLineIsNegative(JobPlanningLine, IsHandled);
-        if IsHandled then
-            exit;
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesInvoiceLines(var SalesHeader: Record "Sales Header"; NewInvoice: Boolean)
@@ -1493,13 +1479,6 @@ codeunit 1002 "Job Create-Invoice"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Has no purpose in procedure CheckJobPlanningLineIsNegative anymore', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckJobPlanningLineIsNegative(JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceLinesOnAfterSetJobInvCurrency(Job: Record Job; var JobInvCurrency: Boolean)
@@ -1551,4 +1530,3 @@ codeunit 1002 "Job Create-Invoice"
     begin
     end;
 }
-

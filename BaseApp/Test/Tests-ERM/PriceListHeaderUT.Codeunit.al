@@ -181,6 +181,7 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader: Record "Price List Header";
     begin
         Initialize();
+        PriceListHeader."Source Group" := PriceListHeader."Source Group"::Customer;
         PriceListHeader.Validate(Code, LibraryUtility.GenerateGUID());
         asserterror PriceListHeader.Validate(Code, LibraryUtility.GenerateGUID());
         Assert.ExpectedError(StrSubstNo(CannotRenameErr, PriceListHeader.TableCaption()));
@@ -244,7 +245,7 @@ codeunit 134118 "Price List Header UT"
         Initialize();
         // [GIVEN] Price List Header, where "Source Type" = 'All Customers'
         CreatePriceList(PriceListHeader, PriceListLine);
-        // [WHEN] Change "Source Type" to 'Customer' 
+        // [WHEN] Change "Source Type" to 'Customer'
         asserterror PriceListHeader.Validate("Source Type", PriceListHeader."Source Type"::Customer);
         // [THEN] Error message: 'You cannot update Source Type because lines exist.'
         Assert.ExpectedError(StrSubstNo(LinesExistErr, PriceListHeader.FieldCaption("Source Type")));
@@ -259,7 +260,7 @@ codeunit 134118 "Price List Header UT"
         Initialize();
         // [GIVEN] Price List Header, where "Source Type" = 'All Customers'
         CreatePriceList(PriceListHeader, PriceListLine);
-        // [WHEN] Change "Source Type" to 'Customer' 
+        // [WHEN] Change "Source Type" to 'Customer'
         asserterror PriceListHeader.Validate("Source No.", LibrarySales.CreateCustomerNo());
         // [THEN] Error message: 'You cannot update Source No. because lines exist.'
         Assert.ExpectedError(StrSubstNo(LinesExistErr, PriceListHeader.FieldCaption("Source No.")));
@@ -701,7 +702,7 @@ codeunit 134118 "Price List Header UT"
     var
         PriceListHeader: Record "Price List Header";
     begin
-        // [SCENARIO] Default "Amount Type" depends on source type. 
+        // [SCENARIO] Default "Amount Type" depends on source type.
         Initialize();
         PriceListHeader.DeleteAll();
         // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
@@ -1062,7 +1063,7 @@ codeunit 134118 "Price List Header UT"
     begin
         // [SCENARIO] Update of Status in the header fails on inconsistent source: Assign-to Parent No. is blank.
         Initialize();
-        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Job Task", "Source No." is 'JT', 
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Job Task", "Source No." is 'JT',
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryPriceCalculation.CreatePriceHeader(

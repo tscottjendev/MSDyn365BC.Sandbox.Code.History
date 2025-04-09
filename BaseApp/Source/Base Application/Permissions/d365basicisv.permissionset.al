@@ -42,9 +42,6 @@ using Microsoft.Finance.VAT.Registration;
 using Microsoft.Assembly.Setup;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
-#if not CLEAN24
-using Microsoft.Bank.Deposit;
-#endif
 using Microsoft.Bank.DirectDebit;
 using Microsoft.Bank.Ledger;
 using Microsoft.Bank.PositivePay;
@@ -315,10 +312,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Business Unit" = RIMD,
                   tabledata "Business Unit Information" = RIMD,
                   tabledata "Business Unit Setup" = RIMD,
-#if not CLEAN24
-                  tabledata "Calendar Event" = Rimd,
-                  tabledata "Calendar Event User Config." = Rimd,
-#endif
                   tabledata "Cancelled Document" = Rimd,
                   tabledata "Cash Flow Account" = RIMD,
                   tabledata "Cash Flow Account Comment" = RIMD,
@@ -452,9 +445,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Deferral Line Archive" = RIMD,
                   tabledata "Deferral Posting Buffer" = RIMD,
                   tabledata "Deferral Template" = RIMD,
-#if not CLEAN24
-                  tabledata "Deposits Page Setup" = RIMD,
-#endif
                   tabledata "Dispute Status" = RIMD,
                   tabledata "Depreciation Book" = RIMD,
                   tabledata "Depreciation Table Buffer" = RIMD,
@@ -730,9 +720,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata Maintenance = RIMD,
                   tabledata "Maintenance Ledger Entry" = Rimd,
                   tabledata "Maintenance Registration" = RIMD,
-#if not CLEAN24
-                  tabledata "Man. Integration Field Mapping" = RIMD,
-#endif
                   tabledata "Man. Integration Table Mapping" = RIMD,
                   tabledata "Man. Int. Field Mapping" = RIMD,
                   tabledata Manufacturer = RIMD,
