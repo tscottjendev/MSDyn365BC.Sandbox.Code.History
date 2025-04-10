@@ -114,7 +114,7 @@ page 507 "Blanket Sales Order"
                     field("Sell-to County"; Rec."Sell-to County")
                     {
                         ApplicationArea = Suite;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                         ToolTip = 'Specifies the county of the address.';
                     }
                     field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
@@ -512,7 +512,7 @@ page 507 "Blanket Sales Order"
                             field("Ship-to County"; Rec."Ship-to County")
                             {
                                 ApplicationArea = Suite;
-                                Caption = 'County';
+                            	CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 ToolTip = 'Specifies the county of the address.';
                             }
@@ -671,7 +671,7 @@ page 507 "Blanket Sales Order"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             ToolTip = 'Specifies the county of the address.';
                         }
                         field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
