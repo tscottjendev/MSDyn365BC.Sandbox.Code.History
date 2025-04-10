@@ -25,6 +25,7 @@ table 6105 "E-Document Line Mapping"
     InherentPermissions = RIMDX;
 #pragma warning restore AS0034
     DataClassification = CustomerContent;
+    ReplicateData = false;
 
     fields
     {
