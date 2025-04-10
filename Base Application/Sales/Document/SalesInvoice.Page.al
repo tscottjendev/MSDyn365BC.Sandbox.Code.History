@@ -149,7 +149,7 @@ page 43 "Sales Invoice"
                         field("Sell-to County"; Rec."Sell-to County")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the state, province or county of the address.';
@@ -692,7 +692,7 @@ page 43 "Sales Invoice"
                                 field("Ship-to County"; Rec."Ship-to County")
                                 {
                                     ApplicationArea = Basic, Suite;
-                                    Caption = 'County';
+                                    CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                                     Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                     QuickEntry = false;
                                     ToolTip = 'Specifies the state, province or county of the address.';
@@ -866,7 +866,7 @@ page 43 "Sales Invoice"
                             field("Bill-to County"; Rec."Bill-to County")
                             {
                                 ApplicationArea = Basic, Suite;
-                                Caption = 'County';
+                                CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                                 Editable = (BillToOptions = BillToOptions::"Custom Address") or (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
                                 Enabled = (BillToOptions = BillToOptions::"Custom Address") or (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
                                 Importance = Additional;
