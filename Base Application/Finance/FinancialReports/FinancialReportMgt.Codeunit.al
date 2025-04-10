@@ -5,6 +5,7 @@
 namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Foundation.Period;
 using System.Environment.Configuration;
 using System.Environment;
 using System.IO;
@@ -421,6 +422,80 @@ codeunit 18 "Financial Report Mgt."
     procedure GetUpdateFinancialReportNotificationId(): Guid
     begin
         exit(UpdateFinancialReportNotificationIdTok);
+    end;
+
+    procedure CalcAccScheduleLineDateFilter(FinancialReport: Record "Financial Report"; var AccScheduleLine: Record "Acc. Schedule Line")
+    var
+        AccSchedManagement: Codeunit AccSchedManagement;
+        PeriodFormulaParser: Codeunit "Period Formula Parser";
+        PeriodError: Boolean;
+        EndDate: Date;
+        StartDate: Date;
+    begin
+        if (Format(FinancialReport.StartDateFilterFormula) <> '') or
+            (Format(FinancialReport.EndDateFilterFormula) <> '')
+        then begin
+            StartDate := CalcDate(FinancialReport.StartDateFilterFormula, WorkDate());
+            EndDate := CalcDate(FinancialReport.EndDateFilterFormula, WorkDate());
+            AccScheduleLine.SetRange("Date Filter", StartDate, EndDate);
+            exit;
+        end;
+
+        if FinancialReport.DateFilterPeriodFormula <> '' then
+            if PeriodFormulaParser.TryCalculatePeriodStartEnd(
+                FinancialReport.DateFilterPeriodFormula, FinancialReport.DateFilterPeriodFormulaLID,
+                WorkDate(), StartDate, EndDate, PeriodError)
+            then
+                if not PeriodError then begin
+                    AccScheduleLine.SetRange("Date Filter", StartDate, EndDate);
+                    exit;
+                end;
+
+        if FinancialReport.DateFilter <> '' then
+            if TrySetAccScheduleLineDateFilter(FinancialReport.DateFilter, AccScheduleLine) then
+                exit;
+
+        AccSchedManagement.FindPeriod(AccScheduleLine, '', FinancialReport.PeriodType);
+    end;
+
+    [TryFunction]
+    local procedure TrySetAccScheduleLineDateFilter(DateFilter: Text; var AccScheduleLine: Record "Acc. Schedule Line")
+    begin
+        AccScheduleLine.SetFilter("Date Filter", DateFilter);
+    end;
+
+    procedure SetAccScheduleLineStartEndDateFormula(var AccScheduleLine: Record "Acc. Schedule Line"; StartDateFormula: DateFormula; EndDateFormula: DateFormula): Boolean
+    var
+        EndDate: Date;
+        StartDate: Date;
+    begin
+        if (Format(StartDateFormula) = '') and (Format(EndDateFormula) = '')
+        then
+            exit(false);
+        StartDate := CalcDate(StartDateFormula, WorkDate());
+        EndDate := CalcDate(EndDateFormula, WorkDate());
+        AccScheduleLine.SetRange("Date Filter", StartDate, EndDate);
+        exit(true);
+    end;
+
+    procedure SetAccScheduleLinePeriodFormula(var AccScheduleLine: Record "Acc. Schedule Line"; PeriodFormula: Code[20]; LanguageId: Integer): Boolean
+    var
+        PeriodFormulaParser: Codeunit "Period Formula Parser";
+        PeriodError: Boolean;
+        EndDate: Date;
+        StartDate: Date;
+    begin
+        if PeriodFormula = '' then
+            exit(false);
+        if PeriodFormulaParser.TryCalculatePeriodStartEnd(
+            PeriodFormula, LanguageId,
+            WorkDate(), StartDate, EndDate, PeriodError)
+        then begin
+            if PeriodError then
+                exit(false);
+            AccScheduleLine.SetRange("Date Filter", StartDate, EndDate);
+            exit(true);
+        end;
     end;
 
     [IntegrationEvent(false, false)]
