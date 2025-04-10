@@ -1074,6 +1074,7 @@ codeunit 7313 "Create Put-away"
 
     internal procedure CreateWhsePutAwayForProdOutput()
     begin
+        OnBeforeCreateWhsePutAwayForProdOutput(TempProductionOrderForWhsePutAwayForProdOutput);
         if TempProductionOrderForWhsePutAwayForProdOutput.FindSet() then
             repeat
                 ProcessWhsePutAwayForProdOrderFromItemJnlLine(TempProductionOrderForWhsePutAwayForProdOutput);
@@ -1198,6 +1199,7 @@ codeunit 7313 "Create Put-away"
 
     internal procedure CreateWhsePutAwayForProdOrder(var ProductionOrder: Record "Production Order")
     begin
+        OnBeforeCreateWhsePutAwayForProdOrder(ProductionOrder);
         if not MfgPutAwayHelper.CanCreateProdWhsePutAway(ProductionOrder) then
             exit;
 
@@ -1338,6 +1340,7 @@ codeunit 7313 "Create Put-away"
 
     local procedure FindBinForProdOrderLine(ProdOrderLine: Record "Prod. Order Line"; var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary; var BinContentQtyBase: Decimal)
     begin
+        OnBeforeFindBinForProdOrderLine(ProdOrderLine, TempProdOrdLineTrackingBuff, BinContentQtyBase);
         if not FindBin(ProdOrderLine."Location Code", WarehouseClassCode) then
             exit;
 
@@ -1349,6 +1352,7 @@ codeunit 7313 "Create Put-away"
 
     local procedure FindBinFromBinContentForProdOrderLine(ProdOrderLine: Record "Prod. Order Line"; var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary; var BinContentQtyBase: Decimal)
     begin
+        OnBeforeFindBinFromBinContentForProdOrderLine(ProdOrderLine, TempProdOrdLineTrackingBuff, BinContentQtyBase);
         if not FindBinContent(ProdOrderLine."Location Code", ProdOrderLine."Item No.", ProdOrderLine."Variant Code", WarehouseClassCode) then
             exit;
 
@@ -1970,6 +1974,26 @@ codeunit 7313 "Create Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterFilterPutAwayTemplateLine(var PutAwayTemplateLine: Record "Put-away Template Line"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhsePutAwayForProdOutput(var TempProductionOrderForWhsePutAwayForProdOutput: Record "Production Order" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindBinFromBinContentForProdOrderLine(ProdOrderLine: Record "Prod. Order Line"; var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary; var BinContentQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindBinForProdOrderLine(ProdOrderLine: Record "Prod. Order Line"; var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary; var BinContentQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhsePutAwayForProdOrder(var ProductionOrder: Record "Production Order")
     begin
     end;
 }
