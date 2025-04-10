@@ -87,6 +87,7 @@ table 901 "Assembly Line"
             trigger OnValidate()
             begin
                 "Location Code" := '';
+                "Bin Code" := '';
                 TestField("Consumed Quantity", 0);
                 CalcFields("Reserved Quantity");
                 AssemblyWarehouseMgt.AssemblyLineVerifyChange(Rec, xRec);
