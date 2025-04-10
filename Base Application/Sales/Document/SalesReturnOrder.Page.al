@@ -116,7 +116,7 @@ page 6630 "Sales Return Order"
                         field("Sell-to County"; Rec."Sell-to County")
                         {
                             ApplicationArea = SalesReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                             Importance = Additional;
                             ToolTip = 'Specifies the county of the address.';
                         }
@@ -557,7 +557,7 @@ page 6630 "Sales Return Order"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = SalesReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             ToolTip = 'Specifies the county of the address.';
                         }
                     }
@@ -658,7 +658,7 @@ page 6630 "Sales Return Order"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = SalesReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             Editable = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
                             Enabled = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
                             Importance = Additional;
