@@ -69,11 +69,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     trigger OnRun()
     begin
-        TempBalanceCheck.Reset();
-        TempBalanceCheck2.Reset();
-        TempBalanceCheckAddCurr.Reset();
-        TempBalanceCheckAddCurr2.Reset();
-
         GetGLSetup();
         RunWithCheck(Rec);
     end;
@@ -96,10 +91,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         SourceCodeSetup: Record "Source Code Setup";
-        TempBalanceCheck: Record "G/L Account Net Change" temporary;
-        TempBalanceCheck2: Record "G/L Account Net Change" temporary;
-        TempBalanceCheckAddCurr: Record "G/L Account Net Change" temporary;
-        TempBalanceCheckAddCurr2: Record "G/L Account Net Change" temporary;
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         DeferralUtilities: Codeunit "Deferral Utilities";
@@ -1897,7 +1888,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         IsTransactionConsistentExternal := IsTransactionConsistent;
         GlobalGLEntry.Consistent(IsTransactionConsistent);
 
-        OnAfterSettingIsTransactionConsistent(GenJournalLine, IsTransactionConsistentExternal, TempBalanceCheck, TempBalanceCheck2, TempBalanceCheckAddCurr, TempBalanceCheckAddCurr2);
+        OnAfterSettingIsTransactionConsistent(GenJournalLine, IsTransactionConsistentExternal);
 
         IsTransactionConsistent := IsTransactionConsistent and IsTransactionConsistentExternal;
 
@@ -2219,7 +2210,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 if GLEntry.Amount <> Round(GLEntry.Amount) then
                     GLEntry.FieldError(GLEntry.Amount, StrSubstNo(NeedsRoundingErr, GLEntry.Amount));
 
-            OnInsertGLEntryOnBeforeUpdateCheckAmounts(GLSetup, GLEntry, BalanceCheckAmount, BalanceCheckAmount2, BalanceCheckAddCurrAmount, BalanceCheckAddCurrAmount2, TempBalanceCheck, TempBalanceCheck2, TempBalanceCheckAddCurr, TempBalanceCheckAddCurr2);
+            OnInsertGLEntryOnBeforeUpdateCheckAmounts(GLSetup, GLEntry, BalanceCheckAmount, BalanceCheckAmount2, BalanceCheckAddCurrAmount, BalanceCheckAddCurrAmount2);
             UpdateCheckAmounts(
               GLEntry."Posting Date", GLEntry.Amount, GLEntry."Additional-Currency Amount",
               BalanceCheckAmount, BalanceCheckAmount2, BalanceCheckAddCurrAmount, BalanceCheckAddCurrAmount2);
@@ -8830,7 +8821,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterSettingIsTransactionConsistent(GenJournalLine: Record "Gen. Journal Line"; var IsTransactionConsistent: Boolean; var TempBalanceCheck: Record "G/L Account Net Change" temporary; var TempBalanceCheck2: Record "G/L Account Net Change" temporary; var TempBalanceCheckAddCurr: Record "G/L Account Net Change" temporary; var TempBalanceCheckAddCurr2: Record "G/L Account Net Change" temporary)
+    local procedure OnAfterSettingIsTransactionConsistent(GenJournalLine: Record "Gen. Journal Line"; var IsTransactionConsistent: Boolean)
     begin
     end;
 
@@ -10340,7 +10331,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertGLEntryOnBeforeUpdateCheckAmounts(GeneralLedgerSetup: Record "General Ledger Setup"; var GLEntry: Record "G/L Entry"; var BalanceCheckAmount: Decimal; var BalanceCheckAmount2: Decimal; var BalanceCheckAddCurrAmount: Decimal; var BalanceCheckAddCurrAmount2: Decimal; var TempBalanceCheck: Record "G/L Account Net Change" temporary; var TempBalanceCheck2: Record "G/L Account Net Change" temporary; var TempBalanceCheckAddCurr: Record "G/L Account Net Change" temporary; var TempBalanceCheckAddCurr2: Record "G/L Account Net Change" temporary);
+    local procedure OnInsertGLEntryOnBeforeUpdateCheckAmounts(GeneralLedgerSetup: Record "General Ledger Setup"; var GLEntry: Record "G/L Entry"; var BalanceCheckAmount: Decimal; var BalanceCheckAmount2: Decimal; var BalanceCheckAddCurrAmount: Decimal; var BalanceCheckAddCurrAmount2: Decimal);
     begin
     end;
 
