@@ -349,19 +349,20 @@ codeunit 7110 "Analysis Report Management"
 
     local procedure AccPeriodStartEnd(Formula: Code[20]; Date: Date; var StartDate: Date; var EndDate: Date)
     var
-        AnalysisColumn: Record "Analysis Column";
+        PeriodFormulaParser: Codeunit "Period Formula Parser";
+        LanguageId: Integer;
         Steps: Integer;
-        Type: Option " ",Period,"Fiscal Year","Fiscal Halfyear","Fiscal Quarter";
-        RangeFromType: Option Int,CP,LP;
-        RangeToType: Option Int,CP,LP;
+        Type: Enum "Period Type";
+        RangeFromType: Enum "Period Formula Range";
+        RangeToType: Enum "Period Formula Range";
         RangeFromInt: Integer;
         RangeToInt: Integer;
     begin
         if Formula = '' then
             exit;
 
-        AnalysisColumn.ParsePeriodFormula(
-          Formula, Steps, Type, RangeFromType, RangeToType, RangeFromInt, RangeToInt);
+        PeriodFormulaParser.ParsePeriodFormula(
+          Formula, Steps, Type, RangeFromType, RangeToType, RangeFromInt, RangeToInt, LanguageId);
 
         AccountingPeriodMgt.AccPeriodStartEnd(
           Date, StartDate, EndDate, PeriodError, Steps, Type, RangeFromType, RangeToType, RangeFromInt, RangeToInt);
