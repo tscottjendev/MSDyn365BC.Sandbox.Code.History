@@ -2423,6 +2423,58 @@ codeunit 137908 "SCM Assembly Order"
         OpenAssemblyAvailabilityPage(AssemblyHeader."No.");
     end;
 
+    [Test]
+    procedure ChangeComponentItemToNonInventoryClearBinCode()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        Location: Record Location;
+        Bin: Record Bin;
+        ChildItemInventoriable, ChildItemNonInventoriable : Record Item;
+        Parent: Code[20];
+    begin
+        // [SCENARIO 1022] Changing the Component Item to Non-Inventory Item should clear Bin Code 
+        Initialize();
+
+        // [GIVEN] Parent Item
+        Parent := MakeItemWithLot();
+
+        // [GIVEN] Inventoriable Child Item
+        ChildItemInventoriable.Get(MakeItem());
+
+        // [GIVEN] Non-Inventoriable Child Item
+        ChildItemNonInventoriable.Get(MakeItem());
+        ChildItemNonInventoriable.Validate("Inventory Posting Group", '');
+        ChildItemNonInventoriable.Validate(Type, ChildItemNonInventoriable.Type::"Non-Inventory");
+        ChildItemNonInventoriable.Modify(false);
+
+        // [GIVEN] Location with Bin Codes and default Assembly To-Bin Code
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        Location.Validate("To-Assembly Bin Code", Bin.Code);
+        Location.Modify(false);
+
+        // [GIVEN] Assembly Order with one inventoriable Item line on a Location with Bins 
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, Parent, 1));
+        AssemblyHeader.Validate("Location Code", Location.Code);
+        AssemblyHeader.Modify(true);
+
+        // [WHEN] Create an Assembly Line for an inventoriable Item
+        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, Enum::"BOM Component Type"::Item, ChildItemInventoriable."No.", 1, ChildItemInventoriable."Base Unit of Measure");
+
+        // [THEN] Location + Bin Code is filled
+        Assert.Equal(Location.Code, AssemblyLine."Location Code");
+        Assert.Equal(Location."To-Assembly Bin Code", AssemblyLine."Bin Code");
+
+        // [WHEN] Changing the Item No. to Non-Inventoriable Item
+        AssemblyLine.Validate("No.", ChildItemNonInventoriable."No.");
+        AssemblyLine.Modify(false);
+
+        // [THEN] Location and Bin Code should be empty
+        Assert.Equal('', AssemblyLine."Location Code");
+        Assert.Equal('', AssemblyLine."Bin Code");
+    end;
+
     local procedure OpenAssemblyAvailabilityPage(DocumentNo: Code[20])
     var
         AssemblyOrder: TestPage "Assembly Order";
