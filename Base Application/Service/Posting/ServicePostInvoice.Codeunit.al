@@ -316,6 +316,8 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
     begin
         ServiceHeader := DocumentHeaderVar;
 
+        ServicePostInvoiceEvents.RunOnBeforePostLines(ServiceHeader, TempInvoicePostingBuffer);
+
         LineCount := 0;
         if TempInvoicePostingBuffer.Find('+') then
             repeat
