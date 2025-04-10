@@ -10,6 +10,7 @@ using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.Period;
 using System.Reflection;
 using System.Telemetry;
 using System.Text;
@@ -195,6 +196,43 @@ page 490 "Acc. Schedule Overview"
                         DateFilter := Rec.GetFilter("Date Filter");
                         TempFinancialReport.DateFilter := DateFilter;
                         CurrPage.Update();
+                    end;
+                }
+                field(StartDateFilterFormula; TempFinancialReport.StartDateFilterFormula)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Start Date Filter Formula';
+                    ToolTip = 'Specifies the date formula used to automatically calculate the start date of the date filter.';
+                    Visible = not ViewOnlyMode;
+
+                    trigger OnValidate()
+                    begin
+                        ValidateStartEndDateFilterFormula();
+                    end;
+                }
+                field(EndDateFilterFormula; TempFinancialReport.EndDateFilterFormula)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'End Date Filter Formula';
+                    ToolTip = 'Specifies the date formula used to automatically calculate the end date of the date filter.';
+                    Visible = not ViewOnlyMode;
+
+                    trigger OnValidate()
+                    begin
+                        ValidateStartEndDateFilterFormula();
+                    end;
+                }
+                field(DateFilterPeriodFormula; TempFinancialReport.DateFilterPeriodFormula)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Date Filter Period Formula';
+                    ToolTip = 'Specifies the period formula used to automatically calculate the date filter.';
+                    Importance = Additional;
+                    Visible = not ViewOnlyMode;
+
+                    trigger OnValidate()
+                    begin
+                        ValidateDateFilterPeriodFormula();
                     end;
                 }
                 field(ShowLinesWithShowNo; TempFinancialReport.ShowLinesWithShowNo)
@@ -1221,6 +1259,7 @@ page 490 "Acc. Schedule Overview"
         // Helper codeunits
         MatrixMgt: Codeunit "Matrix Management";
         DimensionManagement: Codeunit DimensionManagement;
+        FinReportMgt: Codeunit "Financial Report Mgt.";
         // Filter set in this page
         DateFilter: Text;
         // Helper page state variables
@@ -1406,7 +1445,7 @@ page 490 "Acc. Schedule Overview"
                 AnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
             end;
 
-        SetFinancialReportDateFilter();
+        FinReportMgt.CalcAccScheduleLineDateFilter(TempFinancialReport, Rec);
         ApplyShowFilter();
         UpdateDimFilterControls();
         DateFilter := Rec.GetFilter("Date Filter");
@@ -1440,19 +1479,35 @@ page 490 "Acc. Schedule Overview"
         AccSchedManagement.ForceRecalculate(false);
     end;
 
-    local procedure SetFinancialReportDateFilter()
+    local procedure ValidateStartEndDateFilterFormula()
     begin
-        if TempFinancialReport.DateFilter = '' then
-            AccSchedManagement.FindPeriod(Rec, '', TempFinancialReport.PeriodType)
-        else
-            if not TrySetFilter(TempFinancialReport.DateFilter) then
-                AccSchedManagement.FindPeriod(Rec, '', TempFinancialReport.PeriodType);
+        if (Format(TempFinancialReport.StartDateFilterFormula) = '') and
+            (Format(TempFinancialReport.EndDateFilterFormula) = '')
+        then
+            exit;
+        Clear(TempFinancialReport.DateFilterPeriodFormula);
+        Clear(TempFinancialReport.DateFilterPeriodFormulaLID);
+        CalcDateFilterAndUpdate();
     end;
 
-    [TryFunction]
-    local procedure TrySetFilter(DateFilter: Text)
+    local procedure ValidateDateFilterPeriodFormula()
+    var
+        PeriodFormulaParser: Codeunit "Period Formula Parser";
     begin
-        Rec.SetFilter("Date Filter", DateFilter);
+        if TempFinancialReport.DateFilterPeriodFormula = '' then
+            exit;
+        PeriodFormulaParser.ValidatePeriodFormula(
+            TempFinancialReport.DateFilterPeriodFormula, TempFinancialReport.DateFilterPeriodFormulaLID);
+        Clear(TempFinancialReport.StartDateFilterFormula);
+        Clear(TempFinancialReport.EndDateFilterFormula);
+        CalcDateFilterAndUpdate();
+    end;
+
+    local procedure CalcDateFilterAndUpdate()
+    begin
+        FinReportMgt.CalcAccScheduleLineDateFilter(TempFinancialReport, Rec);
+        DateFilter := Rec.GetFilter("Date Filter");
+        CurrPage.Update();
     end;
 
     local procedure LoadFinancialReportFilters(FinancialReportCode: Code[10]; var FinancialReportToLoadTemp: Record "Financial Report" temporary): Boolean
