@@ -144,6 +144,26 @@ table 88 "Financial Report"
             Caption = 'Closing Paragraph';
             DataClassification = CustomerContent;
         }
+        field(56; StartDateFilterFormula; DateFormula)
+        {
+            Caption = 'Start Date Filter Formula';
+            DataClassification = SystemMetadata;
+        }
+        field(57; EndDateFilterFormula; DateFormula)
+        {
+            Caption = 'End Date Filter Formula';
+            DataClassification = SystemMetadata;
+        }
+        field(58; DateFilterPeriodFormula; Code[20])
+        {
+            Caption = 'Date Filter Period Formula';
+            DataClassification = SystemMetadata;
+        }
+        field(59; DateFilterPeriodFormulaLID; Integer)
+        {
+            Caption = 'Date Filter Period Formula Lang. ID';
+            DataClassification = SystemMetadata;
+        }
     }
     keys
     {
