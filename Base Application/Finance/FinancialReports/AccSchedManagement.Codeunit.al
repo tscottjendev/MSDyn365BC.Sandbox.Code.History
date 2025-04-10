@@ -351,18 +351,19 @@ codeunit 8 AccSchedManagement
 
     procedure AccPeriodStartEnd(ColumnLayout: Record "Column Layout"; Date: Date; var StartDate: Date; var EndDate: Date)
     var
+        PeriodFormulaParser: Codeunit "Period Formula Parser";
         Steps: Integer;
-        Type: Option " ",Period,"Fiscal Year";
-        RangeFromType: Option Int,CP,LP;
-        RangeToType: Option Int,CP,LP;
+        Type: Enum "Period Type";
+        RangeFromType: Enum "Period Formula Range";
+        RangeToType: Enum "Period Formula Range";
         RangeFromInt: Integer;
         RangeToInt: Integer;
     begin
         if ColumnLayout."Comparison Period Formula" = '' then
             exit;
 
-        ColumnLayout.ParsePeriodFormula(
-          ColumnLayout."Comparison Period Formula", Steps, Type, RangeFromType, RangeToType, RangeFromInt, RangeToInt);
+        PeriodFormulaParser.ParsePeriodFormula(
+          ColumnLayout."Comparison Period Formula", Steps, Type, RangeFromType, RangeToType, RangeFromInt, RangeToInt, ColumnLayout."Comparison Period Formula LCID");
 
         AccountingPeriodMgt.AccPeriodStartEnd(
           Date, StartDate, EndDate, PeriodError, Steps, Type, RangeFromType, RangeToType, RangeFromInt, RangeToInt);
