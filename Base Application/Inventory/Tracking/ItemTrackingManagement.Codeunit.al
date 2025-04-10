@@ -2105,7 +2105,7 @@ codeunit 6500 "Item Tracking Management"
 
         if ItemLedgEntry.GetFilters() <> '' then
             ItemLedgEntry.Reset();
-        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Lot No.", "Package No.", "Serial No.");
+        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Lot No.", "Serial No.", "Package No.");
         ItemLedgEntry.SetRange("Item No.", ItemNo);
         ItemLedgEntry.SetRange("Variant Code", VariantCode);
         ItemLedgEntry.SetRange(Positive, true);
