@@ -15,6 +15,7 @@ codeunit 144303 "Report Layout - Local"
         LibrarySales: Codeunit "Library - Sales";
         isInitialized: Boolean;
 
+#if not CLEAN27
     [Test]
     [HandlerFunctions('RHVATEntryExceptionReport')]
     [Scope('OnPrem')]
@@ -23,6 +24,7 @@ codeunit 144303 "Report Layout - Local"
         Initialize();
         REPORT.Run(REPORT::"VAT Entry Exception Report");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('StandardSalesDraftInvoiceRequestPageHandler')]
@@ -134,6 +136,7 @@ codeunit 144303 "Report Layout - Local"
         SalesLine.Modify(true);
     end;
 
+#if not CLEAN27
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHVATEntryExceptionReport(var VATEntryExceptionReport: TestRequestPage "VAT Entry Exception Report")
@@ -144,6 +147,7 @@ codeunit 144303 "Report Layout - Local"
         VATEntryExceptionReport.VATRate.SetValue(true);
         VATEntryExceptionReport.SaveAsPdf(FomatFileName(VATEntryExceptionReport.Caption));
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
