@@ -12,14 +12,19 @@ codeunit 448 "Job Queue Dispatcher"
 
     trigger OnRun()
     var
+        JobQueueTelemetry: Codeunit "Job Queue Telemetry";
         Skip: Boolean;
     begin
         OnBeforeRun(Rec, Skip);
-        if Skip then
+        if Skip then begin
+            JobQueueTelemetry.SendJobQueueSkippedTelemetry(Rec);
             exit;
+        end;
 
-        if not Rec.IsReadyToStart() then
+        if not Rec.IsReadyToStart() then begin
+            JobQueueTelemetry.SendJobQueueNotReadyToStartTelemetry(Rec);
             exit;
+        end;
 
         Rec.RefreshLocked();
 
