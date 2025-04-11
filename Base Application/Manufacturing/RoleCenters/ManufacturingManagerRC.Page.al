@@ -96,12 +96,17 @@ page 8903 "Manufacturing Manager RC"
                         Caption = 'Routing Sheet';
                         RunObject = report "Routing Sheet";
                     }
+#if not CLEAN27
                     action("Compare List")
                     {
                         ApplicationArea = Manufacturing;
-                        Caption = 'Item BOM Compare List';
+                        Caption = 'Item BOM Compare List (Obsolete)';
                         RunObject = report "Compare List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the "Compare Production Cost Shares" report and will be removed in a future release.';
+                        ObsoleteTag = '27.0';
                     }
+#endif
                 }
             }
             group("Group2")
@@ -654,11 +659,22 @@ page 8903 "Manufacturing Manager RC"
                         Caption = 'Prod. Order - Calculation';
                         RunObject = report "Prod. Order - Calculation";
                     }
+#if not CLEAN27
                     action("Compare List1")
                     {
                         ApplicationArea = Manufacturing;
-                        Caption = 'Compare List';
+                        Caption = 'Compare List (Obsolete)';
                         RunObject = report "Compare List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the "Compare Production Cost Shares" report and will be removed in a future release.';
+                        ObsoleteTag = '27.0';
+                    }
+#endif
+                    action("Compare Production Cost Shares")
+                    {
+                        ApplicationArea = Manufacturing;
+                        Caption = 'Compare Production Cost Shares';
+                        RunObject = report "Compare Production Cost Shares";
                     }
                     action("Inventory Valuation - WIP")
                     {
