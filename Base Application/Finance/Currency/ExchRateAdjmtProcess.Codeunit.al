@@ -746,6 +746,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
 
     local procedure PostAdjmt(ExchRateAdjmtBuffer: Record "Exch. Rate Adjmt. Buffer"; var TempDimSetEntry: Record "Dimension Set Entry" temporary): Integer
     begin
+        OnBeforePostAdjmt(ExchRateAdjmtBuffer, TempDimSetEntry);
         exit(
             PostAdjmt(
                 ExchRateAdjmtBuffer."Account No.", ExchRateAdjmtBuffer."Adjmt. Amount",
@@ -783,6 +784,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         GenJnlLine."Journal Batch Name" := ExchRateAdjmtParameters."Journal Batch Name";
         GenJnlLine."System-Created Entry" := true;
 
+        OnPostAdjmtOnBeforePostGenJnlLine(GenJnlLine, TempDimSetEntry);
         TransactionNo := PostGenJnlLine(GenJnlLine, DimSetEntry);
     end;
 
@@ -1055,6 +1057,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
             TempExchRateAdjmtBuffer.Modify();
         end;
 
+        OnAfterExchRateAdjmtBufferUpdate(ExchRateAdjmtParameters, TempExchRateAdjmtBuffer);
         exit(TempExchRateAdjmtBuffer.Index);
     end;
 
@@ -3073,6 +3076,21 @@ codeunit 699 "Exch. Rate Adjmt. Process"
 
     [IntegrationEvent(false, false)]
     local procedure OnHandlePostAdjmtOnBeforePostAdjmt(var TempExchRateAdjmtBuffer2: Record "Exch. Rate Adjmt. Buffer" temporary; var Currency: Record Currency; var DimensionSetEntry: Record "Dimension Set Entry"; var AdjustAccType: Enum "Exch. Rate Adjmt. Account Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterExchRateAdjmtBufferUpdate(var ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters"; var TempExchRateAdjmtBuffer: Record "Exch. Rate Adjmt. Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostAdjmt(var ExchRateAdjmtBuffer: Record "Exch. Rate Adjmt. Buffer"; var TempDimSetEntry: Record "Dimension Set Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostAdjmtOnBeforePostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var TempDimSetEntry: Record "Dimension Set Entry" temporary)
     begin
     end;
 }
