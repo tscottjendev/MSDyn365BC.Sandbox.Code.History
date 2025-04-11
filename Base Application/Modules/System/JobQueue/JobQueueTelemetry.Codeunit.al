@@ -19,6 +19,8 @@ codeunit 9803 "Job Queue Telemetry"
         JobQueueEntryErrorAllTxt: Label 'Job queue entry errored: %1', Comment = '%1 = Job queue id', Locked = true;
         JobQueueEntryEnqueuedAllTxt: Label 'Job queue entry enqueued: %1', Comment = '%1 = Job queue id', Locked = true;
         JobQueueEntryNotEnqueuedTxt: Label 'Job queue entry not enqueued: %1', Comment = '%1 = Job queue id', Locked = true;
+        JobQueueEntrySkippedTxt: Label 'Job queue entry skipped: %1', Comment = '%1 = Job queue id', Locked = true;
+        JobQueueEntryNotReadyToStartTxt: Label 'Job queue entry not ready to start: %1', Comment = '%1 = Job queue id', Locked = true;
 
     procedure SetJobQueueTelemetryDimensions(var JobQueueEntry: Record "Job Queue Entry"; var Dimensions: Dictionary of [Text, Text])
     begin
@@ -53,6 +55,42 @@ codeunit 9803 "Job Queue Telemetry"
         Dimensions.Add('JobQueueCompanyName', JobQueueLogEntry.CurrentCompany());
         Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueLogEntry."System Task ID", 0, 4));
         Dimensions.Add('JobQueueCategory', Format(JobQueueLogEntry."Job Queue Category Code"));
+    end;
+
+    procedure SendJobQueueSkippedTelemetry(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        TranslationHelper: Codeunit "Translation Helper";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        TranslationHelper.SetGlobalLanguageToDefault();
+
+        SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        Telemetry.LogMessage('0000P8K',
+                                StrSubstNo(JobQueueEntrySkippedTxt, Format(JobQueueEntry.ID, 0, 4)),
+                                Verbosity::Normal,
+                                DataClassification::OrganizationIdentifiableInformation,
+                                TelemetryScope::All,
+                                Dimensions);
+
+        TranslationHelper.RestoreGlobalLanguage();
+    end;
+
+    procedure SendJobQueueNotReadyToStartTelemetry(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        TranslationHelper: Codeunit "Translation Helper";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        TranslationHelper.SetGlobalLanguageToDefault();
+
+        SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        Telemetry.LogMessage('0000P8L',
+                                StrSubstNo(JobQueueEntryNotReadyToStartTxt, Format(JobQueueEntry.ID, 0, 4)),
+                                Verbosity::Normal,
+                                DataClassification::OrganizationIdentifiableInformation,
+                                TelemetryScope::All,
+                                Dimensions);
+
+        TranslationHelper.RestoreGlobalLanguage();
     end;
 
     internal procedure SendTraceOnJobQueueEntryScheduledTaskCancelled(var JobQueueEntry: Record "Job Queue Entry"; Success: Boolean)
