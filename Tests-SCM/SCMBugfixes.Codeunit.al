@@ -35,6 +35,7 @@ codeunit 137045 "SCM Bugfixes"
         WrongSKUUnitCostErr: Label 'Stockkeeping unit''s unit cost must be equal to item unit cost';
         EmailNotAutomaticallySetErr: Label 'Expected BuyFromContactEmail to automatically be set to the email of the contact, but it wasnt.';
         UseInTransitLocationErr: Label 'You can use In-Transit location %1 for transfer orders only.', Comment = '%1: Location code';
+        PurchaseOrderErr: Label 'Unexpected new purchase order created';
 
     [Test]
     [Scope('OnPrem')]
@@ -929,6 +930,53 @@ codeunit 137045 "SCM Bugfixes"
         OpenOrderPromisingPage(SalesHeader."No.")
     end;
 
+    [Test]
+    procedure CarryOutPlanWkshActionMsgFilterCheckGenerateLines()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ReqLine: Record "Requisition Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        NewPurchOrderChoice: Option " ","Make Purch. Orders","Make Purch. Orders & Print","Copy to Req. Wksh";
+        ActualCount: Integer;
+    begin
+        // [SCENARIO 563852] When a Filter is set in the Planning Worksheet to a specific Action Message (e.g. Cancel) , Carry Out Action Message Only Process
+        // Filtered Planning Worksheet Lines.
+        Initialize();
+
+        // [GIVEN] New Item Created with Reordering Policy Order.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Modify(true);
+
+        // [GIVEN] Created New Purchase Order with New Item with 4 Qty.
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", 4);
+
+        // [GIVEN] Created New Sales Order with New Item with 4 Qty and Future Shipment Date.
+        CreateSalesOrder(SalesHeader, Item."No.", '', 4, SalesHeader."Document Type"::Order);
+        SalesLine.Get(SalesLine."Document Type"::Order, SalesHeader."No.", 10000);
+        SalesLine.Validate("Shipment Date", CalcDate('<1W>', WorkDate()));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Calculate regenerative plan in planning worksheet update Planning Worksheet.
+        CalculatePlanOnPlanningWorksheet(Item, WorkDate(), CalcDate('<1Y>', WorkDate()), true, false);
+
+        // [GIVEN] Set "Accept Action Message" on all Requisition lines.
+        UpdatePlanningWorkSheetwithVendor(ReqLine, Item."No.", PurchaseHeader."Buy-from Vendor No.");
+
+        // [WHEN] Running Carry Out Action Message For Requisition lines "Action Message"::Cancel.
+        ReqLine.SetRange("Action Message", ReqLine."Action Message"::Cancel);
+        LibraryPlanning.CarryOutPlanWksh(ReqLine, 0, NewPurchOrderChoice::"Make Purch. Orders", 0, 0, '', '', '', '');
+
+        // [WHEN] Count Actual Purchase Lines.
+        CountActualPurchaseLine(Item, PurchaseLine, ActualCount);
+
+        // [THEN] Verify Actual Count Match with Expected Result.
+        Assert.AreEqual(0, ActualCount, PurchaseOrderErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1545,6 +1593,50 @@ codeunit 137045 "SCM Bugfixes"
         SalesOrder.OpenView();
         SalesOrder.Filter.SetFilter("No.", SalesHeaderNo);
         SalesOrder.SalesLines.OrderPromising.Invoke();
+    end;
+
+    local procedure CountActualPurchaseLine(Item: Record Item; PurchaseLine: Record "Purchase Line"; var ActualCount: Integer)
+    begin
+        Clear(ActualCount);
+        PurchaseLine.Reset();
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", Item."No.");
+        if PurchaseLine.FindSet() then
+            ActualCount := PurchaseLine.Count;
+    end;
+
+    local procedure CalculatePlanOnPlanningWorksheet(var ItemRec: Record Item; OrderDate: Date; ToDate: Date; RespectPlanningParameters: Boolean; Regenerative: Boolean)
+    var
+        TmpItemRec: Record Item;
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        CalculatePlanPlanWksh: Report "Calculate Plan - Plan. Wksh.";
+    begin
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);  // Find Requisition Worksheet Name to Calculate Plan.
+        Commit();
+        CalculatePlanPlanWksh.InitializeRequest(OrderDate, ToDate, RespectPlanningParameters, true, true, '', 0D, false);
+        CalculatePlanPlanWksh.SetTemplAndWorksheet(RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, Regenerative);
+        if ItemRec.HasFilter then
+            TmpItemRec.CopyFilters(ItemRec)
+        else begin
+            ItemRec.Get(ItemRec."No.");
+            TmpItemRec.SetRange("No.", ItemRec."No.");
+        end;
+        CalculatePlanPlanWksh.SetTableView(TmpItemRec);
+        CalculatePlanPlanWksh.UseRequestPage(false);
+        CalculatePlanPlanWksh.RunModal();
+    end;
+
+    local procedure UpdatePlanningWorkSheetwithVendor(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; VendorNo: Code[20])
+    begin
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", ItemNo);
+        RequisitionLine.FindSet();
+        repeat
+            RequisitionLine.Validate("Vendor No.", VendorNo);
+            RequisitionLine.Validate("Accept Action Message", true);
+            RequisitionLine.Modify(true);
+        until RequisitionLine.Next() = 0;
     end;
 
     [ModalPageHandler]
