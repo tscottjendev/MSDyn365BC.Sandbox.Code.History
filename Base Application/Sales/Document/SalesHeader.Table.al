@@ -262,6 +262,8 @@ table 36 "Sales Header"
 
                 IsHandled := false;
                 OnValidateBillToCustomerNoOnAfterCheckBilltoCustomerNoChanged(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
 
                 if BilltoCustomerNoChanged and not IsHandled then
                     if xRec."Bill-to Customer No." = '' then
@@ -3584,14 +3586,14 @@ table 36 "Sales Header"
             if "No." = '' then begin
                 TestNoSeries();
                 NoSeriesCode := GetNoSeriesCode();
-                    "No. Series" := NoSeriesCode;
-                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                        "No. Series" := xRec."No. Series";
+                "No. Series" := NoSeriesCode;
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+                SalesHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
+                SalesHeader2.SetLoadFields("No.");
+                while SalesHeader2.Get("Document Type", "No.") do
                     "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-                    SalesHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
-                    SalesHeader2.SetLoadFields("No.");
-                    while SalesHeader2.Get("Document Type", "No.") do
-                        "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
             end;
 
         OnInitInsertOnBeforeInitRecord(Rec, xRec);
@@ -9246,7 +9248,7 @@ table 36 "Sales Header"
                             "Posting No. Series" := PostingNoSeries;
 
                     if SalesSetup."Shipment on Invoice" then
-                    if NoSeries.IsAutomatic(SalesSetup."Posted Shipment Nos.") then
+                        if NoSeries.IsAutomatic(SalesSetup."Posted Shipment Nos.") then
                             "Shipping No. Series" := SalesSetup."Posted Shipment Nos.";
                 end;
             "Document Type"::"Return Order":
@@ -9264,7 +9266,7 @@ table 36 "Sales Header"
                         if NoSeries.IsAutomatic(PostingNoSeries) then
                             "Posting No. Series" := PostingNoSeries;
                     if SalesSetup."Return Receipt on Credit Memo" then
-                    if NoSeries.IsAutomatic(SalesSetup."Posted Return Receipt Nos.") then
+                        if NoSeries.IsAutomatic(SalesSetup."Posted Return Receipt Nos.") then
                             "Return Receipt No. Series" := SalesSetup."Posted Return Receipt Nos."
                 end;
         end;
