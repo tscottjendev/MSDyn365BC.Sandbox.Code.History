@@ -2218,6 +2218,18 @@ table 39 "Purchase Line"
                     UpdateJobPrices();
                 end;
                 UpdateDimensionsFromJobTask();
+
+                if (xRec."Line Discount %" <> "Line Discount %") and
+                (xRec."Job Task No." <> "Job Task No.") and
+                ("Line Discount Amount" <> 0)
+                then
+                    UpdateLineDiscPct();
+
+                if (xRec."Line Discount %" <> "Line Discount %") and
+                   (xRec."Job Task No." <> "Job Task No.") and
+                   ("Line Discount Amount" <> 0)
+                then
+                    UpdateLineDiscPct();
             end;
         }
         field(1002; "Job Line Type"; Enum "Job Line Type")
