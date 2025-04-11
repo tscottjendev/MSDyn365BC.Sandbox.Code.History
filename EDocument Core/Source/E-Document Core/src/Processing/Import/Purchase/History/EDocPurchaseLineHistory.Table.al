@@ -49,7 +49,7 @@ table 6140 "E-Doc. Purchase Line History"
             Editable = false;
             TableRelation = "E-Document Purchase Line".SystemId;
         }
-        field(3; "Purch. Inv. Line SystemuId"; Guid)
+        field(3; "Purch. Inv. Line SystemId"; Guid)
         {
             Caption = 'Purchase Inv. Line SystemId';
             DataClassification = SystemMetadata;
@@ -127,7 +127,7 @@ table 6140 "E-Doc. Purchase Line History"
 
 
         }
-        field(9; "Shortcut Dimension 2 Code"; Code[20])
+        field(55; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';

@@ -125,7 +125,7 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
         EDocPurchaseLineHistory."Shortcut Dimension 1 Code" := PurchInvLine."Shortcut Dimension 1 Code";
         EDocPurchaseLineHistory."Shortcut Dimension 2 Code" := PurchInvLine."Shortcut Dimension 2 Code";
         EDocPurchaseLineHistory."E-Doc. Purchase Line SystemId" := EDocumentPurchaseLine.SystemId;
-        EDocPurchaseLineHistory."Purch. Inv. Line SystemuId" := PurchInvLine.SystemId;
+        EDocPurchaseLineHistory."Purch. Inv. Line SystemId" := PurchInvLine.SystemId;
 
         if EDocPurchaseLineHistory.Insert(true) then;
     end;
