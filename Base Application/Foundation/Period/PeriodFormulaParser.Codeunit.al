@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Period;
 
-codeunit 99009602 "Period Formula Parser"
+codeunit 921 "Period Formula Parser"
 {
     var
         CurrentPeriodTok: Label 'CP';
