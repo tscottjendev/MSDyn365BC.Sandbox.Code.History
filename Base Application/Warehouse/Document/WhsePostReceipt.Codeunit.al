@@ -1352,15 +1352,22 @@ codeunit 5760 "Whse.-Post Receipt"
         ItemTrackingManagement: Codeunit "Item Tracking Management";
         RemQtyToHandleBase: Decimal;
         IsHandled: Boolean;
+        DoCheckIsReceiptForJob, ReceiptIsForJob : Boolean;
     begin
-        OnBeforeCreatePutAwayDocProcedure(PostedWhseReceiptLine, WarehouseReceiptHeader, RemQtyToHandleBase, CreatePutAway, ItemTrackingManagement, TempPostedWhseReceiptLine, TempPostedWhseReceiptLine2, WarehouseActivityHeader, CounterPutAways);
+        DoCheckIsReceiptForJob := true;
+        OnBeforeCreatePutAwayDocProcedure(PostedWhseReceiptLine, WarehouseReceiptHeader, RemQtyToHandleBase, CreatePutAway, ItemTrackingManagement, TempPostedWhseReceiptLine, TempPostedWhseReceiptLine2, WarehouseActivityHeader, CounterPutAways, DoCheckIsReceiptForJob);
 
         PostedWhseReceiptLine.SetRange("No.", WarehouseReceiptHeader."Receiving No.");
         if not PostedWhseReceiptLine.Find('-') then
             exit;
 
         repeat
-            if not IsReceiptForJob(PostedWhseReceiptLine) then begin
+            if DoCheckIsReceiptForJob then
+                ReceiptIsForJob := IsReceiptForJob(PostedWhseReceiptLine)
+            else
+                ReceiptIsForJob := false;
+
+            if not ReceiptIsForJob then begin
                 RemQtyToHandleBase := PostedWhseReceiptLine."Qty. (Base)";
                 IsHandled := false;
                 OnBeforeCreatePutAwayDoc(WarehouseReceiptHeader, PostedWhseReceiptLine, IsHandled);
@@ -1501,7 +1508,7 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePutAwayDocProcedure(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var RemQtyToHandleBase: Decimal; var CreatePutAway: Codeunit "Create Put-away"; var ItemTrackingManagement: Codeunit "Item Tracking Management"; var TempPostedWhseReceiptLine: Record "Posted Whse. Receipt Line" temporary; var TempPostedWhseReceiptLine2: Record "Posted Whse. Receipt Line" temporary; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var CounterPutAways: Integer);
+    local procedure OnBeforeCreatePutAwayDocProcedure(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var RemQtyToHandleBase: Decimal; var CreatePutAway: Codeunit "Create Put-away"; var ItemTrackingManagement: Codeunit "Item Tracking Management"; var TempPostedWhseReceiptLine: Record "Posted Whse. Receipt Line" temporary; var TempPostedWhseReceiptLine2: Record "Posted Whse. Receipt Line" temporary; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var CounterPutAways: Integer; var DoCheckIsReceiptForJob: Boolean);
     begin
     end;
 
