@@ -7002,6 +7002,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             VendLedgEntry."Pmt. Tolerance (LCY)" := 0;
             VendLedgEntry."Vendor Bill No." := '';
             VendLedgEntry."Vendor Bill List" := '';
+            VendLedgEntry."Applies-to Ext. Doc. No." := '';
         end;
 
         OnBeforeVendLedgEntryModify(VendLedgEntry, DtldVendLedgEntry);
