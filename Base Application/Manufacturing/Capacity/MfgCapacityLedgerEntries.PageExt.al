@@ -129,7 +129,7 @@ pageextension 99000802 "Mfg. Capacity Ledger Entries" extends "Capacity Ledger E
             action("Reverse")
             {
                 ApplicationArea = Manufacturing;
-                Caption = 'Reverse Production Order Transaction';
+                Caption = 'Reverse Production Entry';
                 Image = ReverseLines;
                 ToolTip = 'Reverse a production capacity ledger entry for the selected lines.';
                 Ellipsis = true;
