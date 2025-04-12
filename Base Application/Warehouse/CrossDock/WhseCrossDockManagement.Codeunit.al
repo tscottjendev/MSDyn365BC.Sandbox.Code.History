@@ -470,6 +470,8 @@ codeunit 5780 "Whse. Cross-Dock Management"
     var
         IsHandled: Boolean;
     begin
+        OnBeforeUpdateQtyToCrossDock(UseCrossDocking, WarehouseReceiptLine);
+
         GetUseCrossDock(UseCrossDocking, WarehouseReceiptLine."Location Code", WarehouseReceiptLine."Item No.");
         if not UseCrossDocking then
             exit;
@@ -864,6 +866,11 @@ codeunit 5780 "Whse. Cross-Dock Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcCrossDockReceivedNotCrossDockedOnAfterPostedWhseReceiptLineSetFilters(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateQtyToCrossDock(var UseCrossDock: Boolean; var WarehouseReceiptLine: Record "Warehouse Receipt Line")
     begin
     end;
 }
