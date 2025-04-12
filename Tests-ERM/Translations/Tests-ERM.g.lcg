@@ -1184,6 +1184,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = FIELD Caption, %2 = FIELD Value]D;]A;(LookupHint=Codeunit ERM Apply Unapply Vendor - NamedType ApplicationEntryErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4182006359 - NamedType 3837909384" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applies to Ext. Doc No. must be empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Unapply Vendor - NamedType AppliesToExtDocNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4182006359 - NamedType 1693110424" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Detailed Vendor Ledger Entry Must Found.]]></Val>
