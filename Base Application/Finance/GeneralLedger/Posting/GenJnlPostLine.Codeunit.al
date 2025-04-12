@@ -6547,6 +6547,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             VendLedgEntry."Closed by Currency Amount" := 0;
             VendLedgEntry."Pmt. Disc. Rcd.(LCY)" := 0;
             VendLedgEntry."Pmt. Tolerance (LCY)" := 0;
+            VendLedgEntry."Applies-to Ext. Doc. No." := '';
         end;
 
         OnBeforeVendLedgEntryModify(VendLedgEntry, DtldVendLedgEntry);
