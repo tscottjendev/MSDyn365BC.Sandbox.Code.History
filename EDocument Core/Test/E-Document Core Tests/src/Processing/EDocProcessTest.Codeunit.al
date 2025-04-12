@@ -291,7 +291,7 @@ codeunit 139883 "E-Doc Process Test"
         EDocRecordLink.DeleteAll();
 
         EDocImportParams."Step to Run" := "Import E-Document Steps"::"Finish draft";
-        LibraryEDoc.CreateInboundPEPPOLDocumentToState(EDocument, EDocumentService, 'peppol-invoice-0.xml', EDocImportParams);
+        LibraryEDoc.CreateInboundPEPPOLDocumentToState(EDocument, EDocumentService, 'peppol/peppol-invoice-0.xml', EDocImportParams);
 
         EDocument.Get(EDocument."Entry No");
         PurchaseHeader.Get(EDocument."Document Record ID");
