@@ -160,6 +160,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetInitShipToPhoneNoUpgradeTag());
         PerCompanyUpgradeTags.Add(GetMultilineReminderTextUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCountryVATSchemeDKTag());
+        PerCompanyUpgradeTags.Add(GetDefaultConsCalcBasedOnUpgradeTag());
         PerCompanyUpgradeTags.Add(GetUpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocationUpgradeTag());
         PerCompanyUpgradeTags.Add(GetIntegrationTableMappingTemplatesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPopulateUserSetupEmailUpgradeTag());
@@ -1170,6 +1171,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetPurchaseCreditMemoVendorCrMemoNoUpgradeTag(): Code[250]
     begin
         exit('MS-559602-PurchaseCreditMemoVendorCrMemoNoUpgradeTag-20241206');
+    end;
+
+    internal procedure GetDefaultConsCalcBasedOnUpgradeTag(): Code[250]
+    begin
+        exit('MS-GIT-1052-GetDefaultConsCalcBasedOnUpgradeTag-20250203');
     end;
 
     internal procedure GetICOutboxTransactionSourceTypeUpgradeTag(): Code[250]
