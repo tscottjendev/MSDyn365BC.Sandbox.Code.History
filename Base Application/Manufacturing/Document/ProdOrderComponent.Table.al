@@ -157,23 +157,28 @@ table 5407 "Prod. Order Component"
             trigger OnValidate()
             var
                 ProdOrderLine: Record "Prod. Order Line";
-                ProdOrderRtngLine: Record "Prod. Order Routing Line";
+                ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+                IsHandled: Boolean;
             begin
                 UpdateExpectedQuantity();
 
                 ProdOrderLine.Get(Status, "Prod. Order No.", "Prod. Order Line No.");
 
-                "Due Date" := ProdOrderLine."Starting Date";
-                "Due Time" := ProdOrderLine."Starting Time";
-                if "Routing Link Code" <> '' then begin
-                    ProdOrderRtngLine.SetRange(Status, Status);
-                    ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
-                    ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
-                    ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
-                    ProdOrderRtngLine.SetRange("Routing Link Code", "Routing Link Code");
-                    if ProdOrderRtngLine.FindFirst() then begin
-                        "Due Date" := ProdOrderRtngLine."Starting Date";
-                        "Due Time" := ProdOrderRtngLine."Starting Time";
+                IsHandled := false;
+                OnValidateRoutingLinkCodeOnBeforeUpdateDueDateAndTime(Rec, ProdOrderLine, ProdOrderRoutingLine, IsHandled);
+                if not IsHandled then begin
+                    "Due Date" := ProdOrderLine."Starting Date";
+                    "Due Time" := ProdOrderLine."Starting Time";
+                    if "Routing Link Code" <> '' then begin
+                        ProdOrderRoutingLine.SetRange(Status, Status);
+                        ProdOrderRoutingLine.SetRange("Prod. Order No.", "Prod. Order No.");
+                        ProdOrderRoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+                        ProdOrderRoutingLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+                        ProdOrderRoutingLine.SetRange("Routing Link Code", "Routing Link Code");
+                        if ProdOrderRoutingLine.FindFirst() then begin
+                            "Due Date" := ProdOrderRoutingLine."Starting Date";
+                            "Due Time" := ProdOrderRoutingLine."Starting Time";
+                        end;
                     end;
                 end;
                 if Format("Lead-Time Offset") <> '' then begin
@@ -183,7 +188,7 @@ table 5407 "Prod. Order Component"
                     "Due Time" := 0T;
                 end;
 
-                OnValidateRoutingLinkCodeBeforeValidateDueDate(Rec, ProdOrderLine, ProdOrderRtngLine);
+                OnValidateRoutingLinkCodeBeforeValidateDueDate(Rec, ProdOrderLine, ProdOrderRoutingLine);
                 Validate("Due Date");
 
                 if "Routing Link Code" <> xRec."Routing Link Code" then
@@ -363,15 +368,15 @@ table 5407 "Prod. Order Component"
                             ["Flushing Method"::Forward, "Flushing Method"::Backward]);
                 end else begin
 #endif
-                PickQtyCheckNeeded :=
-                    ("Flushing Method" <> xRec."Flushing Method") and
-                    (xRec."Flushing Method" in
-                        [xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]);
-                WhseWorksheetLineExistCheckNeeded :=
-                    (xRec."Flushing Method" in
-                        [xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]) and
-                    ("Flushing Method" in
-                        ["Flushing Method"::Manual, "Flushing Method"::Forward, "Flushing Method"::Backward]);
+                    PickQtyCheckNeeded :=
+                        ("Flushing Method" <> xRec."Flushing Method") and
+                        (xRec."Flushing Method" in
+                            [xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]);
+                    WhseWorksheetLineExistCheckNeeded :=
+                        (xRec."Flushing Method" in
+                            [xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]) and
+                        ("Flushing Method" in
+                            ["Flushing Method"::Manual, "Flushing Method"::Forward, "Flushing Method"::Backward]);
 #if not CLEAN26
                 end;
 #endif
@@ -1597,16 +1602,16 @@ table 5407 "Prod. Order Component"
             end
         else
 #endif
-        case "Flushing Method" of
-            "Flushing Method"::"Pick + Manual",
-            "Flushing Method"::"Pick + Forward",
-            "Flushing Method"::"Pick + Backward":
-                BinCode := ProdOrderRtngLine."To-Production Bin Code";
-            "Flushing Method"::Manual,
-            "Flushing Method"::Forward,
-            "Flushing Method"::Backward:
-                BinCode := ProdOrderRtngLine."Open Shop Floor Bin Code";
-        end;
+            case "Flushing Method" of
+                "Flushing Method"::"Pick + Manual",
+                "Flushing Method"::"Pick + Forward",
+                "Flushing Method"::"Pick + Backward":
+                    BinCode := ProdOrderRtngLine."To-Production Bin Code";
+                "Flushing Method"::Manual,
+                "Flushing Method"::Forward,
+                "Flushing Method"::Backward:
+                    BinCode := ProdOrderRtngLine."Open Shop Floor Bin Code";
+            end;
     end;
 
     local procedure GetBinCodeFromLocation(LocationCode: Code[10]) BinCode: Code[20]
@@ -1630,16 +1635,16 @@ table 5407 "Prod. Order Component"
             end
         else
 #endif
-        case "Flushing Method" of
-            "Flushing Method"::"Pick + Manual",
-            "Flushing Method"::"Pick + Forward",
-            "Flushing Method"::"Pick + Backward":
-                BinCode := Location."To-Production Bin Code";
-            "Flushing Method"::Manual,
-            "Flushing Method"::Forward,
-            "Flushing Method"::Backward:
-                BinCode := Location."Open Shop Floor Bin Code";
-        end;
+            case "Flushing Method" of
+                "Flushing Method"::"Pick + Manual",
+                "Flushing Method"::"Pick + Forward",
+                "Flushing Method"::"Pick + Backward":
+                    BinCode := Location."To-Production Bin Code";
+                "Flushing Method"::Manual,
+                "Flushing Method"::Forward,
+                "Flushing Method"::Backward:
+                    BinCode := Location."Open Shop Floor Bin Code";
+            end;
 
         OnAfterGetBinCodeFromLocation(Rec, Location, BinCode);
     end;
@@ -2392,5 +2397,9 @@ table 5407 "Prod. Order Component"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRoutingLinkCodeOnBeforeUpdateDueDateAndTime(var ProdOrderComponent: Record "Prod. Order Component"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
+    begin
+    end;
 }
 
