@@ -1572,7 +1572,7 @@
         PurchRcptHeader.FindFirst();
         LibraryVariableStorage.Enqueue(false);
         CopyDocument(PurchHeader, "Purchase Document Type From"::"Posted Receipt", PurchRcptHeader."No.");
-        PurchHeader.Find();
+        PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         Assert.AreEqual(InitialPostingDate, PurchHeader."Posting Date", DocumentShouldNotBeCopiedErr);
@@ -1622,7 +1622,7 @@
         ReturnShptHeader.FindFirst();
         LibraryVariableStorage.Enqueue(false);
         CopyDocument(PurchHeader, "Purchase Document Type From"::"Posted Return Shipment", ReturnShptHeader."No.");
-        PurchHeader.Find();
+        PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         Assert.AreEqual(InitialPostingDate, PurchHeader."Posting Date", DocumentShouldBeCopiedErr);
@@ -1662,7 +1662,7 @@
         CopyDocument(PurchHeaderDst, "Purchase Document Type From"::Quote, PurchHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
-        PurchHeaderDst.Find();
+        PurchHeaderDst.Get(PurchHeaderDst."Document Type", PurchHeaderDst."No.");
         Assert.AreEqual(VendorNo, PurchHeaderDst."Buy-from Vendor No.", DocumentShouldBeCopiedErr);
 
         SetNoSeriesDateOrder(OldDateOrder);
@@ -1697,7 +1697,7 @@
         CreatePurchaseHeaderWithPostingNo(PurchHeader1, VendorNoDst, LibraryRandom.RandInt(5), PostedDocNo);
         // [WHEN] Run Copy Document from Posted Purchase Invoice to Purchase Document with Include Header = TRUE
         CopyDocument(PurchHeader1, "Purchase Document Type From"::"Posted Invoice", PostedDocNo);
-        PurchHeader1.Find();
+        PurchHeader1.Get(PurchHeader1."Document Type", PurchHeader1."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
         Assert.AreEqual(VendorNoSrc, PurchHeader1."Buy-from Vendor No.", DocumentShouldBeCopiedErr);
@@ -1707,7 +1707,7 @@
         PurchRcptHeader.FindFirst();
         CreatePurchaseHeaderWithPostingNo(PurchHeader2, VendorNoDst, LibraryRandom.RandInt(5), PostedDocNo);
         CopyDocument(PurchHeader2, "Purchase Document Type From"::"Posted Receipt", PurchRcptHeader."No.");
-        PurchHeader2.Find();
+        PurchHeader2.Get(PurchHeader2."Document Type", PurchHeader2."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
         Assert.AreEqual(VendorNoSrc, PurchHeader2."Buy-from Vendor No.", DocumentShouldBeCopiedErr);
@@ -1746,7 +1746,7 @@
         CopyDocument(PurchHeader1, "Purchase Document Type From"::"Posted Credit Memo", PostedDocNo);
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
-        PurchHeader1.Find();
+        PurchHeader1.Get(PurchHeader1."Document Type", PurchHeader1."No.");
         Assert.AreEqual(VendorNo, PurchHeader1."Buy-from Vendor No.", DocumentShouldBeCopiedErr);
 
         // [WHEN] Run Copy Document from Posted Return Shipment to Purchase Document with Include Header = TRUE
@@ -1756,7 +1756,7 @@
         ReturnShipmentHeader.SetRange("Buy-from Vendor No.", VendorNo);
         ReturnShipmentHeader.FindFirst();
         CopyDocument(PurchHeader2, "Purchase Document Type From"::"Posted Return Shipment", ReturnShipmentHeader."No.");
-        PurchHeader2.Find();
+        PurchHeader2.Get(PurchHeader2."Document Type", PurchHeader2."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
         Assert.AreEqual(VendorNo, PurchHeader2."Buy-from Vendor No.", DocumentShouldBeCopiedErr);
@@ -1793,9 +1793,8 @@
         CopyDocument(PurchHeaderDst, "Purchase Document Type From"::Quote, PurchHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
-        PurchHeaderDst.Find();
-        Assert.AreEqual(
-          PurchHeaderSrc."Buy-from Vendor No.", PurchHeaderDst."Buy-from Vendor No.", DocumentShouldBeCopiedErr);
+        PurchHeaderDst.Get(PurchHeaderDst."Document Type", PurchHeaderDst."No.");
+        Assert.AreEqual(PurchHeaderSrc."Buy-from Vendor No.", PurchHeaderDst."Buy-from Vendor No.", DocumentShouldBeCopiedErr);
 
         SetNoSeriesDateOrder(OldDateOrder);
     end;
@@ -2029,7 +2028,9 @@
         // [THEN] Purchase Receipt Line with item "I" has "Quantity Invoiced" = "Qty. Invoiced (Base)" = -1
         // [THEN] "Qty. Rcd. Not Invoiced" = 0
         PurchRcptLine.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+#pragma warning disable AA0210
         PurchRcptLine.SetRange("No.", PurchaseLine."No.");
+#pragma warning restore AA0210
         PurchRcptLine.FindFirst();
         PurchRcptLine.TestField("Quantity Invoiced", -1);
         PurchRcptLine.TestField("Qty. Invoiced (Base)", -1);
@@ -2062,7 +2063,9 @@
         // [THEN] Purchase Shipment Line with item "I" has "Quantity Invoiced" = "Qty. Invoiced (Base)" = -1
         // [THEN] "Return Qty. Shipped Not Invd." = 0
         ReturnShipmentLine.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+#pragma warning disable AA0210
         ReturnShipmentLine.SetRange("No.", PurchaseLine."No.");
+#pragma warning restore AA0210
         ReturnShipmentLine.FindFirst();
         ReturnShipmentLine.TestField("Quantity Invoiced", -1);
         ReturnShipmentLine.TestField("Qty. Invoiced (Base)", -1);
@@ -2152,9 +2155,9 @@
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchSetup: Record "Purchases & Payables Setup";
+        NoSeries: Codeunit "No. Series";
         PurchaseInvoice: TestPage "Purchase Invoice";
         PurchaseInvoice2: TestPage "Purchase Invoice";
-        NoSeries: Codeunit "No. Series";
         NextDocNo: Code[20];
     begin
         // [FEATURE] [UI]
@@ -2463,7 +2466,7 @@
             PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
             VATPostingSetup.GetPurchAccount(false), LibraryRandom.RandInt(10));
 
-        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Validate "VAT Prod. Posting Group"
         // [GIVEN] Memorize "Direct Unit Cost" as "D"
         // [GIVEN] Memorize "Line Amount" as "L"
         PurchaseLine.Validate("VAT Prod. Posting Group");
@@ -2507,7 +2510,7 @@
             PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
             VATPostingSetup.GetPurchAccount(false), LibraryRandom.RandInt(10));
 
-        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Validate "VAT Prod. Posting Group"
         // [GIVEN] Memorize "Direct Unit Cost" as "D"
         // [GIVEN] Memorize "Line Amount" as "L"
         PurchaseLine.Validate("VAT Prod. Posting Group");
@@ -2550,7 +2553,7 @@
             PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
             VATPostingSetup.GetPurchAccount(false), LibraryRandom.RandInt(10));
 
-        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Validate "VAT Prod. Posting Group"
         // [GIVEN] Memorize "Direct Unit Cost" as "D"
         // [GIVEN] Memorize "Line Amount" as "L"
         PurchaseLine.Validate("VAT Prod. Posting Group");
@@ -2598,7 +2601,7 @@
             PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
             VATPostingSetup.GetPurchAccount(false), LibraryRandom.RandInt(10));
 
-        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Validate "VAT Prod. Posting Group"
         // [GIVEN] Memorize "Direct Unit Cost" as "D"
         // [GIVEN] Memorize "Line Amount" as "L"
         PurchaseLine.Validate("VAT Prod. Posting Group");
@@ -2746,8 +2749,8 @@
         VATPostingSetup: Record "VAT Posting Setup";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        GenJournalDocumentType: Enum "Gen. Journal Document Type";
         Item: Record Item;
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
         CurrencyCode: Code[10];
         ExchangeRateAmount: Decimal;
         ExpectedAmount: Decimal;
@@ -2775,7 +2778,7 @@
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         ExpectedAmount := Round(PurchaseLine."Line Discount Amount" * VATPostingSetup."VAT %" / 100 / ExchangeRateAmount);
-        // Discounted VAT Amount on Purchase Account 
+        // Discounted VAT Amount on Purchase Account
         VerifyGLEntryForGLAccount(GenJournalDocumentType::Invoice, DocumentNo, VATPostingSetup.GetPurchAccount(false), false, -ExpectedAmount);
         // Discounted VAT Amount on Reverse Charge VAT Account
         VerifyGLEntryForGLAccount(GenJournalDocumentType::Invoice, DocumentNo, VATPostingSetup.GetRevChargeAccount(false), true, ExpectedAmount);
@@ -2790,8 +2793,8 @@
         VATPostingSetup: Record "VAT Posting Setup";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        GenJournalDocumentType: Enum "Gen. Journal Document Type";
         Item: Record Item;
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
         CurrencyCode: Code[10];
         ExchangeRateAmount: Decimal;
         ExpectedAmount: Decimal;
@@ -2819,7 +2822,7 @@
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         ExpectedAmount := Round(PurchaseLine."Line Discount Amount" * VATPostingSetup."VAT %" / 100 / ExchangeRateAmount);
-        // Discounted VAT Amount on Purchase Account 
+        // Discounted VAT Amount on Purchase Account
         VerifyGLEntryForGLAccount(GenJournalDocumentType::Invoice, DocumentNo, VATPostingSetup.GetPurchAccount(false), false, -ExpectedAmount);
     end;
 
@@ -2878,7 +2881,6 @@
         RemitAddress: Record "Remit Address";
         PurchaseInvoicePage: TestPage "Purchase Invoice";
         VendorNo: Code[20];
-        PurchaseHeaderNo: Code[20];
         RequestPageXML: Text;
     begin
         // [SCENARIO] Create a Purchase Invoice with Negative quanity, try to post and then delete.
@@ -2893,7 +2895,6 @@
         // [GIVEN] Purchase Invoice with one Item
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
-        PurchaseHeaderNo := PurchaseHeader."No.";
         PurchaseHeader.Validate("Remit-to Code", RemitAddress.Code);
         PurchaseHeader.Modify(true);
         PurchaseInvoicePage.OpenEdit();
@@ -3002,7 +3003,7 @@
         GLAccount.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
         GLAccount.Modify();
 
-        // [THEN] Create VATPosting Setup 
+        // [THEN] Create VATPosting Setup
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, Vendor."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
         VATPostingSetup."Purchase VAT Account" := LibraryERM.CreateGLAccountNo();
         VATPostingSetup.Modify();
@@ -3027,7 +3028,7 @@
         PurchaseHeader2.Validate("Posting Date", PostingDate);
         PurchaseHeader2.Modify();
 
-        // [THEN] Open Purchase Invoice and CLick on get Receipt line from action 
+        // [THEN] Open Purchase Invoice and CLick on get Receipt line from action
         OpenPurchaseInvoiceAndGetReceiptLine(PurchaseHeader2."No.");
         PurchaseHeader2.Get(PurchaseHeader2."Document Type", PurchaseHeader2."No.");
 
@@ -3244,7 +3245,7 @@
         // [GIVEN] Purchase Line with Item, second Purchase Line with Extended Text
         CreatePurchLineWithExtendedText(PurchaseHeader, Item."No.");
 
-        // [WHEN] Get extended text Purchase Line 
+        // [WHEN] Get extended text Purchase Line
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindLast();
 
@@ -3326,7 +3327,7 @@
         Item.Validate("Last Direct Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
         Item.Modify(true);
     end;
-
+#if not CLEAN25
     local procedure CreateServiceItem(): Code[20]
     var
         Item: Record Item;
@@ -3348,8 +3349,8 @@
         Item.Modify(true);
         exit(Item."No.");
     end;
-
-    local procedure CreateItemAndExtendedText(var Item: Record Item): Text[50]
+#endif
+    local procedure CreateItemAndExtendedText(var Item: Record Item): Text[100]
     var
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
@@ -3604,7 +3605,7 @@
     begin
         VendorCard.OpenNew();
         VendorCard.Name.Activate();
-        VendorNo := VendorCard."No.".Value();
+        VendorNo := CopyStr(VendorCard."No.".Value(), 1, MaxStrLen(VendorNo));
         VendorCard.OK().Invoke();
     end;
 
@@ -3738,7 +3739,9 @@
     var
         FixedAsset: Record "Fixed Asset";
     begin
+#pragma warning disable AA0210
         FixedAsset.SetRange(Blocked, false);
+#pragma warning restore AA0210
         FixedAsset.FindFirst();
         exit(FixedAsset."No.");
     end;
@@ -3800,8 +3803,10 @@
     var
         ICGLAccount: Record "IC G/L Account";
     begin
+#pragma warning disable AA0210
         ICGLAccount.SetRange("Account Type", ICGLAccount."Account Type"::Posting);
         ICGLAccount.SetRange(Blocked, false);
+#pragma warning restore AA0210
         ICGLAccount.FindFirst();
         exit(ICGLAccount."No.");
     end;
@@ -3870,7 +3875,9 @@
         GLAccount: Record "G/L Account";
         GLAccountNo: Code[20];
     begin
+#pragma warning disable AA0210
         FAPostingGroup2.SetFilter("Acquisition Cost Account", '<>''''');
+#pragma warning restore AA0210
         FAPostingGroup2.FindFirst();
         FAPostingGroup.TransferFields(FAPostingGroup2, false);
 
@@ -4080,7 +4087,9 @@
     var
         GLEntry: Record "G/L Entry";
     begin
+#pragma warning disable AA0210
         GLEntry.SetRange("Document Type", DocumentType);
+#pragma warning restore AA0210
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         if PositiveAmount then
@@ -4095,7 +4104,9 @@
     var
         VATEntry: Record "VAT Entry";
     begin
+#pragma warning disable AA0210
         VATEntry.SetRange("Document Type", DocumentType);
+#pragma warning restore AA0210
         VATEntry.SetRange("Document No.", DocumentNo);
         if PositiveAmount then
             VATEntry.SetFilter(Amount, '>0')
@@ -4121,7 +4132,7 @@
           Amount, PurchaseAmount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, ValueEntry.FieldCaption("Purchase Amount (Actual)"), ValueEntry.TableCaption()));
     end;
-
+#if not CLEAN25
     local procedure VerifyValueEntryAreNonInventoriable(DocumentNo: Code[20])
     var
         DummyValueEntry: Record "Value Entry";
@@ -4130,7 +4141,7 @@
         DummyValueEntry.SetRange(Inventoriable, true);
         Assert.RecordIsEmpty(DummyValueEntry);
     end;
-
+#endif
     local procedure VerifyVATEntry(DocumentNo: Code[20]; Amount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -4138,7 +4149,9 @@
     begin
         GeneralLedgerSetup.Get();
         VATEntry.SetRange("Document No.", DocumentNo);
+#pragma warning disable AA0210
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+#pragma warning restore AA0210
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, VATEntry.Base + VATEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
@@ -4178,7 +4191,7 @@
           InvoiceDiscountAmount, PurchaseLine."Inv. Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, PurchaseLine.FieldCaption("Inv. Discount Amount"), PurchaseLine.TableCaption()));
     end;
-
+#if not CLEAN25
     local procedure VerifyLineDiscountAmount(PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; LineDiscountAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -4197,7 +4210,7 @@
           LineDiscountAmount, PurchaseLine."Line Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, PurchaseLine.FieldCaption("Line Discount Amount"), PurchaseLine.TableCaption()));
     end;
-
+#endif
     local procedure VerifyPurchRcptLine(PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
@@ -4223,7 +4236,9 @@
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
+#pragma warning disable AA0210
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+#pragma warning restore AA0210
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, VATEntry.Base + VATEntry."Unrealized Base", LibraryERM.GetAmountRoundingPrecision(),
@@ -4249,7 +4264,7 @@
           ExpectedLineDiscAmt, PurchLine."Line Discount Amount",
           StrSubstNo(AmountErr, PurchLine.FieldCaption("Line Discount Amount"), PurchLine."Line Discount Amount"));
     end;
-
+#if not CLEAN25
     local procedure VerifyPurchaseInvoiceVendPostingGroup(DocumentNo: Code[20]; VendorPostingGroup: Record "Vendor Posting Group")
     var
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -4272,14 +4287,13 @@
         GLEntry.FindFirst();
         GLEntry.TestField(Amount, -PurchInvHeader."Amount Including VAT");
     end;
-
+#endif
     local procedure PurchDocLineQtyValidation()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         Location: Record Location;
         Item: Record Item;
-        LibraryWarehouse: Codeunit "Library - Warehouse";
         PurchaseInvoice: TestPage "Purchase Invoice";
         VendorNo: Code[20];
         i: Integer;
@@ -4331,7 +4345,7 @@
         JobTaskDim.Insert(true);
     end;
 
-    local procedure CreateJobWithDimension(var Job: Record Job): Code[10]
+    local procedure CreateJobWithDimension(var Job: Record Job): Code[20]
     var
         DimensionValue: Record "Dimension Value";
         DefaultDimension: Record "Default Dimension";
@@ -4343,7 +4357,7 @@
         exit(Job."No.");
     end;
 
-    local procedure CreatePurchaseInvoiceWithJob(var PurchaseLine: Record "Purchase Line"; JobNo: Code[10])
+    local procedure CreatePurchaseInvoiceWithJob(var PurchaseLine: Record "Purchase Line"; JobNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -4380,7 +4394,7 @@
           PurchaseLine.FieldCaption("Shortcut Dimension 2 Code"));
     end;
 
-    local procedure CreateJobTaskWithDimension(Job: Record Job): Code[10]
+    local procedure CreateJobTaskWithDimension(Job: Record Job): Code[20]
     var
         JobTask: Record "Job Task";
         DimensionValue: Record "Dimension Value";
@@ -4650,4 +4664,3 @@
         // Close handler
     end;
 }
-
