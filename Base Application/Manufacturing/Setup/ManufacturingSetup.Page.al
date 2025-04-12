@@ -204,6 +204,10 @@ page 99000768 "Manufacturing Setup"
                     ObsoleteTag = '27.0';
                 }
 #endif
+                field("Default Consum. Calc. Based on"; Rec."Default Consum. Calc. Based on")
+                {
+                    ApplicationArea = Manufacturing, Planning;
+                }
                 field("Manual Scheduling"; Rec."Manual Scheduling")
                 {
                     ApplicationArea = Manufacturing;

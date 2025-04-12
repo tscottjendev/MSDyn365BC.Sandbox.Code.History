@@ -233,6 +233,14 @@ table 99000765 "Manufacturing Setup"
             Caption = 'Show Capacity In';
             TableRelation = "Capacity Unit of Measure".Code;
         }
+        field(55; "Default Consum. Calc. Based on"; Option)
+        {
+            Caption = 'Default Consumption Calculation Based on';
+            InitValue = "Expected Output";
+            ToolTip = 'Specifies default calculation based on, used for consumption calculation. Whether the calculation of the quantity to consume is based on the actual output or on the expected output (the quantity of finished goods that you expect to produce).';
+            OptionCaption = 'Actual Output,Expected Output';
+            OptionMembers = "Actual Output","Expected Output";
+        }
         field(210; "Finish Order without Output"; Boolean)
         {
             Caption = 'Allow Finishing Prod. Order with no Output';
