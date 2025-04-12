@@ -340,7 +340,7 @@ codeunit 99000809 "Planning Line Management"
             exit;
 
         ShouldExit := Item3."Manufacturing Policy" <> Item3."Manufacturing Policy"::"Make-to-Order";
-        OnCheckMultiLevelStructureOnAfterCalcShouldExitManufacturingPolicy(ReqLine2, ShouldExit);
+        OnCheckMultiLevelStructureOnAfterCalcShouldExitManufacturingPolicy(ReqLine2, ShouldExit, PlanningLevel, LineSpacing, PlanningResiliency, Blocked, CalcRouting, CalcComponents, TempPlanningErrorLog);
         if ShouldExit then
             exit;
 
@@ -849,7 +849,7 @@ codeunit 99000809 "Planning Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckMultiLevelStructureOnAfterCalcShouldExitManufacturingPolicy(var RequisitionLine: Record "Requisition Line"; var ShouldExit: Boolean)
+    local procedure OnCheckMultiLevelStructureOnAfterCalcShouldExitManufacturingPolicy(var RequisitionLine: Record "Requisition Line"; var ShouldExit: Boolean; PlanningLevel: Integer; var LineSpacing: array[50] of Integer; PlanningResiliency: Boolean; Blocked: Boolean; CalcRouting: Boolean; CalcComponents: Boolean; var TempPlanningErrorLog: Record "Planning Error Log" temporary)
     begin
     end;
 

@@ -547,7 +547,7 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
         ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Created, ApprovalEntry.Status::Open);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
-        OnApproveApprovalRequestsForRecordOnAfterApprovalEntrySetFilters(ApprovalEntry);
+        OnApproveApprovalRequestsForRecordOnAfterApprovalEntrySetFilters(ApprovalEntry, WorkflowStepInstance, RecRef);
         if ApprovalEntry.FindSet() then
             repeat
                 ApprovalEntryToUpdate := ApprovalEntry;
@@ -599,7 +599,7 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
         ApprovalEntry.SetFilter(Status, '<>%1&<>%2', ApprovalEntry.Status::Rejected, ApprovalEntry.Status::Canceled);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
-        OnRejectApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(ApprovalEntry, RecRef);
+        OnRejectApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(ApprovalEntry, WorkflowStepInstance, RecRef);
         if ApprovalEntry.FindSet() then
             repeat
                 OldStatus := ApprovalEntry.Status;
@@ -2662,7 +2662,7 @@ codeunit 1535 "Approvals Mgmt."
 
 
     [IntegrationEvent(false, false)]
-    local procedure OnApproveApprovalRequestsForRecordOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
+    local procedure OnApproveApprovalRequestsForRecordOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry"; WorkflowStepInstance: Record "Workflow Step Instance"; RecRef: RecordRef)
     begin
     end;
 
@@ -2997,7 +2997,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRejectApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef)
+    local procedure OnRejectApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; WorkflowStepInstance: Record "Workflow Step Instance"; RecRef: RecordRef)
     begin
     end;
 
@@ -3172,4 +3172,3 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
 }
-
