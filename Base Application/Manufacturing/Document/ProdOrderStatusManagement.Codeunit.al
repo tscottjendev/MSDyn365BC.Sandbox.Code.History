@@ -1327,6 +1327,7 @@ codeunit 5407 "Prod. Order Status Management"
     begin
         ProdOrderLine.SetRange(Status, ProdOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
+        OnErrorIfUnableToClearWIPOnAfterProdOrderLineSetFilters(ProdOrder, ProdOrderLine);
         if ProdOrderLine.FindSet() then
             repeat
                 IsHandled := false;
@@ -1901,6 +1902,11 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransProdOrderComp(FromProdOrder: Record "Production Order"; var ToProdOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnErrorIfUnableToClearWIPOnAfterProdOrderLineSetFilters(ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 }
