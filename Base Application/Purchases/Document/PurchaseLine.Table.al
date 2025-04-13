@@ -6859,6 +6859,7 @@ table 39 "Purchase Line"
                         end;
                         if PurchLine.Type = PurchLine.Type::"Charge (Item)" then
                             PurchLine.UpdateItemChargeAssgnt();
+                        OnUpdateVATOnLinesOnBeforeModifyPurchLine(PurchLine, VATAmount);
                         PurchLine.Modify();
                         LineWasModified := true;
 
@@ -11837,6 +11838,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateIndirectCostOnAfterCalcShouldCheckCostingMethod(var PurchaseLine: Record "Purchase Line"; var ShouldCheckCostingMethod: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATOnLinesOnBeforeModifyPurchLine(var PurchaseLine: Record "Purchase Line"; VATAmount: Decimal)
     begin
     end;
 
