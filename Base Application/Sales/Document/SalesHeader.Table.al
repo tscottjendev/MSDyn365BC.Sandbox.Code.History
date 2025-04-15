@@ -8752,18 +8752,36 @@ table 36 "Sales Header"
     local procedure ModifyBillToCustomerAddress()
     var
         Customer: Record Customer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeModifyBillToCustomerAddress(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetSalesSetup();
         if SalesSetup."Ignore Updated Addresses" then
             exit;
+
         if IsCreditDocType() then
             exit;
-        if ("Bill-to Customer No." <> "Sell-to Customer No.") and Customer.Get("Bill-to Customer No.") then
-            if HasBillToAddress() and HasDifferentBillToAddress(Customer) then
-                ShowModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId(),
-                  ModifyCustomerAddressNotificationLbl, ModifyCustomerAddressNotificationMsg,
-                  'CopyBillToCustomerAddressFieldsFromSalesDocument', "Bill-to Customer No.",
-                  "Bill-to Name", FieldName("Bill-to Customer No."));
+
+        if ("Bill-to Customer No." = "Sell-to Customer No.") then
+            exit;
+
+        if not HasBillToAddress() then
+            exit;
+
+        if not Customer.Get("Bill-to Customer No.") then
+            exit;
+
+        if not HasDifferentBillToAddress(Customer) then
+            exit;
+
+        ShowModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId(),
+          ModifyCustomerAddressNotificationLbl, ModifyCustomerAddressNotificationMsg,
+          'CopyBillToCustomerAddressFieldsFromSalesDocument', "Bill-to Customer No.",
+          "Bill-to Name", FieldName("Bill-to Customer No."));
     end;
 
     local procedure ModifyCustomerAddress()
@@ -9984,21 +10002,28 @@ table 36 "Sales Header"
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
-        SalesLineLocal: Record "Sales Line";
         QtyReservedFromStock: Decimal;
     begin
         QtyReservedFromStock := SalesLineReserve.GetReservedQtyFromInventory(Rec);
         if QtyReservedFromStock = 0 then
             exit(Result::None);
 
-        SalesLineLocal.SetRange("Document Type", "Document Type");
-        SalesLineLocal.SetRange("Document No.", "No.");
-        SalesLineLocal.SetRange(Type, SalesLineLocal.Type::Item);
-        SalesLineLocal.CalcSums("Outstanding Qty. (Base)");
-
-        if QtyReservedFromStock = SalesLineLocal."Outstanding Qty. (Base)" then
+        if QtyReservedFromStock = CalcOutstandingQuantityBase() then
             exit(Result::Full);
+
         exit(Result::Partial);
+    end;
+
+    local procedure CalcOutstandingQuantityBase(): Decimal
+    var
+        SalesLine2: Record "Sales Line";
+    begin
+        SalesLine2.SetRange("Document Type", "Document Type");
+        SalesLine2.SetRange("Document No.", "No.");
+        SalesLine2.SetRange(Type, SalesLine2.Type::Item);
+        OnCalcOutstandingQuantityBaseOnAfterSalesLineSetFilters(SalesLine2);
+        SalesLine2.CalcSums("Outstanding Qty. (Base)");
+        exit(SalesLine2."Outstanding Qty. (Base)");
     end;
 
     local procedure UpdateVATReportingDate(CalledByFieldNo: Integer)
@@ -11982,6 +12007,16 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePrepmtCrMemoNoSeries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcOutstandingQuantityBaseOnAfterSalesLineSetFilters(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyBillToCustomerAddress(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }
