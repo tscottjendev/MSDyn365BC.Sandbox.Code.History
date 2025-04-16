@@ -260,6 +260,7 @@ codeunit 5579 "Digital Voucher Impl."
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
+        IncomingDocumentAttachment.ReadIsolation := IsolationLevel::ReadUncommitted;
         if not FilterIncomingDocumentRecordFromRecordRef(IncomingDocumentAttachment, IncomingDocument, MainRecordRef) then
             exit(false);
         exit(not IncomingDocumentAttachment.IsEmpty());
@@ -294,6 +295,7 @@ codeunit 5579 "Digital Voucher Impl."
 
     local procedure FindGenJournalLineFromGLEntry(var ConnectedGenJnlLine: Record "Gen. Journal Line"; CurrGenJnlLine: Record "Gen. Journal Line"; GLEntry: Record "G/L Entry")
     begin
+        ConnectedGenJnlLine.SetLoadFields("Journal Template Name", "Journal Batch Name", "Posting Date", "Document Type", "Document No.");
         ConnectedGenJnlLine.SetRange("Journal Template Name", CurrGenJnlLine."Journal Template Name");
         ConnectedGenJnlLine.SetRange("Journal Batch Name", CurrGenJnlLine."Journal Batch Name");
         ConnectedGenJnlLine.SetRange("Posting Date", GLEntry."Posting Date");
@@ -357,6 +359,7 @@ codeunit 5579 "Digital Voucher Impl."
             exit(false);
         RecRef.SetTable(GenJournalLine);
         AdjacentGenJournalLine.ReadIsolation(IsolationLevel::ReadCommitted);
+        AdjacentGenJournalLine.SetLoadFields(AdjacentGenJournalLine."Incoming Document Entry No.");
         AdjacentGenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         AdjacentGenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         AdjacentGenJournalLine.SetRange("Posting Date", GenJournalLine."Posting Date");
