@@ -1076,7 +1076,7 @@ codeunit 5760 "Whse.-Post Receipt"
         OnAfterPostedWhseRcptLineInsert(PostedWhseReceiptLine, WarehouseReceiptLine);
 
         IsHandled := false;
-        OnCreatePostedRcptLineOnBeforePostWhseJnlLine(WhseJnlRegisterLine, WarehouseReceiptLine, IsHandled);
+        OnCreatePostedRcptLineOnBeforePostWhseJnlLine(WhseJnlRegisterLine, WarehouseReceiptLine, IsHandled, PostedWhseReceiptLine);
         if not IsHandled then
             PostWhseJnlLine(PostedWhseReceiptHeader, PostedWhseReceiptLine, TempHandlingSpecification);
     end;
@@ -1391,8 +1391,10 @@ codeunit 5760 "Whse.-Post Receipt"
                             TempPostedWhseReceiptLine2 := TempPostedWhseReceiptLine;
                             TempPostedWhseReceiptLine2."Line No." := PostedWhseReceiptLine."Line No.";
                             WhseSourceCreateDocument.SetQuantity(TempPostedWhseReceiptLine2, Database::"Posted Whse. Receipt Line", RemQtyToHandleBase);
-                            OnCreatePutAwayDocOnBeforeCreatePutAwayRun(TempPostedWhseReceiptLine2, CreatePutAway, WarehouseReceiptHeader);
-                            CreatePutAway.Run(TempPostedWhseReceiptLine2);
+                            IsHandled := false;
+                            OnCreatePutAwayDocOnBeforeCreatePutAwayRun(TempPostedWhseReceiptLine2, CreatePutAway, WarehouseReceiptHeader, IsHandled);
+                            if not IsHandled then
+                                CreatePutAway.Run(TempPostedWhseReceiptLine2);
                         until TempPostedWhseReceiptLine.Next() = 0;
                 end;
             end;
@@ -1411,7 +1413,14 @@ codeunit 5760 "Whse.-Post Receipt"
     internal procedure IsReceiptForJob(PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"): Boolean
     var
         PurchaseLine: Record "Purchase Line";
+        IsHandled: Boolean;
+        IsForJob: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsReceiptForJob(PostedWhseReceiptLine, IsForJob, IsHandled);
+        if IsHandled then
+            exit(IsForJob);
+
         PurchaseLine.SetLoadFields("Job No.");
         if not PurchaseLine.Get(PostedWhseReceiptLine."Source Subtype", PostedWhseReceiptLine."Source No.", PostedWhseReceiptLine."Source Line No.") then
             exit(false);
@@ -1808,7 +1817,7 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreatePostedRcptLineOnBeforePostWhseJnlLine(var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; WhseRcptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean)
+    local procedure OnCreatePostedRcptLineOnBeforePostWhseJnlLine(var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; WhseRcptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
     end;
 
@@ -1818,7 +1827,7 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreatePutAwayDocOnBeforeCreatePutAwayRun(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var CreatePutAway: Codeunit "Create Put-away"; WarehouseReceiptHeader: Record "Warehouse Receipt Header")
+    local procedure OnCreatePutAwayDocOnBeforeCreatePutAwayRun(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var CreatePutAway: Codeunit "Create Put-away"; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2059,6 +2068,11 @@ codeunit 5760 "Whse.-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConsumeWarehouseEntryForJobPurchase(var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsReceiptForJob(PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var IsReceiptForJob: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
