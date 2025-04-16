@@ -318,7 +318,7 @@ page 6105 "Inbound E-Documents"
         FileName: Text;
         InStr: InStream;
     begin
-        if not UploadIntoStream('', '', '', FileName, InStr) then
+        if not UploadIntoStream('', '', 'PDF Files|*.pdf', FileName, InStr) then
             exit;
 
         EDocumentService.GetPDFReaderService();
