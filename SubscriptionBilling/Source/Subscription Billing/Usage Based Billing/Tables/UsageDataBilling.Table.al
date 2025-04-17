@@ -520,6 +520,7 @@ table 8006 "Usage Data Billing"
 
     internal procedure FilterOnDocumentTypeAndDocumentNo(ServicePartner: Enum "Service Partner"; UsageBasedBillingDocType: Enum "Usage Based Billing Doc. Type"; DocumentNo: Code[20])
     begin
+        Rec.SetRange(Partner, ServicePartner);
         Rec.SetRange("Document Type", UsageBasedBillingDocType);
         Rec.SetRange("Document No.", DocumentNo);
     end;
@@ -531,6 +532,7 @@ table 8006 "Usage Data Billing"
         Rec."Document Line No." := DocumentEntryNo;
         Rec."Billing Line Entry No." := BillingLineEntryNo;
         Rec.Modify(false);
+        OnAfterSaveDocumentValues(Rec);
     end;
 
     internal procedure IsPartnerVendor(): Boolean
@@ -688,6 +690,11 @@ table 8006 "Usage Data Billing"
         Rec.SetRange("Document Type", "Usage Based Billing Doc. Type"::None);
         Rec.SetFilter("Charge Start Date", '>=%1', BillingFromDate);
         Rec.SetFilter("Charge End Date", '<=%1', CalcDate('<1D>', BillingToDate));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSaveDocumentValues(UsageDateBilling: Record "Usage Data Billing")
+    begin
     end;
 
     var

@@ -391,7 +391,12 @@ codeunit 8062 "Billing Proposal"
     var
         Currency: Record Currency;
         GLSetup: Record "General Ledger Setup";
+        IsHandled: Boolean;
     begin
+        OnBeforeCalculateBillingLineUnitAmountsAndServiceAmount(BillingLine, ServiceCommitment, IsHandled);
+        if IsHandled then
+            exit;
+
         if SetBillingLineUnitPriceAndServiceAmountsFromUsageDataBilling(BillingLine, ServiceCommitment) then
             exit;
         GLSetup.Get();
@@ -494,7 +499,7 @@ codeunit 8062 "Billing Proposal"
                 BillingPeriodEnd := CustomerContract."Next Billing To" - 1;
     end;
 
-    internal procedure CalculateNextBillingToDateForServiceCommitment(ServiceCommitment: Record "Subscription Line"; BillingFromDate: Date) NextBillingToDate: Date
+    procedure CalculateNextBillingToDateForServiceCommitment(ServiceCommitment: Record "Subscription Line"; BillingFromDate: Date) NextBillingToDate: Date
     var
         CustomerContract: Record "Customer Subscription Contract";
         SupplierChargeEndDate: Date;
@@ -964,6 +969,11 @@ codeunit 8062 "Billing Proposal"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateBillingProposalBeforeApplyFilterToContract(var FilterText: Text; var BillingTemplate: Record "Billing Template"; BillingDate: Date; BillingToDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateBillingLineUnitAmountsAndServiceAmount(var BillingLine: Record "Billing Line"; SubscriptionLine: Record "Subscription Line"; var IsHandled: Boolean)
     begin
     end;
 }

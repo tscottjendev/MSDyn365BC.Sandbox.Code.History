@@ -98,6 +98,8 @@ codeunit 8006 "Create Subscription Line"
 
         ServiceCommitment."Usage Based Billing" := ImportedServiceCommitment."Usage Based Billing";
         ServiceCommitment."Usage Based Pricing" := ImportedServiceCommitment."Usage Based Pricing";
+        ServiceCommitment."Pricing Unit Cost Surcharge %" := ImportedServiceCommitment."Pricing Unit Cost Surcharge %";
+        ServiceCommitment."Supplier Reference Entry No." := ImportedServiceCommitment."Supplier Reference Entry No.";
         ServiceCommitment."Calculation Base Amount" := ImportedServiceCommitment."Calculation Base Amount";
         ServiceCommitment."Calculation Base %" := ImportedServiceCommitment."Calculation Base %";
         ServiceCommitment.CalculatePrice();
@@ -124,8 +126,6 @@ codeunit 8006 "Create Subscription Line"
 
         ServiceCommitment.SetDefaultDimensions(true);
         ServiceCommitment."Renewal Term" := ServiceCommitment."Initial Term";
-        ServiceCommitment."Pricing Unit Cost Surcharge %" := ImportedServiceCommitment."Pricing Unit Cost Surcharge %";
-        ServiceCommitment."Supplier Reference Entry No." := ImportedServiceCommitment."Supplier Reference Entry No.";
         OnBeforeSubscriptionLineModify(ServiceCommitment, ImportedServiceCommitment);
         ServiceCommitment.SetSkipArchiving(true);
         ServiceCommitment.Modify(true);

@@ -203,7 +203,13 @@ table 8059 "Subscription Line"
 
             trigger OnValidate()
             begin
+                if IsNoticePeriodEmpty() then
+                    exit;
+
                 DateFormulaManagement.ErrorIfDateFormulaNegative("Notice Period");
+
+                if "Term until" <> 0D then
+                    UpdateCancellationPossibleUntil();
             end;
         }
         field(21; "Initial Term"; DateFormula)
@@ -736,6 +742,8 @@ table 8059 "Subscription Line"
     begin
         if IsNoticePeriodEmpty() then
             exit(false);
+        if "Term Until" = 0D then
+            exit;
         CalendarManagement.ReverseDateFormula(NegativeDateFormula, "Notice Period");
         "Cancellation Possible Until" := CalcDate(NegativeDateFormula, "Term Until");
         if DateTimeManagement.IsLastDayOfMonth("Term until") then
@@ -951,6 +959,8 @@ table 8059 "Subscription Line"
                         Validate("Next Price Update", "Next Price Update");
                     FieldNo("Period Calculation"):
                         Validate("Period Calculation", "Period Calculation");
+                    FieldNo("Notice Period"):
+                        Validate("Notice Period", "Notice Period");
                     FieldNo("Price Binding Period"):
                         Validate("Period Calculation", "Period Calculation");
                     FieldNo("Unit Cost (LCY)"):
@@ -1222,6 +1232,7 @@ table 8059 "Subscription Line"
     begin
         if not GuiAllowed then
             exit(false);
+        Commit(); // Save changes before opening the page
         ExchangeRateSelectionPage.SetData(WorkDate(), CurrencyCode, NewMessageTxt);
         ExchangeRateSelectionPage.SetIsCalledFromServiceObject(CalledFromServiceObject);
         if ExchangeRateSelectionPage.RunModal() = Action::Ok then begin
@@ -1393,7 +1404,7 @@ table 8059 "Subscription Line"
     local procedure FindServiceCommitmentArchiveCreatedInLessThanMinute(var ServiceCommitmentArchive: Record "Subscription Line Archive"): Boolean
     begin
         ServiceCommitmentArchive.FilterOnServiceCommitment(Rec."Entry No.");
-        ServiceCommitmentArchive.SetRange(SystemModifiedAt, CurrentDateTime - 60000, CurrentDateTime);
+        ServiceCommitmentArchive.SetRange(SystemModifiedAt, CurrentDateTime() - 60000, CurrentDateTime());
         exit(ServiceCommitmentArchive.FindLast());
     end;
 

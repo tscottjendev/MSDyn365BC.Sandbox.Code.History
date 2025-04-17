@@ -67,17 +67,17 @@ table 8055 "Subscription Package"
     local procedure IsCodeInCopyFormat(NewCode: Code[20]): Boolean
     var
         Position: Integer;
-        NewCodeSufix: Text;
+        NewCodeSuffix: Text;
     begin
-        NewCodeSufix := NewCode;
-        while StrPos(NewCodeSufix, '-') > 0 do
-            NewCodeSufix := CopyStr(NewCodeSufix, StrPos(NewCodeSufix, '-') + 1);
+        NewCodeSuffix := NewCode;
+        while StrPos(NewCodeSuffix, '-') > 0 do
+            NewCodeSuffix := CopyStr(NewCodeSuffix, StrPos(NewCodeSuffix, '-') + 1);
 
         repeat
             Position += 1;
-            if not IsNumeric(CopyStr(NewCodeSufix, Position, 1)) then
+            if not IsNumeric(CopyStr(NewCodeSuffix, Position, 1)) then
                 exit(false);
-        until Position = StrLen(NewCodeSufix);
+        until Position = StrLen(NewCodeSuffix);
 
         exit(true);
     end;
@@ -142,6 +142,33 @@ table 8055 "Subscription Package"
             Rec.SetRange(Code, '')
         else
             Rec.SetFilter(Code, PackageFilter);
+    end;
+
+    internal procedure PackageLineExists(): Boolean
+    var
+        SubscriptionPackageLine: Record "Subscription Package Line";
+    begin
+        SubscriptionPackageLine.FilterOnPackageCode(Rec.Code);
+        exit(not SubscriptionPackageLine.IsEmpty());
+    end;
+
+    internal procedure PackageLineInvoicedViaContractWithoutInvoicingItemExist(): Boolean
+    var
+        SubscriptionPackageLine: Record "Subscription Package Line";
+    begin
+        SubscriptionPackageLine.SetRange("Subscription Package Code", Rec.Code);
+        SubscriptionPackageLine.SetRange("Invoicing via", Enum::"Invoicing Via"::Contract);
+        SubscriptionPackageLine.SetRange("Invoicing Item No.", '');
+        exit(not SubscriptionPackageLine.IsEmpty());
+    end;
+
+    internal procedure ServCommPackageLineExists(): Boolean
+    var
+        SubscriptionPackageLine: Record "Subscription Package Line";
+    begin
+        SubscriptionPackageLine.SetRange("Subscription Package Code", Rec.Code);
+        SubscriptionPackageLine.SetRange("Usage Based Billing", true);
+        exit(not SubscriptionPackageLine.IsEmpty());
     end;
 
     var

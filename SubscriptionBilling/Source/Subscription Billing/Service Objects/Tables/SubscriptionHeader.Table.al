@@ -1797,6 +1797,7 @@ table 8057 "Subscription Header"
                         ServiceCommitment.CalculateInitialTermUntilDate();
                         ServiceCommitment.ClearTerminationPeriodsWhenServiceEnded();
                         ServiceCommitment.UpdateNextBillingDate(ServiceCommitment."Subscription Line Start Date" - 1);
+                        OnAfterDatesCalculatedOnInsertSubscriptionLinesFromSubscriptionPackage(ServiceCommitment, ServiceCommPackageLine);
 
                         ServiceCommitment.Partner := ServiceCommPackageLine.Partner;
                         case ServiceCommitment.Partner of
@@ -1817,6 +1818,7 @@ table 8057 "Subscription Header"
                         ServiceCommitment."Billing Base Period" := ServiceCommPackageLine."Billing Base Period";
                         ServiceCommitment."Usage Based Billing" := ServiceCommPackageLine."Usage Based Billing";
                         ServiceCommitment."Usage Based Pricing" := ServiceCommPackageLine."Usage Based Pricing";
+                        ServiceCommitment."Pricing Unit Cost Surcharge %" := ServiceCommPackageLine."Pricing Unit Cost Surcharge %";
                         ServiceCommitment.Validate("Price Binding Period", ServiceCommPackageLine."Price Binding Period");
                         ServiceCommitment.Validate("Calculation Base %", ServiceCommPackageLine."Calculation Base %");
                         ServiceCommitment.Validate("Billing Rhythm", ServiceCommPackageLine."Billing Rhythm");
@@ -1826,9 +1828,6 @@ table 8057 "Subscription Header"
                         ServiceCommitment.SetLCYFields(false);
                         ServiceCommitment."Period Calculation" := ServiceCommPackageLine."Period Calculation";
                         ServiceCommitment.SetDefaultDimensions(true);
-                        ServiceCommitment."Usage Based Billing" := ServiceCommPackageLine."Usage Based Billing";
-                        ServiceCommitment."Usage Based Pricing" := ServiceCommPackageLine."Usage Based Pricing";
-                        ServiceCommitment."Pricing Unit Cost Surcharge %" := ServiceCommPackageLine."Pricing Unit Cost Surcharge %";
                         OnBeforeInsertSubscriptionLineFromSubscriptionPackageLine(ServiceCommitment, ServiceCommPackageLine);
                         ServiceCommitment.Insert(false);
                         OnAfterInsertSubscriptionLineFromSubscriptionPackage(ServiceCommitment, ServiceCommitmentPackage, ServiceCommPackageLine);
@@ -2434,6 +2433,11 @@ table 8057 "Subscription Header"
 
     [InternalEvent(false, false)]
     local procedure OnRecalculateLinesOnBeforeConfirm(var SubscriptionHeader: Record "Subscription Header"; xSubscriptionHeader: Record "Subscription Header"; ChangedFieldName: Text; HideValidationDialog: Boolean; var Confirmed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDatesCalculatedOnInsertSubscriptionLinesFromSubscriptionPackage(var SubscriptionLine: Record "Subscription Line"; SubscriptionPackageLine: Record "Subscription Package Line")
     begin
     end;
 

@@ -214,7 +214,6 @@ codeunit 8002 "Create Sub. Contract Renewal"
         CurrentSalesHeader."Shipping No." := OldSalesHeader."Shipping No.";
         CurrentSalesHeader."Shipping No. Series" := OldSalesHeader."Shipping No. Series";
         CurrentSalesHeader."No. Printed" := 0;
-        CurrentSalesHeader.Validate("Posting Date", WorkDate());
         CurrentSalesHeader.Validate("Document Date", WorkDate());
         CurrentSalesHeader.Validate("Currency Code");
         CurrentSalesHeader."Assigned User ID" := CopyStr(UserId(), 1, MaxStrLen(CurrentSalesHeader."Assigned User ID"));

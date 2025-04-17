@@ -394,6 +394,62 @@ page 8002 "Extend Contract"
         GetItemCost();
         ContractItemMgt.GetSalesPriceForItem(UnitPrice, ItemNo, QuantityDecimal, CustomerContract."Currency Code", CustomerContract."Sell-to Customer No.", CustomerContract."Bill-to Customer No.");
         CountTotalServiceCommitmentPackage();
+        ShowNotificationIfStandardSubscriptionPackageDoesNotContainUBBLine(ItemNo);
+        OnAfterValidateItemNo(ItemNo);
+    end;
+
+    local procedure ShowNotificationIfStandardSubscriptionPackageDoesNotContainUBBLine(ItemNo: Code[20])
+    var
+        SubscriptionPackage: Record "Subscription Package";
+        ItemSubscriptionPackage: Record "Item Subscription Package";
+        NoUBBServiceCommitmentPackFoundMsg: Label 'No standard Subscription Package for usage-based billing is assigned to the item %1.';
+    begin
+        if UsageDataSupplierNo = '' then
+            exit;
+        SubscriptionPackage.FilterCodeOnPackageFilter(ItemSubscriptionPackage.GetAllStandardPackageFilterForItem(ItemNo, ''));
+        ShowNoStandardSubscriptionPackageNotification(SubscriptionPackage, StrSubstNo(NoUBBServiceCommitmentPackFoundMsg, ItemNo), GetNoUBBSubscriptionPackageFound2NotificationId());
+    end;
+
+    local procedure ShowNotificationIfNoUBBSubscriptionPackageIsSelected(var TempSubscriptionPackage: Record "Subscription Package" temporary; ItemNo: Code[20])
+    var
+        NoUBBServiceCommitmentPackFoundMsg: Label 'None of the selected Subscription Package are intended for usage-based billing.';
+    begin
+        if UsageDataSupplierNo = '' then
+            exit;
+        TempSubscriptionPackage.SetRange(Selected, true);
+        if TempSubscriptionPackage.IsEmpty() then begin
+            ShowNotificationIfStandardSubscriptionPackageDoesNotContainUBBLine(ItemNo);
+            exit;
+        end;
+        ShowNoStandardSubscriptionPackageNotification(TempSubscriptionPackage, NoUBBServiceCommitmentPackFoundMsg, GetNoUBBSubscriptionPackageFoundNotificationId());
+        TempSubscriptionPackage.SetRange(Selected);
+    end;
+
+    local procedure ShowNoStandardSubscriptionPackageNotification(var TempSubscriptionPackage: Record "Subscription Package"; NotificationMsg: Text; NotificationId: Guid)
+    var
+        Notification: Notification;
+    begin
+        if TempSubscriptionPackage.FindSet() then
+            repeat
+                if TempSubscriptionPackage.ServCommPackageLineExists() then
+                    exit; // Found a valid package, no need to show notification
+            until TempSubscriptionPackage.Next() = 0;
+
+        Notification.Id := NotificationId;
+        Notification.Recall(); //Make sure that notification is not shown multiple times
+        Notification.Message := NotificationMsg;
+        Notification.Scope := NotificationScope::LocalScope;
+        Notification.Send();
+    end;
+
+    local procedure GetNoUBBSubscriptionPackageFoundNotificationId(): Guid
+    begin
+        exit('e42bd3b9-12a0-47aa-b577-feaa442897b3');
+    end;
+
+    local procedure GetNoUBBSubscriptionPackageFound2NotificationId(): Guid
+    begin
+        exit('0301564b-e9d8-490a-99e4-fc88c5cec48d');
     end;
 
     local procedure ErrorIfItemServCommPackageMissingForItem()
@@ -478,6 +534,8 @@ page 8002 "Extend Contract"
             Page.RunModal(Page::"Assign Service Comm. Packages", TempServiceCommitmentPackage);
 
         CountSelectedServiceCommitmentPackages();
+        ShowNotificationIfNoUBBSubscriptionPackageIsSelected(TempServiceCommitmentPackage, ItemNo);
+        OnAfterGetAdditionalServiceCommitments(TempServiceCommitmentPackage, ItemNo);
     end;
 
     local procedure FilterNonStandardServiceCommitmentPackage(var ServiceCommitmentPackage: Record "Subscription Package")
@@ -559,6 +617,16 @@ page 8002 "Extend Contract"
 
     [InternalEvent(false, false)]
     local procedure OnBeforeExtendContract()
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnAfterGetAdditionalServiceCommitments(var TempServiceCommitmentPackage: Record "Subscription Package" temporary; ItemNo: Code[20])
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnAfterValidateItemNo(ItemNo: Code[20])
     begin
     end;
 

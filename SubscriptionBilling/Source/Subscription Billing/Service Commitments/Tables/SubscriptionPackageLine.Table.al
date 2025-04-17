@@ -284,6 +284,12 @@ table 8056 "Subscription Package Line"
                 Error(RecurringDiscountCannotBeGrantedErr);
     end;
 
+    internal procedure FilterOnPackageCode(PackageCode: Code[20])
+    begin
+        Rec.Reset();
+        Rec.SetRange("Subscription Package Code", PackageCode);
+    end;
+
     internal procedure IsPartnerVendor(): Boolean
     begin
         exit(Rec.Partner = Rec.Partner::Vendor);

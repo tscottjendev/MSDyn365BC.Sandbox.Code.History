@@ -353,10 +353,11 @@ table 8052 "Customer Subscription Contract"
 
             trigger OnValidate()
             begin
-                if (("Currency Code" <> '') and (xRec."Currency Code" <> Rec."Currency Code")) then
-                    Rec.UpdateAndRecalculateServiceCommitmentCurrencyData()
+                if "Currency Code" = '' then
+                    Rec.ResetCustomerServiceCommitmentCurrencyFromLCY()
                 else
-                    Rec.ResetCustomerServiceCommitmentCurrencyFromLCY();
+                    if (xRec."Currency Code" <> Rec."Currency Code") then
+                        Rec.UpdateAndRecalculateServiceCommitmentCurrencyData();
             end;
         }
         field(33; DefaultExcludeFromPriceUpdate; Boolean)
@@ -1029,7 +1030,6 @@ table 8052 "Customer Subscription Contract"
         NotifySalesLineDiscountNotTransferredDescriptionTxt: Label 'Warn if a Sales Line Discount is not transferred to a Sales Subscription Line.';
         UpdateDimensionsOnLinesQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         AssignServicePricesMustBeRecalculatedMsg: Label 'You added Subscription Lines to a contract in which a different currency is stored than in the Subscription Lines. The prices for the Subscription Lines must therefore be recalculated.';
-        CurrCodeChangePricesMustBeRecalculatedMsg: Label 'If you change the currency code, the prices for existing Subscription Lines must be recalculated.';
         UpdatedDeferralsMsg: Label 'The dimensions in %1 deferrals have been updated.', Comment = '%1 = number of (count)';
         LinesNotUpdatedMsg: Label 'You have changed %1 on the contract header, but it has not been changed on the existing contract lines.', Comment = '%1 = FieldCaption';
         SplitMessageTxt: Label '%1\%2', Comment = '%1 = message text 1, %2 = message text 2', Locked = true;
@@ -1145,12 +1145,12 @@ table 8052 "Customer Subscription Contract"
         exit(not CustomerContractDeferral.IsEmpty());
     end;
 
-    internal procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
     end;
 
-    internal procedure GetHideValidationDialog(): Boolean
+    procedure GetHideValidationDialog(): Boolean
     begin
         exit(HideValidationDialog);
     end;
@@ -1215,14 +1215,20 @@ table 8052 "Customer Subscription Contract"
         IsHandled: Boolean;
     begin
         IsHandled := false;
+        OnBeforeUpdateAllLineDim(Rec, NewParentDimSetID, OldParentDimSetID, IsHandled, xRec);
         if IsHandled then
             exit;
 
         if NewParentDimSetID = OldParentDimSetID then
             exit;
 
-        if not ConfirmManagement.GetResponse(UpdateDimensionsOnLinesQst, true) then
-            exit;
+        OnBeforeConfirmUpdateAllLineDim(Rec, xRec, Confirmed, IsHandled);
+        if not IsHandled then
+            if GetHideValidationDialog() or not GuiAllowed then
+                Confirmed := true
+            else
+                Confirmed := ConfirmManagement.GetResponse(UpdateDimensionsOnLinesQst, true);
+        if not Confirmed then exit;
 
         ServiceCommitment.Reset();
         ServiceCommitment.SetRange("Subscription Contract No.", Rec."No.");
@@ -1628,11 +1634,27 @@ table 8052 "Customer Subscription Contract"
 
         "Payment Method Code" := BillToCustomer."Payment Method Code";
 
-        "Currency Code" := BillToCustomer."Currency Code";
+        if ShouldReplaceCurrencyCode(BillToCustomer) then
+            "Currency Code" := BillToCustomer."Currency Code";
         "Customer Price Group" := BillToCustomer."Customer Price Group";
         SetSalespersonCode(BillToCustomer."Salesperson Code", "Salesperson Code");
 
         OnAfterSetFieldsBilltoCustomer(Rec, BillToCustomer);
+    end;
+
+    local procedure ShouldReplaceCurrencyCode(BillToCustomer: Record Customer): Boolean
+    var
+        CurrencyCodeWillBeChangedQst: Label 'The Currency Code for the selected customer is different from the current Currency Code in Customer Contract %1. If the customer is changed the currency and exchange rate needs to be updated.';
+    begin
+        if "Currency Code" = '' then
+            exit(true);
+        if "Currency Code" = BillToCustomer."Currency Code" then
+            exit(false);
+        if GetHideValidationDialog() or not GuiAllowed then
+            exit(true);
+        if ConfirmManagement.GetResponse(StrSubstNo(CurrencyCodeWillBeChangedQst, Rec."No."), true) then
+            exit(true);
+        Error(''); //Cancel and rollback
     end;
 
     local procedure ShouldCopyAddressFromSellToCustomer(SellToCustomer: Record Customer): Boolean
@@ -2118,8 +2140,7 @@ table 8052 "Customer Subscription Contract"
     begin
         if not CustomerContractLinesExists() then
             exit;
-        if not ServiceCommitment.OpenExchangeSelectionPage(CurencyFactorDate, CurrencyFactor, Rec."Currency Code", CurrCodeChangePricesMustBeRecalculatedMsg, false) then
-            Error('');
+        ServiceCommitment.OpenExchangeSelectionPage(CurencyFactorDate, CurrencyFactor, Rec."Currency Code", '', false);
         ServiceCommitment.UpdateAndRecalculateServCommCurrencyFromContract(Enum::"Service Partner"::Customer, Rec."No.", CurrencyFactor, CurencyFactorDate, Rec."Currency Code");
     end;
 
@@ -2498,6 +2519,16 @@ table 8052 "Customer Subscription Contract"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateHarmonizedBillingFields(var CustomerSubscriptionContract: Record "Customer Subscription Contract")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAllLineDim(var CustomerContract: Record "Customer Subscription Contract"; NewParentDimSetID: Integer; OldParentDimSetID: Integer; var IsHandled: Boolean; xCustomerContract: Record "Customer Subscription Contract")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmUpdateAllLineDim(var CustomerContract: Record "Customer Subscription Contract"; xCustomerContract: Record "Customer Subscription Contract"; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -3,6 +3,7 @@ namespace Microsoft.SubscriptionBilling;
 using System.Utilities;
 using System.Environment.Configuration;
 using Microsoft.Sales.Document;
+using Microsoft.Utilities;
 
 codeunit 8003 "Sub. Contract Renewal Mgt."
 {
@@ -180,6 +181,7 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
         SalesServiceCommitment: Record "Sales Subscription Line";
         TempSalesHeader: Record "Sales Header" temporary;
         TextManagement: Codeunit "Text Management";
+        PageManagement: Codeunit "Page Management";
         DocumentNoFilter: Text;
         Counter: Integer;
     begin
@@ -203,10 +205,7 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
         if Counter = 1 then begin
             TempSalesHeader.FindFirst();
             SalesHeader.Get(TempSalesHeader."Document Type", TempSalesHeader."No.");
-            if SalesDocumentType = "Sales Document Type"::Quote then
-                Page.Run(Page::"Sales Quote", SalesHeader)
-            else
-                Page.Run(Page::"Sales Order", SalesHeader)
+            PageManagement.PageRun(SalesHeader);
         end else begin
             TextManagement.ReplaceInvalidFilterChar(DocumentNoFilter);
             SalesHeader.Reset();

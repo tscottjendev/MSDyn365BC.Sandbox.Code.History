@@ -286,7 +286,7 @@ codeunit 8055 "Sub. Contracts Item Management"
             ItemServCommitmentPackage.Standard := Standard;
             ItemServCommitmentPackage.ErrorIfInvoicingItemIsNotServiceCommitmentItemForDiscount(PackageCode);
             ItemServCommitmentPackage.Validate("Price Group", ServiceCommitmentPackage."Price Group");
-            ItemServCommitmentPackage.Insert(false);
+            ItemServCommitmentPackage.Insert(true);
         end
     end;
 

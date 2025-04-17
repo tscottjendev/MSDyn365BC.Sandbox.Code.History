@@ -181,9 +181,15 @@ codeunit 8069 "Sales Subscription Line Mgmt."
         end;
     end;
 
-    local procedure CreateSalesServCommLineFromServCommPackageLine(var SalesLine: Record "Sales Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line")
+    internal procedure CreateSalesServCommLineFromServCommPackageLine(var SalesLine: Record "Sales Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line")
     var
         SalesServiceCommitment: Record "Sales Subscription Line";
+    begin
+        CreateSalesServCommLineFromServCommPackageLine(SalesLine, ServiceCommitmentPackageLine, SalesServiceCommitment);
+    end;
+
+    internal procedure CreateSalesServCommLineFromServCommPackageLine(var SalesLine: Record "Sales Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line"; var SalesServiceCommitment: Record "Sales Subscription Line")
+    var
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -191,6 +197,7 @@ codeunit 8069 "Sales Subscription Line Mgmt."
         if not IsHandled then begin
             SalesServiceCommitment.InitRecord(SalesLine);
             SalesServiceCommitment.Insert(false);
+            OnCreateSalesServCommLineFromServCommPackageLineOnAfterInsertSalesSubscriptionLineFromSubscriptionPackageLine(SalesServiceCommitment, ServiceCommitmentPackageLine);
             SalesServiceCommitment."Invoicing via" := ServiceCommitmentPackageLine."Invoicing via";
             SalesServiceCommitment.Validate("Item No.", GetItemNoForSalesServiceCommitment(SalesLine, ServiceCommitmentPackageLine));
             SalesServiceCommitment."Customer Price Group" := SalesLine."Customer Price Group";
@@ -205,6 +212,7 @@ codeunit 8069 "Sales Subscription Line Mgmt."
             SalesServiceCommitment.Validate("Billing Base Period", ServiceCommitmentPackageLine."Billing Base Period");
             SalesServiceCommitment."Usage Based Billing" := ServiceCommitmentPackageLine."Usage Based Billing";
             SalesServiceCommitment."Usage Based Pricing" := ServiceCommitmentPackageLine."Usage Based Pricing";
+            SalesServiceCommitment."Pricing Unit Cost Surcharge %" := ServiceCommitmentPackageLine."Pricing Unit Cost Surcharge %";
             SalesServiceCommitment."Calculation Base %" := ServiceCommitmentPackageLine."Calculation Base %";
             SalesServiceCommitment.Validate("Sub. Line Start Formula", ServiceCommitmentPackageLine."Sub. Line Start Formula");
             SalesServiceCommitment.Validate("Billing Rhythm", ServiceCommitmentPackageLine."Billing Rhythm");
@@ -214,7 +222,6 @@ codeunit 8069 "Sales Subscription Line Mgmt."
             SalesServiceCommitment.CalculateCalculationBaseAmount();
             if SalesServiceCommitment.Partner = SalesServiceCommitment.Partner::Customer then
                 SalesServiceCommitment.CalculateUnitCost();
-            SalesServiceCommitment."Pricing Unit Cost Surcharge %" := ServiceCommitmentPackageLine."Pricing Unit Cost Surcharge %";
             OnBeforeModifySalesSubscriptionLineFromSubscriptionPackageLine(SalesServiceCommitment, ServiceCommitmentPackageLine);
             SalesServiceCommitment.Modify(false);
         end;
@@ -312,8 +319,7 @@ codeunit 8069 "Sales Subscription Line Mgmt."
     begin
         if not SalesLine.FindFirst() then
             exit;
-        SalesServiceCommitment.SetRange("Document Type", SalesLine."Document Type");
-        SalesServiceCommitment.SetRange("Document No.", SalesLine."Document No.");
+        SalesServiceCommitment.FilterOnDocument(SalesLine."Document Type", SalesLine."Document No.");
         SalesServiceCommitment.DeleteAll(false);
     end;
 
@@ -359,8 +365,15 @@ codeunit 8069 "Sales Subscription Line Mgmt."
     procedure GetItemNoForSalesServiceCommitment(var SalesLine: Record "Sales Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line"): Code[20]
     var
         Item: Record Item;
+        ItemNo: Code[20];
+        IsHandled: Boolean;
     begin
-        Item.Get(SalesLine."No.");
+        ItemNo := SalesLine."No.";
+        IsHandled := false;
+        OnBeforeGetItemNoForSalesServiceCommitment(SalesLine, ItemNo, IsHandled);
+        if IsHandled then
+            exit(ItemNo);
+        Item.Get(ItemNo);
         case Item."Subscription Option" of
             Item."Subscription Option"::"Service Commitment Item":
                 exit(Item."No.");
@@ -397,6 +410,11 @@ codeunit 8069 "Sales Subscription Line Mgmt."
     end;
 
     [InternalEvent(false, false)]
+    local procedure OnCreateSalesServCommLineFromServCommPackageLineOnAfterInsertSalesSubscriptionLineFromSubscriptionPackageLine(var SalesServiceCommitment: Record "Sales Subscription Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line")
+    begin
+    end;
+
+    [InternalEvent(false, false)]
     local procedure OnBeforeModifySalesSubscriptionLineFromSubscriptionPackageLine(var SalesSubscriptionLine: Record "Sales Subscription Line"; SubscriptionPackageLine: Record "Subscription Package Line")
     begin
     end;
@@ -421,6 +439,11 @@ codeunit 8069 "Sales Subscription Line Mgmt."
 
     [InternalEvent(false, false)]
     local procedure OnAddAdditionalSalesSubscriptionLinesForSalesLineAfterApplyFilters(var SubscriptionPackage: Record "Subscription Package"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItemNoForSalesServiceCommitment(var SalesLine: Record "Sales Line"; var ItemNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

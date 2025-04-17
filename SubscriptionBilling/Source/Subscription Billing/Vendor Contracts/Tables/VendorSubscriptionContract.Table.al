@@ -796,7 +796,6 @@ table 8063 "Vendor Subscription Contract"
         ModifyVendorAddressNotificationMsg: Label 'The address you entered for %1 is different from the Vendor''s existing address.', Comment = '%1=Vendor name';
         UpdateDimensionsOnLinesQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         AssignServicePricesMustBeRecalculatedMsg: Label 'You add Subscription Lines to a contract in which a different currency is stored than in the Subscription Lines. The prices for the Subscription Lines must therefore be recalculated.';
-        CurrCodeChangePricesMustBeRecalculatedMsg: Label 'If you change the currency code, the prices for existing Subscription Lines must be recalculated.';
         UpdatedDeferralsMsg: Label 'The dimensions in %1 deferrals have been updated.';
 
     protected var
@@ -1620,8 +1619,7 @@ table 8063 "Vendor Subscription Contract"
     begin
         if not VendorContractLinesExist() then
             exit;
-        if not ServiceCommitment.OpenExchangeSelectionPage(CurrencyFactorDate, CurrencyFactor, Rec."Currency Code", CurrCodeChangePricesMustBeRecalculatedMsg, false) then
-            Error('');
+        ServiceCommitment.OpenExchangeSelectionPage(CurrencyFactorDate, CurrencyFactor, Rec."Currency Code", '', false);
         ServiceCommitment.UpdateAndRecalculateServCommCurrencyFromContract(Enum::"Service Partner"::Vendor, Rec."No.", CurrencyFactor, CurrencyFactorDate, Rec."Currency Code");
     end;
 
