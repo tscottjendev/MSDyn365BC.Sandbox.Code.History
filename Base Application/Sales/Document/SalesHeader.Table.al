@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Document;
 
 using Microsoft.Assembly.Document;
@@ -256,6 +260,8 @@ table 36 "Sales Header"
 
                 IsHandled := false;
                 OnValidateBillToCustomerNoOnAfterCheckBilltoCustomerNoChanged(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
 
                 if BilltoCustomerNoChanged and not IsHandled then
                     if xRec."Bill-to Customer No." = '' then
