@@ -2385,79 +2385,85 @@ table 5050 Contact
         OppEntry: Record "Opportunity Entry";
         SalesHeader: Record "Sales Header";
         Task: Record "To-do";
+        ContactCompanyNo: Code[20];
+        NewCompanyNo: Code[20];
         IsHandled: Boolean;
+        SkipModifyOpportunity: Boolean;
+        SkipModifyOpportunityEntry: Boolean;
+        SkipModifyInteractionLogEntry: Boolean;
+        SkipModifySalesHeader: Boolean;
+        SkipModifyTask: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateCompanyNo(Rec, xRec, IsHandled);
+        OnBeforeUpdateCompanyNo(Rec, xRec, IsHandled, SkipModifyOpportunity, SkipModifyOpportunityEntry, SkipModifyTask, SkipModifyInteractionLogEntry, SkipModifySalesHeader);
         if IsHandled then
             exit;
 
         if Cont.Get("No.") then begin
-            if xRec."Company No." <> '' then begin
+            ContactCompanyNo := xRec."Company No.";
+            if xRec."Company No." <> '' then
+                NewCompanyNo := xRec."Company No."
+            else
+                NewCompanyNo := Rec."Company No.";
+
+
+            if not SkipModifyOpportunity then begin
                 Opp.SetCurrentKey("Contact Company No.", "Contact No.");
-                Opp.SetRange("Contact Company No.", xRec."Company No.");
+                Opp.SetRange("Contact Company No.", ContactCompanyNo);
                 Opp.SetRange("Contact No.", "No.");
                 if not Opp.IsEmpty() then
-                    Opp.ModifyAll("Contact No.", xRec."Company No.");
-                OppEntry.SetCurrentKey("Contact Company No.", "Contact No.");
-                OppEntry.SetRange("Contact Company No.", xRec."Company No.");
-                OppEntry.SetRange("Contact No.", "No.");
-                if not OppEntry.IsEmpty() then
-                    OppEntry.ModifyAll("Contact No.", xRec."Company No.");
-                Task.SetCurrentKey("Contact Company No.", "Contact No.");
-                Task.SetRange("Contact Company No.", xRec."Company No.");
-                Task.SetRange("Contact No.", "No.");
-                if not Task.IsEmpty() then
-                    Task.ModifyAll("Contact No.", xRec."Company No.");
-                InteractLogEntry.SetCurrentKey("Contact Company No.", "Contact No.");
-                InteractLogEntry.SetRange("Contact Company No.", xRec."Company No.");
-                InteractLogEntry.SetRange("Contact No.", "No.");
-                if not InteractLogEntry.IsEmpty() then
-                    InteractLogEntry.ModifyAll("Contact No.", xRec."Company No.");
-                ContBusRel.Reset();
-                ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
-                ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-                ContBusRel.SetRange("Contact No.", xRec."Company No.");
-                SalesHeader.SetCurrentKey("Sell-to Customer No.", "External Document No.");
-                SalesHeader.SetRange("Sell-to Contact No.", "No.");
-                if ContBusRel.FindFirst() then
-                    SalesHeader.SetRange("Sell-to Customer No.", ContBusRel."No.")
-                else
-                    SalesHeader.SetRange("Sell-to Customer No.", '');
-                if SalesHeader.Find('-') then
-                    repeat
-                        SalesHeader."Sell-to Contact No." := xRec."Company No.";
-                        if SalesHeader."Sell-to Contact No." = SalesHeader."Bill-to Contact No." then
-                            SalesHeader."Bill-to Contact No." := xRec."Company No.";
-                        SalesHeader.Modify();
-                    until SalesHeader.Next() = 0;
-                SalesHeader.Reset();
-                SalesHeader.SetCurrentKey("Bill-to Contact No.");
-                SalesHeader.SetRange("Bill-to Contact No.", "No.");
-                if not SalesHeader.IsEmpty() then
-                    SalesHeader.ModifyAll("Bill-to Contact No.", xRec."Company No.");
-            end else begin
-                Opp.SetCurrentKey("Contact Company No.", "Contact No.");
-                Opp.SetRange("Contact Company No.", '');
-                Opp.SetRange("Contact No.", "No.");
-                if not Opp.IsEmpty() then
-                    Opp.ModifyAll("Contact Company No.", "Company No.");
-                OppEntry.SetCurrentKey("Contact Company No.", "Contact No.");
-                OppEntry.SetRange("Contact Company No.", '');
-                OppEntry.SetRange("Contact No.", "No.");
-                if not OppEntry.IsEmpty() then
-                    OppEntry.ModifyAll("Contact Company No.", "Company No.");
-                Task.SetCurrentKey("Contact Company No.", "Contact No.");
-                Task.SetRange("Contact Company No.", '');
-                Task.SetRange("Contact No.", "No.");
-                if not Task.IsEmpty() then
-                    Task.ModifyAll("Contact Company No.", "Company No.");
-                InteractLogEntry.SetCurrentKey("Contact Company No.", "Contact No.");
-                InteractLogEntry.SetRange("Contact Company No.", '');
-                InteractLogEntry.SetRange("Contact No.", "No.");
-                if not InteractLogEntry.IsEmpty() then
-                    InteractLogEntry.ModifyAll("Contact Company No.", "Company No.");
+                    Opp.ModifyAll("Contact No.", NewCompanyNo);
             end;
+
+            if not SkipModifyOpportunityEntry then begin
+                OppEntry.SetCurrentKey("Contact Company No.", "Contact No.");
+                OppEntry.SetRange("Contact Company No.", ContactCompanyNo);
+                OppEntry.SetRange("Contact No.", "No.");
+                if not OppEntry.IsEmpty() then
+                    OppEntry.ModifyAll("Contact No.", NewCompanyNo);
+            end;
+
+            if not SkipModifyTask then begin
+                Task.SetCurrentKey("Contact Company No.", "Contact No.");
+                Task.SetRange("Contact Company No.", ContactCompanyNo);
+                Task.SetRange("Contact No.", "No.");
+                if not Task.IsEmpty() then
+                    Task.ModifyAll("Contact No.", NewCompanyNo);
+            end;
+
+            if not SkipModifyInteractionLogEntry then begin
+                InteractLogEntry.SetCurrentKey("Contact Company No.", "Contact No.");
+                InteractLogEntry.SetRange("Contact Company No.", ContactCompanyNo);
+                InteractLogEntry.SetRange("Contact No.", "No.");
+                if not InteractLogEntry.IsEmpty() then
+                    InteractLogEntry.ModifyAll("Contact No.", NewCompanyNo);
+            end;
+
+            if ContactCompanyNo <> '' then
+                if not SkipModifySalesHeader then begin
+                    ContBusRel.Reset();
+                    ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
+                    ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
+                    ContBusRel.SetRange("Contact No.", ContactCompanyNo);
+                    SalesHeader.SetCurrentKey("Sell-to Customer No.", "External Document No.");
+                    SalesHeader.SetRange("Sell-to Contact No.", "No.");
+                    if ContBusRel.FindFirst() then
+                        SalesHeader.SetRange("Sell-to Customer No.", ContBusRel."No.")
+                    else
+                        SalesHeader.SetRange("Sell-to Customer No.", '');
+                    if SalesHeader.Find('-') then
+                        repeat
+                            SalesHeader."Sell-to Contact No." := NewCompanyNo;
+                            if SalesHeader."Sell-to Contact No." = SalesHeader."Bill-to Contact No." then
+                                SalesHeader."Bill-to Contact No." := NewCompanyNo;
+                            SalesHeader.Modify();
+                        until SalesHeader.Next() = 0;
+                    SalesHeader.Reset();
+                    SalesHeader.SetCurrentKey("Bill-to Contact No.");
+                    SalesHeader.SetRange("Bill-to Contact No.", "No.");
+                    if not SalesHeader.IsEmpty() then
+                        SalesHeader.ModifyAll("Bill-to Contact No.", NewCompanyNo);
+                end;
 
             if CurrFieldNo <> 0 then
                 Modify();
@@ -3782,7 +3788,7 @@ table 5050 Contact
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateCompanyNo(var Contact: Record Contact; xContact: Record Contact; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateCompanyNo(var Contact: Record Contact; xContact: Record Contact; var IsHandled: Boolean; var SkipModifyOpportunity: Boolean; var SkipModifyOpportunityEntry: Boolean; var SkipModifyTask: Boolean; var SkipModifyInteractionLogEntry: Boolean; var SkipModifySalesHeader: Boolean)
     begin
     end;
 
