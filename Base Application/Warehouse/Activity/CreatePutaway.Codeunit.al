@@ -432,6 +432,7 @@ codeunit 7313 "Create Put-away"
     procedure AssignPlaceBinZone(var WhseActivLine: Record "Warehouse Activity Line"; PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; Location: Record Location; Bin: Record Bin)
     var
         Bin2: Record Bin;
+        BinCodeFilterText: Text[250];
     begin
         WhseActivLine."Bin Code" := Bin.Code;
         WhseActivLine."Zone Code" := Bin."Zone Code";
@@ -440,8 +441,15 @@ codeunit 7313 "Create Put-away"
            ((Bin.Code = PostedWhseRcptLine."Bin Code") or Location.IsBinBWReceiveOrShip(Bin.Code))
         then begin
             Bin2.SetRange("Location Code", Location.Code);
-            Bin2.SetFilter(Code, '<>%1&<>%2&<>%3', Location."Receipt Bin Code", Location."Shipment Bin Code",
-              PostedWhseRcptLine."Bin Code");
+            if Location."Receipt Bin Code" <> '' then
+                AddToFilterText(BinCodeFilterText, '&', '<>', Location."Receipt Bin Code");
+            if Location."Shipment Bin Code" <> '' then
+                AddToFilterText(BinCodeFilterText, '&', '<>', Location."Shipment Bin Code");
+            if PostedWhseRcptLine."Bin Code" <> '' then
+                AddToFilterText(BinCodeFilterText, '&', '<>', PostedWhseRcptLine."Bin Code");
+            OnAssignPlaceBinZoneOnBeforeApplyBinCodeFilter(BinCodeFilterText, Location, PostedWhseRcptLine);
+            if BinCodeFilterText <> '' then
+                Bin2.SetFilter(Code, BinCodeFilterText);
             OnAssignPlaceBinZoneOnAfterBin2SetFilters(PostedWhseRcptLine, WhseActivLine, Location, Bin2);
             Bin2.SetLoadFields(Code, "Zone Code");
             if Bin2.FindFirst() then begin
@@ -454,6 +462,14 @@ codeunit 7313 "Create Put-away"
         end;
 
         OnAfterAssignPlaceBinZone(WhseActivLine);
+    end;
+
+    local procedure AddToFilterText(var TextVar: Text[250]; Separator: Code[1]; Comparator: Code[2]; Addendum: Code[20])
+    begin
+        if TextVar = '' then
+            TextVar := Comparator + '''' + Addendum + ''''
+        else
+            TextVar += Separator + Comparator + '''' + Addendum + '''';
     end;
 
     local procedure InsertWhseActivHeader(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
@@ -1994,6 +2010,11 @@ codeunit 7313 "Create Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateWhsePutAwayForProdOrder(var ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignPlaceBinZoneOnBeforeApplyBinCodeFilter(var BinCodeFilterText: Text[250]; var Location: Record Location; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
     end;
 }
