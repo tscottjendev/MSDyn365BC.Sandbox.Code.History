@@ -5,6 +5,7 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.SalesTax;
+
 table 8068 "Sales Subscription Line"
 {
     DataClassification = CustomerContent;
@@ -560,7 +561,7 @@ table 8068 "Sales Subscription Line"
             CalculateUnitCost();
     end;
 
-    internal procedure GetSalesHeader(var OutSalesHeader: Record "Sales Header")
+    local procedure GetSalesHeader(var OutSalesHeader: Record "Sales Header")
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -790,7 +791,7 @@ table 8068 "Sales Subscription Line"
         end;
     end;
 
-    internal procedure GetDate(): Date
+    local procedure GetDate(): Date
     begin
         SalesLine.Get(Rec."Document Type", Rec."Document No.", Rec."Document Line No.");
         exit(SalesLine.GetDate());

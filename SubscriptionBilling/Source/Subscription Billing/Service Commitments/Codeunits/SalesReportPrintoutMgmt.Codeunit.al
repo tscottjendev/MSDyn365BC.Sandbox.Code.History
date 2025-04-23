@@ -69,7 +69,7 @@ codeunit 8073 "Sales Report Printout Mgmt."
         SalesLine.SetRange("Exclude from Doc. Total");
     end;
 
-    procedure FillServiceCommitmentsGroups(var SalesHeader: Record "Sales Header"; var ServCommGroupPerPeriod: Record "Name/Value Buffer"; var ServCommGroup: Record "Name/Value Buffer")
+    internal procedure FillServiceCommitmentsGroups(var SalesHeader: Record "Sales Header"; var ServCommGroupPerPeriod: Record "Name/Value Buffer"; var ServCommGroup: Record "Name/Value Buffer")
     begin
         FillServiceCommitmentsGroupPerPeriod(SalesHeader, ServCommGroupPerPeriod);
         if ServCommGroupPerPeriod.FindSet() then begin
@@ -85,7 +85,7 @@ codeunit 8073 "Sales Report Printout Mgmt."
         end;
     end;
 
-    procedure FillServiceCommitmentsGroupPerPeriod(var SalesHeader: Record "Sales Header"; var GroupPerPeriod: Record "Name/Value Buffer")
+    local procedure FillServiceCommitmentsGroupPerPeriod(var SalesHeader: Record "Sales Header"; var GroupPerPeriod: Record "Name/Value Buffer")
     var
         SalesServiceCommitment: Record "Sales Subscription Line";
         TempSalesServiceCommitmentBuff: Record "Sales Service Commitment Buff." temporary;
@@ -103,7 +103,7 @@ codeunit 8073 "Sales Report Printout Mgmt."
             FillServiceCommitmentsGroupPerPeriod(TempSalesServiceCommitmentBuff, GroupPerPeriod, UniqueRhythmDictionary, SalesHeader."Currency Code", TotalInclVATText, TotalExclVATText);
     end;
 
-    procedure FillServiceCommitmentsForLine(var SalesHeader: Record "Sales Header"; var SalesLineServiceCommitments: Record "Sales Line"; var SalesLineServiceCommitmentsCaption: Record "Name/Value Buffer")
+    internal procedure FillServiceCommitmentsForLine(var SalesHeader: Record "Sales Header"; var SalesLineServiceCommitments: Record "Sales Line"; var SalesLineServiceCommitmentsCaption: Record "Name/Value Buffer")
     var
         SalesServiceCommitment: Record "Sales Subscription Line";
         SalesLine: Record "Sales Line";

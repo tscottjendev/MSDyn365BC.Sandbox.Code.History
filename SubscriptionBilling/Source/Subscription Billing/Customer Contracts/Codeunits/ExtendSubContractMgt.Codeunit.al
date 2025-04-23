@@ -8,7 +8,7 @@ codeunit 8075 "Extend Sub. Contract Mgt."
         HideDialog: Boolean;
         ExtensionCompletedMsg: Label 'Contract Extension completed.';
 
-    procedure ExtendContract(var ServiceObject: Record "Subscription Header"; var TempServiceCommitmentPackage: Record "Subscription Package" temporary; ExtendCustomerContract: Boolean; var CustomerContract: Record "Customer Subscription Contract"; ExtendVendorContract: Boolean; var VendorContract: Record "Vendor Subscription Contract"; UsageBasedBillingPackageLinesOnly: Boolean; SupplierReferenceEntryNo: Integer)
+    internal procedure ExtendContract(var ServiceObject: Record "Subscription Header"; var TempServiceCommitmentPackage: Record "Subscription Package" temporary; ExtendCustomerContract: Boolean; var CustomerContract: Record "Customer Subscription Contract"; ExtendVendorContract: Boolean; var VendorContract: Record "Vendor Subscription Contract"; UsageBasedBillingPackageLinesOnly: Boolean; SupplierReferenceEntryNo: Integer)
     var
         ServiceCommitment: Record "Subscription Line";
         CustomerContractLine: Record "Cust. Sub. Contract Line";
@@ -57,11 +57,6 @@ codeunit 8075 "Extend Sub. Contract Mgt."
                 UsageDataSubscription2.Modify(false);
                 UsageDataSubscription2.UpdateServiceObjectNoForUsageDataGenericImport();
             until UsageDataSubscription.Next() = 0;
-    end;
-
-    procedure SetHideDialog(NewHideDialog: Boolean)
-    begin
-        HideDialog := NewHideDialog;
     end;
 
     [InternalEvent(false, false)]

@@ -176,7 +176,7 @@ tableextension 8052 Item extends Item
         exit(false);
     end;
 
-    internal procedure ErrorIfPackageLineInvoicedViaContractWithoutInvoicingItemExist()
+    local procedure ErrorIfPackageLineInvoicedViaContractWithoutInvoicingItemExist()
     var
         ItemSubscriptionPackage: Record "Item Subscription Package";
     begin

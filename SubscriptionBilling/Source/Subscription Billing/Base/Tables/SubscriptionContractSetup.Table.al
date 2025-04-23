@@ -151,7 +151,7 @@ table 8051 "Subscription Contract Setup"
         OpenServiceContractSetupTok: Label 'Open Subscription Contract Setup.';
         ManualCreationOfContractLinesNotPossibleMsg: Label 'No manual contract lines can be created without %1. Do you want to delete the value?', Comment = '%1 = FieldCaption';
 
-    procedure ContractTextsCreateDefaults()
+    internal procedure ContractTextsCreateDefaults()
     begin
         Rec.Validate("Contract Invoice Description", Enum::"Contract Invoice Text Type"::"Service Object");
         Rec.Validate("Contract Invoice Add. Line 1", Enum::"Contract Invoice Text Type"::"Service Commitment");
@@ -161,7 +161,7 @@ table 8051 "Subscription Contract Setup"
         Rec.Validate("Contract Invoice Add. Line 5", Enum::"Contract Invoice Text Type"::"Primary attribute");
     end;
 
-    procedure VerifyContractTextsSetup()
+    internal procedure VerifyContractTextsSetup()
     var
         BillingPeriodSetupMissingErr: Label 'The %1 is incomplete. You have to set up a value for "%2" as a description line.', Comment = '%1 = TableCaption, %2 = Specific text type value"';
     begin

@@ -83,7 +83,7 @@ codeunit 8029 "Usage Based Billing Mgmt."
         ServiceCommitments.ModifyAll("Supplier Reference Entry No.", 0, false);
     end;
 
-    procedure ConnectSubscriptionToServiceObjectWithExistingServiceCommitments(var UsageDataSubscription: Record "Usage Data Supp. Subscription")
+    internal procedure ConnectSubscriptionToServiceObjectWithExistingServiceCommitments(var UsageDataSubscription: Record "Usage Data Supp. Subscription")
     var
         ServiceCommitment: Record "Subscription Line";
     begin
@@ -216,7 +216,7 @@ codeunit 8029 "Usage Based Billing Mgmt."
                 UsageDataSubscription.SetErrorReason(StrSubstNo(ItemBlockedErr, ServiceObject."No.", ServiceObject."Source No."));
     end;
 
-    procedure ConnectSubscriptionToServiceObjectWithNewServiceCommitments(var UsageDataSubscription: Record "Usage Data Supp. Subscription")
+    internal procedure ConnectSubscriptionToServiceObjectWithNewServiceCommitments(var UsageDataSubscription: Record "Usage Data Supp. Subscription")
     var
         ServiceObject: Record "Subscription Header";
         CustomerContract: Record "Customer Subscription Contract";

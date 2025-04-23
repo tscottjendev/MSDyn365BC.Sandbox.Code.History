@@ -461,7 +461,7 @@ codeunit 8063 "Sales Documents"
         OnAfterCreateSubscriptionHeaderFromSalesLine(ServiceObject, SalesHeader, SalesLine);
     end;
 
-    internal procedure CreateServiceObject(var ServiceObject: Record "Subscription Header"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; Quantity: Decimal; SerialNo: Code[50])
+    local procedure CreateServiceObject(var ServiceObject: Record "Subscription Header"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; Quantity: Decimal; SerialNo: Code[50])
     var
     begin
         ServiceObject.Init();
@@ -506,7 +506,7 @@ codeunit 8063 "Sales Documents"
         OnCreateSubscriptionHeaderFromSalesLineAfterInsertSubscriptionHeader(ServiceObject, SalesHeader, SalesLine);
     end;
 
-    internal procedure CreateSubscriptionLineFromSalesLine(ServiceObject: Record "Subscription Header"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    local procedure CreateSubscriptionLineFromSalesLine(ServiceObject: Record "Subscription Header"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     var
         SalesSubscriptionLine: Record "Sales Subscription Line";
         SubscriptionLine: Record "Subscription Line";
@@ -632,7 +632,7 @@ codeunit 8063 "Sales Documents"
         Session.LogMessage('0000NN3', MessageTok, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SubscriptionBillingTok);
     end;
 
-    internal procedure GetRecurringBillingField(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]): Boolean
+    local procedure GetRecurringBillingField(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]): Boolean
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";

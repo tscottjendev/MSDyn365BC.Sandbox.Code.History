@@ -4,12 +4,12 @@ codeunit 8017 "Date Time Management"
 {
     Access = Internal;
 
-    procedure IsLastDayOfMonth(ThisDate: Date): Boolean
+    internal procedure IsLastDayOfMonth(ThisDate: Date): Boolean
     begin
         exit(CalcDate('<CM>', ThisDate) = ThisDate);
     end;
 
-    procedure MoveDateToLastDayOfMonth(var ThisDate: Date)
+    internal procedure MoveDateToLastDayOfMonth(var ThisDate: Date)
     begin
         ThisDate := CalcDate('<CM>', ThisDate)
     end;

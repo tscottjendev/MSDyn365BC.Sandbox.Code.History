@@ -115,7 +115,7 @@ table 8007 "Overdue Subscription Line"
         }
     }
 
-    procedure CountOverdueServiceCommitments(): Integer
+    internal procedure CountOverdueServiceCommitments(): Integer
     var
         ServiceCommitment: Record "Subscription Line";
         OverdueDate: Date;
@@ -141,7 +141,7 @@ table 8007 "Overdue Subscription Line"
         exit(CalcDate(ServiceContractSetup."Overdue Date Formula", WorkDate()));
     end;
 
-    procedure FillOverdueServiceCommitments()
+    internal procedure FillOverdueServiceCommitments()
     var
         OverdueDate: Date;
     begin

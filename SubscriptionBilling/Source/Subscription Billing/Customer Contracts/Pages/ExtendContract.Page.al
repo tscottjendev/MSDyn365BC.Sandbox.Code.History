@@ -284,6 +284,7 @@ page 8002 "Extend Contract"
         ServiceObject: Record "Subscription Header";
         ServiceCommitment: Record "Subscription Line";
     begin
+        OnBeforeExtendContract();
         if SupplierReferenceEntryNo <> 0 then begin
             ServiceCommitment.SetRange("Supplier Reference Entry No.", SupplierReferenceEntryNo);
             if ServiceCommitment.FindFirst() then
@@ -306,7 +307,7 @@ page 8002 "Extend Contract"
         ServiceObject.ResetCalledFromExtendContract();
     end;
 
-    internal procedure ValidateSellToCustomerNo()
+    local procedure ValidateSellToCustomerNo()
     begin
         if (SellToCustomerNo = '') or (CustomerContractNo = '') then
             exit;
@@ -317,7 +318,7 @@ page 8002 "Extend Contract"
         end;
     end;
 
-    internal procedure ValidateExtendVendorContract()
+    local procedure ValidateExtendVendorContract()
     begin
         if not ExtendVendorContract then
             VendorContractNo := '';
@@ -374,7 +375,7 @@ page 8002 "Extend Contract"
         GetItemCost();
     end;
 
-    internal procedure ValidateItemNo()
+    local procedure ValidateItemNo()
     begin
         if ItemNo = '' then begin
             UnitPrice := 0;

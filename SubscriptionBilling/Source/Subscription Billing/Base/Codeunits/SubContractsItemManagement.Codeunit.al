@@ -109,7 +109,7 @@ codeunit 8055 "Sub. Contracts Item Management"
         exit(true);
     end;
 
-    procedure IsServiceCommitmentItem(ItemNo: Code[20]): Boolean
+    internal procedure IsServiceCommitmentItem(ItemNo: Code[20]): Boolean
     var
         Item: Record Item;
     begin
@@ -119,7 +119,7 @@ codeunit 8055 "Sub. Contracts Item Management"
         exit(Item."Subscription Option" = "Item Service Commitment Type"::"Service Commitment Item");
     end;
 
-    procedure IsItemWithServiceCommitments(ItemNo: Code[20]): Boolean
+    internal procedure IsItemWithServiceCommitments(ItemNo: Code[20]): Boolean
     var
         Item: Record Item;
     begin
@@ -166,7 +166,7 @@ codeunit 8055 "Sub. Contracts Item Management"
         CreateTempSalesLine(TempSalesLine, TempSalesHeader, ServiceObject.Type, ServiceObject."Source No.", ServiceObject.Quantity, OrderDate);
     end;
 
-    internal procedure CreateTempSalesLine(var TempSalesLine: Record "Sales Line" temporary; var TempSalesHeader: Record "Sales Header" temporary; ServiceObjectType: enum "Service Object Type"; SourceNo: Code[20]; Quantity: Decimal; OrderDate: Date)
+    local procedure CreateTempSalesLine(var TempSalesLine: Record "Sales Line" temporary; var TempSalesHeader: Record "Sales Header" temporary; ServiceObjectType: enum "Service Object Type"; SourceNo: Code[20]; Quantity: Decimal; OrderDate: Date)
     begin
         CreateTempSalesLine(TempSalesLine, TempSalesHeader, ServiceObjectType, SourceNo, Quantity, OrderDate, '');
     end;

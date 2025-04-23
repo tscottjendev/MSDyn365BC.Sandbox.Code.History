@@ -1076,12 +1076,7 @@ table 8057 "Subscription Header"
         OnAfterGetCustomerSubscriptionContractSetup(Rec, ServiceContractSetup, CurrFieldNo);
     end;
 
-    procedure GetHideValidationDialog(): Boolean
-    begin
-        exit(HideValidationDialog);
-    end;
-
-    procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    internal procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
     end;
@@ -2075,7 +2070,7 @@ table 8057 "Subscription Header"
         SetRange("Source No.", ItemNo);
     end;
 
-    procedure InsertFromItemNoAndCustomerContract(var ServiceObject: Record "Subscription Header"; ItemNo: Code[20]; SourceQuantity: Decimal; ProvisionStartDate: Date; CustomerContract: Record "Customer Subscription Contract")
+    internal procedure InsertFromItemNoAndCustomerContract(var ServiceObject: Record "Subscription Header"; ItemNo: Code[20]; SourceQuantity: Decimal; ProvisionStartDate: Date; CustomerContract: Record "Customer Subscription Contract")
     var
         Item: Record Item;
         ContractsItemManagement: Codeunit "Sub. Contracts Item Management";
@@ -2206,7 +2201,7 @@ table 8057 "Subscription Header"
         end;
     end;
 
-    procedure SetPrimaryAttributeValueAndCaption(var PrimaryAttributeValue: Text[250]; var PrimaryAttributeValueCaption: Text)
+    internal procedure SetPrimaryAttributeValueAndCaption(var PrimaryAttributeValue: Text[250]; var PrimaryAttributeValueCaption: Text)
     var
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
         TempItemAttributeValue: Record "Item Attribute Value" temporary;
@@ -2234,7 +2229,7 @@ table 8057 "Subscription Header"
         end;
     end;
 
-    procedure GetPrimaryAttributeValue() PrimaryAttributeValue: Text[250]
+    internal procedure GetPrimaryAttributeValue() PrimaryAttributeValue: Text[250]
     var
         PrimaryAttributeValueCaption: Text;
     begin
@@ -2452,7 +2447,7 @@ table 8057 "Subscription Header"
     end;
 
     [IntegrationEvent(false, false)]
-    procedure OnAfterInsertFromItemNoAndCustomerContract(var SubscriptionHeader: Record "Subscription Header"; CustomerSubscriptionContract: Record "Customer Subscription Contract")
+    local procedure OnAfterInsertFromItemNoAndCustomerContract(var SubscriptionHeader: Record "Subscription Header"; CustomerSubscriptionContract: Record "Customer Subscription Contract")
     begin
     end;
 }

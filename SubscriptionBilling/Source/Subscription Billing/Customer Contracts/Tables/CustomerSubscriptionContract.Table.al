@@ -1119,14 +1119,14 @@ table 8052 "Customer Subscription Contract"
         exit(CustomerContractLinesExists(CustomerContractLine));
     end;
 
-    internal procedure CustomerContractLinesExists(var CustomerContractLine: Record "Cust. Sub. Contract Line"): Boolean
+    local procedure CustomerContractLinesExists(var CustomerContractLine: Record "Cust. Sub. Contract Line"): Boolean
     begin
         CustomerContractLine.Reset();
         CustomerContractLine.SetRange("Subscription Contract No.", Rec."No.");
         exit(not CustomerContractLine.IsEmpty());
     end;
 
-    internal procedure MessageIfCustomerContractLinesExist(ChangedFieldName: Text[100])
+    local procedure MessageIfCustomerContractLinesExist(ChangedFieldName: Text[100])
     var
         MessageText: Text;
     begin
@@ -1145,12 +1145,12 @@ table 8052 "Customer Subscription Contract"
         exit(not CustomerContractDeferral.IsEmpty());
     end;
 
-    procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    internal procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
     end;
 
-    procedure GetHideValidationDialog(): Boolean
+    local procedure GetHideValidationDialog(): Boolean
     begin
         exit(HideValidationDialog);
     end;
@@ -1991,7 +1991,7 @@ table 8052 "Customer Subscription Contract"
         end;
     end;
 
-    procedure CreateCustomerContractLinesFromServiceCommitments(var TempServiceCommitment: Record "Subscription Line" temporary)
+    internal procedure CreateCustomerContractLinesFromServiceCommitments(var TempServiceCommitment: Record "Subscription Line" temporary)
     var
         ServiceObject: Record "Subscription Header";
     begin
@@ -2014,7 +2014,7 @@ table 8052 "Customer Subscription Contract"
         NotifyIfShipToAddressDiffers();
     end;
 
-    procedure CreateCustomerContractLineFromServiceCommitment(TempServiceCommitment: Record "Subscription Line" temporary; ContractNo: Code[20])
+    internal procedure CreateCustomerContractLineFromServiceCommitment(TempServiceCommitment: Record "Subscription Line" temporary; ContractNo: Code[20])
     var
         CustomerContractLine: Record "Cust. Sub. Contract Line";
         ServiceCommitment2: Record "Subscription Line";
@@ -2097,7 +2097,7 @@ table 8052 "Customer Subscription Contract"
         OnAfterUpdateHarmonizedBillingFields(Rec);
     end;
 
-    internal procedure CalculateNextBillingDates()
+    local procedure CalculateNextBillingDates()
     begin
         if (("Billing Base Date" = 0D) or (Format("Default Billing Rhythm") = '')) then
             exit;
@@ -2203,15 +2203,6 @@ table 8052 "Customer Subscription Contract"
         ServiceCommitment.SetFilter("Subscription Contract Line No.", '<>%1', DeletedCustContractLineNo);
         ServiceCommitment.SetRange(Closed, false);
         ServiceCommitmentFound := ServiceCommitment.FindFirst();
-    end;
-
-    internal procedure IsContractEmpty(): Boolean
-    var
-        CustomerContractLine: Record "Cust. Sub. Contract Line";
-    begin
-        CustomerContractLine.SetRange("Subscription Contract No.", Rec."No.");
-        CustomerContractLine.FilterOnServiceObjectContractLineType();
-        exit(CustomerContractLine.IsEmpty());
     end;
 
     local procedure SetDefaultWithoutContractDeferralsFromContractType()

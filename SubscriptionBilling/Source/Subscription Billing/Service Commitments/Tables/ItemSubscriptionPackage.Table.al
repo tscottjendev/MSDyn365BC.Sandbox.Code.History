@@ -112,7 +112,7 @@ table 8058 "Item Subscription Package"
         TextManagement.ReplaceInvalidFilterChar(PackageFilter);
     end;
 
-    internal procedure IsPackageAssignedToServiceObject(ServiceObjectNo: Code[20]; ItemServCommitmentPackageCode: Code[20]): Boolean
+    local procedure IsPackageAssignedToServiceObject(ServiceObjectNo: Code[20]; ItemServCommitmentPackageCode: Code[20]): Boolean
     var
         ServiceCommitment: Record "Subscription Line";
     begin
@@ -175,7 +175,7 @@ table 8058 "Item Subscription Package"
             Rec.SetRange("Price Group");
     end;
 
-    internal procedure TestPackageLinesInvoicedViaContracts()
+    local procedure TestPackageLinesInvoicedViaContracts()
     var
         Item: Record Item;
     begin

@@ -22,7 +22,7 @@ codeunit 8069 "Sales Subscription Line Mgmt."
             AddSalesServiceCommitmentsForSalesLine(Rec, false);
     end;
 
-    procedure AddSalesServiceCommitmentsForSalesLine(var SalesLine: Record "Sales Line"; SkipAddAdditionalSalesServComm: Boolean)
+    internal procedure AddSalesServiceCommitmentsForSalesLine(var SalesLine: Record "Sales Line"; SkipAddAdditionalSalesServComm: Boolean)
     var
         ItemServCommitmentPackage: Record "Item Subscription Package";
         SalesHeader: Record "Sales Header";
@@ -60,7 +60,7 @@ codeunit 8069 "Sales Subscription Line Mgmt."
         AddAdditionalSalesServiceCommitmentsForSalesLine(SalesLine, false);
     end;
 
-    internal procedure AddAdditionalSalesServiceCommitmentsForSalesLine(var SalesLine: Record "Sales Line"; RemoveExistingPackageFromFilter: Boolean)
+    local procedure AddAdditionalSalesServiceCommitmentsForSalesLine(var SalesLine: Record "Sales Line"; RemoveExistingPackageFromFilter: Boolean)
     var
         ServiceCommitmentPackage: Record "Subscription Package";
         ItemServCommitmentPackage: Record "Item Subscription Package";
@@ -125,17 +125,17 @@ codeunit 8069 "Sales Subscription Line Mgmt."
         exit(true);
     end;
 
-    procedure IsSalesLineWithSalesServiceCommitments(var SalesLine: Record "Sales Line"; SkipTemporaryCheck: Boolean): Boolean
+    local procedure IsSalesLineWithSalesServiceCommitments(var SalesLine: Record "Sales Line"; SkipTemporaryCheck: Boolean): Boolean
     begin
         exit(IsSalesLineWithSalesServiceCommitments(SalesLine, SkipTemporaryCheck, false));
     end;
 
-    procedure IsSalesLineWithServiceCommitmentItem(var SalesLine: Record "Sales Line"; SkipTemporaryCheck: Boolean): Boolean
+    internal procedure IsSalesLineWithServiceCommitmentItem(var SalesLine: Record "Sales Line"; SkipTemporaryCheck: Boolean): Boolean
     begin
         exit(IsSalesLineWithSalesServiceCommitments(SalesLine, SkipTemporaryCheck, true));
     end;
 
-    procedure IsSalesLineWithSalesServiceCommitmentsToShip(SalesLine: Record "Sales Line"): Boolean
+    internal procedure IsSalesLineWithSalesServiceCommitmentsToShip(SalesLine: Record "Sales Line"): Boolean
     begin
         if not IsSalesLineWithSalesServiceCommitments(SalesLine, true) then
             exit(false);
@@ -155,7 +155,7 @@ codeunit 8069 "Sales Subscription Line Mgmt."
         exit(true);
     end;
 
-    procedure IsSalesLineWithServiceCommitmentItemToShip(SalesLine: Record "Sales Line"): Boolean
+    internal procedure IsSalesLineWithServiceCommitmentItemToShip(SalesLine: Record "Sales Line"): Boolean
     begin
         if not IsSalesLineWithServiceCommitmentItem(SalesLine, true) then
             exit(false);
@@ -181,14 +181,14 @@ codeunit 8069 "Sales Subscription Line Mgmt."
         end;
     end;
 
-    internal procedure CreateSalesServCommLineFromServCommPackageLine(var SalesLine: Record "Sales Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line")
+    local procedure CreateSalesServCommLineFromServCommPackageLine(var SalesLine: Record "Sales Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line")
     var
         SalesServiceCommitment: Record "Sales Subscription Line";
     begin
         CreateSalesServCommLineFromServCommPackageLine(SalesLine, ServiceCommitmentPackageLine, SalesServiceCommitment);
     end;
 
-    internal procedure CreateSalesServCommLineFromServCommPackageLine(var SalesLine: Record "Sales Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line"; var SalesServiceCommitment: Record "Sales Subscription Line")
+    local procedure CreateSalesServCommLineFromServCommPackageLine(var SalesLine: Record "Sales Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line"; var SalesServiceCommitment: Record "Sales Subscription Line")
     var
         IsHandled: Boolean;
     begin
@@ -362,7 +362,7 @@ codeunit 8069 "Sales Subscription Line Mgmt."
         exit(SessionStore.GetBooleanKey('SalesLineRestoreInProgress ' + Format(SalesLine.RecordId())));
     end;
 
-    procedure GetItemNoForSalesServiceCommitment(var SalesLine: Record "Sales Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line"): Code[20]
+    internal procedure GetItemNoForSalesServiceCommitment(var SalesLine: Record "Sales Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line"): Code[20]
     var
         Item: Record Item;
         ItemNo: Code[20];

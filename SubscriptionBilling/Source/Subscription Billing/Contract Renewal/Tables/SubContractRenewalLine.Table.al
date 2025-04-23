@@ -204,7 +204,7 @@ table 8001 "Sub. Contract Renewal Line"
         exit(true);
     end;
 
-    internal procedure ContractRenewalLineExists(ServiceCommitment: Record "Subscription Line"): Boolean
+    local procedure ContractRenewalLineExists(ServiceCommitment: Record "Subscription Line"): Boolean
     var
         ContractRenewalLine: Record "Sub. Contract Renewal Line";
     begin

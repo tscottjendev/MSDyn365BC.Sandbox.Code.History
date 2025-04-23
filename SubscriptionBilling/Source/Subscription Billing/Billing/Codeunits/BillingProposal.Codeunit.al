@@ -234,7 +234,7 @@ codeunit 8062 "Billing Proposal"
             RecalculateHarmonizedBillingFieldsBasedOnNextBillingDate(BillingLine, ContractNo);
     end;
 
-    internal procedure ProcessServiceCommitment(var ServiceCommitment: Record "Subscription Line"; var BillingLine: Record "Billing Line"; BillingTemplate: Record "Billing Template"; var BillingDate: Date; var BillingToDate: Date)
+    local procedure ProcessServiceCommitment(var ServiceCommitment: Record "Subscription Line"; var BillingLine: Record "Billing Line"; BillingTemplate: Record "Billing Template"; var BillingDate: Date; var BillingToDate: Date)
     var
         UsageDataBilling: Record "Usage Data Billing";
         SkipServiceCommitment: Boolean;
@@ -499,7 +499,7 @@ codeunit 8062 "Billing Proposal"
                 BillingPeriodEnd := CustomerContract."Next Billing To" - 1;
     end;
 
-    procedure CalculateNextBillingToDateForServiceCommitment(ServiceCommitment: Record "Subscription Line"; BillingFromDate: Date) NextBillingToDate: Date
+    internal procedure CalculateNextBillingToDateForServiceCommitment(ServiceCommitment: Record "Subscription Line"; BillingFromDate: Date) NextBillingToDate: Date
     var
         CustomerContract: Record "Customer Subscription Contract";
         SupplierChargeEndDate: Date;

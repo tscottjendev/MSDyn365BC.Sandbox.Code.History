@@ -594,7 +594,7 @@ table 8059 "Subscription Line"
         BillingLineArchiveForServiceCommitmentExistErr: Label 'The contract line has already been billed. The Subscription Line start date can no longer be changed.';
         NoManualEntryOfUnitCostLCYForVendorServCommErr: Label 'Please use the fields "Calculation Base Amount" and "Calculation Base %" in order to update the unit cost.';
 
-    local procedure CheckServiceDates()
+    internal procedure CheckServiceDates()
     begin
         CheckServiceDates(Rec."Subscription Line Start Date", Rec."Subscription Line End Date", Rec."Next Billing Date");
     end;
@@ -612,7 +612,7 @@ table 8059 "Subscription Line"
         end;
     end;
 
-    internal procedure DisplayErrorIfContractLinesExist(ErrorTxt: Text; CheckContractLineClosed: Boolean)
+    local procedure DisplayErrorIfContractLinesExist(ErrorTxt: Text; CheckContractLineClosed: Boolean)
     var
         CustomerContractLine: Record "Cust. Sub. Contract Line";
         VendorContractLine: Record "Vend. Sub. Contract Line";
@@ -1284,7 +1284,7 @@ table 8059 "Subscription Line"
         Rec.SetRange("Subscription Contract No.", ContractNo);
     end;
 
-    internal procedure InitCurrencyData()
+    local procedure InitCurrencyData()
     var
         Currency: Record Currency;
     begin
@@ -1550,7 +1550,7 @@ table 8059 "Subscription Line"
         end;
     end;
 
-    internal procedure DeleteContractPriceUpdateLines()
+    local procedure DeleteContractPriceUpdateLines()
     var
         ContractPriceUpdateLine: Record "Sub. Contr. Price Update Line";
     begin
@@ -1680,7 +1680,7 @@ table 8059 "Subscription Line"
         exit(Rec."Usage Based Billing" and (Rec."Subscription Header No." <> ''));
     end;
 
-    internal procedure GetOriginalInvoicedToDateIfRebillingMetadataExist() OriginalInvoicedToDate: Date
+    local procedure GetOriginalInvoicedToDateIfRebillingMetadataExist() OriginalInvoicedToDate: Date
     var
         UsageDataBillingMetadata: Record "Usage Data Billing Metadata";
     begin

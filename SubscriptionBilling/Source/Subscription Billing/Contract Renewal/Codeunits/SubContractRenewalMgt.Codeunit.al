@@ -36,7 +36,7 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
             Error(NoLinesCreatedMsg);
     end;
 
-    procedure StartContractRenewalFromContract(CustomerContract: Record "Customer Subscription Contract")
+    internal procedure StartContractRenewalFromContract(CustomerContract: Record "Customer Subscription Contract")
     var
         CustomerContractLine: Record "Cust. Sub. Contract Line";
         ContractRenewalSelection: Page "Contract Renewal Selection";
@@ -56,7 +56,7 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
                 CreateContractRenewal.OpenSalesQuotes();
     end;
 
-    internal procedure CreateContractRenewalLinesFromContractLineSelection(var CustomerContractLine: Record "Cust. Sub. Contract Line"; AddVendServices: Boolean)
+    local procedure CreateContractRenewalLinesFromContractLineSelection(var CustomerContractLine: Record "Cust. Sub. Contract Line"; AddVendServices: Boolean)
     var
         SelectContractRenewal: Report "Select Contract Renewal";
     begin
@@ -68,7 +68,7 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
         until CustomerContractLine.Next() = 0;
     end;
 
-    internal procedure CreateSalesQuoteForContract(CustomerContractNo: Code[20])
+    local procedure CreateSalesQuoteForContract(CustomerContractNo: Code[20])
     var
         CustomerContract: Record "Customer Subscription Contract";
         ContractRenewalLine: Record "Sub. Contract Renewal Line";
@@ -127,12 +127,12 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
         exit(true);
     end;
 
-    procedure IsContractRenewal(var SalesLine: Record "Sales Line"): Boolean
+    internal procedure IsContractRenewal(var SalesLine: Record "Sales Line"): Boolean
     begin
         exit(SalesLine.IsContractRenewalQuote());
     end;
 
-    procedure IsContractRenewal(var RecRef: RecordRef): Boolean
+    internal procedure IsContractRenewal(var RecRef: RecordRef): Boolean
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -153,7 +153,7 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
         exit(false);
     end;
 
-    procedure IsContractRenewal(var SalesHeader: Record "Sales Header"): Boolean
+    internal procedure IsContractRenewal(var SalesHeader: Record "Sales Header"): Boolean
     var
         SalesLine: Record "Sales Line";
     begin
@@ -175,7 +175,7 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
         SalesLine.SetRange(Type, SalesLine.Type::"Service Object");
     end;
 
-    procedure ShowRenewalSalesDocumentForContract(SalesDocumentType: Enum "Sales Document Type"; ContractNo: Code[20])
+    internal procedure ShowRenewalSalesDocumentForContract(SalesDocumentType: Enum "Sales Document Type"; ContractNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
         SalesServiceCommitment: Record "Sales Subscription Line";
@@ -220,7 +220,7 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
         end;
     end;
 
-    procedure FilterServCommVendFromServCommCust(ServiceCommitmentCust: Record "Subscription Line"; var ServiceCommitmentVend: Record "Subscription Line")
+    internal procedure FilterServCommVendFromServCommCust(ServiceCommitmentCust: Record "Subscription Line"; var ServiceCommitmentVend: Record "Subscription Line")
     begin
         ServiceCommitmentVend.Reset();
         ServiceCommitmentVend.SetRange("Subscription Header No.", ServiceCommitmentCust."Subscription Header No.");
@@ -229,17 +229,17 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
         ServiceCommitmentVend.SetFilter("Subscription Line End Date", '<>%1', 0D);
     end;
 
-    procedure SetAddVendorServices(NewAddVendorServices: Boolean)
+    internal procedure SetAddVendorServices(NewAddVendorServices: Boolean)
     begin
         AddVendorServices := NewAddVendorServices;
     end;
 
-    internal procedure GetNotificationIDForInvalidLinesHidden(): Guid
+    local procedure GetNotificationIDForInvalidLinesHidden(): Guid
     begin
         exit('2b855d5f-35cd-4b36-9e48-51f7adf0c237');
     end;
 
-    procedure NotifyIfLinesNotShown(var CustomerContractLine: Record "Cust. Sub. Contract Line")
+    internal procedure NotifyIfLinesNotShown(var CustomerContractLine: Record "Cust. Sub. Contract Line")
     var
         CustomerContractLine2: Record "Cust. Sub. Contract Line";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
@@ -275,7 +275,7 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
         exit(MyNotification.IsEnabled(GetNotificationIDForInvalidLinesHidden()));
     end;
 
-    internal procedure PrepareNotification(var Notify: Notification; NotificationID: Guid; NotificationMsg: Text; MethodName: Text; ActionCaption: Text)
+    local procedure PrepareNotification(var Notify: Notification; NotificationID: Guid; NotificationMsg: Text; MethodName: Text; ActionCaption: Text)
     begin
         Clear(Notify);
         Notify.Id := NotificationID;
@@ -284,7 +284,7 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
         Notify.Message := NotificationMsg;
     end;
 
-    procedure HideNotificationActiveForLinesNotShownForCurrentUser(Notify: Notification)
+    internal procedure HideNotificationActiveForLinesNotShownForCurrentUser(Notify: Notification)
     var
         MyNotifications: Record "My Notifications";
     begin
@@ -317,7 +317,7 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
     begin
     end;
 
-    procedure GetContractRenewalIdentifierLabel(): Code[20]
+    internal procedure GetContractRenewalIdentifierLabel(): Code[20]
     begin
         exit(ContractRenewalIdentifierLbl);
     end;

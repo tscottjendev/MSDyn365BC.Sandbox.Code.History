@@ -439,7 +439,7 @@ codeunit 8067 "Customer Deferrals Mngmt."
         GlobalGLEntry."Subscription Contract No." := GenJournalLine."Subscription Contract No.";
     end;
 
-    procedure SetDeferralNo(NewDeferralNo: Integer)
+    internal procedure SetDeferralNo(NewDeferralNo: Integer)
     begin
         DeferralEntryNo := NewDeferralNo;
     end;

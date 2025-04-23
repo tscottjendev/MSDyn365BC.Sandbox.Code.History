@@ -13,25 +13,25 @@ codeunit 8057 "Date Formula Management"
         ComplexFormulaErr: Label 'The Date Formula cannot be complex.';
         NaturalNumberRatioErr: Label 'The ratio of ''%1'' and ''%2'' or vice versa must give a natural number.';
 
-    procedure ErrorIfDateFormulaEmpty(DateFormula: DateFormula; FieldCaption: Text)
+    internal procedure ErrorIfDateFormulaEmpty(DateFormula: DateFormula; FieldCaption: Text)
     begin
         if Format(DateFormula) = '' then
             Error(DateFormulaEmptyErr, FieldCaption);
     end;
 
-    procedure ErrorIfDateFormulaNegative(DateFormula: DateFormula)
+    internal procedure ErrorIfDateFormulaNegative(DateFormula: DateFormula)
     begin
         if StrPos(Format(DateFormula), '-') <> 0 then
             Error(DateFormulaNegativeErr);
     end;
 
-    procedure ErrorIfDateEmpty(Date: Date; FieldCaption: Text)
+    internal procedure ErrorIfDateEmpty(Date: Date; FieldCaption: Text)
     begin
         if Date = 0D then
             Error(DateEmptyErr, FieldCaption);
     end;
 
-    procedure CheckIntegerRatioForDateFormulas(DateFormula1: DateFormula; DateFormula1Caption: Text; DateFormula2: DateFormula; DateFormula2Caption: Text)
+    internal procedure CheckIntegerRatioForDateFormulas(DateFormula1: DateFormula; DateFormula1Caption: Text; DateFormula2: DateFormula; DateFormula2Caption: Text)
     var
         DateFormulaType1: Enum "Date Formula Type";
         DateFormulaType2: Enum "Date Formula Type";
@@ -73,7 +73,7 @@ codeunit 8057 "Date Formula Management"
             Error(NaturalNumberRatioErr, DateFormula1Caption, DateFormula2Caption);
     end;
 
-    procedure FindDateFormulaType(InputDateFormula: DateFormula; var PeriodCount: Integer; var Letter: Char) DateFormulaType: Enum "Date Formula Type"
+    internal procedure FindDateFormulaType(InputDateFormula: DateFormula; var PeriodCount: Integer; var Letter: Char) DateFormulaType: Enum "Date Formula Type"
     var
         InputDateText: Text;
         LetterPosition: Integer;
@@ -120,14 +120,14 @@ codeunit 8057 "Date Formula Management"
         Evaluate(Letter, CopyStr(InputDateText, LetterPosition, 1));
     end;
 
-    procedure FindDateFormulaType(InputDateFormula: DateFormula; var PeriodCount: Integer) DateFormulaType: Enum "Date Formula Type"
+    local procedure FindDateFormulaType(InputDateFormula: DateFormula; var PeriodCount: Integer) DateFormulaType: Enum "Date Formula Type"
     var
         Letter: Char;
     begin
         DateFormulaType := FindDateFormulaType(InputDateFormula, PeriodCount, Letter);
     end;
 
-    procedure FindDateFormulaTypeForComparison(InputDateFormula: DateFormula; var PeriodCountForComparison: Integer) DateFormulaType: Enum "Date Formula Type"
+    internal procedure FindDateFormulaTypeForComparison(InputDateFormula: DateFormula; var PeriodCountForComparison: Integer) DateFormulaType: Enum "Date Formula Type"
     begin
         DateFormulaType := FindDateFormulaType(InputDateFormula, PeriodCountForComparison);
         // Months can be compared to a Quarter and to a Year, Weeks and Days cannot be compared to Months, Quartes and Years

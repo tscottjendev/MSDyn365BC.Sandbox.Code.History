@@ -48,7 +48,7 @@ codeunit 8004 "Post Sub. Contract Renewal"
             until SalesLine.Next() = 0;
     end;
 
-    internal procedure Post(var SalesHeader: Record "Sales Header")
+    local procedure Post(var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
         ContractRenewalMgt: Codeunit "Sub. Contract Renewal Mgt.";
@@ -76,7 +76,7 @@ codeunit 8004 "Post Sub. Contract Renewal"
             until SalesServiceCommitment.Next() = 0;
     end;
 
-    procedure InsertPlannedServiceCommitmentFromSalesServiceCommitment(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesServiceCommitment: Record "Sales Subscription Line")
+    local procedure InsertPlannedServiceCommitmentFromSalesServiceCommitment(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesServiceCommitment: Record "Sales Subscription Line")
     var
         PlannedServiceCommitment: Record "Planned Subscription Line";
         ServiceCommitment: Record "Subscription Line";
@@ -274,7 +274,7 @@ codeunit 8004 "Post Sub. Contract Renewal"
             until TempPlannedServiceCommitment.Next() = 0;
     end;
 
-    procedure ProcessPlannedServiceCommitment(PlannedServiceCommitment: Record "Planned Subscription Line")
+    local procedure ProcessPlannedServiceCommitment(PlannedServiceCommitment: Record "Planned Subscription Line")
     var
         ServiceCommitment: Record "Subscription Line";
         IsHandled: Boolean;

@@ -10,12 +10,12 @@ codeunit 8021 "Text Management"
     var
         ProcessingAbortedErr: Label 'Processing aborted.';
 
-    procedure GetProcessingAbortedErr(): Text
+    internal procedure GetProcessingAbortedErr(): Text
     begin
         exit(ProcessingAbortedErr);
     end;
 
-    procedure AppendText(var ExistingText: Text; NewText: Text; Separator: Text)
+    internal procedure AppendText(var ExistingText: Text; NewText: Text; Separator: Text)
     begin
         if NewText = '' then
             exit;
@@ -26,13 +26,13 @@ codeunit 8021 "Text Management"
             ExistingText += CopyStr(Separator + NewText, 1, MaxStrLen(ExistingText) - StrLen(ExistingText));
     end;
 
-    procedure ReplaceInvalidFilterChar(var BaseText: Text)
+    internal procedure ReplaceInvalidFilterChar(var BaseText: Text)
     begin
         BaseText := ConvertStr(BaseText, '()', '??');
         BaseText := ConvertStr(BaseText, '<>', '??');
     end;
 
-    procedure ShowFieldText(var RRef: RecordRef; FieldNo: Integer)
+    internal procedure ShowFieldText(var RRef: RecordRef; FieldNo: Integer)
     var
         FRef: FieldRef;
         BlobText: Text;
@@ -57,7 +57,7 @@ codeunit 8021 "Text Management"
         TextEditor.RunModal();
     end;
 
-    procedure ReadBlobText(RecRef: RecordRef; FieldNo: Integer): Text
+    local procedure ReadBlobText(RecRef: RecordRef; FieldNo: Integer): Text
     var
         TempBlob: Codeunit "Temp Blob";
         TypeHelper: Codeunit "Type Helper";
@@ -70,7 +70,7 @@ codeunit 8021 "Text Management"
         exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
-    procedure WriteBlobText(var RRef: RecordRef; FieldNo: Integer; BlobText: Text)
+    internal procedure WriteBlobText(var RRef: RecordRef; FieldNo: Integer; BlobText: Text)
     var
         TempBlob: Codeunit "Temp Blob";
         OutStream: OutStream;

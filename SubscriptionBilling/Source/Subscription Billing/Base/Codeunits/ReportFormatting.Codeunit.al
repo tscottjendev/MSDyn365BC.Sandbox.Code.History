@@ -8,12 +8,12 @@ codeunit 8015 "Report Formatting"
     Access = Internal;
     SingleInstance = true;
 
-    procedure AddValueToBuffer(var NameValueBuffer: Record "Name/Value Buffer"; Name: Text; Value: Text)
+    internal procedure AddValueToBuffer(var NameValueBuffer: Record "Name/Value Buffer"; Name: Text; Value: Text)
     begin
         AddValueToBuffer(NameValueBuffer, Name, Value, '');
     end;
 
-    procedure AddValueToBuffer(var NameValueBuffer: Record "Name/Value Buffer"; Name: Text; Value: Text; "Value Long": Text)
+    internal procedure AddValueToBuffer(var NameValueBuffer: Record "Name/Value Buffer"; Name: Text; Value: Text; "Value Long": Text)
     var
         KeyIndex: Integer;
     begin
@@ -31,7 +31,7 @@ codeunit 8015 "Report Formatting"
         end;
     end;
 
-    procedure GetValueFromBuffer(var NameValueBuffer: Record "Name/Value Buffer"; Name: Text) Value: Text
+    internal procedure GetValueFromBuffer(var NameValueBuffer: Record "Name/Value Buffer"; Name: Text) Value: Text
     begin
         if Name <> '' then begin
             NameValueBuffer.SetRange(Name, Name);
@@ -41,14 +41,14 @@ codeunit 8015 "Report Formatting"
         exit('');
     end;
 
-    procedure BlankZeroFormatting(DecimalValue: Decimal): Text
+    internal procedure BlankZeroFormatting(DecimalValue: Decimal): Text
     begin
         if DecimalValue = 0 then
             exit('');
         exit(Format(DecimalValue));
     end;
 
-    procedure BlankZeroWithCurrencyCode(DecimalValue: Decimal; CurrencyCode: Code[20]; AutoFormatType: Enum "Auto Format"): Text
+    internal procedure BlankZeroWithCurrencyCode(DecimalValue: Decimal; CurrencyCode: Code[20]; AutoFormatType: Enum "Auto Format"): Text
     var
         AutoFormat: Codeunit "Auto Format";
     begin
@@ -57,7 +57,7 @@ codeunit 8015 "Report Formatting"
         exit(Format(DecimalValue, 0, AutoFormat.ResolveAutoFormat(AutoFormatType, CurrencyCode)));
     end;
 
-    procedure FormatTextVariableFromDecimalValue(var FormattedTextVariable: Text; DecimalValue: Decimal; AutoFormatType: Enum "Auto Format"; CurrencyCode: Code[10])
+    internal procedure FormatTextVariableFromDecimalValue(var FormattedTextVariable: Text; DecimalValue: Decimal; AutoFormatType: Enum "Auto Format"; CurrencyCode: Code[10])
     var
         AutoFormat: Codeunit "Auto Format";
     begin

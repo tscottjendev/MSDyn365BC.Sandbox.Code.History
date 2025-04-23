@@ -642,7 +642,7 @@ codeunit 8074 "Document Change Management"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", OnBeforeValidateEvent, "Buy-from Vendor No.", false, false)]
-    local procedure PreventChangePurchHdrSelltoVendorNo(var Rec: Record "Purchase Header"; CurrFieldNo: Integer)
+    local procedure PreventChangePurchHdrBuyFromVendorNo(var Rec: Record "Purchase Header"; CurrFieldNo: Integer)
     begin
         if Rec.IsTemporary() then
             exit;
@@ -1105,7 +1105,7 @@ codeunit 8074 "Document Change Management"
             Error(LineCannotBeChangedErr, BillingLine."Subscription Contract No.");
     end;
 
-    procedure PreventChangeOnDocumentHeaderOrLine(RecVariant: Variant; CurrFieldNo: Integer)
+    internal procedure PreventChangeOnDocumentHeaderOrLine(RecVariant: Variant; CurrFieldNo: Integer)
     var
         BillingLine: Record "Billing Line";
         ContractRenewalMgt: Codeunit "Sub. Contract Renewal Mgt.";

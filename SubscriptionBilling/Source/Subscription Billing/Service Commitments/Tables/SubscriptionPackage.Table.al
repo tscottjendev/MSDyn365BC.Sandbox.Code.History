@@ -131,7 +131,7 @@ table 8055 "Subscription Package"
             CreateNewCodeForServiceCommPackageCopy(NewCode);
     end;
 
-    internal procedure IsNumeric(Input: Text): Boolean
+    local procedure IsNumeric(Input: Text): Boolean
     begin
         exit(Input in ['0' .. '9']);
     end;
@@ -142,14 +142,6 @@ table 8055 "Subscription Package"
             Rec.SetRange(Code, '')
         else
             Rec.SetFilter(Code, PackageFilter);
-    end;
-
-    internal procedure PackageLineExists(): Boolean
-    var
-        SubscriptionPackageLine: Record "Subscription Package Line";
-    begin
-        SubscriptionPackageLine.FilterOnPackageCode(Rec.Code);
-        exit(not SubscriptionPackageLine.IsEmpty());
     end;
 
     internal procedure PackageLineInvoicedViaContractWithoutInvoicingItemExist(): Boolean

@@ -203,7 +203,7 @@ codeunit 8026 "Process Usage Data Billing"
         OnAfterProcessSubscriptionLine(ServiceCommitment);
     end;
 
-    procedure CalculateSumCostAmountFromUsageDataBilling(LastUsageDataBilling: Record "Usage Data Billing"; UsageDataImportEntryNo: Integer; ServiceCommitment: Record "Subscription Line"): Decimal
+    local procedure CalculateSumCostAmountFromUsageDataBilling(LastUsageDataBilling: Record "Usage Data Billing"; UsageDataImportEntryNo: Integer; ServiceCommitment: Record "Subscription Line"): Decimal
     var
         UsageDataBilling: Record "Usage Data Billing";
     begin
@@ -347,7 +347,7 @@ codeunit 8026 "Process Usage Data Billing"
         exit(UsageDataBilling.Quantity);
     end;
 
-    procedure CalculateSumAmountFromUsageDataBilling(LastUsageDataBilling: Record "Usage Data Billing"; UsageDataImportEntryNo: Integer; ServiceCommitment: Record "Subscription Line"): Decimal
+    local procedure CalculateSumAmountFromUsageDataBilling(LastUsageDataBilling: Record "Usage Data Billing"; UsageDataImportEntryNo: Integer; ServiceCommitment: Record "Subscription Line"): Decimal
     var
         UsageDataBilling: Record "Usage Data Billing";
     begin
@@ -358,7 +358,7 @@ codeunit 8026 "Process Usage Data Billing"
         exit(UsageDataBilling.Amount);
     end;
 
-    procedure SetRoundingPrecision(var RoundingPrecision: Decimal; UnitPrice: Decimal; Currency: Record Currency)
+    internal procedure SetRoundingPrecision(var RoundingPrecision: Decimal; UnitPrice: Decimal; Currency: Record Currency)
     begin
         RoundingPrecision := DateTimeManagement.GetRoundingPrecision(DateTimeManagement.GetNumberOfDecimals(UnitPrice));
         if RoundingPrecision = 1 then begin

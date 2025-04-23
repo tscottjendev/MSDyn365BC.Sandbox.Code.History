@@ -140,7 +140,7 @@ table 8070 "Subscription Billing Cue"
         }
     }
 
-    procedure GetAmountFormat(): Text
+    local procedure GetAmountFormat(): Text
     var
         TypeHelper: Codeunit "Type Helper";
     begin

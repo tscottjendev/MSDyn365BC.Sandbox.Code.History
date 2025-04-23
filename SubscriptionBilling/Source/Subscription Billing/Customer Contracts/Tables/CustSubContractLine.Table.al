@@ -287,14 +287,14 @@ table 8062 "Cust. Sub. Contract Line"
         OnAfterLoadAmountsForContractLine(Rec);
     end;
 
-    procedure GetServiceCommitment(var ServiceCommitment: Record "Subscription Line"): Boolean
+    internal procedure GetServiceCommitment(var ServiceCommitment: Record "Subscription Line"): Boolean
     var
     begin
         ServiceCommitment.Init();
         exit(ServiceCommitment.Get(Rec."Subscription Line Entry No."));
     end;
 
-    procedure GetServiceObject(var ServiceObject: Record "Subscription Header"): Boolean
+    internal procedure GetServiceObject(var ServiceObject: Record "Subscription Header"): Boolean
     begin
         ServiceObject.Init();
         exit(ServiceObject.Get(Rec."Subscription Header No."));
@@ -534,16 +534,6 @@ table 8062 "Cust. Sub. Contract Line"
 
         CustomerContractLine.Closed := true;
         CustomerContractLine.Modify(false);
-    end;
-
-    procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
-    begin
-        HideValidationDialog := NewHideValidationDialog;
-    end;
-
-    procedure GetHideValidationDialog(): Boolean
-    begin
-        exit(HideValidationDialog);
     end;
 
     local procedure GetConfirmResponse(ConfirmQuestion: Text; DefaultButton: Boolean): Boolean

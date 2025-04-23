@@ -816,7 +816,7 @@ codeunit 8060 "Create Billing Documents"
         BillingLine.SetRange("Update Required");
     end;
 
-    internal procedure ProcessingFinishedMessage()
+    local procedure ProcessingFinishedMessage()
     begin
         if DocumentsCreatedCount = 0 then
             Message(NoDocumentsCreatedMsg)
@@ -908,19 +908,19 @@ codeunit 8060 "Create Billing Documents"
             CustomerRecurringBillingGrouping := "Customer Rec. Billing Grouping"::Contract;
     end;
 
-    internal procedure GetBillingPeriodDescriptionTxt() DescriptionText: Text
+    local procedure GetBillingPeriodDescriptionTxt() DescriptionText: Text
     begin
         DescriptionText := ServicePeriodDescriptionTxt;
     end;
 
-    internal procedure GetBillingPeriodDescriptionTxt(LanguageCode: Code[10]) DescriptionText: Text
+    local procedure GetBillingPeriodDescriptionTxt(LanguageCode: Code[10]) DescriptionText: Text
     begin
         TranslationHelper.SetGlobalLanguageByCode(LanguageCode);
         DescriptionText := GetBillingPeriodDescriptionTxt();
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
-    internal procedure CreateAdditionalInvoiceLine(ServiceContractSetupFieldNo: Integer; SalesHeader2: Record "Sales Header"; ParentSalesLine: Record "Sales Line"; ServiceObject: Record "Subscription Header"; ServiceCommitment: Record "Subscription Line")
+    local procedure CreateAdditionalInvoiceLine(ServiceContractSetupFieldNo: Integer; SalesHeader2: Record "Sales Header"; ParentSalesLine: Record "Sales Line"; ServiceObject: Record "Subscription Header"; ServiceCommitment: Record "Subscription Line")
     var
         SalesLine: Record "Sales Line";
         DescriptionText: Text;

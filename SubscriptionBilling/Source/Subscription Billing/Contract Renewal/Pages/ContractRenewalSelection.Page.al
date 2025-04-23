@@ -371,7 +371,7 @@ page 8006 "Contract Renewal Selection"
     end;
 
     [TryFunction]
-    internal procedure CheckContractLine(var CustomerContractLine: Record "Cust. Sub. Contract Line")
+    local procedure CheckContractLine(var CustomerContractLine: Record "Cust. Sub. Contract Line")
     var
         SavedServiceCommitment: Record "Subscription Line";
         ServiceCommitment: Record "Subscription Line";
