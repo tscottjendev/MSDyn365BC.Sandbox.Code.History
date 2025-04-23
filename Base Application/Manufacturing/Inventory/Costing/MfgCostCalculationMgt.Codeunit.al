@@ -28,7 +28,7 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
         ManufacturingSetup: Record "Manufacturing Setup";
         CostCalculationMgt: Codeunit "Cost Calculation Management";
 
-    [EventSubscriber(ObjectType::Table, Database::Item, OnBeforeValidateStandardCost, '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::Item, OnBeforeValidateStandardCost, '', true, true)]
     local procedure OnBeforeValidateStandardCost(var Item: Record Item; xItem: Record Item)
     begin
         if CanIncNonInvCostIntoProductionItem() then
@@ -38,7 +38,7 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
             end;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Stockkeeping Unit", OnBeforeValidateStandardCost, '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Stockkeeping Unit", OnBeforeValidateStandardCost, '', true, true)]
     local procedure OnBeforeValidateSKUStandardCost(var StockkeepingUnit: Record "Stockkeeping Unit"; xStockkeepingUnit: Record "Stockkeeping Unit")
     var
         Item: Record Item;
