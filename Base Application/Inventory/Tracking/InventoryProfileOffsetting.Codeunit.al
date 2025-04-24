@@ -153,8 +153,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
         PlanMRP := MRPPlanning;
         if Item."Item Tracking Code" <> '' then begin
             ItemTrackingCode.Get(Item."Item Tracking Code");
-            SpecificLotTracking := ItemTrackingCode."Lot Specific Tracking";
-            SpecificSNTracking := (ItemTrackingCode."SN Specific Tracking") or (ItemTrackingCode."SN Transfer Tracking");
+            SpecificLotTracking := IsLotSpecificTracking(ItemTrackingCode);
+            SpecificSNTracking := IsSNSpecificTracking(ItemTrackingCode);
         end else begin
             SpecificLotTracking := false;
             SpecificSNTracking := false;
@@ -4951,6 +4951,56 @@ codeunit 99000854 "Inventory Profile Offsetting"
         exit(true);
     end;
 
+    local procedure IsLotSpecificTracking(ItemTrackingCode: Record "Item Tracking Code"): Boolean
+    var
+        LotSepecificTracking: Boolean;
+    begin
+        LotSepecificTracking := (
+            (ItemTrackingCode."Lot Specific Tracking") or
+            (ItemTrackingCode."Lot Warehouse Tracking") or
+            (ItemTrackingCode."Lot Transfer Tracking") or
+            (ItemTrackingCode."Lot Info. Outbound Must Exist") or
+            (ItemTrackingCode."Lot Purchase Outbound Tracking") or
+            (ItemTrackingCode."Lot Sales Outbound Tracking") or
+            (ItemTrackingCode."Lot Pos. Adjmt. Outb. Tracking") or
+            (ItemTrackingCode."Lot Neg. Adjmt. Outb. Tracking") or
+            (ItemTrackingCode."Lot Info. Inbound Must Exist") or
+            (ItemTrackingCode."Lot Purchase Inbound Tracking") or
+            (ItemTrackingCode."Lot Sales Inbound Tracking") or
+            (ItemTrackingCode."Lot Pos. Adjmt. Inb. Tracking") or
+            (ItemTrackingCode."Lot Neg. Adjmt. Inb. Tracking"));
+
+        if not LotSepecificTracking then
+            OnCheckIsLotSpecificTracking(ItemTrackingCode, LotSepecificTracking);
+
+        exit(LotSepecificTracking);
+    end;
+
+    local procedure IsSNSpecificTracking(ItemTrackingCode: Record "Item Tracking Code"): Boolean
+    var
+        SerialSepecificTracking: Boolean;
+    begin
+        SerialSepecificTracking := (
+            (ItemTrackingCode."SN Specific Tracking") or
+            (ItemTrackingCode."SN Warehouse Tracking") or
+            (ItemTrackingCode."SN Transfer Tracking") or
+            (ItemTrackingCode."SN Info. Outbound Must Exist") or
+            (ItemTrackingCode."SN Purchase Outbound Tracking") or
+            (ItemTrackingCode."SN Sales Outbound Tracking") or
+            (ItemTrackingCode."SN Pos. Adjmt. Outb. Tracking") or
+            (ItemTrackingCode."SN Neg. Adjmt. Outb. Tracking") or
+            (ItemTrackingCode."SN Info. Inbound Must Exist") or
+            (ItemTrackingCode."SN Purchase Inbound Tracking") or
+            (ItemTrackingCode."SN Sales Inbound Tracking") or
+            (ItemTrackingCode."SN Pos. Adjmt. Inb. Tracking") or
+            (ItemTrackingCode."SN Neg. Adjmt. Inb. Tracking"));
+
+        if not SerialSepecificTracking then
+            OnCheckIsSNSpecificTracking(ItemTrackingCode, SerialSepecificTracking);
+
+        exit(SerialSepecificTracking);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAdjustPlanLine(var RequisitionLine: Record "Requisition Line"; var SupplyInventoryProfile: Record "Inventory Profile")
     begin
@@ -6110,6 +6160,16 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnPlanItemOnBeforeCheckSupplyWithinLeadtime(var SupplyInventoryProfile: Record "Inventory Profile"; var DemandInventoryProfile: Record "Inventory Profile"; var SupplyExists: Boolean; var DemandExists: Boolean; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var TempTrkgReservationEntry: Record "Reservation Entry" temporary; var RequisitionLine: Record "Requisition Line"; var DoCheckSupplyWithinLeadtime: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckIsLotSpecificTracking(ItemTrackingCode: Record "Item Tracking Code"; var LotSepecificTracking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckIsSNSpecificTracking(ItemTrackingCode: Record "Item Tracking Code"; var SNSepecificTracking: Boolean)
     begin
     end;
 }
