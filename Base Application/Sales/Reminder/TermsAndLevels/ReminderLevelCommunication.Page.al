@@ -311,7 +311,7 @@ page 835 "Reminder Level Communication"
 
         CurrentLanguage.SetRange(Code, LanguageCode);
         CurrentLanguage.FindFirst();
-        ReminderLevel.Get(rec."Reminder Terms Code", Rec."No.");
+        ReminderLevel.Get(Rec."Reminder Terms Code", Rec."No.");
 
         if not ReminderAttachmentText.Get(ReminderLevel."Reminder Attachment Text", CurrentLanguage.Code) then
             if CreateNewEntry then begin
