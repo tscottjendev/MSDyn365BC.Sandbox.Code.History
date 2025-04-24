@@ -9788,6 +9788,7 @@ table 36 "Sales Header"
         if IsHandled then
             exit(Result);
 
+        Contact.FilterGroup(2);
         if "Sell-to Customer No." <> '' then
             if Contact.Get("Sell-to Contact No.") then
                 Contact.SetRange("Company No.", Contact."Company No.")
@@ -9805,6 +9806,7 @@ table 36 "Sales Header"
             Validate("Sell-to Contact No.", Contact."No.");
             exit(true);
         end;
+        Contact.FilterGroup(0);
         exit(false);
     end;
 
