@@ -251,6 +251,11 @@ table 5406 "Prod. Order Line"
                 end;
             end;
         }
+        field(35; "Standard Task Code"; Code[10])
+        {
+            Caption = 'Standard Task Code';
+            TableRelation = "Standard Task";
+        }
         field(40; Quantity; Decimal)
         {
             Caption = 'Quantity';
