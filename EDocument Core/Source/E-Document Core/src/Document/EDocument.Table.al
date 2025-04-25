@@ -228,6 +228,16 @@ table 6121 "E-Document"
             ToolTip = 'Specifies the service integration to use for the E-Document.';
             Editable = false;
         }
+        field(39; "Source Details"; Text[2048])
+        {
+            Caption = 'Source Details';
+            ToolTip = 'Specifies details about the the E-Document source.';
+        }
+        field(40; "Additional Source Details"; Text[2048])
+        {
+            Caption = 'Additional Source Details';
+            ToolTip = 'Specifies additional details about the E-Document source.';
+        }
     }
     keys
     {
