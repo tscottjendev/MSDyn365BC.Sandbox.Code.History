@@ -2220,12 +2220,6 @@ table 39 "Purchase Line"
                 UpdateDimensionsFromJobTask();
 
                 if (xRec."Line Discount %" <> "Line Discount %") and
-                (xRec."Job Task No." <> "Job Task No.") and
-                ("Line Discount Amount" <> 0)
-                then
-                    UpdateLineDiscPct();
-
-                if (xRec."Line Discount %" <> "Line Discount %") and
                    (xRec."Job Task No." <> "Job Task No.") and
                    ("Line Discount Amount" <> 0)
                 then
@@ -4008,6 +4002,7 @@ table 39 "Purchase Line"
             PurchLineReserve.VerifyQuantity(Rec, xRec);
         end;
         LockTable();
+        OnInsertOnAfterLockTable(Rec, CurrFieldNo);
         if ("Deferral Code" <> '') and (GetDeferralAmount() <> 0) then
             UpdateDeferralAmounts();
         PurchHeader."No." := '';
@@ -4035,6 +4030,7 @@ table 39 "Purchase Line"
 
         if ((Quantity <> 0) or (xRec.Quantity <> 0)) and ItemExists(xRec."No.") then
             PurchLineReserve.VerifyChange(Rec, xRec);
+        OnAfterModifyOnAfterVerifyChange(Rec, CurrFieldNo);
     end;
 
     trigger OnRename()
@@ -12148,6 +12144,16 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestPurchaseJobFields(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnAfterLockTable(var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterModifyOnAfterVerifyChange(var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer)
     begin
     end;
 }

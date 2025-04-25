@@ -109,7 +109,7 @@ table 5406 "Prod. Order Line"
                                 Validate("Routing No.", Item."Routing No.");
                     OnAfterCopyFromItem(Rec, Item, xRec, CurrFieldNo);
                     if ProdOrder."Source Type" = ProdOrder."Source Type"::Family then
-                        "Routing Reference No." := 0
+                        "Routing Reference No." := "Line No."
                     else
                         if "Line No." = 0 then
                             "Routing Reference No." := -10000
@@ -250,6 +250,11 @@ table 5406 "Prod. Order Line"
                     CheckBin();
                 end;
             end;
+        }
+        field(35; "Standard Task Code"; Code[10])
+        {
+            Caption = 'Standard Task Code';
+            TableRelation = "Standard Task";
         }
         field(40; Quantity; Decimal)
         {

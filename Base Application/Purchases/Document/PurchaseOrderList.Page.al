@@ -1073,12 +1073,12 @@ page 9307 "Purchase Order List"
     end;
 
 #if not CLEAN26
-#pragma warning disable AS0072
+#pragma warning disable AS0072,AS0018
     [Obsolete('The Statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTaxStatistics(var PurchaseHeader: Record "Purchase Header"; ShowDialog: Boolean)
     begin
     end;
-#pragma warning restore AS0072
+#pragma warning restore AS0072,AS0018
 #endif
 }
