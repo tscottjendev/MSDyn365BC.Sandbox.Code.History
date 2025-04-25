@@ -8,16 +8,13 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Projects.Resources.Resource;
 using System.Reflection;
 using System.Text;
 
 codeunit 703 "Find Record Management"
 {
-    Permissions = tabledata "G/L Entry" = r,
-                  tabledata "Capacity Ledger Entry" = r;
-
+    Permissions = tabledata "G/L Entry" = r;
 
     trigger OnRun()
     begin

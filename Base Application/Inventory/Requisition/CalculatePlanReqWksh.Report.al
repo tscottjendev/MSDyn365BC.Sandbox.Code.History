@@ -226,7 +226,6 @@ report 699 "Calculate Plan - Req. Wksh."
     var
         ActionMessageEntry: Record "Action Message Entry";
         InventorySetup: Record "Inventory Setup";
-        PlanningAssignment: Record "Planning Assignment";
         CurrWorksheetType: Option Requisition,Planning;
         PeriodLength: Integer;
         ReqWkshTemplateFilter: Code[50];
@@ -253,6 +252,7 @@ report 699 "Calculate Plan - Req. Wksh."
         ReqLine: Record "Requisition Line";
         ReqLineExtern: Record "Requisition Line";
         PurchReqLine: Record "Requisition Line";
+        PlanningAssignment: Record "Planning Assignment";
         InventoryProfileOffsetting: Codeunit "Inventory Profile Offsetting";
         Window: Dialog;
         CurrTemplateName: Code[10];

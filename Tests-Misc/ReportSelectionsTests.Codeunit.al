@@ -356,6 +356,7 @@ codeunit 134421 "Report Selections Tests"
         // Verify is within handler
     end;
 
+#if not CLEAN27
     [Test]
     [Scope('OnPrem')]
     procedure TestHTMLEmailBodyLoad()
@@ -387,7 +388,7 @@ codeunit 134421 "Report Selections Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestEmailAddressSelectionDefaultLayout()
+    procedure TestEmailAddressSelectionDefaultLayoutOld()
     var
         ReportSelections: Record "Report Selections";
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -420,7 +421,7 @@ codeunit 134421 "Report Selections Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestEmailAddressSelectionCustomLayout()
+    procedure TestEmailAddressSelectionCustomLayoutOld()
     var
         ReportSelections: Record "Report Selections";
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -449,7 +450,7 @@ codeunit 134421 "Report Selections Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestEmailAddressSelectionCustomAddressNoLayout()
+    procedure TestEmailAddressSelectionCustomAddressNoLayoutOld()
     var
         ReportSelections: Record "Report Selections";
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -470,6 +471,120 @@ codeunit 134421 "Report Selections Tests"
         SalesInvoiceHeader.SetRecFilter();
         ReportSelections.GetEmailBodyForCust(
           FileName, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Bill-to Customer No.", EmailAddress);
+
+        // Verify
+        Assert.IsTrue(
+          EmailAddress = CustomLayoutEmailTxt,
+          StrSubstNo('Destination email address does not match expected address %1', CustomLayoutEmailTxt));
+    end;
+#endif
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestHTMLEmailBodyLoadFromBlob()
+    var
+        ReportSelections: Record "Report Selections";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempEmailItem: Record "Email Item" temporary;
+        EmailBody: Codeunit "Temp Blob";
+        DummyEmailAddress: Text[250];
+    begin
+        // Validates that EmailItem loads the body from the HTML file
+        Initialize();
+
+        // Setup
+        CreateAndPostSalesInvoice(SalesInvoiceHeader);
+        SetupReportSelections(true, true);
+
+        // Save a report to get some HTML to test the email item with
+        SalesInvoiceHeader.SetRecFilter();
+        ReportSelections.GetEmailBodyForCust(
+          EmailBody, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Bill-to Customer No.", DummyEmailAddress);
+        GetEmailItem(TempEmailItem, TempEmailItem."Message Type"::"From Email Body Template", EmailBody);
+
+        // Verify
+        Assert.IsTrue(TempEmailItem.GetBodyText() <> '', 'Expected text in the body of the EmailItem');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestEmailAddressSelectionDefaultLayout()
+    var
+        ReportSelections: Record "Report Selections";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Customer: Record Customer;
+        EmailBody: Codeunit "Temp Blob";
+        EmailAddress: Text[80];
+    begin
+        // Validates that EmailItem gathers the customer's email address when one is not defined in the custom layouts
+        Initialize();
+
+        // Setup
+        CreateAndPostSalesInvoice(SalesInvoiceHeader);
+        SetupReportSelections(true, true);
+
+        Customer.Get(SalesInvoiceHeader."Bill-to Customer No.");
+        Customer."E-Mail" := CustomerEmailTxt;
+        Customer.Modify(true);
+
+        // Save a report to get some HTML to test the email item with
+        SalesInvoiceHeader.SetRecFilter();
+        ReportSelections.GetEmailBodyForCust(
+          EmailBody, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Bill-to Customer No.", EmailAddress);
+
+        // Verify
+        Assert.IsTrue(
+          EmailAddress = CustomerEmailTxt, StrSubstNo('Destination email address does not match expected address %1', CustomerEmailTxt));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestEmailAddressSelectionCustomLayout()
+    var
+        ReportSelections: Record "Report Selections";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        EmailBody: Codeunit "Temp Blob";
+        EmailAddress: Text[80];
+    begin
+        // Validates that EmailItem gathers the custom layout email address when one is defined.
+        Initialize();
+
+        // Setup
+        CreateAndPostSalesInvoice(SalesInvoiceHeader);
+        SetUpCustomEmail(SalesInvoiceHeader, CustomLayoutEmailTxt, true);
+
+        // Save a report to get some HTML to test the email item with
+        SalesInvoiceHeader.SetRecFilter();
+        ReportSelections.GetEmailBodyForCust(
+          EmailBody, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Bill-to Customer No.", EmailAddress);
+
+        // Verify
+        Assert.IsTrue(
+          EmailAddress = CustomLayoutEmailTxt,
+          StrSubstNo('Destination email address does not match expected address %1', CustomLayoutEmailTxt));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestEmailAddressSelectionCustomAddressNoLayout()
+    var
+        ReportSelections: Record "Report Selections";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        EmailBody: Codeunit "Temp Blob";
+        EmailAddress: Text[80];
+    begin
+        // Validates that the email address in the dialog is from the Customer when set in a custom report selection
+        // and when the custom report selection does not specify the email body.
+        Initialize();
+
+        // Setup
+        CreateAndPostSalesInvoice(SalesInvoiceHeader);
+        SetUpCustomEmail(SalesInvoiceHeader, CustomLayoutEmailTxt, false);
+
+        // Save a report to get some HTML to test the email item with
+        SalesInvoiceHeader.SetRecFilter();
+        ReportSelections.GetEmailBodyForCust(
+          EmailBody, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Bill-to Customer No.", EmailAddress);
 
         // Verify
         Assert.IsTrue(
@@ -1251,8 +1366,7 @@ codeunit 134421 "Report Selections Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesHeader: Record "Sales Header";
         Customer: Record Customer;
-        FileManagement: Codeunit "File Management";
-        FileName: Text[250];
+        EmailBody: Codeunit "Temp Blob";
         EmailAddress: Text[80];
     begin
         // [SCENARIO 338446] E-mail address specified in posted Sales Invoice has more priority than customer's e-mail address.
@@ -1269,13 +1383,12 @@ codeunit 134421 "Report Selections Tests"
         SalesHeader.Modify(true);
         PostSalesInvoice(SalesHeader, SalesInvoiceHeader);
 
-        FileName := Format(FileManagement.ServerTempFileName('.html'), 250);
         SetupReportSelections(true, true);
 
         // [GIVEN] When send sales invoice by e-mail.
         SalesInvoiceHeader.SetRecFilter();
         ReportSelections.GetEmailBodyForCust(
-          FileName, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Bill-to Customer No.", EmailAddress);
+          EmailBody, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Bill-to Customer No.", EmailAddress);
 
         // [THEN] The "a@a.com; b@b.com; c@c.com" address is used as target email address.
         Assert.AreEqual(SalesHeader."Sell-to E-Mail", EmailAddress, EmailAddressErr);
@@ -2285,11 +2398,19 @@ codeunit 134421 "Report Selections Tests"
         end;
     end;
 
+#if not CLEAN27
     local procedure GetEmailItem(var EmailItem: Record "Email Item"; MessageType: Integer; BodyFilePath: Text[250]; Plaintext: Boolean)
     begin
         EmailItem.Validate("Plaintext Formatted", Plaintext);
         EmailItem.Validate("Message Type", MessageType);
         EmailItem.Validate("Body File Path", BodyFilePath);
+    end;
+#endif
+
+    local procedure GetEmailItem(var EmailItem: Record "Email Item"; MessageType: Option "Custom Message","From Email Body Template"; var EmailBody: Codeunit "Temp Blob")
+    begin
+        EmailItem.Validate("Message Type", MessageType);
+        EmailItem.SetBody(EmailBody);
     end;
 
     local procedure SetUpCustomEmail(var SalesInvoiceHeader: Record "Sales Invoice Header"; EmailAddress: Text[80]; UseCustomForEmailBody: Boolean)
