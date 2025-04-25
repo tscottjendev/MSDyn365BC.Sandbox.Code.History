@@ -3353,7 +3353,13 @@ table 1003 "Job Planning Line"
         Item2: Record Item;
         FindRecordManagement: Codeunit "Find Record Management";
         FoundNo: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindOrCreateRecordByNo(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit("No.");
+
         if Type = Type::Item then begin
             if Item2.TryGetItemNoOpenCardWithView(FoundNo, SourceNo, false, true, false, '') then
                 exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
@@ -3363,16 +3369,20 @@ table 1003 "Job Planning Line"
         exit(SourceNo);
     end;
 
-    local procedure GetType(JobPlanningLineType: Enum "Job Planning Line Type"): Integer
+    local procedure GetType(JobPlanningLineType: Enum "Job Planning Line Type") Result: Integer
     begin
-        if JobPlanningLineType = JobPlanningLineType::Text then
-            exit(0);
-        if JobPlanningLineType = JobPlanningLineType::"G/L Account" then
-            exit(1);
-        if JobPlanningLineType = JobPlanningLineType::Item then
-            exit(2);
-        if JobPlanningLineType = JobPlanningLineType::Resource then
-            exit(3);
+        case JobPlanningLineType of
+            JobPlanningLineType::Text:
+                exit(0);
+            JobPlanningLineType::"G/L Account":
+                exit(1);
+            JobPlanningLineType::Item:
+                exit(2);
+            JobPlanningLineType::Resource:
+                exit(3);
+            else
+                OnGetType(JobPlanningLineType, Result);
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -3770,6 +3780,16 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateQuantity(JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var SkipValidateQuantity: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindOrCreateRecordByNo(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetType(JobPlanningLineType: Enum "Job Planning Line Type"; var Result: Integer)
     begin
     end;
 }
