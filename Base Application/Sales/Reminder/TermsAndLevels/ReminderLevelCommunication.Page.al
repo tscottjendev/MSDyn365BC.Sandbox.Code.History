@@ -121,6 +121,7 @@ page 835 "Reminder Level Communication"
                     if FilterText <> '' then
                         LocalLanguage.SetFilter(Code, StrSubstNo('<>%1', FilterText));
 
+                    Commit();
                     Languages.SetTableView(LocalLanguage);
                     Languages.Editable := false;
                     Languages.LookupMode(true);

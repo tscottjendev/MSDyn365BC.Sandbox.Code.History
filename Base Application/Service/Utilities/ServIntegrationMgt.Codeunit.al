@@ -10,7 +10,6 @@ using Microsoft.Foundation.Reporting;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Availability;
-using Microsoft.Manufacturing.Planning;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
@@ -383,7 +382,7 @@ codeunit 6450 "Serv. Integration Mgt."
 
     // Codeunit "Calc. Item Plan - Plan Wksh."
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Item Plan - Plan Wksh.", 'OnPlanThisItemOnBeforeExitMPS', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::Microsoft.Manufacturing.Planning."Calc. Item Plan - Plan Wksh.", 'OnPlanThisItemOnBeforeExitMPS', '', false, false)]
     local procedure OnPlanThisItemOnBeforeExitMPS(var Item: Record Item; var LinesExist: Boolean)
     var
         ServiceLine: Record "Service Line";
