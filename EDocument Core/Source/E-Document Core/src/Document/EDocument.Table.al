@@ -441,14 +441,14 @@ table 6121 "E-Document"
         if EDocumentServiceStatus.FindFirst() then;
     end;
 
-    internal procedure GetEDocumentService() EDocumentService: Record "E-Document Service"
+    procedure GetEDocumentService() EDocumentService: Record "E-Document Service"
     begin
         if EDocumentService.Get(Rec.Service) then
             exit;
         if EDocumentService.Get(GetEDocumentServiceStatus()."E-Document Service Code") then;
     end;
 
-    internal procedure GetEDocumentImportProcessingStatus(): Enum "Import E-Doc. Proc. Status"
+    procedure GetEDocumentImportProcessingStatus(): Enum "Import E-Doc. Proc. Status"
     begin
         exit(GetEDocumentServiceStatus()."Import Processing Status");
     end;

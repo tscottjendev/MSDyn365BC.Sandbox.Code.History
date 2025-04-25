@@ -293,6 +293,8 @@ page 2584 "Dim Correct Posted Ledg Entr"
         FilterText: Text;
         EntryIncluded: Boolean;
     begin
+        if DimensionCorrectionEntryNo = 0 then
+            exit;
         Rec.DeleteAll();
         RecordCount := 0;
         GLEntry.FilterGroup(4);

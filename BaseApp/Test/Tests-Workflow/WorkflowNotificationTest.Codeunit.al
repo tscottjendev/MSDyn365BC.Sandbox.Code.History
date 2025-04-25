@@ -740,8 +740,8 @@ codeunit 134301 "Workflow Notification Test"
         LibraryDocumentApprovals.SetSubstitute(UserSetup, SecondApproverUserSetup);
 
         // Setup
-        CreateDelegateApprovalEntry(PurchApprovalEntry, DATABASE::"Purchase Header", '-2D');
-        CreateDelegateApprovalEntry(SalesApprovalEntry, DATABASE::"Sales Header", '-2D');
+        CreateDelegateApprovalEntry(PurchApprovalEntry, DATABASE::"Purchase Header", '<-2D>');
+        CreateDelegateApprovalEntry(SalesApprovalEntry, DATABASE::"Sales Header", '<-2D>');
 
         // Exercise
         REPORT.Run(REPORT::"Delegate Approval Requests", false);
@@ -780,8 +780,8 @@ codeunit 134301 "Workflow Notification Test"
         LibraryDocumentApprovals.SetApprover(UserSetup, SecondApproverUserSetup);
 
         // Setup
-        CreateDelegateApprovalEntry(PurchApprovalEntry, DATABASE::"Purchase Header", '-2D');
-        CreateDelegateApprovalEntry(SalesApprovalEntry, DATABASE::"Sales Header", '-2D');
+        CreateDelegateApprovalEntry(PurchApprovalEntry, DATABASE::"Purchase Header", '<-2D>');
+        CreateDelegateApprovalEntry(SalesApprovalEntry, DATABASE::"Sales Header", '<-2D>');
 
         // Exercise
         REPORT.Run(REPORT::"Delegate Approval Requests", false);
@@ -823,8 +823,8 @@ codeunit 134301 "Workflow Notification Test"
         SecondApproverUserSetup.Modify(true);
 
         // Setup
-        CreateDelegateApprovalEntry(PurchApprovalEntry, DATABASE::"Purchase Header", '-2D');
-        CreateDelegateApprovalEntry(SalesApprovalEntry, DATABASE::"Sales Header", '-2D');
+        CreateDelegateApprovalEntry(PurchApprovalEntry, DATABASE::"Purchase Header", '<-2D>');
+        CreateDelegateApprovalEntry(SalesApprovalEntry, DATABASE::"Sales Header", '<-2D>');
 
         // Exercise
         REPORT.Run(REPORT::"Delegate Approval Requests", false);
@@ -860,7 +860,7 @@ codeunit 134301 "Workflow Notification Test"
         UserSetup.Modify(true);
 
         // Setup
-        CreateDelegateApprovalEntry(PurchApprovalEntry, DATABASE::"Purchase Header", '-2D');
+        CreateDelegateApprovalEntry(PurchApprovalEntry, DATABASE::"Purchase Header", '<-2D>');
 
         // Exercise
         RequestsToApprove.OpenView();
@@ -935,8 +935,8 @@ codeunit 134301 "Workflow Notification Test"
         LibraryDocumentApprovals.SetSubstitute(UserSetup, SecondApproverUserSetup);
 
         // Setup
-        CreateDelegateApprovalEntry(PurchApprovalEntry, DATABASE::"Purchase Header", '10D');
-        CreateDelegateApprovalEntry(SalesApprovalEntry, DATABASE::"Sales Header", '10D');
+        CreateDelegateApprovalEntry(PurchApprovalEntry, DATABASE::"Purchase Header", '<10D>');
+        CreateDelegateApprovalEntry(SalesApprovalEntry, DATABASE::"Sales Header", '<10D>');
 
         // Exercise
         REPORT.Run(REPORT::"Delegate Approval Requests", false);
@@ -2110,7 +2110,7 @@ codeunit 134301 "Workflow Notification Test"
 
         // [GIVEN] Approval Entry with Sender ID = "U2" and Approver ID = "U1" is created. Overdue is set to Yes for Approval Entry.
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId());
-        UpdateDelegationDateFormulaOnApprovalEntry(ApprovalEntry, '-2D');
+        UpdateDelegationDateFormulaOnApprovalEntry(ApprovalEntry, '<-2D>');
         NotificationEntry.DeleteAll();
 
         // [WHEN] Report "Delegate Approval Requests" is run in background using "JQ".
@@ -2161,7 +2161,7 @@ codeunit 134301 "Workflow Notification Test"
 
         // [GIVEN] Approval Entry with Sender ID = "U3" and Approver ID = "U1" is created. Overdue is set to Yes for Approval Entry.
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId());
-        UpdateDelegationDateFormulaOnApprovalEntry(ApprovalEntry, '-2D');
+        UpdateDelegationDateFormulaOnApprovalEntry(ApprovalEntry, '<-2D>');
         NotificationEntry.DeleteAll();
 
         // [WHEN] Report "Delegate Approval Requests" is run in background using "JQ".
@@ -3247,12 +3247,10 @@ codeunit 134301 "Workflow Notification Test"
     var
         DataTypeBuffer: Record "Data Type Buffer";
         TempBlob: Codeunit "Temp Blob";
-        FileManagement: Codeunit "File Management";
         InStream: InStream;
         OutStream: OutStream;
     begin
-        FileManagement.ServerFileExists(TempEmailItem."Body File Path");
-        FileManagement.BLOBImportFromServerFile(TempBlob, TempEmailItem."Body File Path");
+        TempBlob.FromRecord(TempEmailItem, TempEmailItem.FieldNo(Body));
         TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
 
         if DataTypeBuffer.FindLast() then;

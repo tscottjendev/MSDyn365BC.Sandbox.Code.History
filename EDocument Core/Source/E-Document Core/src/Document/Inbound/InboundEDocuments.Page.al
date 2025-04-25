@@ -29,6 +29,12 @@ page 6105 "Inbound E-Documents"
             repeater(DocumentList)
             {
                 ShowCaption = false;
+                field("Entry No"; Rec."Entry No")
+                {
+                    Caption = 'Entry No.';
+                    ToolTip = 'Specifies the unique number of the electronic document.';
+                    Visible = false;
+                }
                 field("Document Name"; DocumentNameTxt)
                 {
                     Caption = 'Document';
@@ -289,7 +295,7 @@ page 6105 "Inbound E-Documents"
         FileName: Text;
         InStr: InStream;
     begin
-        if not UploadIntoStream('', '', '', FileName, InStr) then
+        if not UploadIntoStream('', '', 'PDF Files|*.pdf', FileName, InStr) then
             exit;
 
         EDocumentService.GetPDFReaderService();

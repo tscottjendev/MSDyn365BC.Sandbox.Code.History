@@ -33,6 +33,7 @@ using Microsoft.Utilities;
 using Microsoft.Warehouse.Tracking;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Foundation.UOM;
+using Microsoft.Manufacturing.Family;
 using Microsoft.Inventory.Planning;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Setup;
@@ -4856,6 +4857,77 @@ codeunit 137069 "SCM Production Orders"
         // [THEN] ProductionOrderFinishedStatusMsg is displayed in ManagedConfirmHandler.
     end;
 
+    [Test]
+    Procedure RoutingIsNotCorrectForMTOFinishedGoodItemOnProductionOrderWhenItIsPartOfFamily()
+    var
+        Family: Record Family;
+        Item: Record Item;
+        ItemFinal: Record Item;
+        ItemComp: Record Item;
+        ProdBOMHeaderRec: Record "Production BOM Header";
+        ProdBOMLineRec: Record "Production BOM Line";
+        ProdBOMHeaderRec2: Record "Production BOM Header";
+        ProdBOMLineRec2: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        RoutingHeader3: Record "Routing Header";
+        WorkCenter: Record "Work Center";
+        RoutingNo: Code[20];
+        RoutingNo2: Code[20];
+    begin
+        // [SCENARIO 572309] Routing is not correct for MTO Finished Good item on Production Order when it is part of Family
+        Initialize();
+
+        //[GIVEN] Create Item FG and Item Compponent.
+        CreateFirstItem(ItemFinal);
+        CreateSecondItem(ItemComp);
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        //[GIVEN] Create First Production Bom
+        LibraryManufacturing.CreateProductionBOMHeader(ProdBOMHeaderRec, ItemComp."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProdBOMHeaderRec, ProdBOMLineRec, '', ProdBOMLineRec.Type::Item, ItemComp."No.", 1);
+        ProdBOMHeaderRec.Validate(Status, ProdBOMHeaderRec.Status::Certified);
+        ProdBOMHeaderRec.Modify(true);
+
+        //[GIVEN] Create Second Production Bom
+        LibraryManufacturing.CreateProductionBOMHeader(ProdBOMHeaderRec2, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProdBOMHeaderRec2, ProdBOMLineRec2, '', ProdBOMLineRec2.Type::Item, Item."No.", 1);
+        ProdBOMHeaderRec2.Validate(Status, ProdBOMHeaderRec.Status::Certified);
+        ProdBOMHeaderRec2.Modify(true);
+
+        // [GIVEN] Create Work Center with Calendar
+        CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Create Routing for Work Center
+        RoutingNo := CreateRoutingWithWorkCenter(WorkCenter."No.", 10, 1, 100);
+        RoutingNo2 := CreateRoutingWithWorkCenter2(WorkCenter."No.", 10, 1, 100);
+
+        // [GIVEN] Update Item with Production BOM and Routing No.
+        ItemFinal.Validate("Production BOM No.", ProdBOMHeaderRec."No.");
+        ItemFinal.Validate("Routing No.", RoutingNo);
+        ItemFinal.Modify(true);
+        ItemComp.Validate("Production BOM No.", ProdBOMHeaderRec2."No.");
+        ItemComp.Validate("Routing No.", RoutingNo2);
+        ItemComp.Modify(true);
+
+        // [GIVEN] Create Family With Routing
+        CreateRoutingSetup(RoutingHeader3, '', '');
+        CreateFamily(Family, RoutingHeader3."No.", ItemFinal."No.");
+
+        // [GIVEN] Create Firm Planned Prod Order
+        CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", Family, 3,
+                  ProductionOrder."Source Type"::Family, ItemFinal, RoutingHeader3."No.");
+
+        // [THEN] Check ProductionOrderRoutingLines having family Routing Lines
+        ProdOrderRoutingLine.SetRange(Status, ProdOrderRoutingLine.Status::"Firm Planned");
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderRoutingLine.SetRange("Routing No.", RoutingHeader3."No.");
+        if ProdOrderRoutingLine.FindFirst() then
+            Assert.AreEqual(RoutingHeader3."No.", ProdOrderRoutingLine."Routing No.", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6762,6 +6834,83 @@ codeunit 137069 "SCM Production Orders"
         ItemRec.Validate("Flushing Method", ItemRec."Flushing Method"::Manual);
         ItemRec.Validate("Replenishment System", ItemRec."Replenishment System"::Purchase);
         ItemRec.Modify(true);
+    end;
+
+    local procedure CreateFirstItem(var ItemRec: Record Item)
+    begin
+        LibraryInventory.CreateItem(ItemRec);
+        ItemRec.Validate("Base Unit of Measure", 'PCS');
+        ItemRec.Validate("Replenishment System", ItemRec."Replenishment System"::Purchase);
+        ItemRec.Validate("Manufacturing Policy", ItemRec."Manufacturing Policy"::"Make-to-Order");
+        ItemRec.Modify(true);
+    end;
+
+    local procedure CreateSecondItem(var ItemRec: Record Item)
+    begin
+        LibraryInventory.CreateItem(ItemRec);
+        ItemRec.Validate("Replenishment System", ItemRec."Replenishment System"::"Prod. Order");
+        ItemRec.Validate("Manufacturing Policy", ItemRec."Manufacturing Policy"::"Make-to-Order");
+        ItemRec.Modify(true);
+    end;
+
+    local procedure CreateFamily(var Family: Record Family; RoutingNo: Code[20]; ItemNo: Code[20])
+    var
+        FamilyLine: Record "Family Line";
+    begin
+        LibraryManufacturing.CreateFamily(Family);
+        Family.Validate("Routing No.", RoutingNo);
+        Family.Modify(true);
+        LibraryManufacturing.CreateFamilyLine(FamilyLine, Family."No.", ItemNo, LibraryRandom.RandInt(5));
+    end;
+
+
+    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; Family: Record Family; Quantity: Decimal; SourceType: Enum "Prod. Order Source Type"; FamilyItem: record Item; RoutingNo: Code[20])
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        WorkCenter: Record "Work Center";
+    begin
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, SourceType, Family."No.", Quantity);
+        ProductionOrder.Validate("Source Type", ProductionOrder."Source Type"::Family);
+        ProductionOrder.Validate("Source No.", Family."No.");
+        ProductionOrder.Modify(true);
+        ProdOrderLine.Init();
+        ProdOrderLine.Status := ProdOrderLine.Status::"Firm Planned";
+        ProdOrderLine."Prod. Order No." := ProductionOrder."No.";
+        ProdOrderLine."Line No." := 10000;
+        ProdOrderLine.Insert(true);
+        ProdOrderLine."Routing Reference No." := 10000;
+        ProdOrderLine.Validate("Item No.", FamilyItem."No.");
+        ProdOrderLine.Validate(Quantity, Quantity);
+        ProdOrderLine."Routing No." := RoutingNo;
+        ProdOrderLine.Modify();
+
+        // [GIVEN] Create Work Center with Calendar
+        CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Create Prod. Order Routing Line with Routing Link Code.
+        CreateProdOrderRoutingLineWithRoutingLinkCode(ProdOrderLine, WorkCenter, ProdOrderRoutingLine.Type::"Work Center", '100', 1);
+        ProdOrderRoutingLine."Routing Reference No." := 10000;
+    end;
+
+    local procedure CreateRoutingWithWorkCenter2(WorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; LotSize: Decimal): Code[20]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenterNo);
+        RoutingLine.Validate("Setup Time", SetupTime);
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Validate("Lot Size", LotSize);
+        RoutingLine.Validate("Routing Link Code", Format(100));
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+        exit(RoutingHeader."No.");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", 'OnBeforeAssistEditTrackingNo', '', false, false)]

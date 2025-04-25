@@ -61,8 +61,8 @@ table 352 "Default Dimension"
 
                 CalcFields("Table Caption");
                 DimensionManagement.DefaultDimObjectNoList(TempAllObjWithCaption);
-                TempAllObjWithCaption."Object Type" := TempAllObjWithCaption."Object Type"::Table;
-                TempAllObjWithCaption."Object ID" := "Table ID";
+                TempAllObjWithCaption.SetRange("Object Type", TempAllObjWithCaption."Object Type"::Table);
+                TempAllObjWithCaption.SetRange("Object ID", "Table ID");
                 if TempAllObjWithCaption.IsEmpty() then
                     FieldError("Table ID");
             end;
