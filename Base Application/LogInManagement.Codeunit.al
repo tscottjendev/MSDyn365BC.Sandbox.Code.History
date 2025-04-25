@@ -275,9 +275,7 @@ codeunit 40 LogInManagement
         CurrentDate := DT2Date(TypeHelper.GetCurrentDateTimeInUserTimeZone());
     end;
 
-#pragma warning disable AS0105
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterInitialization', '', false, false)]
-#pragma warning restore AS0105
     local procedure OnCompanyOpen()
     begin
         CompanyOpen();
@@ -324,4 +322,3 @@ codeunit 40 LogInManagement
     begin
     end;
 }
-

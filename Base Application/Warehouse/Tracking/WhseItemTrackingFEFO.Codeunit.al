@@ -53,7 +53,6 @@ codeunit 7326 "Whse. Item Tracking FEFO"
     local procedure SummarizeInventoryFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; HasExpirationDate: Boolean)
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
-        WarehouseActivityLine: Record "Warehouse Activity Line";
         SummarizedStockByItemTrkg: Query "Summarized Stock By Item Trkg.";
         QtyReservedFromItemLedger: Query "Qty. Reserved From Item Ledger";
         NonReservedQtyLotSN: Decimal;
@@ -77,15 +76,8 @@ codeunit 7326 "Whse. Item Tracking FEFO"
             SummarizedStockByItemTrkg.SetRange(Expiration_Date, 0D);
 
         SummarizedStockByItemTrkg.Open();
-        while SummarizedStockByItemTrkg.Read() do begin
-            WarehouseActivityLine.SetLoadFields("Activity Type", "Item No.", "Location Code", "Serial No.", "Lot No.", "Package No.");
-            WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Movement");
-            WarehouseActivityLine.SetRange("Item No.", ItemNo);
-            WarehouseActivityLine.SetRange("Location Code", Location.Code);
-            WarehouseActivityLine.SetRange("Serial No.", SummarizedStockByItemTrkg.Serial_No_);
-            WarehouseActivityLine.SetRange("Lot No.", SummarizedStockByItemTrkg.Lot_No_);
-            WarehouseActivityLine.SetRange("Package No.", SummarizedStockByItemTrkg.Package_No_);
-            if WarehouseActivityLine.IsEmpty() then begin
+        while SummarizedStockByItemTrkg.Read() do
+            if not CheckIfWhseACtivityLineExists(SummarizedStockByItemTrkg, ItemNo, Location.Code) then begin
                 SummarizedStockByItemTrkg.GetItemTrackingSetup(ItemTrackingSetup);
                 if not IsItemTrackingBlocked(ItemNo, VariantCode, ItemTrackingSetup) then begin
                     NonReservedQtyLotSN := SummarizedStockByItemTrkg.Remaining_Quantity;
@@ -102,7 +94,6 @@ codeunit 7326 "Whse. Item Tracking FEFO"
                         InsertEntrySummaryFEFO(ItemTrackingSetup, SummarizedStockByItemTrkg.Expiration_Date);
                 end;
             end;
-        end;
     end;
 
     local procedure CalcNonRegisteredQtyOutstanding(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; HasExpirationDate: Boolean): Decimal
@@ -296,6 +287,19 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         OnAfterIsItemTrackingBlocked(SourceReservationEntry, ItemNo, VariantCode, ItemTrackingSetup."Lot No.", IsBlocked, ItemTrackingSetup);
 
         exit(IsBlocked);
+    end;
+
+    local procedure CheckIfWhseActivityLineExists(var SummarizedStockByItemTrkg: Query "Summarized Stock By Item Trkg."; ItemNo: Code[20]; LocationCode: Code[10]): Boolean
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Movement");
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.SetRange("Serial No.", SummarizedStockByItemTrkg.Serial_No_);
+        WarehouseActivityLine.SetRange("Lot No.", SummarizedStockByItemTrkg.Lot_No_);
+        WarehouseActivityLine.SetRange("Package No.", SummarizedStockByItemTrkg.Package_No_);
+        exit(not WarehouseActivityLine.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]
