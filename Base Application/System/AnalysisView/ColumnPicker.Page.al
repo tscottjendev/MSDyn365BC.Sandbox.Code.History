@@ -4,153 +4,137 @@ using System.Reflection;
 
 page 9640 "Column Picker"
 {
-    PageType = StandardDialog;
+    PageType = List;
     ApplicationArea = All;
     SourceTable = "Page Table Field";
-    Caption = 'Insert column(s)';
-    DataCaptionExpression = '';
     InsertAllowed = false;
     ModifyAllowed = false;
     DeleteAllowed = false;
-    Editable = true;
-    ShowFilter = false;
     LinksAllowed = false;
+    Extensible = false;
 
     layout
     {
         area(Content)
         {
-            field(SourceTable; SourceTableInfo)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Source table';
-                Editable = false;
-                ToolTip = 'Specifies source table name and id.';
-            }
-            field(SourcePage; SourcePageInfo)
+            field(SourcePage; SourcePageName)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show available fields from';
-                Editable = true;
-                ToolTip = 'Specifies source page name, id, and type.';
+                ToolTip = 'Specifies source page name.';
                 Visible = AreTherePagesAvailable;
+                InstructionalText = 'Select a page';
+                LookupPageId = "List and Card page picker";
+                TableRelation = "Page Metadata" where(SourceTable = field("Table No"),
+                                                        PageType = filter('0|1'));
 
-                trigger OnLookup(var Text: Text): Boolean
+                trigger OnAfterLookup(Selected: RecordRef)
+                var
+                    PageMetadata: Record "Page Metadata";
                 begin
-                    if PAGE.RunModal(Page::"List and Card page picker", PageMetadata) = ACTION::LookupOK then begin
-                        SourcePageId := PageMetadata.Id;
-                        SourcePageName := PageMetadata.Name;
-                        Text := StrSubstNo('%1 (%2, %3)', PageMetadata.Name, PageMetadata.Id, PageMetadata.PageType);
-                        exit(true);
-                    end;
-                    exit(false);
-                end;
+                    PageMetadata := Selected;
+                    SourcePageName := PageMetadata.Name;
 
-                trigger OnValidate()
-                begin
-                    Rec.SetFilter("Page ID", '%1', SourcePageId);
+                    Rec.SetFilter(FieldKind, '%1', Rec.FieldKind::PageFieldBoundToTable);
+                    Rec.SetFilter("Page ID", '%1', PageMetadata.ID);
+                    Rec.SetCurrentKey(Name);
                     CurrPage.Update();
                 end;
             }
+
+
             field(Warning; UsingTableAsSourceMsg)
             {
                 Visible = not AreTherePagesAvailable;
                 ShowCaption = false;
-                Style = Attention;
                 ApplicationArea = All;
                 Editable = false;
-                Importance = Promoted;
+                Style = Strong;
             }
+
             repeater(GroupName)
             {
-                field("Field ID"; Rec."Table Field Id")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                    ToolTip = 'Specifies the table field id.';
-                }
+                Editable = false;
+
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
-                    Editable = false;
+                    ToolTip = 'Specifies the table field id.';
+                }
+                field("Field ID"; Rec."Table Field Id")
+                {
+                    ApplicationArea = All;
                     ToolTip = 'Specifies the field name.';
                 }
                 field(Example; Example)
                 {
                     ApplicationArea = All;
                     Caption = 'Example';
-                    Editable = false;
-                    Style = AttentionAccent;
+                    Style = Subordinate;
                     ToolTip = 'Specifies an example value for the table field.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
-                    Caption = 'Description';
-                    Editable = false;
                     ToolTip = 'Specifies the description for the field.';
                 }
             }
         }
     }
+
     trigger OnOpenPage()
     begin
-        // Fill in the source table information
-        SourceTableId := Rec."Table No";
-        PageTableFieldRecRef.Open(SourceTableId);
-        SourceTableName := PageTableFieldRecRef.Name();
-        SourceTableInfo := StrSubstNo('%1 (%2)', SourceTableName, SourceTableId);
-        IsTableIsEmpty := PageTableFieldRecRef.IsEmpty();
+        Rec.FindFirst();
 
-        // Filter the fields shown in the repeater control
-        FilterSourcePages();
+        // Fill in the information about the selected table to join
+        RelatedTableRecRef.Open(Rec."Table No");
+        CurrPage.Caption := StrSubstNo(InsertColumnMsg, RelatedTableRecRef.Name());
+
+        // Filter the pages and fields shown in the repeater control
+        FilterRelatedPagesAndFields();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        if not IsTableIsEmpty then
-            Example := GetExample(Rec."Table Field Id");
+        if RelatedTableRecRef.FindFirst() then
+            Example := GetExampleValue(Rec."Table Field Id");
     end;
 
-    local procedure FilterSourcePages()
+    local procedure FilterRelatedPagesAndFields()
+    var
+        PageMetadata: Record "Page Metadata";
     begin
-        PageMetadata.SetFilter(SourceTable, '%1', SourceTableId);
+        // If there are no list or card pages for the selected table, show table fields instead.
+        PageMetadata.SetFilter(SourceTable, '%1', Rec."Table No");
         PageMetadata.SetFilter(PageType, '%1|%2', PageMetadata.PageType::List, PageMetadata.PageType::Card);
 
-        // If there are no list or card pages for the selected table, show table fields instead.
-        AreTherePagesAvailable := PageMetadata.FindSet();
+        AreTherePagesAvailable := not PageMetadata.IsEmpty();
         if AreTherePagesAvailable then begin
-            SourcePageInfo := StrSubstNo('%1 (%2, %3)', PageMetadata.Name, PageMetadata.Id, PageMetadata.PageType);
-            Rec.SetFilter("Page ID", '%1', PageMetadata.Id);
-            Rec.SetFilter(FieldKind, '%1', Rec.FieldKind::PageFieldBoundToTable);
-        end
-        else
             Rec.SetFilter(FieldKind, '%1', Rec.FieldKind::TableField);
+            Rec.SetFilter("Page ID", '%1', Rec."Page ID");
+        end;
 
+        // Filter the fields in the repeater control to show only supported field types and skip system fields.
         Rec.SetFilter(Type, '<>%1 & <>%2 & <>%3 & <>%4 & <>%5', Rec.Type::BLOB, Rec.Type::Media, Rec.Type::MediaSet, Rec.Type::NotSupported_Binary, Rec.Type::TableFilter);
+        Rec.SetFilter("Table Field Id", '<2000000000');
+        Rec.FindSet();
     end;
 
-    local procedure GetExample(tableFieldId: Integer): Text
+    local procedure GetExampleValue(FieldId: Integer): Text
     var
         PageTableFieldFieldRef: FieldRef;
     begin
-        if PageTableFieldRecRef.FieldExist(tableFieldId) then begin
-            PageTableFieldFieldRef := PageTableFieldRecRef.Field(tableFieldId);
+        if RelatedTableRecRef.FieldExist(FieldId) then begin
+            PageTableFieldFieldRef := RelatedTableRecRef.Field(FieldId);
             exit(Format(PageTableFieldFieldRef.Value()));
         end;
     end;
 
     var
-        PageMetadata: Record "Page Metadata";
-        PageTableFieldRecRef: RecordRef;
+        RelatedTableRecRef: RecordRef;
         UsingTableAsSourceMsg: Label 'There are no list or card pages for the selected table, showing table fields instead.';
-        SourcePageInfo: Text;
+        InsertColumnMsg: Label 'Insert column(s) from %1', Comment = '%1 = The table name to insert columns from.';
         SourcePageName: Text;
-        SourcePageId: Integer;
-        SourceTableId: Integer;
-        SourceTableName: Text;
-        SourceTableInfo: Text;
-        AreTherePagesAvailable: Boolean;
         Example: Text;
-        IsTableIsEmpty: Boolean;
+        AreTherePagesAvailable: Boolean;
 }

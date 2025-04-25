@@ -4,13 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Planning;
 
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Service.Document;
 
 codeunit 6497 "Serv. Planning Availability"
 {
-    [EventSubscriber(ObjectType::Report, Report::"Planning Availability", 'OnCollectData', '', false, false)]
-    local procedure OnCollectData(var TempPlanningBuffer: Record "Planning Buffer" temporary; Selection: Boolean; var sender: Report "Planning Availability")
+    [EventSubscriber(ObjectType::Report, Report::Microsoft.Manufacturing.Reports."Planning Availability", 'OnCollectData', '', false, false)]
+    local procedure OnCollectData(var TempPlanningBuffer: Record "Planning Buffer" temporary; Selection: Boolean; var sender: Report Microsoft.Manufacturing.Reports."Planning Availability")
     var
         ServiceLine: Record "Service Line";
     begin

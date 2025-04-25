@@ -425,14 +425,14 @@ table 28071 "Sales Tax Invoice Header"
             Caption = 'Shipping Agent Code';
             TableRelation = "Shipping Agent";
         }
-#if not CLEAN25
+#if not CLEAN27
 #pragma warning disable AS0086
 #endif
         field(106; "Package Tracking No."; Text[50])
         {
             Caption = 'Package Tracking No.';
         }
-#if not CLEAN25
+#if not CLEAN27
 #pragma warning restore AS0086
 #endif
         field(107; "Pre-Assigned No. Series"; Code[20])
