@@ -861,7 +861,7 @@ table 98 "General Ledger Setup"
             TableRelation = "G/L Account Category";
             Caption = 'Account Receivables G/L Account Category';
         }
-	    field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
+        field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
         {
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
@@ -870,15 +870,33 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Hide Company Bank Account';
         }
+#if not CLEANSCHEMA30
         field(10500; "Threshold applies"; Boolean)
         {
             Caption = 'Threshold applies';
+            ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
         field(10501; "Threshold Amount"; Decimal)
         {
             Caption = 'Threshold Amount';
             MinValue = 0;
+            ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
+#endif
     }
 
     keys

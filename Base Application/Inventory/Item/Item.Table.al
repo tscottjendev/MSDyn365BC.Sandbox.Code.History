@@ -2034,10 +2034,20 @@ table 27 Item
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
         }
+#if not CLEANSCHEMA30
         field(10500; "Reverse Charge Applies"; Boolean)
         {
             Caption = 'Reverse Charge Applies';
+            ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
+#endif
         field(99000757; "Overhead Rate"; Decimal)
         {
             AutoFormatType = 2;

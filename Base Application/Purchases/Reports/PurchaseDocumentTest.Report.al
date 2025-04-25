@@ -1900,8 +1900,10 @@ report 402 "Purchase Document - Test"
         SumLineAmount: Decimal;
         SumInvDiscountAmount: Decimal;
         DifferentPostingDateToWorkDateTxt: Label '%1 %2 is different to Work Date %3.', Comment = '%1 = Posting Date Field Caption %2=Posting Date Field Value %3=WorkDate value';
+#if not CLEAN27
         Text10500: Label 'Reverse charge item - please check correct VAT rate is entered. Reverse Charge %1';
         TempPurchLine2: Record "Purchase Line";
+#endif
         ReverseCharge: Decimal;
         TotalReverseCharge: Decimal;
         Purchase_Document___TestCaptionLbl: Label 'Purchase Document - Test';
@@ -2029,6 +2031,7 @@ report 402 "Purchase Document - Test"
                                         AddError(StrSubstNo(Text019, PurchaseLine.FieldCaption("Reserved Quantity"), PurchaseLine.Signed(PurchaseLine."Qty. to Receive")));
                                 end;
 
+#if not CLEAN27
                             ReverseCharge := 0;
                             if "Purchase Line"."Reverse Charge Item" and
                                ("Purchase Header"."VAT Bus. Posting Group" = PurchSetup."Domestic Vendors") and
@@ -2047,6 +2050,7 @@ report 402 "Purchase Document - Test"
                                     TotalReverseCharge := TotalReverseCharge + ReverseCharge;
                                 end else
                                     AddError(StrSubstNo(Text10500, Round(0)));
+#endif
                         end else
                             AddError(StrSubstNo(Text008, Item.TableCaption(), PurchaseLine."No."));
                 end;

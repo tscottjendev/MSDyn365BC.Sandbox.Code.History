@@ -334,11 +334,13 @@ report 10573 "Sales - Credit Memo GB"
                         column(VATIdentifier_SalesCrMemoLine; "VAT Identifier")
                         {
                         }
+#if not CLEAN27
                         column(ReverseChrg_SalesCrMemoLine; "Reverse Charge")
                         {
                             AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
+#endif
                         column(VATBasDisc_SalesCrMemoHeader; "Sales Cr.Memo Header"."VAT Base Discount %")
                         {
                         }
@@ -437,9 +439,11 @@ report 10573 "Sales - Credit Memo GB"
                         column(VATIdentifier_SalesCrMemoLineCaption; FieldCaption("VAT Identifier"))
                         {
                         }
+#if not CLEAN27
                         column(ReverseChrg_SalesCrMemoLineCaption; FieldCaption("Reverse Charge"))
                         {
                         }
+#endif
                         dataitem("Sales Shipment Buffer"; "Integer")
                         {
                             DataItemTableView = sorting(Number);
@@ -541,7 +545,9 @@ report 10573 "Sales - Credit Memo GB"
                             TotalAmount += Amount;
                             TotalInvoiceDiscAmount += "Inv. Discount Amount";
                             TotalAmountInclVAT += "Amount Including VAT";
+#if not CLEAN27
                             TotalReverseCharge += "Reverse Charge";
+#endif
                         end;
 
                         trigger OnPreDataItem()

@@ -286,9 +286,11 @@ report 10578 "Purchase - Credit Memo GB"
                         column(VATIdent_PurchCrMemoLineCaption; FieldCaption("VAT Identifier"))
                         {
                         }
+#if not CLEAN27
                         column(RevCharge_PurchCrMemoLineCaption; FieldCaption("Reverse Charge"))
                         {
                         }
+#endif
                         column(DirUnitCost_PurchCrMemoLine; "Direct Unit Cost")
                         {
                             AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
@@ -300,11 +302,13 @@ report 10578 "Purchase - Credit Memo GB"
                         column(VATIdent_PurchCrMemoLine; "VAT Identifier")
                         {
                         }
+#if not CLEAN27
                         column(RevCharge_PurchCrMemoLine; "Reverse Charge")
                         {
                             AutoFormatExpression = "Purch. Cr. Memo Hdr."."Currency Code";
                             AutoFormatType = 1;
                         }
+#endif
                         column(TotalLineAmount; TotalLineAmount)
                         {
                         }
@@ -489,7 +493,9 @@ report 10578 "Purchase - Credit Memo GB"
                             TotalLineAmount += "Line Amount";
                             TotalInvoiceDiscAmount += "Inv. Discount Amount";
                             TotalAmountInclVAT += "Amount Including VAT";
+#if not CLEAN27
                             TotalReverseCharge += "Reverse Charge";
+#endif
                         end;
 
                         trigger OnPreDataItem()

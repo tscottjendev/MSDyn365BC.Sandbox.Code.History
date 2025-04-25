@@ -347,20 +347,31 @@ page 460 "Purchases & Payables Setup"
                     ToolTip = 'Specifies the output of the report that will be scheduled with a job queue entry when the Post and Print with Job Queue check box is selected.';
                 }
             }
+#if not CLEAN27
             group("Reverse Charge")
             {
                 Caption = 'Reverse Charge';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+                ObsoleteTag = '27.0';
                 field("Reverse Charge VAT Posting Gr."; Rec."Reverse Charge VAT Posting Gr.")
                 {
                     ApplicationArea = Basic, Suite;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+                    ObsoleteTag = '27.0';
                     ToolTip = 'Specifies the VAT Business Posting Group code for reverse charge VAT.';
                 }
                 field("Domestic Vendors"; Rec."Domestic Vendors")
                 {
                     ApplicationArea = Basic, Suite;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+                    ObsoleteTag = '27.0';
                     ToolTip = 'Specifies the VAT Business Posting Group code for domestic UK vendors.';
                 }
             }
+#endif
             group(Archiving)
             {
                 Caption = 'Archiving';

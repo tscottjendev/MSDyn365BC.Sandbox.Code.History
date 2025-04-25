@@ -76,7 +76,9 @@ using System.Automation;
 using System.Utilities;
 using System.Environment.Configuration;
 using System.Email;
+#if not CLEAN27
 using System.Telemetry;
+#endif
 
 codeunit 80 "Sales-Post"
 {
@@ -194,7 +196,9 @@ codeunit 80 "Sales-Post"
         DeferralUtilities: Codeunit "Deferral Utilities";
         UOMMgt: Codeunit "Unit of Measure Management";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+#if not CLEAN27
         FeatureTelemetry: Codeunit "Feature Telemetry";
+#endif
         InvoicePostingInterface: Interface "Invoice Posting";
         IsInterfaceInitalized: Boolean;
         Window: Dialog;
@@ -253,7 +257,9 @@ codeunit 80 "Sales-Post"
         CalledBy: Integer;
         PreviewMode: Boolean;
         TotalInvoiceAmountNegativeErr: Label 'The total amount for the invoice must be 0 or greater.';
+#if not CLEAN27
         ReverseChargeApplies: Boolean;
+#endif
         SendShipmentAlsoQst: Label 'You can take the same actions for the related Sales - Shipment document.\\Do you want to do that now?';
         SuppressCommit: Boolean;
         PostingPreviewNoTok: Label '***', Locked = true;
@@ -275,8 +281,10 @@ codeunit 80 "Sales-Post"
         ItemReservDisruptionLbl: Label 'Confirm Item Reservation Disruption', Locked = true;
         ItemChargeZeroAmountErr: Label 'The amount for item charge %1 cannot be 0.', Comment = '%1 = Item Charge No.';
         SuppressCommitErr: Label 'Commit is blocked when %1 %2 is used.', Comment = '%1 = Date Order, %2 = Number Series';
+#if not CLEAN27
         ReverseChargeFeatureNameTok: Label 'Reverse Charge GB', Locked = true;
         ReverseChargeEventNameTok: Label 'Reverse Charge GB has been used', Locked = true;
+#endif
         DateOrderSeriesUsed: Boolean;
 
     /// <summary>
@@ -462,8 +470,10 @@ codeunit 80 "Sales-Post"
         AdjustFinalInvWith100PctPrepmt(TempSalesLineGlobal);
 
         TempVATAmountLineRemainder.DeleteAll();
+#if not CLEAN27
         if ReverseChargeApplies then
             TempSalesLineGlobal.SetReverseChargeApplies();
+#endif
         IsHandled := false;
         OnRunOnBeforeCalcVATAmountLines(TempSalesLineGlobal, SalesHeader, TempVATAmountLine, IsHandled);
         if not IsHandled then
@@ -1013,6 +1023,7 @@ codeunit 80 "Sales-Post"
         IsHandled := false;
         OnPostSalesLineOnAfterSetEverythingInvoiced(SalesLine, EverythingInvoiced, IsHandled, SalesHeader);
         if not IsHandled then
+#if not CLEAN27
             if SalesLine.Quantity <> 0 then begin
                 if ReverseChargeApplies and SalesLine."Reverse Charge Item" then begin
                     SalesLine."Reverse Charge" :=
@@ -1022,8 +1033,12 @@ codeunit 80 "Sales-Post"
                     SalesLine.Validate("VAT Bus. Posting Group", SalesSetup."Reverse Charge VAT Posting Gr.");
                     FeatureTelemetry.LogUsage('0000OJO', ReverseChargeFeatureNameTok, ReverseChargeEventNameTok);
                 end;
-                DivideAmount(SalesHeader, SalesLine, 1, SalesLine."Qty. to Invoice", TempVATAmountLine, TempVATAmountLineRemainder);
+#endif
+                if SalesLine.Quantity <> 0 then
+                    DivideAmount(SalesHeader, SalesLine, 1, SalesLine."Qty. to Invoice", TempVATAmountLine, TempVATAmountLineRemainder);
+#if not CLEAN27
             end;
+#endif
 
         CheckItemReservDisruption(SalesLine);
         RoundAmount(SalesHeader, SalesLine, SalesLine."Qty. to Invoice");
@@ -6941,7 +6956,9 @@ codeunit 80 "Sales-Post"
                 ShouldInsertInvoiceHeader := SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice];
                 OnInsertPostedHeadersOnAfterCalcShouldInsertInvoiceHeader(SalesHeader, ShouldInsertInvoiceHeader);
                 if ShouldInsertInvoiceHeader then begin
+#if not CLEAN27
                     ReverseChargeApplies := CheckIfReverseChargeApplies(SalesHeader);
+#endif
                     InsertInvoiceHeader(SalesHeader, SalesInvHeader);
                     GenJnlLineDocType := GenJnlLine."Document Type"::Invoice;
                     GenJnlLineDocNo := SalesInvHeader."No.";
@@ -7622,6 +7639,8 @@ codeunit 80 "Sales-Post"
         OnAfterFindNotShippedLines(SalesHeader, TempSalesLine);
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to Reverse Charge VAT GB app', '27.0')]
     [Scope('OnPrem')]
     procedure CheckIfReverseChargeApplies(SalesHeader: Record "Sales Header"): Boolean
     var
@@ -7652,6 +7671,7 @@ codeunit 80 "Sales-Post"
             until SalesLine2.Next() = 0;
         exit(false);
     end;
+#endif
 
     local procedure CheckTrackingAndWarehouseForShip(SalesHeader: Record "Sales Header") Ship: Boolean
     var

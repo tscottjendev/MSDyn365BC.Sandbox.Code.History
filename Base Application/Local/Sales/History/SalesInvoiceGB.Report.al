@@ -340,6 +340,7 @@ report 10572 "Sales - Invoice GB"
                         column(ShipmentDate_SalesInvcLine; Format("Shipment Date"))
                         {
                         }
+#if not CLEAN27
                         column(ReverseCharge_SalesInvcLine; "Reverse Charge")
                         {
                             AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
@@ -348,6 +349,7 @@ report 10572 "Sales - Invoice GB"
                         column(SalesSetupInvcWording; SalesSetup."Invoice Wording")
                         {
                         }
+#endif
                         column(VATBaseDisc_SalesInvcHeader; "Sales Invoice Header"."VAT Base Discount %")
                         {
                         }
@@ -461,9 +463,11 @@ report 10572 "Sales - Invoice GB"
                         column(VATIdentfr_SalesInvcLineCaption; FieldCaption("VAT Identifier"))
                         {
                         }
+#if not CLEAN27
                         column(ReverseCharge_SalesInvcLineCaption; FieldCaption("Reverse Charge"))
                         {
                         }
+#endif
                         dataitem("Sales Shipment Buffer"; "Integer")
                         {
                             DataItemTableView = sorting(Number);
@@ -564,7 +568,9 @@ report 10572 "Sales - Invoice GB"
                             TotalLineAmount += "Line Amount";
                             TotalInvoiceDiscAmount += "Inv. Discount Amount";
                             TotalAmountInclVAT += "Amount Including VAT";
+#if not CLEAN27
                             TotalReverseCharge += "Reverse Charge";
+#endif
                         end;
 
                         trigger OnPreDataItem()

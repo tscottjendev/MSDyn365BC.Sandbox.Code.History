@@ -609,12 +609,14 @@ report 202 "Sales Document - Test"
                         column(Sales_Line___Inv__Discount_Amount_; "Sales Line"."Inv. Discount Amount")
                         {
                         }
+#if not CLEAN27
                         column(SalesLine__Reverse_Charge_; SalesLine."Reverse Charge")
                         {
                         }
                         column(SalesSetup__Invoice_Wording_; SalesSetup."Invoice Wording")
                         {
                         }
+#endif
                         column(TempSalesLine__Inv__Discount_Amount_; -TempSalesLine."Inv. Discount Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
@@ -692,9 +694,11 @@ report 202 "Sales Document - Test"
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
+#if not CLEAN27
                         column(SalesLine__Reverse_Charge__Control10410094; SalesLine."Reverse Charge")
                         {
                         }
+#endif
                         column(TotalReverseCharge; TotalReverseCharge)
                         {
                         }
@@ -1026,7 +1030,9 @@ report 202 "Sales Document - Test"
                                         AddError(DimMgt.GetDimValuePostingErr());
                                 end;
 
+#if not CLEAN27
                             TotalReverseCharge := TotalReverseCharge + SalesLine."Reverse Charge";
+#endif
                             OnAfterCheckSalesDocLine("Sales Line", ErrorText, ErrorCounter);
                         end;
 
@@ -1425,8 +1431,10 @@ report 202 "Sales Document - Test"
                         TempVATAmountLine.DeleteAll();
                         TempSalesLine.DeleteAll();
                         SalesPost.GetSalesLines("Sales Header", TempSalesLine, 1);
+#if not CLEAN27
                         if ReverseChargeApplies then
                             TempSalesLine.SetReverseChargeApplies();
+#endif
                         OnAfterSalesPostGetSalesLines("Sales Header", TempSalesLine);
                         TempSalesLine.CalcVATAmountLines(0, "Sales Header", TempSalesLine, TempVATAmountLine);
                         TempSalesLine.UpdateVATOnLines(0, "Sales Header", TempSalesLine, TempVATAmountLine);
@@ -1629,8 +1637,10 @@ report 202 "Sales Document - Test"
 
                 OnAfterCheckSalesDoc("Sales Header", ErrorText, ErrorCounter);
 
+#if not CLEAN27
                 if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then
                     ReverseChargeApplies := SalesPost.CheckIfReverseChargeApplies("Sales Header");
+#endif
                 DisplayPaymentDiscount := "Payment Discount %" <> 0;
                 DiscountText := StrSubstNo(DiscountLbl, "Payment Discount %", "Pmt. Discount Date");
             end;
@@ -1885,7 +1895,9 @@ report 202 "Sales Document - Test"
         SumLineAmount: Decimal;
         SumInvDiscountAmount: Decimal;
         DifferentPostingDateToWorkDateTxt: Label '%1 %2 is different to Work Date %3.', Comment = '%1 = Posting Date Field Caption %2=Posting Date Field Value %3=WorkDate value';
+#if not CLEAN27
         ReverseChargeApplies: Boolean;
+#endif
         TotalReverseCharge: Decimal;
         Sales_Document___TestCaptionLbl: Label 'Sales Document - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

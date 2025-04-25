@@ -274,7 +274,9 @@ table 39 "Purchase Line"
                 InitHeaderDefaults(PurchHeader, TempPurchLine);
                 UpdateLeadTimeFields();
                 UpdateDates();
+#if not CLEAN27
                 "Reverse Charge Item" := false;
+#endif
 
                 OnAfterAssignHeaderValues(Rec, PurchHeader);
 
@@ -1534,6 +1536,7 @@ table 39 "Purchase Line"
                                 end;
                         end;
 
+#if not CLEAN27
                     GetPurchSetup();
                     if ("VAT Bus. Posting Group" = PurchSetup."Reverse Charge VAT Posting Gr.") and
                        (PurchHeader."VAT Bus. Posting Group" <> PurchSetup."Domestic Vendors") and
@@ -1544,6 +1547,7 @@ table 39 "Purchase Line"
                        ("VAT Bus. Posting Group" = PurchSetup."Reverse Charge VAT Posting Gr.")
                     then
                         FieldError("VAT Bus. Posting Group", StrSubstNo(Text1041003, "VAT Bus. Posting Group"));
+#endif
 
                     ShouldUpdateUnitCost := PurchHeader."Prices Including VAT" and (Rec.Type in [Rec.Type::Item, Rec.Type::Resource]);
                     OnValidateVATProdPostingGroupOnAfterCalcShouldUpdateUnitCost(Rec, VATPostingSetup, ShouldUpdateUnitCost);
@@ -3638,11 +3642,21 @@ table 39 "Purchase Line"
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA30
         field(10500; "Reverse Charge Item"; Boolean)
         {
             Caption = 'Reverse Charge Item';
             Editable = false;
+            ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
+#endif
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
@@ -3866,7 +3880,10 @@ table 39 "Purchase Line"
             PurchLineReserve.VerifyQuantity(Rec, xRec);
         end;
         LockTable();
+        OnInsertOnAfterLockTable(Rec, CurrFieldNo);
+#if not CLEAN27
         DomesticVendorWarning();
+#endif
         if ("Deferral Code" <> '') and (GetDeferralAmount() <> 0) then
             UpdateDeferralAmounts();
         PurchHeader."No." := '';
@@ -3891,8 +3908,10 @@ table 39 "Purchase Line"
 
         if ((Quantity <> 0) or (xRec.Quantity <> 0)) and ItemExists(xRec."No.") then
             PurchLineReserve.VerifyChange(Rec, xRec);
-
+        OnAfterModifyOnAfterVerifyChange(Rec, CurrFieldNo);
+#if not CLEAN27
         DomesticVendorWarning();
+#endif
     end;
 
     trigger OnRename()
@@ -3988,9 +4007,11 @@ table 39 "Purchase Line"
 #pragma warning disable AA0470
         Text054: Label 'The quantity that you are trying to invoice is greater than the quantity in return shipment %1.';
         Text99000000: Label 'You cannot change %1 when the purchase order is associated to a production order.';
+#if not CLEAN27
         Text1041000: Label 'Warning: You have selected an item that is subject to Reverse Charge VAT. Please check that the VAT Code %1 in the %2 field is correct. If necessary, update this field before posting. ';
         Text1041002: Label 'cannot be %1. %1 can only be used for domestic customers and vendors. ';
         Text1041003: Label 'cannot be %1. %1 can only be used for reverse charge items. ';
+#endif
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         MustNotBeSpecifiedErr: Label 'must not be specified when %1 = %2', Comment = '%1 - the field name, %2 - the field value';
@@ -4536,7 +4557,9 @@ table 39 "Purchase Line"
         "Item Category Code" := Item."Item Category Code";
         "Allow Item Charge Assignment" := true;
         PrepaymentMgt.SetPurchPrepaymentPct(Rec, PurchHeader."Posting Date");
+#if not CLEAN27
         "Reverse Charge Item" := Item."Reverse Charge Applies";
+#endif
         if IsInventoriableItem() then
             PostingSetupMgt.CheckInvtPostingSetupInventoryAccount("Location Code", "Posting Group");
 
@@ -8595,6 +8618,8 @@ table 39 "Purchase Line"
         OnAfterUpdateDimensionsFromJobTask(Rec);
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to Reverse Charge VAT GB app', '27.0')]
     local procedure DomesticVendorWarning()
     begin
         GetGLSetup();
@@ -8607,6 +8632,7 @@ table 39 "Purchase Line"
         then
             Message(Text1041000, "VAT Bus. Posting Group", FieldCaption("VAT Bus. Posting Group"));
     end;
+#endif
 
     local procedure UpdateItemReference()
     var
@@ -11809,6 +11835,16 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestPurchaseJobFields(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnAfterLockTable(var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterModifyOnAfterVerifyChange(var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer)
     begin
     end;
 }

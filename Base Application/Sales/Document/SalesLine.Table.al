@@ -290,7 +290,9 @@ table 37 "Sales Line"
                 if not IsHandled then
                     UpdateDates();
 
+#if not CLEAN27
                 "Reverse Charge Item" := false;
+#endif
 
                 OnAfterAssignHeaderValues(Rec, SalesHeader);
 
@@ -1592,6 +1594,7 @@ table 37 "Sales Line"
                                 TestField("No.", VATPostingSetup.GetSalesAccount(false));
                             end;
                     end;
+#if not CLEAN27
                 GetSalesSetup();
                 if ("VAT Bus. Posting Group" = SalesSetup."Reverse Charge VAT Posting Gr.") and not "Reverse Charge Item" then
                     FieldError("VAT Bus. Posting Group", StrSubstNo(Text1041001, "VAT Bus. Posting Group", Type, "No."));
@@ -1605,9 +1608,10 @@ table 37 "Sales Line"
                           Round(Amount * (1 - SalesHeader."VAT Base Discount %" / 100) * xRec."VAT %" / 100,
                             Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                 end;
+#endif
 
                 IsHandled := false;
-                OnValidateVATProdPostingGroupOnBeforeUpdateUnitPrice(Rec, VATPostingSetup, IsHandled, xRec, SalesHeader);
+                OnValidateVATProdPostingGroupOnBeforeUpdateUnitPrice(Rec, VATPostingSetup, IsHandled, xRec, SalesHeader, Currency);
                 if not IsHandled then
                     if SalesHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
                         Validate("Unit Price",
@@ -3416,15 +3420,33 @@ table 37 "Sales Line"
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA30
         field(10500; "Reverse Charge Item"; Boolean)
         {
             Caption = 'Reverse Charge Item';
             Editable = false;
+            ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
         field(10501; "Reverse Charge"; Decimal)
         {
             Caption = 'Reverse Charge';
+            ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
+#endif
     }
 
     keys
@@ -3593,7 +3615,10 @@ table 37 "Sales Line"
         OnInsertOnAfterCheckInventoryConflict(Rec, xRec, SalesLine2);
         if ("Deferral Code" <> '') and (GetDeferralAmount() <> 0) then
             UpdateDeferralAmounts();
+        OnAfterInsertOnAfterUpdateDeferralAmounts(Rec, CurrFieldNo);
+#if not CLEAN27
         DomesticCustomerWarning();
+#endif
     end;
 
     trigger OnModify()
@@ -3615,8 +3640,10 @@ table 37 "Sales Line"
 
         if ((Quantity <> 0) or (xRec.Quantity <> 0)) and ItemExists(xRec."No.") and not FullReservedQtyIsForAsmToOrder() then
             VerifyChangeForSalesLineReserve(0);
-
+        OnAfterModifyOnAfterVerifyChangeForSalesLineReserve(Rec, CurrFieldNo);
+#if not CLEAN27
         DomesticCustomerWarning();
+#endif
     end;
 
     trigger OnRename()
@@ -3720,8 +3747,10 @@ table 37 "Sales Line"
         Text059: Label 'must have the same sign as the return receipt';
 #pragma warning disable AA0470
         Text060: Label 'The quantity that you are trying to invoice is greater than the quantity in return receipt %1.';
+#if not CLEAN27
         Text1041000: Label 'Warning: You have selected an item that is subject to Reverse Charge VAT. Please check that the VAT Code %1 in the %2 field is correct. If necessary, update this field before posting the credit memo. ';
         Text1041001: Label 'cannot be %1. %2 %3 is not subjected to Reverse Charge';
+#endif
 #pragma warning restore AA0074
         ShippingMoreUnitsThanReceivedErr: Label 'You cannot ship more than the %1 units that you have received for document no. %2.';
 #pragma warning restore AA0470
@@ -3739,7 +3768,9 @@ table 37 "Sales Line"
         CanNotAddItemPickExistErr: Label 'You cannot add an item line because an open inventory pick exists for the Sales Header and because Shipping Advice is %1.\\You must first post or delete the inventory pick or change Shipping Advice to Partial.', Comment = '%1- Shipping Advice';
         ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
         SalesLineCompletelyShippedErr: Label 'You cannot change the purchasing code for a sales line that has been completely shipped.';
+#if not CLEAN27
         ReverseChargeApplies: Boolean;
+#endif
         SalesSetupRead: Boolean;
         LookupRequested: Boolean;
         FreightLineDescriptionTxt: Label 'Freight Amount';
@@ -4119,7 +4150,9 @@ table 37 "Sales Line"
         "Item Category Code" := Item."Item Category Code";
         Nonstock := Item."Created From Nonstock Item";
         "Profit %" := Item."Profit %";
+#if not CLEAN27
         "Reverse Charge Item" := Item."Reverse Charge Applies";
+#endif
         "Allow Item Charge Assignment" := true;
         PrepaymentMgt.SetSalesPrepaymentPct(Rec, SalesHeader."Posting Date");
         if IsInventoriableItem() then
@@ -6539,12 +6572,15 @@ table 37 "Sales Line"
         if SalesLine.FindSet() then
             repeat
                 if not SalesLine.ZeroAmountLine(QtyType) then begin
+                    OnCalcVATAmountLinesOnBeforeGetDeferralAmount(SalesLine);
+#if not CLEAN27
                     if ReverseChargeApplies and SalesLine."Reverse Charge Item" then begin
                         SalesLine."Reverse Charge" := SalesLine."Amount Including VAT" - SalesLine.Amount;
                         SalesLine.SuspendStatusCheck(true);
                         GetSalesSetup();
                         SalesLine.Validate("VAT Bus. Posting Group", SalesSetup."Reverse Charge VAT Posting Gr.");
                     end;
+#endif
                     DeferralAmount := SalesLine.GetDeferralAmount();
                     FindVATAmountLine(SalesLine, VATAmountLine);
                     if VATAmountLine.Modified then begin
@@ -6738,12 +6774,14 @@ table 37 "Sales Line"
             repeat
                 if not SalesLine.ZeroAmountLine(QtyType) then begin
                     OnCalcVATAmountLinesOnBeforeProcessSalesLine(SalesLine);
+#if not CLEAN27
                     if ReverseChargeApplies and SalesLine."Reverse Charge Item" then begin
                         SalesLine."Reverse Charge" := SalesLine."Amount Including VAT" - SalesLine.Amount;
                         SalesLine.SuspendStatusCheck(true);
                         GetSalesSetup();
                         SalesLine.Validate("VAT Bus. Posting Group", SalesSetup."Reverse Charge VAT Posting Gr.");
                     end;
+#endif
 
                     if (SalesLine.Type = SalesLine.Type::"G/L Account") and not SalesLine."Prepayment Line" and SalesLine."System-Created Entry" and not RoundingLineInserted then
                         RoundingLineInserted := (SalesLine."No." = SalesLine.GetCPGInvRoundAcc(SalesHeader));
@@ -6873,7 +6911,9 @@ table 37 "Sales Line"
         VATAmountLine.Positive := SalesLine."Line Amount" >= 0;
         VATAmountLine."Includes Prepayment" := false;
         VATAmountLine."Non-Deductible VAT %" := 0;
+#if not CLEAN27
         VATAmountLine."Reverse Charge" := SalesLine."Reverse Charge";
+#endif
         OnInsertVATAmountOnBeforeInsert(SalesLine, VATAmountLine);
         VATAmountLine.Insert();
     end;
@@ -8615,10 +8655,13 @@ table 37 "Sales Line"
             exit(SalesSetup."Document Default Line Type");
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to Reverse Charge VAT GB app', '27.0')]
     procedure SetReverseChargeApplies()
     begin
         ReverseChargeApplies := true;
     end;
+#endif
 
     local procedure CheckWMS()
     begin
@@ -8858,6 +8901,8 @@ table 37 "Sales Line"
           SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Invoice Discounts");
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to Reverse Charge VAT GB app', '27.0')]
     local procedure DomesticCustomerWarning()
     begin
         GetSalesSetup();
@@ -8868,6 +8913,7 @@ table 37 "Sales Line"
         then
             Message(Text1041000, "VAT Bus. Posting Group", FieldCaption("VAT Bus. Posting Group"));
     end;
+#endif
 
     /// <summary>
     /// Determines if mandatory fields have to be filled in for the line based on the line type.
@@ -11312,7 +11358,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateVATProdPostingGroupOnBeforeUpdateUnitPrice(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean; xSalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    local procedure OnValidateVATProdPostingGroupOnBeforeUpdateUnitPrice(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean; xSalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Currency: Record Currency)
     begin
     end;
 
@@ -12323,6 +12369,21 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckReceiptOrderStatus(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertOnAfterUpdateDeferralAmounts(var SalesLine: Record "Sales Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterModifyOnAfterVerifyChangeForSalesLineReserve(var SalesLine: Record "Sales Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnBeforeGetDeferralAmount(var SalesLine: Record "Sales Line")
     begin
     end;
 }

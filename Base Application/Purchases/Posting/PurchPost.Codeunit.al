@@ -68,7 +68,9 @@ using Microsoft.Warehouse.Setup;
 using System.Automation;
 using System.Utilities;
 using System.Environment.Configuration;
+#if not CLEAN27
 using System.Telemetry;
+#endif
 
 codeunit 90 "Purch.-Post"
 {
@@ -355,7 +357,9 @@ codeunit 90 "Purch.-Post"
         UOMMgt: Codeunit "Unit of Measure Management";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
+#if not CLEAN27
         FeatureTelemetry: Codeunit "Feature Telemetry";
+#endif
         InvoicePostingInterface: Interface "Invoice Posting";
         IsInterfaceInitialized: Boolean;
         Window: Dialog;
@@ -446,8 +450,10 @@ codeunit 90 "Purch.-Post"
 #if not CLEAN25        
         TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
 #endif
+#if not CLEAN27
         ReverseChargeFeatureNameTok: Label 'Reverse Charge GB', Locked = true;
         ReverseChargeEventNameTok: Label 'Reverse Charge GB has been used', Locked = true;
+#endif
 
     /// <summary>
     /// Generates a record id for an 'empty' line
@@ -974,7 +980,9 @@ codeunit 90 "Purch.-Post"
         SearchPurchInvLine: Record "Purch. Inv. Line";
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
         SearchPurchCrMemoLine: Record "Purch. Cr. Memo Line";
+#if not CLEAN27
         TempPurchLine2: Record "Purchase Line" temporary;
+#endif
         CostBaseAmount: Decimal;
         IsHandled: Boolean;
     begin
@@ -1074,6 +1082,7 @@ codeunit 90 "Purch.-Post"
                 if not IsHandled then begin
                     PurchInvLine.InitFromPurchLine(PurchInvHeader, xPurchLine);
                     ItemJnlPostLine.CollectValueEntryRelation(TempValueEntryRelation, CopyStr(PurchInvLine.RowID1(), 1, 100));
+#if not CLEAN27
                     if (PurchSetup."Reverse Charge VAT Posting Gr." = PurchLine."VAT Bus. Posting Group") and
                         PurchLine."Reverse Charge Item"
                     then begin
@@ -1088,6 +1097,7 @@ codeunit 90 "Purch.-Post"
                             Currency."Amount Rounding Precision");
                         FeatureTelemetry.LogUsage('0000OJN', ReverseChargeFeatureNameTok, ReverseChargeEventNameTok);
                     end;
+#endif
                     SetInvoiceOrderNo(PurchLine, PurchInvLine);
 
                     OnBeforePurchInvLineInsert(PurchInvLine, PurchInvHeader, PurchLine, SuppressCommit, xPurchLine);

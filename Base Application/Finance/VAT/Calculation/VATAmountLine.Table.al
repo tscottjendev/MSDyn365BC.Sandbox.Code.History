@@ -198,11 +198,21 @@ table 290 "VAT Amount Line"
             Caption = 'Non-Deductible VAT Difference';
             Editable = false;
         }
+#if not CLEANSCHEMA30
         field(10500; "Reverse Charge"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Reverse Charge';
+            ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
 
+#if not CLEAN27
             trigger OnValidate()
             begin
                 TestField("VAT %");
@@ -211,7 +221,9 @@ table 290 "VAT Amount Line"
                     Error(Text002, FieldCaption("VAT Amount"));
                 "VAT Difference" := "VAT Amount" - "Calculated VAT Amount";
             end;
+#endif
         }
+#endif
     }
 
     keys

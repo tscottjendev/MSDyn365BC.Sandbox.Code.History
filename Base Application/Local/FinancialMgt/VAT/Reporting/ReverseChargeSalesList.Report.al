@@ -287,7 +287,9 @@ report 10529 "Reverse Charge Sales List"
                 trigger OnPreDataItem()
                 begin
                     SalesSetup.Get();
+#if not CLEAN27
                     "VAT Entry".SetRange("VAT Bus. Posting Group", SalesSetup."Reverse Charge VAT Posting Gr.");
+#endif
                 end;
             }
 

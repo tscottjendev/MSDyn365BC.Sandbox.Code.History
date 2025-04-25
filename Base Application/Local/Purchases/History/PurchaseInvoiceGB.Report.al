@@ -308,11 +308,13 @@ report 10577 "Purchase - Invoice GB"
                         column(VATIdent_PurchInvLine; "VAT Identifier")
                         {
                         }
+#if not CLEAN27
                         column(RevCharge_PurchInvLine; "Reverse Charge")
                         {
                             AutoFormatExpression = "Purch. Inv. Header"."Currency Code";
                             AutoFormatType = 1;
                         }
+#endif
                         column(TotalLineAmount; TotalLineAmount)
                         {
                         }
@@ -432,9 +434,11 @@ report 10577 "Purchase - Invoice GB"
                         column(VATIdent_PurchInvLineCaption; FieldCaption("VAT Identifier"))
                         {
                         }
+#if not CLEAN27
                         column(RevCharge_PurchInvLineCaption; FieldCaption("Reverse Charge"))
                         {
                         }
+#endif
                         dataitem(DimensionLoop2; "Integer")
                         {
                             DataItemTableView = sorting(Number) where(Number = filter(1 ..));
