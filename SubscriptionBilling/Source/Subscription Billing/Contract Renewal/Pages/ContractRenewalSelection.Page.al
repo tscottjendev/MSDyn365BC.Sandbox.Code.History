@@ -79,6 +79,7 @@ page 8006 "Contract Renewal Selection"
 
                             TempServiceCommitment."Renewal Term" := RenewalTerm;
                             TempServiceCommitment.Modify(false);
+                            OnValidateRenewalTermOnBeforeCurrPageUpdate(Rec, TempServiceCommitment, RenewalTerm);
                             CurrPage.Update(false);
                         end;
                     }
@@ -499,6 +500,11 @@ page 8006 "Contract Renewal Selection"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckContractLine(var CustSubContractLine: Record "Cust. Sub. Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRenewalTermOnBeforeCurrPageUpdate(var CustSubContractLine: Record "Cust. Sub. Contract Line"; var TempSubscriptionLine: Record "Subscription Line" temporary; RenewalTerm: DateFormula)
     begin
     end;
 

@@ -379,6 +379,7 @@ codeunit 8002 "Create Sub. Contract Renewal"
             PreviousServiceStartDate := ServiceStartDate;
             PreviousServiceEndDate := ServiceEndDate;
         end;
+        OnAfterInsertTermInfoLine(CurrentSalesHeader, ContractRenewalLine);
     end;
 
     local procedure CreateDescriptionLines(var CustomerContract: Record "Customer Subscription Contract")
@@ -437,6 +438,11 @@ codeunit 8002 "Create Sub. Contract Renewal"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertSalesQuoteLineFromSubContractRenewalLine(var SalesLine: Record "Sales Line"; var SubContractRenewalLine: Record "Sub. Contract Renewal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertTermInfoLine(CurrentSalesHeader: Record "Sales Header"; var SubContractRenewalLine: Record "Sub. Contract Renewal Line")
     begin
     end;
 

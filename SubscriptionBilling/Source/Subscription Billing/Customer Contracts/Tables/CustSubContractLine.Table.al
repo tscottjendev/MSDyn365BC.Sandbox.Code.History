@@ -283,7 +283,7 @@ table 8062 "Cust. Sub. Contract Line"
                     ServiceCommitment.TransferFields(LocalServiceCommitment);
                 end;
         end;
-        OnAfterLoadAmountsForContractLine(Rec);
+        OnAfterLoadAmountsForContractLine(Rec, ServiceCommitment);
     end;
 
     internal procedure GetServiceCommitment(var ServiceCommitment: Record "Subscription Line"): Boolean
@@ -535,7 +535,7 @@ table 8062 "Cust. Sub. Contract Line"
         CustomerContractLine.Modify(false);
     end;
 
-    local procedure GetConfirmResponse(ConfirmQuestion: Text; DefaultButton: Boolean): Boolean
+    procedure GetConfirmResponse(ConfirmQuestion: Text; DefaultButton: Boolean): Boolean
     begin
         if HideValidationDialog then
             exit(true);
@@ -568,7 +568,7 @@ table 8062 "Cust. Sub. Contract Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterLoadAmountsForContractLine(var CustSubContractLine: Record "Cust. Sub. Contract Line")
+    local procedure OnAfterLoadAmountsForContractLine(var CustSubContractLine: Record "Cust. Sub. Contract Line"; var SubscriptionLine: Record "Subscription Line")
     begin
     end;
 

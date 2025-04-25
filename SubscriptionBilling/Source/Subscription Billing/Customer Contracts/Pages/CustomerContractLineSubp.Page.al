@@ -577,11 +577,17 @@ page 8068 "Customer Contract Line Subp."
     begin
         if (Today() > ServiceCommitment."Subscription Line End Date") and (ServiceCommitment."Next Billing Date" > ServiceCommitment."Subscription Line End Date") and (ServiceCommitment."Subscription Line End Date" <> 0D) then
             NextBillingDateStyleExpr := 'Ambiguous';
+        OnAfterSetNextBillingDateStyle(Rec, ServiceCommitment, NextBillingDateStyleExpr);
     end;
 
     local procedure UpdateEditableOnRow()
     begin
         IsCommentLineEditable := Rec.IsCommentLine();
         IsDiscountLine := ServiceCommitment.Discount;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetNextBillingDateStyle(CustSubContractLine: Record "Cust. Sub. Contract Line"; SubscriptionLine: Record "Subscription Line"; var NextBillingDateStyleExpr: Text)
+    begin
     end;
 }
