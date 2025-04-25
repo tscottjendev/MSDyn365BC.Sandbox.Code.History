@@ -1867,12 +1867,12 @@ page 6630 "Sales Return Order"
         SalesDocCheckFactboxVisible: Boolean;
         IsJournalTemplNameVisible: Boolean;
         IsPaymentMethodCodeVisible: Boolean;
-        IsPostingGroupEditable: Boolean;
         IsSalesLinesEditable: Boolean;
         VATDateEnabled: Boolean;
 
     protected var
         IsActivityCodeMandatory: Boolean;
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin

@@ -2542,7 +2542,6 @@ page 50 "Purchase Order"
         PurchaseDocCheckFactboxVisible: Boolean;
         IsJournalTemplNameVisible: Boolean;
         IsPaymentMethodCodeVisible: Boolean;
-        IsPostingGroupEditable: Boolean;
         IsPurchaseLinesEditable: Boolean;
         ShouldSearchForVendByName: Boolean;
         IsRemitToCountyVisible: Boolean;
@@ -2553,6 +2552,7 @@ page 50 "Purchase Order"
         ShipToOptions: Enum "Purchase Order Ship-to Options";
         PayToOptions: Enum "Purchase Order Pay-to Options";
         IsActivityCodeMandatory: Boolean;
+        IsPostingGroupEditable: Boolean;
 
     local procedure SetOpenPage()
     var

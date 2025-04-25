@@ -2894,7 +2894,6 @@ page 42 "Sales Order"
         OpenPostedSalesOrderQst: Label 'The order is posted as number %1 and moved to the Posted Sales Invoices window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
         PaymentServiceVisible: Boolean;
         PaymentServiceEnabled: Boolean;
-        IsPostingGroupEditable: Boolean;
         EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
         SureToRejectMsg: Label 'Rejecting this order will remove it from your company and send it back to the partner company.\\Do you want to continue?';
         CanRequestApprovalForFlow: Boolean;
@@ -2923,6 +2922,7 @@ page 42 "Sales Order"
         DocumentIsPosted: Boolean;
         ShowQuoteNo: Boolean;
         IsActivityCodeMandatory: Boolean;
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin

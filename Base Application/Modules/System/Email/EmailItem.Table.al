@@ -1,6 +1,8 @@
 namespace System.Email;
 
+#if not CLEAN27
 using System.IO;
+#endif
 using System.Utilities;
 
 table 9500 "Email Item"
@@ -101,22 +103,39 @@ table 9500 "Email Item"
 
             trigger OnValidate()
             begin
+#if not CLEAN27
                 if "Plaintext Formatted" then
+#pragma warning disable AL0432
                     Validate("Body File Path", '')
+#pragma warning restore AL0432
                 else
                     SetBodyText('');
+#else
+                Clear(Body);
+#endif
             end;
         }
+#if not CLEANSCHEMA30
         field(12; "Body File Path"; Text[250])
         {
             Caption = 'Body File Path';
-
+            ObsoleteReason = 'Replaced with field Body. You can use the new procedure SetBody to update the value of the html formatted body.';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
+#if not CLEAN27
             trigger OnValidate()
             begin
                 if "Body File Path" <> '' then
                     TestField("Plaintext Formatted", false);
             end;
+#endif
         }
+#endif
         field(13; "Message Type"; Option)
         {
             Caption = 'Message Type';
@@ -387,13 +406,32 @@ table 9500 "Email Item"
         BodyText.Write(DataStream);
     end;
 
+    procedure SetBody(var TempBlob: Codeunit "Temp Blob")
+    begin
+        SetBody(TempBlob, false);
+    end;
+
+    procedure SetBody(var TempBlob: Codeunit "Temp Blob"; FormattedAsPlainText: Boolean)
+    var
+        BodyInStream: InStream;
+        BodyOutStream: OutStream;
+    begin
+        Validate("Plaintext Formatted", FormattedAsPlainText);
+        Clear(Body);
+        Body.CreateOutStream(BodyOutStream, Textencoding::UTF8);
+        TempBlob.CreateInStream(BodyInStream, Textencoding::UTF8);
+        CopyStream(BodyOutStream, BodyInStream);
+    end;
+
     [Scope('OnPrem')]
     procedure GetBodyText() Value: Text
     var
+#if not CLEAN27
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
         BlobInStream: InStream;
         BodyOutStream: OutStream;
+#endif
         IsHandled: Boolean;
     begin
         // Note this is intended only to get the body in memory - not from the database.
@@ -405,6 +443,8 @@ table 9500 "Email Item"
             exit(Value);
 
         // If the body doesn't have a value, attempt to import the value from the file path, otherwise exit.
+#if not CLEAN27
+#pragma warning disable AL0432
         if not Body.HasValue() and not (("Body File Path" <> '') and Exists("Body File Path")) then
             exit;
         if not Body.HasValue() and ("Body File Path" <> '') and Exists("Body File Path") then begin
@@ -413,7 +453,11 @@ table 9500 "Email Item"
             Body.CreateOutStream(BodyOutStream);
             CopyStream(BodyOutStream, BlobInStream);
         end;
-
+#pragma warning restore AL0432
+#else
+        if not Body.HasValue() then
+            exit;
+#endif
         Value := GetBodyTextFromBlob();
 
         exit(Value);

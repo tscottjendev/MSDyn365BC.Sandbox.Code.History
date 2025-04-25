@@ -566,9 +566,9 @@ report 5692 "Calculate Depreciation"
         PostingDescriptionTxt: Text[100];
 #pragma warning restore AS0108
         BalAccount: Boolean;
-#if not CLEAN25
+#if not CLEAN27
 #pragma warning disable AA0137,AA0204
-        [Obsolete('Not used. Use PostingDescriptionTxt instead.', '25.0')]
+        [Obsolete('Not used. Use PostingDescriptionTxt instead.', '27.0')]
         PostingDescription: array[3] of Text[100];
 #pragma warning restore AA0137,AA0204
 #endif

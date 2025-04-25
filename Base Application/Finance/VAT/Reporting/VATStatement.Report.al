@@ -5,6 +5,7 @@
 namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Utilities;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
 // using Microsoft.Foundation.Enums;
@@ -198,6 +199,14 @@ report 12 "VAT Statement"
                             end;
                         end;
                     }
+                    field(ActivityCode; ActivityCode)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Activity Code';
+                        Importance = Additional;
+                        TableRelation = "Activity Code";
+                        ToolTip = 'Specifies the activity code that is assigned to the VAT settlement transaction.';
+                    }
                     field("Country/Region Filter"; CountryRegionFilter)
                     {
                         ApplicationArea = Basic, Suite;
@@ -291,6 +300,7 @@ report 12 "VAT Statement"
         Selection: Enum "VAT Statement Report Selection";
         TotalAmount: Decimal;
         UseAmtsInAddCurr: Boolean;
+        ActivityCode: Code[6];
         CountryRegionFilter: Text;
 
     procedure CalcLineTotal(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; Level: Integer): Boolean

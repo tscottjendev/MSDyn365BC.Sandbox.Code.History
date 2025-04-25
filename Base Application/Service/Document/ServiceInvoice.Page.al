@@ -1030,12 +1030,14 @@ page 5933 "Service Invoice"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
-        IsPostingGroupEditable: Boolean;
         ServiceDocCheckFactboxVisible: Boolean;
         IsServiceLinesEditable: Boolean;
         ExternalDocNoMandatory: Boolean;
         VATDateEnabled: Boolean;
         DocNoVisible: Boolean;
+
+    protected var
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin
