@@ -8,7 +8,6 @@ using Microsoft.Utilities;
 
 codeunit 8074 "Document Change Management"
 {
-    Access = Internal;
     SingleInstance = true;
 
     var
@@ -1119,7 +1118,13 @@ codeunit 8074 "Document Change Management"
         DocumentTypeInteger: Integer;
         DocumentNo: Code[20];
         LineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePreventChangeOnDocumentHeaderOrLine(RecVariant, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if CurrFieldNo = 0 then
             exit;
         RRef.GetTable(RecVariant);
@@ -1197,5 +1202,10 @@ codeunit 8074 "Document Change Management"
                         RecurringBilling := SalesHeader."Recurring Billing";
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreventChangeOnDocumentHeaderOrLine(RecVariant: Variant; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
     end;
 }

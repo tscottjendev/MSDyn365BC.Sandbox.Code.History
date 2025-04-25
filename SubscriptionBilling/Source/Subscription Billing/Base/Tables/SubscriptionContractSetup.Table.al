@@ -9,7 +9,6 @@ table 8051 "Subscription Contract Setup"
 {
     Caption = 'Subscription Contract Setup';
     DataClassification = CustomerContent;
-    Access = Internal;
 
     fields
     {
@@ -161,7 +160,7 @@ table 8051 "Subscription Contract Setup"
         Rec.Validate("Contract Invoice Add. Line 5", Enum::"Contract Invoice Text Type"::"Primary attribute");
     end;
 
-    internal procedure VerifyContractTextsSetup()
+    procedure VerifyContractTextsSetup()
     var
         BillingPeriodSetupMissingErr: Label 'The %1 is incomplete. You have to set up a value for "%2" as a description line.', Comment = '%1 = TableCaption, %2 = Specific text type value"';
     begin
@@ -186,7 +185,7 @@ table 8051 "Subscription Contract Setup"
         ServiceCommitment.ModifyAll("Period Calculation", Rec."Default Period Calculation", false);
     end;
 
-    internal procedure CheckPrerequisitesForCreatingManualContractLine()
+    procedure CheckPrerequisitesForCreatingManualContractLine()
     var
         FieldEmptyErrorInfo: ErrorInfo;
     begin

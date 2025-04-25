@@ -10,10 +10,9 @@ using Microsoft.Foundation.Attachment;
 
 codeunit 8059 "Sub. Contracts General Mgt."
 {
-    Access = Internal;
     SingleInstance = true;
 
-    internal procedure OpenContractCard(Partner: Enum "Service Partner"; ContractNo: Code[20])
+    procedure OpenContractCard(Partner: Enum "Service Partner"; ContractNo: Code[20])
     var
         CustomerContract: Record "Customer Subscription Contract";
         VendorContract: Record "Vendor Subscription Contract";
@@ -37,7 +36,7 @@ codeunit 8059 "Sub. Contracts General Mgt."
         end;
     end;
 
-    internal procedure OpenPartnerCard(Partner: Enum "Service Partner"; PartnerNo: Code[20])
+    procedure OpenPartnerCard(Partner: Enum "Service Partner"; PartnerNo: Code[20])
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -59,7 +58,7 @@ codeunit 8059 "Sub. Contracts General Mgt."
         end;
     end;
 
-    internal procedure GetContractDescription(Partner: Enum "Service Partner"; ContractNo: Code[20]): Text
+    procedure GetContractDescription(Partner: Enum "Service Partner"; ContractNo: Code[20]): Text
     var
         CustomerContract: Record "Customer Subscription Contract";
         VendorContract: Record "Vendor Subscription Contract";
@@ -77,7 +76,7 @@ codeunit 8059 "Sub. Contracts General Mgt."
         end;
     end;
 
-    internal procedure GetPartnerName(Partner: Enum "Service Partner"; PartnerNo: Code[20]): Text
+    procedure GetPartnerName(Partner: Enum "Service Partner"; PartnerNo: Code[20]): Text
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -94,7 +93,7 @@ codeunit 8059 "Sub. Contracts General Mgt."
         end;
     end;
 
-    internal procedure HasConnectionToContractLine(ContractNo: Code[20]; ContractLineNo: Integer): Boolean
+    procedure HasConnectionToContractLine(ContractNo: Code[20]; ContractLineNo: Integer): Boolean
     begin
         exit((ContractNo <> '') and (ContractLineNo <> 0));
     end;
@@ -107,7 +106,7 @@ codeunit 8059 "Sub. Contracts General Mgt."
         Page.Run(0, BillingLine);
     end;
 
-    internal procedure ShowBillingLinesForDocumentLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; DocumentNoLineNo: Integer)
+    procedure ShowBillingLinesForDocumentLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; DocumentNoLineNo: Integer)
     var
         BillingLine: Record "Billing Line";
     begin

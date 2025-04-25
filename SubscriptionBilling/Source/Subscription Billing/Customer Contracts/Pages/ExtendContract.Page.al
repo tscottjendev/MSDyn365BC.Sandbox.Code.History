@@ -616,17 +616,17 @@ page 8002 "Extend Contract"
         SubscriptionEntryNoParam := NewSubscriptionEntryNo;
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeExtendContract()
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetAdditionalServiceCommitments(var TempServiceCommitmentPackage: Record "Subscription Package" temporary; ItemNo: Code[20])
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateItemNo(ItemNo: Code[20])
     begin
     end;

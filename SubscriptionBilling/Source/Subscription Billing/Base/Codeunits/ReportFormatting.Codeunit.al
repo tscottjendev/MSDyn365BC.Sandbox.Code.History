@@ -5,7 +5,6 @@ using Microsoft.Utilities;
 
 codeunit 8015 "Report Formatting"
 {
-    Access = Internal;
     SingleInstance = true;
 
     internal procedure AddValueToBuffer(var NameValueBuffer: Record "Name/Value Buffer"; Name: Text; Value: Text)
@@ -13,7 +12,7 @@ codeunit 8015 "Report Formatting"
         AddValueToBuffer(NameValueBuffer, Name, Value, '');
     end;
 
-    internal procedure AddValueToBuffer(var NameValueBuffer: Record "Name/Value Buffer"; Name: Text; Value: Text; "Value Long": Text)
+    procedure AddValueToBuffer(var NameValueBuffer: Record "Name/Value Buffer"; Name: Text; Value: Text; "Value Long": Text)
     var
         KeyIndex: Integer;
     begin
@@ -31,7 +30,7 @@ codeunit 8015 "Report Formatting"
         end;
     end;
 
-    internal procedure GetValueFromBuffer(var NameValueBuffer: Record "Name/Value Buffer"; Name: Text) Value: Text
+    procedure GetValueFromBuffer(var NameValueBuffer: Record "Name/Value Buffer"; Name: Text) Value: Text
     begin
         if Name <> '' then begin
             NameValueBuffer.SetRange(Name, Name);

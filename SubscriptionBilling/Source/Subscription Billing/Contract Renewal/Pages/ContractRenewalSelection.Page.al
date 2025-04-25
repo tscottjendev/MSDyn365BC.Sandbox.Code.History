@@ -487,17 +487,17 @@ page 8006 "Contract Renewal Selection"
         OnAfterInitTempSubscriptionLine(TempServiceCommitment);
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnTransferChangedValuesFromBufferToSubscriptionLine(var SubscriptionLine: Record "Subscription Line"; var SubscriptionLineBuffer: Record "Subscription Line" temporary)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitTempSubscriptionLine(var TempSubscriptionLine: Record "Subscription Line" temporary)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCheckContractLine(var CustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;

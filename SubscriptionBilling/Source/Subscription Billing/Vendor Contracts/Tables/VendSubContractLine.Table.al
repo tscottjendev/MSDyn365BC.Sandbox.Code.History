@@ -8,7 +8,6 @@ table 8065 "Vend. Sub. Contract Line"
 {
     Caption = 'Vendor Subscription Contract Line';
     DataClassification = CustomerContent;
-    Access = Internal;
 
     fields
     {

@@ -10,7 +10,6 @@ table 8058 "Item Subscription Package"
     DataClassification = CustomerContent;
     DrillDownPageId = "Item Serv. Commitment Packages";
     LookupPageId = "Item Serv. Commitment Packages";
-    Access = Internal;
 
     fields
     {

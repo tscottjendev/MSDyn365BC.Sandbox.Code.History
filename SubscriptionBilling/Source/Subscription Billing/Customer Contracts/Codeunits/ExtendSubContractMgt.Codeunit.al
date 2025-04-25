@@ -2,8 +2,6 @@ namespace Microsoft.SubscriptionBilling;
 
 codeunit 8075 "Extend Sub. Contract Mgt."
 {
-    Access = Internal;
-
     var
         HideDialog: Boolean;
         ExtensionCompletedMsg: Label 'Contract Extension completed.';
@@ -59,7 +57,7 @@ codeunit 8075 "Extend Sub. Contract Mgt."
             until UsageDataSubscription.Next() = 0;
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterAssignSubscriptionLineToContractOnBeforeModify(var SubscriptionLine: Record "Subscription Line")
     begin
     end;

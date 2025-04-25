@@ -6,7 +6,6 @@ table 8056 "Subscription Package Line"
 {
     Caption = 'Subscription Package Line';
     DataClassification = CustomerContent;
-    Access = Internal;
 
     fields
     {

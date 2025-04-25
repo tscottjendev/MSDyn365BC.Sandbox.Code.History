@@ -5,8 +5,6 @@ using System.Reflection;
 
 codeunit 8021 "Text Management"
 {
-    Access = Internal;
-
     var
         ProcessingAbortedErr: Label 'Processing aborted.';
 
@@ -15,7 +13,7 @@ codeunit 8021 "Text Management"
         exit(ProcessingAbortedErr);
     end;
 
-    internal procedure AppendText(var ExistingText: Text; NewText: Text; Separator: Text)
+    procedure AppendText(var ExistingText: Text; NewText: Text; Separator: Text)
     begin
         if NewText = '' then
             exit;
@@ -26,13 +24,13 @@ codeunit 8021 "Text Management"
             ExistingText += CopyStr(Separator + NewText, 1, MaxStrLen(ExistingText) - StrLen(ExistingText));
     end;
 
-    internal procedure ReplaceInvalidFilterChar(var BaseText: Text)
+    procedure ReplaceInvalidFilterChar(var BaseText: Text)
     begin
         BaseText := ConvertStr(BaseText, '()', '??');
         BaseText := ConvertStr(BaseText, '<>', '??');
     end;
 
-    internal procedure ShowFieldText(var RRef: RecordRef; FieldNo: Integer)
+    procedure ShowFieldText(var RRef: RecordRef; FieldNo: Integer)
     var
         FRef: FieldRef;
         BlobText: Text;

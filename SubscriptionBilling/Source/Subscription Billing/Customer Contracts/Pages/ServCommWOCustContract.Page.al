@@ -245,7 +245,7 @@ page 8069 "Serv. Comm. WO Cust. Contract"
         exit(true);
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnRefreshServiceCommitmentsOnAfterServiceCommitmentSetFilters(var SubscriptionLine: Record "Subscription Line"; CustomerSubscriptionContract: Record "Customer Subscription Contract")
     begin
     end;

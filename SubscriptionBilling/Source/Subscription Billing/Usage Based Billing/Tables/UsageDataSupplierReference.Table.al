@@ -6,7 +6,6 @@ table 8015 "Usage Data Supplier Reference"
     DataClassification = CustomerContent;
     LookupPageId = "Usage Data Supp. References";
     DrillDownPageId = "Usage Data Supp. References";
-    Access = Internal;
 
     fields
     {

@@ -2,8 +2,6 @@ namespace Microsoft.SubscriptionBilling;
 
 codeunit 8057 "Date Formula Management"
 {
-    Access = Internal;
-
     var
         DateFormulaNegativeErr: Label 'The date formula cannot be negative.';
         DateFormulaEmptyErr: Label 'The %1 must be filled out. Please enter a date formula.';
@@ -31,7 +29,7 @@ codeunit 8057 "Date Formula Management"
             Error(DateEmptyErr, FieldCaption);
     end;
 
-    internal procedure CheckIntegerRatioForDateFormulas(DateFormula1: DateFormula; DateFormula1Caption: Text; DateFormula2: DateFormula; DateFormula2Caption: Text)
+    procedure CheckIntegerRatioForDateFormulas(DateFormula1: DateFormula; DateFormula1Caption: Text; DateFormula2: DateFormula; DateFormula2Caption: Text)
     var
         DateFormulaType1: Enum "Date Formula Type";
         DateFormulaType2: Enum "Date Formula Type";
@@ -73,7 +71,7 @@ codeunit 8057 "Date Formula Management"
             Error(NaturalNumberRatioErr, DateFormula1Caption, DateFormula2Caption);
     end;
 
-    internal procedure FindDateFormulaType(InputDateFormula: DateFormula; var PeriodCount: Integer; var Letter: Char) DateFormulaType: Enum "Date Formula Type"
+    procedure FindDateFormulaType(InputDateFormula: DateFormula; var PeriodCount: Integer; var Letter: Char) DateFormulaType: Enum "Date Formula Type"
     var
         InputDateText: Text;
         LetterPosition: Integer;
@@ -127,7 +125,7 @@ codeunit 8057 "Date Formula Management"
         DateFormulaType := FindDateFormulaType(InputDateFormula, PeriodCount, Letter);
     end;
 
-    internal procedure FindDateFormulaTypeForComparison(InputDateFormula: DateFormula; var PeriodCountForComparison: Integer) DateFormulaType: Enum "Date Formula Type"
+    procedure FindDateFormulaTypeForComparison(InputDateFormula: DateFormula; var PeriodCountForComparison: Integer) DateFormulaType: Enum "Date Formula Type"
     begin
         DateFormulaType := FindDateFormulaType(InputDateFormula, PeriodCountForComparison);
         // Months can be compared to a Quarter and to a Year, Weeks and Days cannot be compared to Months, Quartes and Years
@@ -139,7 +137,7 @@ codeunit 8057 "Date Formula Management"
         end;
     end;
 
-    internal procedure CalculateRenewalTermRatioByBillingRhythm(StartDate: Date; RenewalTermDateFormula: DateFormula; BillingRhythmFormula: DateFormula) RenewalRatio: Decimal
+    procedure CalculateRenewalTermRatioByBillingRhythm(StartDate: Date; RenewalTermDateFormula: DateFormula; BillingRhythmFormula: DateFormula) RenewalRatio: Decimal
     var
         RenewalTermEndDate: Date;
         NextBillingDate: Date;

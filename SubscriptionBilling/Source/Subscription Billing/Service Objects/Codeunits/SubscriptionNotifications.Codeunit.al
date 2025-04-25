@@ -5,8 +5,6 @@ using Microsoft.Sales.Customer;
 
 codeunit 8056 "Subscription Notifications"
 {
-    Access = Internal;
-
     internal procedure CopySellToCustomerAddressFieldsFromServiceObject(var ModifyCustomerAddressNotification: Notification)
     var
         Customer: Record Customer;
@@ -126,12 +124,12 @@ codeunit 8056 "Subscription Notifications"
         ServiceObject.DontNotifyCurrentUserAgain(Notification.Id);
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyBillToCustomerAddressFieldsFromSubscriptionHeader(var ModifyCustomerAddressNotification: Notification; var SubscriptionHeader: Record "Subscription Header")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopySellToCustomerAddressFieldsFromSubscriptionHeader(var ModifyCustomerAddressNotification: Notification; var SubscriptionHeader: Record "Subscription Header")
     begin
     end;

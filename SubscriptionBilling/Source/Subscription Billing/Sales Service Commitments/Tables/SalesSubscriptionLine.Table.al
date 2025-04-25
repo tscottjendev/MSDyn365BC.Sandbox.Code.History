@@ -808,17 +808,17 @@ table 8068 "Sales Subscription Line"
         OnAfterGetSalesLine(Rec, SalesLine2);
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnCalculateBaseTypeElseCaseOnCalculateCalculationBaseAmountCustomer(SalesSubscriptionLine: Record "Sales Subscription Line"; SalesLine: Record "Sales Line"; var CalculatedBaseAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnCalculateBaseTypeElseCaseOnCalculateCalculationBaseAmountVendor(SalesSubscriptionLine: Record "Sales Subscription Line"; SalesLine: Record "Sales Line"; var CalculatedBaseAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateVATAmountLineForSalesSubscriptionLine(SalesSubscriptionLine: Record "Sales Subscription Line"; var IsHandled: Boolean)
     begin
     end;

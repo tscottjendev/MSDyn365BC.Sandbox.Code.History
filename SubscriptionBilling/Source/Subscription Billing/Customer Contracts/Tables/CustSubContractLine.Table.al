@@ -10,7 +10,6 @@ table 8062 "Cust. Sub. Contract Line"
     DataClassification = CustomerContent;
     DrillDownPageId = "Customer Contract Lines";
     LookupPageId = "Customer Contract Lines";
-    Access = Internal;
 
     fields
     {
@@ -548,32 +547,32 @@ table 8062 "Cust. Sub. Contract Line"
         exit("Contract Line Type" = "Contract Line Type"::Comment);
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCheckSelectedContractLinesOnMergeContractLines(var SelectedCustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCheckAndDisconnectContractLine(var CustSubContractLine: Record "Cust. Sub. Contract Line"; xCustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSubscriptionDescription(var CustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSubscriptionLineDescription(var CustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterLoadAmountsForContractLine(var CustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromSubscriptionLine(var CustSubContractLine: Record "Cust. Sub. Contract Line"; SubscriptionLine: Record "Subscription Line"; SubscriptionHeader: Record "Subscription Header")
     begin
     end;

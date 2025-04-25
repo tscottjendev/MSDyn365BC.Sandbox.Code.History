@@ -759,17 +759,17 @@ codeunit 8063 "Sales Documents"
         OnAfterSalesLineShouldSkipInvoicing(SalesLine, SkipTemporaryCheck, Result);
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnCheckResetValueForSubscriptionItems(var TempSalesLine: Record "Sales Line"; var ResetValueForSubscriptionItems: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnCreateSubscriptionHeaderFromSalesLineBeforeInsertSubscriptionHeader(var SubscriptionHeader: Record "Subscription Header"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnCreateSubscriptionHeaderFromSalesLineAfterInsertSubscriptionHeader(var SubscriptionHeader: Record "Subscription Header"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
     end;
@@ -779,32 +779,32 @@ codeunit 8063 "Sales Documents"
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnCreateSubscriptionHeaderFromSalesLineAfterInsertSubscriptionLine(var SubscriptionLine: Record "Subscription Line"; SalesSubscriptionLine: Record "Sales Subscription Line"; SalesLine: Record "Sales Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateSubscriptionHeaderFromSalesLine(SubscriptionHeader: Record "Subscription Header"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SerialNo: Code[50]; QtyPerSerialNo: Decimal; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSubscriptionHeaderFromSalesLine(SubscriptionHeader: Record "Subscription Header"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertBillingLineArchiveOnMoveBillingLineToBillingLineArchive(var BillingLineArchive: Record "Billing Line Archive"; BillingLine: Record "Billing Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeMoveBillingLineToBillingLineArchiveForPostingPreview(var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeClearQtyToInvoiceOnForSubscriptionItem(var IsHandled: Boolean)
     begin
     end;

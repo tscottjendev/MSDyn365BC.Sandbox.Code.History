@@ -331,7 +331,7 @@ tableextension 8054 "Sales Line" extends "Sales Line"
         exit(not SalesServiceCommitment.IsEmpty());
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetExcludeFromDocTotal(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;

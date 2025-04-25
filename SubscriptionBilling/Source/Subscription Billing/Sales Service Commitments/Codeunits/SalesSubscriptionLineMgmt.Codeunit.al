@@ -10,7 +10,6 @@ using Microsoft.Inventory.Item;
 
 codeunit 8069 "Sales Subscription Line Mgmt."
 {
-    Access = Internal;
     SingleInstance = true;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterInsertEvent, '', false, false)]
@@ -399,22 +398,22 @@ codeunit 8069 "Sales Subscription Line Mgmt."
         AddSalesServiceCommitmentsForSalesLine(ToSalesLine, false);
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateSalesSubscriptionLineFromSubscriptionPackageLine(var SalesLine: Record "Sales Line"; var SubscriptionPackageLine: Record "Subscription Package Line"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesSubscriptionLineFromSubscriptionPackageLine(var SalesLine: Record "Sales Line"; SubscriptionPackageLine: Record "Subscription Package Line"; var SalesSubscriptionLine: Record "Sales Subscription Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnCreateSalesServCommLineFromServCommPackageLineOnAfterInsertSalesSubscriptionLineFromSubscriptionPackageLine(var SalesServiceCommitment: Record "Sales Subscription Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeModifySalesSubscriptionLineFromSubscriptionPackageLine(var SalesSubscriptionLine: Record "Sales Subscription Line"; SubscriptionPackageLine: Record "Subscription Package Line")
     begin
     end;
@@ -437,7 +436,7 @@ codeunit 8069 "Sales Subscription Line Mgmt."
         ServiceCommitmentWithNegativeQtyMessageThrown := false;
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAddAdditionalSalesSubscriptionLinesForSalesLineAfterApplyFilters(var SubscriptionPackage: Record "Subscription Package"; var SalesLine: Record "Sales Line")
     begin
     end;

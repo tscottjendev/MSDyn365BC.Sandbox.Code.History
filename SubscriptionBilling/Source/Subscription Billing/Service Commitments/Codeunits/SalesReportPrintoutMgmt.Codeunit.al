@@ -8,7 +8,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Finance.Currency;
 codeunit 8073 "Sales Report Printout Mgmt."
 {
-    Access = Internal;
     SingleInstance = true;
 
     var
@@ -17,7 +16,7 @@ codeunit 8073 "Sales Report Printout Mgmt."
         RecurringServicesPerLineLbl: Label 'Subscriptions*';
         TotalTextTok: Label 'TotalText', Locked = true;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatSalesLineExcludeLineInTotals(var SalesLine: Record "Sales Line"; var IncludeLineInTotals: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -172,7 +171,7 @@ codeunit 8073 "Sales Report Printout Mgmt."
         end;
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFillSubscriptionLinesGroupPerPeriod(SalesHeader: Record "Sales Header"; var TempSalesSubscriptionLineBuff: Record "Sales Service Commitment Buff." temporary; var GroupPerPeriod: Record "Name/Value Buffer"; var UniqueRhythmDictionary: Dictionary of [Code[20], Text]; TotalText: Text[50]; TotalInclVATText: Text[50]; TotalExclVATText: Text[50]; var IsHandled: Boolean)
     begin
     end;

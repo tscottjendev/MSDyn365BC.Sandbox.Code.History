@@ -24,7 +24,6 @@ table 8057 "Subscription Header"
     DataCaptionFields = "No.", Description;
     LookupPageId = "Service Objects";
     DrillDownPageId = "Service Objects";
-    Access = Internal;
 
     fields
     {
@@ -2236,197 +2235,197 @@ table 8057 "Subscription Header"
         Rec.SetPrimaryAttributeValueAndCaption(PrimaryAttributeValue, PrimaryAttributeValueCaption);
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterIsShipToAddressEqualToEndUserAddress(EndUserSubscriptionHeader: Record "Subscription Header"; ShipToSubscriptionHeader: Record "Subscription Header"; var Result: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetCustomerSubscriptionContractSetup(SubscriptionHeader: Record "Subscription Header"; var SubscriptionContractSetup: Record "Subscription Contract Setup"; CalledByFieldNo: Integer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetFieldsBilltoCustomer(var SubscriptionHeader: Record "Subscription Header"; Customer: Record Customer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyEndUserAddressToBillToAddress(var SubscriptionHeader: Record "Subscription Header")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyEndUserCustomerAddressFieldsFromCustomer(var SubscriptionHeader: Record "Subscription Header"; EndUserCustomer: Record Customer; CurrentFieldNo: Integer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyShipToCustomerAddressFieldsFromCustomer(var SubscriptionHeader: Record "Subscription Header"; EndUserCustomer: Record Customer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr(var SubscriptionHeader: Record "Subscription Header"; ShipToAddress: Record "Ship-to Address")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyEndUserAddressToShipToAddress(var SubscriptionHeader: Record "Subscription Header")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAssistEdit(var SubscriptionHeader: Record "Subscription Header"; OldSubscriptionHeader: Record "Subscription Header"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmBillToContactNoChange(var SubscriptionHeader: Record "Subscription Header"; xSubscriptionHeader: Record "Subscription Header"; CurrentFieldNo: Integer; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmEndUserContactNoChange(var SubscriptionHeader: Record "Subscription Header"; xSubscriptionHeader: Record "Subscription Header"; CurrentFieldNo: Integer; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyShipToCustomerAddressFieldsFromCustomer(var SubscriptionHeader: Record "Subscription Header"; Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyShipToCustomerAddressFieldsFromShipToAddr(var SubscriptionHeader: Record "Subscription Header"; ShipToAddress: Record "Ship-to Address"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInitInsert(var SubscriptionHeader: Record "Subscription Header"; xSubscriptionHeader: Record "Subscription Header"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupBillToPostCode(var SubscriptionHeader: Record "Subscription Header"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupEndUserPostCode(var SubscriptionHeader: Record "Subscription Header"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupShipToPostCode(var SubscriptionHeader: Record "Subscription Header"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBillToPostCode(var SubscriptionHeader: Record "Subscription Header"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateEndUserPostCode(var SubscriptionHeader: Record "Subscription Header"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShipToPostCode(var SubscriptionHeader: Record "Subscription Header"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateEndUserCust(var SubscriptionHeader: Record "Subscription Header"; var Contact: Record Contact; var Customer: Record Customer; ContactNo: Code[20])
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnInitFromContactOnAfterInitNoSeries(var SubscriptionHeader: Record "Subscription Header"; var xSubscriptionHeader: Record "Subscription Header")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnValidateEndUserCustomerNoAfterInit(var SubscriptionHeader: Record "Subscription Header"; var xSubscriptionHeader: Record "Subscription Header")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateBillToCont(var SubscriptionHeader: Record "Subscription Header"; Customer: Record Customer; Contact: Record Contact)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateBillToCust(var SubscriptionHeader: Record "Subscription Header"; Contact: Record Contact)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateEndUserCont(var SubscriptionHeader: Record "Subscription Header"; Customer: Record Customer; Contact: Record Contact)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateEndUserCust(var SubscriptionHeader: Record "Subscription Header"; Contact: Record Contact)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBillToCustomerName(var SubscriptionHeader: Record "Subscription Header"; var Customer: Record Customer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateEndUserCustomerName(var SubscriptionHeader: Record "Subscription Header"; var Customer: Record Customer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateEndUserCustOnBeforeContactIsNotRelatedToAnyCustomerErr(var SubscriptionHeader: Record "Subscription Header"; Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateBillToCustOnBeforeContactIsNotRelatedToAnyCustomerErr(var SubscriptionHeader: Record "Subscription Header"; Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateBillToCustOnBeforeFindContactBusinessRelation(Contact: Record Contact; var ContBusinessRelation: Record "Contact Business Relation"; var ContactBusinessRelationFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateEndUserCustOnBeforeFindContactBusinessRelation(Cont: Record Contact; var ContBusinessRelation: Record "Contact Business Relation"; var ContactBusinessRelationFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnValidateBillToCustomerNoOnAfterConfirmed(var SubscriptionHeader: Record "Subscription Header")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateBillToCust(var SubscriptionHeader: Record "Subscription Header"; ContactNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckContactRelatedToCustomerCompany(SubscriptionHeader: Record "Subscription Header"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateShipToBillToOptions(var ShipToOptions: Option "Default (End-User Address)","Alternate Shipping Address","Custom Address"; var BillToOptions: Option "Default (Customer)","Another Customer","Custom Address"; SubscriptionHeader: Record "Subscription Header")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRecalculateLines(var SubscriptionHeader: Record "Subscription Header"; xSubscriptionHeader: Record "Subscription Header"; ChangedFieldName: Text; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnRecalculateLinesOnBeforeConfirm(var SubscriptionHeader: Record "Subscription Header"; xSubscriptionHeader: Record "Subscription Header"; ChangedFieldName: Text; HideValidationDialog: Boolean; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -2436,12 +2435,12 @@ table 8057 "Subscription Header"
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertSubscriptionLineFromSubscriptionPackageLine(var SubscriptionLine: Record "Subscription Line"; SubscriptionPackageLine: Record "Subscription Package Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertSubscriptionLineFromSubscriptionPackage(var SubscriptionLine: Record "Subscription Line"; SubscriptionPackage: Record "Subscription Package"; SubscriptionPackageLine: Record "Subscription Package Line")
     begin
     end;

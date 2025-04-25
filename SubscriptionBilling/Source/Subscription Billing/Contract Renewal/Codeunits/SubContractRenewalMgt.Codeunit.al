@@ -7,7 +7,6 @@ using Microsoft.Utilities;
 
 codeunit 8003 "Sub. Contract Renewal Mgt."
 {
-    Access = Internal;
     TableNo = "Cust. Sub. Contract Line";
 
     trigger OnRun()
@@ -307,12 +306,12 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
                 true);
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRunCreateContractRenewalFromContract(CustomerSubscriptionContractSource: Record "Customer Subscription Contract"; var SubContractRenewalLines: Record "Sub. Contract Renewal Line"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFilterRenewableSubContrLines(CustomerContractNo: Code[20]; var CustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;

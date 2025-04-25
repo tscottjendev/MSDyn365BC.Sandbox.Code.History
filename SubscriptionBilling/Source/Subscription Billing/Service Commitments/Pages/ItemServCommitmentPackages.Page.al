@@ -128,7 +128,7 @@ page 8061 "Item Serv. Commitment Packages"
         CurrPage.PackageLines.Page.SetPackageCode(Rec.Code);
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCodeLookup(var SubscriptionPackage: Record "Subscription Package"; CurrentItemNo: Code[20])
     begin
     end;

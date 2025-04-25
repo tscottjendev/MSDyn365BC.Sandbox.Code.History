@@ -7,7 +7,6 @@ table 8007 "Overdue Subscription Line"
     DataClassification = CustomerContent;
     Caption = 'Overdue Subscription Line';
     TableType = Temporary;
-    Access = Internal;
 
     fields
     {

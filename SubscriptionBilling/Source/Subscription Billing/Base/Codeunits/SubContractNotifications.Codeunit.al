@@ -6,8 +6,6 @@ using Microsoft.Purchases.Vendor;
 
 codeunit 8053 "Sub. Contract Notifications"
 {
-    Access = Internal;
-
     trigger OnRun()
     begin
     end;
@@ -260,22 +258,22 @@ codeunit 8053 "Sub. Contract Notifications"
         exit('ServiceObjectNoFilter');
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyBillToCustomerAddressFieldsFromCustomerSubscriptionContract(var ModifyCustomerAddressNotification: Notification; var CustomerSubscriptionContract: Record "Customer Subscription Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyEndUserCustomerAddressFieldsFromCustomerSubscriptionContract(var ModifyCustomerAddressNotification: Notification; var CustomerSubscriptionContract: Record "Customer Subscription Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyBuyFromVendorAddressFieldsFromVendorSubscriptionContract(var ModifyVendorAddressNotification: Notification; var VendorSubscriptionContract: Record "Vendor Subscription Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyPayToVendorAddressFieldsFromVendorSubscriptionContract(var ModifyVendorAddressNotification: Notification; var VendorSubscriptionContract: Record "Vendor Subscription Contract")
     begin
     end;

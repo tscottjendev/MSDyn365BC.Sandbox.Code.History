@@ -1850,47 +1850,47 @@ table 8059 "Subscription Line"
             Error(NoManualEntryOfUnitCostLCYForVendorServCommErr);
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateNextBillingDate(var SubscriptionLine: Record "Subscription Line"; LastBillingToDate: Date)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateServiceAmount(var SubscriptionLine: Record "Subscription Line"; CalledByFieldNo: Integer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSubscriptionLine(var SubscriptionLine: Record "Subscription Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetCombinedDimensionSetID(var SubscriptionLine: Record "Subscription Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var SubscriptionLine: Record "Subscription Line"; xSubscriptionLine: Record "Subscription Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var SubscriptionLine: Record "Subscription Line"; xSubscriptionLine: Record "Subscription Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateDimensionSetID(var SubscriptionLine: Record "Subscription Line"; xSubscriptionLine: Record "Subscription Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateDimensionSetID(var SubscriptionLine: Record "Subscription Line"; xSubscriptionLine: Record "Subscription Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromSalesSubscriptionLine(var SubscriptionLine: Record "Subscription Line"; SalesSubscriptionLine: Record "Sales Subscription Line")
     begin
     end;

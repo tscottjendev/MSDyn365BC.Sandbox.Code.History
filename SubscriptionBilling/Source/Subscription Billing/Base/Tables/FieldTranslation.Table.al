@@ -9,7 +9,6 @@ table 8000 "Field Translation"
     DataClassification = CustomerContent;
     DrillDownPageId = "Field Translations";
     LookupPageId = "Field Translations";
-    Access = Internal;
 
     fields
     {

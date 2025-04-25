@@ -80,7 +80,7 @@ report 8002 "Cr. Serv. Comm. And Contr. L."
         Window.Open(ImportWindowTxt);
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSubscriptionLineOnBeforeCreateContractLine(ImportedServiceCommitment: Record "Imported Subscription Line"; var SkipCreateContractLine: Boolean)
     begin
     end;

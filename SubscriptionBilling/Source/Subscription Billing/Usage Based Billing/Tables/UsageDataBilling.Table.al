@@ -11,7 +11,6 @@ table 8006 "Usage Data Billing"
     DataClassification = CustomerContent;
     DrillDownPageId = "Usage Data Billings";
     LookupPageId = "Usage Data Billings";
-    Access = Internal;
 
     fields
     {

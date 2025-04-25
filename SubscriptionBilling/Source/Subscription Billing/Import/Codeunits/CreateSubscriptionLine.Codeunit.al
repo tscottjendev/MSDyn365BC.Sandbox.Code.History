@@ -2,7 +2,6 @@ namespace Microsoft.SubscriptionBilling;
 
 codeunit 8006 "Create Subscription Line"
 {
-    Access = Internal;
     TableNo = "Imported Subscription Line";
 
     trigger OnRun()
@@ -139,17 +138,17 @@ codeunit 8006 "Create Subscription Line"
         ImportedServiceCommitment.ClearErrorTextAndSetProcessedFields();
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSubscriptionLineModify(var SubscriptionLine: Record "Subscription Line"; var ImportedServiceCommitment: Record "Imported Subscription Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSubscriptionLineInsert(var SubscriptionLine: Record "Subscription Line"; var ImportedServiceCommitment: Record "Imported Subscription Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTestImportedSubscriptionLine(var ImportedSubscriptionLine: Record "Imported Subscription Line")
     begin
     end;

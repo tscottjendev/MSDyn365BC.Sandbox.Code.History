@@ -4,8 +4,6 @@ using System.IO;
 
 codeunit 8033 "Generic Connector Processing" implements "Usage Data Processing"
 {
-    Access = Internal;
-
     var
         UsageDataGenericImportGlobal: Record "Usage Data Generic Import";
         ImportAndProcessUsageData: Codeunit "Import And Process Usage Data";
@@ -290,7 +288,7 @@ codeunit 8033 "Generic Connector Processing" implements "Usage Data Processing"
         ProcessDataExch.SetFieldValue(RecordRef, LastKeyFieldId, UsageDataGenericImport.GetNextEntryNo());
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterImportUsageDataBlobToUsageDataGenericImport(UsageDataBlob: Record "Usage Data Blob"; var UsageDataImport: Record "Usage Data Import")
     begin
     end;

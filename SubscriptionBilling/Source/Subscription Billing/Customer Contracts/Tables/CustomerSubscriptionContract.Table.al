@@ -28,7 +28,6 @@ table 8052 "Customer Subscription Contract"
     DataCaptionFields = "No.", "Sell-to Customer Name";
     LookupPageId = "Customer Contracts";
     DrillDownPageId = "Customer Contracts";
-    Access = Internal;
 
     fields
     {
@@ -2283,227 +2282,227 @@ table 8052 "Customer Subscription Contract"
         CurrencyFactor := CurrExchRage.ExchangeRate(ProvisionStartDate, CurrencyCode)
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterIsShipToAddressEqualToSellToAddress(SellToCustomerSubscriptionContract: Record "Customer Subscription Contract"; ShipToCustomerSubscriptionContract: Record "Customer Subscription Contract"; var Result: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterIsShipToAddressEqualToSubscriptionHeaderShipToAddress(CustomerSubscriptionContract: Record "Customer Subscription Contract"; SubscriptionHeader: Record "Subscription Header"; var Result: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetSubscriptionContractSetup(CustomerSubscriptionContract: Record "Customer Subscription Contract"; var SubscriptionContractSetup: Record "Subscription Contract Setup"; CalledByFieldNo: Integer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; xCustomerSubscriptionContract: Record "Customer Subscription Contract"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetFieldsBilltoCustomer(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Customer: Record Customer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopySellToAddressToShipToAddress(var CustomerSubscriptionContract: Record "Customer Subscription Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopySellToAddressToBillToAddress(var CustomerSubscriptionContract: Record "Customer Subscription Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyShipToCustomerAddressFieldsFromCustomer(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; SellToCustomer: Record Customer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; ShipToAddress: Record "Ship-to Address")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopySellToCustomerAddressFieldsFromCustomer(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; SellToCustomer: Record Customer; CurrentFieldNo: Integer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAssistEdit(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; OldCustomerSubscriptionContract: Record "Customer Subscription Contract"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmBillToContactNoChange(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; xCustomerSubscriptionContract: Record "Customer Subscription Contract"; CurrentFieldNo: Integer; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmSellToContactNoChange(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; xCustomerSubscriptionContract: Record "Customer Subscription Contract"; CurrentFieldNo: Integer; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInitInsert(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; xCustomerSubscriptionContract: Record "Customer Subscription Contract"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyShipToCustomerAddressFieldsFromCustomer(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyShipToCustomerAddressFieldsFromShipToAddr(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; ShipToAddress: Record "Ship-to Address"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupBillToPostCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupSellToPostCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupShipToPostCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBillToPostCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateSellToPostCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShipToPostCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSellToCust(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var Contact: Record Contact; var Customer: Record Customer; ContactNo: Code[20])
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnBeforeModify(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; xCustomerSubscriptionContract: Record "Customer Subscription Contract"; CurrentFieldNo: Integer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnInitFromContactOnAfterInitNoSeries(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var xCustomerSubscriptionContract: Record "Customer Subscription Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnValidateSellToCustomerNoAfterInit(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var xCustomerSubscriptionContract: Record "Customer Subscription Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateBillToCont(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Customer: Record Customer; Contact: Record Contact)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateBillToCust(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Contact: Record Contact)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSellToCont(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Customer: Record Customer; Contact: Record Contact)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSellToCust(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Contact: Record Contact)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBillToCustomerName(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var Customer: Record Customer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateSellToCustomerName(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var Customer: Record Customer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; xCustomerSubscriptionContract: Record "Customer Subscription Contract"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateBillToCustOnBeforeContactIsNotRelatedToAnyCustomerErr(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateBillToCustOnBeforeFindContactBusinessRelation(Contact: Record Contact; var ContBusinessRelation: Record "Contact Business Relation"; var ContactBusinessRelationFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateSellToCustOnBeforeContactIsNotRelatedToAnyCustomerErr(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateSellToCustOnBeforeFindContactBusinessRelation(Cont: Record Contact; var ContBusinessRelation: Record "Contact Business Relation"; var ContactBusinessRelationFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnValidateBillToCustomerNoOnAfterConfirmed(var CustomerSubscriptionContract: Record "Customer Subscription Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateBillToCust(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; ContactNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckContactRelatedToCustomerCompany(CustomerSubscriptionContract: Record "Customer Subscription Contract"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateCustomerContractLineFromSubscriptionLine(var SubscriptionLine: Record "Subscription Line"; ContractNo: Code[20]; var CustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateCustomerContractLineFromSubscriptionLine(SubscriptionLine: Record "Subscription Line"; var CustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeModifySubscriptionLineOnCreateCustomerContractLineFromSubscriptionLine(var SubscriptionLine: Record "Subscription Line"; CustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimDimSource(CustomerSubscriptionContract: Record "Customer Subscription Contract"; CurrFieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;

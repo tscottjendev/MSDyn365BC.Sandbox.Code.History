@@ -8,7 +8,7 @@ table 8011 "Usage Data Blob"
     DataClassification = CustomerContent;
     LookupPageId = "Usage Data Blobs";
     DrillDownPageId = "Usage Data Blobs";
-    Access = Internal;
+
     fields
     {
         field(1; "Entry No."; Integer)

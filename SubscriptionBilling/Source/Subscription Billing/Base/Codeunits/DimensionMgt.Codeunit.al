@@ -4,9 +4,7 @@ using Microsoft.Finance.Dimension;
 
 codeunit 8022 "Dimension Mgt."
 {
-    Access = Internal;
-
-    internal procedure CreateDimValue(DimCode: Code[20]; DimValueCode: Code[20]; DimValueName: Text)
+    procedure CreateDimValue(DimCode: Code[20]; DimValueCode: Code[20]; DimValueName: Text)
     var
         DimValue: Record "Dimension Value";
     begin
@@ -29,7 +27,7 @@ codeunit 8022 "Dimension Mgt."
                 end;
     end;
 
-    internal procedure AppendDimValue(DimCode: Code[20]; DimValueCode: Code[20]; var DimSetID: Integer)
+    procedure AppendDimValue(DimCode: Code[20]; DimValueCode: Code[20]; var DimSetID: Integer)
     var
         DimVal: Record "Dimension Value";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;

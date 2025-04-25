@@ -4,7 +4,6 @@ using Microsoft.Finance.Currency;
 
 codeunit 8026 "Process Usage Data Billing"
 {
-    Access = Internal;
     TableNo = "Usage Data Import";
 
     var
@@ -367,33 +366,33 @@ codeunit 8026 "Process Usage Data Billing"
         end;
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeProcessUsageDataBilling(UsageDataImport: Record "Usage Data Import")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterProcessUsageDataBilling(UsageDataImport: Record "Usage Data Import")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnUsageBasedPricingElseCaseOnProcessSubscriptionLine(var UnitCost: Decimal; var NewServiceObjectQuantity: Decimal; var SubscriptionLine: Record "Subscription Line"; LastUsageDataBilling: Record "Usage Data Billing"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnUsageBasedPricingElseCaseOnCalculateCustomerUsageDataBillingPrice(var UnitPrice: Decimal; var Amount: Decimal; var UsageDataBilling: Record "Usage Data Billing"; CustomerSubscriptionContract: Record "Customer Subscription Contract"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeProcessSubscriptionLine(var SubscriptionLine: Record "Subscription Line")
     begin
     end;
 
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterProcessSubscriptionLine(var SubscriptionLine: Record "Subscription Line")
     begin
     end;

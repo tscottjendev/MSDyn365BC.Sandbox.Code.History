@@ -464,7 +464,7 @@ table 8061 "Billing Line"
         Rec.SetRange("Document Line No.", DocumentLineNo);
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateNextBillingDateInResetSubscriptionLineNextBillingDate(var SubscriptionLine: Record "Subscription Line")
     begin
     end;

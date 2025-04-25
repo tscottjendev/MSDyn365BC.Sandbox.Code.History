@@ -211,12 +211,12 @@ table 8001 "Sub. Contract Renewal Line"
         exit(ContractRenewalLine.Get(ServiceCommitment."Entry No."));
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromSubscriptionLine(var SubContractRenewalLine: Record "Sub. Contract Renewal Line"; SubscriptionLine: Record "Subscription Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterRefreshContractInfo(var SubContractRenewalLine: Record "Sub. Contract Renewal Line")
     begin
     end;

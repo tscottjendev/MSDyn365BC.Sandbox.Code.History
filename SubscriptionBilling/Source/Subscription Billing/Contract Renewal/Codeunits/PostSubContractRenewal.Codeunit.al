@@ -7,7 +7,6 @@ using Microsoft.Purchases.History;
 
 codeunit 8004 "Post Sub. Contract Renewal"
 {
-    Access = Internal;
     TableNo = "Sales Header";
 
     trigger OnRun()
@@ -347,27 +346,27 @@ codeunit 8004 "Post Sub. Contract Renewal"
         SalesLine.Modify(false);
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSubscriptionLineFromPlannedSubscriptionLine(var SubscriptionLine: Record "Subscription Line"; var PlannedSubscriptionLine: Record "Planned Subscription Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnCheckPerformSubscriptionLineUpdate(SubscriptionLine: Record "Subscription Line"; PlannedSubscriptionLine: Record "Planned Subscription Line"; var PerformUpdate: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertPlannedSubscriptionLineFromSalesSubscriptionLine(SalesLine: Record "Sales Line"; SalesSubscriptionLine: Record "Sales Subscription Line"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertPlannedSubscriptionLineFromSalesSubscriptionLine(SalesLine: Record "Sales Line"; var TempSubscriptionLine: Record "Subscription Line"; PlannedSubscriptionLine: Record "Planned Subscription Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeProcessPlannedSubscriptionLine(var PlannedSubscriptionLine: Record "Planned Subscription Line"; var IsHandled: Boolean)
     begin
     end;
