@@ -828,7 +828,6 @@ report 10074 "Sales Invoice NA"
         Customer: Record Customer;
         OrderLine: Record "Sales Line";
         ShipmentLine: Record "Sales Shipment Line";
-        TempSalesInvoiceLine: Record "Sales Invoice Line" temporary;
         TempSalesInvoiceLineAsm: Record "Sales Invoice Line" temporary;
         RespCenter: Record "Responsibility Center";
         TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary;
@@ -916,6 +915,7 @@ report 10074 "Sales Invoice NA"
         CompanyInfo3: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
+        TempSalesInvoiceLine: Record "Sales Invoice Line" temporary;
 
     procedure InitLogInteraction()
     begin
