@@ -21,6 +21,10 @@ codeunit 9803 "Job Queue Telemetry"
         JobQueueEntryNotEnqueuedTxt: Label 'Job queue entry not enqueued: %1', Comment = '%1 = Job queue id', Locked = true;
         JobQueueEntrySkippedTxt: Label 'Job queue entry skipped: %1', Comment = '%1 = Job queue id', Locked = true;
         JobQueueEntryNotReadyToStartTxt: Label 'Job queue entry not ready to start: %1', Comment = '%1 = Job queue id', Locked = true;
+        JobQueueEntryExpiredTxt: Label 'Job queue entry expired: %1', Comment = '%1 = Job queue id', Locked = true;
+        JobQueueEntryRescheduledDueToStartEndTimeTxt: Label 'Job queue entry rescheduled due to start/end time: %1', Comment = '%1 = Job queue id', Locked = true;
+        JobQueueEntryRescheduledAsWaitingTxt: Label 'Job queue entry rescheduled as waiting: %1', Comment = '%1 = Job queue id', Locked = true;
+        NextWaitingJobQueueEntryActivatedTxt: Label 'Next waiting Job queue entry activated: %1', Comment = '%1 = Job queue id', Locked = true;
 
     procedure SetJobQueueTelemetryDimensions(var JobQueueEntry: Record "Job Queue Entry"; var Dimensions: Dictionary of [Text, Text])
     begin
@@ -39,6 +43,10 @@ codeunit 9803 "Job Queue Telemetry"
         Dimensions.Add('JobQueueMaxNumberOfAttemptsToRun', Format(JobQueueEntry."Maximum No. of Attempts to Run"));
         Dimensions.Add('JobQueueNumberOfAttemptsToRun', Format(JobQueueEntry."No. of Attempts to Run"));
         Dimensions.Add('JobQueueCategory', Format(JobQueueEntry."Job Queue Category Code"));
+        if JobQueueEntry."Starting Time" <> 0T then
+            Dimensions.Add('JobQueueStartTime', Format(JobQueueEntry."Starting Time"));
+        if JobQueueEntry."Ending Time" <> 0T then
+            Dimensions.Add('JobQueueEndTime', Format(JobQueueEntry."Ending Time"));
     end;
 
     procedure SetJobQueueTelemetryDimensions(var JobQueueLogEntry: Record "Job Queue Log Entry"; var Dimensions: Dictionary of [Text, Text])
@@ -85,6 +93,78 @@ codeunit 9803 "Job Queue Telemetry"
         SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
         Telemetry.LogMessage('0000P8L',
                                 StrSubstNo(JobQueueEntryNotReadyToStartTxt, Format(JobQueueEntry.ID, 0, 4)),
+                                Verbosity::Normal,
+                                DataClassification::OrganizationIdentifiableInformation,
+                                TelemetryScope::All,
+                                Dimensions);
+
+        TranslationHelper.RestoreGlobalLanguage();
+    end;
+
+    procedure SendJobQueueRescheduledDueToStartEndTimeTelemetry(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        TranslationHelper: Codeunit "Translation Helper";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        TranslationHelper.SetGlobalLanguageToDefault();
+
+        SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        Telemetry.LogMessage('0000P9D',
+                                StrSubstNo(JobQueueEntryRescheduledDueToStartEndTimeTxt, Format(JobQueueEntry.ID, 0, 4)),
+                                Verbosity::Normal,
+                                DataClassification::OrganizationIdentifiableInformation,
+                                TelemetryScope::All,
+                                Dimensions);
+
+        TranslationHelper.RestoreGlobalLanguage();
+    end;
+
+    procedure SendJobQueueExpiredTelemetry(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        TranslationHelper: Codeunit "Translation Helper";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        TranslationHelper.SetGlobalLanguageToDefault();
+
+        SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        Telemetry.LogMessage('0000P9E',
+                                StrSubstNo(JobQueueEntryExpiredTxt, Format(JobQueueEntry.ID, 0, 4)),
+                                Verbosity::Normal,
+                                DataClassification::OrganizationIdentifiableInformation,
+                                TelemetryScope::All,
+                                Dimensions);
+
+        TranslationHelper.RestoreGlobalLanguage();
+    end;
+
+    procedure SendJobQueueRescheduleAsWaitingTelemetry(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        TranslationHelper: Codeunit "Translation Helper";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        TranslationHelper.SetGlobalLanguageToDefault();
+
+        SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        Telemetry.LogMessage('0000P9F',
+                                StrSubstNo(JobQueueEntryRescheduledAsWaitingTxt, Format(JobQueueEntry.ID, 0, 4)),
+                                Verbosity::Normal,
+                                DataClassification::OrganizationIdentifiableInformation,
+                                TelemetryScope::All,
+                                Dimensions);
+
+        TranslationHelper.RestoreGlobalLanguage();
+    end;
+
+    procedure SendWaitingJobQueueActivatedTelemetry(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        TranslationHelper: Codeunit "Translation Helper";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        TranslationHelper.SetGlobalLanguageToDefault();
+
+        SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        Telemetry.LogMessage('0000P9G',
+                                StrSubstNo(NextWaitingJobQueueEntryActivatedTxt, Format(JobQueueEntry.ID, 0, 4)),
                                 Verbosity::Normal,
                                 DataClassification::OrganizationIdentifiableInformation,
                                 TelemetryScope::All,

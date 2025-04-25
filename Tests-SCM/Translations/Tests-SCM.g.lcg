@@ -5990,6 +5990,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Tracking - NamedType QtyToHandleMismatchErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4274535345 - NamedType 1020200779" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Serial No. %1 is already on inventory.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Serial No.]D;]A;(LookupHint=Codeunit SCM Item Tracking - NamedType SerialNoAlreadyOnInventoryErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4274535345 - NamedType 320287885" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Serial No. must not be blank.]]></Val>
@@ -12756,6 +12765,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse II - NamedType PutAwayActivityMessage)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3188199532 - NamedType 1473162410" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Quantity must not be changed when a Warehouse Receipt Line for this Purchase Line exists:  in Purchase Line Document Type='%1',Document No.='%2',Line No.='%3'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Document Type Value, %2= Document No. Value, %3= Line No. Value.]D;]A;(LookupHint=Codeunit SCM Warehouse II - NamedType QuantityErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3188199532 - NamedType 237791493" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
