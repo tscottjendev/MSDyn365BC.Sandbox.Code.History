@@ -524,7 +524,7 @@ table 5802 "Value Entry"
         }
         key(Key15; "Item Ledger Entry No.", "Valuation Date", "Posting Date")
         {
-            IncludedFields = "Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Expected) (ACY)", "Cost Amount (Actual) (ACY)";
+            IncludedFields = "Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Expected) (ACY)", "Cost Amount (Actual) (ACY)", "Valued Quantity", "Expected Cost", "Entry Type";
         }
         key(Key16; "Location Code", "Inventory Posting Group")
         {
