@@ -17,7 +17,6 @@ using System.Environment.Configuration;
 using System.Reflection;
 using Microsoft.Foundation.Reporting;
 using System.EMail;
-using System.IO;
 using System.Utilities;
 
 codeunit 1890 "Reminder Communication"
@@ -904,12 +903,10 @@ codeunit 1890 "Reminder Communication"
         ExtensionMismatchLanguagesBetweenTermsAndLevelsMsg: Label 'There are differences among selected languages on levels also, so you might want to review those as well.';
         MismatchLanguagesBetweenLevelsMsg: Label 'The languages for the communications for the reminder levels don''t match, which means that reminders won''t be personalized for some languages. Do you want to review the languages before leaving this page?';
 
-    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnReplaceHTMLText', '', true, true)]
-    local procedure OnReplaceHTMLText(ReportID: Integer; var FilePath: Text[250]; var RecordVariant: Variant; var IsHandled: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnAfterDoSaveReportAsHTMLInTempBlob', '', true, true)]
+    local procedure OnReplaceHTMLText(ReportID: Integer; var TempBlob: Codeunit "Temp Blob"; var RecordVariant: Variant)
     var
         IssuedReminderHeader: Record "Issued Reminder Header";
-        FileManagement: Codeunit "File Management";
-        TempBlob: Codeunit "Temp Blob";
         TypeHelper: Codeunit "Type Helper";
         RecordReference: RecordRef;
         ReadStream: InStream;
@@ -917,8 +914,6 @@ codeunit 1890 "Reminder Communication"
         HtmlContent: Text;
         ReportIDExit: Boolean;
     begin
-        if IsHandled then
-            exit;
         if ReportID <> Report::Reminder then begin
             ReportIDExit := true;
             OnBeforeExitReportIDOnReplaceHTMLText(ReportID, RecordVariant, ReportIDExit);
@@ -933,7 +928,6 @@ codeunit 1890 "Reminder Communication"
             exit;
         IssuedReminderHeader.Copy(RecordVariant);
 
-        FileManagement.BLOBImportFromServerFile(TempBlob, FilePath);
         TempBlob.CreateInStream(ReadStream, TextEncoding::UTF8);
         TypeHelper.TryReadAsTextWithSeparator(ReadStream, TypeHelper.LFSeparator(), HtmlContent);
         Clear(ReadStream);
@@ -943,8 +937,6 @@ codeunit 1890 "Reminder Communication"
 
         TempBlob.CreateOutStream(WriteStream, TextEncoding::UTF8);
         WriteStream.WriteText(HtmlContent);
-        FileManagement.DeleteServerFile(FilePath);
-        FileManagement.BLOBExportToServerFile(TempBlob, FilePath);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document-Mailing", 'OnBeforeGetEmailSubject', '', true, true)]

@@ -203,7 +203,6 @@ codeunit 431 "IC Outbox Export"
                             DocumentMailing.EnqueueEmailFile(
                               InStream,
                               StrSubstNo('%1.xml', ICPartner.Code),
-                              '',
                               ICOutboxTrans."Document No.",
                               EmailItem."Send to",
                               EmailItem.Subject,

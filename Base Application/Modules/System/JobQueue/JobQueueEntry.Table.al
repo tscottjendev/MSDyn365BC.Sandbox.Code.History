@@ -1486,6 +1486,7 @@ table 472 "Job Queue Entry"
     internal procedure ActivateNextJobInCategory(var JobQueueCategory: Record "Job Queue Category"): Boolean
     var
         JobQueueEntry: Record "Job Queue Entry";
+        JobQueueTelemetry: Codeunit "Job Queue Telemetry";
         JobQueueCategoryCode: Code[10];
         OneActivated: Boolean;
         JobQueueCategoryExist: Boolean;
@@ -1512,8 +1513,10 @@ table 472 "Job Queue Entry"
                 JobQueueEntry.SetError(NoTaskErr);
                 WaitingJobsExist := JobQueueEntry.FindFirst();
             end;
-        if OneActivated then
+        if OneActivated then begin
             Commit();
+            JobQueueTelemetry.SendWaitingJobQueueActivatedTelemetry(JobQueueEntry);
+        end;
         if JobQueueCategoryExist and OneActivated then
             RefreshRecoveryTask(JobQueueCategory);
         exit(OneActivated);
