@@ -1921,7 +1921,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         LastSourceCurrencyTaxAmountCredit := 0;
         if TempGLEntryBuf.FindSet() then begin
             repeat
-                if TempGLEntryBuf."Source Currency Code" <> '' then
+                if (TempGLEntryBuf."Source Currency Code" <> '') and (GenJournalLine."Deferral Code" = '') then
                     UpdateSourceCurrencyAmounts(TempGLEntryBuf, LastSourceCurrencyVATAmount, LastSourceCurrencyTaxAmountCredit);
                 TempGLEntryPreview := TempGLEntryBuf;
                 TempGLEntryPreview.Insert();
@@ -2040,9 +2040,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
             else begin
                 GLEntry."Source Currency VAT Amount" := GenJnlLine."Source Curr. VAT Amount";
                 if GLEntry."Source Currency VAT Amount" = 0 then
-                    GLEntry."Source Currency Amount" := GenJnlLine."Source Currency Amount"
+                    GLEntry."Source Currency Amount" := GetSourceCurrencyAmount(GenJnlLine, GLEntry.Amount > 0, true)
                 else
-                    GLEntry."Source Currency Amount" := GenJnlLine."Source Curr. VAT Base Amount";
+                    GLEntry."Source Currency Amount" := GetSourceCurrencyAmount(GenJnlLine, GLEntry.Amount > 0, false);
             end;
         end;
     end;
@@ -2152,6 +2152,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
             GLEntry."Additional-Currency Amount" :=
                 GLCalcAddCurrency(Amount, AmountAddCurr, GLEntry."Additional-Currency Amount", UseAmountAddCurr, GenJnlLine);
             UpdateGLEntrySourceCurrencyFields(GLEntry, GenJnlLine);
+            if (GLEntry."Source Currency Code" <> '') and (GenJnlLine."Deferral Code" <> '') then
+                GLEntry."Source Currency Amount" := AmountAddCurr;
         end;
 
         OnAfterInitGLEntry(GLEntry, GenJnlLine, Amount, AmountAddCurr, UseAmountAddCurr, CurrencyFactor, GLReg);
@@ -7192,6 +7194,22 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
 
         exit(false);
+    end;
+
+    local procedure GetSourceCurrencyAmount(GenJnlLine: Record "Gen. Journal Line"; IsPositive: Boolean; IsSourceCurrVATZero: Boolean): Decimal
+    begin
+        if IsSourceCurrVATZero then
+            exit(UpdateAmountSign(GenJnlLine."Source Currency Amount", IsPositive));
+
+        exit(UpdateAmountSign(GenJnlLine."Source Curr. VAT Base Amount", IsPositive));
+    end;
+
+    local procedure UpdateAmountSign(Amount: Decimal; IsPositive: Boolean): Decimal
+    begin
+        if IsPositive then
+            exit(Abs(Amount))
+        else
+            exit(-Abs(Amount));
     end;
 
     /// <summary>

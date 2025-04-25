@@ -23,6 +23,7 @@ table 2582 "Dimension Correction"
         {
             DataClassification = CustomerContent;
             OptionMembers = Draft,"In Process","Validaton in Process",Failed,Completed,"Undo in Process","Undo Completed";
+            OptionCaption = 'Draft,In Process,Validation in Process,Failed,Completed,Undo in Process,Undo Completed';
             Editable = false;
         }
 

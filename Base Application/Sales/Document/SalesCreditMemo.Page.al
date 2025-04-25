@@ -1640,7 +1640,6 @@ page 44 "Sales Credit Memo"
         IsCustomerOrContactNotEmpty: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
-        IsPostingGroupEditable: Boolean;
         IsSaaS: Boolean;
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
@@ -1652,6 +1651,7 @@ page 44 "Sales Credit Memo"
     protected var
         DocumentIsPosted: Boolean;
         IsSalesLinesEditable: Boolean;
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin

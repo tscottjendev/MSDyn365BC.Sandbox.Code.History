@@ -59,7 +59,7 @@ pageextension 9800 "Users Perf. Factboxes" extends Users
         Skip: Boolean;
     begin
         IsOwnUser := Rec."User Security ID" = UserSecurityId();
-        if not UserSecurityGroupsPBT.ShouldEnqueueBackgroundTask(Rec."User Security ID", Parameters) then begin
+        if not UserSecurityGroupsPBT.ShouldEnqueueBackgroundTask(Rec, Parameters) then begin
             UpdateVisibility(true);
             exit;
         end;
