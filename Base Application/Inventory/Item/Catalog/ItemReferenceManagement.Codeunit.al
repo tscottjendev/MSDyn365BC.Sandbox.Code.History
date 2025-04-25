@@ -76,7 +76,7 @@ codeunit 5720 "Item Reference Management"
         end;
     end;
 
-    local procedure FindItemReferenceForSalesLine(SalesLine: Record "Sales Line")
+    local procedure FindItemReferenceForSalesLine(var SalesLine: Record "Sales Line")
     var
         ToDate: Date;
         IsHandled: Boolean;
@@ -1021,7 +1021,7 @@ codeunit 5720 "Item Reference Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindItemReferenceForSalesLine(SalesLine: Record "Sales Line"; var ItemReference: Record "Item Reference"; var Found: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeFindItemReferenceForSalesLine(var SalesLine: Record "Sales Line"; var ItemReference: Record "Item Reference"; var Found: Boolean; var IsHandled: Boolean)
     begin
     end;
 
