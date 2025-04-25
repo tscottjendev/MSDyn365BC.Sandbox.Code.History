@@ -2003,6 +2003,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cues - NamedType AverageDaysDelayedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2637329726 - NamedType 3706217972" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Caption, %2= Field Value ,%3= Table Caption.]D;]A;(LookupHint=Codeunit ERM Cues - NamedType InvtPutAwayFromProdErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2637329726 - NamedType 3364782771" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[List of delayed Sales Order contains redundant documents.]]></Val>
@@ -9129,6 +9138,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=Document No.]D;]A;(LookupHint=Codeunit No Acc. Periods: Posting - NamedType DuplicateRecordErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 678155582 - NamedType 1737695498" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Source Currency Amount, %2 = Amount, %3 = G/L Entry]D;]A;(LookupHint=Codeunit No Acc. Periods: Posting - NamedType SourceCurrAmtErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2240216850 - NamedType 3770914415" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
