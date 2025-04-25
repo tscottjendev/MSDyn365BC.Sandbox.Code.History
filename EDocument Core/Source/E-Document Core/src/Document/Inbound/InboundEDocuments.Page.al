@@ -51,13 +51,19 @@ page 6105 "Inbound E-Documents"
                 }
                 field(Service; Rec.Service)
                 {
+                    Visible = false;
                     Caption = 'Service';
                     ToolTip = 'Specifies the service code of the electronic document.';
                 }
                 field("Service Integration"; Rec."Service Integration")
                 {
-                    Caption = 'Service Integration';
-                    ToolTip = 'Specifies the integration code of the electronic document.';
+                    Caption = 'Source';
+                    ToolTip = 'Specifies the source of the electronic document.';
+                }
+                field("Source Details"; Rec."Source Details")
+                {
+                    Caption = 'Source Details';
+                    ToolTip = 'Specifies the details about the source of the electronic document.';
                 }
                 field("Vendor Name"; VendorNameTxt)
                 {

@@ -252,9 +252,10 @@ codeunit 8063 "Sales Documents"
     var
         IsHandled: Boolean;
     begin
-        OnBeforeClearQtyToInvoiceOnForSubscriptionItem(IsHandled);
+        OnBeforeClearQtyToInvoiceOnForSubscriptionItem(SalesLine, IsHandled);
         if IsHandled then
             exit;
+
         if not SalesServiceCommMgmt.IsSalesLineWithServiceCommitmentItem(SalesLine, false) then
             exit;
 
@@ -322,15 +323,14 @@ codeunit 8063 "Sales Documents"
     var
         ParentSalesLine: Record "Sales Line";
     begin
-        //The function skips inserting Sales Invoice Lines in three cases:
+        //The function skips inserting Sales Invoice Lines in two cases:
+        //When a SalesLine is a Subscription Item
         //When a SalesLine is attached to a Subscription Item (Extended Text)
-
-        if SalesLineShouldSkipInvoicing(SalesLine) then
-            IsHandled := true;
+        IsHandled := SalesLineShouldSkipInvoicing(SalesLine);
         if (SalesLine.Type = SalesLine.Type::" ") and (SalesLine."Attached to Line No." <> 0) then
             if ParentSalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Attached to Line No.") then
-                if SalesLineShouldSkipInvoicing(ParentSalesLine) then
-                    IsHandled := true;
+                IsHandled := SalesLineShouldSkipInvoicing(ParentSalesLine);
+        OnAfterSkipInsertingSalesInvoiceLineIfServiceCommitmentItemsExist(SalesHeader, SalesLine, IsHandled);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnAfterInsertShipmentLine, '', false, false)]
@@ -368,9 +368,13 @@ codeunit 8063 "Sales Documents"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnPostUpdateOrderLineOnSetDefaultQtyBlank, '', false, false)]
     local procedure UpdateQuantitiesOnPostUpdateOrderLineOnSetDefaultQtyBlank(var TempSalesLine: Record "Sales Line" temporary)
+    var
+        ShouldModifySalesLine: Boolean;
     begin
         //The function makes sure that Shipped and Invoiced quantities for Subscription Items are properly set
-        if not SalesLineShouldSkipInvoicing(TempSalesLine, true) then
+        ShouldModifySalesLine := SalesLineShouldSkipInvoicing(TempSalesLine, true);
+        OnUpdateQuantitiesOnPostUpdateOrderLineOnSetDefaultQtyBlankOnAfterCalcShouldModifySalesLine(TempSalesLine, ShouldModifySalesLine);
+        if not ShouldModifySalesLine then
             exit;
 
         TempSalesLine."Quantity Invoiced" := TempSalesLine."Quantity Shipped";
@@ -398,11 +402,14 @@ codeunit 8063 "Sales Documents"
     local procedure SetQtyToInvoiceToZeroOnBeforePostUpdateOrderLineModifyTempLine(var TempSalesLine: Record "Sales Line" temporary)
     var
         SalesLine: Record "Sales Line";
+        ShouldModifySalesLine: Boolean;
     begin
         //The function makes sure that amounts are reset to previous values for Sales Lines with Subscription Items
         //The function makes sure that Qty. To Invoice for Subscription Items is properly set to 0 as it should never have the non-zero value
         //The Qty. To Invoice is normally being set to Qty. to Ship at this point
-        if not SalesLineShouldSkipInvoicing(TempSalesLine) then
+        ShouldModifySalesLine := SalesLineShouldSkipInvoicing(TempSalesLine);
+        OnSetQtyToInvoiceToZeroOnBeforePostUpdateOrderLineModifyTempLineOnAfterCalcShouldModifySalesLine(TempSalesLine, ShouldModifySalesLine);
+        if not ShouldModifySalesLine then
             exit;
 
         if SalesLine.Get(TempSalesLine."Document Type", TempSalesLine."Document No.", TempSalesLine."Line No.") then begin
@@ -710,8 +717,12 @@ codeunit 8063 "Sales Documents"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Posting Management", OnUpdateSalesLineOnBeforeSalesLineModify, '', false, false)]
     local procedure RevertInvoicedQuantityOnUpdateSalesLineOnBeforeSalesLineModify(var SalesLine: Record "Sales Line")
+    var
+        ShouldModifySalesLine: Boolean;
     begin
-        if not SalesServiceCommMgmt.IsSalesLineWithServiceCommitmentItemToShip(SalesLine) then
+        ShouldModifySalesLine := SalesServiceCommMgmt.IsSalesLineWithServiceCommitmentItemToShip(SalesLine);
+        OnRevertInvoicedQuantityOnUpdateSalesLineOnBeforeSalesLineModifyOnAfterCalcShouldModifySalesLine(SalesLine, ShouldModifySalesLine);
+        if not ShouldModifySalesLine then
             exit;
 
         SalesLine."Quantity Invoiced" := SalesLine."Quantity Shipped";
@@ -747,12 +758,12 @@ codeunit 8063 "Sales Documents"
         SalesLine."Qty. Invoiced (Base)" := SalesLine."Qty. Shipped (Base)";
     end;
 
-    local procedure SalesLineShouldSkipInvoicing(var SalesLine: Record "Sales Line"): Boolean
+    procedure SalesLineShouldSkipInvoicing(var SalesLine: Record "Sales Line"): Boolean
     begin
         exit(SalesLineShouldSkipInvoicing(SalesLine, false));
     end;
 
-    local procedure SalesLineShouldSkipInvoicing(var SalesLine: Record "Sales Line"; SkipTemporaryCheck: Boolean) Result: Boolean
+    procedure SalesLineShouldSkipInvoicing(var SalesLine: Record "Sales Line"; SkipTemporaryCheck: Boolean) Result: Boolean
     begin
         if SalesServiceCommMgmt.IsSalesLineWithServiceCommitmentItem(SalesLine, SkipTemporaryCheck) then
             Result := true;
@@ -805,12 +816,32 @@ codeunit 8063 "Sales Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeClearQtyToInvoiceOnForSubscriptionItem(var IsHandled: Boolean)
+    local procedure OnBeforeClearQtyToInvoiceOnForSubscriptionItem(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesLineShouldSkipInvoicing(var SalesLine: Record "Sales Line"; SkipTemporaryCheck: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSkipInsertingSalesInvoiceLineIfServiceCommitmentItemsExist(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateQuantitiesOnPostUpdateOrderLineOnSetDefaultQtyBlankOnAfterCalcShouldModifySalesLine(var TempSalesLine: Record "Sales Line" temporary; var ShouldModifySalesLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRevertInvoicedQuantityOnUpdateSalesLineOnBeforeSalesLineModifyOnAfterCalcShouldModifySalesLine(var SalesLine: Record "Sales Line"; var ShouldModifySalesLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetQtyToInvoiceToZeroOnBeforePostUpdateOrderLineModifyTempLineOnAfterCalcShouldModifySalesLine(var TempSalesLine: Record "Sales Line" temporary; var ShouldModifySalesLine: Boolean)
     begin
     end;
 }

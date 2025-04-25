@@ -165,7 +165,7 @@ tableextension 8052 Item extends Item
         exit(DoNotAllowInvoiceDiscountForServiceCommitmentItemErr);
     end;
 
-    internal procedure HasSNSpecificItemTracking(): Boolean
+    procedure HasSNSpecificItemTracking(): Boolean
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin

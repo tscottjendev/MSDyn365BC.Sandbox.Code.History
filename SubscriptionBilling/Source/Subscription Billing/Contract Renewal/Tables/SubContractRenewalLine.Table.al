@@ -182,7 +182,7 @@ table 8001 "Sub. Contract Renewal Line"
             Rec."Linked to Sub. Contract No." := '';
             Rec."Linked to Sub. Contr. Line No." := 0;
         end;
-        OnAfterRefreshContractInfo(Rec);
+        OnAfterRefreshContractInfo(Rec, ServiceCommitment);
     end;
 
     internal procedure InitFromServiceCommitment(var ServiceCommitment: Record "Subscription Line"): Boolean
@@ -217,7 +217,7 @@ table 8001 "Sub. Contract Renewal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterRefreshContractInfo(var SubContractRenewalLine: Record "Sub. Contract Renewal Line")
+    local procedure OnAfterRefreshContractInfo(var SubContractRenewalLine: Record "Sub. Contract Renewal Line"; SubscriptionLine: Record "Subscription Line")
     begin
     end;
 }

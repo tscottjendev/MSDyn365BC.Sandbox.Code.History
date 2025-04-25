@@ -2017,7 +2017,12 @@ table 8052 "Customer Subscription Contract"
     var
         CustomerContractLine: Record "Cust. Sub. Contract Line";
         ServiceCommitment2: Record "Subscription Line";
+        IsHandled: Boolean;
     begin
+        OnBeforeCreateCustomerContractLineFromTempSubscriptionLine(TempServiceCommitment, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ServiceCommitment2.Get(TempServiceCommitment."Entry No.");
         CreateCustomerContractLineFromServiceCommitment(ServiceCommitment2, ContractNo, CustomerContractLine);
     end;
@@ -2119,6 +2124,7 @@ table 8052 "Customer Subscription Contract"
         TempServiceObject: Record "Subscription Header" temporary;
         ServiceObject: Record "Subscription Header";
     begin
+        OnBeforeUpdateServicesDates(Rec, CustomerContractLine);
         CustomerContractLine.SetRange("Subscription Contract No.", Rec."No.");
         CustomerContractLine.FilterOnServiceObjectContractLineType();
         if CustomerContractLine.FindSet() then
@@ -2519,6 +2525,16 @@ table 8052 "Customer Subscription Contract"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmUpdateAllLineDim(var CustomerContract: Record "Customer Subscription Contract"; xCustomerContract: Record "Customer Subscription Contract"; var Confirmed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCustomerContractLineFromTempSubscriptionLine(var TempSubscriptionLine: Record "Subscription Line" temporary; CustomerSubscriptionContract: Record "Customer Subscription Contract"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateServicesDates(CustomerSubscriptionContract: Record "Customer Subscription Contract"; CustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;
 }

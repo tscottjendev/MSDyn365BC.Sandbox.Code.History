@@ -362,7 +362,7 @@ codeunit 8004 "Post Sub. Contract Renewal"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertPlannedSubscriptionLineFromSalesSubscriptionLine(SalesLine: Record "Sales Line"; var TempSubscriptionLine: Record "Subscription Line"; PlannedSubscriptionLine: Record "Planned Subscription Line")
+    local procedure OnAfterInsertPlannedSubscriptionLineFromSalesSubscriptionLine(SalesLine: Record "Sales Line"; var TempSubscriptionLine: Record "Subscription Line"; var PlannedSubscriptionLine: Record "Planned Subscription Line")
     begin
     end;
 
