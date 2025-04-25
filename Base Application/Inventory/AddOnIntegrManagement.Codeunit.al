@@ -7,7 +7,6 @@ namespace Microsoft.Inventory;
 
 using Microsoft.Inventory.Requisition;
 using Microsoft.Purchases.Document;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Sales.Document;
 
 codeunit 5403 AddOnIntegrManagement
@@ -24,7 +23,7 @@ codeunit 5403 AddOnIntegrManagement
     [Obsolete('Moved to codeunit CheckProdOrderStatus', '27.0')]
     procedure CheckReceiptOrderStatus(var SalesLine: Record "Sales Line")
     var
-        CheckProdOrderStatus: Codeunit "Check Prod. Order Status";
+        CheckProdOrderStatus: Codeunit Microsoft.Manufacturing.Document."Check Prod. Order Status";
     begin
         CheckProdOrderStatus.CheckReceiptOrderStatus(SalesLine);
     end;
