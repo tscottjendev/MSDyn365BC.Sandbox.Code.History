@@ -1232,6 +1232,7 @@ table 5050 Contact
         RelatedRecordIsCreatedMsg: Label 'The %1 record has been created.', Comment = 'The Customer record has been created.';
 #pragma warning restore AA0470
         RMSetup: Record "Marketing Setup";
+        MarketingSetup: Record "Marketing Setup";
         Salesperson: Record "Salesperson/Purchaser";
         PostCode: Record "Post Code";
         DuplMgt: Codeunit DuplicateManagement;
@@ -2003,29 +2004,33 @@ table 5050 Contact
         PAGE.Run(PAGE::"Contact Business Relations", ContactBusinessRelation);
     end;
 
-    local procedure GetBusinessRelation() ContactBusinessRelation: Enum "Contact Business Relation";
+    local procedure GetBusinessRelation() ResultContactBusinessRelation: Enum "Contact Business Relation";
     var
-        ContBusRel: Record "Contact Business Relation";
-        AllCount: Integer;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        AllBusinessRelationCount, SelectedBusinessRelationCodeCount : Integer;
     begin
-        FilterBusinessRelations(ContBusRel, Enum::"Contact Business Relation Link To Table"::" ", true);
-        if ContBusRel.IsEmpty() then
-            exit(ContactBusinessRelation::None);
-        AllCount := ContBusRel.Count();
-        ContBusRel.SetFilter("Business Relation Code", GetSelectedRelationCodes());
-        ContBusRel.SetFilter("No.", '<>''''');
-        if ContBusRel.IsEmpty() then begin
-            ContBusRel.SetRange("Business Relation Code");
-            ContBusRel.SetRange("No.");
-            if ContBusRel.Count() = 1 then
-                exit(ContactBusinessRelation::Other);
-            exit(ContactBusinessRelation::Multiple);
-        end else
-            if (ContBusRel.Count() = 1) and (AllCount = 1) then begin
-                ContBusRel.FindFirst();
-                exit(ContBusRel."Link to Table");
-            end;
-        exit(ContactBusinessRelation::Multiple);
+        FilterBusinessRelations(ContactBusinessRelation, Enum::"Contact Business Relation Link To Table"::" ", true);
+        AllBusinessRelationCount := ContactBusinessRelation.Count();
+        if AllBusinessRelationCount = 0 then
+            exit(ResultContactBusinessRelation::None);
+
+        ContactBusinessRelation.SetFilter("Business Relation Code", GetSelectedRelationCodes());
+        ContactBusinessRelation.SetFilter("No.", '<>''''');
+        SelectedBusinessRelationCodeCount := ContactBusinessRelation.Count();
+        if SelectedBusinessRelationCodeCount = 0 then begin
+            if AllBusinessRelationCount = 1 then
+                exit(ResultContactBusinessRelation::Other);
+
+            exit(ResultContactBusinessRelation::Multiple);
+        end;
+
+        if (AllBusinessRelationCount = 1) and (SelectedBusinessRelationCodeCount = 1) then begin
+            ContactBusinessRelation.SetLoadFields("Link to Table");
+            ContactBusinessRelation.FindFirst();
+            exit(ContactBusinessRelation."Link to Table");
+        end;
+
+        exit(ResultContactBusinessRelation::Multiple);
     end;
 
     procedure UpdateBusinessRelation(): Boolean;
@@ -2038,12 +2043,10 @@ table 5050 Contact
     end;
 
     local procedure GetSelectedRelationCodes() CodeFilter: Text;
-    var
-        MarketingSetup: Record "Marketing Setup";
     begin
         if SelectedBusRelationCodes <> '' then
             exit(SelectedBusRelationCodes);
-        MarketingSetup.Get();
+        MarketingSetup.GetRecordOnce();
         AppendFilter(CodeFilter, '|', MarketingSetup."Bus. Rel. Code for Customers");
         AppendFilter(CodeFilter, '|', MarketingSetup."Bus. Rel. Code for Vendors");
         AppendFilter(CodeFilter, '|', MarketingSetup."Bus. Rel. Code for Bank Accs.");
@@ -2072,10 +2075,9 @@ table 5050 Contact
     procedure HasBusinessRelations(var RelatedCustomerEnabled: Boolean; var RelatedVendorEnabled: Boolean; var RelatedBankEnabled: Boolean; var RelatedEmployeeEnabled: Boolean)
     var
         Contact: Record Contact;
-        MarketingSetup: Record "Marketing Setup";
     begin
         Contact.Copy(Rec);
-        MarketingSetup.Get();
+        MarketingSetup.GetRecordOnce();
         RelatedCustomerEnabled :=
             Contact.HasBusinessRelation(
                 Enum::"Contact Business Relation Link To Table"::Customer, MarketingSetup."Bus. Rel. Code for Customers");
@@ -2090,17 +2092,19 @@ table 5050 Contact
                 Enum::"Contact Business Relation Link To Table"::Employee, MarketingSetup."Bus. Rel. Code for Employees");
     end;
 
-    local procedure FilterBusinessRelations(var ContBusRel: Record "Contact Business Relation"; LinkToTable: Enum "Contact Business Relation Link To Table"; All: Boolean)
+    local procedure FilterBusinessRelations(var ContactBusinessRelation: Record "Contact Business Relation"; ContactBusinessRelationLinkToTable: Enum "Contact Business Relation Link To Table"; All: Boolean)
     begin
-        ContBusRel.Reset();
+        ContactBusinessRelation.Reset();
         if ("Company No." = '') or ("Company No." = "No.") then
-            ContBusRel.SetRange("Contact No.", "No.")
+            ContactBusinessRelation.SetRange("Contact No.", "No.")
         else
-            ContBusRel.SetFilter("Contact No.", '%1|%2', "No.", "Company No.");
+            ContactBusinessRelation.SetFilter("Contact No.", '%1|%2', "No.", "Company No.");
+
         if not All then
-            ContBusRel.SetFilter("No.", '<>''''');
-        if LinkToTable <> LinkToTable::" " then
-            ContBusRel.SetRange("Link to Table", LinkToTable);
+            ContactBusinessRelation.SetFilter("No.", '<>''''');
+
+        if ContactBusinessRelationLinkToTable <> ContactBusinessRelationLinkToTable::" " then
+            ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelationLinkToTable);
     end;
 
     local procedure NameBreakdown()
@@ -3365,12 +3369,11 @@ table 5050 Contact
     procedure CreateEmployeeLink()
     var
         ContBusRel: Record "Contact Business Relation";
-        MarketingSetup: Record "Marketing Setup";
     begin
         CheckContactType(Type::Person);
         CheckIfPrivacyBlockedGeneric();
 
-        MarketingSetup.Get();
+        MarketingSetup.GetRecordOnce();
         MarketingSetup.TestField("Bus. Rel. Code for Employees");
         CreateLink(Page::"Employee Link", MarketingSetup."Bus. Rel. Code for Employees", ContBusRel."Link to Table"::Employee);
     end;

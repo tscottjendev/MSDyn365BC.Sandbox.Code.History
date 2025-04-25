@@ -173,14 +173,15 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
         MakeInventoryAdjustment();
 
-        ValueEntry.LockTable();
-        ItemLedgEntry.LockTable();
-        ItemApplnEntry.LockTable();
-        ItemReg.LockTable();
+        if InvtSetup.UseLegacyPosting() then begin
+            ValueEntry.LockTable();
+            ItemLedgEntry.LockTable();
+            ItemApplnEntry.LockTable();
+            ItemReg.LockTable();
+            if WhsePosting then
+                WhseEntry.LockTable();
+        end;
         TransLine.LockTable();
-        if WhsePosting then
-            WhseEntry.LockTable();
-
         TransLine.SetFilter(Quantity, '<>0');
         TransLine.SetFilter("Qty. to Receive", '<>0');
         if TransLine.Find('-') then

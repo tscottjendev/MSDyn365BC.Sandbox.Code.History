@@ -610,7 +610,7 @@ codeunit 5804 ItemCostManagement
                 SKU.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
             end;
         OnFindUpdateUnitCostSKUOnBeforeLoopUpdateUnitCostSKU(SKU, FilterSKU);
-        if SKU.Find('-') then
+        if SKU.FindSet(true) then
             repeat
                 UpdateUnitCostSKU(
                   Item, SKU, LastDirectCost, 0,
