@@ -447,12 +447,14 @@ table 5773 "Registered Whse. Activity Line"
         if SourceSubLineNo >= 0 then
             SetRange("Source Subline No.", SourceSubLineNo);
 
+        PostedWhseReceiptLine.SetLoadFields("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Item No.");
         PostedWhseReceiptLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Posted Source Document", "Posted Source No.");
         PostedWhseReceiptLine.SetRange("Source Type", SourceType);
         PostedWhseReceiptLine.SetRange("Source Subtype", SourceSubType);
         PostedWhseReceiptLine.SetRange("Source No.", SourceNo);
         PostedWhseReceiptLine.SetRange("Source Line No.", SourceLineNo);
         if PostedWhseReceiptLine.FindFirst() then begin
+            Item.SetLoadFields("Put-away Unit of Measure Code");
             Item.Get(PostedWhseReceiptLine."Item No.");
             if Item."Put-away Unit of Measure Code" <> '' then
                 SetRange("Unit of Measure Code", Item."Put-away Unit of Measure Code");
