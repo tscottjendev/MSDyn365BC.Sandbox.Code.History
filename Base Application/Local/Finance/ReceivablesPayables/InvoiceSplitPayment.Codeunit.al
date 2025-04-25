@@ -310,6 +310,11 @@ codeunit 7000005 "Invoice-Split Payment"
         BillNo: Integer;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSplitPurchInv(PurchHeader, VendLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if not PaymentMethod.Get(PurchHeader."Payment Method Code") then
             exit;
         if (not PaymentMethod."Create Bills") and (not PaymentMethod."Invoices to Cartera") then
@@ -1036,6 +1041,11 @@ codeunit 7000005 "Invoice-Split Payment"
 
     [IntegrationEvent(false, false)]
     local procedure OnSplitServiceInvOnCreateBillsOnBeforePostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSplitPurchInv(var PurchHeader: Record "Purchase Header"; var VendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

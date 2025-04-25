@@ -2081,7 +2081,6 @@ page 51 "Purchase Invoice"
         PurchaseDocCheckFactboxVisible: Boolean;
         IsJournalTemplNameVisible: Boolean;
         IsPaymentMethodCodeVisible: Boolean;
-        IsPostingGroupEditable: Boolean;
         IsPurchaseLinesEditable: Boolean;
         RejectICPurchaseInvoiceEnabled: Boolean;
         VATDateEnabled: Boolean;
@@ -2090,6 +2089,7 @@ page 51 "Purchase Invoice"
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
         PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin

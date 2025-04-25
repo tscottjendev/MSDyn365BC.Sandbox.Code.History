@@ -2192,7 +2192,6 @@ page 43 "Sales Invoice"
         ShowWorkflowStatus: Boolean;
         PaymentServiceVisible: Boolean;
         PaymentServiceEnabled: Boolean;
-        IsPostingGroupEditable: Boolean;
         SureToRejectMsg: Label 'Rejecting this order will remove it from your company and send it back to the partner company.\\Do you want to continue?';
         OpenPostedSalesInvQst: Label 'The invoice is posted as number %1 and moved to the Posted Sales Invoices window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
         IsCustomerOrContactNotEmpty: Boolean;
@@ -2224,6 +2223,7 @@ page 43 "Sales Invoice"
         BillToOptions: Enum "Sales Bill-to Options";
         DocumentIsPosted: Boolean;
         SkipConfirmationDialogOnClosing: Boolean;
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin

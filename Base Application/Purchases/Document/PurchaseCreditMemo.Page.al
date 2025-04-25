@@ -1890,7 +1890,6 @@ page 52 "Purchase Credit Memo"
         PurchaseDocCheckFactboxVisible: Boolean;
         IsJournalTemplNameVisible: Boolean;
         IsPaymentMethodCodeVisible: Boolean;
-        IsPostingGroupEditable: Boolean;
         IsPurchaseLinesEditable: Boolean;
         DocHasMultipleRegimeCode: Boolean;
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
@@ -1899,6 +1898,7 @@ page 52 "Purchase Credit Memo"
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin

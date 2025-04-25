@@ -1162,7 +1162,6 @@ page 5935 "Service Credit Memo"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
-        IsPostingGroupEditable: Boolean;
         DocHasMultipleRegimeCode: Boolean;
         OperationDescription: Text[500];
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
@@ -1173,6 +1172,9 @@ page 5935 "Service Credit Memo"
         SIIFirstSummaryDocNo: Text[35];
         SIILastSummaryDocNo: Text[35];
         DocNoVisible: Boolean;
+
+    protected var
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin

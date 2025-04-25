@@ -1180,7 +1180,6 @@ page 5933 "Service Invoice"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
-        IsPostingGroupEditable: Boolean;
         DocHasMultipleRegimeCode: Boolean;
         OperationDescription: Text[500];
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
@@ -1191,6 +1190,9 @@ page 5933 "Service Invoice"
         ExternalDocNoMandatory: Boolean;
         VATDateEnabled: Boolean;
         DocNoVisible: Boolean;
+
+    protected var
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin

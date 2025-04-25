@@ -1921,7 +1921,6 @@ page 6640 "Purchase Return Order"
         PurchaseDocCheckFactboxVisible: Boolean;
         IsJournalTemplNameVisible: Boolean;
         IsPaymentMethodCodeVisible: Boolean;
-        IsPostingGroupEditable: Boolean;
         IsPurchaseLinesEditable: Boolean;
         VATDateEnabled: Boolean;
         OperationDescription: Text[500];
@@ -1929,6 +1928,7 @@ page 6640 "Purchase Return Order"
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin
