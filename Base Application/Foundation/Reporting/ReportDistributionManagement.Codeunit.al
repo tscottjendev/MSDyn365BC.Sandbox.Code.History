@@ -305,7 +305,7 @@ codeunit 452 "Report Distribution Management"
         FileManagement.BLOBExport(TempBlob, ClientFileName, true);
     end;
 
-    local procedure SendAttachment(PostedDocumentNo: Code[20]; SendEmailAddress: Text[250]; var AttachmentTempBlob: Codeunit "Temp Blob"; AttachmentFileName: Text[250]; DocumentVariant: Variant; SendTo: Enum "Doc. Sending Profile Send To"; ServerEmailBodyFilePath: Text[250]; ReportUsage: Enum "Report Selection Usage"; var ReceiverRecord: RecordRef)
+    local procedure SendAttachment(PostedDocumentNo: Code[20]; SendEmailAddress: Text[250]; var AttachmentTempBlob: Codeunit "Temp Blob"; AttachmentFileName: Text[250]; DocumentVariant: Variant; SendTo: Enum "Doc. Sending Profile Send To"; var EmailBodyTempBlob: Codeunit "Temp Blob"; ReportUsage: Enum "Report Selection Usage"; var ReceiverRecord: RecordRef)
     var
         DocumentMailing: Codeunit "Document-Mailing";
         FileManagement: Codeunit "File Management";
@@ -335,7 +335,7 @@ codeunit 452 "Report Distribution Management"
         SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
 
         DocumentMailing.EmailFile(
-          AttachmentStream, AttachmentFileName, ServerEmailBodyFilePath, PostedDocumentNo,
+          AttachmentStream, AttachmentFileName, EmailBodyTempBlob, PostedDocumentNo,
           SendEmailAddress, DocumentType, HideDialog, ReportUsage.AsInteger(), SourceTableIDs, SourceIDs, SourceRelationTypes);
     end;
 
@@ -344,8 +344,21 @@ codeunit 452 "Report Distribution Management"
         exit(IssuedReminderDocTypeTxt);
     end;
 
+#if not CLEAN27
     [Scope('OnPrem')]
-    procedure SendXmlEmailAttachment(DocumentVariant: Variant; DocumentFormat: Code[20]; ServerEmailBodyFilePath: Text[250]; SendToEmailAddress: Text[250])
+    [Obsolete('Replaced with SendXmlEmailAttachment that accepts a TempBlob as additional parameter.', '27.0')]
+    procedure SendXmlEmailAttachment(DocumentVariant: Variant; DocumentFormat: Code[20]; ServerEmailBodyFilePath: Text[250]; SendToEmailAddress: Text[250]; ReportUsage: Enum "Report Selection Usage")
+    var
+        FileManagement: Codeunit "File Management";
+        EmailBodyTempBlob: Codeunit "Temp Blob";
+    begin
+        if ServerEmailBodyFilePath <> '' then
+            FileManagement.BLOBImportFromServerFile(EmailBodyTempBlob, ServerEmailBodyFilePath);
+        SendXmlEmailAttachment(DocumentVariant, DocumentFormat, EmailBodyTempBlob, SendToEmailAddress, ReportUsage);
+    end;
+#endif
+
+    procedure SendXmlEmailAttachment(DocumentVariant: Variant; DocumentFormat: Code[20]; var EmailBodyTempBlob: Codeunit "Temp Blob"; SendToEmailAddress: Text[250]; ReportUsage: Enum "Report Selection Usage")
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
         Customer: Record Customer;
@@ -355,7 +368,6 @@ codeunit 452 "Report Distribution Management"
         DocumentMailing: Codeunit "Document-Mailing";
         ReceiverRecord: RecordRef;
         ClientFileName: Text[250];
-        ReportUsage: Enum "Report Selection Usage";
     begin
         OnBeforeSendXmlEmailAttachment(ElectronicDocumentFormat, Customer, DocumentSendingProfile);
 
@@ -379,11 +391,24 @@ codeunit 452 "Report Distribution Management"
           ClientFileName,
           DocumentVariant,
           Enum::"Doc. Sending Profile Send To"::"Electronic Document",
-          ServerEmailBodyFilePath, ReportUsage, ReceiverRecord);
+          EmailBodyTempBlob, ReportUsage, ReceiverRecord);
     end;
 
+#if not CLEAN27
     [Scope('OnPrem')]
+    [Obsolete('Replaced with SendXmlEmailAttachmentVendor that accepts a TempBlob as additional parameter.', '27.0')]
     procedure SendXmlEmailAttachmentVendor(DocumentVariant: Variant; DocumentFormat: Code[20]; ServerEmailBodyFilePath: Text[250]; SendToEmailAddress: Text[250])
+    var
+        FileManagement: Codeunit "File Management";
+        EmailBodyTempBlob: Codeunit "Temp Blob";
+    begin
+        if ServerEmailBodyFilePath <> '' then
+            FileManagement.BLOBImportFromServerFile(EmailBodyTempBlob, ServerEmailBodyFilePath);
+        SendXmlEmailAttachmentVendor(DocumentVariant, DocumentFormat, EmailBodyTempBlob, SendToEmailAddress);
+    end;
+#endif
+
+    procedure SendXmlEmailAttachmentVendor(DocumentVariant: Variant; DocumentFormat: Code[20]; var EmailBodyTempBlob: Codeunit "Temp Blob"; SendToEmailAddress: Text[250])
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
         Vendor: Record Vendor;
@@ -415,7 +440,7 @@ codeunit 452 "Report Distribution Management"
           ClientFileName,
           DocumentVariant,
           Enum::"Doc. Sending Profile Send To"::"Electronic Document",
-          ServerEmailBodyFilePath, ReportUsage, ReceiverRecord);
+          EmailBodyTempBlob, ReportUsage, ReceiverRecord);
     end;
 
     [Scope('OnPrem')]

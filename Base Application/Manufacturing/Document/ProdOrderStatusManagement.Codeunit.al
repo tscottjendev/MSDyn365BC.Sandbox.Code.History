@@ -1275,7 +1275,8 @@ codeunit 5407 "Prod. Order Status Management"
                     (ProdOrderComp."Flushing Method" <> ProdOrderComp."Flushing Method"::"Pick + Backward") and
                     (ProdOrderComp."Routing Link Code" = '')) or
                    ((ProdOrderComp."Routing Link Code" <> '') and not RtngWillFlushComp(ProdOrderComp)) or
-                   ((ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::Manual) and (ProdOrderComp."Routing Link Code" <> ''))
+                   ((ProdOrderComp."Flushing Method" in [ProdOrderComp."Flushing Method"::Manual, ProdOrderComp."Flushing Method"::"Pick + Manual"]) and
+                   (ProdOrderComp."Routing Link Code" <> ''))
                 then
                     ShowWarning := true;
             until ProdOrderComp.Next() = 0;

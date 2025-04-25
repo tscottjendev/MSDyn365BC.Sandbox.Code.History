@@ -12,7 +12,6 @@ codeunit 448 "Job Queue Dispatcher"
 
     trigger OnRun()
     var
-        JobQueueTelemetry: Codeunit "Job Queue Telemetry";
         Skip: Boolean;
     begin
         OnBeforeRun(Rec, Skip);
@@ -28,14 +27,20 @@ codeunit 448 "Job Queue Dispatcher"
 
         Rec.RefreshLocked();
 
-        if Rec.IsExpired(CurrentDateTime) then
-            Rec.DeleteTask()
+        if Rec.IsExpired(CurrentDateTime) then begin
+            JobQueueTelemetry.SendJobQueueExpiredTelemetry(Rec);
+            Rec.DeleteTask();
+        end
         else
-            if not IsWithinStartEndTime(Rec) then
-                Reschedule(Rec)
+            if not IsWithinStartEndTime(Rec) then begin
+                Reschedule(Rec);
+                JobQueueTelemetry.SendJobQueueRescheduledDueToStartEndTimeTelemetry(Rec);
+            end
             else
-                if WaitForOthersWithSameCategory(Rec) then
-                    RescheduleAsWaiting(Rec)
+                if WaitForOthersWithSameCategory(Rec) then begin
+                    RescheduleAsWaiting(Rec);
+                    JobQueueTelemetry.SendJobQueueRescheduleAsWaitingTelemetry(Rec);
+                end
                 else begin
                     HandleRequest(Rec);
                     if Rec."Job Queue Category Code" <> '' then begin
@@ -49,6 +54,7 @@ codeunit 448 "Job Queue Dispatcher"
     end;
 
     var
+        JobQueueTelemetry: Codeunit "Job Queue Telemetry";
         TestMode: Boolean;
         JobQueueEntryFailedtoGetBeforeFinalizingTxt: Label 'Failed to get Job Queue Entry before finalizing record.', Locked = true;
         JobQueueEntryFailedtoGetBeforeUpdatingStatusTxt: Label 'Failed to get Job Queue Entry before updating status.', Locked = true;
@@ -217,7 +223,7 @@ codeunit 448 "Job Queue Dispatcher"
             Clear(JobQueueEntry);
             JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
             JobQueueEntry."Object ID to Run" := Codeunit::"Job Queue Cleanup Tasks";
-            JobQueueEntry.Description := CopyStr(JobDescrLbl, MaxStrLen(JobQueueEntry.Description));
+            JobQueueEntry.Description := CopyStr(JobDescrLbl, 1, MaxStrLen(JobQueueEntry.Description));
             JobQueueEntry.Validate("Run on Mondays", true);
             JobQueueEntry.Validate("Run on Tuesdays", true);
             JobQueueEntry.Validate("Run on Wednesdays", true);
