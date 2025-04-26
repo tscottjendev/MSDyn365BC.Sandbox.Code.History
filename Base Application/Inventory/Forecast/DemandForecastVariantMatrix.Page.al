@@ -6,7 +6,6 @@ namespace Microsoft.Manufacturing.Forecast;
 
 using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.Setup;
 using System.Text;
 using System.Utilities;
 
@@ -798,10 +797,8 @@ page 2900 "Demand Forecast Variant Matrix"
 
     local procedure IncrementEntryNo(var EntryNo: Integer): Boolean
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
         ProdForecastNameRec: Record "Production Forecast Name";
     begin
-        ManufacturingSetup.Get();
         EntryNo += 1;
         if EntryNo > MaxRowsToLoadVal then begin
             Message(MaxNumberOfRowsReachedMsg, MaxRowsToLoadVal, ProdForecastNameRec.FieldCaption("Item Filter"));
