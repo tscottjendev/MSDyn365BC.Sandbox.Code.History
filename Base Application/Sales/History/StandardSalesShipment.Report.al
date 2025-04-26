@@ -928,7 +928,7 @@ report 1308 "Standard Sales - Shipment"
         ShowCorrectionLines: Boolean;
         CompanyLogoPosition: Integer;
         TrackingSpecCount: Integer;
-        NoFilterSetErr: Label 'You must specify one or more filters to avoid accidently printing all documents.';
+        NoFilterSetErr: Label 'You must specify one or more filters to avoid accidentally printing all documents.';
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
         BodyLbl: Label 'Thank you for your business. Your shipment is attached to this message.';
