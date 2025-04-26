@@ -70,6 +70,7 @@ codeunit 137156 "SCM Orders IV"
         DocumentCountErr: label 'Expected %1 purchase invoice lines but found %2.', Comment = '%1 = Expected Count, %2 = Actual Count';
         DocumentLineQuantityErr: label 'Expected quantity of 1 on line line but found %1.', Comment = '%1 = Actual Quantity';
         DocumentLineSourceNoErr: label 'Expected source on document line is %1 but found %2.', Comment = '%1 = Expected Source No., %2 = Actual Source No.';
+        ReservationFromStockErr: Label 'Reservation from Stock must be %1 in %2.', Comment = '%1= Field Value, %2 =Table Caption.';
 
 #if not CLEAN25
     [Test]
@@ -3467,6 +3468,61 @@ codeunit 137156 "SCM Orders IV"
         ServiceLine.Validate("Location Code", Location.Code);
 
         // [THEN] No error occurs.
+    end;
+
+    [Test]
+    procedure ReservedStockFullStatusStatisticsAssemblyOrderOnInventoryItem()
+    var
+        Item: array[2] of Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        AssemblyItem: Record Item;
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ReservationFromStock: Enum "Reservation From Stock";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 563164] Reserved from Stock has "Full" status on Statistics page of Assembly Order when there is non-inventory Item is in the Assembly Lines.
+        Initialize();
+
+        // [GIVEN] Store Quanitity in Variable.
+        Quantity := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Create an Item with Reserve Always.
+        CreateItemWithReserveAsAlways(Item[1]);
+
+        // [GIVEN] Create an Item Journal Line.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item[1]."No.", '', '', LibraryRandom.RandIntInRange(300, 350));
+
+        // [GIVEN] Post an Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create an Non Inventory Item.
+        LibraryInventory.CreateNonInventoryTypeItem(Item[2]);
+
+        // [GIVEN] Create an Assembly Header.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item[1]."No.", '', Quantity, '');
+
+        // [GIVEN] Create an Assembly Line.
+        LibraryAssembly.CreateAssemblyLine(
+            AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item[1]."No.",
+            AssemblyItem."Base Unit of Measure", Quantity, LibraryRandom.RandIntInRange(1, 1), '');
+
+        // [GIVEN] Create An Auto Reserve.
+        AssemblyLine.AutoReserve();
+
+        // [WHEN] Create Assembly Line with Non Invenotry Item.
+        LibraryAssembly.CreateAssemblyLine(
+            AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item[2]."No.",
+            AssemblyItem."Base Unit of Measure", Quantity, LibraryRandom.RandIntInRange(1, 1), '');
+
+        // [THEN] Reservation from stock must be Full in Assembly Header.
+        Assert.AreEqual(
+            ReservationFromStock::Full,
+            AssemblyHeader.GetQtyReservedFromStockState(),
+            StrSubstNo(
+                ReservationFromStockErr,
+                ReservationFromStock::Full,
+                AssemblyHeader.TableCaption()));
     end;
 
     local procedure Initialize()
