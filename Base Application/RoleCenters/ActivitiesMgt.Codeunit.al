@@ -270,7 +270,6 @@ codeunit 1311 "Activities Mgt."
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         ReservationEntry: Record "Reservation Entry";
         ActivitiesCue: Record "Activities Cue";
         SalesReservFromItemLedger: Query "Sales Reserv. From Item Ledger";
@@ -302,15 +301,9 @@ codeunit 1311 "Activities Mgt."
         while SalesReservFromItemLedger.Read() do
             if SalesReservFromItemLedger.Reserved_Quantity__Base_ <> 0 then begin
                 SalesHeader.SetLoadFields("Document Type", "No.");
-                if SalesHeader.Get(SalesHeader."Document Type"::Order, SalesReservFromItemLedger.SalesHeaderNo) then begin
-                    SalesLine.SetLoadFields("Document Type", "Document No.", Type, "Outstanding Qty. (Base)");
-                    SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
-                    SalesLine.SetRange("Document No.", SalesHeader."No.");
-                    SalesLine.SetRange(Type, SalesLine.Type::Item);
-                    SalesLine.CalcSums("Outstanding Qty. (Base)");
-                    if SalesReservFromItemLedger.Reserved_Quantity__Base_ = SalesLine."Outstanding Qty. (Base)" then
+                if SalesHeader.Get(SalesHeader."Document Type"::Order, SalesReservFromItemLedger.SalesHeaderNo) then
+                    if SalesReservFromItemLedger.Reserved_Quantity__Base_ = SalesHeader.CalculateReservableOutstandingQuantityBase() then
                         Number += 1;
-                end;
             end;
     end;
 
