@@ -4307,9 +4307,9 @@ table 5900 "Service Header"
             if "No." = '' then begin
                 TestNoSeries();
                 "No. Series" := GetNoSeriesCode();
-                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                        "No. Series" := xRec."No. Series";
-                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
             end;
 
         CheckDocumentTypeAlreadyUsed();
@@ -4437,7 +4437,7 @@ table 5900 "Service Header"
                         if NoSeries.IsAutomatic(PostingNoSeries) then
                             "Posting No. Series" := PostingNoSeries;
                     if ServiceMgtSetup."Shipment on Invoice" then
-                    if NoSeries.IsAutomatic(ServiceMgtSetup."Posted Service Shipment Nos.") then
+                        if NoSeries.IsAutomatic(ServiceMgtSetup."Posted Service Shipment Nos.") then
                             "Shipping No. Series" := ServiceMgtSetup."Posted Service Shipment Nos.";
                 end;
             "Document Type"::"Credit Memo":
@@ -5490,25 +5490,28 @@ table 5900 "Service Header"
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
-        ServiceLineLocal: Record "Service Line";
         ServiceLineReserve: Codeunit "Service Line-Reserve";
         QtyReservedFromStock: Decimal;
     begin
         QtyReservedFromStock := ServiceLineReserve.GetReservedQtyFromInventory(Rec);
+        if QtyReservedFromStock = 0 then
+            exit(Result::None);
 
-        ServiceLineLocal.SetRange("Document Type", Rec."Document Type");
-        ServiceLineLocal.SetRange("Document No.", Rec."No.");
-        ServiceLineLocal.SetRange(Type, ServiceLineLocal.Type::Item);
-        ServiceLineLocal.CalcSums("Outstanding Qty. (Base)");
+        if QtyReservedFromStock = CalculateReservableOutstandingQuantityBase() then
+            exit(Result::Full);
 
-        case QtyReservedFromStock of
-            0:
-                exit(Result::None);
-            ServiceLineLocal."Outstanding Qty. (Base)":
-                exit(Result::Full);
-            else
-                exit(Result::Partial);
-        end;
+        exit(Result::Partial);
+    end;
+
+    local procedure CalculateReservableOutstandingQuantityBase() OutstandingQtyBase: Decimal
+    var
+        RemQtyBaseInvtItemServiceLine: Query RemQtyBaseInvtItemServiceLine;
+    begin
+        RemQtyBaseInvtItemServiceLine.SetServiceLineFilter(Rec);
+        if RemQtyBaseInvtItemServiceLine.Open() then
+            if RemQtyBaseInvtItemServiceLine.Read() then
+                OutstandingQtyBase := RemQtyBaseInvtItemServiceLine.Outstanding_Qty___Base_;
+        RemQtyBaseInvtItemServiceLine.Close();
     end;
 
     local procedure PrepareDeleteServiceInvoice()
