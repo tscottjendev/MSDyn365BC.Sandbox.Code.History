@@ -1471,7 +1471,7 @@ report 1306 "Standard Sales - Invoice"
         AmtSubjecttoSalesTaxLbl: Label 'Amount Subject to Sales Tax';
         AmtExemptfromSalesTaxLbl: Label 'Amount Exempt from Sales Tax';
         ExchangeRateTxt: Label 'Exchange rate: %1/%2', Comment = '%1 and %2 are both amounts.';
-        NoFilterSetErr: Label 'You must specify one or more filters to avoid accidently printing all documents.';
+        NoFilterSetErr: Label 'You must specify one or more filters to avoid accidentally printing all documents.';
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
         PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a %2% payment discount.', Comment = '%1 Discount Due Date %2 = value of Payment Discount % ';
