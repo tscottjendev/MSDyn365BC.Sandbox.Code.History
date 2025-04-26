@@ -9993,22 +9993,28 @@ table 36 "Sales Header"
         if QtyReservedFromStock = 0 then
             exit(Result::None);
 
-        if QtyReservedFromStock = CalcOutstandingQuantityBase() then
+        if QtyReservedFromStock = CalculateReservableOutstandingQuantityBase() then
             exit(Result::Full);
 
         exit(Result::Partial);
     end;
 
-    local procedure CalcOutstandingQuantityBase(): Decimal
+    internal procedure CalculateReservableOutstandingQuantityBase() OutstandingQtyBase: Decimal
     var
-        SalesLine2: Record "Sales Line";
+        RemQtyBaseInvtItemSalesLine: Query RemQtyBaseInvtItemSalesLine;
+        IsHandled: Boolean;
     begin
-        SalesLine2.SetRange("Document Type", "Document Type");
-        SalesLine2.SetRange("Document No.", "No.");
-        SalesLine2.SetRange(Type, SalesLine2.Type::Item);
-        OnCalcOutstandingQuantityBaseOnAfterSalesLineSetFilters(SalesLine2);
-        SalesLine2.CalcSums("Outstanding Qty. (Base)");
-        exit(SalesLine2."Outstanding Qty. (Base)");
+        IsHandled := false;
+        OnBeforeCalculateReservableOutstandingQuantityBase(Rec, IsHandled, OutstandingQtyBase);
+        if IsHandled then
+            exit(OutstandingQtyBase);
+
+        OutstandingQtyBase := 0;
+        RemQtyBaseInvtItemSalesLine.SetSalesLineFilter(Rec);
+        if RemQtyBaseInvtItemSalesLine.Open() then
+            if RemQtyBaseInvtItemSalesLine.Read() then
+                OutstandingQtyBase := RemQtyBaseInvtItemSalesLine.Outstanding_Qty___Base_;
+        RemQtyBaseInvtItemSalesLine.Close();
     end;
 
     local procedure UpdateVATReportingDate(CalledByFieldNo: Integer)
@@ -11988,8 +11994,17 @@ table 36 "Sales Header"
     begin
     end;
 
+
+#if not CLEAN27
+    [Obsolete('Not used anymore due to new implementation that uses Query. Replaced by OnBeforeCalculateReservableOutstandingQuantityBase.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCalcOutstandingQuantityBaseOnAfterSalesLineSetFilters(var SalesLine: Record "Sales Line")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateReservableOutstandingQuantityBase(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var OutstandingQtyBase: Decimal)
     begin
     end;
 

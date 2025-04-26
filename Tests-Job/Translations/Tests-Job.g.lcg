@@ -1436,6 +1436,15 @@
       <Cmt Name="Dev"><![CDATA[%1 Field Caption must not be changed when a quantity is reserved in %2 Table Caption%3 Field Caption='%4',%5 Field Caption='%6',%7 Field Caption ='%8'.]D;]A;(LookupHint=Codeunit Job Reservation - NamedType ReservationError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2478735241 - NamedType 3274425173" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reservation from Stock must be %1 in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Value, %2 =Table Caption.]D;]A;(LookupHint=Codeunit Job Reservation - NamedType ReservationFromStockErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2478735241 - NamedType 63978487" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Vendor Item No. should be %1]]></Val>
