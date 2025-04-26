@@ -17,8 +17,6 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Warehouse.Structure;
 
 page 5700 "Stockkeeping Unit Card"
@@ -872,7 +870,6 @@ page 5700 "Stockkeeping Unit Card"
                 }
                 action("Calc. Production Std. Cost")
                 {
-                    AccessByPermission = TableData "Production BOM Header" = R;
                     ApplicationArea = Manufacturing;
                     Caption = 'Calc. Production Std. Cost';
                     Image = CalculateCost;
@@ -880,7 +877,7 @@ page 5700 "Stockkeeping Unit Card"
 
                     trigger OnAction()
                     var
-                        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+                        CalculateStandardCost: Codeunit Microsoft.Manufacturing.StandardCost."Calculate Standard Cost";
                     begin
                         CalculateStandardCost.CalcItemSKU(Rec."Item No.", Rec."Location Code", Rec."Variant Code");
                     end;
