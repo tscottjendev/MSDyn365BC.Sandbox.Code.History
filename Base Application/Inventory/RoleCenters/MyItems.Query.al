@@ -5,8 +5,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
-using Microsoft.Manufacturing.Document;
-
 query 9152 "My Items"
 {
     Caption = 'My Items';
@@ -24,7 +22,7 @@ query 9152 "My Items"
             column(Item_No; "Item No.")
             {
             }
-            dataitem(Prod_Order_Line; "Prod. Order Line")
+            dataitem(Prod_Order_Line; Microsoft.Manufacturing.Document."Prod. Order Line")
             {
                 DataItemLink = "Item No." = My_Item."Item No.";
                 filter(Date_Filter; "Date Filter")
