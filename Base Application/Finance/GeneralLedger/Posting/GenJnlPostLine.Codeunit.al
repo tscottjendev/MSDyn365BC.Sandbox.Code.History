@@ -2015,7 +2015,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         LastSourceCurrencyTaxAmountCredit := 0;
         if TempGLEntryBuf.FindSet() then begin
             repeat
-                if TempGLEntryBuf."Source Currency Code" <> '' then
+                if (TempGLEntryBuf."Source Currency Code" <> '') and (GenJournalLine."Deferral Code" = '') then
                     UpdateSourceCurrencyAmounts(TempGLEntryBuf, LastSourceCurrencyVATAmount, LastSourceCurrencyTaxAmountCredit);
                 TempGLEntryPreview := TempGLEntryBuf;
                 TempGLEntryPreview.Insert();
@@ -2252,6 +2252,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
             UpdateGLEntrySourceCurrencyFields(GLEntry, GenJnlLine);
             GLEntry."GST/HST" := GenJnlLine."GST/HST";
             GLEntry."STE Transaction ID" := GenJnlLine."STE Transaction ID";
+            if (GLEntry."Source Currency Code" <> '') and (GenJnlLine."Deferral Code" <> '') then
+                GLEntry."Source Currency Amount" := AmountAddCurr;
         end;
 
         OnAfterInitGLEntry(GLEntry, GenJnlLine, Amount, AmountAddCurr, UseAmountAddCurr, CurrencyFactor, GLReg);
