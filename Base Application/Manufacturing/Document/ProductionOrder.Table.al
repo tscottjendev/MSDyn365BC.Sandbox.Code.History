@@ -1575,24 +1575,28 @@ table 5405 "Production Order"
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
-        ProdOrderComponent: Record "Prod. Order Component";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         QtyReservedFromStock: Decimal;
     begin
         QtyReservedFromStock := ProdOrderCompReserve.GetReservedQtyFromInventory(Rec);
+        if QtyReservedFromStock = 0 then
+            exit(Result::None);
 
-        ProdOrderComponent.SetRange(Status, Rec.Status);
-        ProdOrderComponent.SetRange("Prod. Order No.", Rec."No.");
-        ProdOrderComponent.CalcSums("Remaining Qty. (Base)");
+        if QtyReservedFromStock = CalculateReservableRemainingQuantityBase() then
+            exit(Result::Full);
 
-        case QtyReservedFromStock of
-            0:
-                exit(Result::None);
-            ProdOrderComponent."Remaining Qty. (Base)":
-                exit(Result::Full);
-            else
-                exit(Result::Partial);
-        end;
+        exit(Result::Partial);
+    end;
+
+    local procedure CalculateReservableRemainingQuantityBase() RemainingQtyBase: Decimal
+    var
+        RemQtyBaseInvtItemProdOrdComp: Query RemQtyBaseInvtItemProdOrdComp;
+    begin
+        RemQtyBaseInvtItemProdOrdComp.SetJobPlanningLineFilter(Rec);
+        if RemQtyBaseInvtItemProdOrdComp.Open() then
+            if RemQtyBaseInvtItemProdOrdComp.Read() then
+                RemainingQtyBase := RemQtyBaseInvtItemProdOrdComp.Remaining_Qty___Base_;
+        RemQtyBaseInvtItemProdOrdComp.Close();
     end;
 
     local procedure ConfirmDeletion()
