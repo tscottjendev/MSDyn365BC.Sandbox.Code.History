@@ -1504,15 +1504,15 @@ table 167 Job
 
         if "No." = '' then begin
             JobsSetup.TestField("Job Nos.");
-                "No. Series" := JobsSetup."Job Nos.";
-                OnInitJobNoOnAfterAssignNoSeries(Rec, xRec, JobsSetup);
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
+            "No. Series" := JobsSetup."Job Nos.";
+            OnInitJobNoOnAfterAssignNoSeries(Rec, xRec, JobsSetup);
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series");
+            Job2.ReadIsolation(IsolationLevel::ReadUncommitted);
+            Job2.SetLoadFields("No.");
+            while Job2.Get("No.") do
                 "No." := NoSeries.GetNextNo("No. Series");
-                Job2.ReadIsolation(IsolationLevel::ReadUncommitted);
-                Job2.SetLoadFields("No.");
-                while Job2.Get("No.") do
-                    "No." := NoSeries.GetNextNo("No. Series");
         end;
     end;
 
@@ -2809,24 +2809,28 @@ table 167 Job
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
-        JobPlanningLineLocal: Record "Job Planning Line";
         JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         QtyReservedFromStock: Decimal;
     begin
         QtyReservedFromStock := JobPlanningLineReserve.GetReservedQtyFromInventory(Rec);
+        if QtyReservedFromStock = 0 then
+            exit(Result::None);
 
-        JobPlanningLineLocal.SetRange("Job No.", Rec."No.");
-        JobPlanningLineLocal.SetRange(Type, JobPlanningLineLocal.Type::Item);
-        JobPlanningLineLocal.CalcSums("Remaining Qty. (Base)");
+        if QtyReservedFromStock = CalculateReservableRemainingQuantityBase() then
+            exit(Result::Full);
 
-        case QtyReservedFromStock of
-            0:
-                exit(Result::None);
-            JobPlanningLineLocal."Remaining Qty. (Base)":
-                exit(Result::Full);
-            else
-                exit(Result::Partial);
-        end;
+        exit(Result::Partial);
+    end;
+
+    local procedure CalculateReservableRemainingQuantityBase() RemainingQtyBase: Decimal
+    var
+        RemQtyBaseInvtItemJobPlannLine: Query RemQtyBaseInvtItemJobPlannLine;
+    begin
+        RemQtyBaseInvtItemJobPlannLine.SetJobPlanningLineFilter(Rec);
+        if RemQtyBaseInvtItemJobPlannLine.Open() then
+            if RemQtyBaseInvtItemJobPlannLine.Read() then
+                RemainingQtyBase := RemQtyBaseInvtItemJobPlannLine.Remaining_Qty___Base_;
+        RemQtyBaseInvtItemJobPlannLine.Close();
     end;
 
     local procedure UpdateSellToCust(ContactNo: Code[20])
