@@ -4937,6 +4937,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test VAT Statement - NamedType AEATTransferenceValueErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2971784732 - NamedType 624661084" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[EC % must be %1 in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Value, %2= Table Caption.]D;]A;(LookupHint=Codeunit Test VAT Statement - NamedType ECPercentErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2971784732 - NamedType 863404764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected value]]></Val>
