@@ -88,7 +88,7 @@ codeunit 5407 "Prod. Order Status Management"
         WhseProdRelease: Codeunit "Whse.-Production Release";
         WhseOutputProdRelease: Codeunit "Whse.-Output Prod. Release";
         UOMMgt: Codeunit "Unit of Measure Management";
-        CreatePutaway: Codeunit "Create Put-away";
+        MfgCreatePutaway: Codeunit "Mfg. Create Put-away";
         NewStatus: Enum "Production Order Status";
         NewPostingDate: Date;
         NewUpdateUnitCost: Boolean;
@@ -1141,10 +1141,10 @@ codeunit 5407 "Prod. Order Status Management"
         if (ItemJnlLine."Order No." = '') or (ItemJnlLine."Order Line No." = 0) then
             exit;
 
-        if not CreatePutaway.ShouldCreateWhsePutAwayForProdOutput(ItemJnlLine) then
+        if not MfgCreatePutaway.ShouldCreateWhsePutAwayForProdOutput(ItemJnlLine) then
             exit;
 
-        CreatePutaway.CreateWhsePutAwayForProdOrderOutputLine(ProdOrderLine);
+        MfgCreatePutaway.CreateWhsePutAwayForProdOrderOutputLine(ProdOrderLine);
     end;
 
     local procedure InitItemJnlLineFromProdOrderLine(var ItemJnlLine: Record "Item Journal Line"; ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; PostingDate: Date)
