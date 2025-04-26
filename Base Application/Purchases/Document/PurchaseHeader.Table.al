@@ -7779,25 +7779,28 @@ table 38 "Purchase Header"
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
-        PurchaseLineLocal: Record "Purchase Line";
         PurchLineReserve: Codeunit "Purch. Line-Reserve";
         QtyReservedFromStock: Decimal;
     begin
         QtyReservedFromStock := PurchLineReserve.GetReservedQtyFromInventory(Rec);
+        if QtyReservedFromStock = 0 then
+            exit(Result::None);
 
-        PurchaseLineLocal.SetRange("Document Type", "Document Type");
-        PurchaseLineLocal.SetRange("Document No.", "No.");
-        PurchaseLineLocal.SetRange(Type, PurchaseLineLocal.Type::Item);
-        PurchaseLineLocal.CalcSums("Outstanding Qty. (Base)");
+        if QtyReservedFromStock = CalculateReservableOutstandingQuantityBase() then
+            exit(Result::Full);
 
-        case QtyReservedFromStock of
-            0:
-                exit(Result::None);
-            PurchaseLineLocal."Outstanding Qty. (Base)":
-                exit(Result::Full);
-            else
-                exit(Result::Partial);
-        end;
+        exit(Result::Partial);
+    end;
+
+    local procedure CalculateReservableOutstandingQuantityBase() OutstandingQtyBase: Decimal
+    var
+        RemQtyBaseInvtItemPurchaseLine: Query RemQtyBaseInvtItemPurchaseLine;
+    begin
+        RemQtyBaseInvtItemPurchaseLine.SetPurchaseLineFilter(Rec);
+        if RemQtyBaseInvtItemPurchaseLine.Open() then
+            if RemQtyBaseInvtItemPurchaseLine.Read() then
+                OutstandingQtyBase := RemQtyBaseInvtItemPurchaseLine.Outstanding_Qty___Base_;
+        RemQtyBaseInvtItemPurchaseLine.Close();
     end;
 
     /// <summary>
