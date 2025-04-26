@@ -64,13 +64,14 @@ reportextension 7305 "Mfg. WhseSourceCreateDocument" extends "Whse.-Source - Cre
                         QtyToPickBase := UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", QtyToPick, "Qty. per Unit of Measure");
 
                         if QtyToPick > 0 then begin
-                            CreatePick.SetProdOrderCompLine("Prod. Order Component", 1);
+                            CreatePick.SetCustomWhseSourceLine(
+                                "Prod. Order Component", 1,
+                                Database::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", "Prod. Order Line No.", "Line No.");
                             CreatePick.SetTempWhseItemTrkgLine(
-                            "Prod. Order No.", Database::"Prod. Order Component", '',
-                            "Prod. Order Line No.", "Line No.", "Location Code");
+                                "Prod. Order No.", Database::"Prod. Order Component", '', "Prod. Order Line No.", "Line No.", "Location Code");
                             CreatePick.CreateTempLine(
-                            "Location Code", "Item No.", "Variant Code", "Unit of Measure Code", '', "Bin Code", "Qty. per Unit of Measure",
-                            "Qty. Rounding Precision", "Qty. Rounding Precision (Base)", QtyToPick, QtyToPickBase);
+                                "Location Code", "Item No.", "Variant Code", "Unit of Measure Code", '', "Bin Code", "Qty. per Unit of Measure",
+                                "Qty. Rounding Precision", "Qty. Rounding Precision (Base)", QtyToPick, QtyToPickBase);
                         end
                         else
                             CreatePick.InsertSkippedLinesToCalculationSummary(Database::"Prod. Order Component", "Prod. Order No.", "Prod. Order Line No.", Status.AsInteger(), "Line No.", "Location Code", "Item No.", "Variant Code", "Unit of Measure Code", "Bin Code", QtyToPick, QtyToPickBase, EmptyGuid);
