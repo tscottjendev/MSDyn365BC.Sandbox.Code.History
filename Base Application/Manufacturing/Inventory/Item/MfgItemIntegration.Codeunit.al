@@ -161,7 +161,7 @@ codeunit 99000795 "Mfg. Item Integration"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Item Variant", 'OnBeforeRenameEvent', '', false, false)]
-    local procedure OnBeforeRenameItemVariant(var Rec: Record "Item Variant"; var xRec: Record "Item Variant")
+    local procedure OnBeforeRenameItemVariant(var Rec: Record "Item Variant"; var xRec: Record "Item Variant"; RunTrigger: Boolean)
     var
         BOMComponent: Record "BOM Component";
         AssemblyHeader: Record "Assembly Header";
@@ -176,6 +176,9 @@ codeunit 99000795 "Mfg. Item Integration"
         ItemLedgerEntry: Record "Item Ledger Entry";
         ProdOrderLine: Record "Prod. Order Line";
     begin
+        if not RunTrigger then
+            exit;
+
         if xRec."Item No." <> Rec."Item No." then begin
             ProdOrderLine.SetRange("Item No.", xRec."Item No.");
             ProdOrderLine.SetRange("Variant Code", xRec.Code);
