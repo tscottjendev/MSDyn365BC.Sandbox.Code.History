@@ -60,7 +60,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         WMSMgmt: Codeunit "WMS Management";
         WhseJnlPostLine: Codeunit "Whse. Jnl.-Register Line";
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
-        CreatePutaway: Codeunit "Create Put-away";
+        MfgCreatePutaway: Codeunit "Mfg. Create Put-away";
         Window: Dialog;
         PostponedValueEntries: List of [Integer];
         ItemRegNo: Integer;
@@ -362,7 +362,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             end;
         until ItemJnlLineLoop.Next() = 0;
 
-        CreatePutaway.CreateWhsePutAwayForProdOutput();
+        MfgCreatePutaway.CreateWhsePutAwayForProdOutput();
         OnAfterPostLines(ItemJnlLine, ItemRegNo, WhseRegNo);
     end;
 
@@ -377,7 +377,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         if (ItemJournalLine."Order No." = '') or (ItemJournalLine."Order Line No." = 0) then
             exit;
 
-        CreatePutaway.IncludeIntoWhsePutAwayForProdOrder(ItemJournalLine);
+        MfgCreatePutaway.IncludeIntoWhsePutAwayForProdOrder(ItemJournalLine);
     end;
 
     local procedure HandleRecurringLine(var ItemJnlLine: Record "Item Journal Line")
