@@ -1985,25 +1985,28 @@ table 900 "Assembly Header"
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
-        AssemblyLineLocal: Record "Assembly Line";
         AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
         QtyReservedFromStock: Decimal;
     begin
         QtyReservedFromStock := AssemblyLineReserve.GetReservedQtyFromInventory(Rec);
+        if QtyReservedFromStock = 0 then
+            exit(Result::None);
 
-        AssemblyLineLocal.SetRange("Document Type", "Document Type");
-        AssemblyLineLocal.SetRange("Document No.", "No.");
-        AssemblyLineLocal.SetRange(Type, AssemblyLineLocal.Type::Item);
-        AssemblyLineLocal.CalcSums("Remaining Quantity (Base)");
+        if QtyReservedFromStock = CalculateReservableRemainingQuantityBase() then
+            exit(Result::Full);
 
-        case QtyReservedFromStock of
-            0:
-                exit(Result::None);
-            AssemblyLineLocal."Remaining Quantity (Base)":
-                exit(Result::Full);
-            else
-                exit(Result::Partial);
-        end;
+        exit(Result::Partial);
+    end;
+
+    local procedure CalculateReservableRemainingQuantityBase() RemainingQuantityBase: Decimal
+    var
+        RemQtyBaseInvtItemAssemblyLine: Query RemQtyBaseInvtItemAssemblyLine;
+    begin
+        RemQtyBaseInvtItemAssemblyLine.SetAssemblyLineFilter(Rec);
+        if RemQtyBaseInvtItemAssemblyLine.Open() then
+            if RemQtyBaseInvtItemAssemblyLine.Read() then
+                RemainingQuantityBase := RemQtyBaseInvtItemAssemblyLine.Remaining_Quantity__Base_;
+        RemQtyBaseInvtItemAssemblyLine.Close();
     end;
 
     local procedure ConfirmDeletion()
