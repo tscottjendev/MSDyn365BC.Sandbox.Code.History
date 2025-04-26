@@ -1525,23 +1525,28 @@ table 5740 "Transfer Header"
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
-        TransferLineLocal: Record "Transfer Line";
         TransferLineReserve: Codeunit "Transfer Line-Reserve";
         QtyReservedFromStock: Decimal;
     begin
         QtyReservedFromStock := TransferLineReserve.GetReservedQtyFromInventory(Rec);
+        if QtyReservedFromStock = 0 then
+            exit(Result::None);
 
-        TransferLineLocal.SetRange("Document No.", Rec."No.");
-        TransferLineLocal.CalcSums("Outstanding Qty. (Base)");
+        if QtyReservedFromStock = CalculateReservableOutstandingQuantityBase() then
+            exit(Result::Full);
 
-        case QtyReservedFromStock of
-            0:
-                exit(Result::None);
-            TransferLineLocal."Outstanding Qty. (Base)":
-                exit(Result::Full);
-            else
-                exit(Result::Partial);
-        end;
+        exit(Result::Partial);
+    end;
+
+    local procedure CalculateReservableOutstandingQuantityBase() OutstandingQtyBase: Decimal
+    var
+        RemQtyBaseInvtItemTransferLine: Query RemQtyBaseInvtItemTransferLine;
+    begin
+        RemQtyBaseInvtItemTransferLine.SetTransferLineFilter(Rec);
+        if RemQtyBaseInvtItemTransferLine.Open() then
+            if RemQtyBaseInvtItemTransferLine.Read() then
+                OutstandingQtyBase := RemQtyBaseInvtItemTransferLine.Outstanding_Qty___Base_;
+        RemQtyBaseInvtItemTransferLine.Close();
     end;
 
     local procedure FindPurchRcptHeader(var PurchRcptHeader: Record "Purch. Rcpt. Header")
