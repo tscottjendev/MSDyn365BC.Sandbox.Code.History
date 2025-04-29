@@ -71,8 +71,12 @@ page 9102 "Job Queue Tasks Activities"
                     trigger OnDrillDown()
                     var
                         JobQueueEntry: Record "Job Queue Entry";
+                        JobQueueManagement: Codeunit "Job Queue Management";
                         JobQueueEntries: Page "Job Queue Entries";
                     begin
+                        if not JobQueueManagement.CheckUserInJobQueueAdminList(UserId()) then
+                            JobQueueEntry.SetRange("User ID", UserId());
+
                         JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::Ready, JobQueueEntry.Status::Waiting);
                         JobQueueEntries.SetTableView(JobQueueEntry);
                         JobQueueEntries.Run();
@@ -122,13 +126,10 @@ page 9102 "Job Queue Tasks Activities"
         InQueueTasksExprEnum: Enum "Cues And KPIs Style";
     begin
         JobQueueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
-        JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::Ready, JobQueueEntry.Status::Waiting);
-        InQueueTasksCount := JobQueueEntry.Count();
-        JobQueueEntry.Reset();
-
-        JobQueueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
         if not JobQueueManagement.CheckUserInJobQueueAdminList(UserId()) then
             JobQueueEntry.SetRange("User ID", UserId());
+        JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::Ready, JobQueueEntry.Status::Waiting);
+        InQueueTasksCount := JobQueueEntry.Count();
 
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Error);
         FailedTasksCount := JobQueueEntry.Count();
@@ -158,7 +159,7 @@ page 9102 "Job Queue Tasks Activities"
         if not CuesAndKpis.PersonalizedCueSetupExistsForCurrentUser(Database::"Job Queue Role Center Cue", TempJobQueueRoleCenterCue.FieldNo("Job Queue - Tasks In Process")) then
             CuesAndKpis.InsertData(Database::"Job Queue Role Center Cue", TempJobQueueRoleCenterCue.FieldNo("Job Queue - Tasks In Process"), Enum::"Cues And KPIs Style"::Favorable, 3, Enum::"Cues And KPIs Style"::Ambiguous, 4, Enum::"Cues And KPIs Style"::Unfavorable);
         if not CuesAndKpis.PersonalizedCueSetupExistsForCurrentUser(Database::"Job Queue Role Center Cue", TempJobQueueRoleCenterCue.FieldNo("Job Queue - Tasks In Queue")) then
-            CuesAndKpis.InsertData(Database::"Job Queue Role Center Cue", TempJobQueueRoleCenterCue.FieldNo("Job Queue - Tasks In Queue"), Enum::"Cues And KPIs Style"::Favorable, 3, Enum::"Cues And KPIs Style"::Ambiguous, 4, Enum::"Cues And KPIs Style"::Unfavorable);
+            CuesAndKpis.InsertData(Database::"Job Queue Role Center Cue", TempJobQueueRoleCenterCue.FieldNo("Job Queue - Tasks In Queue"), Enum::"Cues And KPIs Style"::Favorable, 3, Enum::"Cues And KPIs Style"::Ambiguous, 99, Enum::"Cues And KPIs Style"::Unfavorable);
         UpdateJobQueueCountAndStyleExpr();
     end;
 
