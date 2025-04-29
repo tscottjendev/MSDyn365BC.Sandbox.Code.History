@@ -140,10 +140,6 @@ using System.Privacy;
 using System.Security.User;
 using System.Threading;
 
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.Ledger;
-
 permissionset 191 "D365 SETUP"
 {
     Access = Public;
@@ -641,11 +637,5 @@ permissionset 191 "D365 SETUP"
                   tabledata "Workflow Table Relation Value" = RimD,
                   tabledata "Workflow User Group" = RIMD,
                   tabledata "Workflow User Group Member" = RIMD,
-                  tabledata "Report Settings Override" = Rimd,
-
-                  // Service
-                  tabledata "Contract Gain/Loss Entry" = D,
-                  tabledata "Filed Contract Line" = RD,
-                  tabledata "Service Line" = Rm,
-                  tabledata "Warranty Ledger Entry" = d;
+                  tabledata "Report Settings Override" = Rimd;
 }
