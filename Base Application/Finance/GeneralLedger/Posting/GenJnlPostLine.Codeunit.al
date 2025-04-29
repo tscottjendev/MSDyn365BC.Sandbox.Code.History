@@ -370,6 +370,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     local procedure InitAmounts(var GenJnlLine: Record "Gen. Journal Line"): Decimal
     var
         Currency: Record Currency;
+        VATPostingSetup: Record "VAT Posting Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -388,8 +389,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
             if (not GenJnlLine."System-Created Entry") or (GenJnlLine."Financial Void") then begin
                 GenJnlLine."Source Currency Code" := GenJnlLine."Currency Code";
                 GenJnlLine."Source Currency Amount" := GenJnlLine.Amount;
-                GenJnlLine."Source Curr. VAT Base Amount" := GenJnlLine."VAT Base Amount";
-                GenJnlLine."Source Curr. VAT Amount" := GenJnlLine."VAT Amount";
+                if GenJnlLine."VAT Calculation Type" = GenJnlLine."VAT Calculation Type"::"Reverse Charge VAT" then begin
+                    VATPostingSetup.Get(GenJnlLine."VAT Bus. Posting Group", GenJnlLine."VAT Prod. Posting Group");
+                    GenJnlLine."Source Curr. VAT Base Amount" := GenJnlLine.Amount;
+                    GenJnlLine."Source Curr. VAT Amount" := Round(GenJnlLine.Amount * VATPostingSetup."VAT %" / 100,
+                                                Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                end else begin
+                    GenJnlLine."Source Curr. VAT Base Amount" := GenJnlLine."VAT Base Amount";
+                    GenJnlLine."Source Curr. VAT Amount" := GenJnlLine."VAT Amount";
+                end;
             end;
         end;
         if GenJnlLine."Additional-Currency Posting" = GenJnlLine."Additional-Currency Posting"::None then begin
