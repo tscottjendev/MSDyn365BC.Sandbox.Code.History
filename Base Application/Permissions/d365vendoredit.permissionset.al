@@ -41,10 +41,6 @@ using Microsoft.Warehouse.Worksheet;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Finance.Analysis;
 
-using Microsoft.Service.Contract;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
-
 permissionset 9921 "D365 VENDOR, EDIT"
 {
     Assignable = true;
@@ -128,11 +124,5 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Warehouse Request" = rm,
                   tabledata "Warehouse Shipment Line" = rm,
                   tabledata "Whse. Worksheet Line" = r,
-                  tabledata "Work Center" = r,
-
-                  // Service
-                  tabledata "Contract Gain/Loss Entry" = rm,
-                  tabledata "Filed Contract Line" = rm,
-                  tabledata "Service Item" = r,
-                  tabledata "Warranty Ledger Entry" = rm;
+                  tabledata "Work Center" = r;
 }
