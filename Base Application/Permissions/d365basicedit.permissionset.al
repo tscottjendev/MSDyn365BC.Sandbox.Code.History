@@ -131,9 +131,6 @@ using Microsoft.API;
 using Microsoft.Intercompany.DataExchange;
 using Microsoft;
 using System.TestTools;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Resources;
-using Microsoft.Service.Item;
 
 permissionset 208 "D365 Basic - Edit"
 {
@@ -675,10 +672,5 @@ permissionset 208 "D365 Basic - Edit"
                   tabledata "XML Buffer" = IMD,
                   tabledata "XML Schema" = IMD,
                   tabledata "XML Schema Element" = IMD,
-                  tabledata "XML Schema Restriction" = IMD,
-
-                  // Service
-                  tabledata "Contract Trend Buffer" = IMD,
-                  tabledata "Resource Skill" = im,
-                  tabledata "Service Item Trend Buffer" = IMD;
+                  tabledata "XML Schema Restriction" = IMD;
 }
