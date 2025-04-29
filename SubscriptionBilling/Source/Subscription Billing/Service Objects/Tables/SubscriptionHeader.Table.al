@@ -1822,6 +1822,7 @@ table 8057 "Subscription Header"
                         ServiceCommitment.SetLCYFields(false);
                         ServiceCommitment."Period Calculation" := ServiceCommPackageLine."Period Calculation";
                         ServiceCommitment.SetDefaultDimensions(true);
+                        ServiceCommitment."Create Contract Deferrals" := ServiceCommPackageLine."Create Contract Deferrals";
                         OnBeforeInsertSubscriptionLineFromSubscriptionPackageLine(ServiceCommitment, ServiceCommPackageLine);
                         ServiceCommitment.Insert(false);
                         OnAfterInsertSubscriptionLineFromSubscriptionPackage(ServiceCommitment, ServiceCommitmentPackage, ServiceCommPackageLine);

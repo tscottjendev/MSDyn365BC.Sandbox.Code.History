@@ -262,6 +262,10 @@ table 8068 "Sales Subscription Line"
             Caption = 'Discount';
             Editable = false;
         }
+        field(40; "Create Contract Deferrals"; Enum "Create Contract Deferrals")
+        {
+            Caption = 'Create Contract Deferrals';
+        }
         field(50; "Subscription Header No."; Code[20])
         {
             Caption = 'Subscription No.';

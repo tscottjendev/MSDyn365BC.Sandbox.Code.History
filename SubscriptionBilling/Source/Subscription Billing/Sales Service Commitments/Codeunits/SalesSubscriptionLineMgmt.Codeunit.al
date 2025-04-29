@@ -218,6 +218,7 @@ codeunit 8069 "Sales Subscription Line Mgmt."
             SalesServiceCommitment.Validate(Discount, ServiceCommitmentPackageLine.Discount);
             SalesServiceCommitment."Price Binding Period" := ServiceCommitmentPackageLine."Price Binding Period";
             SalesServiceCommitment."Period Calculation" := ServiceCommitmentPackageLine."Period Calculation";
+            SalesServiceCommitment."Create Contract Deferrals" := ServiceCommitmentPackageLine."Create Contract Deferrals";
             SalesServiceCommitment.CalculateCalculationBaseAmount();
             if SalesServiceCommitment.Partner = SalesServiceCommitment.Partner::Customer then
                 SalesServiceCommitment.CalculateUnitCost();

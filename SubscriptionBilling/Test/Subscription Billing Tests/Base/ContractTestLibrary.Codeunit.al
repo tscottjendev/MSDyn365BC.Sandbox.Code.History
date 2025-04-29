@@ -517,6 +517,7 @@ codeunit 139685 "Contract Test Library"
         ServiceCommitmentTemplate."Calculation Base Type" := CalculationBaseType;
         if Discount then
             ServiceCommitmentTemplate.Discount := true;
+        ServiceCommitmentTemplate."Create Contract Deferrals" := ServiceCommitmentTemplate."Create Contract Deferrals"::Yes;
 
         OnCreateSubPackageLineTemplateOnBeforeInsert(ServiceCommitmentTemplate);
         ServiceCommitmentTemplate.Insert(true)
@@ -591,6 +592,7 @@ codeunit 139685 "Contract Test Library"
         Evaluate(ServiceCommPackageLine."Billing Rhythm", BillingRhythmText);
         ServiceCommPackageLine.Validate(Partner, ServicePartner);
         Evaluate(ServiceCommPackageLine."Price Binding Period", PriceBindingPeriod);
+        ServiceCommPackageLine.Validate("Create Contract Deferrals", Enum::"Create Contract Deferrals"::Yes);
 
         OnCreateSubscriptionPackageLineOnBeforeInsert(ServiceCommPackageLine);
         ServiceCommPackageLine.Insert(false);

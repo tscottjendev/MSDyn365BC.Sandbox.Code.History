@@ -1594,7 +1594,7 @@ codeunit 148155 "Contracts Test"
     end;
 
     [Test]
-    procedure TestTransferOfDefaultWithoutContractDeferralsFromContractType()
+    procedure TransferCreateContractDeferralsFromContractType()
     var
         ContractType: Record "Subscription Contract Type";
         CustomerContract: Record "Customer Subscription Contract";
@@ -1605,16 +1605,17 @@ codeunit 148155 "Contracts Test"
         Initialize();
 
         ContractTestLibrary.CreateCustomerContractWithContractType(CustomerContract, ContractType);
-        CustomerContract.TestField("Without Contract Deferrals", ContractType."Def. Without Contr. Deferrals");
+        ContractType.TestField("Create Contract Deferrals", true);
+        CustomerContract.TestField("Create Contract Deferrals", true);
         ContractTestLibrary.CreateContractType(ContractType);
-        ContractType."Def. Without Contr. Deferrals" := true;
+        ContractType."Create Contract Deferrals" := false;
         ContractType.Modify(false);
         CustomerContract.Validate("Contract Type", ContractType.Code);
         CustomerContract.Modify(false);
-        CustomerContract.TestField("Without Contract Deferrals", ContractType."Def. Without Contr. Deferrals");
+        CustomerContract.TestField("Create Contract Deferrals", false);
 
         // allow manually changing the value of the field
-        CustomerContract.Validate("Without Contract Deferrals", false);
+        CustomerContract.Validate("Create Contract Deferrals", true);
         CustomerContract.Modify(false);
         CustomerContract.TestField("Contract Type", ContractType.Code);
     end;
