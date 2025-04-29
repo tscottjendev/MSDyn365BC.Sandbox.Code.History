@@ -159,9 +159,6 @@ using Microsoft.API;
 using Microsoft.Intercompany.DataExchange;
 using Microsoft;
 using System.TestTools;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Resources;
-using Microsoft.Service.Item;
 
 permissionset 209 "D365 Basic - Read"
 {
@@ -879,10 +876,5 @@ permissionset 209 "D365 Basic - Read"
                   tabledata "XML Buffer" = R,
                   tabledata "XML Schema" = R,
                   tabledata "XML Schema Element" = R,
-                  tabledata "XML Schema Restriction" = R,
-
-                  // Service
-                  tabledata "Contract Trend Buffer" = R,
-                  tabledata "Resource Skill" = R,
-                  tabledata "Service Item Trend Buffer" = R;
+                  tabledata "XML Schema Restriction" = R;
 }

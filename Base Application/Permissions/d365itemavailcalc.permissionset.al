@@ -11,8 +11,6 @@ using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 
-using Microsoft.Service.Document;
-
 permissionset 2919 "D365 ITEM AVAIL CALC"
 {
     Assignable = true;
@@ -32,8 +30,5 @@ permissionset 2919 "D365 ITEM AVAIL CALC"
         tabledata "Reservation Entry" = r,
         tabledata "Sales Line" = r,
         tabledata "Transfer Line" = r,
-        tabledata "Value Entry" = r,
-
-        // Service
-        tabledata "Service Line" = r;
+        tabledata "Value Entry" = r;
 }
