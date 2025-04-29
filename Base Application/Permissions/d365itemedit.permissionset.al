@@ -31,11 +31,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Pricing;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
-using Microsoft.Service.Maintenance;
-using Microsoft.Service.Resources;
 using Microsoft.Warehouse.ADCS;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Setup;
@@ -120,14 +115,5 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
                   tabledata "Vendor Bank Account" = R,
-                  tabledata "Warehouse Entry" = Rm,
-
-                  // Service
-                  tabledata "Resource Skill" = RIMD,
-                  tabledata "Service Contract Line" = R,
-                  tabledata "Service Item" = RM,
-                  tabledata "Service Item Component" = RM,
-                  tabledata "Service Ledger Entry" = Rm,
-                  tabledata "Troubleshooting Setup" = RIMD,
-                  tabledata "Warranty Ledger Entry" = RM;
+                  tabledata "Warehouse Entry" = Rm;
 }
