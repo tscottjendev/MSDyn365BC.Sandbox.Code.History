@@ -116,6 +116,7 @@ codeunit 5992 "Purchases Warehouse Mgt."
         NewRecordRef: RecordRef;
         OldRecordRef: RecordRef;
         IsHandled: Boolean;
+        ShouldVerifyChange: Boolean;
     begin
         IsHandled := false;
         OnBeforePurchaseLineVerifyChange(NewPurchaseLine, OldPurchaseLine, IsHandled);
@@ -143,7 +144,11 @@ codeunit 5992 "Purchases Warehouse Mgt."
         WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Special Order Sales Line No."));
         WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Job No."));
         WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Job Task No."));
-        if not OverReceiptMgt.IsQuantityUpdatedFromInvtPutAwayOverReceipt(NewPurchaseLine) or CheckQuantityReducedToZero(NewPurchaseLine, OldPurchaseLine) then begin
+        ShouldVerifyChange := false;
+        ShouldVerifyChange := not OverReceiptMgt.IsQuantityUpdatedFromInvtPutAwayOverReceipt(NewPurchaseLine);
+        if not ShouldVerifyChange then
+            ShouldVerifyChange := CheckQuantityReducedToZero(NewPurchaseLine, OldPurchaseLine);
+        if ShouldVerifyChange then begin
             if not OverReceiptMgt.IsQuantityUpdatedFromWarehouseOverReceipt(NewPurchaseLine) then
                 WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo(Quantity));
             WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Qty. to Receive"));
