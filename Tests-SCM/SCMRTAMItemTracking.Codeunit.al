@@ -52,7 +52,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ReservationsCancelQst: Label 'Do you want to cancel all reservations';
         ItemTrackingSerialNumberErr: Label 'Variant  cannot be fully applied';
         SerialNumberErr: Label 'You must assign a serial number';
-        ConsumptionMissingQst: Label 'Some consumption is still missing. Do you still want to finish the order?';
+        ConsumptionMissingQst: Label '\\  * Some consumption is still missing.\\ Do you still want to finish the order?';
         MessageCounter: Integer;
         SignFactor: Integer;
         NumberOfLineEqualErr: Label 'Number of Lines must be same.';

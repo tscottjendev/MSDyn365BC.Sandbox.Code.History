@@ -51,8 +51,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrderErr: Label 'Production Order No. must exist.';
         RecordErr: Label 'Record must not be empty.';
         ElementNotFoundErr: Label 'Element not found for %1';
-        MissingOutputQst: Label 'Some output is still missing. Do you still want to finish the order?';
-        MissingConsumptionQst: Label 'Some consumption is still missing. Do you still want to finish the order?';
+        MissingQst: Label '\\  * Some output is still missing.\  * Some consumption is still missing.\\ Do you still want to finish the order?';
 
     [Test]
     [HandlerFunctions('ProdOrderCompAndRoutingRequestPageHandler')]
@@ -1320,8 +1319,7 @@ codeunit 137304 "SCM Manufacturing Reports"
 
     local procedure FinishProductionOrder(ProdOrderNo: Code[20])
     begin
-        LibraryVariableStorage.Enqueue(MissingOutputQst);
-        LibraryVariableStorage.Enqueue(MissingConsumptionQst);
+        LibraryVariableStorage.Enqueue(MissingQst);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProdOrderNo);
     end;
 
