@@ -6,7 +6,6 @@ using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
@@ -23,8 +22,6 @@ permissionset 2919 "D365 ITEM AVAIL CALC"
         tabledata "Item Ledger Entry" = r,
         tabledata "Job Planning Line" = r,
         tabledata "Planning Component" = r,
-        tabledata "Prod. Order Component" = r,
-        tabledata "Prod. Order Line" = r,
         tabledata "Purchase Line" = r,
         tabledata "Requisition Line" = r,
         tabledata "Reservation Entry" = r,

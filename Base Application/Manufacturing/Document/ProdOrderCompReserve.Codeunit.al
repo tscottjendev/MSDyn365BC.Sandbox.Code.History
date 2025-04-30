@@ -12,6 +12,7 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Item;
 
 codeunit 99000838 "Prod. Order Comp.-Reserve"
 {
@@ -1247,6 +1248,13 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
                     ReservationManagement.AutoTrack(ProdOrderComponent."Remaining Qty. (Base)");
                 until ProdOrderComponent.Next() = 0;
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnCalcResQtyOnProdOrderComp', '', false, false)]
+    local procedure OnCalcResQtyOnProdOrderComp(var Item: Record Item; var Result: Decimal)
+    begin
+        Item.CalcFields("Res. Qty. on Prod. Order Comp.");
+        Result := Item."Res. Qty. on Prod. Order Comp.";
     end;
 }
 
