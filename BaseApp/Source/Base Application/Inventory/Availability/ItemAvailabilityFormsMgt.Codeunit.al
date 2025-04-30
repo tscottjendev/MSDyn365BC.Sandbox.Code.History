@@ -69,7 +69,7 @@ codeunit 353 "Item Availability Forms Mgt"
                 TransOrdReceiptQty := Item."Trans. Ord. Receipt (Qty.)";
             end;
             GrossRequirement :=
-                Item."Qty. on Sales Order" + Item."Qty. on Job Order" + Item."Qty. on Component Lines" +
+                Item."Qty. on Sales Order" + Item."Qty. on Job Order" + Item.CalcQtyOnComponentLines() +
                 TransOrdShipmentQty + Item."Planning Issues (Qty.)" + Item."Qty. on Asm. Component" + Item."Qty. on Purch. Return";
             OnCalculateNeedOnAfterCalcGrossRequirement(Item, GrossRequirement);
             PlannedOrderReceipt :=
