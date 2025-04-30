@@ -63,15 +63,20 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
             EDocumentPurchaseLine.FindSet();
             repeat
                 if Result.ContainsKey(EDocumentPurchaseLine."Line No.") then
-                    if EDocumentLineMapping.Get(EDocumentPurchaseLine."E-Document Entry No.", EDocumentPurchaseLine."Line No.") then begin
-                        EDocumentLineMapping."Purchase Line Type" := EDocumentLineMapping."Purchase Line Type"::"G/L Account";
-                        EDocumentLineMapping.Validate("Purchase Type No.", Result.Get(EDocumentPurchaseLine."Line No."));
-                        EDocumentLineMapping.Modify();
-                    end;
+                    if EDocumentLineMapping.Get(EDocumentPurchaseLine."E-Document Entry No.", EDocumentPurchaseLine."Line No.") then
+                        if SetPurchaseLineAccountFromCopilotResult(EDocumentLineMapping, Result.Get(EDocumentPurchaseLine."Line No.")) then
+                            EDocumentLineMapping.Modify();
             until EDocumentPurchaseLine.Next() = 0;
         end;
 
         exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure SetPurchaseLineAccountFromCopilotResult(var EDocumentLineMapping: Record "E-Document Line Mapping"; ValueSuggested: Code[20])
+    begin
+        EDocumentLineMapping."Purchase Line Type" := EDocumentLineMapping."Purchase Line Type"::"G/L Account";
+        EDocumentLineMapping.Validate("Purchase Type No.", ValueSuggested);
     end;
 
     [NonDebuggable]
