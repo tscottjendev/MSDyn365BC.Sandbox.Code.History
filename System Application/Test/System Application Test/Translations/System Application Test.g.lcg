@@ -1103,6 +1103,33 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Email)(LookupHint=Codeunit Email Message Unit Test - NamedType RecipientLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4212090257 - Method 1636522771 - NamedType 1197044481" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[{00000000-0000-0000-0000-000000000001}]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Email)(LookupHint=Codeunit Email Message Unit Test - Method TestDeleteOrphanEmailRecipients - NamedType MessageId1Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4212090257 - Method 1636522771 - NamedType 1139105600" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[{00000000-0000-0000-0000-000000000011}]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Email)(LookupHint=Codeunit Email Message Unit Test - Method TestDeleteOrphanEmailRecipients - NamedType MessageId2Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4212090257 - Method 1636522771 - NamedType 2165013951" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[{00000000-0000-0000-0000-000000000111}]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Email)(LookupHint=Codeunit Email Message Unit Test - Method TestDeleteOrphanEmailRecipients - NamedType MessageId3Txt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3629858310 - NamedType 943932356" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Go ahead and discard?]]></Val>
