@@ -4,11 +4,9 @@ using Microsoft.AccountantPortal;
 using Microsoft.Booking;
 using Microsoft.Sales.Archive;
 using Microsoft.CRM.Team;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Inventory.Location;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.CostAccounting.Setup;
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Bank.Payment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.EServices.EDocument;
@@ -107,7 +105,6 @@ using Microsoft.Inventory.Item.Picture;
 using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Inventory.Item.Catalog;
 using System.Threading;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.CRM.Setup;
 using Microsoft.Inventory.BOM.Tree;
 using Microsoft.Purchases.Document;
@@ -338,7 +335,6 @@ permissionset 209 "D365 Basic - Read"
                   tabledata "Copy Item Parameters" = R,
                   tabledata "Cost Accounting Setup" = R,
                   tabledata "Cost Element Buffer" = R,
-                  tabledata "Cost Share Buffer" = R,
                   tabledata "Country/Region" = R,
                   tabledata "Country/Region Translation" = R,
                   tabledata "CRM Connection Setup" = R,
@@ -547,9 +543,7 @@ permissionset 209 "D365 Basic - Read"
                   tabledata "Ledger Entry Matching Buffer" = R,
                   tabledata "License Agreement" = R,
                   tabledata "Line Number Buffer" = R,
-                  tabledata "Load Buffer" = R,
                   tabledata Location = R,
-                  tabledata "Manufacturing Setup" = R,
                   tabledata "Marketing Setup" = R,
                   tabledata "Media Repository" = R,
                   tabledata "Memoized Result" = R,
