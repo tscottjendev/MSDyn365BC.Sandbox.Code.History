@@ -4,7 +4,6 @@ using Microsoft.AccountantPortal;
 using Microsoft.Booking;
 using Microsoft.Intercompany.Comment;
 using Microsoft.CostAccounting.Setup;
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Bank.Payment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.EServices.EDocument;
@@ -152,18 +151,6 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Comment;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Family;
-using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.RoleCenters;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.StandardCost;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -453,16 +440,13 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Business Unit" = R,
                   tabledata "Business Unit Information" = R,
                   tabledata "Business Unit Setup" = R,
-                  tabledata "Calendar Absence Entry" = R,
-                  tabledata "Calendar Entry" = R,
                   tabledata Campaign = R,
                   tabledata "Campaign Entry" = R,
                   tabledata "Campaign Status" = R,
                   tabledata "Campaign Target Group" = R,
                   tabledata "Cancelled Document" = R,
-                  tabledata "Capacity Constrained Resource" = R,
-                  tabledata "Capacity Ledger Entry" = R,
-                  tabledata "Capacity Unit of Measure" = R,
+                  tabledata Microsoft.Manufacturing.Capacity."Capacity Ledger Entry" = R,
+                  tabledata Microsoft.Manufacturing.Capacity."Capacity Unit of Measure" = R,
                   tabledata "Cash Flow Account" = R,
                   tabledata "Cash Flow Account Comment" = R,
                   tabledata "Cash Flow Availability Buffer" = R,
@@ -561,7 +545,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Cost Journal Template" = R,
                   tabledata "Cost Object" = R,
                   tabledata "Cost Register" = R,
-                  tabledata "Cost Share Buffer" = R,
                   tabledata "Cost Type" = R,
                   tabledata "Country/Region" = R,
                   tabledata "Country/Region Translation" = R,
@@ -800,8 +783,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "FA Register" = R,
                   tabledata "FA Setup" = R,
                   tabledata "FA Subclass" = R,
-                  tabledata Family = R,
-                  tabledata "Family Line" = R,
                   tabledata "Field Buffer" = R,
                   tabledata "Field Monitoring Setup" = R,
                   tabledata "Filter Item Attributes Buffer" = R,
@@ -1039,12 +1020,10 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "License Agreement" = R,
                   tabledata "Line Fee Note on Report Hist." = R,
                   tabledata "Line Number Buffer" = R,
-                  tabledata "Load Buffer" = R,
                   tabledata Location = R,
                   tabledata "Logged Segment" = R,
                   tabledata "Lot Bin Buffer" = R,
                   tabledata "Lot No. Information" = R,
-                  tabledata "Machine Center" = R,
                   tabledata "Mailing Group" = R,
                   tabledata "Main Asset Component" = R,
                   tabledata Maintenance = R,
@@ -1053,10 +1032,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Man. Integration Table Mapping" = R,
                   tabledata "Man. Int. Field Mapping" = R,
                   tabledata Manufacturer = R,
-                  tabledata "Manufacturing Comment Line" = R,
-                  tabledata "Manufacturing Cue" = RIMD,
-                  tabledata "Manufacturing Setup" = R,
-                  tabledata "Manufacturing User Template" = R,
                   tabledata "Marketing Setup" = R,
                   tabledata "Media Repository" = R,
                   tabledata "Memoized Result" = R,
@@ -1161,7 +1136,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Planning Buffer" = R,
                   tabledata "Planning Component" = R,
                   tabledata "Planning Error Log" = R,
-                  tabledata "Planning Routing Line" = R,
                   tabledata "Positive Pay Detail" = R,
                   tabledata "Positive Pay Entry" = R,
                   tabledata "Positive Pay Entry Detail" = R,
@@ -1206,25 +1180,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Price Source" = R,
                   tabledata "Price Worksheet Line" = R,
                   tabledata "Printer Selection" = R,
-                  tabledata "Prod. Order Capacity Need" = R,
-                  tabledata "Prod. Order Comment Line" = R,
-                  tabledata "Prod. Order Comp. Cmt Line" = R,
-                  tabledata "Prod. Order Component" = R,
-                  tabledata "Prod. Order Line" = R,
-                  tabledata "Prod. Order Routing Line" = R,
-                  tabledata "Prod. Order Routing Personnel" = R,
-                  tabledata "Prod. Order Routing Tool" = R,
-                  tabledata "Prod. Order Rtng Comment Line" = R,
-                  tabledata "Prod. Order Rtng Qlty Meas." = R,
-                  tabledata "Production BOM Comment Line" = R,
-                  tabledata "Production BOM Header" = R,
-                  tabledata "Production BOM Line" = R,
-                  tabledata "Production BOM Version" = R,
-                  tabledata "Production Forecast Entry" = R,
-                  tabledata "Production Forecast Name" = R,
-                  tabledata "Production Matrix  BOM Entry" = R,
-                  tabledata "Production Matrix BOM Line" = R,
-                  tabledata "Production Order" = R,
                   tabledata "Profile Designer Diagnostic" = RIMD,
                   tabledata "Profile Import" = RIMD,
                   tabledata "Profile Questionnaire Header" = R,
@@ -1269,7 +1224,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Put-away Template Header" = R,
                   tabledata "Put-away Template Line" = R,
                   tabledata Qualification = R,
-                  tabledata "Quality Measure" = R,
                   tabledata "RapidStart Services Cue" = RIMD,
                   tabledata Rating = R,
                   tabledata "RC Headlines User Data" = R,
@@ -1284,7 +1238,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Record Set Tree" = R,
                   tabledata "Recorded Event Buffer" = R,
                   tabledata "Referenced XML Schema" = R,
-                  tabledata "Registered Absence" = R,
                   tabledata "Registered Invt. Movement Hdr." = R,
                   tabledata "Registered Invt. Movement Line" = R,
                   tabledata "Registered Whse. Activity Hdr." = R,
@@ -1356,14 +1309,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Role Center Notifications" = R,
                   tabledata "Rounding Method" = R,
                   tabledata "Rounding Residual Buffer" = R,
-                  tabledata "Routing Comment Line" = R,
-                  tabledata "Routing Header" = R,
-                  tabledata "Routing Line" = R,
-                  tabledata "Routing Link" = R,
-                  tabledata "Routing Personnel" = R,
-                  tabledata "Routing Quality Measure" = R,
-                  tabledata "Routing Tool" = R,
-                  tabledata "Routing Version" = R,
                   tabledata "Sales & Receivables Setup" = R,
                   tabledata "Sales by Cust. Grp.Chart Setup" = R,
                   tabledata "Sales Comment Line" = R,
@@ -1408,7 +1353,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Saved Segment Criteria" = R,
                   tabledata "Saved Segment Criteria Line" = R,
                   tabledata "SB Owner Cue" = RIMD,
-                  tabledata Scrap = R,
                   tabledata "Segment Criteria Line" = R,
                   tabledata "Segment Header" = R,
                   tabledata "Segment History" = R,
@@ -1427,16 +1371,13 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Shipment Method Translation" = R,
                   tabledata "Shipping Agent" = R,
                   tabledata "Shipping Agent Services" = R,
-                  tabledata "Shop Calendar" = R,
-                  tabledata "Shop Calendar Holiday" = R,
-                  tabledata "Shop Calendar Working Days" = R,
                   tabledata "Sorting Table" = R,
                   tabledata "Source Code" = R,
                   tabledata "Source Code Setup" = R,
                   tabledata "Special Equipment" = R,
                   tabledata "Standard Address" = R,
-                  tabledata "Standard Cost Worksheet" = R,
-                  tabledata "Standard Cost Worksheet Name" = R,
+                  tabledata Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet" = R,
+                  tabledata Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet Name" = R,
                   tabledata "Standard Customer Sales Code" = R,
                   tabledata "Standard General Journal" = R,
                   tabledata "Standard General Journal Line" = R,
@@ -1446,16 +1387,10 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Standard Purchase Line" = R,
                   tabledata "Standard Sales Code" = R,
                   tabledata "Standard Sales Line" = R,
-                  tabledata "Standard Task" = R,
-                  tabledata "Standard Task Description" = R,
-                  tabledata "Standard Task Personnel" = R,
-                  tabledata "Standard Task Quality Measure" = R,
-                  tabledata "Standard Task Tool" = R,
                   tabledata "Standard Text" = R,
                   tabledata "Standard Vendor Purchase Code" = R,
                   tabledata "Stockkeeping Unit" = R,
                   tabledata "Stockkeeping Unit Comment Line" = R,
-                  tabledata Stop = R,
                   tabledata "Substitution Condition" = R,
                   tabledata "Support Contact Information" = R,
                   tabledata "SWIFT Code" = R,
@@ -1601,7 +1536,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Web Source" = R,
                   tabledata "WF Event/Response Combination" = R,
                   tabledata "Where Used Base Calendar" = R,
-                  tabledata "Where-Used Line" = R,
                   tabledata "Whse. Cross-Dock Opportunity" = R,
                   tabledata "Whse. Internal Pick Header" = R,
                   tabledata "Whse. Internal Pick Line" = R,
@@ -1614,9 +1548,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Whse. Worksheet Line" = R,
                   tabledata "Whse. Worksheet Name" = R,
                   tabledata "Whse. Worksheet Template" = R,
-                  tabledata "Work Center" = R,
-                  tabledata "Work Center Group" = R,
-                  tabledata "Work Shift" = R,
                   tabledata "Work Type" = R,
                   tabledata "Workflow - Record Change" = R,
                   tabledata "Workflow - Table Relation" = R,

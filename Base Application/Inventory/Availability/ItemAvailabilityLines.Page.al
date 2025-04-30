@@ -416,8 +416,8 @@ page 353 "Item Availability Lines"
         Rec."Trans. Ord. Receipt (Qty.)" := Item."Trans. Ord. Receipt (Qty.)";
         Rec."Qty. on Asm. Comp. Lines" := Item."Qty. on Asm. Component";
         Rec."Qty. on Assembly Order" := Item."Qty. on Assembly Order";
-        Rec."Scheduled Receipt (Qty.)" := Item."Scheduled Receipt (Qty.)";
-        Rec."Scheduled Issue (Qty.)" := Item."Qty. on Component Lines";
+        Rec."Scheduled Receipt (Qty.)" := Item.CalcScheduledReceiptQty();
+        Rec."Scheduled Issue (Qty.)" := Item.CalcQtyOnComponentLines();
         Rec."Net Change" := Item."Net Change";
 
         OnAfterCalcAvailQuantities(Rec, Item);
