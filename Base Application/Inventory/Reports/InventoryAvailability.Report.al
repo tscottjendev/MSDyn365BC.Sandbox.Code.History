@@ -258,16 +258,16 @@ report 705 "Inventory Availability"
         Item.CalcFields(
           "Qty. on Purch. Order",
           "Planning Receipt (Qty.)",
-          "Scheduled Receipt (Qty.)",
           "Planned Order Receipt (Qty.)",
           "Purch. Req. Receipt (Qty.)",
           "Qty. in Transit",
           "Trans. Ord. Receipt (Qty.)",
           "Reserved Qty. on Inventory");
         GlobalBackOrderQty :=
-          Item."Qty. on Purch. Order" + Item."Scheduled Receipt (Qty.)" + Item."Planned Order Receipt (Qty.)" +
+          Item."Qty. on Purch. Order" + Item."Planned Order Receipt (Qty.)" +
           Item."Qty. in Transit" + Item."Trans. Ord. Receipt (Qty.)" +
-          Item."Planning Receipt (Qty.)" + Item."Purch. Req. Receipt (Qty.)";
+          Item."Planning Receipt (Qty.)" + Item."Purch. Req. Receipt (Qty.)" +
+          Item.CalcScheduledReceiptQty();
 
         Item.SetRange("Date Filter", 0D, DMY2Date(31, 12, 9999));
         GlobalGrossRequirement :=
