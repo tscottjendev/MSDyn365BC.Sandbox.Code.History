@@ -1409,22 +1409,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Costing Rollup Sev 2 - NamedType ItemFilterTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1407136536 - NamedType 2865911505" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1407136536 - NamedType 4214598878" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Some consumption is still missing.]]></Val>
+      <Val><![CDATA[\\  * Some output is still missing.\  * Some consumption is still missing.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Costing Rollup Sev 2 - NamedType MissingConsumptionQst)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1407136536 - NamedType 2340172895" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Some output is still missing.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Costing Rollup Sev 2 - NamedType MissingOutputQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Costing Rollup Sev 2 - NamedType MissingQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1407136536 - NamedType 3517419559" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7079,15 +7070,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning Order Tracking - NamedType UnexpectedErrorMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 611667175 - NamedType 1177221487" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Some consumption is still missing. Do you still want to finish the order?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning Reports - NamedType ConsumptionMissingConfirmQst)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 611667175 - NamedType 278287245" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Document must not exist.]]></Val>
@@ -7106,13 +7088,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning Reports - NamedType ErrMsgRequisition)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 611667175 - NamedType 4051616774" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 611667175 - NamedType 1620208626" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Some output is still missing. Do you still want to finish the order?]]></Val>
+      <Val><![CDATA[\\  * Some output is still missing.\  * Some consumption is still missing.\\ Do you still want to finish the order?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning Reports - NamedType OutputMissingConfirmMessage)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning Reports - NamedType OutputConfirmMessage)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 611667175 - NamedType 1265304930" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7315,7 +7297,7 @@
   </Item>
   <Item ItemId=";Codeunit 3862164203 - NamedType 2876186215" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Some consumption is still missing. Do you still want to finish the order?]]></Val>
+      <Val><![CDATA[\\  * Some consumption is still missing.\\ Do you still want to finish the order?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -7376,6 +7358,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM PS Bugs-I - NamedType ExpectedOutputMissing)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3862164203 - NamedType 4214598878" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[\\  * Some output is still missing.\  * Some consumption is still missing.\\ Do you still want to finish the order?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM PS Bugs-I - NamedType MissingQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3862164203 - NamedType 1658995239" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Production Order]]></Val>
@@ -7405,7 +7396,7 @@
   </Item>
   <Item ItemId=";Codeunit 3862164203 - NamedType 4290295257" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Some output is still missing. Do you still want to finish the order?]]></Val>
+      <Val><![CDATA[\\  * Some output is still missing.\\ Do you still want to finish the order?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -7646,13 +7637,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation - NamedType CancelReservationTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 270750239 - NamedType 2876186215" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 270750239 - NamedType 1164066600" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Some consumption is still missing. Do you still want to finish the order?]]></Val>
+      <Val><![CDATA[\\  * Some output is still missing.\  * Some consumption is still missing.\\ Do you still want to finish the order?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation - NamedType ConsumptionIsMissingQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation - NamedType MissingTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 270750239 - NamedType 3368509283" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7662,15 +7653,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation - NamedType NotTrueDemandErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 270750239 - NamedType 3003456923" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Some output is still missing. Do you still want to finish the order?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation - NamedType OutputIsMissingTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 270750239 - NamedType 3059432978" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -8377,7 +8359,7 @@
   </Item>
   <Item ItemId=";Codeunit 1091499119 - NamedType 934564281" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Some consumption is still missing. Do you still want to finish the order?]]></Val>
+      <Val><![CDATA[\\  * Some consumption is still missing.\\ Do you still want to finish the order?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
