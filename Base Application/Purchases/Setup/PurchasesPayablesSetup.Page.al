@@ -155,7 +155,6 @@ page 460 "Purchases & Payables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the default value for the Qty. to Receive field on purchase order lines and the Return Qty. to Ship field on purchase return order lines. If you choose Blank, the quantity to invoice is not automatically calculated.';
                 }
                 field("Posting Date Check on Posting"; Rec."Posting Date Check on Posting")
                 {

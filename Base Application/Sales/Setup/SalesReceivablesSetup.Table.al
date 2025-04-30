@@ -263,7 +263,7 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Default Quantity to Ship';
             OptionCaption = 'Remainder,Blank';
             OptionMembers = Remainder,Blank;
-            ToolTip = 'Specifies the default value for the Qty. to Ship field on sales order lines and the Return Qty. to Receive field on sales return order lines. If you choose Blank, the quantity to invoice is not automatically calculated.';
+            ToolTip = 'Specifies the default value for the Qty. to Ship field on sales order lines and the Return Qty. to Receive field on sales return order lines. If you choose Blank, the quantity to ship is not automatically calculated.';
         }
         field(38; "Post with Job Queue"; Boolean)
         {
