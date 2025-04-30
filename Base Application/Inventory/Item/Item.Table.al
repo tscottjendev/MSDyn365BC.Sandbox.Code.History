@@ -3615,6 +3615,31 @@ table 27 Item
             UnitGroup.Delete();
     end;
 
+    procedure CalcScheduledReceiptQty() Result: Decimal
+    begin
+        OnCalcScheduledReceiptQty(Rec, Result);
+    end;
+
+    procedure CalcQtyOnComponentLines() Result: Decimal
+    begin
+        OnCalcQtyOnComponentLines(Rec, Result);
+    end;
+
+    procedure CalcQtyOnProdOrder() Result: Decimal
+    begin
+        OnCalcQtyOnProdOrder(Rec, Result);
+    end;
+
+    procedure CalcResQtyonProdOrderComp() Result: Decimal
+    begin
+        OnCalcResQtyonProdOrderComp(Rec, Result);
+    end;
+
+    procedure CalcReservedQtyOnProdOrder() Result: Decimal
+    begin
+        OnCalcReservedQtyOnProdOrder(Rec, Result);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckDocuments(var Item: Record Item; var xItem: Record Item; var CurrentFieldNo: Integer)
     begin
@@ -4107,6 +4132,31 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnAssistEditOnAfterAssignNo(var Item: Record Item; xItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcScheduledReceiptQty(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyOnComponentLines(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyOnProdOrder(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcResQtyonProdOrderComp(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcReservedQtyOnProdOrder(var Item: Record Item; var Result: Decimal)
     begin
     end;
 }
