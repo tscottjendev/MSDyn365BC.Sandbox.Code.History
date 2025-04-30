@@ -709,7 +709,7 @@
   </Item>
   <Item ItemId=";Codeunit 1545399848 - NamedType 3378606092" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Some consumption is still missing. Do you still want to finish the order?]]></Val>
+      <Val><![CDATA[\\  * Some consumption is still missing.\\ Do you still want to finish the order?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -914,22 +914,13 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Manufacturing Reports - NamedType ElementNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1392527148 - NamedType 2865911505" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1392527148 - NamedType 4214598878" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Some consumption is still missing. Do you still want to finish the order?]]></Val>
+      <Val><![CDATA[\\  * Some output is still missing.\  * Some consumption is still missing.\\ Do you still want to finish the order?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Manufacturing Reports - NamedType MissingConsumptionQst)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1392527148 - NamedType 2340172895" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Some output is still missing. Do you still want to finish the order?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Manufacturing Reports - NamedType MissingOutputQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Manufacturing Reports - NamedType MissingQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1392527148 - NamedType 1783885276" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1960,7 +1951,7 @@
   </Item>
   <Item ItemId=";Codeunit 1635960933 - NamedType 2033710518" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Some consumption is still missing. Do you still want to finish the order?]]></Val>
+      <Val><![CDATA[\\  * Some consumption is still missing.\\ Do you still want to finish the order?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2122,7 +2113,7 @@
   </Item>
   <Item ItemId=";Codeunit 3590079757 - NamedType 1626914351" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[has not been finished. Some output is still missing. Do you still want to finish the order?]]></Val>
+      <Val><![CDATA[has not been finished:\\  * Some output is still missing.\\ Do you still want to finish the order?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
