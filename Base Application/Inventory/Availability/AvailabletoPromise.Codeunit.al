@@ -98,14 +98,16 @@ codeunit 5790 "Available to Promise"
 
     procedure CalcGrossRequirement(var Item: Record Item) GrossRequirement: Decimal
     var
+        QtyOnComponentLines: Decimal;
         IsHandled: Boolean;
     begin
         CalcAllItemFields(Item);
         IsHandled := false;
         OnBeforeCalcGrossRequirement(Item, GrossRequirement, IsHandled);
-        if not IsHandled then
+        if not IsHandled then begin
+            QtyOnComponentLines := Item.CalcQtyOnComponentLines();
             GrossRequirement :=
-                Item."Qty. on Component Lines" +
+                QtyOnComponentLines +
                 Item."Planning Issues (Qty.)" +
                 Item."Planning Transfer Ship. (Qty)." +
                 Item."Qty. on Sales Order" +
@@ -113,6 +115,7 @@ codeunit 5790 "Available to Promise"
                 Item."Trans. Ord. Shipment (Qty.)" +
                 Item."Qty. on Asm. Component" +
                 Item."Qty. on Purch. Return";
+        end;
 
         OnAfterCalcGrossRequirement(Item, GrossRequirement);
         exit(GrossRequirement);
@@ -127,7 +130,7 @@ codeunit 5790 "Available to Promise"
         OnBeforeCalcReservedRequirement(Item, ReservedRequirement, IsHandled);
         if not IsHandled then
             ReservedRequirement :=
-                Item."Res. Qty. on Prod. Order Comp." +
+                Item.CalcResQtyonProdOrderComp() +
                 Item."Reserved Qty. on Sales Orders" +
                 Item."Res. Qty. on Job Order" +
                 Item."Res. Qty. on Outbound Transfer" +
@@ -147,7 +150,7 @@ codeunit 5790 "Available to Promise"
         OnBeforeCalcScheduledReceipt(Item, ScheduledReceipt, IsHandled);
         if not IsHandled then
             ScheduledReceipt :=
-                Item."Scheduled Receipt (Qty.)" +
+                Item.CalcScheduledReceiptQty() +
                 Item."Planned Order Receipt (Qty.)" +
                 Item."Qty. on Purch. Order" +
                 Item."Trans. Ord. Receipt (Qty.)" +
@@ -168,7 +171,7 @@ codeunit 5790 "Available to Promise"
         OnBeforeCalcReservedReceipt(Item, ReservedReceipt, IsHandled);
         if not IsHandled then
             ReservedReceipt :=
-                Item."Reserved Qty. on Prod. Order" +
+                Item.CalcReservedQtyOnProdOrder() +
                 Item."Reserved Qty. on Purch. Orders" +
                 Item."Res. Qty. on Inbound Transfer" +
                 Item."Res. Qty. on Assembly Order" +
@@ -500,7 +503,6 @@ codeunit 5790 "Available to Promise"
         OnCalcAllItemFieldsOnBeforeItemCalcFields(Item);
         Item.CalcFields(
           Inventory, "Reserved Qty. on Inventory",
-          "Qty. on Component Lines",
           "Planning Issues (Qty.)",
           "Planning Transfer Ship. (Qty).",
           "Qty. on Sales Order",
@@ -508,7 +510,6 @@ codeunit 5790 "Available to Promise"
           "Trans. Ord. Shipment (Qty.)",
           "Qty. on Asm. Component",
           "Qty. on Purch. Return",
-          "Res. Qty. on Prod. Order Comp.",
           "Reserved Qty. on Sales Orders",
           "Res. Qty. on Job Order",
           "Res. Qty. on Outbound Transfer",
@@ -517,7 +518,6 @@ codeunit 5790 "Available to Promise"
 
         // Max function parameters is 20, hence split in 2
         Item.CalcFields(
-          "Scheduled Receipt (Qty.)",
           "Planned Order Receipt (Qty.)",
           "Qty. on Purch. Order",
           "Trans. Ord. Receipt (Qty.)",
@@ -527,8 +527,7 @@ codeunit 5790 "Available to Promise"
           "Reserved Qty. on Purch. Orders",
           "Res. Qty. on Inbound Transfer",
           "Res. Qty. on Assembly Order",
-          "Res. Qty. on Sales Returns",
-          "Reserved Qty. on Prod. Order");
+          "Res. Qty. on Sales Returns");
 
         OnCalcAllItemFieldsOnAfterItemCalcFields(Item);
 
