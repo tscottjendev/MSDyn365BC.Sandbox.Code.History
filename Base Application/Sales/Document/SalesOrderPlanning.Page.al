@@ -402,6 +402,8 @@ page 99000883 "Sales Order Planning"
     local procedure CalculateDisposalPlan(VariantCode: Code[20]; LocationCode: Code[10])
     var
         Item: Record Item;
+        QtyOnComponentLines: Decimal;
+        ScheduledReceiptQty: Decimal;
     begin
         if not Rec."Needs Replanning" then
             exit;
@@ -413,17 +415,17 @@ page 99000883 "Sales Order Planning"
           Inventory,
           "Qty. on Purch. Order",
           "Qty. on Sales Order",
-          "Scheduled Receipt (Qty.)",
-          "Planned Order Receipt (Qty.)",
-          "Qty. on Component Lines");
+          "Planned Order Receipt (Qty.)");
+        QtyOnComponentLines := Item.CalcQtyOnComponentLines();
+        ScheduledReceiptQty := Item.CalcScheduledReceiptQty();
 
         if Item.Type = Item.Type::Inventory then
             Rec.Available :=
               Item.Inventory -
               Item."Qty. on Sales Order" +
               Item."Qty. on Purch. Order" -
-              Item."Qty. on Component Lines" +
-              Item."Scheduled Receipt (Qty.)" +
+              QtyOnComponentLines +
+              ScheduledReceiptQty +
               Item."Planned Order Receipt (Qty.)"
         else
             Rec.Available := 0;

@@ -86,7 +86,6 @@ using Microsoft.Inventory.Reconciliation;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Resources.Journal;
 #if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
@@ -626,7 +625,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Whse. Pick Request" = D,
                   tabledata "Whse. Put-away Request" = D,
                   tabledata "Whse. Worksheet Line" = D,
-                  tabledata "Work Center" = D,
                   tabledata "Work Type" = D,
                   tabledata "Workflow - Table Relation" = RIMD,
                   tabledata Workflow = RIMD,
