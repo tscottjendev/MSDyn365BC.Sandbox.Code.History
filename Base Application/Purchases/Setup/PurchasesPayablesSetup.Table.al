@@ -193,6 +193,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Default Qty. to Receive';
             OptionCaption = 'Remainder,Blank';
             OptionMembers = Remainder,Blank;
+            ToolTip = 'Specifies the default value for the Qty. to Receive field on purchase order lines and the Return Qty. to Ship field on purchase return order lines. If you choose Blank, the quantity to receive is not automatically calculated.';
         }
         field(38; "Post with Job Queue"; Boolean)
         {
