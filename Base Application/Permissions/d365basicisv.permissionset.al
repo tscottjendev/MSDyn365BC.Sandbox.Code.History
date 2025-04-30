@@ -4,12 +4,10 @@ using Microsoft.AccountantPortal;
 using Microsoft.Booking;
 using Microsoft.Sales.Archive;
 using Microsoft.CRM.Team;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Inventory.Location;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.CostAccounting.Setup;
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Bank.Payment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.EServices.EDocument;
@@ -125,8 +123,6 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Resources.Analysis;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Ledger;
@@ -375,7 +371,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Copy Item Parameters" = RIMD,
                   tabledata "Cost Accounting Setup" = Ri,
                   tabledata "Cost Element Buffer" = RIMD,
-                  tabledata "Cost Share Buffer" = RIMD,
                   tabledata "Country/Region" = RIMD,
                   tabledata "Country/Region Translation" = RIMD,
                   tabledata "Coupling Record Buffer" = RIMD,
@@ -705,7 +700,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "License Agreement" = RIMD,
                   tabledata "Line Fee Note on Report Hist." = Rimd,
                   tabledata "Line Number Buffer" = RIMD,
-                  tabledata "Load Buffer" = RIMD,
                   tabledata Location = RIMD,
                   tabledata "Mailing Group" = RIMD,
                   tabledata "Main Asset Component" = RIMD,
@@ -715,7 +709,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Man. Integration Table Mapping" = RIMD,
                   tabledata "Man. Int. Field Mapping" = RIMD,
                   tabledata Manufacturer = RIMD,
-                  tabledata "Manufacturing Setup" = Ri,
                   tabledata "Marketing Setup" = RIMD,
                   tabledata "Media Repository" = RIMD,
                   tabledata "Memoized Result" = RIMD,
@@ -1083,7 +1076,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Warehouse Setup" = Ri,
                   tabledata "Web Source" = RIMD,
                   tabledata "WF Event/Response Combination" = RIMD,
-                  tabledata "Work Center" = RIMD,
                   tabledata "Work Type" = RIMD,
                   tabledata "Workflow - Record Change" = Rimd,
                   tabledata "Workflow - Table Relation" = RIMD,
