@@ -32,9 +32,8 @@ codeunit 137308 "SCM Planning Reports"
         ScheduledReceiptsErr: Label 'Wrong scheduled receipts qty.';
         ErrMsgRequisition: Label 'Requisition Line must not exist.';
         ErrMsgDocument: Label 'Document must not exist.';
-        OutputMissingConfirmMessage: Label 'Some output is still missing. Do you still want to finish the order?';
+        OutputConfirmMessage: Label '\\  * Some output is still missing.\  * Some consumption is still missing.\\ Do you still want to finish the order?';
         RecordShould: Option Exist,"Not Exist";
-        ConsumptionMissingConfirmQst: Label 'Some consumption is still missing. Do you still want to finish the order?';
         RecordExistenceErr: Label '%1 record should %2.';
 
     [Test]
@@ -1224,8 +1223,7 @@ codeunit 137308 "SCM Planning Reports"
             NewReleasedProdOrderNo :=
               LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No.")
         else begin
-            LibraryVariableStorage.Enqueue(OutputMissingConfirmMessage);
-            LibraryVariableStorage.Enqueue(ConsumptionMissingConfirmQst);
+            LibraryVariableStorage.Enqueue(OutputConfirmMessage);
             LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
         end;
 

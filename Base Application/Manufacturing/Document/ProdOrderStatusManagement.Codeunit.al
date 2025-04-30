@@ -65,13 +65,9 @@ codeunit 5407 "Prod. Order Status Management"
         Text002: Label 'Posting Automatic consumption...\\';
 #pragma warning disable AA0470
         Text003: Label 'Posting lines         #1###### @2@@@@@@@@@@@@@';
-        Text004: Label '%1 %2 has not been finished. Some output is still missing. Do you still want to finish the order?';
 #pragma warning restore AA0470
         Text005: Label 'The update has been interrupted to respect the warning.';
 #pragma warning disable AA0470
-        Text006: Label '%1 %2 has not been finished. Some consumption is still missing. Do you still want to finish the order?';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
         ToProdOrder: Record "Production Order";
         SourceCodeSetup: Record "Source Code Setup";
         Item: Record Item;
@@ -111,6 +107,9 @@ codeunit 5407 "Prod. Order Status Management"
         ReopenedProductionOrderLbl: Label 'The production order is reopened and moved to the %1 Production Order with status Released.', Comment = '%1 = Production Order No.';
         ProductionOrderHasAlreadyBeenReopenedErr: Label 'This production order has already been reopened before. This can only be done once.';
         ProductionOrderCannotBeReopenedErr: Label 'This production order does not have any output. It cannot be Reopened.';
+        FinishOrderWithOutputWarningQst: Label '%1 %2 has not been finished:\\  * Some output is still missing.\\ Do you still want to finish the order?', Comment = '%1 - Production Order Table Name ; %2 - Production Order No.';
+        FinishOrderWithConsumptionWarningQst: Label '%1 %2 has not been finished:\\  * Some consumption is still missing.\\ Do you still want to finish the order?', Comment = '%1 - Production Order Table Name ; %2 - Production Order No.';
+        FinishOrderWithOutputAndConsumptionWarningQst: Label '%1 %2 has not been finished:\\  * Some output is still missing.\  * Some consumption is still missing.\\ Do you still want to finish the order?', Comment = '%1 - Production Order Table Name ; %2 - Production Order No.';
 
     procedure ChangeProdOrderStatus(ProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
     var
@@ -1214,8 +1213,6 @@ codeunit 5407 "Prod. Order Status Management"
         ProdOrderComp: Record "Prod. Order Component";
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         PurchLine: Record "Purchase Line";
-        ConfirmManagement: Codeunit "Confirm Management";
-        ShowWarning: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1235,56 +1232,74 @@ codeunit 5407 "Prod. Order Status Management"
 
         OnCheckBeforeFinishProdOrderOnAfterCheckProdOrder(ProdOrder);
 
-        ShowWarning := false;
+        CheckBeforeSetStatusToFinishProdOrder(ProdOrder, ProdOrderLine, ProdOrderRtngLine, ProdOrderComp);
+    end;
+
+    local procedure CheckBeforeSetStatusToFinishProdOrder(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderComponent: Record "Prod. Order Component")
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        ShowOutputWarning: Boolean;
+        ShowConsumptionWarning: Boolean;
+        IsHandled: Boolean;
+    begin
+        ShowOutputWarning := false;
         ProdOrderLine.SetLoadFields("Routing No.", "Routing Reference No.");
-        ProdOrderRtngLine.SetLoadFields("Prod. Order No.");
+        ProdOrderRoutingLine.SetLoadFields("Prod. Order No.");
         ProdOrderLine.SetRange(Status, ProdOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
         ProdOrderLine.SetFilter("Remaining Quantity", '<>0');
         IsHandled := false;
-        OnCheckBeforeFinishProdOrderOnBeforeFindSet(ProdOrderLine, ProdOrderRtngLine, ShowWarning, IsHandled);
+        OnCheckBeforeFinishProdOrderOnBeforeFindSet(ProdOrderLine, ProdOrderRoutingLine, ShowOutputWarning, IsHandled);
         if not IsHandled then
-            if ProdOrderLine.FindSet() then
+            if ProdOrderLine.Find('-') then
                 repeat
-                    ProdOrderRtngLine.SetRange(Status, ProdOrderLine.Status);
-                    ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+                    ProdOrderRoutingLine.SetRange(Status, ProdOrderLine.Status);
+                    ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
                     if ProdOrderLine."Routing Reference No." <> 0 then
-                        ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.")
+                        ProdOrderRoutingLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.")
                     else
-                        ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
-                    ProdOrderRtngLine.SetRange("Next Operation No.", '');
-                    ProdOrderRtngLine.SetRange("Flushing Method");
-                    if not ProdOrderRtngLine.IsEmpty() then begin
-                        ProdOrderRtngLine.SetFilter("Flushing Method", '<>%1', ProdOrderRtngLine."Flushing Method"::Backward);
-                        ShowWarning := not ProdOrderRtngLine.IsEmpty();
+                        ProdOrderRoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+                    ProdOrderRoutingLine.SetRange("Next Operation No.", '');
+                    ProdOrderRoutingLine.SetRange("Flushing Method");
+                    if not ProdOrderRoutingLine.IsEmpty() then begin
+                        ProdOrderRoutingLine.SetFilter("Flushing Method", '<>%1', ProdOrderRoutingLine."Flushing Method"::Backward);
+                        ShowOutputWarning := not ProdOrderRoutingLine.IsEmpty();
                     end else
-                        ShowWarning := true;
-                until (ProdOrderLine.Next() = 0) or ShowWarning;
+                        ShowOutputWarning := true;
+                until (ProdOrderLine.Next() = 0) or ShowOutputWarning;
 
-        OnCheckMissingOutput(ProdOrder, ProdOrderLine, ProdOrderRtngLine, ShowWarning);
-        if ShowWarning then
-            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text004, ProdOrder.TableCaption(), ProdOrder."No."), true) then
-                Error(Text005);
+        OnCheckMissingOutput(ProdOrder, ProdOrderLine, ProdOrderRoutingLine, ShowOutputWarning);
 
-        ShowWarning := false;
-        SetProdOrderCompFilters(ProdOrderComp, ProdOrder);
-        if ProdOrderComp.FindSet() then
+        ShowConsumptionWarning := false;
+        SetProdOrderCompFilters(ProdOrderComponent, ProdOrder);
+        if ProdOrderComponent.FindSet() then
             repeat
-                CheckNothingRemainingToPickForProdOrderComp(ProdOrderComp);
-                if ((ProdOrderComp."Flushing Method" <> ProdOrderComp."Flushing Method"::Backward) and
-                    (ProdOrderComp."Flushing Method" <> ProdOrderComp."Flushing Method"::"Pick + Backward") and
-                    (ProdOrderComp."Routing Link Code" = '')) or
-                   ((ProdOrderComp."Routing Link Code" <> '') and not RtngWillFlushComp(ProdOrderComp)) or
-                   ((ProdOrderComp."Flushing Method" in [ProdOrderComp."Flushing Method"::Manual, ProdOrderComp."Flushing Method"::"Pick + Manual"]) and
-                   (ProdOrderComp."Routing Link Code" <> ''))
+                CheckNothingRemainingToPickForProdOrderComp(ProdOrderComponent);
+                if ((ProdOrderComponent."Flushing Method" <> ProdOrderComponent."Flushing Method"::Backward) and
+                    (ProdOrderComponent."Flushing Method" <> ProdOrderComponent."Flushing Method"::"Pick + Backward") and
+                    (ProdOrderComponent."Routing Link Code" = '')) or
+                   ((ProdOrderComponent."Routing Link Code" <> '') and not RtngWillFlushComp(ProdOrderComponent)) or
+                   ((ProdOrderComponent."Flushing Method" in [ProdOrderComponent."Flushing Method"::Manual, ProdOrderComponent."Flushing Method"::"Pick + Manual"]) and
+                   (ProdOrderComponent."Routing Link Code" <> ''))
                 then
-                    ShowWarning := true;
-            until ProdOrderComp.Next() = 0;
+                    ShowConsumptionWarning := true;
+            until ProdOrderComponent.Next() = 0;
 
-        OnCheckMissingConsumption(ProdOrder, ProdOrderLine, ProdOrderRtngLine, ShowWarning);
-        if ShowWarning then
-            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text006, ProdOrder.TableCaption(), ProdOrder."No."), true) then
-                Error(Text005);
+        OnCheckMissingConsumption(ProdOrder, ProdOrderLine, ProdOrderRoutingLine, ShowConsumptionWarning);
+
+        case true of
+            ShowOutputWarning and not ShowConsumptionWarning:
+                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(FinishOrderWithOutputWarningQst, ProdOrder.TableCaption(), ProdOrder."No."), true) then
+                    Error(Text005);
+
+            ShowConsumptionWarning and not ShowOutputWarning:
+                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(FinishOrderWithConsumptionWarningQst, ProdOrder.TableCaption(), ProdOrder."No."), true) then
+                    Error(Text005);
+
+            ShowOutputWarning and ShowConsumptionWarning:
+                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(FinishOrderWithOutputAndConsumptionWarningQst, ProdOrder.TableCaption(), ProdOrder."No."), true) then
+                    Error(Text005);
+        end;
     end;
 
     local procedure RtngWillFlushComp(ProdOrderComp: Record "Prod. Order Component"): Boolean
