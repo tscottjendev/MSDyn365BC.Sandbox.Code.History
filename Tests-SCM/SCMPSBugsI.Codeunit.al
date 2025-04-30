@@ -37,8 +37,9 @@ codeunit 137035 "SCM PS Bugs-I"
         MSG_Change_Status_Q: Label 'Production Order';
         WrongDescriptionInOrderErr: Label 'Wrong description in %1.';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
-        OutputIsMissingQst: Label 'Some output is still missing. Do you still want to finish the order?';
-        ConsumptionIsMissingQst: Label 'Some consumption is still missing. Do you still want to finish the order?';
+        MissingQst: Label '\\  * Some output is still missing.\  * Some consumption is still missing.\\ Do you still want to finish the order?';
+        OutputIsMissingQst: Label '\\  * Some output is still missing.\\ Do you still want to finish the order?';
+        ConsumptionIsMissingQst: Label '\\  * Some consumption is still missing.\\ Do you still want to finish the order?';
         UpdateInterruptedErr: Label 'The update has been interrupted to respect the warning.';
         OustandingPickLineExistsErr: Label 'You cannot finish production order no. %1 because there is an outstanding pick for one or more components.';
 
@@ -1109,10 +1110,8 @@ codeunit 137035 "SCM PS Bugs-I"
 
         CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine);
 
-        // [WHEN] Change status of the production order to "Finished" and reply "Yes" to missing output warning, but "No" to missed consumption warning.
-        LibraryVariableStorage.Enqueue(OutputIsMissingQst);
-        LibraryVariableStorage.Enqueue(true);
-        LibraryVariableStorage.Enqueue(ConsumptionIsMissingQst);
+        // [WHEN] Change status of the production order to "Finished" and reply "No" to missing output and consumption warning
+        LibraryVariableStorage.Enqueue(MissingQst);
         LibraryVariableStorage.Enqueue(false);
         asserterror LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
