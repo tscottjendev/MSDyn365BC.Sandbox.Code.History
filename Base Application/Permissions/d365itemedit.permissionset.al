@@ -17,7 +17,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -80,7 +79,6 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
                   tabledata "Price Worksheet Line" = RIMD,
-                  tabledata "Production BOM Line" = R,
                   tabledata "Purch. Cr. Memo Line" = r,
                   tabledata "Purch. Inv. Line" = r,
                   tabledata "Purch. Rcpt. Line" = r,
