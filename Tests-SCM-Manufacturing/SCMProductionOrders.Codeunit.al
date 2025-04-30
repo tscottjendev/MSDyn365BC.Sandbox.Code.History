@@ -87,7 +87,7 @@ codeunit 137069 "SCM Production Orders"
         NumberOfLineEqualErr: Label 'Number of Lines must be same.';
         QtyToHandleErr: Label 'Qty. to Handle (Base) in the item tracking assigned to the document line for item';
         LotNoErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
-        ProductionOrderFinishedStatusMsg: Label 'Some consumption is still missing. Do you still want to finish the order?';
+        ProductionOrderFinishedStatusMsg: Label '\\  * Some consumption is still missing.\\ Do you still want to finish the order?';
         ProductionOrderNotExistErr: Label 'There is no Production Order within the filter';
         NothingToPlanMsg: Label 'There is nothing to plan';
         JournalLinePostedMsg: Label 'The journal lines were successfully posted.';

@@ -99,7 +99,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         TrackingOption: Option AssignLotNo,SelectEntries;
         TrackingQuantity: Decimal;
         StartingDateTimeErr: Label 'Starting Date Time must be greater or equal';
-        FinishedStatusQst: Label 'Some consumption is still missing. Do you still want to finish the order?';
+        FinishedStatusQst: Label '\\  * Some consumption is still missing.\\ Do you still want to finish the order?';
         ModifyRtngErr: Label 'You cannot modify Routing No. %1 because there is at least one %2 associated with it.', Locked = true;
         DeleteRtngErr: Label 'You cannot delete Prod. Order Line %1 because there is at least one %2 associated with it.', Locked = true;
         ExpectedReceiptDateErr: Label 'The change leads to a date conflict with existing reservations.';
