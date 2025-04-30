@@ -88,8 +88,6 @@ page 99000902 "Item Availability Line List"
               "Qty. on Sales Order",
               "Qty. on Job Order",
               "Net Change",
-              "Scheduled Receipt (Qty.)",
-              "Qty. on Component Lines",
               "Planned Order Receipt (Qty.)",
               "FP Order Receipt (Qty.)",
               "Rel. Order Receipt (Qty.)",

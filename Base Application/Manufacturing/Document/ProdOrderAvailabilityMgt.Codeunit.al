@@ -948,9 +948,9 @@ codeunit 99000875 "Prod. Order Availability Mgt."
             RequisitionLine.SetRange("Ref. Order No.", RequisitionLine."Ref. Order No.");
             RequisitionLine.FindLast();
             NewRefOrderNo := '';
-                if not NoSeries.AreRelated(MfgSetup."Planned Order Nos.", RequisitionLine."No. Series") then
-                    RequisitionLine."No. Series" := MfgSetup."Planned Order Nos.";
-                NewRefOrderNo := NoSeries.GetNextNo(RequisitionLine."No. Series", RequisitionLine."Due Date");
+            if not NoSeries.AreRelated(MfgSetup."Planned Order Nos.", RequisitionLine."No. Series") then
+                RequisitionLine."No. Series" := MfgSetup."Planned Order Nos.";
+            NewRefOrderNo := NoSeries.GetNextNo(RequisitionLine."No. Series", RequisitionLine."Due Date");
             RequisitionLine.ModifyAll("Ref. Order No.", NewRefOrderNo);
             OnReassignRefOrderNosOnAfterRequisitionLineModifyAll(RequisitionLine);
 #if not CLEAN27
@@ -968,5 +968,36 @@ codeunit 99000875 "Prod. Order Availability Mgt."
     [IntegrationEvent(false, false)]
     local procedure OnReassignRefOrderNosOnAfterRequisitionLineModifyAll(var RequisitionLine: Record "Requisition Line");
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnCalcScheduledReceiptQty', '', false, false)]
+    local procedure OnCalcScheduledReceiptQty(var Item: Record Item; var Result: Decimal)
+    begin
+        Item.CalcFields("Scheduled Receipt (Qty.)");
+        Result := Item."Scheduled Receipt (Qty.)";
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnCalcQtyOnComponentLines', '', false, false)]
+    local procedure OnCalcQtyOnComponentLines(var Item: Record Item; var Result: Decimal)
+    begin
+        Item.CalcFields("Qty. on Component Lines");
+        Result := Item."Qty. on Component Lines";
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnCalcQtyOnProdOrder', '', false, false)]
+    local procedure OnCalcQtyOnProdOrder(var Item: Record Item; var Result: Decimal)
+    begin
+        Item.CalcFields("Qty. on Prod. Order");
+        Result := Item."Qty. on Prod. Order";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Available to Promise", 'OnCalcAllItemFieldsOnAfterItemCalcFields', '', false, false)]
+    local procedure OnCalcAllItemFieldsOnAfterItemCalcFields(var Item: Record Item)
+    begin
+        Item.CalcFields(
+          "Qty. on Component Lines",
+          "Res. Qty. on Prod. Order Comp.",
+          "Scheduled Receipt (Qty.)",
+          "Reserved Qty. on Prod. Order");
     end;
 }
