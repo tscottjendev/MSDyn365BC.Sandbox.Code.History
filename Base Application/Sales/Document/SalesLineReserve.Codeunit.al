@@ -53,6 +53,7 @@ codeunit 99000832 "Sales Line-Reserve"
         ShipmentDate: Date;
         SignFactor: Integer;
         IsHandled: Boolean;
+        DoCreateReservationEntry: Boolean;
     begin
         IsHandled := false;
         OnBeforeCreateReservation(SalesLine, IsHandled);
@@ -99,7 +100,8 @@ codeunit 99000832 "Sales Line-Reserve"
         end;
 
         IsHandled := false;
-        OnCreateReservationOnBeforeCreateReservEntry(SalesLine, Quantity, QuantityBase, ForReservationEntry, IsHandled, FromTrackingSpecification, ExpectedReceiptDate, Description, ShipmentDate);
+        DoCreateReservationEntry := true;
+        OnCreateReservationOnBeforeCreateReservEntry(SalesLine, Quantity, QuantityBase, ForReservationEntry, IsHandled, FromTrackingSpecification, ExpectedReceiptDate, Description, ShipmentDate, DoCreateReservationEntry);
         if not IsHandled then begin
             CreateReservEntry.CreateReservEntryFor(
                 Database::"Sales Line", SalesLine."Document Type".AsInteger(),
@@ -107,9 +109,10 @@ codeunit 99000832 "Sales Line-Reserve"
                 Quantity, QuantityBase, ForReservationEntry);
             CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
         end;
-        CreateReservEntry.CreateReservEntry(
-            SalesLine."No.", SalesLine."Variant Code", SalesLine."Location Code",
-            Description, ExpectedReceiptDate, ShipmentDate, 0);
+        if DoCreateReservationEntry then
+            CreateReservEntry.CreateReservEntry(
+                SalesLine."No.", SalesLine."Variant Code", SalesLine."Location Code",
+                Description, ExpectedReceiptDate, ShipmentDate, 0);
 
         FromTrackingSpecification."Source Type" := 0;
 
@@ -1471,7 +1474,7 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateReservationOnBeforeCreateReservEntry(var SalesLine: Record "Sales Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean; var FromTrackingSpecification: Record "Tracking Specification"; ExpectedReceiptDate: Date; Description: Text[100]; ShipmentDate: Date)
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var SalesLine: Record "Sales Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean; var FromTrackingSpecification: Record "Tracking Specification"; ExpectedReceiptDate: Date; Description: Text[100]; ShipmentDate: Date; var DoCreateReservationEntry: Boolean)
     begin
     end;
 
