@@ -98,16 +98,6 @@ using Microsoft.Inventory.Reconciliation;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Reports;
-using Microsoft.Manufacturing.RoleCenters;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.StandardCost;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -313,7 +303,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata Campaign = RIM,
                   tabledata "Campaign Entry" = IM,
                   tabledata "Campaign Status" = RIM,
-                  tabledata "Capacity Ledger Entry" = Rim,
+                  tabledata Microsoft.Manufacturing.Capacity."Capacity Ledger Entry" = Rim,
                   tabledata "Cash Flow Availability Buffer" = RIMD,
                   tabledata "Cash Flow Azure AI Buffer" = Rimd,
                   tabledata "Cause of Inactivity" = RIMD,
@@ -348,7 +338,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Cost Adjustment Log" = RIMD,
                   tabledata "Cost Adjustment Trace Log" = RIMD,
                   tabledata "Cost Element Buffer" = RIMD,
-                  tabledata "Cost Share Buffer" = RIMD,
                   tabledata "Country/Region" = RIMD,
                   tabledata "Country/Region Translation" = RIMD,
                   tabledata "CRM Post Configuration" = RIMD,
@@ -563,12 +552,9 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Last Used Chart" = RIMD,
                   tabledata "Ledger Entry Matching Buffer" = RIMD,
                   tabledata "Line Number Buffer" = RIMD,
-                  tabledata "Load Buffer" = RIMD,
                   tabledata "Logged Segment" = RIM,
                   tabledata "Lot Bin Buffer" = RIMD,
                   tabledata Maintenance = IMD,
-                  tabledata "Manufacturing Cue" = RIMD,
-                  tabledata "Manufacturing Setup" = RIMD,
                   tabledata "Manufacturing User Template" = RIMD,
                   tabledata "Media Repository" = RIMD,
                   tabledata "Memoized Result" = RIM,
@@ -667,18 +653,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Price Source" = RIMD,
                   tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Printer Selection" = RIMD,
-                  tabledata "Prod. Order Capacity Need" = rm,
-                  tabledata "Prod. Order Component" = rm,
-                  tabledata "Prod. Order Line" = rm,
-                  tabledata "Prod. Order Routing Line" = rm,
-                  tabledata "Prod. Order Routing Personnel" = rm,
-                  tabledata "Prod. Order Routing Tool" = rm,
-                  tabledata "Prod. Order Rtng Qlty Meas." = rm,
-                  tabledata "Production BOM Header" = r,
-                  tabledata "Production BOM Line" = Rm,
-                  tabledata "Production Forecast Entry" = RIMD,
-                  tabledata "Production Forecast Name" = RIMD,
-                  tabledata "Production Order" = rm,
                   tabledata "Purch. Comment Line" = RIMD,
                   tabledata "Purch. Comment Line Archive" = RIMD,
                   tabledata "Purch. Cr. Memo Entity Buffer" = RIMD,
@@ -747,7 +721,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "RM Matrix Management" = d,
                   tabledata "Role Center Notifications" = RIMD,
                   tabledata "Rounding Residual Buffer" = Rimd,
-                  tabledata "Routing Header" = r,
                   tabledata "Sales by Cust. Grp.Chart Setup" = RIMD,
                   tabledata "Sales Comment Line" = RIMD,
                   tabledata "Sales Comment Line Archive" = RIMD,
@@ -772,8 +745,8 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Shipment Method Translation" = RIMD,
                   tabledata "Sorting Table" = RIMD,
                   tabledata "Standard Address" = Rimd,
-                  tabledata "Standard Cost Worksheet" = RIMD,
-                  tabledata "Standard Cost Worksheet Name" = RIMD,
+                  tabledata Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet" = RIMD,
+                  tabledata Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet Name" = RIMD,
                   tabledata "Standard General Journal" = RIMD,
                   tabledata "Standard Text" = RIMD,
                   tabledata "Support Contact Information" = R,
@@ -830,7 +803,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "WF Event/Response Combination" = RIMD,
                   tabledata "Where Used Base Calendar" = RIMD,
                   tabledata "Whse. Item Tracking Line" = RIMD,
-                  tabledata "Work Center" = RIM,
                   tabledata "Work Type" = IM,
                   tabledata "Workflow - Record Change" = Rimd,
                   tabledata "Workflow Buffer" = RIMD,

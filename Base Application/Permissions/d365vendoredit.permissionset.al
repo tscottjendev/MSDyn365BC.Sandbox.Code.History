@@ -38,7 +38,6 @@ using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Worksheet;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Finance.Analysis;
 
 permissionset 9921 "D365 VENDOR, EDIT"
@@ -123,6 +122,5 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Warehouse Reason Code" = r,
                   tabledata "Warehouse Request" = rm,
                   tabledata "Warehouse Shipment Line" = rm,
-                  tabledata "Whse. Worksheet Line" = r,
-                  tabledata "Work Center" = r;
+                  tabledata "Whse. Worksheet Line" = r;
 }

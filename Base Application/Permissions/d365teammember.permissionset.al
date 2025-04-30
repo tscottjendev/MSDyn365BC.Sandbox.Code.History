@@ -148,12 +148,6 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.Reports;
-using Microsoft.Manufacturing.RoleCenters;
-using Microsoft.Manufacturing.StandardCost;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -557,7 +551,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Cost Journal Template" = RM,
                   tabledata "Cost Object" = RM,
                   tabledata "Cost Register" = RM,
-                  tabledata "Cost Share Buffer" = RM,
                   tabledata "Cost Type" = RM,
                   tabledata "Country/Region" = RM,
                   tabledata "Country/Region Translation" = RM,
@@ -1036,7 +1029,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "License Agreement" = RM,
                   tabledata "Line Fee Note on Report Hist." = Rm,
                   tabledata "Line Number Buffer" = RM,
-                  tabledata "Load Buffer" = RIMD,
                   tabledata Location = RM,
                   tabledata "Logged Segment" = RM,
                   tabledata "Lot Bin Buffer" = RM,
@@ -1049,7 +1041,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Man. Integration Table Mapping" = RIMD,
                   tabledata "Man. Int. Field Mapping" = RIMD,
                   tabledata Manufacturer = RM,
-                  tabledata "Manufacturing Cue" = RM,
                   tabledata "Marketing Setup" = RM,
                   tabledata "Media Repository" = RM,
                   tabledata "Memoized Result" = RM,
@@ -1194,8 +1185,8 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Price Source" = RIMD,
                   tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Printer Selection" = RM,
-                  tabledata "Production Forecast Entry" = RM,
-                  tabledata "Production Forecast Name" = RM,
+                  tabledata Microsoft.Manufacturing.Forecast."Production Forecast Entry" = RM,
+                  tabledata Microsoft.Manufacturing.Forecast."Production Forecast Name" = RM,
                   tabledata "Profile Questionnaire Header" = RM,
                   tabledata "Profile Questionnaire Line" = RM,
                   tabledata "Pstd.Exp.Invt.Order.Tracking" = RM,
@@ -1393,8 +1384,8 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Source Code Setup" = RM,
                   tabledata "Special Equipment" = RM,
                   tabledata "Standard Address" = Rm,
-                  tabledata "Standard Cost Worksheet" = RM,
-                  tabledata "Standard Cost Worksheet Name" = RM,
+                  tabledata Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet" = RM,
+                  tabledata Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet Name" = RM,
                   tabledata "Standard Customer Sales Code" = RIMD,
                   tabledata "Standard General Journal" = RM,
                   tabledata "Standard General Journal Line" = RIMD,
@@ -1564,7 +1555,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Whse. Worksheet Line" = RM,
                   tabledata "Whse. Worksheet Name" = RM,
                   tabledata "Whse. Worksheet Template" = RM,
-                  tabledata "Work Center" = RM,
                   tabledata "Work Type" = R,
                   tabledata "Workflow - Record Change" = Rimd,
                   tabledata "Workflow - Table Relation" = RIMD,
