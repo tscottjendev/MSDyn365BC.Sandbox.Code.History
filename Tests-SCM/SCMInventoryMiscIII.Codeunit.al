@@ -38,7 +38,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         DeleteEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         ExpectedMessage: Label 'The Credit Memo doesn''t have a Corrected Invoice No. Do you want to continue?';
         JournalLinesRegistered: Label 'The journal lines were successfully registered.You are now in the ';
-        FinishProductionOrder: Label 'Production Order %1 has not been finished. Some output is still missing.';
+        FinishProductionOrder: Label 'Production Order %1 has not been finished:\\  * Some output is still missing.';
         PhysInvLedgerEntriesExists: Label 'Physical Inventory Ledger Entries Must Be Deleted.';
         ProdOrderCreated: Label 'Prod. Order';
         PostJournalLines: Label 'Do you want to post the journal lines';

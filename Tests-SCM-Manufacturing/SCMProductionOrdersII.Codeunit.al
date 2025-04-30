@@ -111,7 +111,7 @@ codeunit 137072 "SCM Production Orders II"
         IncorrectValueErr: Label 'Incorrect value of %1.%2.', Comment = '%1: Table name, %2: Field name.';
         ExpectedQuantityErr: Label 'Expected Quantity is wrong.';
         ActualTimeUsedErr: Label 'Actual time used on "Production Order Statistics" Page was incorrect. Should be equal to sum of "Setup Time", "Run Time" and "Stop Time".';
-        ConfirmStatusFinishTxt: Label 'has not been finished. Some output is still missing. Do you still want to finish the order?';
+        ConfirmStatusFinishTxt: Label 'has not been finished:\\  * Some output is still missing.\\ Do you still want to finish the order?';
         TimeShiftedOnParentLineMsg: Label 'The production starting date-time of the end item has been moved forward because a subassembly is taking longer than planned.';
         DateConflictInReservErr: Label 'The change leads to a date conflict with existing reservations.';
         QuantityErr: Label '%1 must be %2 in %3', Comment = '%1: Quantity, %2: Consumption Quantity Value, %3: Item Ledger Entry';
