@@ -25,7 +25,8 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         UnitOfMeasure: Record "Unit of Measure";
         Vendor: Record Vendor;
         PurchaseOrder: Record "Purchase Header";
-        EDocPurchaseLineMatch: Record "E-Doc. Purchase Line History";
+        EDocVendorAssignmentHistory: Record "E-Doc. Vendor Assign. History";
+        EDocPurchaseLineHistory: Record "E-Doc. Purchase Line History";
         EDocPurchaseHistMapping: Codeunit "E-Doc. Purchase Hist. Mapping";
         IVendorProvider: Interface IVendorProvider;
         IUnitOfMeasureProvider: Interface IUnitOfMeasureProvider;
@@ -49,6 +50,8 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
             EDocumentHeaderMapping.Modify();
             exit("E-Document Type"::"Purchase Order");
         end;
+        if EDocPurchaseHistMapping.FindRelatedPurchaseHeaderInHistory(EDocument, EDocVendorAssignmentHistory) then
+            EDocPurchaseHistMapping.UpdateMissingHeaderValuesFromHistory(EDocVendorAssignmentHistory, EDocumentHeaderMapping);
         EDocumentHeaderMapping.Modify();
 
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
@@ -58,14 +61,10 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
                 UnitOfMeasure := IUnitOfMeasureProvider.GetUnitOfMeasure(EDocument, EDocumentPurchaseLine."Line No.", EDocumentPurchaseLine."Unit of Measure");
                 EDocumentLineMapping."Unit of Measure" := UnitOfMeasure.Code;
                 IPurchaseLineAccountProvider.GetPurchaseLineAccount(EDocumentPurchaseLine, EDocumentLineMapping, EDocumentLineMapping."Purchase Line Type", EDocumentLineMapping."Purchase Type No.");
+
+                if EDocPurchaseHistMapping.FindRelatedPurchaseLineInHistory(EDocumentHeaderMapping."Vendor No.", EDocumentPurchaseLine, EDocPurchaseLineHistory) then
+                    EDocPurchaseHistMapping.UpdateMissingLineValuesFromHistory(EDocPurchaseLineHistory, EDocumentLineMapping);
                 EDocumentLineMapping.Modify();
-
-                Clear(EDocPurchaseLineMatch);
-                if EDocPurchaseHistMapping.FindRelatedPurchaseLineMatch(Vendor, EDocumentPurchaseLine, EDocPurchaseLineMatch) then begin
-                    EDocPurchaseHistMapping.CopyLineMappingFromHistory(EDocPurchaseLineMatch, EDocumentLineMapping);
-                    EDocumentLineMapping.Modify();
-                end;
-
             until EDocumentPurchaseLine.Next() = 0;
         exit("E-Document Type"::"Purchase Invoice");
     end;
