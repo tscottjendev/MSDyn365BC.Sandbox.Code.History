@@ -9,7 +9,6 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Forecast;
 using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
 
 tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
 {
@@ -67,11 +66,6 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
             begin
                 UpdateExpectedQuantityForPlanningNeeds();
             end;
-        }
-        field(28; "Flushing Method"; Enum "Flushing Method")
-        {
-            Caption = 'Flushing Method';
-            DataClassification = CustomerContent;
         }
     }
 
@@ -228,7 +222,7 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
     local procedure GetFlushingMethodBin(): Code[20]
 #if not CLEAN26
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
 #endif
     begin
 #if not CLEAN26
