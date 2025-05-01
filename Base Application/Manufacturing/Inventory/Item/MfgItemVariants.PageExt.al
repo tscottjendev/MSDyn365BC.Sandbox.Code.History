@@ -2,9 +2,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Foundation.Enums;
+namespace Microsoft.Inventory.Item;
 
-enumextension 5909 "Serv. Inventory Order Type" extends "Inventory Order Type"
+pageextension 99000796 "Mfg. Item Variants" extends "Item Variants"
 {
-    value(3; "Service") { Caption = 'Service'; }
+    layout
+    {
+        addafter("Purchasing Blocked")
+        {
+            field("Production Blocked"; Rec."Production Blocked")
+            {
+                ApplicationArea = Manufacturing;
+            }
+        }
+    }
 }

@@ -5,26 +5,13 @@
 namespace Microsoft.Inventory.Item;
 
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
 
 tableextension 99000757 "Mfg. Item Templ." extends "Item Templ."
 {
     fields
     {
-        field(5417; "Flushing Method"; Enum "Flushing Method")
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            Caption = 'Flushing Method';
-            DataClassification = CustomerContent;
-
-            trigger OnValidate()
-            begin
-                ValidateItemField(FieldNo("Flushing Method"));
-            end;
-        }
         field(8011; "Production Blocked"; Enum "Item Production Blocked")
         {
             Caption = 'Production Blocked';

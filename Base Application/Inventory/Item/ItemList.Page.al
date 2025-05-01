@@ -118,16 +118,6 @@ page 31 "Item List"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies if the item is an assembly BOM.';
                 }
-                field("Production BOM No."; Rec."Production BOM No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the production BOM that is used to manufacture this item.';
-                }
-                field("Routing No."; Rec."Routing No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the production route that contains the operations needed to manufacture this item.';
-                }
                 field("Base Unit of Measure"; Rec."Base Unit of Measure")
                 {
                     ApplicationArea = Invoicing, Basic, Suite;

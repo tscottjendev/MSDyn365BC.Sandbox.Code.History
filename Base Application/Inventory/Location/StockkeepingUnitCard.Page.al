@@ -84,20 +84,10 @@ page 5700 "Stockkeeping Unit Card"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                 }
-                field("Qty. on Prod. Order"; Rec."Qty. on Prod. Order")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies how many item units have been planned for production, which is how many units are on outstanding production order lines.';
-                }
                 field("Qty. in Transit"; Rec."Qty. in Transit")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the quantity of the SKUs in transit. These items have been shipped, but not yet received.';
-                }
-                field("Qty. on Component Lines"; Rec."Qty. on Component Lines")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies how many item units are needed for production, which is how many units remain on outstanding production order component lists.';
                 }
                 field("Qty. on Sales Order"; Rec."Qty. on Sales Order")
                 {
@@ -239,16 +229,6 @@ page 5700 "Stockkeeping Unit Card"
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
-                    }
-                    field("Routing No."; Rec."Routing No.")
-                    {
-                        ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies the production route that contains the operations needed to manufacture this item.';
-                    }
-                    field("Production BOM No."; Rec."Production BOM No.")
-                    {
-                        ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies the production BOM that is used to manufacture this item.';
                     }
                 }
                 group(Assembly)
@@ -784,35 +764,6 @@ page 5700 "Stockkeeping Unit Card"
                             ItemTrackingDocMgt.ShowItemTrackingForEntity(0, '', Rec."Item No.", Rec."Variant Code", Rec."Location Code");
                         end;
                     }
-                }
-            }
-            group(Production_Navigation)
-            {
-                Caption = 'Production';
-                Image = Production;
-                action("Production BOM")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Production BOM';
-                    Image = BOM;
-                    ToolTip = 'Open the stockkeeping unit''s production bill of material to view or edit its components. If production bill of material is not defined in the stockkeeping unit, the production bill of material from the item card is used.';
-
-                    trigger OnAction()
-                    begin
-                        Rec.OpenProductionBOMForSKUItem(Rec."Production BOM No.", Rec."Item No.");
-                    end;
-                }
-                action("Prod. Active BOM Version")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Prod. Active BOM Version';
-                    Image = BOMVersions;
-                    ToolTip = 'Open the stockkeeping unit''s active production bill of material to view or edit the components. If production bill of material is not defined in the stockkeeping unit, the production bill of material from the item card is used.';
-
-                    trigger OnAction()
-                    begin
-                        Rec.OpenActiveProductionBOMForSKUItem(Rec."Production BOM No.", Rec."Item No.");
-                    end;
                 }
             }
             group(Warehouse)

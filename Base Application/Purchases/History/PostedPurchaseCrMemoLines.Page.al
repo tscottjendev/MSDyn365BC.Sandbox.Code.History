@@ -180,12 +180,6 @@ page 530 "Posted Purchase Cr. Memo Lines"
                     ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the related production order.';
-                    Visible = false;
-                }
                 field("Insurance No."; Rec."Insurance No.")
                 {
                     ApplicationArea = FixedAssets;

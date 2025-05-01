@@ -967,8 +967,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             (ReservEntry."Expected Receipt Date" <= ToDate) and
             (ReservEntry."Shipment Date" <= ToDate)) or
             ((ReservEntry.Binding = ReservEntry.Binding::"Order-to-Order") and (ReservEntry."Shipment Date" <= ToDate) and
-            (Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Stock") and
-            (Item."Replenishment System" = Item."Replenishment System"::"Prod. Order") and
+            (Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Stock") and Item.IsMfgItem() and
             (not IsReservedForProdComponent));
 
         OnAfterShouldDeleteReservEntry(ReservEntry, ToDate, DeleteCondition, CurrTemplateName, CurrWorksheetName);
@@ -4607,9 +4606,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if IsHandled then
             exit(false);
 
-        if (CurrWorksheetType = CurrWorksheetType::Requisition) and
-           (SKU."Replenishment System" in [SKU."Replenishment System"::"Prod. Order", SKU."Replenishment System"::Assembly])
-        then
+        if (CurrWorksheetType = CurrWorksheetType::Requisition) and (SKU.IsMfgSKU() or SKU.IsAssemblySKU()) then
             exit(false);
 
         if DemandExists or SupplyExists or IsReorderPointPlanning then
