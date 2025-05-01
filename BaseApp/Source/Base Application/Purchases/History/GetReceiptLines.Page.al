@@ -115,12 +115,6 @@ page 5709 "Get Receipt Lines"
                     ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the related production order.';
-                    Visible = false;
-                }
                 field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Suite;

@@ -2,9 +2,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Foundation.Enums;
+namespace Microsoft.Purchases.History;
 
-enumextension 99000800 "Mfg. Inventory Order Type" extends "Inventory Order Type"
+tableextension 99000763 "Mfg. Return Shipment Line" extends "Return Shipment Line"
 {
-    value(1; "Production") { Caption = 'Production'; }
+    fields
+    {
+        field(5401; "Prod. Order No."; Code[20])
+        {
+            Caption = 'Prod. Order No.';
+            DataClassification = CustomerContent;
+        }
+    }
 }
