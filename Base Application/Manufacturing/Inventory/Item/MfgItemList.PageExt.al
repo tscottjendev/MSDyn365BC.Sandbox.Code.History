@@ -12,6 +12,22 @@ using Microsoft.Inventory.BOM;
 
 pageextension 99000751 "Mfg. Item List" extends "Item List"
 {
+    layout
+    {
+        addafter("Assembly BOM")
+        {
+            field("Production BOM No."; Rec."Production BOM No.")
+            {
+                ApplicationArea = Manufacturing;
+                ToolTip = 'Specifies the production BOM that is used to manufacture this item.';
+            }
+            field("Routing No."; Rec."Routing No.")
+            {
+                ApplicationArea = Manufacturing;
+                ToolTip = 'Specifies the production route that contains the operations needed to manufacture this item.';
+            }
+        }
+    }
     actions
     {
         addafter(Assembly)

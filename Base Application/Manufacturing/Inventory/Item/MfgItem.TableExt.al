@@ -9,7 +9,6 @@ using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Forecast;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
@@ -24,11 +23,6 @@ tableextension 99000750 "Mfg. Item" extends Item
                                                                       "Item No." = field("No.")));
             Caption = 'Cost of Open Production Orders';
             FieldClass = FlowField;
-        }
-        field(5417; "Flushing Method"; Enum "Flushing Method")
-        {
-            Caption = 'Flushing Method';
-            DataClassification = CustomerContent;
         }
         field(5420; "Scheduled Receipt (Qty.)"; Decimal)
         {
@@ -168,63 +162,6 @@ tableextension 99000750 "Mfg. Item" extends Item
                 end;
             end;
         }
-        field(99000752; "Single-Level Material Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Material Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000753; "Single-Level Capacity Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Capacity Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000754; "Single-Level Subcontrd. Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Subcontrd. Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000755; "Single-Level Cap. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Cap. Ovhd Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000756; "Single-Level Mfg. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Mfg. Ovhd Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000758; "Rolled-up Subcontracted Cost"; Decimal)
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Subcontracted Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000759; "Rolled-up Mfg. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Mfg. Ovhd Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000760; "Rolled-up Cap. Overhead Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Cap. Overhead Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
         field(99000765; "Planned Order Receipt (Qty.)"; Decimal)
         {
             CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = const(Planned),
@@ -284,29 +221,6 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
-        }
-        field(99000774; "Prod. Forecast Quantity (Base)"; Decimal)
-        {
-            CalcFormula = sum("Production Forecast Entry"."Forecast Quantity (Base)" where("Item No." = field("No."),
-                                                                                            "Production Forecast Name" = field("Production Forecast Name"),
-                                                                                            "Forecast Date" = field("Date Filter"),
-                                                                                            "Location Code" = field("Location Filter"),
-                                                                                            "Component Forecast" = field("Component Forecast"),
-                                                                                            "Variant Code" = field("Variant Filter")));
-            Caption = 'Prod. Forecast Quantity (Base)';
-            DecimalPlaces = 0 : 5;
-            FieldClass = FlowField;
-        }
-        field(99000775; "Production Forecast Name"; Code[10])
-        {
-            Caption = 'Production Forecast Name';
-            FieldClass = FlowFilter;
-            TableRelation = "Production Forecast Name";
-        }
-        field(99000776; "Component Forecast"; Boolean)
-        {
-            Caption = 'Component Forecast';
-            FieldClass = FlowFilter;
         }
         field(99000777; "Qty. on Prod. Order"; Decimal)
         {
