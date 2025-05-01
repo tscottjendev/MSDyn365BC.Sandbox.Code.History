@@ -488,10 +488,6 @@ table 125 "Purch. Cr. Memo Line"
             Caption = 'Deferral Code';
             TableRelation = "Deferral Template"."Deferral Code";
         }
-        field(5401; "Prod. Order No."; Code[20])
-        {
-            Caption = 'Prod. Order No.';
-        }
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';

@@ -744,6 +744,15 @@ table 1382 "Item Templ."
                 ValidateItemField(FieldNo("Safety Lead Time"));
             end;
         }
+        field(5417; "Flushing Method"; Enum Microsoft.Manufacturing.Setup."Flushing Method")
+        {
+            Caption = 'Flushing Method';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Flushing Method"));
+            end;
+        }
         field(5419; "Replenishment System"; Enum "Replenishment System")
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
