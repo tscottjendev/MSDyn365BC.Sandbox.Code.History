@@ -5026,6 +5026,12 @@ codeunit 22 "Item Jnl.-Post Line"
     var
         EntriesExist: Boolean;
     begin
+        if OldItemLedgEntry."Entry Type" = OldItemLedgEntry."Entry Type"::Sale then
+            if (OldItemLedgEntry."Serial No." <> '') and (OldItemLedgEntry."Serial No." = ItemJnlLine."Serial No.") and
+                ((-OldItemLedgEntry.Quantity) > 0)
+            then
+                CheckItemSerialNoForCorrILE(ItemJnlLine);
+
         ItemLedgEntryNo := GetNextItemLedgerEntryNo(ItemLedgEntryNo);
         NewItemLedgEntry := OldItemLedgEntry;
         ItemTrackingMgt.RetrieveAppliedExpirationDate(NewItemLedgEntry);
@@ -7938,6 +7944,22 @@ codeunit 22 "Item Jnl.-Post Line"
                 InboundItemLedgerEntry.Get(ItemApplicationEntry."Inbound Item Entry No.");
                 InboundItemLedgerEntry.SetAppliedEntryToAdjust(true);
             until ItemApplicationEntry.Next() = 0;
+    end;
+
+    local procedure CheckItemSerialNoForCorrILE(ItemJnlLine: Record "Item Journal Line")
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        if SkipSerialNoQtyValidation then
+            exit;
+
+        ItemLedgerEntry.SetLoadFields(Quantity);
+        ItemLedgerEntry.SetRange("Item No.", ItemJnlLine."Item No.");
+        ItemLedgerEntry.SetRange("Variant Code", ItemJnlLine."Variant Code");
+        ItemLedgerEntry.SetTrackingFilterFromItemJournalLine(ItemJnlLine);
+        ItemLedgerEntry.CalcSums(Quantity);
+        if ItemLedgerEntry.Quantity > 0 then
+            Error(Text014, ItemJnlLine."Serial No.");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sequence No. Mgt.", 'OnPreviewableLedgerEntry', '', false, false)]
