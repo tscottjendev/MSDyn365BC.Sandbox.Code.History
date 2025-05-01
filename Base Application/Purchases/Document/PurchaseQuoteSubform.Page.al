@@ -400,12 +400,6 @@ page 97 "Purchase Quote Subform"
                         UpdateForm(false);
                     end;
                 }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the related production order.';
-                    Visible = false;
-                }
                 field("Blanket Order No."; Rec."Blanket Order No.")
                 {
                     ApplicationArea = Suite;
