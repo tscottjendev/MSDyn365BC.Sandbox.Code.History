@@ -3888,8 +3888,8 @@ table 38 "Purchase Header"
 
         DestinationPurchaseLine.Validate("Unit of Measure Code", SourcePurchaseLine."Unit of Measure Code");
         DestinationPurchaseLine.Validate("Variant Code", SourcePurchaseLine."Variant Code");
-        DestinationPurchaseLine."Prod. Order No." := SourcePurchaseLine."Prod. Order No.";
-        if DestinationPurchaseLine."Prod. Order No." <> '' then begin
+        OnTransferSavedFieldsOnAfterSetVariantCode(DestinationPurchaseLine, SourcePurchaseLine);
+        if SourcePurchaseLine.IsProdOrder() then begin
             DestinationPurchaseLine.Description := SourcePurchaseLine.Description;
             DestinationPurchaseLine.Validate("VAT Prod. Posting Group", SourcePurchaseLine."VAT Prod. Posting Group");
             DestinationPurchaseLine.Validate("Gen. Prod. Posting Group", SourcePurchaseLine."Gen. Prod. Posting Group");
@@ -3902,12 +3902,6 @@ table 38 "Purchase Header"
             DestinationPurchaseLine.Validate(Quantity, SourcePurchaseLine.Quantity);
         if ("Currency Code" = xRec."Currency Code") and (PurchLine."Direct Unit Cost" = 0) then
             DestinationPurchaseLine.Validate("Direct Unit Cost", SourcePurchaseLine."Direct Unit Cost");
-        DestinationPurchaseLine."Routing No." := SourcePurchaseLine."Routing No.";
-        DestinationPurchaseLine."Routing Reference No." := SourcePurchaseLine."Routing Reference No.";
-        DestinationPurchaseLine."Operation No." := SourcePurchaseLine."Operation No.";
-        DestinationPurchaseLine."Work Center No." := SourcePurchaseLine."Work Center No.";
-        DestinationPurchaseLine."Prod. Order Line No." := SourcePurchaseLine."Prod. Order Line No.";
-        DestinationPurchaseLine."Overhead Rate" := SourcePurchaseLine."Overhead Rate";
 
         OnAfterTransferSavedFields(DestinationPurchaseLine, SourcePurchaseLine);
     end;
@@ -8005,6 +7999,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferSavedFields(var DestinationPurchaseLine: Record "Purchase Line"; SourcePurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferSavedFieldsOnAfterSetVariantCode(var DestinationPurchaseLine: Record "Purchase Line"; SourcePurchaseLine: Record "Purchase Line")
     begin
     end;
 

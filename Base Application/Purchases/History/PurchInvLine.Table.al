@@ -1013,6 +1013,11 @@ table 123 "Purch. Inv. Line"
         OnAfterGetVATPct(Rec, VATPct);
     end;
 
+    procedure IsProdOrder() Result: Boolean
+    begin
+        OnIsProdOrder(Rec, Result);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQty(var PurchInvLine: Record "Purch. Inv. Line"; QtyBase: Decimal; var Result: Decimal)
     begin
@@ -1050,6 +1055,11 @@ table 123 "Purch. Inv. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcReceivedPurchNotReturned(var PurchInvLine: Record "Purch. Inv. Line"; var RemainingQty: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsProdOrder(var PurchInvLine: Record "Purch. Inv. Line"; var Result: Boolean)
     begin
     end;
 }

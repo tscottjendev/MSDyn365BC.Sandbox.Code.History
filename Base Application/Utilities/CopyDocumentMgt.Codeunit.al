@@ -1962,8 +1962,7 @@ codeunit 6620 "Copy Document Mgt."
         end else begin
             AssemblyItem.Get(ToSalesLine."No.");
             if (AssemblyItem."Assembly Policy" = AssemblyItem."Assembly Policy"::"Assemble-to-Order") and
-               (AssemblyItem."Replenishment System" = AssemblyItem."Replenishment System"::Assembly) and
-               ToSalesLine.IsAsmToOrderAllowed()
+               AssemblyItem.IsAssemblyItem() and ToSalesLine.IsAsmToOrderAllowed()
             then begin
                 ToSalesLine.Validate("Qty. to Assemble to Order", ToSalesLine.Quantity);
                 ToSalesLine.Modify();

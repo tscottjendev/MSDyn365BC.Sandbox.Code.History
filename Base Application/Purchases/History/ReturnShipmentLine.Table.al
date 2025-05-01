@@ -348,10 +348,6 @@ table 6651 "Return Shipment Line"
             BlankZero = true;
             Caption = 'Project Planning Line No.';
         }
-        field(5401; "Prod. Order No."; Code[20])
-        {
-            Caption = 'Prod. Order No.';
-        }
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
