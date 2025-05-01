@@ -184,7 +184,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
         if PurchRcptLine.Correction then
             Error(AlreadyReversedErr);
         if PurchRcptLine."Qty. Rcd. Not Invoiced" <> PurchRcptLine.Quantity then begin
-            if PurchRcptLine."Prod. Order No." <> '' then
+            if PurchRcptLine.IsProdOrder() then
                 Error(Text004);
             if HasInvoicedNotReturnedQuantity(PurchRcptLine) then
                 Error(Text004);
@@ -195,7 +195,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
             IsHandled := false;
             OnCheckPurchRcptLineOnBeforeCollectItemLedgEntries(PurchRcptLine, TempItemLedgEntry, IsHandled);
             if not IsHandled then
-                if PurchRcptLine."Prod. Order No." <> '' then begin
+                if PurchRcptLine.IsProdOrder() then begin
                     if UndoPostingMgt.CollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(TempItemLedgEntry, PurchRcptLine) then
                         UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, PurchRcptLine."Line No.", PurchRcptLine."Qty. Rcd. Not Invoiced" <> PurchRcptLine.Quantity);
                 end else begin
@@ -296,7 +296,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
         ItemRcptEntryNoFilled := PurchRcptLine."Item Rcpt. Entry No." <> 0;
 
-        if PurchRcptLine."Prod. Order No." <> '' then
+        if PurchRcptLine.IsProdOrder() then
             OnUpdateItemJnlLineProdOrderSubcontracting(ItemJnlLine, PurchRcptLine, TempApplyToEntryList, ItemRcptEntryNoFilled);
 
         IsHandled := false;
@@ -354,11 +354,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
             exit(ItemShptEntryNo);
         end;
 
-        if PurchRcptLine."Prod. Order No." = '' then
+        if not PurchRcptLine.IsProdOrder() then
             UndoPostingMgt.CollectItemLedgEntries(
               TempApplyToEntryList, DATABASE::"Purch. Rcpt. Line", PurchRcptLine."Document No.", PurchRcptLine."Line No.", PurchRcptLine."Quantity (Base)", PurchRcptLine."Item Rcpt. Entry No.");
 
-        if PurchRcptLine."Prod. Order No." <> '' then //When subcontracting base value is 0, value required for UndoPostingMgt.PostItemJnlLineAppliedToList call
+        if PurchRcptLine.IsProdOrder() then //When subcontracting base value is 0, value required for UndoPostingMgt.PostItemJnlLineAppliedToList call
             PurchRcptLine."Quantity (Base)" := UOMMgt.CalcBaseQty(PurchRcptLine."No.", '', PurchRcptLine."Unit of Measure Code", PurchRcptLine.Quantity, PurchRcptLine."Qty. per Unit of Measure", 0);
 
         IsHandled := false;
