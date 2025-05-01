@@ -251,7 +251,7 @@ codeunit 1373 "Batch Posting Print Mgt."
             REPORT.Run(GenJnlTemplate."Posting Report ID", false, false, GLReg);
     end;
 
-    local procedure PrintDocument(ReportUsage: Enum "Report Selection Usage"; RecVariant: Variant; PrintViaJobQueue: Boolean; ReportOutputType: Enum "Job Queue Report Output Type")
+    procedure PrintDocument(ReportUsage: Enum "Report Selection Usage"; RecVariant: Variant; PrintViaJobQueue: Boolean; ReportOutputType: Enum "Job Queue Report Output Type")
     var
         ReportSelections: Record "Report Selections";
         IsHandled: Boolean;
