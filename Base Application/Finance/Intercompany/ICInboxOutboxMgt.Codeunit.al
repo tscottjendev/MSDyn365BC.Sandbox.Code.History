@@ -59,6 +59,8 @@ codeunit 427 ICInboxOutboxMgt
         TransactionAlreadyExistsInOutboxHandledQst: Label '%1 %2 has already been sent to intercompany partner %3. Resending it will create a duplicate %1 for them. Do you want to send it again?', Comment = '%1 - Document Type, %2 - Document No, %3 - IC parthner code';
         TransactionCantBeFoundErr: Label 'The Intercompany transaction that originated this document cannot be found.';
         DuplicateICDocumentMsg: Label 'An %1 with no. %2 has been previously received through intercompany. You have an order and an invoice for the same document which can lead to duplicating information. You can remove one of these documents or use Reject IC Document.', Comment = '%1 - either "order", "invoice", or "posted invoice", %2 - a code';
+        PermissionToAutoAcceptICDocsErr: Label 'Auto-accepting intercompany documents requires scheduling permissions which you do not have assigned, delegated administrators can not schedule tasks.';
+
 
     procedure CreateOutboxJnlTransaction(TempGenJnlLine: Record "Gen. Journal Line" temporary; Rejection: Boolean): Integer
     var
@@ -3183,6 +3185,43 @@ codeunit 427 ICInboxOutboxMgt
                 true)
             then
                 Error('');
+    end;
+
+    procedure CheckPermissionToSendICTransaction(var SalesHeader: Record "Sales Header")
+    var
+        ICSetup: Record "IC Setup";
+        ICPartner: Record "IC Partner";
+        Customer: Record "Customer";
+        TempRegisteredPartner: Record "IC Partner" temporary;
+        ICDataExchange: Interface "IC Data Exchange";
+    begin
+        // Should the IC-document be sent?
+        if not (SalesHeader.Invoice and SalesHeader."Send IC Document") then
+            exit;
+
+        // Is the Document type Order or Invoice?
+        if not (SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice]) then
+            exit;
+
+        // Do we auto send IC-transactions?
+        if not ICSetup.Get() then
+            exit;
+        if not ICSetup."Auto. Send Transactions" then
+            exit;
+
+        // Does the partner auto accept the transaction?
+        if not Customer.Get(SalesHeader."Bill-to Customer No.") then
+            exit;
+        if not ICPartner.Get(Customer."IC Partner Code") then
+            exit;
+        ICDataExchange := ICPartner."Data Exchange Type";
+        ICDataExchange.GetICPartnerFromICPartner(ICPartner, TempRegisteredPartner);
+        if not TempRegisteredPartner."Auto. Accept Transactions" then
+            exit;
+
+        // Check if user can schedule tasks
+        if not TaskScheduler.CanCreateTask() then
+            Error(PermissionToAutoAcceptICDocsErr)
     end;
 
     [IntegrationEvent(false, false)]
