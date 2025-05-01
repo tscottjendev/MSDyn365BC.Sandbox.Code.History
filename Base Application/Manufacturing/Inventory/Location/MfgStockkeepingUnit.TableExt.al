@@ -8,17 +8,11 @@ using Microsoft.Inventory.Item;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
 
 tableextension 99000759 "Mfg. Stockkeeping Unit" extends "Stockkeeping Unit"
 {
     fields
     {
-        field(5417; "Flushing Method"; Enum "Flushing Method")
-        {
-            Caption = 'Flushing Method';
-            DataClassification = CustomerContent;
-        }
         field(5420; "Scheduled Receipt (Qty.)"; Decimal)
         {
             CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = filter(Planned .. Released),
@@ -152,70 +146,6 @@ tableextension 99000759 "Mfg. Stockkeeping Unit" extends "Stockkeeping Unit"
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
-        }
-        field(99000752; "Single-Level Material Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Material Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000753; "Single-Level Capacity Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Capacity Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000754; "Single-Level Subcontrd. Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Subcontrd. Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000755; "Single-Level Cap. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Cap. Ovhd Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000756; "Single-Level Mfg. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Mfg. Ovhd Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000758; "Rolled-up Subcontracted Cost"; Decimal)
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Subcontracted Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000759; "Rolled-up Mfg. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Mfg. Ovhd Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000760; "Rolled-up Cap. Overhead Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Cap. Overhead Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000779; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Material Non-Inventory Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
         }
     }
 

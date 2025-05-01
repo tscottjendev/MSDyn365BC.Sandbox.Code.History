@@ -581,12 +581,6 @@ page 98 "Purch. Cr. Memo Subform"
                     ToolTip = 'Specifies the line discount amount of the project ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the related production order.';
-                    Visible = false;
-                }
                 field("Insurance No."; Rec."Insurance No.")
                 {
                     ApplicationArea = FixedAssets;
