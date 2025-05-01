@@ -1396,6 +1396,7 @@ table 77 "Report Selections"
                             AttachmentStream, '', ServerEmailBodyFilePath,
                             DocNo, EmailAddress, DocName, not ShowDialog, ReportUsage.AsInteger(),
                             SourceTableIDs, SourceIDs, SourceRelationTypes);
+                    OnSendEmailDirectlyOnAfterEmailWithAttachment(RecordVariant, TempAttachReportSelections, TempBlob, DocumentMailing, DocNo, DocName, EmailAddress, AllEmailsWereSuccessful);
                 end;
             until TempAttachReportSelections.Next() = 0;
         end;
@@ -2401,6 +2402,11 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConvertReportUsageToSalesDocumentType(var ReportSelections: Record "Report Selections"; var DocumentType: Enum "Sales Document Type"; ReportUsage: Enum "Report Selection Usage"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendEmailDirectlyOnAfterEmailWithAttachment(RecordVariant: Variant; var TempReportSelections: Record "Report Selections" temporary; var TempBlob: Codeunit "Temp Blob"; var DocumentMailing: Codeunit "Document-Mailing"; DocumentNo: Code[20]; DocumentName: Text[150]; EmailAddress: Text[250]; AllEmailsWereSuccessful: Boolean)
     begin
     end;
 }
