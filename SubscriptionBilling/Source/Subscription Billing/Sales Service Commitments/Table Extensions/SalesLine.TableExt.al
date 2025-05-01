@@ -134,7 +134,7 @@ tableextension 8054 "Sales Line" extends "Sales Line"
         }
     }
     var
-        BillingLineexist, IsBillingLineCached : Boolean;
+        BillingLineExist, IsBillingLineCached : Boolean;
     trigger OnDelete()
     begin
         DeleteSalesServiceCommitment();
@@ -308,11 +308,37 @@ tableextension 8054 "Sales Line" extends "Sales Line"
     begin
         if not IsBillingLineCached then begin
             BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromSalesDocumentType(Rec."Document Type"), Rec."Document No.", Rec."Line No.");
-            BillingLineexist := not BillingLine.IsEmpty();
+            BillingLineExist := not BillingLine.IsEmpty();
             IsBillingLineCached := true;
         end;
 
-        exit(BillingLineexist);
+        exit(BillingLineExist);
+    end;
+
+    internal procedure CreateContractDeferrals(): Boolean
+    var
+        CustomerSubscriptionContract: Record "Customer Subscription Contract";
+        SubscriptionLine: Record "Subscription Line";
+        BillingLine: Record "Billing Line";
+    begin
+        BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromSalesDocumentType(Rec."Document Type"), Rec."Document No.", Rec."Line No.");
+        if not BillingLine.FindFirst() then
+            exit;
+
+        if not SubscriptionLine.Get(BillingLine."Subscription Line Entry No.") then
+            exit;
+
+        case SubscriptionLine."Create Contract Deferrals" of
+            Enum::"Create Contract Deferrals"::"Contract-dependent":
+                begin
+                    CustomerSubscriptionContract.Get(BillingLine."Subscription Contract No.");
+                    exit(CustomerSubscriptionContract."Create Contract Deferrals");
+                end;
+            Enum::"Create Contract Deferrals"::Yes:
+                exit(true);
+            Enum::"Create Contract Deferrals"::No:
+                exit(false);
+        end;
     end;
 
     internal procedure IsContractRenewalQuote(): Boolean
