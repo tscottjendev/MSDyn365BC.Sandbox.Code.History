@@ -21,12 +21,6 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
 {
     fields
     {
-        field(5561; "Flushing Method"; Enum "Flushing Method")
-        {
-            Caption = 'Flushing Method';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
         field(5838; "Operation No."; Code[10])
         {
             Caption = 'Operation No.';

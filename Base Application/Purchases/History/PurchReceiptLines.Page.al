@@ -130,12 +130,6 @@ page 5806 "Purch. Receipt Lines"
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the related production order.';
-                    Visible = false;
-                }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
