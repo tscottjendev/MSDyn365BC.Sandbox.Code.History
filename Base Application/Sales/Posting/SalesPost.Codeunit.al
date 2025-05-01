@@ -3235,6 +3235,9 @@ codeunit 80 "Sales-Post"
             if not IsHandled then
                 GenJnlPostPreview.ThrowError();
         end;
+
+        ICInboxOutboxMgt.CheckPermissionToSendICTransaction(SalesHeader);
+
         if not (InvtPickPutaway or SuppressCommit or PreviewMode) then
             Commit();
 
