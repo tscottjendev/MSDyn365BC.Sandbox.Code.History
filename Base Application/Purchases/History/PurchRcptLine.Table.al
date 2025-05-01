@@ -1255,6 +1255,11 @@ table 121 "Purch. Rcpt. Line"
         end;
     end;
 
+    procedure IsProdOrder() Result: Boolean
+    begin
+        OnIsProdOrder(Rec, Result);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromPurchRcptLine(var PurchaseLine: Record "Purchase Line"; PurchRcptLine: Record "Purch. Rcpt. Line"; var TempPurchLine: Record "Purchase Line")
     begin
@@ -1352,6 +1357,11 @@ table 121 "Purch. Rcpt. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcReceivedPurchNotReturned(var RemainingQty: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean; var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsProdOrder(var PurchRcptLine: Record "Purch. Rcpt. Line"; var Result: Boolean)
     begin
     end;
 }
