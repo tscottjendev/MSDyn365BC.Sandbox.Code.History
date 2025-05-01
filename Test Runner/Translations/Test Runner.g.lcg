@@ -95,6 +95,33 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Table Test Code Coverage Result - Field Test Method - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1200103650 - NamedType 1201584007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Code Coverage tracking is already started. You must stop it before starting a new one.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Codeunit AL Code Coverage Mgt. - NamedType CodeCoverageIsAlreadyRunningErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1200103650 - NamedType 3057276818" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Code Coverage tracking is not started.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Codeunit AL Code Coverage Mgt. - NamedType CodeCoverageIsNotRunningErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1200103650 - NamedType 3573402670" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Code Coverage tracking is already started. Would you like to restart the Code Coverage?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Codeunit AL Code Coverage Mgt. - NamedType RestartCodeCoverageQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Page 3453384002 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Code Coverage]]></Val>
