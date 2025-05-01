@@ -537,7 +537,14 @@ table 5900 "Service Header"
             NotBlank = true;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateOrderDate(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Order Date" <> xRec."Order Date" then begin
                     if ("Order Date" > "Starting Date") and
                        ("Starting Date" <> 0D)
@@ -1575,7 +1582,13 @@ table 5900 "Service Header"
             var
                 JobQueueEntry: Record "Job Queue Entry";
                 RepairStatus: Record "Repair Status";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateStatus(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 ServItemLine.Reset();
                 ServItemLine.SetRange("Document Type", "Document Type");
                 ServItemLine.SetRange("Document No.", "No.");
@@ -3812,7 +3825,14 @@ table 5900 "Service Header"
     /// Updates values of 'Response Date' and 'Response Time' based on related service item line. 
     /// </summary>
     procedure UpdateResponseDateTime()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateResponseDateTime(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         ServItemLine.Reset();
         ServItemLine.SetCurrentKey("Document Type", "Document No.", "Response Date");
         ServItemLine.SetRange("Document Type", "Document Type");
@@ -6504,6 +6524,21 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateFinishingTime(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateOrderDate(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateStatus(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateResponseDateTime(var ServiceHeader: Record "Service Header"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }
