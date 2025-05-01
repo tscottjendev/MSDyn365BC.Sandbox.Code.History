@@ -1289,6 +1289,11 @@ table 83 "Item Journal Line"
             Caption = 'Level';
             Editable = false;
         }
+        field(5561; "Flushing Method"; Enum Microsoft.Manufacturing.Setup."Flushing Method")
+        {
+            Caption = 'Flushing Method';
+            Editable = false;
+        }
         field(5562; "Changed by User"; Boolean)
         {
             Caption = 'Changed by User';
@@ -2673,11 +2678,6 @@ table 83 "Item Journal Line"
         "Transaction Specification" := PurchLine."Transaction Specification";
         "Drop Shipment" := PurchLine."Drop Shipment";
         "Entry Type" := "Entry Type"::Purchase;
-        if PurchLine."Prod. Order No." <> '' then begin
-            "Order Type" := "Order Type"::Production;
-            "Order No." := PurchLine."Prod. Order No.";
-            "Order Line No." := PurchLine."Prod. Order Line No.";
-        end;
         "Unit of Measure Code" := PurchLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := PurchLine."Qty. per Unit of Measure";
         "Qty. Rounding Precision" := PurchLine."Qty. Rounding Precision";
