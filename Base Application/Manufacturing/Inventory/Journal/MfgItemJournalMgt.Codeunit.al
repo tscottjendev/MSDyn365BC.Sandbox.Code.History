@@ -19,6 +19,7 @@ using Microsoft.Manufacturing.Setup;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Purchases.Setup;
 using Microsoft.Foundation.Enums;
+using Microsoft.Purchases.Document;
 
 codeunit 99000762 "Mfg. Item Journal Mgt."
 {
@@ -27,6 +28,12 @@ codeunit 99000762 "Mfg. Item Journal Mgt."
         CannotChangeFieldErr: Label 'You cannot change %1 when %2 is %3.', Comment = '%1 %2 - field captions, %3 - field value';
         CannotInsertItemErr: Label 'You can not insert item number %1 because it is not produced on released production order %2.';
 #pragma warning restore AA0470
+
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnIsMfgItem', '', false, false)]
+    local procedure OnIsMfgItem(Item: Record Item; var Result: Boolean)
+    begin
+        Result := Item."Replenishment System" = Item."Replenishment System"::"Prod. Order";
+    end;
 
     [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnValidateUnitAmountOnUpdateByEntryType', '', false, false)]
     local procedure OnValidateUnitAmountOnUpdateByEntryType(var ItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer)
@@ -461,6 +468,16 @@ codeunit 99000762 "Mfg. Item Journal Mgt."
             ItemJournalLine.Validate("Output Quantity");
             ItemJournalLine.Validate("Scrap Quantity");
             IsHandled := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnAfterCopyItemJnlLineFromPurchLine', '', false, false)]
+    local procedure OnAfterCopyItemJnlLineFromPurchLine(var ItemJnlLine: Record "Item Journal Line"; PurchLine: Record "Purchase Line")
+    begin
+        if PurchLine."Prod. Order No." <> '' then begin
+            ItemJnlLine."Order Type" := ItemJnlLine."Order Type"::Production;
+            ItemJnlLine."Order No." := PurchLine."Prod. Order No.";
+            ItemJnlLine."Order Line No." := PurchLine."Prod. Order Line No.";
         end;
     end;
 

@@ -159,12 +159,6 @@ page 137 "Posted Purchase Rcpt. Subform"
                     ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
                 }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the related production order.';
-                    Visible = false;
-                }
                 field("Inbound Whse. Handling Time"; Rec."Inbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;
