@@ -10,6 +10,8 @@ using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Purchases.Vendor;
+using Microsoft.eServices.EDocument.OrderMatch.Copilot;
+using System.Telemetry;
 
 page 6181 "E-Document Purchase Draft"
 {
@@ -189,10 +191,13 @@ page 6181 "E-Document Purchase Draft"
 
                 trigger OnAction()
                 begin
+                    Session.LogMessage('0000PCO', FinalizeDraftInvokedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
                     ProcessEDocument();
                     PageEditable := ConditionallyEditable();
                     CurrPage.Lines.Page.Update();
                     CurrPage.Update();
+                    Session.LogMessage('0000PCP', FinalizeDraftPerformedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
+                    FeatureTelemetry.LogUsage('0000PCU', EDocPOCopilotMatching.FeatureName(), 'Finalize draft');
                 end;
             }
             action(AnalyzeDocument)
@@ -412,6 +417,8 @@ page 6181 "E-Document Purchase Draft"
         EDocumentServiceStatus: Record "E-Document Service Status";
         EDocumentErrorHelper: Codeunit "E-Document Error Helper";
         EDocumentProcessing: Codeunit "E-Document Processing";
+        EDocPOCopilotMatching: Codeunit "E-Doc. PO Copilot Matching";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ErrorsAndWarningsNotification: Notification;
         AIGeneratedContentNotification: Notification;
         RecordLinkTxt, StyleStatusTxt, ServiceStatusStyleTxt, VendorName, DataCaption : Text;
@@ -419,6 +426,8 @@ page 6181 "E-Document Purchase Draft"
         ShowFinalizeDraftAction: Boolean;
         ShowAnalyzeDocumentAction: Boolean;
         EDocHasErrorOrWarningMsg: Label 'Errors or warnings found for E-Document. Please review below in "Error Messages" section.';
+        FinalizeDraftInvokedTxt: Label 'User invoked Finalize Draft action.';
+        FinalizeDraftPerformedTxt: Label 'User completed Finalize Draft action.';
         PageEditable: Boolean;
 }
 #pragma warning restore AS0050

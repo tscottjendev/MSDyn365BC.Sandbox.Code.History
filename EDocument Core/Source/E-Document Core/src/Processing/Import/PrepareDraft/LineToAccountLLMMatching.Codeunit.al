@@ -17,9 +17,11 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
     var
         TelemetryChatCompletionErr: label 'Chat completion request for proposing purchase line account was unsuccessful. Response code: %1', Locked = true;
         TelemetryChatCompletionSuccessTxt: label 'Chat completion request for proposing purchase line account was successful. Response code: %1', Locked = true;
+        MatchStatisticsTxt: label 'Purchase Document Draft line match proposal created.', Locked = true;
         FunctionNameLbl: Label 'match_lines_glaccounts', Locked = true;
         Result: Dictionary of [Integer, Code[20]];
         InstrPromptSNameLbl: label 'EDocMatchLineToGLAccount', Locked = true;
+        ExceededTokenThresholdTxt: label 'Not calling LLM, token count too high.', Locked = true;
 
     procedure GetPurchaseLineAccountsWithCopilot(var EDocumentPurchaseLine: Record "E-Document Purchase Line"): Dictionary of [Integer, Code[20]]
     var
@@ -30,9 +32,13 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         AOAIChatCompletionParams: Codeunit "AOAI Chat Completion Params";
         AOAIChatMessages: Codeunit "AOAI Chat Messages";
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        AOAIToken: Codeunit "AOAI Token";
+        TelemetryCustomDimensions: Dictionary of [Text, Text];
         FindGLAccountsPromptSecTxt: SecretText;
         EDocumentPurchaseLinesTxt: Text;
         GLAccountsTxt: Text;
+        LinesMatched: Integer;
+        EstimateTokenCount: Integer;
     begin
         Clear(Result);
 
@@ -49,6 +55,13 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         FeatureTelemetry.LogUptake('0000P2L', FeatureName(), Enum::"Feature Uptake Status"::"Set up");
         FeatureTelemetry.LogUptake('0000OUT', FeatureName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000P2M', FeatureName(), 'Suggect G/L account for purchase line');
+        EstimateTokenCount := AOAIToken.GetGPT4TokenCount(EDocumentPurchaseLinesTxt + GLAccountsTxt);
+        if EstimateTokenCount > PromptInputThreshold() then begin
+            Session.LogMessage('0000PCS', ExceededTokenThresholdTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName(), 'EstimateTokenCount', Format(EstimateTokenCount));
+            FeatureTelemetry.LogUsage('0000PCT', FeatureName(), 'Token threshold exceeded for suggect G/L account');
+            exit(Result);
+        end;
+
         GetCompletionResponse(AOAIChatMessages, EDocumentPurchaseLinesTxt, FindGLAccountsPromptSecTxt, GLAccountsTxt, AzureOpenAI, AOAIChatCompletionParams, AOAIOperationResponse);
 
         if AOAIOperationResponse.IsSuccess() then
@@ -64,12 +77,24 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
             repeat
                 if Result.ContainsKey(EDocumentPurchaseLine."Line No.") then
                     if EDocumentLineMapping.Get(EDocumentPurchaseLine."E-Document Entry No.", EDocumentPurchaseLine."Line No.") then
-                        if SetPurchaseLineAccountFromCopilotResult(EDocumentLineMapping, Result.Get(EDocumentPurchaseLine."Line No.")) then
+                        if SetPurchaseLineAccountFromCopilotResult(EDocumentLineMapping, Result.Get(EDocumentPurchaseLine."Line No.")) then begin
                             EDocumentLineMapping.Modify();
+                            LinesMatched += 1;
+                        end;
             until EDocumentPurchaseLine.Next() = 0;
         end;
 
+        TelemetryCustomDimensions.Add('Category', FeatureName());
+        TelemetryCustomDimensions.Add('LinesConsidered', Format(EDocumentPurchaseLine.Count()));
+        TelemetryCustomDimensions.Add('LInesMatched', Format(LinesMatched));
+        Session.LogMessage('0000PCN', MatchStatisticsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryCustomDimensions);
+
         exit(Result);
+    end;
+
+    local procedure PromptInputThreshold(): Integer
+    begin
+        exit(20000)
     end;
 
     [TryFunction]
