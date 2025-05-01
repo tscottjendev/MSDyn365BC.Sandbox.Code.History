@@ -120,12 +120,6 @@ page 6648 "Get Return Shipment Lines"
                     ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the related production order.';
-                    Visible = false;
-                }
                 field("Quantity Invoiced"; Rec."Quantity Invoiced")
                 {
                     ApplicationArea = SalesReturnOrder;

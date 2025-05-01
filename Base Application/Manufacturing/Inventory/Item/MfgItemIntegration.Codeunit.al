@@ -377,12 +377,6 @@ codeunit 99000795 "Mfg. Item Integration"
         Rec.CalcFields("Qty. on Prod. Order", "Qty. on Component Lines");
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Stockkeeping Unit", 'OnAfterCopyFromItem', '', false, false)]
-    local procedure OnAfterCopyFromItem(var StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item)
-    begin
-        StockkeepingUnit."Flushing Method" := Item."Flushing Method";
-    end;
-
     [EventSubscriber(ObjectType::Table, Database::"Stockkeeping Unit", 'OnAfterValidateEvent', "Item No.", false, false)]
     local procedure OnAfterValidateEventItemNo(var Rec: Record "Stockkeeping Unit"; var xRec: Record "Stockkeeping Unit")
     var
