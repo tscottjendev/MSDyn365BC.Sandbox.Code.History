@@ -1379,6 +1379,10 @@ table 27 Item
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Safety Lead Time';
         }
+        field(5417; "Flushing Method"; Enum Microsoft.Manufacturing.Setup."Flushing Method")
+        {
+            Caption = 'Flushing Method';
+        }
         field(5419; "Replenishment System"; Enum "Replenishment System")
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
@@ -2072,6 +2076,36 @@ table 27 Item
         {
             Caption = 'Inventory Price';
         }
+        field(99000752; "Single-Level Material Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Single-Level Material Cost';
+            Editable = false;
+        }
+        field(99000753; "Single-Level Capacity Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Single-Level Capacity Cost';
+            Editable = false;
+        }
+        field(99000754; "Single-Level Subcontrd. Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Single-Level Subcontrd. Cost';
+            Editable = false;
+        }
+        field(99000755; "Single-Level Cap. Ovhd Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Single-Level Cap. Ovhd Cost';
+            Editable = false;
+        }
+        field(99000756; "Single-Level Mfg. Ovhd Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Single-Level Mfg. Ovhd Cost';
+            Editable = false;
+        }
         field(99000757; "Overhead Rate"; Decimal)
         {
             AutoFormatType = 2;
@@ -2084,6 +2118,24 @@ table 27 Item
                 if Rec."Overhead Rate" <> xRec."Overhead Rate" then
                     AdjustCostIfRequired(Rec.FieldCaption("Overhead Rate"));
             end;
+        }
+        field(99000758; "Rolled-up Subcontracted Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Rolled-up Subcontracted Cost';
+            Editable = false;
+        }
+        field(99000759; "Rolled-up Mfg. Ovhd Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Rolled-up Mfg. Ovhd Cost';
+            Editable = false;
+        }
+        field(99000760; "Rolled-up Cap. Overhead Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Rolled-up Cap. Overhead Cost';
+            Editable = false;
         }
         field(99000761; "Planning Issues (Qty.)"; Decimal)
         {
@@ -2208,6 +2260,29 @@ table 27 Item
                         until TempReservationEntry.Next() = 0;
                 end;
             end;
+        }
+        field(99000774; "Prod. Forecast Quantity (Base)"; Decimal)
+        {
+            CalcFormula = sum(Microsoft.Manufacturing.Forecast."Production Forecast Entry"."Forecast Quantity (Base)" where("Item No." = field("No."),
+                                                                                            "Production Forecast Name" = field("Production Forecast Name"),
+                                                                                            "Forecast Date" = field("Date Filter"),
+                                                                                            "Location Code" = field("Location Filter"),
+                                                                                            "Component Forecast" = field("Component Forecast"),
+                                                                                            "Variant Code" = field("Variant Filter")));
+            Caption = 'Prod. Forecast Quantity (Base)';
+            DecimalPlaces = 0 : 5;
+            FieldClass = FlowField;
+        }
+        field(99000775; "Production Forecast Name"; Code[10])
+        {
+            Caption = 'Production Forecast Name';
+            FieldClass = FlowFilter;
+            TableRelation = Microsoft.Manufacturing.Forecast."Production Forecast Name";
+        }
+        field(99000776; "Component Forecast"; Boolean)
+        {
+            Caption = 'Component Forecast';
+            FieldClass = FlowFilter;
         }
         field(99000875; Critical; Boolean)
         {
@@ -2768,13 +2843,13 @@ table 27 Item
 
     procedure IsMfgItem() Result: Boolean
     begin
-        Result := "Replenishment System" = "Replenishment System"::"Prod. Order";
-        OnAfterIsMfgItem(Rec, Result);
+        OnIsMfgItem(Rec, Result); // Internal event
+        OnAfterIsMfgItem(Rec, Result); // Partner event
     end;
 
     procedure IsAssemblyItem() Result: Boolean
     begin
-        Result := Rec."Replenishment System" = Rec."Replenishment System"::Assembly;
+        OnIsAssemblyItem(Rec, Result); // Internal event
         OnAfterIsAssemblyItem(Rec, Result);
     end;
 
@@ -3338,13 +3413,12 @@ table 27 Item
         CalcFields("Assembly BOM");
 
         if "Assembly BOM" then begin
-            if not ("Replenishment System" in ["Replenishment System"::Assembly, "Replenishment System"::"Prod. Order"])
-            then begin
+            if not (IsMfgItem() or IsAssemblyItem()) then begin
                 Validate("Replenishment System", "Replenishment System"::Assembly);
                 exit(true);
             end
         end else
-            if "Replenishment System" = "Replenishment System"::Assembly then
+            if IsAssemblyItem() then
                 if "Assembly Policy" <> "Assembly Policy"::"Assemble-to-Order" then begin
                     Validate("Replenishment System", "Replenishment System"::Purchase);
                     exit(true);
@@ -3678,6 +3752,16 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteRelatedData(Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsAssemblyItem(Item: Record Item; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsMfgItem(Item: Record Item; var Result: Boolean)
     begin
     end;
 

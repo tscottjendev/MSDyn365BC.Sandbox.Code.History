@@ -1481,7 +1481,7 @@ codeunit 90 "Purch.-Post"
         OnPostItemJnlLineOnAfterPrepareItemJnlLine(
             ItemJnlLine, PurchLine, PurchHeader, PreviewMode, GenJnlLineDocNo, TrackingSpecification, QtyToBeReceived, QtyToBeInvoiced);
 
-        if PurchLine."Prod. Order No." <> '' then
+        if PurchLine.IsProdOrder() then
             PostItemJnlLineCopyProdOrder(PurchLine, ItemJnlLine, QtyToBeReceived, QtyToBeInvoiced);
 
         CheckApplToItemEntry := SetCheckApplToItemEntry(PurchLine, PurchHeader, ItemJnlLine);
@@ -4552,7 +4552,7 @@ codeunit 90 "Purch.-Post"
         if IsHandled then
             exit;
 
-        if TempItemPurchLine."Prod. Order No." <> '' then
+        if TempItemPurchLine.IsProdOrder() then
             exit;
 
         TempItemPurchLine.SetRange(Type, TempItemPurchLine.Type::Item);
