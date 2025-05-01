@@ -279,7 +279,7 @@ codeunit 5870 "Calculate BOM Tree"
         TempItem := ParentItem;
         TempItem.Insert();
 
-        if ParentItem."Replenishment System" = ParentItem."Replenishment System"::"Prod. Order" then begin
+        if ParentItem.IsMfgItem() then begin
             BOMBuffer."Is Leaf" := not GenerateProdCompSubTree(ParentItem, BOMBuffer);
             if BOMBuffer."Is Leaf" then
                 BOMBuffer."Is Leaf" := not GenerateBOMCompSubTree(ParentItem, BOMBuffer);
@@ -304,7 +304,7 @@ codeunit 5870 "Calculate BOM Tree"
         ParentBOMBuffer := BOMBuffer;
         BOMComp.SetRange("Parent Item No.", ParentItem."No.");
         if BOMComp.FindSet() then begin
-            if ParentItem."Replenishment System" <> ParentItem."Replenishment System"::Assembly then
+            if not ParentItem.IsAssemblyItem() then
                 exit(true);
 
             IsHandled := false;
@@ -358,7 +358,7 @@ codeunit 5870 "Calculate BOM Tree"
             if GlobalTreeType = GlobalTreeType::Availability then
                 ProdBOMLine.SetFilter("Quantity per", '>%1', 0);
         if ProdBOMLine.FindSet() then begin
-            if ParentItem."Replenishment System" <> ParentItem."Replenishment System"::"Prod. Order" then begin
+            if not ParentItem.IsMfgItem() then begin
                 FoundSubTree := true;
                 OnGenerateProdCompSubTreeOnBeforeExitForNonProdOrder(ParentItem, BOMBuffer, FoundSubTree);
                 exit(FoundSubTree);

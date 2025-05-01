@@ -5,11 +5,11 @@
 namespace Microsoft.Manufacturing.Integration;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
 using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.Reports;
 using Microsoft.Manufacturing.WorkCenter;
-using Microsoft.Purchases.Document;
-using Microsoft.Purchases.History;
 
 codeunit 99000789 "Mfg. Purchase Document Mgt."
 {
@@ -22,6 +22,23 @@ codeunit 99000789 "Mfg. Purchase Document Mgt."
     local procedure OnAfterInitPurchaseLineDefaultDimSource(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SourcePurchaseLine: Record "Purchase Line")
     begin
         DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", SourcePurchaseLine."Work Center No.");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnTransferSavedFieldsOnAfterSetVariantCode', '', false, false)]
+    local procedure OnTransferSavedFieldsOnAfterSetVariantCode(var DestinationPurchaseLine: Record "Purchase Line"; SourcePurchaseLine: Record "Purchase Line")
+    begin
+        DestinationPurchaseLine."Prod. Order No." := SourcePurchaseLine."Prod. Order No.";
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterTransferSavedFields', '', false, false)]
+    local procedure OnAfterTransferSavedFields(var DestinationPurchaseLine: Record "Purchase Line"; SourcePurchaseLine: Record "Purchase Line")
+    begin
+        DestinationPurchaseLine."Prod. Order Line No." := SourcePurchaseLine."Prod. Order Line No.";
+        DestinationPurchaseLine."Routing No." := SourcePurchaseLine."Routing No.";
+        DestinationPurchaseLine."Routing Reference No." := SourcePurchaseLine."Routing Reference No.";
+        DestinationPurchaseLine."Operation No." := SourcePurchaseLine."Operation No.";
+        DestinationPurchaseLine."Work Center No." := SourcePurchaseLine."Work Center No.";
+        DestinationPurchaseLine."Overhead Rate" := SourcePurchaseLine."Overhead Rate";
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterInitDefaultDimensionSources', '', false, false)]
@@ -71,6 +88,18 @@ codeunit 99000789 "Mfg. Purchase Document Mgt."
     begin
         if PurchInvLine."Work Center No." <> '' then
             ShouldExit := true;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Purch. Inv. Line", 'OnIsProdOrder', '', false, false)]
+    local procedure PurchInvLineOnIsProdOrder(var PurchInvLine: Record "Purch. Inv. Line"; var Result: Boolean)
+    begin
+        Result := PurchInvLine."Prod. Order No." <> '';
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Purch. Rcpt. Line", 'OnIsProdOrder', '', false, false)]
+    local procedure PurchRcptLineOnIsProdOrder(var PurchRcptLine: Record "Purch. Rcpt. Line"; var Result: Boolean)
+    begin
+        Result := PurchRcptLine."Prod. Order No." <> '';
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purchase-Post Prepayments", 'OnCreateDimensionsOnAfterAddDimSources', '', false, false)]
