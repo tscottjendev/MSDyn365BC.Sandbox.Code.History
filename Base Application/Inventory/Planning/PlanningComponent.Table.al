@@ -218,6 +218,10 @@ table 99000829 "Planning Component"
                 "Direct Cost Amount" := Round("Expected Quantity" * "Direct Unit Cost");
             end;
         }
+        field(28; "Flushing Method"; Enum Microsoft.Manufacturing.Setup."Flushing Method")
+        {
+            Caption = 'Flushing Method';
+        }
         field(30; "Location Code"; Code[10])
         {
             Caption = 'Location Code';

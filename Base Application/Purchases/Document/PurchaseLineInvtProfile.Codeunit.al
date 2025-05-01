@@ -126,7 +126,7 @@ codeunit 99000864 "Purchase Line Invt. Profile"
             exit;
 
         if PurchLine."Expected Receipt Date" <> 0D then
-            if PurchLine."Prod. Order No." = '' then
+            if not PurchLine.IsProdOrder() then
                 InsertPurchLineToProfile(InventoryProfile, PurchLine, ToDate, ReservationEntry, NextLineNo);
     end;
 
