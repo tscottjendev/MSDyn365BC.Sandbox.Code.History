@@ -525,12 +525,6 @@ page 6641 "Purchase Return Order Subform"
                         UpdateForm(false);
                     end;
                 }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = PurchReturnOrder;
-                    ToolTip = 'Specifies the number of the related production order.';
-                    Visible = false;
-                }
                 field("Insurance No."; Rec."Insurance No.")
                 {
                     ApplicationArea = PurchReturnOrder;

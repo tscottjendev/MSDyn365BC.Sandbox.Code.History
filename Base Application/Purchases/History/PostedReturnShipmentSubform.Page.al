@@ -114,12 +114,6 @@ page 6651 "Posted Return Shipment Subform"
                     ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = PurchReturnOrder;
-                    ToolTip = 'Specifies the number of the related production order.';
-                    Visible = false;
-                }
                 field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
                 {
                     ApplicationArea = PurchReturnOrder;

@@ -843,7 +843,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnIssueActionMessageOnSetSourceTypeFromSKU', '', false, false)]
     local procedure OnIssueActionMessageOnSetSourceTypeFromSKU(var ActionMessageEntry: Record "Action Message Entry"; SKU: Record "Stockkeeping Unit")
     begin
-        if SKU."Replenishment System" = SKU."Replenishment System"::"Prod. Order" then
+        if SKU.IsMfgSKU() then
             ActionMessageEntry."Source Type" := Database::"Prod. Order Line";
     end;
 
