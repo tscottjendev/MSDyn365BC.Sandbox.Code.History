@@ -72,8 +72,8 @@ page 41 "Sales Quote"
 
                     trigger OnValidate()
                     begin
-                        IsSalesLinesEditable := Rec.SalesLinesEditable();
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
+                        IsSalesLinesEditable := Rec.SalesLinesEditable();
                         CurrPage.Update();
                     end;
                 }
@@ -85,15 +85,25 @@ page 41 "Sales Quote"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
 
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        Customer: Record Customer;
+                    begin
+                        Selected.SetTable(Customer);
+                        if Rec."Sell-to Customer No." <> Customer."No." then begin
+                            Rec.Validate("Sell-to Customer No.", Customer."No.");
+                            if Rec."Sell-to Customer No." <> Customer."No." then
+                                error('');
+                            IsSalesLinesEditable := Rec.SalesLinesEditable();
+                            CurrPage.Update();
+                        end;
+                    end;
+
                     trigger OnValidate()
                     begin
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
+                        IsSalesLinesEditable := Rec.SalesLinesEditable();
                         CurrPage.Update();
-                    end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
                 field("External Document No."; Rec."External Document No.")
@@ -285,8 +295,18 @@ page 41 "Sales Quote"
                 field("Quote Valid Until Date"; Rec."Quote Valid Until Date")
                 {
                     ApplicationArea = Suite;
-                    Importance = Additional;
                     ToolTip = 'Specifies how long the quote is valid.';
+                }
+                field("Quote Accepted Date"; Rec."Quote Accepted Date")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies when the quote was accepted by the customer.';
+                }
+                field("Due Date"; Rec."Due Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies when the related sales invoice must be paid.';
                 }
                 field("Requested Delivery Date"; Rec."Requested Delivery Date")
                 {
