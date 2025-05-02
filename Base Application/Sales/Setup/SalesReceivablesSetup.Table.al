@@ -405,11 +405,21 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Default G/L Account Quantity';
             ToolTip = 'Specifies that Quantity is set to 1 on lines of type G/L Account.';
         }
+#if not CLEANSCHEMA29        
         field(57; "Create Item from Item No."; Boolean)
         {
             Caption = 'Create Item from Item No.';
             ToolTip = 'Specifies if the system will suggest to create a new item when no item matches the number that you enter in the No. Field on sales lines.';
+            ObsoleteReason = 'Discontinued function';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
+#endif        
         field(58; "Copy Customer Name to Entries"; Boolean)
         {
             Caption = 'Copy Customer Name to Entries';

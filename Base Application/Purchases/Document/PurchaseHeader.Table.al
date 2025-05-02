@@ -187,6 +187,9 @@ table 38 "Purchase Header"
                 then
                     RecreatePurchLines(BuyFromVendorTxt);
 
+                if not Insertmode and ("Buy-from Vendor No." <> '') then
+                    StandardCodesMgtGlobal.CheckCreatePurchRecurringLines(Rec);
+
                 OnValidateBuyFromVendorNoOnAfterRecreateLines(Rec, xRec, CurrFieldNo);
 
                 if not SkipBuyFromContact then
@@ -325,26 +328,13 @@ table 38 "Purchase Header"
             ToolTip = 'Specifies the name of the vendor who you received the invoice from.';
             ValidateTableRelation = false;
 
-            trigger OnLookup()
-            var
-                Vendor: Record Vendor;
-            begin
-                if "Pay-to Vendor No." <> '' then
-                    Vendor.Get("Pay-to Vendor No.");
-
-                if Vendor.SelectVendor(Vendor) then begin
-                    xRec := Rec;
-                    "Pay-to Name" := Vendor.Name;
-                    Validate("Pay-to Vendor No.", Vendor."No.");
-                end;
-            end;
-
             trigger OnValidate()
             var
                 Vendor: Record Vendor;
             begin
-                if ShouldSearchForVendorByName("Pay-to Vendor No.") then
-                    Validate("Pay-to Vendor No.", Vendor.GetVendorNo("Pay-to Name"));
+                if Rec."Pay-to Name" <> xRec."Pay-to Name" then
+                    if ShouldSearchForVendorByName("Pay-to Vendor No.") then
+                        Validate("Pay-to Vendor No.", Vendor.GetVendorNo("Pay-to Name"));
             end;
         }
         field(6; "Pay-to Name 2"; Text[50])
@@ -1339,20 +1329,10 @@ table 38 "Purchase Header"
             ToolTip = 'Specifies the name of the vendor that you’re buying from. By default, the same vendor is suggested as the pay-to vendor. If needed, you can specify a different pay-to vendor on the document.';
             ValidateTableRelation = false;
 
-            trigger OnLookup()
-            var
-                VendorName: Text;
-            begin
-                VendorName := "Buy-from Vendor Name";
-                LookupBuyFromVendorName(VendorName);
-                "Buy-from Vendor Name" := CopyStr(VendorName, 1, MaxStrLen("Buy-from Vendor Name"));
-            end;
-
             trigger OnValidate()
             var
                 Vendor: Record Vendor;
                 LookupStateManager: Codeunit "Lookup State Manager";
-                StandardCodesMgt: Codeunit "Standard Codes Mgt.";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -1368,15 +1348,12 @@ table 38 "Purchase Header"
                     if Vendor."No." <> '' then begin
                         LookupStateManager.ClearSavedRecord();
                         Validate("Buy-from Vendor No.", Vendor."No.");
-                        if "No." <> '' then
-                            StandardCodesMgt.CheckCreatePurchRecurringLines(Rec);
                         OnLookupBuyfromVendorNameOnAfterSuccessfulLookup(Rec);
-                        exit;
                     end;
-                end;
-
-                if ShouldSearchForVendorByName("Buy-from Vendor No.") then
-                    Validate("Buy-from Vendor No.", Vendor.GetVendorNo("Buy-from Vendor Name"));
+                end else
+                    if Rec."Buy-from Vendor Name" <> xRec."Buy-from Vendor Name" then
+                        if ShouldSearchForVendorByName("Buy-from Vendor No.") then
+                            Validate("Buy-from Vendor No.", Vendor.GetVendorNo("Buy-from Vendor Name"));
             end;
         }
         field(80; "Buy-from Vendor Name 2"; Text[50])
@@ -2817,6 +2794,7 @@ table 38 "Purchase Header"
             exit;
 
         InitInsert();
+        Insertmode := true;
 
         SetBuyFromVendorFromFilter();
 
@@ -2995,6 +2973,7 @@ table 38 "Purchase Header"
         PurchSetup: Record "Purchases & Payables Setup";
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
+        InsertMode: Boolean;
         HideValidationDialog: Boolean;
         StatusCheckSuspended: Boolean;
         SkipBuyFromContact: Boolean;
@@ -6398,7 +6377,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Removes the filter from buy-from vendor no. if the number has changed.
+    /// Removes the filter from buy-from vendor no. if the number has changed 
     /// Updates remittance address for the record if the default remit address for the vendor exists.
     /// </summary>
     /// <param name="PurchaseHeader">Purchase header record after validation.</param>

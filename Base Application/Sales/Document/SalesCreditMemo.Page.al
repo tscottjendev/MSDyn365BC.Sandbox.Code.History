@@ -66,6 +66,7 @@ page 44 "Sales Credit Memo"
                     trigger OnValidate()
                     begin
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
+                        IsSalesLinesEditable := Rec.SalesLinesEditable();
                         CurrPage.Update();
                     end;
                 }
@@ -77,19 +78,25 @@ page 44 "Sales Credit Memo"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
 
-                    trigger OnValidate()
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        Customer: Record Customer;
                     begin
-                        if Rec."No." = '' then
-                            Rec.InitRecord();
-
-                        Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
-                        SellToCustomerUsesEInvoicing := CustomerUsesEInvoicing(Rec."Sell-to Customer No.");
-                        CurrPage.Update();
+                        Selected.SetTable(Customer);
+                        if Rec."Sell-to Customer No." <> Customer."No." then begin
+                            Rec.Validate("Sell-to Customer No.", Customer."No.");
+                            if Rec."Sell-to Customer No." <> Customer."No." then
+                                error('');
+                            IsSalesLinesEditable := Rec.SalesLinesEditable();
+                            SellToCustomerUsesEInvoicing := CustomerUsesEInvoicing(Rec."Sell-to Customer No.");
+                            CurrPage.Update();
+                        end;
                     end;
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnValidate()
                     begin
-                        exit(Rec.LookupSellToCustomerName(Text));
+                        Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
+                        CurrPage.Update();
                     end;
                 }
                 field("Registration Number"; Rec."Registration Number")
