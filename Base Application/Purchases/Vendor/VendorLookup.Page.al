@@ -65,6 +65,23 @@ page 34 "Vendor Lookup"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+                field("E-Mail"; Rec."E-mail")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the vendor''s email address.';
+                }
+                field("Pay-to Vendor No."; Rec."Pay-to Vendor No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the vendor''s pay-to vendor (who should receive invoices).';
+                    Visible = false;
+                }
+                field("Registration Number"; Rec."Registration Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the vendor''s registration number.';
+                    Visible = false;
+                }
                 field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
