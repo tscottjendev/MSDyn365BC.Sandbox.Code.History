@@ -11,7 +11,7 @@ table 5095 "Duplicate Search String Setup"
 {
     Caption = 'Duplicate Search String Setup';
     DataClassification = CustomerContent;
-    Permissions = tabledata "Cont. Duplicate Search String" = d;
+    Permissions = tabledata "Cont. Duplicate Search String" = id;
 
     fields
     {
