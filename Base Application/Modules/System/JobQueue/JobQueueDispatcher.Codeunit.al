@@ -19,7 +19,6 @@ codeunit 448 "Job Queue Dispatcher"
             JobQueueTelemetry.SendJobQueueSkippedTelemetry(Rec);
             exit;
         end;
-
         if not Rec.IsReadyToStart() then begin
             JobQueueTelemetry.SendJobQueueNotReadyToStartTelemetry(Rec);
             exit;
