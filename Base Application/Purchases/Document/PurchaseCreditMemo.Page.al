@@ -80,24 +80,24 @@ page 52 "Purchase Credit Memo"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the vendor who delivers the products.';
 
-                    trigger OnValidate()
+                    trigger OnAfterLookup(Selected: RecordRef)
                     var
-                        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+                        Vendor: Record Vendor;
                     begin
-                        if Rec."No." = '' then
-                            Rec.InitRecord();
-
-                        Rec.OnAfterValidateBuyFromVendorNo(Rec, xRec);
-
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
-                            PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
-                        CurrPage.Update();
+                        Selected.SetTable(Vendor);
+                        if Rec."Buy-from Vendor No." <> Vendor."No." then begin
+                            Rec.Validate("Buy-from Vendor No.", Vendor."No.");
+                            if Rec."Buy-from Vendor No." <> Vendor."No." then
+                                error('');
+                            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+                            CurrPage.Update();
+                        end;
                     end;
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnValidate()
                     begin
-                        exit(Rec.LookupBuyFromVendorName(Text));
+                        Rec.OnAfterValidateBuyFromVendorNo(Rec, xRec);
+                        CurrPage.Update();
                     end;
                 }
                 field("Posting Description"; Rec."Posting Description")

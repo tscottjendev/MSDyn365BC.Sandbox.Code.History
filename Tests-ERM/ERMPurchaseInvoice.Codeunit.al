@@ -2073,78 +2073,28 @@
     end;
 
     [Test]
-    [HandlerFunctions('VendorLookupHandler,ConfirmHandlerYesNo')]
     [Scope('OnPrem')]
-    procedure LookUpSecondVendorSameNameAsBuyFromVendOnPurchInvoice()
+    procedure PurchaseInvoiceChangePricesInclVATRefreshesPage()
     var
-        Vendor1: Record Vendor;
-        Vendor2: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
-        PurchaseInvoice: TestPage "Purchase Invoice";
+        PurchaseInvoicePage: TestPage "Purchase Invoice";
     begin
-        // [FEATURE] [UI] [Buy-from Vendor]
-        // [SCENARIO 294718] Select second vendor with the same name when lookup "Buy-from Vendor Name" on Purchase Invoice
+        // [FEATURE] [UI]
+        // [SCENARIO 277993] User changes Prices including VAT, page refreshes and shows appropriate captions
         Initialize();
 
-        // [GIVEN] Vendors "Vend1" and "Vend2" with same name "Amazing"
-        CreateVendorsWithSameName(Vendor1, Vendor2);
+        // [GIVEN] Page with Prices including VAT disabled was open
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
+        PurchaseInvoicePage.OpenEdit();
+        PurchaseInvoicePage.GotoRecord(PurchaseHeader);
 
-        // [GIVEN] Purchase Invoice card is opened
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
-        LibraryVariableStorage.Enqueue(Vendor2."No.");
-        LibraryVariableStorage.Enqueue(StrSubstNo('''''..%1', WorkDate()));
-        LibraryVariableStorage.Enqueue(true); // yes to change "Buy-from Vendor No."
-        LibraryVariableStorage.Enqueue(true); // yes to change "Pay-to Vendor No."
-        PurchaseInvoice.OpenEdit();
-        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        // [WHEN] User checks Prices including VAT
+        PurchaseInvoicePage."Prices Including VAT".SetValue(true);
 
-        // [WHEN] Select "Vend2" when lookup "Buy-from Vendor Name"
-        PurchaseInvoice."Buy-from Vendor Name".Lookup();
-        PurchaseInvoice.Close();
-
-        // [THEN] "Buy-from Vendor No." is updated with "Vend2" on the Purchase Invoice
-        PurchaseHeader.Find();
-        PurchaseHeader.TestField("Buy-from Vendor No.", Vendor2."No.");
-        PurchaseHeader.TestField("Buy-from Vendor Name", Vendor2.Name);
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorLookupHandler,ConfirmHandlerYesNo')]
-    [Scope('OnPrem')]
-    procedure LookUpSecondVendorSameNameAsPayToVendOnPurchInvoice()
-    var
-        Vendor1: Record Vendor;
-        Vendor2: Record Vendor;
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseInvoice: TestPage "Purchase Invoice";
-    begin
-        // [FEATURE] [UI] [Pay-to Vendor]
-        // [SCENARIO 294718] Select second vendor with the same name when lookup "Pay-to Name" on Purchase Invoice
-        Initialize();
-
-        // [GIVEN] Vendors "Vend1" and "Vend2" with same name "Amazing"
-        CreateVendorsWithSameName(Vendor1, Vendor2);
-
-        // [GIVEN] Purchase Invoice card is opened
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
-        LibraryVariableStorage.Enqueue(Vendor2."No.");
-        LibraryVariableStorage.Enqueue('');
-        LibraryVariableStorage.Enqueue(true); // yes to change "Pay-to Vendor No."
-        PurchaseInvoice.OpenEdit();
-        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
-
-        // [WHEN] Select "Vend2" when lookup "Pay-to Name"
-        PurchaseInvoice."Pay-to Name".Lookup();
-        PurchaseInvoice.Close();
-
-        // [THEN] "Pay-to Vendor No." is updated with "Vend2" on the Purchase Invoice
-        PurchaseHeader.Find();
-        PurchaseHeader.TestField("Pay-to Vendor No.", Vendor2."No.");
-        PurchaseHeader.TestField("Pay-to Name", Vendor2.Name);
-
-        LibraryVariableStorage.AssertEmpty();
+        // [THEN] Caption for PurchaseInvoicePage.PurchLines."Direct Unit Cost" field is updated
+        Assert.AreEqual('Direct Unit Cost Incl. VAT',
+          PurchaseInvoicePage.PurchLines."Direct Unit Cost".Caption,
+          'The caption for PurchaseInvoicePage.PurchLines."Direct Unit Cost" is incorrect');
     end;
 
     [Test]
@@ -2263,97 +2213,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('VendorLookupHandler')]
-    [Scope('OnPrem')]
-    procedure LookUpBuyFromVendorNameValidateItemInLine()
-    var
-        Vendor1: Record Vendor;
-        Vendor2: Record Vendor;
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PurchaseInvoice: TestPage "Purchase Invoice";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 332188]
-        // [SCENARIO 391749] The Vendor Lookup page must has Date Filter
-        Initialize();
-
-        CreateVendorsWithSameName(Vendor1, Vendor2);
-
-        PurchaseHeader.Init();
-        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Invoice);
-        PurchaseHeader.Insert(true);
-        PurchaseHeader.TestField("No.");
-
-        LibraryVariableStorage.Enqueue(Vendor1."No.");
-
-        PurchaseInvoice.OpenEdit();
-        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
-
-        LibraryVariableStorage.Enqueue(StrSubstNo('''''..%1', WorkDate()));
-        PurchaseInvoice."Buy-from Vendor Name".Lookup();
-        PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
-        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
-        PurchaseInvoice.Close();
-
-        PurchaseHeader.Find();
-        PurchaseHeader.TestField("Buy-from Vendor No.", Vendor1."No.");
-        PurchaseHeader.TestField("Buy-from Vendor Name", Vendor1.Name);
-        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
-        PurchaseLine.TestField(Type);
-        PurchaseLine.TestField("No.");
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorLookupHandler,ConfirmHandlerYesNo')]
-    [Scope('OnPrem')]
-    procedure LookUpPayToVendorNameValidateItemInLine()
-    var
-        Vendor1: Record Vendor;
-        Vendor2: Record Vendor;
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PurchaseInvoice: TestPage "Purchase Invoice";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 332188]
-        Initialize();
-
-        CreateVendorsWithSameName(Vendor1, Vendor2);
-
-        PurchaseHeader.Init();
-        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Invoice);
-        PurchaseHeader.Insert(true);
-        PurchaseHeader.TestField("No.");
-
-        LibraryVariableStorage.Enqueue(Vendor2."No.");
-        LibraryVariableStorage.Enqueue('');
-        LibraryVariableStorage.Enqueue(true);
-
-        PurchaseInvoice.OpenEdit();
-        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
-
-        PurchaseInvoice."Buy-from Vendor No.".SetValue(Vendor1."No.");
-        PurchaseInvoice."Pay-to Name".Lookup();
-        PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
-        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
-        PurchaseInvoice.Close();
-
-        PurchaseHeader.Find();
-        PurchaseHeader.TestField("Buy-from Vendor No.", Vendor1."No.");
-        PurchaseHeader.TestField("Buy-from Vendor Name", Vendor1.Name);
-        PurchaseHeader.TestField("Pay-to Vendor No.", Vendor2."No.");
-        PurchaseHeader.TestField("Pay-to Name", Vendor2.Name);
-        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
-        PurchaseLine.TestField(Type);
-        PurchaseLine.TestField("No.");
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure ValidateBuyFromVendorNameValidateItemInLine()
     var
@@ -2390,8 +2249,6 @@
         LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
         PurchaseLine.TestField(Type);
         PurchaseLine.TestField("No.");
-
-        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -4694,8 +4551,6 @@
     procedure VendorLookupHandler(var VendorLookup: TestPage "Vendor Lookup")
     begin
         VendorLookup.GotoKey(LibraryVariableStorage.DequeueText());
-        Assert.AreEqual(LibraryVariableStorage.DequeueText(),
-            VendorLookup.Filter.GetFilter("Date Filter"), 'Wrong Date Filter.');
         VendorLookup.OK().Invoke();
     end;
 

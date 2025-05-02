@@ -161,7 +161,7 @@ codeunit 134195 "ERM Multiple Posting Groups"
     [Test]
     [Scope('OnPrem')]
     procedure CheckPurchaseOrderVendorPostingGroupIsNotEditableIfFeatureDisabled()
-    var
+    var 
         PurchaseOrder: TestPage "Purchase Order";
     begin
         Initialize();
