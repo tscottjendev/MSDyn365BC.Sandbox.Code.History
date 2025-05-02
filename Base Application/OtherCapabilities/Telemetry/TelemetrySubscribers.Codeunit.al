@@ -1,14 +1,16 @@
 namespace System.Telemetry;
 
-using System.Security.AccessControl;
-using System.Reflection;
-using Microsoft.Sales.History;
-using System.Environment;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.FinancialReports;
+using Microsoft.Sales.History;
+using System.Environment;
 using System.Environment.Configuration;
 using System.Feedback;
+using System.Reflection;
+using System.Security.AccessControl;
+using System.Threading;
+using System.IO;
 
 codeunit 1351 "Telemetry Subscribers"
 {
@@ -16,6 +18,7 @@ codeunit 1351 "Telemetry Subscribers"
     SingleInstance = true;
 
     var
+        Telemetry: Codeunit Telemetry;
         ProfileChangedTelemetryMsg: Label 'Profile changed from %1 to %2.', Comment = '%1=Previous profile id, %2=New profile id', Locked = true;
         ProfileChangedTelemetryCategoryTxt: Label 'AL User Profile', Locked = true;
         PermissionSetCategoryTxt: Label 'AL PermissionSet', Locked = true;
@@ -30,6 +33,9 @@ codeunit 1351 "Telemetry Subscribers"
         PermissionSetRemovedFromUserTelemetryScopeAllTxt: Label 'Permission set removed from user: %1', Locked = true;
         EffectivePermsCalculatedTxt: Label 'Effective permissions were calculated for company %1, object type %2, object ID %3.', Locked = true, Comment = '%1 = company name, %2 = object type, %3 = object Id';
         TenantPermissionsChangedFromEffectivePermissionsPageTxt: Label 'Tenant permission set %1 was changed.', Locked = true, Comment = '%1 = permission set id';
+        JobQueueEntriesCategoryTxt: Label 'AL JobQueueEntries', Locked = true;
+        JobQueueEntrySkippedTxt: Label 'Job queue entry skipped: %1', Comment = '%1 = Job queue id', Locked = true;
+        JobQueueEntryNotReadyToStartTxt: Label 'Job queue entry not ready to start: %1', Comment = '%1 = Job queue id', Locked = true;
         UndoSalesShipmentCategoryTxt: Label 'AL UndoSalesShipmentNoOfLines', Locked = true;
         UndoSalesShipmentNoOfLinesTxt: Label 'UndoNoOfLines = %1', Locked = true;
         BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
@@ -49,6 +55,38 @@ codeunit 1351 "Telemetry Subscribers"
         AuditNewTok: Label 'New', Locked = true;
         AuditEditTok: Label 'Edit', Locked = true;
         AuditDeleteTok: Label 'Delete', Locked = true;
+
+    procedure SendJobQueueSkippedTelemetry(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        TranslationHelper: Codeunit "Translation Helper";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        TranslationHelper.SetGlobalLanguageToDefault();
+        SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        Telemetry.LogMessage('0000P8K',
+                                StrSubstNo(JobQueueEntrySkippedTxt, Format(JobQueueEntry.ID, 0, 4)),
+                                Verbosity::Normal,
+                                DataClassification::OrganizationIdentifiableInformation,
+                                TelemetryScope::All,
+                                Dimensions);
+        TranslationHelper.RestoreGlobalLanguage();
+    end;
+
+    procedure SendJobQueueNotReadyToStartTelemetry(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        TranslationHelper: Codeunit "Translation Helper";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        TranslationHelper.SetGlobalLanguageToDefault();
+        SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        Telemetry.LogMessage('0000P8L',
+                                StrSubstNo(JobQueueEntryNotReadyToStartTxt, Format(JobQueueEntry.ID, 0, 4)),
+                                Verbosity::Normal,
+                                DataClassification::OrganizationIdentifiableInformation,
+                                TelemetryScope::All,
+                                Dimensions);
+        TranslationHelper.RestoreGlobalLanguage();
+    end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Conf./Personalization Mgt.", 'OnProfileChanged', '', true, true)]
     local procedure SendTraceOnProfileChanged(PrevAllProfile: Record "All Profile"; CurrentAllProfile: Record "All Profile")
@@ -488,5 +526,24 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogAuditMessage(
             StrSubstNo(FinancialReportOperationLbl, StrSubstNo(FinancialReportColumnEventTxt, AuditAction, ColumnLayoutName.Name), UserSecurityId()),
             SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0, AuditDimensions);
+    end;
+
+    internal procedure SetJobQueueTelemetryDimensions(var JobQueueEntry: Record "Job Queue Entry"; var Dimensions: Dictionary of [Text, Text])
+    begin
+        JobQueueEntry.CalcFields("Object Caption to Run");
+        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
+        Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));
+        Dimensions.Add('JobQueueObjectName', Format(JobQueueEntry."Object Caption to Run"));
+        Dimensions.Add('JobQueueObjectDescription', Format(JobQueueEntry.Description));
+        Dimensions.Add('JobQueueObjectType', Format(JobQueueEntry."Object Type to Run"));
+        Dimensions.Add('JobQueueObjectId', Format(JobQueueEntry."Object ID to Run"));
+        Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
+        Dimensions.Add('JobQueueIsRecurring', Format(JobQueueEntry."Recurring Job"));
+        Dimensions.Add('JobQueueEarliestStartDateTime', Format(JobQueueEntry."Earliest Start Date/Time", 0, 9)); // UTC time
+        Dimensions.Add('JobQueueCompanyName', JobQueueEntry.CurrentCompany());
+        Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
+        Dimensions.Add('JobQueueMaxNumberOfAttemptsToRun', Format(JobQueueEntry."Maximum No. of Attempts to Run"));
+        Dimensions.Add('JobQueueNumberOfAttemptsToRun', Format(JobQueueEntry."No. of Attempts to Run"));
+        Dimensions.Add('JobQueueCategory', Format(JobQueueEntry."Job Queue Category Code"));
     end;
 }
