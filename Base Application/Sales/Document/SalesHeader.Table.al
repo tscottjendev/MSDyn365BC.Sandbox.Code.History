@@ -216,6 +216,9 @@ table 36 "Sales Header"
                 then
                     RecreateSalesLines(SellToCustomerTxt);
 
+                if not InsertMode and ("Sell-to Customer No." <> '') then
+                    StandardCodesMgtGlobal.CheckCreateSalesRecurringLines(Rec);
+
                 OnValidateSellToCustomerNoOnBeforeUpdateSellToCont(Rec, xRec, Customer, SkipSellToContact);
                 if not SkipSellToContact then
                     UpdateSellToCont("Sell-to Customer No.");
@@ -337,34 +340,14 @@ table 36 "Sales Header"
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
 
-            trigger OnLookup()
-            var
-                Customer: Record Customer;
-                IsHandled: Boolean;
-            begin
-                IsHandled := false;
-                OnBeforeValidateBillToName(Rec, Customer, IsHandled, xRec);
-                if IsHandled then
-                    exit;
-
-                if "Bill-to Customer No." <> '' then
-                    Customer.Get("Bill-to Customer No.");
-
-                if Customer.SelectCustomer(Customer) then begin
-                    xRec := Rec;
-                    "Bill-to Name" := Customer.Name;
-                    Validate("Bill-to Customer No.", Customer."No.");
-                end;
-            end;
-
             trigger OnValidate()
             var
                 Customer: Record Customer;
             begin
                 OnBeforeValidateBillToCustomerName(Rec, Customer);
-
-                if ShouldSearchForCustomerByName("Bill-to Customer No.") then
-                    Validate("Bill-to Customer No.", Customer.GetCustNo("Bill-to Name"));
+                if Rec."Bill-to Name" <> xRec."Bill-to Name" then
+                    if ShouldSearchForCustomerByName("Bill-to Customer No.") then
+                        Validate("Bill-to Customer No.", Customer.GetCustNo("Bill-to Name"));
             end;
         }
         field(6; "Bill-to Name 2"; Text[50])
@@ -1387,20 +1370,10 @@ table 36 "Sales Header"
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
 
-            trigger OnLookup()
-            var
-                CustomerName: Text;
-            begin
-                CustomerName := "Sell-to Customer Name";
-                LookupSellToCustomerName(CustomerName);
-                "Sell-to Customer Name" := CopyStr(CustomerName, 1, MaxStrLen("Sell-to Customer Name"));
-            end;
-
             trigger OnValidate()
             var
                 Customer: Record Customer;
                 LookupStateManager: Codeunit "Lookup State Manager";
-                StandardCodesMgt: Codeunit "Standard Codes Mgt.";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -1416,16 +1389,11 @@ table 36 "Sales Header"
                     if Customer."No." <> '' then begin
                         LookupStateManager.ClearSavedRecord();
                         Validate("Sell-to Customer No.", Customer."No.");
-
-                        GetShippingTime(FieldNo("Sell-to Customer Name"));
-                        if "No." <> '' then
-                            StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
-                        exit;
-                    end;
-                end;
-
-                if ShouldSearchForCustomerByName("Sell-to Customer No.") then
-                    Validate("Sell-to Customer No.", Customer.GetCustNo("Sell-to Customer Name"));
+                    end
+                end else
+                    if Rec."Sell-to Customer Name" <> xRec."Sell-to Customer Name" then
+                        if ShouldSearchForCustomerByName("Sell-to Customer No.") then
+                            Validate("Sell-to Customer No.", Customer.GetCustNo("Sell-to Customer Name"));
 
                 GetShippingTime(FieldNo("Sell-to Customer Name"));
             end;

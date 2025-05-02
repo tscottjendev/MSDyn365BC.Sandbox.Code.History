@@ -2897,25 +2897,6 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustomerTempl.Modify(true);
     end;
 
-    local procedure UpdateItemTemplateGenAndVatGroups(var ItemTempl: Record "Item Templ."; SearchGenPostingType: Integer)
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        case SearchGenPostingType of
-            1:
-                LibraryERM.SetSearchGenPostingTypeSales();
-            2:
-                LibraryERM.SetSearchGenPostingTypePurch();
-        end;
-        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-
-        ItemTempl."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
-        ItemTempl."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-        ItemTempl.Modify(true);
-    end;
-
     local procedure CreateEmployeeWithData(var Employee: Record Employee)
     var
         EmployeePostingGroup: Record "Employee Posting Group";
@@ -3258,24 +3239,6 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     procedure SelectItemTemplListInvokeCancelHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
     begin
         SelectItemTemplList.Cancel().Invoke();
-    end;
-
-    [StrMenuHandler]
-    procedure CreateItemOptionStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
-    begin
-        Choice := 1;
-    end;
-
-    [ModalPageHandler]
-    procedure ItemCardHandler(var ItemCard: TestPage "Item Card")
-    var
-        ItemTempl: Record "Item Templ.";
-    begin
-        ItemTempl.Get(LibraryVariableStorage.DequeueText());
-
-        Assert.IsTrue(ItemCard."Inventory Posting Group".Value = ItemTempl."Inventory Posting Group", InsertedItemErr);
-        Assert.IsTrue(ItemCard."Gen. Prod. Posting Group".Value = ItemTempl."Gen. Prod. Posting Group", InsertedItemErr);
-        Assert.IsTrue(ItemCard."VAT Prod. Posting Group".Value = ItemTempl."VAT Prod. Posting Group", InsertedItemErr);
     end;
 
     [ModalPageHandler]

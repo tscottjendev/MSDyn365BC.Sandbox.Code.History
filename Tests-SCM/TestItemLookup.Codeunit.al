@@ -12,13 +12,10 @@ codeunit 134835 "Test Item Lookup"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryApplicationArea: Codeunit "Library - Application Area";
-        EditableErr: Label '%1 should be editable';
-        NotEditableErr: Label '%1 should NOT be editable';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -26,6 +23,8 @@ codeunit 134835 "Test Item Lookup"
         LibraryRandom: Codeunit "Library - Random";
         LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
+        EditableErr: Label '%1 should be editable', Comment = '%1 is a field name';
+        NotEditableErr: Label '%1 should NOT be editable', Comment = '%1 is a field name';
         ItemDoesNotExistMenuTxt: Label 'This item is not registered. To continue, choose one of the following options';
 
     [Test]
@@ -964,244 +963,6 @@ codeunit 134835 "Test Item Lookup"
 
     [Test]
     [Scope('OnPrem')]
-    procedure Sales_ValidateNo_IncompeteNo_CreateItemFromNo_FALSE()
-    var
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        NewItemNo: Code[20];
-    begin
-        // [FEATURE] [Sales]
-        // [SCENARIO 344369] System validates existing Item when incomplete number specified in No. field of sales line when "Create Item from Item No." = FALSE in setup
-        Initialize();
-
-        LibrarySales.SetCreateItemFromItemNo(false);
-
-        CreateItemWithNo(Item, GenerateItemNo());
-        NewItemNo := CopyStr(Item."No.", 1, StrLen(Item."No.") - 1);
-
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
-        SalesLine.Validate("Document Type", SalesHeader."Document Type");
-        SalesLine.Validate("Document No.", SalesHeader."No.");
-        SalesLine.Validate(Type, SalesLine.Type::Item);
-
-        SalesLine.Validate("No.", NewItemNo);
-
-        SalesLine.TestField("No.", Item."No.");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure Sales_ValidateNo_IncompeteNo_CreateItemFromNo_TRUE()
-    var
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        NewItemNo: Code[20];
-    begin
-        // [FEATURE] [Sales]
-        // [SCENARIO 344369] System validates existing Item when incomplete number specified in No. field of sales line when "Create Item from Item No." = TRUE in setup
-        Initialize();
-
-        LibrarySales.SetCreateItemFromItemNo(true);
-
-        CreateItemWithNo(Item, GenerateItemNo());
-        NewItemNo := CopyStr(Item."No.", 1, StrLen(Item."No.") - 1);
-
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
-        SalesLine.Validate("Document Type", SalesHeader."Document Type");
-        SalesLine.Validate("Document No.", SalesHeader."No.");
-        SalesLine.Validate(Type, SalesLine.Type::Item);
-
-        SalesLine.Validate("No.", NewItemNo);
-
-        SalesLine.TestField("No.", Item."No.");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure Sales_ValidateNo_DifferentNo_CreateItemFromNo_FALSE()
-    var
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        NewItemNo: Code[20];
-    begin
-        // [FEATURE] [Sales]
-        // [SCENARIO 344369] System shows error when non-existent number specified in No. field of sales line when "Create Item from Item No." = FALSE in setup
-        Initialize();
-
-        LibrarySales.SetCreateItemFromItemNo(false);
-
-        CreateItemWithNo(Item, GenerateItemNo());
-        NewItemNo := GenerateItemNo();
-
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
-        SalesLine.Validate("Document Type", SalesHeader."Document Type");
-        SalesLine.Validate("Document No.", SalesHeader."No.");
-        SalesLine.Validate(Type, SalesLine.Type::Item);
-
-        asserterror SalesLine.Validate("No.", NewItemNo);
-
-        Assert.ExpectedErrorCannotFind(Database::Item, NewItemNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('CreateItemStrMenuHandler,SelectItemTemplListModalPageHandler,ItemCardModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure Sales_ValidateNo_DifferentNo_CreateItemFromNo_TRUE()
-    var
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        NewItemNo: Code[20];
-    begin
-        // [FEATURE] [Sales]
-        // [SCENARIO 344369] System suggests to create new item when non-existent number specified in No. field of sales line when "Create Item from Item No." = TRUE in setup
-        Initialize();
-
-        LibrarySales.SetCreateItemFromItemNo(true);
-
-        CreateItemWithNo(Item, GenerateItemNo());
-        NewItemNo := GenerateItemNo();
-
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
-        SalesLine.Validate("Document Type", SalesHeader."Document Type");
-        SalesLine.Validate("Document No.", SalesHeader."No.");
-        SalesLine.Validate(Type, SalesLine.Type::Item);
-
-        LibraryVariableStorage.Enqueue(ItemDoesNotExistMenuTxt);
-        LibraryVariableStorage.Enqueue(1); // select "Create new item card"
-        LibraryVariableStorage.Enqueue(Item.Type::Inventory);
-
-        SalesLine.Validate("No.", NewItemNo);
-
-        SalesLine.TestField(Description, NewItemNo);
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure Purchase_ValidateNo_IncompeteNo_CreateItemFromNo_FALSE()
-    var
-        Item: Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        NewItemNo: Code[20];
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO 344369] System validates existing Item when incomplete number specified in No. field of purchase line when "Create Item from Item No." = FALSE in setup
-        Initialize();
-
-        LibraryPurchase.SetCreateItemFromItemNo(false);
-
-        CreateItemWithNo(Item, GenerateItemNo());
-        NewItemNo := CopyStr(Item."No.", 1, StrLen(Item."No.") - 1);
-
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
-        PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
-        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
-
-        PurchaseLine.Validate("No.", NewItemNo);
-
-        PurchaseLine.TestField("No.", Item."No.");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure Purchase_ValidateNo_IncompeteNo_CreateItemFromNo_TRUE()
-    var
-        Item: Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        NewItemNo: Code[20];
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO 344369] System validates existing Item when incomplete number specified in No. field of purchase line when "Create Item from Item No." = TRUE in setup
-        Initialize();
-
-        LibraryPurchase.SetCreateItemFromItemNo(true);
-
-        CreateItemWithNo(Item, GenerateItemNo());
-        NewItemNo := CopyStr(Item."No.", 1, StrLen(Item."No.") - 1);
-
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
-        PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
-        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
-
-        PurchaseLine.Validate("No.", NewItemNo);
-
-        PurchaseLine.TestField("No.", Item."No.");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure Purchase_ValidateNo_DifferentNo_CreateItemFromNo_FALSE()
-    var
-        Item: Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        NewItemNo: Code[20];
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO 344369] System shows error when non-existent number specified in No. field of purchase line when "Create Item from Item No." = FALSE in setup
-        Initialize();
-
-        LibraryPurchase.SetCreateItemFromItemNo(false);
-
-        CreateItemWithNo(Item, GenerateItemNo());
-        NewItemNo := GenerateItemNo();
-
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
-        PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
-        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
-
-        asserterror PurchaseLine.Validate("No.", NewItemNo);
-
-        Assert.ExpectedErrorCannotFind(Database::Item, NewItemNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('CreateItemStrMenuHandler,SelectItemTemplListModalPageHandler,ItemCardModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure Purchase_ValidateNo_DifferentNo_CreateItemFromNo_TRUE()
-    var
-        Item: Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        NewItemNo: Code[20];
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO 344369] System suggests to create new item when non-existent number specified in No. field of purchase line when "Create Item from Item No." = TRUE in setup
-        Initialize();
-
-        LibraryPurchase.SetCreateItemFromItemNo(true);
-
-        CreateItemWithNo(Item, GenerateItemNo());
-        NewItemNo := GenerateItemNo();
-
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
-        PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
-        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
-
-        LibraryVariableStorage.Enqueue(ItemDoesNotExistMenuTxt);
-        LibraryVariableStorage.Enqueue(1); // select "Create new item card"
-        LibraryVariableStorage.Enqueue(Item.Type::Inventory);
-
-        PurchaseLine.Validate("No.", NewItemNo);
-
-        PurchaseLine.TestField(Description, NewItemNo);
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure ValidateDescOnPurchLine_ExactDesc_ValidatesUnitPrice()
     var
         Item: Record Item;
@@ -1435,34 +1196,6 @@ codeunit 134835 "Test Item Lookup"
           Item, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)), 1, MaxStrLen(Item.Description)));
     end;
 
-    local procedure CreateItemWithNo(var Item: Record Item; ItemNo: Code[20])
-    var
-        ItemUnitOfMeasure: Record "Item Unit of Measure";
-        GeneralPostingSetup: Record "General Posting Setup";
-        VATPostingSetup: Record "VAT Posting Setup";
-        InventoryPostingGroup: Record "Inventory Posting Group";
-    begin
-        Clear(Item);
-
-        Item.Init();
-        Item."No." := ItemNo;
-        Item.Insert();
-
-        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-
-        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, ItemNo, '', 1);
-        LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
-
-        Item.Validate(Description, GenerateItemDescription());  // Validation Description as No. because value is not important.
-        Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
-        Item.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        Item.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
-
-        Item.Modify(true);
-    end;
-
     local procedure CreateItemWithDescription(var Item: Record Item; NewDescription: Text[100])
     begin
         LibraryInventory.CreateItem(Item);
@@ -1476,16 +1209,6 @@ codeunit 134835 "Test Item Lookup"
         Item.Validate(Description, NewDescription);
         Item.Validate("Last Direct Cost", UnitCost);
         Item.Modify(true);
-    end;
-
-    local procedure GenerateItemNo(): Code[20]
-    begin
-        exit(StrSubstNo('No-%1-ABCD', LibraryUtility.GenerateGUID()));
-    end;
-
-    local procedure GenerateItemDescription(): Text[100]
-    begin
-        exit(StrSubstNo('Dscr-%1', LibraryUtility.GenerateGUID()));
     end;
 
     [StrMenuHandler]
