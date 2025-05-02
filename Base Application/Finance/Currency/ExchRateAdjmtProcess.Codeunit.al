@@ -1772,7 +1772,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                             GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code", 0, 0);
                 end;
             else
-                OnSetPostingDimensionsElseCase(GenJournalLine, DimensionSetEntry);
+                OnSetPostingDimensionsElseCase(GenJournalLine, DimensionSetEntry, ExchRateAdjmtParameters);
         end;
     end;
 
@@ -2990,7 +2990,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetPostingDimensionsElseCase(var GenJournalLine: Record "Gen. Journal Line"; var DimensionSetEntry: Record "Dimension Set Entry")
+    local procedure OnSetPostingDimensionsElseCase(var GenJournalLine: Record "Gen. Journal Line"; var DimensionSetEntry: Record "Dimension Set Entry"; var ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters" temporary)
     begin
     end;
 
