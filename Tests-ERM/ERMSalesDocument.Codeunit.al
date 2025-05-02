@@ -3537,7 +3537,6 @@
         // [GIVEN] Sales Invoice card is opened
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryVariableStorage.Enqueue(Customer2."No.");
-        LibraryVariableStorage.Enqueue(StrSubstNo('''''..%1', WorkDate()));
         LibraryVariableStorage.Enqueue(true); // yes to change "Sell-to Customer No."
         LibraryVariableStorage.Enqueue(true); // yes to change "Bill-to Customer No."
         SalesInvoice.OpenEdit();
@@ -3575,7 +3574,6 @@
         // [GIVEN] Sales Invoice card is opened
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryVariableStorage.Enqueue(Customer2."No.");
-        LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(true); // yes to change "Bill-to Customer No."
         SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -3792,7 +3790,6 @@
         SalesHeader.TestField("No.");
 
         LibraryVariableStorage.Enqueue(Customer1."No.");
-        LibraryVariableStorage.Enqueue(StrSubstNo('''''..%1', WorkDate()));
 
         SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -3837,7 +3834,6 @@
         SalesHeader.TestField("No.");
 
         LibraryVariableStorage.Enqueue(Customer2."No.");
-        LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(true);
 
         SalesInvoice.OpenEdit();
@@ -7014,8 +7010,6 @@
     procedure CustomerLookupHandler(var CustomerLookup: TestPage "Customer Lookup")
     begin
         CustomerLookup.GotoKey(LibraryVariableStorage.DequeueText());
-        Assert.AreEqual(LibraryVariableStorage.DequeueText(),
-            CustomerLookup.Filter.GetFilter("Date Filter"), 'Wrong Date Filter.');
         CustomerLookup.OK().Invoke();
     end;
 

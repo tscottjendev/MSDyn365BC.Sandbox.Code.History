@@ -497,6 +497,7 @@ table 18 Customer
             Caption = 'Bill-to Customer No.';
             TableRelation = Customer;
             ToolTip = 'Specifies a different customer who will be invoiced for products that you sell to the customer in the Name field on the customer card.';
+            OptimizeForTextSearch = true;
         }
         field(46; Priority; Integer)
         {
@@ -1972,7 +1973,7 @@ table 18 Customer
 
     fieldgroups
     {
-        fieldgroup(DropDown; "No.", Name, City, "Post Code", "Phone No.", Contact)
+        fieldgroup(DropDown; "No.", Name, Address, City, "Post Code", "Phone No.", Contact, "E-Mail", "Bill-to Customer No.", "Registration Number")
         {
         }
         fieldgroup(Brick; "No.", Name, "Balance (LCY)", Contact, "Balance Due (LCY)", Image)
