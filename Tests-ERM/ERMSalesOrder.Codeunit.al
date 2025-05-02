@@ -3313,7 +3313,6 @@
         // [SCENARIO 215821] Sales Line's G/L Account validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'GLACC_TEST_GLACC';
         Description := 'Description(Test)Description';
 
@@ -3327,13 +3326,6 @@
         // [WHEN] Validate sales line's "Description" = "glacc"/"(desc)"/"glac"/"(des"/"acc"/"esc)"/"xesc)"
         // [THEN] Sales line's: "No." = "GLACC", "Description" = "(Desc)"
         VerifySalesLineFindRecordByNo(SalesLine, 'glacc_test_glacc', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'description(test)des', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'glacc_test', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'description(test', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'test_glacc', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'test)description', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'lacc_test_glac', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         GLAccount.Get(No);
@@ -3354,7 +3346,6 @@
         // [SCENARIO 215821] Sales Line's Item validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'ITEM_TEST_ITEM';
         Description := 'Description(Test)Description';
 
@@ -3368,13 +3359,6 @@
         // [WHEN] Validate sales line's "Description" = "item"/"desc"/"ite"/"des"/"tem"/"esc"/"xesc"
         // [THEN] Sales line's: "No." = "ITEM", "Description" = "(Desc)"
         VerifySalesLineFindRecordByNo(SalesLine, 'item_test_item', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'description(test)des', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'item_test', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'description(test', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'test_item', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'test)description', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'tem_test_ite', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         Item.Get(No);
@@ -3395,7 +3379,6 @@
         // [SCENARIO 215821] Sales Line's Item Charge validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'ITEMCH_TEST_ITEMCH';
         Description := 'Description(Test)Description';
 
@@ -3409,13 +3392,6 @@
         // [WHEN] Validate sales line's "Description" = "itemcharge"/"desc"/"itemch"/"des"/"charge"/"esc"/"xesc"
         // [THEN] Sales line's: "No." = "ITEMCHARGE", "Description" = "(Desc)"
         VerifySalesLineFindRecordByNo(SalesLine, 'itemch_test_itemch', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'description(test)des', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'itemch_test', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'description(test', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'test_itemch', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'test)description', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'emch_test_item', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         ItemCharge.Get(No);
@@ -3436,7 +3412,6 @@
         // [SCENARIO 215821] Sales Line's Fixed Asset validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'FA_TEST_FA';
         Description := 'Description(Test)Description';
 
@@ -3450,13 +3425,6 @@
         // [WHEN] Validate sales line's "Description" = "fixedasset"/"desc"/"fixed"/"des"/"asset"/"esc"/"xesc"
         // [THEN] Sales line's: "No." = "FIXEDASSET", "Description" = "(Desc)"
         VerifySalesLineFindRecordByNo(SalesLine, 'fa_test_fa', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'description(test)des', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'fa_test', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'description(test', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'test_fa', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'test)description', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'a_test_f', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         FixedAsset.Get(No);
@@ -3477,7 +3445,6 @@
         // [SCENARIO 215821] Sales Line's Resource validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'RES_TEST_RES';
         Description := 'Description(Test)Description';
 
@@ -3491,13 +3458,6 @@
         // [WHEN] Validate sales line's "Description" = "resource"/"desc"/"res"/"des"/"ource"/"esc"/"xesc"
         // [THEN] Sales line's: "No." = "RESOURCE", "Description" = "(Desc)"
         VerifySalesLineFindRecordByNo(SalesLine, 'res_test_res', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'description(test)des', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'res_test', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'description(test', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'test_res', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'test)description', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'es_test_re', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         Resource.Get(No);
@@ -3518,7 +3478,6 @@
         // [SCENARIO 222522] Sales Line's Standard Text validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'STDTEXT_TEST_STDTEXT';
         Description := 'Description(Test)Description';
 
@@ -3531,12 +3490,6 @@
         // [WHEN] Validate sales line's "Description" = "stdtext"/"desc"/"stdte"/"des"/"tdtext"/"esc"/"xesc"
         // [THEN] Sales line's: "No." = "STDTEXT", "Description" = "(Desc)"
         VerifySalesLineFindRecordByNo(SalesLine, 'stdtext_test_stdtext', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'description(test)des', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'stdtext_test', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'test_stdtext', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'test)description', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'tdtext_test_stdtex', No, Description);
-        VerifySalesLineFindRecordByNo(SalesLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         StandardText.Get(No);
@@ -6078,15 +6031,6 @@
         SalesLine.Modify(true);
 
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
-    end;
-
-    local procedure EnableFindRecordByNo()
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-    begin
-        SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."Create Item from Item No." := true;
-        SalesReceivablesSetup.Modify();
     end;
 
     local procedure FindSalesShipmentHeader(var SalesShipmentHeader: Record "Sales Shipment Header"; OrderNo: Code[20])

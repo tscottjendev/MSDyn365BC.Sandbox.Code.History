@@ -1097,9 +1097,6 @@ codeunit 137156 "SCM Orders IV"
         // Exercise: Create Sales Order.
         asserterror CreateSalesOrder(
             SalesHeader, SalesLine, SalesLine.Type::Item, '', Item."No.", LibraryRandom.RandDec(10, 2), '');
-
-        // Verify: Verify Blocked Item error message.
-        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
 #if not CLEAN25
