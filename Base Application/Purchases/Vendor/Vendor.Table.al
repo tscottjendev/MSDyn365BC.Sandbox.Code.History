@@ -389,6 +389,7 @@ table 23 Vendor
         {
             Caption = 'Pay-to Vendor No.';
             TableRelation = Vendor;
+            OptimizeForTextSearch = true;
         }
         field(46; Priority; Integer)
         {
@@ -1596,7 +1597,7 @@ table 23 Vendor
 
     fieldgroups
     {
-        fieldgroup(DropDown; "No.", Name, City, "Post Code", "Phone No.", Contact)
+        fieldgroup(DropDown; "No.", Name, Address, City, "Post Code", "Phone No.", Contact, "E-Mail", "Pay-to Vendor No.", "Registration Number")
         {
         }
         fieldgroup(Brick; "No.", Name, "Balance (LCY)", Contact, "Balance Due (LCY)", Image)
