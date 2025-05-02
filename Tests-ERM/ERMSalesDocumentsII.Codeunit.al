@@ -1132,7 +1132,7 @@ codeunit 134386 "ERM Sales Documents II"
     end;
 
     [Test]
-    [HandlerFunctions('GetShipmentLinesHandler,SendNotificationHandler,NotificationDetailsHandler,RecallNotificationHandler')]
+    [HandlerFunctions('GetShipmentLinesHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure CheckCreditLimitCustomerTotalAmount()
     var
