@@ -55,11 +55,17 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that Quantity is set to 1 on lines of type G/L Account.';
                 }
+#if not CLEAN27                
                 field("Create Item from Item No."; Rec."Create Item from Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the system will suggest to create a new item when no item matches the number that you enter in the No. Field on purchase lines.';
+                    Visible = false;
+                    ObsoleteReason = 'Discontinued functionality';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif                
                 field("Copy Vendor Name to Entries"; Rec."Copy Vendor Name to Entries")
                 {
                     ApplicationArea = Basic, Suite;

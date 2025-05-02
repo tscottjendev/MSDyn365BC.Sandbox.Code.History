@@ -2349,7 +2349,7 @@ table 27 Item
 
     fieldgroups
     {
-        fieldgroup(DropDown; "No.", Description, "Base Unit of Measure", "Unit Price")
+        fieldgroup(DropDown; "No.", Description, "Base Unit of Measure", "Unit Price", Inventory, Blocked, "Vendor Item No.", "No. 2", "Alternative Item No.", "Common Item No.", GTIN, "Shelf No.")
         {
         }
         fieldgroup(Brick; "No.", Description, Inventory, "Unit Price", "Base Unit of Measure", "Description 2", Picture)
