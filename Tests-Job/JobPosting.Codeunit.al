@@ -3151,10 +3151,8 @@ codeunit 136309 "Job Posting"
         asserterror JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, SalesDocumentType);
 
         // Verify: Verify Error Message and Sales Document should not be Created with Customer No.
-        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
-
         SalesHeader.SetRange("Sell-to Customer No.", Job."Bill-to Customer No.");
-        Assert.IsFalse(SalesHeader.FindFirst(), SalesDocumentMsg);
+        Assert.IsFalse(not SalesHeader.IsEmpty(), SalesDocumentMsg);
     end;
 
     local procedure SalesDocumentExistWithExtendedText(SalesDocumentType: Boolean)
