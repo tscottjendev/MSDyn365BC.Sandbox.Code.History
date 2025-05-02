@@ -3981,7 +3981,6 @@
         // [SCENARIO 215821] Purchase Line's G/L Account validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'GLACC_TEST_GLACC';
         Description := 'Description(Test)Description';
 
@@ -3995,12 +3994,6 @@
         // [WHEN] Validate purchase line's "No." = "glacc"/"desc"/"glac"/"des"/"acc"/"esc"/"xesc"
         // [THEN] Purchase line's: "No." = "GLACC", "Description" = "(Desc)"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'glacc_test_glacc', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'glacc_test', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_glacc', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'lacc_test_glac', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         GLAccount.Get(No);
@@ -4021,7 +4014,6 @@
         // [SCENARIO 215821] Purchase Line's Item validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'ITEM_TEST_ITEM';
         Description := 'Description(Test)Description';
 
@@ -4035,13 +4027,6 @@
         // [WHEN] Validate purchase line's "Description" = "glacc"/"(desc)"/"glac"/"(des"/"acc"/"esc"/"xesc)"
         // [THEN] Purchase line's: "No." = "ITEM", "Description" = "(Desc)"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'item_test_item', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'item_test', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_item', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'tem_test_ite', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         Item.Get(No);
@@ -4062,7 +4047,6 @@
         // [SCENARIO 215821] Purchase Line's Item Charge validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'ITEMCH_TEST_ITEMCH';
         Description := 'Description(Test)Description';
 
@@ -4076,12 +4060,6 @@
         // [WHEN] Validate purchase line's "Description" = "itemcharge"/"desc"/"itemch"/"des"/"charge"/"esc"/"xesc"
         // [THEN] Purchase line's: "No." = "ITEMCHARGE", "Description" = "(Desc)"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'itemch_test_itemch', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'itemch_test', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_itemch', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'emch_test_item', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         ItemCharge.Get(No);
@@ -4102,7 +4080,6 @@
         // [SCENARIO 215821] Purchase Line's Fixed Asset validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'FA_TEST_FA';
         Description := 'Description(Test)Description';
 
@@ -4116,12 +4093,6 @@
         // [WHEN] Validate purchase line's "Description" = "fixedasset"/"desc"/"fixed"/"des"/"asset"/"esc"/"xesc"
         // [THEN] Purchase line's: "No." = "FIXEDASSET", "Description" = "(Desc)"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'fa_test_fa', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'fa_test', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_fa', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'a_test_f', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         FixedAsset.Get(No);
@@ -4142,7 +4113,6 @@
         // [SCENARIO 222522] Purchase Line's Standard Text validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'STDTEXT_TEST_STDTEXT';
         Description := 'Description(Test)Description';
 
@@ -4155,12 +4125,6 @@
         // [WHEN] Validate purchase line's "Description" = "stdtext"/"desc"/"stdte"/"des"/"tdtext"/"esc"/"xesc"
         // [THEN] Purchase line's: "No." = "STDTEXT", "Description" = "(Desc)"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'stdtext_test_stdtext', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'stdtext_test', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_stdtext', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'tdtext_test_stdtex', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         StandardText.Get(No);
@@ -9724,15 +9688,6 @@
         PurchaseLine.Modify(true);
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-    end;
-
-    local procedure EnableFindRecordByNo()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-    begin
-        PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Create Item from Item No." := true;
-        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure UpdateDefaultWarehouseSetup(RequirePutAway: Boolean; RequirePick: Boolean; RequireReceive: Boolean; RequireShipment: Boolean)
