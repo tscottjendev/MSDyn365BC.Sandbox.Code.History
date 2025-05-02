@@ -69,11 +69,11 @@ page 6630 "Sales Return Order"
                     Importance = Additional;
                     NotBlank = true;
                     ToolTip = 'Specifies the number of the customer associated with the sales return.';
-
+    
                     trigger OnValidate()
                     begin
-                        IsSalesLinesEditable := Rec.SalesLinesEditable();
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
+                        IsSalesLinesEditable := Rec.SalesLinesEditable();
                         CurrPage.Update();
                     end;
                 }
@@ -88,15 +88,24 @@ page 6630 "Sales Return Order"
                     AboutTitle = 'Who''s returning the items?';
                     AboutText = 'This is the customer that bought the items now being returned, and who will be credited if you choose to accept the return.';
 
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        Customer: Record Customer;
+                    begin
+                        Selected.SetTable(Customer);
+                        if Rec."Sell-to Customer No." <> Customer."No." then begin
+                            Rec.Validate("Sell-to Customer No.", Customer."No.");
+                            if Rec."Sell-to Customer No." <> Customer."No." then
+                                error('');
+                            IsSalesLinesEditable := Rec.SalesLinesEditable();
+                            CurrPage.Update();
+                        end;
+                    end;
+
                     trigger OnValidate()
                     begin
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
                         CurrPage.Update();
-                    end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
                 group("Sell-to")

@@ -294,10 +294,20 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Ignore Updated Addresses';
         }
+#if not CLEANSCHEMA29        
         field(57; "Create Item from Item No."; Boolean)
         {
             Caption = 'Create Item from Item No.';
+            ObsoleteReason = 'Discontinued function';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
+#endif        
         field(58; "Copy Vendor Name to Entries"; Boolean)
         {
             Caption = 'Copy Vendor Name to Entries';

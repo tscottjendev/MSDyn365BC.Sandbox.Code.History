@@ -311,9 +311,6 @@
         asserterror CreatePurchaseOrder(
             PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, LibraryPurchase.CreateVendorNo(), Item."No.",
             LibraryRandom.RandDec(10, 2));
-
-        // Verify: Verify Blocked Item error message.
-        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]

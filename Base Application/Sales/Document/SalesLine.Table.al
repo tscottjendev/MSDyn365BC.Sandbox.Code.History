@@ -201,10 +201,7 @@ table 37 "Sales Line"
             else
             if (Type = const("Allocation Account")) "Allocation Account"
             else
-            if (Type = const(Item), "Document Type" = filter(<> "Credit Memo" & <> "Return Order")) Item where(Blocked = const(false), "Sales Blocked" = const(false))
-            else
-            if (Type = const(Item), "Document Type" = filter("Credit Memo" | "Return Order")) Item where(Blocked = const(false));
-            ValidateTableRelation = false;
+            if (Type = const(Item)) Item;
 
             trigger OnValidate()
             var
@@ -218,8 +215,6 @@ table 37 "Sales Line"
                     exit;
 
                 GetSalesSetup();
-
-                "No." := FindOrCreateRecordByNo("No.");
 
                 TestJobPlanningLine();
                 TestStatusOpen();
@@ -511,21 +506,17 @@ table 37 "Sales Line"
         {
             Caption = 'Description';
             ToolTip = 'Specifies a description of the entry of the product to be sold. To add a non-transactional text line, fill in the Description field only.';
-            TableRelation = if (Type = const("G/L Account"),
-                                "System-Created Entry" = const(false)) "G/L Account".Name where("Direct Posting" = const(true),
-                                "Account Type" = const(Posting),
-                                Blocked = const(false))
+            TableRelation = if (Type = const("G/L Account"), "System-Created Entry" = const(false)) "G/L Account".Name where("Direct Posting" = const(true), "Account Type" = const(Posting), Blocked = const(false))
             else
             if (Type = const("G/L Account"), "System-Created Entry" = const(true)) "G/L Account".Name
             else
-            if (Type = const(Item), "Document Type" = filter(<> "Credit Memo" & <> "Return Order")) Item.Description where(Blocked = const(false),
-                                                    "Sales Blocked" = const(false))
-            else
-            if (Type = const(Item), "Document Type" = filter("Credit Memo" | "Return Order")) Item.Description where(Blocked = const(false))
+            if (Type = const(Item)) Item.Description
             else
             if (Type = const(Resource)) Resource.Name
             else
             if (Type = const("Fixed Asset")) "Fixed Asset".Description
+            else
+            if (Type = const("Allocation Account")) "Allocation Account".Name
             else
             if (Type = const("Charge (Item)")) "Item Charge".Description;
             ValidateTableRelation = false;
@@ -6349,7 +6340,8 @@ table 37 "Sales Line"
     /// <param name="DocType">Document type of the applied-to document.</param>
     /// <param name="DocNo">Document number of the applied-to document.</param>
     /// <param name="DocLineNo">Line number of the applied-to document.</param>
-    procedure DeleteItemChargeAssignment(DocType: Enum "Sales Document Type"; DocNo: Code[20]; DocLineNo: Integer)
+    procedure DeleteItemChargeAssignment(DocType: Enum "Sales Document Type"; DocNo: Code[20];
+                                                      DocLineNo: Integer)
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
         IsHandled: Boolean;
@@ -6372,7 +6364,8 @@ table 37 "Sales Line"
     /// <param name="DocType">Document type of the sales line.</param>
     /// <param name="DocNo">Document number of the sales line.</param>
     /// <param name="DocLineNo">Document line number of the sales line.</param>
-    protected procedure DeleteChargeChargeAssgnt(DocType: Enum "Sales Document Type"; DocNo: Code[20]; DocLineNo: Integer)
+    protected procedure DeleteChargeChargeAssgnt(DocType: Enum "Sales Document Type"; DocNo: Code[20];
+                                                              DocLineNo: Integer)
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
         IsHandled: Boolean;
@@ -7501,9 +7494,7 @@ table 37 "Sales Line"
         GetSalesSetup();
 
         if Type = Type::Item then begin
-            if Item.TryGetItemNoOpenCardWithView(
-                 FoundNo, SourceNo, SalesSetup."Create Item from Item No.", true, SalesSetup."Create Item from Item No.", '')
-            then
+            if Item.TryGetItemNoOpenCardWithView(FoundNo, SourceNo, false, true, false, '') then
                 exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
         end else
             exit(FindRecordManagement.FindNoFromTypedValue(Type.AsInteger(), "No.", not "System-Created Entry"));
@@ -8085,7 +8076,8 @@ table 37 "Sales Line"
     /// <param name="DocumentType">The document type to filter the sales lines with.</param>
     /// <param name="AvailabilityFilter">Date filter to apply to the shipment date field.</param>
     /// <param name="Positive">A flag to determine if the quantity filter should be positive or negative.</param>
-    procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Enum "Sales Document Type"; AvailabilityFilter: Text; Positive: Boolean)
+    procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Enum "Sales Document Type"; AvailabilityFilter: Text;
+                                                                                                        Positive: Boolean)
     begin
         Reset();
         SetCurrentKey("Document Type", Type, "No.", "Variant Code", "Drop Shipment", "Location Code", "Shipment Date");
@@ -9397,7 +9389,8 @@ table 37 "Sales Line"
     /// <param name="LineType">The line type of lines to rename.</param>
     /// <param name="OldNo">The old number to rename from.</param>
     /// <param name="NewNo">The new number to rename to.</param>
-    procedure RenameNo(LineType: Enum "Sales Line Type"; OldNo: Code[20]; NewNo: Code[20])
+    procedure RenameNo(LineType: Enum "Sales Line Type"; OldNo: Code[20];
+                                     NewNo: Code[20])
     begin
         Reset();
         SetRange(Type, LineType);
@@ -9849,7 +9842,9 @@ table 37 "Sales Line"
         Resource2: Record Resource;
         FixedAsset: Record "Fixed Asset";
         ItemCharge2: Record "Item Charge";
+        AllocationAccount: Record "Allocation Account";
         LookupStateManager: Codeunit "Lookup State Manager";
+        NewNo: Code[20];
         RecVariant: Variant;
     begin
         case Rec.Type of
@@ -9857,33 +9852,47 @@ table 37 "Sales Line"
                 begin
                     SelectedRecordRef.SetTable(Item);
                     RecVariant := Item;
+                    NewNo := Item."No.";
                     LookupStateManager.SaveRecord(RecVariant);
                 end;
             Rec.Type::"G/L Account":
                 begin
                     SelectedRecordRef.SetTable(GLAccount);
                     RecVariant := GLAccount;
+                    NewNo := GLAccount."No.";
                     LookupStateManager.SaveRecord(RecVariant);
                 end;
             Rec.Type::Resource:
                 begin
                     SelectedRecordRef.SetTable(Resource2);
                     RecVariant := Resource2;
+                    NewNo := Resource."No.";
                     LookupStateManager.SaveRecord(RecVariant);
                 end;
             Rec.Type::"Fixed Asset":
                 begin
                     SelectedRecordRef.SetTable(FixedAsset);
                     RecVariant := FixedAsset;
+                    NewNo := FixedAsset."No.";
                     LookupStateManager.SaveRecord(RecVariant);
                 end;
             Rec.Type::"Charge (Item)":
                 begin
                     SelectedRecordRef.SetTable(ItemCharge2);
                     RecVariant := ItemCharge2;
+                    NewNo := ItemCharge2."No.";
+                    LookupStateManager.SaveRecord(RecVariant);
+                end;
+            Rec.Type::"Allocation Account":
+                begin
+                    SelectedRecordRef.SetTable(AllocationAccount);
+                    RecVariant := AllocationAccount;
+                    NewNo := AllocationAccount."No.";
                     LookupStateManager.SaveRecord(RecVariant);
                 end;
         end;
+        if (Rec."No." = '') and (NewNo <> '') then
+            Rec.Validate("No.", NewNo);
     end;
 
     /// <summary>
@@ -10397,7 +10406,8 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterDeleteItemChargeAssignment(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; DocType: Enum "Sales Document Type"; DocNo: Code[20]; DocLineNo: Integer)
+    local procedure OnAfterDeleteItemChargeAssignment(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; DocType: Enum "Sales Document Type"; DocNo: Code[20];
+                                                                                                                                                                 DocLineNo: Integer)
     begin
     end;
 
@@ -10407,7 +10417,8 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFilterLinesForReservation(var SalesLine: Record "Sales Line"; ReservationEntry: Record "Reservation Entry"; DocumentType: Enum "Sales Document Type"; AvailabilityFilter: Text; Positive: Boolean)
+    local procedure OnAfterFilterLinesForReservation(var SalesLine: Record "Sales Line"; ReservationEntry: Record "Reservation Entry"; DocumentType: Enum "Sales Document Type"; AvailabilityFilter: Text;
+                                                                                                                                                         Positive: Boolean)
     begin
     end;
 
@@ -12130,7 +12141,8 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteChargeChargeAssgnt(SalesDocumentType: Enum "Sales Document Type"; DocNo: Code[20]; DocLineNo: Integer; var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeDeleteChargeChargeAssgnt(SalesDocumentType: Enum "Sales Document Type"; DocNo: Code[20];
+                                                                            DocLineNo: Integer; var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -12165,7 +12177,8 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteItemChargeAssignment(DocType: Enum "Sales Document Type"; DocNo: Code[20]; DocLineNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeDeleteItemChargeAssignment(DocType: Enum "Sales Document Type"; DocNo: Code[20];
+                                                                    DocLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -176,6 +176,7 @@ table 39 "Purchase Line"
         {
             CaptionClass = GetCaptionClass(FieldNo("No."));
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             TableRelation = if (Type = const(" ")) "Standard Text"
             else
             if (Type = const("G/L Account"), "System-Created Entry" = const(false)) "G/L Account" where("Direct Posting" = const(true), "Account Type" = const(Posting), Blocked = const(false))
@@ -186,15 +187,11 @@ table 39 "Purchase Line"
             else
             if (Type = const("Charge (Item)")) "Item Charge"
             else
-            if (Type = const(Item), "Document Type" = filter(<> "Credit Memo" & <> "Return Order")) Item where(Blocked = const(false), "Purchasing Blocked" = const(false))
-            else
-            if (Type = const(Item), "Document Type" = filter("Credit Memo" | "Return Order")) Item where(Blocked = const(false))
+            if (Type = const(Item)) Item
             else
             if (Type = const("Allocation Account")) "Allocation Account"
             else
             if (Type = const(Resource)) Resource;
-            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
-            ValidateTableRelation = false;
 
             trigger OnValidate()
             var
@@ -208,8 +205,6 @@ table 39 "Purchase Line"
                     exit;
 
                 GetPurchSetup();
-
-                "No." := FindOrCreateRecordByNo("No.");
 
                 TestStatusOpen();
                 TestField("Qty. Rcd. Not Invoiced", 0);
@@ -460,29 +455,24 @@ table 39 "Purchase Line"
         field(11; Description; Text[100])
         {
             Caption = 'Description';
-            TableRelation = if (Type = const("G/L Account"), "No." = const(''),
-                "System-Created Entry" = const(false)) "G/L Account".Name where("Direct Posting" = const(true),
-                                                                                "Account Type" = const(Posting),
-                                                                                Blocked = const(false))
+            ToolTip = 'Specifies a description of the entry of the product to be purchased. To add a non-transactional text line, fill in the Description field only.';
+            TableRelation = if (Type = const("G/L Account"), "System-Created Entry" = const(false)) "G/L Account".Name where("Direct Posting" = const(true), "Account Type" = const(Posting), Blocked = const(false))
             else
             if (Type = const("G/L Account"), "System-Created Entry" = const(true)) "G/L Account".Name
             else
-            if (Type = const(Item), "Document Type" = filter(<> "Credit Memo" & <> "Return Order")) Item.Description where(Blocked = const(false),
-                                                                                    "Purchasing Blocked" = const(false))
-            else
-            if (Type = const(Item), "Document Type" = filter("Credit Memo" | "Return Order")) Item.Description where(Blocked = const(false))
+            if (Type = const(Item)) Item.Description
             else
             if (Type = const("Fixed Asset")) "Fixed Asset".Description
             else
             if (Type = const("Charge (Item)")) "Item Charge".Description
             else
+            if (Type = const("Allocation Account")) "Allocation Account".Name
+            else
             if (Type = const(Resource)) Resource.Name;
-            ToolTip = 'Specifies a description of the entry of the product to be purchased. To add a non-transactional text line, fill in the Description field only.';
             ValidateTableRelation = false;
 
             trigger OnValidate()
             var
-                ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                 FindRecordMgt: Codeunit "Find Record Management";
                 ReturnValue: Text[50];
                 IsHandled: Boolean;
@@ -511,7 +501,7 @@ table 39 "Purchase Line"
                     end;
                 end;
 
-                ShouldErrorForFindDescription := ("No." = '') and GuiAllowed() and ApplicationAreaMgmtFacade.IsFoundationEnabled() and ("Document Type" = "Document Type"::Order);
+                ShouldErrorForFindDescription := ("No." = '') and GuiAllowed();
                 OnValidateDescriptionOnAfterCalcShouldErrorForFindDescription(Rec, xRec, ShouldErrorForFindDescription);
                 if ShouldErrorForFindDescription then
                     Error(CannotFindDescErr, Type, Description);
@@ -7521,8 +7511,7 @@ table 39 "Purchase Line"
         GetPurchSetup();
 
         if Type = Type::Item then begin
-            if Item.TryGetItemNoOpenCardWithView(
-                 FoundNo, SourceNo, PurchSetup."Create Item from Item No.", true, PurchSetup."Create Item from Item No.", '')
+            if Item.TryGetItemNoOpenCardWithView(FoundNo, SourceNo, false, true, false, '')
             then
                 exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
         end else
@@ -9482,8 +9471,10 @@ table 39 "Purchase Line"
         Item: Record Item;
         Resource: Record Resource;
         FixedAsset: Record "Fixed Asset";
+        AllocationAccount: Record "Allocation Account";
         ItemCharge2: Record "Item Charge";
         LookupStateManager: Codeunit "Lookup State Manager";
+        NewNo: Code[20];
         RecVariant: Variant;
     begin
         case Rec.Type of
@@ -9491,33 +9482,47 @@ table 39 "Purchase Line"
                 begin
                     SelectedRecordRef.SetTable(Item);
                     RecVariant := Item;
+                    NewNo := Item."No.";
                     LookupStateManager.SaveRecord(RecVariant);
                 end;
             Rec.Type::"G/L Account":
                 begin
                     SelectedRecordRef.SetTable(GLAccount);
                     RecVariant := GLAccount;
+                    NewNo := GLAccount."No.";
                     LookupStateManager.SaveRecord(RecVariant);
                 end;
             Rec.Type::Resource:
                 begin
                     SelectedRecordRef.SetTable(Resource);
                     RecVariant := Resource;
+                    NewNo := Resource."No.";
                     LookupStateManager.SaveRecord(RecVariant);
                 end;
             Rec.Type::"Fixed Asset":
                 begin
                     SelectedRecordRef.SetTable(FixedAsset);
                     RecVariant := FixedAsset;
+                    NewNo := FixedAsset."No.";
                     LookupStateManager.SaveRecord(RecVariant);
                 end;
             Rec.Type::"Charge (Item)":
                 begin
                     SelectedRecordRef.SetTable(ItemCharge2);
                     RecVariant := ItemCharge2;
+                    NewNo := ItemCharge2."No.";
+                    LookupStateManager.SaveRecord(RecVariant);
+                end;
+            Rec.Type::"Allocation Account":
+                begin
+                    SelectedRecordRef.SetTable(AllocationAccount);
+                    RecVariant := AllocationAccount;
+                    NewNo := AllocationAccount."No.";
                     LookupStateManager.SaveRecord(RecVariant);
                 end;
         end;
+        if (Rec."No." = '') and (NewNo <> '') then
+            Rec.Validate("No.", NewNo);
     end;
 
     procedure AttachToInventoryItemLine(var SelectedPurchLine: Record "Purchase Line")
