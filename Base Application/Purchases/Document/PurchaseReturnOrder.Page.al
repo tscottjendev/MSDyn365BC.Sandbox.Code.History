@@ -80,16 +80,24 @@ page 6640 "Purchase Return Order"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the vendor who returns the products.';
 
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        Vendor: Record Vendor;
+                    begin
+                        Selected.SetTable(Vendor);
+                        if Rec."Buy-from Vendor No." <> Vendor."No." then begin
+                            Rec.Validate("Buy-from Vendor No.", Vendor."No.");
+                            if Rec."Buy-from Vendor No." <> Vendor."No." then
+                                error('');
+                            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+                            CurrPage.Update();
+                        end;
+                    end;
+
                     trigger OnValidate()
                     begin
                         Rec.OnAfterValidateBuyFromVendorNo(Rec, xRec);
-
                         CurrPage.Update();
-                    end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        exit(Rec.LookupBuyFromVendorName(Text));
                     end;
                 }
                 group("Buy-from")

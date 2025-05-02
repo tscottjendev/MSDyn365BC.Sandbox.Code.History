@@ -70,6 +70,7 @@ page 42 "Sales Order"
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
+                    Importance = Standard;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = DocNoVisible;
 
@@ -89,8 +90,8 @@ page 42 "Sales Order"
 
                     trigger OnValidate()
                     begin
-                        IsSalesLinesEditable := Rec.SalesLinesEditable();
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
+                        IsSalesLinesEditable := Rec.SalesLinesEditable();
                         CurrPage.Update();
                     end;
                 }
@@ -104,15 +105,24 @@ page 42 "Sales Order"
                     AboutTitle = 'Who are you selling to?';
                     AboutText = 'You can choose existing customers, or add new customers when you create orders. Orders can automatically choose special prices and discounts that you have set for each customer.';
 
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        Customer: Record Customer;
+                    begin
+                        Selected.SetTable(Customer);
+                        if Rec."Sell-to Customer No." <> Customer."No." then begin
+                            Rec.Validate("Sell-to Customer No.", Customer."No.");
+                            if Rec."Sell-to Customer No." <> Customer."No." then
+                                error('');
+                            IsSalesLinesEditable := Rec.SalesLinesEditable();
+                            CurrPage.Update();
+                        end;
+                    end;
+
                     trigger OnValidate()
                     begin
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
                         CurrPage.Update();
-                    end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
                 group(Control114)
@@ -833,31 +843,20 @@ page 42 "Sales Order"
                             Importance = Promoted;
                             ToolTip = 'Specifies the customer to whom you will send the sales invoice, when different from the customer that you are selling to.';
 
-                            trigger OnValidate()
-                            begin
-                                if not ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName) then begin
-                                    if Rec.GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
-                                        if Rec."Bill-to Customer No." <> xRec."Bill-to Customer No." then
-                                            Rec.SetRange("Bill-to Customer No.");
-
-                                    CurrPage.Update();
-                                end;
-                            end;
-
-                            trigger OnLookup(var Text: Text): Boolean
+                            trigger OnAfterLookup(Selected: RecordRef)
                             var
                                 Customer: Record Customer;
                             begin
-                                if Customer.SelectCustomer(Customer) then begin
-                                    xRec := Rec;
-                                    Rec."Bill-to Name" := Customer.Name;
+                                Selected.SetTable(Customer);
+                                if Rec."Bill-to Customer No." <> Customer."No." then begin
                                     Rec.Validate("Bill-to Customer No.", Customer."No.");
-                                end;
+                                    if Rec."Bill-to Customer No." <> Customer."No." then  // User responded 'no' to change
+                                        error('');
 
-                                if not ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName) then begin
-                                    if Rec.GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
-                                        if Rec."Bill-to Customer No." <> xRec."Bill-to Customer No." then
-                                            Rec.SetRange("Bill-to Customer No.");
+                                    if not ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName) then
+                                        if Rec.GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
+                                            if Rec."Bill-to Customer No." <> xRec."Bill-to Customer No." then
+                                                Rec.SetRange("Bill-to Customer No.");
 
                                     CurrPage.Update();
                                 end;

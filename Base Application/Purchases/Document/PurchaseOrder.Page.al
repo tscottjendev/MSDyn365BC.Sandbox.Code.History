@@ -92,15 +92,25 @@ page 50 "Purchase Order"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the vendor who delivers the products.';
 
-                    trigger OnValidate()
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        Vendor: Record Vendor;
                     begin
-                        Rec.OnAfterValidateBuyFromVendorNo(Rec, xRec);
-                        CurrPage.Update();
+                        Selected.SetTable(Vendor);
+                        if Rec."Buy-from Vendor No." <> Vendor."No." then begin
+                            Rec.Validate("Buy-from Vendor No.", Vendor."No.");
+                            if Rec."Buy-from Vendor No." <> Vendor."No." then
+                                error('');
+                            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+                            CurrPage.Update();
+                        end;
                     end;
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnValidate()
                     begin
-                        exit(Rec.LookupBuyFromVendorName(Text));
+                        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+                        Rec.OnAfterValidateBuyFromVendorNo(Rec, xRec);
+                        CurrPage.Update();
                     end;
                 }
                 field("Posting Description"; Rec."Posting Description")
@@ -745,9 +755,16 @@ page 50 "Purchase Order"
                             Importance = Promoted;
                             ToolTip = 'Specifies the name of the vendor sending the invoice.';
 
-                            trigger OnLookup(var Text: Text): Boolean
+                            trigger OnAfterLookup(Selected: RecordRef)
+                            var
+                                Vendor: Record Vendor;
                             begin
-                                exit(Rec.LookupPayToVendorName(Text));
+                                Selected.SetTable(Vendor);
+                                if Rec."Pay-to Vendor No." <> Vendor."No." then begin
+                                    Rec.Validate("Pay-to Vendor No.", Vendor."No.");
+                                    if Rec."Pay-to Vendor No." <> Vendor."No." then  // if the user responds 'no' to questions
+                                        error('');
+                                end;
                             end;
 
                             trigger OnValidate()
