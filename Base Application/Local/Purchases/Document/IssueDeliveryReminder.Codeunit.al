@@ -173,7 +173,6 @@ codeunit 5005270 "Issue Delivery Reminder"
         DeliveryReminderHeader.TestField("Document Date");
     end;
 
-    [Scope('OnPrem')]
     procedure Set(var NewDelivReminHeader: Record "Delivery Reminder Header"; NewReplacementPostingDate: Boolean; NewPostingDate: Date)
     begin
         DeliveryReminderHeader := NewDelivReminHeader;
