@@ -1780,7 +1780,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         end;
     end;
 
-    local procedure GetGlobalDimVal(GlobalDimCode: Code[20]; var DimSetEntry: Record "Dimension Set Entry"): Code[20]
+    procedure GetGlobalDimVal(GlobalDimCode: Code[20]; var DimSetEntry: Record "Dimension Set Entry"): Code[20]
     var
         DimVal: Code[20];
     begin
