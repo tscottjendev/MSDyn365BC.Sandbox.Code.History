@@ -2628,7 +2628,7 @@ codeunit 6500 "Item Tracking Management"
         RegisteredWhseActivityLineForCalcBaseQty: Record "Registered Whse. Activity Line";
     begin
         RegisteredWhseActivityLineForCalcBaseQty.CopyFilters(RegisteredWhseActivityLine);
-        RegisteredWhseActivityLineForCalcBaseQty.SetFilter("Action Type", '<>%1', RegisteredWhseActivityLineForCalcBaseQty."Action Type"::Take);
+        RegisteredWhseActivityLineForCalcBaseQty.SetFilter("Action Type", '%1|%2', RegisteredWhseActivityLineForCalcBaseQty."Action Type"::" ", RegisteredWhseActivityLineForCalcBaseQty."Action Type"::Place);
         RegisteredWhseActivityLineForCalcBaseQty.CalcSums("Qty. (Base)");
         exit(RegisteredWhseActivityLineForCalcBaseQty."Qty. (Base)");
     end;
@@ -3806,11 +3806,14 @@ codeunit 6500 "Item Tracking Management"
     var
         WarehouseShipmentline: Record "Warehouse Shipment Line";
     begin
-        WarehouseShipmentline.SetRange("No.", RegisteredWhseActivityLine."Whse. Document No.");
-        WarehouseShipmentline.SetRange("Line No.", RegisteredWhseActivityLine."Whse. Document Line No.");
-        WarehouseShipmentline.CalcSums("Qty. Shipped (Base)");
+        if (RegisteredWhseActivityLine."Whse. Document No." = '') or (RegisteredWhseActivityLine."Whse. Document Line No." = 0) then
+            exit(0);
 
-        exit(WarehouseShipmentline."Qty. Shipped (Base)");
+        WarehouseShipmentLine.SetLoadFields("Qty. Shipped (Base)");
+        if WarehouseShipmentLine.Get(RegisteredWhseActivityLine."Whse. Document No.", RegisteredWhseActivityLine."Whse. Document Line No.") then
+            exit(WarehouseShipmentLine."Qty. Shipped (Base)");
+
+        exit(0);
     end;
 
     [IntegrationEvent(false, false)]
