@@ -30,12 +30,12 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         EDocPurchaseHistMapping: Codeunit "E-Doc. Purchase Hist. Mapping";
         IVendorProvider: Interface IVendorProvider;
         IUnitOfMeasureProvider: Interface IUnitOfMeasureProvider;
-        IPurchaseLineAccountProvider: Interface IPurchaseLineAccountProvider;
+        IPurchaseLineProvider: Interface IPurchaseLineProvider;
         IPurchaseOrderProvider: Interface IPurchaseOrderProvider;
     begin
         IVendorProvider := EDocImportParameters."Processing Customizations";
         IUnitOfMeasureProvider := EDocImportParameters."Processing Customizations";
-        IPurchaseLineAccountProvider := EDocImportParameters."Processing Customizations";
+        IPurchaseLineProvider := EDocImportParameters."Processing Customizations";
         IPurchaseOrderProvider := EDocImportParameters."Processing Customizations";
 
         EDocumentPurchaseHeader.GetFromEDocument(EDocument);
@@ -58,9 +58,13 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         if EDocumentPurchaseLine.FindSet() then
             repeat
                 EDocumentLineMapping.InsertForEDocumentLine(EDocument, EDocumentPurchaseLine."Line No.");
+
+                // Try and find unit of measure
                 UnitOfMeasure := IUnitOfMeasureProvider.GetUnitOfMeasure(EDocument, EDocumentPurchaseLine."Line No.", EDocumentPurchaseLine."Unit of Measure");
                 EDocumentLineMapping."Unit of Measure" := UnitOfMeasure.Code;
-                IPurchaseLineAccountProvider.GetPurchaseLineAccount(EDocumentPurchaseLine, EDocumentLineMapping, EDocumentLineMapping."Purchase Line Type", EDocumentLineMapping."Purchase Type No.");
+
+                // Resolve the purchase line type and No., as well as related fields
+                IPurchaseLineProvider.GetPurchaseLine(EDocumentPurchaseLine, EDocumentLineMapping);
 
                 if EDocPurchaseHistMapping.FindRelatedPurchaseLineInHistory(EDocumentHeaderMapping."Vendor No.", EDocumentPurchaseLine, EDocPurchaseLineHistory) then
                     EDocPurchaseHistMapping.UpdateMissingLineValuesFromHistory(EDocPurchaseLineHistory, EDocumentLineMapping);

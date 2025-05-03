@@ -37,12 +37,24 @@ page 6183 "E-Doc. Purchase Draft Subform"
                     Editable = true;
                     Lookup = true;
                 }
+                field("Item Reference No."; Rec."Item Reference No.")
+                {
+                    ApplicationArea = All;
+                    Editable = true;
+                    Lookup = true;
+                }
                 field(Description; EDocumentPurchaseLine.Description)
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
                 field("Unit Of Measure"; Rec."Unit of Measure")
+                {
+                    ApplicationArea = All;
+                    Editable = true;
+                    Lookup = true;
+                }
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = All;
                     Editable = true;

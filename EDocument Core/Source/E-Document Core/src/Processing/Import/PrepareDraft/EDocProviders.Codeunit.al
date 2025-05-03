@@ -17,9 +17,13 @@ using Microsoft.eServices.EDocument.Processing.Interfaces;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 
-codeunit 6124 "E-Doc. Providers" implements IPurchaseLineAccountProvider, IUnitOfMeasureProvider, IVendorProvider, IPurchaseOrderProvider
+codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasureProvider, IVendorProvider, IPurchaseOrderProvider
 {
     Access = Internal;
+
+    var
+        NoVendorInformationErr: Label 'There is no vendor information in the source document. Verify that the source document is an invoice, and if it''s not, consider deleting this E-Document.';
+
 
     procedure GetVendor(EDocument: Record "E-Document") Vendor: Record Vendor
     var
@@ -62,55 +66,31 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineAccountProvider, IUnitO
         if UnitOfMeasure.FindFirst() then;
     end;
 
-    procedure GetPurchaseLineAccount(EDocumentPurchaseLine: Record "E-Document Purchase Line"; EDocumentLineMapping: Record "E-Document Line Mapping"; var AccountType: Enum "Purchase Line Type"; var AccountNo: Code[20])
+    procedure GetPurchaseLine(EDocumentPurchaseLine: Record "E-Document Purchase Line"; var EDocumentLineMapping: Record "E-Document Line Mapping")
     var
-        EDocument: Record "E-Document";
         ItemReference: Record "Item Reference";
-        Item: Record Item;
+        EDocument: Record "E-Document";
         TextToAccountMapping: Record "Text-to-Account Mapping";
         VendorNo: Code[20];
         FilterInvalidCharTxt: Label '(&)', Locked = true;
     begin
-        AccountType := "Purchase Line Type"::" ";
         EDocument.Get(EDocumentPurchaseLine."E-Document Entry No.");
         VendorNo := EDocument.GetEDocumentHeaderMapping()."Vendor No.";
-        ItemReference.SetRange("Reference Type", Enum::"Item Reference Type"::Vendor);
-        ItemReference.SetRange("Reference Type No.", VendorNo);
-        ItemReference.SetRange("Reference No.", EDocumentPurchaseLine."Product Code");
-        ItemReference.SetRange("Unit of Measure", EDocumentLineMapping."Unit of Measure");
-        if ItemReference.FindSet() then
-            repeat
-                if ItemReference.HasValidUnitOfMeasure() then
-                    if Item.Get(ItemReference."Item No.") then begin
-                        AccountNo := Item."No.";
-                        AccountType := "Purchase Line Type"::Item;
-                        exit;
-                    end
-            until ItemReference.Next() = 0;
 
-        ItemReference.SetRange("Unit of Measure", '');
-        if ItemReference.FindSet() then
-            repeat
-                if ItemReference.HasValidUnitOfMeasure() then
-                    if Item.Get(ItemReference."Item No.") then begin
-                        AccountNo := Item."No.";
-                        AccountType := "Purchase Line Type"::Item;
-                        exit;
-                    end;
-            until ItemReference.Next() = 0;
+        if GetPurchaseLineItemRef(EDocumentPurchaseLine, EDocumentLineMapping, ItemReference) then begin
+            EDocumentLineMapping."Purchase Line Type" := "Purchase Line Type"::Item;
+            EDocumentLineMapping.Validate("Purchase Type No.", ItemReference."Item No.");
+            EDocumentLineMapping.Validate("Unit of Measure", ItemReference."Unit of Measure");
+            EDocumentLineMapping.Validate("Variant Code", ItemReference."Variant Code");
+            EDocumentLineMapping.Validate("Item Reference No.", ItemReference."Reference No.");
+            exit;
+        end;
 
-        ItemReference.SetRange("Unit of Measure");
-        if ItemReference.FindFirst() then
-            if Item.Get(ItemReference."Item No.") then begin
-                AccountNo := Item."No.";
-                AccountType := "Purchase Line Type"::Item;
-                exit;
-            end;
         TextToAccountMapping.SetRange("Vendor No.", VendorNo);
         TextToAccountMapping.SetFilter("Mapping Text", '%1', '@' + DelChr(EDocumentPurchaseLine.Description, '=', FilterInvalidCharTxt));
         if TextToAccountMapping.FindFirst() then begin
-            AccountNo := TextToAccountMapping."Debit Acc. No.";
-            AccountType := "Purchase Line Type"::"G/L Account";
+            EDocumentLineMapping."Purchase Line Type" := "Purchase Line Type"::"G/L Account";
+            EDocumentLineMapping.Validate("Purchase Type No.", TextToAccountMapping."Debit Acc. No.");
             exit;
         end;
     end;
@@ -120,7 +100,36 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineAccountProvider, IUnitO
         if PurchaseHeader.Get("Purchase Document Type"::Order, EDocumentPurchaseHeader."Purchase Order No.") then;
     end;
 
+    local procedure GetPurchaseLineItemRef(EDocumentPurchaseLine: Record "E-Document Purchase Line"; EDocumentLineMapping: Record "E-Document Line Mapping"; var ItemReference: Record "Item Reference"): Boolean
     var
-        NoVendorInformationErr: Label 'There is no vendor information in the source document. Verify that the source document is an invoice, and if it''s not, consider deleting this E-Document.';
+        EDocument: Record "E-Document";
+        Item: Record Item;
+        VendorNo: Code[20];
+    begin
+        EDocument.Get(EDocumentPurchaseLine."E-Document Entry No.");
+        VendorNo := EDocument.GetEDocumentHeaderMapping()."Vendor No.";
+        ItemReference.SetRange("Reference Type", Enum::"Item Reference Type"::Vendor);
+        ItemReference.SetRange("Reference Type No.", VendorNo);
+        ItemReference.SetRange("Reference No.", EDocumentPurchaseLine."Product Code");
+        ItemReference.SetRange("Unit of Measure", EDocumentLineMapping."Unit of Measure");
+        if ItemReference.FindSet() then
+            repeat
+                if ItemReference.HasValidUnitOfMeasure() then
+                    exit(true);
+            until ItemReference.Next() = 0;
+
+        ItemReference.SetRange("Unit of Measure", '');
+        if ItemReference.FindSet() then
+            repeat
+                if ItemReference.HasValidUnitOfMeasure() then
+                    exit(true);
+            until ItemReference.Next() = 0;
+
+        ItemReference.SetRange("Unit of Measure");
+        if ItemReference.FindFirst() then
+            if Item.Get(ItemReference."Item No.") then
+                exit(true);
+    end;
+
 }
 #pragma warning restore AS0049

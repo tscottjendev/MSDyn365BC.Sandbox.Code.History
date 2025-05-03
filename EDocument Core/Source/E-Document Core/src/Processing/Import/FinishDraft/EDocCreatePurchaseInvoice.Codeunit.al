@@ -73,9 +73,14 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
                 PurchaseLine."Document No." := PurchaseHeader."No.";
                 PurchaseLine."Line No." += 10000;
                 PurchaseLine."Unit of Measure Code" := CopyStr(EDocumentLineMapping."Unit of Measure", 1, MaxStrLen(PurchaseLine."Unit of Measure Code"));
+                PurchaseLine."Variant Code" := EDocumentLineMapping."Variant Code";
                 PurchaseLine.Type := EDocumentLineMapping."Purchase Line Type";
                 PurchaseLine.Validate("No.", EDocumentLineMapping."Purchase Type No.");
                 PurchaseLine.Description := EDocumentPurchaseLine.Description;
+
+                if EDocumentLineMapping."Item Reference No." <> '' then
+                    PurchaseLine.Validate("Item Reference No.", EDocumentLineMapping."Item Reference No.");
+
                 PurchaseLine.Validate(Quantity, EDocumentPurchaseLine.Quantity);
                 PurchaseLine.Validate("Direct Unit Cost", EDocumentPurchaseLine."Unit Price");
                 PurchaseLine.Validate("Deferral Code", EDocumentLineMapping."Deferral Code");

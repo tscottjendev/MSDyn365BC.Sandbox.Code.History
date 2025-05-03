@@ -6,27 +6,20 @@ namespace Microsoft.eServices.EDocument.Processing.Interfaces;
 
 using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
-using Microsoft.Purchases.Document;
 
 /// <summary>
 /// Interface for determining the account assignment for a purchase line in an E-Document.
 /// </summary>
 
-interface IPurchaseLineAccountProvider
+interface IPurchaseLineProvider
 {
-    ObsoleteReason = 'Replaced by IPurchaseLineProvider';
-    ObsoleteState = Pending;
-    ObsoleteTag = '27.0';
-
     /// <summary>
     /// Determines the purchase line fields for a given E-Document purchase line.
     /// </summary>
     /// <param name="EDocumentPurchaseLine">The purchase line record from the E-Document.</param>
     /// <param name="EDocumentLineMapping">The mapping record for the E-Document line.</param>
-    procedure GetPurchaseLineAccount(
+    procedure GetPurchaseLine(
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
-        EDocumentLineMapping: Record "E-Document Line Mapping";
-        var AccountType: Enum "Purchase Line Type";
-        var AccountNo: Code[20]
+        var EDocumentLineMapping: Record "E-Document Line Mapping"
     );
 }
