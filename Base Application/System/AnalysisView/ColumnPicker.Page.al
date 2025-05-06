@@ -1,3 +1,7 @@
+// // ------------------------------------------------------------------------------------------------
+// // Copyright (c) Microsoft Corporation. All rights reserved.
+// // Licensed under the MIT License. See License.txt in the project root for license information.
+// // ------------------------------------------------------------------------------------------------
 namespace System.Tooling;
 
 using System.Reflection;
@@ -34,10 +38,7 @@ page 9640 "Column Picker"
                 begin
                     PageMetadata := Selected;
                     SourcePageName := PageMetadata.Name;
-
-                    Rec.SetFilter(FieldKind, '%1', Rec.FieldKind::PageFieldBoundToTable);
-                    Rec.SetFilter("Page ID", '%1', PageMetadata.ID);
-                    Rec.SetCurrentKey(Name);
+                    ColumnPickerHelper.FilterAfterLookup(PageMetadata.ID, Rec);
                     CurrPage.Update();
                 end;
             }
@@ -84,54 +85,18 @@ page 9640 "Column Picker"
 
     trigger OnOpenPage()
     begin
-        Rec.FindFirst();
-
-        // Fill in the information about the selected table to join
-        RelatedTableRecRef.Open(Rec."Table No");
-        CurrPage.Caption := StrSubstNo(InsertColumnMsg, RelatedTableRecRef.Name());
-
-        // Filter the pages and fields shown in the repeater control
-        FilterRelatedPagesAndFields();
+        ColumnPickerHelper.Initialize(Rec);
+        CurrPage.Caption := StrSubstNo(InsertColumnMsg, ColumnPickerHelper.GetRelatedTableName());
+        AreTherePagesAvailable := ColumnPickerHelper.GetAreTherePagesAvailable();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        if RelatedTableRecRef.FindFirst() then
-            Example := GetExampleValue(Rec."Table Field Id");
-    end;
-
-    local procedure FilterRelatedPagesAndFields()
-    var
-        PageMetadata: Record "Page Metadata";
-    begin
-        // If there are no list or card pages for the selected table, show table fields instead.
-        PageMetadata.SetFilter(SourceTable, '%1', Rec."Table No");
-        PageMetadata.SetFilter(PageType, '%1|%2', PageMetadata.PageType::List, PageMetadata.PageType::Card);
-
-        AreTherePagesAvailable := not PageMetadata.IsEmpty();
-        if AreTherePagesAvailable then begin
-            Rec.SetFilter(FieldKind, '%1', Rec.FieldKind::TableField);
-            Rec.SetFilter("Page ID", '%1', Rec."Page ID");
-        end;
-
-        // Filter the fields in the repeater control to show only supported field types and skip system fields.
-        Rec.SetFilter(Type, '<>%1 & <>%2 & <>%3 & <>%4 & <>%5', Rec.Type::BLOB, Rec.Type::Media, Rec.Type::MediaSet, Rec.Type::NotSupported_Binary, Rec.Type::TableFilter);
-        Rec.SetFilter("Table Field Id", '<2000000000');
-        Rec.FindSet();
-    end;
-
-    local procedure GetExampleValue(FieldId: Integer): Text
-    var
-        PageTableFieldFieldRef: FieldRef;
-    begin
-        if RelatedTableRecRef.FieldExist(FieldId) then begin
-            PageTableFieldFieldRef := RelatedTableRecRef.Field(FieldId);
-            exit(Format(PageTableFieldFieldRef.Value()));
-        end;
+        Example := ColumnPickerHelper.GetExampleValue(Rec."Table Field Id");
     end;
 
     var
-        RelatedTableRecRef: RecordRef;
+        ColumnPickerHelper: Codeunit "Column Picker Helper";
         UsingTableAsSourceMsg: Label 'There are no list or card pages for the selected table, showing table fields instead.';
         InsertColumnMsg: Label 'Insert column(s) from %1', Comment = '%1 = The table name to insert columns from.';
         SourcePageName: Text;
