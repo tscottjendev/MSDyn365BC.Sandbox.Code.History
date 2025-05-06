@@ -1,3 +1,7 @@
+// // ------------------------------------------------------------------------------------------------
+// // Copyright (c) Microsoft Corporation. All rights reserved.
+// // Licensed under the MIT License. See License.txt in the project root for license information.
+// // ------------------------------------------------------------------------------------------------
 namespace System.Tooling;
 
 using System.Reflection;
@@ -51,6 +55,15 @@ page 9641 "List and Card page picker"
             }
         }
     }
+
+    procedure AreTherePagesAvailable(TableId: Integer): Boolean
+    begin
+        Rec.SetFilter(SourceTable, '%1', Rec.ID);
+        Rec.SetFilter(PageType, '%1|%2', Rec.PageType::List, Rec.PageType::Card);
+
+        // If there are no list or card pages for the selected table, show table fields instead.
+        exit(Rec.FindSet());
+    end;
 
     trigger OnAfterGetRecord()
     var
