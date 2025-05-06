@@ -11,7 +11,6 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Sales.Customer;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Structure;
@@ -402,7 +401,7 @@ table 99000853 "Inventory Profile"
                     "Primary Order Type" := OppositeReservationEntry."Source Type";
                     "Primary Order Status" := OppositeReservationEntry."Source Subtype";
                     "Primary Order No." := OppositeReservationEntry."Source ID";
-                    if OppositeReservationEntry."Source Type" = Database::"Prod. Order Component" then
+                    if OppositeReservationEntry."Source Type" = 5407 then // Database::"Prod. Order Component"
                         "Primary Order Line" := OppositeReservationEntry."Source Prod. Order Line";
                 end;
 
@@ -651,7 +650,7 @@ table 99000853 "Inventory Profile"
                                 "Primary Order Type" := OppositeReservationEntry."Source Type";
                                 "Primary Order Status" := OppositeReservationEntry."Source Subtype";
                                 "Primary Order No." := OppositeReservationEntry."Source ID";
-                                if OppositeReservationEntry."Source Type" <> Database::"Prod. Order Component" then
+                                if OppositeReservationEntry."Source Type" <> 5407 then // Database::"Prod. Order Component"
                                     "Primary Order Line" := OppositeReservationEntry."Source Ref. No."
                                 else
                                     "Primary Order Line" := OppositeReservationEntry."Source Prod. Order Line";
