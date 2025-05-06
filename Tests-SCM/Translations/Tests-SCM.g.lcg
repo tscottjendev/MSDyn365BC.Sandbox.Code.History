@@ -5900,15 +5900,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Tracking - NamedType QtyToHandleMismatchErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4274535345 - NamedType 1020200779" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Serial No. %1 is already on inventory.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Serial No.]D;]A;(LookupHint=Codeunit SCM Item Tracking - NamedType SerialNoAlreadyOnInventoryErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4274535345 - NamedType 320287885" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Serial No. must not be blank.]]></Val>
@@ -5943,6 +5934,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Tracking - NamedType UnknownError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4274535345 - NamedType 1675390523" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Warehouse Activity Line must be found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Tracking - NamedType WhseActivityLineMustBeFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4274535345 - NamedType 923456017" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
