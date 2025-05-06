@@ -111,6 +111,8 @@ codeunit 5923 "Service-Quote to Order"
         ServiceHeaderOrder."Shortcut Dimension 2 Code" := ServiceHeaderQuote."Shortcut Dimension 2 Code";
         ServiceHeaderOrder."Dimension Set ID" := ServiceHeaderQuote."Dimension Set ID";
         ServiceHeaderOrder."Location Code" := ServiceHeaderQuote."Location Code";
+        ServiceHeaderQuote.CalcFields("Work Description");
+        ServiceHeaderOrder."Work Description" := ServiceHeaderQuote."Work Description";
         OnBeforeServiceHeaderOrderModify(ServiceHeaderOrder, ServiceHeaderQuote);
         ServiceHeaderOrder.Modify();
 
