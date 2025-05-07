@@ -145,5 +145,23 @@ pageextension 99000750 "Mfg. Item Card" extends "Item Card"
                 }
             }
         }
+        addafter("Export Item Data")
+        {
+            action("Mfg. Export Item Data")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Export Item Data';
+                Image = ExportFile;
+                ToolTip = 'Use this function to export manufacturing item related data to text file (you can attach this file to support requests in case you may have issues with costing calculation).';
+
+                trigger OnAction()
+                var
+                    Item: Record Item;
+                begin
+                    Item.SetRange("No.", Rec."No.");
+                    Xmlport.Run(XmlPort::"Mfg. Export Item Data", false, false, Item);
+                end;
+            }
+        }
     }
 }
