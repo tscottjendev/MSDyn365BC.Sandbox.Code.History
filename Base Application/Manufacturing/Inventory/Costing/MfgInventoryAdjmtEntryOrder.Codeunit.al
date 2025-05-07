@@ -5,6 +5,7 @@
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Reports;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Inventory.Location;
 
@@ -12,6 +13,11 @@ codeunit 99000776 "Mfg. InventoryAdjmtEntryOrder"
 {
     var
         MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
+        Text009: Label 'This %1 Order has not been adjusted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [EventSubscriber(ObjectType::Table, Database::"Inventory Adjmt. Entry (Order)", 'OnAfterRoundAmounts', '', false, false)]
     local procedure OnAfterRoundAmounts(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; RndPrecLCY: Decimal; RndPrecACY: Decimal; ShareOfTotalCost: Decimal; RndResLCY: Decimal; RndResACY: Decimal)
@@ -103,5 +109,26 @@ codeunit 99000776 "Mfg. InventoryAdjmtEntryOrder"
             Found := false;
 
         Found := true;
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Close Inventory Period - Test", 'OnStoreOrderInErrorBuffer', '', false, false)]
+    local procedure OnStoreOrderInErrorBuffer(InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; sender: Report "Close Inventory Period - Test")
+    var
+        ProductionOrder: Record "Production Order";
+        RecRef: RecordRef;
+        Bookmark: Text[250];
+    begin
+        case InventoryAdjmtEntryOrder."Order Type" of
+            InventoryAdjmtEntryOrder."Order Type"::Production:
+                begin
+                    ProductionOrder.Get(ProductionOrder.Status::Finished, InventoryAdjmtEntryOrder."Order No.");
+                    RecRef.GetTable(ProductionOrder);
+                    Bookmark := Format(RecRef.RecordId, 0, 10);
+                    sender.StoreItemInErrorBuffer(
+                        InventoryAdjmtEntryOrder."Item No.", DATABASE::"Inventory Adjmt. Entry (Order)",
+                        StrSubstNo(Text009, InventoryAdjmtEntryOrder."Order Type"), Bookmark, InventoryAdjmtEntryOrder."Order No.",
+                        PAGE::"Finished Production Order");
+                end;
+        end;
     end;
 }

@@ -446,7 +446,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
 
         // Exercise.
         CalculateBOMTree.SetShowTotalAvailability(true);
-        CalculateBOMTree.GenerateTreeForProdOrderLine(ProdOrderLine, BOMBuffer, "BOM Tree Type"::Availability);
+        CalculateBOMTree.GenerateTreeForSource(ProdOrderLine, BOMBuffer, "BOM Tree Type"::Availability, "BOM Structure Show By"::Production, ProdOrderLine."Due Date");
 
         // Verify: Check top item.
         VerifyTopItem(BOMBuffer, ProdOrderLine."Item No.", AbleToMake, 0, true);
