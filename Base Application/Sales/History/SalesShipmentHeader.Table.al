@@ -475,13 +475,17 @@ table 110 "Sales Shipment Header"
                     Validate("Shipping Agent Service Code", '');
             end;
         }
+#if not CLEAN25
 #pragma warning disable AS0086
+#endif
         field(106; "Package Tracking No."; Text[50])
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Package Tracking No.';
             OptimizeForTextSearch = true;
         }
-#pragma warning restore AS0086
         field(109; "No. Series"; Code[20])
         {
             Caption = 'No. Series';

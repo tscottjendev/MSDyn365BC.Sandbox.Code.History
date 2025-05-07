@@ -33,7 +33,6 @@ table 99000758 "Machine Center"
         {
             Caption = 'No.';
         }
-#pragma warning disable AS0086
         field(3; Name; Text[100])
         {
             Caption = 'Name';
@@ -47,7 +46,6 @@ table 99000758 "Machine Center"
         {
             Caption = 'Search Name';
         }
-#pragma warning restore AS0086
         field(5; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
