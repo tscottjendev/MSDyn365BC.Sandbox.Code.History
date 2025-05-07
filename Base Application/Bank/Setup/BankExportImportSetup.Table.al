@@ -54,7 +54,6 @@ table 1200 "Bank Export/Import Setup"
             Caption = 'Processing Codeunit ID';
             TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Codeunit));
         }
-#pragma warning disable AS0086
         field(5; "Processing Codeunit Name"; Text[249])
         {
             CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
@@ -63,13 +62,11 @@ table 1200 "Bank Export/Import Setup"
             Editable = false;
             FieldClass = FlowField;
         }
-#pragma warning restore AS0086
         field(6; "Processing XMLport ID"; Integer)
         {
             Caption = 'Processing XMLport ID';
             TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(XMLport));
         }
-#pragma warning disable AS0086
         field(7; "Processing XMLport Name"; Text[249])
         {
             CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(XMLport),
@@ -78,7 +75,6 @@ table 1200 "Bank Export/Import Setup"
             Editable = false;
             FieldClass = FlowField;
         }
-#pragma warning restore AS0086
         field(8; "Data Exch. Def. Code"; Code[20])
         {
             Caption = 'Data Exch. Def. Code';
@@ -107,7 +103,6 @@ table 1200 "Bank Export/Import Setup"
             Caption = 'Check Export Codeunit';
             TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Codeunit));
         }
-#pragma warning disable AS0086
         field(12; "Check Export Codeunit Name"; Text[249])
         {
             CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
@@ -116,7 +111,6 @@ table 1200 "Bank Export/Import Setup"
             Editable = false;
             FieldClass = FlowField;
         }
-#pragma warning restore AS0086
     }
 
     keys
@@ -131,4 +125,3 @@ table 1200 "Bank Export/Import Setup"
     {
     }
 }
-
