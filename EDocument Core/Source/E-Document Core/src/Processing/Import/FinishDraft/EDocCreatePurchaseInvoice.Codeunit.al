@@ -18,15 +18,19 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
 
     procedure ApplyDraftToBC(EDocument: Record "E-Document"; EDocImportParameters: Record "E-Doc. Import Parameters"): RecordId
     var
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         PurchaseHeader: Record "Purchase Header";
         IEDocumentFinishPurchaseDraft: Interface IEDocumentCreatePurchaseInvoice;
     begin
+        EDocumentPurchaseHeader.GetFromEDocument(EDocument);
         IEDocumentFinishPurchaseDraft := EDocImportParameters."Processing Customizations";
         PurchaseHeader := IEDocumentFinishPurchaseDraft.CreatePurchaseInvoice(EDocument);
-        PurchaseHeader.TestField("Document Type", "Purchase Document Type"::Invoice);
-        PurchaseHeader.TestField("No.");
         PurchaseHeader.SetRecFilter();
         PurchaseHeader.FindFirst();
+        PurchaseHeader."Doc. Amount Incl. VAT" := EDocumentPurchaseHeader.Total;
+        PurchaseHeader."Doc. Amount VAT" := EDocumentPurchaseHeader."Total VAT";
+        PurchaseHeader.TestField("Document Type", "Purchase Document Type"::Invoice);
+        PurchaseHeader.TestField("No.");
         PurchaseHeader."E-Document Link" := EDocument.SystemId;
         PurchaseHeader.Modify();
 

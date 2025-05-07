@@ -206,6 +206,20 @@ codeunit 139629 "Library - E-Document"
         EDocumentServiceStatus.Insert();
     end;
 
+    procedure MockPurchaseDraftPrepared(EDocument: Record "E-Document")
+    var
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+        EDocumentProcessing: Codeunit "E-Document Processing";
+    begin
+        EDocumentPurchaseHeader.InsertForEDocument(EDocument);
+        EDocumentPurchaseHeader."Sub Total" := 1000;
+        EDocumentPurchaseHeader."Total VAT" := 100;
+        EDocumentPurchaseHeader.Total := 1100;
+        EDocumentPurchaseHeader.Modify();
+        EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Draft Ready");
+        EDocument."Document Type" := "E-Document Type"::"Purchase Invoice";
+        EDocument.Modify();
+    end;
 
     procedure CreateInboundPEPPOLDocumentToState(var EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; FileName: Text; EDocImportParams: Record "E-Doc. Import Parameters"): Boolean
     var
