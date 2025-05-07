@@ -1026,15 +1026,19 @@ table 18 Customer
                 ValidateEmail();
             end;
         }
+#if not CLEAN25
 #pragma warning disable AS0086
+#endif
         field(103; "Home Page"; Text[255])
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Home Page';
             OptimizeForTextSearch = true;
             ExtendedDatatype = URL;
             ToolTip = 'Specifies the customer''s home page address.';
         }
-#pragma warning restore AS0086
         field(104; "Reminder Terms Code"; Code[10])
         {
             Caption = 'Reminder Terms Code';
@@ -1904,14 +1908,14 @@ table 18 Customer
         if "No." = '' then begin
             SalesSetup.Get();
             SalesSetup.TestField("Customer Nos.");
-                "No. Series" := SalesSetup."Customer Nos.";
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
+            "No. Series" := SalesSetup."Customer Nos.";
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series");
+            Customer.ReadIsolation(IsolationLevel::ReadUncommitted);
+            Customer.SetLoadFields("No.");
+            while Customer.Get("No.") do
                 "No." := NoSeries.GetNextNo("No. Series");
-                Customer.ReadIsolation(IsolationLevel::ReadUncommitted);
-                Customer.SetLoadFields("No.");
-                while Customer.Get("No.") do
-                    "No." := NoSeries.GetNextNo("No. Series");
         end;
 
         if "Invoice Disc. Code" = '' then

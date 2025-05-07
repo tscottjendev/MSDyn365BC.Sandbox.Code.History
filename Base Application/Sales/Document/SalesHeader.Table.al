@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -1803,14 +1803,18 @@ table 36 "Sales Header"
                 UpdateSalesLinesByFieldNo(FieldNo("Shipping Agent Code"), CurrFieldNo <> 0);
             end;
         }
+#if not CLEAN25
 #pragma warning disable AS0086
+#endif
         field(106; "Package Tracking No."; Text[50])
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Package Tracking No.';
             ToolTip = 'Specifies the shipping agent''s package number.';
             OptimizeForTextSearch = true;
         }
-#pragma warning restore AS0086
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -3346,7 +3350,7 @@ table 36 "Sales Header"
 #pragma warning disable AA0470
         Text072: Label 'There are unpaid prepayment invoices related to the document of type %1 with the number %2.';
         Text10606: Label 'The GLN No. field does not contain a valid, 13-digit GLN  number';
-	    DifferentDatesQst: Label 'Posting Date %1 is different from Work Date %2.\\Do you want to continue?', Comment = '%1 - Posting Date, %2 - work date';
+        DifferentDatesQst: Label 'Posting Date %1 is different from Work Date %2.\\Do you want to continue?', Comment = '%1 - Posting Date, %2 - work date';
         DifferentDatesErr: Label 'Posting Date %1 is different from Work Date %2.\\Batch posting cannot be used.', Comment = '%1 - Posting Date, %2 - work date';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
