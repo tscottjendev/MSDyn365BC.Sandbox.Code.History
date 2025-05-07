@@ -16,9 +16,10 @@ page 6105 "Inbound E-Documents"
     SourceTable = "E-Document";
     PageType = List;
     RefreshOnActivate = true;
-    Editable = false;
+    Editable = true;
     DeleteAllowed = true;
     InsertAllowed = false;
+    ModifyAllowed = false;
     SourceTableView = sorting(SystemCreatedAt) order(descending) where(Direction = const("E-Document Direction"::Incoming));
 
     layout
@@ -29,6 +30,7 @@ page 6105 "Inbound E-Documents"
             repeater(DocumentList)
             {
                 ShowCaption = false;
+                Editable = false;
                 field("Entry No"; Rec."Entry No")
                 {
                     Caption = 'Entry No.';
@@ -70,15 +72,16 @@ page 6105 "Inbound E-Documents"
                     Caption = 'Sender';
                     ToolTip = 'Specifies the vendor name of the electronic document.';
                 }
-                field("Import Processing Status"; ImportProcessingStatus)
+                field("Import Processing Status"; Rec."Import Processing Status")
                 {
                     Caption = 'Processing Status';
                     ToolTip = 'Specifies the processing status of the inbound electronic document.';
                 }
                 field("Document Type"; Rec."Document Type")
                 {
-                    Caption = 'Finalized Document Type';
+                    Caption = 'Document Type';
                     ToolTip = 'Specifies the document type of the electronic document.';
+                    StyleExpr = DocumentTypeStyleTxt;
                 }
                 field("Document Record ID"; RecordLinkTxt)
                 {
@@ -234,20 +237,38 @@ page 6105 "Inbound E-Documents"
             actionref(Promoted_EDocumentServices; EDocumentServices) { }
         }
     }
-
-    var
-        EDocumentHelper: Codeunit "E-Document Helper";
-        ImportProcessingStatus: Enum "Import E-Doc. Proc. Status";
-        RecordLinkTxt, VendorNameTxt, DocumentNameTxt : Text;
+    views
+    {
+        view(UnknownDocumentType)
+        {
+            Caption = 'Unknown Document Type';
+            Filters = where("Document Type" = const("E-Document Type"::None));
+        }
+        view(Unprocessed)
+        {
+            Caption = 'Purchase Invoices - Unprocessed';
+            Filters = where("Document Type" = const("E-Document Type"::"Purchase Invoice"), "Import Processing Status" = const("Import E-Doc. Proc. Status"::Unprocessed));
+        }
+        view(DraftReady)
+        {
+            Caption = 'Purchase Invoices - Draft Ready';
+            Filters = where("Document Type" = const("E-Document Type"::"Purchase Invoice"), "Import Processing Status" = const("Import E-Doc. Proc. Status"::"Draft Ready"));
+        }
+        view(Processed)
+        {
+            Caption = 'Purchase Invoices - Processed';
+            Filters = where("Document Type" = const("E-Document Type"::"Purchase Invoice"), "Import Processing Status" = const("Import E-Doc. Proc. Status"::Processed));
+        }
+    }
 
     trigger OnAfterGetRecord()
     var
         EDocumentProcessing: Codeunit "E-Document Processing";
     begin
-        ImportProcessingStatus := Rec.GetEDocumentImportProcessingStatus();
         RecordLinkTxt := EDocumentProcessing.GetRecordLinkText(Rec);
         PopulateDocumentNameTxt();
         PopulateVendorNameTxt();
+        SetDocumentTypeStyleExpresion();
     end;
 
     local procedure PopulateDocumentNameTxt()
@@ -374,7 +395,8 @@ page 6105 "Inbound E-Documents"
         if not EDocImport.ProcessAutomaticallyIncomingEDocument(EDocument) then
             exit;
 
-        Success := EDocument.GetEDocumentImportProcessingStatus() = "Import E-Doc. Proc. Status"::"Draft Ready";
+        EDocument.CalcFields("Import Processing Status");
+        Success := EDocument."Import Processing Status" = "Import E-Doc. Proc. Status"::"Draft Ready";
         if Success and OpenDraft then
             EDocumentHelper.OpenDraftPage(EDocument);
     end;
@@ -384,6 +406,16 @@ page 6105 "Inbound E-Documents"
         exit(Page.RunModal(Page::"E-Document Services", EDocumentService) = Action::LookupOK);
     end;
 
+    local procedure SetDocumentTypeStyleExpresion()
+    begin
+        DocumentTypeStyleTxt := 'Standard';
+        if Rec."Document Type" = Rec."Document Type"::None then
+            DocumentTypeStyleTxt := 'Ambiguous';
+    end;
+
+    var
+        EDocumentHelper: Codeunit "E-Document Helper";
+        RecordLinkTxt, VendorNameTxt, DocumentNameTxt, DocumentTypeStyleTxt : Text;
 }
 
 #pragma warning restore AS0031, AS0032

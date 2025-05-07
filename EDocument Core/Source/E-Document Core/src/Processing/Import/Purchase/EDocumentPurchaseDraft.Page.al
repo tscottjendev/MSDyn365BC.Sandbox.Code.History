@@ -310,9 +310,10 @@ page 6181 "E-Document Purchase Draft"
         SetStyle();
         SetPageCaption();
 
-        ShowFinalizeDraftAction := Rec.GetEDocumentImportProcessingStatus() = Enum::"Import E-Doc. Proc. Status"::"Draft Ready";
+        Rec.CalcFields("Import Processing Status");
+        ShowFinalizeDraftAction := Rec."Import Processing Status" = Enum::"Import E-Doc. Proc. Status"::"Draft Ready";
         ShowAnalyzeDocumentAction :=
-            (Rec.GetEDocumentImportProcessingStatus() = Enum::"Import E-Document Steps"::"Structure received data") and
+            (Rec."Import Processing Status" = Enum::"Import E-Document Steps"::"Structure received data") and
             (Rec.Status = Enum::"E-Document Status"::Error);
     end;
 
@@ -394,7 +395,8 @@ page 6181 "E-Document Purchase Draft"
         if not EDocumentHelper.EnsureInboundEDocumentHasService(Rec) then
             exit;
 
-        EDocImportParameters."Step to Run" := ImportEdocumentProcess.GetNextStep(Rec.GetEDocumentImportProcessingStatus());
+        Rec.CalcFields("Import Processing Status");
+        EDocImportParameters."Step to Run" := ImportEdocumentProcess.GetNextStep(Rec."Import Processing Status");
         EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
     end;
 

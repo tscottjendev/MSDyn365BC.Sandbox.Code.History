@@ -117,6 +117,30 @@ page 6183 "E-Doc. Purchase Draft Subform"
                         Error(HistoryCantBeRetrievedErr);
                 end;
             }
+            group("&Line")
+            {
+                Caption = '&Line';
+                Image = Line;
+
+                group("Related Information")
+                {
+                    Caption = 'Related Information';
+                    action(Dimensions)
+                    {
+                        AccessByPermission = TableData Dimension = R;
+                        ApplicationArea = Dimensions;
+                        Caption = 'Dimensions';
+                        Image = Dimensions;
+                        ShortCutKey = 'Alt+D';
+                        ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
+
+                        trigger OnAction()
+                        begin
+                            Rec.LookupDimensions();
+                        end;
+                    }
+                }
+            }
         }
     }
 

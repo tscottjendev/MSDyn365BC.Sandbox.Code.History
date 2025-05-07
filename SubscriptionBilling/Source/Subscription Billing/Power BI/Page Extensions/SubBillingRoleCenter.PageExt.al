@@ -2,7 +2,7 @@ namespace Microsoft.PowerBIReports;
 
 using Microsoft.SubscriptionBilling;
 
-pageextension 36965 "Sub. Billing Role Center" extends "Sub. Billing Role Center"
+pageextension 8013 "Sub. Billing Role Center" extends "Sub. Billing Role Center"
 {
     actions
     {

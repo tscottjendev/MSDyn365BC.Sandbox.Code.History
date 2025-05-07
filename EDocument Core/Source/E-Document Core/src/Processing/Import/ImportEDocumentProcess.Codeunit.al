@@ -206,7 +206,8 @@ codeunit 6104 "Import E-Document Process"
 
     procedure IsEDocumentInStateGE(EDocument: Record "E-Document"; QueriedState: Enum "Import E-Doc. Proc. Status"): Boolean
     begin
-        exit(StatusStepIndex(QueriedState) <= StatusStepIndex(EDocument.GetEDocumentImportProcessingStatus()));
+        EDocument.CalcFields("Import Processing Status");
+        exit(StatusStepIndex(QueriedState) <= StatusStepIndex(EDocument."Import Processing Status"));
     end;
 
     procedure StatusStepIndex(Status: Enum "Import E-Doc. Proc. Status"): Integer

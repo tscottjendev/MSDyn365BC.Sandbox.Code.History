@@ -179,6 +179,7 @@ codeunit 139891 "E-Document Structured Tests"
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::Readable);
         EDocImportParameters."Step to Run" := ProcessingStep;
         EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
-        exit(EDocument.GetEDocumentImportProcessingStatus() = Enum::"Import E-Doc. Proc. Status"::"Ready for draft");
+        EDocument.CalcFields("Import Processing Status");
+        exit(EDocument."Import Processing Status" = Enum::"Import E-Doc. Proc. Status"::"Ready for draft");
     end;
 }
