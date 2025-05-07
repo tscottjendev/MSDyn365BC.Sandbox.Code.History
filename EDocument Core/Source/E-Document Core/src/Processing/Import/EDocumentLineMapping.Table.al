@@ -111,6 +111,22 @@ table 6105 "E-Document Line Mapping"
             ToolTip = 'Specifies the variant code.';
             TableRelation = "Item Variant".Code where("Item No." = field("Purchase Type No."));
         }
+        field(12; "Dimension Set ID"; Integer)
+        {
+            Caption = 'Dimension Set ID';
+            Editable = false;
+            TableRelation = "Dimension Set Entry";
+
+            trigger OnLookup()
+            begin
+                Rec.LookupDimensions();
+            end;
+
+            trigger OnValidate()
+            begin
+                DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+            end;
+        }
         field(50; "E-Doc. Purch. Line History Id"; Integer)
         {
             Caption = 'E-Doc. Purch. Line History Id';
@@ -126,6 +142,9 @@ table 6105 "E-Document Line Mapping"
             Clustered = true;
         }
     }
+
+    var
+        DimMgt: Codeunit DimensionManagement;
 
     procedure InsertForEDocumentLine(EDocument: Record "E-Document"; LineNo: Integer)
     begin
@@ -165,6 +184,18 @@ table 6105 "E-Document Line Mapping"
                 AdditionalColumnValue := '-';
             AdditionalColumns += AdditionalColumnValue;
         until EDocPurchLineFieldSetup.Next() = 0;
+    end;
+
+    internal procedure LookupDimensions(): Boolean
+    var
+        OldDimSetID: Integer;
+    begin
+        OldDimSetID := "Dimension Set ID";
+        "Dimension Set ID" := DimMgt.EditDimensionSet(
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', "E-Document Entry No.", "Line No."),
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        exit(OldDimSetID <> "Dimension Set ID");
     end;
 
 }
