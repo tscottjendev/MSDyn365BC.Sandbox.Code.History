@@ -165,12 +165,10 @@ table 79 "Company Information"
         {
             Caption = 'Ship-to Name 2';
         }
-#pragma warning disable AS0086
         field(24; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
         }
-#pragma warning restore AS0086
         field(25; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
@@ -282,13 +280,17 @@ table 79 "Company Information"
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
+#if not CLEAN25
 #pragma warning disable AS0086
+#endif
         field(35; "Home Page"; Text[255])
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
         }
-#pragma warning restore AS0086
         field(36; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';

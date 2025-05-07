@@ -521,13 +521,17 @@ table 270 "Bank Account"
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
+#if not CLEAN25
 #pragma warning disable AS0086
+#endif
         field(103; "Home Page"; Text[255])
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
         }
-#pragma warning restore AS0086
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -835,10 +839,10 @@ table 270 "Bank Account"
         if "No." = '' then begin
             GLSetup.Get();
             GLSetup.TestField("Bank Account Nos.");
-			if NoSeries.AreRelated(GLSetup."Bank Account Nos.", xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := GLSetup."Bank Account Nos.";
+            if NoSeries.AreRelated(GLSetup."Bank Account Nos.", xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := GLSetup."Bank Account Nos.";
             "No." := NoSeries.GetNextNo("No. Series");
             BankAccount.ReadIsolation(IsolationLevel::ReadUncommitted);
             BankAccount.SetLoadFields("No.");
