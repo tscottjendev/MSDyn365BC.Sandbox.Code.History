@@ -869,14 +869,18 @@ table 23 Vendor
                 MailManagement.CheckValidEmailAddresses("E-Mail");
             end;
         }
+#if not CLEAN25
 #pragma warning disable AS0086
+#endif
         field(103; "Home Page"; Text[255])
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Home Page';
             OptimizeForTextSearch = true;
             ExtendedDatatype = URL;
         }
-#pragma warning restore AS0086
         field(104; "Reminder Amounts"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -1771,14 +1775,14 @@ table 23 Vendor
         if "No." = '' then begin
             PurchSetup.Get();
             PurchSetup.TestField("Vendor Nos.");
-                "No. Series" := PurchSetup."Vendor Nos.";
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
+            "No. Series" := PurchSetup."Vendor Nos.";
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series");
+            Vendor.ReadIsolation(IsolationLevel::ReadUncommitted);
+            Vendor.SetLoadFields("No.");
+            while Vendor.Get("No.") do
                 "No." := NoSeries.GetNextNo("No. Series");
-                Vendor.ReadIsolation(IsolationLevel::ReadUncommitted);
-                Vendor.SetLoadFields("No.");
-                while Vendor.Get("No.") do
-                    "No." := NoSeries.GetNextNo("No. Series");
         end;
 
         if "Invoice Disc. Code" = '' then

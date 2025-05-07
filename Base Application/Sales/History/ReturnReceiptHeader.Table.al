@@ -439,12 +439,16 @@ table 6660 "Return Receipt Header"
             Caption = 'Shipping Agent Code';
             TableRelation = "Shipping Agent";
         }
+#if not CLEAN25
 #pragma warning disable AS0086
+#endif
         field(106; "Package Tracking No."; Text[50])
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Package Tracking No.';
         }
-#pragma warning restore AS0086
         field(109; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
