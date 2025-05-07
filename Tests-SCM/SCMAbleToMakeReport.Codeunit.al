@@ -463,7 +463,7 @@ codeunit 137392 "SCM - Able To Make Report"
 
         // Exercise: Run Able To Make codeunit.
         CalculateBOMTree.SetShowTotalAvailability(true);
-        CalculateBOMTree.GenerateTreeForProdOrderLine(ProdOrderLine, BOMBuffer, "BOM Tree Type"::Availability);
+        CalculateBOMTree.GenerateTreeForSource(ProdOrderLine, BOMBuffer, "BOM Tree Type"::Availability, "BOM Structure Show By"::Production, ProdOrderLine."Due Date");
 
         // Verify: Able to make report.
         VerifyAbleToMakeReport(BOMBuffer, WorkDate(), GLBDateInterval::Day, ProdOrderLine."Location Code", '', ProductionOrder."No.");
