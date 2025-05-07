@@ -786,7 +786,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             if GenJnlLine."VAT Difference" = 0 then
                 VATDifferenceLCY := 0
             else
-                if SrcCurrCode = '' then
+                if ((SrcCurrCode = '') or (GenJnlLine."Currency Code" = '')) then
                     VATDifferenceLCY := GenJnlLine."VAT Difference"
                 else
                     VATDifferenceLCY :=
