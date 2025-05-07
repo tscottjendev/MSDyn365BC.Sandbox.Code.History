@@ -226,14 +226,18 @@ table 222 "Ship-to Address"
                 ValidateEmail()
             end;
         }
+#if not CLEAN25
 #pragma warning disable AS0086
+#endif
         field(103; "Home Page"; Text[255])
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
             ToolTip = 'Specifies the recipient''s web site.';
         }
-#pragma warning restore AS0086
         field(108; "Tax Area Code"; Code[20])
         {
             Caption = 'Tax Area Code';
