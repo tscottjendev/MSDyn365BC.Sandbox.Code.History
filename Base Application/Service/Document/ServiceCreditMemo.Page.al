@@ -212,6 +212,23 @@ page 5935 "Service Credit Memo"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the customer''s reference. The content will be printed on the related document.';
                 }
+                group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(WorkDescription; WorkDescription)
+                    {
+                        ApplicationArea = Service;
+                        Importance = Additional;
+                        MultiLine = true;
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or services being offered.';
+
+                        trigger OnValidate()
+                        begin
+                            Rec.SetWorkDescription(WorkDescription);
+                        end;
+                    }
+                }
             }
             part(ServLines; "Service Credit Memo Subform")
             {
@@ -1003,6 +1020,7 @@ page 5935 "Service Credit Memo"
 
     trigger OnAfterGetRecord()
     begin
+        WorkDescription := Rec.GetWorkDescription();
         SellToContact.GetOrClear(Rec."Contact No.");
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
 
@@ -1036,6 +1054,7 @@ page 5935 "Service Credit Memo"
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
+        WorkDescription: Text;
         DocumentIsPosted: Boolean;
         OpenPostedServiceCrMemoQst: Label 'The credit memo is posted as number %1 and moved to the Posted Service Credit Memos window.\\Do you want to open the posted credit memo?', Comment = '%1 = posted document number';
         IsBillToCountyVisible: Boolean;
