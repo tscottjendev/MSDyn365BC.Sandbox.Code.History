@@ -14,8 +14,10 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Document;
 
-xmlport 5801 "Export Item Data"
+xmlport 99000751 "Mfg. Export Item Data"
 {
     Caption = 'Export/Import Item Data';
     DefaultFieldsValidation = false;
@@ -29,9 +31,11 @@ xmlport 5801 "Export Item Data"
 
     Permissions = tabledata "Item Ledger Entry" = rimd,
                   tabledata "Item Application Entry" = rimd,
+                  tabledata "Production Order" = rimd,
+                  tabledata "Prod. Order Line" = rimd,
                   tabledata "Value Entry" = rimd,
                   tabledata "Item Application Entry History" = rimd,
-                  tabledata Microsoft.Manufacturing.Capacity."Capacity Ledger Entry" = rimd,
+                  tabledata "Capacity Ledger Entry" = rimd,
                   tabledata "Avg. Cost Adjmt. Entry Point" = rimd,
                   tabledata "Item Tracking Code" = rimd,
                   tabledata "Post Value Entry to G/L" = rimd,
@@ -786,6 +790,8 @@ xmlport 5801 "Export Item Data"
                 begin
                     CollectItemApplnEntry(ItemLedgEntry."Entry No.");
                     CollectItemApplnEntryHist(ItemLedgEntry."Entry No.");
+                    if ItemLedgEntry."Order Type" = ItemLedgEntry."Order Type"::Production then
+                        CollectProdOrder(ItemLedgEntry."Order No.");
                 end;
 
                 trigger OnPreXmlItem()
@@ -1371,7 +1377,339 @@ xmlport 5801 "Export Item Data"
                 {
                 }
             }
-            tableelement(capledgentry; Microsoft.Manufacturing.Capacity."Capacity Ledger Entry")
+            tableelement(prodorder; "Production Order")
+            {
+                AutoSave = true;
+                AutoUpdate = true;
+                MinOccurs = Zero;
+                XmlName = 'ProdOrder';
+                SourceTableView = sorting("No.", Status);
+
+                trigger OnAfterGetRecord()
+                begin
+                    CollectProdOrder(ProdOrder."No.");
+                    currXMLport.Skip();
+                end;
+
+                trigger OnPreXmlItem()
+                begin
+                    ProdOrder.SetRange("Source No.", FilteredItem."No.");
+                    ProdOrder.SetRange("Source Type", ProdOrder."Source Type"::Item);
+                end;
+            }
+            tableelement(tempprodorder; "Production Order")
+            {
+                AutoSave = true;
+                AutoUpdate = true;
+                MinOccurs = Zero;
+                XmlName = 'ProdOrder2';
+                SourceTableView = sorting("No.", Status);
+                UseTemporary = true;
+                fieldelement(ProdOrder2_Status; TempProdOrder.Status)
+                {
+                }
+                fieldelement(ProdOrder2_No; TempProdOrder."No.")
+                {
+                }
+                fieldelement(ProdOrder2_Description; TempProdOrder.Description)
+                {
+                }
+                fieldelement(ProdOrder2_SearchDescription; TempProdOrder."Search Description")
+                {
+                }
+                fieldelement(ProdOrder2_Description2; TempProdOrder."Description 2")
+                {
+                }
+                fieldelement(ProdOrder2_CreationDate; TempProdOrder."Creation Date")
+                {
+                }
+                fieldelement(ProdOrder2_LastDateModified; TempProdOrder."Last Date Modified")
+                {
+                }
+                fieldelement(ProdOrder2_SourceType; TempProdOrder."Source Type")
+                {
+                }
+                fieldelement(ProdOrder2_SourceNo; TempProdOrder."Source No.")
+                {
+                }
+                fieldelement(ProdOrder2_RoutingNo; TempProdOrder."Routing No.")
+                {
+                }
+                fieldelement(ProdOrder2_InventoryPostingGroup; TempProdOrder."Inventory Posting Group")
+                {
+                }
+                fieldelement(ProdOrder2_GenProdPostingGroup; TempProdOrder."Gen. Prod. Posting Group")
+                {
+                }
+                fieldelement(ProdOrder2_GenBusPostingGroup; TempProdOrder."Gen. Bus. Posting Group")
+                {
+                }
+                fieldelement(ProdOrder2_StartingTime; TempProdOrder."Starting Time")
+                {
+                }
+                fieldelement(ProdOrder2_StartingDate; TempProdOrder."Starting Date")
+                {
+                }
+                fieldelement(ProdOrder2_EndingTime; TempProdOrder."Ending Time")
+                {
+                }
+                fieldelement(ProdOrder2_EndingDate; TempProdOrder."Ending Date")
+                {
+                }
+                fieldelement(ProdOrder2_DueDate; TempProdOrder."Due Date")
+                {
+                }
+                fieldelement(ProdOrder2_FinishedDate; TempProdOrder."Finished Date")
+                {
+                }
+                fieldelement(ProdOrder2_Blocked; TempProdOrder.Blocked)
+                {
+                }
+                fieldelement(ProdOrder2_ShortcutDimension1Code; TempProdOrder."Shortcut Dimension 1 Code")
+                {
+                }
+                fieldelement(ProdOrder2_ShortcutDimension2Code; TempProdOrder."Shortcut Dimension 2 Code")
+                {
+                }
+                fieldelement(ProdOrder2_LocationCode; TempProdOrder."Location Code")
+                {
+                }
+                fieldelement(ProdOrder2_BinCode; TempProdOrder."Bin Code")
+                {
+                }
+                fieldelement(ProdOrder2_ReplanRefNo; TempProdOrder."Replan Ref. No.")
+                {
+                }
+                fieldelement(ProdOrder2_ReplanRefStatus; TempProdOrder."Replan Ref. Status")
+                {
+                }
+                fieldelement(ProdOrder2_LowLevelCode; TempProdOrder."Low-Level Code")
+                {
+                }
+                fieldelement(ProdOrder2_Quantity; TempProdOrder.Quantity)
+                {
+                }
+                fieldelement(ProdOrder2_UnitCost; TempProdOrder."Unit Cost")
+                {
+                }
+                fieldelement(ProdOrder2_CostAmount; TempProdOrder."Cost Amount")
+                {
+                }
+                fieldelement(ProdOrder2_ExpectedOperationCostAmt; TempProdOrder."Expected Operation Cost Amt.")
+                {
+                }
+                fieldelement(ProdOrder2_ExpectedComponentCostAmt; TempProdOrder."Expected Component Cost Amt.")
+                {
+                }
+                fieldelement(ProdOrder2_ActualTimeUsed; TempProdOrder."Actual Time Used")
+                {
+                }
+                fieldelement(ProdOrder2_AllocatedCapacityNeed; TempProdOrder."Allocated Capacity Need")
+                {
+                }
+                fieldelement(ProdOrder2_ExpectedCapacityNeed; TempProdOrder."Expected Capacity Need")
+                {
+                }
+                fieldelement(ProdOrder2_NoSeries; TempProdOrder."No. Series")
+                {
+                }
+                fieldelement(ProdOrder2_PlannedOrderNo; TempProdOrder."Planned Order No.")
+                {
+                }
+                fieldelement(ProdOrder2_FirmPlannedOrderNo; TempProdOrder."Firm Planned Order No.")
+                {
+                }
+                fieldelement(ProdOrder2_SimulatedOrderNo; TempProdOrder."Simulated Order No.")
+                {
+                }
+                fieldelement(ProdOrder2_ExpectedMaterialOvhdCost; TempProdOrder."Expected Material Ovhd. Cost")
+                {
+                }
+                fieldelement(ProdOrder2_ExpectedCapacityOvhdCost; TempProdOrder."Expected Capacity Ovhd. Cost")
+                {
+                }
+                fieldelement(ProdOrder2_StartingDateTime; TempProdOrder."Starting Date-Time")
+                {
+                }
+                fieldelement(ProdOrder2_EndingDateTime; TempProdOrder."Ending Date-Time")
+                {
+                }
+
+                trigger OnAfterInsertRecord()
+                var
+                    ProdOrder2: Record "Production Order";
+                begin
+                    ProdOrder2 := TempProdOrder;
+                    if not ProdOrder2.Insert() then
+                        ProdOrder2.Modify();
+                end;
+            }
+            tableelement(tempprodorderline; "Prod. Order Line")
+            {
+                AutoSave = true;
+                AutoUpdate = true;
+                MinOccurs = Zero;
+                XmlName = 'ProdOrderLine';
+                SourceTableView = sorting("Prod. Order No.", "Line No.", Status);
+                UseTemporary = true;
+                fieldelement(ProdOrderLine_Status; TempProdOrderLine.Status)
+                {
+                }
+                fieldelement(ProdOrderLine_ProdOrderNo; TempProdOrderLine."Prod. Order No.")
+                {
+                }
+                fieldelement(ProdOrderLine_LineNo; TempProdOrderLine."Line No.")
+                {
+                }
+                fieldelement(ProdOrderLine_ItemNo; TempProdOrderLine."Item No.")
+                {
+                }
+                fieldelement(ProdOrderLine_VariantCode; TempProdOrderLine."Variant Code")
+                {
+                }
+                fieldelement(ProdOrderLine_Description; TempProdOrderLine.Description)
+                {
+                }
+                fieldelement(ProdOrderLine_Description2; TempProdOrderLine."Description 2")
+                {
+                }
+                fieldelement(ProdOrderLine_LocationCode; TempProdOrderLine."Location Code")
+                {
+                }
+                fieldelement(ProdOrderLine_ShortcutDimension1Code; TempProdOrderLine."Shortcut Dimension 1 Code")
+                {
+                }
+                fieldelement(ProdOrderLine_ShortcutDimension2Code; TempProdOrderLine."Shortcut Dimension 2 Code")
+                {
+                }
+                fieldelement(ProdOrderLine_BinCode; TempProdOrderLine."Bin Code")
+                {
+                }
+                fieldelement(ProdOrderLine_Quantity; TempProdOrderLine.Quantity)
+                {
+                }
+                fieldelement(ProdOrderLine_FinishedQuantity; TempProdOrderLine."Finished Quantity")
+                {
+                }
+                fieldelement(ProdOrderLine_RemainingQuantity; TempProdOrderLine."Remaining Quantity")
+                {
+                }
+                fieldelement(ProdOrderLine_ScrapPct; TempProdOrderLine."Scrap %")
+                {
+                }
+                fieldelement(ProdOrderLine_DueDate; TempProdOrderLine."Due Date")
+                {
+                }
+                fieldelement(ProdOrderLine_StartingDate; TempProdOrderLine."Starting Date")
+                {
+                }
+                fieldelement(ProdOrderLine_StartingTime; TempProdOrderLine."Starting Time")
+                {
+                }
+                fieldelement(ProdOrderLine_EndingDate; TempProdOrderLine."Ending Date")
+                {
+                }
+                fieldelement(ProdOrderLine_EndingTime; TempProdOrderLine."Ending Time")
+                {
+                }
+                fieldelement(ProdOrderLine_PlanningLevelCode; TempProdOrderLine."Planning Level Code")
+                {
+                }
+                fieldelement(ProdOrderLine_Priority; TempProdOrderLine.Priority)
+                {
+                }
+                fieldelement(ProdOrderLine_ProductionBomNo; TempProdOrderLine."Production BOM No.")
+                {
+                }
+                fieldelement(ProdOrderLine_RoutingNo; TempProdOrderLine."Routing No.")
+                {
+                }
+                fieldelement(ProdOrderLine_InventoryPostingGroup; TempProdOrderLine."Inventory Posting Group")
+                {
+                }
+                fieldelement(ProdOrderLine_RoutingReferenceNo; TempProdOrderLine."Routing Reference No.")
+                {
+                }
+                fieldelement(ProdOrderLine_UnitCost; TempProdOrderLine."Unit Cost")
+                {
+                }
+                fieldelement(ProdOrderLine_CostAmount; TempProdOrderLine."Cost Amount")
+                {
+                }
+                fieldelement(ProdOrderLine_ReservedQuantity; TempProdOrderLine."Reserved Quantity")
+                {
+                }
+                fieldelement(ProdOrderLine_UnitOfMeasureCode; TempProdOrderLine."Unit of Measure Code")
+                {
+                }
+                fieldelement(ProdOrderLine_QuantityBase; TempProdOrderLine."Quantity (Base)")
+                {
+                }
+                fieldelement(ProdOrderLine_FinishedQtyBase; TempProdOrderLine."Finished Qty. (Base)")
+                {
+                }
+                fieldelement(ProdOrderLine_RemainingQtyBase; TempProdOrderLine."Remaining Qty. (Base)")
+                {
+                }
+                fieldelement(ProdOrderLine_ReservedQtyBase; TempProdOrderLine."Reserved Qty. (Base)")
+                {
+                }
+                fieldelement(ProdOrderLine_ExpectedOperationCostAmt; TempProdOrderLine."Expected Operation Cost Amt.")
+                {
+                }
+                fieldelement(ProdOrderLine_TotalExpOperOutputQty; TempProdOrderLine."Total Exp. Oper. Output (Qty.)")
+                {
+                }
+                fieldelement(ProdOrderLine_ExpectedComponentCostAmt; TempProdOrderLine."Expected Component Cost Amt.")
+                {
+                }
+                fieldelement(ProdOrderLine_StartingDateTime; TempProdOrderLine."Starting Date-Time")
+                {
+                }
+                fieldelement(ProdOrderLine_EndingDateTime; TempProdOrderLine."Ending Date-Time")
+                {
+                }
+                fieldelement(ProdOrderLine_CostAmountACY; TempProdOrderLine."Cost Amount (ACY)")
+                {
+                }
+                fieldelement(ProdOrderLine_UnitCostACY; TempProdOrderLine."Unit Cost (ACY)")
+                {
+                }
+                fieldelement(ProdOrderLine_ProductionBomVersionCode; TempProdOrderLine."Production BOM Version Code")
+                {
+                }
+                fieldelement(ProdOrderLine_RoutingVersionCode; TempProdOrderLine."Routing Version Code")
+                {
+                }
+                fieldelement(ProdOrderLine_RoutingType; TempProdOrderLine."Routing Type")
+                {
+                }
+                fieldelement(ProdOrderLine_QtyPerUnitOfMeasure; TempProdOrderLine."Qty. per Unit of Measure")
+                {
+                }
+                fieldelement(ProdOrderLine_MpsOrder; TempProdOrderLine."MPS Order")
+                {
+                }
+                fieldelement(ProdOrderLine_PlanningFlexibility; TempProdOrderLine."Planning Flexibility")
+                {
+                }
+                fieldelement(ProdOrderLine_IndirectCostPct; TempProdOrderLine."Indirect Cost %")
+                {
+                }
+                fieldelement(ProdOrderLine_OverheadRate; TempProdOrderLine."Overhead Rate")
+                {
+                }
+
+                trigger OnAfterInsertRecord()
+                var
+                    ProdOrderLine2: Record "Prod. Order Line";
+                begin
+                    ProdOrderLine2 := TempProdOrderLine;
+                    if not ProdOrderLine2.Insert() then
+                        ProdOrderLine2.Modify();
+                end;
+            }
+            tableelement(capledgentry; "Capacity Ledger Entry")
             {
                 AutoSave = true;
                 AutoUpdate = true;
@@ -1472,6 +1810,18 @@ xmlport 5801 "Export Item Data"
                 {
                 }
                 fieldelement(CapLedgEntry_ExternalDocumentNo; CapLedgEntry."External Document No.")
+                {
+                }
+                fieldelement(CapLedgEntry_StopCode; CapLedgEntry."Stop Code")
+                {
+                }
+                fieldelement(CapLedgEntry_ScrapCode; CapLedgEntry."Scrap Code")
+                {
+                }
+                fieldelement(CapLedgEntry_WorkCenterGroupCode; CapLedgEntry."Work Center Group Code")
+                {
+                }
+                fieldelement(CapLedgEntry_WorkShiftCode; CapLedgEntry."Work Shift Code")
                 {
                 }
                 fieldelement(CapLedgEntry_DirectCost; CapLedgEntry."Direct Cost")
@@ -2311,14 +2661,29 @@ xmlport 5801 "Export Item Data"
             until ItemApplnEntryHistory.Next() = 0;
     end;
 
-#if not CLEAN27
-    [Obsolete('Use xml port MfgExportItemData instead', '27.0')]
     procedure CollectProdOrder(ProdOrderNo: Code[20])
+    var
+        ProdOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
     begin
         if ProdOrderNo = '' then
             exit;
+
+        ProdOrder.SetCurrentKey("No.");
+        ProdOrder.SetRange("No.", ProdOrderNo);
+        if ProdOrder.FindFirst() then begin
+            TempProdOrder := ProdOrder;
+            if TempProdOrder.Insert() then;
+        end;
+
+        ProdOrderLine.SetCurrentKey("Prod. Order No.");
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
+        if ProdOrderLine.FindSet() then
+            repeat
+                TempProdOrderLine := ProdOrderLine;
+                if TempProdOrderLine.Insert() then;
+            until ProdOrderLine.Next() = 0;
     end;
-#endif
 
     procedure CollectCapValueEntry(CapEntryNo: Integer)
     var
