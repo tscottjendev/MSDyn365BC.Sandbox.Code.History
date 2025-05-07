@@ -22,12 +22,10 @@ table 5714 "Responsibility Center"
             Caption = 'Code';
             NotBlank = true;
         }
-#pragma warning disable AS0086
         field(2; Name; Text[100])
         {
             Caption = 'Name';
         }
-#pragma warning restore AS0086
         field(3; Address; Text[100])
         {
             Caption = 'Address';
@@ -155,13 +153,17 @@ table 5714 "Responsibility Center"
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
+#if not CLEAN25
 #pragma warning disable AS0086
+#endif
         field(103; "Home Page"; Text[255])
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
         }
-#pragma warning restore AS0086
         field(5900; "Date Filter"; Date)
         {
             Caption = 'Date Filter';
