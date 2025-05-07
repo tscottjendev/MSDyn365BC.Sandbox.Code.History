@@ -402,12 +402,14 @@ page 52 "Purchase Credit Memo"
                     BlankZero = true;
                     Enabled = DocAmountEnable;
                     Visible = DocAmountEnable;
+                    Editable = DocAmountsEditable;
                     ShowMandatory = true;
                 }
                 field(DocAmountVAT; Rec."Doc. Amount VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = DocAmountEnable;
+                    Editable = DocAmountsEditable;
                     Visible = DocAmountEnable;
                 }
             }
@@ -1814,6 +1816,8 @@ page 52 "Purchase Credit Memo"
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(Rec.RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(Rec.RecordId);
         StatusStyleTxt := Rec.GetStatusStyleText();
+        DocAmountEnable := PurchSetup.ShouldDocumentTotalAmountsBeChecked(Rec);
+        DocAmountsEditable := PurchSetup.CanDocumentTotalAmountsBeEdited(Rec);
     end;
 
     trigger OnAfterGetRecord()
@@ -1840,7 +1844,6 @@ page 52 "Purchase Credit Memo"
         SetIsActivityCodeMandatory();
 
         IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
-        DocAmountEnable := PurchSetup."Check Doc. Total Amounts";
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1929,7 +1932,7 @@ page 52 "Purchase Credit Memo"
         IsPaymentMethodCodeVisible: Boolean;
         IsPurchaseLinesEditable: Boolean;
         VATDateEnabled: Boolean;
-        DocAmountEnable: Boolean;
+        DocAmountEnable, DocAmountsEditable : Boolean;
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";

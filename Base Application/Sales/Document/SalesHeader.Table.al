@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -1861,14 +1861,18 @@ table 36 "Sales Header"
                 UpdateSalesLinesByFieldNo(FieldNo("Shipping Agent Code"), CurrFieldNo <> 0);
             end;
         }
+#if not CLEAN25
 #pragma warning disable AS0086
+#endif
         field(106; "Package Tracking No."; Text[50])
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Package Tracking No.';
             ToolTip = 'Specifies the shipping agent''s package number.';
             OptimizeForTextSearch = true;
         }
-#pragma warning restore AS0086
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -3667,7 +3671,7 @@ table 36 "Sales Header"
         Text12100: Label ' %1 %2 must be Vendor/Contact for %3 %4 3rd-Party Loader.';
         Text12101: Label 'The customer has an active VAT exemption and VAT Bus. Posting Group hasn''t "Check VAT Exemption". Do you want to continue?';
         Text12102: Label 'It is not possible to insert a customer with VAT exemption if an active VAT exemption doesn''t exist.';
-       	DifferentDatesQst: Label 'Posting Date %1 is different from Work Date %2.\\Do you want to continue?', Comment = '%1 - Posting Date, %2 - work date';
+        DifferentDatesQst: Label 'Posting Date %1 is different from Work Date %2.\\Do you want to continue?', Comment = '%1 - Posting Date, %2 - work date';
         DifferentDatesErr: Label 'Posting Date %1 is different from Work Date %2.\\Batch posting cannot be used.', Comment = '%1 - Posting Date, %2 - work date';
 #pragma warning restore AA0470
 #pragma warning restore AA0074

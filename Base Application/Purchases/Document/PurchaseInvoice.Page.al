@@ -363,6 +363,7 @@ page 51 "Purchase Invoice"
                     BlankZero = true;
                     Enabled = DocAmountEnable;
                     Visible = DocAmountEnable;
+                    Editable = DocAmountsEditable;
                     ShowMandatory = true;
                 }
                 field(DocAmountVAT; Rec."Doc. Amount VAT")
@@ -370,6 +371,7 @@ page 51 "Purchase Invoice"
                     ApplicationArea = Basic, Suite;
                     Enabled = DocAmountEnable;
                     Visible = DocAmountEnable;
+                    Editable = DocAmountsEditable;
                 }
                 field("Job Queue Status"; Rec."Job Queue Status")
                 {
@@ -1897,6 +1899,8 @@ page 51 "Purchase Invoice"
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(Rec.RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(Rec.RecordId);
         StatusStyleTxt := Rec.GetStatusStyleText();
+        DocAmountEnable := PurchSetup.ShouldDocumentTotalAmountsBeChecked(Rec);
+        DocAmountsEditable := PurchSetup.CanDocumentTotalAmountsBeEdited(Rec);
     end;
 
     trigger OnAfterGetRecord()
@@ -1927,7 +1931,6 @@ page 51 "Purchase Invoice"
         SetIsActivityCodeMandatory();
 
         IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
-        DocAmountEnable := PurchSetup."Check Doc. Total Amounts";
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -2049,7 +2052,7 @@ page 51 "Purchase Invoice"
         IsPurchaseLinesEditable: Boolean;
         RejectICPurchaseInvoiceEnabled: Boolean;
         VATDateEnabled: Boolean;
-        DocAmountEnable: Boolean;
+        DocAmountEnable, DocAmountsEditable : Boolean;
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";

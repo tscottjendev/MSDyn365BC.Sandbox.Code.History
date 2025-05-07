@@ -692,12 +692,12 @@ table 5740 "Transfer Header"
 #pragma warning disable AS0086
 #endif
         field(12100; "Package Tracking No."; Text[50])
-        {
-            Caption = 'Package Tracking No.';
-        }
 #if not CLEAN25
 #pragma warning restore AS0086
 #endif
+        {
+            Caption = 'Package Tracking No.';
+        }
         field(12101; "Gross Weight"; Decimal)
         {
             Caption = 'Gross Weight';

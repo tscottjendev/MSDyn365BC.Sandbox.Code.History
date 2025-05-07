@@ -22,12 +22,10 @@ table 5209 Union
             Caption = 'Code';
             NotBlank = true;
         }
-#pragma warning disable AS0086
         field(2; Name; Text[100])
         {
             Caption = 'Name';
         }
-#pragma warning restore AS0086
         field(3; Address; Text[100])
         {
             Caption = 'Address';
@@ -120,13 +118,17 @@ table 5209 Union
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
+#if not CLEAN25
 #pragma warning disable AS0086
+#endif
         field(13; "Home Page"; Text[255])
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
         }
-#pragma warning restore AS0086
         field(14; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';

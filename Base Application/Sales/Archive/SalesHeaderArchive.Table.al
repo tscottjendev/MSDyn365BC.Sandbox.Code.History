@@ -581,14 +581,18 @@ table 5107 "Sales Header Archive"
             TableRelation = "Shipping Agent";
             ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
         }
+#if not CLEAN25
 #pragma warning disable AS0086
+#endif
         field(106; "Package Tracking No."; Text[50])
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Package Tracking No.';
             OptimizeForTextSearch = true;
             ToolTip = 'Specifies the shipping agent''s package number.';
         }
-#pragma warning restore AS0086
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
