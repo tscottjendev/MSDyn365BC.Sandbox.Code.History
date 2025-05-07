@@ -373,14 +373,18 @@ table 1381 "Customer Templ."
             ExtendedDatatype = EMail;
             ToolTip = 'Specifies the customer''s email address.';
         }
+#if not CLEAN25
 #pragma warning disable AS0086
+#endif
         field(103; "Home Page"; Text[255])
+#if not CLEAN25
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
             ToolTip = 'Specifies the customer''s home page address.';
         }
-#pragma warning restore AS0086
         field(104; "Reminder Terms Code"; Code[10])
         {
             Caption = 'Reminder Terms Code';
