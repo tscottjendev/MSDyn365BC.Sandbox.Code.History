@@ -11,7 +11,9 @@ page 9644 "Column Picker Part"
     PageType = ListPart;
     ApplicationArea = All;
     SourceTable = "Page Table Field";
-    Caption = 'Choose a source page';
+    Caption = 'Choose the columns to insert';
+    AboutTitle = 'About the column Picker part';
+    AboutText = 'Use this page to add columns from the list of available fields for the selected page or the source table if no page is selected. Choose the fields you want to insert and click ''OK'' to include them in the analysis view.';
     InsertAllowed = false;
     ModifyAllowed = false;
     DeleteAllowed = false;
@@ -31,6 +33,8 @@ page 9644 "Column Picker Part"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show available fields from';
                     ToolTip = 'Specifies source page name.';
+                    AboutTitle = 'About the source page';
+                    AboutText = 'Displays the list of card and list pages that have the selected table as source. Select a page to view the fields available for that page.';
                     Editable = true;
                     Visible = AreTherePagesAvailable;
                     InstructionalText = 'Select a page';
@@ -44,13 +48,15 @@ page 9644 "Column Picker Part"
                         PageMetadata := Selected;
                         ColumnPickerHelper.FilterAfterLookup(PageMetadata.Id, Rec);
 
-                        SourcePageName := PageMetadata.Name;
+                        SourcePageName := PageMetadata.Caption;
                         CurrPage.Update();
                     end;
                 }
 
                 field(Warning; UsingTableAsSourceMsg)
                 {
+                    AboutTitle = 'About the fields';
+                    AboutText = 'This shows the list of fields available for the selected page or for the source table if no page is selected. Select the fields you want to insert and click ''OK'' to add them to your analysis view.';
                     Visible = not AreTherePagesAvailable;
                     ShowCaption = false;
                     ApplicationArea = All;
