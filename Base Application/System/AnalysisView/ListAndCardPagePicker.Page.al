@@ -56,13 +56,9 @@ page 9641 "List and Card page picker"
         }
     }
 
-    procedure AreTherePagesAvailable(TableId: Integer): Boolean
+    trigger OnOpenPage()
     begin
-        Rec.SetFilter(SourceTable, '%1', Rec.ID);
         Rec.SetFilter(PageType, '%1|%2', Rec.PageType::List, Rec.PageType::Card);
-
-        // If there are no list or card pages for the selected table, show table fields instead.
-        exit(Rec.FindSet());
     end;
 
     trigger OnAfterGetRecord()
