@@ -11,6 +11,8 @@ page 9640 "Column Picker"
     PageType = List;
     ApplicationArea = All;
     SourceTable = "Page Table Field";
+    AboutTitle = 'About Column Picker';
+    AboutText = 'Use this page to add columns from the list of available fields for the selected page or the source table if no page is selected. Choose the fields you want to insert and click ''OK'' to include them in the analysis view.';
     InsertAllowed = false;
     ModifyAllowed = false;
     DeleteAllowed = false;
@@ -26,6 +28,8 @@ page 9640 "Column Picker"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show available fields from';
                 ToolTip = 'Specifies source page name.';
+                AboutTitle = 'About the source page';
+                AboutText = 'Displays the list of card and list pages that have the selected table as source. Select a page to view the fields available for that page.';
                 Visible = AreTherePagesAvailable;
                 InstructionalText = 'Select a page';
                 LookupPageId = "List and Card page picker";
@@ -37,7 +41,7 @@ page 9640 "Column Picker"
                     PageMetadata: Record "Page Metadata";
                 begin
                     PageMetadata := Selected;
-                    SourcePageName := PageMetadata.Name;
+                    SourcePageName := PageMetadata.Caption;
                     ColumnPickerHelper.FilterAfterLookup(PageMetadata.ID, Rec);
                     CurrPage.Update();
                 end;

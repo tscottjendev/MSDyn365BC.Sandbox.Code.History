@@ -29,16 +29,19 @@ table 9640 "Table Relations Buffer"
         field(4; "Related Field No."; Integer)
         {
         }
-        field(5; "Table Name"; Text[2048])
+        field(5; "Table Name"; Text[250])
         {
         }
-        field(6; "Field Name"; Text[2048])
+        field(6; "Field Name"; Text[250])
         {
         }
-        field(7; "Related Table Name"; Text[2048])
+        field(7; "Related Table Name"; Text[250])
         {
         }
-        field(8; "Related Field Name"; Text[2048])
+        field(8; "Related Field Name"; Text[250])
+        {
+        }
+        field(9; "Relation Description"; Text[250])
         {
         }
     }
@@ -50,7 +53,7 @@ table 9640 "Table Relations Buffer"
     }
     fieldgroups
     {
-        fieldgroup(DropDown; "Table Name", "Related Table Name", "Field Name", "Related Field Name")
+        fieldgroup(DropDown; "Relation Description")
         {
         }
     }
@@ -74,6 +77,8 @@ table 9640 "Table Relations Buffer"
                     Rec."Related Field Name" := TableRelationsMetadata."Related Field Name";
                     Rec."Related Field No." := TableRelationsMetadata."Related Field No.";
 
+                    Rec."Relation Description" := StrSubstNo(RelationDescriptionMsg, TableRelationsMetadata."Related Table Name", TableRelationsMetadata."Field Name", TableRelationsMetadata."Related Field Name");
+
                     if (CheckValidTable(TableRelationsMetadata."Related Table ID") and
                         CheckValidField(TableRelationsMetadata."Table ID", TableRelationsMetadata."Field No.") and
                         CheckValidField(TableRelationsMetadata."Related Table ID", TableRelationsMetadata."Related Field No.")
@@ -94,6 +99,8 @@ table 9640 "Table Relations Buffer"
                         Rec."Related Field Name" := TableRelationsMetadata."Field Name";
                         Rec."Related Field No." := TableRelationsMetadata."Field No.";
 
+                        Rec."Relation Description" := StrSubstNo(RelationDescriptionMsg, TableRelationsMetadata."Table Name", TableRelationsMetadata."Related Field Name", TableRelationsMetadata."Field Name");
+
                         if (CheckValidTable(TableRelationsMetadata."Table ID") and
                             CheckValidField(TableRelationsMetadata."Table ID", TableRelationsMetadata."Field No.") and
                             CheckValidField(TableRelationsMetadata."Related Table ID", TableRelationsMetadata."Related Field No.")
@@ -101,6 +108,7 @@ table 9640 "Table Relations Buffer"
                             if not Rec.Insert() then;
                     end;
             until TableRelationsMetadata.Next() = 0;
+        Rec.SetCurrentKey("Relation Description");
     end;
 
     local procedure CheckValidTable(TableId: Integer): Boolean
@@ -114,7 +122,16 @@ table 9640 "Table Relations Buffer"
         exit((TableMetadata.TableType = TableMetadata.TableType::Normal) and
               (TableMetadata.Access = TableMetadata.Access::Public) and
               (TableMetadata.ObsoleteState <> TableMetadata.ObsoleteState::Removed) and
-              ((TableMetadata.Scope = TableMetadata.Scope::Cloud) or EnvironmentInformation.IsOnPrem()));
+              ((TableMetadata.Scope = TableMetadata.Scope::Cloud) or EnvironmentInformation.IsOnPrem()) and
+              DoesTheTableHavePages(TableId));
+    end;
+
+    local procedure DoesTheTableHavePages(TableId: Integer): Boolean
+    var
+        PageMetadata: Record "Page Metadata";
+    begin
+        PageMetadata.SetRange(SourceTable, TableId);
+        exit(not PageMetadata.IsEmpty());
     end;
 
     local procedure CheckValidField(TableId: Integer; FieldId: Integer): Boolean
@@ -129,4 +146,7 @@ table 9640 "Table Relations Buffer"
               (FieldMetadata.ObsoleteState <> FieldMetadata.ObsoleteState::Removed) and
               (FieldMetadata.IsAllowedInCustomizations));
     end;
+
+    var
+        RelationDescriptionMsg: Label '%1 - Via: %2 = %3', Comment = '%1 = Related Table Name, %2 = Field Name, %3 = Related Field Name';
 }
