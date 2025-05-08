@@ -28,6 +28,8 @@ page 9643 "Table and Column Picker"
                 Editable = not IsTableSet;
                 ToolTip = 'Specifies source table name.';
                 InstructionalText = 'Select a table to join';
+                AboutTitle = 'About the source table';
+                AboutText = 'Displays the list of related tables from which fields can be added, along with the type of data join performed. These are the tables linked to the current page''s source table through the TableRelation property. Select a table to view its available fields.';
                 TableRelation = "Table Relations Buffer" where("Table ID" = field("Table ID"));
                 LookupPageId = "Table Relations Picker";
 
@@ -36,10 +38,9 @@ page 9643 "Table and Column Picker"
                     TableRelationsBuffer: Record "Table Relations Buffer";
                 begin
                     TableRelationsBuffer := Selected;
+                    RelatedTableName := TableRelationsBuffer."Relation Description";
+
                     IsTableSet := true;
-
-                    RelatedTableName := StrSubstNo(TableRelationNameLbl, TableRelationsBuffer."Related Table Name", TableRelationsBuffer."Field Name", TableRelationsBuffer."Related Field Name");
-
                     Rec.SetFilter("Related Table ID", '%1', TableRelationsBuffer."Related Table ID");
                     CurrPage.Update(false);
                 end;
@@ -62,7 +63,6 @@ page 9643 "Table and Column Picker"
     end;
 
     var
-        TableRelationNameLbl: Label '%1 - Via: %2 = %3', Comment = '%1 = Related Table Name, %2 = Field Name, %3 = Related Field Name';
         RelatedTableName: Text[250];
         IsTableSet: Boolean;
 }
