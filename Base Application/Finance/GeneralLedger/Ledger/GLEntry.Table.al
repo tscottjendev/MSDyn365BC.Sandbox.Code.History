@@ -592,6 +592,7 @@ table 17 "G/L Entry"
         exit(GeneralLedgerSetup."Additional Reporting Currency")
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"G/L Entry", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";
@@ -599,6 +600,7 @@ table 17 "G/L Entry"
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"G/L Entry", 'r')]
     procedure GetLastEntry(var LastEntryNo: Integer; var LastTransactionNo: Integer)
     var
         FindRecordManagement: Codeunit "Find Record Management";
