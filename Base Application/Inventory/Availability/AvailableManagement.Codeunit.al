@@ -52,7 +52,7 @@ codeunit 5400 "Available Management"
 
         CopyOfItem.Copy(Item);
         CopyOfItem.SetRange("Date Filter", 0D, CopyOfItem.GetRangeMax(CopyOfItem."Date Filter"));
-        CopyOfItem.CalcFields("Qty. on Purch. Order", "Trans. Ord. Receipt (Qty.)", "Planned Order Receipt (Qty.)", "Qty. on Sales Return");
+        CopyOfItem.CalcFields("Qty. on Purch. Order", "Trans. Ord. Receipt (Qty.)", "Qty. on Sales Return");
         OnCalcAvailableQtyOnAfterCalcFields(CopyOfItem, ScheduledReceiptQty);
 
         if CopyOfItem.GetFilter("Location Filter") <> '' then
@@ -74,7 +74,7 @@ codeunit 5400 "Available Management"
           CopyOfItem."Qty. on Purch. Order" -
           CopyOfItem."Qty. on Sales Order" -
           CopyOfItem.CalcQtyOnComponentLines() +
-          CopyOfItem."Planned Order Receipt (Qty.)" +
+          CopyOfItem.CalcPlannedOrderReceiptQty() +
           ScheduledReceiptQty -
           CopyOfItem."Trans. Ord. Shipment (Qty.)" +
           CopyOfItem."Qty. in Transit" +
