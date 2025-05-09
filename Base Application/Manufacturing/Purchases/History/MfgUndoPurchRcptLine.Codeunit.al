@@ -8,6 +8,7 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Journal;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory;
 
 codeunit 99000784 "Mfg. Undo Purch. Rcpt. Line"
 {
@@ -108,5 +109,44 @@ codeunit 99000784 "Mfg. Undo Purch. Rcpt. Line"
                 TempItemLedgEntry := ItemLedgEntry;
                 TempItemLedgEntry.Insert();
             until ItemLedgEntry.Next() = 0;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Posting Management", 'OnCollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine', '', false, false)]
+    local procedure OnCollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; PurchRcptLine: Record "Purch. Rcpt. Line"; var Result: Boolean)
+    begin
+        Result := CollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(TempItemLedgerEntry, PurchRcptLine);
+    end;
+
+    local procedure CollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; PurchRcptLine: Record "Purch. Rcpt. Line"): Boolean
+    var
+        ItemLedgEntry: Record "Item Ledger Entry";
+        OutputEntriesExist: Boolean;
+    begin
+        TempItemLedgEntry.Reset();
+        if not TempItemLedgEntry.IsEmpty() then
+            TempItemLedgEntry.DeleteAll();
+
+        ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
+        ItemLedgEntry.SetBaseLoadFields();
+        ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
+        ItemLedgEntry.SetRange("Order No.", PurchRcptLine."Prod. Order No.");
+        ItemLedgEntry.SetRange("Order Line No.", PurchRcptLine."Prod. Order Line No.");
+        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
+        ItemLedgEntry.SetRange("Item No.", PurchRcptLine."No.");
+        ItemLedgEntry.SetRange(Open, true);
+
+        if ItemLedgEntry.FindSet() then
+            repeat
+                TempItemLedgEntry := ItemLedgEntry;
+                TempItemLedgEntry.Insert();
+            until ItemLedgEntry.Next() = 0;
+
+        OutputEntriesExist := not TempItemLedgEntry.IsEmpty();
+        if not OutputEntriesExist then begin
+            ItemLedgEntry.SetRange(Open);
+            OutputEntriesExist := not ItemLedgEntry.IsEmpty();
+        end;
+
+        exit(OutputEntriesExist);
     end;
 }
