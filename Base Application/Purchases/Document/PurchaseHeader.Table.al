@@ -5343,7 +5343,6 @@ table 38 "Purchase Header"
             if not TempPurchaseLine.Mark() then begin
                 TempPurchaseLine.SetRange("Job No.", PurchaseLine."Job No.");
                 TempPurchaseLine.SetRange("Responsibility Center", PurchaseLine."Responsibility Center");
-                TempPurchaseLine.SetRange("Work Center No.", PurchaseLine."Work Center No.");
                 OnCollectParamsInBufferForCreateDimSetOnAfterSetTempPurchLineFilters(TempPurchaseLine, PurchaseLine);
                 if TempPurchaseLine.IsEmpty() then
                     InsertTempPurchaseLineInBuffer(TempPurchaseLine, PurchaseLine, TempPurchaseLine."No.", false)
@@ -5359,7 +5358,6 @@ table 38 "Purchase Header"
         TempPurchaseLine."No." := AccountNo;
         TempPurchaseLine."Job No." := PurchaseLine."Job No.";
         TempPurchaseLine."Responsibility Center" := PurchaseLine."Responsibility Center";
-        TempPurchaseLine."Work Center No." := PurchaseLine."Work Center No.";
         TempPurchaseLine."Gen. Bus. Posting Group" := PurchaseLine."Gen. Bus. Posting Group";
         TempPurchaseLine."Gen. Prod. Posting Group" := PurchaseLine."Gen. Prod. Posting Group";
         TempPurchaseLine.Mark := DefaultDimenstionsNotExist;
