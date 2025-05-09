@@ -1670,6 +1670,24 @@
       <Cmt Name="Dev"><![CDATA[%1 = method name, %2 = codeunit name]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType ScenarioNotStartedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3825618008 - NamedType 4174856067" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The test suite %1 does not contain the test line %2. Run the suite again.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = test suite code, %2 = line number]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType TestMethodLineNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3825618008 - NamedType 1747594689" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The test suite %1 has been changed since test line %2 was run. Run the suite again.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = test suite code, %2 = line number]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType TestSuiteChangedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3825618008 - NamedType 3339386448" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1/%2]]></Val>
@@ -2289,6 +2307,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Log Entries - Action Hide Sensitive Data - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2545575774 - Action 333410028 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Rerun the test for the selected line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Log Entries - Action RerunTest - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2545575774 - Action 333410028 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Rerun test]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Log Entries - Action RerunTest - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2545575774 - Action 2286710577 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
