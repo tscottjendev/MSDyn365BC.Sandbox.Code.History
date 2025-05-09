@@ -3,6 +3,7 @@ namespace System.AI;
 using Microsoft.CashFlow.Setup;
 using Microsoft.Foundation.Period;
 using System;
+using System.Globalization;
 using System.Reflection;
 using System.Utilities;
 
@@ -331,6 +332,7 @@ codeunit 2000 "Time Series Management"
     var
         TypeHelper: Codeunit "Type Helper";
         PeriodPageManagement: Codeunit PeriodPageManagement;
+        DotNet_CultureInfo: Codeunit DotNet_CultureInfo;
         Value: Variant;
         LineNo: Integer;
         GroupID: Code[50];
@@ -348,11 +350,11 @@ codeunit 2000 "Time Series Management"
               PeriodPageManagement.MoveDateByPeriod(
                 TimeSeriesForecastingStartDate, TimeSeriesPeriodType, PeriodNo - TimeSeriesObservationPeriods - 1);
             Value := TempTimeSeriesForecast.Value;
-            TypeHelper.Evaluate(Value, GetOutput(LineNo, 3), '', '');
+            TypeHelper.Evaluate(Value, GetOutput(LineNo, 3), '', DotNet_CultureInfo.CurrentCultureName());
             TempTimeSeriesForecast.Value := Value;
 
             Value := TempTimeSeriesForecast.Delta;
-            TypeHelper.Evaluate(Value, GetOutput(LineNo, 4), '', '');
+            TypeHelper.Evaluate(Value, GetOutput(LineNo, 4), '', DotNet_CultureInfo.CurrentCultureName());
             TempTimeSeriesForecast.Delta := Value;
             if TempTimeSeriesForecast.Value <> 0 then
                 TempTimeSeriesForecast."Delta %" := Abs(TempTimeSeriesForecast.Delta / TempTimeSeriesForecast.Value) * 100;
