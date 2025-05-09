@@ -388,7 +388,7 @@ table 9500 "Email Item"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSend(Rec, HideMailDialog, MailManagement, EmailScenario, Result, IsHandled);
+        OnBeforeSend(Rec, HideMailDialog, MailManagement, EmailScenario, Result, Enqueue, IsHandled);
         if IsHandled then
             exit(Result);
         MailManagement.SendMailOrDownload(Rec, HideMailDialog, EmailScenario, Enqueue);
@@ -507,7 +507,7 @@ table 9500 "Email Item"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSend(var EmailItem: Record "Email Item"; var HideMailDialog: Boolean; var MailManagement: Codeunit "Mail Management"; EmailScenario: Enum "Email Scenario"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSend(var EmailItem: Record "Email Item"; var HideMailDialog: Boolean; var MailManagement: Codeunit "Mail Management"; var EmailScenario: Enum "Email Scenario"; var Result: Boolean; var Enqueue: Boolean; var IsHandled: Boolean)
     begin
     end;
 

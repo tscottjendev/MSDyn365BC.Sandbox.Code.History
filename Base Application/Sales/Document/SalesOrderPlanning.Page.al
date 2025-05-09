@@ -411,11 +411,8 @@ page 99000883 "Sales Order Planning"
         Item.Get(Rec."Item No.");
         Item.SetRange("Variant Filter", VariantCode);
         Item.SetRange("Location Filter", LocationCode);
-        Item.CalcFields(
-          Inventory,
-          "Qty. on Purch. Order",
-          "Qty. on Sales Order",
-          "Planned Order Receipt (Qty.)");
+        Item.CalcFields(Inventory, "Qty. on Purch. Order", "Qty. on Sales Order");
+
         QtyOnComponentLines := Item.CalcQtyOnComponentLines();
         ScheduledReceiptQty := Item.CalcScheduledReceiptQty();
 
@@ -426,7 +423,7 @@ page 99000883 "Sales Order Planning"
               Item."Qty. on Purch. Order" -
               QtyOnComponentLines +
               ScheduledReceiptQty +
-              Item."Planned Order Receipt (Qty.)"
+              Item.CalcPlannedOrderReceiptQty()
         else
             Rec.Available := 0;
 
