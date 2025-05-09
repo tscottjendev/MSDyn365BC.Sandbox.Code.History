@@ -205,35 +205,6 @@ page 99000852 "Planning Worksheet"
                     ToolTip = 'Specifies additional text describing the entry, or a remark about the requisition worksheet line.';
                     Visible = false;
                 }
-                field("Production BOM No."; Rec."Production BOM No.")
-                {
-                    ApplicationArea = Assembly;
-                    ToolTip = 'Specifies the production BOM number for this production order.';
-                    Visible = false;
-                }
-                field("Production BOM Version Code"; Rec."Production BOM Version Code")
-                {
-                    ApplicationArea = Assembly;
-                    ToolTip = 'Specifies the version code of the BOM.';
-                    Visible = false;
-                }
-                field("Routing No."; Rec."Routing No.")
-                {
-                    ApplicationArea = Planning;
-                    ToolTip = 'Specifies the routing number.';
-                    Visible = false;
-
-                    trigger OnValidate()
-                    begin
-                        PlanningWkshManagement.GetDescriptionAndRcptName(Rec, ItemDescription, RoutingDescription);
-                    end;
-                }
-                field("Routing Version Code"; Rec."Routing Version Code")
-                {
-                    ApplicationArea = Planning;
-                    ToolTip = 'Specifies the version code of the routing.';
-                    Visible = false;
-                }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -998,7 +969,6 @@ page 99000852 "Planning Worksheet"
     var
         PlanningTransparency: Codeunit "Planning Transparency";
         ReqJnlManagement: Codeunit ReqJnlManagement;
-        PlanningWkshManagement: Codeunit PlanningWkshManagement;
         ReqLineAvailabilityMgt: Codeunit "Req. Line Availability Mgt.";
         CurrentWkshBatchName: Code[10];
         ExcelFileNameTxt: Label 'Planning Worksheet - JournalBatchName %1 - WorksheetTemplateName %2', Comment = '%1 = Journal Batch Name; %2 = Worksheet Template Name';
@@ -1008,6 +978,7 @@ page 99000852 "Planning Worksheet"
         Warning: Option " ",Emergency,Exception,Attention;
 
     protected var
+        PlanningWkshManagement: Codeunit PlanningWkshManagement;
         ItemDescription: Text[100];
         RoutingDescription: Text[100];
         ShortcutDimCode: array[8] of Code[20];
