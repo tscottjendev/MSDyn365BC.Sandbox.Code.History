@@ -127,12 +127,16 @@ codeunit 8063 "Sales Documents"
                     Item.Get(ServiceObject."Source No.");
                     if Item."VAT Prod. Posting Group" <> '' then
                         SalesLine.Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+                    if Item."Tax Group Code" <> '' then
+                        SalesLine.Validate("Tax Group Code", Item."Tax Group Code");
                 end;
             ServiceObject.Type::"G/L Account":
                 begin
                     GLAccount.Get(ServiceObject."Source No.");
                     if GLAccount."VAT Prod. Posting Group" <> '' then
                         SalesLine.Validate("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
+                    if GLAccount."Tax Group Code" <> '' then
+                        SalesLine.Validate("Tax Group Code", GLAccount."Tax Group Code");
                 end;
         end;
     end;
