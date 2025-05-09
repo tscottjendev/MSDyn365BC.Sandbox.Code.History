@@ -193,8 +193,8 @@ codeunit 5900 ServOrderManagement
             ServMgtSetup.Get();
             NewServItem := FromServItem;
             NewServItem."No." := '';
-                NewServItem."No. Series" := ServMgtSetup."Service Item Nos.";
-                NewServItem."No." := NoSeries.GetNextNo(NewServItem."No. Series");
+            NewServItem."No. Series" := ServMgtSetup."Service Item Nos.";
+            NewServItem."No." := NoSeries.GetNextNo(NewServItem."No. Series");
             NewServItem."Serial No." := SerialNo;
             NewServItem."Variant Code" := ServiceLine."Variant Code";
             NewServItem."Shipment Type" := NewServItem."Shipment Type"::Service;
@@ -491,7 +491,7 @@ codeunit 5900 ServOrderManagement
     var
         ServItemLine2: Record "Service Item Line";
         ServHeader: Record "Service Header";
-        NewPriority: Integer;
+        NewPriority: Enum "Service Priority";
     begin
         if not ServHeader.Get(ServItemLine."Document Type", ServItemLine."Document No.") then
             exit;
@@ -505,7 +505,7 @@ codeunit 5900 ServOrderManagement
         ServItemLine2.SetFilter("Line No.", '<>%1', ServItemLine."Line No.");
         if ServItemLine2.Find('-') then
             repeat
-                if ServItemLine2.Priority > NewPriority then
+                if ServItemLine2.Priority.AsInteger() > NewPriority.AsInteger() then
                     NewPriority := ServItemLine2.Priority;
             until ServItemLine2.Next() = 0;
 
