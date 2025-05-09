@@ -3718,6 +3718,21 @@ table 27 Item
         OnCalcReservedQtyOnProdOrder(Rec, Result);
     end;
 
+    procedure CalcPlannedOrderReceiptQty() Result: Decimal
+    begin
+        OnCalcPlannedOrderReceiptQty(Rec, Result);
+    end;
+
+    procedure CalcFPOrderReceiptQty() Result: Decimal
+    begin
+        OnCalcFPOrderReceiptQty(Rec, Result);
+    end;
+
+    procedure CalcRelOrderReceiptQty() Result: Decimal
+    begin
+        OnCalcRelOrderReceiptQty(Rec, Result);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckDocuments(var Item: Record Item; var xItem: Record Item; var CurrentFieldNo: Integer)
     begin
@@ -4245,6 +4260,21 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcReservedQtyOnProdOrder(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcPlannedOrderReceiptQty(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcFPOrderReceiptQty(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRelOrderReceiptQty(var Item: Record Item; var Result: Decimal)
     begin
     end;
 }

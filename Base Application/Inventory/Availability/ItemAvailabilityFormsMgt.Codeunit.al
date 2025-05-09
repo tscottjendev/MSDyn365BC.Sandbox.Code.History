@@ -73,13 +73,13 @@ codeunit 353 "Item Availability Forms Mgt"
                 TransOrdShipmentQty + Item."Planning Issues (Qty.)" + Item."Qty. on Asm. Component" + Item."Qty. on Purch. Return";
             OnCalculateNeedOnAfterCalcGrossRequirement(Item, GrossRequirement);
             PlannedOrderReceipt :=
-                Item."Planned Order Receipt (Qty.)" + Item."Purch. Req. Receipt (Qty.)";
+                Item.CalcPlannedOrderReceiptQty() + Item."Purch. Req. Receipt (Qty.)";
             ScheduledReceipt :=
-                Item."FP Order Receipt (Qty.)" + Item."Rel. Order Receipt (Qty.)" + Item."Qty. on Purch. Order" +
+                Item.CalcFPOrderReceiptQty() + Item.CalcRelOrderReceiptQty() + Item."Qty. on Purch. Order" +
                 QtyinTransit + TransOrdReceiptQty + Item."Qty. on Assembly Order" + Item."Qty. on Sales Return";
             OnCalculateNeedOnAfterCalcScheduledReceipt(Item, ScheduledReceipt, QtyinTransit, TransOrdReceiptQty);
             PlannedOrderReleases :=
-                Item."Planned Order Release (Qty.)" + Item."Purch. Req. Release (Qty.)";
+                Item.CalcPlannedOrderReceiptQty() + Item."Purch. Req. Release (Qty.)";
         end;
 
         OnAfterCalculateNeed(Item, GrossRequirement, PlannedOrderReceipt, ScheduledReceipt, PlannedOrderReleases);
