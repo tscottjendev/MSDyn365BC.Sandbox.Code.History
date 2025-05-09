@@ -471,11 +471,9 @@ table 5901 "Service Item Line"
                 end;
             end;
         }
-        field(10; Priority; Option)
+        field(10; Priority; Enum "Service Priority")
         {
             Caption = 'Priority';
-            OptionCaption = 'Low,Medium,High';
-            OptionMembers = Low,Medium,High;
         }
         field(11; "Response Time (Hours)"; Decimal)
         {
