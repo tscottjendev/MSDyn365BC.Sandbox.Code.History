@@ -325,11 +325,6 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
             Caption = 'Finished';
             DataClassification = CustomerContent;
         }
-        field(5888; Subcontracting; Boolean)
-        {
-            Caption = 'Subcontracting';
-            DataClassification = CustomerContent;
-        }
         field(5895; "Stop Code"; Code[10])
         {
             Caption = 'Stop Code';
