@@ -102,6 +102,7 @@ table 5617 "FA Register"
     {
     }
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"FA Register", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";
@@ -109,6 +110,7 @@ table 5617 "FA Register"
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("No.")))
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"FA Register", 'r')]
     procedure GetLastGLRegisterNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";
