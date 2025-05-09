@@ -166,11 +166,9 @@ table 5940 "Service Item"
                 end;
             end;
         }
-        field(7; Priority; Option)
+        field(7; Priority; Enum "Service Priority")
         {
             Caption = 'Priority';
-            OptionCaption = 'Low,Medium,High';
-            OptionMembers = Low,Medium,High;
         }
         field(8; "Customer No."; Code[20])
         {
@@ -1144,10 +1142,10 @@ table 5940 "Service Item"
         ServMgtSetup.Get();
         if "No." = '' then begin
             ServMgtSetup.TestField("Service Item Nos.");
-                "No. Series" := ServMgtSetup."Service Item Nos.";
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
-                "No." := NoSeries.GetNextNo("No. Series");
+            "No. Series" := ServMgtSetup."Service Item Nos.";
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series");
         end;
         "Response Time (Hours)" := ServMgtSetup."Default Response Time (Hours)";
 
