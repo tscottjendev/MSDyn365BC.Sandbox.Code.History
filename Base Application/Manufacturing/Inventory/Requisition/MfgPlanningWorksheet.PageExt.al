@@ -8,6 +8,41 @@ using Microsoft.Manufacturing.Routing;
 
 pageextension 99000852 "Mfg. Planning Worksheet" extends "Planning Worksheet"
 {
+    layout
+    {
+        addafter("Description 2")
+        {
+            field("Production BOM No."; Rec."Production BOM No.")
+            {
+                ApplicationArea = Assembly;
+                ToolTip = 'Specifies the production BOM number for this production order.';
+                Visible = false;
+            }
+            field("Production BOM Version Code"; Rec."Production BOM Version Code")
+            {
+                ApplicationArea = Assembly;
+                ToolTip = 'Specifies the version code of the BOM.';
+                Visible = false;
+            }
+            field("Routing No."; Rec."Routing No.")
+            {
+                ApplicationArea = Planning;
+                ToolTip = 'Specifies the routing number.';
+                Visible = false;
+
+                trigger OnValidate()
+                begin
+                    PlanningWkshManagement.GetDescriptionAndRcptName(Rec, ItemDescription, RoutingDescription);
+                end;
+            }
+            field("Routing Version Code"; Rec."Routing Version Code")
+            {
+                ApplicationArea = Planning;
+                ToolTip = 'Specifies the version code of the routing.';
+                Visible = false;
+            }
+        }
+    }
     actions
     {
         addafter(Components)

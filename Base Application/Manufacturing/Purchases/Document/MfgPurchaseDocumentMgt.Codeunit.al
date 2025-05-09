@@ -41,6 +41,18 @@ codeunit 99000789 "Mfg. Purchase Document Mgt."
         DestinationPurchaseLine."Overhead Rate" := SourcePurchaseLine."Overhead Rate";
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnInsertTempPurchLineInBufferOnBeforeTempPurchLineInsert', '', false, false)]
+    local procedure OnInsertTempPurchLineInBufferOnBeforeTempPurchLineInsert(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
+    begin
+        TempPurchaseLine."Work Center No." := PurchaseLine."Work Center No.";
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnCollectParamsInBufferForCreateDimSetOnAfterSetTempPurchLineFilters', '', false, false)]
+    local procedure OnCollectParamsInBufferForCreateDimSetOnAfterSetTempPurchLineFilters(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
+    begin
+        TempPurchaseLine.SetRange("Work Center No.", PurchaseLine."Work Center No.");
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterInitDefaultDimensionSources', '', false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var PurchaseLine: Record "Purchase Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
