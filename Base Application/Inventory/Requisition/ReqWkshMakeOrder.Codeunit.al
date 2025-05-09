@@ -589,8 +589,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         PurchOrderLine.Validate("Location Code", RequisitionLine."Location Code");
         PurchOrderLine.Validate("Unit of Measure Code", RequisitionLine."Unit of Measure Code");
         PurchOrderLine."Qty. per Unit of Measure" := RequisitionLine."Qty. per Unit of Measure";
-        PurchOrderLine."Prod. Order No." := RequisitionLine."Prod. Order No.";
-        PurchOrderLine."Prod. Order Line No." := RequisitionLine."Prod. Order Line No.";
+        OnInitPurchOrderLineOnBeforeUpdateQuantity(PurchOrderLine, RequisitionLine);
         InitPurchOrderLineUpdateQuantity(RequisitionLine);
 
         CopyOrderDateFromPurchHeader(RequisitionLine, PurchOrderHeader, PurchOrderLine);
@@ -607,7 +606,6 @@ codeunit 333 "Req. Wksh.-Make Order"
         PurchOrderLine."Description 2" := RequisitionLine."Description 2";
         PurchOrderLine."Sales Order No." := RequisitionLine."Sales Order No.";
         PurchOrderLine."Sales Order Line No." := RequisitionLine."Sales Order Line No.";
-        PurchOrderLine."Prod. Order No." := RequisitionLine."Prod. Order No.";
         PurchOrderLine."Bin Code" := RequisitionLine."Bin Code";
         PurchOrderLine."Item Category Code" := RequisitionLine."Item Category Code";
         PurchOrderLine.Nonstock := RequisitionLine.Nonstock;
@@ -1717,6 +1715,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitPurchOrderLineOnAfterPurchOrderLineAssignVariantCode(var PurchOrderLine: Record "Purchase Line"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitPurchOrderLineOnBeforeUpdateQuantity(var PurchOrderLine: Record "Purchase Line"; var RequisitionLine: Record "Requisition Line")
     begin
     end;
 
