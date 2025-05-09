@@ -2047,12 +2047,10 @@ table 5900 "Service Header"
                 end;
             end;
         }
-        field(5907; Priority; Option)
+        field(5907; Priority; Enum "Service Priority")
         {
             Caption = 'Priority';
             Editable = false;
-            OptionCaption = 'Low,Medium,High';
-            OptionMembers = Low,Medium,High;
         }
         field(5911; "Allocated Hours"; Decimal)
         {
