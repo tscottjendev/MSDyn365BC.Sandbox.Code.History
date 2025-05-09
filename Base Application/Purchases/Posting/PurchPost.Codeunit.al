@@ -1502,8 +1502,7 @@ codeunit 90 "Purch.-Post"
         OnPostItemJnlLineOnAfterPrepareItemJnlLine(
             ItemJnlLine, PurchLine, PurchHeader, PreviewMode, GenJnlLineDocNo, TrackingSpecification, QtyToBeReceived, QtyToBeInvoiced);
 
-        if PurchLine.IsProdOrder() then
-            PostItemJnlLineCopyProdOrder(PurchLine, ItemJnlLine, QtyToBeReceived, QtyToBeInvoiced);
+        OnPostItemJnlLineOnCopyProdOrder(ItemJnlLine, PurchLine, PurchRcptHeader, QtyToBeReceived, QtyToBeInvoiced, SuppressCommit);
 
         CheckApplToItemEntry := SetCheckApplToItemEntry(PurchLine, PurchHeader, ItemJnlLine);
 
@@ -1684,35 +1683,6 @@ codeunit 90 "Purch.-Post"
         end;
 
         OnPostItemJnlLineOnAfterCopyDocumentFields(ItemJnlLine, PurchLine, TempWhseRcptHeader, TempWhseShptHeader, PurchRcptHeader, GenJnlLineExtDocNo, QtyToBeInvoiced);
-    end;
-
-    local procedure PostItemJnlLineCopyProdOrder(PurchLine: Record "Purchase Line"; var ItemJnlLine: Record "Item Journal Line"; QtyToBeReceived: Decimal; QtyToBeInvoiced: Decimal)
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforePostItemJnlLineCopyProdOrder(PurchLine, ItemJnlLine, QtyToBeReceived, QtyToBeInvoiced, SuppressCommit, IsHandled);
-        if IsHandled then
-            exit;
-
-        ItemJnlLine.Subcontracting := true;
-        ItemJnlLine."Quantity (Base)" := CalcBaseQty(PurchLine."No.", PurchLine."Unit of Measure Code", QtyToBeReceived, PurchLine."Qty. Rounding Precision (Base)");
-        ItemJnlLine."Invoiced Qty. (Base)" := CalcBaseQty(PurchLine."No.", PurchLine."Unit of Measure Code", QtyToBeInvoiced, PurchLine."Qty. Rounding Precision (Base)");
-        ItemJnlLine."Unit Cost" := PurchLine."Unit Cost (LCY)";
-        ItemJnlLine."Unit Cost (ACY)" := PurchLine."Unit Cost";
-        ItemJnlLine."Output Quantity (Base)" := ItemJnlLine."Quantity (Base)";
-        ItemJnlLine."Output Quantity" := QtyToBeReceived;
-        ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Output;
-        ItemJnlLine.Type := ItemJnlLine.Type::"Work Center";
-        ItemJnlLine."No." := PurchLine."Work Center No.";
-        ItemJnlLine."Routing No." := PurchLine."Routing No.";
-        ItemJnlLine."Routing Reference No." := PurchLine."Routing Reference No.";
-        ItemJnlLine."Operation No." := PurchLine."Operation No.";
-        ItemJnlLine."Work Center No." := PurchLine."Work Center No.";
-        ItemJnlLine."Unit Cost Calculation" := ItemJnlLine."Unit Cost Calculation"::Units;
-        if PurchLine.Finished then
-            ItemJnlLine.Finished := PurchLine.Finished;
-        OnAfterPostItemJnlLineCopyProdOrder(ItemJnlLine, PurchLine, PurchRcptHeader, QtyToBeReceived, SuppressCommit, QtyToBeInvoiced);
     end;
 
     local procedure PostItemJnlLineItemCharges(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; var OriginalItemJnlLine: Record "Item Journal Line"; ItemShptEntryNo: Integer; var TempTrackingSpecificationChargeAssmt: Record "Tracking Specification" temporary)
@@ -4993,15 +4963,6 @@ codeunit 90 "Purch.-Post"
         end;
     end;
 
-    local procedure CalcBaseQty(ItemNo: Code[20]; UOMCode: Code[10]; Qty: Decimal; QtyRoundingPrecision: Decimal): Decimal
-    var
-        Item: Record Item;
-        UOMMgt: Codeunit "Unit of Measure Management";
-    begin
-        Item.Get(ItemNo);
-        exit(UOMMgt.CalcBaseQty(ItemNo, '', UOMCode, Qty, UOMMgt.GetQtyPerUnitOfMeasure(Item, UOMCode), QtyRoundingPrecision));
-    end;
-
     local procedure InsertValueEntryRelation()
     var
         ValueEntryRelation: Record "Value Entry Relation";
@@ -8193,7 +8154,8 @@ codeunit 90 "Purch.-Post"
         PurchRcptLine.TestField("Job No.", PurchLine."Job No.");
         PurchRcptLine.TestField("Unit of Measure Code", PurchLine."Unit of Measure Code");
         PurchRcptLine.TestField("Variant Code", PurchLine."Variant Code");
-        PurchRcptLine.TestField("Prod. Order No.", PurchLine."Prod. Order No.");
+
+        OnAfterCheckPurchRcptLine(PurchRcptLine, PurchLine);
     end;
 
     local procedure PostItemTrackingForReceiptCondition(PurchLine: Record "Purchase Line"; PurchRcptLine: Record "Purch. Rcpt. Line"): Boolean
@@ -9330,10 +9292,18 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnAfterPostItemJnlLineCopyProdOrder(var ItemJnlLine: Record "Item Journal Line"; PurchLine: Record "Purchase Line"; PurchRcptHeader2: Record "Purch. Rcpt. Header"; QtyToBeReceived: Decimal; CommitIsSupressed: Boolean; QtyToBeInvoiced: Decimal)
+    begin
+        OnAfterPostItemJnlLineCopyProdOrder(ItemJnlLine, PurchLine, PurchRcptHeader2, QtyToBeReceived, CommitIsSupressed, QtyToBeInvoiced);
+    end;
+
+    [Obsolete('Moved to codeunit MfgPurchPost', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostItemJnlLineCopyProdOrder(var ItemJnlLine: Record "Item Journal Line"; PurchLine: Record "Purchase Line"; PurchRcptHeader: Record "Purch. Rcpt. Header"; QtyToBeReceived: Decimal; CommitIsSupressed: Boolean; QtyToBeInvoiced: Decimal)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostItemJnlLineItemCharges(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line")
@@ -9855,10 +9825,18 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnBeforePostItemJnlLineCopyProdOrder(PurchLine: Record "Purchase Line"; var ItemJnlLine: Record "Item Journal Line"; QtyToBeReceived: Decimal; QtyToBeInvoiced: Decimal; CommitIsSupressed: Boolean; var IsHandled: Boolean)
+    begin
+        OnBeforePostItemJnlLineCopyProdOrder(PurchLine, ItemJnlLine, QtyToBeReceived, QtyToBeInvoiced, CommitIsSupressed, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit MfgPurchPost', '27.0')]
     [IntegrationEvent(true, false)]
     local procedure OnBeforePostItemJnlLineCopyProdOrder(PurchLine: Record "Purchase Line"; var ItemJnlLine: Record "Item Journal Line"; QtyToBeReceived: Decimal; QtyToBeInvoiced: Decimal; CommitIsSupressed: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforePostPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; CommitIsSupressed: Boolean; var HideProgressWindow: Boolean; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var IsHandled: Boolean)
@@ -10546,6 +10524,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineOnAfterPrepareItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var GenJnlLineDocNo: code[20]; TrackingSpecification: Record "Tracking Specification"; QtyToBeReceived: Decimal; QtyToBeInvoiced: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnCopyProdOrder(var ItemJournalLine: Record "Item Journal Line"; PurchaseLine: Record "Purchase Line"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; QtyToBeReceived: Decimal; QtyToBeInvoiced: Decimal; SuppressCommit: Boolean)
     begin
     end;
 
@@ -11630,6 +11613,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateInvoicedQtyOnReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckPurchRcptLine(PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseLine: Record "Purchase Line")
     begin
     end;
 }
