@@ -88,15 +88,10 @@ page 99000902 "Item Availability Line List"
               "Qty. on Sales Order",
               "Qty. on Job Order",
               "Net Change",
-              "Planned Order Receipt (Qty.)",
-              "FP Order Receipt (Qty.)",
-              "Rel. Order Receipt (Qty.)",
-              "Planned Order Release (Qty.)",
               "Purch. Req. Receipt (Qty.)",
               "Planning Issues (Qty.)",
               "Purch. Req. Release (Qty.)",
-              "Qty. in Transit");
-            Item.CalcFields(
+              "Qty. in Transit",
               "Trans. Ord. Shipment (Qty.)",
               "Trans. Ord. Receipt (Qty.)",
               "Qty. on Assembly Order",
