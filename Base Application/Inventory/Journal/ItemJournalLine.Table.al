@@ -1612,6 +1612,11 @@ table 83 "Item Journal Line"
         {
             Caption = 'Unit Cost Calculation';
         }
+        field(5888; Subcontracting; Boolean)
+        {
+            Caption = 'Subcontracting';
+            DataClassification = CustomerContent;
+        }
         field(6500; "Serial No."; Code[50])
         {
             Caption = 'Serial No.';
