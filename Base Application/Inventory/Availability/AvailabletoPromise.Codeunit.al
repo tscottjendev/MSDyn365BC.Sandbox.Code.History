@@ -151,7 +151,7 @@ codeunit 5790 "Available to Promise"
         if not IsHandled then
             ScheduledReceipt :=
                 Item.CalcScheduledReceiptQty() +
-                Item."Planned Order Receipt (Qty.)" +
+                Item.CalcPlannedOrderReceiptQty() +
                 Item."Qty. on Purch. Order" +
                 Item."Trans. Ord. Receipt (Qty.)" +
                 Item."Qty. in Transit" +
@@ -518,7 +518,6 @@ codeunit 5790 "Available to Promise"
 
         // Max function parameters is 20, hence split in 2
         Item.CalcFields(
-          "Planned Order Receipt (Qty.)",
           "Qty. on Purch. Order",
           "Trans. Ord. Receipt (Qty.)",
           "Qty. in Transit",

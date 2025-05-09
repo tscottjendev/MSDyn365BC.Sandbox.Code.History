@@ -991,6 +991,27 @@ codeunit 99000875 "Prod. Order Availability Mgt."
         Result := Item."Qty. on Prod. Order";
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnCalcPlannedOrderReceiptQty', '', false, false)]
+    local procedure OnCalcPlannedOrderReceiptQty(var Item: Record Item; var Result: Decimal)
+    begin
+        Item.CalcFields("Planned Order Receipt (Qty.)");
+        Result := Item."Planned Order Receipt (Qty.)";
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnCalcFPOrderReceiptQty', '', false, false)]
+    local procedure OnCalcFPOrderReceiptQty(var Item: Record Item; var Result: Decimal)
+    begin
+        Item.CalcFields("FP Order Receipt (Qty.)");
+        Result := Item."FP Order Receipt (Qty.)";
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnCalcRelOrderReceiptQty', '', false, false)]
+    local procedure OnCalcRelOrderReceiptQty(var Item: Record Item; var Result: Decimal)
+    begin
+        Item.CalcFields("Rel. Order Receipt (Qty.)");
+        Result := Item."Rel. Order Receipt (Qty.)";
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Available to Promise", 'OnCalcAllItemFieldsOnAfterItemCalcFields', '', false, false)]
     local procedure OnCalcAllItemFieldsOnAfterItemCalcFields(var Item: Record Item)
     begin

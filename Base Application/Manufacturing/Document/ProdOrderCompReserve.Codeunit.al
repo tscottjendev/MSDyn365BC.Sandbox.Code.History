@@ -1215,6 +1215,12 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         end;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Req. Wksh.-Make Order", 'OnInitPurchOrderLineOnBeforeUpdateQuantity', '', false, false)]
+    local procedure OnInitPurchOrderLineOnBeforeUpdateQuantity(var PurchOrderLine: Record "Purchase Line"; var RequisitionLine: Record "Requisition Line")
+    begin
+        PurchOrderLine."Prod. Order No." := RequisitionLine."Prod. Order No.";
+        PurchOrderLine."Prod. Order Line No." := RequisitionLine."Prod. Order Line No.";
+    end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Req. Line-Reserve", 'OnAfterDeleteLine', '', false, false)]
     local procedure OnAfterDeleteLine(var RequisitionLine: Record "Requisition Line")
