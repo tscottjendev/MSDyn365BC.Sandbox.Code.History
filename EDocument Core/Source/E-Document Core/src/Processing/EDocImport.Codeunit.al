@@ -419,6 +419,8 @@ codeunit 6140 "E-Doc. Import"
         DocumentHeader.SetTable(PurchHeader);
 
         PurchHeader.Validate("E-Document Link", EDocument.SystemId);
+        PurchHeader."Doc. Amount Incl. VAT" := EDocument."Amount Incl. VAT";
+        PurchHeader."Doc. Amount VAT" := EDocument."Amount Incl. VAT" - EDocument."Amount Excl. VAT";
         PurchHeader.Modify();
 
         UpdateEDocumentRecordId(EDocument, DocumentHeader.Field(PurchHeader.FieldNo("No.")).Value(), DocumentHeader.RecordId);

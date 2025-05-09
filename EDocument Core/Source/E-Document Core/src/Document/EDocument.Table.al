@@ -302,6 +302,19 @@ table 6121 "E-Document"
         exit(not EDocument.IsEmpty());
     end;
 
+    internal procedure IsSourceDocumentStructured(): Boolean
+    var
+        EDocDataStorage: Record "E-Doc. Data Storage";
+        IBlobType: Interface IBlobType;
+    begin
+        // If the E-Document Data Storage can't be retrieved from the Unstructured Data Entry No.,
+        // it means that the E-Document is coming from versions before 2, and these are all structured.
+        if not EDocDataStorage.Get(Rec."Unstructured Data Entry No.") then
+            exit(true);
+        IBlobType := EDocDataStorage."Data Type";
+        exit(IBlobType.IsStructured());
+    end;
+
     internal procedure GetTotalAmountIncludingVAT(): Decimal
     var
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";

@@ -1595,6 +1595,65 @@ codeunit 139624 "E-Doc E2E Test"
         Assert.ExpectedError(this.DeleteProcessedNotAllowedErr);
     end;
 
+    [Test]
+    internal procedure PurchaseDocumentsCreatedFromEDocumentsUseDocumentTotalsValidation()
+    var
+        EDocument: Record "E-Document";
+        EDocImportParameters: Record "E-Doc. Import Parameters";
+        PurchaseHeader: Record "Purchase Header";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        EDocImport: Codeunit "E-Doc. Import";
+    begin
+        // [SCENARIO 566852] Purchase documents created from E-Documents use Document Totals validation, even if the feature is not configured in the Purchase & Payables Setup page.
+        Initialize(Enum::"Service Integration"::"Mock");
+        PurchasesPayablesSetup.GetRecordOnce();
+        PurchasesPayablesSetup."Check Doc. Total Amounts" := false;
+        PurchasesPayablesSetup.Modify();
+        SetV2EDocService();
+
+        // [GIVEN] An E-Document v2 with lines and totals
+        LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
+        LibraryEDoc.MockPurchaseDraftPrepared(EDocument);
+        // [WHEN] Processing into a purchase invoice
+        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
+        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+        // [THEN] The purchase invoice should have the totals from the E-Document
+        PurchaseHeader.SetRange("E-Document Link", EDocument.SystemId);
+        PurchaseHeader.FindFirst();
+        Assert.AreNotEqual(0, PurchaseHeader."Doc. Amount VAT", 'Document Totals should be set correctly.');
+        Assert.AreNotEqual(0, PurchaseHeader."Doc. Amount Incl. VAT", 'Document Totals should be set correctly.');
+
+        SetV1EDocService();
+    end;
+
+    [Test]
+    internal procedure PurchaseDocumentsCreatedFromStructuredEDocumentCantEditTotals()
+    var
+        EDocument: Record "E-Document";
+        EDocImportParameters: Record "E-Doc. Import Parameters";
+        PurchaseHeader: Record "Purchase Header";
+        EDocImport: Codeunit "E-Doc. Import";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [SCENARIO 566862] Purchase documents created from E-Documents coming from an structured format (e.g. XML) should not allow editing of the totals in the purchase invoice.
+        Initialize(Enum::"Service Integration"::"Mock");
+        SetV2EDocService();
+        // [GIVEN] An E-Document v2 with lines and totals
+        LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
+        LibraryEDoc.MockPurchaseDraftPrepared(EDocument);
+        // [WHEN] Processing into a purchase invoice
+        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
+        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+        PurchaseHeader.SetRange("E-Document Link", EDocument.SystemId);
+        PurchaseHeader.FindFirst();
+        // [THEN] The purchase invoice page should not allow editing of the totals
+        PurchaseInvoice.Trap();
+        Page.Run(Page::"Purchase Invoice", PurchaseHeader);
+        Assert.IsFalse(PurchaseInvoice.DocAmount.Editable(), 'The totals should not be editable in the purchase invoice.');
+
+        SetV1EDocService();
+    end;
+
     local procedure CreateIncomingEDocument(VendorNo: Code[20]; Status: Enum "E-Document Status")
     var
         EDocument: Record "E-Document";
@@ -1607,6 +1666,30 @@ codeunit 139624 "E-Doc E2E Test"
         EDocument."Bill-to/Pay-to No." := VendorNo;
         EDocument.Status := Status;
         EDocument.Insert(false);
+    end;
+
+    local procedure SetV2EDocService()
+    var
+        PreviousEDocService: Record "E-Document Service";
+    begin
+        PreviousEDocService.CopyFilters(EDocumentService);
+        EDocumentService.SetRecFilter();
+        EDocumentService.FindFirst();
+        EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
+        EDocumentService.Modify();
+        EDocumentService.CopyFilters(PreviousEDocService);
+    end;
+
+    local procedure SetV1EDocService()
+    var
+        PreviousEDocService: Record "E-Document Service";
+    begin
+        PreviousEDocService.CopyFilters(EDocumentService);
+        EDocumentService.SetRecFilter();
+        EDocumentService.FindFirst();
+        EDocumentService."Import Process" := "E-Document Import Process"::"Version 1.0";
+        EDocumentService.Modify();
+        EDocumentService.CopyFilters(PreviousEDocService);
     end;
 
     [ModalPageHandler]
@@ -1626,6 +1709,7 @@ codeunit 139624 "E-Doc E2E Test"
         TransformationRule: Record "Transformation Rule";
         EDocument: Record "E-Document";
         EDocumentServiceStatus: Record "E-Document Service Status";
+        EDocumentSetup: Record "E-Documents Setup";
     begin
         LibraryLowerPermission.SetOutsideO365Scope();
         LibraryVariableStorage.Clear();
@@ -1641,6 +1725,7 @@ codeunit 139624 "E-Doc E2E Test"
         LibraryEDoc.SetupStandardVAT();
         LibraryEDoc.SetupStandardSalesScenario(Customer, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
         EDocumentService.Modify();
+        EDocumentSetup.InsertNewExperienceSetup();
 
         TransformationRule.DeleteAll();
         TransformationRule.CreateDefaultTransformations();
