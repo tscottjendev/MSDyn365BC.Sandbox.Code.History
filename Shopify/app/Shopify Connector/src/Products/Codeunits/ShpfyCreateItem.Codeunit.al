@@ -318,7 +318,11 @@ codeunit 30171 "Shpfy Create Item"
     begin
         if not ItemTempl.Get(ItemTemplCode) then
             exit;
-        Item."No." := ItemNo;
+        if ItemNo <> '' then
+            Item."No." := ItemNo
+        else
+            ItemTemplMgt.InitItemNo(Item, ItemTempl);
+
         Item.Insert(true);
         ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
     end;

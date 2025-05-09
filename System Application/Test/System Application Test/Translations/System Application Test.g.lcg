@@ -1609,7 +1609,7 @@
   </Item>
   <Item ItemId=";Codeunit 2606943756 - NamedType 3083749102" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Cannot open the specified record because it is from a different table than the Page Provider Summary Test table, which the current page is based on.]]></Val>
+      <Val><![CDATA[A RecordID from table 'Page Provider Summary Test2' cannot be used with a record from table 'Page Provider Summary Test'.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
