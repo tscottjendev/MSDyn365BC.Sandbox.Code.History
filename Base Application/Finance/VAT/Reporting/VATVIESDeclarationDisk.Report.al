@@ -108,7 +108,7 @@ report 88 "VAT- VIES Declaration Disk"
                 VATRegNo := ConvertStr(CompanyInfo."VAT Registration No.", Text001, '    ');
                 VATFile.Write('#v' + FileVersion);
                 VATFile.Write('#ve' + FileVersion2);
-                VATFile.Write('Laenderkennzeichen,USt-IdNr.,Betrag(Euro),Art der Leistung');
+                VATFile.Write('Umsatzsteuer-Identifikationsnummer (Ust-IdNr.),Betrag(Euro),Art der Leistung');
                 NoOfGrTotal := 0;
                 Period := GetRangeMax("VAT Reporting Date");
                 InternalReferenceNo := Format(Period, 4, 2) + '000000';
