@@ -5857,10 +5857,14 @@ codeunit 80 "Sales-Post"
                             FinalInvoice := false;
                     until not FinalInvoice or (TempSalesLineShipmentBuffer.Next() = 0);
 
-            if SalesHeader."Document Type" <> SalesHeader."Document Type"::"Credit Memo" then
+            if SalesHeader."Document Type" <> SalesHeader."Document Type"::"Credit Memo" then begin
+                if PrepmtSalesLine."Prepayment %" < 100 then
+                    TotalRoundingAmount[1] += PrepmtSalesLine."Amount Including VAT" - (TotalPrepmtAmount[1] + TotalPrepmtAmount[2] + TotalRoundingAmount[1] + TotalRoundingAmount[2]);
+
                 UpdatePrepmtSalesLineWithRounding(
                   PrepmtSalesLine, TotalRoundingAmount, TotalPrepmtAmount,
                   FinalInvoice, PricesInclVATRoundingAmount);
+            end;
         end;
     end;
 
