@@ -734,37 +734,9 @@ codeunit 5817 "Undo Posting Management"
         end;
     end;
 
-    internal procedure CollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; PurchRcptLine: Record "Purch. Rcpt. Line"): Boolean
-    var
-        ItemLedgEntry: Record "Item Ledger Entry";
-        OutputEntriesExist: Boolean;
+    internal procedure CollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; PurchRcptLine: Record "Purch. Rcpt. Line") Result: Boolean
     begin
-        TempItemLedgEntry.Reset();
-        if not TempItemLedgEntry.IsEmpty() then
-            TempItemLedgEntry.DeleteAll();
-
-        ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
-        ItemLedgEntry.SetBaseLoadFields();
-        ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
-        ItemLedgEntry.SetRange("Order No.", PurchRcptLine."Prod. Order No.");
-        ItemLedgEntry.SetRange("Order Line No.", PurchRcptLine."Prod. Order Line No.");
-        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
-        ItemLedgEntry.SetRange("Item No.", PurchRcptLine."No.");
-        ItemLedgEntry.SetRange(Open, true);
-
-        if ItemLedgEntry.FindSet() then
-            repeat
-                TempItemLedgEntry := ItemLedgEntry;
-                TempItemLedgEntry.Insert();
-            until ItemLedgEntry.Next() = 0;
-
-        OutputEntriesExist := not TempItemLedgEntry.IsEmpty();
-        if not OutputEntriesExist then begin
-            ItemLedgEntry.SetRange(Open);
-            OutputEntriesExist := not ItemLedgEntry.IsEmpty();
-        end;
-
-        exit(OutputEntriesExist);
+        OnCollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(TempItemLedgEntry, PurchRcptLine, Result);
     end;
 
     local procedure ShouldRevertBaseQtySign(SourceType: Integer) RevertSign: Boolean
@@ -1656,6 +1628,11 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateDerivedTransferLineOnAfterTransferTracking(var TransferLine: Record "Transfer Line"; var TransferShipmentLine: Record "Transfer Shipment Line"; var DerivedTransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; PurchRcptLine: Record "Purch. Rcpt. Line"; var Result: Boolean)
     begin
     end;
 }
