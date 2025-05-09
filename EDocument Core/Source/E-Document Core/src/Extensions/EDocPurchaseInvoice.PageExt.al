@@ -14,6 +14,23 @@ pageextension 6129 "E-Doc. Purchase Invoice" extends "Purchase Invoice"
         {
             group("E-Document")
             {
+                action(ViewDocumentSource)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'View E-Document Source';
+                    Image = View;
+                    ToolTip = 'Opens a view of the document source, like a PDF or XML file.';
+                    Visible = ShowSourceAction;
+
+                    trigger OnAction()
+                    var
+                        EDocument: Record "E-Document";
+                    begin
+                        if not EDocument.GetBySystemId(Rec."E-Document Link") then
+                            exit;
+                        EDocument.ViewSourceFile();
+                    end;
+                }
                 action("PreviewEDocumentMapping")
                 {
                     ApplicationArea = Basic, Suite;
@@ -32,4 +49,12 @@ pageextension 6129 "E-Doc. Purchase Invoice" extends "Purchase Invoice"
             }
         }
     }
+
+    var
+        ShowSourceAction: Boolean;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        ShowSourceAction := not IsNullGuid(Rec."E-Document Link");
+    end;
 }

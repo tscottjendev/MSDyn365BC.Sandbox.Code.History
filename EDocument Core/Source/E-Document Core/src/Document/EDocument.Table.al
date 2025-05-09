@@ -431,6 +431,8 @@ table 6121 "E-Document"
             Rec.PreviewContent();
             exit;
         end;
+
+        Message(ViewNotSupportedErr, Rec."File Name", Rec."File Type");
     end;
 
     internal procedure OpenEDocument(EDocumentRecordId: RecordId)
@@ -494,4 +496,5 @@ table 6121 "E-Document"
         NoFileErr: label 'No previewable attachment exists for this %2.', Comment = '%1 - a table caption';
         NoFileContentErr: label 'Previewing file %1 failed. The file was found in table %2, but it has no content.', Comment = '%1 - a file name; %2 - a table caption';
         DeleteConfirmQst: label 'Are you sure? You may not be able to retrieve this E-Document again.\\ Do you want to continue?';
+        ViewNotSupportedErr: label 'System does not support previewing the file %1 of type %2', Comment = '%1 - a file name; %2 - a file type';
 }
