@@ -431,7 +431,6 @@ codeunit 5830 "Calc. Availability Overview"
           Item."Res. Qty. on Purch. Returns");
         Item.CalcFields(
           Item."Qty. on Purch. Order",
-          Item."Planned Order Receipt (Qty.)",
           Item."Trans. Ord. Receipt (Qty.)",
           Item."Qty. on Sales Order",
           Item."Qty. on Job Order",
@@ -445,7 +444,7 @@ codeunit 5830 "Calc. Availability Overview"
         SupplyRunningTotal :=
           Item."Qty. on Purch. Order" - Item."Reserved Qty. on Purch. Orders" +
           Item."Qty. on Sales Return" - Item."Res. Qty. on Sales Returns" +
-          Item.CalcScheduledReceiptQty() + Item."Planned Order Receipt (Qty.)" - Item.CalcReservedQtyOnProdOrder() +
+          Item.CalcScheduledReceiptQty() + Item.CalcPlannedOrderReceiptQty() - Item.CalcReservedQtyOnProdOrder() +
           Item."Trans. Ord. Receipt (Qty.)" - Item."Res. Qty. on Inbound Transfer" +
           Item."Qty. on Assembly Order" - Item."Res. Qty. on Assembly Order";
 

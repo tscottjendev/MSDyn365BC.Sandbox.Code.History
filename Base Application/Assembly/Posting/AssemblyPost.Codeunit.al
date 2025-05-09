@@ -43,6 +43,7 @@ codeunit 900 "Assembly-Post"
                   TableData "G/L Entry" = r;
 
     TableNo = "Assembly Header";
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     var
@@ -72,7 +73,11 @@ codeunit 900 "Assembly-Post"
         Window.Update(1, StrSubstNo('%1 %2', Rec."Document Type", Rec."No."));
 
         InitPost(AssemblyHeader);
+        Clear(PostponedValueEntries);
+        BindSubscription(this); // To collect value entries for GLPosting
         Post(AssemblyHeader, ItemJnlPostLine, ResJnlPostLine, WhseJnlRegisterLine, false);
+        UnBindSubscription(this);
+        ItemJnlPostLine.PostDeferredValueEntriesToGL(PostponedValueEntries);
         FinalizePost(AssemblyHeader);
         if not (SuppressCommit or PreviewMode) then
             Commit();
@@ -98,6 +103,7 @@ codeunit 900 "Assembly-Post"
         UOMMgt: Codeunit "Unit of Measure Management";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         Window: Dialog;
+        PostponedValueEntries: List of [Integer];
         PostingDate: Date;
         SourceCode: Code[10];
         PostingDateExists: Boolean;
@@ -383,7 +389,7 @@ codeunit 900 "Assembly-Post"
     begin
         AssemblyLine.LockTable();
         AssemblyHeader.LockTable();
-        if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
+        if InvSetup.UseLegacyPosting() and not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
             GLEntry.GetLastEntryNo();
         end;
@@ -1587,6 +1593,17 @@ codeunit 900 "Assembly-Post"
             WhseItemTrackingLine.Delete();
             exit(true);
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]
+    local procedure OnBeforePostValueEntryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        if InventorySetup.UseLegacyPosting() then
+            exit;
+        PostponedValueEntries.Add(ValueEntry."Entry No.");
+        IsHandled := true;
     end;
 
     [IntegrationEvent(false, false)]
