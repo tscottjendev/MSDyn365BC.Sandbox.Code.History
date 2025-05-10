@@ -131,4 +131,24 @@ codeunit 99000861 "Mfg. Planning Integration"
         end;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning-Get Parameters", 'OnAtSKUOnBeforeSetSafetyLeadTime', '', false, false)]
+    local procedure OnAtSKUOnBeforeSetSafetyLeadTime(var GlobalSKU: Record "Stockkeeping Unit"; ManualScheduling: Boolean)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if ManualScheduling then begin
+            ManufacturingSetup.Get();
+            if ManufacturingSetup."Manual Scheduling" then
+                GlobalSKU."Safety Lead Time" := ManufacturingSetup."Safety Lead Time for Man. Sch.";
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Inventory Setup", 'OnGetComponentsAtLocation', '', false, false)]
+    local procedure OnGetComponentsAtLocation(var LocationCode: Code[10])
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if ManufacturingSetup.Get() then
+            LocationCode := ManufacturingSetup."Components at Location";
+    end;
 }
