@@ -3375,6 +3375,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
               OldCVLedgEntryBuf."Entry No.", GenJnlLine."Posting Date",
               AppliedAmount, AppliedAmountLCY, OldCVLedgEntryBuf."Currency Code", OldAppliedAmount);
 
+        if not NewCVLedgEntryBuf.Open then
+            NewCVLedgEntryBuf."Closed at Date" := GenJnlLine."Posting Date";
+
         OnAfterCalcApplication(GenJnlLine, DtldCVLedgEntryBuf);
     end;
 
