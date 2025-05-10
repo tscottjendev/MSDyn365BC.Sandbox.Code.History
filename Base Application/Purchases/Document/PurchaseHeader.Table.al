@@ -5508,9 +5508,7 @@ table 38 "Purchase Header"
 
         exit(PAGE::"Purchase Statistics");
     end;
-
 #endif
-
     [IntegrationEvent(true, false)]
     procedure OnCheckPurchasePostRestrictions()
     begin
@@ -6342,7 +6340,7 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
-    /// Removes the filter from buy-from vendor no. if the number has changed 
+    /// Removes the filter from buy-from vendor no. if the number has changed
     /// Updates remittance address for the record if the default remit address for the vendor exists.
     /// </summary>
     /// <param name="PurchaseHeader">Purchase header record after validation.</param>
