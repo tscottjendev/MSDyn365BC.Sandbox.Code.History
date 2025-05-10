@@ -38,7 +38,7 @@ table 5218 "Human Resources Setup"
             begin
                 if "Base Unit of Measure" <> xRec."Base Unit of Measure" then
                     if not EmployeeAbsence.IsEmpty() then
-                        Error(Text001, FieldCaption("Base Unit of Measure"), EmployeeAbsence.TableCaption());
+                        Error(ChangeNotAllowedErr, FieldCaption("Base Unit of Measure"), EmployeeAbsence.TableCaption());
 
                 HumanResUnitOfMeasure.Get("Base Unit of Measure");
                 HumanResUnitOfMeasure.TestField("Qty. per Unit of Measure", 1);
@@ -64,10 +64,8 @@ table 5218 "Human Resources Setup"
     }
 
     var
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text001: Label 'You cannot change %1 because there are %2.';
+        ChangeNotAllowedErr: Label 'You cannot change %1 because there are %2.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
 }
 
