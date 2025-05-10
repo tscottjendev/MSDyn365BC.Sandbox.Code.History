@@ -6,6 +6,8 @@
 namespace Microsoft.EServices.EDocument.Processing.Import.Purchase;
 
 using Microsoft.eServices.EDocument;
+using Microsoft.eServices.EDocument.OrderMatch.Copilot;
+using System.Telemetry;
 
 table 6100 "E-Document Purchase Header"
 {
@@ -213,6 +215,12 @@ table 6100 "E-Document Purchase Header"
         }
     }
 
+    trigger OnDelete()
+    begin
+        Session.LogMessage('0000PCQ', DeleteDraftPerformedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
+        FeatureTelemetry.LogUsage('0000PCV', EDocPOCopilotMatching.FeatureName(), 'Discard draft');
+    end;
+
     procedure GetFromEDocument(EDocument: Record "E-Document")
     begin
         Clear(Rec);
@@ -228,6 +236,11 @@ table 6100 "E-Document Purchase Header"
             Rec.Modify();
         end;
     end;
+
+    var
+        EDocPOCopilotMatching: Codeunit "E-Doc. PO Copilot Matching";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        DeleteDraftPerformedTxt: Label 'User deleted the draft.';
 
 }
 #pragma warning restore AS0049

@@ -42,9 +42,11 @@ codeunit 139883 "E-Doc Process Test"
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::Unprocessed);
         EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Structure received data";
 
-        Assert.AreEqual(Enum::"Import E-Doc. Proc. Status"::Unprocessed, EDocument.GetEDocumentImportProcessingStatus(), 'The status should be updated to the one after the step executed.');
+        EDocument.CalcFields("Import Processing Status");
+        Assert.AreEqual(Enum::"Import E-Doc. Proc. Status"::Unprocessed, EDocument."Import Processing Status", 'The status should be updated to the one after the step executed.');
         EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
-        Assert.AreEqual(Enum::"Import E-Doc. Proc. Status"::Readable, EDocument.GetEDocumentImportProcessingStatus(), 'The status should be updated to the one after the step executed.');
+        EDocument.CalcFields("Import Processing Status");
+        Assert.AreEqual(Enum::"Import E-Doc. Proc. Status"::Readable, EDocument."Import Processing Status", 'The status should be updated to the one after the step executed.');
 
         EDocDataStorage.FindLast();
         EDocDataStorage.CalcFields("Data Storage");
@@ -81,7 +83,8 @@ codeunit 139883 "E-Doc Process Test"
         EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
         EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
 
-        Assert.AreEqual(ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false), EDocument.GetEDocumentImportProcessingStatus(), 'The status should be updated to the one after the step executed.');
+        EDocument.CalcFields("Import Processing Status");
+        Assert.AreEqual(ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false), EDocument."Import Processing Status", 'The status should be updated to the one after the step executed.');
     end;
 
     [Test]
@@ -109,12 +112,14 @@ codeunit 139883 "E-Doc Process Test"
         EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
         EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
 
-        Assert.AreEqual(ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false), EDocument.GetEDocumentImportProcessingStatus(), 'The status should be updated to the one after the step executed.');
+        EDocument.CalcFields("Import Processing Status");
+        Assert.AreEqual(ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false), EDocument."Import Processing Status", 'The status should be updated to the one after the step executed.');
 
         EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Structure received data";
         EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
 
-        Assert.AreEqual(ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false), EDocument.GetEDocumentImportProcessingStatus(), 'The status should be updated to the one after the step executed.');
+        EDocument.CalcFields("Import Processing Status");
+        Assert.AreEqual(ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false), EDocument."Import Processing Status", 'The status should be updated to the one after the step executed.');
     end;
 
     [Test]

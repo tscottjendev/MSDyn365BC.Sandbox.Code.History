@@ -11,6 +11,7 @@ using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 using Microsoft.Foundation.UOM;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Document;
+using System.AI;
 
 codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
 {
@@ -27,7 +28,9 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         PurchaseOrder: Record "Purchase Header";
         EDocVendorAssignmentHistory: Record "E-Doc. Vendor Assign. History";
         EDocPurchaseLineHistory: Record "E-Doc. Purchase Line History";
+        LineToAccountLLMMatching: Codeunit "Line To Account LLM Matching";
         EDocPurchaseHistMapping: Codeunit "E-Doc. Purchase Hist. Mapping";
+        CopilotCapability: Codeunit "Copilot Capability";
         IVendorProvider: Interface IVendorProvider;
         IUnitOfMeasureProvider: Interface IUnitOfMeasureProvider;
         IPurchaseLineProvider: Interface IPurchaseLineProvider;
@@ -57,6 +60,7 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
         if EDocumentPurchaseLine.FindSet() then
             repeat
+                // Look up based on text-to-account mapping
                 EDocumentLineMapping.InsertForEDocumentLine(EDocument, EDocumentPurchaseLine."Line No.");
 
                 // Try and find unit of measure
@@ -69,7 +73,17 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
                 if EDocPurchaseHistMapping.FindRelatedPurchaseLineInHistory(EDocumentHeaderMapping."Vendor No.", EDocumentPurchaseLine, EDocPurchaseLineHistory) then
                     EDocPurchaseHistMapping.UpdateMissingLineValuesFromHistory(EDocPurchaseLineHistory, EDocumentLineMapping);
                 EDocumentLineMapping.Modify();
+                // Mark the lines that are not matched yet
+                if EDocumentLineMapping."Purchase Type No." = '' then
+                    EDocumentPurchaseLine.Mark(true);
             until EDocumentPurchaseLine.Next() = 0;
+        EDocumentPurchaseLine.MarkedOnly(true);
+
+        // Ask Copilot to try to match the marked ones (those that are not matched yet)
+        if CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
+            if CopilotCapability.IsCapabilityActive(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
+                LineToAccountLLMMatching.GetPurchaseLineAccountsWithCopilot(EDocumentPurchaseLine);
+
         exit("E-Document Type"::"Purchase Invoice");
     end;
 

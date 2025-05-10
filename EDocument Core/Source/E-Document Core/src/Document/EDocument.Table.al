@@ -238,6 +238,13 @@ table 6121 "E-Document"
             Caption = 'Additional Source Details';
             ToolTip = 'Specifies additional details about the E-Document source.';
         }
+        field(41; "Import Processing Status"; Enum "Import E-Doc. Proc. Status")
+        {
+            Caption = 'Import Processing Status';
+            ToolTip = 'Specifies the E-Document import processing status.';
+            FieldClass = FlowField;
+            CalcFormula = lookup("E-Document Service Status"."Import Processing Status" where("E-Document Entry No" = field("Entry No")));
+        }
     }
     keys
     {
@@ -422,7 +429,7 @@ table 6121 "E-Document"
         EDocumentLog.ExportDataStorage();
     end;
 
-    internal procedure ViewSourceFile()
+    procedure ViewSourceFile()
     begin
         if Rec."File Name" = '' then
             exit;
@@ -473,7 +480,7 @@ table 6121 "E-Document"
         if EDocumentService.Get(GetEDocumentServiceStatus()."E-Document Service Code") then;
     end;
 
-    internal procedure GetEDocumentImportProcessingStatus(): Enum "Import E-Doc. Proc. Status"
+    procedure GetEDocumentImportProcessingStatus(): Enum "Import E-Doc. Proc. Status"
     begin
         exit(GetEDocumentServiceStatus()."Import Processing Status");
     end;

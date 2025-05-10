@@ -77,7 +77,8 @@ codeunit 6140 "E-Doc. Import"
         Clear(EDocumentLog);
         EDocumentLog.SetFields(EDocument, EDocumentService);
 
-        CurrentStatus := EDocument.GetEDocumentImportProcessingStatus();
+        EDocument.CalcFields("Import Processing Status");
+        CurrentStatus := EDocument."Import Processing Status";
         DesiredStatus := ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false);
 
         // We undo all the steps that have been done, if CurrentStatus = DesiredStatus we undo the last step to redo it
@@ -90,7 +91,8 @@ codeunit 6140 "E-Doc. Import"
                     exit(false);
             end;
 
-        CurrentStatus := EDocument.GetEDocumentImportProcessingStatus();
+        EDocument.CalcFields("Import Processing Status");
+        CurrentStatus := EDocument."Import Processing Status";
         // We run all the steps that need to be done to reach the desired state
         for StatusIndex := ImportEDocumentProcess.StatusStepIndex(CurrentStatus) to ImportEDocumentProcess.StatusStepIndex(DesiredStatus) - 1 do
             if StatusIndex < ImportEDocumentProcess.StatusStepIndex("Import E-Doc. Proc. Status"::Processed) then begin
@@ -114,7 +116,8 @@ codeunit 6140 "E-Doc. Import"
             EDocument.FindFirst();
 
             EDocErrorHelper.LogSimpleErrorMessage(EDocument, GetLastErrorText());
-            EDocumentLog.InsertLog(Enum::"E-Document Service Status"::"Imported Document Processing Error", EDocument.GetEDocumentImportProcessingStatus());
+            EDocument.CalcFields("Import Processing Status");
+            EDocumentLog.InsertLog(Enum::"E-Document Service Status"::"Imported Document Processing Error", EDocument."Import Processing Status");
             EDocumentProcessing.ModifyServiceStatus(EDocument, EDocument.GetEDocumentService(), Enum::"E-Document Service Status"::"Imported Document Processing Error");
             EDocumentProcessing.ModifyEDocumentStatus(EDocument);
             exit(false);

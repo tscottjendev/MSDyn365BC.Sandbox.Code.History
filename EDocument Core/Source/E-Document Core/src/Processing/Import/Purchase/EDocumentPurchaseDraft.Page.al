@@ -1,4 +1,4 @@
-#pragma warning disable AS0032, AS0050
+#pragma warning disable AS0050
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -10,6 +10,8 @@ using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Purchases.Vendor;
+using Microsoft.eServices.EDocument.OrderMatch.Copilot;
+using System.Telemetry;
 
 page 6181 "E-Document Purchase Draft"
 {
@@ -53,7 +55,7 @@ page 6181 "E-Document Purchase Draft"
                         Importance = Promoted;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the number of the vendor who delivers the products.';
-                        Editable = true;
+                        Editable = PageEditable;
                         Lookup = true;
 
                         trigger OnLookup(var Text: Text): Boolean
@@ -122,7 +124,7 @@ page 6181 "E-Document Purchase Draft"
             part(Lines; "E-Doc. Purchase Draft Subform")
             {
                 ApplicationArea = Suite;
-                Editable = true;
+                Editable = PageEditable;
                 SubPageLink = "E-Document Entry No." = field("Entry No");
                 UpdatePropagation = Both;
             }
@@ -189,7 +191,13 @@ page 6181 "E-Document Purchase Draft"
 
                 trigger OnAction()
                 begin
+                    Session.LogMessage('0000PCO', FinalizeDraftInvokedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
                     ProcessEDocument();
+                    PageEditable := ConditionallyEditable();
+                    CurrPage.Lines.Page.Update();
+                    CurrPage.Update();
+                    Session.LogMessage('0000PCP', FinalizeDraftPerformedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
+                    FeatureTelemetry.LogUsage('0000PCU', EDocPOCopilotMatching.FeatureName(), 'Finalize draft');
                 end;
             }
             action(AnalyzeDocument)
@@ -267,6 +275,26 @@ page 6181 "E-Document Purchase Draft"
         EDocumentServiceStatus := Rec.GetEDocumentServiceStatus();
         HasErrorsOrWarnings := false;
         HasErrors := false;
+        PageEditable := ConditionallyEditable();
+    end;
+
+    local procedure ConditionallyEditable(): Boolean
+    var
+        RecRef: RecordRef;
+    begin
+        if Rec."Document Record ID".TableNo() = 0 then
+            exit(true);
+
+        if not TryOpen(RecRef, Rec."Document Record ID".TableNo()) then
+            exit(true);
+
+        exit(not RecRef.Get(Rec."Document Record ID"));
+    end;
+
+    [TryFunction]
+    local procedure TryOpen(var RecRef: RecordRef; TableNo: Integer)
+    begin
+        RecRef.Open(TableNo);
     end;
 
     trigger OnAfterGetRecord()
@@ -282,9 +310,10 @@ page 6181 "E-Document Purchase Draft"
         SetStyle();
         SetPageCaption();
 
-        ShowFinalizeDraftAction := Rec.GetEDocumentImportProcessingStatus() = Enum::"Import E-Doc. Proc. Status"::"Draft Ready";
+        Rec.CalcFields("Import Processing Status");
+        ShowFinalizeDraftAction := Rec."Import Processing Status" = Enum::"Import E-Doc. Proc. Status"::"Draft Ready";
         ShowAnalyzeDocumentAction :=
-            (Rec.GetEDocumentImportProcessingStatus() = Enum::"Import E-Document Steps"::"Structure received data") and
+            (Rec."Import Processing Status" = Enum::"Import E-Document Steps"::"Structure received data") and
             (Rec.Status = Enum::"E-Document Status"::Error);
     end;
 
@@ -366,7 +395,8 @@ page 6181 "E-Document Purchase Draft"
         if not EDocumentHelper.EnsureInboundEDocumentHasService(Rec) then
             exit;
 
-        EDocImportParameters."Step to Run" := ImportEdocumentProcess.GetNextStep(Rec.GetEDocumentImportProcessingStatus());
+        Rec.CalcFields("Import Processing Status");
+        EDocImportParameters."Step to Run" := ImportEdocumentProcess.GetNextStep(Rec."Import Processing Status");
         EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
     end;
 
@@ -389,6 +419,8 @@ page 6181 "E-Document Purchase Draft"
         EDocumentServiceStatus: Record "E-Document Service Status";
         EDocumentErrorHelper: Codeunit "E-Document Error Helper";
         EDocumentProcessing: Codeunit "E-Document Processing";
+        EDocPOCopilotMatching: Codeunit "E-Doc. PO Copilot Matching";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ErrorsAndWarningsNotification: Notification;
         AIGeneratedContentNotification: Notification;
         RecordLinkTxt, StyleStatusTxt, ServiceStatusStyleTxt, VendorName, DataCaption : Text;
@@ -396,5 +428,8 @@ page 6181 "E-Document Purchase Draft"
         ShowFinalizeDraftAction: Boolean;
         ShowAnalyzeDocumentAction: Boolean;
         EDocHasErrorOrWarningMsg: Label 'Errors or warnings found for E-Document. Please review below in "Error Messages" section.';
+        FinalizeDraftInvokedTxt: Label 'User invoked Finalize Draft action.';
+        FinalizeDraftPerformedTxt: Label 'User completed Finalize Draft action.';
+        PageEditable: Boolean;
 }
-#pragma warning restore AS0050, AS0032
+#pragma warning restore AS0050
