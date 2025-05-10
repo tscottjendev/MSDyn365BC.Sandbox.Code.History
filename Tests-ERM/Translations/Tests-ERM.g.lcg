@@ -9401,6 +9401,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Invt. PutAway Post Prev. - NamedType WrongPostPreviewErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3524229329 - NamedType 1662375183" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Value entry - cost amount(actual) can not be 0]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Invty. Doc. Pst Preview - NamedType ValueEntryCostAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3524229329 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be equal to %2 in %3]]></Val>
