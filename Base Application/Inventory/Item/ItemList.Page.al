@@ -1075,19 +1075,6 @@ page 31 "Item List"
                     RunObject = Report "Issue History";
                     ToolTip = 'View figures for items removed from inventory to be used in the production of bills of material during specific periods.';
                 }
-                group(Costing)
-                {
-                    Caption = 'Costing';
-                    Image = ItemCosts;
-                    action("Inventory Valuation - WIP")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Inventory Valuation - WIP';
-                        Image = "Report";
-                        RunObject = Report "Inventory Valuation - WIP";
-                        ToolTip = 'View inventory valuation for selected production orders in your WIP inventory. The report also shows information about the value of consumption, capacity usage and output in WIP. The printed report only shows invoiced amounts, that is, the cost of entries that have been posted as invoiced.';
-                    }
-                }
             }
             group(Inventory)
             {
