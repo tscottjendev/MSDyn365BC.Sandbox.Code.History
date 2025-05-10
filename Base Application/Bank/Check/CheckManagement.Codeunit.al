@@ -943,7 +943,7 @@ codeunit 367 CheckManagement
 
     local procedure ShouldClearApplnVendorLedgerEntries(GenJournalLine: Record "Gen. Journal Line"): Boolean
     begin
-        exit((GenJournalLine."Applies-to ID" = '') or (GenJournalLine."Applies-to Doc. Type" <> GenJournalLine."Applies-to Doc. Type"::Invoice));
+        exit(GenJournalLine."Applies-to ID" = '');
     end;
 
     [IntegrationEvent(false, false)]
