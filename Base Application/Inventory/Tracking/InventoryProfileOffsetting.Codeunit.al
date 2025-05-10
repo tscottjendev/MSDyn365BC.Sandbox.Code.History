@@ -15,6 +15,7 @@ using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Document;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
@@ -982,6 +983,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
         CanBeRescheduled: Boolean;
         ItemInventoryExists: Boolean;
     begin
+        if CheckDemandAndSupplyQuantityAreEqual(SupplyInvtProfile, DemandInvtProfile) then
+            exit;
+
         xDemandInvtProfile.CopyFilters(DemandInvtProfile);
         xSupplyInvtProfile.CopyFilters(SupplyInvtProfile);
         ItemInventoryExists := CheckItemInventoryExists(SupplyInvtProfile);
@@ -1095,6 +1099,28 @@ codeunit 99000854 "Inventory Profile Offsetting"
         SupplyInvtProfile.CopyFilters(xSupplyInvtProfile);
 
         OnAfterMatchAttributes(SupplyInvtProfile, DemandInvtProfile, TempTrkgReservEntry);
+    end;
+
+    local procedure CheckDemandAndSupplyQuantityAreEqual(var SupplyInvtProfile: Record "Inventory Profile"; var DemandInvtProfile: Record "Inventory Profile"): Boolean
+    var
+        TotalDemandQty: Decimal;
+        TotalSupplyQty: Decimal;
+    begin
+        if (SupplyInvtProfile."Source Type" <> Database::"Prod. Order Line") or (DemandInvtProfile."Source Type" <> Database::"Prod. Order Component") then
+            exit(false);
+
+        if DemandInvtProfile.FindSet() then
+            repeat
+                TotalDemandQty += DemandInvtProfile.Quantity;
+            until DemandInvtProfile.Next() = 0;
+
+        if SupplyInvtProfile.FindSet() then
+            repeat
+                TotalSupplyQty += SupplyInvtProfile.Quantity;
+            until SupplyInvtProfile.Next() = 0;
+
+        if TotalSupplyQty = TotalDemandQty then
+            exit(true);
     end;
 
     local procedure DecreaseQtyForMaxQty(var SupplyInvtProfile: Record "Inventory Profile"; ReduceQty: Decimal)
