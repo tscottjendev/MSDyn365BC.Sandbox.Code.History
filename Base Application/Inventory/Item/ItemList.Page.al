@@ -1061,19 +1061,6 @@ page 31 "Item List"
                     RunObject = Report Microsoft.Manufacturing.Reports."Quantity Explosion of BOM";
                     ToolTip = 'View an indented BOM listing for the item or items that you specify in the filters. The production BOM is completely exploded for all levels.';
                 }
-                group(Costing)
-                {
-                    Caption = 'Costing';
-                    Image = ItemCosts;
-                    action("Inventory Valuation - WIP")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Inventory Valuation - WIP';
-                        Image = "Report";
-                        RunObject = Report "Inventory Valuation - WIP";
-                        ToolTip = 'View inventory valuation for selected production orders in your WIP inventory. The report also shows information about the value of consumption, capacity usage and output in WIP. The printed report only shows invoiced amounts, that is, the cost of entries that have been posted as invoiced.';
-                    }
-                }
             }
             group(Inventory)
             {
