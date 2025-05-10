@@ -379,19 +379,19 @@ report 5802 "Inventory Valuation - WIP"
         {
             Caption = 'Production Order - WIP Excel';
             Type = Excel;
-            LayoutFile = '.\Inventory\Reports\InventoryValuationWIP.xlsx';
+            LayoutFile = '.\Manufacturing\Reports\InventoryValuationWIP.xlsx';
         }
         layout(WordLayout)
         {
             Caption = 'Production Order - WIP Word';
             Type = Word;
-            LayoutFile = '.\Inventory\Reports\InventoryValuationWIP.docx';
+            LayoutFile = '.\Manufacturing\Reports\InventoryValuationWIP.docx';
         }
         layout(RDLCLayout)
         {
             Caption = 'Production Order - WIP RDLC';
             Type = RDLC;
-            LayoutFile = '.\Inventory\Reports\InventoryValuationWIP.rdlc';
+            LayoutFile = '.\Manufacturing\Reports\InventoryValuationWIP.rdlc';
         }
     }
 
