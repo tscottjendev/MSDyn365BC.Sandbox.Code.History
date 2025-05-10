@@ -43,16 +43,14 @@ codeunit 7707 "Miniform Mainmenu"
         LocationFilter: Text[250];
         CurrentCode: Text[250];
         StackCode: Text[250];
-#pragma warning disable AA0074
-        Text005: Label 'No input Node found.';
-#pragma warning restore AA0074
+        NoInputNodeErr: Label 'No input Node found.';
 
     local procedure Process()
     begin
         if XMLDOMMgt.FindNode(RootNode, 'Header/Input', ReturnedNode) then
             TextValue := ReturnedNode.InnerText
         else
-            Error(Text005);
+            Error(NoInputNodeErr);
 
         ADCSCommunication.GetCallMiniForm(MiniformHeader.Code, MiniformHeader2, TextValue);
         ADCSCommunication.IncreaseStack(DOMxmlin, MiniformHeader.Code);
