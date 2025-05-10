@@ -573,4 +573,14 @@ table 313 "Inventory Setup"
     begin
         exit(not FeatureKeyManagement.IsConcurrentInventoryPostingEnabled());
     end;
+
+    procedure GetComponentsAtLocation() LocationCode: Code[10]
+    begin
+        OnGetComponentsAtLocation(LocationCode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetComponentsAtLocation(var LocationCode: Code[10])
+    begin
+    end;
 }

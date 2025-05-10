@@ -7,7 +7,6 @@ namespace Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.Setup;
 
 codeunit 99000855 "Planning-Get Parameters"
 {
@@ -20,9 +19,7 @@ codeunit 99000855 "Planning-Get Parameters"
         GlobalSKU: Record "Stockkeeping Unit";
         Item: Record Item;
         InventorySetup: Record "Inventory Setup";
-        ManufacturingSetup: Record "Manufacturing Setup";
         HasGotInventorySetUp: Boolean;
-        HasGotMfgSetUp: Boolean;
         LotForLot: Boolean;
         ManualScheduling: Boolean;
 
@@ -73,14 +70,16 @@ codeunit 99000855 "Planning-Get Parameters"
             SetComponentsAtLocation(LocationCode);
         end;
 
-        if ManualScheduling and ManufacturingSetup."Manual Scheduling" then
-            GlobalSKU."Safety Lead Time" := ManufacturingSetup."Safety Lead Time for Man. Sch."
-        else
+        OnAtSKUOnBeforeSetSafetyLeadTime(GlobalSKU, ManualScheduling);
+
+        if not ManualScheduling then
             if Format(GlobalSKU."Safety Lead Time") = '' then
                 if Format(InventorySetup."Default Safety Lead Time") <> '' then
                     GlobalSKU."Safety Lead Time" := InventorySetup."Default Safety Lead Time"
                 else
                     Evaluate(GlobalSKU."Safety Lead Time", '<0D>');
+
+
         AdjustInvalidSettings(GlobalSKU);
         SKU := GlobalSKU;
 
@@ -102,15 +101,13 @@ codeunit 99000855 "Planning-Get Parameters"
     begin
         if not HasGotInventorySetUp then
             HasGotInventorySetUp := InventorySetup.Get();
-        if not HasGotMfgSetUp then
-            HasGotMfgSetUp := ManufacturingSetup.Get();
     end;
 
     local procedure SetComponentsAtLocation(LocationCode: Code[10])
     begin
         if GlobalSKU."Components at Location" = '' then
-            if ManufacturingSetup."Components at Location" <> '' then
-                GlobalSKU."Components at Location" := ManufacturingSetup."Components at Location"
+            if InventorySetup.GetComponentsAtLocation() <> '' then
+                GlobalSKU."Components at Location" := InventorySetup.GetComponentsAtLocation()
             else
                 GlobalSKU."Components at Location" := LocationCode;
         OnAfterSetComponentsAtLocation(GlobalSKU, Item);
@@ -376,6 +373,11 @@ codeunit 99000855 "Planning-Get Parameters"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetPlanningParametersOnReorderingPolicyElseCase(var PlanningParameters: Record "Planning Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAtSKUOnBeforeSetSafetyLeadTime(var GlobalSKU: Record "Stockkeeping Unit"; ManualScheduling: Boolean)
     begin
     end;
 }
