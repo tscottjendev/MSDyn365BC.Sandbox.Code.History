@@ -968,6 +968,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Purchase/Payables - NamedType AppliesToIDIsNotEmptyOnLedgEntryErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3642890093 - NamedType 2101091778" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Closed at Date must have value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Purchase/Payables - NamedType ClosedAtDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3642890093 - NamedType 149879980" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Dialog]]></Val>
