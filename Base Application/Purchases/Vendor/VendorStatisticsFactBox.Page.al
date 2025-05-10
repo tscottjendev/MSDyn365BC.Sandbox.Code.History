@@ -93,7 +93,7 @@ page 9094 "Vendor Statistics FactBox"
             field("Balance Due (LCY)"; OverDueBalance)
             {
                 ApplicationArea = Basic, Suite;
-                CaptionClass = Format(StrSubstNo(Text000, Format(WorkDate())));
+                CaptionClass = Format(StrSubstNo(OverdueAmountsLCYTxt, Format(WorkDate())));
                 Caption = 'Balance Due (LCY)';
 
                 trigger OnDrillDown()
@@ -210,11 +210,9 @@ page 9094 "Vendor Statistics FactBox"
     end;
 
     var
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label 'Overdue Amounts (LCY) as of %1';
+        OverdueAmountsLCYTxt: Label 'Overdue Amounts (LCY) as of %1';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
         TaskIdCalculateCue: Integer;
         CurrVendorNo: Code[20];
         LinkedCustomerNo: Code[20];
