@@ -6422,6 +6422,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
                 OnUnapplyCustLedgEntryOnBeforeUpdateDetailedCustLedgEntry(DetailedCustLedgEntry2, DetailedCVLedgEntryBuffer);
 
+                UpdateCustLedgEntryStats(DetailedCustLedgEntry2."Cust. Ledger Entry No.");
                 DetailedCustLedgEntry2.Unapplied := true;
                 DetailedCustLedgEntry2."Unapplied by Entry No." := NewDetailedCustLedgEntry."Entry No.";
                 DetailedCustLedgEntry2.Modify();
@@ -6642,6 +6643,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
             OnUnapplyVendLedgEntryOnBeforeUpdateDetailedVendLedgEntry2(DetailedVendorLedgEntry2, DetailedCVLedgEntryBuffer);
 
+            UpdateVendLedgEntryStats(DetailedVendorLedgEntry2."Vendor Ledger Entry No.");
             DetailedVendorLedgEntry2.Unapplied := true;
             DetailedVendorLedgEntry2."Unapplied by Entry No." := NewDetailedVendorLedgEntry."Entry No.";
             DetailedVendorLedgEntry2.Modify();
