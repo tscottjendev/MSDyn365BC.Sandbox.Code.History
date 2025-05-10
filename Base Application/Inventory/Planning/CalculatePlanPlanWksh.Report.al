@@ -8,7 +8,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.Forecast;
 
 report 99001017 "Calculate Plan - Plan. Wksh."
 {
@@ -180,7 +179,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                     {
                         ApplicationArea = Planning;
                         Caption = 'Use Forecast';
-                        TableRelation = "Production Forecast Name".Name;
+                        TableRelation = Microsoft.Manufacturing.Forecast."Production Forecast Name".Name;
                         ToolTip = 'Specifies a forecast that should be included as demand when running the planning batch job.';
                     }
                     field(ExcludeForecastBefore; ExcludeForecastBefore)
