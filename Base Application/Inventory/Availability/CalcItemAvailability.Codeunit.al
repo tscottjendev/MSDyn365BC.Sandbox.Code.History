@@ -248,7 +248,6 @@ codeunit 5530 "Calc. Item Availability"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         InventorySetup: Record "Inventory Setup";
-        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
         ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
         ProdForecastEntry2: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
         CopyOfInvtEventBuf: Record "Inventory Event Buffer";
@@ -273,11 +272,10 @@ codeunit 5530 "Calc. Item Availability"
         if ToDate = 0D then
             ToDate := DMY2Date(30, 12, 9999);
 
-        ManufacturingSetup.Get();
         InventorySetup.Get();
         if not InventorySetup."Use Forecast on Locations" then begin
             if not FindReplishmentLocation(ReplenishmentLocation, Item, LocationMandatory) then
-                ReplenishmentLocation := ManufacturingSetup."Components at Location";
+                ReplenishmentLocation := InventorySetup.GetComponentsAtLocation();
             if LocationMandatory and
                (ReplenishmentLocation = '')
             then
