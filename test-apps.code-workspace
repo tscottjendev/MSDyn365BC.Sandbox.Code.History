@@ -1,4 +1,12 @@
 {
+  "settings": {
+    "al.enableCodeAnalysis": false,
+    "al.enableCodeActions": false,
+    "allint.enabled": false,
+    "search.exclude": {
+      "**.xlf": true
+    }
+  },
   "folders": [
     {
       "path": "./SalesLinesSuggestions/Test/Sales Lines Suggestions Tests"
@@ -267,13 +275,5 @@
     {
       "path": "./BusinessFoundation/Test/Business Foundation Tests"
     }
-  ],
-  "settings": {
-    "al.enableCodeActions": false,
-    "al.enableCodeAnalysis": false,
-    "allint.enabled": false,
-    "search.exclude": {
-      "**.xlf": true
-    }
-  }
+  ]
 }
