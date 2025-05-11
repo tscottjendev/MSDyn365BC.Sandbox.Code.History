@@ -429,7 +429,7 @@ table 6121 "E-Document"
         EDocumentLog.ExportDataStorage();
     end;
 
-    internal procedure ViewSourceFile()
+    procedure ViewSourceFile()
     begin
         if Rec."File Name" = '' then
             exit;

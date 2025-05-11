@@ -192,7 +192,7 @@ page 6181 "E-Document Purchase Draft"
                 trigger OnAction()
                 begin
                     Session.LogMessage('0000PCO', FinalizeDraftInvokedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
-                    ProcessEDocument();
+                    FinalizeEDocument();
                     PageEditable := ConditionallyEditable();
                     CurrPage.Lines.Page.Update();
                     CurrPage.Update();
@@ -385,19 +385,20 @@ page 6181 "E-Document Purchase Draft"
         CurrPage.ErrorMessagesPart.Page.Update(false);
     end;
 
-    local procedure ProcessEDocument()
+    local procedure FinalizeEDocument()
     var
         EDocImportParameters: Record "E-Doc. Import Parameters";
         EDocImport: Codeunit "E-Doc. Import";
         EDocumentHelper: Codeunit "E-Document Helper";
-        ImportEdocumentProcess: Codeunit "Import E-Document Process";
     begin
         if not EDocumentHelper.EnsureInboundEDocumentHasService(Rec) then
             exit;
 
         Rec.CalcFields("Import Processing Status");
-        EDocImportParameters."Step to Run" := ImportEdocumentProcess.GetNextStep(Rec."Import Processing Status");
+        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
         EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+        Rec.Get(Rec."Entry No");
+        Rec.ShowRecord();
     end;
 
     local procedure AnalyzeEDocument()
