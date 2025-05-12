@@ -2,7 +2,7 @@
   "id": "c49d9d12-1c94-4362-8bf7-3cce15be54dc",
   "name": "Tests-Monitor Sensitive Fields",
   "publisher": "Microsoft",
-  "version": "24.14.33930.0",
+  "version": "24.14.33945.0",
   "platform": "24.0.0.0",
   "application": "24.14.0.0",
   "dependencies": [
