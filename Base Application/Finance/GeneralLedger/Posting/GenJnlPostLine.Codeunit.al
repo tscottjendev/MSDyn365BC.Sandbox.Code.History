@@ -2122,6 +2122,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
             end;
     end;
 
+    local procedure ClearGLEntrySourceCurrencyFields(var GLEntry: Record "G/L Entry")
+    begin
+        GLEntry."Source Currency Code" := '';
+        GLEntry."Source Currency Amount" := 0;
+        GLEntry."Source Currency VAT Amount" := 0;
+        GLEntry.Modify();
+    end;
+
     local procedure UpdateGLEntrySourceCurrencyFields(var GLEntry: Record "G/L Entry"; var GenJnlLine: Record "Gen. Journal Line")
     begin
         if GenJnlLine."Source Currency Code" = '' then
@@ -2438,6 +2446,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         InitGLEntry(GenJnlLine, GLEntry, AccNo, Amount, 0, UseAmountAddCurr, true);
         OnBeforeCreateGLEntryGainLossInsertGLEntry(GenJnlLine, GLEntry);
         InsertGLEntry(GenJnlLine, GLEntry, true);
+        ClearGLEntrySourceCurrencyFields(TempGLEntryBuf);
     end;
 
     /// <summary>
@@ -7743,7 +7752,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         AdjAmount[Offset + 1] += AmountAddCurr;
     end;
 
-    local procedure HandleDtldAdjustment(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; AdjAmount: array[4] of Decimal; TotalAmountLCY: Decimal; TotalAmountAddCurr: Decimal; GLAccNo: Code[20])
+    procedure HandleDtldAdjustment(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; AdjAmount: array[4] of Decimal; TotalAmountLCY: Decimal; TotalAmountAddCurr: Decimal; GLAccNo: Code[20])
     var
         IsHandled: Boolean;
     begin
@@ -7769,13 +7778,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
         then begin
             IsHandled := false;
             OnPostDtldAdjustmentOnBeforeCreateGLEntryBalAcc(GenJnlLine, GLAcc, AdjAmount, ArrayIndex, IsHandled, NextEntryNo);
-            if not IsHandled then
+            if not IsHandled then begin
                 CreateGLEntryBalAcc(
-                  GenJnlLine, GLAcc, -AdjAmount[ArrayIndex], -AdjAmount[ArrayIndex + 1],
-                  GenJnlLine."Bal. Account Type", GenJnlLine."Bal. Account No.");
-            InitGLEntry(GenJnlLine, GLEntry,
-              GLAcc, TotalAmountLCY + AdjAmount[ArrayIndex],
-              TotalAmountAddCurr + AdjAmount[ArrayIndex + 1], true, true);
+                    GenJnlLine, GLAcc, -AdjAmount[ArrayIndex], -AdjAmount[ArrayIndex + 1],
+                    GenJnlLine."Bal. Account Type", GenJnlLine."Bal. Account No.");
+                ClearGLEntrySourceCurrencyFields(TempGLEntryBuf);
+            end;
+            InitGLEntry(
+                GenJnlLine, GLEntry, GLAcc, TotalAmountLCY + AdjAmount[ArrayIndex],
+                TotalAmountAddCurr + AdjAmount[ArrayIndex + 1], true, true);
             AdjAmount[ArrayIndex] := 0;
             AdjAmount[ArrayIndex + 1] := 0;
             exit(true);
