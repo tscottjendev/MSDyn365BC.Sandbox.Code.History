@@ -259,7 +259,8 @@ table 246 "Requisition Line"
                         OnValidateVendorNoOnBeforeSetVendorItemNoFromItemVend(Rec, IsHandled);
                         if not IsHandled then
                             "Vendor Item No." := ItemVend."Vendor Item No.";
-                        UpdateOrderReceiptDate(ItemVend."Lead Time Calculation");
+                        if not DoNotUpdateOrderReceiptDate then
+                            UpdateOrderReceiptDate(ItemVend."Lead Time Calculation");
                     end else begin
                         GetPlanningParameters.AtSKU(TempSKU, "No.", "Variant Code", "Location Code");
                         if "Vendor No." = TempSKU."Vendor No." then
@@ -1703,6 +1704,7 @@ table 246 "Requisition Line"
         WMSManagement: Codeunit "WMS Management";
         ConfirmManagement: Codeunit System.Utilities."Confirm Management";
         BlockReservation: Boolean;
+        DoNotUpdateOrderReceiptDate: Boolean;
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
@@ -3840,6 +3842,11 @@ table 246 "Requisition Line"
     local procedure TestProdOrderNo()
     begin
         OnTestProdOrderNo(Rec);
+    end;
+
+    procedure SetDoNotUpdateOrderReceiptDate(NewUpdateOrderReceiptDate: Boolean)
+    begin
+        DoNotUpdateOrderReceiptDate := NewUpdateOrderReceiptDate;
     end;
 
     [IntegrationEvent(false, false)]
