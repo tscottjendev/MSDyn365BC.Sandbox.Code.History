@@ -232,6 +232,9 @@ page 489 "Column Layout"
                         exit(CostObject.LookupCostObjectFilter(Text));
                     end;
                 }
+                field(GLAccountTotaling; Rec."G/L Account Totaling")
+                {
+                }
                 field(HideCurrencySymbol; Rec."Hide Currency Symbol")
                 {
                     ApplicationArea = Basic, Suite;
