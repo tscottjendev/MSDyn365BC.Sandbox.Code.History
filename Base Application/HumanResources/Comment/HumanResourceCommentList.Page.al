@@ -59,9 +59,7 @@ page 5223 "Human Resource Comment List"
         EmployeeRelative: Record "Employee Relative";
         MiscArticleInfo: Record "Misc. Article Information";
         ConfidentialInfo: Record "Confidential Information";
-#pragma warning disable AA0074
-        Text000: Label 'untitled', Comment = 'it is a caption for empty page';
-#pragma warning restore AA0074
+        UntitledTxt: Label 'untitled', Comment = 'it is a caption for empty page';
 
     procedure Caption(HRCommentLine: Record "Human Resource Comment Line"): Text
     begin
@@ -112,7 +110,7 @@ page 5223 "Human Resource Comment List"
                       HRCommentLine."No." + ' ' + Employee.FullName() + ' ' +
                       ConfidentialInfo."Confidential Code");
         end;
-        exit(Text000);
+        exit(UntitledTxt);
     end;
 }
 
