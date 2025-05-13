@@ -5764,6 +5764,64 @@ codeunit 134902 "ERM Account Schedule"
         // [THEN] Account schedule report inherits negative amount format as parentheses
     end;
 
+    [Test]
+    procedure ColumnLayoutGLAccountTotaling()
+    var
+        GLAccount1: Record "G/L Account";
+        GLAccount2: Record "G/L Account";
+        GLAccount3: Record "G/L Account";
+        ColumnLayout: Record "Column Layout";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleOverview: Page "Acc. Schedule Overview";
+        AccScheduleOverviewTestPage: TestPage "Acc. Schedule Overview";
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO] Setting GL account totaling on both rows and columns will resulting in intersection of amounts.
+        Initialize();
+
+        // [GIVEN] 3 account with amounts
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        LibraryERM.CreateGLAccount(GLAccount1);
+        LibraryERM.CreateGLAccount(GLAccount2);
+        LibraryERM.CreateGLAccount(GLAccount3);
+        CreateAndPostJournal(CustomerNo, GLAccount1."No.", LibraryRandom.RandDecInRange(100, 199, 2));
+        CreateAndPostJournal(CustomerNo, GLAccount2."No.", LibraryRandom.RandDecInRange(200, 299, 2));
+        CreateAndPostJournal(CustomerNo, GLAccount3."No.", LibraryRandom.RandDecInRange(300, 399, 2));
+        GLAccount1.CalcFields(Balance);
+        GLAccount2.CalcFields(Balance);
+        GLAccount3.CalcFields(Balance);
+
+        // [GIVEN] The row 1 with accounts 1 + 2 and row 2 with account 3
+        CreateAndUpdateAccountSchedule(AccScheduleLine, '10', AccScheduleLine."Totaling Type"::"Posting Accounts",
+            GLAccount1."No." + '|' + GLAccount2."No.");
+        AccScheduleLine."Line No." += 10000;
+        AccScheduleLine."Row No." := '20';
+        AccScheduleLine.Totaling := GLAccount3."No.";
+        AccScheduleLine.Insert(true);
+
+        // [GIVEN] The column 1 with account 1 and the column 2 with account 3
+        CreateColumnLayout(ColumnLayout);
+        ColumnLayout.Validate("G/L Account Totaling", GLAccount1."No.");
+        ColumnLayout.Modify(true);
+        ColumnLayout."Line No." += 10000;
+        ColumnLayout.Validate("G/L Account Totaling", GLAccount3."No.");
+        ColumnLayout.Insert(true);
+
+        // [WHEN] The financial report is opened
+        AccScheduleOverviewTestPage.Trap();
+        AccScheduleOverview.Run();
+        AccScheduleOverviewTestPage.CurrentSchedName.SetValue(AccScheduleLine."Schedule Name");
+        AccScheduleOverviewTestPage.CurrentColumnName.SetValue(ColumnLayout."Column Layout Name");
+
+        // [THEN] (1,1) shows account 1 balance and (2,2) shows account 3 balance, the other cells are 0 due to non-intersecting filters
+        AccScheduleOverviewTestPage.First();
+        AccScheduleOverviewTestPage.ColumnValues1.AssertEquals(GLAccount1.Balance);
+        AccScheduleOverviewTestPage.ColumnValues2.AssertEquals(0);
+        AccScheduleOverviewTestPage.Next();
+        AccScheduleOverviewTestPage.ColumnValues1.AssertEquals(0);
+        AccScheduleOverviewTestPage.ColumnValues2.AssertEquals(GLAccount3.Balance);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AccountScheduleSetNegativeFormatRequestHandler(var AccountSchedule: TestRequestPage "Account Schedule")
@@ -6085,6 +6143,12 @@ codeunit 134902 "ERM Account Schedule"
     begin
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayoutName);
         UpdateAccScheduleLine(AccScheduleLine, GLAccountNo, TotalingType, Format(LibraryRandom.RandInt(5)));
+    end;
+
+    local procedure CreateAndUpdateAccountSchedule(var AccScheduleLine: Record "Acc. Schedule Line"; RowNo: Code[10]; TotalingType: Enum "Acc. Schedule Line Totaling Type"; Totaling: Text[250])
+    begin
+        CreateAccountScheduleAndLine(AccScheduleLine, RowNo);
+        UpdateAccScheduleLine(AccScheduleLine, Totaling, TotalingType, RowNo);
     end;
 
     local procedure CreateColumnLayout(var ColumnLayout: Record "Column Layout")
