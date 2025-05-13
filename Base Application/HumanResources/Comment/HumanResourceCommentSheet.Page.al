@@ -61,10 +61,7 @@ page 5222 "Human Resource Comment Sheet"
         EmployeeRelative: Record "Employee Relative";
         MiscArticleInfo: Record "Misc. Article Information";
         ConfidentialInfo: Record "Confidential Information";
-
-#pragma warning disable AA0074
-        Text000: Label 'untitled';
-#pragma warning restore AA0074
+        UntitledTxt: Label 'untitled';
 
     procedure Caption(HRCommentLine: Record "Human Resource Comment Line") Result: Text
     var
@@ -122,7 +119,7 @@ page 5222 "Human Resource Comment Sheet"
                       HRCommentLine."No." + ' ' + Employee.FullName() + ' ' +
                       ConfidentialInfo."Confidential Code");
         end;
-        exit(Text000);
+        exit(UntitledTxt);
     end;
 
     [IntegrationEvent(false, false)]
