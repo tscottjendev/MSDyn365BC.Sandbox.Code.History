@@ -744,6 +744,17 @@ page 8909 "Warehouse Manager Role Center"
                         RunObject = page "Report Selection - Inventory";
                     }
                 }
+                group("Reports")
+                {
+                    Caption = 'Reports';
+                    action("Inventory by Location")
+                    {
+                        ApplicationArea = InventoryAnalysis;
+                        Caption = 'Analyze Inventory by Location';
+                        RunObject = Query "Inventory by Location";
+                        ToolTip = 'Analyze (group, summarize, pivot) your Item Ledger Entries with related Location master data.';
+                    }
+                }
             }
             group("Group16")
             {
