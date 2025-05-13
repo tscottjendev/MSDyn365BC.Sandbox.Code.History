@@ -5,10 +5,12 @@
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Inventory.Item;
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Sales.Document;
 
 codeunit 99000777 "Check Prod. Order Status"
 {
+    Permissions = tabledata "Manufacturing Setup" = r;
 
     trigger OnRun()
     begin
