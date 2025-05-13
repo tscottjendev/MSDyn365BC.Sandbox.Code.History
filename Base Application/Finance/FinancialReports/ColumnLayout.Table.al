@@ -8,6 +8,7 @@ using Microsoft.CostAccounting.Setup;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Consolidation;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Budget;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Enums;
@@ -159,6 +160,27 @@ table 334 "Column Layout"
             begin
                 if "Hide Currency Symbol" then
                     TestField("Column Type", "Column Layout Type"::Formula);
+            end;
+        }
+        field(42; "G/L Account Totaling"; Text[250])
+        {
+            Caption = 'G/L Account Totaling';
+            ToolTip = 'Specifies which G/L accounts will be totaled in this column.';
+
+            trigger OnLookup()
+            var
+                GLAccountList: Page "G/L Account List";
+            begin
+                GLAccountList.LookupMode(true);
+                if GLAccountList.RunModal() = Action::LookupOK then
+                    Validate("G/L Account Totaling", GLAccountList.GetSelectionFilter());
+            end;
+
+            trigger OnValidate()
+            var
+                GLAccount: Record "G/L Account";
+            begin
+                GLAccount.SetFilter("No.", "G/L Account Totaling");
             end;
         }
     }
