@@ -1000,6 +1000,7 @@ codeunit 8 AccSchedManagement
         GLEntry.SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
         GLEntry.SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
         GLEntry.SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
+        GLEntry.SetFilter("G/L Account No.", ColumnLayout."G/L Account Totaling");
         GLEntry.FilterGroup(0);
 
         OnAfterSetGLAccGLEntryFilters(GLAcc, GLEntry, AccSchedLine, ColumnLayout, UseBusUnitFilter, UseDimFilter);
@@ -1042,6 +1043,7 @@ codeunit 8 AccSchedManagement
         GLBudgetEntry.SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
         GLBudgetEntry.SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
         GLBudgetEntry.SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
+        GLBudgetEntry.SetFilter("G/L Account No.", ColumnLayout."G/L Account Totaling");
         GLBudgetEntry.FilterGroup(0);
 
         OnAfterSetGLAccGLBudgetEntryFilters(GLAcc, GLBudgetEntry, AccSchedLine, ColumnLayout, UseBusUnitFilter, UseDimFilter);
@@ -1074,6 +1076,7 @@ codeunit 8 AccSchedManagement
           GetDimTotalingFilter(3, ColumnLayout."Dimension 3 Totaling"),
           GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
         AnalysisViewBudgetEntry.SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
+        AnalysisViewBudgetEntry.SetFilter("G/L Account No.", ColumnLayout."G/L Account Totaling");
         AnalysisViewBudgetEntry.FilterGroup(0);
 
         OnAfterSetGLAccAnalysisViewBudgetEntries(GLAcc, AnalysisViewBudgetEntry, AccSchedLine, ColumnLayout);
@@ -1104,6 +1107,7 @@ codeunit 8 AccSchedManagement
           GetDimTotalingFilter(3, ColumnLayout."Dimension 3 Totaling"),
           GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
         AnalysisViewEntry.SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
+        AnalysisViewEntry.SetFilter("Account No.", ColumnLayout."G/L Account Totaling");
         AnalysisViewEntry.FilterGroup(0);
 
         OnAfterSetGLAccAnalysisViewEntryFilters(GLAcc, AnalysisViewEntry, AccSchedLine, ColumnLayout);
@@ -1337,6 +1341,7 @@ codeunit 8 AccSchedManagement
           GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"),
           GetDimTotalingFilter(3, ColumnLayout."Dimension 3 Totaling"),
           GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
+        AnalysisViewEntry.SetFilter("Account No.", ColumnLayout."G/L Account Totaling");
         AnalysisViewEntry.FilterGroup(0);
 
         OnAfterSetCFAnalysisViewEntryFilters(AnalysisViewEntry, AccSchedLine, ColumnLayout);
@@ -2320,6 +2325,7 @@ codeunit 8 AccSchedManagement
                 GLAcc.SetFilter("Business Unit Filter", TempColumnLayout."Business Unit Totaling");
                 GLAcc.SetFilter("Global Dimension 1 Filter", GetDimTotalingFilter(1, TempColumnLayout."Dimension 1 Totaling"));
                 GLAcc.SetFilter("Global Dimension 2 Filter", GetDimTotalingFilter(2, TempColumnLayout."Dimension 2 Totaling"));
+                GLAcc.SetFilter("No.", TempColumnLayout."G/L Account Totaling");
                 if SubcategoryEntryFilter <> '' then begin
                     GlAcc.SetRange("Account Type", GlAcc."Account Type"::Posting);
                     GLAcc.SetFilter("Account Subcategory Entry No.", SubcategoryEntryFilter);
@@ -2344,6 +2350,7 @@ codeunit 8 AccSchedManagement
                   GetDimTotalingFilter(3, TempColumnLayout."Dimension 3 Totaling"),
                   GetDimTotalingFilter(4, TempColumnLayout."Dimension 4 Totaling"));
                 GLAccAnalysisView.SetFilter("Business Unit Filter", TempColumnLayout."Business Unit Totaling");
+                GLAcc.SetFilter("No.", TempColumnLayout."G/L Account Totaling");
                 GLAccAnalysisView.FilterGroup(0);
                 Clear(ChartOfAccsAnalysisView);
                 ChartOfAccsAnalysisView.InsertTempGLAccAnalysisViews(GLAcc);
