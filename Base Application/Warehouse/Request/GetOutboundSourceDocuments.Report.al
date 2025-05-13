@@ -208,7 +208,7 @@ report 7304 "Get Outbound Source Documents"
     begin
         if not HideDialog then
             if not LineCreated then
-                Error(Text000);
+                Error(NoWorksheetLinesCreatedErr);
 
         Completed := true;
 
@@ -228,10 +228,7 @@ report 7304 "Get Outbound Source Documents"
         LocationCode: Code[10];
         Completed: Boolean;
         HideDialog: Boolean;
-
-#pragma warning disable AA0074
-        Text000: Label 'There are no Warehouse Worksheet Lines created.';
-#pragma warning restore AA0074
+        NoWorksheetLinesCreatedErr: Label 'There are no Warehouse Worksheet Lines created.';
 
     protected var
         Location: Record Location;
