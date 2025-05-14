@@ -20,7 +20,6 @@ using System.Text;
 
 codeunit 99000813 "Carry Out Action"
 {
-    Permissions = TableData Microsoft.Manufacturing.Document."Prod. Order Capacity Need" = rid;
     TableNo = "Requisition Line";
 
     trigger OnRun()
@@ -160,11 +159,7 @@ codeunit 99000813 "Carry Out Action"
     var
         RequisitionLine2: Record "Requisition Line";
         PlanningComponent: Record "Planning Component";
-        PlanningRoutingLine: Record Microsoft.Manufacturing.Routing."Planning Routing Line";
-        ProdOrderCapacityNeed: Record Microsoft.Manufacturing.Document."Prod. Order Capacity Need";
         PlanningComponent2: Record "Planning Component";
-        PlanningRoutingLine2: Record Microsoft.Manufacturing.Routing."Planning Routing Line";
-        ProdOrderCapacityNeed2: Record Microsoft.Manufacturing.Document."Prod. Order Capacity Need";
         RequisitionLine3: Record "Requisition Line";
     begin
         RequisitionLine2 := RequisitionLine;
@@ -222,33 +217,7 @@ codeunit 99000813 "Carry Out Action"
                 OnCarryOutToReqWkshOnAfterPlanningCompInsert(PlanningComponent2, PlanningComponent);
             until PlanningComponent.Next() = 0;
 
-        PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
-        PlanningRoutingLine.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
-        PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        if PlanningRoutingLine.Find('-') then
-            repeat
-                PlanningRoutingLine2 := PlanningRoutingLine;
-                PlanningRoutingLine2."Worksheet Template Name" := ReqWkshTempName;
-                PlanningRoutingLine2."Worksheet Batch Name" := ReqJournalName;
-                PlanningRoutingLine2."Worksheet Line No." := LineNo;
-                OnCarryOutToReqWkshOnAfterPlanningRoutingLineInsert(PlanningRoutingLine2, PlanningRoutingLine);
-                PlanningRoutingLine2.Insert();
-            until PlanningRoutingLine.Next() = 0;
-
-        ProdOrderCapacityNeed.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
-        ProdOrderCapacityNeed.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
-        ProdOrderCapacityNeed.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        if ProdOrderCapacityNeed.Find('-') then
-            repeat
-                ProdOrderCapacityNeed2 := ProdOrderCapacityNeed;
-                ProdOrderCapacityNeed2."Worksheet Template Name" := ReqWkshTempName;
-                ProdOrderCapacityNeed2."Worksheet Batch Name" := ReqJournalName;
-                ProdOrderCapacityNeed2."Worksheet Line No." := LineNo;
-                ProdOrderCapacityNeed.Delete();
-                ProdOrderCapacityNeed2.Insert();
-            until ProdOrderCapacityNeed.Next() = 0;
-
-        OnAfterCarryOutToReqWksh(RequisitionLine2, RequisitionLine);
+        OnAfterCarryOutToReqWksh(RequisitionLine2, RequisitionLine, ReqWkshTempName, ReqJournalName, LineNo);
     end;
 
     procedure GetTransferOrdersToPrint(var TransferHeader: Record "Transfer Header")
@@ -774,7 +743,7 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCarryOutToReqWksh(var RequisitionLine: Record "Requisition Line"; RequisitionLine2: Record "Requisition Line")
+    local procedure OnAfterCarryOutToReqWksh(var RequisitionLine: Record "Requisition Line"; RequisitionLine2: Record "Requisition Line"; ReqWkshTempName: Code[10]; ReqJournalName: Code[10]; LineNo: Integer)
     begin
     end;
 
@@ -1059,10 +1028,18 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnCarryOutToReqWkshOnAfterPlanningRoutingLineInsert(var PlanningRoutingLine: Record Microsoft.Manufacturing.Routing."Planning Routing Line"; PlanningRoutingLine2: Record Microsoft.Manufacturing.Routing."Planning Routing Line")
+    begin
+        OnCarryOutToReqWkshOnAfterPlanningRoutingLineInsert(PlanningRoutingLine, PlanningRoutingLine2);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCarryOutAction', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCarryOutToReqWkshOnAfterPlanningRoutingLineInsert(var PlanningRoutingLine: Record Microsoft.Manufacturing.Routing."Planning Routing Line"; PlanningRoutingLine2: Record Microsoft.Manufacturing.Routing."Planning Routing Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCarryOutToReqWkshOnBeforeReqLineInsert(var ReqLine: Record "Requisition Line"; var ReqWkshTempName: Code[10]; var ReqJournalName: Code[10]; var LineNo: Integer);
