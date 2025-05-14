@@ -162,6 +162,11 @@ table 334 "Column Layout"
                     TestField("Column Type", "Column Layout Type"::Formula);
             end;
         }
+        field(41; "Include Date In Header"; Enum ColumnHeaderDateType)
+        {
+            Caption = 'Include Date in Column Header';
+            ToolTip = 'Specifies how the ending date of the Date Filter applied to the column is displayed on the Column Header.';
+        }
         field(42; "G/L Account Totaling"; Text[250])
         {
             Caption = 'G/L Account Totaling';

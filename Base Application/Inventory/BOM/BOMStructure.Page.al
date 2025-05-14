@@ -386,7 +386,7 @@ page 5870 "BOM Structure"
             ShowBy::Item:
                 begin
                     Item.FindFirst();
-                    RaiseError := (not Item.HasBOM()) and (Item."Routing No." = '');
+                    RaiseError := (not Item.HasBOM()) and (not Item.HasRoutingNo());
                     ErrorText := CouldNotFindBOMLevelsErr;
                     OnRefreshPageOnBeforeRaiseError(Item, RaiseError, ErrorText);
                     if RaiseError then

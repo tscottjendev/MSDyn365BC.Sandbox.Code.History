@@ -429,6 +429,27 @@ codeunit 99000819 "Mfg. Planning Line Management"
         exit(IsFound);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Line Management", 'OnCalculateRouting', '', true, true)]
+    local procedure OnCalculateRouting(var RequisitionLine: Record "Requisition Line"; var TempPlanningErrorLog: Record "Planning Error Log" temporary; PlanningResiliency: Boolean)
+    var
+        PlanningRtngLine: Record "Planning Routing Line";
+        ProdOrderCapNeed: Record "Prod. Order Capacity Need";
+    begin
+        PlanningRtngLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        PlanningRtngLine.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
+        PlanningRtngLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
+        PlanningRtngLine.DeleteAll();
+
+        ProdOrderCapNeed.SetCurrentKey(
+            "Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.");
+        ProdOrderCapNeed.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        ProdOrderCapNeed.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
+        ProdOrderCapNeed.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
+        ProdOrderCapNeed.DeleteAll();
+        TransferRouting(RequisitionLine, TempPlanningErrorLog, PlanningResiliency);
+    end;
+
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsPlannedCompFound(var PlanningComp: Record "Planning Component"; var ProdBOMLine: Record "Production BOM Line"; var IsFound: Boolean; var SKU: Record "Stockkeeping Unit")
     begin
