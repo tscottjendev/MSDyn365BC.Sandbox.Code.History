@@ -136,10 +136,10 @@ codeunit 6104 "Import E-Document Process"
         FromBlob: Codeunit "Temp Blob";
         IStructuredFormatReader: Interface IStructuredFormatReader;
     begin
-        Edocument.TestField("Structured Data Entry No.");
-        EDocumentDataStorage.Get(Edocument."Structured Data Entry No.");
+        EDocument.TestField("Structured Data Entry No.");
+        EDocumentDataStorage.Get(EDocument."Structured Data Entry No.");
+        FromBlob := EDocumentDataStorage.GetTempBlob();
 
-        FromBlob.FromRecord(EDocumentDataStorage, EDocumentDataStorage.FieldNo("Data Storage"));
         IStructuredFormatReader := EDocument.GetEDocumentService()."E-Document Structured Format";
 
         EDocument."Structured Data Process" := IStructuredFormatReader.Read(EDocument, FromBlob);
@@ -168,10 +168,7 @@ codeunit 6104 "Import E-Document Process"
     local procedure UndoPrepareDraft()
     var
         EDocumentHeaderMapping: Record "E-Document Header Mapping";
-        EDocumentLineMapping: Record "E-Document Line Mapping";
     begin
-        EDocumentLineMapping.SetRange("E-Document Entry No.", EDocument."Entry No");
-        EDocumentLineMapping.DeleteAll();
         EDocumentHeaderMapping.SetRange("E-Document Entry No.", EDocument."Entry No");
         EDocumentHeaderMapping.DeleteAll();
         EDocument."Document Type" := "E-Document Type"::None;

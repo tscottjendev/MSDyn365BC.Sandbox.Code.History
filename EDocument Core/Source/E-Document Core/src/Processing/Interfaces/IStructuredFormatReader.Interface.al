@@ -1,3 +1,4 @@
+#pragma warning disable AS0066
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -24,4 +25,13 @@ interface IStructuredFormatReader
     /// <returns>The data process to run on the structured data.</returns>
     procedure Read(EDocument: Record "E-Document"; TempBlob: Codeunit "Temp Blob"): Enum "E-Doc. Structured Data Process";
 
+
+    /// <summary>
+    /// Presents a view of the data 
+    /// </summary>
+    /// <param name="EDocument">The E-Document record.</param>
+    /// <param name="TempBlob">The temporary blob that contains the data to read</param>
+    procedure View(EDocument: Record "E-Document"; TempBlob: Codeunit "Temp Blob");
+
 }
+#pragma warning restore AS0066

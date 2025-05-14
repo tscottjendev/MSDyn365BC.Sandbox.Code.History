@@ -294,6 +294,16 @@ codeunit 6140 "E-Doc. Import"
         V1_ProcessEDocument(EDocument, false, true);
     end;
 
+    procedure ViewExtractedData(EDocument: Record "E-Document")
+    var
+        EDocumentDataStorage: Record "E-Doc. Data Storage";
+        IStructuredFormatReader: Interface IStructuredFormatReader;
+    begin
+        IStructuredFormatReader := EDocument.GetEDocumentService()."E-Document Structured Format";
+        EDocumentDataStorage.Get(EDocument."Structured Data Entry No.");
+        IStructuredFormatReader.View(EDocument, EDocumentDataStorage.GetTempBlob());
+    end;
+
     local procedure ProcessExistingOrder(var EDocument: Record "E-Document"; EDocService: Record "E-Document Service"; var SourceDocumentLine: RecordRef; var DocumentHeader: RecordRef; var EDocServiceStatus: Enum "E-Document Service Status")
     var
         PurchaseOrderHeader: Record "Purchase Header";

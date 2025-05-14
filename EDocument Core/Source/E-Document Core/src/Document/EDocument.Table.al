@@ -344,7 +344,6 @@ table 6121 "E-Document"
         EDocumentLog: Record "E-Document Log";
         EDocumentServiceStatus: Record "E-Document Service Status";
         EDocumentHeaderMapping: Record "E-Document Header Mapping";
-        EDocumentLineMapping: Record "E-Document Line Mapping";
         IProcessStructuredData: Interface IProcessStructuredData;
     begin
         EDocumentLog.SetRange("E-Doc. Entry No", Rec."Entry No");
@@ -371,10 +370,6 @@ table 6121 "E-Document"
         EDocumentHeaderMapping.SetRange("E-Document Entry No.", Rec."Entry No");
         if not EDocumentHeaderMapping.IsEmpty() then
             EDocumentHeaderMapping.DeleteAll(true);
-
-        EDocumentLineMapping.SetRange("E-Document Entry No.", Rec."Entry No");
-        if not EDocumentLineMapping.IsEmpty() then
-            EDocumentLineMapping.DeleteAll(true);
 
         IProcessStructuredData := Rec."Structured Data Process";
         IProcessStructuredData.CleanUpDraft(Rec);

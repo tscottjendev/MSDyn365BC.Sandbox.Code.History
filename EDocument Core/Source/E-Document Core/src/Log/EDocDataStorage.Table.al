@@ -4,6 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
 
+using System.Utilities;
+
 /// <summary>
 /// E-Document Data Storage Table
 /// This table stores binary data that is associated with a E-Document Log Entry.
@@ -54,5 +56,10 @@ table 6125 "E-Doc. Data Storage"
             Clustered = true;
         }
     }
+
+    internal procedure GetTempBlob() TempBlob: Codeunit "Temp Blob"
+    begin
+        TempBlob.FromRecord(Rec, Rec.FieldNo("Data Storage"));
+    end;
 
 }

@@ -66,7 +66,7 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
         if UnitOfMeasure.FindFirst() then;
     end;
 
-    procedure GetPurchaseLine(EDocumentPurchaseLine: Record "E-Document Purchase Line"; var EDocumentLineMapping: Record "E-Document Line Mapping")
+    procedure GetPurchaseLine(var EDocumentPurchaseLine: Record "E-Document Purchase Line")
     var
         ItemReference: Record "Item Reference";
         EDocument: Record "E-Document";
@@ -77,20 +77,20 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
         EDocument.Get(EDocumentPurchaseLine."E-Document Entry No.");
         VendorNo := EDocument.GetEDocumentHeaderMapping()."Vendor No.";
 
-        if GetPurchaseLineItemRef(EDocumentPurchaseLine, EDocumentLineMapping, ItemReference) then begin
-            EDocumentLineMapping."Purchase Line Type" := "Purchase Line Type"::Item;
-            EDocumentLineMapping.Validate("Purchase Type No.", ItemReference."Item No.");
-            EDocumentLineMapping.Validate("Unit of Measure", ItemReference."Unit of Measure");
-            EDocumentLineMapping.Validate("Variant Code", ItemReference."Variant Code");
-            EDocumentLineMapping.Validate("Item Reference No.", ItemReference."Reference No.");
+        if GetPurchaseLineItemRef(EDocumentPurchaseLine, ItemReference) then begin
+            EDocumentPurchaseLine."[BC] Purchase Line Type" := "Purchase Line Type"::Item;
+            EDocumentPurchaseLine.Validate("[BC] Purchase Type No.", ItemReference."Item No.");
+            EDocumentPurchaseLine.Validate("[BC] Unit of Measure", ItemReference."Unit of Measure");
+            EDocumentPurchaseLine.Validate("[BC] Variant Code", ItemReference."Variant Code");
+            EDocumentPurchaseLine.Validate("[BC] Item Reference No.", ItemReference."Reference No.");
             exit;
         end;
 
         TextToAccountMapping.SetRange("Vendor No.", VendorNo);
         TextToAccountMapping.SetFilter("Mapping Text", '%1', '@' + DelChr(EDocumentPurchaseLine.Description, '=', FilterInvalidCharTxt));
         if TextToAccountMapping.FindFirst() then begin
-            EDocumentLineMapping."Purchase Line Type" := "Purchase Line Type"::"G/L Account";
-            EDocumentLineMapping.Validate("Purchase Type No.", TextToAccountMapping."Debit Acc. No.");
+            EDocumentPurchaseLine."[BC] Purchase Line Type" := "Purchase Line Type"::"G/L Account";
+            EDocumentPurchaseLine.Validate("[BC] Purchase Type No.", TextToAccountMapping."Debit Acc. No.");
             exit;
         end;
     end;
@@ -100,7 +100,7 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
         if PurchaseHeader.Get("Purchase Document Type"::Order, EDocumentPurchaseHeader."Purchase Order No.") then;
     end;
 
-    local procedure GetPurchaseLineItemRef(EDocumentPurchaseLine: Record "E-Document Purchase Line"; EDocumentLineMapping: Record "E-Document Line Mapping"; var ItemReference: Record "Item Reference"): Boolean
+    local procedure GetPurchaseLineItemRef(EDocumentPurchaseLine: Record "E-Document Purchase Line"; var ItemReference: Record "Item Reference"): Boolean
     var
         EDocument: Record "E-Document";
         Item: Record Item;
@@ -111,7 +111,7 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
         ItemReference.SetRange("Reference Type", Enum::"Item Reference Type"::Vendor);
         ItemReference.SetRange("Reference Type No.", VendorNo);
         ItemReference.SetRange("Reference No.", EDocumentPurchaseLine."Product Code");
-        ItemReference.SetRange("Unit of Measure", EDocumentLineMapping."Unit of Measure");
+        ItemReference.SetRange("Unit of Measure", EDocumentPurchaseLine."[BC] Unit of Measure");
         if ItemReference.FindSet() then
             repeat
                 if ItemReference.HasValidUnitOfMeasure() then

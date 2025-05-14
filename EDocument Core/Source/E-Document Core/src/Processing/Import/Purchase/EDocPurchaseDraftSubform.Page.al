@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-#pragma warning disable AS0031, AS0032
+#pragma warning disable AS0031, AS0032, AS0035
 namespace Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 using Microsoft.eServices.EDocument.Processing.Import;
@@ -18,7 +18,7 @@ page 6183 "E-Doc. Purchase Draft Subform"
     DeleteAllowed = false;
     ModifyAllowed = true;
     PageType = ListPart;
-    SourceTable = "E-Document Line Mapping";
+    SourceTable = "E-Document Purchase Line";
 
     layout
     {
@@ -26,61 +26,55 @@ page 6183 "E-Doc. Purchase Draft Subform"
         {
             repeater(DocumentLines)
             {
-                field("Line Type"; Rec."Purchase Line Type")
+                field("Line Type"; Rec."[BC] Purchase Line Type")
                 {
                     ApplicationArea = All;
-                    Editable = true;
                 }
-                field("No."; Rec."Purchase Type No.")
+                field("No."; Rec."[BC] Purchase Type No.")
                 {
                     ApplicationArea = All;
-                    Editable = true;
                     Lookup = true;
                 }
-                field("Item Reference No."; Rec."Item Reference No.")
+                field("Item Reference No."; Rec."[BC] Item Reference No.")
                 {
                     ApplicationArea = All;
-                    Editable = true;
                     Lookup = true;
                 }
-                field(Description; EDocumentPurchaseLine.Description)
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Unit Of Measure"; Rec."Unit of Measure")
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     Editable = true;
+                }
+                field("Unit Of Measure"; Rec."[BC] Unit of Measure")
+                {
+                    ApplicationArea = All;
                     Lookup = true;
                 }
-                field("Variant Code"; Rec."Variant Code")
+                field("Variant Code"; Rec."[BC] Variant Code")
                 {
                     ApplicationArea = All;
-                    Editable = true;
                     Lookup = true;
                 }
-                field(Quantity; EDocumentPurchaseLine.Quantity)
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Direct Unit Cost"; EDocumentPurchaseLine."Unit Price")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Deferral Code"; Rec."Deferral Code")
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = All;
                     Editable = true;
                 }
-                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
+                field("Direct Unit Cost"; Rec."Unit Price")
+                {
+                    ApplicationArea = All;
+                    Editable = true;
+                }
+                field("Deferral Code"; Rec."[BC] Deferral Code")
+                {
+                    ApplicationArea = All;
+                }
+                field("Shortcut Dimension 1 Code"; Rec."[BC] Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."[BC] Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Visible = DimVisible2;
@@ -178,4 +172,4 @@ page 6183 "E-Doc. Purchase Draft Subform"
     end;
 
 }
-#pragma warning restore AS0031, AS0032
+#pragma warning restore AS0031, AS0032, AS0035

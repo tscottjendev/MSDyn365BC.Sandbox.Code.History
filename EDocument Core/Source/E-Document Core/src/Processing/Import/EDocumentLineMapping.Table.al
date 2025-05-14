@@ -18,8 +18,6 @@ using Microsoft.Finance.AllocationAccount;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Foundation.UOM;
 using Microsoft.Finance.Dimension;
-using System.Reflection;
-using Microsoft.Purchases.History;
 
 table 6105 "E-Document Line Mapping"
 {
@@ -120,7 +118,6 @@ table 6105 "E-Document Line Mapping"
 
             trigger OnLookup()
             begin
-                Rec.LookupDimensions();
             end;
 
             trigger OnValidate()
@@ -158,45 +155,6 @@ table 6105 "E-Document Line Mapping"
         Rec."Line No." := LineNo;
         Rec.Validate("E-Document Entry No.", EDocument."Entry No");
         Rec.Insert();
-    end;
-
-    /// <summary>
-    /// Returns any additional columns defined for this line in a human-readable format.
-    /// </summary>
-    /// <returns></returns>
-    internal procedure AdditionalColumnsDisplayText() AdditionalColumns: Text
-    var
-        EDocPurchLineFieldSetup: Record "EDoc. Purch. Line Field Setup";
-        EDocPurchLineField: Record "E-Document Line - Field";
-        Field: Record Field;
-        AdditionalColumnValue: Text;
-    begin
-        if not EDocPurchLineFieldSetup.FindSet() then
-            exit;
-        repeat
-            if Field.Get(Database::"Purch. Inv. Line", EDocPurchLineFieldSetup."Field No.") then;
-            if AdditionalColumns <> '' then
-                AdditionalColumns += ', ';
-            AdditionalColumns += Field.FieldName;
-            AdditionalColumns += ': ';
-            EDocPurchLineField.Get(Rec, EDocPurchLineFieldSetup);
-            AdditionalColumnValue := EDocPurchLineField.GetValueAsText();
-            if AdditionalColumnValue = '' then
-                AdditionalColumnValue := '-';
-            AdditionalColumns += AdditionalColumnValue;
-        until EDocPurchLineFieldSetup.Next() = 0;
-    end;
-
-    internal procedure LookupDimensions(): Boolean
-    var
-        OldDimSetID: Integer;
-    begin
-        OldDimSetID := "Dimension Set ID";
-        "Dimension Set ID" := DimMgt.EditDimensionSet(
-            Rec, "Dimension Set ID", StrSubstNo('%1 %2', "E-Document Entry No.", "Line No."),
-            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-        exit(OldDimSetID <> "Dimension Set ID");
     end;
 
 }

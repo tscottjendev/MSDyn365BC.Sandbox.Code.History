@@ -71,7 +71,7 @@ codeunit 6173 "E-Document PEPPOL Handler" implements IStructuredFormatReader
         for i := 1 to LineXMLList.Count do begin
             Clear(EDocumentPurchaseLine);
             EDocumentPurchaseLine.Validate("E-Document Entry No.", EDocumentEntryNo);
-            EDocumentPurchaseLine."Line No." := (i * 10000);
+            EDocumentPurchaseLine."Line No." := EDocumentPurchaseLine.GetNextLineNo(EDocumentEntryNo);
             LineXMLList.Get(i, LineXMLNode);
             NewLineXML.ReplaceNodes(LineXMLNode);
             PopulateEDocumentPurchaseLine(NewLineXML, XmlNamespaces, EDocumentPurchaseLine);
@@ -196,4 +196,10 @@ codeunit 6173 "E-Document PEPPOL Handler" implements IStructuredFormatReader
         if XMLNode.AsXmlElement().InnerText() <> '' then
             Evaluate(DateValue, XMLNode.AsXmlElement().InnerText(), 9);
     end;
+
+    procedure View(EDocument: Record "E-Document"; TempBlob: Codeunit "Temp Blob")
+    begin
+        Error('A view is not implemented for this handler.');
+    end;
+
 }

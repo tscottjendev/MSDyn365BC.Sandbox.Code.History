@@ -25,7 +25,6 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
 
     procedure GetPurchaseLineAccountsWithCopilot(var EDocumentPurchaseLine: Record "E-Document Purchase Line"): Dictionary of [Integer, Code[20]]
     var
-        EDocumentLineMapping: Record "E-Document Line Mapping";
         AzureOpenAI: Codeunit "Azure OpenAi";
         AOAIDeployments: Codeunit "AOAI Deployments";
         AOAIOperationResponse: Codeunit "AOAI Operation Response";
@@ -76,11 +75,10 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
             EDocumentPurchaseLine.FindSet();
             repeat
                 if Result.ContainsKey(EDocumentPurchaseLine."Line No.") then
-                    if EDocumentLineMapping.Get(EDocumentPurchaseLine."E-Document Entry No.", EDocumentPurchaseLine."Line No.") then
-                        if SetPurchaseLineAccountFromCopilotResult(EDocumentLineMapping, Result.Get(EDocumentPurchaseLine."Line No.")) then begin
-                            EDocumentLineMapping.Modify();
-                            LinesMatched += 1;
-                        end;
+                    if SetPurchaseLineAccountFromCopilotResult(EDocumentPurchaseLine, Result.Get(EDocumentPurchaseLine."Line No.")) then begin
+                        EDocumentPurchaseLine.Modify();
+                        LinesMatched += 1;
+                    end;
             until EDocumentPurchaseLine.Next() = 0;
         end;
 
@@ -98,10 +96,10 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
     end;
 
     [TryFunction]
-    local procedure SetPurchaseLineAccountFromCopilotResult(var EDocumentLineMapping: Record "E-Document Line Mapping"; ValueSuggested: Code[20])
+    local procedure SetPurchaseLineAccountFromCopilotResult(var EDocumentPurchaseLine: Record "E-Document Purchase Line"; ValueSuggested: Code[20])
     begin
-        EDocumentLineMapping."Purchase Line Type" := EDocumentLineMapping."Purchase Line Type"::"G/L Account";
-        EDocumentLineMapping.Validate("Purchase Type No.", ValueSuggested);
+        EDocumentPurchaseLine."[BC] Purchase Line Type" := EDocumentPurchaseLine."[BC] Purchase Line Type"::"G/L Account";
+        EDocumentPurchaseLine.Validate("[BC] Purchase Type No.", ValueSuggested);
     end;
 
     [NonDebuggable]
