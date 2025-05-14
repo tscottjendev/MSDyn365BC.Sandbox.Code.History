@@ -338,12 +338,6 @@ xmlport 5801 "Export Item Data"
                 fieldelement(Item_UseCrossDocking; Item."Use Cross-Docking")
                 {
                 }
-                fieldelement(Item_RoutingNo; Item."Routing No.")
-                {
-                }
-                fieldelement(Item_ProductionBOMNo; Item."Production BOM No.")
-                {
-                }
                 fieldelement(Item_SingleLevelMaterialCost; Item."Single-Level Material Cost")
                 {
                 }
