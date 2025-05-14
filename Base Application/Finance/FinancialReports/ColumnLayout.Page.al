@@ -99,6 +99,10 @@ page 489 "Column Layout"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a header for the column.';
                 }
+                field(IncludeDateInHeader; Rec."Include Date In Header")
+                {
+                    Width = 10;
+                }
                 field("Column Type"; Rec."Column Type")
                 {
                     ApplicationArea = Basic, Suite;
