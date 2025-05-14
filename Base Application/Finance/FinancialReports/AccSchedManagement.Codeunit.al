@@ -83,6 +83,9 @@ codeunit 8 AccSchedManagement
         RowFormulaMsg: Label 'Row formula: %1.';
         ColumnFormulaErrorMsg: Label 'Column formula: %1. \Error: %2.';
 #pragma warning restore AA0470
+        ColumnHeaderTxt: Label '%1 (%2)', Comment = '%1 = Column Header, %2 = Date';
+        QuarterTxt: Label 'Q%1', Comment = '%1 = Quarter number';
+        WeekTxt: Label 'W%1', Comment = '%1 = Week number';
         Recalculate: Boolean;
         SystemGeneratedAccSchedQst: Label 'This account schedule may be automatically updated by the system, so any changes you make may be lost. Do you want to make a copy?';
 
@@ -2472,6 +2475,66 @@ codeunit 8 AccSchedManagement
     procedure GetFiscalStartDate(): Date
     begin
         exit(FiscalStartDate);
+    end;
+
+    procedure CalcColumnHeader(var AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout") NewColumnHeader: Text
+    var
+        DateText: Text;
+        FiscalStartDate2: Date;
+        FromDate: Date;
+        ToDate: Date;
+        IsHandled: Boolean;
+    begin
+        OnBeforeCalcColumnHeader(AccSchedLine, ColumnLayout, NewColumnHeader, IsHandled);
+        if IsHandled then
+            exit(NewColumnHeader);
+        NewColumnHeader := ColumnLayout."Column Header";
+        if ColumnLayout."Include Date In Header" = ColumnLayout."Include Date In Header"::Blank then
+            exit;
+        StartDate := AccSchedLine.GetRangeMin("Date Filter");
+        if EndDate <> AccSchedLine.GetRangeMax("Date Filter") then begin
+            EndDate := AccSchedLine.GetRangeMax("Date Filter");
+            FiscalStartDate := AccountingPeriodMgt.FindFiscalYear(EndDate);
+        end;
+        CalcColumnDates(ColumnLayout, FromDate, ToDate, FiscalStartDate2);
+        if ToDate = 0D then
+            exit;
+        case ColumnLayout."Include Date In Header" of
+            ColumnLayout."Include Date In Header"::Weekday:
+                DateText := Format(ToDate, 0, '<Weekday Text>');
+            ColumnLayout."Include Date In Header"::Week:
+                DateText := StrSubstNo(WeekTxt, Format(ToDate, 0, '<Week Year>'));
+            ColumnLayout."Include Date In Header"::Month:
+                DateText := Format(ToDate, 0, '<Month Text>');
+            ColumnLayout."Include Date In Header"::MonthAndYear:
+                DateText := Format(ToDate, 0, '<Month Text> <Year4>');
+            ColumnLayout."Include Date In Header"::Quarter:
+                DateText := StrSubstNo(QuarterTxt, Format(ToDate, 0, '<Quarter>'));
+            ColumnLayout."Include Date In Header"::QuarterAndYear:
+                DateText := StrSubstNo(QuarterTxt, Format(ToDate, 0, '<Quarter> <Year4>'));
+            ColumnLayout."Include Date In Header"::Year:
+                DateText := Format(ToDate, 0, '<Year4>');
+            ColumnLayout."Include Date In Header"::FullDate:
+                DateText := Format(ToDate);
+            else begin
+                IsHandled := false;
+                OnCalcColumnHeaderElseCase(AccSchedLine, ColumnLayout, FromDate, ToDate, DateText, IsHandled)
+            end;
+        end;
+        if ColumnLayout."Column Header" = '' then
+            NewColumnHeader := DateText
+        else
+            NewColumnHeader := StrSubstNo(ColumnHeaderTxt, ColumnLayout."Column Header", DateText);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcColumnHeader(var AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; var NewColumnHeader: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcColumnHeaderElseCase(var AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; FromDate: Date; ToDate: Date; var DateText: Text; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
