@@ -144,6 +144,9 @@ codeunit 7324 "Whse.-Activity-Post"
         end;
         // Check Lines
         OnBeforeCheckLines(WhseActivHeader);
+
+        CheckQuantityInBinContentForTracking(WhseActivLine);
+
         LineCount := 0;
         if WhseActivLine.Find('-') then begin
             TempWhseActivLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
@@ -242,6 +245,25 @@ codeunit 7324 "Whse.-Activity-Post"
         OnAfterPostWhseActivHeader(WhseActivHeader, PurchHeader, SalesHeader, TransHeader);
 
         Clear(WhseJnlRegisterLine);
+    end;
+
+    local procedure CheckQuantityInBinContentForTracking(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    var
+        TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
+        WMSMgt: Codeunit "WMS Management";
+    begin
+        if not (Location."Require Pick" and Location."Require Receive") then
+            exit;
+
+        if WarehouseActivityLine.FindSet() then
+            repeat
+                if CheckItemTracking(WarehouseActivityLine) then
+                    if (WarehouseActivityLine."Activity Type" in [WarehouseActivityLine."Activity Type"::"Invt. Pick", WarehouseActivityLine."Activity Type"::"Invt. Put-away"]) then begin
+                        CreateWhseJnlLine(TempWhseJnlLine, WarehouseActivityLine);
+                        if TempWhseJnlLine."Entry Type" = TempWhseJnlLine."Entry Type"::"Negative Adjmt." then
+                            WMSMgt.CheckWhseJnlLine(TempWhseJnlLine, 4, TempWhseJnlLine."Qty. (Base)", false); // 4 = Whse. Journal
+                    end;
+            until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure CheckWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location)
