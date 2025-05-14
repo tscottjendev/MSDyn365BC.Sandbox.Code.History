@@ -29,6 +29,18 @@ codeunit 99000795 "Mfg. Item Integration"
 
     // Item
 
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnValidateReplenishmentSystemCaseElse', '', false, false)]
+    local procedure OnValidateReplenishmentSystemCaseElse(var Item: Record Item)
+    begin
+        case Item."Replenishment System" of
+            "Replenishment System"::"Prod. Order":
+                begin
+                    Item.TestField("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Stock");
+                    Item.TestField(Type, Item.Type::Inventory);
+                end;
+        end;
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterValidateEvent', 'No.', false, false)]
     local procedure ItemOnAfterValidateEventNo(var Rec: Record Item; var xRec: Record Item)
     var
@@ -62,6 +74,13 @@ codeunit 99000795 "Mfg. Item Integration"
     local procedure OnAfterHasBOM(var Item: Record Item; var Result: Boolean);
     begin
         if Item."Production BOM No." <> '' then
+            Result := true;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterHasRoutingNo', '', false, false)]
+    local procedure OnAfterHasRoutingNo(var Item: Record Item; var Result: Boolean);
+    begin
+        if Item."Routing No." <> '' then
             Result := true;
     end;
 
