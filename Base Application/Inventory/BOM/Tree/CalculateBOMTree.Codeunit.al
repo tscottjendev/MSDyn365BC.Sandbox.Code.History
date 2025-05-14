@@ -160,7 +160,7 @@ codeunit 5870 "Calculate BOM Tree"
 
         InitVars();
 
-        if ParentItem.HasBOM() or (ParentItem."Routing No." <> '') then begin
+        if ParentItem.HasBOM() or (ParentItem.HasRoutingNo()) then begin
             IsHandled := false;
             OnBeforeFilterBOMBuffer(ParentItem, BOMBuffer, DemandDate, TreeType.AsInteger(), IsHandled);
             if not IsHandled then begin
