@@ -61,11 +61,6 @@ page 32 "Item Lookup"
                     ToolTip = 'Specifies that a stockkeeping unit exists for this item.';
                     Visible = false;
                 }
-                field("Routing No."; Rec."Routing No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the production route that contains the operations needed to manufacture this item.';
-                }
                 field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Basic, Suite;
