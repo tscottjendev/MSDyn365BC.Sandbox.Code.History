@@ -1391,11 +1391,6 @@ table 27 Item
                 case "Replenishment System" of
                     "Replenishment System"::Purchase:
                         TestField("Assembly Policy", "Assembly Policy"::"Assemble-to-Stock");
-                    "Replenishment System"::"Prod. Order":
-                        begin
-                            TestField("Assembly Policy", "Assembly Policy"::"Assemble-to-Stock");
-                            TestField(Type, Type::Inventory);
-                        end;
                     "Replenishment System"::Transfer:
                         begin
                             IsHandled := false;
@@ -2825,6 +2820,11 @@ table 27 Item
         exit(Result);
     end;
 
+    procedure HasRoutingNo() Result: Boolean
+    begin
+        OnAfterHasRoutingNo(Rec, Result);
+    end;
+
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
@@ -4189,6 +4189,11 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterHasBOM(var Item: Record Item; var Result: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasRoutingNo(var Item: Record Item; var Result: Boolean);
     begin
     end;
 
