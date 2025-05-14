@@ -825,8 +825,10 @@ table 5870 "BOM Buffer"
                     if LogWarning then
                         SetItemWarningLog(BOMWarningLog, Item, Text007);
                 end;
-            else
+            else begin
+                IsHandled := false;
                 exit(true);
+            end;
         end;
     end;
 

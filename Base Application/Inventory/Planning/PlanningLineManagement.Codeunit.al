@@ -14,6 +14,7 @@ using Microsoft.Inventory.Tracking;
 
 codeunit 99000809 "Planning Line Management"
 {
+#if not CLEAN27
     Permissions = TableData Microsoft.Manufacturing.Setup."Manufacturing Setup" = rm,
                   TableData Microsoft.Manufacturing.Routing."Routing Header" = r,
                   TableData Microsoft.Manufacturing.ProductionBOM."Production BOM Header" = r,
@@ -21,6 +22,9 @@ codeunit 99000809 "Planning Line Management"
                   TableData Microsoft.Manufacturing.Document."Prod. Order Capacity Need" = rd,
                   TableData "Planning Component" = rimd,
                   TableData Microsoft.Manufacturing.Routing."Planning Routing Line" = rimd;
+#else
+    Permissions = tabledata "Planning Component" = rimd;
+#endif
 
     trigger OnRun()
     begin
@@ -212,8 +216,6 @@ codeunit 99000809 "Planning Line Management"
 
     procedure Calculate(var ReqLine2: Record "Requisition Line"; Direction: Option Forward,Backward; CalcRouting: Boolean; CalcComponents: Boolean; PlanningLevel: Integer)
     var
-        PlanningRtngLine: Record Microsoft.Manufacturing.Routing."Planning Routing Line";
-        ProdOrderCapNeed: Record Microsoft.Manufacturing.Document."Prod. Order Capacity Need";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -229,20 +231,8 @@ codeunit 99000809 "Planning Line Management"
         else
             ReqLine.TestField("Starting Date");
 
-        if CalcRouting then begin
-            PlanningRtngLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
-            PlanningRtngLine.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
-            PlanningRtngLine.SetRange("Worksheet Line No.", ReqLine."Line No.");
-            PlanningRtngLine.DeleteAll();
-
-            ProdOrderCapNeed.SetCurrentKey(
-              "Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.");
-            ProdOrderCapNeed.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
-            ProdOrderCapNeed.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
-            ProdOrderCapNeed.SetRange("Worksheet Line No.", ReqLine."Line No.");
-            ProdOrderCapNeed.DeleteAll();
-            MfgPlanningLineManagement.TransferRouting(ReqLine, TempPlanningErrorLog, PlanningResiliency);
-        end;
+        if CalcRouting then
+            OnCalculateRouting(ReqLine, TempPlanningErrorLog, PlanningResiliency);
 
         if CalcComponents then begin
             PlanningComponent.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
@@ -899,6 +889,11 @@ codeunit 99000809 "Planning Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetResiliencyErrorOnRouting(var PlanningErrorLog: Record "Planning Error Log"; var ShouldExit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRouting(var RequisitionLine: Record "Requisition Line"; var TempPlanningErrorLog: Record "Planning Error Log" temporary; PlanningResiliency: Boolean)
     begin
     end;
 }

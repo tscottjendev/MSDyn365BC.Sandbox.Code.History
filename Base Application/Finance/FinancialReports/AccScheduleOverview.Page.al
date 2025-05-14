@@ -195,6 +195,7 @@ page 490 "Acc. Schedule Overview"
                         Rec.SetFilter("Date Filter", DateFilter);
                         DateFilter := Rec.GetFilter("Date Filter");
                         TempFinancialReport.DateFilter := DateFilter;
+                        UpdateColumnCaptions();
                         CurrPage.Update();
                     end;
                 }
@@ -1270,7 +1271,7 @@ page 490 "Acc. Schedule Overview"
 #endif
         ColumnLayoutArr: array[15] of Record "Column Layout";
         ColumnValues: array[15] of Decimal;
-        ColumnCaptions: array[15] of Text[80];
+        ColumnCaptions: array[15] of Text;
         UseAmtsInAddCurrVisible: Boolean;
         NoOfColumns: Integer;
         ColumnOffset: Integer;
@@ -1434,7 +1435,6 @@ page 490 "Acc. Schedule Overview"
         AccSchedManagement.CheckAnalysisView(TempFinancialReport."Financial Report Row Group", TempFinancialReport."Financial Report Column Group", true);
         SetLoadedDimFilters();
         SetLoadedOtherFilters();
-        UpdateColumnCaptions();
 
         if AccSchedName.Get(TempFinancialReport."Financial Report Row Group") then
             if AccSchedName."Analysis View Name" <> '' then
@@ -1449,6 +1449,7 @@ page 490 "Acc. Schedule Overview"
         ApplyShowFilter();
         UpdateDimFilterControls();
         DateFilter := Rec.GetFilter("Date Filter");
+        UpdateColumnCaptions();
         OnBeforeCurrentColumnNameOnAfterValidate(TempFinancialReport."Financial Report Column Group");
         OnAfterOnOpenPage(Rec, TempFinancialReport."Financial Report Column Group");
     end;
@@ -1832,21 +1833,37 @@ page 490 "Acc. Schedule Overview"
 
     protected procedure UpdateColumnCaptions()
     var
+#if not CLEAN27
+        ColumnCaptions80: array[15] of Text[80];
+#endif
         ColumnNo: Integer;
         i: Integer;
         IsHandled: Boolean;
     begin
+#if not CLEAN27
+#pragma warning disable AL0432
+        for i := 1 to ArrayLen(ColumnCaptions) do
+            ColumnCaptions80[i] := CopyStr(ColumnCaptions[i], 1, MaxStrLen(ColumnCaptions80[i]));
+        OnBeforeUpdateColumnCaptions(ColumnCaptions80, ColumnOffset, TempColumnLayout, NoOfColumns, IsHandled);
+        if IsHandled then begin
+            for i := 1 to ArrayLen(ColumnCaptions80) do
+                ColumnCaptions[i] := ColumnCaptions80[i];
+            exit;
+        end;
+#pragma warning restore AL0432
+#else
         IsHandled := false;
         OnBeforeUpdateColumnCaptions(ColumnCaptions, ColumnOffset, TempColumnLayout, NoOfColumns, IsHandled);
         if IsHandled then
             exit;
+#endif
 
         Clear(ColumnCaptions);
         if TempColumnLayout.FindSet() then
             repeat
                 ColumnNo := ColumnNo + 1;
                 if (ColumnNo > ColumnOffset) and (ColumnNo - ColumnOffset <= ArrayLen(ColumnCaptions)) then
-                    ColumnCaptions[ColumnNo - ColumnOffset] := TempColumnLayout."Column Header";
+                    ColumnCaptions[ColumnNo - ColumnOffset] := AccSchedManagement.CalcColumnHeader(Rec, TempColumnLayout);
             until (ColumnNo - ColumnOffset = ArrayLen(ColumnCaptions)) or (TempColumnLayout.Next() = 0);
         // Set unused columns to blank to prevent RTC to display control ID as caption
         for i := ColumnNo - ColumnOffset + 1 to ArrayLen(ColumnCaptions) do
@@ -2227,7 +2244,12 @@ page 490 "Acc. Schedule Overview"
     end;
 
     [IntegrationEvent(false, false)]
+#if not CLEAN27
+    [Obsolete('The ColumnCaptions parameter will be changed to array[15] of Text in a future release.', '27.0')]
     local procedure OnBeforeUpdateColumnCaptions(var ColumnCaptions: array[15] of Text[80]; ColumnOffset: Integer; var TempColumnLayout: Record "Column Layout" temporary; NoOfColumns: Integer; var IsHandled: Boolean)
+#else
+    local procedure OnBeforeUpdateColumnCaptions(var ColumnCaptions: array[15] of Text; ColumnOffset: Integer; var TempColumnLayout: Record "Column Layout" temporary; NoOfColumns: Integer; var IsHandled: Boolean)
+#endif
     begin
     end;
 

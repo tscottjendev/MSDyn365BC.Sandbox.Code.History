@@ -4612,7 +4612,10 @@ codeunit 99000854 "Inventory Profile Offsetting"
         OnCreateTempSKUForComponentsLocationOnBeforeSetLocationCodeFilter(Item, SKU, IsHandled);
         if not IsHandled then
             SKU.SetRange("Location Code", GetComponentsAtLocationCode());
-        Item.CopyFilter("Variant Filter", SKU."Variant Code");
+        IsHandled := false;
+        OnCreateTempSKUForComponentsLocationOnBeforeItemCopyFilter(SKU, Item, IsHandled);
+        if not IsHandled then
+            Item.CopyFilter("Variant Filter", SKU."Variant Code");
         if SKU.IsEmpty() then
             CreateTempSKUForLocation(Item."No.", GetComponentsAtLocationCode());
     end;
@@ -6116,6 +6119,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(true, false)]
     local procedure OnFillTempSKUForLocation(var Item: Record Item; var SupplyInvtProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempSKUForComponentsLocationOnBeforeItemCopyFilter(var StockkeepingUnit: Record "Stockkeeping Unit"; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 }
