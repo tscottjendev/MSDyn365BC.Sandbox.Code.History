@@ -186,18 +186,6 @@ page 5872 "BOM Cost Shares"
                     ToolTip = 'Specifies the item''s lot size. The value is copied from the Lot Size field on the item card.';
                     Visible = false;
                 }
-                field("Production BOM No."; Rec."Production BOM No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the production BOM that the item represents.';
-                    Visible = false;
-                }
-                field("Routing No."; Rec."Routing No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the item''s production order routing.';
-                    Visible = false;
-                }
                 field("Resource Usage Type"; Rec."Resource Usage Type")
                 {
                     ApplicationArea = Assembly;
@@ -452,7 +440,7 @@ page 5872 "BOM Cost Shares"
                 begin
                     Item.FindSet();
                     repeat
-                        HasBOM := Item.HasBOM() or (Item."Routing No." <> '')
+                        HasBOM := Item.HasBOM() or Item.HasRoutingNo();
                     until HasBOM or (Item.Next() = 0);
 
                     if not HasBOM then
