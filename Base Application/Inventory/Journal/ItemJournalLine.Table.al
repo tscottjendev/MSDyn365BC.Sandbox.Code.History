@@ -1922,7 +1922,7 @@ table 83 "Item Journal Line"
         PhysInvtEntered: Boolean;
         UnitCost: Decimal;
 
-    local procedure GetAdditionalReportingCurrencyCode(): Code[20]
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
     begin
         if not GeneralLedgerSetupRead then begin
             GeneralLedgerSetup.Get();
