@@ -363,7 +363,7 @@ table 55 "Invoice Posting Buffer"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GeneralLedgerSetupRead: Boolean;
 
-    local procedure GetAdditionalReportingCurrencyCode(): Code[20]
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
     begin
         if not GeneralLedgerSetupRead then begin
             GeneralLedgerSetup.Get();
