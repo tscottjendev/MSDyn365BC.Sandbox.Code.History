@@ -22,7 +22,6 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
         EDocumentHeaderMapping: Record "E-Document Header Mapping";
-        EDocumentLineMapping: Record "E-Document Line Mapping";
         UnitOfMeasure: Record "Unit of Measure";
         Vendor: Record Vendor;
         PurchaseOrder: Record "Purchase Header";
@@ -61,20 +60,16 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         if EDocumentPurchaseLine.FindSet() then
             repeat
                 // Look up based on text-to-account mapping
-                EDocumentLineMapping.InsertForEDocumentLine(EDocument, EDocumentPurchaseLine."Line No.");
-
-                // Try and find unit of measure
                 UnitOfMeasure := IUnitOfMeasureProvider.GetUnitOfMeasure(EDocument, EDocumentPurchaseLine."Line No.", EDocumentPurchaseLine."Unit of Measure");
-                EDocumentLineMapping."Unit of Measure" := UnitOfMeasure.Code;
-
+                EDocumentPurchaseLine."[BC] Unit of Measure" := UnitOfMeasure.Code;
                 // Resolve the purchase line type and No., as well as related fields
-                IPurchaseLineProvider.GetPurchaseLine(EDocumentPurchaseLine, EDocumentLineMapping);
+                IPurchaseLineProvider.GetPurchaseLine(EDocumentPurchaseLine);
 
                 if EDocPurchaseHistMapping.FindRelatedPurchaseLineInHistory(EDocumentHeaderMapping."Vendor No.", EDocumentPurchaseLine, EDocPurchaseLineHistory) then
-                    EDocPurchaseHistMapping.UpdateMissingLineValuesFromHistory(EDocPurchaseLineHistory, EDocumentLineMapping);
-                EDocumentLineMapping.Modify();
+                    EDocPurchaseHistMapping.UpdateMissingLineValuesFromHistory(EDocPurchaseLineHistory, EDocumentPurchaseLine);
+                EDocumentPurchaseLine.Modify();
                 // Mark the lines that are not matched yet
-                if EDocumentLineMapping."Purchase Type No." = '' then
+                if EDocumentPurchaseLine."[BC] Purchase Type No." = '' then
                     EDocumentPurchaseLine.Mark(true);
             until EDocumentPurchaseLine.Next() = 0;
         EDocumentPurchaseLine.MarkedOnly(true);

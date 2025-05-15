@@ -33,7 +33,7 @@ codeunit 6174 "E-Document ADI Handler" implements IBlobType, IBlobToStructuredDa
         exit(this);
     end;
 
-    procedure Convert(EDocument: Record "E-Document"; FromTempblob: Codeunit "Temp Blob"; FromType: Enum "E-Doc. Data Storage Blob Type"; var ConvertedType: Enum "E-Doc. Data Storage Blob Type") StructuredData: Text
+    procedure Convert(EDocument: Record "E-Document"; FromTempBlob: Codeunit "Temp Blob"; FromType: Enum "E-Doc. Data Storage Blob Type"; var ConvertedType: Enum "E-Doc. Data Storage Blob Type") StructuredData: Text
     var
         Base64Convert: Codeunit "Base64 Convert";
         AzureDocumentIntelligence: Codeunit "Azure Document Intelligence";
@@ -46,7 +46,7 @@ codeunit 6174 "E-Document ADI Handler" implements IBlobType, IBlobToStructuredDa
 
         AzureDocumentIntelligence.SetCopilotCapability(Enum::"Copilot Capability"::"E-Document Analysis");
 
-        FromTempblob.CreateInStream(InStream, TextEncoding::UTF8);
+        FromTempBlob.CreateInStream(InStream, TextEncoding::UTF8);
         Data := Base64Convert.ToBase64(InStream);
         StructuredData := AzureDocumentIntelligence.AnalyzeInvoice(Data);
         ConvertedType := Enum::"E-Doc. Data Storage Blob Type"::JSON;
@@ -54,93 +54,132 @@ codeunit 6174 "E-Document ADI Handler" implements IBlobType, IBlobToStructuredDa
 
     procedure Read(EDocument: Record "E-Document"; TempBlob: Codeunit "Temp Blob"): Enum "E-Doc. Structured Data Process"
     var
+        TempEDocPurchaseHeader: Record "E-Document Purchase Header" temporary;
+        TempEDocPurchaseLine: Record "E-Document Purchase Line" temporary;
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
-        InStream: InStream;
-        SourceJsonObject: JsonObject;
-        BlobAsText: Text;
+        EDocumentPurchaseLine: Record "E-Document Purchase Line";
     begin
-        if not EDocumentPurchaseHeader.Get(EDocument."Entry No") then begin
-            EDocumentPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
-            EDocumentPurchaseHeader.Insert();
-        end;
+        // Clean up old data, since we are re-reading data
+        EDocumentPurchaseHeader.SetRange("E-Document Entry No.", EDocument."Entry No");
+        if not EDocumentPurchaseHeader.IsEmpty() then
+            EDocumentPurchaseHeader.Delete();
+        EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
+        EDocumentPurchaseLine.DeleteAll();
 
-        TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
-        InStream.Read(BlobAsText);
-        SourceJsonObject.ReadFrom(BlobAsText);
+        ReadIntoBuffer(EDocument, TempBlob, TempEDocPurchaseHeader, TempEDocPurchaseLine);
+        EDocumentPurchaseHeader := TempEDocPurchaseHeader;
+        EDocumentPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
+        EDocumentPurchaseHeader.Insert();
 
-        PopulateEDocumentPurchaseHeader(EDocumentJsonHelper.GetHeaderFields(SourceJsonObject), EDocumentPurchaseHeader);
-        EDocumentPurchaseHeader.Modify();
-
-        InsertEDocumentPurchaseLines(EDocumentJsonHelper.GetLinesArray(SourceJsonObject), EDocumentPurchaseHeader."E-Document Entry No.");
+        if TempEDocPurchaseLine.FindSet() then
+            repeat
+                EDocumentPurchaseLine := TempEDocPurchaseLine;
+                EDocumentPurchaseLine."E-Document Entry No." := EDocument."Entry No";
+                EDocumentPurchaseLine."Line No." := EDocumentPurchaseLine.GetNextLineNo(EDocument."Entry No");
+                EDocumentPurchaseLine.Insert();
+            until TempEDocPurchaseLine.Next() = 0;
 
         exit(Enum::"E-Doc. Structured Data Process"::"Purchase Document");
     end;
 
-    local procedure InsertEDocumentPurchaseLines(ItemsArray: JsonArray; EDocumentEntryNo: Integer)
+    local procedure ReadIntoBuffer(
+        EDocument: Record "E-Document";
+        TempBlob: Codeunit "Temp Blob";
+        var TempEDocPurchaseHeader: Record "E-Document Purchase Header" temporary;
+        var TempEDocPurchaseLine: Record "E-Document Purchase Line" temporary)
     var
-        EDocumentPurchaseLine: Record "E-Document Purchase Line";
+        InStream: InStream;
+        SourceJsonObject: JsonObject;
+        BlobAsText: Text;
+    begin
+        TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
+        InStream.Read(BlobAsText);
+        SourceJsonObject.ReadFrom(BlobAsText);
+
+        PopulateEDocumentPurchaseHeader(EDocumentJsonHelper.GetHeaderFields(SourceJsonObject), TempEDocPurchaseHeader);
+        PopulateEDocumentPurchaseLines(EDocumentJsonHelper.GetLinesArray(SourceJsonObject), EDocument."Entry No", TempEDocPurchaseLine);
+        TempEDocPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
+    end;
+
+    procedure View(EDocument: Record "E-Document"; TempBlob: Codeunit "Temp Blob")
+    var
+        TempEDocPurchaseHeader: Record "E-Document Purchase Header" temporary;
+        TempEDocPurchaseLine: Record "E-Document Purchase Line" temporary;
+        EDocReadablePurchaseDoc: Page "E-Doc. Readable Purchase Doc.";
+    begin
+        ReadIntoBuffer(EDocument, TempBlob, TempEDocPurchaseHeader, TempEDocPurchaseLine);
+        EDocReadablePurchaseDoc.SetBuffer(TempEDocPurchaseHeader, TempEDocPurchaseLine);
+        EDocReadablePurchaseDoc.Run();
+    end;
+
+    local procedure PopulateEDocumentPurchaseLines(ItemsArray: JsonArray; EDocumentEntryNo: Integer; var TempEDocPurchaseLine: Record "E-Document Purchase Line" temporary)
+    var
         JsonTokenTemp, ItemToken : JsonToken;
         ItemObject, LineObject : JsonObject;
         LineNumber: Integer;
     begin
+        TempEDocPurchaseLine.DeleteAll();
+
         for LineNumber := 0 to ItemsArray.Count() do begin
             if not ItemsArray.Get(LineNumber, ItemToken) then
                 continue;
-            Clear(EDocumentPurchaseLine);
-            EDocumentPurchaseLine.Validate("E-Document Entry No.", EDocumentEntryNo);
-            EDocumentPurchaseLine."Line No." := ((LineNumber + 1) * 10000);
+            Clear(TempEDocPurchaseLine);
+            TempEDocPurchaseLine.Validate("E-Document Entry No.", EDocumentEntryNo);
+            TempEDocPurchaseLine."Line No." := 10000 + (LineNumber * 10000);
             ItemObject := ItemToken.AsObject();
             ItemObject.Get('fields', JsonTokenTemp);
             LineObject := JsonTokenTemp.AsObject();
-            PopulateEDocumentPurchaseLine(LineObject, EDocumentPurchaseLine);
-            EDocumentPurchaseLine.Insert();
+            PopulateEDocumentPurchaseLine(LineObject, TempEDocPurchaseLine);
+            TempEDocPurchaseLine.Insert();
         end;
     end;
 
 #pragma warning disable AA0139 // false positive: overflow handled by EDocumentJsonHelper.EDocumentJsonHelper.SetStringValueInField
-    local procedure PopulateEDocumentPurchaseHeader(FieldsJsonObject: JsonObject; var EDocumentPurchaseHeader: Record "E-Document Purchase Header")
+    local procedure PopulateEDocumentPurchaseHeader(FieldsJsonObject: JsonObject; var TempEDocPurchaseHeader: Record "E-Document Purchase Header" temporary)
     begin
-        EDocumentJsonHelper.SetStringValueInField('customerName', MaxStrLen(EDocumentPurchaseHeader."Customer Company Name"), FieldsJsonObject, EDocumentPurchaseHeader."Customer Company Name");
-        EDocumentJsonHelper.SetStringValueInField('customerId', MaxStrLen(EDocumentPurchaseHeader."Customer Company Id"), FieldsJsonObject, EDocumentPurchaseHeader."Customer Company Id");
-        EDocumentJsonHelper.SetStringValueInField('purchaseOrder', MaxStrLen(EDocumentPurchaseHeader."Purchase Order No."), FieldsJsonObject, EDocumentPurchaseHeader."Purchase Order No.");
-        EDocumentJsonHelper.SetStringValueInField('invoiceId', MaxStrLen(EDocumentPurchaseHeader."Sales Invoice No."), FieldsJsonObject, EDocumentPurchaseHeader."Sales Invoice No.");
-        EDocumentJsonHelper.SetDateValueInField('dueDate', FieldsJsonObject, EDocumentPurchaseHeader."Due Date");
-        EDocumentJsonHelper.SetStringValueInField('vendorName', MaxStrLen(EDocumentPurchaseHeader."Vendor Company Name"), FieldsJsonObject, EDocumentPurchaseHeader."Vendor Company Name");
-        EDocumentJsonHelper.SetStringValueInField('vendorAddress', MaxStrLen(EDocumentPurchaseHeader."Vendor Address"), FieldsJsonObject, EDocumentPurchaseHeader."Vendor Address");
-        EDocumentJsonHelper.SetStringValueInField('vendorAddressRecipient', MaxStrLen(EDocumentPurchaseHeader."Vendor Address Recipient"), FieldsJsonObject, EDocumentPurchaseHeader."Vendor Address Recipient");
-        EDocumentJsonHelper.SetStringValueInField('customerAddress', MaxStrLen(EDocumentPurchaseHeader."Customer Address"), FieldsJsonObject, EDocumentPurchaseHeader."Customer Address");
-        EDocumentJsonHelper.SetStringValueInField('customerAddressRecipient', MaxStrLen(EDocumentPurchaseHeader."Customer Address Recipient"), FieldsJsonObject, EDocumentPurchaseHeader."Customer Address Recipient");
-        EDocumentJsonHelper.SetStringValueInField('billingAddress', MaxStrLen(EDocumentPurchaseHeader."Billing Address"), FieldsJsonObject, EDocumentPurchaseHeader."Billing Address");
-        EDocumentJsonHelper.SetStringValueInField('billingAddressRecipient', MaxStrLen(EDocumentPurchaseHeader."Billing Address Recipient"), FieldsJsonObject, EDocumentPurchaseHeader."Billing Address Recipient");
-        EDocumentJsonHelper.SetStringValueInField('shippingAddress', MaxStrLen(EDocumentPurchaseHeader."Shipping Address"), FieldsJsonObject, EDocumentPurchaseHeader."Shipping Address");
-        EDocumentJsonHelper.SetStringValueInField('shippingAddressRecipient', MaxStrLen(EDocumentPurchaseHeader."Shipping Address Recipient"), FieldsJsonObject, EDocumentPurchaseHeader."Shipping Address Recipient");
-        EDocumentJsonHelper.SetCurrencyValueInField('subTotal', FieldsJsonObject, EDocumentPurchaseHeader."Sub Total", EDocumentPurchaseHeader."Currency Code");
-        EDocumentJsonHelper.SetCurrencyValueInField('totalTax', FieldsJsonObject, EDocumentPurchaseHeader."Total VAT", EDocumentPurchaseHeader."Currency Code");
-        EDocumentJsonHelper.SetCurrencyValueInField('invoiceTotal', FieldsJsonObject, EDocumentPurchaseHeader.Total, EDocumentPurchaseHeader."Currency Code");
-        EDocumentJsonHelper.SetCurrencyValueInField('amountDue', FieldsJsonObject, EDocumentPurchaseHeader."Amount Due", EDocumentPurchaseHeader."Currency Code");
-        EDocumentJsonHelper.SetCurrencyValueInField('previousUnpaidBalance', FieldsJsonObject, EDocumentPurchaseHeader."Previous Unpaid Balance", EDocumentPurchaseHeader."Currency Code");
-        EDocumentJsonHelper.SetStringValueInField('remittanceAddress', MaxStrLen(EDocumentPurchaseHeader."Remittance Address"), FieldsJsonObject, EDocumentPurchaseHeader."Remittance Address");
-        EDocumentJsonHelper.SetStringValueInField('remittanceAddressRecipient', MaxStrLen(EDocumentPurchaseHeader."Remittance Address Recipient"), FieldsJsonObject, EDocumentPurchaseHeader."Remittance Address Recipient");
-        EDocumentJsonHelper.SetDateValueInField('serviceStartDate', FieldsJsonObject, EDocumentPurchaseHeader."Service Start Date");
-        EDocumentJsonHelper.SetDateValueInField('serviceEndDate', FieldsJsonObject, EDocumentPurchaseHeader."Service End Date");
-        EDocumentJsonHelper.SetStringValueInField('vendorTaxId', MaxStrLen(EDocumentPurchaseHeader."Vendor VAT Id"), FieldsJsonObject, EDocumentPurchaseHeader."Vendor VAT Id");
-        EDocumentJsonHelper.SetStringValueInField('customerTaxId', MaxStrLen(EDocumentPurchaseHeader."Customer VAT Id"), FieldsJsonObject, EDocumentPurchaseHeader."Customer VAT Id");
-        EDocumentJsonHelper.SetStringValueInField('paymentTerm', MaxStrLen(EDocumentPurchaseHeader."Payment Terms"), FieldsJsonObject, EDocumentPurchaseHeader."Payment Terms");
+        EDocumentJsonHelper.SetStringValueInField('customerName', MaxStrLen(TempEDocPurchaseHeader."Customer Company Name"), FieldsJsonObject, TempEDocPurchaseHeader."Customer Company Name");
+        EDocumentJsonHelper.SetStringValueInField('customerId', MaxStrLen(TempEDocPurchaseHeader."Customer Company Id"), FieldsJsonObject, TempEDocPurchaseHeader."Customer Company Id");
+        EDocumentJsonHelper.SetStringValueInField('purchaseOrder', MaxStrLen(TempEDocPurchaseHeader."Purchase Order No."), FieldsJsonObject, TempEDocPurchaseHeader."Purchase Order No.");
+        EDocumentJsonHelper.SetStringValueInField('invoiceId', MaxStrLen(TempEDocPurchaseHeader."Sales Invoice No."), FieldsJsonObject, TempEDocPurchaseHeader."Sales Invoice No.");
+        EDocumentJsonHelper.SetDateValueInField('dueDate', FieldsJsonObject, TempEDocPurchaseHeader."Due Date");
+        EDocumentJsonHelper.SetStringValueInField('vendorName', MaxStrLen(TempEDocPurchaseHeader."Vendor Company Name"), FieldsJsonObject, TempEDocPurchaseHeader."Vendor Company Name");
+        EDocumentJsonHelper.SetStringValueInField('vendorAddress', MaxStrLen(TempEDocPurchaseHeader."Vendor Address"), FieldsJsonObject, TempEDocPurchaseHeader."Vendor Address");
+        EDocumentJsonHelper.SetStringValueInField('vendorAddressRecipient', MaxStrLen(TempEDocPurchaseHeader."Vendor Address Recipient"), FieldsJsonObject, TempEDocPurchaseHeader."Vendor Address Recipient");
+        EDocumentJsonHelper.SetStringValueInField('customerAddress', MaxStrLen(TempEDocPurchaseHeader."Customer Address"), FieldsJsonObject, TempEDocPurchaseHeader."Customer Address");
+        EDocumentJsonHelper.SetStringValueInField('customerAddressRecipient', MaxStrLen(TempEDocPurchaseHeader."Customer Address Recipient"), FieldsJsonObject, TempEDocPurchaseHeader."Customer Address Recipient");
+        EDocumentJsonHelper.SetStringValueInField('billingAddress', MaxStrLen(TempEDocPurchaseHeader."Billing Address"), FieldsJsonObject, TempEDocPurchaseHeader."Billing Address");
+        EDocumentJsonHelper.SetStringValueInField('billingAddressRecipient', MaxStrLen(TempEDocPurchaseHeader."Billing Address Recipient"), FieldsJsonObject, TempEDocPurchaseHeader."Billing Address Recipient");
+        EDocumentJsonHelper.SetStringValueInField('shippingAddress', MaxStrLen(TempEDocPurchaseHeader."Shipping Address"), FieldsJsonObject, TempEDocPurchaseHeader."Shipping Address");
+        EDocumentJsonHelper.SetStringValueInField('shippingAddressRecipient', MaxStrLen(TempEDocPurchaseHeader."Shipping Address Recipient"), FieldsJsonObject, TempEDocPurchaseHeader."Shipping Address Recipient");
+        EDocumentJsonHelper.SetCurrencyValueInField('subTotal', FieldsJsonObject, TempEDocPurchaseHeader."Sub Total", TempEDocPurchaseHeader."Currency Code");
+        EDocumentJsonHelper.SetCurrencyValueInField('totalTax', FieldsJsonObject, TempEDocPurchaseHeader."Total VAT", TempEDocPurchaseHeader."Currency Code");
+        EDocumentJsonHelper.SetCurrencyValueInField('invoiceTotal', FieldsJsonObject, TempEDocPurchaseHeader.Total, TempEDocPurchaseHeader."Currency Code");
+        EDocumentJsonHelper.SetCurrencyValueInField('amountDue', FieldsJsonObject, TempEDocPurchaseHeader."Amount Due", TempEDocPurchaseHeader."Currency Code");
+        EDocumentJsonHelper.SetCurrencyValueInField('previousUnpaidBalance', FieldsJsonObject, TempEDocPurchaseHeader."Previous Unpaid Balance", TempEDocPurchaseHeader."Currency Code");
+        EDocumentJsonHelper.SetStringValueInField('remittanceAddress', MaxStrLen(TempEDocPurchaseHeader."Remittance Address"), FieldsJsonObject, TempEDocPurchaseHeader."Remittance Address");
+        EDocumentJsonHelper.SetStringValueInField('remittanceAddressRecipient', MaxStrLen(TempEDocPurchaseHeader."Remittance Address Recipient"), FieldsJsonObject, TempEDocPurchaseHeader."Remittance Address Recipient");
+        EDocumentJsonHelper.SetDateValueInField('serviceStartDate', FieldsJsonObject, TempEDocPurchaseHeader."Service Start Date");
+        EDocumentJsonHelper.SetDateValueInField('serviceEndDate', FieldsJsonObject, TempEDocPurchaseHeader."Service End Date");
+        EDocumentJsonHelper.SetStringValueInField('vendorTaxId', MaxStrLen(TempEDocPurchaseHeader."Vendor VAT Id"), FieldsJsonObject, TempEDocPurchaseHeader."Vendor VAT Id");
+        EDocumentJsonHelper.SetStringValueInField('customerTaxId', MaxStrLen(TempEDocPurchaseHeader."Customer VAT Id"), FieldsJsonObject, TempEDocPurchaseHeader."Customer VAT Id");
+        EDocumentJsonHelper.SetStringValueInField('paymentTerm', MaxStrLen(TempEDocPurchaseHeader."Payment Terms"), FieldsJsonObject, TempEDocPurchaseHeader."Payment Terms");
     end;
 
-    local procedure PopulateEDocumentPurchaseLine(FieldsJsonObject: JsonObject; var EDocumentPurchaseLine: Record "E-Document Purchase Line")
+    local procedure PopulateEDocumentPurchaseLine(FieldsJsonObject: JsonObject; var TempEDocPurchaseLine: Record "E-Document Purchase Line" temporary)
     begin
-        EDocumentJsonHelper.SetCurrencyValueInField('amount', FieldsJsonObject, EDocumentPurchaseLine."Sub Total", EDocumentPurchaseLine."Currency Code");
-        EDocumentJsonHelper.SetStringValueInField('description', MaxStrLen(EDocumentPurchaseLine.Description), FieldsJsonObject, EDocumentPurchaseLine.Description);
-        EDocumentJsonHelper.SetCurrencyValueInField('unitPrice', FieldsJsonObject, EDocumentPurchaseLine."Unit Price", EDocumentPurchaseLine."Currency Code");
-        EDocumentJsonHelper.SetNumberValueInField('quantity', FieldsJsonObject, EDocumentPurchaseLine.Quantity);
-        EDocumentJsonHelper.SetStringValueInField('productCode', MaxStrLen(EDocumentPurchaseLine."Product Code"), FieldsJsonObject, EDocumentPurchaseLine."Product Code");
-        EDocumentJsonHelper.SetStringValueInField('unit', MaxStrLen(EDocumentPurchaseLine."Unit of Measure"), FieldsJsonObject, EDocumentPurchaseLine."Unit of Measure");
-        EDocumentJsonHelper.SetDateValueInField('date', FieldsJsonObject, EDocumentPurchaseLine.Date);
-        EDocumentJsonHelper.SetCurrencyValueInField('tax', FieldsJsonObject, EDocumentPurchaseLine."VAT Rate", EDocumentPurchaseLine."Currency Code");
+        EDocumentJsonHelper.SetCurrencyValueInField('amount', FieldsJsonObject, TempEDocPurchaseLine."Sub Total", TempEDocPurchaseLine."Currency Code");
+        EDocumentJsonHelper.SetStringValueInField('description', MaxStrLen(TempEDocPurchaseLine.Description), FieldsJsonObject, TempEDocPurchaseLine.Description);
+        EDocumentJsonHelper.SetCurrencyValueInField('unitPrice', FieldsJsonObject, TempEDocPurchaseLine."Unit Price", TempEDocPurchaseLine."Currency Code");
+        EDocumentJsonHelper.SetNumberValueInField('quantity', FieldsJsonObject, TempEDocPurchaseLine.Quantity);
+        EDocumentJsonHelper.SetStringValueInField('productCode', MaxStrLen(TempEDocPurchaseLine."Product Code"), FieldsJsonObject, TempEDocPurchaseLine."Product Code");
+        EDocumentJsonHelper.SetStringValueInField('unit', MaxStrLen(TempEDocPurchaseLine."Unit of Measure"), FieldsJsonObject, TempEDocPurchaseLine."Unit of Measure");
+        EDocumentJsonHelper.SetDateValueInField('date', FieldsJsonObject, TempEDocPurchaseLine.Date);
+        EDocumentJsonHelper.SetCurrencyValueInField('tax', FieldsJsonObject, TempEDocPurchaseLine."VAT Rate", TempEDocPurchaseLine."Currency Code");
     end;
 #pragma warning restore AA0139
 
     var
         EDocumentJsonHelper: Codeunit "EDocument Json Helper";
+
+
 }

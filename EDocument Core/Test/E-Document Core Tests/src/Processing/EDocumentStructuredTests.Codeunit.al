@@ -14,7 +14,7 @@ codeunit 139891 "E-Document Structured Tests"
         CAPIStructuredValidations: Codeunit "CAPI Structured Validations";
         PEPPOLStructuredValidations: Codeunit "PEPPOL Structured Validations";
         IsInitialized: Boolean;
-        EDocumentStatusNotUpdatedErr: Label 'The statusof the EDocument wasn''t updated to the expected status after the step was executed.';
+        EDocumentStatusNotUpdatedErr: Label 'The status of the EDocument was not updated to the expected status after the step was executed.';
 
     #region CAPI JSON
     [Test]

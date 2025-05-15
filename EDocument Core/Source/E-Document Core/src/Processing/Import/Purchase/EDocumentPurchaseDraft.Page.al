@@ -235,10 +235,9 @@ page 6181 "E-Document Purchase Draft"
 
                 trigger OnAction()
                 var
-                    EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+                    EDocImport: Codeunit "E-Doc. Import";
                 begin
-                    EDocumentPurchaseHeader.GetFromEDocument(Rec);
-                    Page.Run(Page::"E-Doc. Readable Purchase Doc.", EDocumentPurchaseHeader);
+                    EDocImport.ViewExtractedData(Rec);
                 end;
             }
         }

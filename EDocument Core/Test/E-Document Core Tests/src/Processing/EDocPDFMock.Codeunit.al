@@ -34,4 +34,8 @@ codeunit 139782 "E-Doc PDF Mock" implements IBlobType, IBlobToStructuredDataConv
         exit(Enum::"E-Doc. Structured Data Process"::"Purchase Document");
     end;
 
+    procedure View(EDocument: Record "E-Document"; TempBlob: Codeunit "Temp Blob")
+    begin
+
+    end;
 }
