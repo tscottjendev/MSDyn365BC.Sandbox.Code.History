@@ -283,19 +283,19 @@ table 17 "G/L Entry"
         field(68; "Additional-Currency Amount"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
-            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Additional-Currency Amount';
         }
         field(69; "Add.-Currency Debit Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Currency Debit Amount';
         }
         field(70; "Add.-Currency Credit Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Currency Credit Amount';
         }
@@ -598,15 +598,11 @@ table 17 "G/L Entry"
         "Last Modified DateTime" := CurrentDateTime;
     end;
 
-    var
-        GLSetup: Record "General Ledger Setup";
-        GLSetupRead: Boolean;
-
     protected var
         GeneralLedgerSetup: Record "General Ledger Setup";
         GeneralLedgerSetupRead: Boolean;
 
-    local procedure GetAdditionalReportingCurrencyCode(): Code[20]
+    procedure GetAdditionalReportingCurrencyCode(): Code[10]
     begin
         if not GeneralLedgerSetupRead then begin
             GeneralLedgerSetup.Get();
@@ -636,15 +632,13 @@ table 17 "G/L Entry"
         LastTransactionNo := FieldNoValues.Get(2);
     end;
 
+#if not CLEAN27
+    [Obsolete('use GetAdditionalReportingCurrencyCode instead', '27.0')]
     procedure GetCurrencyCode(): Code[10]
     begin
-        if not GLSetupRead then begin
-            GLSetup.Get();
-            GLSetupRead := true;
-        end;
-        exit(GLSetup."Additional Reporting Currency");
+        exit(GetAdditionalReportingCurrencyCode())
     end;
-
+#endif
     procedure ShowValueEntries()
     var
         GLItemLedgRelation: Record "G/L - Item Ledger Relation";
@@ -854,7 +848,7 @@ table 17 "G/L Entry"
     local procedure SetVATDate(var GenJnlLine: Record "Gen. Journal Line")
     begin
         if GenJnlLine."VAT Reporting Date" = 0D then
-            "VAT Reporting Date" := GLSetup.GetVATDate(GenJnlLine."Posting Date", GenJnlLine."Document Date")
+            "VAT Reporting Date" := GeneralLedgerSetup.GetVATDate(GenJnlLine."Posting Date", GenJnlLine."Document Date")
         else
             "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
     end;
