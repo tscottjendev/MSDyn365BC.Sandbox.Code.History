@@ -3312,7 +3312,7 @@ table 81 "Gen. Journal Line"
         HideValidationDialog: Boolean;
         SkipTaxCalculation: Boolean;
 
-    local procedure GetAdditionalReportingCurrencyCode(): Code[20]
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
     begin
         if not GeneralLedgerSetupRead then begin
             GeneralLedgerSetup.Get();
