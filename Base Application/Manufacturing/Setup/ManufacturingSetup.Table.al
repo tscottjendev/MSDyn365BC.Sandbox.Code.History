@@ -25,6 +25,8 @@ table 99000765 "Manufacturing Setup"
     DataClassification = CustomerContent;
     DrillDownPageID = "Manufacturing Setup";
     LookupPageID = "Manufacturing Setup";
+    InherentEntitlements = R;
+    InherentPermissions = r;
 
     fields
     {
