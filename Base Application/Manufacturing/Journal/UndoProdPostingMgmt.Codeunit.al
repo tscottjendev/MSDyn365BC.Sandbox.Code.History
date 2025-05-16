@@ -82,6 +82,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ItemJnlLine: Record "Item Journal Line";
         ProductionOrder: Record "Production Order";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+        IsHandled: Boolean;
     begin
         ProductionOrder.SetLoadFields(Status, "No.");
         if not ProductionOrder.Get(ProductionOrder.Status::Released, ItemLedgerEntry."Order No.") then
@@ -107,11 +108,17 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ItemJnlLine."Shortcut Dimension 2 Code" := ItemLedgerEntry."Global Dimension 2 Code";
         ItemJnlLine.Validate("Operation No.", GetLastOperationNo(ItemLedgerEntry));
 
-        ItemJnlLine.Validate("Output Quantity", -Abs(ItemLedgerEntry.Quantity));
+        IsHandled := false;
+        OnReverseOutputItemLedgerEntryOnBeforeValidateOutputQuantity(ItemJnlLine, ItemLedgerEntry, IsHandled);
+        if not IsHandled then
+            ItemJnlLine.Validate("Output Quantity", -Abs(ItemLedgerEntry.Quantity));
+
         if ItemLedgerEntry.TrackingExists() then
             CreateOutputReservationEntry(ItemJnlLine, ItemLedgerEntry)
         else
             ItemJnlLine.Validate("Applies-to Entry", ItemLedgerEntry."Entry No.");
+
+        OnReverseOutputItemLedgerEntryOnBeforeItemJnlPostLine(ItemJnlLine, ItemLedgerEntry, ProductionOrder);
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
 
@@ -119,6 +126,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
     var
         ItemJnlLine: Record "Item Journal Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+        IsHandled: Boolean;
     begin
         if CapacityLedgEntry."Order Type" <> CapacityLedgEntry."Order Type"::Production then
             exit;
@@ -148,13 +156,18 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
 
         ItemJnlLine.Validate("Setup Time", -Abs(CapacityLedgEntry."Setup Time"));
         ItemJnlLine.Validate("Run Time", -Abs(CapacityLedgEntry."Run Time"));
-        ItemJnlLine.Validate(Quantity, -Abs(CapacityLedgEntry.Quantity));
-        ItemJnlLine.Validate("Scrap Code", CapacityLedgEntry."Scrap Code");
-        ItemJnlLine.Validate("Scrap Quantity", -Abs(CapacityLedgEntry."Scrap Quantity"));
+        IsHandled := false;
+        OnReverseOutputCapacityLedgerEntryOnBeforeValidateQuantity(ItemJnlLine, CapacityLedgEntry, IsHandled);
+        if not IsHandled then begin
+            ItemJnlLine.Validate(Quantity, -Abs(CapacityLedgEntry.Quantity));
+            ItemJnlLine.Validate("Scrap Code", CapacityLedgEntry."Scrap Code");
+            ItemJnlLine.Validate("Scrap Quantity", -Abs(CapacityLedgEntry."Scrap Quantity"));
+        end;
 
         if IsLastOperation(CapacityLedgEntry) then
             ItemJnlLine.Validate("Applies-to Entry", GetRelatedItemLedgEntryNo(CapacityLedgEntry));
 
+        OnReverseOutputCapacityLedgerEntryOnBeforeItemJnlPostLine(ItemJnlLine, CapacityLedgEntry);
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
 
@@ -208,6 +221,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ItemJnlLine: Record "Item Journal Line";
         ProductionOrder: Record "Production Order";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+        IsHandled: Boolean;
     begin
         ProductionOrder.SetLoadFields(Status, "No.");
         if not ProductionOrder.Get(ProductionOrder.Status::Released, ItemLedgerEntry."Order No.") then
@@ -232,13 +246,17 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ItemJnlLine."Dimension Set ID" := ItemLedgerEntry."Dimension Set ID";
         ItemJnlLine."Shortcut Dimension 1 Code" := ItemLedgerEntry."Global Dimension 1 Code";
         ItemJnlLine."Shortcut Dimension 2 Code" := ItemLedgerEntry."Global Dimension 2 Code";
-        ItemJnlLine.Validate(Quantity, -Abs(ItemLedgerEntry.Quantity));
+        IsHandled := false;
+        OnReverseConsumptionItemLedgerEntryOnBeforeValidateQuantity(ItemJnlLine, ItemLedgerEntry, IsHandled);
+        if not IsHandled then
+            ItemJnlLine.Validate(Quantity, -Abs(ItemLedgerEntry.Quantity));
 
         if ItemLedgerEntry.TrackingExists() then
             CreateConsumptionReservationEntry(ItemJnlLine, ItemLedgerEntry)
         else
             ItemJnlLine.Validate("Applies-from Entry", ItemLedgerEntry."Entry No.");
 
+        OnReverseConsumptionItemLedgerEntryOnBeforeItemJnlPostLine(ItemJnlLine, ItemLedgerEntry, ProductionOrder);
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
 
@@ -351,6 +369,8 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ReservationEntry."Item Tracking" := ItemLedgerEntry."Item Tracking";
         ReservationEntry."Expiration Date" := ItemLedgerEntry."Expiration Date";
         ReservationEntry."Package No." := ItemLedgerEntry."Package No.";
+
+        OnCreateOutputReservationEntryOnBeforeInsert(ReservationEntry, ItemLedgerEntry);
         ReservationEntry.Insert();
     end;
 
@@ -381,5 +401,40 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ReservationEntry."Expiration Date" := ItemLedgerEntry."Expiration Date";
         ReservationEntry."Package No." := ItemLedgerEntry."Package No.";
         ReservationEntry.Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseConsumptionItemLedgerEntryOnBeforeValidateQuantity(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOutputReservationEntryOnBeforeInsert(var ReservationEntry: Record "Reservation Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseOutputCapacityLedgerEntryOnBeforeValidateQuantity(var ItemJournalLine: Record "Item Journal Line"; CapacityLedgerEntry: Record "Capacity Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseOutputItemLedgerEntryOnBeforeValidateOutputQuantity(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseOutputCapacityLedgerEntryOnBeforeItemJnlPostLine(var ItemJournalLine: Record "Item Journal Line"; CapacityLedgerEntry: Record "Capacity Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseOutputItemLedgerEntryOnBeforeItemJnlPostLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseConsumptionItemLedgerEntryOnBeforeItemJnlPostLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; ProductionOrder: Record "Production Order")
+    begin
     end;
 }
