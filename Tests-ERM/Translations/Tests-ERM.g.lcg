@@ -6314,6 +6314,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Documents II - NamedType UnknownErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 655909914 - NamedType 1513062657" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Warehouse Shipment is required for Line No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Documents II - NamedType WhseShipmentIsRequiredErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 655909914 - NamedType 361183884" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The record's startings date (%1) is not empty. Only records with empty starting date should be found.]]></Val>
