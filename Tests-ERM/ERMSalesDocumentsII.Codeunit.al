@@ -36,6 +36,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryTemplates: Codeunit "Library - Templates";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         ItemTrackingHandlerAction: Option AssignRandomSN,AssignSpecificLot;
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.', Comment = '%1 = Field Name, %2 = Amount, %3 = Table Name';
@@ -63,6 +64,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesQuoteLineNotEditableErr: Label 'The Sales Quote line should be editable';
         CannotRenameItemUsedInSalesLinesErr: Label 'You cannot rename %1 in a %2, because it is used in sales document lines.', Comment = '%1 = Item No. caption, %2 = Table caption.';
         ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
+        WhseShipmentIsRequiredErr: Label 'Warehouse Shipment is required for Line No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -4693,6 +4695,42 @@ codeunit 134386 "ERM Sales Documents II"
         SalesQuote."Sell-to Contact No.".Lookup();
 
         // [THEN] Verify Company No. and Company Name after create new from "Sell-to Contact No." lookup.
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure VerifyWareHouseShipmentRequiredWhenCustomerLocationDirectPutAwayAndPick()
+    var
+        Customer: Record Customer;
+        Customer2: Record Customer;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 573331] Verify WareHouse Shipment Required When Customer Location have Direct Put Away And Pick.
+        Initialize();
+
+        // [GIVEN] Create WMS Location .
+        LibraryWarehouse.CreateFullWMSLocation(Location, LibraryRandom.RandIntInRange(1, 5));
+
+        // [GIVEN] Create First Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Second Customer.
+        LibrarySales.CreateCustomer(Customer2);
+
+        // [GIVEN] Add location code in second customer.
+        Customer2.Validate("Location Code", Location.Code);
+        Customer2.Modify(true);
+
+        // [GIVEN] Create sales invoice with first customer.
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+        Commit();
+
+        // [WHEN] Change the customer from second customer to first customer.
+        asserterror SalesHeader.Validate("Sell-to Customer No.", Customer2."No.");
+
+        // [THEN] Verify warehouse shipment is required error occur.
+        Assert.ExpectedError(WhseShipmentIsRequiredErr);
     end;
 
     local procedure Initialize()
