@@ -252,21 +252,23 @@ codeunit 7324 "Whse.-Activity-Post"
 
     local procedure CheckQuantityInBinContentForTracking(var WarehouseActivityLine: Record "Warehouse Activity Line")
     var
+        WarehouseActivityLine2: Record "Warehouse Activity Line";
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
         WMSMgt: Codeunit "WMS Management";
     begin
         if not (Location."Require Pick" and Location."Require Receive") then
             exit;
 
-        if WarehouseActivityLine.FindSet() then
+        WarehouseActivityLine2.CopyFilters(WarehouseActivityLine);
+        WarehouseActivityLine2.SetFilter("Activity Type", '%1|%2', WarehouseActivityLine2."Activity Type"::"Invt. Pick", WarehouseActivityLine2."Activity Type"::"Invt. Put-away");
+        if WarehouseActivityLine2.FindSet() then
             repeat
-                if CheckItemTracking(WarehouseActivityLine) then
-                    if (WarehouseActivityLine."Activity Type" in [WarehouseActivityLine."Activity Type"::"Invt. Pick", WarehouseActivityLine."Activity Type"::"Invt. Put-away"]) then begin
-                        CreateWhseJnlLine(TempWhseJnlLine, WarehouseActivityLine);
-                        if TempWhseJnlLine."Entry Type" = TempWhseJnlLine."Entry Type"::"Negative Adjmt." then
-                            WMSMgt.CheckWhseJnlLine(TempWhseJnlLine, 4, TempWhseJnlLine."Qty. (Base)", false); // 4 = Whse. Journal
-                    end;
-            until WarehouseActivityLine.Next() = 0;
+                if CheckItemTracking(WarehouseActivityLine2) then begin
+                    CreateWhseJnlLine(TempWhseJnlLine, WarehouseActivityLine2);
+                    if TempWhseJnlLine."Entry Type" = TempWhseJnlLine."Entry Type"::"Negative Adjmt." then
+                        WMSMgt.CheckWhseJnlLine(TempWhseJnlLine, 4, TempWhseJnlLine."Qty. (Base)", false); // 4 = Whse. Journal
+                end;
+            until WarehouseActivityLine2.Next() = 0;
     end;
 
     local procedure CheckWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location)
