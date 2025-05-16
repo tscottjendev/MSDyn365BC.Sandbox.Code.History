@@ -2763,7 +2763,7 @@ table 38 "Purchase Header"
         ShowPostedDocsToPrint :=
             (PurchRcptHeader."No." <> '') or (PurchInvHeader."No." <> '') or (PurchCrMemoHeader."No." <> '') or
            (ReturnShptHeader."No." <> '') or (PurchInvHeaderPrepmt."No." <> '') or (PurchCrMemoHeaderPrepmt."No." <> '');
-        OnBeforeShowPostedDocsToPrintCreatedMsg(ShowPostedDocsToPrint, HideValidationDialog);
+        OnBeforeShowPostedDocsToPrintCreatedMsg(ShowPostedDocsToPrint, HideValidationDialog, Rec);
         if ShowPostedDocsToPrint then
             Message(PostedDocsToPrintCreatedMsg);
     end;
@@ -8415,7 +8415,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowPostedDocsToPrintCreatedMsg(var ShowPostedDocsToPrint: Boolean; HideValidationDialog: Boolean)
+    local procedure OnBeforeShowPostedDocsToPrintCreatedMsg(var ShowPostedDocsToPrint: Boolean; HideValidationDialog: Boolean; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
