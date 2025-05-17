@@ -3827,6 +3827,11 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(4315); // "Developer Agent"
         SetFieldToCompanyConfidential(4315, 2); // Instructions
 
+        // No-code agent 
+        SetTableFieldsToNormal(4387); // No-Code Agent Setup
+        SetFieldToPersonal(4387, 1); // Agent User Security Id
+        SetFieldToPersonal(4387, 2); // Agent Initials
+
         // following tables are internal but still require classification
         SetTableFieldsToNormal(2000000258); // Agent Data table
         SetFieldToPersonal(2000000258, 1); // User Security Id
