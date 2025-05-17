@@ -72,6 +72,7 @@ codeunit 6140 "E-Doc. Import"
         PreviousStatus, CurrentStatus, DesiredStatus : Enum "Import E-Doc. Proc. Status";
         StepToDo, StepToUndo : Enum "Import E-Document Steps";
         StatusIndex: Integer;
+        ProcessingStepFailed: Boolean;
     begin
         EDocument.TestField("Entry No");
         Clear(EDocumentLog);
@@ -87,22 +88,28 @@ codeunit 6140 "E-Doc. Import"
                 PreviousStatus := ImportEDocumentProcess.IndexToStatus(StatusIndex - 1);
                 StepToUndo := ImportEDocumentProcess.GetNextStep(PreviousStatus);
                 ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToUndo, EDocImportParameters, true);
-                if not RunConfiguredImportStep(ImportEDocumentProcess, EDocument) then
-                    exit(false);
+                if not RunConfiguredImportStep(ImportEDocumentProcess, EDocument) then begin
+                    ProcessingStepFailed := false;
+                    break;
+                end;
             end;
 
-        EDocument.CalcFields("Import Processing Status");
-        CurrentStatus := EDocument."Import Processing Status";
-        // We run all the steps that need to be done to reach the desired state
-        for StatusIndex := ImportEDocumentProcess.StatusStepIndex(CurrentStatus) to ImportEDocumentProcess.StatusStepIndex(DesiredStatus) - 1 do
-            if StatusIndex < ImportEDocumentProcess.StatusStepIndex("Import E-Doc. Proc. Status"::Processed) then begin
-                StepToDo := ImportEDocumentProcess.GetNextStep(ImportEDocumentProcess.IndexToStatus(StatusIndex));
-                ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToDo, EDocImportParameters, false);
-                if not RunConfiguredImportStep(ImportEDocumentProcess, EDocument) then
-                    exit(false)
-            end;
+        if not ProcessingStepFailed then begin
+            EDocument.CalcFields("Import Processing Status");
+            CurrentStatus := EDocument."Import Processing Status";
+            // We run all the steps that need to be done to reach the desired state
+            for StatusIndex := ImportEDocumentProcess.StatusStepIndex(CurrentStatus) to ImportEDocumentProcess.StatusStepIndex(DesiredStatus) - 1 do
+                if StatusIndex < ImportEDocumentProcess.StatusStepIndex("Import E-Doc. Proc. Status"::Processed) then begin
+                    StepToDo := ImportEDocumentProcess.GetNextStep(ImportEDocumentProcess.IndexToStatus(StatusIndex));
+                    ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToDo, EDocImportParameters, false);
+                    if not RunConfiguredImportStep(ImportEDocumentProcess, EDocument) then begin
+                        ProcessingStepFailed := false;
+                        break;
+                    end;
+                end
+        end;
         OnAfterProcessIncomingEDocument(EDocument, EDocImportParameters);
-        exit(true);
+        exit(not ProcessingStepFailed);
     end;
 
     local procedure RunConfiguredImportStep(var ImportEDocumentProcess: Codeunit "Import E-Document Process"; EDocument: Record "E-Document"): Boolean

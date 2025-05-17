@@ -219,7 +219,7 @@ codeunit 8063 "Sales Documents"
         CommitIsSuppressed: Boolean;
         IsHandled: Boolean;
     begin
-        OnBeforeMoveBillingLineToBillingLineArchiveForPostingPreview(IsHandled);
+        OnBeforeMoveBillingLineToBillingLineArchiveForPostingPreview(SalesInvoiceHeader, IsHandled);
         if IsHandled then
             exit;
         if SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoiceHeader."Pre-Assigned No.") then
@@ -815,7 +815,7 @@ codeunit 8063 "Sales Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeMoveBillingLineToBillingLineArchiveForPostingPreview(var IsHandled: Boolean)
+    local procedure OnBeforeMoveBillingLineToBillingLineArchiveForPostingPreview(SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 
