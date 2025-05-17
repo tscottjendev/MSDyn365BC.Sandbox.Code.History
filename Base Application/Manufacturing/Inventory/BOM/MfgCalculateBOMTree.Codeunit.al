@@ -145,8 +145,6 @@ codeunit 99000781 "Mfg. Calculate BOM Tree"
                                         BOMBuffer."Qty. per Parent" := ProdBOMLine."Quantity per";
 
                                     BOMBuffer."Scrap %" := CombineScrapFactors(BOMBuffer."Scrap %", ProdBOMLine."Scrap %");
-                                    if MfgCostCalcMgt.FindRoutingLine(RoutingLine, ProdBOMLine, WorkDate(), ParentItem."Routing No.") then
-                                        BOMBuffer."Scrap %" := CombineScrapFactors(BOMBuffer."Scrap %", RoutingLine."Scrap Factor % (Accumulated)" * 100);
                                     BOMBuffer."Scrap %" := Round(BOMBuffer."Scrap %", 0.00001);
 
                                     OnAfterTransferFromProdBOM(BOMBuffer, ProdBOMLine);
