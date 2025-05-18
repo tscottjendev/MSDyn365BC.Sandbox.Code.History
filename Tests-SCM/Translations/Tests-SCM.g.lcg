@@ -4280,6 +4280,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Orders-II - NamedType PostedChargeCostAmountMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 474352393 - NamedType 1261885820" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Drop shipment purchase order must be created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Orders-II - NamedType PurchaseOrderMustBeCreatedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 474352393 - NamedType 4096521443" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Location code on the line must not be equal to location code on the header.]]></Val>
