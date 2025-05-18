@@ -119,7 +119,6 @@ codeunit 6140 "E-Doc. Import"
         EDocumentErrorHelper.ClearErrorMessages(EDocument);
         Commit();
         if not ImportEDocumentProcess.Run() then begin
-
             EDocument.SetRecFilter();
             EDocument.FindFirst();
 

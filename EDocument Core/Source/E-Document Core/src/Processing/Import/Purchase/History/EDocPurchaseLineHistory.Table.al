@@ -21,6 +21,7 @@ table 6140 "E-Doc. Purchase Line History"
     InherentEntitlements = RIMDX;
     InherentPermissions = RIMDX;
     Access = Internal;
+    ReplicateData = false;
 
     fields
     {

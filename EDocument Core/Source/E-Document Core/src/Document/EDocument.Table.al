@@ -278,7 +278,7 @@ table 6121 "E-Document"
                 if not Confirm(this.DeleteConfirmQst) then
                     Error('');
 
-        this.DeleteRelatedRecords();
+        this.CleanupDocument();
     end;
 
     /// <summary>
@@ -336,7 +336,7 @@ table 6121 "E-Document"
         exit(EDocumentPurchaseHeader.Total);
     end;
 
-    local procedure DeleteRelatedRecords()
+    procedure CleanupDocument()
     var
         DocumentAttachment: Record "Document Attachment";
         EDocMappingLog: Record "E-Doc. Mapping Log";
@@ -468,7 +468,7 @@ table 6121 "E-Document"
         if EDocumentServiceStatus.FindFirst() then;
     end;
 
-    internal procedure GetEDocumentService() EDocumentService: Record "E-Document Service"
+    procedure GetEDocumentService() EDocumentService: Record "E-Document Service"
     begin
         if EDocumentService.Get(Rec.Service) then
             exit;

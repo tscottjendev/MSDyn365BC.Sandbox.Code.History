@@ -260,7 +260,7 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
         EDocPurchaseLineHistory."Product Code" := EDocumentPurchaseLine."Product Code";
         EDocPurchaseLineHistory."Description" := EDocumentPurchaseLine.Description;
         EDocPurchaseLineHistory."Purch. Inv. Line SystemId" := PurchInvLine.SystemId;
-        EDocPurchaseLineHistory.Insert();
+        if EDocPurchaseLineHistory.Insert() then;
         EDocRecordLink.DeleteAll();
     end;
 

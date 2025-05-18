@@ -13,6 +13,7 @@ using System.Utilities;
 table 6125 "E-Doc. Data Storage"
 {
     DataClassification = CustomerContent;
+    ReplicateData = false;
 
     fields
     {
