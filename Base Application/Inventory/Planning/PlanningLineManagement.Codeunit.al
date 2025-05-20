@@ -39,10 +39,8 @@ codeunit 99000809 "Planning Line Management"
         TempPlanningComponent: Record "Planning Component" temporary;
         TempPlanningErrorLog: Record "Planning Error Log" temporary;
         UOMMgt: Codeunit "Unit of Measure Management";
-        VersionMgt: Codeunit Microsoft.Manufacturing.ProductionBOM.VersionManagement;
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
         LeadTimeMgt: Codeunit "Lead-Time Management";
-        MfgPlanningLineManagement: Codeunit "Mfg. Planning Line Management";
 
         LineSpacing: array[50] of Integer;
         NextPlanningCompLineNo: Integer;
@@ -257,12 +255,9 @@ codeunit 99000809 "Planning Line Management"
                     IsHandled := false;
                     OnCalculateOnBeforeTransferBOM(ReqLine, SKU, PlanningResiliency, IsHandled);
                     if not IsHandled then
-                        MfgPlanningLineManagement.TransferBOM(
-                          ReqLine, ReqLine."Production BOM No.", 1, ReqLine."Qty. per Unit of Measure",
-                          UOMMgt.GetQtyPerUnitOfMeasure(
-                            Item, VersionMgt.GetBOMUnitOfMeasure(ReqLine."Production BOM No.", ReqLine."Production BOM Version Code")),
-                          PlanningResiliency, NextPlanningCompLineNo, PlanningComponent, TempPlanningErrorLog, TempPlanningComponent,
-                          Blocked, SKU);
+                        OnCalculateOnTransferBOM(
+                            ReqLine, Item, PlanningComponent, TempPlanningErrorLog, TempPlanningComponent, SKU,
+                            PlanningResiliency, NextPlanningCompLineNo, Blocked);
                 end;
             end;
         end;
@@ -894,6 +889,14 @@ codeunit 99000809 "Planning Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateRouting(var RequisitionLine: Record "Requisition Line"; var TempPlanningErrorLog: Record "Planning Error Log" temporary; PlanningResiliency: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnTransferBOM(
+        var RequisitionLine: Record "Requisition Line"; Item: Record Item; var PlanningComponent: Record "Planning Component";
+        var TempPlanningErrorLog: Record "Planning Error Log" temporary; var TempPlanningComponent: Record "Planning Component" temporary;
+        SKU: Record "Stockkeeping Unit"; PlanningResiliency: Boolean; var NextPlanningCompLineNo: Integer; Blocked: Boolean)
     begin
     end;
 }
