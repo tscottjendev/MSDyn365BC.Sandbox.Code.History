@@ -245,7 +245,7 @@ codeunit 5407 "Prod. Order Status Management"
         ProductionOrder.Status := ProductionOrder.Status::Released;
         ProductionOrder."Reopened" := true;
         ProductionOrder.Insert();
-        
+
         OnAfterTransferReopenProdOrder(ProductionOrder, FromProdOrder);
     end;
 
@@ -1947,7 +1947,7 @@ codeunit 5407 "Prod. Order Status Management"
     local procedure OnProcessProdOrderLineForReopenOnBeforeDeleteUpdateProdOrderLine(ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferReopenProdOrder(ProductionOrder: Record "Production Order"; FromProductionOrder: Record "Production Order")
     begin
