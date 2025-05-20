@@ -7,7 +7,6 @@ namespace Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Forecast;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Purchases.Vendor;
 using System.Security.AccessControl;
@@ -201,21 +200,6 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
         exit(PlanningRoutingLine.FindFirst());
     end;
 
-    procedure FindCurrForecastName(var ForecastName: Code[10]): Boolean
-    var
-        UntrackedPlanningElement: Record "Untracked Planning Element";
-    begin
-        UntrackedPlanningElement.SetRange("Worksheet Template Name", "Worksheet Template Name");
-        UntrackedPlanningElement.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
-        UntrackedPlanningElement.SetRange("Item No.", "Item No.");
-        UntrackedPlanningElement.SetRange("Source Type", Database::"Production Forecast Entry");
-        UntrackedPlanningElement.SetLoadFields("Source ID");
-        if UntrackedPlanningElement.FindFirst() then begin
-            ForecastName := CopyStr(UntrackedPlanningElement."Source ID", 1, 10);
-            exit(true);
-        end;
-    end;
-
     procedure GetRefOrderTypeBin() BinCode: Code[20]
     var
         PlanningRoutingLine: Record "Planning Routing Line";
@@ -265,15 +249,15 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
             end
         else
 #endif
-            case "Flushing Method" of
-                "Flushing Method"::"Pick + Manual",
-                "Flushing Method"::"Pick + Forward",
-                "Flushing Method"::"Pick + Backward":
-                    exit(Location."To-Production Bin Code");
-                "Flushing Method"::Manual,
-                "Flushing Method"::Forward,
-                "Flushing Method"::Backward:
-                    exit(Location."Open Shop Floor Bin Code");
+        case "Flushing Method" of
+            "Flushing Method"::"Pick + Manual",
+            "Flushing Method"::"Pick + Forward",
+            "Flushing Method"::"Pick + Backward":
+                exit(Location."To-Production Bin Code");
+            "Flushing Method"::Manual,
+            "Flushing Method"::Forward,
+            "Flushing Method"::Backward:
+                exit(Location."Open Shop Floor Bin Code");
             end;
     end;
 
