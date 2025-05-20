@@ -864,8 +864,15 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
 
     procedure CanIncNonInvCostIntoProductionItem(): Boolean
     begin
-        ManufacturingSetup.GetRecordOnce();
+        ManufacturingSetup.Get();
         exit(ManufacturingSetup."Inc. Non. Inv. Cost To Prod");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Cost Calculation Management", 'OnCanIncNonInvCostIntoProductionItem', '', true, true)]
+    local procedure OnCanIncNonInvCostIntoProductionItem(var Result: Boolean)
+    begin
+        ManufacturingSetup.Get();
+        Result := ManufacturingSetup."Inc. Non. Inv. Cost To Prod";
     end;
 
     [IntegrationEvent(false, false)]
