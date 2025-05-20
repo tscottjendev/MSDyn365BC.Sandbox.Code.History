@@ -1026,6 +1026,36 @@ table 1382 "Item Templ."
                 ValidateItemField(FieldNo("Overhead Rate"));
             end;
         }
+        field(99000773; "Order Tracking Policy"; Enum "Order Tracking Policy")
+        {
+            Caption = 'Order Tracking Policy';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Order Tracking Policy"));
+            end;
+        }
+        field(99000875; Critical; Boolean)
+        {
+            Caption = 'Critical';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo(Critical));
+            end;
+        }
+        field(99008500; "Common Item No."; Code[20])
+        {
+            Caption = 'Common Item No.';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Common Item No."));
+            end;
+        }
 #if not CLEANSCHEMA30
         field(10500; "Reverse Charge Applies"; Boolean)
         {

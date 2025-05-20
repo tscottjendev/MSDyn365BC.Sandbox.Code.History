@@ -1259,12 +1259,6 @@ xmlport 5801 "Export Item Data"
                 fieldelement(ItemTrackingCode_SNTransferTracking; ItemTrackingCode."SN Transfer Tracking")
                 {
                 }
-                fieldelement(ItemTrackingCode_SNManufInboundTracking; ItemTrackingCode."SN Manuf. Inbound Tracking")
-                {
-                }
-                fieldelement(ItemTrackingCode_SNManufOutboundTracking; ItemTrackingCode."SN Manuf. Outbound Tracking")
-                {
-                }
                 fieldelement(ItemTrackingCode_SNAssemblyInboundTracking; ItemTrackingCode."SN Assembly Inbound Tracking")
                 {
                 }
@@ -1308,12 +1302,6 @@ xmlport 5801 "Export Item Data"
                 {
                 }
                 fieldelement(ItemTrackingCode_LotTransferTracking; ItemTrackingCode."Lot Transfer Tracking")
-                {
-                }
-                fieldelement(ItemTrackingCode_LotManufInboundTracking; ItemTrackingCode."Lot Manuf. Inbound Tracking")
-                {
-                }
-                fieldelement(ItemTrackingCode_LotManufOutboundTracking; ItemTrackingCode."Lot Manuf. Outbound Tracking")
                 {
                 }
                 fieldelement(ItemTrackingCode_LotAssemblyInboundTracking; ItemTrackingCode."Lot Assembly Inbound Tracking")
@@ -1390,34 +1378,10 @@ xmlport 5801 "Export Item Data"
                 fieldelement(CapLedgEntry_Description; CapLedgEntry.Description)
                 {
                 }
-                fieldelement(CapLedgEntry_OperationNo; CapLedgEntry."Operation No.")
-                {
-                }
-                fieldelement(CapLedgEntry_WorkCenterNo; CapLedgEntry."Work Center No.")
-                {
-                }
                 fieldelement(CapLedgEntry_Quantity; CapLedgEntry.Quantity)
                 {
                 }
-                fieldelement(CapLedgEntry_SetupTime; CapLedgEntry."Setup Time")
-                {
-                }
-                fieldelement(CapLedgEntry_RunTime; CapLedgEntry."Run Time")
-                {
-                }
-                fieldelement(CapLedgEntry_StopTime; CapLedgEntry."Stop Time")
-                {
-                }
                 fieldelement(CapLedgEntry_InvoicedQuantity; CapLedgEntry."Invoiced Quantity")
-                {
-                }
-                fieldelement(CapLedgEntry_OutputQuantity; CapLedgEntry."Output Quantity")
-                {
-                }
-                fieldelement(CapLedgEntry_ScrapQuantity; CapLedgEntry."Scrap Quantity")
-                {
-                }
-                fieldelement(CapLedgEntry_ConcurrentCapacity; CapLedgEntry."Concurrent Capacity")
                 {
                 }
                 fieldelement(CapLedgEntry_CapUnitofMeasureCode; CapLedgEntry."Cap. Unit of Measure Code")
@@ -1432,22 +1396,7 @@ xmlport 5801 "Export Item Data"
                 fieldelement(CapLedgEntry_GlobalDimension2Code; CapLedgEntry."Global Dimension 2 Code")
                 {
                 }
-                fieldelement(CapLedgEntry_LastOutputLine; CapLedgEntry."Last Output Line")
-                {
-                }
                 fieldelement(CapLedgEntry_CompletelyInvoiced; CapLedgEntry."Completely Invoiced")
-                {
-                }
-                fieldelement(CapLedgEntry_StartingTime; CapLedgEntry."Starting Time")
-                {
-                }
-                fieldelement(CapLedgEntry_EndingTime; CapLedgEntry."Ending Time")
-                {
-                }
-                fieldelement(CapLedgEntry_RoutingNo; CapLedgEntry."Routing No.")
-                {
-                }
-                fieldelement(CapLedgEntry_RoutingReferenceNo; CapLedgEntry."Routing Reference No.")
                 {
                 }
                 fieldelement(CapLedgEntry_ItemNo; CapLedgEntry."Item No.")
@@ -2123,12 +2072,6 @@ xmlport 5801 "Export Item Data"
                 {
                 }
                 fieldelement(InvAdjmEntry_ItemNo; InvAdjmEntry."Item No.")
-                {
-                }
-                fieldelement("InvAdjmEntry_RoutingNo."; InvAdjmEntry."Routing No.")
-                {
-                }
-                fieldelement("InvAdjmEntry_RoutingReferenceNo."; InvAdjmEntry."Routing Reference No.")
                 {
                 }
                 fieldelement(InvAdjmEntry_IndirectCostPercentage; InvAdjmEntry."Indirect Cost %")

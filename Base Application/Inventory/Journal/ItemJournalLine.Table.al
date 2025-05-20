@@ -2891,21 +2891,21 @@ table 83 "Item Journal Line"
     local procedure CalcUnitCost(ItemLedgEntry: Record "Item Ledger Entry"): Decimal
     var
         ValueEntry: Record "Value Entry";
-        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
-        UnitCost: Decimal;
+        CostCalcMgt: Codeunit "Cost Calculation Management";
+        UnitCost2: Decimal;
     begin
         ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then begin
+        if CostCalcMgt.CanIncNonInvCostIntoProductionItem() then begin
             ValueEntry.CalcSums("Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
-            UnitCost := (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Non-Invtbl.)") / ItemLedgEntry.Quantity
+            UnitCost2 := (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Non-Invtbl.)") / ItemLedgEntry.Quantity
         end else begin
             ValueEntry.CalcSums("Cost Amount (Expected)", "Cost Amount (Actual)");
-            UnitCost := (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)") / ItemLedgEntry.Quantity;
+            UnitCost2 := (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)") / ItemLedgEntry.Quantity;
         end;
 
-        exit(Abs(UnitCost * "Qty. per Unit of Measure"));
+        exit(Abs(UnitCost2 * "Qty. per Unit of Measure"));
     end;
 
     local procedure ClearSingleAndRolledUpCosts()
