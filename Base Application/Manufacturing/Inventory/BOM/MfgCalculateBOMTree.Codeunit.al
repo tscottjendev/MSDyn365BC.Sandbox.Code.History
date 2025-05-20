@@ -405,4 +405,13 @@ codeunit 99000781 "Mfg. Calculate BOM Tree"
     local procedure OnAfterTransferFromProdRouting(var BOMBuffer: Record "BOM Buffer"; var RoutingLine: Record Microsoft.Manufacturing.Routing."Routing Line")
     begin
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"BOM Node", 'OnWriteToDatabaseOnProductionBOM', '', false, false)]
+    local procedure OnWriteToDatabaseOnProductionBOM(BOMNo: Code[20]; CalculateLowLevelCode: Integer)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        ProductionBOMHeader.SetRange("No.", BOMNo);
+        ProductionBOMHeader.ModifyAll("Low-Level Code", CalculateLowLevelCode);
+    end;
 }
