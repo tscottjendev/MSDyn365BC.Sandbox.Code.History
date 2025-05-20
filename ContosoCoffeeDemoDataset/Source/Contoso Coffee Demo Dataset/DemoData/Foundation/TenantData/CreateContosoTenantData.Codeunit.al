@@ -128,6 +128,7 @@ codeunit 5691 "Create Contoso Tenant Data"
                              'ConcurrentInventoryPosting',
                              'ConcurrentJobPosting',
                              'ConcurrentResourcePosting',
+                             'FullTextSearch',
                              'SemanticMetadataSearch']
         then
             exit(true);

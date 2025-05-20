@@ -265,8 +265,9 @@ tableextension 8054 "Sales Line" extends "Sales Line"
             if Rec.IsTypeServiceObject() then
                 Rec.Validate("Exclude from Doc. Total", IsContractRenewalLocal);
         end else
-            if (Rec.Type = Rec.Type::Item) and (Rec."No." <> '') and (not Rec.IsLineAttachedToBillingLine()) then
-                Rec.Validate("Exclude from Doc. Total", ItemManagement.IsServiceCommitmentItem(Rec."No."));
+            if Rec.IsSalesDocumentTypeWithServiceCommitments() then
+                if ((Rec.Type = Rec.Type::Item) and (Rec."No." <> '')) then
+                    Rec.Validate("Exclude from Doc. Total", ItemManagement.IsServiceCommitmentItem(Rec."No."));
     end;
 
     internal procedure IsLineWithServiceObject(): Boolean
