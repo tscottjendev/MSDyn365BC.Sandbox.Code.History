@@ -6716,7 +6716,7 @@ table 36 "Sales Header"
             OnRecreateReservEntryReqLineOnAfterCalcShouldValidateLocationCode(Rec, xRec, SalesLine, ShouldValidateLocationCode);
             if ShouldValidateLocationCode then begin
                 SalesLine.Validate("Location Code", "Location Code");
-                if (Rec."Document Type" = Rec."Document Type"::Invoice) or (Rec."Document Type" = Rec."Document Type"::"Credit Memo") then
+                if Rec."Document Type" in [Rec."Document Type"::Invoice, Rec."Document Type"::"Credit Memo"] then
                     if SalesLine."Location Code" <> '' then
                         SalesLine.CheckLocationOnWMS();
             end;
