@@ -58,21 +58,30 @@ codeunit 6104 "Import E-Document Process"
             end;
 
         if ImportProcessVersion = "E-Document Import Process"::"Version 1.0" then begin
-            if Step = Step::"Finish draft" then begin
-                case EDocImportParameters."Purch. Journal V1 Behavior" of
-                    EDocImportParameters."Purch. Journal V1 Behavior"::"Inherit from service":
-                        CreateJournalLineV1 := EDocument.GetEDocumentService()."Create Journal Lines";
-                    EDocImportParameters."Purch. Journal V1 Behavior"::"Create journal line":
-                        CreateJournalLineV1 := true;
-                    EDocImportParameters."Purch. Journal V1 Behavior"::"Create purchase document":
-                        CreateJournalLineV1 := false;
-                end;
-                EDocImport.V1_ProcessEDocument(EDocument, CreateJournalLineV1, EDocImportParameters."Create Document V1 Behavior");
-            end
+            if Step = Step::"Finish draft" then
+                if UndoStep then begin
+                    EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, NewStatus);
+                    EDocumentProcessing.ModifyEDocumentStatus(EDocument);
+                    Clear(EDocument."Document Record ID");
+                    EDocument.Modify();
+                end else begin
+                    case EDocImportParameters."Purch. Journal V1 Behavior" of
+                        EDocImportParameters."Purch. Journal V1 Behavior"::"Inherit from service":
+                            CreateJournalLineV1 := EDocument.GetEDocumentService()."Create Journal Lines";
+                        EDocImportParameters."Purch. Journal V1 Behavior"::"Create journal line":
+                            CreateJournalLineV1 := true;
+                        EDocImportParameters."Purch. Journal V1 Behavior"::"Create purchase document":
+                            CreateJournalLineV1 := false;
+                    end;
+                    EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, NewStatus);
+                    EDocImport.V1_ProcessEDocument(EDocument, CreateJournalLineV1, EDocImportParameters."Create Document V1 Behavior");
+                end
+
         end
         else begin
             EDocLog := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, NewStatus);
             EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, NewStatus);
+            EDocumentProcessing.ModifyEDocumentStatus(EDocument);
             EDocument.Get(EDocument."Entry No");
 
             if (not UndoStep) and (Step = Step::"Structure received data") and (EDocument."Structured Data Entry No." = 0) then begin
@@ -180,8 +189,9 @@ codeunit 6104 "Import E-Document Process"
         IEDocumentFinishDraft: Interface IEDocumentFinishDraft;
     begin
         IEDocumentFinishDraft := EDocument."Document Type";
+
+        // Clean up / reset E-Document fields
         EDocument."Document Record ID" := IEDocumentFinishDraft.ApplyDraftToBC(EDocument, EDocImportParameters);
-        EDocument.Status := Enum::"E-Document Status"::Processed;
         EDocument.Modify();
     end;
 
@@ -191,6 +201,10 @@ codeunit 6104 "Import E-Document Process"
     begin
         IEDocumentFinishDraft := EDocument."Document Type";
         IEDocumentFinishDraft.RevertDraftActions(EDocument);
+
+        // Clean up / reset E-Document fields 
+        Clear(EDocument."Document Record ID");
+        EDocument.Modify();
     end;
 
     internal procedure ConfigureImportRun(EDocument: Record "E-Document"; NewStep: Enum "Import E-Document Steps"; EDocImportParameters: Record "E-Doc. Import Parameters"; NewUndoStep: Boolean)
@@ -295,7 +309,6 @@ codeunit 6104 "Import E-Document Process"
         EDocument: Record "E-Document";
         EDocImportParameters: Record "E-Doc. Import Parameters";
         EDocumentLog: Codeunit "E-Document Log";
-
         EDocumentProcessing: Codeunit "E-Document Processing";
         Step: Enum "Import E-Document Steps";
         UndoStep: Boolean;

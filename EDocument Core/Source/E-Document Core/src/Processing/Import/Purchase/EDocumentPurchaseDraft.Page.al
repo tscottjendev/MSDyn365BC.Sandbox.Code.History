@@ -191,13 +191,19 @@ page 6181 "E-Document Purchase Draft"
 
                 trigger OnAction()
                 begin
-                    Session.LogMessage('0000PCO', FinalizeDraftInvokedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
                     FinalizeEDocument();
-                    PageEditable := ConditionallyEditable();
-                    CurrPage.Lines.Page.Update();
-                    CurrPage.Update();
-                    Session.LogMessage('0000PCP', FinalizeDraftPerformedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
-                    FeatureTelemetry.LogUsage('0000PCU', EDocPOCopilotMatching.FeatureName(), 'Finalize draft');
+                end;
+            }
+            action(ResetDraftDocument)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Reset draft';
+                ToolTip = 'Resets the draft document. Any changes made to the draft document will be lost.';
+                Image = Restore;
+                Visible = true;
+                trigger OnAction()
+                begin
+                    ResetDraft();
                 end;
             }
             action(AnalyzeDocument)
@@ -390,27 +396,72 @@ page 6181 "E-Document Purchase Draft"
         EDocImport: Codeunit "E-Doc. Import";
         EDocumentHelper: Codeunit "E-Document Helper";
     begin
+        Session.LogMessage('0000PCO', FinalizeDraftInvokedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
+
         if not EDocumentHelper.EnsureInboundEDocumentHasService(Rec) then
             exit;
 
-        Rec.CalcFields("Import Processing Status");
         EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
         EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
         Rec.Get(Rec."Entry No");
         Rec.ShowRecord();
+
+        PageEditable := ConditionallyEditable();
+        CurrPage.Lines.Page.Update();
+        CurrPage.Update();
+        Session.LogMessage('0000PCP', FinalizeDraftPerformedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
+        FeatureTelemetry.LogUsage('0000PCU', EDocPOCopilotMatching.FeatureName(), 'Finalize draft');
+    end;
+
+    local procedure ResetDraft()
+    var
+        EDocImportParameters: Record "E-Doc. Import Parameters";
+        EDocImport: Codeunit "E-Doc. Import";
+        EDocumentHelper: Codeunit "E-Document Helper";
+        ConfirmDialogMgt: Codeunit "Confirm Management";
+        Progress: Dialog;
+    begin
+        if not EDocumentHelper.EnsureInboundEDocumentHasService(Rec) then
+            exit;
+        if not ConfirmDialogMgt.GetResponseOrDefault(ResetDraftQst) then
+            exit;
+        if GuiAllowed() then
+            Progress.Open(ProcessingDocumentMsg);
+
+        // Regardless of document state, we re-run the read data into IR, then prepare draft step.
+        EDocImportParameters."Step to Run" := Enum::"Import E-Document Steps"::"Read into IR";
+        EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+        EDocImportParameters."Step to Run" := Enum::"Import E-Document Steps"::"Prepare draft";
+        EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+
+        Rec.Get(Rec."Entry No");
+        if GuiAllowed() then
+            Progress.Close();
     end;
 
     local procedure AnalyzeEDocument()
     var
-        EDocumentService: Record "E-Document Service";
         EDocImportParameters: Record "E-Doc. Import Parameters";
+        EDocumentService: Record "E-Document Service";
         EDocImport: Codeunit "E-Doc. Import";
+        Progress: Dialog;
     begin
         EDocumentService.GetPDFReaderService();
         Rec.TestField("Service", EDocumentService.Code);
 
+        if GuiAllowed() then
+            Progress.Open(ProcessingDocumentMsg);
+
+
+        // Regardless of document state, we re-run the structure received data, then prepare draft step.
         EDocImportParameters."Step to Run" := Enum::"Import E-Document Steps"::"Structure received data";
         EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+        EDocImportParameters."Step to Run" := Enum::"Import E-Document Steps"::"Prepare draft";
+        EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+
+        Rec.Get(Rec."Entry No");
+        if GuiAllowed() then
+            Progress.Close();
     end;
 
     var
@@ -430,6 +481,8 @@ page 6181 "E-Document Purchase Draft"
         EDocHasErrorOrWarningMsg: Label 'Errors or warnings found for E-Document. Please review below in "Error Messages" section.';
         FinalizeDraftInvokedTxt: Label 'User invoked Finalize Draft action.';
         FinalizeDraftPerformedTxt: Label 'User completed Finalize Draft action.';
+        ProcessingDocumentMsg: Label 'Processing document...';
+        ResetDraftQst: Label 'All the changes that you may have made on the document draft will be lost. Do you want to continue?';
         PageEditable: Boolean;
 }
 #pragma warning restore AS0050

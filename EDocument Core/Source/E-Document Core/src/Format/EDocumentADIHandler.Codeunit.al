@@ -61,8 +61,7 @@ codeunit 6174 "E-Document ADI Handler" implements IBlobType, IBlobToStructuredDa
     begin
         // Clean up old data, since we are re-reading data
         EDocumentPurchaseHeader.SetRange("E-Document Entry No.", EDocument."Entry No");
-        if not EDocumentPurchaseHeader.IsEmpty() then
-            EDocumentPurchaseHeader.Delete();
+        EDocumentPurchaseHeader.DeleteAll();
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
         EDocumentPurchaseLine.DeleteAll();
 
