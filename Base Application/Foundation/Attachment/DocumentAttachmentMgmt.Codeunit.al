@@ -51,7 +51,7 @@ codeunit 1173 "Document Attachment Mgmt"
 
         SetDocumentAttachmentFiltersForRecRef(DocumentAttachment, RecRef);
         if AttachedDocumentsExist(RecRef) then
-            DocumentAttachment.DeleteAll();
+            DocumentAttachment.DeleteAll(true);
     end;
 
     procedure DeleteAttachedDocumentsWithConfirm(RecRef: RecordRef)
