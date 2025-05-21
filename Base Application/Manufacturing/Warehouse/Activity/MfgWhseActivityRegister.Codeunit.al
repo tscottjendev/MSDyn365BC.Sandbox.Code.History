@@ -211,6 +211,26 @@ codeunit 99000765 "Mfg. Whse. Activity Register"
 
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse.-Activity-Register", 'OnBeforeCheckQtyAvailToInsertBase', '', false, false)]
+    local procedure OnBeforeCheckQtyAvailToInsertBase(var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var QtyAvailToInsertBase: Decimal; var AllowWhseOverpick: Boolean)
+    var
+        Item: Record Item;
+    begin
+        if TempWhseActivLine."Whse. Document Type" <> TempWhseActivLine."Whse. Document Type"::Production then
+            exit;
+        if TempWhseActivLine."Source Type" <> Database::"Prod. Order Component" then
+            exit;
+        if TempWhseActivLine."Activity Type" <> TempWhseActivLine."Activity Type"::Pick then
+            exit;
+        if TempWhseActivLine."Source Document" <> TempWhseActivLine."Source Document"::"Prod. Consumption" then
+            exit;
+        if TempWhseActivLine."Source Subtype" <> TempWhseActivLine."Source Subtype"::"3" then
+            exit;
+
+        Item.Get(TempWhseActivLine."Item No.");
+        AllowWhseOverpick := Item."Allow Whse. Overpick";
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeProdCompLineModify(var ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
