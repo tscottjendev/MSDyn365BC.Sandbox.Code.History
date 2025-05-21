@@ -21,6 +21,7 @@ codeunit 9640 "Column Picker Helper"
 
             // Filter the pages and fields shown in the repeater control
             FilterRelatedPagesAndFields(PageTableField);
+            PageTableField.SetCurrentKey(Name);
         end;
     end;
 
@@ -58,7 +59,6 @@ codeunit 9640 "Column Picker Helper"
     begin
         PageTableField.SetFilter(FieldKind, '%1', PageTableField.FieldKind::PageFieldBoundToTable);
         PageTableField.SetFilter("Page ID", '%1', PageId);
-        PageTableField.SetCurrentKey(Name);
     end;
 
     procedure GetAreTherePagesAvailable(): Boolean
