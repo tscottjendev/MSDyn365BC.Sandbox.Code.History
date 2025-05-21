@@ -15,7 +15,6 @@ using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
@@ -1106,7 +1105,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
         TotalDemandQty: Decimal;
         TotalSupplyQty: Decimal;
     begin
-        if (SupplyInvtProfile."Source Type" <> Database::"Prod. Order Line") or (DemandInvtProfile."Source Type" <> Database::"Prod. Order Component") then
+        if (SupplyInvtProfile."Source Type" <> 5406) or // Database::"Prod. Order Line"
+           (DemandInvtProfile."Source Type" <> 5407) // Database::"Prod. Order Component"
+        then
             exit(false);
 
         if DemandInvtProfile.FindSet() then
