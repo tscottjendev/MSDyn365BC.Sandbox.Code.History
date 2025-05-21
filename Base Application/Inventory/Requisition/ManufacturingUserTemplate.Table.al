@@ -7,7 +7,6 @@ namespace Microsoft.Inventory.Requisition;
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.History;
 using System.Security.AccessControl;
 using System.Security.User;
@@ -39,7 +38,7 @@ table 5525 "Manufacturing User Template"
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Create Purchase Order';
         }
-        field(3; "Create Production Order"; Enum "Planning Create Prod. Order")
+        field(3; "Create Production Order"; Enum Microsoft.Manufacturing.Document."Planning Create Prod. Order")
         {
             Caption = 'Create Production Order';
         }
