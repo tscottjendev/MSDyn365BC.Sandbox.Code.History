@@ -12,7 +12,9 @@ tableextension 12145 NoSeriesIT extends "No. Series"
         {
             Caption = 'No. Series Type';
             DataClassification = CustomerContent;
+#if not CLEANSCHEMA27
             MovedFrom = 'f3552374-a1f2-4356-848e-196002525837';
+#endif
 
             trigger OnValidate()
             var
@@ -25,7 +27,9 @@ tableextension 12145 NoSeriesIT extends "No. Series"
         {
             Caption = 'VAT Register';
             DataClassification = CustomerContent;
+#if not CLEANSCHEMA27
             MovedFrom = 'f3552374-a1f2-4356-848e-196002525837';
+#endif
 
             TableRelation = if ("No. Series Type" = const(Sales)) "VAT Register" where(Type = const(Sale))
             else
@@ -42,13 +46,17 @@ tableextension 12145 NoSeriesIT extends "No. Series"
         {
             Caption = 'VAT Reg. Print Priority';
             DataClassification = CustomerContent;
+#if not CLEANSCHEMA27
             MovedFrom = 'f3552374-a1f2-4356-848e-196002525837';
+#endif
         }
         field(12103; "Reverse Sales VAT No. Series"; Code[20])
         {
             Caption = 'Reverse Sales VAT No. Series';
             DataClassification = CustomerContent;
+#if not CLEANSCHEMA27
             MovedFrom = 'f3552374-a1f2-4356-848e-196002525837';
+#endif
 
             TableRelation = if ("No. Series Type" = const(Sales)) "No. Series" where("No. Series Type" = const(Purchase))
             else
