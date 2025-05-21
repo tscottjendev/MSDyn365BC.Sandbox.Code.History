@@ -25,11 +25,11 @@ using Microsoft.Warehouse.InventoryDocument;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Tracking;
 using Microsoft.Warehouse.Worksheet;
 using System.Utilities;
-using Microsoft.Warehouse.Setup;
 
 codeunit 7307 "Whse.-Activity-Register"
 {
@@ -986,6 +986,7 @@ codeunit 7307 "Whse.-Activity-Register"
         QtyAvailToRegisterBase: Decimal;
         QtyAvailToInsertBase: Decimal;
         QtyToRegisterBase: Decimal;
+        AllowWhseOverpick: Boolean;
         IsHandled: Boolean;
     begin
         OnBeforeCheckWhseItemTrkgLine(WhseActivLine);
@@ -1050,11 +1051,13 @@ codeunit 7307 "Whse.-Activity-Register"
                     QtyAvailToRegisterBase := CalcQtyAvailToRegisterBase(TempWhseActivLine);
                     if QtyToRegisterBase > QtyAvailToRegisterBase then
                         QtyAvailToInsertBase -= QtyToRegisterBase - QtyAvailToRegisterBase;
-                    OnBeforeCheckQtyAvailToInsertBase(TempWhseActivLine, QtyAvailToInsertBase);
-                    if QtyAvailToInsertBase < 0 then
-                        Error(
-                          InsufficientQtyItemTrkgErr, TempWhseActivLine."Source Line No.", TempWhseActivLine."Source Document",
-                          TempWhseActivLine."Source No.");
+                    AllowWhseOverpick := false;
+                    OnBeforeCheckQtyAvailToInsertBase(TempWhseActivLine, QtyAvailToInsertBase, AllowWhseOverpick);
+                    if not AllowWhseOverpick then
+                        if QtyAvailToInsertBase < 0 then
+                            Error(
+                              InsufficientQtyItemTrkgErr, TempWhseActivLine."Source Line No.", TempWhseActivLine."Source Document",
+                              TempWhseActivLine."Source No.");
 
                     if TempWhseActivLine.TrackingExists() then begin
                         WhseItemTrackingSetup.CopyTrackingFromWhseActivityLine(TempWhseActivLine);
@@ -2359,7 +2362,7 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckQtyAvailToInsertBase(var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var QtyAvailToInsertBase: Decimal)
+    local procedure OnBeforeCheckQtyAvailToInsertBase(var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var QtyAvailToInsertBase: Decimal; var AllowWhseOverpick: Boolean)
     begin
     end;
 
