@@ -158,12 +158,13 @@ tableextension 8054 "Sales Line" extends "Sales Line"
         DimMgt: Codeunit DimensionManagement;
         TypeCannotBeSelectedManuallyErr: Label 'Type "%1" cannot be selected manually.', Comment = '%1 = Sales Line Type';
 
-    internal procedure InitFromSalesHeader(SourceSalesHeader: Record "Sales Header")
+    procedure InitFromSalesHeader(SourceSalesHeader: Record "Sales Header")
     begin
         Rec.Init();
         Rec."Document Type" := SourceSalesHeader."Document Type";
         Rec."Document No." := SourceSalesHeader."No.";
         Rec."Line No." := SourceSalesHeader.GetNextLineNo();
+        Rec."Sell-to Customer No." := SourceSalesHeader."Sell-to Customer No.";
     end;
 
     internal procedure DeleteSalesServiceCommitment()
@@ -278,7 +279,7 @@ tableextension 8054 "Sales Line" extends "Sales Line"
         exit(Rec.Type = "Sales Line Type"::"Service Object");
     end;
 
-    internal procedure InsertDescriptionSalesLine(SourceSalesHeader: Record "Sales Header"; NewDescription: Text; AttachedToLineNo: Integer)
+    procedure InsertDescriptionSalesLine(SourceSalesHeader: Record "Sales Header"; NewDescription: Text; AttachedToLineNo: Integer)
     var
         SalesLine: Record "Sales Line";
     begin
