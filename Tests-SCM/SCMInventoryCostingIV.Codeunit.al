@@ -353,7 +353,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         DocumentNo := PostPurchaseDocument(PurchaseLine, true);
 
         // Verify: Verify Value Entry for Cost Amount (Actual) (ACY) and Cost per Unit (ACY).
-        asserterror VerifyValueEntryAmountsInACY(
+        VerifyValueEntryAmountsInACY(
           DocumentNo, PurchaseLine."No.", Currency."Unit-Amount Rounding Precision", CostAmountActualACY,
           CostAmountActualACY / PurchRcptLine.Quantity, 0);  // Zero value for Cost Amount Expected.
     end;
