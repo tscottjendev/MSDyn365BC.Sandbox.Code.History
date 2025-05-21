@@ -3965,7 +3965,7 @@ codeunit 6620 "Copy Document Mgt."
                         ToLineCounter := ToLineCounter + 1;
                         if IsTimeForUpdate() then
                             UpdateWindow(2, ToLineCounter);
-                        if FromPurchLine."Prod. Order No." <> '' then
+                        if FromPurchLine.IsProdOrder() then
                             FromPurchLine."Quantity (Base)" := 0;
 
                         OnCopyPurchRcptLinesToDocOnBeforeCopyPurchLine(ToPurchHeader, TempFromPurchLineBuf, CopyItemTrkg);
@@ -4167,7 +4167,7 @@ codeunit 6620 "Copy Document Mgt."
                         CopyFromPurchLineItemChargeAssign(FromPurchLine, ToPurchLine, FromPurchHeader, ItemChargeAssgntNextLineNo);
                     end;
                     // copy item tracking
-                    ShouldCopyItemTrackingEntries := (TempFromPurchLineBuf.Type = TempFromPurchLineBuf.Type::Item) and (TempFromPurchLineBuf.Quantity <> 0) and (TempFromPurchLineBuf."Prod. Order No." = '') and PurchaseDocCanReceiveTracking(ToPurchHeader);
+                    ShouldCopyItemTrackingEntries := (TempFromPurchLineBuf.Type = TempFromPurchLineBuf.Type::Item) and (TempFromPurchLineBuf.Quantity <> 0) and (not TempFromPurchLineBuf.IsProdOrder()) and PurchaseDocCanReceiveTracking(ToPurchHeader);
                     OnCopyPurchInvLinesToDocOnAfterCalcShouldCopyItemTrackingEntries(ToPurchLine, ShouldCopyItemTrackingEntries);
                     if ShouldCopyItemTrackingEntries then begin
                         FromPurchInvLine."Document No." := OldInvDocNo;
@@ -4340,7 +4340,7 @@ codeunit 6620 "Copy Document Mgt."
                         CopyFromPurchLineItemChargeAssign(FromPurchLine, ToPurchLine, FromPurchHeader, ItemChargeAssgntNextLineNo);
                     end;
                     // copy item tracking
-                    ShouldCopyItemTrackingEntries := (TempFromPurchLineBuf.Type = TempFromPurchLineBuf.Type::Item) and (TempFromPurchLineBuf.Quantity <> 0) and (TempFromPurchLineBuf."Prod. Order No." = '');
+                    ShouldCopyItemTrackingEntries := (TempFromPurchLineBuf.Type = TempFromPurchLineBuf.Type::Item) and (TempFromPurchLineBuf.Quantity <> 0) and (not TempFromPurchLineBuf.IsProdOrder());
                     OnCopyPurchCrMemoLinesToDocOnAfterCalcShouldCopyItemTrackingEntries(ToPurchLine, ShouldCopyItemTrackingEntries);
                     if ShouldCopyItemTrackingEntries then begin
                         FromPurchCrMemoLine."Document No." := OldCrMemoDocNo;
@@ -4578,8 +4578,7 @@ codeunit 6620 "Copy Document Mgt."
 
         CopyItemTrkg := false;
 
-        if (FromPurchLine.Type <> FromPurchLine.Type::Item) or (FromPurchLine.Quantity = 0) or (FromPurchLine."Prod. Order No." <> '')
-        then
+        if (FromPurchLine.Type <> FromPurchLine.Type::Item) or (FromPurchLine.Quantity = 0) or FromPurchLine.IsProdOrder() then
             exit(false);
 
         PurchaseItem.Get(FromPurchLine."No.");

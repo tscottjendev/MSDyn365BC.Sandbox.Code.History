@@ -11,6 +11,7 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
+using Microsoft.Foundation.UOM;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.MachineCenter;
 
@@ -136,6 +137,22 @@ codeunit 99000819 "Mfg. Planning Line Management"
         PlanningLineManagement.RunOnAfterTransferRtngLine(ReqLine, RoutingLine, PlanningRoutingLine);
 #endif
         PlanningRoutingLine.Insert();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Line Management", 'OnCalculateOnTransferBOM', '', false, false)]
+    local procedure OnCalculateOnTransferBOM(
+        var RequisitionLine: Record "Requisition Line"; Item: Record Item; var PlanningComponent: Record "Planning Component";
+        var TempPlanningErrorLog: Record "Planning Error Log" temporary; var TempPlanningComponent: Record "Planning Component" temporary;
+        SKU: Record "Stockkeeping Unit"; PlanningResiliency: Boolean; var NextPlanningCompLineNo: Integer; Blocked: Boolean)
+    var
+        UOMMgt: Codeunit "Unit of Measure Management";
+    begin
+        TransferBOM(
+            RequisitionLine, RequisitionLine."Production BOM No.", 1, RequisitionLine."Qty. per Unit of Measure",
+            UOMMgt.GetQtyPerUnitOfMeasure(
+                Item, VersionMgt.GetBOMUnitOfMeasure(RequisitionLine."Production BOM No.", RequisitionLine."Production BOM Version Code")),
+            PlanningResiliency, NextPlanningCompLineNo, PlanningComponent, TempPlanningErrorLog, TempPlanningComponent,
+            Blocked, SKU);
     end;
 
     internal procedure TransferBOM(var ReqLine: Record "Requisition Line"; ProdBOMNo: Code[20]; Level: Integer; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal; PlanningResiliency: Boolean; var NextPlanningCompLineNo: Integer; var PlanningComponent: Record "Planning Component"; var TempPlanningErrorLog: Record "Planning Error Log" temporary; var TempPlanningComponent: Record "Planning Component" temporary; Blocked: Boolean; SKU: Record "Stockkeeping Unit")

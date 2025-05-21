@@ -531,6 +531,30 @@ table 5870 "BOM Buffer"
         "Rolled-up Capacity Ovhd. Cost" += RolledUpCostAmt;
     end;
 
+    procedure AddSubcontrdCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
+    begin
+        "Single-Level Subcontrd. Cost" += SingleLvlCostAmt;
+        "Rolled-up Subcontracted Cost" += RolledUpCostAmt;
+    end;
+
+    procedure AddMfgOvhdCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
+    begin
+        "Single-Level Mfg. Ovhd Cost" += SingleLvlCostAmt;
+        "Rolled-up Mfg. Ovhd Cost" += RolledUpCostAmt;
+    end;
+
+    procedure AddScrapCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
+    begin
+        "Single-Level Scrap Cost" += SingleLvlCostAmt;
+        "Rolled-up Scrap Cost" += RolledUpCostAmt;
+    end;
+
+    procedure AddNonInvMaterialCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
+    begin
+        "Single-Lvl Mat. Non-Invt. Cost" += SingleLvlCostAmt;
+        "Rolled-up Mat. Non-Invt. Cost" += RolledUpCostAmt;
+    end;
+
     procedure GetItemCosts()
     var
         Item: Record Item;

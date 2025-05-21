@@ -317,30 +317,6 @@ tableextension 99000820 "Mfg. BOM Buffer" extends "BOM Buffer"
                 StrSubstNo(Text003, RoutingHeader."No."), DATABASE::"Routing Header", CopyStr(RoutingHeader.GetPosition(), 1, 250));
     end;
 
-    procedure AddSubcontrdCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
-    begin
-        "Single-Level Subcontrd. Cost" += SingleLvlCostAmt;
-        "Rolled-up Subcontracted Cost" += RolledUpCostAmt;
-    end;
-
-    procedure AddMfgOvhdCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
-    begin
-        "Single-Level Mfg. Ovhd Cost" += SingleLvlCostAmt;
-        "Rolled-up Mfg. Ovhd Cost" += RolledUpCostAmt;
-    end;
-
-    procedure AddScrapCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
-    begin
-        "Single-Level Scrap Cost" += SingleLvlCostAmt;
-        "Rolled-up Scrap Cost" += RolledUpCostAmt;
-    end;
-
-    procedure AddNonInvMaterialCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
-    begin
-        "Single-Lvl Mat. Non-Invt. Cost" += SingleLvlCostAmt;
-        "Rolled-up Mat. Non-Invt. Cost" += RolledUpCostAmt;
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromMachineCenter(var BOMBuffer: Record "BOM Buffer"; MachineCenter: Record "Machine Center");
     begin

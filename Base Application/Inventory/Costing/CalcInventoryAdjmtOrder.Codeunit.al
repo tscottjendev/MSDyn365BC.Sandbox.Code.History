@@ -18,7 +18,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
 
     var
         Item: Record Item;
-        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
+        CostCalcMgt: Codeunit "Cost Calculation Management";
 
     procedure Calculate(SourceInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var InvtAdjmtBuf: Record "Inventory Adjustment Buffer")
     var
@@ -160,7 +160,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
               ItemLedgerEntry."Entry No.", InventoryAdjustmentBuffer."Entry Type"::"Indirect Cost", "Cost Variance Type"::" ", InventoryAdjmtEntryOrder."Indirect Cost", InventoryAdjmtEntryOrder."Indirect Cost (ACY)");
 
         if ItemLedgerEntry."Order Type" = ItemLedgerEntry."Order Type"::Production then
-            if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            if CostCalcMgt.CanIncNonInvCostIntoProductionItem() then
                 if HasNewCost(InventoryAdjmtEntryOrder."Direct Cost Non-Inventory", InventoryAdjmtEntryOrder."Direct Cost Non-Inv. (ACY)") then
                     InventoryAdjustmentBuffer.AddCost(
                       ItemLedgerEntry."Entry No.", InventoryAdjustmentBuffer."Entry Type"::"Direct Cost - Non Inventory", "Cost Variance Type"::" ", InventoryAdjmtEntryOrder."Direct Cost Non-Inventory", InventoryAdjmtEntryOrder."Direct Cost Non-Inv. (ACY)");
@@ -174,7 +174,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
               InventoryAdjmtEntryOrder."Single-Level Material Cost", InventoryAdjmtEntryOrder."Single-Lvl Material Cost (ACY)");
 
         if ItemLedgerEntry."Order Type" = ItemLedgerEntry."Order Type"::Production then
-            if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            if CostCalcMgt.CanIncNonInvCostIntoProductionItem() then
                 if HasNewCost(InventoryAdjmtEntryOrder."Single-Lvl Mat. Non-Invt. Cost", InventoryAdjmtEntryOrder."Single-Lvl Mat.NonInvCost(ACY)") then
                     InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
                       InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::"Material - Non Inventory",
@@ -243,14 +243,14 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
                     OutputValueEntry."Entry Type"::"Indirect Cost":
                         InvtAdjmtEntryOrder.AddIndirectCost(OutputValueEntry."Cost Amount (Actual)", OutputValueEntry."Cost Amount (Actual) (ACY)");
                     OutputValueEntry."Entry Type"::"Direct Cost - Non Inventory":
-                        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                        if CostCalcMgt.CanIncNonInvCostIntoProductionItem() then
                             InvtAdjmtEntryOrder.AddDirectCostNonInv(OutputValueEntry."Cost Amount (Actual)", OutputValueEntry."Cost Amount (Actual) (ACY)");
                     OutputValueEntry."Entry Type"::Variance:
                         case OutputValueEntry."Variance Type" of
                             OutputValueEntry."Variance Type"::Material:
                                 InvtAdjmtEntryOrder.AddSingleLvlMaterialCost(OutputValueEntry."Cost Amount (Actual)", OutputValueEntry."Cost Amount (Actual) (ACY)");
                             OutputValueEntry."Variance Type"::"Material - Non Inventory":
-                                if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                                if CostCalcMgt.CanIncNonInvCostIntoProductionItem() then
                                     InvtAdjmtEntryOrder.AddSingleLvlNonInvMaterialCost(OutputValueEntry."Cost Amount (Actual)", OutputValueEntry."Cost Amount (Actual) (ACY)");
                             OutputValueEntry."Variance Type"::Capacity:
                                 InvtAdjmtEntryOrder.AddSingleLvlCapacityCost(OutputValueEntry."Cost Amount (Actual)", OutputValueEntry."Cost Amount (Actual) (ACY)");
@@ -283,7 +283,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
                 ItemLedgEntry."Entry Type"::"Assembly Consumption");
 
         CalcActualMaterialCostQuery.SetFilter(Value_Entry_Type, '<>%1', "Cost Entry Type"::Rounding);
-        if not MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+        if not CostCalcMgt.CanIncNonInvCostIntoProductionItem() then
             CalcActualMaterialCostQuery.SetRange(Inventoriable, true);
 
         if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Production then
@@ -298,7 +298,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
                     -CalcActualMaterialCostQuery.Cost_Amount__Actual_,
                     -CalcActualMaterialCostQuery.Cost_Amount__Actual___ACY_
                 );
-                if not MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                if not CostCalcMgt.CanIncNonInvCostIntoProductionItem() then
                     InvtAdjmtEntryOrder.AddSingleLvlMaterialCost(
                         -CalcActualMaterialCostQuery.Cost_Amount__Non_Invtbl__,
                         -CalcActualMaterialCostQuery.Cost_Amount__Non_Invtbl___ACY_
