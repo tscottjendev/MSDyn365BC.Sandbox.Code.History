@@ -207,12 +207,16 @@ table 5077 "Segment Line"
                     end;
                 end else begin
                     Rec."Language Code" := FindLanguage(Rec."Interaction Template Code", ContactGlobal."Language Code");
-                    if InteractTemplLanguage.Get(Rec."Interaction Template Code", Rec."Language Code") then begin
-                        Rec."Attachment No." := InteractTemplLanguage."Attachment No.";
-                        Rec."Word Template Code" := InteractTemplLanguage."Word Template Code";
-                    end else
-                        if InteractTmpl.Get(Rec."Interaction Template Code") then
-                            Rec."Word Template Code" := InteractTmpl."Word Template Code";
+
+                    IsHandled := false;
+                    OnInteractionTemplValidateOnBeforeGetInteractTemplLanguage(Rec, IsHandled);
+                    if not IsHandled then
+                        if InteractTemplLanguage.Get(Rec."Interaction Template Code", Rec."Language Code") then begin
+                            Rec."Attachment No." := InteractTemplLanguage."Attachment No.";
+                            Rec."Word Template Code" := InteractTemplLanguage."Word Template Code";
+                        end else
+                            if InteractTmpl.Get(Rec."Interaction Template Code") then
+                                Rec."Word Template Code" := InteractTmpl."Word Template Code";
                 end;
 
                 if InteractTmpl.Get(Rec."Interaction Template Code") then begin
@@ -1888,6 +1892,11 @@ table 5077 "Segment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateInteractionTemplateCode(var SegmentLine: Record "Segment Line"; var Cont: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInteractionTemplValidateOnBeforeGetInteractTemplLanguage(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
     begin
     end;
 
