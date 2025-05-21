@@ -1927,8 +1927,6 @@ page 51 "Purchase Invoice"
         SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
         StatusStyleTxt := Rec.GetStatusStyleText();
-        DocAmountEnable := PurchSetup.ShouldDocumentTotalAmountsBeChecked(Rec);
-        DocAmountsEditable := PurchSetup.CanDocumentTotalAmountsBeEdited(Rec);
     end;
 
     trigger OnAfterGetRecord()
@@ -2249,6 +2247,8 @@ page 51 "Purchase Invoice"
         WorkflowWebhookMgt: Codeunit "Workflow Webhook Management";
     begin
         HasIncomingDocument := Rec."Incoming Document Entry No." <> 0;
+        DocAmountEnable := PurchSetup.ShouldDocumentTotalAmountsBeChecked(Rec);
+        DocAmountsEditable := PurchSetup.CanDocumentTotalAmountsBeEdited(Rec);
         SetExtDocNoMandatoryCondition();
         SetPostingGroupEditable();
 
