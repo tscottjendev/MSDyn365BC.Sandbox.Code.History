@@ -584,7 +584,7 @@ report 1316 "Standard Statement"
                             if ("Posting Date" > EndDate) and ("Due Date" >= EndDate) then
                                 CurrReport.Skip();
                             if DateChoice = DateChoice::"Due Date" then
-                                if "Due Date" >= EndDate then
+                                if "Due Date" > EndDate then
                                     CurrReport.Skip();
                             CustLedgEntry := AgingCustLedgEntry;
                             CustLedgEntry.SetRange("Date Filter", 0D, EndDate);
