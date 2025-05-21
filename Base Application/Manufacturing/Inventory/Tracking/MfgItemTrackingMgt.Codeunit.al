@@ -4,13 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Setup;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.Tracking;
-using Microsoft.Foundation.UOM;
 using Microsoft.Warehouse.Worksheet;
 
 codeunit 99000891 "Mfg. Item Tracking Mgt."
@@ -703,4 +704,15 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
         LotSepecificTracking := ItemTrackingCode."Lot Manuf. Inbound Tracking" or ItemTrackingCode."Lot Manuf. Outbound Tracking";
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError, '', false, false)]
+    local procedure OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError(var TempTrackingSpecification: Record "Tracking Specification" temporary; var QtyToHandleToNewRegister: Decimal; var QtyToHandleInItemTracking: Decimal; var QtyToHandleOnSourceDocLine: Decimal; var IsHandled: Boolean; var AllowWhseOverpick: Boolean)
+    var
+        Item: Record Item;
+    begin
+        if (TempTrackingSpecification."Source Type" <> Database::"Prod. Order Component") or (TempTrackingSpecification."Source Subtype" <> TempTrackingSpecification."Source Subtype"::"3") then
+            exit;
+
+        Item.Get(TempTrackingSpecification."Item No.");
+        AllowWhseOverpick := Item."Allow Whse. Overpick";
+    end;
 }
