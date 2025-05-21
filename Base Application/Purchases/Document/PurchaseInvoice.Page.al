@@ -1830,8 +1830,6 @@ page 51 "Purchase Invoice"
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(Rec.RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(Rec.RecordId);
         StatusStyleTxt := Rec.GetStatusStyleText();
-        DocAmountEnable := PurchSetup.ShouldDocumentTotalAmountsBeChecked(Rec);
-        DocAmountsEditable := PurchSetup.CanDocumentTotalAmountsBeEdited(Rec);
     end;
 
     trigger OnAfterGetRecord()
@@ -2145,6 +2143,8 @@ page 51 "Purchase Invoice"
         WorkflowWebhookMgt: Codeunit "Workflow Webhook Management";
     begin
         HasIncomingDocument := Rec."Incoming Document Entry No." <> 0;
+        DocAmountEnable := PurchSetup.ShouldDocumentTotalAmountsBeChecked(Rec);
+        DocAmountsEditable := PurchSetup.CanDocumentTotalAmountsBeEdited(Rec);
         SetExtDocNoMandatoryCondition();
         SetPostingGroupEditable();
 
