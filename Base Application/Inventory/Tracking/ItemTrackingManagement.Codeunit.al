@@ -2791,6 +2791,7 @@ codeunit 6500 "Item Tracking Management"
         QtyToHandleInItemTracking: Decimal;
         QtyToHandleOnSourceDocLine: Decimal;
         QtyToHandleToNewRegister: Decimal;
+        AllowWhseOverpick: Boolean;
         IsHandled: Boolean;
     begin
         OnBeforeRegisterNewItemTrackingLines(TempTrackingSpec);
@@ -2820,13 +2821,15 @@ codeunit 6500 "Item Tracking Management"
                 QtyToHandleOnSourceDocLine := ReservMgt.GetSourceRecordValue(ReservEntry, false, 0);
 
                 IsHandled := false;
+                AllowWhseOverpick := false;
                 OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError(
-                    TempTrackingSpec, QtyToHandleToNewRegister, QtyToHandleInItemTracking, QtyToHandleOnSourceDocLine, IsHandled);
+                    TempTrackingSpec, QtyToHandleToNewRegister, QtyToHandleInItemTracking, QtyToHandleOnSourceDocLine, IsHandled, AllowWhseOverpick);
                 if not IsHandled then
-                    if QtyToHandleToNewRegister + QtyToHandleInItemTracking > Abs(QtyToHandleOnSourceDocLine) then
-                        Error(CannotMatchItemTrackingErr,
-                            TempTrackingSpec."Source ID", TempTrackingSpec."Source Ref. No.",
-                            TempTrackingSpec."Item No.", TempTrackingSpec.Description);
+                    if not AllowWhseOverpick then
+                        if QtyToHandleToNewRegister + QtyToHandleInItemTracking > Abs(QtyToHandleOnSourceDocLine) then
+                            Error(CannotMatchItemTrackingErr,
+                                TempTrackingSpec."Source ID", TempTrackingSpec."Source Ref. No.",
+                                TempTrackingSpec."Item No.", TempTrackingSpec.Description);
 
                 TrackingSpec."Quantity (Base)" :=
                   TempTrackingSpec."Qty. to Handle (Base)" + Abs(ItemTrkgQtyPostedOnSource(TrackingSpec));
@@ -4216,7 +4219,7 @@ codeunit 6500 "Item Tracking Management"
 
 
     [IntegrationEvent(false, false)]
-    local procedure OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError(var TempTrackingSpecification: Record "Tracking Specification" temporary; var QtyToHandleToNewRegister: Decimal; var QtyToHandleInItemTracking: Decimal; var QtyToHandleOnSourceDocLine: Decimal; var IsHandled: Boolean)
+    local procedure OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError(var TempTrackingSpecification: Record "Tracking Specification" temporary; var QtyToHandleToNewRegister: Decimal; var QtyToHandleInItemTracking: Decimal; var QtyToHandleOnSourceDocLine: Decimal; var IsHandled: Boolean; var AllowWhseOverpick: Boolean)
     begin
     end;
 
