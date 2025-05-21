@@ -19,7 +19,6 @@ codeunit 139624 "E-Doc E2E Test"
         DocumentSendingProfileWithWorkflowErr: Label 'Workflow %1 defined for %2 in Document Sending Profile %3 is not found.', Comment = '%1 - The workflow code, %2 - Enum value set in Electronic Document, %3 - Document Sending Profile Code';
         FailedToGetBlobErr: Label 'Failed to get exported blob from EDocument %1', Comment = '%1 - E-Document No.';
         SendingErrStateErr: Label 'E-document is Pending response and can not be sent in this state.';
-        DeleteNotAllowedErr: Label 'Deletion of Purchase Header linked to E-Document is not allowed.';
         DeleteProcessedNotAllowedErr: Label 'The E-Document has already been processed and cannot be deleted.';
 
     [Test]
@@ -1458,31 +1457,34 @@ codeunit 139624 "E-Doc E2E Test"
     end;
 
     [Test]
+    [HandlerFunctions('DeleteDocumentOk')]
     procedure DeleteLinkedPurchaseHeaderNoAllowedSuccess()
     var
+        EDocument: Record "E-Document";
         PurchaseHeader: Record "Purchase Header";
-        NullGuid: Guid;
+        EDocImportParams: Record "E-Doc. Import Parameters";
     begin
         // [FEATURE] [E-Document] [Processing] 
         // [SCENARIO] 
         Initialize(Enum::"Service Integration"::"Mock");
+        EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"PEPPOL BIS 3.0";
+        EDocumentService."Import Process" := Enum::"E-Document Import Process"::"Version 2.0";
+        EDocumentService.Modify();
 
-        // [GIVEN] PO with link
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
-        PurchaseHeader."E-Document Link" := CreateGuid();
-        PurchaseHeader.Modify();
-        Commit();
+        // [GIVEN] An inbound e-document is received and fully processed
+        EDocImportParams."Step to Run" := "Import E-Document Steps"::"Finish draft";
+        Assert.IsTrue(LibraryEDoc.CreateInboundPEPPOLDocumentToState(EDocument, EDocumentService, 'peppol/peppol-invoice-0.xml', EDocImportParams), 'The e-document should be processed');
+        EDocument.SetRecFilter();
+        EDocument.FindLast();
+        Assert.AreEqual(Enum::"E-Document Status"::Processed, EDocument.Status, 'E-Document should be in Processed status.');
 
-        // [THEN] Fails to delete
-        asserterror PurchaseHeader.Delete(true);
-        Assert.ExpectedError(DeleteNotAllowedErr);
+        // [THEN] Delete
+        PurchaseHeader.Get(EDocument."Document Record ID");
+        if PurchaseHeader.Delete(true) then;
 
-        // [GIVEN] Reset link 
-        PurchaseHeader."E-Document Link" := NullGuid;
-        PurchaseHeader.Modify();
-
-        // [THEN] Delete ok
-        PurchaseHeader.Delete();
+        EDocument.SetRecFilter();
+        EDocument.FindLast();
+        Assert.AreEqual(Enum::"E-Document Status"::"In Progress", EDocument.Status, 'E-Document should be in In Progress status.');
     end;
 
     local procedure CheckPDFEmbedToXML(TempBlob: Codeunit "Temp Blob")
@@ -1704,12 +1706,19 @@ codeunit 139624 "E-Doc E2E Test"
         EDocServicesPage.OK().Invoke();
     end;
 
+    [ConfirmHandler]
+    internal procedure DeleteDocumentOk(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
     local procedure Initialize(Integration: Enum "Service Integration")
     var
         TransformationRule: Record "Transformation Rule";
         EDocument: Record "E-Document";
         EDocumentServiceStatus: Record "E-Document Service Status";
         EDocumentSetup: Record "E-Documents Setup";
+        Vendor: Record Vendor;
     begin
         LibraryLowerPermission.SetOutsideO365Scope();
         LibraryVariableStorage.Clear();
@@ -1724,6 +1733,7 @@ codeunit 139624 "E-Doc E2E Test"
 
         LibraryEDoc.SetupStandardVAT();
         LibraryEDoc.SetupStandardSalesScenario(Customer, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
+        LibraryEDoc.SetupStandardPurchaseScenario(Vendor, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
         EDocumentService.Modify();
         EDocumentSetup.InsertNewExperienceSetup();
 
@@ -2489,32 +2499,34 @@ codeunit 139624 "E-Doc E2E Test"
     end;
 
     [Test]
+    [HandlerFunctions('DeleteDocumentOk')]
     internal procedure DeleteLinkedPurchaseHeaderNoAllowedSuccess26()
     var
+        EDocument: Record "E-Document";
         PurchaseHeader: Record "Purchase Header";
-        NullGuid: Guid;
+        EDocImportParams: Record "E-Doc. Import Parameters";
     begin
         // [FEATURE] [E-Document] [Processing] 
         // [SCENARIO] 
-        Initialize(Enum::"E-Document Integration"::"Mock");
+        Initialize(Enum::"Service Integration"::"Mock");
+        EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"PEPPOL BIS 3.0";
+        EDocumentService."Import Process" := Enum::"E-Document Import Process"::"Version 2.0";
+        EDocumentService.Modify();
 
-        // [GIVEN] PO with link
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
-        PurchaseHeader."E-Document Link" := CreateGuid();
-        PurchaseHeader.Modify();
-        Commit();
+        // [GIVEN] An inbound e-document is received and fully processed
+        EDocImportParams."Step to Run" := "Import E-Document Steps"::"Finish draft";
+        Assert.IsTrue(LibraryEDoc.CreateInboundPEPPOLDocumentToState(EDocument, EDocumentService, 'peppol/peppol-invoice-0.xml', EDocImportParams), 'The e-document should be processed');
+        EDocument.SetRecFilter();
+        EDocument.FindLast();
+        Assert.AreEqual(Enum::"E-Document Status"::Processed, EDocument.Status, 'E-Document should be in Processed status.');
 
-        // [THEN] Fails to delete
-        asserterror PurchaseHeader.Delete(true);
-        Assert.ExpectedError(DeleteNotAllowedErr);
+        // [THEN] Delete
+        PurchaseHeader.Get(EDocument."Document Record ID");
+        if PurchaseHeader.Delete(true) then;
 
-        // [GIVEN] Reset link 
-        PurchaseHeader."E-Document Link" := NullGuid;
-        PurchaseHeader.Modify();
-
-        // [THEN] Delete ok
-        PurchaseHeader.Delete();
+        EDocument.SetRecFilter();
+        EDocument.FindLast();
+        Assert.AreEqual(Enum::"E-Document Status"::"In Progress", EDocument.Status, 'E-Document should be in In Progress status.');
     end;
-
 #endif
 }
