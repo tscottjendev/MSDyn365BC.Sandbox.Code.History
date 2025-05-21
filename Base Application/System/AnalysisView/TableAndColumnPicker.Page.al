@@ -28,6 +28,8 @@ page 9643 "Table and Column Picker"
                 Editable = not IsTableSet;
                 ToolTip = 'Specifies source table name.';
                 InstructionalText = 'Select a table to join';
+                AboutTitle = 'About the source table';
+                AboutText = 'Displays the list of related tables from which fields can be added, along with the type of data join performed. These are the tables linked to the current page''s source table through the TableRelation property. Select a table to view its available fields.';
                 TableRelation = "Table Relations Buffer" where("Table ID" = field("Table ID"));
                 LookupPageId = "Table Relations Picker";
 
