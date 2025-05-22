@@ -38,6 +38,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         if ItemLedgerEntry.FindSet() then
             repeat
                 ProcessItemLedgEntry(ItemLedgerEntry);
+                OnReverseProdItemLedgerEntryOnAfterProcessItemLedgerEntry(ItemLedgerEntry);
                 Processed := true;
             until ItemLedgerEntry.Next() = 0;
 
@@ -56,6 +57,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         if CapacityLedgEntry.FindSet() then
             repeat
                 ReverseOutputCapacityLedgerEntry(CapacityLedgEntry);
+                OnReverseCapacityLedgerEntryOnAfterReverseOutputCapacityLedgerEntry(CapacityLedgEntry);
                 Processed := true;
             until CapacityLedgEntry.Next() = 0;
 
@@ -435,6 +437,16 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnReverseConsumptionItemLedgerEntryOnBeforeItemJnlPostLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseProdItemLedgerEntryOnAfterProcessItemLedgerEntry(ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseCapacityLedgerEntryOnAfterReverseOutputCapacityLedgerEntry(CapacityLedgerEntry: Record "Capacity Ledger Entry")
     begin
     end;
 }
