@@ -66,7 +66,7 @@ page 6630 "Sales Return Order"
                     Importance = Additional;
                     NotBlank = true;
                     ToolTip = 'Specifies the number of the customer associated with the sales return.';
-    
+
                     trigger OnValidate()
                     begin
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
@@ -975,7 +975,7 @@ page 6630 "Sales Return Order"
                     Visible = SalesTaxStatisticsVisible;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Sales Order Stats.";
                     RunPageOnRec = true;
@@ -1802,7 +1802,7 @@ page 6630 "Sales Return Order"
         CheckShowBackgrValidationNotification();
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
 
-        SalesTaxStatisticsVisible := Rec.GetStatisticsPageID() = Page::"Sales Order Stats.";
+        SalesTaxStatisticsVisible := Rec."Tax Area Code" <> '';
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

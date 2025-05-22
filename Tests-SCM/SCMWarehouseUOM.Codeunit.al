@@ -3956,6 +3956,41 @@ codeunit 137150 "SCM Warehouse UOM"
         Assert.IsTrue(WarehouseActivityLinePlace."Qty. to Handle (Base)" = 35, QtyToHandleBaseErr);
     end;
 
+    [Test]
+    procedure QtyPerUnitofMeasureFieldInBinContentPageDefaultsTo1ForAnItemHasDifferentUOMWithQuantityForThisWhenManuallyAddingLine()
+    var
+        Item: Record Item;
+        BaseUnitOfMeasure: Record "Unit of Measure";
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemCard: TestPage "Item Card";
+        BinContentPage: TestPage "Bin Content";
+        QtyOfUOMPerUOM: Decimal;
+    begin
+        // [SCENARIO 575737] 'Qty. Per Unit of Measure' field in the Bin Content Page defaults to 1 for an Item that has different UOM with quantity for this field greater than 1, when manually adding a Bin Content Line
+        Initialize();
+
+        //[GIVEN] Create Item with Multiple Unit of Measure
+        QtyOfUOMPerUOM := 2 + LibraryRandom.RandInt(3);
+        CreateItemWithMultipleUOM(Item, BaseUnitOfMeasure, UnitOfMeasure, QtyOfUOMPerUOM);
+
+        //[GIVEN] Update sales unit of Measure And Purch. unit of Measure field
+        Item."Sales Unit of Measure" := UnitOfMeasure.Code;
+        Item."Purch. Unit of Measure" := UnitOfMeasure.Code;
+        Item.Modify();
+
+        //[WHEN] Insert New line in Bin Content
+        ItemCard.OpenView();
+        ItemCard.GoToRecord(Item);
+        BinContentPage.Trap();
+        ItemCard."&Bin Contents".Invoke();
+        BinContentPage."Location Code".SetValue('Silver');
+        BinContentPage."Bin Code".SetValue('S-01-0001');
+        BinContentPage."Unit of Measure Code".SetValue(UnitOfMeasure.Code);
+        BinContentPage.New();
+
+        //[THEN] Verify 'Qty. per Unit of Measure' field have xRec value in new line
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6466,6 +6501,17 @@ codeunit 137150 "SCM Warehouse UOM"
         CreatePick.SetTempWhseItemTrkgLine(WarehouseShipmentLine."No.", DATABASE::"Warehouse Shipment Line", '', 0, WarehouseShipmentLine."Line No.", WarehouseShipmentLine."Location Code");
         CreatePick.CreateTempLine(WarehouseShipmentLine."Location Code", WarehouseShipmentLine."Item No.", '', '', '', WarehouseShipmentLine."Bin Code", 1, WarehouseShipmentLine.Quantity, WarehouseShipmentLine."Qty. (Base)");
         CreatePick.CreateWhseDocument(FirstWhseDocNo, WhsePickNo, true);
+    end;
+
+    local procedure CreateItemWithMultipleUOM(var Item: Record Item; var BaseUnitOfMeasure: Record "Unit of Measure"; var UnitOfMeasure: Record "Unit of Measure"; QtyPerUnitOfMeasure: Decimal)
+    var
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUnitOfMeasure);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", BaseUnitOfMeasure.Code, 1);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, QtyPerUnitOfMeasure);
     end;
 
     [ModalPageHandler]
