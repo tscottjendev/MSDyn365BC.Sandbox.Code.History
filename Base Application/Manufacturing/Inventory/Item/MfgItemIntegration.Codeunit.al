@@ -429,24 +429,6 @@ codeunit 99000795 "Mfg. Item Integration"
             Item."Flushing Method" := ManufacturingSetup."Default Flushing Method";
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnInitFromTemplateOnAfterPrepareTempItem', '', false, false)]
-    local procedure OnInitFromTemplateOnAfterPrepareTempItem(var TempItem: Record Item temporary)
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        if ManufacturingSetup.Get() then
-            TempItem."Flushing Method" := ManufacturingSetup."Default Flushing Method";
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnInitFromTemplateOnAfterPrepareEmptyItemTemplRecordRef', '', false, false)]
-    local procedure OnInitFromTemplateOnAfterPrepareEmptyItemTemplRecordRef(var EmptyItemTemplRecordRef: RecordRef; ItemTempl: Record "Item Templ.")
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        if ManufacturingSetup.Get() then
-            EmptyItemTemplRecordRef.Field(ItemTempl.FieldNo("Flushing Method")).Value := ManufacturingSetup."Default Flushing Method";
-    end;
-
     // Item Templ. Card
 
     [EventSubscriber(ObjectType::Page, Page::"Item Templ. Card", 'OnAfterOnNewRecord', '', false, false)]
