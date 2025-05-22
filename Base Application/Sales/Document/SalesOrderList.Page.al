@@ -424,7 +424,7 @@ page 9305 "Sales Order List"
                     Visible = SalesTaxStatisticsVisible;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Sales Order Stats.";
                     RunPageOnRec = true;
@@ -1287,7 +1287,7 @@ page 9305 "Sales Order List"
         if OnlyShowHeadersWithVat then
             SetFilterOnPositiveVatPostingGroups();
 
-        SalesTaxStatisticsVisible := Rec.GetStatisticsPageID() = Page::"Sales Order Stats.";
+        SalesTaxStatisticsVisible := Rec."Tax Area Code" <> '';
     end;
 
     var
@@ -1307,8 +1307,8 @@ page 9305 "Sales Order List"
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
 
-        protected var
-            SalesTaxStatisticsVisible: Boolean;
+    protected var
+        SalesTaxStatisticsVisible: Boolean;
 
     procedure ShowPreview()
     var

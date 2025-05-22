@@ -339,7 +339,7 @@ page 9308 "Purchase Invoices"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
-                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseStatistics or PurchaseStatsaction. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '26.0';
 
@@ -684,11 +684,14 @@ page 9308 "Purchase Invoices"
 #if not CLEAN26
                 actionref(Statistics_Promoted; Statistics)
                 {
-                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseStatistics or PurchaseStats action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '26.0';
                 }
 #else
+                actionref(PurchaseStatistics_Promoted; PurchaseStatistics)
+                {
+                }
                 actionref(PurchaseStats_Promoted; PurchaseStats)
                 {
                 }
@@ -747,7 +750,7 @@ page 9308 "Purchase Invoices"
         JobQueueActive := PurchasesPayablesSetup.JobQueueActive();
 
         Rec.CopyBuyFromVendorFilter();
-        SalesTaxStatisticsVisible := Rec.GetStatisticsPageID() = Page::"Purchase Order Stats.";
+        SalesTaxStatisticsVisible := Rec."Tax Area Code" <> '';
     end;
 
     var
