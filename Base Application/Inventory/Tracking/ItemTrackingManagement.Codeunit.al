@@ -189,6 +189,8 @@ codeunit 6500 "Item Tracking Management"
                         ItemTrackingSetup."Serial No. Required" := ItemTrackingCode."SN Neg. Adjmt. Outb. Tracking";
                 EntryType::Transfer:
                     ItemTrackingSetup."Serial No. Required" := ItemTrackingCode."SN Transfer Tracking";
+                else
+                    OnGetItemTrackingSetupOnSetSerialNoRequired(ItemTrackingSetup, ItemTrackingCode, EntryType, Inbound);
             end;
 
         if ItemTrackingCode."Lot Specific Tracking" then
@@ -217,6 +219,8 @@ codeunit 6500 "Item Tracking Management"
                         ItemTrackingSetup."Lot No. Required" := ItemTrackingCode."Lot Neg. Adjmt. Outb. Tracking";
                 EntryType::Transfer:
                     ItemTrackingSetup."Lot No. Required" := ItemTrackingCode."Lot Transfer Tracking";
+                else
+                    OnGetItemTrackingSetupOnSetLotNoRequired(ItemTrackingSetup, ItemTrackingCode, EntryType, Inbound);
             end;
 
         if ItemTrackingCode."Package Specific Tracking" then
@@ -245,6 +249,8 @@ codeunit 6500 "Item Tracking Management"
                         ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Neg. Outb. Tracking";
                 EntryType::Transfer:
                     ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Transfer Tracking";
+                else
+                    OnGetItemTrackingSetupOnSetPackageNoRequired(ItemTrackingSetup, ItemTrackingCode, EntryType, Inbound);
             end;
 
         if EntryType = EntryType::Transfer then
@@ -4270,6 +4276,21 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcWhseItemTrkgLineOnSetSourceTypeFilter(var WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnGetItemTrackingSetupOnSetSerialNoRequired(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemTrackingCode: Record "Item Tracking Code"; EntryType: Enum "Item Ledger Entry Type"; Inbound: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnGetItemTrackingSetupOnSetLotNoRequired(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemTrackingCode: Record "Item Tracking Code"; EntryType: Enum "Item Ledger Entry Type"; Inbound: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnGetItemTrackingSetupOnSetPackageNoRequired(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemTrackingCode: Record "Item Tracking Code"; EntryType: Enum "Item Ledger Entry Type"; Inbound: Boolean)
     begin
     end;
 }
