@@ -114,6 +114,7 @@ codeunit 90 "Purch.-Post"
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
         TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary;
+        InventorySetup: Record "Inventory Setup";
         ErrorContextElementProcessLines: Codeunit "Error Context Element";
         ErrorContextElementPostLine: Codeunit "Error Context Element";
         ZeroPurchLineRecID: RecordId;
@@ -209,6 +210,8 @@ codeunit 90 "Purch.-Post"
 #if not CLEAN25
         PurchHeader."IRS 1099 Amount" := 0;
 #endif
+        if not InventorySetup.UseLegacyPosting() then
+            TempPurchLineGlobal.SetCurrentKey(Type, "Line No.");
         if TempPurchLineGlobal.FindSet() then
             repeat
                 IsHandled := false;
@@ -237,6 +240,7 @@ codeunit 90 "Purch.-Post"
                 end;
                 ErrorMessageMgt.PopContext(ErrorContextElementPostLine);
             until LastLineRetrieved;
+        TempPurchLineGlobal.SetCurrentKey("Document Type", "Document No.", "Line No.");
 
         UnBindSubscription(this); // Stop collecting value entries for GLPosting
         ItemJnlPostLine.PostDeferredValueEntriesToGL(PostponedValueEntries);
