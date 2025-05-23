@@ -68,6 +68,7 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
 
     procedure GetPurchaseLine(var EDocumentPurchaseLine: Record "E-Document Purchase Line")
     var
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         ItemReference: Record "Item Reference";
         EDocument: Record "E-Document";
         TextToAccountMapping: Record "Text-to-Account Mapping";
@@ -75,7 +76,8 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
         FilterInvalidCharTxt: Label '(&)', Locked = true;
     begin
         EDocument.Get(EDocumentPurchaseLine."E-Document Entry No.");
-        VendorNo := EDocument.GetEDocumentHeaderMapping()."Vendor No.";
+        EDocumentPurchaseHeader.GetFromEDocument(EDocument);
+        VendorNo := EDocumentPurchaseHeader."[BC] Vendor No.";
 
         if GetPurchaseLineItemRef(EDocumentPurchaseLine, ItemReference) then begin
             EDocumentPurchaseLine."[BC] Purchase Line Type" := "Purchase Line Type"::Item;
@@ -103,11 +105,13 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
     local procedure GetPurchaseLineItemRef(EDocumentPurchaseLine: Record "E-Document Purchase Line"; var ItemReference: Record "Item Reference"): Boolean
     var
         EDocument: Record "E-Document";
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         Item: Record Item;
         VendorNo: Code[20];
     begin
         EDocument.Get(EDocumentPurchaseLine."E-Document Entry No.");
-        VendorNo := EDocument.GetEDocumentHeaderMapping()."Vendor No.";
+        EDocumentPurchaseHeader.GetFromEDocument(EDocument);
+        VendorNo := EDocumentPurchaseHeader."[BC] Vendor No.";
         ItemReference.SetRange("Reference Type", Enum::"Item Reference Type"::Vendor);
         ItemReference.SetRange("Reference Type No.", VendorNo);
         ItemReference.SetRange("Reference No.", EDocumentPurchaseLine."Product Code");

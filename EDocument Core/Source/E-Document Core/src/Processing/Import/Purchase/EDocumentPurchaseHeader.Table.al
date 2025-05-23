@@ -8,6 +8,8 @@ namespace Microsoft.EServices.EDocument.Processing.Import.Purchase;
 using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.OrderMatch.Copilot;
 using System.Telemetry;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Vendor;
 
 table 6100 "E-Document Purchase Header"
 {
@@ -27,6 +29,7 @@ table 6100 "E-Document Purchase Header"
             DataClassification = SystemMetadata;
             ValidateTableRelation = true;
         }
+        #region External data - Purchase fields [2-100]
         field(2; "Customer Company Name"; Text[250])
         {
             Caption = 'Customer Company Name';
@@ -207,6 +210,22 @@ table 6100 "E-Document Purchase Header"
             Caption = 'Vendor Contact Name';
             DataClassification = CustomerContent;
         }
+        #endregion Purchase fields
+
+        #region Business Central Data - Validated fields [101-200]
+        field(101; "[BC] Vendor No."; Code[20])
+        {
+            Caption = 'Vendor No.';
+            DataClassification = CustomerContent;
+            TableRelation = Vendor."No.";
+        }
+        field(102; "[BC] Purchase Order No."; Code[20])
+        {
+            Caption = 'Purchase Order No.';
+            DataClassification = CustomerContent;
+            TableRelation = "Purchase Header"."No." where("Document Type" = const(Order));
+        }
+        #endregion Business Central Data
     }
     keys
     {
