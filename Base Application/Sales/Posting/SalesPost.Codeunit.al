@@ -433,6 +433,7 @@ codeunit 80 "Sales-Post"
         TempItemLedgEntryNotInvoiced: Record "Item Ledger Entry" temporary;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
+        InventorySetup: Record "Inventory Setup";
         ErrorContextElementProcessLines: Codeunit "Error Context Element";
         ErrorContextElementPostLine: Codeunit "Error Context Element";
         ZeroSalesLineRecID: RecordId;
@@ -469,6 +470,8 @@ codeunit 80 "Sales-Post"
         BindSubscription(this); // Start collect value entries for GLPosting
 
         SalesLinesProcessed := false;
+        if not InventorySetup.UseLegacyPosting() then
+            TempSalesLineGlobal.SetCurrentKey(Type, "Line No.");
         if TempSalesLineGlobal.FindSet() then
             repeat
                 ErrorMessageMgt.PushContext(ErrorContextElementPostLine, TempSalesLineGlobal.RecordId, 0, PostDocumentLinesMsg);
@@ -487,6 +490,7 @@ codeunit 80 "Sales-Post"
                     SalesHeader, TempSalesLineGlobal, LastLineRetrieved, SalesInvHeader, SalesCrMemoHeader, SalesHeader2, xSalesLine, SalesShptHeader, ReturnRcptHeader);
                 ErrorMessageMgt.PopContext(ErrorContextElementPostLine);
             until LastLineRetrieved;
+        TempSalesLineGlobal.SetCurrentKey("Document Type", "Document No.", "Line No.");
 
         UnBindSubscription(this); // Stop collecting value entries for GLPosting
         ItemJnlPostLine.PostDeferredValueEntriesToGL(PostponedValueEntries);
@@ -1176,7 +1180,7 @@ codeunit 80 "Sales-Post"
             end;
     end;
 
-    local procedure UpdateInvoiceRounding(var SalesHeader: Record "Sales Header"; BiggestLineNo: Integer)
+    local procedure UpdateInvoiceRounding(var SalesHeader: Record "Sales Header"; var BiggestLineNo: Integer)
     begin
         if RoundingLineInserted then
             LastLineRetrieved := true
