@@ -22,33 +22,40 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
         ItemTrackingLines: Page "Item Tracking Lines";
         CountingRecordsMsg: Label 'Counting records...';
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", 'OnAfterGetItemTrackingSetup', '', false, false)]
-    local procedure OnAfterGetItemTrackingSetup(var ItemTrackingCode: Record "Item Tracking Code"; var ItemTrackingSetup: Record "Item Tracking Setup"; EntryType: Enum "Item Ledger Entry Type"; Inbound: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", 'OnGetItemTrackingSetupOnSetSerialNoRequired', '', false, false)]
+    local procedure OnGetItemTrackingSetupOnSetSerialNoRequired(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemTrackingCode: Record "Item Tracking Code"; EntryType: Enum "Item Ledger Entry Type"; Inbound: Boolean)
     begin
-        if ItemTrackingCode."SN Specific Tracking" then
-            case EntryType of
-                EntryType::Consumption, EntryType::Output:
-                    if Inbound then
-                        ItemTrackingSetup."Serial No. Required" := ItemTrackingCode."SN Manuf. Inbound Tracking"
-                    else
-                        ItemTrackingSetup."Serial No. Required" := ItemTrackingCode."SN Manuf. Outbound Tracking";
-            end;
-        if ItemTrackingCode."Lot Specific Tracking" then
-            case EntryType of
-                EntryType::Consumption, EntryType::Output:
-                    if Inbound then
-                        ItemTrackingSetup."Lot No. Required" := ItemTrackingCode."Lot Manuf. Inbound Tracking"
-                    else
-                        ItemTrackingSetup."Lot No. Required" := ItemTrackingCode."Lot Manuf. Outbound Tracking";
-            end;
-        if ItemTrackingCode."Package Specific Tracking" then
-            case EntryType of
-                EntryType::Consumption, EntryType::Output:
-                    if Inbound then
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Manuf. Inb. Tracking"
-                    else
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Manuf. Outb. Tracking";
-            end;
+        case EntryType of
+            EntryType::Consumption, EntryType::Output:
+                if Inbound then
+                    ItemTrackingSetup."Serial No. Required" := ItemTrackingCode."SN Manuf. Inbound Tracking"
+                else
+                    ItemTrackingSetup."Serial No. Required" := ItemTrackingCode."SN Manuf. Outbound Tracking";
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", 'OnGetItemTrackingSetupOnSetLotNoRequired', '', false, false)]
+    local procedure OnGetItemTrackingSetupOnSetLotNoRequired(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemTrackingCode: Record "Item Tracking Code"; EntryType: Enum "Item Ledger Entry Type"; Inbound: Boolean)
+    begin
+        case EntryType of
+            EntryType::Consumption, EntryType::Output:
+                if Inbound then
+                    ItemTrackingSetup."Lot No. Required" := ItemTrackingCode."Lot Manuf. Inbound Tracking"
+                else
+                    ItemTrackingSetup."Lot No. Required" := ItemTrackingCode."Lot Manuf. Outbound Tracking";
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", 'OnGetItemTrackingSetupOnSetPackageNoRequired', '', false, false)]
+    local procedure OnGetItemTrackingSetupOnSetPackageNoRequired(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemTrackingCode: Record "Item Tracking Code"; EntryType: Enum "Item Ledger Entry Type"; Inbound: Boolean)
+    begin
+        case EntryType of
+            EntryType::Consumption, EntryType::Output:
+                if Inbound then
+                    ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Manuf. Inb. Tracking"
+                else
+                    ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Manuf. Outb. Tracking";
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", 'OnAfterInitWhseWorksheetLine', '', false, false)]
