@@ -1025,6 +1025,11 @@ table 112 "Sales Invoice Header"
                     Rec."SAT Address ID" := SATAddress.Id;
             end;
         }
+        field(27012; "CFDI Certificate of Origin No."; Text[50])
+        {
+            Caption = 'CFDI Certificate of Origin No.';
+            Description = 'NumCertificadoOrigen';
+        }
     }
 
     keys
