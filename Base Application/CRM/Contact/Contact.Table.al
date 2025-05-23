@@ -918,6 +918,9 @@ table 5050 Contact
         key(Key15; "Contact Business Relation")
         {
         }
+        key(Key16; "E-Mail")
+        {
+        }
     }
 
     fieldgroups
@@ -2036,10 +2039,10 @@ table 5050 Contact
     local procedure FilterBusinessRelations(var ContactBusinessRelation: Record "Contact Business Relation"; ContactBusinessRelationLinkToTable: Enum "Contact Business Relation Link To Table"; All: Boolean)
     begin
         ContactBusinessRelation.Reset();
-        if ("Company No." = '') or ("Company No." = "No.") then
+        if("Company No." = '') or ("Company No." = "No.") then
             ContactBusinessRelation.SetRange("Contact No.", "No.")
         else
-            ContactBusinessRelation.SetFilter("Contact No.", '%1|%2', "No.", "Company No.");
+        ContactBusinessRelation.SetFilter("Contact No.", '%1|%2', "No.", "Company No.");
 
         if not All then
             ContactBusinessRelation.SetFilter("No.", '<>''''');
