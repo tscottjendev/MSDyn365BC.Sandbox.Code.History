@@ -988,6 +988,9 @@ table 5050 Contact
         key(Key15; "Contact Business Relation")
         {
         }
+        key(Key16; "E-Mail")
+        {
+        }
     }
 
     fieldgroups
