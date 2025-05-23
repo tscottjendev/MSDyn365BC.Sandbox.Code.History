@@ -301,6 +301,8 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
 
         if ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Output then
             ValidateSubcontracting(ProdOrderLine);
+
+        OnAfterValidateProdOrder(ItemLedgEntry, ProdOrderLine);
     end;
 
     local procedure ValidateSubcontracting(ProdOrderLine: Record "Prod. Order Line")
@@ -447,6 +449,11 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnReverseCapacityLedgerEntryOnAfterReverseOutputCapacityLedgerEntry(CapacityLedgerEntry: Record "Capacity Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateProdOrder(ItemLedgerEntry: Record "Item Ledger Entry"; ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 }
