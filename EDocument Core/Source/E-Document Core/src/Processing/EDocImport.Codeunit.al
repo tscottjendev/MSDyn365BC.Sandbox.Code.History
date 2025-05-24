@@ -505,7 +505,7 @@ codeunit 6140 "E-Doc. Import"
             exit;
         end;
 
-        if EDocument.IsDuplicate() then begin
+        if EDocument.IsDuplicate(true) then begin
             EDocument.Delete(true);
             exit;
         end;

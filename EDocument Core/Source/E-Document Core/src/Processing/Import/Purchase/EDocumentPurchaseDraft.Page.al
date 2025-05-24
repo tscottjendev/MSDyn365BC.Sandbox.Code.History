@@ -401,13 +401,16 @@ page 6181 "E-Document Purchase Draft"
         EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
         EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
         Rec.Get(Rec."Entry No");
-        Rec.ShowRecord();
+
+        if EDocumentErrorHelper.HasErrors(Rec) then
+            exit;
 
         PageEditable := ConditionallyEditable();
         CurrPage.Lines.Page.Update();
         CurrPage.Update();
         Session.LogMessage('0000PCP', FinalizeDraftPerformedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
         FeatureTelemetry.LogUsage('0000PCU', EDocPOCopilotMatching.FeatureName(), 'Finalize draft');
+        Rec.ShowRecord();
     end;
 
     local procedure ResetDraft()

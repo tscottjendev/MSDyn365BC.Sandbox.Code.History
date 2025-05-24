@@ -8,6 +8,8 @@ using Microsoft.eServices.EDocument;
 using Microsoft.Purchases.Document;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
+using Microsoft.Purchases.Payables;
+using System.Telemetry;
 
 /// <summary>
 /// Dealing with the creation of the purchase invoice after the draft has been populated.
@@ -15,6 +17,10 @@ using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft, IEDocumentCreatePurchaseInvoice
 {
     Access = Internal;
+
+    var
+        Telemetry: Codeunit "Telemetry";
+        InvoiceAlreadyExistsErr: Label 'A purchase invoice with external document number %1 already exists for vendor %2.', Comment = '%1 = Vendor Invoice No., %2 = Vendor No.';
 
     procedure ApplyDraftToBC(EDocument: Record "E-Document"; EDocImportParameters: Record "E-Doc. Import Parameters"): RecordId
     var
@@ -51,16 +57,32 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
 
     procedure CreatePurchaseInvoice(EDocument: Record "E-Document") PurchaseHeader: Record "Purchase Header"
     var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
         PurchaseLine: Record "Purchase Line";
         EDocumentPurchaseHistMapping: Codeunit "E-Doc. Purchase Hist. Mapping";
+        StopCreatingPurchaseInvoice: Boolean;
+        VendorInvoiceNo: Code[35];
     begin
         EDocumentPurchaseHeader.GetFromEDocument(EDocument);
         EDocumentPurchaseHeader.TestField("E-Document Entry No.");
         PurchaseHeader.SetRange("Buy-from Vendor No.", EDocumentPurchaseHeader."[BC] Vendor No."); // Setting the filter, so that the insert trigger assigns the right vendor to the purchase header
         PurchaseHeader."Document Type" := "Purchase Document Type"::Invoice;
-        PurchaseHeader."Vendor Invoice No." := CopyStr(EDocumentPurchaseHeader."Sales Invoice No.", 1, MaxStrLen(PurchaseHeader."Vendor Invoice No."));
+        PurchaseHeader."Pay-to Vendor No." := EDocumentPurchaseHeader."[BC] Vendor No.";
+        PurchaseHeader."Document Date" := EDocumentPurchaseHeader."Document Date";
+        PurchaseHeader."Due Date" := EDocumentPurchaseHeader."Due Date";
+
+        VendorInvoiceNo := CopyStr(EDocumentPurchaseHeader."Sales Invoice No.", 1, MaxStrLen(PurchaseHeader."Vendor Invoice No."));
+        VendorLedgerEntry.SetLoadFields("Entry No.");
+        VendorLedgerEntry.ReadIsolation := VendorLedgerEntry.ReadIsolation::ReadUncommitted;
+        StopCreatingPurchaseInvoice := PurchaseHeader.FindPostedDocumentWithSameExternalDocNo(VendorLedgerEntry, VendorInvoiceNo);
+        if StopCreatingPurchaseInvoice then begin
+            Telemetry.LogMessage('0000PHC', InvoiceAlreadyExistsErr, Verbosity::Error, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All);
+            Error(InvoiceAlreadyExistsErr, VendorInvoiceNo, EDocumentPurchaseHeader."[BC] Vendor No.");
+        end;
+
+        PurchaseHeader.Validate("Vendor Invoice No.", VendorInvoiceNo);
         PurchaseHeader.Insert(true);
 
         // Track changes for history

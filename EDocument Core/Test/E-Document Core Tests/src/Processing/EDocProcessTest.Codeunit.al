@@ -260,7 +260,9 @@ codeunit 139883 "E-Doc Process Test"
         EDocument: Record "E-Document";
         EDocImportParameters: Record "E-Doc. Import Parameters";
         PurchaseHeader: Record "Purchase Header";
+        EDocLogRecord: Record "E-Document Log";
         EDocImport: Codeunit "E-Doc. Import";
+        EDocumentLog: Codeunit "E-Document Log";
         EDocumentProcessing: Codeunit "E-Document Processing";
     begin
         Initialize(Enum::"Service Integration"::"Mock");
@@ -269,6 +271,14 @@ codeunit 139883 "E-Doc Process Test"
         EDocument.Modify();
         EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
         EDocumentService.Modify();
+
+        EDocumentLog.SetBlob('Test', Enum::"E-Doc. Data Storage Blob Type"::"XML", 'Data');
+        EDocumentLog.SetFields(EDocument, EDocumentService);
+        EDocLogRecord := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Readable);
+
+        EDocument."Structured Data Entry No." := EDocLogRecord."E-Doc. Data Storage Entry No.";
+        EDocument.Modify();
+
 
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Draft Ready");
         EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
@@ -482,11 +492,16 @@ codeunit 139883 "E-Doc Process Test"
         EDocumentsSetup: Record "E-Documents Setup";
         EDocumentServiceStatus: Record "E-Document Service Status";
         EDocPurchLineFieldSetup: Record "EDoc. Purch. Line Field Setup";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         LibraryLowerPermission.SetOutsideO365Scope();
         LibraryVariableStorage.Clear();
         Clear(EDocImplState);
         EDocPurchLineFieldSetup.DeleteAll();
+
+        PurchInvHeader.DeleteAll();
+        VendorLedgerEntry.DeleteAll();
 
         if IsInitialized then
             exit;
