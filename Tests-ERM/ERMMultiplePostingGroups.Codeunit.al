@@ -15,6 +15,7 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibraryService: Codeunit "Library - Service";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJournals: Codeunit "Library - Journals";
@@ -628,6 +629,49 @@ codeunit 134195 "ERM Multiple Posting Groups"
     end;
 
     [Test]
+    procedure PostSalesPrepaymentInvoiceWithAlternativeCustomerPostingGroup()
+    var
+        LineGLAccount: Record "G/L Account";
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        // Create Sales Invoice, Post Prepayment and Verify Sales Invoice Header
+
+        // Setup: Create Sales Invoice.
+        Initialize();
+        SetSalesAllowMultiplePostingGroups(true);
+        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Allow Multiple Posting Groups", true);
+        Customer.Validate("Gen. Bus. Posting Group", LineGLAccount."Gen. Bus. Posting Group");
+        Customer.Validate("VAT Bus. Posting Group", LineGLAccount."VAT Bus. Posting Group");
+        Customer.Modify(true);
+
+        CreateSalesDocument(SalesHeader, SalesLine, Customer."No.", LineGLAccount);
+
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+        LibrarySales.CreateAltCustomerPostingGroup(Customer."Customer Posting Group", CustomerPostingGroup.Code);
+        SalesHeader.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesHeader.Modify();
+
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        LibraryERM.SetGeneralPostingSetupPrepAccounts(GeneralPostingSetup);
+        GeneralPostingSetup.Modify();
+
+        // Exercise: Post Sales Prepayment Invoice.
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+        SetSalesAllowMultiplePostingGroups(false);
+
+        // Verify customer posting group in posted document and ledger entries
+        VerifySalesPrepaymentInvoiceCustPostingGroup(SalesHeader."Last Prepayment No.", CustomerPostingGroup);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure CheckPurchaseInvoiceAnotherVendorPostingGroupCannotBeUsed()
     var
@@ -866,8 +910,12 @@ codeunit 134195 "ERM Multiple Posting Groups"
     end;
 
     local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Multiple Posting Groups");
+
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
 
         // Lazy Setup.
         LibrarySetupStorage.Restore();
@@ -875,6 +923,9 @@ codeunit 134195 "ERM Multiple Posting Groups"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Multiple Posting Groups");
+
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        UpdateSalesPrepmtInvNos();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -952,6 +1003,21 @@ codeunit 134195 "ERM Multiple Posting Groups"
         GLEntry.SetRange("G/L Account No.", CustomerPostingGroup."Receivables Account");
         GLEntry.FindFirst();
         GLEntry.TestField(Amount, SalesInvoiceHeader."Amount Including VAT");
+    end;
+
+    local procedure VerifySalesPrepaymentInvoiceCustPostingGroup(DocumentNo: Code[20]; CustomerPostingGroup: Record "Customer Posting Group")
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        SalesInvoiceHeader.Get(DocumentNo);
+        SalesInvoiceHeader.TestField("Customer Posting Group", CustomerPostingGroup.Code);
+
+        CustLedgerEntry.SetRange("Customer No.", SalesInvoiceHeader."Bill-to Customer No.");
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.SetRange("Posting Date", SalesInvoiceHeader."Posting Date");
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.TestField("Customer Posting Group", CustomerPostingGroup.Code);
     end;
 
     local procedure GetSalesInvoiceHeaderNo(DocumentNo: Code[20]): Code[20]
@@ -1046,6 +1112,52 @@ codeunit 134195 "ERM Multiple Posting Groups"
                     ServiceMgtSetup.Modify();
                 end;
         end;
+    end;
+
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomeNo: Code[20]; LineGLAccount: Record "G/L Account") PrepmtGLAccountNo: Code[20]
+    begin
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Order, CustomeNo);
+
+        LibrarySales.CreateSalesLine(
+          SalesLine,
+          SalesHeader,
+          SalesLine.Type::Item,
+          CreateItemWithPostingSetup(LineGLAccount), LibraryRandom.RandInt(10));
+        exit(PrepmtGLAccountNo);
+    end;
+
+    local procedure CreateItemWithPostingSetup(LineGLAccount: Record "G/L Account"): Code[20]
+    var
+        Item: Record Item;
+    begin
+        CreateItem(Item);
+        GenProdPostingGroupInItem(Item, LineGLAccount);
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateItem(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Price", 10 * LibraryRandom.RandDec(99, 5)); // Using RANDOM value for Unit Price.
+        Item.Modify(true);
+    end;
+
+    local procedure GenProdPostingGroupInItem(var Item: Record Item; LineGLAccount: Record "G/L Account")
+    begin
+        Item.Validate("Gen. Prod. Posting Group", LineGLAccount."Gen. Prod. Posting Group");
+        Item.Validate("VAT Prod. Posting Group", LineGLAccount."VAT Prod. Posting Group");
+        Item.Modify(true);
+    end;
+
+    local procedure UpdateSalesPrepmtInvNos()
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesSetup.Get();
+        SalesSetup."Posted Prepmt. Inv. Nos." := LibraryERM.CreateNoSeriesCode();
+        SalesSetup.Modify();
     end;
 
     local procedure CreateGeneralJournalLine(
