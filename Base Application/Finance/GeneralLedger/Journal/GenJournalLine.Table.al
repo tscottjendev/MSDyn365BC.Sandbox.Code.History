@@ -6888,6 +6888,7 @@ table 81 "Gen. Journal Line"
         "Payment Terms Code" := SalesHeader."Prepmt. Payment Terms Code";
         "Payment Method Code" := SalesHeader."Payment Method Code";
         "Recipient Bank Account" := SalesHeader."Cust. Bank Acc. Code";
+        "Posting Group" := SalesHeader."Customer Posting Group";
         if UsePmtDisc then begin
             "Pmt. Discount Date" := SalesHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := SalesHeader."Prepmt. Payment Discount %";
