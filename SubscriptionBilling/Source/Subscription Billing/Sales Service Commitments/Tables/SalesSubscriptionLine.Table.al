@@ -461,7 +461,7 @@ table 8068 "Sales Subscription Line"
         end;
     end;
 
-    internal procedure CalculateCalculationBaseAmount()
+    procedure CalculateCalculationBaseAmount()
     var
         IsHandled: Boolean;
     begin

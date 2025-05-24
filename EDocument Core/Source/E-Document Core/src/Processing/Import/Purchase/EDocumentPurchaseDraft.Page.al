@@ -48,7 +48,7 @@ page 6181 "E-Document Purchase Draft"
                 group("Buy-from")
                 {
                     ShowCaption = false;
-                    field("Vendor No."; EDocumentHeaderMapping."Vendor No.")
+                    field("Vendor No."; EDocumentPurchaseHeader."[BC] Vendor No.")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Vendor No.';
@@ -276,7 +276,6 @@ page 6181 "E-Document Purchase Draft"
             AIGeneratedContentNotification.AddAction(ImportEDocumentProcess.TermsAndConditionsText(), Codeunit::"Import E-Document Process", 'OpenTermsAndConditions');
             AIGeneratedContentNotification.Send();
         end;
-        if EDocumentHeaderMapping.Get(Rec."Entry No") then;
         EDocumentServiceStatus := Rec.GetEDocumentServiceStatus();
         HasErrorsOrWarnings := false;
         HasErrors := false;
@@ -330,14 +329,12 @@ page 6181 "E-Document Purchase Draft"
         if Rec."File Name" <> '' then
             CaptionBuilder.Append(Rec."File Name" + ' - ');
 
-        EDocumentHeaderMapping := Rec.GetEDocumentHeaderMapping();
-        if Vendor.Get(EDocumentHeaderMapping."Vendor No.") then
+        EDocumentPurchaseHeader.GetFromEDocument(Rec);
+        if Vendor.Get(EDocumentPurchaseHeader."[BC] Vendor No.") then
             CaptionBuilder.Append(Vendor.Name + ' - ')
-        else begin
-            EDocumentPurchaseHeader := EDocumentHeaderMapping.GetEDocumentPurchaseHeader();
+        else
             if EDocumentPurchaseHeader."Vendor Company Name" <> '' then
                 CaptionBuilder.Append(EDocumentPurchaseHeader."Vendor Company Name" + ' - ');
-        end;
 
         CaptionBuilder.Append(Format(Rec."Entry No"));
         DataCaption := CaptionBuilder.ToText();
@@ -377,8 +374,8 @@ page 6181 "E-Document Purchase Draft"
         VendorList.LookupMode := true;
         if VendorList.RunModal() = Action::LookupOK then begin
             VendorList.GetRecord(Vendor);
-            EDocumentHeaderMapping."Vendor No." := Vendor."No.";
-            EDocumentHeaderMapping.Modify();
+            EDocumentPurchaseHeader."[BC] Vendor No." := Vendor."No.";
+            EDocumentPurchaseHeader.Modify();
         end;
     end;
 
@@ -466,7 +463,6 @@ page 6181 "E-Document Purchase Draft"
 
     var
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
-        EDocumentHeaderMapping: Record "E-Document Header Mapping";
         EDocumentServiceStatus: Record "E-Document Service Status";
         EDocumentErrorHelper: Codeunit "E-Document Error Helper";
         EDocumentProcessing: Codeunit "E-Document Processing";

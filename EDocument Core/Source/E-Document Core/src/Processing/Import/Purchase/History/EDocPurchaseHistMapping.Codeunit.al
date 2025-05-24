@@ -54,16 +54,16 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
         exit(false);
     end;
 
-    procedure UpdateMissingHeaderValuesFromHistory(EDocVendorAssignmentHistory: Record "E-Doc. Vendor Assign. History"; var EDocHeaderMapping: Record "E-Document Header Mapping")
+    procedure UpdateMissingHeaderValuesFromHistory(EDocVendorAssignmentHistory: Record "E-Doc. Vendor Assign. History"; var EDocPurchaseHeader: Record "E-Document Purchase Header")
     var
         Vendor: Record Vendor;
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         if not PurchInvHeader.GetBySystemId(EDocVendorAssignmentHistory."Purch. Inv. Header SystemId") then
             exit;
-        if EDocHeaderMapping."Vendor No." = '' then
+        if EDocPurchaseHeader."[BC] Vendor No." = '' then
             if Vendor.Get(PurchInvHeader."Buy-from Vendor No.") then
-                EDocHeaderMapping."Vendor No." := Vendor."No.";
+                EDocPurchaseHeader."[BC] Vendor No." := Vendor."No.";
     end;
 
     procedure FindRelatedPurchaseLineInHistory(VendorNo: Code[20]; EDocumentPurchaseLine: Record "E-Document Purchase Line"; var EDocPurchaseLineHistory: Record "E-Doc. Purchase Line History"): Boolean

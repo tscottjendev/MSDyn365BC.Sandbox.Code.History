@@ -161,25 +161,23 @@ codeunit 6104 "Import E-Document Process"
 
     local procedure PrepareDraft()
     var
-        EDocHeaderMapping: Record "E-Document Header Mapping";
         Vendor: Record Vendor;
         IProcessStructuredData: Interface IProcessStructuredData;
     begin
         IProcessStructuredData := EDocument."Structured Data Process";
         EDocument."Document Type" := IProcessStructuredData.PrepareDraft(EDocument, EDocImportParameters);
-        EDocHeaderMapping := EDocument.GetEDocumentHeaderMapping();
-        EDocument."Bill-to/Pay-to No." := EDocHeaderMapping."Vendor No.";
-        if Vendor.Get(EDocHeaderMapping."Vendor No.") then
+
+        if Vendor.Get(IProcessStructuredData.GetVendor(EDocument, EDocImportParameters."Processing Customizations")."No.") then begin
             EDocument."Bill-to/Pay-to Name" := Vendor.Name;
+            EDocument."Bill-to/Pay-to No." := Vendor."No.";
+        end;
         EDocument.Modify();
     end;
 
     local procedure UndoPrepareDraft()
-    var
-        EDocumentHeaderMapping: Record "E-Document Header Mapping";
     begin
-        EDocumentHeaderMapping.SetRange("E-Document Entry No.", EDocument."Entry No");
-        EDocumentHeaderMapping.DeleteAll();
+        Clear(EDocument."Bill-to/Pay-to Name");
+        Clear(EDocument."Bill-to/Pay-to No.");
         EDocument."Document Type" := "E-Document Type"::None;
         EDocument.Modify();
     end;

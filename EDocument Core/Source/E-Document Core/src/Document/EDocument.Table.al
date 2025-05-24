@@ -343,7 +343,6 @@ table 6121 "E-Document"
         EDocumentIntegrationLog: Record "E-Document Integration Log";
         EDocumentLog: Record "E-Document Log";
         EDocumentServiceStatus: Record "E-Document Service Status";
-        EDocumentHeaderMapping: Record "E-Document Header Mapping";
         IProcessStructuredData: Interface IProcessStructuredData;
     begin
         EDocumentLog.SetRange("E-Doc. Entry No", Rec."Entry No");
@@ -366,10 +365,6 @@ table 6121 "E-Document"
         EDocMappingLog.SetRange("E-Doc Entry No.", Rec."Entry No");
         if not EDocMappingLog.IsEmpty() then
             EDocMappingLog.DeleteAll(true);
-
-        EDocumentHeaderMapping.SetRange("E-Document Entry No.", Rec."Entry No");
-        if not EDocumentHeaderMapping.IsEmpty() then
-            EDocumentHeaderMapping.DeleteAll(true);
 
         IProcessStructuredData := Rec."Structured Data Process";
         IProcessStructuredData.CleanUpDraft(Rec);
@@ -479,12 +474,6 @@ table 6121 "E-Document"
     begin
         exit(GetEDocumentServiceStatus()."Import Processing Status");
     end;
-
-    internal procedure GetEDocumentHeaderMapping() EDocumentHeaderMapping: Record "E-Document Header Mapping"
-    begin
-        if EDocumentHeaderMapping.Get(Rec."Entry No") then;
-    end;
-
     internal procedure ToString(): Text
     begin
         exit(StrSubstNo(ToStringLbl, SystemId, "Document Record ID", "Workflow Step Instance ID", "Job Queue Entry ID"));

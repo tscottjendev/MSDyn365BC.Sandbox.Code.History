@@ -53,14 +53,12 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
     var
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
-        EDocumentHeaderMapping: Record "E-Document Header Mapping";
         PurchaseLine: Record "Purchase Line";
         EDocumentPurchaseHistMapping: Codeunit "E-Doc. Purchase Hist. Mapping";
     begin
         EDocumentPurchaseHeader.GetFromEDocument(EDocument);
         EDocumentPurchaseHeader.TestField("E-Document Entry No.");
-        EDocumentHeaderMapping := EDocument.GetEDocumentHeaderMapping();
-        PurchaseHeader.SetRange("Buy-from Vendor No.", EDocumentHeaderMapping."Vendor No."); // Setting the filter, so that the insert trigger assigns the right vendor to the purchase header
+        PurchaseHeader.SetRange("Buy-from Vendor No.", EDocumentPurchaseHeader."[BC] Vendor No."); // Setting the filter, so that the insert trigger assigns the right vendor to the purchase header
         PurchaseHeader."Document Type" := "Purchase Document Type"::Invoice;
         PurchaseHeader."Vendor Invoice No." := CopyStr(EDocumentPurchaseHeader."Sales Invoice No.", 1, MaxStrLen(PurchaseHeader."Vendor Invoice No."));
         PurchaseHeader.Insert(true);

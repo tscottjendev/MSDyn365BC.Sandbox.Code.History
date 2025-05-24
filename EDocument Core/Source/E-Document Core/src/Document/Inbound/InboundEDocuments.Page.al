@@ -7,8 +7,6 @@ namespace Microsoft.eServices.EDocument;
 
 using Microsoft.Foundation.Attachment;
 using Microsoft.eServices.EDocument.Processing.Import;
-using Microsoft.eServices.EDocument.Processing.Import.Purchase;
-using Microsoft.Purchases.Vendor;
 
 page 6105 "Inbound E-Documents"
 {
@@ -285,20 +283,8 @@ page 6105 "Inbound E-Documents"
     end;
 
     local procedure PopulateVendorNameTxt()
-    var
-        EDocumentHeaderMapping: Record "E-Document Header Mapping";
-        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
-        Vendor: Record Vendor;
     begin
         VendorNameTxt := Rec."Bill-to/Pay-to Name";
-        EDocumentHeaderMapping := Rec.GetEDocumentHeaderMapping();
-        if Vendor.Get(EDocumentHeaderMapping."Vendor No.") then
-            VendorNameTxt := Vendor.Name
-        else begin
-            EDocumentPurchaseHeader := EDocumentHeaderMapping.GetEDocumentPurchaseHeader();
-            if EDocumentPurchaseHeader."Vendor Company Name" <> '' then
-                VendorNameTxt := EDocumentPurchaseHeader."Vendor Company Name";
-        end;
     end;
 
     trigger OnOpenPage()
