@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -7,6 +7,7 @@ namespace Microsoft.eServices.EDocument;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Finance.Currency;
 using Microsoft.eServices.EDocument.Integration;
+using System.Telemetry;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Utilities;
 using System.Automation;
@@ -271,7 +272,7 @@ table 6121 "E-Document"
         if (Rec."Document Record ID".TableNo <> 0) then
             Error(this.DeleteLinkedNotAllowedErr);
 
-        if (not Rec.IsDuplicate()) then
+        if (not Rec.IsDuplicate(false)) then
             if not GuiAllowed() then
                 Error(DeleteUniqueNotAllowedErr)
             else
@@ -298,15 +299,23 @@ table 6121 "E-Document"
         Rec.Insert(true);
     end;
 
-    internal procedure IsDuplicate(): Boolean
+    internal procedure IsDuplicate(ShowMessage: Boolean): Boolean
     var
         EDocument: Record "E-Document";
+
     begin
+        EDocument.ReadIsolation := EDocument.ReadIsolation::ReadUncommitted;
         EDocument.SetRange("Incoming E-Document No.", Rec."Incoming E-Document No.");
         EDocument.SetRange("Bill-to/Pay-to No.", Rec."Bill-to/Pay-to No.");
         EDocument.SetRange("Document Date", Rec."Document Date");
         EDocument.SetFilter("Entry No", '<>%1', Rec."Entry No");
-        exit(not EDocument.IsEmpty());
+        if not EDocument.FindFirst() then
+            exit(false);
+
+        if ShowMessage and GuiAllowed() then
+            Message(EDocumentExistsMsg, EDocument."Entry No");
+        Telemetry.LogMessage('0000PHB', StrSubstNo(EDocumentExistsMsg, EDocument."Entry No"), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All);
+        exit(true);
     end;
 
     internal procedure IsSourceDocumentStructured(): Boolean
@@ -480,6 +489,7 @@ table 6121 "E-Document"
     end;
 
     var
+        Telemetry: Codeunit Telemetry;
         ToStringLbl: Label '%1,%2,%3,%4', Locked = true;
         DeleteLinkedNotAllowedErr: Label 'The E-Document is linked to sales or purchase document and cannot be deleted.';
         DeleteProcessedNotAllowedErr: Label 'The E-Document has already been processed and cannot be deleted.';
@@ -488,4 +498,5 @@ table 6121 "E-Document"
         NoFileContentErr: label 'Previewing file %1 failed. The file was found in table %2, but it has no content.', Comment = '%1 - a file name; %2 - a table caption';
         DeleteConfirmQst: label 'Are you sure? You may not be able to retrieve this E-Document again.\\ Do you want to continue?';
         ViewNotSupportedErr: label 'System does not support previewing the file %1 of type %2', Comment = '%1 - a file name; %2 - a file type';
+        EDocumentExistsMsg: Label 'This E-Document is a duplicate of E-Document %1.', Comment = '%1 - E-Document No.';
 }

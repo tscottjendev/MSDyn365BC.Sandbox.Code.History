@@ -71,16 +71,15 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         end;
 
         // Grounding check on Result (filled by Execute method), saving the proposal 
-        if Result.Count() > 0 then begin
-            EDocumentPurchaseLine.FindSet();
-            repeat
-                if Result.ContainsKey(EDocumentPurchaseLine."Line No.") then
-                    if SetPurchaseLineAccountFromCopilotResult(EDocumentPurchaseLine, Result.Get(EDocumentPurchaseLine."Line No.")) then begin
-                        EDocumentPurchaseLine.Modify();
-                        LinesMatched += 1;
-                    end;
-            until EDocumentPurchaseLine.Next() = 0;
-        end;
+        if Result.Count() > 0 then
+            if EDocumentPurchaseLine.FindSet() then
+                repeat
+                    if Result.ContainsKey(EDocumentPurchaseLine."Line No.") then
+                        if SetPurchaseLineAccountFromCopilotResult(EDocumentPurchaseLine, Result.Get(EDocumentPurchaseLine."Line No.")) then begin
+                            EDocumentPurchaseLine.Modify();
+                            LinesMatched += 1;
+                        end;
+                until EDocumentPurchaseLine.Next() = 0;
 
         TelemetryCustomDimensions.Add('Category', FeatureName());
         TelemetryCustomDimensions.Add('LinesConsidered', Format(EDocumentPurchaseLine.Count()));
