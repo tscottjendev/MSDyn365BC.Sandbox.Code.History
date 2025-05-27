@@ -53,7 +53,7 @@ table 9640 "Table Relations Buffer"
     }
     fieldgroups
     {
-        fieldgroup(DropDown; "Table Name", "Relation Description")
+        fieldgroup(DropDown; "Related Table Name", "Relation Description")
         {
         }
     }
