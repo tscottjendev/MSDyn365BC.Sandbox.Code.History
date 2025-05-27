@@ -857,6 +857,7 @@ codeunit 99000774 "Calculate Routing Line"
             CalendarMgt.TimeFactor(ProdOrderRoutingLine."Setup Time Unit of Meas. Code") /
             CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code"),
             Workcenter."Calendar Rounding Precision");
+        OnCalcRoutingLineBackOnAfterCalcRemainNeedQty(ProdOrderRoutingLine, Workcenter, RemainNeedQty);
 
         GetConstrainedSetup(ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained);
         if not ProdOrderRoutingLine."Schedule Manually" and
@@ -969,6 +970,7 @@ codeunit 99000774 "Calculate Routing Line"
             CalendarMgt.TimeFactor(ProdOrderRoutingLinePrev."Move Time Unit of Meas. Code") /
             CalendarMgt.TimeFactor(Workcenter2."Unit of Measure Code"),
             Workcenter2."Calendar Rounding Precision");
+        OnGetSendAheadEndingTimeOnAfterCalcTimes(ProdOrderRoutingLinePrev, Workcenter2, SetupTime, RunTime, WaitTime, MoveTime);
 
         xProdOrderRoutingLine := ProdOrderRoutingLine;
         ProdOrderRoutingLine := ProdOrderRoutingLinePrev;
@@ -1000,6 +1002,7 @@ codeunit 99000774 "Calculate Routing Line"
             CalendarMgt.TimeFactor(ProdOrderRoutingLine."Run Time Unit of Meas. Code") /
             CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code"),
             Workcenter."Calendar Rounding Precision");
+        OnGetSendAheadEndingTimeOnAfterCalcSetupAndRunTime(ProdOrderRoutingLine, Workcenter, SetupTime, RunTime);
 
         RemainNeedQty := SetupTime;
         LoadCapForward(ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.", RoutingTimeType::"Setup Time", false);
@@ -1125,6 +1128,7 @@ codeunit 99000774 "Calculate Routing Line"
             CalendarMgt.TimeFactor(ProdOrderRoutingLine."Setup Time Unit of Meas. Code") /
             CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code"),
             Workcenter."Calendar Rounding Precision");
+        OnCalcRoutingLineForwardOnAfterCalcRemainNeedQty(ProdOrderRoutingLine, Workcenter, RemainNeedQty);
         UpdateDates := true;
 
         GetConstrainedSetup(ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained);
@@ -1427,6 +1431,7 @@ codeunit 99000774 "Calculate Routing Line"
                         CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code"),
                         Workcenter."Calendar Rounding Precision");
                     SetupTime := SetupTime * ConCurrCap;
+                    OnFinitelyLoadCapBackOnAfterCalcSetupTime(ProdOrderRoutingLine, Workcenter, SetupTime);
                 end;
                 if RemainNeedQty + SetupTime <= AvailCap + DampTime then
                     AvailCap := AvailCap + DampTime;
@@ -2499,6 +2504,31 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnLoadCapForwardOnAfterCreateLoadForward(var RemainNeedQty: Decimal; CapacityType: Enum "Capacity Type"; CapacityNo: Code[20]; RoutingTimeType: Enum "Routing Time Type"; Write: Boolean; LoadFactor: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSendAheadEndingTimeOnAfterCalcTimes(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; var SetupTime: Decimal; var RunTime: Decimal; var WaitTime: Decimal; var MoveTime: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSendAheadEndingTimeOnAfterCalcSetupAndRunTime(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; var SetupTime: Decimal; var RunTime: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRoutingLineBackOnAfterCalcRemainNeedQty(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; var RemainNeedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinitelyLoadCapBackOnAfterCalcSetupTime(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; var SetupTime: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRoutingLineForwardOnAfterCalcRemainNeedQty(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; var RemainNeedQty: Decimal)
     begin
     end;
 }
