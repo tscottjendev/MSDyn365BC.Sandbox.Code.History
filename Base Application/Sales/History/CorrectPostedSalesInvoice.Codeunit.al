@@ -973,11 +973,11 @@ codeunit 1303 "Correct Posted Sales Invoice"
                 Clear(SalesInvoiceLine);
                 SalesCrMemoLine.GetSalesInvoiceLine(SalesInvoiceLine);
                 if SalesInvoiceLine."Line No." <> 0 then
-                    UpdateSalesOrderLinesFromCreditMemo(SalesInvoiceLine);
+                    UpdateSalesOrderLinesFromCreditMemo(SalesInvoiceLine, SalesCrMemoLine);
             until SalesCrMemoLine.Next() = 0;
     end;
 
-    local procedure UpdateSalesOrderLinesFromCreditMemo(SalesInvoiceLine: Record "Sales Invoice Line")
+    local procedure UpdateSalesOrderLinesFromCreditMemo(SalesInvoiceLine: Record "Sales Invoice Line"; SalesCrMemoLine: Record "Sales Cr.Memo Line")
     var
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
         SalesLine: Record "Sales Line";
@@ -985,7 +985,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     begin
         if SalesLine.Get(SalesLine."Document Type"::Order, SalesInvoiceLine."Order No.", SalesInvoiceLine."Order Line No.") then begin
             SalesInvoiceLine.GetItemLedgEntries(TempItemLedgerEntry, false);
-            UpdateSalesOrderLineInvoicedQuantity(SalesLine, SalesInvoiceLine.Quantity, SalesInvoiceLine."Quantity (Base)");
+            UpdateSalesOrderLineInvoicedQuantity(SalesLine, SalesCrMemoLine.Quantity, SalesCrMemoLine."Quantity (Base)");
             UpdateSalesOrderLinePrepmtAmount(SalesInvoiceLine);
             if SalesLine."Qty. to Ship" = 0 then
                 UpdateWhseRequest(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Location Code");
