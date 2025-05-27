@@ -9477,13 +9477,11 @@ table 36 "Sales Header"
         IsHandled: Boolean;
     begin
         SalesInvoiceHeader.SetLoadFields("No.");
-        if not SalesInvoiceHeader.Get(Rec."Applies-to Doc. No.") then
+        if (not SalesInvoiceHeader.Get(Rec."Applies-to Doc. No.")) and (Rec."Applies-to ID" = '') then
             exit;
         SalesCreditMemoHeader.SetLoadFields("Pre-Assigned No.", "Cust. Ledger Entry No.");
         SalesCreditMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
         if not SalesCreditMemoHeader.FindFirst() then
-            exit;
-        if IsNotFullyCancelled(SalesCreditMemoHeader) then
             exit;
 
         IsHandled := false;
@@ -9492,29 +9490,6 @@ table 36 "Sales Header"
             exit;
 
         CorrectPostedSalesInvoice.UpdateSalesOrderLineIfExist(SalesCreditMemoHeader."No.");
-    end;
-
-    local procedure IsNotFullyCancelled(var SalesCreditMemoHeader: Record "Sales Cr.Memo Header") Result: Boolean
-    var
-        CustLedgerEntry, ClosedCustLedgerEntry : Record "Cust. Ledger Entry";
-        IsHandled: Boolean;
-    begin
-        OnBeforeIsNotFullyCancelled(SalesCreditMemoHeader, Result, IsHandled);
-        if IsHandled then
-            exit(Result);
-
-        if SalesCreditMemoHeader."Cust. Ledger Entry No." = 0 then
-            exit(true);
-
-        CustLedgerEntry.SetLoadFields("Closed by Entry No.");
-        if CustLedgerEntry.Get(SalesCreditMemoHeader."Cust. Ledger Entry No.") then begin
-            if CustLedgerEntry."Closed by Entry No." = 0 then
-                exit(false);
-            ClosedCustLedgerEntry.SetLoadFields("Remaining Amt. (LCY)", "Remaining Amount");
-            ClosedCustLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)", "Remaining Amount");
-            if ClosedCustLedgerEntry.Get(CustLedgerEntry."Closed by Entry No.") then
-                exit((ClosedCustLedgerEntry."Remaining Amt. (LCY)" <> 0) and (ClosedCustLedgerEntry."Remaining Amount" <> 0));
-        end;
     end;
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
@@ -11463,10 +11438,13 @@ table 36 "Sales Header"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Removed Not used anymore.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsNotFullyCancelled(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckCreditLimitOnAfterCreditLimitCheck(var SalesHeader: Record "Sales Header")
