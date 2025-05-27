@@ -191,12 +191,18 @@ table 405 "Change Log Entry"
 
     procedure GetFullPrimaryKeyFriendlyName(): Text
     var
+        TableMetadata: Record "Table Metadata";
         RecRef: RecordRef;
         FriendlyName: Text;
         p: Integer;
     begin
         if "Primary Key" = '' then
             exit('');
+
+        // Don't try and get obsoleted table PK name.
+        if TableMetadata.Get("Table No.") then
+            if TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::Removed then
+                exit('');
 
         // Retain existing formatting of old data
         if (StrPos("Primary Key", 'CONST(') = 0) and (StrPos("Primary Key", '0(') = 0) then
