@@ -2072,7 +2072,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 if (TempGLEntryBuf."Source Currency Code" <> '') and (GenJournalLine."Deferral Code" = '') then
                     UpdateSourceCurrencyAmounts(
                         TempGLEntryBuf, LastSourceCurrencyTaxAmount, LastSourceCurrencyTaxAmountCredit,
-                        LastSourceCurrencyNonDedTaxAmount, LastSourceCurrencyNonDedTaxAmountCredit);
+                        LastSourceCurrencyNonDedTaxAmount, LastSourceCurrencyNonDedTaxAmountCredit,
+                        (GenJournalLine."VAT Calculation Type" = "Tax Calculation Type"::"Reverse Charge VAT") or
+                        (GenJournalLine."Bal. VAT Calculation Type" = "Tax Calculation Type"::"Reverse Charge VAT"));
                 TempGLEntryPreview := TempGLEntryBuf;
                 TempGLEntryPreview.Insert();
                 GlobalGLEntry := TempGLEntryBuf;
@@ -2177,13 +2179,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
     end;
 
-    local procedure UpdateSourceCurrencyAmounts(var TempGLEntry: Record "G/L Entry" temporary; var LastSourceCurrencyTaxAmount: Decimal; var LastSourceCurrencyTaxAmountCredit: Decimal; var LastSourceCurrencyNonDedTaxAmount: Decimal; var LastSourceCurrencyNonDedTaxAmountCredit: Decimal)
+    local procedure UpdateSourceCurrencyAmounts(var TempGLEntry: Record "G/L Entry" temporary; var LastSourceCurrencyTaxAmount: Decimal; var LastSourceCurrencyTaxAmountCredit: Decimal; var LastSourceCurrencyNonDedTaxAmount: Decimal; var LastSourceCurrencyNonDedTaxAmountCredit: Decimal; ReverseCharge: Boolean)
     var
         SourceCurrency: Record Currency;
     begin
         if (LastSourceCurrencyNonDedTaxAmount <> 0) and (TempGLEntry."Debit Amount" <> 0) then begin // Non Deductible VAT case
             TempGLEntry."Source Currency Amount" := LastSourceCurrencyTaxAmount - LastSourceCurrencyNonDedTaxAmount;
             TempGLEntry."Source Currency VAT Amount" := 0;
+            LastSourceCurrencyNonDedTaxAmountCredit := -LastSourceCurrencyNonDedTaxAmount;
             LastSourceCurrencyTaxAmount := LastSourceCurrencyNonDedTaxAmount;
             LastSourceCurrencyNonDedTaxAmount := 0;
         end else
@@ -2196,6 +2199,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 if (LastSourceCurrencyTaxAmount <> 0) and (TempGLEntry."Debit Amount" <> 0) then begin // VAT case
                     TempGLEntry."Source Currency Amount" := LastSourceCurrencyTaxAmount;
                     TempGLEntry."Source Currency VAT Amount" := 0;
+                    if ReverseCharge then
+                        LastSourceCurrencyTaxAmountCredit := -LastSourceCurrencyTaxAmount;
                     LastSourceCurrencyTaxAmount := 0;
                 end else
                     if (LastSourceCurrencyTaxAmountCredit <> 0) and (TempGLEntry."Credit Amount" <> 0) then begin
@@ -2204,7 +2209,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
                         LastSourceCurrencyTaxAmountCredit := 0;
                     end else begin
                         LastSourceCurrencyTaxAmount := TempGLEntry."Source Currency VAT Amount";
-                        LastSourceCurrencyTaxAmountCredit := -TempGLEntry."Source Currency VAT Amount";
                         if TempGLEntry."VAT Amount" <> 0 then begin
                             SourceCurrency.Get(TempGLEntry."Source Currency Code");
                             SourceCurrency.TestField("Amount Rounding Precision");
@@ -2213,7 +2217,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                     TempGLEntry."Source Currency VAT Amount" * TempGLEntry."Non-Deductible VAT Amount" / TempGLEntry."VAT Amount",
                                     SourceCurrency."Amount Rounding Precision", SourceCurrency.VATRoundingDirection());
                             LastSourceCurrencyNonDedTaxAmount := TempGLEntry."Src. Curr. Non-Ded. VAT Amount";
-                            LastSourceCurrencyNonDedTaxAmountCredit := -TempGLEntry."Src. Curr. Non-Ded. VAT Amount";
                         end;
                         if TempGLEntry."Source Currency Amount" = 0 then begin // Sales Tax case
                             TempGLEntry."Source Currency Amount" := TempGLEntry."Source Currency VAT Amount";
