@@ -120,7 +120,7 @@ codeunit 139891 "E-Document Structured Tests"
         // Set a currency that can be used across all localizations
         Currency.Init();
         Currency.Validate(Code, 'XYZ');
-        Currency.Insert(true);
+        if Currency.Insert(true) then;
 
         TransformationRule.DeleteAll();
         TransformationRule.CreateDefaultTransformations();

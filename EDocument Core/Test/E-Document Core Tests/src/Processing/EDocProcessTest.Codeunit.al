@@ -494,6 +494,8 @@ codeunit 139883 "E-Doc Process Test"
         EDocPurchLineFieldSetup: Record "EDoc. Purch. Line Field Setup";
         PurchInvHeader: Record "Purch. Inv. Header";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Currency: Record Currency;
+        LibraryERM: Codeunit "Library - ERM";
     begin
         LibraryLowerPermission.SetOutsideO365Scope();
         LibraryVariableStorage.Clear();
@@ -505,6 +507,12 @@ codeunit 139883 "E-Doc Process Test"
 
         if IsInitialized then
             exit;
+
+        // Set a currency that can be used across all localizations
+        Currency.Init();
+        Currency.Validate(Code, 'XYZ');
+        if Currency.Insert(true) then
+            LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1.0, 1.0);
 
         EDocument.DeleteAll();
         EDocumentServiceStatus.DeleteAll();

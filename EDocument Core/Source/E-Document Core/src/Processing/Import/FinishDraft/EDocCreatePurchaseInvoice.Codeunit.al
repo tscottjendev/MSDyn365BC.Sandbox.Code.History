@@ -8,6 +8,7 @@ using Microsoft.eServices.EDocument;
 using Microsoft.Purchases.Document;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Purchases.Payables;
 using System.Telemetry;
 
@@ -57,6 +58,7 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
 
     procedure CreatePurchaseInvoice(EDocument: Record "E-Document") PurchaseHeader: Record "Purchase Header"
     var
+        GLSetup: Record "General Ledger Setup";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
@@ -85,6 +87,13 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         PurchaseHeader.Validate("Vendor Invoice No.", VendorInvoiceNo);
         PurchaseHeader.Insert(true);
 
+        // Validate of currency has to happen after insert.
+        GLSetup.GetRecordOnce();
+        if EDocumentPurchaseHeader."Currency Code" <> GLSetup.GetCurrencyCode('') then begin
+            PurchaseHeader.Validate("Currency Code", EDocumentPurchaseHeader."Currency Code");
+            PurchaseHeader.Modify();
+        end;
+
         // Track changes for history
         EDocumentPurchaseHistMapping.TrackRecord(EDocument, EDocumentPurchaseHeader, PurchaseHeader);
 
@@ -105,6 +114,7 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
 
                 PurchaseLine.Validate(Quantity, EDocumentPurchaseLine.Quantity);
                 PurchaseLine.Validate("Direct Unit Cost", EDocumentPurchaseLine."Unit Price");
+                PurchaseLine.Validate("Line Discount Amount", EDocumentPurchaseLine."Total Discount");
                 PurchaseLine.Validate("Deferral Code", EDocumentPurchaseLine."[BC] Deferral Code");
                 PurchaseLine.Validate("Dimension Set ID", EDocumentPurchaseLine."[BC] Dimension Set ID");
                 PurchaseLine.Validate("Shortcut Dimension 1 Code", EDocumentPurchaseLine."[BC] Shortcut Dimension 1 Code");

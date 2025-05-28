@@ -148,7 +148,13 @@ page 6181 "E-Document Purchase Draft"
                 {
                     Importance = Promoted;
                     ToolTip = 'Specifies the electronic document currency code.';
-                    Editable = false;
+                    Editable = true;
+
+                    trigger OnValidate()
+                    begin
+                        EDocumentPurchaseHeader.Modify();
+                        CurrPage.Update();
+                    end;
                 }
             }
 
@@ -385,6 +391,8 @@ page 6181 "E-Document Purchase Draft"
     begin
         CurrPage.ErrorMessagesPart.Page.SetRecords(TempErrorMessage);
         CurrPage.ErrorMessagesPart.Page.Update(false);
+
+        if ErrorsAndWarningsNotification.Recall() then;
     end;
 
     local procedure FinalizeEDocument()
