@@ -467,8 +467,8 @@ codeunit 5940 ServContractManagement
         IsHandled := false;
         OnCreateServHeaderOnBeforeInitSeries(ServHeader2, ServMgtSetup, ServContract2, IsHandled);
         if not IsHandled then begin
-                ServHeader2."No. Series" := ServMgtSetup."Contract Invoice Nos.";
-                ServHeader2."No." := NoSeries.GetNextNo(ServHeader2."No. Series", PostDate);
+            ServHeader2."No. Series" := ServMgtSetup."Contract Invoice Nos.";
+            ServHeader2."No." := NoSeries.GetNextNo(ServHeader2."No. Series", PostDate);
         end;
         InsertServiceHeader(ServHeader2, ServContract2);
         ServInvNo := ServHeader2."No.";
@@ -615,6 +615,7 @@ codeunit 5940 ServContractManagement
                         if InvToDate > LatestInvToDate then
                             InvToDate := LatestInvToDate;
                     end;
+                    OnCreateServiceLineOnBeforeServLedgEntryToServiceLine(ServHeader, ServContractHeader, ServiceLedgerEntry, InvFromDate, InvToDate);
                     ServLedgEntryToServiceLine(
                       TotalServLine,
                       TotalServLineLCY,
@@ -626,6 +627,7 @@ codeunit 5940 ServContractManagement
                 until ServiceLedgerEntry.Next() = 0
         end else begin
             Clear(ServiceLedgerEntry);
+            OnCreateServiceLineOnBeforeServLedgEntryToServiceLine(ServHeader, ServContractHeader, ServiceLedgerEntry, InvFromDate, InvToDate);
             ServLedgEntryToServiceLine(
               TotalServLine,
               TotalServLineLCY,
@@ -828,8 +830,8 @@ codeunit 5940 ServContractManagement
         IsHandled := false;
         OnCreateOrGetCreditHeaderOnBeforeInitSeries(ServHeader2, ServMgtSetup, IsHandled, ServContract);
         if not IsHandled then begin
-                ServHeader2."No. Series" := ServMgtSetup."Contract Credit Memo Nos.";
-                ServHeader2."No." := NoSeries.GetNextNo(ServHeader2."No. Series");
+            ServHeader2."No. Series" := ServMgtSetup."Contract Credit Memo Nos.";
+            ServHeader2."No." := NoSeries.GetNextNo(ServHeader2."No. Series");
         end;
         InsertServiceHeader(ServHeader2, ServContract);
         ServInvoiceNo := ServHeader2."No.";
@@ -3177,6 +3179,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertMultipleServLedgEntriesOnAfterSetDueDate(Index: Integer; var DueDate: Date; ServiceLedgerEntry: Record "Service Ledger Entry"; CountOfEntryLoop: Integer; InvRoundedAmount: array[4] of Decimal; var NonDistrAmount: array[4] of Decimal; var ServiceHeader: Record "Service Header"; AmountRoundingPrecision: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateServiceLineOnBeforeServLedgEntryToServiceLine(var ServiceHeader: Record "Service Header"; var ServiceContractHeader: Record "Service Contract Header"; var ServiceLedgerEntry: Record "Service Ledger Entry"; var InvFromDate: Date; var InvToDate: Date)
     begin
     end;
 }
