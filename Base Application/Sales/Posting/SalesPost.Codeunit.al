@@ -7619,22 +7619,15 @@ codeunit 80 "Sales-Post"
     local procedure MakeInventoryAdjustment()
     var
         InvtSetup: Record "Inventory Setup";
-        CostAdjustmentParameter: Record "Cost Adjustment Parameter";
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
-        CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.";
         IsHandled: Boolean;
     begin
         InvtSetup.Get();
         if InvtSetup.AutomaticCostAdjmtRequired() then begin
             IsHandled := false;
             OnBeforeMakeInventoryAdjustment(InvtSetup, InvtAdjmtHandler, IsHandled);
-            if not IsHandled then begin
-                CostAdjustmentParameter."Post to G/L" := InvtSetup."Automatic Cost Posting";
-                CostAdjustmentParameter."Online Adjustment" := true;
-                CostAdjustmentParamsMgt.SetItemsToAdjust(ItemsToAdjust);
-                CostAdjustmentParamsMgt.SetParameters(CostAdjustmentParameter);
-                InvtAdjmtHandler.MakeInventoryAdjustment(CostAdjustmentParamsMgt);
-            end
+            if not IsHandled then
+                InvtAdjmtHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust);
         end;
     end;
 
