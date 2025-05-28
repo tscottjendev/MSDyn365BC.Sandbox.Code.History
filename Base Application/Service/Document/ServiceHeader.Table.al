@@ -266,6 +266,8 @@ table 5900 "Service Header"
                                 if "Document Type" = "Document Type"::Invoice then
                                     ServLine.SetFilter("Shipment No.", '<>%1', '');
 
+                            OnValidateBillToCustomerNoOnAfterSetFilters(ServLine, Rec, xRec);
+
                             if ServLine.FindFirst() then
                                 if "Document Type" = "Document Type"::Order then
                                     ServLine.TestField("Quantity Shipped", 0)
@@ -991,6 +993,8 @@ table 5900 "Service Header"
                     else
                         if ("Applies-to Doc. No." <> xRec."Applies-to Doc. No.") and ("Applies-to Doc. No." = '') then
                             CustLedgEntry.SetAmountToApply(xRec."Applies-to Doc. No.", "Customer No.");
+
+                OnAfterValidateAppliesToDocNo(Rec, xRec, CustLedgEntry);
             end;
         }
         field(55; "Bal. Account No."; Code[20])
@@ -6325,6 +6329,16 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateResponseDateTime(var ServiceHeader: Record "Service Header"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBillToCustomerNoOnAfterSetFilters(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateAppliesToDocNo(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

@@ -1003,19 +1003,8 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     local procedure MakeInventoryAdjustment()
-    var
-        CostAdjustmentParameter: Record "Cost Adjustment Parameter";
-        CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.";
     begin
-        InvtSetup.SetLoadFields("Automatic Cost Adjustment", "Automatic Cost Posting");
-        InvtSetup.Get();
-        if InvtSetup.AutomaticCostAdjmtRequired() then begin
-            CostAdjustmentParameter."Post to G/L" := InvtSetup."Automatic Cost Posting";
-            CostAdjustmentParameter."Online Adjustment" := true;
-            CostAdjustmentParamsMgt.SetItemsToAdjust(ItemsToAdjust);
-            CostAdjustmentParamsMgt.SetParameters(CostAdjustmentParameter);
-            InvtAdjmtHandler.MakeInventoryAdjustment(CostAdjustmentParamsMgt);
-        end;
+        InvtAdjmtHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]
@@ -1064,10 +1053,8 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem', '', false, false)]
     local procedure OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem(var Item2: Record Item)
-    var
-        InventorySetup: Record "Inventory Setup";
     begin
-        if InventorySetup.UseLegacyPosting() then
+        if InvtSetup.UseLegacyPosting() then
             exit;
 
         if not ItemsToAdjust.Contains(Item2."No.") then
