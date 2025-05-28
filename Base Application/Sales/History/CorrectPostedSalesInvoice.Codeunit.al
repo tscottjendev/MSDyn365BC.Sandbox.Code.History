@@ -429,10 +429,12 @@ codeunit 1303 "Correct Posted Sales Invoice"
                                 ErrorHelperLine("Correct Sales Inv. Error Type"::ItemVariantBlocked, SalesInvoiceLine);
                         end;
 
-                        TableID[1] := DATABASE::Item;
-                        No[1] := SalesInvoiceLine."No.";
-                        if not DimensionManagement.CheckDimValuePosting(TableID, No, SalesInvoiceLine."Dimension Set ID") then
-                            ErrorHelperAccount(Enum::"Correct Sales Inv. Error Type"::DimErr, No[1], Item.TableCaption(), Item."No.", Item.Description);
+                        if SalesInvoiceLine.Quantity <> 0 then begin
+                            TableID[1] := DATABASE::Item;
+                            No[1] := SalesInvoiceLine."No.";
+                            if not DimensionManagement.CheckDimValuePosting(TableID, No, SalesInvoiceLine."Dimension Set ID") then
+                                ErrorHelperAccount(Enum::"Correct Sales Inv. Error Type"::DimErr, No[1], Item.TableCaption(), Item."No.", Item.Description);
+                        end;
 
                         if Item.Type = Item.Type::Inventory then
                             TestInventoryPostingSetup(SalesInvoiceLine);
