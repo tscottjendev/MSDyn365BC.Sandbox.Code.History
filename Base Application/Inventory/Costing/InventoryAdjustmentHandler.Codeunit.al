@@ -5,6 +5,7 @@
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Setup;
 
 codeunit 5894 "Inventory Adjustment Handler"
 {
@@ -57,6 +58,23 @@ codeunit 5894 "Inventory Adjustment Handler"
         OnMakeInventoryAdjustmentOnAfterSetParameters(CostAdjustmentParamsMgt);
 
         MakeInventoryAdjustment(CostAdjustmentParamsMgt);
+    end;
+
+    procedure MakeAutomaticInventoryAdjustment(var ItemsToAdjust: List of [Code[20]])
+    var
+        InventorySetup: Record "Inventory Setup";
+        CostAdjustmentParameter: Record "Cost Adjustment Parameter";
+        CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.";
+    begin
+        InventorySetup.GetRecordOnce();
+        if InventorySetup.AutomaticCostAdjmtRequired() then begin
+            CostAdjustmentParameter."Post to G/L" := InventorySetup."Automatic Cost Posting";
+            CostAdjustmentParameter."Online Adjustment" := true;
+            CostAdjustmentParameter."Skip Job Item Cost Update" := SkipJobUpdate;
+            CostAdjustmentParamsMgt.SetItemsToAdjust(ItemsToAdjust);
+            CostAdjustmentParamsMgt.SetParameters(CostAdjustmentParameter);
+            MakeInventoryAdjustment(CostAdjustmentParamsMgt);
+        end;
     end;
 
     procedure SetJobUpdateProperties(SkipJobUpdate: Boolean)
