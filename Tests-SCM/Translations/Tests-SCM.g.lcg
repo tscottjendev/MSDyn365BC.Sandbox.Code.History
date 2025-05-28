@@ -3632,6 +3632,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Journals - NamedType LocationErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 901483511 - NamedType 3061709746" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to overwrite the existing information?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Journals - NamedType LotNoConfirmatonQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 901483511 - NamedType 3922887190" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to overwrite the existing information?]]></Val>
