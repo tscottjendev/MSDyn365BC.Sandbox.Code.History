@@ -1117,6 +1117,8 @@ table 36 "Sales Header"
                     else
                         if ("Applies-to Doc. No." <> xRec."Applies-to Doc. No.") and ("Applies-to Doc. No." = '') then
                             CustLedgEntry.SetAmountToApply(xRec."Applies-to Doc. No.", "Bill-to Customer No.");
+
+                OnAfterValidateAppliesToDocNo(Rec, xRec, CustLedgEntry);
             end;
         }
         field(55; "Bal. Account No."; Code[20])
@@ -11217,6 +11219,11 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyBillToCustomerAddress(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateAppliesToDocNo(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

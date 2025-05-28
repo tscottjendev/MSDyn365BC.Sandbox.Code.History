@@ -26,6 +26,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
                   TableData "Item Entry Relation" = ri,
                   TableData "Whse. Item Entry Relation" = rimd;
     TableNo = "Purch. Rcpt. Line";
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     var
@@ -54,6 +55,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
         UndoPostingMgt: Codeunit "Undo Posting Management";
         WhseUndoQty: Codeunit "Whse. Undo Quantity";
         UOMMgt: Codeunit "Unit of Measure Management";
+        ItemsToAdjust: List of [Code[20]];
         HideDialog: Boolean;
         JobItem: Boolean;
         NextLineNo: Integer;
@@ -86,6 +88,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
         CheckPurchRcptLines(PurchRcptLine, Window);
 
+        BindSubscription(this);
         PurchRcptLine.Find('-');
         OnCodeOnBeforeLoopPurchRcptLine(PurchRcptLine);
         repeat
@@ -139,6 +142,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
             if not JobItem then
                 JobItem := (PurchRcptLine.Type = PurchRcptLine.Type::Item) and (PurchRcptLine."Job No." <> '');
         until PurchRcptLine.Next() = 0;
+        UnbindSubscription(this);
 
         OnCodeOnBeforeMakeInventoryAdjustment(PurchLine, PurchRcptLine);
         MakeInventoryAdjustment();
@@ -559,14 +563,10 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
     local procedure MakeInventoryAdjustment()
     var
-        InvtSetup: Record "Inventory Setup";
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
     begin
-        InvtSetup.Get();
-        if InvtSetup.AutomaticCostAdjmtRequired() then begin
-            InvtAdjmtHandler.SetJobUpdateProperties(not JobItem);
-            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
-        end;
+        InvtAdjmtHandler.SetJobUpdateProperties(not JobItem);
+        InvtAdjmtHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust);
     end;
 
     local procedure CheckPurchRcptLineFields(var PurchRcptLine: Record "Purch. Rcpt. Line")
@@ -580,6 +580,18 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
         PurchRcptLine.TestField("Sales Order No.", '');
         PurchRcptLine.TestField("Sales Order Line No.", 0);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem', '', false, false)]
+    local procedure OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem(var Item2: Record Item)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        if InventorySetup.UseLegacyPosting() then
+            exit;
+
+        if not ItemsToAdjust.Contains(Item2."No.") then
+            ItemsToAdjust.Add(Item2."No.");
     end;
 
     [IntegrationEvent(false, false)]
