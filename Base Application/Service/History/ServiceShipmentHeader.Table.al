@@ -266,6 +266,7 @@ table 5990 "Service Shipment Header"
                 CustLedgEntry.SetCurrentKey("Document No.");
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliestoDocNoOnAfterSetFilters(Rec, CustLedgEntry);
                 PAGE.Run(0, CustLedgEntry);
             end;
         }
@@ -984,6 +985,11 @@ table 5990 "Service Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ServiceShipmentHeader: Record "Service Shipment Header"; ShowRequestForm: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliestoDocNoOnAfterSetFilters(ServiceShipmentHeader: Record "Service Shipment Header"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

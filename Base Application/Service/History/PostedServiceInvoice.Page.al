@@ -779,7 +779,7 @@ page 5978 "Posted Service Invoice"
                 ApplicationArea = Service;
                 Caption = 'Update Document';
                 Image = Edit;
-                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
+                ToolTip = 'Add new information that is relevant to the document, such as a payment reference. You can only edit a few fields because the document has already been posted.';
 
                 trigger OnAction()
                 var
