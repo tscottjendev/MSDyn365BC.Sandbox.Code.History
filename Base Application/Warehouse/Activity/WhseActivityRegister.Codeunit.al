@@ -849,7 +849,12 @@ codeunit 7307 "Whse.-Activity-Register"
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         WhseLocation: Record Location;
         BreakBulkQtyBaseToPlace: Decimal;
+        IsHandled: Boolean;
     begin
+        OnBeforeCheckBinContent(TempBinContentBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         TempBinContentBuffer.SetFilter("Qty. to Handle (Base)", '<>0');
         if TempBinContentBuffer.Find('-') then
             repeat
@@ -2708,6 +2713,11 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSyncItemTrackingAndReserveSourceDocument(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBinContent(var TempBinContentBuffer: Record "Bin Content Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
 }
