@@ -284,6 +284,7 @@ table 5992 "Service Invoice Header"
                 CustLedgEntry.SetCurrentKey("Document Type");
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliestoDocNoOnAfterSetFilters(Rec, CustLedgEntry);
                 PAGE.Run(0, CustLedgEntry);
             end;
         }
@@ -1127,6 +1128,12 @@ table 5992 "Service Invoice Header"
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliestoDocNoOnAfterSetFilters(ServiceInvoiceHeader: Record "Service Invoice Header"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnDelete(var ServiceInvoiceHeader: Record "Service Invoice Header")
     begin
