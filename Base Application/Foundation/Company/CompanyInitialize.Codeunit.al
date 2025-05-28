@@ -605,6 +605,8 @@ codeunit 2 "Company-Initialize"
               CODEUNIT::"SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.09", CODEUNIT::"SEPA CT-Check Line");
             InsertBankExportImportSetup(SEPADDCode08Txt, SEPADDName08Txt, BankExportImportSetup.Direction::Export,
               CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.08", CODEUNIT::"SEPA DD-Check Line");
+
+            OnAfterInitBankExportImportSetup();
         end;
     end;
 
@@ -822,6 +824,11 @@ codeunit 2 "Company-Initialize"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitBankExportImportSetup()
+    begin
+    end;
+    
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSourceCodeSetupInsert(var SourceCodeSetup: Record "Source Code Setup")
     begin
