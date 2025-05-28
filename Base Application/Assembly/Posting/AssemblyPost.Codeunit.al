@@ -104,6 +104,7 @@ codeunit 900 "Assembly-Post"
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         Window: Dialog;
         PostponedValueEntries: List of [Integer];
+        ItemsToAdjust: List of [Code[20]];
         PostingDate: Date;
         SourceCode: Code[10];
         PostingDateExists: Boolean;
@@ -223,7 +224,7 @@ codeunit 900 "Assembly-Post"
     begin
         OnBeforeFinalizePost(AssemblyHeader);
 
-        MakeInvtAdjmt();
+        MakeInventoryAdjustment();
 
         if not PreviewMode then
             DeleteAssemblyDocument(AssemblyHeader);
@@ -1083,7 +1084,7 @@ codeunit 900 "Assembly-Post"
     var
         AsmHeader: Record "Assembly Header";
     begin
-        MakeInvtAdjmt();
+        MakeInventoryAdjustment();
 
         if AsmHeader.Get(AsmHeader."Document Type"::Order, PostedAsmHeader."Order No.") then
             UpdateAsmOrderWithUndo(PostedAsmHeader)
@@ -1484,14 +1485,11 @@ codeunit 900 "Assembly-Post"
             UndoFinalizePost(PostedAsmHeader, false);
     end;
 
-    local procedure MakeInvtAdjmt()
+    local procedure MakeInventoryAdjustment()
     var
-        InvtSetup: Record "Inventory Setup";
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
     begin
-        InvtSetup.Get();
-        if InvtSetup.AutomaticCostAdjmtRequired() then
-            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+        InvtAdjmtHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust);
     end;
 
     local procedure DeleteWhseRequest(AssemblyHeader: Record "Assembly Header")
@@ -1604,6 +1602,18 @@ codeunit 900 "Assembly-Post"
             exit;
         PostponedValueEntries.Add(ValueEntry."Entry No.");
         IsHandled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem', '', false, false)]
+    local procedure OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem(var Item2: Record Item)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        if InventorySetup.UseLegacyPosting() then
+            exit;
+
+        if not ItemsToAdjust.Contains(Item2."No.") then
+            ItemsToAdjust.Add(Item2."No.");
     end;
 
     [IntegrationEvent(false, false)]

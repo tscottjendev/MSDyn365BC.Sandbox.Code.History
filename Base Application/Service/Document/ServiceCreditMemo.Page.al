@@ -13,6 +13,7 @@ using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.EServices.EDocument;
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.Pricing;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Contract;
 using Microsoft.Service.History;
@@ -211,12 +212,7 @@ page 5935 "Service Credit Memo"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the customer''s reference. The content will be printed on the related document.';
                 }
-                field("Corrected Invoice No."; Rec."Corrected Invoice No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the posted invoice that you need to correct.';
-                }
-		        group("Work Description")
+                group("Work Description")
                 {
                     Caption = 'Work Description';
                     field(WorkDescription; WorkDescription)
@@ -445,93 +441,6 @@ page 5935 "Service Credit Memo"
                         PricesIncludingVATOnAfterValid();
                     end;
                 }
-                field("VAT Registration No."; Rec."VAT Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer''s VAT registration number.';
-                }
-                group("SII Information")
-                {
-                    Caption = 'SII Information';
-                    field(OperationDescription; OperationDescription)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Operation Description';
-                        MultiLine = true;
-                        ToolTip = 'Specifies the Operation Description.';
-
-                        trigger OnValidate()
-                        var
-                            SIIManagement: Codeunit "SII Management";
-                        begin
-                            SIIManagement.SplitOperationDescription(OperationDescription, Rec."Operation Description", Rec."Operation Description 2");
-                            Rec.Validate("Operation Description");
-                            Rec.Validate("Operation Description 2");
-                            Rec.Modify(true);
-                        end;
-                    }
-                    group(Control1100011)
-                    {
-                        ShowCaption = false;
-                        Visible = DocHasMultipleRegimeCode;
-                        field(MultipleSchemeCodesControl; MultipleSchemeCodesLbl)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Editable = false;
-                            ShowCaption = false;
-                            Style = StandardAccent;
-                            StyleExpr = true;
-
-                            trigger OnDrillDown()
-                            var
-                                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-                            begin
-                                SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
-                            end;
-                        }
-                    }
-                    field("Special Scheme Code"; Rec."Special Scheme Code")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Editable = not DocHasMultipleRegimeCode;
-                        ToolTip = 'Specifies the Special Scheme Code.';
-                    }
-                    field("Cr. Memo Type"; Rec."Cr. Memo Type")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the Credit Memo Type.';
-                        trigger OnValidate()
-                        begin
-                            SIIFirstSummaryDocNo := '';
-                            SIILastSummaryDocNo := '';
-                        end;
-                    }
-                    field("SII First Summary Doc. No."; SIIFirstSummaryDocNo)
-                    {
-                        Caption = 'First Summary Doc. No.';
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the first number in the series of the summary entry. This field applies to F4-type invoices only.';
-                        trigger OnValidate()
-                        begin
-                            Rec.SetSIIFirstSummaryDocNo(SIIFirstSummaryDocNo);
-                        end;
-                    }
-                    field("SII Last Summary Doc. No."; SIILastSummaryDocNo)
-                    {
-                        Caption = 'Last Summary Doc. No.';
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the last number in the series of the summary entry. This field applies to F4-type invoices only.';
-                        trigger OnValidate()
-                        begin
-                            Rec.SetSIILastSummaryDocNo(SIILastSummaryDocNo);
-                        end;
-                    }
-                    field("Do Not Send To SII"; Rec."Do Not Send To SII")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies if the document must not be sent to SII.';
-                    }
-                }
             }
             group(Shipping)
             {
@@ -670,15 +579,6 @@ page 5935 "Service Credit Memo"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
-                }
-            }
-            group(Payment)
-            {
-                Caption = 'Payment';
-                field("Cust. Bank Acc. Code"; Rec."Cust. Bank Acc. Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer''s bank code that was on the sales credit memo.';
                 }
             }
         }
@@ -866,21 +766,6 @@ page 5935 "Service Credit Memo"
                         PAGE.Run(0, TempServDocLog);
                     end;
                 }
-                action(SpecialSchemeCodes)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Special Scheme Codes';
-                    Image = Allocations;
-                    ToolTip = 'View or edit the list of special scheme codes that related to the current document for VAT reporting.';
-
-                    trigger OnAction()
-                    var
-                        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-                    begin
-                        SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
-                        CurrPage.Update(false);
-                    end;
-                }
             }
         }
         area(processing)
@@ -889,18 +774,38 @@ page 5935 "Service Credit Memo"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
+#if not CLEAN27
                 action("Calculate Inv. and Pmt. Disc.")
                 {
-                    ApplicationArea = Basic, Suite;
+                    AccessByPermission = TableData "Cust. Invoice Disc." = R;
+                    ApplicationArea = Service;
                     Caption = 'Calculate &Inv. and Pmt. Discounts';
                     Image = CalculateDiscount;
                     ToolTip = 'Update the lines with any payment discount that is specified in the related payment terms.';
+                    ObsoleteReason = 'Replaced by W1 action';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
 
                     trigger OnAction()
                     begin
                         ApproveCalcInvDisc();
                     end;
                 }
+#else
+                action("Calculate Invoice Discount")
+                {
+                    AccessByPermission = TableData "Cust. Invoice Disc." = R;
+                    ApplicationArea = Service;
+                    Caption = 'Calculate &Invoice Discount';
+                    Image = CalculateInvoiceDiscount;
+                    ToolTip = 'Calculate the invoice discount that applies to the service order.';
+
+                    trigger OnAction()
+                    begin
+                        ApproveCalcInvDisc();
+                    end;
+                }
+#endif
                 action(ApplyEntries)
                 {
                     ApplicationArea = Service;
@@ -1119,18 +1024,19 @@ page 5935 "Service Credit Memo"
                 actionref("Get St&d. Service Codes_Promoted"; "Get St&d. Service Codes")
                 {
                 }
+#if CLEAN27
+                actionref("Calculate Invoice Discount_Promoted"; "Calculate Invoice Discount")
+                {
+                }
+#endif
             }
         }
     }
 
     trigger OnAfterGetCurrRecord()
-    var
-        SIIManagement: Codeunit "SII Management";
     begin
         SetControlAppearance();
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
-        SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
-        UpdateDocHasRegimeCode();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1167,24 +1073,18 @@ page 5935 "Service Credit Memo"
         WorkDescription := Rec.GetWorkDescription();
         SellToContact.GetOrClear(Rec."Contact No.");
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
-        UpdateDocHasRegimeCode();
 
-        SIIFirstSummaryDocNo := Copystr(Rec.GetSIIFirstSummaryDocNo(), 1, 35);
-        SIILastSummaryDocNo := Copystr(Rec.GetSIILastSummaryDocNo(), 1, 35);
         OnAfterOnAfterGetRecord(Rec);
     end;
 
     trigger OnOpenPage()
     var
-        SIIManagement: Codeunit "SII Management";
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         Rec.SetSecurityFilterOnRespCenter();
         if (Rec."No." <> '') and (Rec."Customer No." = '') then
             DocumentIsPosted := (not Rec.Get(Rec."Document Type", Rec."No."));
 
-        SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
-        UpdateDocHasRegimeCode();
         ActivateFields();
         SetDocNoVisible();
         CheckShowBackgrValidationNotification();
@@ -1210,15 +1110,10 @@ page 5935 "Service Credit Memo"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
-        DocHasMultipleRegimeCode: Boolean;
-        OperationDescription: Text[500];
-        MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
         ServiceDocCheckFactboxVisible: Boolean;
         IsServiceLinesEditable: Boolean;
         ExternalDocNoMandatory: Boolean;
         VATDateEnabled: Boolean;
-        SIIFirstSummaryDocNo: Text[35];
-        SIILastSummaryDocNo: Text[35];
         DocNoVisible: Boolean;
 
     protected var
@@ -1333,13 +1228,6 @@ page 5935 "Service Credit Memo"
                  InstructionMgt.ShowPostedConfirmationMessageCode())
             then
                 InstructionMgt.ShowPostedDocument(ServiceCrMemoHeader, Page::"Service Credit Memo");
-    end;
-
-    local procedure UpdateDocHasRegimeCode()
-    var
-        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-    begin
-        DocHasMultipleRegimeCode := SIISchemeCodeMgt.SalesDocHasRegimeCodes(Rec);
     end;
 
     [IntegrationEvent(true, false)]

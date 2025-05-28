@@ -206,13 +206,7 @@ page 5972 "Posted Service Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the customer''s reference. The content will be printed on the related document.';
                 }
-                field("Corrected Invoice No."; Rec."Corrected Invoice No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the number of the posted invoice that you need to correct.';
-                }
-		        group("Work Description")
+                group("Work Description")
                 {
                     Caption = 'Work Description';
                     field(GetWorkDescription; Rec.GetWorkDescription())
@@ -363,84 +357,6 @@ page 5972 "Posted Service Credit Memo"
                     ApplicationArea = SalesTax;
                     Editable = false;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
-                }
-                group("SII Information")
-                {
-                    Caption = 'SII Information';
-                    field(OperationDescription; OperationDescription)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Operation Description';
-                        Editable = false;
-                        MultiLine = true;
-                        ToolTip = 'Specifies the Operation Description.';
-
-                        trigger OnValidate()
-                        var
-                            SIIManagement: Codeunit "SII Management";
-                        begin
-                            SIIManagement.SplitOperationDescription(OperationDescription, Rec."Operation Description", Rec."Operation Description 2");
-                            Rec.Validate("Operation Description");
-                            Rec.Validate("Operation Description 2");
-                            Rec.Modify(true);
-                        end;
-                    }
-                    group(Control1100008)
-                    {
-                        ShowCaption = false;
-                        Visible = DocHasMultipleRegimeCode;
-                        field(MultipleSchemeCodesControl; MultipleSchemeCodesLbl)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Editable = false;
-                            ShowCaption = false;
-                            Style = StandardAccent;
-                            StyleExpr = true;
-
-                            trigger OnDrillDown()
-                            var
-                                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-                            begin
-                                SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
-                            end;
-                        }
-                    }
-                    field("Special Scheme Code"; Rec."Special Scheme Code")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Editable = false;
-                        ToolTip = 'Specifies the Special Scheme Code.';
-                    }
-                    field("Cr. Memo Type"; Rec."Cr. Memo Type")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Editable = false;
-                        ToolTip = 'Specifies the Credit Memo Type.';
-                    }
-                    field("Issued By Third Party"; Rec."Issued By Third Party")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies that the credit memo was issued by a third party.';
-                    }
-                    field("SII First Summary Doc. No."; Rec.GetSIIFirstSummaryDocNo())
-                    {
-                        Caption = 'First Summary Doc. No.';
-                        ApplicationArea = Basic, Suite;
-                        Editable = false;
-                        ToolTip = 'Specifies the first number in the series of the summary entry. This field applies to F4-type invoices only.';
-                    }
-                    field("SII Last Summary Doc. No."; Rec.GetSIILastSummaryDocNo())
-                    {
-                        Caption = 'Last Summary Doc. No.';
-                        ApplicationArea = Basic, Suite;
-                        Editable = false;
-                        ToolTip = 'Specifies the last number in the series of the summary entry. This field applies to F4-type invoices only.';
-                    }
-                    field("Do Not Send To SII"; Rec."Do Not Send To SII")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies if the document must not be sent to SII.';
-                    }
                 }
             }
             group(Shipping)
@@ -751,21 +667,6 @@ page 5972 "Posted Service Credit Memo"
                         PAGE.Run(0, TempServDocLog);
                     end;
                 }
-                action(SpecialSchemeCodes)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Special Scheme Codes';
-                    Image = Allocations;
-                    ToolTip = 'View or edit the list of special scheme codes that related to the current document for VAT reporting.';
-
-                    trigger OnAction()
-                    var
-                        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-                    begin
-                        SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
-                        CurrPage.Update(false);
-                    end;
-                }
             }
         }
         area(processing)
@@ -840,22 +741,6 @@ page 5972 "Posted Service Credit Memo"
                     Rec.ShowActivityLog();
                 end;
             }
-            action("Update Document")
-            {
-                ApplicationArea = Service;
-                Caption = 'Update Document';
-                Image = Edit;
-                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
-
-                trigger OnAction()
-                var
-                    PostedServCrMemoUpdate: Page "Posted Serv. Cr. Memo - Update";
-                begin
-                    PostedServCrMemoUpdate.LookupMode := true;
-                    PostedServCrMemoUpdate.SetRec(Rec);
-                    PostedServCrMemoUpdate.RunModal();
-                end;
-            }
         }
         area(Promoted)
         {
@@ -863,9 +748,6 @@ page 5972 "Posted Service Credit Memo"
             {
                 Caption = 'Process';
 
-                actionref("Update Document_Promoted"; "Update Document")
-                {
-                }
                 group(Category_CategoryPrint)
                 {
                     ShowAs = SplitButton;
@@ -920,14 +802,10 @@ page 5972 "Posted Service Credit Memo"
     }
 
     trigger OnAfterGetCurrRecord()
-    var
-        SIIManagement: Codeunit "SII Management";
     begin
         DocExchStatusStyle := Rec.GetDocExchStatusStyle();
         DocExchStatusVisible := Rec."Document Exchange Status" <> Rec."Document Exchange Status"::"Not Sent";
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
-        SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
-        UpdateDocHasRegimeCode();
     end;
 
     trigger OnAfterGetRecord()
@@ -935,7 +813,6 @@ page 5972 "Posted Service Credit Memo"
         DocExchStatusStyle := Rec.GetDocExchStatusStyle();
         SellToContact.GetOrClear(Rec."Contact No.");
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
-        UpdateDocHasRegimeCode();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -947,13 +824,9 @@ page 5972 "Posted Service Credit Memo"
     end;
 
     trigger OnOpenPage()
-    var
-        SIIManagement: Codeunit "SII Management";
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
-        SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
-        UpdateDocHasRegimeCode();
         ActivateFields();
     end;
 
@@ -969,9 +842,6 @@ page 5972 "Posted Service Credit Memo"
         IsShipToCountyVisible: Boolean;
         IsBillToCountyVisible: Boolean;
         VATDateEnabled: Boolean;
-        DocHasMultipleRegimeCode: Boolean;
-        OperationDescription: Text[500];
-        MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
 
     local procedure ActivateFields()
     var
@@ -981,12 +851,5 @@ page 5972 "Posted Service Credit Memo"
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
-    end;
-
-    local procedure UpdateDocHasRegimeCode()
-    var
-        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-    begin
-        DocHasMultipleRegimeCode := SIISchemeCodeMgt.SalesDocHasRegimeCodes(Rec);
     end;
 }

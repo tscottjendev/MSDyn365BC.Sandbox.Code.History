@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Posting;
 
-using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Posting;
@@ -23,7 +22,6 @@ using Microsoft.Projects.Project.Posting;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.Sales.Customer;
-using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
@@ -60,7 +58,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
 #if not CLEAN26
         ServiceLinePostingDate: Date;
 #endif
-        CannotCreateCarteraDocErr: Label 'You do not have permissions to create Documents in Cartera.\Please, change the Payment Method.';
 
     procedure Initialize(var TempServHeader: Record "Service Header"; TmpConsume: Boolean; TmpInvoice: Boolean)
     var
@@ -652,13 +649,16 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     end;
 #endif
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit ServicePostingSubscrES', '27.0')]
     [Scope('OnPrem')]
     procedure CreateBills(var TotalServiceLine: Record "Service Line"; var Window: Dialog; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35])
     var
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        PaymentMethod: Record "Payment Method";
+        CustLedgEntry: Record Microsoft.Sales.Receivables."Cust. Ledger Entry";
+        PaymentMethod: Record Microsoft.Bank.BankAccount."Payment Method";
         CarteraSetup: Record "Cartera Setup";
         SplitPayment: Codeunit "Invoice-Split Payment";
+        CannotCreateCarteraDocErr: Label 'You do not have permissions to create Documents in Cartera.\Please, change the Payment Method.';
     begin
         CustLedgEntry.Find('+');
         if PaymentMethod.Get(ServiceHeader."Payment Method Code") then
@@ -672,7 +672,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
               ServiceHeader, CustLedgEntry, Window, SrcCode, GenJnlLineExtDocNo, GenJnlLineDocNo,
               -(TotalServiceLine."Amount Including VAT" - TotalServiceLine.Amount));
     end;
-
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferValuesToJobJnlLine(var JobJournalLine: Record "Job Journal Line"; ServiceLine: Record "Service Line")
@@ -695,10 +695,18 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnCreateBillsOnBeforeSplitServiceInv(ServiceHeader: Record "Service Header"; var CustLedgerEntry: Record Microsoft.Sales.Receivables."Cust. Ledger Entry"; var TotalServiceLine: Record "Service Line")
+    begin
+        OnCreateBillsOnBeforeSplitServiceInv(ServiceHeader, CustLedgerEntry, TotalServiceLine);
+    end;
+
+    [Obsolete('Moved to codeunit ServicePostingSubscrES', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnCreateBillsOnBeforeSplitServiceInv(ServiceHeader: Record "Service Header"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var TotalServiceLine: Record "Service Line")
+    local procedure OnCreateBillsOnBeforeSplitServiceInv(ServiceHeader: Record "Service Header"; var CustLedgerEntry: Record Microsoft.Sales.Receivables."Cust. Ledger Entry"; var TotalServiceLine: Record "Service Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineOnBeforeCreateWhseJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceHeader: Record "Service Header"; var ShouldCreateWhseJnlLine: Boolean; ServiceShipmentHeader: Record "Service Shipment Header"; var ServiceLine: Record "Service Line"; var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; var WhsePosting: Boolean);

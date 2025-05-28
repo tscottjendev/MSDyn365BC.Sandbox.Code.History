@@ -212,8 +212,6 @@ codeunit 7000005 "Invoice-Split Payment"
 
         CurrDocNo := 1;
         repeat
-            if GuiAllowed() and not HideProgressWindow then
-                Window.Update(6, CurrDocNo);
             GenJnlLine."Due Date" := NextDueDate;
             CheckSalesDueDate(SalesHeader, GenJnlLine."Due Date", PaymentTerms."Max. No. of Days till Due Date");
             if not SalesHeader."Due Date Modified" then
@@ -451,8 +449,6 @@ codeunit 7000005 "Invoice-Split Payment"
 
         CurrDocNo := 1;
         repeat
-            if GuiAllowed() then
-                Window.Update(6, CurrDocNo);
             GenJnlLine."Due Date" := NextDueDate;
             CheckPurchDueDate(PurchHeader, GenJnlLine."Due Date", PaymentTerms."Max. No. of Days till Due Date");
             if not PurchHeader."Due Date Modified" then
@@ -794,8 +790,6 @@ codeunit 7000005 "Invoice-Split Payment"
 
         CurrDocNo := 1;
         repeat
-            if GuiAllowed() then
-                Window.Update(6, CurrDocNo);
             GenJnlLine."Due Date" := NextDueDate;
             CheckServiceDueDate(ServiceHeader, GenJnlLine."Due Date", PaymentTerms."Max. No. of Days till Due Date");
             DueDateAdjust.SalesAdjustDueDate(
