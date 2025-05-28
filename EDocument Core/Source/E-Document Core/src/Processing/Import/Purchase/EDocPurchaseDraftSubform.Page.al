@@ -13,9 +13,9 @@ page 6183 "E-Doc. Purchase Draft Subform"
 
     AutoSplitKey = true;
     Caption = 'Lines';
-    InsertAllowed = false;
+    InsertAllowed = true;
     LinksAllowed = false;
-    DeleteAllowed = false;
+    DeleteAllowed = true;
     ModifyAllowed = true;
     PageType = ListPart;
     SourceTable = "E-Document Purchase Line";

@@ -180,14 +180,14 @@ codeunit 8069 "Sales Subscription Line Mgmt."
         end;
     end;
 
-    local procedure CreateSalesServCommLineFromServCommPackageLine(var SalesLine: Record "Sales Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line")
+    procedure CreateSalesServCommLineFromServCommPackageLine(var SalesLine: Record "Sales Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line")
     var
         SalesServiceCommitment: Record "Sales Subscription Line";
     begin
         CreateSalesServCommLineFromServCommPackageLine(SalesLine, ServiceCommitmentPackageLine, SalesServiceCommitment);
     end;
 
-    local procedure CreateSalesServCommLineFromServCommPackageLine(var SalesLine: Record "Sales Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line"; var SalesServiceCommitment: Record "Sales Subscription Line")
+    procedure CreateSalesServCommLineFromServCommPackageLine(var SalesLine: Record "Sales Line"; ServiceCommitmentPackageLine: Record "Subscription Package Line"; var SalesServiceCommitment: Record "Sales Subscription Line")
     var
         IsHandled: Boolean;
     begin

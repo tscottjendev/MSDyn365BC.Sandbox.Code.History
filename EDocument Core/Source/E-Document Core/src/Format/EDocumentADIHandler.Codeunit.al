@@ -174,6 +174,7 @@ codeunit 6174 "E-Document ADI Handler" implements IBlobType, IBlobToStructuredDa
         EDocumentJsonHelper.SetStringValueInField('unit', MaxStrLen(TempEDocPurchaseLine."Unit of Measure"), FieldsJsonObject, TempEDocPurchaseLine."Unit of Measure");
         EDocumentJsonHelper.SetDateValueInField('date', FieldsJsonObject, TempEDocPurchaseLine.Date);
         EDocumentJsonHelper.SetCurrencyValueInField('tax', FieldsJsonObject, TempEDocPurchaseLine."VAT Rate", TempEDocPurchaseLine."Currency Code");
+        TempEDocPurchaseLine."Total Discount" := (TempEDocPurchaseLine."Unit Price" * TempEDocPurchaseLine.Quantity) - TempEDocPurchaseLine."Sub Total";
     end;
 #pragma warning restore AA0139
 

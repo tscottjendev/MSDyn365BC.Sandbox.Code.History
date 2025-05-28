@@ -1874,6 +1874,8 @@ codeunit 139624 "E-Doc E2E Test"
         EDocumentServiceStatus: Record "E-Document Service Status";
         EDocumentSetup: Record "E-Documents Setup";
         Vendor: Record Vendor;
+        Currency: Record Currency;
+        LibraryERM: Codeunit "Library - ERM";
     begin
         LibraryLowerPermission.SetOutsideO365Scope();
         LibraryVariableStorage.Clear();
@@ -1891,6 +1893,12 @@ codeunit 139624 "E-Doc E2E Test"
         LibraryEDoc.SetupStandardPurchaseScenario(Vendor, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
         EDocumentService.Modify();
         EDocumentSetup.InsertNewExperienceSetup();
+
+        // Set a currency that can be used across all localizations
+        Currency.Init();
+        Currency.Validate(Code, 'XYZ');
+        if Currency.Insert(true) then
+            LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1.0, 1.0);
 
         TransformationRule.DeleteAll();
         TransformationRule.CreateDefaultTransformations();

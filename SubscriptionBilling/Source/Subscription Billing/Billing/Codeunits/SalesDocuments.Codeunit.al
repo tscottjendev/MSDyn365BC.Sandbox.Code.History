@@ -354,7 +354,7 @@ codeunit 8063 "Sales Documents"
         CreateServiceObjectFromSales(SalesHeader, SalesOrderLine, SalesShptLine);
     end;
 
-    local procedure CreateServiceObjectFromSales(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesShptLine: Record "Sales Shipment Line")
+    procedure CreateServiceObjectFromSales(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesShptLine: Record "Sales Shipment Line")
     var
         TempTrackingSpecBuffer: Record "Tracking Specification" temporary;
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
@@ -517,7 +517,7 @@ codeunit 8063 "Sales Documents"
         OnCreateSubscriptionHeaderFromSalesLineAfterInsertSubscriptionHeader(ServiceObject, SalesHeader, SalesLine);
     end;
 
-    local procedure CreateSubscriptionLineFromSalesLine(ServiceObject: Record "Subscription Header"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    procedure CreateSubscriptionLineFromSalesLine(ServiceObject: Record "Subscription Header"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     var
         SalesSubscriptionLine: Record "Sales Subscription Line";
         SubscriptionLine: Record "Subscription Line";
