@@ -406,7 +406,7 @@ codeunit 6500 "Item Tracking Management"
         if ReservEntry.FindSet() then begin
             GetItemTrackingCode(ReservEntry."Item No.", ItemTrackingCode);
             repeat
-                if ReservEntry.TrackingExists() then begin
+                if ReservEntry.TrackingExists() or (ReservEntry.IsReclass() and ReservEntry.NewTrackingExists()) then begin
                     if SumPerLine then
                         TempHandlingSpecification.SetRange("Source Ref. No.", ReservEntry."Source Ref. No."); // Sum up line per line
                     if SumPerTracking then begin
