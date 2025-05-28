@@ -9,6 +9,7 @@ using System.Azure.KeyVault;
 using Microsoft.Finance.GeneralLedger.Account;
 using System.AI;
 using System.Telemetry;
+using Microsoft.eServices.EDocument;
 
 codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
 {
@@ -22,9 +23,12 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         Result: Dictionary of [Integer, Code[20]];
         InstrPromptSNameLbl: label 'EDocMatchLineToGLAccount', Locked = true;
         ExceededTokenThresholdTxt: label 'Not calling LLM, token count too high.', Locked = true;
+        ExceededTokenThresholdGLAccErr: label 'The list of direct-posting income statement general ledger accounts in your database is too long to send to Copilot with the purpose of matching with invoice lines.';
 
     procedure GetPurchaseLineAccountsWithCopilot(var EDocumentPurchaseLine: Record "E-Document Purchase Line"): Dictionary of [Integer, Code[20]]
     var
+        EDocument: Record "E-Document";
+        EDocErrorHelper: Codeunit "E-Document Error Helper";
         AzureOpenAI: Codeunit "Azure OpenAi";
         AOAIDeployments: Codeunit "AOAI Deployments";
         AOAIOperationResponse: Codeunit "AOAI Operation Response";
@@ -37,14 +41,25 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         EDocumentPurchaseLinesTxt: Text;
         GLAccountsTxt: Text;
         LinesMatched: Integer;
-        EstimateTokenCount: Integer;
+        EstimateTokenCount, EstimateGLAccInstrTokenCount : Integer;
+        LineDictionary: Dictionary of [Integer, Text[100]];
     begin
         Clear(Result);
 
         // Build prompt
         FindGLAccountsPromptSecTxt := BuildMostAppropriateGLAccountPromptTask();
         GLAccountsTxt := BuildGLAccounts();
-        EDocumentPurchaseLinesTxt := BuildEDocumentPurchaseLines(EDocumentPurchaseLine);
+        EDocumentPurchaseLinesTxt := BuildEDocumentPurchaseLines(EDocumentPurchaseLine, LineDictionary);
+        EstimateGLAccInstrTokenCount := AOAIToken.GetGPT4TokenCount(FindGLAccountsPromptSecTxt) + AOAIToken.GetGPT4TokenCount(GLAccountsTxt);
+
+        // if GL Account list and instructional part of the prompt are too big, over token limit, we log a warning
+        if EstimateGLAccInstrTokenCount > PromptInputThreshold() then begin
+            Session.LogMessage('0000PCS', ExceededTokenThresholdTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName(), 'EstimateTokenCount', Format(EstimateTokenCount));
+            FeatureTelemetry.LogUsage('0000PCT', FeatureName(), 'Token threshold exceeded for suggest G/L account');
+            if EDocument.Get(EDocumentPurchaseLine."E-Document Entry No.") then
+                EDocErrorHelper.LogWarningMessage(EDocument, EDocumentPurchaseLine, EDocumentPurchaseLine.FieldNo("[BC] Purchase Type No."), ExceededTokenThresholdGLAccErr);
+            exit(Result);
+        end;
 
         // Call AOAI
         AzureOpenAI.SetAuthorization(Enum::"AOAI Model Type"::"Chat Completions", AOAIDeployments.GetGPT4oLatest());
@@ -53,22 +68,37 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         AOAIChatCompletionParams.SetTemperature(0);
         FeatureTelemetry.LogUptake('0000P2L', FeatureName(), Enum::"Feature Uptake Status"::"Set up");
         FeatureTelemetry.LogUptake('0000OUT', FeatureName(), Enum::"Feature Uptake Status"::Used);
-        FeatureTelemetry.LogUsage('0000P2M', FeatureName(), 'Suggect G/L account for purchase line');
-        EstimateTokenCount := AOAIToken.GetGPT4TokenCount(EDocumentPurchaseLinesTxt + GLAccountsTxt);
-        if EstimateTokenCount > PromptInputThreshold() then begin
-            Session.LogMessage('0000PCS', ExceededTokenThresholdTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName(), 'EstimateTokenCount', Format(EstimateTokenCount));
-            FeatureTelemetry.LogUsage('0000PCT', FeatureName(), 'Token threshold exceeded for suggect G/L account');
-            exit(Result);
-        end;
+        FeatureTelemetry.LogUsage('0000P2M', FeatureName(), 'Suggest G/L account for purchase line');
+        EstimateTokenCount := AOAIToken.GetGPT4TokenCount(FindGLAccountsPromptSecTxt) + AOAIToken.GetGPT4TokenCount(EDocumentPurchaseLinesTxt + GLAccountsTxt);
 
-        GetCompletionResponse(AOAIChatMessages, EDocumentPurchaseLinesTxt, FindGLAccountsPromptSecTxt, GLAccountsTxt, AzureOpenAI, AOAIChatCompletionParams, AOAIOperationResponse);
+        // if adding the full line list made the prompt too big, do multiple requests with subsets of lines
+        if EstimateTokenCount <= PromptInputThreshold() then begin
+            GetCompletionResponse(AOAIChatMessages, EDocumentPurchaseLinesTxt, FindGLAccountsPromptSecTxt, GLAccountsTxt, AzureOpenAI, AOAIChatCompletionParams, AOAIOperationResponse);
 
-        if AOAIOperationResponse.IsSuccess() then
-            Session.LogMessage('0000P2N', TelemetryChatCompletionSuccessTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName())
-        else begin
-            Session.LogMessage('0000P2O', StrSubstNo(TelemetryChatCompletionErr, AOAIOperationResponse.GetStatusCode()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName());
-            Error(AOAIOperationResponse.GetError());
-        end;
+            if AOAIOperationResponse.IsSuccess() then
+                Session.LogMessage('0000P2N', TelemetryChatCompletionSuccessTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName())
+            else begin
+                Session.LogMessage('0000P2O', StrSubstNo(TelemetryChatCompletionErr, AOAIOperationResponse.GetStatusCode()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName());
+                if EDocument.Get(EDocumentPurchaseLine."E-Document Entry No.") then
+                    EDocErrorHelper.LogWarningMessage(EDocument, EDocumentPurchaseLine, EDocumentPurchaseLine.FieldNo("[BC] Purchase Type No."), AOAIOperationResponse.GetError());
+                exit(Result)
+            end
+        end else
+            while LineDictionary.Count() > 0 do begin
+                // build the smaller list of lines with the remaining lines (LineDictionary keeps shrinking in BuildSubsetEDocumentPurchaseLines)
+                FeatureTelemetry.LogUsage('0000PGS', FeatureName(), 'Suggest G/L account request chunking');
+                EDocumentPurchaseLinesTxt := BuildSubsetEDocumentPurchaseLines(EDocumentPurchaseLine, LineDictionary, EstimateGLAccInstrTokenCount);
+                GetCompletionResponse(AOAIChatMessages, EDocumentPurchaseLinesTxt, FindGLAccountsPromptSecTxt, GLAccountsTxt, AzureOpenAI, AOAIChatCompletionParams, AOAIOperationResponse);
+
+                if AOAIOperationResponse.IsSuccess() then
+                    Session.LogMessage('0000P2N', TelemetryChatCompletionSuccessTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName())
+                else begin
+                    Session.LogMessage('0000P2O', StrSubstNo(TelemetryChatCompletionErr, AOAIOperationResponse.GetStatusCode()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName());
+                    if EDocument.Get(EDocumentPurchaseLine."E-Document Entry No.") then
+                        EDocErrorHelper.LogWarningMessage(EDocument, EDocumentPurchaseLine, EDocumentPurchaseLine.FieldNo("[BC] Purchase Type No."), AOAIOperationResponse.GetError());
+                    exit(Result);
+                end;
+            end;
 
         // Grounding check on Result (filled by Execute method), saving the proposal 
         if Result.Count() > 0 then
@@ -173,7 +203,7 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         exit(GLAccountsTxt);
     end;
 
-    procedure BuildEDocumentPurchaseLines(var EDocumentPurchaseLine: Record "E-Document Purchase Line"): Text
+    procedure BuildEDocumentPurchaseLines(var EDocumentPurchaseLine: Record "E-Document Purchase Line"; var LineDictionary: Dictionary of [Integer, Text[100]]): Text
     var
         LocalStatementLines: Text;
     begin
@@ -186,7 +216,49 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
                 LocalStatementLines += '#Id: ' + Format(EDocumentPurchaseLine."Line No.");
                 LocalStatementLines += ', Description: ' + EDocumentPurchaseLine.Description;
                 LocalStatementLines += '\n';
+                LineDictionary.Add(EDocumentPurchaseLine."Line No.", EDocumentPurchaseLine.Description);
             until EDocumentPurchaseLine.Next() = 0;
+
+        exit(LocalStatementLines);
+    end;
+
+    local procedure BuildSubsetEDocumentPurchaseLines(var EDocumentPurchaseLine: Record "E-Document Purchase Line"; var LineDictionary: Dictionary of [Integer, Text[100]]; EstimateGLAccInstrTokenCount: Integer): Text
+    var
+        EDocument: Record "E-Document";
+        EDocErrorHelper: Codeunit "E-Document Error Helper";
+        AOAIToken: Codeunit "AOAI Token";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        KeysToRemove: List of [Integer];
+        LocalStatementLines, LineAddition : Text;
+        LineNo: Integer;
+        LineDescription: Text[100];
+    begin
+        LocalStatementLines := '**Statement Lines**:\n"""\n';
+
+        // keep adding line descriptions until token threshold is reached
+        foreach LineNo in LineDictionary.Keys() do begin
+            LineDescription := LineDictionary.Get(LineNo);
+            LineAddition := '#Id: ' + Format(EDocumentPurchaseLine."Line No.");
+            LineAddition += ', Description: ' + EDocumentPurchaseLine.Description;
+            LineAddition += '\n';
+            if (EstimateGLAccInstrTokenCount + AOAIToken.GetGPT4TokenCount(LocalStatementLines + LineAddition)) < PromptInputThreshold() then begin
+                LocalStatementLines += LineAddition;
+                KeysToRemove.Add(LineNo);
+            end else
+                break;
+        end;
+
+        // if we couldn't add even one line without exceeding threshold, throw an error as well
+        if KeysToRemove.Count() = 0 then begin
+            Session.LogMessage('0000PGT', ExceededTokenThresholdTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName(), 'EstimateTokenCount', Format(EstimateGLAccInstrTokenCount));
+            FeatureTelemetry.LogUsage('0000PCT', FeatureName(), 'Token threshold exceeded for suggest G/L account');
+            if EDocument.Get(EDocumentPurchaseLine."E-Document Entry No.") then
+                EDocErrorHelper.LogWarningMessage(EDocument, EDocumentPurchaseLine, EDocumentPurchaseLine.FieldNo("[BC] Purchase Type No."), ExceededTokenThresholdGLAccErr);
+        end;
+
+        // remove all lines that have been added to the prompt input
+        foreach LineNo in KeysToRemove do
+            LineDictionary.Remove(LineNo);
 
         exit(LocalStatementLines);
     end;
