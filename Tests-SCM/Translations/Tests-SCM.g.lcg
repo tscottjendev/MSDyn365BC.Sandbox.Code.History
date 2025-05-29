@@ -13550,6 +13550,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse UOM - NamedType BinContentMustBeDeleted)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3383261961 - NamedType 1340610095" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The quantity in the bin content was not updated.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse UOM - NamedType BinContentQtyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3383261961 - NamedType 3219713110" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Block Movement must not be %1 in Bin Content Location Code='%2',Bin Code='%3',Item No.='%4',Variant Code='',Unit of Measure Code='%5'.]]></Val>
