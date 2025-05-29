@@ -421,7 +421,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         exit(TempTransLine.IsEmpty);
     end;
 
-    local procedure ForecastConsumption(var DemandInvtProfile: Record "Inventory Profile"; var Item: Record Item; OrderDate: Date; ToDate: Date) UpdatedOrderDate: Date
+    procedure ForecastConsumption(var DemandInvtProfile: Record "Inventory Profile"; var Item: Record Item; OrderDate: Date; ToDate: Date) UpdatedOrderDate: Date
     var
         ForecastEntry: Record "Production Forecast Entry";
         ForecastEntry2: Record "Production Forecast Entry";
@@ -3081,6 +3081,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
         Location.Get(TransferReqLine."Location Code");
         InboundWhseTime := Location."Inbound Whse. Handling Time";
+        OnAdjustTransferDatesOnAfterInboundWhseTimeSet(TransferReqLine, Location, InboundWhseTime);
 
         OK := TransferRoute.Get(TransferReqLine."Transfer-from Code", TransferReqLine."Location Code");
         if PlanningResiliency and not OK then
@@ -6178,6 +6179,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateTempSKUForComponentsLocationOnBeforeItemCopyFilter(var StockkeepingUnit: Record "Stockkeeping Unit"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustTransferDatesOnAfterInboundWhseTimeSet(var TransferRequisitionLine: Record "Requisition Line"; var Location: Record Location; var InboundWhseTime: DateFormula)
     begin
     end;
 }
