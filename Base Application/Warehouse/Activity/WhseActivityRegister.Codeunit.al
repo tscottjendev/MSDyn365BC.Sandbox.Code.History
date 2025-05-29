@@ -1158,10 +1158,11 @@ codeunit 7307 "Whse.-Activity-Register"
                     if QtyToRegisterBase > QtyAvailToRegisterBase then
                         QtyAvailToInsertBase -= QtyToRegisterBase - QtyAvailToRegisterBase;
                     OnBeforeCheckQtyAvailToInsertBase(TempWhseActivLine, QtyAvailToInsertBase);
-                    if QtyAvailToInsertBase < 0 then
-                        Error(
-                          InsufficientQtyItemTrkgErr, TempWhseActivLine."Source Line No.", TempWhseActivLine."Source Document",
-                          TempWhseActivLine."Source No.");
+                    if not CheckAllowWhseOverpick(TempWhseActivLine."Item No.") then
+                        if QtyAvailToInsertBase < 0 then
+                            Error(
+                              InsufficientQtyItemTrkgErr, TempWhseActivLine."Source Line No.", TempWhseActivLine."Source Document",
+                              TempWhseActivLine."Source No.");
 
                     if TempWhseActivLine.TrackingExists() then begin
                         WhseItemTrackingSetup.CopyTrackingFromWhseActivityLine(TempWhseActivLine);
@@ -2321,6 +2322,23 @@ codeunit 7307 "Whse.-Activity-Register"
             repeat
                 WarehouseActivityLine.ResetQtyToHandleOnReservation();
             until WarehouseActivityLine.Next() = 0;
+    end;
+
+    local procedure CheckAllowWhseOverpick(ItemNo: Code[20]): Boolean
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetLoadFields("Item No.");
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Prod. Consumption");
+        WarehouseActivityLine.SetRange("Whse. Document Type", WarehouseActivityLine."Whse. Document Type"::Production);
+        WarehouseActivityLine.SetRange("Source Type", Database::"Prod. Order Component");
+        WarehouseActivityLine.SetRange("Source Subtype", WarehouseActivityLine."Source Subtype"::"3");
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        if WarehouseActivityLine.FindFirst() then
+            GetItem(WarehouseActivityLine."Item No.");
+
+        exit(Item."Allow Whse. Overpick");
     end;
 
     [IntegrationEvent(false, false)]
