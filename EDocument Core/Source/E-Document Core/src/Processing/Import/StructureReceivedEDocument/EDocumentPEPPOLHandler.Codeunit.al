@@ -14,8 +14,10 @@ using Microsoft.Finance.GeneralLedger.Setup;
 codeunit 6173 "E-Document PEPPOL Handler" implements IStructuredFormatReader
 {
     Access = Internal;
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
-    procedure Read(EDocument: Record "E-Document"; TempBlob: Codeunit "Temp Blob"): Enum "E-Doc. Structured Data Process"
+    procedure ReadIntoDraft(EDocument: Record "E-Document"; TempBlob: Codeunit "Temp Blob"): Enum "E-Doc. Process Draft"
     var
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         DocStream: InStream;
@@ -53,7 +55,7 @@ codeunit 6173 "E-Document PEPPOL Handler" implements IStructuredFormatReader
         end;
         EDocumentPurchaseHeader.Modify();
         EDocument.Direction := EDocument.Direction::Incoming;
-        exit(Enum::"E-Doc. Structured Data Process"::"Purchase Document");
+        exit(Enum::"E-Doc. Process Draft"::"Purchase Document");
     end;
 
     local procedure InsertPurchaseInvoiceLines(PeppolXML: XmlDocument; XmlNamespaces: XmlNamespaceManager; EDocumentEntryNo: Integer)
@@ -201,5 +203,4 @@ codeunit 6173 "E-Document PEPPOL Handler" implements IStructuredFormatReader
     begin
         Error('A view is not implemented for this handler.');
     end;
-
 }

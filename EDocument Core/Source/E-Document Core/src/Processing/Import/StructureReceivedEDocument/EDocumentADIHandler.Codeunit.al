@@ -14,30 +14,19 @@ using System.Text;
 using System.AI;
 using System.AI.DocumentIntelligence;
 
-codeunit 6174 "E-Document ADI Handler" implements IBlobType, IBlobToStructuredDataConverter, IStructuredFormatReader
+codeunit 6174 "E-Document ADI Handler" implements IStructureReceivedEDocument, IStructuredFormatReader, IStructuredDataType
 {
     Access = Internal;
 
-    procedure IsStructured(): Boolean
-    begin
-        exit(false);
-    end;
+    var
+        StructuredData: Text;
 
-    procedure HasConverter(): Boolean
-    begin
-        exit(true);
-    end;
-
-    procedure GetStructuredDataConverter(): Interface IBlobToStructuredDataConverter
-    begin
-        exit(this);
-    end;
-
-    procedure Convert(EDocument: Record "E-Document"; FromTempBlob: Codeunit "Temp Blob"; FromType: Enum "E-Doc. Data Storage Blob Type"; var ConvertedType: Enum "E-Doc. Data Storage Blob Type") StructuredData: Text
+    procedure StructureReceivedEDocument(EDocumentDataStorage: Record "E-Doc. Data Storage"): Interface IStructuredDataType
     var
         Base64Convert: Codeunit "Base64 Convert";
         AzureDocumentIntelligence: Codeunit "Azure Document Intelligence";
         CopilotCapability: Codeunit "Copilot Capability";
+        FromTempBlob: Codeunit "Temp Blob";
         Instream: InStream;
         Data: Text;
     begin
@@ -46,13 +35,29 @@ codeunit 6174 "E-Document ADI Handler" implements IBlobType, IBlobToStructuredDa
 
         AzureDocumentIntelligence.SetCopilotCapability(Enum::"Copilot Capability"::"E-Document Analysis");
 
+        FromTempBlob := EDocumentDataStorage.GetTempBlob();
         FromTempBlob.CreateInStream(InStream, TextEncoding::UTF8);
         Data := Base64Convert.ToBase64(InStream);
         StructuredData := AzureDocumentIntelligence.AnalyzeInvoice(Data);
-        ConvertedType := Enum::"E-Doc. Data Storage Blob Type"::JSON;
+        exit(this);
     end;
 
-    procedure Read(EDocument: Record "E-Document"; TempBlob: Codeunit "Temp Blob"): Enum "E-Doc. Structured Data Process"
+    procedure GetFileFormat(): Enum "E-Doc. File Format"
+    begin
+        exit("E-Doc. File Format"::JSON);
+    end;
+
+    procedure GetContent(): Text
+    begin
+        exit(this.StructuredData);
+    end;
+
+    procedure GetReadIntoDraftImpl(): Enum "E-Doc. Read into Draft"
+    begin
+        exit("E-Doc. Read into Draft"::ADI);
+    end;
+
+    procedure ReadIntoDraft(EDocument: Record "E-Document"; TempBlob: Codeunit "Temp Blob"): Enum "E-Doc. Process Draft"
     var
         TempEDocPurchaseHeader: Record "E-Document Purchase Header" temporary;
         TempEDocPurchaseLine: Record "E-Document Purchase Line" temporary;
@@ -78,7 +83,7 @@ codeunit 6174 "E-Document ADI Handler" implements IBlobType, IBlobToStructuredDa
                 EDocumentPurchaseLine.Insert();
             until TempEDocPurchaseLine.Next() = 0;
 
-        exit(Enum::"E-Doc. Structured Data Process"::"Purchase Document");
+        exit(Enum::"E-Doc. Process Draft"::"Purchase Document");
     end;
 
     local procedure ReadIntoBuffer(
@@ -180,6 +185,5 @@ codeunit 6174 "E-Document ADI Handler" implements IBlobType, IBlobToStructuredDa
 
     var
         EDocumentJsonHelper: Codeunit "EDocument Json Helper";
-
 
 }

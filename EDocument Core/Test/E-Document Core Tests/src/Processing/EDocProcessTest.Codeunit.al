@@ -25,18 +25,19 @@ codeunit 139883 "E-Doc Process Test"
         EDocImport: Codeunit "E-Doc. Import";
         EDocumentProcessing: Codeunit "E-Document Processing";
         EDocumentLog: Codeunit "E-Document Log";
-        IBlobType: Interface IBlobType;
         InStream: InStream;
         Text: Text;
     begin
         Initialize(Enum::"Service Integration"::"Mock");
         LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
 
-        EDocumentLog.SetBlob('Test', Enum::"E-Doc. Data Storage Blob Type"::"PDF Mock", 'Data');
+        EDocumentLog.SetBlob('Test', Enum::"E-Doc. File Format"::PDF, 'Data');
         EDocumentLog.SetFields(EDocument, EDocumentService);
         EDocLogRecord := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Unprocessed);
 
+        EDocument."Structure Data Impl." := "Structure Received E-Doc."::"PDF Mock";
         EDocument."Unstructured Data Entry No." := EDocLogRecord."E-Doc. Data Storage Entry No.";
+        EDocument."File Name" := 'Test.pdf';
         EDocument.Modify();
 
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::Unprocessed);
@@ -47,15 +48,13 @@ codeunit 139883 "E-Doc Process Test"
         EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
         EDocument.CalcFields("Import Processing Status");
         Assert.AreEqual(Enum::"Import E-Doc. Proc. Status"::Readable, EDocument."Import Processing Status", 'The status should be updated to the one after the step executed.');
-
-        EDocDataStorage.FindLast();
+        EDocument.Get(EDocument."Entry No");
+        EDocDataStorage.Get(EDocument."Structured Data Entry No.");
         EDocDataStorage.CalcFields("Data Storage");
         EDocDataStorage."Data Storage".CreateInStream(InStream);
         InStream.Read(Text);
         Assert.AreEqual('Mocked content', Text, 'The data should be read from the mock converter.');
-        Assert.AreEqual(Enum::"E-Doc. Data Storage Blob Type"::JSON, EDocDataStorage."Data Type", 'The data type should be updated to JSON.');
-        IBlobType := EDocDataStorage."Data Type";
-        Assert.IsTrue(IBlobType.IsStructured(), 'New entry should always be structured');
+        Assert.AreEqual(Enum::"E-Doc. File Format"::JSON, EDocDataStorage."File Format", 'The data type should be updated to JSON.');
     end;
 
     [Test]
@@ -72,11 +71,14 @@ codeunit 139883 "E-Doc Process Test"
         Initialize(Enum::"Service Integration"::"Mock");
         LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
 
-        EDocumentLog.SetBlob('Test', Enum::"E-Doc. Data Storage Blob Type"::"PDF Mock", 'Data');
+        EDocumentLog.SetBlob('Test', Enum::"E-Doc. File Format"::PDF, 'Data');
         EDocumentLog.SetFields(EDocument, EDocumentService);
         EDocLogRecord := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Unprocessed);
 
         EDocument."Unstructured Data Entry No." := EDocLogRecord."E-Doc. Data Storage Entry No.";
+        EDocument."Structure Data Impl." := "Structure Received E-Doc."::"PDF Mock";
+        EDocument."Read into Draft Impl." := "E-Doc. Read into Draft"::"PDF Mock";
+        EDocument."File Name" := 'Test.pdf';
         EDocument.Modify();
 
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::Unprocessed);
@@ -101,11 +103,14 @@ codeunit 139883 "E-Doc Process Test"
         Initialize(Enum::"Service Integration"::"Mock");
         LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
 
-        EDocumentLog.SetBlob('Test', Enum::"E-Doc. Data Storage Blob Type"::"PDF Mock", 'Data');
+        EDocumentLog.SetBlob('Test', Enum::"E-Doc. File Format"::PDF, 'Data');
         EDocumentLog.SetFields(EDocument, EDocumentService);
         EDocLogRecord := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Unprocessed);
 
         EDocument."Unstructured Data Entry No." := EDocLogRecord."E-Doc. Data Storage Entry No.";
+        EDocument."Structure Data Impl." := "Structure Received E-Doc."::"PDF Mock";
+        EDocument."Read into Draft Impl." := "E-Doc. Read into Draft"::"PDF Mock";
+        EDocument."File Name" := 'Test.pdf';
         EDocument.Modify();
 
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::Unprocessed);
@@ -145,7 +150,7 @@ codeunit 139883 "E-Doc Process Test"
         EDocumentPurchaseHeader."Vendor VAT Id" := '13124234';
         EDocumentPurchaseHeader.Insert();
 
-        EDocumentLog.SetBlob('Test', Enum::"E-Doc. Data Storage Blob Type"::"PDF Mock", 'Data');
+        EDocumentLog.SetBlob('Test', Enum::"E-Doc. File Format"::PDF, 'Data');
         EDocumentLog.SetFields(EDocument, EDocumentService);
         EDocLogRecord := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Unprocessed);
 
@@ -272,7 +277,7 @@ codeunit 139883 "E-Doc Process Test"
         EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
         EDocumentService.Modify();
 
-        EDocumentLog.SetBlob('Test', Enum::"E-Doc. Data Storage Blob Type"::"XML", 'Data');
+        EDocumentLog.SetBlob('Test', Enum::"E-Doc. File Format"::XML, 'Data');
         EDocumentLog.SetFields(EDocument, EDocumentService);
         EDocLogRecord := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Readable);
 
@@ -307,7 +312,7 @@ codeunit 139883 "E-Doc Process Test"
     begin
         // [SCENARIO] A incoming e-document purchase invoice is received and processed, links should be created between the e-document and the purchase header and lines.
         Initialize(Enum::"Service Integration"::"Mock");
-        EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"PEPPOL BIS 3.0";
+        EDocumentService."Read into Draft Impl." := "E-Doc. Read into Draft"::PEPPOL;
         EDocumentService.Modify();
 
         EDocRecordLink.DeleteAll();
@@ -348,7 +353,7 @@ codeunit 139883 "E-Doc Process Test"
     begin
         // [SCENARIO] A incoming e-document purchase invoice is received, processed, and posted. Historical records should be created.
         Initialize(Enum::"Service Integration"::"Mock");
-        EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"PEPPOL BIS 3.0";
+        EDocumentService."Read into Draft Impl." := "E-Doc. Read into Draft"::PEPPOL;
         EDocumentService.Modify();
 
         // [GIVEN] An inbound e-document is received and fully processed
@@ -396,7 +401,7 @@ codeunit 139883 "E-Doc Process Test"
     begin
         // [SCENARIO] Additional fields are configured for the e-document, and an incoming e-document is received. When creating a purchase invoice, the configured fields should be considered.
         Initialize(Enum::"Service Integration"::"Mock");
-        EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"PEPPOL BIS 3.0";
+        EDocumentService."Read into Draft Impl." := "E-Doc. Read into Draft"::PEPPOL;
         EDocumentService.Modify();
         // [GIVEN] Additional fields are configured
         EDocPurchLineFieldSetup."Field No." := PurchaseInvoiceLine.FieldNo("Location Code");
@@ -447,7 +452,7 @@ codeunit 139883 "E-Doc Process Test"
     begin
         // [SCENARIO] Additional fields are configured for the e-document, but the general setup is not configured. When creating a purchase invoice, the configured fields should not be considered.
         Initialize(Enum::"Service Integration"::"Mock");
-        EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"PEPPOL BIS 3.0";
+        EDocumentService."Read into Draft Impl." := "E-Doc. Read into Draft"::PEPPOL;
         EDocumentService.Modify();
         // [GIVEN] Additional fields are configured
         EDocPurchLineFieldSetup."Field No." := PurchaseInvoiceLine.FieldNo("Location Code");
@@ -523,7 +528,7 @@ codeunit 139883 "E-Doc Process Test"
         LibraryEDoc.SetupStandardSalesScenario(Customer, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
         LibraryEDoc.SetupStandardPurchaseScenario(Vendor, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
         EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
-        EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"PDF Mock";
+        EDocumentService."Read into Draft Impl." := "E-Doc. Read into Draft"::PEPPOL;
         EDocumentService.Modify();
         EDocumentsSetup.InsertNewExperienceSetup();
 

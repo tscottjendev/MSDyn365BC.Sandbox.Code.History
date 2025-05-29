@@ -213,16 +213,30 @@ table 6121 "E-Document"
             Caption = 'File Name';
             ToolTip = 'Specifies the file name of the E-Document source.';
         }
-        field(36; "File Type"; Enum "E-Doc. Data Storage Blob Type")
+#pragma warning disable AS0004
+#pragma warning disable AS0115
+#pragma warning disable AS0072
+#if not CLEANSCHEMA26
+        field(36; "File Type"; Integer)
         {
             Caption = 'File Type';
             ToolTip = 'Specifies the file type of the E-Document source.';
+            ObsoleteReason = 'Use File Format in the "E-Doc. Data Storage" table instead.';
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
         }
-        field(37; "Structured Data Process"; Enum "E-Doc. Structured Data Process")
+        field(37; "Structured Data Process"; Integer)
         {
             Caption = 'Structured Data Process';
             ToolTip = 'Specifies the structured data process to run on the E-Document data.';
+            ObsoleteReason = 'Use "Process Draft Impl." field instead.';
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
         }
+#endif
+#pragma warning restore AS0115
+#pragma warning restore AS0004
+#pragma warning restore AS0072
         field(38; "Service Integration"; Enum "Service Integration")
         {
             Caption = 'Service Integration';
@@ -246,6 +260,23 @@ table 6121 "E-Document"
             FieldClass = FlowField;
             CalcFormula = lookup("E-Document Service Status"."Import Processing Status" where("E-Document Entry No" = field("Entry No")));
         }
+        #region Import Process Implementations
+        field(42; "Structure Data Impl."; Enum "Structure Received E-Doc.")
+        {
+            Caption = 'Structure Data Implementation';
+            ToolTip = 'Specifies the implementation to use for structuring the E-Document data.';
+        }
+        field(43; "Read into Draft Impl."; Enum "E-Doc. Read into Draft")
+        {
+            Caption = 'Read into Draft Implementation';
+            ToolTip = 'Specifies the implementation to use for reading the E-Document data into a draft.';
+        }
+        field(44; "Process Draft Impl."; Enum "E-Doc. Process Draft")
+        {
+            Caption = 'Structured Data Process';
+            ToolTip = 'Specifies the implementation to use for processing the draft received.';
+        }
+        #endregion
     }
     keys
     {
@@ -287,8 +318,8 @@ table 6121 "E-Document"
     /// </summary>
     internal procedure Create(
         EDocumentDirection: Enum "E-Document Direction";
-        EDocumentType: Enum "E-Document Type";
-        EDocumentService: Record "E-Document Service"
+                                EDocumentType: Enum "E-Document Type";
+                                EDocumentService: Record "E-Document Service"
     )
     begin
         Rec."Entry No" := 0;
@@ -321,14 +352,12 @@ table 6121 "E-Document"
     internal procedure IsSourceDocumentStructured(): Boolean
     var
         EDocDataStorage: Record "E-Doc. Data Storage";
-        IBlobType: Interface IBlobType;
     begin
         // If the E-Document Data Storage can't be retrieved from the Unstructured Data Entry No.,
         // it means that the E-Document is coming from versions before 2, and these are all structured.
         if not EDocDataStorage.Get(Rec."Unstructured Data Entry No.") then
             exit(true);
-        IBlobType := EDocDataStorage."Data Type";
-        exit(IBlobType.IsStructured());
+        exit(Rec."Structure Data Impl." = "Structure Received E-Doc."::"Already Structured");
     end;
 
     internal procedure GetTotalAmountIncludingVAT(): Decimal
@@ -375,39 +404,8 @@ table 6121 "E-Document"
         if not EDocMappingLog.IsEmpty() then
             EDocMappingLog.DeleteAll(true);
 
-        IProcessStructuredData := Rec."Structured Data Process";
+        IProcessStructuredData := Rec."Process Draft Impl.";
         IProcessStructuredData.CleanUpDraft(Rec);
-    end;
-
-    internal procedure PreviewContent()
-    var
-        EDocDataStorage: Record "E-Doc. Data Storage";
-        EDocumentLog: Record "E-Document Log";
-        FileInStr: InStream;
-    begin
-        if Rec."File Type" <> Rec."File Type"::PDF then
-            exit;
-
-        EDocDataStorage.SetAutoCalcFields("Data Storage");
-        if not EDocDataStorage.Get("Unstructured Data Entry No.") then begin
-            EDocumentLog.SetRange("E-Doc. Entry No", Rec."Entry No");
-            EDocumentLog.SetFilter(Status, '<>' + Format(EDocumentLog.Status::"Batch Imported"));
-
-            if not EDocumentLog.FindFirst() then
-                Error(NoFileErr, Rec.TableCaption());
-
-            if not EDocDataStorage.Get(EDocumentLog."E-Doc. Data Storage Entry No.") then
-                Error(NoFileErr, Rec.TableCaption());
-        end;
-
-        if EDocDataStorage."Data Type" <> EDocDataStorage."Data Type"::PDF then
-            exit;
-
-        if not EDocDataStorage."Data Storage".HasValue() then
-            Error(NoFileContentErr, Rec."File Name", EDocDataStorage.TableCaption());
-
-        EDocDataStorage."Data Storage".CreateInStream(FileInStr);
-        File.ViewFromStream(FileInStr, Rec."File Name", true);
     end;
 
     internal procedure ExportDataStorage()
@@ -429,16 +427,13 @@ table 6121 "E-Document"
     end;
 
     procedure ViewSourceFile()
+    var
+        EDocDataStorage: Record "E-Doc. Data Storage";
+        IEDocFileFormat: Interface IEDocFileFormat;
     begin
-        if Rec."File Name" = '' then
-            exit;
-
-        if Rec."File Type" = Rec."File Type"::PDF then begin
-            Rec.PreviewContent();
-            exit;
-        end;
-
-        Message(ViewNotSupportedErr, Rec."File Name", Rec."File Type");
+        EDocDataStorage.Get(Rec."Unstructured Data Entry No.");
+        IEDocFileFormat := EDocDataStorage."File Format";
+        IEDocFileFormat.PreviewContent(EDocDataStorage.Name, EDocDataStorage.GetTempBlob());
     end;
 
     internal procedure OpenEDocument(EDocumentRecordId: RecordId)
@@ -498,8 +493,6 @@ table 6121 "E-Document"
         DeleteProcessedNotAllowedErr: Label 'The E-Document has already been processed and cannot be deleted.';
         DeleteUniqueNotAllowedErr: Label 'Only duplicate E-Documents can be deleted without a confirmation in the user interface.';
         NoFileErr: label 'No previewable attachment exists for this %2.', Comment = '%1 - a table caption';
-        NoFileContentErr: label 'Previewing file %1 failed. The file was found in table %2, but it has no content.', Comment = '%1 - a file name; %2 - a table caption';
         DeleteConfirmQst: label 'Are you sure? You may not be able to retrieve this E-Document again.\\ Do you want to continue?';
-        ViewNotSupportedErr: label 'System does not support previewing the file %1 of type %2', Comment = '%1 - a file name; %2 - a file type';
         EDocumentExistsMsg: Label 'This E-Document is a duplicate of E-Document %1.', Comment = '%1 - E-Document No.';
 }

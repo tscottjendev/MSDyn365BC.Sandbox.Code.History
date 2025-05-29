@@ -1622,7 +1622,7 @@ codeunit 139624 "E-Doc E2E Test"
         // [FEATURE] [E-Document] [Processing] 
         // [SCENARIO] 
         Initialize(Enum::"Service Integration"::"Mock");
-        EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"PEPPOL BIS 3.0";
+        EDocumentService."Read into Draft Impl." := "E-Doc. Read into Draft"::PEPPOL;
         EDocumentService."Import Process" := Enum::"E-Document Import Process"::"Version 2.0";
         EDocumentService.Modify();
 
@@ -2691,7 +2691,7 @@ codeunit 139624 "E-Doc E2E Test"
         // [FEATURE] [E-Document] [Processing] 
         // [SCENARIO] 
         Initialize(Enum::"Service Integration"::"Mock");
-        EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"PEPPOL BIS 3.0";
+        EDocumentService."Read into Draft Impl." := "E-Doc. Read into Draft"::PEPPOL;
         EDocumentService."Import Process" := Enum::"E-Document Import Process"::"Version 2.0";
         EDocumentService.Modify();
 

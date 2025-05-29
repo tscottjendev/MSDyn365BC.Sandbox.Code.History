@@ -127,7 +127,7 @@ codeunit 6148 "E-Document Helper"
             Page.Run(Page::"E-Document", EDocument);
             exit;
         end;
-        IProcessStructuredData := EDocument."Structured Data Process";
+        IProcessStructuredData := EDocument."Process Draft Impl.";
         IProcessStructuredData.OpenDraftPage(EDocument);
     end;
 

@@ -30,13 +30,22 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         ServiceParticipant: Record "Service Participant";
         EDocumentImportHelper: Codeunit "E-Document Import Helper";
+        EDocumentHasNoVendorInformation: Boolean;
     begin
         EDocumentPurchaseHeader.GetFromEDocument(EDocument);
-        if (EDocumentPurchaseHeader."Vendor GLN" = '') and (EDocumentPurchaseHeader."Vendor VAT Id" = '') and (EDocumentPurchaseHeader."Vendor External Id" = '') and (EDocumentPurchaseHeader."Vendor Company Name" = '') and (EDocumentPurchaseHeader."Vendor Address" = '') then
-            Error(NoVendorInformationErr);
+        EDocumentHasNoVendorInformation := (EDocumentPurchaseHeader."Vendor GLN" = '') and (EDocumentPurchaseHeader."Vendor VAT Id" = '') and (EDocumentPurchaseHeader."Vendor External Id" = '') and (EDocumentPurchaseHeader."Vendor Company Name" = '') and (EDocumentPurchaseHeader."Vendor Address" = '');
+        if EDocumentHasNoVendorInformation then
+            // We error if there's no vendor information extracted from the E-Document, unless we are aware that it is a blank draft
+            if EDocument."Read into Draft Impl." <> "E-Doc. Read into Draft"::"Blank Draft" then
+                Error(NoVendorInformationErr);
+
+        // If the E-Document has no vendor information, we can't find the vendor, so we exit early
+        if EDocumentHasNoVendorInformation then
+            exit;
 
         if Vendor.Get(EDocumentImportHelper.FindVendor('', EDocumentPurchaseHeader."Vendor GLN", EDocumentPurchaseHeader."Vendor VAT Id")) then
             exit;
+
         ServiceParticipant.SetRange("Participant Type", ServiceParticipant."Participant Type"::Vendor);
         ServiceParticipant.SetRange("Participant Identifier", EDocumentPurchaseHeader."Vendor External Id");
         ServiceParticipant.SetRange(Service, EDocument.GetEDocumentService().Code);

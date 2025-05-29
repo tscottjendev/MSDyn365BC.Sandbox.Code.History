@@ -25,7 +25,7 @@ codeunit 139891 "E-Document Structured Tests"
         Initialize(Enum::"Service Integration"::"Mock");
         SetupCAPIEDocumentService();
         CreateInboundEDocumentFromJSON(EDocument, 'capi/capi-invoice-valid-0.json');
-        if ProcessEDocumentToStep(EDocument, "Import E-Document Steps"::"Read into IR") then
+        if ProcessEDocumentToStep(EDocument, "Import E-Document Steps"::"Read into Draft") then
             CAPIStructuredValidations.AssertFullEDocumentContentExtracted(EDocument."Entry No")
         else
             Assert.Fail(EDocumentStatusNotUpdatedErr);
@@ -40,7 +40,7 @@ codeunit 139891 "E-Document Structured Tests"
         Initialize(Enum::"Service Integration"::"Mock");
         SetupCAPIEDocumentService();
         CreateInboundEDocumentFromJSON(EDocument, 'capi/capi-invoice-unexpected-values-0.json');
-        if ProcessEDocumentToStep(EDocument, "Import E-Document Steps"::"Read into IR") then begin
+        if ProcessEDocumentToStep(EDocument, "Import E-Document Steps"::"Read into Draft") then begin
             CAPIStructuredValidations.AssertMinimalEDocumentContentParsed(EDocument."Entry No");
             EDocumentPurchaseHeader.Get(EDocument."Entry No");
             // "value_text": null
@@ -74,7 +74,7 @@ codeunit 139891 "E-Document Structured Tests"
         Initialize(Enum::"Service Integration"::"Mock");
         SetupPEPPOLEDocumentService();
         CreateInboundEDocumentFromXML(EDocument, 'peppol/peppol-invoice-0.xml');
-        if ProcessEDocumentToStep(EDocument, "Import E-Document Steps"::"Read into IR") then
+        if ProcessEDocumentToStep(EDocument, "Import E-Document Steps"::"Read into Draft") then
             PEPPOLStructuredValidations.AssertFullEDocumentContentExtracted(EDocument."Entry No")
         else
             Assert.Fail(EDocumentStatusNotUpdatedErr);
@@ -113,7 +113,7 @@ codeunit 139891 "E-Document Structured Tests"
         LibraryEDoc.SetupStandardSalesScenario(Customer, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
         LibraryEDoc.SetupStandardPurchaseScenario(Vendor, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
         EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
-        EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"PDF Mock";
+        EDocumentService."Read into Draft Impl." := "E-Doc. Read into Draft"::"PDF Mock";
         EDocumentService.Modify();
         EDocumentsSetup.InsertNewExperienceSetup();
 
@@ -130,13 +130,13 @@ codeunit 139891 "E-Document Structured Tests"
 
     local procedure SetupCAPIEDocumentService()
     begin
-        EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"Azure Document Intelligence";
+        EDocumentService."Read into Draft Impl." := "E-Doc. Read into Draft"::ADI;
         EDocumentService.Modify();
     end;
 
     local procedure SetupPEPPOLEDocumentService()
     begin
-        EDocumentService."E-Document Structured Format" := "E-Document Structured Format"::"PEPPOL BIS 3.0";
+        EDocumentService."Read into Draft Impl." := "E-Doc. Read into Draft"::PEPPOL;
         EDocumentService.Modify();
     end;
 
@@ -147,7 +147,7 @@ codeunit 139891 "E-Document Structured Tests"
     begin
         LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
 
-        EDocumentLog.SetBlob('Test', Enum::"E-Doc. Data Storage Blob Type"::"JSON", NavApp.GetResourceAsText(FilePath));
+        EDocumentLog.SetBlob('Test', Enum::"E-Doc. File Format"::JSON, NavApp.GetResourceAsText(FilePath));
         EDocumentLog.SetFields(EDocument, EDocumentService);
         EDocLogRecord := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Readable);
 
@@ -162,7 +162,7 @@ codeunit 139891 "E-Document Structured Tests"
     begin
         LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
 
-        EDocumentLog.SetBlob('Test', Enum::"E-Doc. Data Storage Blob Type"::"XML", NavApp.GetResourceAsText(FilePath));
+        EDocumentLog.SetBlob('Test', Enum::"E-Doc. File Format"::XML, NavApp.GetResourceAsText(FilePath));
         EDocumentLog.SetFields(EDocument, EDocumentService);
         EDocLogRecord := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Readable);
 
