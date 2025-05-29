@@ -74,6 +74,7 @@ codeunit 5986 "Serv-Amounts Mgt."
             ServiceLine."Line Amount" := 0;
             ServiceLine."Line Discount Amount" := 0;
             ServiceLine."Inv. Discount Amount" := 0;
+            ServiceLine."Pmt. Discount Amount" := 0;
             ServiceLine."VAT Base Amount" := 0;
             ServiceLine.Amount := 0;
             ServiceLine."Amount Including VAT" := 0;
@@ -108,6 +109,8 @@ codeunit 5986 "Serv-Amounts Mgt."
                 LineDiscountAmountExpected := Round(ServiceLine."Line Amount" * ServiceLine."Line Discount %" / 100, Currency."Amount Rounding Precision");
                 if AmountsDifferByMoreThanRoundingPrecision(LineDiscountAmountExpected, ServiceLine."Line Discount Amount", Currency."Amount Rounding Precision") then
                     ServiceLine."Line Discount Amount" := LineDiscountAmountExpected;
+                ServiceLine."Pmt. Discount Amount" :=
+                    Round(ServiceLine."Pmt. Discount Amount" * ServLineQty / ServiceLine.Quantity, Currency."Amount Rounding Precision");
             end;
 
             ServiceLine."Line Amount" := ServiceLine."Line Amount" - ServiceLine."Line Discount Amount";
@@ -135,9 +138,12 @@ codeunit 5986 "Serv-Amounts Mgt."
                     TempVATAmountLineRemainder."Amount Including VAT" := 0;
                 end else begin
                     TempVATAmountLineRemainder."VAT Amount" +=
-                      TempVATAmountLine."VAT Amount" * ServiceLine.CalcLineAmount() / TempVATAmountLine.CalcLineAmount();
+                      TempVATAmountLine."VAT Amount" *
+                      (ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount") /
+                      (TempVATAmountLine.CalcLineAmount() - TempVATAmountLine."Pmt. Discount Amount");
                     TempVATAmountLineRemainder."Amount Including VAT" +=
-                      TempVATAmountLine."Amount Including VAT" * ServiceLine.CalcLineAmount() / TempVATAmountLine.CalcLineAmount();
+                      TempVATAmountLine."Amount Including VAT" * (ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount") /
+                      (TempVATAmountLine.CalcLineAmount() - TempVATAmountLine."Pmt. Discount Amount");
                 end;
                 if ServiceLine."Line Discount %" <> 100 then
                     ServiceLine."Amount Including VAT" :=
@@ -163,7 +169,7 @@ codeunit 5986 "Serv-Amounts Mgt."
                     ServiceLine.Amount := 0;
                     ServiceLine."VAT Base Amount" := 0;
                 end else begin
-                    ServiceLine.Amount := ServiceLine.CalcLineAmount();
+                    ServiceLine.Amount := ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount";
                     ServiceLine."VAT Base Amount" :=
                       Round(
                         ServiceLine.Amount * (1 - ServiceHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
@@ -171,7 +177,9 @@ codeunit 5986 "Serv-Amounts Mgt."
                         TempVATAmountLineRemainder."VAT Amount" := 0
                     else
                         TempVATAmountLineRemainder."VAT Amount" +=
-                          TempVATAmountLine."VAT Amount" * ServiceLine.CalcLineAmount() / TempVATAmountLine.CalcLineAmount();
+                          TempVATAmountLine."VAT Amount" *
+                          (ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount") /
+                          (TempVATAmountLine.CalcLineAmount() - TempVATAmountLine."Pmt. Discount Amount");
                     if ServiceLine."Line Discount %" <> 100 then
                         ServiceLine."Amount Including VAT" :=
                           ServiceLine.Amount + Round(TempVATAmountLineRemainder."VAT Amount", Currency."Amount Rounding Precision")
