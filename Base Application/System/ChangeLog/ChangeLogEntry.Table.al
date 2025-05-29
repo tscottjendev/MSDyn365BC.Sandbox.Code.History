@@ -238,14 +238,15 @@ table 405 "Change Log Entry"
         ChangeLogManagement: Codeunit "Change Log Management";
         RecordRef: RecordRef;
         FieldRef: FieldRef;
-        HasCultureNeutralValues: Boolean;
+        EmptyRecordId: RecordId;
     begin
-        // The culture neutral storage format was added simultaneously with the Record ID field
-        HasCultureNeutralValues := Format("Record ID") <> '';
+        if (Value = '') or ("Record ID" = EmptyRecordId) then
+            exit(Value);
+
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetRange("Object ID", "Table No.");
 
-        if not AllObj.IsEmpty() and (Value <> '') and HasCultureNeutralValues then begin
+        if not AllObj.IsEmpty() then begin
             RecordRef.Open("Table No.");
             if RecordRef.FieldExist("Field No.") then begin
                 FieldRef := RecordRef.Field("Field No.");
