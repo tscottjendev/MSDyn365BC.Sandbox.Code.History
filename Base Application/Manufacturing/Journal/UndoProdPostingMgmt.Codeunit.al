@@ -26,6 +26,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         QuantityMustBeGreaterThanZeroErr: Label 'Quantity must be greater than 0 on %1 No. %2 to reverse the entry.', Comment = '%1 = Table Caption , %2 = Entry No.';
         QuantityMustBeLessThanZeroErr: Label 'Quantity must be less than 0 on %1 No. %2 to reverse the entry. ', Comment = '%1 = Table Caption , %2 = Entry No.';
         MissingReleasedProductionErr: Label 'Production Order %1 is already Finished, you cannot reverse this entry.', Comment = '%1 = Production Order No.';
+        CannotReverseLastOperationErr: Label '%1 %2 is the last operation of Production Order %3. Reversal of this operation can only be performed from the %4.', Comment = '%1 - Field Caption, %2 - Entry No., %3 - Production Order No., %4 - Item Ledger Entry table caption';
 
     procedure ReverseProdItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry")
     var
@@ -84,6 +85,11 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ItemJnlLine: Record "Item Journal Line";
         ProductionOrder: Record "Production Order";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+        OperationNo: Code[20];
+        SetupTime: Decimal;
+        RunTime: Decimal;
+        StopTime: Decimal;
+        ScrapValue: Decimal;
         IsHandled: Boolean;
     begin
         ProductionOrder.SetLoadFields(Status, "No.");
@@ -102,18 +108,26 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ItemJnlLine.Validate("Item No.", ItemLedgerEntry."Item No.");
         ItemJnlLine.Validate("Variant Code", ItemLedgerEntry."Variant Code");
         ItemJnlLine.Validate("Document No.", ItemLedgerEntry."Document No.");
-        ItemJnlLine.Validate(Description, ItemLedgerEntry.Description);
         ItemJnlLine.Validate("Location Code", ItemLedgerEntry."Location Code");
         ItemJnlLine.Validate("Unit of Measure Code", ItemLedgerEntry."Unit of Measure Code");
         ItemJnlLine."Dimension Set ID" := ItemLedgerEntry."Dimension Set ID";
         ItemJnlLine."Shortcut Dimension 1 Code" := ItemLedgerEntry."Global Dimension 1 Code";
         ItemJnlLine."Shortcut Dimension 2 Code" := ItemLedgerEntry."Global Dimension 2 Code";
-        ItemJnlLine.Validate("Operation No.", GetLastOperationNo(ItemLedgerEntry));
+        GetLastOperationInformation(ItemLedgerEntry, OperationNo, SetupTime, RunTime, StopTime, ScrapValue);
+        if OperationNo <> '' then begin
+            ItemJnlLine.Validate("Operation No.", OperationNo);
+            ItemJnlLine.Validate("Setup Time", -SetupTime);
+            ItemJnlLine.Validate("Run Time", -RunTime);
+            ItemJnlLine.Validate("Stop Time", -StopTime);
+            ItemJnlLine.Validate("Scrap Quantity", -ScrapValue);
+        end;
 
         IsHandled := false;
         OnReverseOutputItemLedgerEntryOnBeforeValidateOutputQuantity(ItemJnlLine, ItemLedgerEntry, IsHandled);
         if not IsHandled then
             ItemJnlLine.Validate("Output Quantity", -Abs(ItemLedgerEntry.Quantity));
+
+        ItemJnlLine.Validate(Description, ItemLedgerEntry.Description);
 
         if ItemLedgerEntry.TrackingExists() then
             CreateOutputReservationEntry(ItemJnlLine, ItemLedgerEntry)
@@ -147,7 +161,6 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ItemJnlLine.Validate("Item No.", CapacityLedgEntry."Item No.");
         ItemJnlLine.Validate("Variant Code", CapacityLedgEntry."Variant Code");
         ItemJnlLine.Validate("Document No.", CapacityLedgEntry."Document No.");
-        ItemJnlLine.Validate(Description, CapacityLedgEntry.Description);
         ItemJnlLine.Validate("Operation No.", CapacityLedgEntry."Operation No.");
         ItemJnlLine.Validate(Type, CapacityLedgEntry.Type);
         ItemJnlLine.Validate("No.", CapacityLedgEntry."No.");
@@ -155,9 +168,14 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ItemJnlLine."Dimension Set ID" := CapacityLedgEntry."Dimension Set ID";
         ItemJnlLine."Shortcut Dimension 1 Code" := CapacityLedgEntry."Global Dimension 1 Code";
         ItemJnlLine."Shortcut Dimension 2 Code" := CapacityLedgEntry."Global Dimension 2 Code";
+        ItemJnlLine.Validate(Description, CapacityLedgEntry.Description);
 
         ItemJnlLine.Validate("Setup Time", -Abs(CapacityLedgEntry."Setup Time"));
         ItemJnlLine.Validate("Run Time", -Abs(CapacityLedgEntry."Run Time"));
+        ItemJnlLine.Validate("Stop Time", -Abs(CapacityLedgEntry."Stop Time"));
+        if not IsLastOperation(CapacityLedgEntry) then
+            ItemJnlLine.Validate("Output Quantity", -Abs(CapacityLedgEntry."Output Quantity"));
+
         IsHandled := false;
         OnReverseOutputCapacityLedgerEntryOnBeforeValidateQuantity(ItemJnlLine, CapacityLedgEntry, IsHandled);
         if not IsHandled then begin
@@ -165,9 +183,6 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
             ItemJnlLine.Validate("Scrap Code", CapacityLedgEntry."Scrap Code");
             ItemJnlLine.Validate("Scrap Quantity", -Abs(CapacityLedgEntry."Scrap Quantity"));
         end;
-
-        if IsLastOperation(CapacityLedgEntry) then
-            ItemJnlLine.Validate("Applies-to Entry", GetRelatedItemLedgEntryNo(CapacityLedgEntry));
 
         OnReverseOutputCapacityLedgerEntryOnBeforeItemJnlPostLine(ItemJnlLine, CapacityLedgEntry);
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
@@ -190,32 +205,65 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         exit(not ProdOrderRoutingLine.IsEmpty());
     end;
 
-    local procedure GetRelatedItemLedgEntryNo(CapacityLedgerEntry: Record "Capacity Ledger Entry"): Integer
-    var
-        ValueEntry: Record "Value Entry";
-    begin
-        ValueEntry.SetLoadFields("Item Ledger Entry No.");
-        ValueEntry.SetRange("Capacity Ledger Entry No.", CapacityLedgerEntry."Entry No.");
-        if ValueEntry.FindFirst() then
-            exit(ValueEntry."Item Ledger Entry No.");
-    end;
-
-    local procedure GetLastOperationNo(ItemLedgEntry: Record "Item Ledger Entry"): Code[20]
+    local procedure GetLastOperationInformation(ItemLedgEntry: Record "Item Ledger Entry"; var OperationNo: Code[20]; var SetupTime: Decimal; var RunTime: Decimal; var StopTime: Decimal; var ScrapValue: Decimal)
     var
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ItemRegister: Record "Item Register";
+        CapacityLedgEntry: Record "Capacity Ledger Entry";
     begin
         ProdOrderLine.SetLoadFields(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.");
         ProdOrderLine.Get(ProdOrderLine.Status::Released, ItemLedgEntry."Order No.", ItemLedgEntry."Order Line No.");
 
+        FilterProdOrderRoutingLineFromProdOrderLine(ProdOrderRoutingLine, ProdOrderLine);
+        if not ProdOrderRoutingLine.FindFirst() then
+            exit;
+
+        OperationNo := ProdOrderRoutingLine."Operation No.";
+        if OperationNo = '' then
+            exit;
+
+        ItemRegister.SetFilter("From Entry No.", '<=%1', ItemLedgEntry."Entry No.");
+        ItemRegister.SetFilter("To Entry No.", '>=%1', ItemLedgEntry."Entry No.");
+        if not ItemRegister.FindFirst() then
+            exit;
+
+        FilterCapacityLedgEntryForLastOperation(CapacityLedgEntry, ItemLedgEntry, ItemRegister, ProdOrderLine, OperationNo);
+        if not CapacityLedgEntry.IsEmpty() then
+            exit;
+
+        CapacityLedgEntry.SetRange("Output Quantity");
+        if CapacityLedgEntry.FindFirst() then begin
+            SetupTime := CapacityLedgEntry."Setup Time";
+            RunTime := CapacityLedgEntry."Run Time";
+            StopTime := CapacityLedgEntry."Stop Time";
+            ScrapValue := CapacityLedgEntry."Scrap Quantity";
+        end;
+    end;
+
+    local procedure FilterProdOrderRoutingLineFromProdOrderLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
         ProdOrderRoutingLine.SetLoadFields("Operation No.");
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderRoutingLine.SetRange(Status, ProdOrderLine.Status);
         ProdOrderRoutingLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
         ProdOrderRoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
         ProdOrderRoutingLine.SetFilter("Next Operation No.", '%1', '');
-        if ProdOrderRoutingLine.FindFirst() then
-            exit(ProdOrderRoutingLine."Operation No.");
+    end;
+
+    local procedure FilterCapacityLedgEntryForLastOperation(var CapacityLedgEntry: Record "Capacity Ledger Entry"; ItemLedgEntry: Record "Item Ledger Entry"; ItemRegister: Record "Item Register"; ProdOrderLine: Record "Prod. Order Line"; OperationNo: Code[20])
+    begin
+        CapacityLedgEntry.SetLoadFields("Item Register No.", "Entry No.", "Item No.", "Order Type", "Order No.", "Order Line No.", "Operation No.", "Routing No.", "Routing Reference No.", "Setup Time", "Run Time", "Stop Time", "Scrap Quantity", Quantity);
+        CapacityLedgEntry.SetRange("Item Register No.", ItemRegister."No.");
+        CapacityLedgEntry.SetRange("Entry No.", ItemRegister."From Capacity Entry No.", ItemRegister."To Capacity Entry No.");
+        CapacityLedgEntry.SetRange("Item No.", ItemLedgEntry."Item No.");
+        CapacityLedgEntry.SetRange("Order Type", CapacityLedgEntry."Order Type"::Production);
+        CapacityLedgEntry.SetRange("Order No.", ItemLedgEntry."Order No.");
+        CapacityLedgEntry.SetRange("Order Line No.", ItemLedgEntry."Order Line No.");
+        CapacityLedgEntry.SetRange("Operation No.", OperationNo);
+        CapacityLedgEntry.SetRange("Routing No.", ProdOrderLine."Routing No.");
+        CapacityLedgEntry.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+        CapacityLedgEntry.SetRange("Output Quantity", 0);
     end;
 
     local procedure ReverseConsumptionItemLedgerEntry(ItemLedgerEntry: Record "Item Ledger Entry")
@@ -257,7 +305,6 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
             CreateConsumptionReservationEntry(ItemJnlLine, ItemLedgerEntry)
         else
             ItemJnlLine.Validate("Applies-from Entry", ItemLedgerEntry."Entry No.");
-
         OnReverseConsumptionItemLedgerEntryOnBeforeItemJnlPostLine(ItemJnlLine, ItemLedgerEntry, ProductionOrder);
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
@@ -334,6 +381,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
 
     local procedure ValidateProdOrder(CapacityLedgerEntry: Record "Capacity Ledger Entry")
     var
+        ItemLedgEntry: Record "Item Ledger Entry";
         ProductionOrder: Record "Production Order";
     begin
         CapacityLedgerEntry.TestField("Order Type", CapacityLedgerEntry."Order Type"::Production);
@@ -345,6 +393,9 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
 
         if CapacityLedgerEntry.Subcontracting then
             Error(SubContractingErr);
+
+        if IsLastOperation(CapacityLedgerEntry) then
+            Error(CannotReverseLastOperationErr, CapacityLedgerEntry.FieldCaption("Entry No."), CapacityLedgerEntry."Entry No.", CapacityLedgerEntry."Order No.", ItemLedgEntry.TableCaption());
     end;
 
     local procedure CreateOutputReservationEntry(ItemJnlLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry")
@@ -373,6 +424,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ReservationEntry."Item Tracking" := ItemLedgerEntry."Item Tracking";
         ReservationEntry."Expiration Date" := ItemLedgerEntry."Expiration Date";
         ReservationEntry."Package No." := ItemLedgerEntry."Package No.";
+        ReservationEntry."Appl.-to Item Entry" := ItemLedgerEntry."Entry No.";
 
         OnCreateOutputReservationEntryOnBeforeInsert(ReservationEntry, ItemLedgerEntry);
         ReservationEntry.Insert();
@@ -404,6 +456,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ReservationEntry."Item Tracking" := ItemLedgerEntry."Item Tracking";
         ReservationEntry."Expiration Date" := ItemLedgerEntry."Expiration Date";
         ReservationEntry."Package No." := ItemLedgerEntry."Package No.";
+        ReservationEntry."Appl.-from Item Entry" := ItemLedgerEntry."Entry No.";
         ReservationEntry.Insert();
     end;
 
