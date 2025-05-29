@@ -44,6 +44,8 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         EstimateTokenCount, EstimateGLAccInstrTokenCount : Integer;
         LineDictionary: Dictionary of [Integer, Text[100]];
     begin
+        if EDocumentPurchaseLine.IsEmpty() then
+            exit(Result);
         Clear(Result);
 
         // Build prompt

@@ -231,7 +231,7 @@ page 6181 "E-Document Purchase Draft"
                 Caption = 'View pdf';
                 ToolTip = 'View pdf.';
                 Image = ViewDetails;
-                Visible = Rec."File Type" = Rec."File Type"::PDF;
+                Visible = HasPDFSource;
 
                 trigger OnAction()
                 begin
@@ -277,11 +277,14 @@ page 6181 "E-Document Purchase Draft"
     begin
         if not EDocumentsSetup.IsNewEDocumentExperienceActive() then
             Error('');
-        if EDocumentPurchaseHeader.Get(Rec."Entry No") then begin
-            AIGeneratedContentNotification.Message(ImportEDocumentProcess.AIGeneratedContentText());
-            AIGeneratedContentNotification.AddAction(ImportEDocumentProcess.TermsAndConditionsText(), Codeunit::"Import E-Document Process", 'OpenTermsAndConditions');
-            AIGeneratedContentNotification.Send();
-        end;
+
+        if EDocumentPurchaseHeader.Get(Rec."Entry No") then
+            if Rec."Read into Draft Impl." = "E-Doc. Read into Draft"::ADI then begin
+                HasPDFSource := true;
+                AIGeneratedContentNotification.Message(ImportEDocumentProcess.AIGeneratedContentText());
+                AIGeneratedContentNotification.AddAction(ImportEDocumentProcess.TermsAndConditionsText(), Codeunit::"Import E-Document Process", 'OpenTermsAndConditions');
+                AIGeneratedContentNotification.Send();
+            end;
         EDocumentServiceStatus := Rec.GetEDocumentServiceStatus();
         HasErrorsOrWarnings := false;
         HasErrors := false;
@@ -437,7 +440,7 @@ page 6181 "E-Document Purchase Draft"
             Progress.Open(ProcessingDocumentMsg);
 
         // Regardless of document state, we re-run the read data into IR, then prepare draft step.
-        EDocImportParameters."Step to Run" := Enum::"Import E-Document Steps"::"Read into IR";
+        EDocImportParameters."Step to Run" := Enum::"Import E-Document Steps"::"Read into Draft";
         EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
         EDocImportParameters."Step to Run" := Enum::"Import E-Document Steps"::"Prepare draft";
         EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
@@ -490,6 +493,6 @@ page 6181 "E-Document Purchase Draft"
         FinalizeDraftPerformedTxt: Label 'User completed Finalize Draft action.';
         ProcessingDocumentMsg: Label 'Processing document...';
         ResetDraftQst: Label 'All the changes that you may have made on the document draft will be lost. Do you want to continue?';
-        PageEditable: Boolean;
+        PageEditable, HasPDFSource : Boolean;
 }
 #pragma warning restore AS0050

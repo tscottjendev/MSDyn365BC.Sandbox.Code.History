@@ -249,11 +249,9 @@ table 6100 "E-Document Purchase Header"
 
     procedure InsertForEDocument(EDocument: Record "E-Document")
     begin
-        Rec."E-Document Entry No." := EDocument."Entry No";
-        if not Rec.Insert() then begin
-            Clear(Rec);
+        if not Rec.Get(EDocument."Entry No") then begin
             Rec."E-Document Entry No." := EDocument."Entry No";
-            Rec.Modify();
+            Rec.Insert();
         end;
     end;
 

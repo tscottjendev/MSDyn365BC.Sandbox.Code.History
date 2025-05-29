@@ -32,24 +32,32 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
         EDocVendorAssignmentHistory.SetCurrentKey(SystemCreatedAt);
         EDocVendorAssignmentHistory.SetAscending(SystemCreatedAt, false);
 
-        EDocVendorAssignmentHistory.SetRange("Vendor GLN", EDocumentPurchaseHeader."Vendor GLN");
-        if EDocVendorAssignmentHistory.FindFirst() then
-            exit(true);
-        EDocVendorAssignmentHistory.SetRange("Vendor GLN");
+        if EDocumentPurchaseHeader."Vendor GLN" <> '' then begin
+            EDocVendorAssignmentHistory.SetRange("Vendor GLN", EDocumentPurchaseHeader."Vendor GLN");
+            if EDocVendorAssignmentHistory.FindFirst() then
+                exit(true);
+            EDocVendorAssignmentHistory.SetRange("Vendor GLN");
+        end;
 
-        EDocVendorAssignmentHistory.SetRange("Vendor VAT Id", EDocumentPurchaseHeader."Vendor VAT Id");
-        if EDocVendorAssignmentHistory.FindFirst() then
-            exit(true);
-        EDocVendorAssignmentHistory.SetRange("Vendor VAT Id");
+        if EDocumentPurchaseHeader."Vendor VAT Id" <> '' then begin
+            EDocVendorAssignmentHistory.SetRange("Vendor VAT Id", EDocumentPurchaseHeader."Vendor VAT Id");
+            if EDocVendorAssignmentHistory.FindFirst() then
+                exit(true);
+            EDocVendorAssignmentHistory.SetRange("Vendor VAT Id");
+        end;
 
-        EDocVendorAssignmentHistory.SetRange("Vendor Company Name", EDocumentPurchaseHeader."Vendor Company Name");
-        if EDocVendorAssignmentHistory.FindFirst() then
-            exit(true);
-        EDocVendorAssignmentHistory.SetRange("Vendor Company Name");
+        if EDocumentPurchaseHeader."Vendor Company Name" <> '' then begin
+            EDocVendorAssignmentHistory.SetRange("Vendor Company Name", EDocumentPurchaseHeader."Vendor Company Name");
+            if EDocVendorAssignmentHistory.FindFirst() then
+                exit(true);
+            EDocVendorAssignmentHistory.SetRange("Vendor Company Name");
+        end;
 
-        EDocVendorAssignmentHistory.SetRange("Vendor Address", EDocumentPurchaseHeader."Vendor Address");
-        if EDocVendorAssignmentHistory.FindFirst() then
-            exit(true);
+        if EDocumentPurchaseHeader."Vendor Address" <> '' then begin
+            EDocVendorAssignmentHistory.SetRange("Vendor Address", EDocumentPurchaseHeader."Vendor Address");
+            if EDocVendorAssignmentHistory.FindFirst() then
+                exit(true);
+        end;
 
         exit(false);
     end;

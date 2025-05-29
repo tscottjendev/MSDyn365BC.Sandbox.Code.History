@@ -304,7 +304,7 @@ page 6105 "Inbound E-Documents"
         if not ChooseEDocumentService(EDocumentService) then
             exit;
 
-        ProcessFilesUploads(EDocumentService, Files, Enum::"E-Doc. Data Storage Blob Type"::Unspecified);
+        ProcessFilesUploads(EDocumentService, Files, Enum::"E-Doc. File Format"::Unspecified);
     end;
 
     local procedure NewFromPdf(Files: List of [FileUpload])
@@ -312,7 +312,7 @@ page 6105 "Inbound E-Documents"
         EDocumentService: Record "E-Document Service";
     begin
         EDocumentService.GetPDFReaderService();
-        ProcessFilesUploads(EDocumentService, Files, Enum::"E-Doc. Data Storage Blob Type"::PDF);
+        ProcessFilesUploads(EDocumentService, Files, Enum::"E-Doc. File Format"::PDF);
     end;
 
     local procedure NewFromXml(Files: List of [FileUpload])
@@ -322,10 +322,10 @@ page 6105 "Inbound E-Documents"
         if not ChooseEDocumentService(EDocumentService) then
             exit;
 
-        ProcessFilesUploads(EDocumentService, Files, Enum::"E-Doc. Data Storage Blob Type"::XML);
+        ProcessFilesUploads(EDocumentService, Files, Enum::"E-Doc. File Format"::XML);
     end;
 
-    local procedure ProcessFilesUploads(EDocumentService: Record "E-Document Service"; Files: List of [FileUpload]; Type: Enum "E-Doc. Data Storage Blob Type")
+    local procedure ProcessFilesUploads(EDocumentService: Record "E-Document Service"; Files: List of [FileUpload]; Type: Enum "E-Doc. File Format")
     var
         EDocument: Record "E-Document";
         EDocImport: Codeunit "E-Doc. Import";

@@ -227,7 +227,7 @@ codeunit 139629 "Library - E-Document"
         InStream: InStream;
     begin
         NavApp.GetResource(FileName, InStream, TextEncoding::UTF8);
-        EDocImport.CreateFromType(EDocument, EDocumentService, Enum::"E-Doc. Data Storage Blob Type"::XML, 'TestFile', InStream);
+        EDocImport.CreateFromType(EDocument, EDocumentService, Enum::"E-Doc. File Format"::XML, 'TestFile', InStream);
         exit(EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParams));
     end;
 
