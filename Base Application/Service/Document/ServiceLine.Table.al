@@ -576,6 +576,7 @@ table 5902 "Service Line"
                     "Line Discount %" / 100, Currency."Amount Rounding Precision");
                 "Inv. Discount Amount" := 0;
                 "Inv. Disc. Amount to Invoice" := 0;
+                "Pmt. Discount Amount" := 0;
 
                 UpdateAmounts();
                 NotifyOnMissingSetup(FieldNo("Line Discount Amount"));
@@ -596,6 +597,7 @@ table 5902 "Service Line"
                     UpdateLineDiscPct();
                 "Inv. Discount Amount" := 0;
                 "Inv. Disc. Amount to Invoice" := 0;
+                "Pmt. Discount Amount" := 0;
                 Validate("Line Discount %");
             end;
         }
@@ -641,6 +643,7 @@ table 5902 "Service Line"
                         end;
                 end;
 
+                "Pmt. Discount Amount" := 0;
                 InitOutstandingAmount();
             end;
         }
@@ -687,6 +690,7 @@ table 5902 "Service Line"
                         end;
                 end;
 
+                "Pmt. Discount Amount" := 0;
                 InitOutstandingAmount();
             end;
         }
@@ -703,6 +707,7 @@ table 5902 "Service Line"
                 then begin
                     "Inv. Discount Amount" := 0;
                     "Inv. Disc. Amount to Invoice" := 0;
+                    "Pmt. Discount Amount" := 0;
                     UpdateAmounts();
                 end;
             end;
@@ -4859,6 +4864,8 @@ table 5902 "Service Line"
                             if ServiceLine."Allow Invoice Disc." then
                                 VATAmountLine."Inv. Disc. Base Amount" += Round(ServiceLine."Line Amount" * QtyFactor, Currency."Amount Rounding Precision");
                             VATAmountLine."Invoice Discount Amount" += ServiceLine."Inv. Disc. Amount to Invoice";
+                            VATAmountLine."Pmt. Discount Amount" +=
+                              Round(ServiceLine."Pmt. Discount Amount" * QtyFactor, Currency."Amount Rounding Precision");
                             VATAmountLine."VAT Difference" += ServiceLine."VAT Difference";
                             VATAmountLine.Modify();
                         end;
@@ -4878,6 +4885,7 @@ table 5902 "Service Line"
                                 VATAmountLine."Inv. Disc. Base Amount" += Round(ServiceLine."Line Amount" * QtyFactor, Currency."Amount Rounding Precision");
                             VATAmountLine."Invoice Discount Amount" +=
                               Round(ServiceLine."Inv. Discount Amount" * QtyFactor, Currency."Amount Rounding Precision");
+                            VATAmountLine."Pmt. Discount Amount" += ServiceLine."Pmt. Discount Amount";
                             VATAmountLine."VAT Difference" += ServiceLine."VAT Difference";
                             OnCalcVATAmountLinesOnBeforeVATAmountLineModifyShipping(ServiceLine, VATAmountLine);
                             VATAmountLine.Modify();
@@ -4900,6 +4908,7 @@ table 5902 "Service Line"
                         if ServiceLine."Allow Invoice Disc." then
                             VATAmountLine."Inv. Disc. Base Amount" += ServiceLine."Line Amount";
                         VATAmountLine."Invoice Discount Amount" += ServiceLine."Inv. Discount Amount";
+                        VATAmountLine."Pmt. Discount Amount" += ServiceLine."Pmt. Discount Amount";
                         VATAmountLine."VAT Difference" += ServiceLine."VAT Difference";
                         OnCalcVATAmountLinesOnBeforeVATAmountLineModifyElseCase(ServiceLine, VATAmountLine);
                         VATAmountLine.Modify();
@@ -5064,11 +5073,11 @@ table 5902 "Service Line"
                             OnUpdateVATOnLinesOnAfterSetNewVATBaseAmountPriceInclVAT(ServiceLine, ServHeader, VATAmountLine, TempVATAmountLineRemainder, NewAmount, NewVATBaseAmount);
                         end else begin
                             if ServiceLine."VAT Calculation Type" = ServiceLine."VAT Calculation Type"::"Full VAT" then begin
-                                VATAmount := ServiceLine.CalcLineAmount();
+                                VATAmount := ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount";
                                 NewAmount := 0;
                                 NewVATBaseAmount := 0;
                             end else begin
-                                NewAmount := ServiceLine.CalcLineAmount();
+                                NewAmount := ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount";
                                 NewVATBaseAmount :=
                                   Round(
                                     NewAmount * (1 - GetVatBaseDiscountPct(ServHeader) / 100),
