@@ -77,7 +77,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     procedure TestNoTransactionsImported()
     var
         BankAccRecon: Record "Bank Acc. Reconciliation";
-        BankAccount: Record "Bank Account";
+        DummyBankAccount, BankAccount : Record "Bank Account";
         TempBlobUTF8: Codeunit "Temp Blob";
         OutStream: OutStream;
         BankStmtFormat: Code[20];
@@ -90,6 +90,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         // Exercise
         BankStmtFormat := 'SEPA CAMT';
+        CreateBankAcc(BankStmtFormat, DummyBankAccount, '');
         CreateBankAcc(BankStmtFormat, BankAccount, '');
         LibraryVariableStorage.Enqueue(BankAccount."No.");
         CreateBankAccReconByImportingStmt(BankAccRecon, TempBlobUTF8, BankAccount);
