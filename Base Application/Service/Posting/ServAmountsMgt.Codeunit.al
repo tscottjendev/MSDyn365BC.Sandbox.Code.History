@@ -147,8 +147,7 @@ codeunit 5986 "Serv-Amounts Mgt."
                     TempVATAmountLineRemainder."EC Amount" +=
                       TempVATAmountLine."EC Amount" *
                       (ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount") /
-                      (TempVATAmountLine."Line Amount" - TempVATAmountLine."Invoice Discount Amount" -
-                       TempVATAmountLine."Pmt. Discount Amount");
+                      (TempVATAmountLine.CalcLineAmount() - TempVATAmountLine."Pmt. Discount Amount");
                     TempVATAmountLineRemainder."Amount Including VAT" +=
                       TempVATAmountLine."Amount Including VAT" * (ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount") /
                       (TempVATAmountLine.CalcLineAmount() - TempVATAmountLine."Pmt. Discount Amount");
