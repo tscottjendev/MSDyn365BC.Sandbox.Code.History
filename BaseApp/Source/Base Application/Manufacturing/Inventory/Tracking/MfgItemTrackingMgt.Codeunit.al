@@ -719,6 +719,7 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
         if (TempTrackingSpecification."Source Type" <> Database::"Prod. Order Component") or (TempTrackingSpecification."Source Subtype" <> TempTrackingSpecification."Source Subtype"::"3") then
             exit;
 
+        Item.SetLoadFields("Allow Whse. Overpick");
         Item.Get(TempTrackingSpecification."Item No.");
         AllowWhseOverpick := Item."Allow Whse. Overpick";
     end;

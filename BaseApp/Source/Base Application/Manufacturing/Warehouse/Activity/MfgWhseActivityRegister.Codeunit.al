@@ -227,6 +227,7 @@ codeunit 99000765 "Mfg. Whse. Activity Register"
         if TempWhseActivLine."Source Subtype" <> TempWhseActivLine."Source Subtype"::"3" then
             exit;
 
+        Item.SetLoadFields("Allow Whse. Overpick");
         Item.Get(TempWhseActivLine."Item No.");
         AllowWhseOverpick := Item."Allow Whse. Overpick";
     end;
