@@ -91,7 +91,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
                         NonReservedQtyLotSN -= QtyReservedFromItemLedger.Quantity__Base_;
 
                     DoInsertEntrySummary := NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(ItemNo, VariantCode, Location.Code, ItemTrackingSetup, HasExpirationDate) > 0;
-                    OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(Location, ItemNo, VariantCode, HasExpirationDate, NonReservedQtyLotSN, ItemTrackingSetup, SummarizedStockByItemTrkg.Expiration_Date, DoInsertEntrySummary);
+                    OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(Location, ItemNo, VariantCode, HasExpirationDate, NonReservedQtyLotSN, ItemTrackingSetup, SummarizedStockByItemTrkg.Expiration_Date, DoInsertEntrySummary, TempGlobalEntrySummary);
                     if DoInsertEntrySummary then
                         InsertEntrySummaryFEFO(ItemTrackingSetup, SummarizedStockByItemTrkg.Expiration_Date);
                 end;
@@ -355,7 +355,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(var Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; HasExpirationDate: Boolean; NonReservedQtyLotSN: Decimal; var ItemTrackingSetup: Record "Item Tracking Setup"; ExpirationDate: Date; var DoInsertEntrySummary: Boolean)
+    local procedure OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(var Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; HasExpirationDate: Boolean; NonReservedQtyLotSN: Decimal; var ItemTrackingSetup: Record "Item Tracking Setup"; ExpirationDate: Date; var DoInsertEntrySummary: Boolean; var TempGlobalEntrySummary: Record "Entry Summary" temporary)
     begin
     end;
 }

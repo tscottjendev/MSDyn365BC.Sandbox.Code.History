@@ -1011,7 +1011,11 @@ codeunit 5407 "Prod. Order Status Management"
                 if NewStatus = NewStatus::Released then
                     QtyToPost := ProdOrderComp.GetNeededQty(1, false)
                 else begin
-                    QtyToPost := ProdOrderComp.GetNeededQty(0, false);
+                    if ProdOrder.Reopened then
+                        QtyToPost := ProdOrderComp.GetNeededQty(0, true)
+                    else
+                        QtyToPost := ProdOrderComp.GetNeededQty(0, false);
+
                     if SuppliedByProdOrderLine.Get(ProdOrderComp.Status, ProdOrderComp."Prod. Order No.", ProdOrderComp."Supplied-by Line No.") and
                        (SuppliedByProdOrderLine."Remaining Quantity" = 0) and
                        (SuppliedByProdOrderLine.Quantity = SuppliedByProdOrderLine."Finished Quantity")

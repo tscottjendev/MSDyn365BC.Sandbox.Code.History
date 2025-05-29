@@ -391,6 +391,7 @@ codeunit 730 "Copy Item"
                 NewPriceListLine := PriceListLine;
                 NewPriceListLine.SetAssetNo(ToItemNo);
                 NewPriceListLine.SetNextLineNo();
+                OnCopyItemPriceListLinesOnBeforeInsertNewPriceListLine(NewPriceListLine, PriceListLine);
                 NewPriceListLine.Insert();
             until PriceListLine.Next() = 0;
     end;
@@ -571,6 +572,11 @@ codeunit 730 "Copy Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyItemOnBeforeTargetItemInsert(SourceItem: Record Item; var TargetItem: Record Item; CopyCounter: Integer; var CopyItemBuffer: Record "Copy Item Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyItemPriceListLinesOnBeforeInsertNewPriceListLine(var NewPriceListLine: Record "Price List Line"; PriceListLine: Record "Price List Line")
     begin
     end;
 }
