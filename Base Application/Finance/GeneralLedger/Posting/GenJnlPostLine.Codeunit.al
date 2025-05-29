@@ -5657,7 +5657,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         VATEntry2."Add.-Curr. Rem. Unreal. Base" :=
           VATEntry2."Add.-Curr. Rem. Unreal. Base" - VATEntry."Additional-Currency Base";
         VATEntry2.Modify();
-        OnAfterPostUnrealVATEntry(GenJnlLine, VATEntry2, VATAmount, VATBase, GLEntryNo, NextEntryNo);
+        OnAfterPostUnrealVATEntry(GenJnlLine, VATEntry2, VATAmount, VATBase, GLEntryNo, NextEntryNo, NextVATEntryNo);
     end;
 
     /// <summary>
@@ -9102,7 +9102,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostUnrealVATEntry(GenJnlLine: Record "Gen. Journal Line"; var VATEntry2: Record "VAT Entry"; VATAmount: Decimal; VATBase: Decimal; GLEntryNo: Integer; var NextEntryNo: Integer)
+    local procedure OnAfterPostUnrealVATEntry(GenJnlLine: Record "Gen. Journal Line"; var VATEntry2: Record "VAT Entry"; VATAmount: Decimal; VATBase: Decimal; GLEntryNo: Integer; var NextEntryNo: Integer; var NextVATEntryNo: Integer)
     begin
     end;
 
