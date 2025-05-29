@@ -825,8 +825,15 @@ codeunit 426 "Payment Tolerance Management"
         exit(false);
     end;
 
-    local procedure CheckPmtTolCust(NewDocType: Enum "Gen. Journal Document Type"; OldCustLedgEntry: Record "Cust. Ledger Entry"): Boolean
+    local procedure CheckPmtTolCust(NewDocType: Enum "Gen. Journal Document Type"; OldCustLedgEntry: Record "Cust. Ledger Entry") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPmtTolCust(NewDocType, OldCustLedgEntry, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         if ((NewDocType = NewDocType::Payment) and
             (OldCustLedgEntry."Document Type" = OldCustLedgEntry."Document Type"::Invoice)) or
            ((NewDocType = NewDocType::Refund) and
@@ -1218,6 +1225,7 @@ codeunit 426 "Payment Tolerance Management"
                     CustLedgEntry.SetFilter("Document Type", '%1|%2',
                       CustLedgEntry."Document Type"::Invoice,
                       CustLedgEntry."Document Type"::"Credit Memo");
+                    OnCalcGracePeriodCVLedgEntryOnAfterCustLedgEntrySetFilters(CustLedgEntry);
 
                     if CustLedgEntry.Find('-') then
                         repeat
@@ -1494,7 +1502,13 @@ codeunit 426 "Payment Tolerance Management"
     local procedure DelCustPmtTolAcc2(CustledgEntry: Record "Cust. Ledger Entry"; CustEntryApplID: Code[50])
     var
         AppliedCustLedgEntry: Record "Cust. Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDelCustPmtTolAcc2(CustledgEntry, CustEntryApplID, IsHandled);
+        if IsHandled then
+            exit;
+
         if CustEntryApplID <> '' then begin
             AppliedCustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
             AppliedCustLedgEntry.SetRange("Customer No.", CustledgEntry."Customer No.");
@@ -1600,7 +1614,14 @@ codeunit 426 "Payment Tolerance Management"
     end;
 
     local procedure GetCustPositiveFilter(DocumentType: Enum "Gen. Journal Document Type"; TempAmount: Decimal) PositiveFilter: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCustPositiveFilter(DocumentType, TempAmount, IsHandled, PositiveFilter);
+        if IsHandled then
+            exit(PositiveFilter);
+
         PositiveFilter := TempAmount <= 0;
         if ((TempAmount > 0) and (DocumentType = DocumentType::Refund) or (DocumentType = DocumentType::Invoice) or
             (DocumentType = DocumentType::"Credit Memo"))
@@ -2460,6 +2481,26 @@ codeunit 426 "Payment Tolerance Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnPmtTolVendLedgEntryOnBeforeWarning(var VendledgEntry: Record "Vendor Ledger Entry"; GLSetup: Record "General Ledger Setup"; var AppliedAmount: Decimal; var ApplyingAmount: Decimal; var AmounttoApply: Decimal; var PmtDiscAmount: Decimal; var MaxPmtTolAmount: Decimal; VendEntryApplID: Code[50]; var ApplnRoundingPrecision: Decimal; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPmtTolCust(var NewDocType: Enum "Gen. Journal Document Type"; var OldCustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDelCustPmtTolAcc2(CustledgEntry: Record "Cust. Ledger Entry"; CustEntryApplID: Code[50]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCustPositiveFilter(DocumentType: Enum "Gen. Journal Document Type"; TempAmount: Decimal; var IsHandled: Boolean; var PositiveFilter: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcGracePeriodCVLedgEntryOnAfterCustLedgEntrySetFilters(var CustLedgEntry: Record "Cust. Ledger Entry");
     begin
     end;
 }
