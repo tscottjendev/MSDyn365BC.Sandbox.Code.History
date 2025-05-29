@@ -1038,6 +1038,62 @@ codeunit 137045 "SCM Bugfixes"
         Assert.AreEqual(4, ActualCount, AssemblyCommentLineErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler')]
+    procedure NoDuplicateSurplusReservationEntriesOnRecalculateRequisitionWorksheet()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Vendor: Record Vendor;
+        RequisitionLine: Record "Requisition Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        PurchaseHeader: Record "Purchase Header";
+        NewPurchOrderChoice: Option " ","Make Purch. Orders","Make Purch. Orders & Print","Copy to Req. Wksh";
+        Qty: Decimal;
+    begin
+        // [SCENARIO 575040] When recalculating an item in a requisition or planning worksheet with no planning results lead to wrong surplus entries in the reservation table whic are added to the item tracking page.
+        Initialize();
+
+        // [GIVEN] Created Lot Tracked Item with Reordering Policy:Lot-for-Lot.
+        CreateTrackedItem(Item);
+
+        // [GIVEN] Created Sales Order with 1 Item and 100 quantity.
+        Qty := 100;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Calculate requisition plan
+        CalculateRequisitionPlan(RequisitionWkshName, Item);
+
+        // [GIVEN] Find Requisition Line
+        FindRequisitionLine(RequisitionLine, RequisitionWkshName, RequisitionLine."Action Message"::New);
+
+        // [GIVEN] Update Vendor No., Planning Flexibility with None and change the quantity to 150
+        RequisitionLine.Validate("Vendor No.", LibraryPurchase.CreateVendor(Vendor));
+        RequisitionLine.Validate("Planning Flexibility", RequisitionLine."Planning Flexibility"::None);
+        RequisitionLine.Validate(Quantity, 150);
+        RequisitionLine.Modify(true);
+
+        // [GIVEN] Assign the Lot On Item tracking Line
+        RequisitionLine.OpenItemTrackingLines();
+
+        // [GIVEN] Set "Accept Action Message" on all Requisition lines.
+        LibraryPlanning.CarryOutPlanWksh(RequisitionLine, 0, NewPurchOrderChoice::"Make Purch. Orders", 0, 0, '', '', '', '');
+
+        // [GIVEN] Check at reservation entries for Purchase Order created, only 2 reservation entries should exist for the PO
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindLast();
+        AssertReservationEntryCount(PurchaseHeader, 2);
+
+        // [WHEN] Calculate Plan again for same item from requisition worksheet
+        CalculateRequisitionPlan(RequisitionWkshName, Item);
+
+        // [THEN] After recalculation, a new reservation entry should NOT be created for the PO
+        AssertReservationEntryCount(PurchaseHeader, 2);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1738,6 +1794,15 @@ codeunit 137045 "SCM Bugfixes"
         CalculatePlanPlanWksh.SetTableView(TmpItemRec);
         CalculatePlanPlanWksh.UseRequestPage(false);
         CalculatePlanPlanWksh.RunModal();
+    end;
+
+    local procedure AssertReservationEntryCount(PurchaseHeader: Record "Purchase Header"; ExpectedCount: Integer)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetRange("Source Type", Database::"Purchase Line");
+        ReservationEntry.SetRange("Source ID", PurchaseHeader."No.");
+        Assert.RecordCount(ReservationEntry, ExpectedCount);
     end;
 
     [ModalPageHandler]
