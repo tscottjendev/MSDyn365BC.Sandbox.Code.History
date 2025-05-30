@@ -275,6 +275,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
 
     local procedure UpdateAndDeleteLines()
     var
+        UnitCost, UnitPrice : Decimal;
         IsHandled: Boolean;
     begin
         OnBeforeUpdateAndDeleteLines(JobJnlLine);
@@ -295,8 +296,12 @@ codeunit 1013 "Job Jnl.-Post Batch"
                         JobJnlLine2.Validate("Posting Date", CalcDate(JobJnlLine2."Recurring Frequency", JobJnlLine2."Posting Date"));
                     if (JobJnlLine2."Recurring Method" = JobJnlLine2."Recurring Method"::Variable) and
                         (JobJnlLine2."No." <> '')
-                    then
+                    then begin
+                        UnitCost := JobJnlLine2."Unit Cost";
+                        UnitPrice := JobJnlLine2."Unit Price";
                         JobJnlLine2.DeleteAmounts();
+                        UpdateUnitCostAndPrice(JobJnlLine2, UnitCost, UnitPrice);
+                    end;
                     JobJnlLine2.Modify();
                 until JobJnlLine2.Next() = 0;
             end else begin
@@ -337,6 +342,15 @@ codeunit 1013 "Job Jnl.-Post Batch"
             end;
 
         NoSeriesBatch.SaveState();
+    end;
+
+    local procedure UpdateUnitCostAndPrice(var JobJournalLine: Record "Job Journal Line"; UnitCost: Decimal; UnitPrice: Decimal)
+    begin
+        if (UnitCost = 0) and (UnitPrice = 0) then
+            exit;
+
+        JobJournalLine."Unit Cost" := UnitCost;
+        JobJournalLine."Unit Price" := UnitPrice;
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
