@@ -897,7 +897,8 @@ codeunit 99000778 OrderTrackingManagement
                         else
                             OnDerivePlanningFilterOnSetRequisitionLineFilters(ToReservEntry, FilterReqLine, OK);
                     end;
-            end;
+            end else
+                OnDerivePlanningFilterOnCheckReservationSourceTypeElse(FromReservEntry, ToReservEntry, OK);
         end;
     end;
 
@@ -966,6 +967,11 @@ codeunit 99000778 OrderTrackingManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnOrderTrackingEntryExistsOnBeforeFindTrackingEntry(var TempOrderTrackingEntry: Record "Order Tracking Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDerivePlanningFilterOnCheckReservationSourceTypeElse(var FromReservationEntry: Record "Reservation Entry"; var ToReservationEntry: Record "Reservation Entry"; var IsOK: Boolean)
     begin
     end;
 }
