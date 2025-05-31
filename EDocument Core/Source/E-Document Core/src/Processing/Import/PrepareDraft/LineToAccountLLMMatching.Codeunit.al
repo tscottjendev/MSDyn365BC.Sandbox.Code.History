@@ -4,12 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument.Processing.Import;
 
+using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
-using System.Azure.KeyVault;
 using Microsoft.Finance.GeneralLedger.Account;
 using System.AI;
+using System.Azure.KeyVault;
 using System.Telemetry;
-using Microsoft.eServices.EDocument;
 
 codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
 {
@@ -24,6 +24,7 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         InstrPromptSNameLbl: label 'EDocMatchLineToGLAccount', Locked = true;
         ExceededTokenThresholdTxt: label 'Not calling LLM, token count too high.', Locked = true;
         ExceededTokenThresholdGLAccErr: label 'The list of direct-posting income statement general ledger accounts in your database is too long to send to Copilot with the purpose of matching with invoice lines.';
+        FeatureNameTxt: label 'E-Document Matching Assistance', Locked = true;
 
     procedure GetPurchaseLineAccountsWithCopilot(var EDocumentPurchaseLine: Record "E-Document Purchase Line"): Dictionary of [Integer, Code[20]]
     var
@@ -47,6 +48,8 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         if EDocumentPurchaseLine.IsEmpty() then
             exit(Result);
         Clear(Result);
+        if not EDocument.Get(EDocumentPurchaseLine."E-Document Entry No.") then
+            exit(Result);
 
         // Build prompt
         FindGLAccountsPromptSecTxt := BuildMostAppropriateGLAccountPromptTask();
@@ -267,7 +270,7 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
 
     local procedure FeatureName(): Text
     begin
-        exit('Payables Agent')
+        exit(FeatureNameTxt)
     end;
 
     procedure GetPrompt(): JsonObject
