@@ -171,6 +171,9 @@ table 5900 "Service Header"
                         end;
                     end;
 
+                if "No." = '' then
+                    InitRecord();
+
                 GetCust("Customer No.");
                 if "Customer No." <> '' then begin
                     IsHandled := false;
@@ -4203,8 +4206,11 @@ table 5900 "Service Header"
 
     local procedure InitPostingDate()
     begin
-        "Posting Date" := WorkDate();
-        "Document Date" := WorkDate();
+        if "Posting Date" = 0D then
+            "Posting Date" := WorkDate();
+
+        if "Document Date" = 0D then
+            "Document Date" := WorkDate();
 
         OnAfterInitPostingDate(Rec);
     end;
