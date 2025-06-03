@@ -981,8 +981,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
         SupplyExists: Boolean;
         CanBeRescheduled: Boolean;
         ItemInventoryExists: Boolean;
+        SkipMatchingAttributes: Boolean;
     begin
-        if CheckDemandAndSupplyQuantityAreEqual(SupplyInvtProfile, DemandInvtProfile) then
+        SkipMatchingAttributes := false;
+        OnBeforeMatchAttributes(SupplyInvtProfile, DemandInvtProfile, SkipMatchingAttributes);
+        if SkipMatchingAttributes then
             exit;
 
         xDemandInvtProfile.CopyFilters(DemandInvtProfile);
@@ -1098,30 +1101,6 @@ codeunit 99000854 "Inventory Profile Offsetting"
         SupplyInvtProfile.CopyFilters(xSupplyInvtProfile);
 
         OnAfterMatchAttributes(SupplyInvtProfile, DemandInvtProfile, TempTrkgReservEntry);
-    end;
-
-    local procedure CheckDemandAndSupplyQuantityAreEqual(var SupplyInvtProfile: Record "Inventory Profile"; var DemandInvtProfile: Record "Inventory Profile"): Boolean
-    var
-        TotalDemandQty: Decimal;
-        TotalSupplyQty: Decimal;
-    begin
-        if (SupplyInvtProfile."Source Type" <> 5406) or // Database::"Prod. Order Line"
-           (DemandInvtProfile."Source Type" <> 5407) // Database::"Prod. Order Component"
-        then
-            exit(false);
-
-        if DemandInvtProfile.FindSet() then
-            repeat
-                TotalDemandQty += DemandInvtProfile.Quantity;
-            until DemandInvtProfile.Next() = 0;
-
-        if SupplyInvtProfile.FindSet() then
-            repeat
-                TotalSupplyQty += SupplyInvtProfile.Quantity;
-            until SupplyInvtProfile.Next() = 0;
-
-        if TotalSupplyQty = TotalDemandQty then
-            exit(true);
     end;
 
     local procedure DecreaseQtyForMaxQty(var SupplyInvtProfile: Record "Inventory Profile"; ReduceQty: Decimal)
@@ -6131,6 +6110,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnAdjustTransferDatesOnAfterInboundWhseTimeSet(var TransferRequisitionLine: Record "Requisition Line"; var Location: Record Location; var InboundWhseTime: DateFormula)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMatchAttributes(var SupplyInvtProfile: Record "Inventory Profile"; var DemandInvtProfile: Record "Inventory Profile"; var SkipMatchingAttributes: Boolean)
     begin
     end;
 }
