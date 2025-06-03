@@ -143,13 +143,14 @@ codeunit 5923 "Service-Quote to Order"
         ServOrderHeader."Starting Time" := 0T;
         ServOrderHeader."Finishing Date" := 0D;
         ServOrderHeader."Finishing Time" := 0T;
+        ServOrderHeader."Posting Date" := 0D;
 
         IsHandled := false;
         OnMakeOrderOnBeforeTestNoSeries(ServOrderHeader, IsHandled);
         if not IsHandled then begin
             TestNoSeries();
             ServOrderHeader."No. Series" := GetNoSeriesCode();
-                ServOrderHeader."No." := NoSeries.GetNextNo(ServOrderHeader."No. Series");
+            ServOrderHeader."No." := NoSeries.GetNextNo(ServOrderHeader."No. Series");
 
             ServOrderHeader."Quote No." := ServiceHeader."No.";
         end;
