@@ -201,6 +201,9 @@ table 6101 "E-Document Purchase Line"
         {
             Clustered = true;
         }
+        key(Key1; "[BC] Purchase Type No.")
+        {
+        }
     }
 
     var

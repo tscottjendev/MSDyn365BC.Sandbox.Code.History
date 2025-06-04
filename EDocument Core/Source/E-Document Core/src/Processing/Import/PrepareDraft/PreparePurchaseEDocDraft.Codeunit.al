@@ -39,8 +39,10 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
 
         EDocumentPurchaseHeader.GetFromEDocument(EDocument);
         EDocumentPurchaseHeader.TestField("E-Document Entry No.");
-        Vendor := GetVendor(EDocument, EDocImportParameters."Processing Customizations");
-        EDocumentPurchaseHeader."[BC] Vendor No." := Vendor."No.";
+        if EDocumentPurchaseHeader."[BC] Vendor No." = '' then begin
+            Vendor := GetVendor(EDocument, EDocImportParameters."Processing Customizations");
+            EDocumentPurchaseHeader."[BC] Vendor No." := Vendor."No.";
+        end;
 
         PurchaseOrder := IPurchaseOrderProvider.GetPurchaseOrder(EDocumentPurchaseHeader);
         if PurchaseOrder."No." <> '' then begin
@@ -54,6 +56,7 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         EDocumentPurchaseHeader.Modify();
 
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
+        EDocumentPurchaseLine.SetFilter("[BC] Purchase Type No.", '=%1', '');
         if EDocumentPurchaseLine.FindSet() then
             repeat
                 // Look up based on text-to-account mapping
@@ -72,7 +75,7 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         EDocumentPurchaseLine.MarkedOnly(true);
 
         // Ask Copilot to try to match the marked ones (those that are not matched yet)
-        if CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
+        if (not EDocumentPurchaseLine.IsEmpty()) and CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
             if CopilotCapability.IsCapabilityActive(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
                 LineToAccountLLMMatching.GetPurchaseLineAccountsWithCopilot(EDocumentPurchaseLine);
 
