@@ -305,6 +305,11 @@ codeunit 6104 "Import E-Document Process"
         exit(TermsAndConditionsTxt);
     end;
 
+    internal procedure GetStep(): Enum "Import E-Document Steps"
+    begin
+        exit(Step);
+    end;
+
     var
         EDocument: Record "E-Document";
         EDocImportParameters: Record "E-Doc. Import Parameters";

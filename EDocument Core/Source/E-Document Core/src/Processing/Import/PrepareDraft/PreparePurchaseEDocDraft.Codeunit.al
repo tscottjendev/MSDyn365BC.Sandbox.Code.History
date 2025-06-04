@@ -17,6 +17,9 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
 {
     Access = Internal;
 
+    var
+        EDocImpSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
+
     procedure PrepareDraft(EDocument: Record "E-Document"; EDocImportParameters: Record "E-Doc. Import Parameters"): Enum "E-Document Type"
     var
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
@@ -45,6 +48,7 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         end;
 
         PurchaseOrder := IPurchaseOrderProvider.GetPurchaseOrder(EDocumentPurchaseHeader);
+
         if PurchaseOrder."No." <> '' then begin
             PurchaseOrder.TestField("Document Type", "Purchase Document Type"::Order);
             EDocumentPurchaseHeader."[BC] Purchase Order No." := PurchaseOrder."No.";
@@ -55,6 +59,8 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
             EDocPurchaseHistMapping.UpdateMissingHeaderValuesFromHistory(EDocVendorAssignmentHistory, EDocumentPurchaseHeader);
         EDocumentPurchaseHeader.Modify();
 
+        // If we cant find a vendor 
+        EDocImpSessionTelemetry.SetBool('Vendor', EDocumentPurchaseHeader."[BC] Vendor No." <> '');
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
         EDocumentPurchaseLine.SetFilter("[BC] Purchase Type No.", '=%1', '');
         if EDocumentPurchaseLine.FindSet() then

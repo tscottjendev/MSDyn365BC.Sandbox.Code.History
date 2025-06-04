@@ -37,9 +37,11 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         AOAIChatMessages: Codeunit "AOAI Chat Messages";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         AOAIToken: Codeunit "AOAI Token";
+        EDocImpSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
         TelemetryCustomDimensions: Dictionary of [Text, Text];
         FindGLAccountsPromptSecTxt: SecretText;
         EDocumentPurchaseLinesTxt: Text;
+        SuccessfulAssignment: Boolean;
         GLAccountsTxt: Text;
         LinesMatched: Integer;
         EstimateTokenCount, EstimateGLAccInstrTokenCount : Integer;
@@ -109,11 +111,15 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         if Result.Count() > 0 then
             if EDocumentPurchaseLine.FindSet() then
                 repeat
-                    if Result.ContainsKey(EDocumentPurchaseLine."Line No.") then
-                        if SetPurchaseLineAccountFromCopilotResult(EDocumentPurchaseLine, Result.Get(EDocumentPurchaseLine."Line No.")) then begin
+                    EDocImpSessionTelemetry.SetLineBool(EDocumentPurchaseLine.SystemId, 'GL Acc. CM', Result.ContainsKey(EDocumentPurchaseLine."Line No."));
+                    if Result.ContainsKey(EDocumentPurchaseLine."Line No.") then begin
+                        SuccessfulAssignment := SetPurchaseLineAccountFromCopilotResult(EDocumentPurchaseLine, Result.Get(EDocumentPurchaseLine."Line No."));
+                        if SuccessfulAssignment then begin
                             EDocumentPurchaseLine.Modify();
                             LinesMatched += 1;
                         end;
+                        EDocImpSessionTelemetry.SetLineBool(EDocumentPurchaseLine.SystemId, 'GL Acc. CM Assigned', SuccessfulAssignment);
+                    end;
                 until EDocumentPurchaseLine.Next() = 0;
 
         TelemetryCustomDimensions.Add('Category', FeatureName());

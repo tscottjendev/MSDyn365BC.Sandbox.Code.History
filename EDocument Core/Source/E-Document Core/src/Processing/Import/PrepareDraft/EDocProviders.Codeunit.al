@@ -81,6 +81,7 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
         ItemReference: Record "Item Reference";
         EDocument: Record "E-Document";
         TextToAccountMapping: Record "Text-to-Account Mapping";
+        EDocImpSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
         VendorNo: Code[20];
         FilterInvalidCharTxt: Label '(&)', Locked = true;
     begin
@@ -94,6 +95,7 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
             EDocumentPurchaseLine.Validate("[BC] Unit of Measure", ItemReference."Unit of Measure");
             EDocumentPurchaseLine.Validate("[BC] Variant Code", ItemReference."Variant Code");
             EDocumentPurchaseLine.Validate("[BC] Item Reference No.", ItemReference."Reference No.");
+            EDocImpSessionTelemetry.SetLineBool(EDocumentPurchaseLine.SystemId, 'Item Reference ', true);
             exit;
         end;
 
@@ -102,6 +104,7 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
         if TextToAccountMapping.FindFirst() then begin
             EDocumentPurchaseLine."[BC] Purchase Line Type" := "Purchase Line Type"::"G/L Account";
             EDocumentPurchaseLine.Validate("[BC] Purchase Type No.", TextToAccountMapping."Debit Acc. No.");
+            EDocImpSessionTelemetry.SetLineBool(EDocumentPurchaseLine.SystemId, 'Text To Account Mapping', true);
             exit;
         end;
     end;
