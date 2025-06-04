@@ -196,7 +196,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
 
         FinalizePosting();
         UpdateAndDeleteLines();
-        OnAfterPostJnlLines(JobJnlBatch, JobJnlLine, JobRegNo);
+        OnAfterPostJnlLines(JobJnlBatch, JobJnlLine, JobRegNo, SuppressCommit);
 
         if not SuppressCommit then
             Commit();
@@ -372,7 +372,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostJnlLines(var JobJournalBatch: Record "Job Journal Batch"; var JobJournalLine: Record "Job Journal Line"; JobRegNo: Integer)
+    local procedure OnAfterPostJnlLines(var JobJournalBatch: Record "Job Journal Batch"; var JobJournalLine: Record "Job Journal Line"; JobRegNo: Integer; var SuppressCommit: Boolean)
     begin
     end;
 
