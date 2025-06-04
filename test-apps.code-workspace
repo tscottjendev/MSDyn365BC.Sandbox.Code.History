@@ -172,6 +172,9 @@
       "path": "./LatePaymentPredictor/Test/Late Payment Prediction Tests"
     },
     {
+      "path": "./ServiceManagement/Test/Service Management Tests"
+    },
+    {
       "path": "./BaseApp/Test/Tests-Bank"
     },
     {
