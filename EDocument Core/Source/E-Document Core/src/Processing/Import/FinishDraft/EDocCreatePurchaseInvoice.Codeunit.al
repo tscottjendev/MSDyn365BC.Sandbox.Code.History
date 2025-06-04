@@ -114,7 +114,8 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
 
                 PurchaseLine.Validate(Quantity, EDocumentPurchaseLine.Quantity);
                 PurchaseLine.Validate("Direct Unit Cost", EDocumentPurchaseLine."Unit Price");
-                PurchaseLine.Validate("Line Discount Amount", EDocumentPurchaseLine."Total Discount");
+                if EDocumentPurchaseLine."Total Discount" > 0 then
+                    PurchaseLine.Validate("Line Discount Amount", EDocumentPurchaseLine."Total Discount");
                 PurchaseLine.Validate("Deferral Code", EDocumentPurchaseLine."[BC] Deferral Code");
                 PurchaseLine.Validate("Dimension Set ID", EDocumentPurchaseLine."[BC] Dimension Set ID");
                 PurchaseLine.Validate("Shortcut Dimension 1 Code", EDocumentPurchaseLine."[BC] Shortcut Dimension 1 Code");
