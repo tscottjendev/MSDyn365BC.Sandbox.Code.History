@@ -18,14 +18,13 @@ codeunit 144002 "MX CFDI 2"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
-        SATUtilities: Codeunit "SAT Utilities";
+        LibraryCFDI: Codeunit "Library - CFDI";
         IsInitialized: Boolean;
         CFDIExportCodeGlobal: Code[10];
         CFDIPurposeGlobal: Code[10];
         CFDIRelationGlobal: Code[10];
         PaymentMethodCodeGlobal: Code[10];
         PaymentTermsCodeGlobal: Code[10];
-        PACWebServiceCodeGlobal: Code[20];
         ResponseOption: Option Success,Error;
         EInvSendAction: Option "Request Stamp",Send,"Request Stamp and Send",Cancel;
         NamespaceCFD4Txt: Label 'http://www.sat.gob.mx/cfd/4';
@@ -96,129 +95,30 @@ codeunit 144002 "MX CFDI 2"
         if isInitialized then
             exit;
 
-        CFDIExportCodeGlobal := CreateCFDIExportCode();
-        CFDIPurposeGlobal := CreateCFDIPurpose();
-        CFDIRelationGlobal := CreateCFDIRelation();
-        PaymentMethodCodeGlobal := CreatePaymentMethodForSAT();
-        PaymentTermsCodeGlobal := CreatePaymentTermsForSAT();
+        CFDIExportCodeGlobal := LibraryCFDI.CreateCFDIExportCode();
+        CFDIPurposeGlobal := LibraryCFDI.CreateCFDIPurpose();
+        CFDIRelationGlobal := LibraryCFDI.CreateCFDIRelation();
+        PaymentMethodCodeGlobal := LibraryCFDI.CreatePaymentMethodForSAT();
+        PaymentTermsCodeGlobal := LibraryCFDI.CreatePaymentTermsForSAT();
 
         SetupCFDI();
-        SetupCompanyInformation();
+        LibraryCFDI.SetupCompanyInformation();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
 
-        SATUtilities.PopulateSATInformation();
+        LibraryCFDI.PopulateSATInformation();
 
         isInitialized := true;
         Commit();
     end;
 
     local procedure SetupCFDI()
-    begin
-        CreatePACService();
-        InitGLSetup();
-        SetupReportSelection();
-    end;
-
-    local procedure CreatePACService()
     var
-        PACWebService: Record "PAC Web Service";
-        PACWebServiceDetail: Record "PAC Web Service Detail";
+        PACWebServiceCode: Code[10];
     begin
-        PACWebService.Init();
-        PACWebService.Validate(Code, LibraryUtility.GenerateRandomCode(PACWebService.FieldNo(Code), DATABASE::"PAC Web Service"));
-        PACWebService.Validate(Name, PACWebService.Code);
-        PACWebService.Certificate := CreateIsolatedCertificate();
-        PACWebService.Insert(true);
-
-        PACWebServiceDetail.Init();
-        PACWebServiceDetail.Validate("PAC Code", PACWebService.Code);
-        PACWebServiceDetail.Validate(Environment, PACWebServiceDetail.Environment::Test);
-
-        PACWebServiceDetail.Validate("Method Name", LibraryUtility.GenerateRandomCode(PACWebServiceDetail.FieldNo("Method Name"), DATABASE::"PAC Web Service Detail"));
-        PACWebServiceDetail.Validate(Address, LibraryUtility.GenerateRandomCode(PACWebServiceDetail.FieldNo(Address), DATABASE::"PAC Web Service Detail"));
-
-        PACWebServiceDetail.Validate(Type, PACWebServiceDetail.Type::"Request Stamp");
-        PACWebServiceDetail.Insert(true);
-
-        PACWebServiceDetail.Validate(Type, PACWebServiceDetail.Type::Cancel);
-        PACWebServiceDetail.Insert(true);
-
-        PACWebServiceCodeGlobal := PACWebService.Code;
-    end;
-
-    local procedure InitGLSetup()
-    var
-        GLSetup: Record "General Ledger Setup";
-        PACWebServiceDetail: Record "PAC Web Service Detail";
-    begin
-        GLSetup.Get();
-        GLSetup.Validate("PAC Code", PACWebServiceCodeGlobal);
-        GLSetup.Validate("PAC Environment", PACWebServiceDetail.Environment::Test);
-        GLSetup.Validate("Sim. Signature", true);
-        GLSetup.Validate("Sim. Send", true);
-        GLSetup.Validate("Sim. Request Stamp", true);
-        GLSetup.Validate("Send PDF Report", true);
-        GLSetup."SAT Certificate" := CreateIsolatedCertificate();
-        GLSetup."CFDI Enabled" := true;
-        GLSetup.Modify(true);
-    end;
-
-    local procedure SetupReportSelection()
-    var
-        ReportSelections: Record "Report Selections";
-    begin
-        CreateReportSelection(ReportSelections.Usage::"S.Invoice", 10477);
-        CreateReportSelection(ReportSelections.Usage::"S.Cr.Memo", 10476);
-        CreateReportSelection(ReportSelections.Usage::"SM.Invoice", 10479);
-        CreateReportSelection(ReportSelections.Usage::"SM.Credit Memo", 10478);
-    end;
-
-    local procedure SetupCompanyInformation()
-    var
-        CompanyInformation: Record "Company Information";
-        PostCode: Record "Post Code";
-    begin
-        PostCode.SetFilter(City, '<>%1', '');
-        PostCode.SetFilter("Country/Region Code", '<>%1', '');
-        PostCode.FindFirst();
-
-        CompanyInformation.Get();
-        CompanyInformation.Validate("RFC Number", GetRFCNo());
-        CompanyInformation.Validate("Country/Region Code", PostCode."Country/Region Code");
-        CompanyInformation.Validate(City, PostCode.City);
-        CompanyInformation.Validate("Post Code", PostCode.Code);
-        CompanyInformation.Validate("SAT Postal Code", Format(LibraryRandom.RandIntInRange(10000, 99999)));
-        CompanyInformation.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
-        CompanyInformation.Validate("Tax Scheme", LibraryUtility.GenerateGUID());
-        CompanyInformation."SAT Tax Regime Classification" :=
-            LibraryUtility.GenerateRandomCode(CompanyInformation.FieldNo("SAT Tax Regime Classification"), DATABASE::"Company Information");
-        CompanyInformation.Modify(true);
-    end;
-
-    local procedure CreateReportSelection(UsageOption: Enum "Report Selection Usage"; ReportID: Integer)
-    var
-        ReportSelections: Record "Report Selections";
-    begin
-        ReportSelections.SetRange(Usage, UsageOption);
-        ReportSelections.DeleteAll(true);
-        ReportSelections.Init();
-        ReportSelections.Validate(Usage, UsageOption);
-        ReportSelections.Validate(Sequence, '1');
-        ReportSelections.Validate("Report ID", ReportID);
-        ReportSelections.Validate("Use for Email Attachment", true);
-        ReportSelections.Insert(true);
-    end;
-
-    local procedure CreateIsolatedCertificate(): Code[20]
-    var
-        IsolatedCertificate: Record "Isolated Certificate";
-    begin
-        IsolatedCertificate.Code := LibraryUtility.GenerateGUID();
-        IsolatedCertificate.Name := LibraryUtility.GenerateGUID();
-        IsolatedCertificate.ThumbPrint := IsolatedCertificate.Code;
-        IsolatedCertificate.Insert();
-        exit(IsolatedCertificate.Code);
+        PACWebServiceCode := LibraryCFDI.CreatePACService();
+        LibraryCFDI.InitGLSetup(PACWebServiceCode);
+        LibraryCFDI.SetupReportSelection();
     end;
 
     local procedure CreateSalesDocForeignTrade(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
@@ -237,7 +137,7 @@ codeunit 144002 "MX CFDI 2"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
-        Customer.Validate("RFC No.", GetRFCNo());
+        Customer.Validate("RFC No.", LibraryCFDI.GetRFCNo());
         Customer.Validate("Country/Region Code", GetCountryRegion());
         Customer."SAT Tax Regime Classification" :=
             LibraryUtility.GenerateRandomCode(Customer.FieldNo("SAT Tax Regime Classification"), DATABASE::Customer);
@@ -313,32 +213,6 @@ codeunit 144002 "MX CFDI 2"
         exit(Item."No.");
     end;
 
-    local procedure CreatePaymentMethodForSAT(): Code[10]
-    var
-        PaymentMethod: Record "Payment Method";
-        SATPaymentMethod: Record "SAT Payment Method";
-    begin
-        LibraryERM.CreatePaymentMethod(PaymentMethod);
-        PaymentMethod."SAT Method of Payment" := PaymentMethod.Code;
-        PaymentMethod.Modify();
-        SATPaymentMethod.Code := PaymentMethod."SAT Method of Payment";
-        SATPaymentMethod.Insert();
-        exit(PaymentMethod.Code);
-    end;
-
-    local procedure CreatePaymentTermsForSAT(): Code[10]
-    var
-        PaymentTerms: Record "Payment Terms";
-        SATPaymentTerm: Record "SAT Payment Term";
-    begin
-        LibraryERM.CreatePaymentTerms(PaymentTerms);
-        PaymentTerms."SAT Payment Term" := PaymentTerms.Code;
-        PaymentTerms.Modify();
-        SATPaymentTerm.Code := PaymentTerms."SAT Payment Term";
-        SATPaymentTerm.Insert();
-        exit(PaymentTerms.Code);
-    end;
-
     local procedure CreateSATAddress(): Integer
     var
         SATAddress: Record "SAT Address";
@@ -359,41 +233,6 @@ codeunit 144002 "MX CFDI 2"
         SATAddress."Country/Region Code" := 'TEST';
         SATAddress.Insert();
         exit(SATAddress.Id);
-    end;
-
-    local procedure CreateCFDIExportCode(): Code[10]
-    var
-        CFDIExportCode: Record "CFDI Export Code";
-    begin
-        CFDIExportCode.Code := '01';
-        if CFDIExportCode.Insert() then;
-        exit(CFDIExportCode.Code);
-    end;
-
-    local procedure CreateCFDIPurpose(): Code[10]
-    var
-        SATUseCode: Record "SAT Use Code";
-    begin
-        SATUseCode.Init();
-        SATUseCode."SAT Use Code" := LibraryUtility.GenerateRandomCode(SATUseCode.FieldNo("SAT Use Code"), DATABASE::"SAT Use Code");
-        SATUseCode.Insert();
-        exit(SATUseCode."SAT Use Code");
-    end;
-
-    local procedure CreateCFDIRelation(): Code[10]
-    var
-        SATRelationshipType: Record "SAT Relationship Type";
-    begin
-        SATRelationshipType.Init();
-        SATRelationshipType."SAT Relationship Type" :=
-            LibraryUtility.GenerateRandomCode(SATRelationshipType.FieldNo("SAT Relationship Type"), DATABASE::"SAT Relationship Type");
-        SATRelationshipType.Insert();
-        exit(SATRelationshipType."SAT Relationship Type");
-    end;
-
-    local procedure GetRFCNo(): Text[12]
-    begin
-        exit('AA' + LibraryUtility.GenerateGUID());
     end;
 
     local procedure GetCountryRegion(): Code[10]
