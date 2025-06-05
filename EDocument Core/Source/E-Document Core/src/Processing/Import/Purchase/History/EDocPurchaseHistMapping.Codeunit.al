@@ -22,6 +22,7 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
     InherentPermissions = X;
 
     var
+        EDocImpSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
         WrongVariantTypeErr: Label 'Only record types are allowed.';
 
     procedure FindRelatedPurchaseHeaderInHistory(EDocument: Record "E-Document"; var EDocVendorAssignmentHistory: Record "E-Doc. Vendor Assign. History"): Boolean
@@ -70,8 +71,10 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
         if not PurchInvHeader.GetBySystemId(EDocVendorAssignmentHistory."Purch. Inv. Header SystemId") then
             exit;
         if EDocPurchaseHeader."[BC] Vendor No." = '' then
-            if Vendor.Get(PurchInvHeader."Buy-from Vendor No.") then
+            if Vendor.Get(PurchInvHeader."Buy-from Vendor No.") then begin
                 EDocPurchaseHeader."[BC] Vendor No." := Vendor."No.";
+                EDocImpSessionTelemetry.SetBool('Vendor history', true);
+            end;
     end;
 
     procedure FindRelatedPurchaseLineInHistory(VendorNo: Code[20]; EDocumentPurchaseLine: Record "E-Document Purchase Line"; var EDocPurchaseLineHistory: Record "E-Doc. Purchase Line History"): Boolean
@@ -146,6 +149,8 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
                 EDocumentPurchaseLine."[BC] Purchase Type No." := PurchInvLine."No.";
         if EDocPurchaseLineHistory."Entry No." <> 0 then
             EDocumentPurchaseLine."E-Doc. Purch. Line History Id" := EDocPurchaseLineHistory."Entry No.";
+
+        EDocImpSessionTelemetry.SetLineBool(EDocumentPurchaseLine.SystemId, 'Line History', true);
     end;
 
     /// <summary>
