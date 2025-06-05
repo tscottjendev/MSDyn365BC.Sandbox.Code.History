@@ -11660,6 +11660,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - a date value]D;]A;(LookupHint=Codeunit Test Price Calculation - V16 - NamedType GetPriceOutOfDateErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 616764730 - NamedType 573590019" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Line Discount % must be %1 in %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Line Discount % value, %2 = Service Line]D;]A;(LookupHint=Codeunit Test Price Calculation - V16 - NamedType LineDiscPctErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 616764730 - NamedType 812739044" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The quantity in the line is below the minimum quantity of the picked price list line.]]></Val>
