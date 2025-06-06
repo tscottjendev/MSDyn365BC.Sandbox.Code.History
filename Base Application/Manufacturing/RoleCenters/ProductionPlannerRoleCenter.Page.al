@@ -171,13 +171,26 @@ page 9010 "Production Planner Role Center"
                     RunObject = Report "Detailed Calculation";
                     ToolTip = 'View a cost list per item taking into account the scrap.';
                 }
+#if not CLEAN27
                 action("P&roduction Order - Calculation")
                 {
                     ApplicationArea = Manufacturing;
-                    Caption = 'P&roduction Order - Calculation';
+                    Caption = 'P&roduction Order - Calculation (Obsolete)';
                     Image = "Report";
                     RunObject = Report "Prod. Order - Calculation";
                     ToolTip = 'View a list of the production orders and their costs, such as expected operation costs, expected component costs, and total costs.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report has been replaced by the "Production Order Statistics" report and will be removed in a future release.';
+                    ObsoleteTag = '27.0';
+                }
+#endif
+                action("Production Order Statistics")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Production Order Statistics';
+                    Image = "Report";
+                    RunObject = report "Production Order Statistics";
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
                 action("Sta&tus")
                 {
