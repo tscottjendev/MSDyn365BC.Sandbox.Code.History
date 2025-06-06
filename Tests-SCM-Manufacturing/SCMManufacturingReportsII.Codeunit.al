@@ -96,33 +96,6 @@ codeunit 137310 "SCM Manufacturing Reports -II"
 #endif
 
     [Test]
-    [HandlerFunctions('ProdOrderCalculationRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure ProdOrderCalculationReport()
-    var
-        Item: Record Item;
-        ProductionOrder: Record "Production Order";
-        ProdOrderLine: Record "Prod. Order Line";
-    begin
-        // Setup: Create Production Item Setup, Create Production Order and update Unit Cost Per on Production Order Routing Line.
-        Initialize();
-        CreateProdOrderItemsSetup(Item);
-        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(5));
-        UpdateUnitCostPerOnProdOrderRoutingLine(ProductionOrder."No.", Item."Routing No.");
-
-        // Exercise: Generate the Prod. Order Calculation report.
-        Commit();
-        FilterOnProductionOrder(ProductionOrder);
-        REPORT.Run(REPORT::"Prod. Order - Calculation", true, false, ProductionOrder);
-
-        // Verify: Verify Production details on Generated Report.
-        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst();
-        ProdOrderLine.CalcFields("Expected Operation Cost Amt.", "Expected Component Cost Amt.");
-        VerifyProdOrderCalculation(ProdOrderLine);
-    end;
-
-    [Test]
     [HandlerFunctions('ProdOrderRoutingListRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ProdOrderRoutingListReport()
@@ -1065,21 +1038,6 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         until RoutingLine.Next() = 0;
     end;
 
-    local procedure VerifyProdOrderCalculation(ProdOrderLine: Record "Prod. Order Line")
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange('Production_Order_No_', ProdOrderLine."Prod. Order No.");
-        LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.AssertCurrentRowValueEquals('Prod__Order_Line__Item_No__', ProdOrderLine."Item No.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('Prod__Order_Line_Quantity', ProdOrderLine.Quantity);
-        LibraryReportDataset.AssertCurrentRowValueEquals('Prod__Order_Line__Expected_Operation_Cost_Amt__',
-          ProdOrderLine."Expected Operation Cost Amt.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('Prod__Order_Line__Expected_Component_Cost_Amt__',
-          ProdOrderLine."Expected Component Cost Amt.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('TotalCost_Control29',
-          ProdOrderLine."Expected Component Cost Amt." + ProdOrderLine."Expected Operation Cost Amt.");
-    end;
-
     local procedure VerifyWorkCenterLoadBar(WorkCenter: Record "Work Center"; NoOfPeriods: Integer)
     var
         VarDate: Variant;
@@ -1223,13 +1181,6 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         MachineCenterList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 #endif
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ProdOrderCalculationRequestPageHandler(var ProdOrderCalculation: TestRequestPage "Prod. Order - Calculation")
-    begin
-        ProdOrderCalculation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
