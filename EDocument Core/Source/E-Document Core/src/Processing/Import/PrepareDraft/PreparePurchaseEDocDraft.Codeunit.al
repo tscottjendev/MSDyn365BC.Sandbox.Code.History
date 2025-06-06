@@ -61,6 +61,9 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
 
         // If we cant find a vendor 
         EDocImpSessionTelemetry.SetBool('Vendor', EDocumentPurchaseHeader."[BC] Vendor No." <> '');
+        if EDocumentPurchaseHeader."[BC] Vendor No." = '' then
+            exit;
+
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
         EDocumentPurchaseLine.SetFilter("[BC] Purchase Type No.", '=%1', '');
         if EDocumentPurchaseLine.FindSet() then

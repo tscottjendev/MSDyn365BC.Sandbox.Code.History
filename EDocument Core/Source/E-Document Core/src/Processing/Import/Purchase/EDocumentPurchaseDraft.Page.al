@@ -60,7 +60,8 @@ page 6181 "E-Document Purchase Draft"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            LookupVendor();
+                            if LookupVendor() then
+                                PrepareDraft();
                         end;
                     }
                     field("Vendor Name"; EDocumentPurchaseHeader."Vendor Company Name")
@@ -375,7 +376,7 @@ page 6181 "E-Document Purchase Draft"
         ErrorsAndWarningsNotification.Send();
     end;
 
-    local procedure LookupVendor()
+    local procedure LookupVendor(): Boolean
     var
         Vendor: Record Vendor;
         VendorList: Page "Vendor List";
@@ -385,6 +386,7 @@ page 6181 "E-Document Purchase Draft"
             VendorList.GetRecord(Vendor);
             EDocumentPurchaseHeader."[BC] Vendor No." := Vendor."No.";
             EDocumentPurchaseHeader.Modify();
+            exit(true);
         end;
     end;
 
@@ -442,6 +444,26 @@ page 6181 "E-Document Purchase Draft"
         // Regardless of document state, we re-run the read data into IR, then prepare draft step.
         EDocImportParameters."Step to Run" := Enum::"Import E-Document Steps"::"Read into Draft";
         EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+        EDocImportParameters."Step to Run" := Enum::"Import E-Document Steps"::"Prepare draft";
+        EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+
+        Rec.Get(Rec."Entry No");
+        if GuiAllowed() then
+            Progress.Close();
+    end;
+
+    local procedure PrepareDraft()
+    var
+        EDocImportParameters: Record "E-Doc. Import Parameters";
+        EDocImport: Codeunit "E-Doc. Import";
+        EDocumentHelper: Codeunit "E-Document Helper";
+        Progress: Dialog;
+    begin
+        if not EDocumentHelper.EnsureInboundEDocumentHasService(Rec) then
+            exit;
+        if GuiAllowed() then
+            Progress.Open(ProcessingDocumentMsg);
+
         EDocImportParameters."Step to Run" := Enum::"Import E-Document Steps"::"Prepare draft";
         EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
 
