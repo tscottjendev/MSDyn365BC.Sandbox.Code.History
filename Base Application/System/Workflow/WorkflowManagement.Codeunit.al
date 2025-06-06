@@ -292,6 +292,7 @@ codeunit 1501 "Workflow Management"
     var
         WorkflowRule: Record "Workflow Rule";
     begin
+        WorkflowStepInstance.ReadIsolation := WorkflowStepInstance.ReadIsolation::ReadUncommitted;
         WorkflowStepInstance.SetLoadFields(Argument, "Original Workflow Code", "Original Workflow Step ID");
         WorkflowStepInstance.SetRange("Function Name", FunctionName);
         WorkflowStepInstance.SetRange(Type, WorkflowStepInstance.Type::"Event");
