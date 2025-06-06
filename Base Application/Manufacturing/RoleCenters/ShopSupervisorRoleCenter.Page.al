@@ -113,13 +113,26 @@ page 9012 "Shop Supervisor Role Center"
             separator(Action42)
             {
             }
+#if not CLEAN27
             action("Production Order Ca&lculation")
             {
                 ApplicationArea = Manufacturing;
-                Caption = 'Production Order Ca&lculation';
+                Caption = 'Production Order Ca&lculation (Obsolete)';
                 Image = "Report";
                 RunObject = Report "Prod. Order - Calculation";
                 ToolTip = 'View a list of the production orders and their costs. Expected Operation Costs, Expected Component Costs and Total Costs are printed.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the "Production Order Statistics" report and will be removed in a future release.';
+                ObsoleteTag = '27.0';
+            }
+#endif
+            action("Production Order Statistics")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Production Order Statistics';
+                Image = "Report";
+                RunObject = report "Production Order Statistics";
+                ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
             }
             action("S&tatus")
             {
