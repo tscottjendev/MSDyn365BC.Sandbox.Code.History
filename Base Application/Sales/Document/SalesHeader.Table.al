@@ -6783,11 +6783,13 @@ table 36 "Sales Header"
         ShowDocumentStatisticsPage();
     end;
 #endif
+
     local procedure IsOrderDocument(): Boolean
     begin
         exit("Document Type" in ["Document Type"::Order, "Document Type"::"Blanket Order", "Document Type"::"Return Order"])
     end;
-
+#if not CLEAN27
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '27.0')]
     procedure GetStatisticsPageID(): Integer
     begin
         if "Tax Area Code" <> '' then begin
@@ -6802,6 +6804,7 @@ table 36 "Sales Header"
 
         exit(PAGE::"Sales Statistics");
     end;
+#endif
 
     /// <summary>
     /// Determines the available credit limit for the customer associated with the sales header.
