@@ -122,10 +122,7 @@ codeunit 60 "Sales-Calc. Discount"
         else
             CurrencyDate := SalesHeader."Posting Date";
 
-        CustInvDiscFound := false;
-
-        CustInvDisc.GetRec(
-          SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, ChargeBase, CustInvDiscFound);
+        CustInvDiscFound := CustInvDisc.GetRecord(SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, ChargeBase);
 
         OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(CustInvDisc, SalesHeader, CurrencyDate, ChargeBase);
         if CustInvDiscFound and (CustInvDisc."Service Charge" <> 0) then begin
@@ -185,8 +182,7 @@ codeunit 60 "Sales-Calc. Discount"
         OnCalculateInvoiceDiscountOnBeforeGetGLSetup(CustInvDisc, SalesHeader);
 
         GLSetup.Get();
-        if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines"
-        then
+        if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then
             SalesLine2.SetRange("Allow Invoice Disc.", true);
         if SalesLine2.Find('-') then begin
             if UpdateHeader then
@@ -272,8 +268,8 @@ codeunit 60 "Sales-Calc. Discount"
             ShouldGetCustInvDisc := InvDiscBase <> ChargeBase;
             OnAfterCustInvDiscRecExists(SalesHeader, CustInvDisc, InvDiscBase, ChargeBase, ShouldGetCustInvDisc);
             if ShouldGetCustInvDisc then
-                CustInvDisc.GetRec(
-                  SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, InvDiscBase, CustInvDiscFound);
+                CustInvDisc.GetRecord(
+                  SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, InvDiscBase);
 
             SalesSetup.Get();
             DiscountNotificationMgt.NotifyAboutMissingSetup(
@@ -353,7 +349,7 @@ codeunit 60 "Sales-Calc. Discount"
             exit(Result);
 
         CustInvDisc.SetRange(Code, InvDiscCode);
-        exit(CustInvDisc.FindFirst())
+        exit(CustInvDisc.FindFirst());
     end;
 
     procedure CalculateWithSalesHeader(var TempSalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line")

@@ -396,11 +396,11 @@ page 5977 "Posted Service Invoices"
 
                 trigger OnAction()
                 var
-                    PostedServInvoiceUpdate: Page "Posted Serv. Invoice - Update";
+                    PostedServiceInvUpdate: Page "Posted Service Inv. - Update";
                 begin
-                    PostedServInvoiceUpdate.LookupMode := true;
-                    PostedServInvoiceUpdate.SetRec(Rec);
-                    PostedServInvoiceUpdate.RunModal();
+                    PostedServiceInvUpdate.LookupMode := true;
+                    PostedServiceInvUpdate.SetRec(Rec);
+                    PostedServiceInvUpdate.RunModal();
                 end;
             }
         }
