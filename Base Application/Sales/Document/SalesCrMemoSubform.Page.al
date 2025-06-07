@@ -1171,12 +1171,12 @@ page 96 "Sales Cr. Memo Subform"
         if IsHandled then
             exit(Result);
 
-        if (Rec.Quantity <> 0) and Rec.ItemExists(Rec."No.") then begin
-            Commit();
-            if not SalesLineReserve.DeleteLineConfirm(Rec) then
-                exit(false);
-            SalesLineReserve.DeleteLine(Rec);
-        end;
+        if Rec.Quantity <> 0 then
+            if Rec.ItemExists(Rec."No.") then begin
+                if not SalesLineReserve.DeleteLineConfirm(Rec) then
+                    exit(false);
+                SalesLineReserve.DeleteLine(Rec);
+            end;
         DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 

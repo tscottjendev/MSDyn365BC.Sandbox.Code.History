@@ -482,6 +482,9 @@ codeunit 99000832 "Sales Line-Reserve"
         if not SalesLine.ReservEntryExist() then
             exit(true);
 
+        if GuiAllowed then
+            Commit();
+
         ReservationManagement.SetReservSource(SalesLine);
         if ReservationManagement.DeleteItemTrackingConfirm() then
             DeleteItemTracking := true;
