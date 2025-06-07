@@ -6,6 +6,7 @@
 namespace Microsoft.EServices.EDocument.Processing.Import;
 using Microsoft.Purchases.History;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
+using Microsoft.eServices.EDocument;
 
 page 6102 "E-Doc Line Values."
 {
@@ -50,7 +51,16 @@ page 6102 "E-Doc Line Values."
                 Caption = 'Configure additional fields';
                 ToolTip = 'Configure the additional fields to consider when importing an E-Document.';
                 Image = Setup;
-                RunObject = Page "EDoc Additional Fields Setup";
+
+                trigger OnAction()
+                var
+                    EDocument: Record "E-Document";
+                    EDocAdditionalFieldsSetup: Page "EDoc Additional Fields Setup";
+                begin
+                    EDocument.Get(Rec."E-Document Entry No.");
+                    EDocAdditionalFieldsSetup.SetEDocumentService(EDocument.GetEDocumentService());
+                    EDocAdditionalFieldsSetup.RunModal();
+                end;
             }
         }
     }

@@ -74,6 +74,13 @@ table 6110 "E-Document Line - Field"
             ToolTip = 'Specifies the custom integer value.';
             DataClassification = CustomerContent;
         }
+        field(10; "E-Document Service"; Code[20])
+        {
+            Caption = 'E-Document Service';
+            ToolTip = 'Specifies the E-Document Service that this field setup belongs to.';
+            FieldClass = FlowField;
+            CalcFormula = lookup("E-Document".Service where("Entry No" = field("E-Document Entry No.")));
+        }
     }
     keys
     {
