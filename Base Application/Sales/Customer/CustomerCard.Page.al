@@ -2314,11 +2314,16 @@ page 21 "Customer Card"
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        ClientTypeManagement: Codeunit "Client Type Management";
     begin
         if GuiAllowed() then
             OnAfterGetCurrRecordFunc()
         else
-            StartBackgroundCalculations();
+            if ClientTypeManagement.GetCurrentClientType() in [ClientType::ODataV4, ClientType::Api] then
+                OnAfterGetCurrRecordFuncOData()
+            else
+                StartBackgroundCalculations();
     end;
 
     local procedure OnAfterGetCurrRecordFunc()
@@ -2479,7 +2484,6 @@ page 21 "Customer Card"
 
         Session.LogMessage('0000D4Q', StrSubstNo(PageBckGrndTaskStartedTxt, Rec.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CustomerCardServiceCategoryTxt);
     end;
-
 
     trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
     var
@@ -2764,6 +2768,11 @@ page 21 "Customer Card"
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Initial Entry");
         DetailedCustLedgEntry.SetFilter("Posting Date", CustomerMgt.GetCurrentYearFilter());
         Page.Run(0, DetailedCustLedgEntry);
+    end;
+
+    local procedure OnAfterGetCurrRecordFuncOData()
+    begin
+        CustomerMgt.CalculateStatistic(Rec, AdjmtCostLCY, AdjCustProfit, AdjProfitPct, CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY, CustProfit);
     end;
 
     [IntegrationEvent(true, false)]
