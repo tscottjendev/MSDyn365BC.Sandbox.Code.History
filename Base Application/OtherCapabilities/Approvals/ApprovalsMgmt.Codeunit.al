@@ -2403,6 +2403,8 @@ codeunit 1535 "Approvals Mgmt."
                         Error('');
                 Database::"Gen. Journal Line":
                     Error(PreventDeleteRecordWithOpenApprovalEntryForSenderMsg);
+                else
+                    OnPreventDeletingRecordWithOpenApprovalEntryElseCase(RecRef, Variant);
             end;
     end;
 
@@ -2428,6 +2430,8 @@ codeunit 1535 "Approvals Mgmt."
                         end else
                             Error('');
                 end;
+            else
+                OnPreventInsertRecIfOpenApprovalEntryExistElseCase(RecRef, Variant);
         end;
     end;
 
@@ -3171,4 +3175,13 @@ codeunit 1535 "Approvals Mgmt."
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnPreventDeletingRecordWithOpenApprovalEntryElseCase(RecRef: RecordRef; Variant: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreventInsertRecIfOpenApprovalEntryExistElseCase(RecRef: RecordRef; Variant: Variant)
+    begin
+    end;
 }
