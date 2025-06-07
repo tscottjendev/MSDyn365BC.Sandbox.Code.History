@@ -65,6 +65,7 @@ codeunit 6104 "Import E-Document Process"
     var
         EDocumentDataStorage: Record "E-Doc. Data Storage";
         FileManagement: Codeunit "File Management";
+        EDocErrorHelper: Codeunit "E-Document Error Helper";
         IStructuredDataType: Interface IStructuredDataType;
         IStructureReceivedEDocument: Interface IStructureReceivedEDocument;
         IFileFormat: Interface IEDocFileFormat;
@@ -90,6 +91,8 @@ codeunit 6104 "Import E-Document Process"
             EDocumentLog.SetBlob(Name, IStructuredDataType.GetFileFormat(), IStructuredDataType.GetContent());
             EDocumentLog.InsertLog();
             EDocument."Structured Data Entry No." := EDocumentLog.GetLog()."E-Doc. Data Storage Entry No.";
+            if EDocument."Structured Data Entry No." = 0 then
+                EDocErrorHelper.LogWarningMessage(EDocument, EDocument, EDocument.FieldNo("Structured Data Entry No."), NoStructuredDataErr);
         end
         else
             EDocument."Structured Data Entry No." := EDocument."Unstructured Data Entry No.";
@@ -110,9 +113,8 @@ codeunit 6104 "Import E-Document Process"
         FromBlob: Codeunit "Temp Blob";
         IStructuredFormatReader: Interface IStructuredFormatReader;
     begin
-        EDocument.TestField("Structured Data Entry No.");
-        EDocumentDataStorage.Get(EDocument."Structured Data Entry No.");
-        FromBlob := EDocumentDataStorage.GetTempBlob();
+        if EDocumentDataStorage.Get(EDocument."Structured Data Entry No.") then
+            FromBlob := EDocumentDataStorage.GetTempBlob();
 
         // If at this point the E-Document does not have a Read into Draft implementation, we take the one specified by the E-Document service
         if EDocument."Read into Draft Impl." = "E-Doc. Read into Draft"::Unspecified then
@@ -318,5 +320,6 @@ codeunit 6104 "Import E-Document Process"
         UndoStep: Boolean;
         AIGeneratedContentTxt: Label 'Data was read from a PDF - check for accuracy. AI-generated content may be incorrect.​';
         TermsAndConditionsTxt: Label 'Terms and Conditions';
+        NoStructuredDataErr: Label 'No structured data is associated with this E-Document. Verify that the source document is in valid format.';
         TermsAndConditionsHyperlinkTxt: Label 'https://www.microsoft.com/en-us/business-applications/legal/supp-powerplatform-preview', Locked = true;
 }

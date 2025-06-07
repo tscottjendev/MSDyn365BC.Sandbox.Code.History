@@ -19,7 +19,10 @@ codeunit 6174 "E-Document ADI Handler" implements IStructureReceivedEDocument, I
     Access = Internal;
 
     var
+        EDocumentJsonHelper: Codeunit "EDocument Json Helper";
         StructuredData: Text;
+        FileFormat: Enum "E-Doc. File Format";
+        ReadIntoDraftImpl: Enum "E-Doc. Read into Draft";
 
     procedure StructureReceivedEDocument(EDocumentDataStorage: Record "E-Doc. Data Storage"): Interface IStructuredDataType
     var
@@ -39,12 +42,20 @@ codeunit 6174 "E-Document ADI Handler" implements IStructureReceivedEDocument, I
         FromTempBlob.CreateInStream(InStream, TextEncoding::UTF8);
         Data := Base64Convert.ToBase64(InStream);
         StructuredData := AzureDocumentIntelligence.AnalyzeInvoice(Data);
+        // If the call to ADI fails the system module will return an empty string, in such case we want to carry on with a blank draft
+        if StructuredData = '' then begin
+            FileFormat := "E-Doc. File Format"::Unspecified;
+            ReadIntoDraftImpl := "E-Doc. Read into Draft"::"Blank Draft";
+        end else begin
+            FileFormat := "E-Doc. File Format"::JSON;
+            ReadIntoDraftImpl := "E-Doc. Read into Draft"::ADI;
+        end;
         exit(this);
     end;
 
     procedure GetFileFormat(): Enum "E-Doc. File Format"
     begin
-        exit("E-Doc. File Format"::JSON);
+        exit(this.FileFormat);
     end;
 
     procedure GetContent(): Text
@@ -54,7 +65,7 @@ codeunit 6174 "E-Document ADI Handler" implements IStructureReceivedEDocument, I
 
     procedure GetReadIntoDraftImpl(): Enum "E-Doc. Read into Draft"
     begin
-        exit("E-Doc. Read into Draft"::ADI);
+        exit(this.ReadIntoDraftImpl);
     end;
 
     procedure ReadIntoDraft(EDocument: Record "E-Document"; TempBlob: Codeunit "Temp Blob"): Enum "E-Doc. Process Draft"
@@ -182,8 +193,4 @@ codeunit 6174 "E-Document ADI Handler" implements IStructureReceivedEDocument, I
         TempEDocPurchaseLine."Total Discount" := (TempEDocPurchaseLine."Unit Price" * TempEDocPurchaseLine.Quantity) - TempEDocPurchaseLine."Sub Total";
     end;
 #pragma warning restore AA0139
-
-    var
-        EDocumentJsonHelper: Codeunit "EDocument Json Helper";
-
 }
