@@ -47,6 +47,7 @@ codeunit 60 "Sales-Calc. Discount"
         ChargeBase: Decimal;
         CurrencyDate: Date;
         UpdateHeader: Boolean;
+        CustInvDiscFound: Boolean;
 
 #pragma warning disable AA0074
         Text000: Label 'Service Charge';
@@ -115,11 +116,10 @@ codeunit 60 "Sales-Calc. Discount"
         else
             CurrencyDate := SalesHeader."Posting Date";
 
-        CustInvDisc.GetRec(
-          SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, ChargeBase);
+        CustInvDiscFound := CustInvDisc.GetRecord(SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, ChargeBase);
 
         OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(CustInvDisc, SalesHeader, CurrencyDate, ChargeBase);
-        if CustInvDisc."Service Charge" <> 0 then begin
+        if CustInvDiscFound and (CustInvDisc."Service Charge" <> 0) then begin
             OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(CustPostingGr);
             Currency.Initialize(SalesHeader."Currency Code");
             if not UpdateHeader then
@@ -182,7 +182,7 @@ codeunit 60 "Sales-Calc. Discount"
             ShouldGetCustInvDisc := InvDiscBase <> ChargeBase;
             OnAfterCustInvDiscRecExists(SalesHeader, CustInvDisc, InvDiscBase, ChargeBase, ShouldGetCustInvDisc);
             if ShouldGetCustInvDisc then
-                CustInvDisc.GetRec(
+                CustInvDisc.GetRecord(
                   SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, InvDiscBase);
 
             DiscountNotificationMgt.NotifyAboutMissingSetup(
