@@ -3348,6 +3348,7 @@ table 27 Item
         NonAdjustedItemLedgEntryExists: Boolean;
         NonAdjustedAvgCostAdjmtEntryPointExists: Boolean;
         NonAdjustedInventoryAdjmtEntryOrderExists: Boolean;
+        CostIsAdjusted: Boolean;
     begin
         ItemLedgerEntry.SetRange("Item No.", "No.");
         ItemLedgerEntry.SetRange("Applied Entry to Adjust", true);
@@ -3366,8 +3367,11 @@ table 27 Item
         InventoryAdjmtEntryOrder.SetRange("Is Finished", true);
         NonAdjustedInventoryAdjmtEntryOrderExists := NonAdjustedInventoryAdjmtEntryOrderExists or not InventoryAdjmtEntryOrder.IsEmpty();
 
-        "Cost is Adjusted" := not (NonAdjustedItemLedgEntryExists or NonAdjustedAvgCostAdjmtEntryPointExists or NonAdjustedInventoryAdjmtEntryOrderExists);
-        Modify();
+        CostIsAdjusted := not (NonAdjustedItemLedgEntryExists or NonAdjustedAvgCostAdjmtEntryPointExists or NonAdjustedInventoryAdjmtEntryOrderExists);
+        if CostIsAdjusted <> "Cost is Adjusted" then begin
+            "Cost is Adjusted" := CostIsAdjusted;
+            Modify();
+        end;
     end;
 
     procedure UpdateReplenishmentSystem() Result: Boolean
