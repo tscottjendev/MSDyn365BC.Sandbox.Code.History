@@ -16,6 +16,7 @@ codeunit 137103 "Cost Adjustment Parallel Run"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         Initialized: Boolean;
@@ -766,6 +767,528 @@ codeunit 137103 "Cost Adjustment Parallel Run"
         UnbindSubscription(this);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure AssemblyPost_ComponentAdjustedButNotAssemblyItem()
+    var
+        AssemblyItem1, AssemblyItem2 : Record Item;
+        ComponentItem1, ComponentItem2 : Record Item;
+        AssemblyHeader1, AssemblyHeader2 : Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Automatic Cost Adjustment is set to Never.
+        SetAutomaticCostAdjustment(false);
+
+        // [GIVEN] Create 2 assembly items and 2 component items
+        LibraryInventory.CreateItem(AssemblyItem1);
+        AssemblyItem1.Validate("Replenishment System", AssemblyItem1."Replenishment System"::Assembly);
+        AssemblyItem1.Modify(true);
+        LibraryInventory.CreateItem(ComponentItem1);
+
+        LibraryInventory.CreateItem(AssemblyItem2);
+        AssemblyItem2.Validate("Replenishment System", AssemblyItem2."Replenishment System"::Assembly);
+        AssemblyItem2.Modify(true);
+        LibraryInventory.CreateItem(ComponentItem2);
+
+        // [GIVEN] Post inventory for all items
+        PostItemJournalLine(AssemblyItem1."No.", 10, 10.0, WorkDate());
+        PostItemJournalLine(ComponentItem1."No.", 10, 10.0, WorkDate());
+        PostItemJournalLine(AssemblyItem2."No.", 10, 10.0, WorkDate());
+        PostItemJournalLine(ComponentItem2."No.", 10, 10.0, WorkDate());
+
+        // [GIVEN] Post assembly orders for both pairs
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader1, WorkDate(), AssemblyItem1."No.", '', 1, '');
+        LibraryAssembly.CreateAssemblyLine(
+            AssemblyHeader1, AssemblyLine, "BOM Component Type"::Item, ComponentItem1."No.", ComponentItem1."Base Unit of Measure", 1, 1, '');
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader1, '');
+
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader2, WorkDate(), AssemblyItem2."No.", '', 1, '');
+        LibraryAssembly.CreateAssemblyLine(
+            AssemblyHeader2, AssemblyLine, "BOM Component Type"::Item, ComponentItem2."No.", ComponentItem2."Base Unit of Measure", 1, 1, '');
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader2, '');
+
+        // [GIVEN] Set Automatic Cost Adjustment to Always.
+        SetAutomaticCostAdjustment(true);
+
+        // [WHEN] Create and post another assembly order for the first pair
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader1, WorkDate(), AssemblyItem1."No.", '', 1, '');
+        LibraryAssembly.CreateAssemblyLine(
+            AssemblyHeader1, AssemblyLine, "BOM Component Type"::Item, ComponentItem1."No.", ComponentItem1."Base Unit of Measure", 1, 1, '');
+
+        BindSubscription(this);
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader1, '');
+
+        // [THEN] Component item is adjusted, but assembly item is not adjusted yet
+        ComponentItem1.Get(ComponentItem1."No.");
+        ComponentItem1.TestField("Cost is Adjusted", true);
+        AssemblyItem1.Get(AssemblyItem1."No.");
+        AssemblyItem1.TestField("Cost is Adjusted", false);
+
+        // [THEN] Second pair items are not adjusted
+        ComponentItem2.Get(ComponentItem2."No.");
+        ComponentItem2.TestField("Cost is Adjusted", false);
+        AssemblyItem2.Get(AssemblyItem2."No.");
+        AssemblyItem2.TestField("Cost is Adjusted", false);
+
+        // [WHEN] Post anything for the assembly item
+        PostItemJournalLine(AssemblyItem1."No.", 1, 10.0, WorkDate());
+
+        // [THEN] Assembly item is now adjusted
+        AssemblyItem1.Get(AssemblyItem1."No.");
+        AssemblyItem1.TestField("Cost is Adjusted", true);
+
+        UnbindSubscription(this);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure AssembleToOrder_OnlyProcessPostedItemsInAutomaticCostAdjustment()
+    var
+        AssemblyItem, ComponentItem, ThirdItem : Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        BOMComponent: Record "BOM Component";
+    begin
+        Initialize();
+
+        // [GIVEN] Automatic Cost Adjustment is set to Never.
+        SetAutomaticCostAdjustment(false);
+
+        // [GIVEN] Create assemble-to-order assembly item, component item, and third item
+        LibraryInventory.CreateItem(AssemblyItem);
+        AssemblyItem.Validate("Replenishment System", AssemblyItem."Replenishment System"::Assembly);
+        AssemblyItem.Validate("Assembly Policy", AssemblyItem."Assembly Policy"::"Assemble-to-Order");
+        AssemblyItem.Modify(true);
+
+        LibraryInventory.CreateItem(ComponentItem);
+        LibraryInventory.CreateItem(ThirdItem);
+
+        // [GIVEN] Create BOM component for assembly item
+        LibraryAssembly.CreateAssemblyListComponent(
+            BOMComponent.Type::Item, ComponentItem."No.", AssemblyItem."No.", '', BOMComponent."Resource Usage Type", 1, true);
+
+        // [GIVEN] Post inventory for all items
+        PostItemJournalLine(AssemblyItem."No.", 10, 10.0, WorkDate());
+        PostItemJournalLine(ComponentItem."No.", 10, 10.0, WorkDate());
+        PostItemJournalLine(ThirdItem."No.", 10, 10.0, WorkDate());
+
+        // [GIVEN] Create and post sales order for assembly item
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AssemblyItem."No.", 1);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Set Automatic Cost Adjustment to Always.
+        SetAutomaticCostAdjustment(true);
+
+        // [WHEN] Create and post another sales order for assembly item
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AssemblyItem."No.", 1);
+
+        BindSubscription(this);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Assembly item and component are adjusted
+        AssemblyItem.Get(AssemblyItem."No.");
+        AssemblyItem.TestField("Cost is Adjusted", true);
+        ComponentItem.Get(ComponentItem."No.");
+        ComponentItem.TestField("Cost is Adjusted", true);
+
+        // [THEN] Third item is not adjusted
+        ThirdItem.Get(ThirdItem."No.");
+        ThirdItem.TestField("Cost is Adjusted", false);
+
+        UnbindSubscription(this);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure PartialAssemblyPost_OnlyProcessPostedItemsInAutomaticCostAdjustment()
+    var
+        AssemblyItem, ComponentItem : Record Item;
+        AssemblyHeader: Record "Assembly Header";
+        BOMComponent: Record "BOM Component";
+    begin
+        Initialize();
+
+        // [GIVEN] Automatic Cost Adjustment is set to Never.
+        SetAutomaticCostAdjustment(false);
+
+        // [GIVEN] Create assembly item and component item
+        LibraryInventory.CreateItem(AssemblyItem);
+        AssemblyItem.Validate("Replenishment System", AssemblyItem."Replenishment System"::Assembly);
+        AssemblyItem.Modify(true);
+
+        LibraryInventory.CreateItem(ComponentItem);
+
+        // [GIVEN] Create BOM component for assembly item
+        LibraryAssembly.CreateAssemblyListComponent(
+            BOMComponent.Type::Item, ComponentItem."No.", AssemblyItem."No.", '', BOMComponent."Resource Usage Type", 1, true);
+
+        // [GIVEN] Post inventory for both items
+        PostItemJournalLine(AssemblyItem."No.", 10, 10.0, WorkDate());
+        PostItemJournalLine(ComponentItem."No.", 10, 10.0, WorkDate());
+
+        // [GIVEN] Set Automatic Cost Adjustment to Always.
+        SetAutomaticCostAdjustment(true);
+
+        // [GIVEN] Create assembly order for 5 pieces
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), AssemblyItem."No.", '', 5, '');
+
+        // [WHEN] Partially post assembly order (3 pieces)
+        AssemblyHeader.Validate("Quantity to Assemble", 3);
+        AssemblyHeader.Modify(true);
+
+        BindSubscription(this);
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [THEN] Both items are adjusted
+        AssemblyItem.Get(AssemblyItem."No.");
+        AssemblyItem.TestField("Cost is Adjusted", true);
+        ComponentItem.Get(ComponentItem."No.");
+        ComponentItem.TestField("Cost is Adjusted", true);
+
+        UnbindSubscription(this);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ConfirmHandler,MessageHandler')]
+    procedure ProductionPost_OnlyProcessPostedItemsInAutomaticCostAdjustment()
+    var
+        Item: Record Item;
+        ProdItem1, ProdItem2 : Record Item;
+        CompItem1, CompItem2 : Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Automatic Cost Adjustment is set to Never.
+        SetAutomaticCostAdjustment(false);
+
+        // [GIVEN] Create 2 production items and 2 component items
+        LibraryInventory.CreateItem(ProdItem1);
+        ProdItem1.Validate("Replenishment System", ProdItem1."Replenishment System"::"Prod. Order");
+        ProdItem1.Modify(true);
+
+        LibraryInventory.CreateItem(ProdItem2);
+        ProdItem2.Validate("Replenishment System", ProdItem2."Replenishment System"::"Prod. Order");
+        ProdItem2.Modify(true);
+
+        LibraryInventory.CreateItem(CompItem1);
+        LibraryInventory.CreateItem(CompItem2);
+
+        // [GIVEN] Create production BOM for first production item with first component
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItem1."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem1."No.", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+        ProdItem1.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem1.Modify(true);
+
+        // [GIVEN] Post inventory for all items
+        PostItemJournalLine(ProdItem1."No.", 10, 10.0, WorkDate());
+        PostItemJournalLine(ProdItem2."No.", 10, 10.0, WorkDate());
+        PostItemJournalLine(CompItem1."No.", 10, 10.0, WorkDate());
+        PostItemJournalLine(CompItem2."No.", 10, 10.0, WorkDate());
+
+        // [GIVEN] Create and refresh production order for first pair, post production journal.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem1."No.", 1);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        FindProdOrderLine(ProdOrderLine, ProductionOrder);
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Set Automatic Cost Adjustment to Always.
+        SetAutomaticCostAdjustment(true);
+
+        // [WHEN] Finish the production order with enabled Concurrent Inventory Posting feature.
+        BindSubscription(this);
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] Automatic Cost Adjustment has been run for the first production item and first component.
+        Item.Get(ProdItem1."No.");
+        Item.TestField("Cost is Adjusted", true);
+        Item.Get(CompItem1."No.");
+        Item.TestField("Cost is Adjusted", true);
+
+        // [THEN] Automatic Cost Adjustment has not been run for the second production item and second component.
+        Item.Get(ProdItem2."No.");
+        Item.TestField("Cost is Adjusted", false);
+        Item.Get(CompItem2."No.");
+        Item.TestField("Cost is Adjusted", false);
+
+        UnbindSubscription(this);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ConfirmHandler,MessageHandler')]
+    procedure ProductionPost_ComponentAdjustedButNotProductionItem()
+    var
+        Item: Record Item;
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionOrder1, ProductionOrder2 : Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Automatic Cost Adjustment is set to Never.
+        SetAutomaticCostAdjustment(false);
+
+        // [GIVEN] Create production item and component item
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Modify(true);
+
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create production BOMs for each production item with respective component
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, CompItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Post inventory for all items
+        PostItemJournalLine(ProdItem."No.", 10, 10.0, WorkDate());
+        PostItemJournalLine(CompItem."No.", 10, 10.0, WorkDate());
+
+        // [GIVEN] Create and refresh two production orders, post production journals
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder1, ProductionOrder1.Status::Released, ProductionOrder1."Source Type"::Item, ProdItem."No.", 1);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder1, false, true, true, true, false);
+        FindProdOrderLine(ProdOrderLine, ProductionOrder1);
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder1, ProdOrderLine."Line No.");
+
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder2, ProductionOrder2.Status::Released, ProductionOrder2."Source Type"::Item, ProdItem."No.", 1);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder2, false, true, true, true, false);
+        FindProdOrderLine(ProdOrderLine, ProductionOrder2);
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder2, ProdOrderLine."Line No.");
+
+        // [GIVEN] Finish first production order
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder1."No.");
+
+        // [GIVEN] Set Automatic Cost Adjustment to Always.
+        SetAutomaticCostAdjustment(true);
+
+        // [WHEN] Finish second production order with enabled Concurrent Inventory Posting feature.
+        BindSubscription(this);
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder2."No.");
+
+        // [THEN] Component item is adjusted, but production item is not adjusted yet
+        Item.Get(CompItem."No.");
+        Item.TestField("Cost is Adjusted", true);
+        Item.Get(ProdItem."No.");
+        Item.TestField("Cost is Adjusted", false);
+
+        // [THEN] Post anything for the production item
+        PostItemJournalLine(ProdItem."No.", 1, 10.0, WorkDate());
+
+        // [THEN] Production item is now adjusted
+        Item.Get(ProdItem."No.");
+        Item.TestField("Cost is Adjusted", true);
+
+        UnbindSubscription(this);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ConfirmHandler,MessageHandler')]
+    procedure ProductionPost_MultipleProductionItemsAllPosted()
+    var
+        Item: Record Item;
+        ProdItem1, ProdItem2 : Record Item;
+        CompItem1, CompItem2 : Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionBOMHeader1, ProductionBOMHeader2 : Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Automatic Cost Adjustment is set to Never.
+        SetAutomaticCostAdjustment(false);
+
+        // [GIVEN] Create 2 production items and 2 component items
+        LibraryInventory.CreateItem(ProdItem1);
+        ProdItem1.Validate("Replenishment System", ProdItem1."Replenishment System"::"Prod. Order");
+        ProdItem1.Modify(true);
+
+        LibraryInventory.CreateItem(ProdItem2);
+        ProdItem2.Validate("Replenishment System", ProdItem2."Replenishment System"::"Prod. Order");
+        ProdItem2.Modify(true);
+
+        LibraryInventory.CreateItem(CompItem1);
+        LibraryInventory.CreateItem(CompItem2);
+
+        // [GIVEN] Create production BOMs where each production item has both components
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader1, CompItem1."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader1, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem1."No.", 1);
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader1, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem2."No.", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader1, ProductionBOMHeader1.Status::Certified);
+        ProdItem1.Validate("Production BOM No.", ProductionBOMHeader1."No.");
+        ProdItem1.Modify(true);
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader2, CompItem1."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader2, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem1."No.", 1);
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader2, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem2."No.", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader2, ProductionBOMHeader2.Status::Certified);
+        ProdItem2.Validate("Production BOM No.", ProductionBOMHeader2."No.");
+        ProdItem2.Modify(true);
+
+        // [GIVEN] Post inventory for all items
+        PostItemJournalLine(ProdItem1."No.", 10, 10.0, WorkDate());
+        PostItemJournalLine(ProdItem2."No.", 10, 10.0, WorkDate());
+        PostItemJournalLine(CompItem1."No.", 20, 10.0, WorkDate());
+        PostItemJournalLine(CompItem2."No.", 20, 10.0, WorkDate());
+
+        // [GIVEN] Create and refresh production order with two production order lines
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem1."No.", 1);
+        LibraryManufacturing.CreateProdOrderLine(
+            ProdOrderLine, ProductionOrder.Status::Released, ProductionOrder."No.", ProdItem1."No.", '', '', 1);
+        LibraryManufacturing.CreateProdOrderLine(
+            ProdOrderLine, ProductionOrder.Status::Released, ProductionOrder."No.", ProdItem2."No.", '', '', 1);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, true, true, false);
+
+        // [GIVEN] Post production journal for each line
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindSet();
+        repeat
+            LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+        until ProdOrderLine.Next() = 0;
+
+        // [GIVEN] Set Automatic Cost Adjustment to Always.
+        SetAutomaticCostAdjustment(true);
+
+        // [WHEN] Finish the production order with enabled Concurrent Inventory Posting feature.
+        BindSubscription(this);
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] Automatic Cost Adjustment has been run for all items.
+        Item.Get(ProdItem1."No.");
+        Item.TestField("Cost is Adjusted", true);
+        Item.Get(ProdItem2."No.");
+        Item.TestField("Cost is Adjusted", true);
+        Item.Get(CompItem1."No.");
+        Item.TestField("Cost is Adjusted", true);
+        Item.Get(CompItem2."No.");
+        Item.TestField("Cost is Adjusted", true);
+
+        UnbindSubscription(this);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ConfirmHandler,MessageHandler')]
+    procedure ProductionPost_MultipleProductionItemsPartiallyPosted()
+    var
+        Item: Record Item;
+        ProdItem1, ProdItem2 : Record Item;
+        CompItem1, CompItem2 : Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionBOMHeader1, ProductionBOMHeader2 : Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Automatic Cost Adjustment is set to Never.
+        SetAutomaticCostAdjustment(false);
+
+        // [GIVEN] Create 2 production items and 2 component items
+        LibraryInventory.CreateItem(ProdItem1);
+        ProdItem1.Validate("Replenishment System", ProdItem1."Replenishment System"::"Prod. Order");
+        ProdItem1.Modify(true);
+
+        LibraryInventory.CreateItem(ProdItem2);
+        ProdItem2.Validate("Replenishment System", ProdItem2."Replenishment System"::"Prod. Order");
+        ProdItem2.Modify(true);
+
+        LibraryInventory.CreateItem(CompItem1);
+        LibraryInventory.CreateItem(CompItem2);
+
+        // [GIVEN] Create production BOMs where each production item has both components
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader1, CompItem1."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader1, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem1."No.", 1);
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader1, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem2."No.", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader1, ProductionBOMHeader1.Status::Certified);
+        ProdItem1.Validate("Production BOM No.", ProductionBOMHeader1."No.");
+        ProdItem1.Modify(true);
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader2, CompItem1."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader2, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem1."No.", 1);
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader2, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem2."No.", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader2, ProductionBOMHeader2.Status::Certified);
+        ProdItem2.Validate("Production BOM No.", ProductionBOMHeader2."No.");
+        ProdItem2.Modify(true);
+
+        // [GIVEN] Post inventory for all items
+        PostItemJournalLine(ProdItem1."No.", 10, 10.0, WorkDate());
+        PostItemJournalLine(ProdItem2."No.", 10, 10.0, WorkDate());
+        PostItemJournalLine(CompItem1."No.", 20, 10.0, WorkDate());
+        PostItemJournalLine(CompItem2."No.", 20, 10.0, WorkDate());
+
+        // [GIVEN] Create and refresh production order with two production order lines
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem1."No.", 1);
+        LibraryManufacturing.CreateProdOrderLine(
+            ProdOrderLine, ProductionOrder.Status::Released, ProductionOrder."No.", ProdItem1."No.", '', '', 1);
+        LibraryManufacturing.CreateProdOrderLine(
+            ProdOrderLine, ProductionOrder.Status::Released, ProductionOrder."No.", ProdItem2."No.", '', '', 1);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, true, true, false);
+
+        // [GIVEN] Post production journal only for the first production order line
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", ProdItem1."No.");
+        ProdOrderLine.FindFirst();
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Set Automatic Cost Adjustment to Always.
+        SetAutomaticCostAdjustment(true);
+
+        // [WHEN] Finish the production order with enabled Concurrent Inventory Posting feature.
+        BindSubscription(this);
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] Automatic Cost Adjustment has been run for the posted production item and both components.
+        Item.Get(ProdItem1."No.");
+        Item.TestField("Cost is Adjusted", true);
+        Item.Get(CompItem1."No.");
+        Item.TestField("Cost is Adjusted", true);
+        Item.Get(CompItem2."No.");
+        Item.TestField("Cost is Adjusted", true);
+
+        // [THEN] Automatic Cost Adjustment has not been run for the second production item.
+        Item.Get(ProdItem2."No.");
+        Item.TestField("Cost is Adjusted", false);
+
+        UnbindSubscription(this);
+    end;
+
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
+    begin
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+    end;
+
     local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; LowLevelCode: Integer)
     begin
         LibraryInventory.CreateItem(Item);
@@ -821,5 +1344,11 @@ codeunit 137103 "Cost Adjustment Parallel Run"
     [MessageHandler]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [ModalPageHandler]
+    procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.Post.Invoke();
     end;
 }
