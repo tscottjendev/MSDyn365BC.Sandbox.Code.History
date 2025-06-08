@@ -224,7 +224,7 @@ codeunit 900 "Assembly-Post"
     begin
         OnBeforeFinalizePost(AssemblyHeader);
 
-        MakeInventoryAdjustment();
+        MakeInventoryAdjustment(AssemblyHeader);
 
         if not PreviewMode then
             DeleteAssemblyDocument(AssemblyHeader);
@@ -1490,6 +1490,16 @@ codeunit 900 "Assembly-Post"
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
     begin
         InvtAdjmtHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust);
+    end;
+
+    local procedure MakeInventoryAdjustment(AssemblyHeader: Record "Assembly Header")
+    var
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+    begin
+        InventoryAdjmtEntryOrder.SetRange("Order Type", InventoryAdjmtEntryOrder."Order Type"::Assembly);
+        InventoryAdjmtEntryOrder.SetRange("Order No.", AssemblyHeader."No.");
+        InvtAdjmtHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust, InventoryAdjmtEntryOrder);
     end;
 
     local procedure DeleteWhseRequest(AssemblyHeader: Record "Assembly Header")
