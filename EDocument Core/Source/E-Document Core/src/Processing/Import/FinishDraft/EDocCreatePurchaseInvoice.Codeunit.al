@@ -56,8 +56,9 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         PurchaseHeader.Delete(true);
     end;
 
-    procedure CreatePurchaseInvoice(EDocument: Record "E-Document") PurchaseHeader: Record "Purchase Header"
+    procedure CreatePurchaseInvoice(EDocument: Record "E-Document"): Record "Purchase Header"
     var
+        PurchaseHeader: Record "Purchase Header";
         GLSetup: Record "General Ledger Setup";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
@@ -72,8 +73,6 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         PurchaseHeader.SetRange("Buy-from Vendor No.", EDocumentPurchaseHeader."[BC] Vendor No."); // Setting the filter, so that the insert trigger assigns the right vendor to the purchase header
         PurchaseHeader."Document Type" := "Purchase Document Type"::Invoice;
         PurchaseHeader."Pay-to Vendor No." := EDocumentPurchaseHeader."[BC] Vendor No.";
-        PurchaseHeader."Document Date" := EDocumentPurchaseHeader."Document Date";
-        PurchaseHeader."Due Date" := EDocumentPurchaseHeader."Due Date";
 
         VendorInvoiceNo := CopyStr(EDocumentPurchaseHeader."Sales Invoice No.", 1, MaxStrLen(PurchaseHeader."Vendor Invoice No."));
         VendorLedgerEntry.SetLoadFields("Entry No.");
@@ -86,6 +85,10 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
 
         PurchaseHeader.Validate("Vendor Invoice No.", VendorInvoiceNo);
         PurchaseHeader.Insert(true);
+
+        PurchaseHeader."Due Date" := EDocumentPurchaseHeader."Due Date";
+        PurchaseHeader."Document Date" := EDocumentPurchaseHeader."Document Date";
+        PurchaseHeader.Modify();
 
         // Validate of currency has to happen after insert.
         GLSetup.GetRecordOnce();
@@ -127,6 +130,8 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
                 EDocumentPurchaseHistMapping.TrackRecord(EDocument, EDocumentPurchaseLine, PurchaseLine);
 
             until EDocumentPurchaseLine.Next() = 0;
+
+        exit(PurchaseHeader);
     end;
 
 }

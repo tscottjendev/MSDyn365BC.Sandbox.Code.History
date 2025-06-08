@@ -97,13 +97,25 @@ page 6181 "E-Document Purchase Draft"
                         Caption = 'Document No.';
                         ToolTip = 'Specifies the extracted ID for this specific document.';
                         Editable = true;
+
+                        trigger OnValidate()
+                        begin
+                            EDocumentPurchaseHeader.Modify();
+                            CurrPage.Update();
+                        end;
                     }
-                    field("Document Date"; EDocumentPurchaseHeader."Invoice Date")
+                    field("Document Date"; EDocumentPurchaseHeader."Document Date")
                     {
                         Caption = 'Document Date';
                         ToolTip = 'Specifies the extracted document date.';
                         Importance = Promoted;
                         Editable = true;
+
+                        trigger OnValidate()
+                        begin
+                            EDocumentPurchaseHeader.Modify();
+                            CurrPage.Update();
+                        end;
                     }
                     field("Due Date"; EDocumentPurchaseHeader."Due Date")
                     {
@@ -111,6 +123,12 @@ page 6181 "E-Document Purchase Draft"
                         Caption = 'Due Date';
                         ToolTip = 'Specifies the extracted due date.';
                         Editable = true;
+
+                        trigger OnValidate()
+                        begin
+                            EDocumentPurchaseHeader.Modify();
+                            CurrPage.Update();
+                        end;
                     }
                 }
                 field("Status"; Rec.Status)
