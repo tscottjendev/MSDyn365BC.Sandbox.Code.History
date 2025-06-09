@@ -10,7 +10,9 @@ using Microsoft.eServices.EDocument.Processing.Interfaces;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Posting;
 using System.Telemetry;
+using Microsoft.Foundation.Attachment;
 
 /// <summary>
 /// Dealing with the creation of the purchase invoice after the draft has been populated.
@@ -21,12 +23,14 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
 
     var
         Telemetry: Codeunit "Telemetry";
+        EDocImpSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
         InvoiceAlreadyExistsErr: Label 'A purchase invoice with external document number %1 already exists for vendor %2.', Comment = '%1 = Vendor Invoice No., %2 = Vendor No.';
 
     procedure ApplyDraftToBC(EDocument: Record "E-Document"; EDocImportParameters: Record "E-Doc. Import Parameters"): RecordId
     var
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         PurchaseHeader: Record "Purchase Header";
+        DocumentAttachmentMgt: Codeunit "Document Attachment Mgmt";
         IEDocumentFinishPurchaseDraft: Interface IEDocumentCreatePurchaseInvoice;
     begin
         EDocumentPurchaseHeader.GetFromEDocument(EDocument);
@@ -40,6 +44,13 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         PurchaseHeader.TestField("No.");
         PurchaseHeader."E-Document Link" := EDocument.SystemId;
         PurchaseHeader.Modify();
+
+        // Post document creation
+        DocumentAttachmentMgt.CopyAttachments(EDocument, PurchaseHeader);
+
+        // Post document validation - Silently emit telemetry
+        if not TryValidateDocumentTotals(PurchaseHeader) then
+            EDocImpSessionTelemetry.SetBool('Totals Validation Failed', true);
 
         exit(PurchaseHeader.RecordId);
     end;
@@ -132,6 +143,16 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
             until EDocumentPurchaseLine.Next() = 0;
 
         exit(PurchaseHeader);
+
+    end;
+
+    [TryFunction]
+    local procedure TryValidateDocumentTotals(PurchaseHeader: Record "Purchase Header")
+    var
+        PurchPost: Codeunit "Purch.-Post";
+    begin
+        // If document totals are setup, we just run the validation
+        PurchPost.CheckDocumentTotalAmounts(PurchaseHeader);
     end;
 
 }

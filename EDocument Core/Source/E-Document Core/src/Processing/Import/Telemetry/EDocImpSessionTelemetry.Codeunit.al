@@ -40,7 +40,7 @@ codeunit 6122 "E-Doc. Imp. Session Telemetry"
     var
         Telemetry: Codeunit "Telemetry";
         K: Guid;
-        LK, LV : Text;
+        LK, LV, SystemID : Text;
         LineDataEntry: Dictionary of [Text, Text];
     begin
         foreach K in LineData.Keys() do begin
@@ -55,6 +55,10 @@ codeunit 6122 "E-Doc. Imp. Session Telemetry"
             end;
         end;
 
+        SystemID := Format(EDocument.SystemId);
+        SystemID := SystemID.Replace('}', '');
+        SystemID := SystemID.Replace('{', '');
+        Data.Set('E-Document System Id', SystemID);
         Telemetry.LogMessage('0000PJD', 'E-Document Import Session Run', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Data);
         if UnbindSubscription(this) then;
         Clear(Data);
